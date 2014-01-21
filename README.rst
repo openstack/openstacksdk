@@ -17,5 +17,5 @@ Example:
     server = client.compute.servers.create(image=image)
     print server.public_ips[0]
 
-    container = client.object_storage.container.create(name='stuff')
+    container = client.object_storage.containers.create(name='stuff')
     container.objects.create(name='a thing', contents=io.BytesIO(b'all the bytes'))
