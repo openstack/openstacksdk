@@ -1,6 +1,8 @@
 An OpenStack all-in-one SDK
 ===========================
 
+Notes and mockups for a unified OpenStack SDK.
+
 Example:
 
 .. code-block:: python
