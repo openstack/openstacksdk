@@ -23,6 +23,4 @@ from openstack.tests import base
 
 
 class TestOpenstack(base.TestCase):
-
-    def test_something(self):
-        pass
+    pass
