@@ -128,7 +128,7 @@ methods:
 * ``update(obj, **kwargs)``: Updates an existing resource with the supplied values.
 * ``delete(obj)``: Deletes an existing resource.
 
-Additonally, clients have methods to handle all of the interaction you will
+Additionally, clients have methods to handle all of the interaction you will
 need with the API.
 
 ----------------------
