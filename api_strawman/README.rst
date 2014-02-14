@@ -13,12 +13,12 @@ Example:
 
 
     client = OpenStackClient(KeystoneAuth('http://localhost:8000/', 'alex', '****'))
-    image = client.compute.images.list()[0]
-    server = client.compute.servers.create(image=image)
+    image = client.compute.list_images[0]
+    server = client.compute.create_server(image=image)
     print server.public_ips[0]
 
-    container = client.object_storage.containers.create(name='stuff')
-    container.objects.create(name='a thing', contents=io.BytesIO(b'all the bytes'))
+    container = client.object_storage.create_containers(name='stuff')
+    container.create_object(name='a thing', contents=io.BytesIO(b'all the bytes'))
 
 .. code-block:: python
 
