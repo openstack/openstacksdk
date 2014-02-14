@@ -48,13 +48,29 @@ class KeystoneAuth(object):
         auth_response.raise_for_status()
         auth_body = auth_response.json()
         self._auth_token = auth_body["access"]["token"]["id"]
-        self._service_catalog = ServiceCatalog(auth_body["access"]["serviceCatalog"])
+        self._service_catalog = ServiceCatalog(
+            auth_body["access"]["serviceCatalog"]
+        )
+
+    def _handle_request_result(self, response, **kwargs):
+        if response.status_code == 401:
+            # We got an authentication failure, get a new token and try again.
+            self._perform_auth_request()
+            new_request = response.request.copy()
+            new_request.headers["X-Auth-Token"] = self._auth_token
+            new_response = response.connection.send(new_request, **kwargs)
+            new_response.history.append(response)
+            new_response.request = new_request
+            return new_response
+        else:
+            return response
 
     def __call__(self, request):
         if self._auth_token is None:
             self._perform_auth_request()
 
         request.headers['X-Auth-Token'] = self._auth_token
+        request.reigster_hook("response", self._handle_request_result)
         return request
 
     @property
@@ -62,7 +78,6 @@ class KeystoneAuth(object):
         if self._service_catalog is None:
             self._perform_auth_request()
         return self._service_catalog
-
 
 
 class OpenStackClient(object):
@@ -78,13 +93,9 @@ class OpenStackClient(object):
 
     @property
     def storage(self):
-        return StorageClient(self._session, self._service_catalog, self._region)
-
-
-def do(request, session):
-    response = session.request(request.method, request.url, data=request.body)
-    response.raise_for_status()
-    return response
+        return StorageClient(
+            self._session, self._service_catalog, self._region
+        )
 
 
 class CreateContainerRequest(object):
@@ -114,7 +125,8 @@ class CreateObjectRequest(object):
 
     @property
     def url(self):
-        return self._base_url.add_path(self._container_name).add_path(self._object_name)
+        base = self._base_url
+        return base.add_path(self._container_name).add_path(self._object_name)
 
     @property
     def body(self):
@@ -151,7 +163,8 @@ class DeleteObjectRequest(object):
 
     @property
     def url(self):
-        return self._base_url.add_path(self._container_name).add_path(self._object_name)
+        base = self._base_url
+        return base.add_path(self._container_name).add_path(self._object_name)
 
     def parse_response(self, client, body):
         pass
@@ -204,18 +217,25 @@ class Object(object):
 class StorageClient(object):
     def __init__(self, session, service_catalog, region):
         self._session = session
-        self._base_url = service_catalog.find_endpoint_url("object-store", region)
+        self._base_url = service_catalog.find_endpoint_url(
+            "object-store", region
+        )
 
-    def _create_api_caller(cls, body_handler=lambda response: None):
+    def _create_api_caller(request_cls, body_handler=lambda response: None):
         def inner(self, *args, **kwargs):
-            request = cls(self._base_url, *args, **kwargs)
-            response = do(request, self._session)
+            request = request_cls(self._base_url, *args, **kwargs)
+            response = self._session.request(
+                request.method, request.url, data=request.body
+            )
+            response.raise_for_status()
             return request.parse_response(self, body_handler(response))
         return inner
 
     create_container = _create_api_caller(CreateContainerRequest)
     create_object = _create_api_caller(CreateObjectRequest)
-    list_objects = _create_api_caller(ListContainerObjectsRequest, methodcaller("json"))
+    list_objects = _create_api_caller(
+        ListContainerObjectsRequest, methodcaller("json")
+    )
     delete_object = _create_api_caller(DeleteObjectRequest)
     delete_container = _create_api_caller(DeleteContainerRequest)
 
