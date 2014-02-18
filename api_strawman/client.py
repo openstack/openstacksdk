@@ -70,7 +70,7 @@ class KeystoneAuth(object):
             self._perform_auth_request()
 
         request.headers['X-Auth-Token'] = self._auth_token
-        request.reigster_hook("response", self._handle_request_result)
+        request.register_hook("response", self._handle_request_result)
         return request
 
     @property
