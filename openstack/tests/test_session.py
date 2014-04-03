@@ -17,6 +17,8 @@ import six
 import fixtures
 import httpretty
 
+import requests
+
 from openstack import session
 from openstack.tests import base
 
@@ -24,6 +26,7 @@ from openstack.tests import base
 fake_url = 'http://www.root.url'
 fake_request = 'Now is the time...'
 fake_response = 'for the quick brown fox...'
+fake_redirect = 'redirect text'
 
 fake_record1 = {
     'key1': {
@@ -429,3 +432,94 @@ class TestSessionDebug(TestSessionBase):
         for k, v in six.iteritems(headers):
             self.assertIn(k, self.log_fixture.output)
             self.assertIn(v, self.log_fixture.output)
+
+
+class TestSessionRedirects(TestSessionBase):
+
+    REDIRECT_CHAIN = [
+        'http://myhost:3445/',
+        'http://anotherhost:6555/',
+        'http://thirdhost/',
+        'http://finaldestination:55/',
+    ]
+
+    def setup_redirects(
+            self,
+            method=httpretty.GET,
+            status=305,
+            redirect_kwargs={},
+            final_kwargs={},
+    ):
+        redirect_kwargs.setdefault('body', fake_redirect)
+
+        for s, d in zip(self.REDIRECT_CHAIN, self.REDIRECT_CHAIN[1:]):
+            httpretty.register_uri(
+                method,
+                s,
+                status=status,
+                location=d,
+                **redirect_kwargs
+            )
+
+        final_kwargs.setdefault('status', 200)
+        final_kwargs.setdefault('body', fake_response)
+        httpretty.register_uri(method, self.REDIRECT_CHAIN[-1], **final_kwargs)
+
+    @httpretty.activate
+    def test_get_redirect(self):
+        self.setup_redirects()
+        sess = session.Session()
+        resp = sess.get(self.REDIRECT_CHAIN[-2])
+        self.assertResponseOK(resp)
+
+    @httpretty.activate
+    def test_post_keeps_correct_method(self):
+        self.setup_redirects(method=httpretty.POST, status=301)
+        sess = session.Session()
+        resp = sess.post(self.REDIRECT_CHAIN[-2])
+        self.assertResponseOK(resp)
+
+    @httpretty.activate
+    def test_redirect_forever(self):
+        self.setup_redirects()
+        sess = session.Session()
+        resp = sess.get(self.REDIRECT_CHAIN[0])
+        self.assertResponseOK(resp)
+        # Request history length is 1 less than the source chain due to the
+        # last response not being a redirect and not added to the history.
+        self.assertEqual(len(self.REDIRECT_CHAIN) - 1, len(resp.history))
+
+    @httpretty.activate
+    def test_no_redirect(self):
+        self.setup_redirects()
+        sess = session.Session(redirect=False)
+        resp = sess.get(self.REDIRECT_CHAIN[0])
+        self.assertEqual(305, resp.status_code)
+        self.assertEqual(self.REDIRECT_CHAIN[0], resp.url)
+
+    @httpretty.activate
+    def test_redirect_limit(self):
+        self.setup_redirects()
+        for i in (1, 2):
+            sess = session.Session(redirect=i)
+            resp = sess.get(self.REDIRECT_CHAIN[0])
+            self.assertResponseOK(resp, status=305, body=fake_redirect)
+            self.assertEqual(self.REDIRECT_CHAIN[i], resp.url)
+
+    @httpretty.activate
+    def test_history_matches_requests(self):
+        self.setup_redirects(status=301)
+        sess = session.Session(redirect=True)
+        req_resp = requests.get(
+            self.REDIRECT_CHAIN[0],
+            allow_redirects=True,
+        )
+
+        ses_resp = sess.get(self.REDIRECT_CHAIN[0])
+
+        self.assertEqual(type(ses_resp.history), type(req_resp.history))
+        self.assertEqual(len(ses_resp.history), len(req_resp.history))
+
+        for r, s in zip(req_resp.history, ses_resp.history):
+            self.assertEqual(s.url, r.url)
+            self.assertEqual(s.status_code, r.status_code)

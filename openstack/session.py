@@ -38,10 +38,14 @@ class Session(requests.Session):
 
     _user_agent = DEFAULT_USER_AGENT
 
+    REDIRECT_STATUSES = (301, 302, 303, 305, 307)
+    DEFAULT_REDIRECT_LIMIT = 30
+
     def __init__(
             self,
             user_agent=None,
             verify=True,
+            redirect=DEFAULT_REDIRECT_LIMIT,
     ):
         """Wraps requests.Session to add some OpenStack-specific features
 
@@ -51,6 +55,11 @@ class Session(requests.Session):
         :param boolean/string verify: If ``True``, the SSL cert will be
                                       verified. A CA_BUNDLE path can also be
                                       provided.
+        :param boolean/integer redirect: (integer) The maximum number of
+                                         redirections followed in a request.
+                                         (boolean) No redirections if False,
+                                         requests.Session handles redirection
+                                         if True. (optional)
 
         User agent handling is as follows:
 
@@ -65,12 +74,18 @@ class Session(requests.Session):
         if user_agent:
             self._user_agent = user_agent
         self.verify = verify
+        self._redirect = redirect
 
-    def request(self, method, url, **kwargs):
+    def request(self, method, url, redirect=None, **kwargs):
         """Send a request
 
         :param string method: Request HTTP method
         :param string url: Request URL
+        :param boolean/integer redirect: (integer) The maximum number of
+                                         redirections followed in a request.
+                                         (boolean) No redirections if False,
+                                         requests.Session handles redirection
+                                         if True. (optional)
 
         The following additional kw args are supported:
         :param object json: Request body to be encoded as JSON
@@ -101,11 +116,62 @@ class Session(requests.Session):
         else:
             headers.setdefault('User-Agent', DEFAULT_USER_AGENT)
 
+        if redirect is None:
+            redirect = self._redirect
+
+        if isinstance(redirect, bool) and redirect:
+            # Fall back to requests redirect handling
+            kwargs['allow_redirects'] = True
+        else:
+            # Force disable requests redirect handling, we will manage
+            # redirections below
+            kwargs['allow_redirects'] = False
+
         self._log_request(method, url, **kwargs)
+
+        resp = self._send_request(method, url, redirect, **kwargs)
+
+        self._log_response(resp)
+
+        return resp
+
+    def _send_request(self, method, url, redirect, **kwargs):
+        # NOTE(jamielennox): We handle redirection manually because the
+        # requests lib follows some browser patterns where it will redirect
+        # POSTs as GETs for certain statuses which is not want we want for an
+        # API. See: https://en.wikipedia.org/wiki/Post/Redirect/Get
 
         resp = super(Session, self).request(method, url, **kwargs)
 
         self._log_response(resp)
+
+        if resp.status_code in self.REDIRECT_STATUSES:
+            # Be careful here in python True == 1 and False == 0
+            if isinstance(redirect, bool):
+                redirect_allowed = redirect
+            else:
+                redirect -= 1
+                redirect_allowed = redirect >= 0
+
+            if redirect_allowed:
+                try:
+                    location = resp.headers['location']
+                except KeyError:
+                    _logger.warn(
+                        "Redirection from %s failed, no location provided",
+                        resp.url,
+                    )
+                else:
+                    new_resp = self._send_request(
+                        method,
+                        location,
+                        redirect,
+                        **kwargs
+                    )
+
+                    new_resp.history = list(new_resp.history)
+                    new_resp.history.insert(0, resp)
+                    resp = new_resp
 
         return resp
 
