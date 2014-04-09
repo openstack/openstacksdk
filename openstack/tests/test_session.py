@@ -10,24 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
-
 from openstack.auth import service
 from openstack import session
 from openstack.tests import base
 from openstack.tests import fakes
-
-
-class FakeAuthenticator(mock.Mock):
-    TOKEN = 'fake_token'
-    ENDPOINT = 'http://www.example.com/endpoint'
-
-    def __init__(self):
-        super(FakeAuthenticator, self).__init__()
-        self.get_token = mock.Mock()
-        self.get_token.return_value = self.TOKEN
-        self.get_endpoint = mock.Mock()
-        self.get_endpoint.return_value = self.ENDPOINT
 
 
 class TestSession(base.TestCase):
@@ -37,7 +23,7 @@ class TestSession(base.TestCase):
     def setUp(self):
         super(TestSession, self).setUp()
         self.xport = fakes.FakeTransport()
-        self.auth = FakeAuthenticator()
+        self.auth = fakes.FakeAuthenticator()
         self.serv = service.ServiceIdentifier('identity')
         self.sess = session.Session(self.xport, self.auth)
         self.expected = {'headers': {'X-Auth-Token': self.auth.TOKEN}}
