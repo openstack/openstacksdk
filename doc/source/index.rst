@@ -9,5 +9,6 @@ Contents:
    installation
    usage
    contributing
+   glossary
 
 .. include:: ../../README.rst
