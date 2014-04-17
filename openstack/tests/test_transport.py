@@ -19,8 +19,8 @@ import httpretty
 
 import requests
 
-from openstack import session
 from openstack.tests import base
+from openstack import transport
 
 
 fake_url = 'http://www.root.url'
@@ -41,7 +41,7 @@ fake_record2 = {
 }
 
 
-class TestSessionBase(base.TestCase):
+class TestTransportBase(base.TestCase):
 
     def stub_url(self, method, base_url=None, **kwargs):
         if not base_url:
@@ -76,12 +76,12 @@ class TestSessionBase(base.TestCase):
         self.assertEqual(body, resp.text)
 
 
-class TestSession(TestSessionBase):
+class TestTransport(TestTransportBase):
 
     @httpretty.activate
     def test_request(self):
         self.stub_url(httpretty.GET, body=fake_response)
-        sess = session.Session()
+        sess = transport.Transport()
         resp = sess.request('GET', fake_url)
         self.assertEqual(httpretty.GET, httpretty.last_request().method)
         self.assertResponseOK(resp, body=fake_response)
@@ -89,7 +89,7 @@ class TestSession(TestSessionBase):
     @httpretty.activate
     def test_request_json(self):
         self.stub_url(httpretty.GET, json=fake_record1)
-        sess = session.Session()
+        sess = transport.Transport()
         resp = sess.request('GET', fake_url)
         self.assertEqual(httpretty.GET, httpretty.last_request().method)
         self.assertResponseOK(resp, body=json.dumps(fake_record1))
@@ -98,7 +98,7 @@ class TestSession(TestSessionBase):
     @httpretty.activate
     def test_delete(self):
         self.stub_url(httpretty.DELETE, body=fake_response)
-        sess = session.Session()
+        sess = transport.Transport()
         resp = sess.delete(fake_url)
         self.assertEqual(httpretty.DELETE, httpretty.last_request().method)
         self.assertResponseOK(resp, body=fake_response)
@@ -106,7 +106,7 @@ class TestSession(TestSessionBase):
     @httpretty.activate
     def test_get(self):
         self.stub_url(httpretty.GET, body=fake_response)
-        sess = session.Session()
+        sess = transport.Transport()
         resp = sess.get(fake_url)
         self.assertEqual(httpretty.GET, httpretty.last_request().method)
         self.assertResponseOK(resp, body=fake_response)
@@ -114,7 +114,7 @@ class TestSession(TestSessionBase):
     @httpretty.activate
     def test_head(self):
         self.stub_url(httpretty.HEAD, body=fake_response)
-        sess = session.Session()
+        sess = transport.Transport()
         resp = sess.head(fake_url)
         self.assertEqual(httpretty.HEAD, httpretty.last_request().method)
         self.assertResponseOK(resp, body='')
@@ -122,7 +122,7 @@ class TestSession(TestSessionBase):
     @httpretty.activate
     def test_options(self):
         self.stub_url(httpretty.OPTIONS, body=fake_response)
-        sess = session.Session()
+        sess = transport.Transport()
         resp = sess.options(fake_url)
         self.assertEqual(httpretty.OPTIONS, httpretty.last_request().method)
         self.assertResponseOK(resp, body=fake_response)
@@ -130,7 +130,7 @@ class TestSession(TestSessionBase):
     @httpretty.activate
     def test_patch(self):
         self.stub_url(httpretty.PATCH, body=fake_response)
-        sess = session.Session()
+        sess = transport.Transport()
         resp = sess.patch(fake_url, json=fake_record2)
         self.assertEqual(httpretty.PATCH, httpretty.last_request().method)
         self.assertEqual(
@@ -142,7 +142,7 @@ class TestSession(TestSessionBase):
     @httpretty.activate
     def test_post(self):
         self.stub_url(httpretty.POST, body=fake_response)
-        sess = session.Session()
+        sess = transport.Transport()
         resp = sess.post(fake_url, json=fake_record2)
         self.assertEqual(httpretty.POST, httpretty.last_request().method)
         self.assertEqual(
@@ -154,7 +154,7 @@ class TestSession(TestSessionBase):
     @httpretty.activate
     def test_put(self):
         self.stub_url(httpretty.PUT, body=fake_response)
-        sess = session.Session()
+        sess = transport.Transport()
 
         resp = sess.put(fake_url, data=fake_request)
         self.assertEqual(httpretty.PUT, httpretty.last_request().method)
@@ -175,11 +175,14 @@ class TestSession(TestSessionBase):
     @httpretty.activate
     def test_user_agent_no_arg(self):
         self.stub_url(httpretty.GET, body=fake_response)
-        sess = session.Session()
+        sess = transport.Transport()
 
         resp = sess.get(fake_url)
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', session.DEFAULT_USER_AGENT)
+        self.assertRequestHeaderEqual(
+            'User-Agent',
+            transport.DEFAULT_USER_AGENT,
+        )
 
         resp = sess.get(fake_url, headers={'User-Agent': None})
         self.assertTrue(resp.ok)
@@ -232,11 +235,14 @@ class TestSession(TestSessionBase):
     @httpretty.activate
     def test_user_agent_arg_none(self):
         self.stub_url(httpretty.GET, body=fake_response)
-        sess = session.Session(user_agent=None)
+        sess = transport.Transport(user_agent=None)
 
         resp = sess.get(fake_url)
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', session.DEFAULT_USER_AGENT)
+        self.assertRequestHeaderEqual(
+            'User-Agent',
+            transport.DEFAULT_USER_AGENT,
+        )
 
         resp = sess.get(fake_url, headers={'User-Agent': None})
         self.assertTrue(resp.ok)
@@ -289,7 +295,7 @@ class TestSession(TestSessionBase):
     @httpretty.activate
     def test_user_agent_arg_default(self):
         self.stub_url(httpretty.GET, body=fake_response)
-        sess = session.Session(user_agent='test-agent')
+        sess = transport.Transport(user_agent='test-agent')
 
         resp = sess.get(fake_url)
         self.assertTrue(resp.ok)
@@ -344,28 +350,28 @@ class TestSession(TestSessionBase):
         self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
 
     def test_verify_no_arg(self):
-        sess = session.Session()
+        sess = transport.Transport()
         self.assertTrue(sess.verify)
 
     def test_verify_arg_none(self):
-        sess = session.Session(verify=None)
+        sess = transport.Transport(verify=None)
         self.assertIsNone(sess.verify)
 
     def test_verify_arg_false(self):
-        sess = session.Session(verify=False)
+        sess = transport.Transport(verify=False)
         self.assertFalse(sess.verify)
 
     def test_verify_arg_true(self):
-        sess = session.Session(verify=True)
+        sess = transport.Transport(verify=True)
         self.assertTrue(sess.verify)
 
     def test_verify_arg_file(self):
-        sess = session.Session(verify='ca-file')
+        sess = transport.Transport(verify='ca-file')
         self.assertEqual('ca-file', sess.verify)
 
     @httpretty.activate
     def test_not_found(self):
-        sess = session.Session()
+        sess = transport.Transport()
         self.stub_url(httpretty.GET, status=404)
 
         resp = sess.get(fake_url)
@@ -374,7 +380,7 @@ class TestSession(TestSessionBase):
 
     @httpretty.activate
     def test_server_error(self):
-        sess = session.Session()
+        sess = transport.Transport()
         self.stub_url(httpretty.GET, status=500)
 
         resp = sess.get(fake_url)
@@ -382,10 +388,10 @@ class TestSession(TestSessionBase):
         self.assertEqual(500, resp.status_code)
 
 
-class TestSessionDebug(TestSessionBase):
+class TestTransportDebug(TestTransportBase):
 
     def setUp(self):
-        super(TestSessionDebug, self).setUp()
+        super(TestTransportDebug, self).setUp()
 
         self.log_fixture = self.useFixture(
             fixtures.FakeLogger(level=logging.DEBUG),
@@ -394,7 +400,7 @@ class TestSessionDebug(TestSessionBase):
     @httpretty.activate
     def test_debug_post(self):
         self.stub_url(httpretty.POST, body=fake_response)
-        sess = session.Session()
+        sess = transport.Transport()
         headers = {
             'User-Agent': 'fake-curl',
             'X-Random-Header': 'x-random-value',
@@ -434,7 +440,7 @@ class TestSessionDebug(TestSessionBase):
             self.assertIn(v, self.log_fixture.output)
 
 
-class TestSessionRedirects(TestSessionBase):
+class TestTransportRedirects(TestTransportBase):
 
     REDIRECT_CHAIN = [
         'http://myhost:3445/',
@@ -468,21 +474,21 @@ class TestSessionRedirects(TestSessionBase):
     @httpretty.activate
     def test_get_redirect(self):
         self.setup_redirects()
-        sess = session.Session()
+        sess = transport.Transport()
         resp = sess.get(self.REDIRECT_CHAIN[-2])
         self.assertResponseOK(resp)
 
     @httpretty.activate
     def test_post_keeps_correct_method(self):
         self.setup_redirects(method=httpretty.POST, status=301)
-        sess = session.Session()
+        sess = transport.Transport()
         resp = sess.post(self.REDIRECT_CHAIN[-2])
         self.assertResponseOK(resp)
 
     @httpretty.activate
     def test_redirect_forever(self):
         self.setup_redirects()
-        sess = session.Session()
+        sess = transport.Transport()
         resp = sess.get(self.REDIRECT_CHAIN[0])
         self.assertResponseOK(resp)
         # Request history length is 1 less than the source chain due to the
@@ -492,7 +498,7 @@ class TestSessionRedirects(TestSessionBase):
     @httpretty.activate
     def test_no_redirect(self):
         self.setup_redirects()
-        sess = session.Session(redirect=False)
+        sess = transport.Transport(redirect=False)
         resp = sess.get(self.REDIRECT_CHAIN[0])
         self.assertEqual(305, resp.status_code)
         self.assertEqual(self.REDIRECT_CHAIN[0], resp.url)
@@ -501,7 +507,7 @@ class TestSessionRedirects(TestSessionBase):
     def test_redirect_limit(self):
         self.setup_redirects()
         for i in (1, 2):
-            sess = session.Session(redirect=i)
+            sess = transport.Transport(redirect=i)
             resp = sess.get(self.REDIRECT_CHAIN[0])
             self.assertResponseOK(resp, status=305, body=fake_redirect)
             self.assertEqual(self.REDIRECT_CHAIN[i], resp.url)
@@ -509,7 +515,7 @@ class TestSessionRedirects(TestSessionBase):
     @httpretty.activate
     def test_history_matches_requests(self):
         self.setup_redirects(status=301)
-        sess = session.Session(redirect=True)
+        sess = transport.Transport(redirect=True)
         req_resp = requests.get(
             self.REDIRECT_CHAIN[0],
             allow_redirects=True,

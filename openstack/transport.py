@@ -15,8 +15,8 @@ Wrapper class for requests.Session adds some common OpenStack functionality
 
 - log all requests and responses at debug level
 - json-encode request body passed in to request() in json keyword arg
-- set default user_agent at Session creation; set to None to skip the header
-- set default verify at Session creation
+- set default user_agent at Transport creation; set to None to skip the header
+- set default verify at Transport creation
 
 """
 
@@ -34,7 +34,7 @@ DEFAULT_USER_AGENT = 'python-OpenStackSDK/' + openstack.__version__
 _logger = logging.getLogger(__name__)
 
 
-class Session(requests.Session):
+class Transport(requests.Session):
 
     _user_agent = DEFAULT_USER_AGENT
 
@@ -70,7 +70,7 @@ class Session(requests.Session):
 
         """
 
-        super(Session, self).__init__()
+        super(Transport, self).__init__()
         if user_agent:
             self._user_agent = user_agent
         self.verify = verify
@@ -141,7 +141,7 @@ class Session(requests.Session):
         # POSTs as GETs for certain statuses which is not want we want for an
         # API. See: https://en.wikipedia.org/wiki/Post/Redirect/Get
 
-        resp = super(Session, self).request(method, url, **kwargs)
+        resp = super(Transport, self).request(method, url, **kwargs)
 
         self._log_response(resp)
 
