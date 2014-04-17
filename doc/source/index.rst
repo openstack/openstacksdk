@@ -1,12 +1,13 @@
-Welcome to python-openstacksdk's documentation!
-===============================================
+python-openstacksdk
+===================
 
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   readme
    installation
    usage
    contributing
+
+.. include:: ../../README.rst
