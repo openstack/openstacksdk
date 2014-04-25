@@ -23,6 +23,69 @@ class MethodNotSupported(Exception):
     """The resource does not support this operation type."""
 
 
+class prop(object):
+    """A helper for defining properties on a Resource.
+
+    A Resource.prop defines some known attributes within a resource's values.
+    For example we know a User resource will have a name:
+
+        >>> class User(Resource):
+        ...     name = prop('name')
+        ...
+        >>> u = User()
+        >>> u.name = 'John Doe'
+        >>> print u['name']
+        John Doe
+
+    User objects can now be accessed via the User().name attribute. The 'name'
+    value we pass as an attribute is the name of the attribute in the message.
+    This means that you don't need to use the same name for your attribute as
+    will be set within the object. For example:
+
+        >>> class User(Resource):
+        ...     name = prop('userName')
+        ...
+        >>> u = User()
+        >>> u.name = 'John Doe'
+        >>> print u['userName']
+        John Doe
+
+    There is limited validation ability in props.
+
+    You can validate the type of values that are set:
+
+        >>> class User(Resource):
+        ...     name = prop('userName')
+        ...     age = prop('age', type=int)
+        ...
+        >>> u = User()
+        >>> u.age = 'thirty'
+        TypeError: Invalid type for attr age
+    """
+
+    def __init__(self, name, type=None):
+        self.name = name
+        self.type = type
+
+    def __get__(self, instance, owner):
+        try:
+            return instance._attrs[self.name]
+        except KeyError:
+            raise AttributeError('Unset property: %s', self.name)
+
+    def __set__(self, instance, value):
+        if self.type and not isinstance(value, self.type):
+            raise TypeError('Invalid type for attr %s' % self.name)
+
+        instance._attrs[self.name] = value
+
+    def __delete__(self, instance):
+        try:
+            del instance._attrs[self.name]
+        except KeyError:
+            raise AttributeError('Unset property: %s', self.name)
+
+
 @six.add_metaclass(abc.ABCMeta)
 class Resource(collections.MutableMapping):
     """A base class that represents a remote resource.

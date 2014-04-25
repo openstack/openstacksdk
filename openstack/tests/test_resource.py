@@ -43,6 +43,10 @@ class FakeResource(resource.Resource):
     allow_create = allow_retrieve = allow_update = True
     allow_delete = allow_list = True
 
+    name = resource.prop('name')
+    first = resource.prop('attr1')
+    second = resource.prop('attr2')
+
 
 class ResourceTests(base.TestTransportBase):
 
@@ -59,7 +63,9 @@ class ResourceTests(base.TestTransportBase):
         self.stub_url(httpretty.POST, path=fake_path, json=fake_body)
 
         obj = FakeResource.new(name=fake_name,
-                               attr1=fake_attr1, attr2=fake_attr2)
+                               attr1=fake_attr1,
+                               attr2=fake_attr2)
+
         obj.create(self.session)
         self.assertFalse(obj.is_dirty)
 
@@ -75,19 +81,28 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual(fake_attr1, obj['attr1'])
         self.assertEqual(fake_attr2, obj['attr2'])
 
+        self.assertEqual(fake_name, obj.name)
+        self.assertEqual(fake_attr1, obj.first)
+        self.assertEqual(fake_attr2, obj.second)
+
     @httpretty.activate
     def test_get(self):
         self.stub_url(httpretty.GET, path=[fake_path, fake_id], json=fake_body)
         obj = FakeResource.get_by_id(self.session, fake_id)
 
-        self.assertEqual(fake_name, obj['name'])
         self.assertEqual(fake_id, obj.id)
+        self.assertEqual(fake_name, obj['name'])
         self.assertEqual(fake_attr1, obj['attr1'])
         self.assertEqual(fake_attr2, obj['attr2'])
+
+        self.assertEqual(fake_name, obj.name)
+        self.assertEqual(fake_attr1, obj.first)
+        self.assertEqual(fake_attr2, obj.second)
 
     @httpretty.activate
     def test_update(self):
         new_attr1 = 'attr5'
+        new_attr2 = 'attr6'
         fake_body1 = fake_body.copy()
         fake_body1[fake_resource]['attr1'] = new_attr1
 
@@ -98,12 +113,13 @@ class ResourceTests(base.TestTransportBase):
 
         obj = FakeResource.new(name=fake_name,
                                attr1=new_attr1,
-                               attr2=fake_attr2)
+                               attr2=new_attr2)
         obj.create(self.session)
         self.assertFalse(obj.is_dirty)
         self.assertEqual(new_attr1, obj['attr1'])
 
         obj['attr1'] = fake_attr1
+        obj.second = fake_attr2
         self.assertTrue(obj.is_dirty)
 
         obj.update(self.session)
@@ -117,6 +133,10 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual(fake_name, obj['name'])
         self.assertEqual(fake_attr1, obj['attr1'])
         self.assertEqual(fake_attr2, obj['attr2'])
+
+        self.assertEqual(fake_name, obj.name)
+        self.assertEqual(fake_attr1, obj.first)
+        self.assertEqual(fake_attr2, obj.second)
 
     @httpretty.activate
     def test_delete(self):
@@ -149,4 +169,22 @@ class ResourceTests(base.TestTransportBase):
         for obj in objs:
             self.assertIn(obj.id, range(fake_id, fake_id + 3))
             self.assertEqual(fake_name, obj['name'])
+            self.assertEqual(fake_name, obj.name)
             self.assertIsInstance(obj, FakeResource)
+
+    def test_attrs(self):
+        obj = FakeResource()
+
+        try:
+            obj.name
+        except AttributeError:
+            pass
+        else:
+            self.fail("Didn't raise attribute error")
+
+        try:
+            del obj.name
+        except AttributeError:
+            pass
+        else:
+            self.fail("Didn't raise attribute error")
