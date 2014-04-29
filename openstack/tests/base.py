@@ -15,10 +15,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
 import os
 
 import fixtures
+import httpretty
 import testtools
+
+from openstack import utils
 
 _TRUE_VALUES = ('true', '1', 'yes')
 
@@ -51,3 +55,46 @@ class TestCase(testtools.TestCase):
             self.useFixture(fixtures.MonkeyPatch('sys.stderr', stderr))
 
         self.log_fixture = self.useFixture(fixtures.FakeLogger())
+
+
+class TestTransportBase(TestCase):
+
+    TEST_URL = 'http://www.root.url'
+
+    def stub_url(self, method, path=None, base_url=None, **kwargs):
+        if not base_url:
+            base_url = self.TEST_URL
+
+        if isinstance(path, (list, tuple)):
+            base_url = utils.urljoin(base_url, *path)
+        elif path:
+            base_url = utils.urljoin(base_url, path)
+
+        if 'json' in kwargs:
+            json_data = kwargs.pop('json')
+            if json_data is not None:
+                kwargs['body'] = json.dumps(json_data)
+                kwargs['Content-Type'] = 'application/json'
+
+        httpretty.register_uri(method, base_url, **kwargs)
+
+    def assertRequestHeaderEqual(self, name, val):
+        """Verify that the last request made contains a header and its value
+
+        The request must have already been made and httpretty must have been
+        activated for the request.
+
+        """
+        headers = httpretty.last_request().headers
+        self.assertEqual(val, headers.get(name))
+
+    def assertResponseOK(self, resp, status=200, body=None):
+        """Verify the Response object contains expected values
+
+        Tests our defaults for a successful request.
+        """
+
+        self.assertTrue(resp.ok)
+        self.assertEqual(status, resp.status_code)
+        if body:
+            self.assertEqual(body, resp.text)

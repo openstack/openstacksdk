@@ -12,6 +12,8 @@
 
 import logging
 
+from openstack import utils
+
 
 _logger = logging.getLogger(__name__)
 
@@ -53,7 +55,9 @@ class Session(object):
             if token:
                 headers['X-Auth-Token'] = token
 
-        url = self.authenticator.get_endpoint(self.transport, service) + path
+        endpoint = self.authenticator.get_endpoint(self.transport, service)
+        url = utils.urljoin(endpoint, path)
+
         return self.transport.request(method, url, **kwargs)
 
     def head(self, service, path, **kwargs):
