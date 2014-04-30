@@ -6,9 +6,9 @@ fixtures>=0.3.14
 mock>=1.0
 httpretty>=0.8.0
 python-subunit
-sphinx>=1.1.2
+sphinx>=1.1.2,<1.2
 oslosphinx
-testrepository>=0.0.17
+testrepository>=0.0.18
 testscenarios>=0.4
-testtools>=0.9.32,<0.9.35
+testtools>=0.9.34
 
