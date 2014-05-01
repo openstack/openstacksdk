@@ -45,16 +45,16 @@ class TestTransport(base.TestTransportBase):
     @httpretty.activate
     def test_request(self):
         self.stub_url(httpretty.GET, body=fake_response)
-        sess = transport.Transport()
-        resp = sess.request('GET', self.TEST_URL)
+        xport = transport.Transport()
+        resp = xport.request('GET', self.TEST_URL)
         self.assertEqual(httpretty.GET, httpretty.last_request().method)
         self.assertResponseOK(resp, body=fake_response)
 
     @httpretty.activate
     def test_request_json(self):
         self.stub_url(httpretty.GET, json=fake_record1)
-        sess = transport.Transport()
-        resp = sess.request('GET', self.TEST_URL)
+        xport = transport.Transport()
+        resp = xport.request('GET', self.TEST_URL)
         self.assertEqual(httpretty.GET, httpretty.last_request().method)
         self.assertResponseOK(resp, body=json.dumps(fake_record1))
         self.assertEqual(fake_record1, resp.json())
@@ -62,40 +62,40 @@ class TestTransport(base.TestTransportBase):
     @httpretty.activate
     def test_delete(self):
         self.stub_url(httpretty.DELETE, body=fake_response)
-        sess = transport.Transport()
-        resp = sess.delete(self.TEST_URL)
+        xport = transport.Transport()
+        resp = xport.delete(self.TEST_URL)
         self.assertEqual(httpretty.DELETE, httpretty.last_request().method)
         self.assertResponseOK(resp, body=fake_response)
 
     @httpretty.activate
     def test_get(self):
         self.stub_url(httpretty.GET, body=fake_response)
-        sess = transport.Transport()
-        resp = sess.get(self.TEST_URL)
+        xport = transport.Transport()
+        resp = xport.get(self.TEST_URL)
         self.assertEqual(httpretty.GET, httpretty.last_request().method)
         self.assertResponseOK(resp, body=fake_response)
 
     @httpretty.activate
     def test_head(self):
         self.stub_url(httpretty.HEAD, body=fake_response)
-        sess = transport.Transport()
-        resp = sess.head(self.TEST_URL)
+        xport = transport.Transport()
+        resp = xport.head(self.TEST_URL)
         self.assertEqual(httpretty.HEAD, httpretty.last_request().method)
         self.assertResponseOK(resp, body='')
 
     @httpretty.activate
     def test_options(self):
         self.stub_url(httpretty.OPTIONS, body=fake_response)
-        sess = transport.Transport()
-        resp = sess.options(self.TEST_URL)
+        xport = transport.Transport()
+        resp = xport.options(self.TEST_URL)
         self.assertEqual(httpretty.OPTIONS, httpretty.last_request().method)
         self.assertResponseOK(resp, body=fake_response)
 
     @httpretty.activate
     def test_patch(self):
         self.stub_url(httpretty.PATCH, body=fake_response)
-        sess = transport.Transport()
-        resp = sess.patch(self.TEST_URL, json=fake_record2)
+        xport = transport.Transport()
+        resp = xport.patch(self.TEST_URL, json=fake_record2)
         self.assertEqual(httpretty.PATCH, httpretty.last_request().method)
         self.assertEqual(
             json.dumps(fake_record2),
@@ -106,8 +106,8 @@ class TestTransport(base.TestTransportBase):
     @httpretty.activate
     def test_post(self):
         self.stub_url(httpretty.POST, body=fake_response)
-        sess = transport.Transport()
-        resp = sess.post(self.TEST_URL, json=fake_record2)
+        xport = transport.Transport()
+        resp = xport.post(self.TEST_URL, json=fake_record2)
         self.assertEqual(httpretty.POST, httpretty.last_request().method)
         self.assertEqual(
             json.dumps(fake_record2),
@@ -118,9 +118,9 @@ class TestTransport(base.TestTransportBase):
     @httpretty.activate
     def test_put(self):
         self.stub_url(httpretty.PUT, body=fake_response)
-        sess = transport.Transport()
+        xport = transport.Transport()
 
-        resp = sess.put(self.TEST_URL, data=fake_request)
+        resp = xport.put(self.TEST_URL, data=fake_request)
         self.assertEqual(httpretty.PUT, httpretty.last_request().method)
         self.assertEqual(
             fake_request,
@@ -128,7 +128,7 @@ class TestTransport(base.TestTransportBase):
         )
         self.assertResponseOK(resp, body=fake_response)
 
-        resp = sess.put(self.TEST_URL, json=fake_record2)
+        resp = xport.put(self.TEST_URL, json=fake_record2)
         self.assertEqual(httpretty.PUT, httpretty.last_request().method)
         self.assertEqual(
             json.dumps(fake_record2),
@@ -139,40 +139,40 @@ class TestTransport(base.TestTransportBase):
     @httpretty.activate
     def test_user_agent_no_arg(self):
         self.stub_url(httpretty.GET, body=fake_response)
-        sess = transport.Transport()
+        xport = transport.Transport()
 
-        resp = sess.get(self.TEST_URL)
+        resp = xport.get(self.TEST_URL)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual(
             'User-Agent',
             transport.DEFAULT_USER_AGENT,
         )
 
-        resp = sess.get(self.TEST_URL, headers={'User-Agent': None})
+        resp = xport.get(self.TEST_URL, headers={'User-Agent': None})
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
 
-        resp = sess.get(self.TEST_URL, user_agent=None)
+        resp = xport.get(self.TEST_URL, user_agent=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
 
-        resp = sess.get(self.TEST_URL, headers={'User-Agent': ''})
+        resp = xport.get(self.TEST_URL, headers={'User-Agent': ''})
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', '')
 
-        resp = sess.get(self.TEST_URL, user_agent='')
+        resp = xport.get(self.TEST_URL, user_agent='')
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', '')
 
-        resp = sess.get(self.TEST_URL, headers={'User-Agent': 'new-agent'})
+        resp = xport.get(self.TEST_URL, headers={'User-Agent': 'new-agent'})
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'new-agent')
 
-        resp = sess.get(self.TEST_URL, user_agent='new-agent')
+        resp = xport.get(self.TEST_URL, user_agent='new-agent')
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'new-agent')
 
-        resp = sess.get(
+        resp = xport.get(
             self.TEST_URL,
             headers={'User-Agent': 'new-agent'},
             user_agent=None,
@@ -180,7 +180,7 @@ class TestTransport(base.TestTransportBase):
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
 
-        resp = sess.get(
+        resp = xport.get(
             self.TEST_URL,
             headers={'User-Agent': None},
             user_agent='overrides-agent',
@@ -188,7 +188,7 @@ class TestTransport(base.TestTransportBase):
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
 
-        resp = sess.get(
+        resp = xport.get(
             self.TEST_URL,
             headers={'User-Agent': 'new-agent'},
             user_agent='overrides-agent',
@@ -199,40 +199,40 @@ class TestTransport(base.TestTransportBase):
     @httpretty.activate
     def test_user_agent_arg_none(self):
         self.stub_url(httpretty.GET, body=fake_response)
-        sess = transport.Transport(user_agent=None)
+        xport = transport.Transport(user_agent=None)
 
-        resp = sess.get(self.TEST_URL)
+        resp = xport.get(self.TEST_URL)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual(
             'User-Agent',
             transport.DEFAULT_USER_AGENT,
         )
 
-        resp = sess.get(self.TEST_URL, headers={'User-Agent': None})
+        resp = xport.get(self.TEST_URL, headers={'User-Agent': None})
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
 
-        resp = sess.get(self.TEST_URL, user_agent=None)
+        resp = xport.get(self.TEST_URL, user_agent=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
 
-        resp = sess.get(self.TEST_URL, headers={'User-Agent': ''})
+        resp = xport.get(self.TEST_URL, headers={'User-Agent': ''})
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', '')
 
-        resp = sess.get(self.TEST_URL, user_agent='')
+        resp = xport.get(self.TEST_URL, user_agent='')
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', '')
 
-        resp = sess.get(self.TEST_URL, headers={'User-Agent': 'new-agent'})
+        resp = xport.get(self.TEST_URL, headers={'User-Agent': 'new-agent'})
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'new-agent')
 
-        resp = sess.get(self.TEST_URL, user_agent='new-agent')
+        resp = xport.get(self.TEST_URL, user_agent='new-agent')
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'new-agent')
 
-        resp = sess.get(
+        resp = xport.get(
             self.TEST_URL,
             headers={'User-Agent': 'new-agent'},
             user_agent=None,
@@ -240,7 +240,7 @@ class TestTransport(base.TestTransportBase):
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
 
-        resp = sess.get(
+        resp = xport.get(
             self.TEST_URL,
             headers={'User-Agent': None},
             user_agent='overrides-agent',
@@ -248,7 +248,7 @@ class TestTransport(base.TestTransportBase):
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
 
-        resp = sess.get(
+        resp = xport.get(
             self.TEST_URL,
             headers={'User-Agent': 'new-agent'},
             user_agent='overrides-agent',
@@ -259,37 +259,37 @@ class TestTransport(base.TestTransportBase):
     @httpretty.activate
     def test_user_agent_arg_default(self):
         self.stub_url(httpretty.GET, body=fake_response)
-        sess = transport.Transport(user_agent='test-agent')
+        xport = transport.Transport(user_agent='test-agent')
 
-        resp = sess.get(self.TEST_URL)
+        resp = xport.get(self.TEST_URL)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'test-agent')
 
-        resp = sess.get(self.TEST_URL, headers={'User-Agent': None})
+        resp = xport.get(self.TEST_URL, headers={'User-Agent': None})
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
 
-        resp = sess.get(self.TEST_URL, user_agent=None)
+        resp = xport.get(self.TEST_URL, user_agent=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
 
-        resp = sess.get(self.TEST_URL, headers={'User-Agent': ''})
+        resp = xport.get(self.TEST_URL, headers={'User-Agent': ''})
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', '')
 
-        resp = sess.get(self.TEST_URL, user_agent='')
+        resp = xport.get(self.TEST_URL, user_agent='')
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', '')
 
-        resp = sess.get(self.TEST_URL, headers={'User-Agent': 'new-agent'})
+        resp = xport.get(self.TEST_URL, headers={'User-Agent': 'new-agent'})
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'new-agent')
 
-        resp = sess.get(self.TEST_URL, user_agent='new-agent')
+        resp = xport.get(self.TEST_URL, user_agent='new-agent')
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'new-agent')
 
-        resp = sess.get(
+        resp = xport.get(
             self.TEST_URL,
             headers={'User-Agent': 'new-agent'},
             user_agent=None,
@@ -297,7 +297,7 @@ class TestTransport(base.TestTransportBase):
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
 
-        resp = sess.get(
+        resp = xport.get(
             self.TEST_URL,
             headers={'User-Agent': None},
             user_agent='overrides-agent',
@@ -305,7 +305,7 @@ class TestTransport(base.TestTransportBase):
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
 
-        resp = sess.get(
+        resp = xport.get(
             self.TEST_URL,
             headers={'User-Agent': 'new-agent'},
             user_agent='overrides-agent',
@@ -314,40 +314,40 @@ class TestTransport(base.TestTransportBase):
         self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
 
     def test_verify_no_arg(self):
-        sess = transport.Transport()
-        self.assertTrue(sess.verify)
+        xport = transport.Transport()
+        self.assertTrue(xport.verify)
 
     def test_verify_arg_none(self):
-        sess = transport.Transport(verify=None)
-        self.assertIsNone(sess.verify)
+        xport = transport.Transport(verify=None)
+        self.assertIsNone(xport.verify)
 
     def test_verify_arg_false(self):
-        sess = transport.Transport(verify=False)
-        self.assertFalse(sess.verify)
+        xport = transport.Transport(verify=False)
+        self.assertFalse(xport.verify)
 
     def test_verify_arg_true(self):
-        sess = transport.Transport(verify=True)
-        self.assertTrue(sess.verify)
+        xport = transport.Transport(verify=True)
+        self.assertTrue(xport.verify)
 
     def test_verify_arg_file(self):
-        sess = transport.Transport(verify='ca-file')
-        self.assertEqual('ca-file', sess.verify)
+        xport = transport.Transport(verify='ca-file')
+        self.assertEqual('ca-file', xport.verify)
 
     @httpretty.activate
     def test_not_found(self):
-        sess = transport.Transport()
+        xport = transport.Transport()
         self.stub_url(httpretty.GET, status=404)
 
-        resp = sess.get(self.TEST_URL)
+        resp = xport.get(self.TEST_URL)
         self.assertFalse(resp.ok)
         self.assertEqual(404, resp.status_code)
 
     @httpretty.activate
     def test_server_error(self):
-        sess = transport.Transport()
+        xport = transport.Transport()
         self.stub_url(httpretty.GET, status=500)
 
-        resp = sess.get(self.TEST_URL)
+        resp = xport.get(self.TEST_URL)
         self.assertFalse(resp.ok)
         self.assertEqual(500, resp.status_code)
 
@@ -364,7 +364,7 @@ class TestTransportDebug(base.TestTransportBase):
     @httpretty.activate
     def test_debug_post(self):
         self.stub_url(httpretty.POST, body=fake_response)
-        sess = transport.Transport()
+        xport = transport.Transport()
         headers = {
             'User-Agent': 'fake-curl',
             'X-Random-Header': 'x-random-value',
@@ -373,7 +373,7 @@ class TestTransportDebug(base.TestTransportBase):
             'detailed-arg-name': 'qaz11 wsx22+edc33',
             'ssh_config_dir': '~/myusername/.ssh',
         }
-        resp = sess.post(
+        resp = xport.post(
             self.TEST_URL,
             headers=headers,
             params=params,
@@ -438,22 +438,22 @@ class TestTransportRedirects(base.TestTransportBase):
     @httpretty.activate
     def test_get_redirect(self):
         self.setup_redirects()
-        sess = transport.Transport()
-        resp = sess.get(self.REDIRECT_CHAIN[-2])
+        xport = transport.Transport()
+        resp = xport.get(self.REDIRECT_CHAIN[-2])
         self.assertResponseOK(resp, body=fake_response)
 
     @httpretty.activate
     def test_post_keeps_correct_method(self):
         self.setup_redirects(method=httpretty.POST, status=301)
-        sess = transport.Transport()
-        resp = sess.post(self.REDIRECT_CHAIN[-2])
+        xport = transport.Transport()
+        resp = xport.post(self.REDIRECT_CHAIN[-2])
         self.assertResponseOK(resp, body=fake_response)
 
     @httpretty.activate
     def test_redirect_forever(self):
         self.setup_redirects()
-        sess = transport.Transport()
-        resp = sess.get(self.REDIRECT_CHAIN[0])
+        xport = transport.Transport()
+        resp = xport.get(self.REDIRECT_CHAIN[0])
         self.assertResponseOK(resp)
         # Request history length is 1 less than the source chain due to the
         # last response not being a redirect and not added to the history.
@@ -462,8 +462,8 @@ class TestTransportRedirects(base.TestTransportBase):
     @httpretty.activate
     def test_no_redirect(self):
         self.setup_redirects()
-        sess = transport.Transport(redirect=False)
-        resp = sess.get(self.REDIRECT_CHAIN[0])
+        xport = transport.Transport(redirect=False)
+        resp = xport.get(self.REDIRECT_CHAIN[0])
         self.assertEqual(305, resp.status_code)
         self.assertEqual(self.REDIRECT_CHAIN[0], resp.url)
 
@@ -471,25 +471,25 @@ class TestTransportRedirects(base.TestTransportBase):
     def test_redirect_limit(self):
         self.setup_redirects()
         for i in (1, 2):
-            sess = transport.Transport(redirect=i)
-            resp = sess.get(self.REDIRECT_CHAIN[0])
+            xport = transport.Transport(redirect=i)
+            resp = xport.get(self.REDIRECT_CHAIN[0])
             self.assertResponseOK(resp, status=305, body=fake_redirect)
             self.assertEqual(self.REDIRECT_CHAIN[i], resp.url)
 
     @httpretty.activate
     def test_history_matches_requests(self):
         self.setup_redirects(status=301)
-        sess = transport.Transport(redirect=True)
+        xport = transport.Transport(redirect=True)
         req_resp = requests.get(
             self.REDIRECT_CHAIN[0],
             allow_redirects=True,
         )
 
-        ses_resp = sess.get(self.REDIRECT_CHAIN[0])
+        resp = xport.get(self.REDIRECT_CHAIN[0])
 
-        self.assertEqual(type(ses_resp.history), type(req_resp.history))
-        self.assertEqual(len(ses_resp.history), len(req_resp.history))
+        self.assertEqual(type(resp.history), type(req_resp.history))
+        self.assertEqual(len(resp.history), len(req_resp.history))
 
-        for r, s in zip(req_resp.history, ses_resp.history):
+        for r, s in zip(req_resp.history, resp.history):
             self.assertEqual(s.url, r.url)
             self.assertEqual(s.status_code, r.status_code)
