@@ -37,9 +37,9 @@ class Session(object):
 
         Handle a session level request.
 
-        :param ServiceIdentifier service: Object that identifies service to
+        :param ServiceFilter service: Object that identifies service to
                                           the authenticator.
-        :type service: :class:`openstack.auth.service.ServiceIdentifier`
+        :type service: :class:`openstack.auth.service_filter.ServiceFilter`
         :param string path: Path relative to authentictor base url.
         :param string method: The http method to use. (eg. 'GET', 'POST').
         :param bool authenticate: True if a token should be attached

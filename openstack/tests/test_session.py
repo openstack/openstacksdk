@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.auth import service
+from openstack.auth import service_filter
 from openstack import session
 from openstack.tests import base
 from openstack.tests import fakes
@@ -24,7 +24,7 @@ class TestSession(base.TestCase):
         super(TestSession, self).setUp()
         self.xport = fakes.FakeTransport()
         self.auth = fakes.FakeAuthenticator()
-        self.serv = service.ServiceIdentifier('identity')
+        self.serv = service_filter.ServiceFilter('identity')
         self.sess = session.Session(self.xport, self.auth)
         self.expected = {'headers': {'X-Auth-Token': self.auth.TOKEN}}
 

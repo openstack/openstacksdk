@@ -47,8 +47,8 @@ class BaseAuthenticator(object):
 
         :param Transport transport: A transport object so the authenticator
                                     can make HTTP calls
-        :param ServiceIdentifier service: The object that identifies the
-                                          service for the authenticator.
+        :param ServiceFilter service: The filter to identify the desired
+                                      service.
 
         :returns string: The base URL that will be used to talk to the
                          required service or None if not available.
