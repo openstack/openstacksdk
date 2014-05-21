@@ -27,7 +27,7 @@ from examples import common
 
 
 def do_transport(opts):
-    trans = common.make_transport(opts)
+    trans = common.run_transport(opts)
 
     # Get the version data from the auth URL
     resp = trans.get(opts.os_auth_url).json()

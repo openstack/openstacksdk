@@ -61,7 +61,7 @@ def get_open_fds():
     return [d.replace('\000', '|') for d in procs_list]
 
 
-def make_transport(opts):
+def run_transport(opts):
     """Create a transport given some options."""
 
     # Certificate verification - defaults to True
@@ -74,19 +74,23 @@ def make_transport(opts):
         verify=verify,
         user_agent=USER_AGENT,
     )
-    return trans
+    print("transport: %s" % trans)
+    if opts.os_url:
+        print(trans.get(opts.os_url).text)
+    return
+
+COMMANDS = {'transport': run_transport}
 
 
 def run(opts):
-    print("start fds: %s" % get_open_fds())
+    if opts.debug:
+        print("start fds: %s" % get_open_fds())
 
-    # Set up common client transport
-    trans = make_transport(opts)
+    # Run
+    COMMANDS[opts.command](opts)
 
-    # Do something interesting here?
-    print("transport: %s" % trans)
-
-    print("end fds: %s" % get_open_fds())
+    if opts.debug:
+        print("end fds: %s" % get_open_fds())
 
 
 def env(*vars, **kwargs):
@@ -189,6 +193,11 @@ def option_parser():
         default=False,
         action='store_true',
         help='show tracebacks on errors',
+    )
+    parser.add_argument(
+        'command',
+        choices=list(COMMANDS),
+        help='Command to run.',
     )
     return parser
 
