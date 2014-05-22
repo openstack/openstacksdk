@@ -214,20 +214,18 @@ class Resource(collections.MutableMapping):
 
         if r_id:
             url = utils.urljoin(cls.base_path, r_id)
-            resp = cls._http_put(session, url, json=body)
+            resp = session.put(cls.service, url, json=body).body
         else:
-            resp = cls._http_post(session, cls.base_path, json=body)
-
-        resp_body = resp.json()
+            resp = session.post(cls.service, cls.base_path, json=body).body
 
         if cls.resource_key:
-            resp_body = resp_body[cls.resource_key]
+            resp = resp[cls.resource_key]
 
-        return resp_body
+        return resp
 
     def create(self, session):
-        resp_body = self.create_by_id(session, self._attrs, self.id)
-        self._id = resp_body.pop('id')
+        resp = self.create_by_id(session, self._attrs, self.id)
+        self._id = resp.pop('id')
         self._reset_dirty()
 
     @classmethod
@@ -236,7 +234,7 @@ class Resource(collections.MutableMapping):
             raise MethodNotSupported('retrieve')
 
         url = utils.urljoin(cls.base_path, r_id)
-        body = cls._http_get(session, url).json()
+        body = session.get(cls.service, url).body
 
         if cls.resource_key:
             body = body[cls.resource_key]
@@ -264,22 +262,22 @@ class Resource(collections.MutableMapping):
             body = attrs
 
         url = utils.urljoin(cls.base_path, r_id)
-        resp_body = cls._http_patch(session, url, json=body).json()
+        resp = session.patch(cls.service, url, json=body).body
 
         if cls.resource_key:
-            resp_body = resp_body[cls.resource_key]
+            resp = resp[cls.resource_key]
 
-        return resp_body
+        return resp
 
     def update(self, session):
         if not self.is_dirty:
             return
 
         dirty_attrs = dict((k, self._attrs[k]) for k in self._dirty)
-        resp_json = self.update_by_id(session, self.id, dirty_attrs)
+        resp = self.update_by_id(session, self.id, dirty_attrs)
 
         try:
-            resp_id = resp_json.pop('id')
+            resp_id = resp.pop('id')
         except KeyError:
             pass
         else:
@@ -292,7 +290,8 @@ class Resource(collections.MutableMapping):
         if not cls.allow_delete:
             raise MethodNotSupported('delete')
 
-        cls._http_delete(session, utils.urljoin(cls.base_path, r_id))
+        session.delete(cls.service, utils.urljoin(cls.base_path, r_id),
+                       accept=None)
 
     def delete(self, session):
         self.delete_by_id(session, self.id)
@@ -315,45 +314,9 @@ class Resource(collections.MutableMapping):
         if filters:
             url = '%s?%s' % (url, url_parse.urlencode(filters))
 
-        resp_body = cls._http_get(session, url).json()
+        resp = session.get(cls.service, url).body
 
         if cls.resources_key:
-            resp_body = resp_body[cls.resources_key]
+            resp = resp[cls.resources_key]
 
-        return [cls.existing(**data) for data in resp_body]
-
-    ###
-    # HTTP Operations
-    ###
-    # these shouldn't live here long term
-
-    @classmethod
-    def _http_request(cls, session, method, path, **kwargs):
-        headers = kwargs.setdefault('headers', {})
-        headers['Accept'] = 'application/json'
-
-        return session._request(cls.service, path, method, **kwargs)
-
-    @classmethod
-    def _http_get(cls, session, url, **kwargs):
-        return cls._http_request(session, 'GET', url, **kwargs)
-
-    @classmethod
-    def _http_post(cls, session, url, **kwargs):
-        return cls._http_request(session, 'POST', url, **kwargs)
-
-    @classmethod
-    def _http_put(cls, session, url, **kwargs):
-        return cls._http_request(session, 'PUT', url, **kwargs)
-
-    @classmethod
-    def _http_patch(cls, session, url, **kwargs):
-        return cls._http_request(session, 'PATCH', url, **kwargs)
-
-    @classmethod
-    def _http_delete(cls, session, url, **kwargs):
-        return cls._http_request(session, 'DELETE', url, **kwargs)
-
-    @classmethod
-    def _http_head(cls, session, url, **kwargs):
-        return cls._http_request(session, 'HEAD', url, **kwargs)
+        return [cls.existing(**data) for data in resp]

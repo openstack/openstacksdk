@@ -54,3 +54,9 @@ class InvalidResponse(SdkException):
     def __init__(self, response):
         super(InvalidResponse, self).__init__()
         self.response = response
+
+
+class HttpException(Exception):
+    def __init__(self, message, details=None):
+        super(HttpException, self).__init__(message)
+        self.details = details

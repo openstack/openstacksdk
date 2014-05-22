@@ -24,14 +24,17 @@ import json
 import logging
 
 import requests
+import six
 from six.moves import urllib
 
 import openstack
+from openstack import exceptions
 
 
 DEFAULT_USER_AGENT = 'python-OpenStackSDK/' + openstack.__version__
 
 _logger = logging.getLogger(__name__)
+JSON = 'application/json'
 
 
 class Transport(requests.Session):
@@ -46,6 +49,7 @@ class Transport(requests.Session):
             user_agent=None,
             verify=True,
             redirect=DEFAULT_REDIRECT_LIMIT,
+            accept=None,
             base_url=None,
     ):
         """Wraps requests.Session to add some OpenStack-specific features
@@ -61,6 +65,7 @@ class Transport(requests.Session):
                                          (boolean) No redirections if False,
                                          requests.Session handles redirection
                                          if True. (optional)
+        :param string accept: Type of output to accept
 
         User agent handling is as follows:
 
@@ -76,6 +81,7 @@ class Transport(requests.Session):
             self._user_agent = user_agent
         self.verify = verify
         self._redirect = redirect
+        self._accept = accept
 
         # NOTE(jamielennox): This is a stub for having auth plugins and
         # discovery determine the correct base URL
@@ -95,6 +101,9 @@ class Transport(requests.Session):
         The following additional kw args are supported:
         :param object json: Request body to be encoded as JSON
                             Overwrites ``data`` argument if present
+        :param string accept: Set the ``Accept`` header; overwrites
+                                  any value that may be in the headers dict.
+                                  Header is omitted if ``None``.
         :param string user_agent: Set the ``User-Agent`` header; overwrites
                                   any value that may be in the headers dict.
                                   Header is omitted if ``None``.
@@ -115,7 +124,7 @@ class Transport(requests.Session):
         json_data = kwargs.pop('json', None)
         if json_data is not None:
             kwargs['data'] = json.dumps(json_data)
-            headers['Content-Type'] = 'application/json'
+            headers['Content-Type'] = JSON
 
         # Set User-Agent header if user_agent arg included, or
         # fall through the default chain as described above
@@ -136,12 +145,25 @@ class Transport(requests.Session):
             # Force disable requests redirect handling, we will manage
             # redirections below
             kwargs['allow_redirects'] = False
+        if 'accept' in kwargs:
+            accept = kwargs.pop('accept')
+        else:
+            accept = self._accept
+        if accept:
+            headers.setdefault('Accept', accept)
 
         self._log_request(method, url, **kwargs)
 
         resp = self._send_request(method, url, redirect, **kwargs)
 
         self._log_response(resp)
+
+        try:
+            resp.raise_for_status()
+        except requests.RequestException as e:
+            raise exceptions.HttpException(six.text_type(e), details=resp.text)
+        if accept == JSON:
+            resp.body = resp.json()
 
         return resp
 
