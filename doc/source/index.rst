@@ -1,7 +1,7 @@
-python-openstacksdk
-===================
+.. include:: ../../README.rst
 
-Contents:
+Contents
+========
 
 .. toctree::
    :maxdepth: 1
@@ -12,11 +12,9 @@ Contents:
    glossary
 
 Classes
-=======
+-------
 
 .. toctree::
    :maxdepth: 1
 
    transport
-
-.. include:: ../../README.rst
