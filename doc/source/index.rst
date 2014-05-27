@@ -11,4 +11,12 @@ Contents:
    contributing
    glossary
 
+Classes
+=======
+
+.. toctree::
+   :maxdepth: 1
+
+   transport
+
 .. include:: ../../README.rst
