@@ -42,7 +42,7 @@ Making a basic HTTP GET call is very simple::
 
     from openstack import transport
     trans = transport.Transport()
-    versions = trans.get('cloud.example.com:5000').json
+    versions = trans.get('cloud.example.com:5000').json()
 
 will retrieve the version data served by the Identity API into a Python dict.
 
