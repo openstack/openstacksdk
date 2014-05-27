@@ -1,7 +1,7 @@
 Glossary
 ========
 
-.. glossry::
+.. glossary::
     :sorted:
 
     CLI
