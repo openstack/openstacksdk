@@ -1,15 +1,16 @@
 Transport
 =========
 
-Class ``openstack.transport.Transport`` is a subclass of ``requests.Session`` that
-adds some features that are common in OpenStack APIs or can be globally controlled
-by an application.  Its use is incredibly similar to ``requests.Session`` such
-that we only will cover the differences in detail here.
+Class ``openstack.transport.Transport`` is a subclass of ``requests.Session``
+that adds some features that are common in OpenStack APIs or can be globally
+controlled by an application.  Its use is incredibly similar to
+``requests.Session`` such that we only will cover the differences in detail
+here.
 
 Transport object
 ----------------
 
-Class ``openstack.transport.Transport(user_agent=None, verify=True, redirect=DEFAULT_REDIRECT_LIMIT, ...)``
+.. class:: openstack.transport.Transport(user_agent=None, verify=True, redirect=DEFAULT_REDIRECT_LIMIT)
 
 Create a new ``Transport`` object.  In addition to those listed below, all
 arguments available to ``requests.Session`` are available here:
@@ -23,13 +24,15 @@ arguments available to ``requests.Session`` are available here:
 
 Method ``Transport.request(method, url, redirect=None, **kwargs)``
 
-Perform an HTTP request.  The following arguments differ from ``requests.Session``:
+Perform an HTTP request. The following arguments differ from
+``requests.Session``:
 
-* redirect - (integer) The maximum number of redirections followed in a request.
-  (boolean) No redirections if False, ``requests.Session`` handles redirection
-  if True. (default: ``openstack.transport.DEFAULT_REDIRECT_LIMIT``)
-* json - Request body to be encoded as JSON.  Overwrites ``data`` argument if present.
-  (default: ``None``)
+* redirect - (integer) The maximum number of redirections followed in a
+  request. (boolean) No redirections if False, ``requests.Session`` handles
+  redirection if True. (default:
+  ``openstack.transport.DEFAULT_REDIRECT_LIMIT``)
+* json - Request body to be encoded as JSON.  Overwrites ``data`` argument if
+  present. (default: ``None``)
 * user_agent -  Set the default ``User-Agent`` header (default: ``None``)
 
 Examples
@@ -108,5 +111,6 @@ the ``User-Agent`` header is as follows:
 
 * If the ``user_agent`` argument is included in the ``request()`` call use it
 * Else if ``User-Agent`` is set in the headers dict use it
-* Else if ``user_agent`` argument is included in the ``Transport`` construction use it
+* Else if ``user_agent`` argument is included in the ``Transport`` construction
+  use it
 * Else use ``transport.DEFAULT_USER_AGENT``
