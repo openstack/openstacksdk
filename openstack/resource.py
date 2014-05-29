@@ -214,9 +214,10 @@ class Resource(collections.MutableMapping):
 
         if r_id:
             url = utils.urljoin(cls.base_path, r_id)
-            resp = session.put(cls.service, url, json=body).body
+            resp = session.put(url, service=cls.service, json=body).body
         else:
-            resp = session.post(cls.service, cls.base_path, json=body).body
+            resp = session.post(cls.base_path, service=cls.service,
+                                json=body).body
 
         if cls.resource_key:
             resp = resp[cls.resource_key]
@@ -234,7 +235,7 @@ class Resource(collections.MutableMapping):
             raise MethodNotSupported('retrieve')
 
         url = utils.urljoin(cls.base_path, r_id)
-        body = session.get(cls.service, url).body
+        body = session.get(url, service=cls.service).body
 
         if cls.resource_key:
             body = body[cls.resource_key]
@@ -262,7 +263,7 @@ class Resource(collections.MutableMapping):
             body = attrs
 
         url = utils.urljoin(cls.base_path, r_id)
-        resp = session.patch(cls.service, url, json=body).body
+        resp = session.patch(url, service=cls.service, json=body).body
 
         if cls.resource_key:
             resp = resp[cls.resource_key]
@@ -290,7 +291,7 @@ class Resource(collections.MutableMapping):
         if not cls.allow_delete:
             raise MethodNotSupported('delete')
 
-        session.delete(cls.service, utils.urljoin(cls.base_path, r_id),
+        session.delete(utils.urljoin(cls.base_path, r_id), service=cls.service,
                        accept=None)
 
     def delete(self, session):
@@ -314,7 +315,7 @@ class Resource(collections.MutableMapping):
         if filters:
             url = '%s?%s' % (url, url_parse.urlencode(filters))
 
-        resp = session.get(cls.service, url).body
+        resp = session.get(url, service=cls.service).body
 
         if cls.resources_key:
             resp = resp[cls.resources_key]

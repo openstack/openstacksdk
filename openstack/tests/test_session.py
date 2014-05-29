@@ -29,7 +29,7 @@ class TestSession(base.TestCase):
         self.expected = {'headers': {'X-Auth-Token': self.auth.TOKEN}}
 
     def test_head(self):
-        resp = self.sess.head(self.serv, self.TEST_PATH)
+        resp = self.sess.head(self.TEST_PATH, service=self.serv)
 
         self.assertEqual(self.xport.RESPONSE, resp)
         self.auth.get_token.assert_called_with(self.xport)
@@ -38,7 +38,7 @@ class TestSession(base.TestCase):
         self.xport.request.assert_called_with('HEAD', url, **self.expected)
 
     def test_get(self):
-        resp = self.sess.get(self.serv, self.TEST_PATH)
+        resp = self.sess.get(self.TEST_PATH, service=self.serv)
 
         self.assertEqual(self.xport.RESPONSE, resp)
         self.auth.get_token.assert_called_with(self.xport)
@@ -47,7 +47,7 @@ class TestSession(base.TestCase):
         self.xport.request.assert_called_with('GET', url, **self.expected)
 
     def test_post(self):
-        resp = self.sess.post(self.serv, self.TEST_PATH)
+        resp = self.sess.post(self.TEST_PATH, service=self.serv)
 
         self.assertEqual(self.xport.RESPONSE, resp)
         self.auth.get_token.assert_called_with(self.xport)
@@ -56,7 +56,7 @@ class TestSession(base.TestCase):
         self.xport.request.assert_called_with('POST', url, **self.expected)
 
     def test_put(self):
-        resp = self.sess.put(self.serv, self.TEST_PATH)
+        resp = self.sess.put(self.TEST_PATH, service=self.serv)
 
         self.assertEqual(self.xport.RESPONSE, resp)
         self.auth.get_token.assert_called_with(self.xport)
@@ -65,7 +65,7 @@ class TestSession(base.TestCase):
         self.xport.request.assert_called_with('PUT', url, **self.expected)
 
     def test_delete(self):
-        resp = self.sess.delete(self.serv, self.TEST_PATH)
+        resp = self.sess.delete(self.TEST_PATH, service=self.serv)
 
         self.assertEqual(self.xport.RESPONSE, resp)
         self.auth.get_token.assert_called_with(self.xport)
@@ -74,7 +74,7 @@ class TestSession(base.TestCase):
         self.xport.request.assert_called_with('DELETE', url, **self.expected)
 
     def test_patch(self):
-        resp = self.sess.patch(self.serv, self.TEST_PATH)
+        resp = self.sess.patch(self.TEST_PATH, service=self.serv)
 
         self.assertEqual(self.xport.RESPONSE, resp)
         self.auth.get_token.assert_called_with(self.xport)

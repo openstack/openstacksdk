@@ -32,16 +32,17 @@ class Session(object):
         self.transport = transport
         self.authenticator = authenticator
 
-    def _request(self, service, path, method, authenticate=True, **kwargs):
+    def _request(self, path, method, service=None, authenticate=True,
+                 **kwargs):
         """Send an HTTP request with the specified characteristics.
 
         Handle a session level request.
 
-        :param ServiceFilter service: Object that identifies service to
-                                          the authenticator.
-        :type service: :class:`openstack.auth.service_filter.ServiceFilter`
         :param string path: Path relative to authentictor base url.
         :param string method: The http method to use. (eg. 'GET', 'POST').
+        :param ServiceFilter service: Object that filters service to
+                                      the authenticator.
+        :type service: :class:`openstack.auth.service_filter.ServiceFilter`
         :param bool authenticate: True if a token should be attached
         :param kwargs: any other parameter that can be passed to transport
                        and authenticator.
@@ -60,20 +61,20 @@ class Session(object):
 
         return self.transport.request(method, url, **kwargs)
 
-    def head(self, service, path, **kwargs):
-        return self._request(service, path, 'HEAD', **kwargs)
+    def head(self, path, **kwargs):
+        return self._request(path, 'HEAD', **kwargs)
 
-    def get(self, service, path, **kwargs):
-        return self._request(service, path, 'GET', **kwargs)
+    def get(self, path, **kwargs):
+        return self._request(path, 'GET', **kwargs)
 
-    def post(self, service, path, **kwargs):
-        return self._request(service, path, 'POST', **kwargs)
+    def post(self, path, **kwargs):
+        return self._request(path, 'POST', **kwargs)
 
-    def put(self, service, path, **kwargs):
-        return self._request(service, path, 'PUT', **kwargs)
+    def put(self, path, **kwargs):
+        return self._request(path, 'PUT', **kwargs)
 
-    def delete(self, service, path, **kwargs):
-        return self._request(service, path, 'DELETE', **kwargs)
+    def delete(self, path, **kwargs):
+        return self._request(path, 'DELETE', **kwargs)
 
-    def patch(self, service, path, **kwargs):
-        return self._request(service, path, 'PATCH', **kwargs)
+    def patch(self, path, **kwargs):
+        return self._request(path, 'PATCH', **kwargs)
