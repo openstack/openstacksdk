@@ -50,7 +50,6 @@ class Transport(requests.Session):
             verify=True,
             redirect=DEFAULT_REDIRECT_LIMIT,
             accept=None,
-            base_url=None,
     ):
         """Wraps requests.Session to add some OpenStack-specific features
 
@@ -83,10 +82,6 @@ class Transport(requests.Session):
         self._redirect = redirect
         self._accept = accept
 
-        # NOTE(jamielennox): This is a stub for having auth plugins and
-        # discovery determine the correct base URL
-        self.base_url = base_url
-
     def request(self, method, url, redirect=None, **kwargs):
         """Send a request
 
@@ -113,11 +108,6 @@ class Transport(requests.Session):
         """
 
         headers = kwargs.setdefault('headers', {})
-
-        # NOTE(jamielennox): This is a stub for having auth plugins and
-        # discovery determine the correct base URL
-        if self.base_url:
-            url = "%s/%s" % (self.base_url.rstrip('/'), url.lstrip('/'))
 
         # JSON-encode the data in json arg if present
         # Overwrites any existing 'data' value
