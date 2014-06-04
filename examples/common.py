@@ -33,13 +33,7 @@ import subprocess
 import sys
 import traceback
 
-from openstack import transport
-
 CONSOLE_MESSAGE_FORMAT = '%(levelname)s: %(name)s %(message)s'
-DEFAULT_VERBOSE_LEVEL = 1
-USER_AGENT = 'qwiktest'
-
-
 _logger = logging.getLogger(__name__)
 
 
@@ -59,38 +53,6 @@ def get_open_fds():
         procs.split('\n')
     )
     return [d.replace('\000', '|') for d in procs_list]
-
-
-def run_transport(opts):
-    """Create a transport given some options."""
-
-    # Certificate verification - defaults to True
-    if opts.os_cacert:
-        verify = opts.os_cacert
-    else:
-        verify = not opts.insecure
-
-    trans = transport.Transport(
-        verify=verify,
-        user_agent=USER_AGENT,
-    )
-    print("transport: %s" % trans)
-    if opts.os_url:
-        print(trans.get(opts.os_url).text)
-    return
-
-COMMANDS = {'transport': run_transport}
-
-
-def run(opts):
-    if opts.debug:
-        print("start fds: %s" % get_open_fds())
-
-    # Run
-    COMMANDS[opts.command](opts)
-
-    if opts.debug:
-        print("end fds: %s" % get_open_fds())
 
 
 def env(*vars, **kwargs):
@@ -195,9 +157,10 @@ def option_parser():
         help='show tracebacks on errors',
     )
     parser.add_argument(
-        'command',
-        choices=list(COMMANDS),
-        help='Command to run.',
+        'argument',
+        default=None,
+        nargs='?',
+        help='Argument to use.',
     )
     return parser
 
@@ -239,8 +202,3 @@ def main(opts, run):
         else:
             _logger.error('Exception raised: ' + str(e))
         return 1
-
-
-if __name__ == "__main__":
-    opts = setup()
-    sys.exit(main(opts, run))

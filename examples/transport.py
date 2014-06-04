@@ -24,41 +24,29 @@ REST API calls.
 import sys
 
 from examples import common
+from openstack import transport
+
+USER_AGENT = 'SDKExample'
 
 
-def do_transport(opts):
-    trans = common.run_transport(opts)
+def make_transport(opts):
+    # Certificate verification - defaults to True
+    if opts.os_cacert:
+        verify = opts.os_cacert
+    else:
+        verify = not opts.insecure
+    return transport.Transport(verify=verify, user_agent=USER_AGENT)
 
-    # Get the version data from the auth URL
-    resp = trans.get(opts.os_auth_url).json()
-    ver = resp['version']
-    print("\nAuth URL: %s" % opts.os_auth_url)
-    print("  version: %s" % ver['id'])
-    print("  status: %s" % ver['status'])
 
-    # Do a basic call to somewhere fun
-    url = 'https://api.github.com/users/openstack'
-    resp = trans.get(url).json()
-    print("\nGitHub API URL: %s" % url)
-    print("  gists: %s" % resp['gists_url'])
-    print("  repos: %s" % resp['public_repos'])
-
-    url = 'https://api.github.com/users/openstack-dev'
-    resp = trans.get(url).json()
-    print("\nGitHub API URL: %s" % url)
-    print("  gists: %s" % resp['gists_url'])
-    print("  repos: %s" % resp['public_repos'])
-
-    # stats
-    print('\nTransport connection pools:')
-    print("  http pool: %s" % (
-        trans.adapters['http://'].poolmanager.pools.keys(),
-    ))
-    print("  https pool: %s" % (
-        trans.adapters['https://'].poolmanager.pools.keys(),
-    ))
+def run_transport(opts):
+    """Create a transport given some options."""
+    argument = opts.argument
+    trans = make_transport(opts)
+    print("transport: %s" % trans)
+    print(trans.get(argument).text)
+    return
 
 
 if __name__ == "__main__":
     opts = common.setup()
-    sys.exit(common.main(opts, do_transport))
+    sys.exit(common.main(opts, run_transport))
