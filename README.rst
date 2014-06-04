@@ -1,32 +1,37 @@
 OpenStack Python SDK
 ====================
 
-``python-openstacksdk`` is a ground-up implementation of a Python
-API and SDK for OpenStack REST services.
+``python-openstacksdk`` is a from scratch Python library and SDK for OpenStack
+clouds. It is very young, and not yet usable, but it's under active
+development.
 
+Our goal is to provide a Python library which is:
+
+* Pleasant to use
+* Well documented
+* Complete (works with any OpenStack project)
 
 Building Documentation
 ----------------------
 
 This documentation is written by contributors, for contributors.
 
-The source is maintained in the ``doc/source`` folder using
+The source is maintained in the ``doc/source/`` folder using
 `reStructuredText`_ and built by `Sphinx`_
 
 .. _reStructuredText: http://docutils.sourceforge.net/rst.html
 .. _Sphinx: http://sphinx.pocoo.org/
 
-* Building Manually::
+To build the docs locally::
 
     $ python setup.py build_sphinx
 
-Results are in the `build/sphinx/html` directory.
+Results are in the ``doc/build/sphinx/html/`` directory.
 
 Requirements
 ------------
 
 * Python 2.6+, Python 3.3+
-* httpretty
 * pbr
 * requests
 
