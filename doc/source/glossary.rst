@@ -1,3 +1,6 @@
+.. TODO(dtroyer): Resource needs further fleshing out, revise once the
+..               object model in the SDK is finalized.
+
 Glossary
 ========
 
@@ -57,9 +60,6 @@ Glossary
 
     region
         The attribute name of a partitioning of cloud resources.
-
-.. TODO(dtroyer): Resource needs further fleshing out, revise once the
-..               object model in the SDK is finalized.
 
     resource
         A Python object representing an OpenStack resource inside the SDK code.
