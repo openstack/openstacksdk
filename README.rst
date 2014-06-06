@@ -1,7 +1,7 @@
 OpenStack Python SDK
 ====================
 
-``python-openstacksdk`` is a from scratch Python library and SDK for OpenStack
+``python-openstacksdk`` is a new Python library and SDK for OpenStack
 clouds. It is very young, and not yet usable, but it's under active
 development.
 
