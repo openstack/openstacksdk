@@ -19,6 +19,7 @@ import httpretty
 
 import requests
 
+from openstack import exceptions
 from openstack.tests import base
 from openstack import transport
 
@@ -135,6 +136,25 @@ class TestTransport(base.TestTransportBase):
             httpretty.last_request().body.decode('utf-8'),
         )
         self.assertResponseOK(resp, body=fake_response)
+
+    @httpretty.activate
+    def test_request_accept(self):
+        fake_record1_str = json.dumps(fake_record1)
+        self.stub_url(httpretty.POST, body=fake_record1_str)
+        xport = transport.Transport()
+        resp = xport.post(self.TEST_URL, json=fake_record2)
+        self.assertRequestHeaderEqual('Accept', '*/*')
+        self.assertEqual(fake_record1, resp.json())
+
+        resp = xport.post(self.TEST_URL, json=fake_record2,
+                          accept=transport.JSON)
+        self.assertRequestHeaderEqual('Accept', transport.JSON)
+        self.assertEqual(fake_record1, resp.json())
+
+        xport = transport.Transport(accept=transport.JSON)
+        resp = xport.post(self.TEST_URL, json=fake_record2)
+        self.assertRequestHeaderEqual('Accept', transport.JSON)
+        self.assertEqual(fake_record1, resp.json())
 
     @httpretty.activate
     def test_user_agent_no_arg(self):
@@ -338,18 +358,14 @@ class TestTransport(base.TestTransportBase):
         xport = transport.Transport()
         self.stub_url(httpretty.GET, status=404)
 
-        resp = xport.get(self.TEST_URL)
-        self.assertFalse(resp.ok)
-        self.assertEqual(404, resp.status_code)
+        self.assertRaises(exceptions.HttpException, xport.get, self.TEST_URL)
 
     @httpretty.activate
     def test_server_error(self):
         xport = transport.Transport()
         self.stub_url(httpretty.GET, status=500)
 
-        resp = xport.get(self.TEST_URL)
-        self.assertFalse(resp.ok)
-        self.assertEqual(500, resp.status_code)
+        self.assertRaises(exceptions.HttpException, xport.get, self.TEST_URL)
 
 
 class TestTransportDebug(base.TestTransportBase):

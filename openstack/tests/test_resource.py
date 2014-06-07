@@ -54,7 +54,7 @@ class ResourceTests(base.TestTransportBase):
 
     def setUp(self):
         super(ResourceTests, self).setUp()
-        self.transport = transport.Transport()
+        self.transport = transport.Transport(accept=transport.JSON)
         self.auth = fakes.FakeAuthenticator()
         self.session = session.Session(self.transport, self.auth)
 
