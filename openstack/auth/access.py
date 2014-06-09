@@ -265,6 +265,9 @@ class AccessInfo(object):
         """
         return self._info.get('version')
 
+    def __repr__(self):
+        return str(self._info)
+
 
 class AccessInfoV2(AccessInfo):
     """An object for encapsulating a raw v2 auth token from identity

@@ -31,10 +31,10 @@ class ServiceFilter(object):
         :param string region: The desired region (optional).
         :param string service_name: Name of the service
         """
-        self.service_type = service_type
         if not service_type:
             msg = "Service type must be specified to locate service"
             raise exceptions.SDKException(msg)
+        self.service_type = service_type.lower()
         if not visibility:
             msg = "Visibility must be specified to locate service"
             raise exceptions.SDKException(msg)
@@ -42,7 +42,7 @@ class ServiceFilter(object):
         if visibility not in self.VISIBILITY:
             msg = "Visibility <%s> not in %s" % (visibility, self.VISIBILITY)
             raise exceptions.SDKException(msg)
-        self.visibility = visibility
+        self.visibility = visibility.lower()
         self.region = region
         self.service_name = service_name
 

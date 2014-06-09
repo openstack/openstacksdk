@@ -51,7 +51,7 @@ class BaseIdentityPlugin(base.BaseAuthenticator):
         """
         return self.get_access(transport).auth_token
 
-    def get_access(self, transport, **kwargs):
+    def get_access(self, transport):
         """Fetch or return a current AccessInfo object.
 
         If a valid AccessInfo is present then it is returned otherwise a new
@@ -63,7 +63,7 @@ class BaseIdentityPlugin(base.BaseAuthenticator):
         """
         if (not self.access_info or
                 self.access_info.will_expire_soon(self.BEST_BEFORE_SECONDS)):
-            self.access_info = self.authorize(transport, kwargs)
+            self.access_info = self.authorize(transport)
 
         return self.access_info
 
@@ -71,7 +71,7 @@ class BaseIdentityPlugin(base.BaseAuthenticator):
         """Return a valid endpoint for a service.
 
         If a valid token is not present then a new one will be fetched using
-        the transport and kwargs.
+        the transport.
 
         :param Transport transport: A transport object so the authenticator
                                     can authenticate.
@@ -82,5 +82,5 @@ class BaseIdentityPlugin(base.BaseAuthenticator):
 
         :return string or None: A valid endpoint URL or None if not available.
         """
-        service_catalog = self.get_access(transport, kwargs).service_catalog
+        service_catalog = self.get_access(transport).service_catalog
         return service_catalog.get_url(service)
