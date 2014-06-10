@@ -17,18 +17,18 @@ Exception definitions.
 """
 
 
-class SdkException(Exception):
+class SDKException(Exception):
     """The base exception class for all exceptions this library raises.
     """
     pass
 
 
-class AuthorizationFailure(SdkException):
+class AuthorizationFailure(SDKException):
     """Cannot authorize API client."""
     pass
 
 
-class EndpointException(SdkException):
+class EndpointException(SDKException):
     """Something is rotten in Service Catalog."""
     pass
 
@@ -43,12 +43,12 @@ class EmptyCatalog(EndpointNotFound):
     pass
 
 
-class NoMatchingPlugin(SdkException):
+class NoMatchingPlugin(SDKException):
     """No matching plugins could be created with the provided parameters."""
     pass
 
 
-class InvalidResponse(SdkException):
+class InvalidResponse(SDKException):
     """The response from the server is not valid for this request."""
 
     def __init__(self, response):
@@ -56,12 +56,12 @@ class InvalidResponse(SdkException):
         self.response = response
 
 
-class HttpException(SdkException):
+class HttpException(SDKException):
     def __init__(self, message, details=None):
         super(HttpException, self).__init__(message)
         self.details = details
 
 
-class MethodNotSupported(SdkException):
+class MethodNotSupported(SDKException):
     """The resource does not support this operation type."""
     pass

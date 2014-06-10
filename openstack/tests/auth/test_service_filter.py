@@ -48,12 +48,12 @@ class TestServiceFilter(testtools.TestCase):
         sot = filt.ServiceFilter('identity', visibility='adminURL')
         self.assertEqual("service_type=identity,visibility=admin",
                          six.text_type(sot))
-        self.assertRaises(exceptions.SdkException,
+        self.assertRaises(exceptions.SDKException,
                           filt.ServiceFilter, 'identity', visibility='b')
-        self.assertRaises(exceptions.SdkException, filt.ServiceFilter,
+        self.assertRaises(exceptions.SDKException, filt.ServiceFilter,
                           'identity', visibility=None)
-        self.assertRaises(exceptions.SdkException, filt.ServiceFilter, None)
-        self.assertRaises(exceptions.SdkException, filt.ServiceFilter, None)
+        self.assertRaises(exceptions.SDKException, filt.ServiceFilter, None)
+        self.assertRaises(exceptions.SDKException, filt.ServiceFilter, None)
 
     def test_match_service_type(self):
         sot = filt.ServiceFilter('identity')

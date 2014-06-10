@@ -34,14 +34,14 @@ class ServiceFilter(object):
         self.service_type = service_type
         if not service_type:
             msg = "Service type must be specified to locate service"
-            raise exceptions.SdkException(msg)
+            raise exceptions.SDKException(msg)
         if not visibility:
             msg = "Visibility must be specified to locate service"
-            raise exceptions.SdkException(msg)
+            raise exceptions.SDKException(msg)
         visibility = visibility.rstrip('URL')
         if visibility not in self.VISIBILITY:
             msg = "Visibility <%s> not in %s" % (visibility, self.VISIBILITY)
-            raise exceptions.SdkException(msg)
+            raise exceptions.SDKException(msg)
         self.visibility = visibility
         self.region = region
         self.service_name = service_name
