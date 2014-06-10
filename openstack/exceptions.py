@@ -60,3 +60,8 @@ class HttpException(SdkException):
     def __init__(self, message, details=None):
         super(HttpException, self).__init__(message)
         self.details = details
+
+
+class MethodNotSupported(SdkException):
+    """The resource does not support this operation type."""
+    pass

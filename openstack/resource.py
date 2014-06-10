@@ -16,11 +16,8 @@ import collections
 import six
 from six.moves.urllib import parse as url_parse
 
+from openstack import exceptions
 from openstack import utils
-
-
-class MethodNotSupported(Exception):
-    """The resource does not support this operation type."""
 
 
 class prop(object):
@@ -205,7 +202,7 @@ class Resource(collections.MutableMapping):
     @classmethod
     def create_by_id(cls, session, attrs, r_id=None):
         if not cls.allow_create:
-            raise MethodNotSupported('create')
+            raise exceptions.MethodNotSupported('create')
 
         if cls.resource_key:
             body = {cls.resource_key: attrs}
@@ -232,7 +229,7 @@ class Resource(collections.MutableMapping):
     @classmethod
     def get_data_by_id(cls, session, r_id):
         if not cls.allow_retrieve:
-            raise MethodNotSupported('retrieve')
+            raise exceptions.MethodNotSupported('retrieve')
 
         url = utils.urljoin(cls.base_path, r_id)
         body = session.get(url, service=cls.service).body
@@ -255,7 +252,7 @@ class Resource(collections.MutableMapping):
     @classmethod
     def update_by_id(cls, session, r_id, attrs):
         if not cls.allow_update:
-            raise MethodNotSupported('update')
+            raise exceptions.MethodNotSupported('update')
 
         if cls.resource_key:
             body = {cls.resource_key: attrs}
@@ -289,7 +286,7 @@ class Resource(collections.MutableMapping):
     @classmethod
     def delete_by_id(cls, session, r_id):
         if not cls.allow_delete:
-            raise MethodNotSupported('delete')
+            raise exceptions.MethodNotSupported('delete')
 
         session.delete(utils.urljoin(cls.base_path, r_id), service=cls.service,
                        accept=None)
@@ -302,7 +299,7 @@ class Resource(collections.MutableMapping):
         # NOTE(jamielennox): Is it possible we can return a generator from here
         # and allow us to keep paging rather than limit and marker?
         if not cls.allow_list:
-            raise MethodNotSupported('retrieve')
+            raise exceptions.MethodNotSupported('retrieve')
 
         filters = {}
 
