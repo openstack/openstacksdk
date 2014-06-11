@@ -20,7 +20,7 @@ import httpretty
 import mock
 import requests
 import six
-from six.moves.urllib import parse as urlparse
+from six.moves.urllib import parse as urlparse  # flake8: noqa
 import testtools
 
 

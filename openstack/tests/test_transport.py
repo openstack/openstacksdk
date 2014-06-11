@@ -12,12 +12,11 @@
 
 import json
 import logging
-import six
 
 import fixtures
 import httpretty
-
 import requests
+import six
 
 from openstack import exceptions
 from openstack.tests import base
