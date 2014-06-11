@@ -107,6 +107,11 @@ def option_parser():
         help='Authentication password (Env: OS_PASSWORD)',
     )
     parser.add_argument(
+        '--os-region',
+        metavar='<region>',
+        default=env('OS_REGION'),
+        help='Service region (Env: OS_REGION)')
+    parser.add_argument(
         '--os-cacert',
         metavar='<ca-bundle-file>',
         default=env('OS_CACERT'),

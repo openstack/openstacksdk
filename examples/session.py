@@ -20,9 +20,11 @@ from openstack import session
 
 
 def make_session(opts):
+    region = opts.os_region
+    preference = service_filter.ServiceFilter(region=region)
     xport = transport.make_transport(opts)
     auth = authenticate.make_authenticate(opts)
-    return session.Session(xport, auth)
+    return session.Session(xport, auth, preference=preference)
 
 
 def run_session(opts):
@@ -30,7 +32,7 @@ def run_session(opts):
     if argument is None:
         raise Exception("A path argument must be specified")
     sess = make_session(opts)
-    filtration = service_filter.ServiceFilter('Identity')
+    filtration = service_filter.ServiceFilter(service_type='Identity')
     print("Session: %s" % sess)
     print(sess.get(argument, service=filtration).text)
     return

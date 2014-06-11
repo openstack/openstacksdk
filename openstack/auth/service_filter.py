@@ -16,12 +16,13 @@ from openstack import exceptions
 class ServiceFilter(object):
     """The basic structure of an authentication plugin."""
 
+    ANY = 'any'
     PUBLIC = 'public'
     INTERNAL = 'internal'
     ADMIN = 'admin'
     VISIBILITY = [PUBLIC, INTERNAL, ADMIN]
 
-    def __init__(self, service_type, visibility=PUBLIC, region=None,
+    def __init__(self, service_type=ANY, visibility=PUBLIC, region=None,
                  service_name=None):
         """" Create a service identifier.
 
@@ -31,9 +32,6 @@ class ServiceFilter(object):
         :param string region: The desired region (optional).
         :param string service_name: Name of the service
         """
-        if not service_type:
-            msg = "Service type must be specified to locate service"
-            raise exceptions.SDKException(msg)
         self.service_type = service_type.lower()
         if not visibility:
             msg = "Visibility must be specified to locate service"
@@ -55,7 +53,15 @@ class ServiceFilter(object):
             ret += ",service_name=%s" % self.service_name
         return ret
 
+    def join(self, default):
+        return ServiceFilter(service_type=default.service_type,
+                             visibility=default.visibility,
+                             region=self.region,
+                             service_name=self.service_name)
+
     def match_service_type(self, service_type):
+        if self.service_type == self.ANY:
+            return True
         return self.service_type == service_type
 
     def match_service_name(self, service_name):
