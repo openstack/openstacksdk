@@ -14,7 +14,7 @@ import abc
 import collections
 
 import six
-from six.moves.urllib import parse as url_parse  # flake8: noqa
+from six.moves.urllib import parse as url_parse
 
 from openstack import exceptions
 from openstack import utils
