@@ -49,7 +49,7 @@ class Transport(requests.Session):
             user_agent=None,
             verify=True,
             redirect=DEFAULT_REDIRECT_LIMIT,
-            accept=None,
+            accept=JSON,
     ):
         """Wraps requests.Session to add some OpenStack-specific features
 
@@ -153,7 +153,8 @@ class Transport(requests.Session):
         except requests.RequestException as e:
             raise exceptions.HttpException(six.text_type(e), details=resp.text)
         if accept == JSON:
-            resp.body = resp.json()
+            if not resp.is_redirect:
+                resp.body = resp.json()
 
         return resp
 

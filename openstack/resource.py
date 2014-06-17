@@ -125,6 +125,9 @@ class Resource(collections.MutableMapping):
         self._dirty = set() if loaded else set(attrs.keys())
         self._loaded = loaded
 
+    def __repr__(self):
+        return "%s: %s" % (self.resource_key, self._attrs)
+
     ##
     # CONSTRUCTORS
     ##
@@ -288,8 +291,8 @@ class Resource(collections.MutableMapping):
         if not cls.allow_delete:
             raise exceptions.MethodNotSupported('delete')
 
-        session.delete(utils.urljoin(cls.base_path, r_id), service=cls.service,
-                       accept=None)
+        url = utils.urljoin(cls.base_path, r_id)
+        session.delete(url, service=cls.service, accept=None)
 
     def delete(self, session):
         self.delete_by_id(session, self.id)

@@ -24,7 +24,7 @@ from openstack import transport
 
 
 fake_request = 'Now is the time...'
-fake_response = 'for the quick brown fox...'
+fake_response = '{"response": "for the quick brown fox..."}'
 fake_redirect = 'redirect text'
 
 fake_record1 = {
@@ -77,9 +77,9 @@ class TestTransport(base.TestTransportBase):
 
     @httpretty.activate
     def test_head(self):
-        self.stub_url(httpretty.HEAD, body=fake_response)
+        self.stub_url(httpretty.HEAD, body='')
         xport = transport.Transport()
-        resp = xport.head(self.TEST_URL)
+        resp = xport.head(self.TEST_URL, accept=None)
         self.assertEqual(httpretty.HEAD, httpretty.last_request().method)
         self.assertResponseOK(resp, body='')
 
@@ -141,7 +141,7 @@ class TestTransport(base.TestTransportBase):
         fake_record1_str = json.dumps(fake_record1)
         self.stub_url(httpretty.POST, body=fake_record1_str)
         xport = transport.Transport()
-        resp = xport.post(self.TEST_URL, json=fake_record2)
+        resp = xport.post(self.TEST_URL, json=fake_record2, accept=None)
         self.assertRequestHeaderEqual('Accept', '*/*')
         self.assertEqual(fake_record1, resp.json())
 
@@ -478,7 +478,7 @@ class TestTransportRedirects(base.TestTransportBase):
     def test_no_redirect(self):
         self.setup_redirects()
         xport = transport.Transport(redirect=False)
-        resp = xport.get(self.REDIRECT_CHAIN[0])
+        resp = xport.get(self.REDIRECT_CHAIN[0], accept=None)
         self.assertEqual(305, resp.status_code)
         self.assertEqual(self.REDIRECT_CHAIN[0], resp.url)
 
@@ -487,7 +487,7 @@ class TestTransportRedirects(base.TestTransportBase):
         self.setup_redirects()
         for i in (1, 2):
             xport = transport.Transport(redirect=i)
-            resp = xport.get(self.REDIRECT_CHAIN[0])
+            resp = xport.get(self.REDIRECT_CHAIN[0], accept=None)
             self.assertResponseOK(resp, status=305, body=fake_redirect)
             self.assertEqual(self.REDIRECT_CHAIN[i], resp.url)
 
