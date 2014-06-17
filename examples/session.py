@@ -26,8 +26,9 @@ def make_session(opts):
 
 
 def run_session(opts):
-    """Create session."""
     argument = opts.argument
+    if argument is None:
+        raise Exception("A path argument must be specified")
     sess = make_session(opts)
     filtration = service_filter.ServiceFilter('Identity')
     print("Session: %s" % sess)
