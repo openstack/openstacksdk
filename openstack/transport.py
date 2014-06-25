@@ -217,9 +217,11 @@ class Transport(requests.Session):
             header = " -H '%s: %s'" % element
             string_parts.append(header)
 
+        if 'data' in kwargs and kwargs['data'] is not None:
+            string_parts.append("--data '")
+            string_parts.append(kwargs['data'])
+            string_parts.append("'")
         _logger.debug("REQ: %s" % " ".join(string_parts))
-        if 'data' in kwargs:
-            _logger.debug("REQ BODY: %r\n" % (kwargs['data']))
 
     def _log_response(self, response):
         _logger.debug(
