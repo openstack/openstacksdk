@@ -19,7 +19,9 @@ Exception definitions.
 
 class SDKException(Exception):
     """The base exception class for all exceptions this library raises."""
-    pass
+    def __init__(self, message=None):
+        message = self.__class__.__name__ if message is None else message
+        super(Exception, self).__init__(message)
 
 
 class AuthorizationFailure(SDKException):
