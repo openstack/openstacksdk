@@ -37,6 +37,24 @@ CONSOLE_MESSAGE_FORMAT = '%(levelname)s: %(name)s %(message)s'
 _logger = logging.getLogger(__name__)
 
 
+def find_resource_cls(opts):
+    argument = opts.argument
+    if argument.find('/') > 0:
+        # called with file e.g.: openstack/network/v2_0/network.py
+        args = argument.split('/')
+        args[-1] = args[-1].replace('.py', '')
+        from_str = '.'.join(args)
+        class_str = args[-1].title()
+    else:
+        # called with path e.g.: openstack.network.v2_0.network.Network
+        args = argument.rpartition('.')
+        from_str = args[0]
+        class_str = args[2]
+    __import__(from_str)
+    mod = sys.modules[from_str]
+    return getattr(mod, class_str)
+
+
 def get_open_fds():
     '''Return the open file descriptors for current process
 
