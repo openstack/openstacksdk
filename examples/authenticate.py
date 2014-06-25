@@ -44,6 +44,7 @@ def make_authenticate(opts):
         version = '3'
     else:
         version = version.lower().replace('v', '')
+    version = version.split('.')[0]
     if version == '3':
         if not token:
             args = {'username': username, 'password': password}
