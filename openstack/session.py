@@ -20,7 +20,7 @@ _logger = logging.getLogger(__name__)
 
 class Session(object):
 
-    def __init__(self, transport, authenticator):
+    def __init__(self, transport, authenticator, preference=None):
         """Maintains client communication session.
 
         Session layer which uses the transport for communication.  The
@@ -28,9 +28,12 @@ class Session(object):
 
         :param transport: A transport layer for the session.
         :param authenticator: An authenticator to authenticate the session.
+        :param ServiceFilter preference: Service filter preference.
+        :type preference: :class:`openstack.auth.service_filter.ServiceFilter`
         """
         self.transport = transport
         self.authenticator = authenticator
+        self.preference = preference
 
     def _request(self, path, method, service=None, authenticate=True,
                  **kwargs):
@@ -55,6 +58,8 @@ class Session(object):
             token = self.authenticator.get_token(self.transport)
             if token:
                 headers['X-Auth-Token'] = token
+        if service and self.preference:
+            service = self.preference.join(service)
 
         endpoint = self.authenticator.get_endpoint(self.transport, service)
         url = utils.urljoin(endpoint, path)

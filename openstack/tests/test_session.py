@@ -24,7 +24,7 @@ class TestSession(base.TestCase):
         super(TestSession, self).setUp()
         self.xport = fakes.FakeTransport()
         self.auth = fakes.FakeAuthenticator()
-        self.serv = service_filter.ServiceFilter('identity')
+        self.serv = service_filter.ServiceFilter(service_type='identity')
         self.sess = session.Session(self.xport, self.auth)
         self.expected = {'headers': {'X-Auth-Token': self.auth.TOKEN}}
 

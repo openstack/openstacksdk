@@ -20,37 +20,44 @@ from openstack.tests.auth import common
 
 class TestServiceCatalog(testtools.TestCase):
     def get_urls(self, sot):
-        sf = service_filter.ServiceFilter('compute')
+        sf = service_filter.ServiceFilter(service_type='compute')
         exp = ["http://compute.region2.public/",
                "http://compute.region1.public/"]
         self.assertEqual(exp, sot.get_urls(sf))
-        sf = service_filter.ServiceFilter('image')
+        sf = service_filter.ServiceFilter(service_type='image')
         self.assertEqual(["http://image.region1.public/"], sot.get_urls(sf))
-        sf = service_filter.ServiceFilter('identity')
+        sf = service_filter.ServiceFilter(service_type='identity')
         self.assertEqual(["http://identity.region1.public/"], sot.get_urls(sf))
-        sf = service_filter.ServiceFilter('object-store')
+        sf = service_filter.ServiceFilter(service_type='object-store')
         self.assertEqual(["http://object-store.region1.public/"],
                          sot.get_urls(sf))
 
     def get_urls_name(self, sot):
-        sf = service_filter.ServiceFilter('compute', service_name='nova')
+        sf = service_filter.ServiceFilter(service_type='compute',
+                                          service_name='nova')
         self.assertEqual(["http://compute.region1.public/"], sot.get_urls(sf))
-        sf = service_filter.ServiceFilter('compute', service_name='nova2')
+        sf = service_filter.ServiceFilter(service_type='compute',
+                                          service_name='nova2')
         self.assertEqual(["http://compute.region2.public/"], sot.get_urls(sf))
 
     def get_urls_region(self, sot):
-        sf = service_filter.ServiceFilter('compute', region='RegionTwo')
+        sf = service_filter.ServiceFilter(service_type='compute',
+                                          region='RegionTwo')
         self.assertEqual(["http://compute.region2.public/"], sot.get_urls(sf))
-        sf = service_filter.ServiceFilter('compute', region='RegionOne')
+        sf = service_filter.ServiceFilter(service_type='compute',
+                                          region='RegionOne')
         self.assertEqual(["http://compute.region1.public/"], sot.get_urls(sf))
 
     def get_urls_visibility(self, sot):
-        sf = service_filter.ServiceFilter('identity', visibility='admin')
+        sf = service_filter.ServiceFilter(service_type='identity',
+                                          visibility='admin')
         self.assertEqual(["http://identity.region1.admin/"], sot.get_urls(sf))
-        sf = service_filter.ServiceFilter('identity', visibility='internal')
+        sf = service_filter.ServiceFilter(service_type='identity',
+                                          visibility='internal')
         self.assertEqual(["http://identity.region1.internal/"],
                          sot.get_urls(sf))
-        sf = service_filter.ServiceFilter('identity', visibility='public')
+        sf = service_filter.ServiceFilter(service_type='identity',
+                                          visibility='public')
         self.assertEqual(["http://identity.region1.public/"], sot.get_urls(sf))
 
 
