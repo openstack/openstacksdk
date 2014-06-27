@@ -219,7 +219,7 @@ class TokenMethod(AuthMethod):
     _method_parameters = ['token']
 
     def __init__(self, **kwargs):
-        """Construct a Auth plugin to fetch a token from a token.
+        """Construct an Auth plugin to fetch a token from a token.
 
         :param string token: Token for authentication.
         """
