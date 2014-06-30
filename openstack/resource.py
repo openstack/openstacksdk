@@ -253,6 +253,30 @@ class Resource(collections.MutableMapping):
         self._loaded = True
 
     @classmethod
+    def head_data_by_id(cls, session, r_id):
+        if not cls.allow_retrieve:
+            raise exceptions.MethodNotSupported('retrieve')
+
+        url = utils.urljoin(cls.base_path, r_id)
+
+        data = session.head(url, service=cls.service, accept=None).headers
+        resp_id = data.pop("X-Trans-Id", None)
+        if resp_id:
+            data["id"] = resp_id
+
+        return data
+
+    @classmethod
+    def head_by_id(cls, session, r_id):
+        data = cls.head_data_by_id(session, r_id)
+        return cls.existing(**data)
+
+    def head(self, session):
+        data = self.head_data_by_id(session, self.id)
+        self._attrs.update(data)
+        self._loaded = True
+
+    @classmethod
     def update_by_id(cls, session, r_id, attrs):
         if not cls.allow_update:
             raise exceptions.MethodNotSupported('update')
