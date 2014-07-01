@@ -27,6 +27,7 @@ playing with the example scripts against a running OpenStack simpler.
 """
 
 import argparse
+import json
 import logging
 import os
 import subprocess
@@ -53,6 +54,10 @@ def find_resource_cls(opts):
     __import__(from_str)
     mod = sys.modules[from_str]
     return getattr(mod, class_str)
+
+
+def get_data_option(opts):
+    return json.loads(opts.data)
 
 
 def get_open_fds():
@@ -165,6 +170,12 @@ def option_parser():
         metavar='<url>',
         default=env('OS_URL'),
         help='Defaults to env[OS_URL]',
+    )
+    parser.add_argument(
+        '--data',
+        metavar='<data>',
+        default='{}',
+        help='Json data for command.',
     )
     parser.add_argument(
         '-v', '--verbose',
