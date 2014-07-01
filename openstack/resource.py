@@ -126,7 +126,12 @@ class Resource(collections.MutableMapping):
         self._loaded = loaded
 
     def __repr__(self):
-        return "%s: %s" % (self.resource_key, self._attrs)
+        if self._id is not None:
+            d = {'id': self._id}
+            d.update(self._attrs)
+        else:
+            d = self._attrs
+        return "%s: %s" % (self.resource_key, d)
 
     ##
     # CONSTRUCTORS
