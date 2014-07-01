@@ -24,7 +24,8 @@ from openstack import transport
 
 
 fake_request = 'Now is the time...'
-fake_response = '{"response": "for the quick brown fox..."}'
+fake_response = 'for the quick brown fox...'
+fake_response_json = '{"response": "for the quick brown fox..."}'
 fake_redirect = 'redirect text'
 
 fake_record1 = {
@@ -46,7 +47,7 @@ class TestTransport(base.TestTransportBase):
     def test_request(self):
         self.stub_url(httpretty.GET, body=fake_response)
         xport = transport.Transport()
-        resp = xport.request('GET', self.TEST_URL)
+        resp = xport.request('GET', self.TEST_URL, accept=None)
         self.assertEqual(httpretty.GET, httpretty.last_request().method)
         self.assertResponseOK(resp, body=fake_response)
 
@@ -54,7 +55,7 @@ class TestTransport(base.TestTransportBase):
     def test_request_json(self):
         self.stub_url(httpretty.GET, json=fake_record1)
         xport = transport.Transport()
-        resp = xport.request('GET', self.TEST_URL)
+        resp = xport.request('GET', self.TEST_URL, accept=None)
         self.assertEqual(httpretty.GET, httpretty.last_request().method)
         self.assertResponseOK(resp, body=json.dumps(fake_record1))
         self.assertEqual(fake_record1, resp.json())
@@ -63,7 +64,7 @@ class TestTransport(base.TestTransportBase):
     def test_delete(self):
         self.stub_url(httpretty.DELETE, body=fake_response)
         xport = transport.Transport()
-        resp = xport.delete(self.TEST_URL)
+        resp = xport.delete(self.TEST_URL, accept=None)
         self.assertEqual(httpretty.DELETE, httpretty.last_request().method)
         self.assertResponseOK(resp, body=fake_response)
 
@@ -71,7 +72,7 @@ class TestTransport(base.TestTransportBase):
     def test_get(self):
         self.stub_url(httpretty.GET, body=fake_response)
         xport = transport.Transport()
-        resp = xport.get(self.TEST_URL)
+        resp = xport.get(self.TEST_URL, accept=None)
         self.assertEqual(httpretty.GET, httpretty.last_request().method)
         self.assertResponseOK(resp, body=fake_response)
 
@@ -87,13 +88,13 @@ class TestTransport(base.TestTransportBase):
     def test_options(self):
         self.stub_url(httpretty.OPTIONS, body=fake_response)
         xport = transport.Transport()
-        resp = xport.options(self.TEST_URL)
+        resp = xport.options(self.TEST_URL, accept=None)
         self.assertEqual(httpretty.OPTIONS, httpretty.last_request().method)
         self.assertResponseOK(resp, body=fake_response)
 
     @httpretty.activate
     def test_patch(self):
-        self.stub_url(httpretty.PATCH, body=fake_response)
+        self.stub_url(httpretty.PATCH, body=fake_response_json)
         xport = transport.Transport()
         resp = xport.patch(self.TEST_URL, json=fake_record2)
         self.assertEqual(httpretty.PATCH, httpretty.last_request().method)
@@ -101,11 +102,11 @@ class TestTransport(base.TestTransportBase):
             json.dumps(fake_record2),
             httpretty.last_request().body.decode('utf-8'),
         )
-        self.assertResponseOK(resp, body=fake_response)
+        self.assertResponseOK(resp, body=fake_response_json)
 
     @httpretty.activate
     def test_post(self):
-        self.stub_url(httpretty.POST, body=fake_response)
+        self.stub_url(httpretty.POST, body=fake_response_json)
         xport = transport.Transport()
         resp = xport.post(self.TEST_URL, json=fake_record2)
         self.assertEqual(httpretty.POST, httpretty.last_request().method)
@@ -113,14 +114,14 @@ class TestTransport(base.TestTransportBase):
             json.dumps(fake_record2),
             httpretty.last_request().body.decode('utf-8'),
         )
-        self.assertResponseOK(resp, body=fake_response)
+        self.assertResponseOK(resp, body=fake_response_json)
 
     @httpretty.activate
     def test_put(self):
         self.stub_url(httpretty.PUT, body=fake_response)
         xport = transport.Transport()
 
-        resp = xport.put(self.TEST_URL, data=fake_request)
+        resp = xport.put(self.TEST_URL, data=fake_request, accept=None)
         self.assertEqual(httpretty.PUT, httpretty.last_request().method)
         self.assertEqual(
             fake_request,
@@ -128,13 +129,18 @@ class TestTransport(base.TestTransportBase):
         )
         self.assertResponseOK(resp, body=fake_response)
 
+    @httpretty.activate
+    def test_put_json(self):
+        self.stub_url(httpretty.PUT, body=fake_response_json)
+        xport = transport.Transport()
+
         resp = xport.put(self.TEST_URL, json=fake_record2)
         self.assertEqual(httpretty.PUT, httpretty.last_request().method)
         self.assertEqual(
             json.dumps(fake_record2),
             httpretty.last_request().body.decode('utf-8'),
         )
-        self.assertResponseOK(resp, body=fake_response)
+        self.assertResponseOK(resp, body=fake_response_json)
 
     @httpretty.activate
     def test_request_accept(self):
@@ -160,34 +166,46 @@ class TestTransport(base.TestTransportBase):
         self.stub_url(httpretty.GET, body=fake_response)
         xport = transport.Transport()
 
-        resp = xport.get(self.TEST_URL)
+        resp = xport.get(self.TEST_URL, accept=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual(
             'User-Agent',
             transport.DEFAULT_USER_AGENT,
         )
 
-        resp = xport.get(self.TEST_URL, headers={'User-Agent': None})
+        resp = xport.get(
+            self.TEST_URL,
+            headers={'User-Agent': None},
+            accept=None,
+        )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
 
-        resp = xport.get(self.TEST_URL, user_agent=None)
+        resp = xport.get(self.TEST_URL, user_agent=None, accept=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
 
-        resp = xport.get(self.TEST_URL, headers={'User-Agent': ''})
+        resp = xport.get(
+            self.TEST_URL,
+            headers={'User-Agent': ''},
+            accept=None,
+        )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', '')
 
-        resp = xport.get(self.TEST_URL, user_agent='')
+        resp = xport.get(self.TEST_URL, user_agent='', accept=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', '')
 
-        resp = xport.get(self.TEST_URL, headers={'User-Agent': 'new-agent'})
+        resp = xport.get(
+            self.TEST_URL,
+            headers={'User-Agent': 'new-agent'},
+            accept=None,
+        )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'new-agent')
 
-        resp = xport.get(self.TEST_URL, user_agent='new-agent')
+        resp = xport.get(self.TEST_URL, user_agent='new-agent', accept=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'new-agent')
 
@@ -195,6 +213,7 @@ class TestTransport(base.TestTransportBase):
             self.TEST_URL,
             headers={'User-Agent': 'new-agent'},
             user_agent=None,
+            accept=None,
         )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
@@ -203,6 +222,7 @@ class TestTransport(base.TestTransportBase):
             self.TEST_URL,
             headers={'User-Agent': None},
             user_agent='overrides-agent',
+            accept=None,
         )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
@@ -211,6 +231,7 @@ class TestTransport(base.TestTransportBase):
             self.TEST_URL,
             headers={'User-Agent': 'new-agent'},
             user_agent='overrides-agent',
+            accept=None,
         )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
@@ -220,34 +241,46 @@ class TestTransport(base.TestTransportBase):
         self.stub_url(httpretty.GET, body=fake_response)
         xport = transport.Transport(user_agent=None)
 
-        resp = xport.get(self.TEST_URL)
+        resp = xport.get(self.TEST_URL, accept=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual(
             'User-Agent',
             transport.DEFAULT_USER_AGENT,
         )
 
-        resp = xport.get(self.TEST_URL, headers={'User-Agent': None})
+        resp = xport.get(
+            self.TEST_URL,
+            headers={'User-Agent': None},
+            accept=None,
+        )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
 
-        resp = xport.get(self.TEST_URL, user_agent=None)
+        resp = xport.get(self.TEST_URL, user_agent=None, accept=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
 
-        resp = xport.get(self.TEST_URL, headers={'User-Agent': ''})
+        resp = xport.get(
+            self.TEST_URL,
+            headers={'User-Agent': ''},
+            accept=None,
+        )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', '')
 
-        resp = xport.get(self.TEST_URL, user_agent='')
+        resp = xport.get(self.TEST_URL, user_agent='', accept=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', '')
 
-        resp = xport.get(self.TEST_URL, headers={'User-Agent': 'new-agent'})
+        resp = xport.get(
+            self.TEST_URL,
+            headers={'User-Agent': 'new-agent'},
+            accept=None,
+        )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'new-agent')
 
-        resp = xport.get(self.TEST_URL, user_agent='new-agent')
+        resp = xport.get(self.TEST_URL, user_agent='new-agent', accept=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'new-agent')
 
@@ -255,6 +288,7 @@ class TestTransport(base.TestTransportBase):
             self.TEST_URL,
             headers={'User-Agent': 'new-agent'},
             user_agent=None,
+            accept=None,
         )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
@@ -263,6 +297,7 @@ class TestTransport(base.TestTransportBase):
             self.TEST_URL,
             headers={'User-Agent': None},
             user_agent='overrides-agent',
+            accept=None,
         )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
@@ -271,6 +306,7 @@ class TestTransport(base.TestTransportBase):
             self.TEST_URL,
             headers={'User-Agent': 'new-agent'},
             user_agent='overrides-agent',
+            accept=None,
         )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
@@ -280,31 +316,43 @@ class TestTransport(base.TestTransportBase):
         self.stub_url(httpretty.GET, body=fake_response)
         xport = transport.Transport(user_agent='test-agent')
 
-        resp = xport.get(self.TEST_URL)
+        resp = xport.get(self.TEST_URL, accept=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'test-agent')
 
-        resp = xport.get(self.TEST_URL, headers={'User-Agent': None})
+        resp = xport.get(
+            self.TEST_URL,
+            headers={'User-Agent': None},
+            accept=None,
+        )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
 
-        resp = xport.get(self.TEST_URL, user_agent=None)
+        resp = xport.get(self.TEST_URL, user_agent=None, accept=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
 
-        resp = xport.get(self.TEST_URL, headers={'User-Agent': ''})
+        resp = xport.get(
+            self.TEST_URL,
+            headers={'User-Agent': ''},
+            accept=None,
+        )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', '')
 
-        resp = xport.get(self.TEST_URL, user_agent='')
+        resp = xport.get(self.TEST_URL, user_agent='', accept=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', '')
 
-        resp = xport.get(self.TEST_URL, headers={'User-Agent': 'new-agent'})
+        resp = xport.get(
+            self.TEST_URL,
+            headers={'User-Agent': 'new-agent'},
+            accept=None,
+        )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'new-agent')
 
-        resp = xport.get(self.TEST_URL, user_agent='new-agent')
+        resp = xport.get(self.TEST_URL, user_agent='new-agent', accept=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'new-agent')
 
@@ -312,6 +360,7 @@ class TestTransport(base.TestTransportBase):
             self.TEST_URL,
             headers={'User-Agent': 'new-agent'},
             user_agent=None,
+            accept=None,
         )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
@@ -320,6 +369,7 @@ class TestTransport(base.TestTransportBase):
             self.TEST_URL,
             headers={'User-Agent': None},
             user_agent='overrides-agent',
+            accept=None,
         )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
@@ -328,6 +378,7 @@ class TestTransport(base.TestTransportBase):
             self.TEST_URL,
             headers={'User-Agent': 'new-agent'},
             user_agent='overrides-agent',
+            accept=None,
         )
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
@@ -393,6 +444,7 @@ class TestTransportDebug(base.TestTransportBase):
             headers=headers,
             params=params,
             json=fake_record2,
+            accept=None,
         )
         self.assertEqual(httpretty.POST, httpretty.last_request().method)
         self.assertEqual(
@@ -454,19 +506,51 @@ class TestTransportRedirects(base.TestTransportBase):
     def test_get_redirect(self):
         self.setup_redirects()
         xport = transport.Transport()
-        resp = xport.get(self.REDIRECT_CHAIN[-2])
+        resp = xport.get(self.REDIRECT_CHAIN[-2], accept=None)
         self.assertResponseOK(resp, body=fake_response)
+
+    @httpretty.activate
+    def test_get_redirect_json(self):
+        self.setup_redirects(
+            final_kwargs={'body': fake_response_json},
+        )
+        xport = transport.Transport()
+        resp = xport.get(self.REDIRECT_CHAIN[-2])
+        self.assertResponseOK(resp, body=fake_response_json)
 
     @httpretty.activate
     def test_post_keeps_correct_method(self):
         self.setup_redirects(method=httpretty.POST, status=301)
         xport = transport.Transport()
-        resp = xport.post(self.REDIRECT_CHAIN[-2])
+        resp = xport.post(self.REDIRECT_CHAIN[-2], accept=None)
         self.assertResponseOK(resp, body=fake_response)
+
+    @httpretty.activate
+    def test_post_keeps_correct_method_json(self):
+        self.setup_redirects(
+            method=httpretty.POST,
+            status=301,
+            final_kwargs={'body': fake_response_json},
+        )
+        xport = transport.Transport()
+        resp = xport.post(self.REDIRECT_CHAIN[-2])
+        self.assertResponseOK(resp, body=fake_response_json)
 
     @httpretty.activate
     def test_redirect_forever(self):
         self.setup_redirects()
+        xport = transport.Transport()
+        resp = xport.get(self.REDIRECT_CHAIN[0], accept=None)
+        self.assertResponseOK(resp)
+        # Request history length is 1 less than the source chain due to the
+        # last response not being a redirect and not added to the history.
+        self.assertEqual(len(self.REDIRECT_CHAIN) - 1, len(resp.history))
+
+    @httpretty.activate
+    def test_redirect_forever_json(self):
+        self.setup_redirects(
+            final_kwargs={'body': fake_response_json},
+        )
         xport = transport.Transport()
         resp = xport.get(self.REDIRECT_CHAIN[0])
         self.assertResponseOK(resp)
@@ -483,6 +567,18 @@ class TestTransportRedirects(base.TestTransportBase):
         self.assertEqual(self.REDIRECT_CHAIN[0], resp.url)
 
     @httpretty.activate
+    def test_no_redirect_json(self):
+        self.setup_redirects(
+            final_kwargs={'body': fake_response_json},
+        )
+        xport = transport.Transport(redirect=False)
+        self.assertRaises(
+            exceptions.InvalidResponse,
+            xport.get,
+            self.REDIRECT_CHAIN[0],
+        )
+
+    @httpretty.activate
     def test_redirect_limit(self):
         self.setup_redirects()
         for i in (1, 2):
@@ -492,8 +588,42 @@ class TestTransportRedirects(base.TestTransportBase):
             self.assertEqual(self.REDIRECT_CHAIN[i], resp.url)
 
     @httpretty.activate
+    def test_redirect_limit_json(self):
+        self.setup_redirects(
+            final_kwargs={'body': fake_response_json},
+        )
+        for i in (1, 2):
+            xport = transport.Transport(redirect=i)
+            self.assertRaises(
+                exceptions.InvalidResponse,
+                xport.get,
+                self.REDIRECT_CHAIN[0],
+            )
+
+    @httpretty.activate
     def test_history_matches_requests(self):
         self.setup_redirects(status=301)
+        xport = transport.Transport(redirect=True, accept=None)
+        req_resp = requests.get(
+            self.REDIRECT_CHAIN[0],
+            allow_redirects=True,
+        )
+
+        resp = xport.get(self.REDIRECT_CHAIN[0])
+
+        self.assertEqual(type(resp.history), type(req_resp.history))
+        self.assertEqual(len(resp.history), len(req_resp.history))
+
+        for r, s in zip(req_resp.history, resp.history):
+            self.assertEqual(s.url, r.url)
+            self.assertEqual(s.status_code, r.status_code)
+
+    @httpretty.activate
+    def test_history_matches_requests_json(self):
+        self.setup_redirects(
+            status=301,
+            final_kwargs={'body': fake_response_json},
+        )
         xport = transport.Transport(redirect=True)
         req_resp = requests.get(
             self.REDIRECT_CHAIN[0],
