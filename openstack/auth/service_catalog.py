@@ -54,7 +54,7 @@ class ServiceCatalog(object):
                 if not filtration.match_visibility(endpoint.get('interface')):
                     continue
                 url = endpoint.get('url')
-                if url is not None:
+                if url:
                     eps += [url]
         return eps
 
