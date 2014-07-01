@@ -14,11 +14,11 @@
 # under the License.
 
 """
-SDK Transport Examples
+Transport Example
 
-This script shows the basic use of the Transport class in making
-REST API calls.
-
+For example:
+    python -m examples.transport \
+           https://region-a.geo-1.identity.hpcloudsvc.com:35357/
 """
 
 import sys

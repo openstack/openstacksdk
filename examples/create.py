@@ -10,6 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""
+Example Create Command
+
+For example:
+    python -m examples.create openstack/network/v2_0/network.py \
+           --data '{"name": "foo"}'
+"""
+
 import sys
 
 from examples import common

@@ -14,15 +14,21 @@
 # under the License.
 
 """
-SDK Examples
+SDK Examples Common
 
 This is a collection of common functions used by the example scripts.
-It may also be run as a script to do the most basic check of creating
-a Transport object.
 
 common.object_parser() provides the common set of command-line arguments
 used in the library CLIs for setting up authentication.  This should make
 playing with the example scripts against a running OpenStack simpler.
+
+Typical environment variables to set and export for authentication include:
+
+    OS_PROJECT_NAME=FooFighter
+    OS_PASSWORD=nirvana
+    OS_AUTH_URL=https://foofighters.com:35357/v3
+    OS_USERNAME=davegrohl
+    OS_REGION=Seattle
 
 """
 

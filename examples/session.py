@@ -10,6 +10,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""
+Example Session Command
+
+Make sure you can authenticate before running this command.  This command
+is currently hard coded to use the Identity service.
+
+For example:
+    python -m examples.session /tenants
+"""
+
 import sys
 
 from examples import authenticate
