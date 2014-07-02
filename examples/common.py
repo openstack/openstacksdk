@@ -39,6 +39,7 @@ import os
 import subprocess
 import sys
 import traceback
+import uuid
 
 CONSOLE_MESSAGE_FORMAT = '%(levelname)s: %(name)s %(message)s'
 _logger = logging.getLogger(__name__)
@@ -63,7 +64,11 @@ def find_resource_cls(opts):
 
 
 def get_data_option(opts):
-    return json.loads(opts.data)
+    try:
+        iddy = uuid.UUID(opts.data)
+        return {'id': iddy}
+    except ValueError:
+        return json.loads(opts.data)
 
 
 def get_open_fds():
