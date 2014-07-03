@@ -18,8 +18,7 @@ Exception definitions.
 
 
 class SDKException(Exception):
-    """The base exception class for all exceptions this library raises.
-    """
+    """The base exception class for all exceptions this library raises."""
     pass
 
 

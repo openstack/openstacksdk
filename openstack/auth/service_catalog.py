@@ -74,8 +74,7 @@ class ServiceCatalog(object):
 
 
 class ServiceCatalogV2(ServiceCatalog):
-    """The V2 service catalog from Keystone.
-    """
+    """The V2 service catalog from Keystone."""
     def __init__(self, catalog):
         super(ServiceCatalogV2, self).__init__(catalog)
         self._normalize()

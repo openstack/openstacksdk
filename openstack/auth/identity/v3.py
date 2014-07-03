@@ -159,8 +159,11 @@ class AuthMethod(object):
 
 @six.add_metaclass(abc.ABCMeta)
 class _AuthConstructor(Auth):
-    """AuthConstructor is a means of creating an Auth Plugin that contains
-    only one authentication method. This is generally the required usage.
+    """AuthConstructor creates an authentication plugin with one method.
+
+    AuthConstructor is a means of creating an authentication plugin that
+    contains only one authentication method. This is generally the required
+    usage.
 
     An AuthConstructor creates an AuthMethod based on the method's
     arguments and the auth_method_class defined by the plugin. It then

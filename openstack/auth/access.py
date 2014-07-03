@@ -31,14 +31,15 @@ class AccessInfo(object):
 
     """
     def __init__(self, **kwargs):
-        """Construct access info
-        """
+        """Construct access info."""
         self._info = kwargs
 
     @classmethod
     def factory(cls, resp=None, body=None, **kwargs):
-        """Create AccessInfo object given a successful auth response & body
-           or a user-provided dict.
+        """AccessInfo factory.
+
+        Create AccessInfo object given a successful auth response & body
+        or a user-provided dict.
         """
 
         if body is not None or len(kwargs):
@@ -72,7 +73,9 @@ class AccessInfo(object):
 
     @classmethod
     def is_valid(cls, body, **kwargs):
-        """Determines if processing v2 or v3 token given a successful
+        """Valid v2 or v3 token
+
+        Determines if processing v2 or v3 token given a successful
         auth body or a user-provided dict.
 
         :return: boolean : true if auth body matches implementing class
@@ -88,7 +91,9 @@ class AccessInfo(object):
 
     @property
     def auth_token(self):
-        """Returns the token_id associated with the auth request, to be used
+        """Authorize token
+
+        Returns the token_id associated with the auth request, to be used
         in headers for authenticating OpenStack API requests.
 
         :returns: str
@@ -105,7 +110,9 @@ class AccessInfo(object):
 
     @property
     def username(self):
-        """Returns the username associated with the authentication request.
+        """User name
+
+        Returns the username associated with the authentication request.
         Follows the pattern defined in the V2 API of first looking for 'name',
         returning that if available, and falling back to 'username' if name
         is unavailable.
@@ -124,11 +131,11 @@ class AccessInfo(object):
 
     @property
     def user_domain_id(self):
-        """Returns the domain id of the user associated with the authentication
-        request.
+        """Users domain id
 
-        For v2, it always returns 'default' which may be different from the
-        Keystone configuration.
+        Returns the domain id of the user associated with the authentication
+        request.  For v2, it always returns 'default' which may be different
+        from the Keystone configuration.
 
         :returns: str
         """
@@ -136,11 +143,11 @@ class AccessInfo(object):
 
     @property
     def user_domain_name(self):
-        """Returns the domain name of the user associated with the
-        authentication request.
+        """Users domain name
 
-        For v2, it always returns 'Default' which may be different from the
-        Keystone configuration.
+        Returns the domain name of the user associated with the authentication
+        request.  For v2, it always returns 'Default' which may be different
+        from the Keystone configuration.
 
         :returns: str
         """
@@ -148,7 +155,9 @@ class AccessInfo(object):
 
     @property
     def role_names(self):
-        """Returns a list of role names of the user associated with the
+        """Role names
+
+        Returns a list of role names of the user associated with the
         authentication request.
 
         :returns: a list of strings of role names
@@ -186,8 +195,7 @@ class AccessInfo(object):
 
     @property
     def project_scoped(self):
-        """Returns true if the authorization token was scoped to a tenant
-           (project).
+        """Returns true if the authorization token was scoped to a project.
 
         :returns: bool
         """
@@ -211,7 +219,9 @@ class AccessInfo(object):
 
     @property
     def trust_scoped(self):
-        """Returns true if the authorization token was scoped as delegated in a
+        """Delegated to a trust.
+
+        Returns true if the authorization token was scoped as delegated in a
         trust, via the OS-TRUST v3 extension.
 
         :returns: bool
@@ -220,9 +230,10 @@ class AccessInfo(object):
 
     @property
     def project_id(self):
-        """Returns the project ID associated with the authentication
-        request, or None if the authentication request wasn't scoped to a
-        project.
+        """Project id.
+
+        Returns the project ID associated with the authentication request,
+        or None if the authentication request wasn't scoped to a project.
 
         :returns: str or None (if no project associated with the token)
         """
@@ -235,11 +246,11 @@ class AccessInfo(object):
 
     @property
     def project_domain_id(self):
-        """Returns the domain id of the project associated with the
-        authentication request.
+        """Project domain.
 
-        For v2, it returns 'default' if a project is scoped or None which may
-        be different from the keystone configuration.
+        Returns the domain id of the project associated with the authentication
+        request.  For v2, it returns 'default' if a project is scoped or None
+        which may be different from the keystone configuration.
 
         :returns: str
         """
@@ -247,11 +258,11 @@ class AccessInfo(object):
 
     @property
     def project_domain_name(self):
-        """Returns the domain name of the project associated with the
-        authentication request.
+        """Project domain name.
 
-        For v2, it returns 'Default' if a project is scoped or None  which may
-        be different from the keystone configuration.
+        Returns the domain name of the project associated with the
+        authentication request.  For v2, it returns 'Default' if a project is
+        scoped or None  which may be different from the keystone configuration.
 
         :returns: str
         """
@@ -270,9 +281,7 @@ class AccessInfo(object):
 
 
 class AccessInfoV2(AccessInfo):
-    """An object for encapsulating a raw v2 auth token from identity
-       service.
-    """
+    """Object for encapsulating a raw v2 auth token from identity service."""
 
     def __init__(self, **kwargs):
         super(AccessInfoV2, self).__init__(**kwargs)
@@ -399,9 +408,7 @@ class AccessInfoV2(AccessInfo):
 
 
 class AccessInfoV3(AccessInfo):
-    """An object for encapsulating a raw v3 auth token from identity
-       service.
-    """
+    """Object for encapsulating a raw v3 auth token from identity service."""
 
     def __init__(self, token, **kwargs):
         super(AccessInfoV3, self).__init__(**kwargs)
