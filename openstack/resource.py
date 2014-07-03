@@ -101,6 +101,9 @@ class Resource(collections.MutableMapping):
     resource_key = None
     resources_key = None
 
+    # The attribute associated with the name
+    name_attribute = 'name'
+
     # the base part of the url for this resource
     base_path = ''
 
@@ -350,3 +353,24 @@ class Resource(collections.MutableMapping):
             resp = resp[cls.resources_key]
 
         return [cls.existing(**data) for data in resp]
+
+    @classmethod
+    def find(cls, session, name_or_id):
+        try:
+            info = cls.list(session, id=name_or_id, fields='id')
+            if len(info) == 1:
+                return info[0]
+        except exceptions.HttpException:
+            pass
+        if cls.name_attribute:
+            params = {cls.name_attribute: name_or_id, 'fields': 'id'}
+            info = cls.list(session, **params)
+            if len(info) == 1:
+                return info[0]
+            if len(info) > 1:
+                msg = "More than one %s exists with the name '%s'."
+                msg = (msg % (cls.resource_key, name_or_id))
+                raise exceptions.DuplicateResource(msg)
+        msg = ("No %s with a name or ID of '%s' exists." %
+               (cls.resource_key, name_or_id))
+        raise exceptions.ResourceNotFound(msg)

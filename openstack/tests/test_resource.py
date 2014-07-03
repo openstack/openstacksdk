@@ -11,7 +11,9 @@
 # under the License.
 
 import httpretty
+import mock
 
+from openstack import exceptions
 from openstack import resource
 from openstack import session
 from openstack.tests import base
@@ -206,3 +208,81 @@ class ResourceTests(base.TestTransportBase):
             pass
         else:
             self.fail("Didn't raise attribute error")
+
+
+class FakeResponse:
+    def __init__(self, response):
+        self.body = response
+
+
+class TestFind(base.TestCase):
+    NAME = 'matrix'
+    ID = 'Fishburne'
+
+    def setUp(self):
+        super(TestFind, self).setUp()
+        self.mock_session = mock.Mock()
+        self.mock_get = mock.Mock()
+        self.mock_session.get = self.mock_get
+        self.matrix = {'id': self.ID}
+
+    def test_name(self):
+        self.mock_get.side_effect = [
+            FakeResponse({FakeResource.resources_key: []}),
+            FakeResponse({FakeResource.resources_key: [self.matrix]})
+        ]
+
+        result = FakeResource.find(self.mock_session, self.NAME)
+
+        self.assertEqual(self.ID, result.id)
+        p = {'fields': 'id', 'name': self.NAME}
+        self.mock_get.assert_called_with('/fakes', params=p, service=None)
+
+    def test_id(self):
+        resp = FakeResponse({FakeResource.resources_key: [self.matrix]})
+        self.mock_get.return_value = resp
+
+        result = FakeResource.find(self.mock_session, self.ID)
+
+        self.assertEqual(self.ID, result.id)
+        p = {'fields': 'id', 'id': self.ID}
+        self.mock_get.assert_called_with('/fakes', params=p, service=None)
+
+    def test_nameo(self):
+        self.mock_get.side_effect = [
+            FakeResponse({FakeResource.resources_key: []}),
+            FakeResponse({FakeResource.resources_key: [self.matrix]})
+        ]
+        FakeResource.name_attribute = 'nameo'
+
+        result = FakeResource.find(self.mock_session, self.NAME)
+
+        FakeResource.name_attribute = 'name'
+        self.assertEqual(self.ID, result.id)
+        p = {'fields': 'id', 'nameo': self.NAME}
+        self.mock_get.assert_called_with('/fakes', params=p, service=None)
+
+    def test_dups(self):
+        dup = {'id': 'Larry'}
+        resp = FakeResponse({FakeResource.resources_key: [self.matrix, dup]})
+        self.mock_get.return_value = resp
+
+        self.assertRaises(exceptions.DuplicateResource, FakeResource.find,
+                          self.mock_session, self.NAME)
+
+    def test_nada(self):
+        resp = FakeResponse({FakeResource.resources_key: []})
+        self.mock_get.return_value = resp
+
+        self.assertRaises(exceptions.ResourceNotFound, FakeResource.find,
+                          self.mock_session, self.NAME)
+
+    def test_no_name(self):
+        self.mock_get.side_effect = [
+            FakeResponse({FakeResource.resources_key: []}),
+            FakeResponse({FakeResource.resources_key: [self.matrix]})
+        ]
+        FakeResource.name_attribute = None
+
+        self.assertRaises(exceptions.ResourceNotFound, FakeResource.find,
+                          self.mock_session, self.NAME)
