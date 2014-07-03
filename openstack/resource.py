@@ -123,18 +123,12 @@ class Resource(collections.MutableMapping):
         if attrs is None:
             attrs = {}
 
-        self._id = attrs.pop('id', None)
         self._attrs = attrs
         self._dirty = set() if loaded else set(attrs.keys())
         self._loaded = loaded
 
     def __repr__(self):
-        if self._id is not None:
-            d = {'id': self._id}
-            d.update(self._attrs)
-        else:
-            d = self._attrs
-        return "%s: %s" % (self.resource_key, d)
+        return "%s: %s" % (self.resource_key, self._attrs)
 
     ##
     # CONSTRUCTORS
@@ -193,11 +187,11 @@ class Resource(collections.MutableMapping):
     @property
     def id(self):
         # id is read only
-        return self._id
+        return self._attrs.get('id', None)
 
     @id.deleter
     def id_del(self):
-        self._id = None
+        del self._attrs['id']
 
     @property
     def is_dirty(self):
@@ -234,7 +228,7 @@ class Resource(collections.MutableMapping):
 
     def create(self, session):
         resp = self.create_by_id(session, self._attrs, self.id)
-        self._id = resp.pop('id')
+        self._attrs['id'] = resp['id']
         self._reset_dirty()
 
     @classmethod
