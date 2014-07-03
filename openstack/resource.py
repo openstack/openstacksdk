@@ -303,7 +303,7 @@ class Resource(collections.MutableMapping):
         self.delete_by_id(session, self.id)
 
     @classmethod
-    def list(cls, session, limit=None, marker=None):
+    def list(cls, session, limit=None, marker=None, **params):
         # NOTE(jamielennox): Is it possible we can return a generator from here
         # and allow us to keep paging rather than limit and marker?
         if not cls.allow_list:
@@ -320,7 +320,7 @@ class Resource(collections.MutableMapping):
         if filters:
             url = '%s?%s' % (url, url_parse.urlencode(filters))
 
-        resp = session.get(url, service=cls.service).body
+        resp = session.get(url, service=cls.service, params=params).body
 
         if cls.resources_key:
             resp = resp[cls.resources_key]
