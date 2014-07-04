@@ -115,7 +115,9 @@ if tuple(sys.version_info)[0:2] < (2, 7):
 
 
 class TestResponse(requests.Response):
-    """Class used to wrap requests.Response and provide some
+    """Test implementation of requests.Response
+
+       Class used to wrap requests.Response and provide some
        convenience to initialize with a dict.
     """
 
