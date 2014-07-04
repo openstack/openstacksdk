@@ -82,6 +82,15 @@ class Transport(requests.Session):
         self._redirect = redirect
         self._accept = accept
 
+    @classmethod
+    def create(cls, cacert=None, insecure=False, user_agent=None):
+        # Certificate verification - defaults to True
+        if cacert:
+            verify = cacert
+        else:
+            verify = not insecure
+        return cls(verify=verify, user_agent=user_agent)
+
     def request(self, method, url, redirect=None, **kwargs):
         """Send a request
 

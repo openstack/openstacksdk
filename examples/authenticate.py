@@ -30,8 +30,7 @@ import sys
 from examples import common
 from examples import transport
 from openstack.auth import base
-from openstack.auth.identity import v2
-from openstack.auth.identity import v3
+from openstack.auth.identity import authenticator
 
 
 class TestAuthenticator(base.BaseAuthenticator):
@@ -48,35 +47,14 @@ class TestAuthenticator(base.BaseAuthenticator):
 
 
 def make_authenticate(opts):
-    """Create authenticator of some sort."""
-    token = opts.os_token
-    username = opts.os_username
-    password = opts.os_password
-    auth_url = opts.os_auth_url
-    project_name = opts.os_project_name
-    version = opts.os_identity_api_version
-    if version is None:
-        version = '3'
-    else:
-        version = version.lower().replace('v', '')
-    version = version.split('.')[0]
-    if version == '3':
-        if not token:
-            args = {'username': username, 'password': password}
-            if project_name:
-                args['project_name'] = project_name
-            return v3.Password(auth_url, **args)
-        else:
-            return v3.Token(auth_url, token=token)
-    elif version == '2':
-        if not token:
-            args = {}
-            if project_name:
-                args['tenant_name'] = project_name
-            return v2.Password(auth_url, username, password, **args)
-        else:
-            return v2.Token(auth_url, token)
-    raise Exception("No support for version: %s" % version)
+    return authenticator.Authenticator.create(
+        username=opts.os_username,
+        password=opts.os_password,
+        token=opts.os_token,
+        auth_url=opts.os_auth_url,
+        version=opts.os_identity_api_version,
+        project_name=opts.os_project_name,
+    )
 
 
 def run_authenticate(opts):
