@@ -10,12 +10,23 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import unittest
 
-def urljoin(*args):
-    """A custom version of urljoin that simply joins strings into a path.
+from openstack import utils
 
-    The real urljoin takes into account web semantics like when joining a url
-    like /path this should be joined to http://host/path as it is an anchored
-    link. We generally won't care about that in client.
-    """
-    return '/'.join(str(a or '').strip('/') for a in args)
+
+class Test_urljoin(unittest.TestCase):
+
+    def test_strings(self):
+        root = "http://www.example.com"
+        leaves = "foo", "bar"
+
+        result = utils.urljoin(root, *leaves)
+        self.assertEqual(result, "http://www.example.com/foo/bar")
+
+    def test_with_none(self):
+        root = "http://www.example.com"
+        leaves = "foo", None
+
+        result = utils.urljoin(root, *leaves)
+        self.assertEqual(result, "http://www.example.com/foo/")
