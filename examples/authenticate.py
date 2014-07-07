@@ -10,6 +10,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""
+Authentication example
+
+To authenticate you must have the environment variables set or use the
+command line options.  This is a good example to start wtih because once
+you know you can authenticate, you can perform other operations that
+require authentication.  Refer to the example common.py for the environment
+variables or command line options to use.
+
+If you use the environment variables, authenticate with:
+
+     python -m examples.authenticate
+
+"""
+
 import sys
 
 from examples import common

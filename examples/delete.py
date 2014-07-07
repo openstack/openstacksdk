@@ -10,6 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""
+Example Delete Command
+
+For example:
+    python -m examples.delete openstack/network/v2_0/network.py \
+           --data '{"id": "a1369557-748f-429c-bd3e-fc385aacaec7"}'
+"""
+
 import sys
 
 from examples import common
