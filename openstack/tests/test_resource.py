@@ -61,6 +61,21 @@ class ResourceTests(base.TestTransportBase):
         self.session = session.Session(self.transport, self.auth)
 
     @httpretty.activate
+    def test_empty_id(self):
+        self.stub_url(httpretty.GET, path=[fake_path], json=fake_body)
+        obj = FakeResource.new()
+        obj.get(self.session)
+
+        self.assertEqual(fake_id, obj.id)
+        self.assertEqual(fake_name, obj['name'])
+        self.assertEqual(fake_attr1, obj['attr1'])
+        self.assertEqual(fake_attr2, obj['attr2'])
+
+        self.assertEqual(fake_name, obj.name)
+        self.assertEqual(fake_attr1, obj.first)
+        self.assertEqual(fake_attr2, obj.second)
+
+    @httpretty.activate
     def test_create(self):
         self.stub_url(httpretty.POST, path=fake_path, json=fake_body)
 
