@@ -16,19 +16,9 @@ from examples import common
 from examples import session
 
 
-def make_resource(opts):
-    argument = opts.argument
-    args = argument.rpartition('.')
-    from_str = args[0]
-    class_str = args[2]
-    __import__(from_str)
-    mod = sys.modules[from_str]
-    return getattr(mod, class_str)
-
-
 def run_list(opts):
     sess = session.make_session(opts)
-    cls = make_resource(opts)
+    cls = common.find_resource_cls(opts)
     for obj in cls.list(sess):
         print(str(obj))
     return

@@ -10,13 +10,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""
+Example Head Command
+
+For example:
+    python -m examples.head openstack/image/v1/image.py \
+        --data 9d7d22d0-7d43-481f-a7eb-d93ea2791409
+"""
+
 import sys
 
 from examples import common
 from examples import session
 
 
-def run_get(opts):
+def run_head(opts):
     sess = session.make_session(opts)
     cls = common.find_resource_cls(opts)
     data = common.get_data_option(opts)
@@ -28,4 +36,4 @@ def run_get(opts):
 
 if __name__ == "__main__":
     opts = common.setup()
-    sys.exit(common.main(opts, run_get))
+    sys.exit(common.main(opts, run_head))

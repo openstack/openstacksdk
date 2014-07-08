@@ -14,7 +14,7 @@
 Authentication example
 
 To authenticate you must have the environment variables set or use the
-command line options.  This is a good example to start wtih because once
+command line options.  This is a good example to start with because once
 you know you can authenticate, you can perform other operations that
 require authentication.  Refer to the example common.py for the environment
 variables or command line options to use.
