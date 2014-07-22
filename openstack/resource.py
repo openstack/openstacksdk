@@ -68,7 +68,7 @@ class prop(object):
         try:
             return instance._attrs[self.name]
         except KeyError:
-            raise AttributeError('Unset property: %s', self.name)
+            raise AttributeError('Unset property: %s' % self.name)
 
     def __set__(self, instance, value):
         if self.type and not isinstance(value, self.type):
@@ -80,7 +80,7 @@ class prop(object):
         try:
             del instance._attrs[self.name]
         except KeyError:
-            raise AttributeError('Unset property: %s', self.name)
+            raise AttributeError('Unset property: %s' % self.name)
 
 
 @six.add_metaclass(abc.ABCMeta)
