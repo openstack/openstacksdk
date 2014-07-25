@@ -203,6 +203,9 @@ class Transport(requests.Session):
         return resp
 
     def _log_request(self, method, url, **kwargs):
+        if not _logger.isEnabledFor(logging.DEBUG):
+            return
+
         if 'params' in kwargs and kwargs['params']:
             url += '?' + urllib.parse.urlencode(kwargs['params'])
 
