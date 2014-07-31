@@ -11,14 +11,13 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack.network.v2 import security_group_rule as group_rules
 from openstack import resource
 
 
-class SecurityGroup(resource.Resource):
-    resource_key = 'security_group'
-    resources_key = 'security_groups'
-    base_path = '/v2.0/security-groups'
+class SecurityGroupRule(resource.Resource):
+    resource_key = 'security_group_rule'
+    resources_key = 'security_group_rules'
+    base_path = '/v2.0/security-group-rules'
     service = network_service.NetworkService()
 
     # capabilities
@@ -29,17 +28,12 @@ class SecurityGroup(resource.Resource):
     allow_list = True
 
     # Properties
-    description = resource.prop('description')
-    name = resource.prop('name')
+    direction = resource.prop('direction')
+    ethertype = resource.prop('ethertype')
+    port_range_max = resource.prop('port_range_max')
+    port_range_min = resource.prop('port_range_min')
     project_id = resource.prop('tenant_id')
-    security_group_rules = resource.prop('security_group_rules')
-
-    def __init__(self, attrs=None, loaded=False):
-        super(SecurityGroup, self).__init__(attrs=attrs, loaded=loaded)
-        try:
-            rules = []
-            for rule in self.security_group_rules:
-                rules.append(group_rules.SecurityGroupRule.existing(**rule))
-            self.security_group_rules = rules
-        except AttributeError:
-            pass
+    protocol = resource.prop('protocol')
+    remote_group_id = resource.prop('remote_group_id')
+    remote_ip_prefix = resource.prop('remote_ip_prefix')
+    security_group_id = resource.prop('security_group_id')
