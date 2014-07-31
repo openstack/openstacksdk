@@ -1,0 +1,59 @@
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+import testtools
+
+from openstack.network.v2 import subnet
+
+IDENTIFIER = 'IDENTIFIER'
+EXAMPLE = {
+    'allocation_pools': '1',
+    'cidr': '2',
+    'dns_nameservers': '3',
+    'enable_dhcp': True,
+    'gateway_ip': '5',
+    'host_routes': '6',
+    'id': IDENTIFIER,
+    'ip_version': '8',
+    'name': '9',
+    'network_id': '10',
+    'tenant_id': '11',
+}
+
+
+class TestSubnet(testtools.TestCase):
+
+    def test_basic(self):
+        sot = subnet.Subnet()
+        self.assertEqual('subnet', sot.resource_key)
+        self.assertEqual('subnets', sot.resources_key)
+        self.assertEqual('/v2.0/subnets', sot.base_path)
+        self.assertEqual('network', sot.service.service_type)
+        self.assertTrue(sot.allow_create)
+        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_update)
+        self.assertTrue(sot.allow_delete)
+        self.assertTrue(sot.allow_list)
+
+    def test_make_it(self):
+        sot = subnet.Subnet(EXAMPLE)
+        self.assertEqual(EXAMPLE['allocation_pools'], sot.allocation_pools)
+        self.assertEqual(EXAMPLE['cidr'], sot.cidr)
+        self.assertEqual(EXAMPLE['dns_nameservers'], sot.dns_nameservers)
+        self.assertEqual(EXAMPLE['enable_dhcp'], sot.enable_dhcp)
+        self.assertEqual(EXAMPLE['gateway_ip'], sot.gateway_ip)
+        self.assertEqual(EXAMPLE['host_routes'], sot.host_routes)
+        self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['ip_version'], sot.ip_version)
+        self.assertEqual(EXAMPLE['name'], sot.name)
+        self.assertEqual(EXAMPLE['network_id'], sot.network_id)
+        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
