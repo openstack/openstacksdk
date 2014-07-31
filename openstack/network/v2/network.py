@@ -28,7 +28,14 @@ class Network(resource.Resource):
     allow_list = True
 
     # Properties
-    admin_state_up = resource.prop('admin_state_up')
+    admin_state_up = resource.prop('admin_state_up', type=bool)
     name = resource.prop('name')
-    shared = resource.prop('shared')
     project_id = resource.prop('tenant_id')
+    provider_network_type = resource.prop('provider:network_type')
+    provider_physical_network = resource.prop('provider:physical_network')
+    provider_segmentation_id = resource.prop('provider:segmentation_id')
+    router_external = resource.prop('router:external')
+    segments = resource.prop('segments')
+    shared = resource.prop('shared', type=bool)
+    status = resource.prop('status')
+    subnets = resource.prop('subnets')
