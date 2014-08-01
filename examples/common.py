@@ -53,6 +53,7 @@ def find_resource_cls(opts):
         args[-1] = args[-1].replace('.py', '')
         from_str = '.'.join(args)
         class_str = args[-1].title()
+        class_str = class_str.replace('_', '')
     else:
         # called with path e.g.: openstack.network.v2_0.network.Network
         args = argument.rpartition('.')
