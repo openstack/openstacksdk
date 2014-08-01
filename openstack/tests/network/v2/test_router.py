@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 import testtools
 
 from openstack.network.v2 import router
@@ -48,3 +49,31 @@ class TestRouter(testtools.TestCase):
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['status'], sot.status)
+
+    def test_add_interface(self):
+        sot = router.Router(EXAMPLE)
+        response = mock.Mock()
+        response.body = {"subnet_id": "3", "port_id": "2"}
+        sess = mock.Mock()
+        sess.put = mock.MagicMock()
+        sess.put.return_value = response
+
+        self.assertEqual(response.body, sot.add_interface(sess, '3'))
+
+        url = 'v2.0/routers/IDENTIFIER/add_router_interface'
+        body = {"subnet_id": "3"}
+        sess.put.assert_called_with(url, service=sot.service, json=body)
+
+    def test_remove_interface(self):
+        sot = router.Router(EXAMPLE)
+        response = mock.Mock()
+        response.body = {"subnet_id": "3", "port_id": "2"}
+        sess = mock.Mock()
+        sess.put = mock.MagicMock()
+        sess.put.return_value = response
+
+        self.assertEqual(response.body, sot.remove_interface(sess, '3'))
+
+        url = 'v2.0/routers/IDENTIFIER/remove_router_interface'
+        body = {"subnet_id": "3"}
+        sess.put.assert_called_with(url, service=sot.service, json=body)
