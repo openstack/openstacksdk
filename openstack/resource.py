@@ -118,6 +118,7 @@ class Resource(collections.MutableMapping):
     allow_update = False
     allow_delete = False
     allow_list = False
+    allow_head = False
 
     def __init__(self, attrs=None, loaded=False):
         if attrs is None:
@@ -256,8 +257,8 @@ class Resource(collections.MutableMapping):
 
     @classmethod
     def head_data_by_id(cls, session, r_id):
-        if not cls.allow_retrieve:
-            raise exceptions.MethodNotSupported('retrieve')
+        if not cls.allow_head:
+            raise exceptions.MethodNotSupported('head')
 
         url = utils.urljoin(cls.base_path, r_id)
 

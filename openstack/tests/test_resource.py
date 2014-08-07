@@ -43,7 +43,7 @@ class FakeResource(resource.Resource):
     base_path = '/%s' % fake_path
 
     allow_create = allow_retrieve = allow_update = True
-    allow_delete = allow_list = True
+    allow_delete = allow_list = allow_head = True
 
     name = resource.prop('name')
     first = resource.prop('attr1')
