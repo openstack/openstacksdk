@@ -12,6 +12,7 @@
 
 from openstack.network import network_service
 from openstack import resource
+from openstack import utils
 
 
 class Router(resource.Resource):
@@ -28,8 +29,20 @@ class Router(resource.Resource):
     allow_list = True
 
     # Properties
-    admin_state_up = resource.prop('admin_state_up')
-    external_gateway_info = resource.prop('external_gateway_info')
+    admin_state_up = resource.prop('admin_state_up', type=bool)
+    external_gateway_info = resource.prop('external_gateway_info', type=dict)
     name = resource.prop('name')
     project_id = resource.prop('tenant_id')
     status = resource.prop('status')
+
+    def add_interface(self, session, subnet_id):
+        body = {'subnet_id': subnet_id}
+        url = utils.urljoin(self.base_path, self.id, 'add_router_interface')
+        resp = session.put(url, service=self.service, json=body).body
+        return resp
+
+    def remove_interface(self, session, subnet_id):
+        body = {'subnet_id': subnet_id}
+        url = utils.urljoin(self.base_path, self.id, 'remove_router_interface')
+        resp = session.put(url, service=self.service, json=body).body
+        return resp
