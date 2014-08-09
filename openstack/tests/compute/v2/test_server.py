@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 import testtools
 
 from openstack.compute.v2 import server
@@ -36,6 +37,14 @@ EXAMPLE = {
 
 
 class TestServer(testtools.TestCase):
+
+    def setUp(self):
+        super(TestServer, self).setUp()
+        self.resp = mock.Mock()
+        self.resp.body = ''
+        self.sess = mock.Mock()
+        self.sess.put = mock.MagicMock()
+        self.sess.put.return_value = self.resp
 
     def test_basic(self):
         sot = server.Server()
@@ -67,3 +76,129 @@ class TestServer(testtools.TestCase):
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['updated'], sot.updated)
         self.assertEqual(EXAMPLE['user_id'], sot.user_id)
+
+    def test_change_passowrd(self):
+        sot = server.Server(EXAMPLE)
+
+        self.assertEqual(self.resp.body, sot.change_password(self.sess, 'a'))
+
+        url = 'servers/IDENTIFIER/action'
+        body = {"changePassword": {"adminPass": "a"}}
+        self.sess.put.assert_called_with(url, service=sot.service, json=body)
+
+    def test_reboot(self):
+        sot = server.Server(EXAMPLE)
+
+        self.assertEqual(self.resp.body, sot.reboot(self.sess, 'HARD'))
+
+        url = 'servers/IDENTIFIER/action'
+        body = {"reboot": {"type": "HARD"}}
+        self.sess.put.assert_called_with(url, service=sot.service, json=body)
+
+    def test_rebuild(self):
+        sot = server.Server(EXAMPLE)
+
+        self.assertEqual(
+            self.resp.body,
+            sot.rebuild(
+                self.sess,
+                name='noo',
+                image_href='http://image/1',
+                admin_password='seekr3t',
+                access_ipv4="12.34.56.78",
+                access_ipv6="fe80::100",
+                metadata={"meta var": "meta val"},
+                personality=[{"path": "/etc/motd", "contents": "foo"}],
+            )
+        )
+
+        url = 'servers/IDENTIFIER/action'
+        body = {
+            "rebuild": {
+                "name": "noo",
+                "imageRef": "http://image/1",
+                "adminPass": "seekr3t",
+                "accessIPv4": "12.34.56.78",
+                "accessIPv6": "fe80::100",
+                "metadata": {"meta var": "meta val"},
+                "personality": [{"path": "/etc/motd", "contents": "foo"}],
+            }
+        }
+        self.sess.put.assert_called_with(url, service=sot.service, json=body)
+
+    def test_rebuild_minimal(self):
+        sot = server.Server(EXAMPLE)
+
+        self.assertEqual(
+            self.resp.body,
+            sot.rebuild(
+                self.sess,
+                name='nootoo',
+                image_href='http://image/2',
+                admin_password='seekr3two',
+            )
+        )
+
+        url = 'servers/IDENTIFIER/action'
+        body = {
+            "rebuild": {
+                "name": "nootoo",
+                "imageRef": "http://image/2",
+                "adminPass": "seekr3two",
+            }
+        }
+        self.sess.put.assert_called_with(url, service=sot.service, json=body)
+
+    def test_resize(self):
+        sot = server.Server(EXAMPLE)
+
+        self.assertEqual(self.resp.body, sot.resize(self.sess, '2'))
+
+        url = 'servers/IDENTIFIER/action'
+        body = {"resize": {"flavorRef": "2"}}
+        self.sess.put.assert_called_with(url, service=sot.service, json=body)
+
+    def test_confirm_resize(self):
+        sot = server.Server(EXAMPLE)
+
+        self.assertEqual(self.resp.body, sot.confirm_resize(self.sess))
+
+        url = 'servers/IDENTIFIER/action'
+        body = {"confirmResize": None}
+        self.sess.put.assert_called_with(url, service=sot.service, json=body)
+
+    def test_revert_resize(self):
+        sot = server.Server(EXAMPLE)
+
+        self.assertEqual(self.resp.body, sot.revert_resize(self.sess))
+
+        url = 'servers/IDENTIFIER/action'
+        body = {"revertResize": None}
+        self.sess.put.assert_called_with(url, service=sot.service, json=body)
+
+    def test_create_image(self):
+        sot = server.Server(EXAMPLE)
+        name = 'noo'
+        metadata = {'nu': 'image', 'created': 'today'}
+
+        self.assertEqual(
+            self.resp.body,
+            sot.create_image(self.sess, name, metadata)
+        )
+
+        url = 'servers/IDENTIFIER/action'
+        body = {"createImage": {'name': name, 'metadata': metadata}}
+        self.sess.put.assert_called_with(url, service=sot.service, json=body)
+
+    def test_create_image_minimal(self):
+        sot = server.Server(EXAMPLE)
+        name = 'noo'
+
+        self.assertEqual(
+            self.resp.body,
+            sot.create_image(self.sess, name)
+        )
+
+        url = 'servers/IDENTIFIER/action'
+        body = {"createImage": {'name': name}}
+        self.sess.put.assert_called_with(url, service=sot.service, json=body)

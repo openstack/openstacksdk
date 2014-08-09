@@ -12,6 +12,7 @@
 
 from openstack.compute import compute_service
 from openstack import resource
+from openstack import utils
 
 
 class Server(resource.Resource):
@@ -43,3 +44,62 @@ class Server(resource.Resource):
     status = resource.prop('status')
     updated = resource.prop('updated')
     user_id = resource.prop('user_id')
+
+    def action(self, session, body):
+        """Preform server actions given the message body."""
+        url = utils.urljoin(self.base_path, self.id, 'action')
+        resp = session.put(url, service=self.service, json=body).body
+        return resp
+
+    def change_password(self, session, new_password):
+        """Change the administrator password to the given password."""
+        body = {'changePassword': {'adminPass': new_password}}
+        return self.action(session, body)
+
+    def reboot(self, session, reboot_type):
+        """Reboot server where reboot_type might be 'SOFT' or 'HARD'."""
+        body = {'reboot': {'type': reboot_type}}
+        return self.action(session, body)
+
+    def rebuild(self, session, name, image_href, admin_password,
+                access_ipv4=None, access_ipv6=None,
+                metadata=None, personality=None):
+        """Rebuild the server with the given arguments."""
+        action = {
+            'name': name,
+            'adminPass': admin_password,
+            'imageRef': image_href,
+        }
+        if access_ipv4 is not None:
+            action['accessIPv4'] = access_ipv4
+        if access_ipv6 is not None:
+            action['accessIPv6'] = access_ipv6
+        if metadata is not None:
+            action['metadata'] = metadata
+        if personality is not None:
+            action['personality'] = personality
+        body = {'rebuild': action}
+        return self.action(session, body)
+
+    def resize(self, session, flavor):
+        """Resize server to flavor reference."""
+        body = {'resize': {'flavorRef': flavor}}
+        return self.action(session, body)
+
+    def confirm_resize(self, session):
+        """Confirm the resize of the server."""
+        body = {'confirmResize': None}
+        return self.action(session, body)
+
+    def revert_resize(self, session):
+        """Revert the resize of the server."""
+        body = {'revertResize': None}
+        return self.action(session, body)
+
+    def create_image(self, session, name, metadata=None):
+        """Create image from server."""
+        action = {'name': name}
+        if metadata is not None:
+            action['metadata'] = metadata
+        body = {'createImage': action}
+        return self.action(session, body)
