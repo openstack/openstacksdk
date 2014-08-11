@@ -12,6 +12,9 @@
 
 import logging
 
+from openstack.auth.identity import authenticator
+from openstack.auth import service_filter
+from openstack import transport
 from openstack import utils
 
 
@@ -34,6 +37,28 @@ class Session(object):
         self.transport = transport
         self.authenticator = authenticator
         self.preference = preference
+
+    @classmethod
+    def create(cls, username=None, password=None, token=None, auth_url=None,
+               version=None, project_name=None, cacert=None, insecure=False,
+               user_agent=None, region=None):
+        xport = transport.Transport.create(
+            cacert=cacert,
+            insecure=insecure,
+            user_agent=user_agent,
+        )
+        args = {
+            'username': username,
+            'password': password,
+            'token': token,
+            'auth_url': auth_url,
+            'project_name': project_name
+        }
+        if version:
+            args['version'] = version
+        auth = authenticator.create(**args)
+        preference = service_filter.ServiceFilter(region=region)
+        return cls(xport, auth, preference=preference)
 
     def _request(self, path, method, service=None, authenticate=True,
                  **kwargs):

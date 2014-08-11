@@ -22,19 +22,24 @@ For example:
 
 import sys
 
-from examples import authenticate
 from examples import common
-from examples import transport
 from openstack.auth import service_filter
 from openstack import session
 
 
 def make_session(opts):
-    region = opts.os_region
-    preference = service_filter.ServiceFilter(region=region)
-    xport = transport.make_transport(opts)
-    auth = authenticate.make_authenticate(opts)
-    return session.Session(xport, auth, preference=preference)
+    return session.Session.create(
+        username=opts.os_username,
+        password=opts.os_password,
+        token=opts.os_token,
+        auth_url=opts.os_auth_url,
+        version=opts.os_identity_api_version,
+        project_name=opts.os_project_name,
+        cacert=opts.os_cacert,
+        insecure=opts.insecure,
+        user_agent='SDKExample',
+        region=opts.os_region,
+    )
 
 
 def run_session(opts):

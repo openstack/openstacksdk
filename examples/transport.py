@@ -30,12 +30,11 @@ USER_AGENT = 'SDKExample'
 
 
 def make_transport(opts):
-    # Certificate verification - defaults to True
-    if opts.os_cacert:
-        verify = opts.os_cacert
-    else:
-        verify = not opts.insecure
-    return transport.Transport(verify=verify, user_agent=USER_AGENT)
+    return transport.Transport.create(
+        cacert=opts.os_cacert,
+        insecure=opts.insecure,
+        user_agent=USER_AGENT
+    )
 
 
 def run_transport(opts):
