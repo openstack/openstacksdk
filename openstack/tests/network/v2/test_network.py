@@ -16,11 +16,18 @@ from openstack.network.v2 import network
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
-    'admin_state_up': '1',
+    'admin_state_up': True,
     'id': IDENTIFIER,
-    'name': '2',
-    'shared': True,
+    'name': '3',
     'tenant_id': '4',
+    'provider:network_type': '5',
+    'provider:physical_network': '6',
+    'provider:segmentation_id': '7',
+    'router:external': '8',
+    'segments': '9',
+    'shared': True,
+    'status': '11',
+    'subnets': '12',
 }
 
 
@@ -41,7 +48,17 @@ class TestNetwork(testtools.TestCase):
     def test_make_it(self):
         sot = network.Network(EXAMPLE)
         self.assertEqual(EXAMPLE['admin_state_up'], sot.admin_state_up)
-        self.assertEqual(IDENTIFIER, sot.id)
+        self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
-        self.assertEqual(EXAMPLE['shared'], sot.shared)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['provider:network_type'],
+                         sot.provider_network_type)
+        self.assertEqual(EXAMPLE['provider:physical_network'],
+                         sot.provider_physical_network)
+        self.assertEqual(EXAMPLE['provider:segmentation_id'],
+                         sot.provider_segmentation_id)
+        self.assertEqual(EXAMPLE['router:external'], sot.router_external)
+        self.assertEqual(EXAMPLE['segments'], sot.segments)
+        self.assertEqual(EXAMPLE['shared'], sot.shared)
+        self.assertEqual(EXAMPLE['status'], sot.status)
+        self.assertEqual(EXAMPLE['subnets'], sot.subnets)
