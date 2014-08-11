@@ -28,9 +28,9 @@ class Flavor(resource.Resource):
     allow_list = True
 
     # Properties
-    disk = resource.prop('disk')
+    disk = resource.prop('disk', type=int)
+    is_public = resource.prop('os-flavor-access:is_public', type=bool)
     links = resource.prop('links')
-    is_public = resource.prop('os-flavor-access:is_public')
     name = resource.prop('name')
-    ram = resource.prop('ram')
-    vcpus = resource.prop('vcpus')
+    ram = resource.prop('ram', type=int)
+    vcpus = resource.prop('vcpus', type=int)

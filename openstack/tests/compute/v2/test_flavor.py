@@ -16,13 +16,13 @@ from openstack.compute.v2 import flavor
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
-    'disk': '1',
+    'disk': 1,
     'id': IDENTIFIER,
-    'links': '3',
-    'os-flavor-access:is_public': '4',
+    'os-flavor-access:is_public': True,
+    'links': '4',
     'name': '5',
-    'ram': '6',
-    'vcpus': '7',
+    'ram': 6,
+    'vcpus': 7,
 }
 
 
@@ -43,9 +43,9 @@ class TestFlavor(testtools.TestCase):
     def test_make_it(self):
         sot = flavor.Flavor(EXAMPLE)
         self.assertEqual(EXAMPLE['disk'], sot.disk)
-        self.assertEqual(IDENTIFIER, sot.id)
-        self.assertEqual(EXAMPLE['links'], sot.links)
+        self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['os-flavor-access:is_public'], sot.is_public)
+        self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['ram'], sot.ram)
         self.assertEqual(EXAMPLE['vcpus'], sot.vcpus)
