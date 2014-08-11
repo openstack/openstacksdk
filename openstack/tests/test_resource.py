@@ -52,6 +52,7 @@ class FakeResource(resource.Resource):
     name = resource.prop('name')
     first = resource.prop('attr1')
     second = resource.prop('attr2')
+    third = resource.prop('attr3', alias='attr_three')
 
 
 class ResourceTests(base.TestTransportBase):
@@ -228,6 +229,29 @@ class ResourceTests(base.TestTransportBase):
             pass
         else:
             self.fail("Didn't raise attribute error")
+
+        try:
+            obj.third
+        except AttributeError:
+            pass
+        else:
+            self.fail("Didn't raise attribute error")
+
+    def test_composite_attr_happy(self):
+        obj = FakeResource.existing(**{'attr3': '3'})
+
+        try:
+            self.assertEqual('3', obj.third)
+        except AttributeError:
+            self.fail("third was not found as expected")
+
+    def test_composite_attr_fallback(self):
+        obj = FakeResource.existing(**{'attr_three': '3'})
+
+        try:
+            self.assertEqual('3', obj.third)
+        except AttributeError:
+            self.fail("third was not found in fallback as expected")
 
 
 class FakeResponse:

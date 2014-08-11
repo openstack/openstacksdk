@@ -1,0 +1,138 @@
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+import mock
+import testtools
+
+from openstack.telemetry.v2 import sample
+
+SAMPLE = {
+    'id': None,
+    'metadata': {'1': 'one'},
+    'meter': '2',
+    'project_id': '3',
+    'recorded_at': '4',
+    'resource_id': '5',
+    'source': '6',
+    'timestamp': '7',
+    'type': '8',
+    'unit': '9',
+    'user_id': '10',
+    'volume': '11.1',
+}
+
+OLD_SAMPLE = {
+    'counter_name': '1',
+    'counter_type': '2',
+    'counter_unit': '3',
+    'counter_volume': '4',
+    'message_id': None,
+    'project_id': '5',
+    'recorded_at': '6',
+    'resource_id': '7',
+    'resource_metadata': '8',
+    'source': '9',
+    'timestamp': '10',
+    'user_id': '11',
+}
+
+
+class TestSample(testtools.TestCase):
+
+    def test_basic(self):
+        sot = sample.Sample(SAMPLE)
+        self.assertIsNone(sot.resource_key)
+        self.assertIsNone(sot.resources_key)
+        self.assertEqual('/v2/meters/%(meter)s', sot.base_path)
+        self.assertEqual('metering', sot.service.service_type)
+        self.assertTrue(sot.allow_create)
+        self.assertFalse(sot.allow_retrieve)
+        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_delete)
+        self.assertTrue(sot.allow_list)
+
+    def test_make_new(self):
+        sot = sample.Sample(SAMPLE)
+        self.assertIsNone(sot.id)
+        self.assertEqual(SAMPLE['metadata'], sot.metadata)
+        self.assertEqual(SAMPLE['meter'], sot.meter)
+        self.assertEqual(SAMPLE['project_id'], sot.project_id)
+        self.assertEqual(SAMPLE['recorded_at'], sot.recorded_at)
+        self.assertEqual(SAMPLE['resource_id'], sot.resource_id)
+        self.assertIsNone(sot.sample_id)
+        self.assertEqual(SAMPLE['source'], sot.source)
+        self.assertEqual(SAMPLE['timestamp'], sot.generated_at)
+        self.assertEqual(SAMPLE['type'], sot.type)
+        self.assertEqual(SAMPLE['unit'], sot.unit)
+        self.assertEqual(SAMPLE['user_id'], sot.user_id)
+        self.assertEqual(SAMPLE['volume'], sot.volume)
+
+    def test_make_old(self):
+        sot = sample.Sample(OLD_SAMPLE)
+        self.assertIsNone(sot.id)
+        self.assertIsNone(sot.sample_id),
+        self.assertEqual(OLD_SAMPLE['counter_name'], sot.meter)
+        self.assertEqual(OLD_SAMPLE['counter_type'], sot.type)
+        self.assertEqual(OLD_SAMPLE['counter_unit'], sot.unit)
+        self.assertEqual(OLD_SAMPLE['counter_volume'], sot.volume)
+        self.assertEqual(OLD_SAMPLE['project_id'], sot.project_id)
+        self.assertEqual(OLD_SAMPLE['recorded_at'], sot.recorded_at)
+        self.assertEqual(OLD_SAMPLE['resource_id'], sot.resource_id)
+        self.assertEqual(OLD_SAMPLE['resource_metadata'], sot.metadata)
+        self.assertEqual(OLD_SAMPLE['source'], sot.source)
+        self.assertEqual(OLD_SAMPLE['timestamp'], sot.generated_at)
+        self.assertEqual(OLD_SAMPLE['user_id'], sot.user_id)
+
+    def test_list(self):
+        sess = mock.Mock()
+        resp = mock.Mock()
+        resp.body = [SAMPLE, OLD_SAMPLE]
+        sess.get = mock.Mock(return_value=resp)
+        path_args = {'meter': 'name_of_meter'}
+
+        found = sample.Sample.list(sess, path_args=path_args)
+        self.assertEqual(2, len(found))
+        first = found[0]
+        self.assertIsNone(first.id)
+        self.assertIsNone(first.sample_id)
+        self.assertEqual(SAMPLE['metadata'], first.metadata)
+        self.assertEqual(SAMPLE['meter'], first.meter)
+        self.assertEqual(SAMPLE['project_id'], first.project_id)
+        self.assertEqual(SAMPLE['recorded_at'], first.recorded_at)
+        self.assertEqual(SAMPLE['resource_id'], first.resource_id)
+        self.assertEqual(SAMPLE['source'], first.source)
+        self.assertEqual(SAMPLE['timestamp'], first.generated_at)
+        self.assertEqual(SAMPLE['type'], first.type)
+        self.assertEqual(SAMPLE['unit'], first.unit)
+        self.assertEqual(SAMPLE['user_id'], first.user_id)
+        self.assertEqual(SAMPLE['volume'], first.volume)
+
+    def test_create(self):
+        sess = mock.Mock()
+        resp = mock.Mock()
+        resp.body = [SAMPLE]
+        sess.post = mock.Mock(return_value=resp)
+
+        data = {'id': None,
+                'meter': 'temperature',
+                'project_id': 'project',
+                'resource_id': 'resource',
+                'type': 'gauge',
+                'unit': 'instance',
+                'volume': '98.6'}
+        new_sample = sample.Sample.new(**data)
+
+        new_sample.create(sess)
+        url = '/v2/meters/temperature'
+        sess.post.assert_called_with(url, service=new_sample.service,
+                                     json=[data])
+        self.assertIsNone(new_sample.id)
