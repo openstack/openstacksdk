@@ -237,7 +237,8 @@ class Resource(collections.MutableMapping):
         self._reset_dirty()
 
     @classmethod
-    def get_data_by_id(cls, session, r_id, path_args=None):
+    def get_data_by_id(cls, session, r_id, path_args=None,
+                       include_headers=False):
         if not cls.allow_retrieve:
             raise exceptions.MethodNotSupported('retrieve')
 
@@ -246,20 +247,26 @@ class Resource(collections.MutableMapping):
         else:
             url = cls.base_path
         url = utils.urljoin(url, r_id)
-        body = session.get(url, service=cls.service).body
+        response = session.get(url, service=cls.service)
+        body = response.body
 
         if cls.resource_key:
             body = body[cls.resource_key]
 
+        if include_headers:
+            body.update(response.headers)
+
         return body
 
     @classmethod
-    def get_by_id(cls, session, r_id, path_args=None):
-        body = cls.get_data_by_id(session, r_id, path_args=path_args)
+    def get_by_id(cls, session, r_id, path_args=None, include_headers=False):
+        body = cls.get_data_by_id(session, r_id, path_args=path_args,
+                                  include_headers=include_headers)
         return cls.existing(**body)
 
-    def get(self, session):
-        body = self.get_data_by_id(session, self.id, path_args=self)
+    def get(self, session, include_headers=False):
+        body = self.get_data_by_id(session, self.id, path_args=self,
+                                   include_headers=include_headers)
         self._attrs.update(body)
         self._loaded = True
 
