@@ -18,4 +18,4 @@ class TelemetryService(service_filter.ServiceFilter):
 
     def __init__(self):
         """Create a telemetry service."""
-        super(TelemetryService, self).__init__(service_type='telemetry')
+        super(TelemetryService, self).__init__(service_type='metering')

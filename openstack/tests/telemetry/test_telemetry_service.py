@@ -19,7 +19,7 @@ class TestTelemetryService(testtools.TestCase):
 
     def test_service(self):
         sot = telemetry_service.TelemetryService()
-        self.assertEqual('telemetry', sot.service_type)
+        self.assertEqual('metering', sot.service_type)
         self.assertEqual('public', sot.visibility)
         self.assertIsNone(sot.region)
         self.assertIsNone(sot.service_name)
