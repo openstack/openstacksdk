@@ -15,12 +15,39 @@ import testtools
 from openstack.network.v2 import security_group
 
 IDENTIFIER = 'IDENTIFIER'
+RULES = [
+    {
+        "remote_group_id": None,
+        "direction": "egress",
+        "remote_ip_prefix": None,
+        "protocol": None,
+        "ethertype":
+        "IPv6",
+        "tenant_id": "4",
+        "port_range_max": None,
+        "port_range_min": None,
+        "id": "5",
+        "security_group_id": IDENTIFIER,
+    },
+    {
+        "remote_group_id": "9",
+        "direction": "ingress",
+        "remote_ip_prefix": None,
+        "protocol": None,
+        "ethertype": "IPv6",
+        "tenant_id": "4",
+        "port_range_max": None,
+        "port_range_min": None,
+        "id": "6",
+        "security_group_id": IDENTIFIER,
+    },
+]
 EXAMPLE = {
     'description': '1',
     'id': IDENTIFIER,
     'name': '3',
     'tenant_id': '4',
-    'security_group_rules': '5',
+    'security_group_rules': RULES,
 }
 
 
@@ -46,3 +73,5 @@ class TestSecurityGroup(testtools.TestCase):
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['security_group_rules'],
                          sot.security_group_rules)
+        self.assertEqual('SecurityGroupRule',
+                         sot.security_group_rules[0].__class__.__name__)
