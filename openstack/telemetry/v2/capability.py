@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import six
+
 from openstack import resource
 from openstack.telemetry import telemetry_service
 
 
-class Capabilities(resource.Resource):
-    resource_key = 'capabilities'
+class Capability(resource.Resource):
+    resource_key = 'capability'
     resources_key = 'capabilities'
     base_path = '/v2/capabilities'
     service = telemetry_service.TelemetryService()
@@ -24,4 +26,12 @@ class Capabilities(resource.Resource):
     allow_list = True
 
     # Properties
-    capabilities = resource.prop('api')
+    enabled = resource.prop('enabled')
+
+    @classmethod
+    def list(cls, session, limit=None, marker=None, **params):
+        resp = session.get(cls.base_path, service=cls.service, params=params)
+        ray = []
+        for key, value in six.iteritems(resp.body['api']):
+            ray.append(cls.existing(id=key, enabled=value))
+        return ray
