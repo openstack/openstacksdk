@@ -126,12 +126,10 @@ class ResourceTests(base.TestTransportBase):
         self.stub_url(httpretty.HEAD, path=[fake_path, fake_id],
                       name=fake_name,
                       attr1=fake_attr1,
-                      attr2=fake_attr2,
-                      x_trans_id=fake_id)
+                      attr2=fake_attr2)
         obj = FakeResource.head_by_id(self.session, fake_id,
                                       path_args=fake_arguments)
 
-        self.assertEqual(fake_id, int(obj.id))
         self.assertEqual(fake_name, obj['name'])
         self.assertEqual(fake_attr1, obj['attr1'])
         self.assertEqual(fake_attr2, obj['attr2'])

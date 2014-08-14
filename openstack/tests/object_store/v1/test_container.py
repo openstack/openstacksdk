@@ -13,8 +13,11 @@
 import mock
 import testtools
 
+from openstack import exceptions
 from openstack.object_store.v1 import container
 
+
+CONTAINER_NAME = "mycontainer"
 
 ACCOUNT_EXAMPLE = {
     'content-length': '0',
@@ -31,7 +34,7 @@ ACCOUNT_EXAMPLE = {
 CONT_EXAMPLE = {
     "count": 999,
     "bytes": 12345,
-    "name": "mycontainer"
+    "name": CONTAINER_NAME
 }
 
 HEAD_EXAMPLE = {
@@ -67,7 +70,7 @@ LIST_EXAMPLE = [
 class TestAccount(testtools.TestCase):
 
     def test_make_it(self):
-        sot = container.Container(ACCOUNT_EXAMPLE)
+        sot = container.Container.new(**ACCOUNT_EXAMPLE)
         self.assertIsNone(sot.id)
         self.assertEqual(ACCOUNT_EXAMPLE['x-timestamp'], sot.timestamp)
         self.assertEqual(ACCOUNT_EXAMPLE['x-account-bytes-used'],
@@ -80,9 +83,21 @@ class TestAccount(testtools.TestCase):
 
 class TestContainer(testtools.TestCase):
 
+    def setUp(self):
+        super(TestContainer, self).setUp()
+        self.resp = mock.Mock()
+        self.resp.body = {}
+        self.resp.headers = {"X-Trans-Id": "abcdef"}
+        self.sess = mock.Mock()
+        self.sess.put = mock.MagicMock()
+        self.sess.put.return_value = self.resp
+        self.sess.post = mock.MagicMock()
+        self.sess.post.return_value = self.resp
+
     def test_basic(self):
-        sot = container.Container(CONT_EXAMPLE)
+        sot = container.Container.new(**CONT_EXAMPLE)
         self.assertIsNone(sot.resources_key)
+        self.assertEqual('name', sot.id_attribute)
         self.assertEqual('/', sot.base_path)
         self.assertEqual('object-store', sot.service.service_type)
         self.assertTrue(sot.allow_update)
@@ -93,7 +108,7 @@ class TestContainer(testtools.TestCase):
         self.assertTrue(sot.allow_head)
 
     def test_make_it(self):
-        sot = container.Container(CONT_EXAMPLE)
+        sot = container.Container.new(**CONT_EXAMPLE)
         self.assertEqual(CONT_EXAMPLE['name'], sot.id)
         self.assertEqual(CONT_EXAMPLE['name'], sot.name)
         self.assertEqual(CONT_EXAMPLE['count'], sot.count)
@@ -117,9 +132,9 @@ class TestContainer(testtools.TestCase):
         self.assertEqual(HEAD_EXAMPLE['x-container-bytes-used'],
                          sot.bytes_used)
         self.assertEqual(HEAD_EXAMPLE['x-container-read'],
-                         sot.can_read)
+                         sot.read_ACL)
         self.assertEqual(HEAD_EXAMPLE['x-container-write'],
-                         sot.can_write)
+                         sot.write_ACL)
         self.assertEqual(HEAD_EXAMPLE['x-container-sync-to'],
                          sot.sync_to)
         self.assertEqual(HEAD_EXAMPLE['x-container-sync-key'],
@@ -141,3 +156,43 @@ class TestContainer(testtools.TestCase):
             self.assertEqual(response[item].name, LIST_EXAMPLE[item]["name"])
             self.assertEqual(response[item].count, LIST_EXAMPLE[item]["count"])
             self.assertEqual(response[item].bytes, LIST_EXAMPLE[item]["bytes"])
+
+    def _test_create_update(self, sot, sot_call, sess_method):
+        sot.read_ACL = "some ACL"
+        sot.write_ACL = "another ACL"
+        sot.detect_content_type = True
+        headers = {
+            "x-container-read": "some ACL",
+            "x-container-write": "another ACL",
+            "x-detect-content-type": True
+        }
+        sot_call(self.sess)
+
+        url = "/%s" % CONTAINER_NAME
+        sess_method.assert_called_with(url, service=sot.service, accept=None,
+                                       headers=headers)
+
+    def test_create(self):
+        sot = container.Container.new(name=CONTAINER_NAME)
+        self._test_create_update(sot, sot.create, self.sess.put)
+
+    def test_update(self):
+        sot = container.Container.new(name=CONTAINER_NAME)
+        self._test_create_update(sot, sot.update, self.sess.post)
+
+    def _test_cant(self, sot, call):
+        sot.allow_create = False
+        self.assertRaises(exceptions.MethodNotSupported,
+                          call, self.sess)
+
+    def test_cant_create(self):
+        sot = container.Container.new(name=CONTAINER_NAME)
+        sot.allow_create = False
+        self.assertRaises(exceptions.MethodNotSupported,
+                          sot.create, self.sess)
+
+    def test_cant_update(self):
+        sot = container.Container.new(name=CONTAINER_NAME)
+        sot.allow_update = False
+        self.assertRaises(exceptions.MethodNotSupported,
+                          sot.update, self.sess)
