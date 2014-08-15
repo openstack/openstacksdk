@@ -28,14 +28,14 @@ class Resource(resource.Resource):
     links = resource.prop('links')
     metadata = resource.prop('metadata')
     project_id = resource.prop('project_id')
+    resource_id = resource.prop('resource_id')
     source = resource.prop('source')
     user_id = resource.prop('user_id')
-    _resource_id = resource.prop('resource_id')
 
     @property
     def id(self):
         try:
-            val = self._resource_id
+            val = self.resource_id
         except AttributeError:
             val = None
         return val

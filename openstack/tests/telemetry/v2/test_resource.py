@@ -53,5 +53,6 @@ class TestResource(testtools.TestCase):
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['metadata'], sot.metadata)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['resource_id'], sot.resource_id)
         self.assertEqual(EXAMPLE['source'], sot.source)
         self.assertEqual(EXAMPLE['user_id'], sot.user_id)
