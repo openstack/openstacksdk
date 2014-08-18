@@ -206,7 +206,7 @@ class Resource(collections.MutableMapping):
     ##
 
     @classmethod
-    def create_by_id(cls, session, attrs, r_id=None):
+    def create_by_id(cls, session, attrs, r_id=None, path_args=None):
         if not cls.allow_create:
             raise exceptions.MethodNotSupported('create')
 
@@ -215,11 +215,15 @@ class Resource(collections.MutableMapping):
         else:
             body = attrs
 
+        if path_args:
+            url = cls.base_path % path_args
+        else:
+            url = cls.base_path
         if r_id:
-            url = utils.urljoin(cls.base_path, r_id)
+            url = utils.urljoin(url, r_id)
             resp = session.put(url, service=cls.service, json=body).body
         else:
-            resp = session.post(cls.base_path, service=cls.service,
+            resp = session.post(url, service=cls.service,
                                 json=body).body
 
         if cls.resource_key:
@@ -228,16 +232,20 @@ class Resource(collections.MutableMapping):
         return resp
 
     def create(self, session):
-        resp = self.create_by_id(session, self._attrs, self.id)
+        resp = self.create_by_id(session, self._attrs, self.id, path_args=self)
         self._attrs['id'] = resp['id']
         self._reset_dirty()
 
     @classmethod
-    def get_data_by_id(cls, session, r_id):
+    def get_data_by_id(cls, session, r_id, path_args=None):
         if not cls.allow_retrieve:
             raise exceptions.MethodNotSupported('retrieve')
 
-        url = utils.urljoin(cls.base_path, r_id)
+        if path_args:
+            url = cls.base_path % path_args
+        else:
+            url = cls.base_path
+        url = utils.urljoin(url, r_id)
         body = session.get(url, service=cls.service).body
 
         if cls.resource_key:
@@ -246,21 +254,25 @@ class Resource(collections.MutableMapping):
         return body
 
     @classmethod
-    def get_by_id(cls, session, r_id):
-        body = cls.get_data_by_id(session, r_id)
+    def get_by_id(cls, session, r_id, path_args=None):
+        body = cls.get_data_by_id(session, r_id, path_args=path_args)
         return cls.existing(**body)
 
     def get(self, session):
-        body = self.get_data_by_id(session, self.id)
+        body = self.get_data_by_id(session, self.id, path_args=self)
         self._attrs.update(body)
         self._loaded = True
 
     @classmethod
-    def head_data_by_id(cls, session, r_id):
+    def head_data_by_id(cls, session, r_id, path_args=None):
         if not cls.allow_head:
             raise exceptions.MethodNotSupported('head')
 
-        url = utils.urljoin(cls.base_path, r_id)
+        if path_args:
+            url = cls.base_path % path_args
+        else:
+            url = cls.base_path
+        url = utils.urljoin(url, r_id)
 
         data = session.head(url, service=cls.service, accept=None).headers
         resp_id = data.pop("X-Trans-Id", None)
@@ -270,17 +282,17 @@ class Resource(collections.MutableMapping):
         return data
 
     @classmethod
-    def head_by_id(cls, session, r_id):
-        data = cls.head_data_by_id(session, r_id)
+    def head_by_id(cls, session, r_id, path_args=None):
+        data = cls.head_data_by_id(session, r_id, path_args=path_args)
         return cls.existing(**data)
 
     def head(self, session):
-        data = self.head_data_by_id(session, self.id)
+        data = self.head_data_by_id(session, self.id, path_args=self)
         self._attrs.update(data)
         self._loaded = True
 
     @classmethod
-    def update_by_id(cls, session, r_id, attrs):
+    def update_by_id(cls, session, r_id, attrs, path_args=None):
         if not cls.allow_update:
             raise exceptions.MethodNotSupported('update')
 
@@ -289,7 +301,11 @@ class Resource(collections.MutableMapping):
         else:
             body = attrs
 
-        url = utils.urljoin(cls.base_path, r_id)
+        if path_args:
+            url = cls.base_path % path_args
+        else:
+            url = cls.base_path
+        url = utils.urljoin(url, r_id)
         resp = session.patch(url, service=cls.service, json=body).body
 
         if cls.resource_key:
@@ -302,7 +318,7 @@ class Resource(collections.MutableMapping):
             return
 
         dirty_attrs = dict((k, self._attrs[k]) for k in self._dirty)
-        resp = self.update_by_id(session, self.id, dirty_attrs)
+        resp = self.update_by_id(session, self.id, dirty_attrs, path_args=self)
 
         try:
             resp_id = resp.pop('id')
@@ -314,18 +330,22 @@ class Resource(collections.MutableMapping):
         self._reset_dirty()
 
     @classmethod
-    def delete_by_id(cls, session, r_id):
+    def delete_by_id(cls, session, r_id, path_args=None):
         if not cls.allow_delete:
             raise exceptions.MethodNotSupported('delete')
 
-        url = utils.urljoin(cls.base_path, r_id)
+        if path_args:
+            url = cls.base_path % path_args
+        else:
+            url = cls.base_path
+        url = utils.urljoin(url, r_id)
         session.delete(url, service=cls.service, accept=None)
 
     def delete(self, session):
-        self.delete_by_id(session, self.id)
+        self.delete_by_id(session, self.id, path_args=self)
 
     @classmethod
-    def list(cls, session, limit=None, marker=None, **params):
+    def list(cls, session, limit=None, marker=None, path_args=None, **params):
         # NOTE(jamielennox): Is it possible we can return a generator from here
         # and allow us to keep paging rather than limit and marker?
         if not cls.allow_list:
@@ -338,7 +358,10 @@ class Resource(collections.MutableMapping):
         if marker:
             filters['marker'] = marker
 
-        url = cls.base_path
+        if path_args:
+            url = cls.base_path % path_args
+        else:
+            url = cls.base_path
         if filters:
             url = '%s?%s' % (url, url_parse.urlencode(filters))
 
@@ -350,16 +373,17 @@ class Resource(collections.MutableMapping):
         return [cls.existing(**data) for data in resp]
 
     @classmethod
-    def find(cls, session, name_or_id):
+    def find(cls, session, name_or_id, path_args=None):
         try:
-            info = cls.list(session, id=name_or_id, fields='id')
+            info = cls.list(session, id=name_or_id, fields='id',
+                            path_args=path_args)
             if len(info) == 1:
                 return info[0]
         except exceptions.HttpException:
             pass
         if cls.name_attribute:
             params = {cls.name_attribute: name_or_id, 'fields': 'id'}
-            info = cls.list(session, **params)
+            info = cls.list(session, path_args=path_args, **params)
             if len(info) == 1:
                 return info[0]
             if len(info) > 1:
