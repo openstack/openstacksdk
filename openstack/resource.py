@@ -329,7 +329,7 @@ class Resource(collections.MutableMapping):
         # NOTE(jamielennox): Is it possible we can return a generator from here
         # and allow us to keep paging rather than limit and marker?
         if not cls.allow_list:
-            raise exceptions.MethodNotSupported('retrieve')
+            raise exceptions.MethodNotSupported('list')
 
         filters = {}
 
