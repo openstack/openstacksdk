@@ -28,7 +28,7 @@ Typical environment variables to set and export for authentication include:
     OS_PASSWORD=nirvana
     OS_AUTH_URL=https://foofighters.com:35357/v3
     OS_USERNAME=davegrohl
-    OS_REGION=Seattle
+    OS_REGION_NAME=Seattle
 
 """
 
@@ -142,10 +142,10 @@ def option_parser():
         help='Authentication password (Env: OS_PASSWORD)',
     )
     parser.add_argument(
-        '--os-region',
+        '--os-region-name',
         metavar='<region>',
-        default=env('OS_REGION'),
-        help='Service region (Env: OS_REGION)')
+        default=env('OS_REGION_NAME'),
+        help='Service region (Env: OS_REGION_NAME)')
     parser.add_argument(
         '--os-cacert',
         metavar='<ca-bundle-file>',
