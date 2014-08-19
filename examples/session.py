@@ -38,7 +38,7 @@ def make_session(opts):
         cacert=opts.os_cacert,
         insecure=opts.insecure,
         user_agent='SDKExample',
-        region=opts.os_region,
+        region=opts.os_region_name,
     )
 
 
