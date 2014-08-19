@@ -19,7 +19,10 @@ from examples import session
 def run_list(opts):
     sess = session.make_session(opts)
     cls = common.find_resource_cls(opts)
-    for obj in cls.list(sess):
+    path_args = None
+    if opts.data:
+        path_args = common.get_data_option(opts)
+    for obj in cls.list(sess, path_args=path_args):
         print(str(obj))
     return
 
