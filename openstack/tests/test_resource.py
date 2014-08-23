@@ -20,14 +20,16 @@ from openstack.tests import base
 from openstack.tests import fakes
 from openstack import transport
 
-fake_name = 'name'
+fake_name = 'rey'
 fake_id = 99
-fake_attr1 = 'attr1'
-fake_attr2 = 'attr2'
+fake_attr1 = 'lana'
+fake_attr2 = 'del'
 
 fake_resource = 'fake'
 fake_resources = 'fakes'
-fake_path = fake_resources
+fake_arguments = {'name': 'rey'}
+fake_base_path = '/fakes/%(name)s/data'
+fake_path = '/fakes/rey/data'
 
 fake_data = {'id': fake_id,
              'name': fake_name,
@@ -39,8 +41,8 @@ fake_body = {fake_resource: fake_data}
 class FakeResource(resource.Resource):
 
     resource_key = fake_resource
-    resources_key = fake_path
-    base_path = '/%s' % fake_path
+    resources_key = fake_resources
+    base_path = fake_base_path
 
     allow_create = allow_retrieve = allow_update = True
     allow_delete = allow_list = allow_head = True
@@ -63,7 +65,7 @@ class ResourceTests(base.TestTransportBase):
     @httpretty.activate
     def test_empty_id(self):
         self.stub_url(httpretty.GET, path=[fake_path], json=fake_body)
-        obj = FakeResource.new()
+        obj = FakeResource.new(**fake_arguments)
         obj.get(self.session)
 
         self.assertEqual(fake_id, obj.id)
@@ -105,7 +107,8 @@ class ResourceTests(base.TestTransportBase):
     @httpretty.activate
     def test_get(self):
         self.stub_url(httpretty.GET, path=[fake_path, fake_id], json=fake_body)
-        obj = FakeResource.get_by_id(self.session, fake_id)
+        obj = FakeResource.get_by_id(self.session, fake_id,
+                                     path_args=fake_arguments)
 
         self.assertEqual(fake_id, obj.id)
         self.assertEqual(fake_name, obj['name'])
@@ -123,7 +126,8 @@ class ResourceTests(base.TestTransportBase):
                       attr1=fake_attr1,
                       attr2=fake_attr2,
                       x_trans_id=fake_id)
-        obj = FakeResource.head_by_id(self.session, fake_id)
+        obj = FakeResource.head_by_id(self.session, fake_id,
+                                      path_args=fake_arguments)
 
         self.assertEqual(fake_id, int(obj.id))
         self.assertEqual(fake_name, obj['name'])
@@ -177,14 +181,14 @@ class ResourceTests(base.TestTransportBase):
     def test_delete(self):
         self.stub_url(httpretty.GET, path=[fake_path, fake_id], json=fake_body)
         self.stub_url(httpretty.DELETE, [fake_path, fake_id])
-        obj = FakeResource.get_by_id(self.session, fake_id)
+        obj = FakeResource.get_by_id(self.session, fake_id,
+                                     path_args=fake_arguments)
 
         obj.delete(self.session)
 
         last_req = httpretty.last_request()
         self.assertEqual('DELETE', last_req.method)
-        self.assertEqual('/endpoint/%s/%s' % (fake_path, fake_id),
-                         last_req.path)
+        self.assertEqual('/endpoint/fakes/rey/data/99', last_req.path)
 
     @httpretty.activate
     def test_list(self):
@@ -193,10 +197,11 @@ class ResourceTests(base.TestTransportBase):
             results[i]['id'] = fake_id + i
 
         self.stub_url(httpretty.GET,
-                      path=fake_path,
+                      path=[fake_path],
                       json={fake_resources: results})
 
-        objs = FakeResource.list(self.session, marker='x')
+        objs = FakeResource.list(self.session, marker='x',
+                                 path_args=fake_arguments)
 
         self.assertIn('marker=x', httpretty.last_request().path)
         self.assertEqual(3, len(objs))
@@ -247,21 +252,23 @@ class TestFind(base.TestCase):
             FakeResponse({FakeResource.resources_key: [self.matrix]})
         ]
 
-        result = FakeResource.find(self.mock_session, self.NAME)
+        result = FakeResource.find(self.mock_session, self.NAME,
+                                   path_args=fake_arguments)
 
         self.assertEqual(self.ID, result.id)
         p = {'fields': 'id', 'name': self.NAME}
-        self.mock_get.assert_called_with('/fakes', params=p, service=None)
+        self.mock_get.assert_called_with(fake_path, params=p, service=None)
 
     def test_id(self):
         resp = FakeResponse({FakeResource.resources_key: [self.matrix]})
         self.mock_get.return_value = resp
 
-        result = FakeResource.find(self.mock_session, self.ID)
+        result = FakeResource.find(self.mock_session, self.ID,
+                                   path_args=fake_arguments)
 
         self.assertEqual(self.ID, result.id)
         p = {'fields': 'id', 'id': self.ID}
-        self.mock_get.assert_called_with('/fakes', params=p, service=None)
+        self.mock_get.assert_called_with(fake_path, params=p, service=None)
 
     def test_nameo(self):
         self.mock_get.side_effect = [
@@ -270,12 +277,13 @@ class TestFind(base.TestCase):
         ]
         FakeResource.name_attribute = 'nameo'
 
-        result = FakeResource.find(self.mock_session, self.NAME)
+        result = FakeResource.find(self.mock_session, self.NAME,
+                                   path_args=fake_arguments)
 
         FakeResource.name_attribute = 'name'
         self.assertEqual(self.ID, result.id)
         p = {'fields': 'id', 'nameo': self.NAME}
-        self.mock_get.assert_called_with('/fakes', params=p, service=None)
+        self.mock_get.assert_called_with(fake_path, params=p, service=None)
 
     def test_dups(self):
         dup = {'id': 'Larry'}
