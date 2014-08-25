@@ -99,9 +99,11 @@ class Resource(collections.MutableMapping):
 
     # the singular and plural forms of the key element
     resource_key = None
+    resource_name = None
     resources_key = None
 
-    # The attribute associated with the name
+    # The attribute associated with the id and name
+    id_attribute = 'id'
     name_attribute = 'name'
 
     # the base part of the url for this resource
@@ -127,9 +129,14 @@ class Resource(collections.MutableMapping):
         self._attrs = attrs
         self._dirty = set() if loaded else set(attrs.keys())
         self._loaded = loaded
+        if not self.resource_name:
+            if self.resource_key:
+                self.resource_name = self.resource_key
+            else:
+                self.resource_name = self.__class__.__name__
 
     def __repr__(self):
-        return "%s: %s" % (self.resource_key, self._attrs)
+        return "%s: %s" % (self.resource_name, self._attrs)
 
     ##
     # CONSTRUCTORS
@@ -188,11 +195,11 @@ class Resource(collections.MutableMapping):
     @property
     def id(self):
         # id is read only
-        return self._attrs.get('id', None)
+        return self._attrs.get(self.id_attribute, None)
 
     @id.deleter
     def id_del(self):
-        del self._attrs['id']
+        del self._attrs[self.id_attribute]
 
     @property
     def is_dirty(self):
@@ -233,7 +240,7 @@ class Resource(collections.MutableMapping):
 
     def create(self, session):
         resp = self.create_by_id(session, self._attrs, self.id, path_args=self)
-        self._attrs['id'] = resp['id']
+        self._attrs[self.id_attribute] = resp[self.id_attribute]
         self._reset_dirty()
 
     @classmethod
@@ -277,7 +284,7 @@ class Resource(collections.MutableMapping):
         data = session.head(url, service=cls.service, accept=None).headers
         resp_id = data.pop("X-Trans-Id", None)
         if resp_id:
-            data["id"] = resp_id
+            data[cls.id_attribute] = resp_id
 
         return data
 
@@ -321,7 +328,7 @@ class Resource(collections.MutableMapping):
         resp = self.update_by_id(session, self.id, dirty_attrs, path_args=self)
 
         try:
-            resp_id = resp.pop('id')
+            resp_id = resp.pop(self.id_attribute)
         except KeyError:
             pass
         else:
@@ -375,21 +382,22 @@ class Resource(collections.MutableMapping):
     @classmethod
     def find(cls, session, name_or_id, path_args=None):
         try:
-            info = cls.list(session, id=name_or_id, fields='id',
+            info = cls.list(session, id=name_or_id, fields=cls.id_attribute,
                             path_args=path_args)
             if len(info) == 1:
                 return info[0]
         except exceptions.HttpException:
             pass
         if cls.name_attribute:
-            params = {cls.name_attribute: name_or_id, 'fields': 'id'}
+            params = {cls.name_attribute: name_or_id,
+                      'fields': cls.id_attribute}
             info = cls.list(session, path_args=path_args, **params)
             if len(info) == 1:
                 return info[0]
             if len(info) > 1:
                 msg = "More than one %s exists with the name '%s'."
-                msg = (msg % (cls.resource_key, name_or_id))
+                msg = (msg % (cls.resource_name, name_or_id))
                 raise exceptions.DuplicateResource(msg)
         msg = ("No %s with a name or ID of '%s' exists." %
-               (cls.resource_key, name_or_id))
+               (cls.resource_name, name_or_id))
         raise exceptions.ResourceNotFound(msg)
