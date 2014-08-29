@@ -47,7 +47,7 @@ class TestAuthenticator(base.BaseAuthenticator):
 
 
 def make_authenticate(opts):
-    return authenticator.Authenticator.create(
+    return authenticator.create(
         username=opts.os_username,
         password=opts.os_password,
         token=opts.os_token,
