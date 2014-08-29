@@ -24,11 +24,17 @@ class TestAuthenticatorCreate(base.TestCase):
             auth_url='4',
             version='3',
             project_name='6',
+            domain_name='7',
+            project_domain_name='8',
+            user_domain_name='9',
         )
         self.assertEqual('1', auth.auth_methods[0].username)
         self.assertEqual('2', auth.auth_methods[0].password)
         self.assertEqual('4', auth.auth_url)
         self.assertEqual('6', auth.project_name)
+        self.assertEqual('7', auth.domain_name)
+        self.assertEqual('8', auth.project_domain_name)
+        self.assertEqual('9', auth.auth_methods[0].user_domain_name)
 
     def test_create_3_token(self):
         auth = authenticator.create(

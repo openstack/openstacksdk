@@ -130,6 +130,27 @@ def option_parser():
              'authorization scope (Env: OS_PROJECT_NAME)',
     )
     parser.add_argument(
+        '--os-domain-name',
+        metavar='<auth-domain-name>',
+        default=env('OS_DOMAIN_NAME'),
+        help='Domain name for scope of '
+             'authorization (Env: OS_DOMAIN_NAME)',
+    )
+    parser.add_argument(
+        '--os-project-domain-name',
+        metavar='<auth-project-domain-name>',
+        default=env('OS_PROJECT_DOMAIN_NAME'),
+        help='Project domain name for scope of '
+             'authorization (Env: OS_PROJECT_DOMAIN_NAME)',
+    )
+    parser.add_argument(
+        '--os-user-domain-name',
+        metavar='<auth-user-domain-name>',
+        default=env('OS_USER_DOMAIN_NAME'),
+        help='User domain name for scope of '
+             'authorization (Env: OS_USER_DOMAIN_NAME)',
+    )
+    parser.add_argument(
         '--os-username',
         metavar='<auth-username>',
         default=env('OS_USERNAME'),

@@ -41,7 +41,8 @@ class Session(object):
     @classmethod
     def create(cls, username=None, password=None, token=None, auth_url=None,
                version=None, project_name=None, cacert=None, insecure=False,
-               user_agent=None, region=None):
+               user_agent=None, region=None, domain_name=None,
+               project_domain_name=None, user_domain_name=None):
         xport = transport.Transport.create(
             cacert=cacert,
             insecure=insecure,
@@ -52,7 +53,10 @@ class Session(object):
             'password': password,
             'token': token,
             'auth_url': auth_url,
-            'project_name': project_name
+            'project_name': project_name,
+            'domain_name': domain_name,
+            'project_domain_name': project_domain_name,
+            'user_domain_name': user_domain_name,
         }
         if version:
             args['version'] = version
