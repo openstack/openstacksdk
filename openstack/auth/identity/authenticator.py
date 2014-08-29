@@ -16,7 +16,8 @@ from openstack import exceptions
 
 
 def create(username=None, password=None, token=None, auth_url=None,
-           version='3', project_name=None):
+           version='3', project_name=None, domain_name=None,
+           project_domain_name=None, user_domain_name=None):
     """Temporary code for creating an authenticator
 
     This is temporary code to create an authenticator.  This code will be
@@ -28,6 +29,9 @@ def create(username=None, password=None, token=None, auth_url=None,
     :param string auth_url: The URL to use for authentication.
     :param string version: Version of authentication to use.
     :param string project_name: Project name to athenticate.
+    :param string domain_name: Domain name to athenticate.
+    :param string project_domain_name: Project domain name to athenticate.
+    :param string user_domain_name: User domain name to athenticate.
 
     :returns string: An authenticator.
     """
@@ -38,6 +42,12 @@ def create(username=None, password=None, token=None, auth_url=None,
             args = {'username': username, 'password': password}
             if project_name:
                 args['project_name'] = project_name
+            if domain_name:
+                args['domain_name'] = domain_name
+            if project_domain_name:
+                args['project_domain_name'] = project_domain_name
+            if user_domain_name:
+                args['user_domain_name'] = user_domain_name
             return v3.Password(auth_url, **args)
         else:
             return v3.Token(auth_url, token=token)

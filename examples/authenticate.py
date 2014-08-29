@@ -54,6 +54,9 @@ def make_authenticate(opts):
         auth_url=opts.os_auth_url,
         version=opts.os_identity_api_version,
         project_name=opts.os_project_name,
+        domain_name=opts.os_domain_name,
+        project_domain_name=opts.os_project_domain_name,
+        user_domain_name=opts.os_user_domain_name,
     )
 
 
