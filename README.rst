@@ -16,11 +16,3 @@ code. Eventually, between refactoring that duplication into an internal
 library, and adding logic and features that the OpenStack Infra team had
 developed to run client applications at scale, it turned out that we'd written
 nine-tenths of what we'd need to have a standalone library.
-
-* Free software: Apache license
-* Documentation: http://docs.openstack.org/developer/shade
-
-Features
---------
-
-* TODO
