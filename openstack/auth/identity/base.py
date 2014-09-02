@@ -18,15 +18,16 @@ from openstack.auth import base
 
 
 @six.add_metaclass(abc.ABCMeta)
-class BaseIdentityPlugin(base.BaseAuthenticator):
+class BaseIdentityPlugin(base.BaseAuthPlugin):
 
     # Consider a token valid if it does not expire for this many seconds
     BEST_BEFORE_SECONDS = 1
 
-    def __init__(self, auth_url=None):
+    def __init__(self, auth_url=None, reauthenticate=True):
         super(BaseIdentityPlugin, self).__init__()
         self.auth_url = auth_url
         self.access_info = None
+        self.reauthenticate = reauthenticate
 
     @abc.abstractmethod
     def authorize(self, transport, **kwargs):
@@ -52,6 +53,28 @@ class BaseIdentityPlugin(base.BaseAuthenticator):
         """
         return self.get_access(transport).auth_token
 
+    def _needs_reauthenticate(self):
+        """Return if the existing token needs to be re-authenticated.
+
+        The token should be refreshed if it is about to expire.
+
+        :returns: True if the plugin should fetch a new token. False otherwise.
+        """
+        if not self.access_info:
+            # authentication was never fetched.
+            return True
+
+        if not self.reauthenticate:
+            # don't re-authenticate if it has been disallowed.
+            return False
+
+        if self.access_info.will_expire_soon(self.BEST_BEFORE_SECONDS):
+            # if it's about to expire we should re-authenticate now.
+            return True
+
+        # otherwise it's fine and use the existing one.
+        return False
+
     def get_access(self, transport):
         """Fetch or return a current AccessInfo object.
 
@@ -62,11 +85,26 @@ class BaseIdentityPlugin(base.BaseAuthenticator):
 
         :returns AccessInfo: Valid AccessInfo
         """
-        if (not self.access_info or
-                self.access_info.will_expire_soon(self.BEST_BEFORE_SECONDS)):
+        if self._needs_reauthenticate():
             self.access_info = self.authorize(transport)
 
         return self.access_info
+
+    def invalidate(self):
+        """Invalidate the current authentication data.
+
+        This should result in fetching a new token on next call.
+
+        A plugin may be invalidated if an Unauthorized HTTP response is
+        returned to indicate that the token may have been revoked or is
+        otherwise now invalid.
+
+        :returns bool: True if there was something that the plugin did to
+                       invalidate. This means that it makes sense to try again.
+                       If nothing happens returns False to indicate give up.
+        """
+        self.access_info = None
+        return True
 
     def get_endpoint(self, transport, service, **kwargs):
         """Return a valid endpoint for a service.

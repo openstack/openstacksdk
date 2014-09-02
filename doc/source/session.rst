@@ -18,7 +18,7 @@ Session object
      provides an HTTP request method.  The transport is also to be used by
      the authenticator if needed.
    * authenticator - An authenticator derived from
-     ``openstack.auth.base.BaseAuthenticator`` that provides get_token and
+     ``openstack.auth.base.BaseAuthPlugin`` that provides get_token and
      get_endpoint methods for the session.
 
    All the other methods of the session accept the following parameters:
