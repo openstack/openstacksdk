@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
+
 import httpretty
 import mock
 
@@ -142,7 +144,7 @@ class ResourceTests(base.TestTransportBase):
     def test_update(self):
         new_attr1 = 'attr5'
         new_attr2 = 'attr6'
-        fake_body1 = fake_body.copy()
+        fake_body1 = copy.deepcopy(fake_body)
         fake_body1[fake_resource]['attr1'] = new_attr1
 
         self.stub_url(httpretty.POST, path=fake_path, json=fake_body1)
@@ -309,3 +311,24 @@ class TestFind(base.TestCase):
 
         self.assertRaises(exceptions.ResourceNotFound, FakeResource.find,
                           self.mock_session, self.NAME)
+
+    def test_repr_name(self):
+        FakeResource.resource_name = 'foo'
+        self.assertEqual('foo: {}', repr(FakeResource()))
+        FakeResource.resource_name = None
+        FakeResource.resource_key = None
+        self.assertEqual('FakeResource: {}', repr(FakeResource()))
+        FakeResource.resource_key = fake_resource
+        self.assertEqual(fake_resource + ': {}', repr(FakeResource()))
+
+    def test_id_attribute(self):
+        faker = FakeResource(fake_data)
+        self.assertEqual(fake_id, faker.id)
+        faker.id_attribute = 'name'
+        self.assertEqual(fake_name, faker.id)
+        faker.id_attribute = 'attr1'
+        self.assertEqual(fake_attr1, faker.id)
+        faker.id_attribute = 'attr2'
+        self.assertEqual(fake_attr2, faker.id)
+        faker.id_attribute = 'id'
+        self.assertEqual(fake_id, faker.id)
