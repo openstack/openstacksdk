@@ -16,7 +16,7 @@ import six
 
 
 @six.add_metaclass(abc.ABCMeta)
-class BaseAuthenticator(object):
+class BaseAuthPlugin(object):
     """The basic structure of an authenticator."""
 
     @abc.abstractmethod
@@ -54,3 +54,18 @@ class BaseAuthenticator(object):
         :returns string: The base URL that will be used to talk to the
                          required service or None if not available.
         """
+
+    def invalidate(self):
+        """Invalidate the current authentication data.
+
+        This should result in fetching a new token on next call.
+
+        A plugin may be invalidated if an Unauthorized HTTP response is
+        returned to indicate that the token may have been revoked or is
+        otherwise now invalid.
+
+        :returns bool: True if there was something that the plugin did to
+                       invalidate. This means that it makes sense to try again.
+                       If nothing happens returns False to indicate give up.
+        """
+        return False

@@ -13,6 +13,7 @@
 # under the License.
 
 import abc
+import logging
 
 import six
 
@@ -20,21 +21,29 @@ from openstack.auth import access
 from openstack.auth.identity import base
 from openstack import exceptions
 
+_logger = logging.getLogger(__name__)
+
 
 @six.add_metaclass(abc.ABCMeta)
 class Auth(base.BaseIdentityPlugin):
+
     def __init__(self, auth_url,
                  trust_id=None,
                  tenant_id=None,
-                 tenant_name=None):
+                 tenant_name=None,
+                 reauthenticate=True):
         """Construct an Identity V2 Authentication Plugin.
 
         :param string auth_url: Identity service endpoint for authorization.
         :param string trust_id: Trust ID for trust scoping.
         :param string tenant_id: Tenant ID for project scoping.
         :param string tenant_name: Tenant name for project scoping.
+        :param bool reauthenticate: Allow fetching a new token if the current
+                                    one is going to expire.
+                                    (optional) default True
         """
-        super(Auth, self).__init__(auth_url=auth_url)
+        super(Auth, self).__init__(auth_url=auth_url,
+                                   reauthenticate=reauthenticate)
 
         self.trust_id = trust_id
         self.tenant_id = tenant_id
@@ -42,7 +51,7 @@ class Auth(base.BaseIdentityPlugin):
 
     def authorize(self, transport, **kwargs):
         headers = {'Accept': 'application/json'}
-        url = self.auth_url + '/tokens'
+        url = self.auth_url.rstrip('/') + '/tokens'
         params = {'auth': self.get_auth_data(headers)}
 
         if self.tenant_id:
@@ -52,6 +61,7 @@ class Auth(base.BaseIdentityPlugin):
         if self.trust_id:
             params['auth']['trust_id'] = self.trust_id
 
+        _logger.debug('Making authentication request to %s', url)
         resp = transport.post(url, json=params, headers=headers)
 
         try:
@@ -73,20 +83,38 @@ class Auth(base.BaseIdentityPlugin):
 
 class Password(Auth):
 
-    def __init__(self, auth_url, username, password, **kwargs):
+    def __init__(self, auth_url, username=None, password=None, user_id=None,
+                 **kwargs):
         """A plugin for authenticating with a username and password.
+
+        A username or user_id must be provided.
 
         :param string auth_url: Identity service endpoint for authorization.
         :param string username: Username for authentication.
         :param string password: Password for authentication.
+        :param string user_id: User ID for authentication.
+
+        :raises TypeError: if a user_id or username is not provided.
         """
         super(Password, self).__init__(auth_url, **kwargs)
+
+        if not (user_id or username):
+            msg = 'You need to specify either a username or user_id'
+            raise TypeError(msg)
+
+        self.user_id = user_id
         self.username = username
         self.password = password
 
     def get_auth_data(self, headers=None):
-        return {'passwordCredentials': {'username': self.username,
-                                        'password': self.password}}
+        auth = {'password': self.password}
+
+        if self.username:
+            auth['username'] = self.username
+        elif self.user_id:
+            auth['userId'] = self.user_id
+
+        return {'passwordCredentials': auth}
 
 
 class Token(Auth):

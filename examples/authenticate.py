@@ -33,7 +33,7 @@ from openstack.auth import base
 from openstack.auth.identity import authenticator
 
 
-class TestAuthenticator(base.BaseAuthenticator):
+class TestAuthenticator(base.BaseAuthPlugin):
     def __init__(self, token, endpoint):
         super(TestAuthenticator, self).__init__()
         self.token = token
