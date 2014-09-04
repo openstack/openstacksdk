@@ -282,9 +282,6 @@ class Resource(collections.MutableMapping):
         url = utils.urljoin(url, r_id)
 
         data = session.head(url, service=cls.service, accept=None).headers
-        resp_id = data.pop("X-Trans-Id", None)
-        if resp_id:
-            data[cls.id_attribute] = resp_id
 
         return data
 
