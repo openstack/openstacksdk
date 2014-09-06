@@ -387,10 +387,6 @@ class TestTransport(base.TestTransportBase):
         xport = transport.Transport()
         self.assertTrue(xport.verify)
 
-    def test_verify_arg_none(self):
-        xport = transport.Transport(verify=None)
-        self.assertIsNone(xport.verify)
-
     def test_verify_arg_false(self):
         xport = transport.Transport(verify=False)
         self.assertFalse(xport.verify)
@@ -638,32 +634,3 @@ class TestTransportRedirects(base.TestTransportBase):
         for r, s in zip(req_resp.history, resp.history):
             self.assertEqual(s.url, r.url)
             self.assertEqual(s.status_code, r.status_code)
-
-
-class TestTransporCreate(base.TestCase):
-    def test_create(self):
-        xport = transport.Transport.create(
-            cacert='1',
-            insecure=False,
-            user_agent='2',
-        )
-        self.assertEqual('1', xport.verify)
-        self.assertEqual('2', xport._user_agent)
-
-    def test_create_no_cert(self):
-        xport = transport.Transport.create(
-            cacert=None,
-            insecure=False,
-            user_agent='3',
-        )
-        self.assertEqual(True, xport.verify)
-        self.assertEqual('3', xport._user_agent)
-
-    def test_create_verify(self):
-        xport = transport.Transport.create(
-            cacert=None,
-            insecure=True,
-            user_agent='4',
-        )
-        self.assertEqual(False, xport.verify)
-        self.assertEqual('4', xport._user_agent)

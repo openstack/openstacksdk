@@ -38,8 +38,7 @@ def make_session(opts):
         domain_name=opts.domain_name,
         project_domain_name=opts.project_domain_name,
         user_domain_name=opts.user_domain_name,
-        cacert=opts.cacert,
-        insecure=opts.insecure,
+        verify=opts.verify,
         user_agent='SDKExample',
         region=opts.region_name,
     )
