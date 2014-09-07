@@ -99,11 +99,11 @@ class OpenStackCloud(object):
             try:
                 self._nova_client.authenticate()
             except nova_exceptions.Unauthorized as e:
-                self.logger.debug("nova Unauthorized", exc_info=True)
+                self.log.debug("nova Unauthorized", exc_info=True)
                 raise OpenStackCloudException(
                     "Invalid OpenStack Nova credentials.: %s" % e.message)
             except nova_exceptions.AuthorizationFailure as e:
-                self.logger.debug("nova AuthorizationFailure", exc_info=True)
+                self.log.debug("nova AuthorizationFailure", exc_info=True)
                 raise OpenStackCloudException(
                     "Unable to authorize user: %s" % e.message)
 
@@ -135,7 +135,7 @@ class OpenStackCloud(object):
                         region_name=self.region_name,
                         auth_url=self.auth_url)
             except Exception as e:
-                self.logger.debug("keystone unknown issue", exc_info=True)
+                self.log.debug("keystone unknown issue", exc_info=True)
                 raise OpenStackCloudException(
                     "Error authenticating to the keystone: %s " % e.message)
         return self._keystone_client
@@ -151,7 +151,7 @@ class OpenStackCloud(object):
                 self._glance_client = glanceclient.Client(
                     '1', endpoint, token=token)
             except Exception as e:
-                self.logger.debug("glance unknown issue", exc_info=True)
+                self.log.debug("glance unknown issue", exc_info=True)
                 raise OpenStackCloudException(
                     "Error in connecting to glance: %s" % e.message)
 
@@ -177,7 +177,7 @@ class OpenStackCloud(object):
             endpoint = self.keystone_client.service_catalog.url_for(
                 service_type=service_type, endpoint_type=self.endpoint_type)
         except Exception as e:
-            self.logger.debug("keystone cannot get endpoint", exc_info=True)
+            self.log.debug("keystone cannot get endpoint", exc_info=True)
             raise OpenStackCloudException(
                 "Error getting %s endpoint: %s" % (service_type, e.message))
         return endpoint
@@ -202,7 +202,8 @@ class OpenStackCloud(object):
             # and because the cloud may not expose the glance API publically
             for image in self.glance_client.images.list():
                 images[image.id] = image.name
-        except OpenStackCloudException:
+        except (OpenStackCloudException,
+                glanceclient.exc.HTTPInternalServerError):
             # We didn't have glance, let's try nova
             # If this doesn't work - we just let the exception propagate
             for image in self.nova_client.images.list():
