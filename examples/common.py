@@ -118,12 +118,14 @@ def option_parser():
     # Global arguments
     parser.add_argument(
         '--os-auth-url',
+        dest='auth_url',
         metavar='<auth-url>',
         default=env('OS_AUTH_URL'),
         help='Authentication URL (Env: OS_AUTH_URL)',
     )
     parser.add_argument(
         '--os-project-name',
+        dest='project_name',
         metavar='<auth-project-name>',
         default=env('OS_PROJECT_NAME', default=env('OS_TENANT_NAME')),
         help='Project name of the requested project-level'
@@ -131,6 +133,7 @@ def option_parser():
     )
     parser.add_argument(
         '--os-domain-name',
+        dest='domain_name',
         metavar='<auth-domain-name>',
         default=env('OS_DOMAIN_NAME'),
         help='Domain name for scope of '
@@ -138,6 +141,7 @@ def option_parser():
     )
     parser.add_argument(
         '--os-project-domain-name',
+        dest='project_domain_name',
         metavar='<auth-project-domain-name>',
         default=env('OS_PROJECT_DOMAIN_NAME'),
         help='Project domain name for scope of '
@@ -145,6 +149,7 @@ def option_parser():
     )
     parser.add_argument(
         '--os-user-domain-name',
+        dest='user_domain_name',
         metavar='<auth-user-domain-name>',
         default=env('OS_USER_DOMAIN_NAME'),
         help='User domain name for scope of '
@@ -152,23 +157,27 @@ def option_parser():
     )
     parser.add_argument(
         '--os-username',
+        dest='username',
         metavar='<auth-username>',
         default=env('OS_USERNAME'),
         help='Authentication username (Env: OS_USERNAME)',
     )
     parser.add_argument(
         '--os-password',
+        dest='password',
         metavar='<auth-password>',
         default=env('OS_PASSWORD'),
         help='Authentication password (Env: OS_PASSWORD)',
     )
     parser.add_argument(
         '--os-region-name',
+        dest='region_name',
         metavar='<region>',
         default=env('OS_REGION_NAME'),
         help='Service region (Env: OS_REGION_NAME)')
     parser.add_argument(
         '--os-cacert',
+        dest='cacert',
         metavar='<ca-bundle-file>',
         default=env('OS_CACERT'),
         help='CA certificate bundle file (Env: OS_CACERT)',
@@ -186,6 +195,7 @@ def option_parser():
     )
     parser.add_argument(
         '--os-identity-api-version',
+        dest='identity_api_version',
         metavar='<identity-api-version>',
         default=env(
             'OS_IDENTITY_API_VERSION',
@@ -194,6 +204,7 @@ def option_parser():
     )
     parser.add_argument(
         '--os-token',
+        dest='token',
         metavar='<token>',
         default=env('OS_TOKEN'),
         help='Defaults to env[OS_TOKEN]',
