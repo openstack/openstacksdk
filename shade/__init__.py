@@ -12,8 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import ConfigParser
 import logging
+import os
 
+from cinderclient.v1 import client as cinder_client
+from cinderclient import exceptions as cinder_exceptions
 import glanceclient
 from keystoneclient.v2_0 import client as keystone_client
 from novaclient import exceptions as nova_exceptions
@@ -38,8 +42,109 @@ def find_nova_addresses(addresses, ext_tag, key_name=None):
     return ret
 
 
+def openstack_clouds():
+    return OpenStackConfig().get_all_clouds()
+
+
+def openstack_cloud(cloud='openstack'):
+    return OpenStackConfig().get_one_cloud(cloud)
+
+
 class OpenStackCloudException(Exception):
     pass
+
+
+class OpenStackConfig(object):
+
+    _config_files = [
+        os.getcwd() + "/openstack.ini",
+        os.getcwd() + "/nova.ini",
+        os.path.expanduser("~/openstack.ini"),
+        os.path.expanduser("~/nova.ini"),
+        "/etc/openstack/openstack.ini"
+        "/etc/openstack/nova.ini"
+    ]
+
+    def __init__(self, config_files=None):
+        if config_files:
+            self._config_files = config_files
+
+        OS_USERNAME = os.environ.get('OS_USERNAME', 'admin')
+        OS_DEFAULTS = {
+            'username': OS_USERNAME,
+            'password': os.environ.get('OS_PASSWORD', ''),
+            'project_id': os.environ.get(
+                'OS_TENANT_NAME',
+                os.environ.get('OS_PROJECT_ID', OS_USERNAME)),
+            'auth_url': os.environ.get(
+                'OS_AUTH_URL', 'https://127.0.0.1:35357/v2.0/'),
+            'region_name': os.environ.get('OS_REGION_NAME', ''),
+            'insecure': 'false',
+            # historical
+            'service_type': 'compute',
+            'cache_max_age': '300',
+            'cache_path': '~/.cache/openstack',
+        }
+
+        # use a config file if it exists where expected
+        self.config = self._load_config_file(OS_DEFAULTS)
+
+        self.cloud_sections = [
+            section for section in self.config.sections()
+            if section != 'cache' ]
+        if not self.cloud_sections:
+            # Add a default section so that our cloud defaults always work
+            self.config.add_section('openstack')
+            self.cloud_sections = ['openstack']
+
+    def _load_config_file(self, defaults):
+        p = ConfigParser.SafeConfigParser(defaults)
+
+        for path in self._config_files:
+            if os.path.exists(path):
+                p.read(path)
+                return p
+        return p
+
+    def _get_region(self, cloud):
+        return self.config.get(cloud, 'region_name')
+
+    def get_all_clouds(self):
+
+        clouds = []
+
+        for cloud in self.cloud_sections:
+            if cloud == 'cache':
+                continue
+
+            for region in self._get_region(cloud).split(','):
+                clouds.append(self.get_one_cloud(cloud, region))
+        return clouds
+
+    def get_one_cloud(self, name='openstack', region=None):
+
+        if not region:
+            region = self._get_region(name)
+
+        client_params = dict(name=name)
+        client_params['username'] = self.config.get(name, 'username')
+        client_params['password'] = self.config.get(name, 'password')
+        client_params['project_id'] = self.config.get(name, 'project_id')
+        client_params['auth_url'] = self.config.get(name, 'auth_url')
+        client_params['region_name'] = region
+        client_params['nova_service_type'] = self.config.get(name, 'service_type')
+        client_params['insecure'] = self.config.getboolean(name, 'insecure')
+        # Provide backwards compat for older nova.ini files
+        if client_params['password'] == '':
+            client_params['password'] = self.config.get(name, 'api_key')
+
+        if (client_params['username'] == "" and client_params['password'] == ""):
+            sys.exit(
+                'Unable to find auth information for cloud %s'
+                ' in config files %s or environment variables'
+                % (name, ','.join(self._config_files)))
+
+        return OpenStackCloud(**client_params)
 
 
 class OpenStackCloud(object):
@@ -47,7 +152,7 @@ class OpenStackCloud(object):
     def __init__(self, name, username, password, project_id, auth_url,
                  region_name, nova_service_type='compute', insecure=False,
                  endpoint_type='publicURL', token=None, image_cache=None,
-                 flavor_cache=None, debug=False):
+                 flavor_cache=None, volume_cache=None,debug=False):
 
         self.name = name
         self.username = username
@@ -61,11 +166,13 @@ class OpenStackCloud(object):
         self.token = token
         self._image_cache = image_cache
         self.flavor_cache = flavor_cache
+        self._volume_cache = volume_cache
         self.debug = debug
 
         self._nova_client = None
         self._glance_client = None
         self._keystone_client = None
+        self._cinder_client = None
 
         self.log = logging.getLogger('shade')
         self.log.setLevel(logging.INFO)
@@ -159,6 +266,37 @@ class OpenStackCloud(object):
                 raise OpenStackCloudException("Error connecting to glance")
         return self._glance_client
 
+    @property
+    def cinder_client(self):
+
+        if self._cinder_client is None:
+            # Make the connection
+            self._cinder_client = cinder_client.Client(
+                self.username,
+                self.password,
+                self.project_id,
+                self.auth_url,
+                region_name=self.region_name,
+            )
+
+            try:
+                self._cinder_client.authenticate()
+            except cinder_exceptions.Unauthorized, e:
+                self.log.debug("cinder Unauthorized", exc_info=True)
+                raise OpenStackCloudException(
+                    "Invalid OpenStack Cinder credentials.: %s" % e.message)
+            except cinder_exceptions.AuthorizationFailure, e:
+                self.log.debug("cinder AuthorizationFailure", exc_info=True)
+                raise OpenStackCloudException(
+                    "Unable to authorize user: %s" % e.message)
+
+            if self._cinder_client is None:
+                raise OpenStackCloudException(
+                    "Failed to instantiate cinder client. This could mean that your"
+                    " credentials are wrong.")
+
+        return self._cinder_client
+
     def get_name(self):
         return self.name
 
@@ -224,4 +362,35 @@ class OpenStackCloud(object):
         for (image_id, name) in self.list_images().items():
             if name == image_name:
                 return image_id
+        return None
+
+    def _get_volumes_from_cloud(self):
+        try:
+            return self.cinder_client.volumes.list()
+        except Exception:
+            return []
+
+    def list_volumes(self):
+        if self._volume_cache is None:
+            self._volume_cache = self._get_volumes_from_cloud()
+        return self._volume_cache
+
+    def get_volumes(self, server):
+        volumes = []
+        for volume in self.list_volumes():
+            for attach in volume.attachments:
+                if attach['server_id'] == server.id:
+                    volumes.append(volume)
+        return volumes
+
+    def get_volume_id(self, volume_name):
+        for v in self.cinder_client.volumes.list():
+            if v.display_name == volume_name:
+                return v.id
+        return None
+
+    def get_server_id(self, server_name):
+        for server in self.nova_client.servers.list():
+            if server.name == server_name:
+                return server.id
         return None
