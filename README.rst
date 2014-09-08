@@ -16,3 +16,30 @@ code. Eventually, between refactoring that duplication into an internal
 library, and adding logic and features that the OpenStack Infra team had
 developed to run client applications at scale, it turned out that we'd written
 nine-tenths of what we'd need to have a standalone library.
+
+example
+-------
+
+Sometimes an example is nice.
+::
+
+  from shade import *
+  import time
+
+  cloud = openstack_cloud('mordred')
+
+  nova = cloud.nova_client
+  print nova.servers.list()
+  s = nova.servers.list()[0]
+
+  cinder = cloud.cinder_client
+  volumes = cinder.volumes.list()
+  print volumes
+  volume_id = [v for v in volumes if v.status == 'available'][0].id
+  nova.volumes.create_server_volume(s.id, volume_id, None)
+  attachments = []
+  while not attachments:
+      print "Waiting for attach to finish"
+      time.sleep(1)
+      attachments = cinder.volumes.get(volume_id).attachments
+  print attachments
