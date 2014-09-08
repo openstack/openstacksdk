@@ -199,12 +199,6 @@ def option_parser():
         help='Defaults to env[OS_TOKEN]',
     )
     parser.add_argument(
-        '--os-url',
-        metavar='<url>',
-        default=env('OS_URL'),
-        help='Defaults to env[OS_URL]',
-    )
-    parser.add_argument(
         '--data',
         metavar='<data>',
         default='{}',
