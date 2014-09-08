@@ -29,19 +29,19 @@ from openstack import session
 
 def make_session(opts):
     return session.Session.create(
-        username=opts.os_username,
-        password=opts.os_password,
-        token=opts.os_token,
-        auth_url=opts.os_auth_url,
-        version=opts.os_identity_api_version,
-        project_name=opts.os_project_name,
-        domain_name=opts.os_domain_name,
-        project_domain_name=opts.os_project_domain_name,
-        user_domain_name=opts.os_user_domain_name,
-        cacert=opts.os_cacert,
+        username=opts.username,
+        password=opts.password,
+        token=opts.token,
+        auth_url=opts.auth_url,
+        version=opts.identity_api_version,
+        project_name=opts.project_name,
+        domain_name=opts.domain_name,
+        project_domain_name=opts.project_domain_name,
+        user_domain_name=opts.user_domain_name,
+        cacert=opts.cacert,
         insecure=opts.insecure,
         user_agent='SDKExample',
-        region=opts.os_region_name,
+        region=opts.region_name,
     )
 
 
