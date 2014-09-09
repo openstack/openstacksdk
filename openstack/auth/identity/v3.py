@@ -26,42 +26,90 @@ _logger = logging.getLogger(__name__)
 
 class Auth(base.BaseIdentityPlugin):
 
-    def __init__(self, auth_url, auth_methods,
-                 trust_id=None,
+    valid_options = [
+        'auth_url',
+        'domain_id',
+        'domain_name',
+        'password',
+        'project_domain_id',
+        'project_domain_name',
+        'project_id',
+        'project_name',
+        'reauthenticate',
+        'token',
+        'trust_id',
+        'user_domain_id',
+        'user_domain_name',
+        'user_id',
+        'user_name',
+    ]
+
+    def __init__(self, auth_url,
                  domain_id=None,
                  domain_name=None,
-                 project_id=None,
-                 project_name=None,
+                 password='',
                  project_domain_id=None,
                  project_domain_name=None,
-                 reauthenticate=True):
+                 project_id=None,
+                 project_name=None,
+                 reauthenticate=True,
+                 token=None,
+                 trust_id=None,
+                 user_domain_id=None,
+                 user_domain_name=None,
+                 user_id=None,
+                 user_name=None):
         """Construct an Identity V3 Authentication Plugin.
 
+        This authorization plugin should be constructed with a password
+        and user_id or user_name.  It may also be constructed with a token.
+
         :param string auth_url: Identity service endpoint for authentication.
-        :param list auth_methods: A collection of methods to authenticate with.
-        :param string trust_id: Trust ID for trust scoping.
         :param string domain_id: Domain ID for domain scoping.
         :param string domain_name: Domain name for domain scoping.
-        :param string project_id: Project ID for project scoping.
-        :param string project_name: Project name for project scoping.
+        :param string password: User password for authentication.
         :param string project_domain_id: Project's domain ID for project.
         :param string project_domain_name: Project's domain name for project.
-        :param bool reauthenticate: Allow fetching a new token if the current
-                                    one is going to expire.
-                                    (optional) default True
+        :param string project_id: Project ID for project scoping.
+        :param string project_name: Project name for project scoping.
+        :param bool reauthenticate: Get new token if token expires.
+        :param string token: Token to use for authentication.
+        :param string trust_id: Trust ID for trust scoping.
+        :param string user_domain_id: User's domain ID for authentication.
+        :param string user_domain_name: User's domain name for authentication.
+        :param string user_name: User name for authentication.
+        :param string user_id: User ID for authentication.
+
+        :raises TypeError: if a user_id, user_name or token is not provided.
         """
 
         super(Auth, self).__init__(auth_url=auth_url,
                                    reauthenticate=reauthenticate)
 
-        self.auth_methods = auth_methods
-        self.trust_id = trust_id
+        if not (user_id or user_name or token):
+            msg = 'You need to specify either a user_name, user_id or token'
+            raise TypeError(msg)
+
         self.domain_id = domain_id
         self.domain_name = domain_name
-        self.project_id = project_id
-        self.project_name = project_name
         self.project_domain_id = project_domain_id
         self.project_domain_name = project_domain_name
+        self.project_id = project_id
+        self.project_name = project_name
+        self.reauthenticate = reauthenticate
+        self.trust_id = trust_id
+        self.password_method = PasswordMethod(
+            password=password,
+            user_domain_id=user_domain_id,
+            user_domain_name=user_domain_name,
+            user_name=user_name,
+            user_id=user_id,
+        )
+        if token:
+            self.token_method = TokenMethod(token=token)
+            self.auth_methods = [self.token_method]
+        else:
+            self.auth_methods = [self.password_method]
 
     @property
     def token_url(self):
@@ -120,6 +168,12 @@ class Auth(base.BaseIdentityPlugin):
         return access.AccessInfoV3(resp.headers['X-Subject-Token'],
                                    **resp_data)
 
+    def invalidate(self):
+        if super(Auth, self).invalidate():
+            self.auth_methods = [self.password_method]
+            return True
+        return False
+
 
 @six.add_metaclass(abc.ABCMeta)
 class AuthMethod(object):
@@ -128,27 +182,10 @@ class AuthMethod(object):
     V3 Tokens allow multiple methods to be presented when authentication
     against the server. Each one of these methods is implemented by an
     AuthMethod.
-
-    Note: When implementing an AuthMethod use the method_parameters
-    and do not use positional arguments. Otherwise they can't be picked up by
-    the factory method and don't work as well with AuthConstructors.
     """
-
-    _method_parameters = []
-
     def __init__(self, **kwargs):
-        for param in self._method_parameters:
-            setattr(self, param, kwargs.pop(param, None))
-
-        if kwargs:
-            msg = "Unexpected Attributes: %s" % ", ".join(kwargs.keys())
-            raise AttributeError(msg)
-
-    @classmethod
-    def _extract_kwargs(cls, kwargs):
-        """Remove parameters related to this method from other kwargs."""
-        return dict([(p, kwargs.pop(p, None))
-                     for p in cls._method_parameters])
+        for param in kwargs:
+            setattr(self, param, kwargs.get(param, None))
 
     @abc.abstractmethod
     def get_auth_data(self, transport, auth, headers, **kwargs):
@@ -163,53 +200,14 @@ class AuthMethod(object):
         """
 
 
-@six.add_metaclass(abc.ABCMeta)
-class _AuthConstructor(Auth):
-    """AuthConstructor creates an authentication plugin with one method.
-
-    AuthConstructor is a means of creating an authentication plugin that
-    contains only one authentication method. This is generally the required
-    usage.
-
-    An AuthConstructor creates an AuthMethod based on the method's
-    arguments and the auth_method_class defined by the plugin. It then
-    creates the auth plugin with only that authentication method.
-    """
-
-    _auth_method_class = None
-
-    def __init__(self, auth_url, *args, **kwargs):
-        method_kwargs = self._auth_method_class._extract_kwargs(kwargs)
-        method = self._auth_method_class(*args, **method_kwargs)
-        super(_AuthConstructor, self).__init__(auth_url, [method], **kwargs)
-
-
 class PasswordMethod(AuthMethod):
-
-    _method_parameters = ['user_id',
-                          'username',
-                          'user_domain_id',
-                          'user_domain_name',
-                          'password']
-
-    def __init__(self, **kwargs):
-        """Construct a User/Password based authentication method.
-
-        :param string password: Password for authentication.
-        :param string username: Username for authentication.
-        :param string user_id: User ID for authentication.
-        :param string user_domain_id: User's domain ID for authentication.
-        :param string user_domain_name: User's domain name for authentication.
-        """
-        super(PasswordMethod, self).__init__(**kwargs)
-
     def get_auth_data(self, transport, auth, headers, **kwargs):
         user = {'password': self.password}
 
         if self.user_id:
             user['id'] = self.user_id
-        elif self.username:
-            user['name'] = self.username
+        elif self.user_name:
+            user['name'] = self.user_name
 
             if self.user_domain_id:
                 user['domain'] = {'id': self.user_domain_id}
@@ -219,28 +217,7 @@ class PasswordMethod(AuthMethod):
         return 'password', {'user': user}
 
 
-class Password(_AuthConstructor):
-    _auth_method_class = PasswordMethod
-
-
 class TokenMethod(AuthMethod):
-
-    _method_parameters = ['token']
-
-    def __init__(self, **kwargs):
-        """Construct an Auth plugin to fetch a token from a token.
-
-        :param string token: Token for authentication.
-        """
-        super(TokenMethod, self).__init__(**kwargs)
-
     def get_auth_data(self, transport, auth, headers, **kwargs):
         headers['X-Auth-Token'] = self.token
         return 'token', {'id': self.token}
-
-
-class Token(_AuthConstructor):
-    _auth_method_class = TokenMethod
-
-    def __init__(self, auth_url, token, **kwargs):
-        super(Token, self).__init__(auth_url, token=token, **kwargs)

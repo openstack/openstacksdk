@@ -96,7 +96,7 @@ class TestSessionCreate(base.TestCase):
             user_agent='9',
             region='10',
         )
-        self.assertEqual('1', sess.authenticator.auth_methods[0].username)
+        self.assertEqual('1', sess.authenticator.auth_methods[0].user_name)
         self.assertEqual('2', sess.authenticator.auth_methods[0].password)
         self.assertEqual('7', sess.transport.verify)
         self.assertEqual('9', sess.transport._user_agent)

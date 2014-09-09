@@ -46,26 +46,24 @@ def create(username=None, password=None, token=None, auth_url=None,
     version = version.lower().replace('v', '')
     version = version.split('.')[0]
     if version == '3':
-        if not token:
-            args = {'username': username, 'password': password}
-            if project_name:
-                args['project_name'] = project_name
-            if domain_name:
-                args['domain_name'] = domain_name
-            if project_domain_name:
-                args['project_domain_name'] = project_domain_name
-            if user_domain_name:
-                args['user_domain_name'] = user_domain_name
-            return v3.Password(auth_url, **args)
-        else:
-            return v3.Token(auth_url, token=token)
+        args = {'user_name': username, 'password': password}
+        if project_name:
+            args['project_name'] = project_name
+        if domain_name:
+            args['domain_name'] = domain_name
+        if project_domain_name:
+            args['project_domain_name'] = project_domain_name
+        if user_domain_name:
+            args['user_domain_name'] = user_domain_name
+        if token:
+            args['token'] = token
+        return v3.Auth(auth_url, **args)
     elif version == '2':
-        if not token:
-            args = {}
-            if project_name:
-                args['tenant_name'] = project_name
-            return v2.Password(auth_url, username, password, **args)
-        else:
-            return v2.Token(auth_url, token)
+        args = {'user_name': username, 'password': password}
+        if project_name:
+            args['project_name'] = project_name
+        if token:
+            args['token'] = token
+        return v2.Auth(auth_url, **args)
     msg = ("No support for identity version: %s" % version)
     raise exceptions.NoMatchingPlugin(msg)

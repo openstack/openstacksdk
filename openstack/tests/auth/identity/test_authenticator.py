@@ -28,7 +28,7 @@ class TestAuthenticatorCreate(base.TestCase):
             project_domain_name='8',
             user_domain_name='9',
         )
-        self.assertEqual('1', auth.auth_methods[0].username)
+        self.assertEqual('1', auth.auth_methods[0].user_name)
         self.assertEqual('2', auth.auth_methods[0].password)
         self.assertEqual('4', auth.auth_url)
         self.assertEqual('6', auth.project_name)
@@ -57,7 +57,7 @@ class TestAuthenticatorCreate(base.TestCase):
             version='2',
             project_name='6',
         )
-        self.assertEqual('1', auth.username)
+        self.assertEqual('1', auth.user_name)
         self.assertEqual('2', auth.password)
         self.assertEqual('4', auth.auth_url)
         self.assertEqual('6', auth.tenant_name)

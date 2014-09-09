@@ -12,10 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import abc
 import logging
-
-import six
 
 from openstack.auth import access
 from openstack.auth.identity import base
@@ -24,30 +21,59 @@ from openstack import exceptions
 _logger = logging.getLogger(__name__)
 
 
-@six.add_metaclass(abc.ABCMeta)
 class Auth(base.BaseIdentityPlugin):
 
+    valid_options = [
+        'auth_url',
+        'user_name',
+        'user_id',
+        'password',
+        'project_id',
+        'project_name',
+        'reauthenticate',
+        'token',
+        'trust_id',
+    ]
+
     def __init__(self, auth_url,
-                 trust_id=None,
-                 tenant_id=None,
-                 tenant_name=None,
-                 reauthenticate=True):
+                 user_name=None,
+                 user_id=None,
+                 password='',
+                 token=None,
+                 project_id=None,
+                 project_name=None,
+                 reauthenticate=True,
+                 trust_id=None):
         """Construct an Identity V2 Authentication Plugin.
 
+        A user_name, user_id or token must be provided.
+
         :param string auth_url: Identity service endpoint for authorization.
+        :param string user_name: Username for authentication.
+        :param string user_id: User ID for authentication.
+        :param string password: Password for authentication.
+        :param string project_id: Tenant ID for project scoping.
+        :param string project_name: Tenant name for project scoping.
+        :param bool reauthenticate: Get new token if token expires.
+        :param string token: Existing token for authentication.
         :param string trust_id: Trust ID for trust scoping.
-        :param string tenant_id: Tenant ID for project scoping.
-        :param string tenant_name: Tenant name for project scoping.
-        :param bool reauthenticate: Allow fetching a new token if the current
-                                    one is going to expire.
-                                    (optional) default True
+
+        :raises TypeError: if a user_id, user_name or token is not provided.
         """
         super(Auth, self).__init__(auth_url=auth_url,
                                    reauthenticate=reauthenticate)
 
+        if not (user_id or user_name or token):
+            msg = 'You need to specify either a user_name, user_id or token'
+            raise TypeError(msg)
+
+        self.user_id = user_id
+        self.user_name = user_name
+        self.password = password
+        self.token = token
         self.trust_id = trust_id
-        self.tenant_id = tenant_id
-        self.tenant_name = tenant_name
+        self.tenant_id = project_id
+        self.tenant_name = project_name
 
     def authorize(self, transport, **kwargs):
         headers = {'Accept': 'application/json'}
@@ -71,64 +97,19 @@ class Auth(base.BaseIdentityPlugin):
 
         return access.AccessInfoV2(**resp_data)
 
-    @abc.abstractmethod
-    def get_auth_data(self, headers=None):
-        """Return the authentication section of an auth plugin.
-
-        :param dict headers: The headers that will be sent with the auth
-                             request if a plugin needs to add to them.
-        :return dict: A dict of authentication data for the auth type.
-        """
-
-
-class Password(Auth):
-
-    def __init__(self, auth_url, username=None, password=None, user_id=None,
-                 **kwargs):
-        """A plugin for authenticating with a username and password.
-
-        A username or user_id must be provided.
-
-        :param string auth_url: Identity service endpoint for authorization.
-        :param string username: Username for authentication.
-        :param string password: Password for authentication.
-        :param string user_id: User ID for authentication.
-
-        :raises TypeError: if a user_id or username is not provided.
-        """
-        super(Password, self).__init__(auth_url, **kwargs)
-
-        if not (user_id or username):
-            msg = 'You need to specify either a username or user_id'
-            raise TypeError(msg)
-
-        self.user_id = user_id
-        self.username = username
-        self.password = password
-
-    def get_auth_data(self, headers=None):
-        auth = {'password': self.password}
-
-        if self.username:
-            auth['username'] = self.username
-        elif self.user_id:
-            auth['userId'] = self.user_id
-
-        return {'passwordCredentials': auth}
-
-
-class Token(Auth):
-
-    def __init__(self, auth_url, token, **kwargs):
-        """A plugin for authenticating with an existing token.
-
-        :param string auth_url: Identity service endpoint for authorization.
-        :param string token: Existing token for authentication.
-        """
-        super(Token, self).__init__(auth_url, **kwargs)
-        self.token = token
-
-    def get_auth_data(self, headers=None):
-        if headers is not None:
-            headers['X-Auth-Token'] = self.token
+    def get_auth_data(self, headers):
+        if self.token is None:
+            auth = {'password': self.password}
+            if self.user_name:
+                auth['username'] = self.user_name
+            elif self.user_id:
+                auth['userId'] = self.user_id
+            return {'passwordCredentials': auth}
+        headers['X-Auth-Token'] = self.token
         return {'token': {'id': self.token}}
+
+    def invalidate(self):
+        if super(Auth, self).invalidate():
+            self.token = None
+            return True
+        return False

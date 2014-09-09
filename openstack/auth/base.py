@@ -69,3 +69,13 @@ class BaseAuthPlugin(object):
                        If nothing happens returns False to indicate give up.
         """
         return False
+
+    @classmethod
+    def get_options(cls):
+        """Return the list of parameters associated with the auth plugin.
+
+        This list may be used to generate arguments.
+
+        :returns list: A list of strings describing plugin parameters.
+        """
+        return []

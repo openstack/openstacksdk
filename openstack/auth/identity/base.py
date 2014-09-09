@@ -70,6 +70,7 @@ class BaseIdentityPlugin(base.BaseAuthPlugin):
 
         if self.access_info.will_expire_soon(self.BEST_BEFORE_SECONDS):
             # if it's about to expire we should re-authenticate now.
+            self.invalidate()
             return True
 
         # otherwise it's fine and use the existing one.

@@ -25,35 +25,45 @@ TEST_RESPONSE_DICT = common.TEST_RESPONSE_DICT_V2
 
 class TestV2Auth(testtools.TestCase):
     def test_password(self):
-        kargs = {'trust_id': common.TEST_TRUST_ID,
-                 'tenant_id': common.TEST_TENANT_ID,
-                 'tenant_name': common.TEST_TENANT_NAME}
+        kargs = {
+            'password': common.TEST_PASS,
+            'project_id': common.TEST_TENANT_ID,
+            'project_name': common.TEST_TENANT_NAME,
+            'trust_id': common.TEST_TRUST_ID,
+            'user_name': common.TEST_USER,
+        }
 
-        sot = v2.Password(TEST_URL, common.TEST_USER, common.TEST_PASS,
-                          **kargs)
+        sot = v2.Auth(TEST_URL, **kargs)
 
-        self.assertEqual(common.TEST_USER, sot.username)
+        self.assertEqual(common.TEST_USER, sot.user_name)
         self.assertEqual(common.TEST_PASS, sot.password)
         self.assertEqual(common.TEST_TRUST_ID, sot.trust_id)
         self.assertEqual(common.TEST_TENANT_ID, sot.tenant_id)
         self.assertEqual(common.TEST_TENANT_NAME, sot.tenant_name)
         expected = {'passwordCredentials': {'password': common.TEST_PASS,
                                             'username': common.TEST_USER}}
-        self.assertEqual(expected, sot.get_auth_data())
+        headers = {}
+        self.assertEqual(expected, sot.get_auth_data(headers))
+        self.assertEqual({}, headers)
 
     def test_token(self):
-        kargs = {'trust_id': common.TEST_TRUST_ID,
-                 'tenant_id': common.TEST_TENANT_ID,
-                 'tenant_name': common.TEST_TENANT_NAME}
+        kargs = {
+            'project_id': common.TEST_TENANT_ID,
+            'project_name': common.TEST_TENANT_NAME,
+            'token': common.TEST_TOKEN,
+            'trust_id': common.TEST_TRUST_ID,
+        }
 
-        sot = v2.Token(TEST_URL, common.TEST_TOKEN, **kargs)
+        sot = v2.Auth(TEST_URL, **kargs)
 
         self.assertEqual(common.TEST_TOKEN, sot.token)
         self.assertEqual(common.TEST_TRUST_ID, sot.trust_id)
         self.assertEqual(common.TEST_TENANT_ID, sot.tenant_id)
         self.assertEqual(common.TEST_TENANT_NAME, sot.tenant_name)
         expected = {'token': {'id': common.TEST_TOKEN}}
-        self.assertEqual(expected, sot.get_auth_data())
+        headers = {}
+        self.assertEqual(expected, sot.get_auth_data(headers))
+        self.assertEqual({'X-Auth-Token': common.TEST_TOKEN}, headers)
 
     def create_mock_transport(self, xresp):
         transport = mock.Mock()
@@ -65,10 +75,13 @@ class TestV2Auth(testtools.TestCase):
         return transport
 
     def test_authorize_tenant_id(self):
-        kargs = {'trust_id': common.TEST_TRUST_ID,
-                 'tenant_id': common.TEST_TENANT_ID,
-                 'tenant_name': common.TEST_TENANT_NAME}
-        sot = v2.Token(TEST_URL, common.TEST_TOKEN, **kargs)
+        kargs = {
+            'project_id': common.TEST_TENANT_ID,
+            'project_name': common.TEST_TENANT_NAME,
+            'token': common.TEST_TOKEN,
+            'trust_id': common.TEST_TRUST_ID,
+        }
+        sot = v2.Auth(TEST_URL, **kargs)
         xport = self.create_mock_transport(TEST_RESPONSE_DICT)
 
         resp = sot.authorize(xport)
@@ -85,8 +98,11 @@ class TestV2Auth(testtools.TestCase):
         self.assertEqual(ecatalog, resp._info)
 
     def test_authorize_tenant_name(self):
-        kargs = {'tenant_name': common.TEST_TENANT_NAME}
-        sot = v2.Token(TEST_URL, common.TEST_TOKEN, **kargs)
+        kargs = {
+            'project_name': common.TEST_TENANT_NAME,
+            'token': common.TEST_TOKEN,
+        }
+        sot = v2.Auth(TEST_URL, **kargs)
         xport = self.create_mock_transport(TEST_RESPONSE_DICT)
 
         resp = sot.authorize(xport)
@@ -102,7 +118,8 @@ class TestV2Auth(testtools.TestCase):
         self.assertEqual(ecatalog, resp._info)
 
     def test_authorize_token_only(self):
-        sot = v2.Token(TEST_URL, common.TEST_TOKEN)
+        kargs = {'token': common.TEST_TOKEN}
+        sot = v2.Auth(TEST_URL, **kargs)
         xport = self.create_mock_transport(TEST_RESPONSE_DICT)
 
         resp = sot.authorize(xport)
@@ -117,7 +134,42 @@ class TestV2Auth(testtools.TestCase):
         self.assertEqual(ecatalog, resp._info)
 
     def test_authorize_bad_response(self):
-        sot = v2.Token(TEST_URL, common.TEST_TOKEN)
+        kargs = {'token': common.TEST_TOKEN}
+        sot = v2.Auth(TEST_URL, **kargs)
         xport = self.create_mock_transport({})
 
         self.assertRaises(exceptions.InvalidResponse, sot.authorize, xport)
+
+    def test_invalidate(self):
+        kargs = {
+            'password': common.TEST_PASS,
+            'token': common.TEST_TOKEN,
+            'user_name': common.TEST_USER,
+        }
+        sot = v2.Auth(TEST_URL, **kargs)
+        expected = {'token': {'id': common.TEST_TOKEN}}
+        headers = {}
+        self.assertEqual(expected, sot.get_auth_data(headers))
+        self.assertEqual({'X-Auth-Token': common.TEST_TOKEN}, headers)
+
+        self.assertEqual(True, sot.invalidate())
+
+        expected = {'passwordCredentials': {'password': common.TEST_PASS,
+                                            'username': common.TEST_USER}}
+        headers = {}
+        self.assertEqual(expected, sot.get_auth_data(headers))
+        self.assertEqual({}, headers)
+
+    def test_valid_options(self):
+        expected = [
+            'auth_url',
+            'user_name',
+            'user_id',
+            'password',
+            'project_id',
+            'project_name',
+            'reauthenticate',
+            'token',
+            'trust_id',
+        ]
+        self.assertEqual(expected, v2.Auth.valid_options)
