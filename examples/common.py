@@ -117,6 +117,13 @@ def option_parser():
         description='A demonstration framework')
     # Global arguments
     parser.add_argument(
+        '--os-auth-plugin',
+        dest='auth_plugin',
+        metavar='<auth-plugin>',
+        default=env('OS_AUTH_PLUGIN', default='identity_v3'),
+        help='Authentication plugin (Env: OS_AUTH_PLUGIN)',
+    )
+    parser.add_argument(
         '--os-auth-url',
         dest='auth_url',
         metavar='<auth-url>',
@@ -157,7 +164,7 @@ def option_parser():
     )
     parser.add_argument(
         '--os-username',
-        dest='username',
+        dest='user_name',
         metavar='<auth-username>',
         default=env('OS_USERNAME'),
         help='Authentication username (Env: OS_USERNAME)',
@@ -193,15 +200,6 @@ def option_parser():
         dest='verify',
         action='store_false',
         help='Disable server certificate verification',
-    )
-    parser.add_argument(
-        '--os-identity-api-version',
-        dest='identity_api_version',
-        metavar='<identity-api-version>',
-        default=env(
-            'OS_IDENTITY_API_VERSION',
-            default=None),
-        help='Force Identity API version (Env: OS_IDENTITY_API_VERSION)',
     )
     parser.add_argument(
         '--os-token',

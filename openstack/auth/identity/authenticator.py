@@ -10,60 +10,43 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.auth.identity import v2
-from openstack.auth.identity import v3
 from openstack import exceptions
 
+from stevedore import driver
 
-def create(username=None, password=None, token=None, auth_url=None,
-           version=None, project_name=None, domain_name=None,
-           project_domain_name=None, user_domain_name=None):
+
+def create(auth_plugin=None, **auth_args):
     """Temporary code for creating an authenticator
 
     This is temporary code to create an authenticator.  This code will be
     removed in the future.
 
-    :param string username: User name for authentication.
-    :param string password: Password associated with the user.
-    :param string token: Authentication token to use if available.
-    :param string auth_url: The URL to use for authentication.
-    :param string version: Version of authentication to use.
-    :param string project_name: Project name to athenticate.
-    :param string domain_name: Domain name to athenticate.
-    :param string project_domain_name: Project domain name to athenticate.
-    :param string user_domain_name: User domain name to athenticate.
+    :param string auth_plugin: Name of authentication plugin to use.
+    :param auth_args: Arguments for auth plugin.
 
     :returns string: An authenticator.
     """
-    if auth_url is None:
-        msg = ("auth_url wasn't provided.")
-        raise exceptions.AuthorizationFailure(msg)
 
-    endpoint_version = auth_url.split('v')[-1]
-    if version is None:
-        version = endpoint_version
+    if auth_plugin is None:
+        if 'auth_url' not in auth_args:
+            msg = ("auth_url was not provided.")
+            raise exceptions.AuthorizationFailure(msg)
+        auth_url = auth_args['auth_url']
+        endpoint_version = auth_url.split('v')[-1][0]
+        if endpoint_version == '2':
+            auth_plugin = 'identity_v2'
+        else:
+            auth_plugin = 'identity_v3'
 
-    version = version.lower().replace('v', '')
-    version = version.split('.')[0]
-    if version == '3':
-        args = {'user_name': username, 'password': password}
-        if project_name:
-            args['project_name'] = project_name
-        if domain_name:
-            args['domain_name'] = domain_name
-        if project_domain_name:
-            args['project_domain_name'] = project_domain_name
-        if user_domain_name:
-            args['user_domain_name'] = user_domain_name
-        if token:
-            args['token'] = token
-        return v3.Auth(auth_url, **args)
-    elif version == '2':
-        args = {'user_name': username, 'password': password}
-        if project_name:
-            args['project_name'] = project_name
-        if token:
-            args['token'] = token
-        return v2.Auth(auth_url, **args)
-    msg = ("No support for identity version: %s" % version)
-    raise exceptions.NoMatchingPlugin(msg)
+    mgr = driver.DriverManager(
+        namespace="openstack.auth.plugin",
+        name=auth_plugin,
+        invoke_on_load=False,
+    )
+    plugin = mgr.driver
+    valid_list = plugin.valid_options
+    args = {}
+    for k in valid_list:
+        if k in auth_args:
+            args[k] = auth_args[k]
+    return plugin(**args)

@@ -86,18 +86,16 @@ class TestSession(base.TestCase):
 class TestSessionCreate(base.TestCase):
     def test_create(self):
         sess = session.Session.create(
-            username='1',
+            user_name='1',
             password='2',
             token=None,
             auth_url='4',
-            version='3',
+            auth_plugin='identity_v3',
             project_name='6',
             verify='7',
-            user_agent='9',
             region='10',
         )
         self.assertEqual('1', sess.authenticator.auth_methods[0].user_name)
         self.assertEqual('2', sess.authenticator.auth_methods[0].password)
         self.assertEqual('7', sess.transport.verify)
-        self.assertEqual('9', sess.transport._user_agent)
         self.assertEqual('10', sess.preference.region)

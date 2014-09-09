@@ -18,11 +18,11 @@ from openstack.tests import base
 class TestAuthenticatorCreate(base.TestCase):
     def test_create_3_password(self):
         auth = authenticator.create(
-            username='1',
+            user_name='1',
             password='2',
             token=None,
             auth_url='4',
-            version='3',
+            auth_plugin='identity_v3',
             project_name='6',
             domain_name='7',
             project_domain_name='8',
@@ -38,11 +38,11 @@ class TestAuthenticatorCreate(base.TestCase):
 
     def test_create_3_token(self):
         auth = authenticator.create(
-            username='1',
+            user_name='1',
             password='2',
             token='3',
             auth_url='4',
-            version='3',
+            auth_plugin='identity_v3',
             project_name='6',
         )
         self.assertEqual('3', auth.auth_methods[0].token)
@@ -50,11 +50,11 @@ class TestAuthenticatorCreate(base.TestCase):
 
     def test_create_2_password(self):
         auth = authenticator.create(
-            username='1',
+            user_name='1',
             password='2',
             token=None,
             auth_url='4',
-            version='2',
+            auth_plugin='identity_v2',
             project_name='6',
         )
         self.assertEqual('1', auth.user_name)
@@ -64,11 +64,11 @@ class TestAuthenticatorCreate(base.TestCase):
 
     def test_create_2_token(self):
         auth = authenticator.create(
-            username='1',
+            user_name='1',
             password='2',
             token='3',
             auth_url='4',
-            version='2',
+            auth_plugin='identity_v2',
             project_name='6',
         )
         self.assertEqual('3', auth.token)
@@ -76,13 +76,13 @@ class TestAuthenticatorCreate(base.TestCase):
 
     def test_create_bogus(self):
         self.assertRaises(
-            exceptions.NoMatchingPlugin,
+            RuntimeError,
             authenticator.create,
-            username='1',
+            user_name='1',
             password='2',
             token='3',
             auth_url='4',
-            version='99',
+            auth_plugin='identity_v99',
             project_name='6',
         )
 
@@ -97,14 +97,14 @@ class TestAuthenticatorCreate(base.TestCase):
             project_name='6',
         )
 
-    def test_create_no_version_2(self):
+    def test_create_2(self):
         auth = authenticator.create(token='1', auth_url='url/v2.0')
         self.assertTrue('v2' in str(auth))
 
-    def test_create_no_version_3(self):
+    def test_create_3(self):
         auth = authenticator.create(token='1', auth_url='url/v3.0')
         self.assertTrue('v3' in str(auth))
 
-    def test_create_version_unlike_auth_url(self):
-        auth = authenticator.create(token='1', version='2', auth_url='url/v3')
-        self.assertTrue('v2' in str(auth))
+    def test_create_unlike(self):
+        auth = authenticator.create(token='1', auth_url='url/somethingelse')
+        self.assertTrue('v3' in str(auth))

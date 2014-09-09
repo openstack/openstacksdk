@@ -28,19 +28,23 @@ from openstack import session
 
 
 def make_session(opts):
+    args = {
+        'auth_plugin': opts.auth_plugin,
+        'auth_url': opts.auth_url,
+        'project_name': opts.project_name,
+        'domain_name': opts.domain_name,
+        'project_domain_name': opts.project_domain_name,
+        'user_domain_name': opts.user_domain_name,
+        'user_name': opts.user_name,
+        'password': opts.password,
+        'region_name': opts.region_name,
+        'verify': opts.verify,
+        'token': opts.token,
+    }
     return session.Session.create(
-        username=opts.username,
-        password=opts.password,
-        token=opts.token,
-        auth_url=opts.auth_url,
-        version=opts.identity_api_version,
-        project_name=opts.project_name,
-        domain_name=opts.domain_name,
-        project_domain_name=opts.project_domain_name,
-        user_domain_name=opts.user_domain_name,
-        verify=opts.verify,
         user_agent='SDKExample',
         region=opts.region_name,
+        **args
     )
 
 
