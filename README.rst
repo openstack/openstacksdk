@@ -26,7 +26,7 @@ To build the docs locally::
 
     $ python setup.py build_sphinx
 
-Results are in the ``doc/build/sphinx/html/`` directory.
+Results are in the ``doc/build/html/`` directory.
 
 Requirements
 ------------
