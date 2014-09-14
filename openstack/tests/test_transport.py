@@ -15,6 +15,7 @@ import logging
 
 import fixtures
 import httpretty
+import mock
 import requests
 import six
 
@@ -634,3 +635,18 @@ class TestTransportRedirects(base.TestTransportBase):
         for r, s in zip(req_resp.history, resp.history):
             self.assertEqual(s.url, r.url)
             self.assertEqual(s.status_code, r.status_code)
+
+    def test_parse_error_response(self):
+        xport = transport.Transport(redirect=True)
+        resp = mock.Mock()
+        resp.json = mock.Mock()
+        resp.json.return_value = {"badRequest": {"message": "Not defined"}}
+        self.assertEqual("Not defined", xport._parse_error_response(resp))
+        resp.json.return_value = {"message": {"response": "Not Allowed"}}
+        self.assertEqual("Not Allowed", xport._parse_error_response(resp))
+        resp.json.return_value = {"itemNotFound": {"message": "Not found"}}
+        self.assertEqual("Not found", xport._parse_error_response(resp))
+        resp.json.return_value = {"instanceFault": {"message": "Wot?"}}
+        self.assertEqual("Wot?", xport._parse_error_response(resp))
+        resp.json.return_value = {"QuantumError": "Network error"}
+        self.assertEqual("Network error", xport._parse_error_response(resp))

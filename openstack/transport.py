@@ -151,7 +151,8 @@ class Transport(requests.Session):
         try:
             resp.raise_for_status()
         except requests.RequestException as e:
-            raise exceptions.HttpException(six.text_type(e), details=resp.text)
+            raise exceptions.HttpException(six.text_type(e),
+                                           self._parse_error_response(resp))
         if accept == JSON:
             try:
                 resp.body = resp.json()
@@ -201,6 +202,28 @@ class Transport(requests.Session):
                     resp = new_resp
 
         return resp
+
+    def _parse_error_response(self, resp):
+        try:
+            jresp = resp.json()
+            # compute
+            if "badRequest" in jresp and "message" in jresp["badRequest"]:
+                return jresp["badRequest"]["message"]
+            # identity
+            if "message" in jresp and "response" in jresp["message"]:
+                return jresp["message"]["response"]
+            # network
+            if "QuantumError" in jresp:
+                return jresp["QuantumError"]
+            # database
+            if "itemNotFound" in jresp and "message" in jresp["itemNotFound"]:
+                return jresp["itemNotFound"]["message"]
+            if "instanceFault" in jresp:
+                if "message" in jresp["instanceFault"]:
+                    return jresp["instanceFault"]["message"]
+        except ValueError:
+            pass
+        return resp.text
 
     def _log_request(self, method, url, **kwargs):
         if not _logger.isEnabledFor(logging.DEBUG):
