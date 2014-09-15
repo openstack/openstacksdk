@@ -15,6 +15,7 @@ from openstack import resource
 
 
 class ServerInterface(resource.Resource):
+    id_attribute = 'mac_addr'
     resource_key = 'interfaceAttachment'
     resources_key = 'interfaceAttachments'
     base_path = '/servers/%(server_id)s/os-interface'
@@ -34,11 +35,3 @@ class ServerInterface(resource.Resource):
     port_id = resource.prop('port_id')
     port_state = resource.prop('port_state')
     server_id = resource.prop('server_id')
-
-    @property
-    def id(self):
-        try:
-            val = self.mac_addr
-        except AttributeError:
-            val = None
-        return val

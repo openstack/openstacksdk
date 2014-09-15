@@ -16,6 +16,7 @@ from openstack import utils
 
 
 class Alarm(resource.Resource):
+    id_attribute = 'alarm_id'
     base_path = '/v2/alarms'
     service = telemetry_service.TelemetryService()
 
@@ -44,14 +45,6 @@ class Alarm(resource.Resource):
     type = resource.prop('type')
     updated_at = resource.prop('timestamp')
     user_id = resource.prop('user_id')
-
-    @property
-    def id(self):
-        try:
-            val = self.alarm_id
-        except AttributeError:
-            val = None
-        return val
 
     def __repr__(self):
         return "alarm: %s" % self._attrs
