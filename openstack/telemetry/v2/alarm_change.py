@@ -15,6 +15,7 @@ from openstack.telemetry import telemetry_service
 
 
 class AlarmChange(resource.Resource):
+    id_attribute = 'event_id'
     resource_key = 'alarm_change'
     base_path = '/v2/alarms/%(alarm_id)s/history'
     service = telemetry_service.TelemetryService()
@@ -31,14 +32,6 @@ class AlarmChange(resource.Resource):
     triggered_at = resource.prop('timestamp')
     type = resource.prop('type')
     user_id = resource.prop('user_id')
-
-    @property
-    def id(self):
-        try:
-            val = self.event_id
-        except AttributeError:
-            val = None
-        return val
 
     @classmethod
     def list(cls, session, path_args=None, **params):

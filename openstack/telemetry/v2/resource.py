@@ -15,6 +15,7 @@ from openstack.telemetry import telemetry_service
 
 
 class Resource(resource.Resource):
+    id_attribute = 'resource_id'
     base_path = '/v2/resources'
     service = telemetry_service.TelemetryService()
 
@@ -31,14 +32,6 @@ class Resource(resource.Resource):
     resource_id = resource.prop('resource_id')
     source = resource.prop('source')
     user_id = resource.prop('user_id')
-
-    @property
-    def id(self):
-        try:
-            val = self.resource_id
-        except AttributeError:
-            val = None
-        return val
 
     def __repr__(self):
         return "resource: %s" % (self._attrs)

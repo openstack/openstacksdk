@@ -17,6 +17,7 @@ from openstack import resource
 
 
 class ServerIP(resource.Resource):
+    id_attribute = 'addr'
     resource_key = 'server_ip'
     resources_key = 'server_ips'
     base_path = '/servers/%(server_id)s/ips'
@@ -30,14 +31,6 @@ class ServerIP(resource.Resource):
     network_label = resource.prop('network_label')
     server_id = resource.prop('server_id')
     version = resource.prop('version')
-
-    @property
-    def id(self):
-        try:
-            val = self.addr
-        except AttributeError:
-            val = None
-        return val
 
     @classmethod
     def list(cls, session, path_args=None, **params):
