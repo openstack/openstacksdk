@@ -92,8 +92,7 @@ class TestSessionCreate(base.TestCase):
             auth_url='4',
             version='3',
             project_name='6',
-            cacert='7',
-            insecure='8',
+            verify='7',
             user_agent='9',
             region='10',
         )

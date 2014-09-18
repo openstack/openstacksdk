@@ -26,15 +26,9 @@ import sys
 from examples import common
 from openstack import transport
 
-USER_AGENT = 'SDKExample'
-
 
 def make_transport(opts):
-    return transport.Transport.create(
-        cacert=opts.cacert,
-        insecure=opts.insecure,
-        user_agent=USER_AGENT
-    )
+    return transport.Transport(verify=opts.verify)
 
 
 def run_transport(opts):

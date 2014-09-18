@@ -175,14 +175,14 @@ def option_parser():
         metavar='<region>',
         default=env('OS_REGION_NAME'),
         help='Service region (Env: OS_REGION_NAME)')
-    parser.add_argument(
+    verify_group = parser.add_mutually_exclusive_group()
+    verify_group.add_argument(
         '--os-cacert',
-        dest='cacert',
+        dest='verify',
         metavar='<ca-bundle-file>',
-        default=env('OS_CACERT'),
+        default=env('OS_CACERT', default=True),
         help='CA certificate bundle file (Env: OS_CACERT)',
     )
-    verify_group = parser.add_mutually_exclusive_group()
     verify_group.add_argument(
         '--verify',
         action='store_true',
@@ -190,7 +190,8 @@ def option_parser():
     )
     verify_group.add_argument(
         '--insecure',
-        action='store_true',
+        dest='verify',
+        action='store_false',
         help='Disable server certificate verification',
     )
     parser.add_argument(
