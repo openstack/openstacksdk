@@ -14,12 +14,11 @@ import testtools
 
 from openstack.network.v2 import floatingip
 
-IDENTIFIER = 'IDENTIFIER'
+IDENTIFIER = '10.0.0.1'
 EXAMPLE = {
     'fixed_ip_address': '1',
-    'floating_ip_address': '2',
+    'floating_ip_address': IDENTIFIER,
     'floating_network_id': '3',
-    'id': IDENTIFIER,
     'port_id': '5',
     'tenant_id': '6',
     'router_id': '7',
@@ -47,7 +46,7 @@ class TestFloatingIP(testtools.TestCase):
                          sot.floating_ip_address)
         self.assertEqual(EXAMPLE['floating_network_id'],
                          sot.floating_network_id)
-        self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['floating_ip_address'], sot.id)
         self.assertEqual(EXAMPLE['port_id'], sot.port_id)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['router_id'], sot.router_id)
