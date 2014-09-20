@@ -129,14 +129,17 @@ class Resource(collections.MutableMapping):
         self._attrs = attrs
         self._dirty = set() if loaded else set(attrs.keys())
         self._loaded = loaded
-        if not self.resource_name:
-            if self.resource_key:
-                self.resource_name = self.resource_key
-            else:
-                self.resource_name = self.__class__.__name__
 
     def __repr__(self):
-        return "%s: %s" % (self.resource_name, self._attrs)
+        return "%s: %s" % (self.get_resource_name(), self._attrs)
+
+    @classmethod
+    def get_resource_name(cls):
+        if cls.resource_name:
+            return cls.resource_name
+        if cls.resource_key:
+            return cls.resource_key
+        return cls().__class__.__name__
 
     ##
     # CONSTRUCTORS
@@ -379,8 +382,12 @@ class Resource(collections.MutableMapping):
     @classmethod
     def find(cls, session, name_or_id, path_args=None):
         try:
-            info = cls.list(session, id=name_or_id, fields=cls.id_attribute,
-                            path_args=path_args)
+            args = {
+                cls.id_attribute: name_or_id,
+                'fields': cls.id_attribute,
+                'path_args': path_args,
+            }
+            info = cls.list(session, **args)
             if len(info) == 1:
                 return info[0]
         except exceptions.HttpException:
@@ -393,8 +400,8 @@ class Resource(collections.MutableMapping):
                 return info[0]
             if len(info) > 1:
                 msg = "More than one %s exists with the name '%s'."
-                msg = (msg % (cls.resource_name, name_or_id))
+                msg = (msg % (cls.get_resource_name(), name_or_id))
                 raise exceptions.DuplicateResource(msg)
         msg = ("No %s with a name or ID of '%s' exists." %
-               (cls.resource_name, name_or_id))
+               (cls.get_resource_name(), name_or_id))
         raise exceptions.ResourceNotFound(msg)

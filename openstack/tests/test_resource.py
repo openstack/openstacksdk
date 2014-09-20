@@ -293,6 +293,20 @@ class TestFind(base.TestCase):
         self.assertRaises(exceptions.DuplicateResource, FakeResource.find,
                           self.mock_session, self.NAME)
 
+    def test_id_attribute_find(self):
+        floater = {'ip_address': "127.0.0.1"}
+        resp = FakeResponse({FakeResource.resources_key: [floater]})
+        self.mock_get.return_value = resp
+
+        FakeResource.id_attribute = 'ip_address'
+        result = FakeResource.find(self.mock_session, "127.0.0.1",
+                                   path_args=fake_arguments)
+        self.assertEqual("127.0.0.1", result.id)
+        FakeResource.id_attribute = 'id'
+
+        p = {'fields': 'ip_address', 'ip_address': "127.0.0.1"}
+        self.mock_get.assert_called_with(fake_path, params=p, service=None)
+
     def test_nada(self):
         resp = FakeResponse({FakeResource.resources_key: []})
         self.mock_get.return_value = resp
