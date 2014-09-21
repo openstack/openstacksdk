@@ -30,9 +30,6 @@ CONFIG_FILES = [
     os.path.join(d, 'clouds.yaml') for d in CONFIG_SEARCH_PATH]
 BOOL_KEYS = ('insecure', 'cache')
 REQUIRED_VALUES = ('auth_url', 'username', 'password', 'project_id')
-SERVICES = (
-    'compute', 'identity', 'network', 'metering', 'object-store',
-    'volume', 'dns', 'image', 'database')
 
 
 def get_boolean(value):
@@ -54,16 +51,12 @@ class OpenStackConfig(object):
         defaults.add('project_domain_name')
         defaults.add('auth_url')
         defaults.add('region_name')
-        defaults.add('cache', 'false')
+        defaults.add('cache')
         defaults.add('auth_token')
-        defaults.add('insecure', 'false')
+        defaults.add('insecure')
+        defaults.add('endpoint_type')
         defaults.add('cacert')
 
-        for service in SERVICES:
-            defaults.add('service_name', prefix=service)
-            defaults.add('service_type', prefix=service)
-            defaults.add('endpoint_type', prefix=service)
-            defaults.add('endpoint', prefix=service)
         self.defaults = defaults
 
         # use a config file if it exists where expected
