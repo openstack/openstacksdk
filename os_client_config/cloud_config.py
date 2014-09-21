@@ -12,4 +12,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from os_client_config.config import OpenStackConfig  # noqa
+
+class CloudConfig(object):
+    def __init__(self, name, region, config):
+        self.name = name
+        self.region = region
+        self.config = config
