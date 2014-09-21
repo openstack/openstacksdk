@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import ConfigParser
 import logging
 import os
 
@@ -22,6 +21,9 @@ import glanceclient
 from keystoneclient.v2_0 import client as keystone_client
 from novaclient import exceptions as nova_exceptions
 from novaclient.v1_1 import client as nova_client
+import os_client_config
+import troveclient.client as trove_client
+from troveclient import exceptions as trove_exceptions
 import pbr.version
 
 
@@ -42,155 +44,83 @@ def find_nova_addresses(addresses, ext_tag, key_name=None):
     return ret
 
 
-def openstack_clouds():
-    return OpenStackConfig().get_all_clouds()
-
-
-def openstack_cloud(cloud='openstack'):
-    return OpenStackConfig().get_one_cloud(cloud)
-
-
 class OpenStackCloudException(Exception):
     pass
 
 
-class OpenStackConfig(object):
+def openstack_clouds():
+    return [OpenStackCloud(f.name, f.region, **f.config)
+            for f in os_client_config.OpenStackConfig().get_all_clouds()]
 
-    _config_files = [
-        os.getcwd() + "/openstack.ini",
-        os.getcwd() + "/nova.ini",
-        os.path.expanduser("~/openstack.ini"),
-        os.path.expanduser("~/nova.ini"),
-        "/etc/openstack/openstack.ini"
-        "/etc/openstack/nova.ini"
-    ]
 
-    def __init__(self, config_files=None):
-        if config_files:
-            self._config_files = config_files
+def openstack_cloud(cloud='openstack', region=None):
+    cloud_config = os_client_config.OpenStackConfig().get_one_cloud(
+        cloud, region)
+    return OpenStackCloud(
+        cloud_config.name, cloud_config.region, **cloud_config.config)
 
-        OS_USERNAME = os.environ.get('OS_USERNAME', 'admin')
-        OS_DEFAULTS = {
-            'username': OS_USERNAME,
-            'password': os.environ.get('OS_PASSWORD', ''),
-            'project_id': os.environ.get(
-                'OS_TENANT_NAME',
-                os.environ.get('OS_PROJECT_ID', OS_USERNAME)),
-            'auth_url': os.environ.get(
-                'OS_AUTH_URL', 'https://127.0.0.1:35357/v2.0/'),
-            'region_name': os.environ.get('OS_REGION_NAME', ''),
-            'insecure': 'false',
-            # historical
-            'service_type': 'compute',
-            'cache_max_age': '300',
-            'cache_path': '~/.cache/openstack',
-        }
 
-        # use a config file if it exists where expected
-        self.config = self._load_config_file(OS_DEFAULTS)
-
-        self.cloud_sections = [
-            section for section in self.config.sections()
-            if section != 'cache' ]
-        if not self.cloud_sections:
-            # Add a default section so that our cloud defaults always work
-            self.config.add_section('openstack')
-            self.cloud_sections = ['openstack']
-
-    def _load_config_file(self, defaults):
-        p = ConfigParser.SafeConfigParser(defaults)
-
-        for path in self._config_files:
-            if os.path.exists(path):
-                p.read(path)
-                return p
-        return p
-
-    def _get_region(self, cloud):
-        return self.config.get(cloud, 'region_name')
-
-    def get_all_clouds(self):
-
-        clouds = []
-
-        for cloud in self.cloud_sections:
-            if cloud == 'cache':
-                continue
-
-            for region in self._get_region(cloud).split(','):
-                clouds.append(self.get_one_cloud(cloud, region))
-        return clouds
-
-    def get_one_cloud(self, name='openstack', region=None):
-
-        if not region:
-            region = self._get_region(name)
-
-        client_params = dict(name=name)
-        client_params['username'] = self.config.get(name, 'username')
-        client_params['password'] = self.config.get(name, 'password')
-        client_params['project_id'] = self.config.get(name, 'project_id')
-        client_params['auth_url'] = self.config.get(name, 'auth_url')
-        client_params['region_name'] = region
-        client_params['nova_service_type'] = self.config.get(name, 'service_type')
-        client_params['insecure'] = self.config.getboolean(name, 'insecure')
-        # Provide backwards compat for older nova.ini files
-        if client_params['password'] == '':
-            client_params['password'] = self.config.get(name, 'api_key')
-
-        if (client_params['username'] == "" and client_params['password'] == ""):
-            sys.exit(
-                'Unable to find auth information for cloud %s'
-                ' in config files %s or environment variables'
-                % (name, ','.join(self._config_files)))
-
-        return OpenStackCloud(**client_params)
+def _get_service_values(kwargs, service_key):
+    return { k[:-(len(service_key) + 1)] : kwargs[k]
+             for k in kwargs.keys() if k.endswith(service_key) }
 
 
 class OpenStackCloud(object):
 
-    def __init__(self, name, username, password, project_id, auth_url,
-                 region_name, nova_service_type='compute', insecure=False,
-                 endpoint_type='publicURL', token=None, image_cache=None,
-                 flavor_cache=None, volume_cache=None,debug=False):
+    def __init__(self, name, region='',
+                 image_cache=None, flavor_cache=None, volume_cache=None,
+                 debug=False, **kwargs):
 
         self.name = name
-        self.username = username
-        self.password = password
-        self.project_id = project_id
-        self.auth_url = auth_url
-        self.region_name = region_name
-        self.nova_service_type = nova_service_type
-        self.insecure = insecure
-        self.endpoint_type = endpoint_type
-        self.token = token
+        self.region = region
+
+        self.username = kwargs['username']
+        self.password = kwargs['password']
+        self.project_id = kwargs['project_id']
+        self.auth_url = kwargs['auth_url']
+
+        self.region_name = kwargs.get('region_name', region)
+        self.auth_token = kwargs.get('auth_token', None)
+
+        self.service_types = _get_service_values(kwargs, 'service_type')
+        self.endpoints = _get_service_values(kwargs, 'endpoint')
+        self.api_versions = _get_service_values(kwargs, 'api_version')
+
+        self.insecure = kwargs.get('insecure', False)
+        self.endpoint_type = kwargs.get('endpoint_type', 'publicURL')
+
         self._image_cache = image_cache
-        self.flavor_cache = flavor_cache
+        self._flavor_cache = flavor_cache
         self._volume_cache = volume_cache
+
         self.debug = debug
 
         self._nova_client = None
         self._glance_client = None
         self._keystone_client = None
         self._cinder_client = None
+        self._trove_client = None
 
         self.log = logging.getLogger('shade')
         self.log.setLevel(logging.INFO)
         self.log.addHandler(logging.StreamHandler())
+
+    def get_service_type(self, service):
+        return self.service_types.get(service, service)
 
     @property
     def nova_client(self):
         if self._nova_client is None:
             kwargs = dict(
                 region_name=self.region_name,
-                service_type=self.nova_service_type,
+                service_type=self.get_service_type('compute'),
                 insecure=self.insecure,
             )
             # Try to use keystone directly first, for potential token reuse
             try:
                 kwargs['auth_token'] = self.keystone_client.auth_token
                 kwargs['bypass_url'] = self.get_endpoint(
-                    self.nova_service_type)
+                    self.get_service_type('compute'))
             except OpenStackCloudException:
                 pass
 
@@ -230,10 +160,10 @@ class OpenStackCloud(object):
             keystone_logging.addHandler(logging.NullHandler())
 
             try:
-                if self.token:
+                if self.auth_token:
                     self._keystone_client = keystone_client.Client(
                         endpoint=self.auth_url,
-                        token=self.token)
+                        token=self.auth_token)
                 else:
                     self._keystone_client = keystone_client.Client(
                         username=self.username,
@@ -247,16 +177,28 @@ class OpenStackCloud(object):
                     "Error authenticating to the keystone: %s " % e.message)
         return self._keystone_client
 
+    def _get_glance_api_version(self, endpoint):
+        if 'image' in self.api_versions:
+            return self.api_versions['image']
+        # Yay. We get to guess ...
+        # Get rid of trailing '/' if present
+        if endpoint.endswith('/'):
+            endpoint = endpoint[:-1]
+        url_bits = endpoint.split('/')
+        if url_bits[-1].startswith('v'):
+            return url_bits[-1][1]
+        return '1'  # Who knows? Let's just try 1 ...
+
     @property
     def glance_client(self):
         if self._glance_client is None:
             token = self.keystone_client.auth_token
-            endpoint = self.get_endpoint(service_type='image')
+            endpoint = self.get_endpoint(
+                service_type=self.get_service_type('image'))
+            glance_api_version = self._get_glance_api_version(endpoint)
             try:
-                # Seriously. I'm not kidding. The first argument is '1'. And
-                # no, it's not a version that's discoverable from keystone
                 self._glance_client = glanceclient.Client(
-                    '1', endpoint, token=token)
+                    glance_api_version, endpoint, token=token)
             except Exception as e:
                 self.log.debug("glance unknown issue", exc_info=True)
                 raise OpenStackCloudException(
@@ -297,6 +239,39 @@ class OpenStackCloud(object):
 
         return self._cinder_client
 
+    @property
+    def trove_client(self):
+        if self._trove_client is None:
+            # Make the connection
+            self._trove_client = trove_client.Client(
+                '1.0',  # TODO: discover this if possible
+                self.username,
+                self.password,
+                self.project_id,
+                self.auth_url,
+                region_name=self.region_name,
+                service_type=self.get_service_type('database'),
+                )
+
+            try:
+                self._trove_client.authenticate()
+            except trove_exceptions.Unauthorized, e:
+                self.log.debug("trove Unauthorized", exc_info=True)
+                raise OpenStackCloudException(
+                    "Invalid OpenStack Trove credentials.: %s" % e.message)
+            except trove_exceptions.AuthorizationFailure, e:
+                self.log.debug("trove AuthorizationFailure", exc_info=True)
+                raise OpenStackCloudException(
+                    "Unable to authorize user: %s" % e.message)
+
+            if self._trove_client is None:
+                raise OpenStackCloudException(
+                    "Failed to instantiate cinder client. This could mean that your"
+                    " credentials are wrong.")
+
+        return self._trove_client
+        
+
     def get_name(self):
         return self.name
 
@@ -304,13 +279,15 @@ class OpenStackCloud(object):
         return self.region_name
 
     def get_flavor_name(self, flavor_id):
-        if not self.flavor_cache:
-            self.flavor_cache = dict(
+        if not self._flavor_cache:
+            self._flavor_cache = dict(
                 [(flavor.id, flavor.name)
                     for flavor in self.nova_client.flavors.list()])
-        return self.flavor_cache.get(flavor_id, None)
+        return self._flavor_cache.get(flavor_id, None)
 
     def get_endpoint(self, service_type):
+        if service_type in self.endpoints:
+            return self.endpoints[service_type]
         try:
             endpoint = self.keystone_client.service_catalog.url_for(
                 service_type=service_type, endpoint_type=self.endpoint_type)

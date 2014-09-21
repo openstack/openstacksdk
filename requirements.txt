@@ -1,7 +1,10 @@
 pbr>=0.5.21,<1.0
 
+os-client-config
+
 python-novaclient
 python-keystoneclient
 python-glanceclient
 python-cinderclient
 python-neutronclient
+python-troveclient
