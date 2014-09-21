@@ -56,6 +56,7 @@ class OpenStackConfig(object):
         defaults.add('insecure')
         defaults.add('endpoint_type')
         defaults.add('cacert')
+        defaults.add('auth_type')
 
         self.defaults = defaults
 
@@ -75,7 +76,11 @@ class OpenStackConfig(object):
                 return yaml.load(open(path, 'r'))
 
     def _get_regions(self, cloud):
-        return self.cloud_config['clouds'][cloud]['region_name']
+        try:
+            return self.cloud_config['clouds'][cloud]['region_name']
+        except KeyError:
+            # No region configured
+            return ''
 
     def _get_region(self, cloud):
         return self._get_regions(cloud).split(',')[0]
