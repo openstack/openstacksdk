@@ -90,11 +90,13 @@ class OpenStackConfig(object):
         else:
             our_cloud = dict()
 
+        # Get the defaults (including env vars) first
+        cloud.update(self.defaults)
+
         # yes, I know the next line looks silly
         if 'cloud' in our_cloud:
             cloud.update(vendors.CLOUD_DEFAULTS[our_cloud['cloud']])
 
-        cloud.update(self.defaults)
         cloud.update(our_cloud)
         if 'cloud' in cloud:
             del cloud['cloud']
