@@ -239,12 +239,29 @@ class OpenStackCloud(object):
 
         return self._cinder_client
 
+    def _get_trove_api_version(self, endpoint):
+        if 'database' in self.api_versions:
+            return self.api_versions['database']
+        # Yay. We get to guess ...
+        # Get rid of trailing '/' if present
+        if endpoint.endswith('/'):
+            endpoint = endpoint[:-1]
+        url_bits = endpoint.split('/')
+        for bit in url_bits:
+            if bit.startswith('v'):
+                return bit[1:]
+        return '1.0'  # Who knows? Let's just try 1.0 ...
+
     @property
     def trove_client(self):
         if self._trove_client is None:
-            # Make the connection
+            endpoint = self.get_endpoint(
+                service_type=self.get_service_type('database'))
+            trove_api_version = self._get_trove_api_version(endpoint)
+            # Make the connection - can't use keystone session until there
+            # is one
             self._trove_client = trove_client.Client(
-                '1.0',  # TODO: discover this if possible
+                trove_api_version,
                 self.username,
                 self.password,
                 self.project_id,
