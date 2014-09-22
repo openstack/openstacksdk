@@ -100,7 +100,11 @@ class OpenStackConfig(object):
 
         # yes, I know the next line looks silly
         if 'cloud' in our_cloud:
-            cloud.update(vendors.CLOUD_DEFAULTS[our_cloud['cloud']])
+            try:
+                cloud.update(vendors.CLOUD_DEFAULTS[our_cloud['cloud']])
+            except KeyError:
+                # Can't find the requested vendor config, go about business
+                pass
 
         cloud.update(our_cloud)
         if 'cloud' in cloud:
