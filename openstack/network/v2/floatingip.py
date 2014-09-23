@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack.network import network_service
 from openstack import resource
 
@@ -37,3 +38,14 @@ class FloatingIP(resource.Resource):
     port_id = resource.prop('port_id')
     project_id = resource.prop('tenant_id')
     router_id = resource.prop('router_id')
+
+    @classmethod
+    def find_available(cls, session):
+        args = {
+            'port_id': '',
+            'fields': cls.id_attribute,
+        }
+        info = cls.list(session, **args)
+        if len(info) > 0:
+            return info[0]
+        raise exceptions.ResourceNotFound("No available floating ips exist.")

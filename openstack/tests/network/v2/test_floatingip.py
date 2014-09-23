@@ -10,8 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 import testtools
 
+from openstack import exceptions
 from openstack.network.v2 import floatingip
 
 IDENTIFIER = '10.0.0.1'
@@ -50,3 +52,31 @@ class TestFloatingIP(testtools.TestCase):
         self.assertEqual(EXAMPLE['port_id'], sot.port_id)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['router_id'], sot.router_id)
+
+    def test_find_available(self):
+        mock_session = mock.Mock()
+        mock_get = mock.Mock()
+        mock_session.get = mock_get
+        data = {'floating_ip_address': '10.0.0.1'}
+        fake_response = mock.Mock()
+        fake_response.body = {floatingip.FloatingIP.resources_key: [data]}
+        mock_get.return_value = fake_response
+
+        result = floatingip.FloatingIP.find_available(mock_session)
+
+        self.assertEqual('10.0.0.1', result.id)
+        p = {'fields': 'floating_ip_address', 'port_id': ''}
+        mock_get.assert_called_with(floatingip.FloatingIP.base_path,
+                                    params=p,
+                                    service=floatingip.FloatingIP.service)
+
+    def test_find_available_nada(self):
+        mock_session = mock.Mock()
+        mock_get = mock.Mock()
+        mock_session.get = mock_get
+        fake_response = mock.Mock()
+        fake_response.body = {floatingip.FloatingIP.resources_key: []}
+        mock_get.return_value = fake_response
+
+        self.assertRaises(exceptions.ResourceNotFound,
+                          floatingip.FloatingIP.find_available, mock_session)
