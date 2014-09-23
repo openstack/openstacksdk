@@ -30,6 +30,9 @@ CONFIG_FILES = [
     os.path.join(d, 'clouds.yaml') for d in CONFIG_SEARCH_PATH]
 BOOL_KEYS = ('insecure', 'cache')
 REQUIRED_VALUES = ('auth_url', 'username', 'password', 'project_id')
+VENDOR_SEARCH_PATH = [os.getcwd(), CONFIG_HOME, '/etc/openstack']
+VENDOR_FILES = [
+    os.path.join(d, 'clouds-public.yaml') for d in VENDOR_SEARCH_PATH]
 
 
 def get_boolean(value):
@@ -40,8 +43,9 @@ def get_boolean(value):
 
 class OpenStackConfig(object):
 
-    def __init__(self, config_files=None):
+    def __init__(self, config_files=None, vendor_files=None):
         self._config_files = config_files or CONFIG_FILES
+        self._vendor_files = vendor_files or VENDOR_FILES
 
         defaults = defaults_dict.DefaultsDict()
         defaults.add('username')
@@ -75,6 +79,11 @@ class OpenStackConfig(object):
             if os.path.exists(path):
                 return yaml.load(open(path, 'r'))
 
+    def _load_vendor_file(self):
+        for path in self._vendor_files:
+            if os.path.exists(path):
+                return yaml.load(open(path, 'r'))
+
     def _get_regions(self, cloud):
         try:
             return self.cloud_config['clouds'][cloud]['region_name']
@@ -100,11 +109,15 @@ class OpenStackConfig(object):
 
         # yes, I know the next line looks silly
         if 'cloud' in our_cloud:
-            try:
-                cloud.update(vendors.CLOUD_DEFAULTS[our_cloud['cloud']])
-            except KeyError:
-                # Can't find the requested vendor config, go about business
-                pass
+            vendor_file = self._load_vendor_file()
+            if our_cloud['cloud'] in vendor_file['public-clouds']:
+                cloud.update(vendor_file['public-clouds'][our_cloud['cloud']])
+            else:
+                try:
+                    cloud.update(vendors.CLOUD_DEFAULTS[our_cloud['cloud']])
+                except KeyError:
+                    # Can't find the requested vendor config, go about business
+                    pass
 
         cloud.update(our_cloud)
         if 'cloud' in cloud:
