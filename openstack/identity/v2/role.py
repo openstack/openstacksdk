@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import format
 from openstack.identity import identity_service
 from openstack import resource
 
@@ -30,4 +31,4 @@ class Role(resource.Resource):
     # Properties
     description = resource.prop('description')
     name = resource.prop('name')
-    enabled = resource.prop('enabled')  # API implements as string
+    enabled = resource.prop('enabled', type=format.BoolStr)

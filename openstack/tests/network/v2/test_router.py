@@ -18,7 +18,7 @@ from openstack.network.v2 import router
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     'admin_state_up': True,
-    'external_gateway_info': '2',
+    'external_gateway_info': {'2': '3'},
     'id': IDENTIFIER,
     'name': '4',
     'tenant_id': '5',
