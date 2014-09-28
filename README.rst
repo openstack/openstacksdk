@@ -45,11 +45,13 @@ and without the OS prefix. So, username is set with `username`.
 Service specific settings, like the nova service type, are set with the
 default service type as a prefix. For instance, to set a special service_type
 for trove (because you're using Rackspace) set:
+
 ::
 
   database_service_type: 'rax:database'
 
 An example config file is probably helpful:
+
 ::
 
   clouds:
@@ -89,6 +91,28 @@ like `service_type` or `endpoint` or `api_version` can be set by prefixing
 the setting with the default service type. That might strike you funny when
 setting `service_type` and it does me too - but that's just the world we live
 in.
+
+Cache Settings
+--------------
+
+Accessing a cloud is often expensive, so it's quite common to want to do some
+client-side caching of those operations. To facilitate that, os-client-config
+understands a simple set of cache control settings.
+
+::
+
+  cache:
+    path: ~/.cache/openstack
+    max_age: 300
+  clouds:
+    mordred:
+      cloud: hp
+      username: mordred@inaugust.com
+      password: XXXXXXXXX
+      project_id: mordred@inaugust.com
+      region_name: region-b.geo-1
+      dns_service_type: hpext:dns
+
 
 Usage
 -----
