@@ -105,12 +105,13 @@ class OpenStackConfig(object):
 
         # yes, I know the next line looks silly
         if 'cloud' in our_cloud:
+            cloud_name = our_cloud['cloud']
             vendor_file = self._load_vendor_file()
-            if our_cloud['cloud'] in vendor_file['public-clouds']:
-                cloud.update(vendor_file['public-clouds'][our_cloud['cloud']])
+            if vendor_file and cloud_name in vendor_file['public-clouds']:
+                cloud.update(vendor_file['public-clouds'][cloud_name])
             else:
                 try:
-                    cloud.update(vendors.CLOUD_DEFAULTS[our_cloud['cloud']])
+                    cloud.update(vendors.CLOUD_DEFAULTS[cloud_name])
                 except KeyError:
                     # Can't find the requested vendor config, go about business
                     pass
