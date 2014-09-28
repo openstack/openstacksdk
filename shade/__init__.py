@@ -18,14 +18,13 @@ import os
 from cinderclient.v1 import client as cinder_client
 from cinderclient import exceptions as cinder_exceptions
 import glanceclient
-from keystoneclient.v2_0 import client as keystone_client
+from keystoneclient import client as keystone_client
 from novaclient import exceptions as nova_exceptions
 from novaclient.v1_1 import client as nova_client
 import os_client_config
 import troveclient.client as trove_client
 from troveclient import exceptions as trove_exceptions
 import pbr.version
-
 
 __version__ = pbr.version.VersionInfo('shade').version_string()
 
@@ -48,9 +47,11 @@ class OpenStackCloudException(Exception):
     pass
 
 
-def openstack_clouds():
+def openstack_clouds(config=None):
+    if not config:
+        config = os_client_config.OpenStackConfig()
     return [OpenStackCloud(f.name, f.region, **f.config)
-            for f in os_client_config.OpenStackConfig().get_all_clouds()]
+            for f in config.get_all_clouds()]
 
 
 def openstack_cloud(cloud='openstack', region=None):
@@ -86,8 +87,14 @@ class OpenStackCloud(object):
         self.endpoints = _get_service_values(kwargs, 'endpoint')
         self.api_versions = _get_service_values(kwargs, 'api_version')
 
+        self.user_domain_name = kwargs.get('user_domain_name', None)
+        self.project_domain_name = kwargs.get('project_domain_name', None)
+
         self.insecure = kwargs.get('insecure', False)
         self.endpoint_type = kwargs.get('endpoint_type', 'publicURL')
+        self.cert = kwargs.get('cert', None)
+        self.cacert = kwargs.get('cacert', None)
+        self.private = kwargs.get('private', False)
 
         self._image_cache = image_cache
         self._flavor_cache = flavor_cache
@@ -133,12 +140,13 @@ class OpenStackCloud(object):
                 **kwargs
             )
 
+            self._nova_client.authenticate()
             try:
                 self._nova_client.authenticate()
             except nova_exceptions.Unauthorized as e:
                 self.log.debug("nova Unauthorized", exc_info=True)
                 raise OpenStackCloudException(
-                    "Invalid OpenStack Nova credentials.: %s" % e.message)
+                    "Invalid OpenStack Nova credentials: %s" % e.message)
             except nova_exceptions.AuthorizationFailure as e:
                 self.log.debug("nova AuthorizationFailure", exc_info=True)
                 raise OpenStackCloudException(
@@ -168,9 +176,12 @@ class OpenStackCloud(object):
                     self._keystone_client = keystone_client.Client(
                         username=self.username,
                         password=self.password,
-                        tenant_name=self.project_id,
+                        project_id=self.project_id,
                         region_name=self.region_name,
-                        auth_url=self.auth_url)
+                        auth_url=self.auth_url,
+                        user_domain_name=self.user_domain_name,
+                        project_domain_name=self.project_domain_name)
+                self._keystone_client.authenticate()
             except Exception as e:
                 self.log.debug("keystone unknown issue", exc_info=True)
                 raise OpenStackCloudException(
@@ -198,7 +209,8 @@ class OpenStackCloud(object):
             glance_api_version = self._get_glance_api_version(endpoint)
             try:
                 self._glance_client = glanceclient.Client(
-                    glance_api_version, endpoint, token=token)
+                    glance_api_version, endpoint, token=token,
+                    session=self.keystone_client.session)
             except Exception as e:
                 self.log.debug("glance unknown issue", exc_info=True)
                 raise OpenStackCloudException(
