@@ -100,10 +100,10 @@ class Auth(base.BaseIdentityPlugin):
     def get_auth_data(self, headers):
         if self.token is None:
             auth = {'password': self.password}
-            if self.user_name:
-                auth['username'] = self.user_name
-            elif self.user_id:
+            if self.user_id:
                 auth['userId'] = self.user_id
+            elif self.user_name:
+                auth['username'] = self.user_name
             return {'passwordCredentials': auth}
         headers['X-Auth-Token'] = self.token
         return {'token': {'id': self.token}}

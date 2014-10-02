@@ -65,6 +65,30 @@ class TestV2Auth(testtools.TestCase):
         self.assertEqual(expected, sot.get_auth_data(headers))
         self.assertEqual({'X-Auth-Token': common.TEST_TOKEN}, headers)
 
+    def test_user_id(self):
+        kargs = {
+            'password': common.TEST_PASS,
+            'project_id': common.TEST_TENANT_ID,
+            'project_name': common.TEST_TENANT_NAME,
+            'trust_id': common.TEST_TRUST_ID,
+            'user_name': common.TEST_USER,
+            'user_id': common.TEST_USER_ID,
+        }
+
+        sot = v2.Auth(TEST_URL, **kargs)
+
+        self.assertEqual(common.TEST_USER, sot.user_name)
+        self.assertEqual(common.TEST_USER_ID, sot.user_id)
+        self.assertEqual(common.TEST_PASS, sot.password)
+        self.assertEqual(common.TEST_TRUST_ID, sot.trust_id)
+        self.assertEqual(common.TEST_TENANT_ID, sot.tenant_id)
+        self.assertEqual(common.TEST_TENANT_NAME, sot.tenant_name)
+        expected = {'passwordCredentials': {'password': common.TEST_PASS,
+                                            'userId': common.TEST_USER_ID}}
+        headers = {}
+        self.assertEqual(expected, sot.get_auth_data(headers))
+        self.assertEqual({}, headers)
+
     def create_mock_transport(self, xresp):
         transport = mock.Mock()
         transport.post = mock.Mock()
