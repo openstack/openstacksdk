@@ -16,7 +16,7 @@ from openstack import exceptions
 
 
 def create(username=None, password=None, token=None, auth_url=None,
-           version='3', project_name=None, domain_name=None,
+           version=None, project_name=None, domain_name=None,
            project_domain_name=None, user_domain_name=None):
     """Temporary code for creating an authenticator
 
@@ -35,6 +35,14 @@ def create(username=None, password=None, token=None, auth_url=None,
 
     :returns string: An authenticator.
     """
+    if auth_url is None:
+        msg = ("auth_url wasn't provided.")
+        raise exceptions.AuthorizationFailure(msg)
+
+    endpoint_version = auth_url.split('v')[-1]
+    if version is None:
+        version = endpoint_version
+
     version = version.lower().replace('v', '')
     version = version.split('.')[0]
     if version == '3':

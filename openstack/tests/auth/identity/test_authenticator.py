@@ -85,3 +85,26 @@ class TestAuthenticatorCreate(base.TestCase):
             version='99',
             project_name='6',
         )
+
+    def test_create_no_url(self):
+        self.assertRaises(
+            exceptions.AuthorizationFailure,
+            authenticator.create,
+            username='1',
+            password='2',
+            token='3',
+            version='2',
+            project_name='6',
+        )
+
+    def test_create_no_version_2(self):
+        auth = authenticator.create(token='1', auth_url='url/v2.0')
+        self.assertTrue('v2' in str(auth))
+
+    def test_create_no_version_3(self):
+        auth = authenticator.create(token='1', auth_url='url/v3.0')
+        self.assertTrue('v3' in str(auth))
+
+    def test_create_version_unlike_auth_url(self):
+        auth = authenticator.create(token='1', version='2', auth_url='url/v3')
+        self.assertTrue('v2' in str(auth))
