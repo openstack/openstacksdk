@@ -15,6 +15,7 @@ from openstack.telemetry import telemetry_service
 
 
 class Statistics(resource.Resource):
+    id_attribute = 'meter_name'
     resource_key = 'statistics'
     base_path = '/v2/meters/%(meter_name)s/statistics'
     service = telemetry_service.TelemetryService()
@@ -40,10 +41,6 @@ class Statistics(resource.Resource):
     period_start = resource.prop('period_start')
     sum = resource.prop('sum')
     unit = resource.prop('unit')
-
-    @property
-    def id(self):
-        return None
 
     @classmethod
     def list(cls, session, path_args=None, **params):
