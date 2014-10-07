@@ -16,8 +16,9 @@
 
 import datetime
 
+from oslo.utils import timeutils
+
 from openstack.auth import service_catalog as catalog
-from openstack.common import timeutils
 
 
 # Do not use token before expiration
