@@ -120,7 +120,7 @@ def option_parser():
         '--os-auth-plugin',
         dest='auth_plugin',
         metavar='<auth-plugin>',
-        default=env('OS_AUTH_PLUGIN', default='identity_v3'),
+        default=env('OS_AUTH_PLUGIN', default=None),
         help='Authentication plugin (Env: OS_AUTH_PLUGIN)',
     )
     parser.add_argument(
@@ -205,7 +205,7 @@ def option_parser():
         '--os-token',
         dest='token',
         metavar='<token>',
-        default=env('OS_TOKEN'),
+        default=env('OS_TOKEN', default=None),
         help='Defaults to env[OS_TOKEN]',
     )
     parser.add_argument(

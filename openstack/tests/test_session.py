@@ -81,21 +81,3 @@ class TestSession(base.TestCase):
         self.auth.get_endpoint.assert_called_with(self.xport, self.serv)
         url = self.auth.ENDPOINT + self.TEST_PATH
         self.xport.request.assert_called_with('PATCH', url, **self.expected)
-
-
-class TestSessionCreate(base.TestCase):
-    def test_create(self):
-        sess = session.Session.create(
-            user_name='1',
-            password='2',
-            token=None,
-            auth_url='4',
-            auth_plugin='identity_v3',
-            project_name='6',
-            verify='7',
-            region='10',
-        )
-        self.assertEqual('1', sess.authenticator.auth_methods[0].user_name)
-        self.assertEqual('2', sess.authenticator.auth_methods[0].password)
-        self.assertEqual('7', sess.transport.verify)
-        self.assertEqual('10', sess.preference.region)
