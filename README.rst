@@ -34,6 +34,8 @@ Requirements
 * Python 2.6+, Python 3.3+
 * pbr
 * requests
+* iso8601
+* stevedore
 
 License
 -------
