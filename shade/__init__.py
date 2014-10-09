@@ -18,6 +18,8 @@ import os
 from cinderclient.v1 import client as cinder_client
 from cinderclient import exceptions as cinder_exceptions
 import glanceclient
+from ironicclient import client as ironic_client
+from ironicclient import exceptions as ironic_exceptions
 from keystoneclient import client as keystone_client
 from novaclient import exceptions as nova_exceptions
 from novaclient.v1_1 import client as nova_client
@@ -104,6 +106,7 @@ class OpenStackCloud(object):
 
         self._nova_client = None
         self._glance_client = None
+        self._ironic_client = None
         self._keystone_client = None
         self._cinder_client = None
         self._trove_client = None
@@ -300,6 +303,16 @@ class OpenStackCloud(object):
 
         return self._trove_client
         
+    @property
+    def ironic_client(self):
+        if self._ironic_client is None:
+            token = self.keystone_client.auth_token
+            endpoint = self.get_endpoint(service_type='baremetal')
+            try:
+                self._ironic_client = ironic_client.Client('1', endpoint, token=token)
+            except Exception as e:
+                raise OpenStackCloudException("Error in connecting to ironic: %s" % e.message)
+        return self._ironic_client
 
     def get_name(self):
         return self.name
@@ -400,3 +413,18 @@ class OpenStackCloud(object):
             if server.name == server_name:
                 return server.id
         return None
+
+    def list_ironic_nodes(self):
+        return self.ironic_client.node.list()
+
+    def get_ironic_node(self, node_name):
+        return self.ironic_client.node.get(node_name)
+
+    def list_ironic_ports(self):
+        return self.ironic_client.port.list()
+
+    def get_ironic_port(self, port_name):
+        return self.ironic_client.port.get(port_name)
+
+    def list_ironic_ports_for_node(self, node_name):
+        return self.ironic_client.node.list_ports(node_name)
