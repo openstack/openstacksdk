@@ -77,7 +77,7 @@ class OpenStackCloud(object):
 
         self.username = kwargs['username']
         self.password = kwargs['password']
-        self.project_id = kwargs['project_id']
+        self.project_name = kwargs['project_name']
         self.auth_url = kwargs['auth_url']
 
         self.region_name = kwargs.get('region_name', region)
@@ -135,7 +135,7 @@ class OpenStackCloud(object):
             self._nova_client = nova_client.Client(
                 self.username,
                 self.password,
-                self.project_id,
+                self.project_name,
                 self.auth_url,
                 **kwargs
             )
@@ -176,7 +176,7 @@ class OpenStackCloud(object):
                     self._keystone_client = keystone_client.Client(
                         username=self.username,
                         password=self.password,
-                        project_id=self.project_id,
+                        project_name=self.project_name,
                         region_name=self.region_name,
                         auth_url=self.auth_url,
                         user_domain_name=self.user_domain_name,
@@ -228,7 +228,7 @@ class OpenStackCloud(object):
             self._cinder_client = cinder_client.Client(
                 self.username,
                 self.password,
-                self.project_id,
+                self.project_name,
                 self.auth_url,
                 region_name=self.region_name,
             )
@@ -276,7 +276,7 @@ class OpenStackCloud(object):
                 trove_api_version,
                 self.username,
                 self.password,
-                self.project_id,
+                self.project_name,
                 self.auth_url,
                 region_name=self.region_name,
                 service_type=self.get_service_type('database'),
