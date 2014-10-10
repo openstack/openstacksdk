@@ -41,7 +41,8 @@ class ServiceFilter(object):
 
     def __repr__(self):
         ret = "service_type=%s" % self.service_type
-        ret += ",visibility=%s" % self.visibility
+        if self.visibility is not None:
+            ret += ",visibility=%s" % self.visibility
         if self.region is not None:
             ret += ",region=%s" % self.region
         if self.service_name:
@@ -52,7 +53,7 @@ class ServiceFilter(object):
 
     def join(self, default):
         return ServiceFilter(service_type=default.service_type,
-                             visibility=default.visibility,
+                             visibility=self.visibility or default.visibility,
                              region=self.region,
                              service_name=self.service_name,
                              version=self.version)
@@ -77,12 +78,14 @@ class ServiceFilter(object):
         return False
 
     def match_visibility(self, visibility):
+        if not self.visibility:
+            return True
         return self.visibility == visibility
 
     def set_visibility(self, visibility):
         if not visibility:
-            msg = "Visibility must be specified to locate service"
-            raise exceptions.SDKException(msg)
+            self.visibility = None
+            return
         visibility = visibility.replace('URL', '')
         visibility = visibility.lower()
         if visibility not in self.VISIBILITY:

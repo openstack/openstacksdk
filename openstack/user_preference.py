@@ -40,20 +40,28 @@ class UserPreference(object):
         self._preferences = {}
         self._services = {}
         serv = compute_service.ComputeService()
+        serv.set_visibility(None)
         self._services[serv.service_type] = serv
         serv = database_service.DatabaseService()
+        serv.set_visibility(None)
         self._services[serv.service_type] = serv
         serv = identity_service.IdentityService()
+        serv.set_visibility(None)
         self._services[serv.service_type] = serv
         serv = image_service.ImageService()
+        serv.set_visibility(None)
         self._services[serv.service_type] = serv
         serv = network_service.NetworkService()
+        serv.set_visibility(None)
         self._services[serv.service_type] = serv
         serv = object_store_service.ObjectStoreService()
+        serv.set_visibility(None)
         self._services[serv.service_type] = serv
         serv = orchestration_service.OrchestrationService()
+        serv.set_visibility(None)
         self._services[serv.service_type] = serv
         serv = telemetry_service.TelemetryService()
+        serv.set_visibility(None)
         self._services[serv.service_type] = serv
         self.service_names = sorted(self._services.keys())
 
