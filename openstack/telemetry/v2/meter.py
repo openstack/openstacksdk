@@ -15,6 +15,7 @@ from openstack.telemetry import telemetry_service
 
 
 class Meter(resource.Resource):
+    id_attribute = 'meter_id'
     resource_key = 'meter'
     base_path = '/v2/meters'
     service = telemetry_service.TelemetryService()
@@ -31,11 +32,3 @@ class Meter(resource.Resource):
     type = resource.prop('type')
     unit = resource.prop('unit')
     user_id = resource.prop('user_id')
-
-    @property
-    def id(self):
-        try:
-            val = self.meter_id
-        except AttributeError:
-            val = None
-        return val
