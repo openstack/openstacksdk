@@ -70,10 +70,6 @@ class OpenStackConfig(object):
             self.cloud_config = dict(
                 clouds=dict(openstack=dict(self.defaults)))
 
-    @classmethod
-    def get_services(klass):
-        return SERVICES
-
     def _load_config_file(self):
         for path in self._config_files:
             if os.path.exists(path):
