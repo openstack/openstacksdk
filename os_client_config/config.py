@@ -32,7 +32,7 @@ CACHE_PATH = os.path.join(os.path.expanduser(
     os.environ.get('XDG_CACHE_PATH', os.path.join('~', '.cache'))),
     'openstack')
 BOOL_KEYS = ('insecure', 'cache')
-REQUIRED_VALUES = ('auth_url', 'username', 'password', 'project_id')
+REQUIRED_VALUES = ('auth_url', 'username', 'password')
 VENDOR_SEARCH_PATH = [os.getcwd(), CONFIG_HOME, '/etc/openstack']
 VENDOR_FILES = [
     os.path.join(d, 'clouds-public.yaml') for d in VENDOR_SEARCH_PATH]
@@ -54,7 +54,8 @@ class OpenStackConfig(object):
         defaults.add('username')
         defaults.add('user_domain_name')
         defaults.add('password')
-        defaults.add('project_id', defaults['username'], also='tenant_name')
+        defaults.add('project_name', defaults['username'], also='tenant_name')
+        defaults.add('project_id', also='tenant_id')
         defaults.add('project_domain_name')
         defaults.add('auth_url')
         defaults.add('region_name')
@@ -136,6 +137,17 @@ class OpenStackConfig(object):
         cloud.update(our_cloud)
         if 'cloud' in cloud:
             del cloud['cloud']
+
+        return self._fix_project_madness(cloud)
+
+    def _fix_project_madness(self, cloud):
+        project_name = None
+        # Do the list backwards so that project_name is the ultimate winner
+        for key in ('tenant_id', 'project_id', 'tenant_name', 'project_name'):
+            if key in cloud:
+                project_name = cloud[key]
+                del cloud[key]
+        cloud['project_name'] = project_name
         return cloud
 
     def get_all_clouds(self):
@@ -166,6 +178,12 @@ class OpenStackConfig(object):
                     ' config files {files}'
                     ' or environment variables.'.format(
                         name=name, files=','.join(self._config_files)))
+        if 'project_name' not in config and 'project_id' not in config:
+            raise exceptions.OpenStackConfigException(
+                'Neither project_name or project_id information found'
+                ' for cloud {name} in config files {files}'
+                ' or environment variables.'.format(
+                    name=name, files=','.join(self._config_files)))
 
         # If any of the defaults reference other values, we need to expand
         for (key, value) in config.items():
