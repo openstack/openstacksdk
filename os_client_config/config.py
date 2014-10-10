@@ -54,7 +54,9 @@ class OpenStackConfig(object):
         defaults.add('username')
         defaults.add('user_domain_name')
         defaults.add('password')
-        defaults.add('project_name', defaults['username'], also='tenant_name')
+        defaults.add(
+            'project_name', defaults.get('username', None),
+            also='tenant_name')
         defaults.add('project_id', also='tenant_id')
         defaults.add('project_domain_name')
         defaults.add('auth_url')
