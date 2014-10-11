@@ -161,17 +161,43 @@ class OpenStackConfig(object):
                 clouds.append(self.get_one_cloud(cloud, region))
         return clouds
 
-    def get_one_cloud(self, name='openstack', region=None):
+    def _fix_args(self, args):
+        '''Replace - with _ and strip os_ prefixes.'''
+        os_args = dict()
+        new_args = dict()
+        for (key, val) in args.iteritems():
+            key = key.replace('-', '_')
+            if key.startswith('os'):
+                os_args[key[3:]] = val
+            else:
+                new_args[key] = val
+        new_args.update(os_args)
+        return new_args
 
-        if not region:
-            region = self._get_region(name)
+    def get_one_cloud(self, **kwargs):
+
+        args = self._fix_args(kwargs)
+
+        if 'cloud' in args:
+            name = args['cloud']
+            del args['cloud']
+        else:
+            name = 'openstack'
+
+        if 'region_name' not in args:
+            args['region_name'] = self._get_region(name)
 
         config = self._get_base_cloud_config(name)
-        config['region_name'] = region
+
+        # Can't just do update, because None values take over
+        for (key, val) in args.iteritems():
+            if val is not None:
+                config[key] = val
 
         for key in BOOL_KEYS:
             if key in config:
-                config[key] = get_boolean(config[key])
+                if type(config[key]) is not bool:
+                    config[key] = get_boolean(config[key])
 
         for key in REQUIRED_VALUES:
             if key not in config or not config[key]:
@@ -193,7 +219,7 @@ class OpenStackConfig(object):
                 config[key] = value.format(**config)
 
         return cloud_config.CloudConfig(
-            name=name, region=region, config=config)
+            name=name, region=config['region_name'], config=config)
 
 if __name__ == '__main__':
     config = OpenStackConfig().get_all_clouds()
