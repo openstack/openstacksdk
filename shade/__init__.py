@@ -56,9 +56,9 @@ def openstack_clouds(config=None):
             for f in config.get_all_clouds()]
 
 
-def openstack_cloud(cloud='openstack', region=None):
+def openstack_cloud(**kwargs):
     cloud_config = os_client_config.OpenStackConfig().get_one_cloud(
-        cloud, region)
+        **kwargs)
     return OpenStackCloud(
         cloud_config.name, cloud_config.region, **cloud_config.config)
 
@@ -70,11 +70,11 @@ def _get_service_values(kwargs, service_key):
 
 class OpenStackCloud(object):
 
-    def __init__(self, name, region='',
+    def __init__(self, cloud, region='',
                  image_cache=None, flavor_cache=None, volume_cache=None,
                  debug=False, **kwargs):
 
-        self.name = name
+        self.name = cloud
         self.region = region
 
         self.username = kwargs['username']
