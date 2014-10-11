@@ -161,8 +161,24 @@ class OpenStackConfig(object):
                 clouds.append(self.get_one_cloud(cloud, region))
         return clouds
 
-    def _fix_args(self, args):
-        '''Replace - with _ and strip os_ prefixes.'''
+    def _fix_args(self, args, argparse=None):
+        """Massage the passed-in options
+
+        Replace - with _ and strip os_ prefixes.
+
+        Convert an argparse Namespace object to a dict, removing values
+        that are either None or ''.
+        """
+
+        if argparse:
+            # Convert the passed-in Namespace
+            o_dict = vars(argparse)
+            parsed_args = dict()
+            for k in o_dict:
+                if o_dict[k] is not None and o_dict[k] != '':
+                    parsed_args[k] = o_dict[k]
+            args.update(parsed_args)
+
         os_args = dict()
         new_args = dict()
         for (key, val) in args.iteritems():
@@ -174,13 +190,26 @@ class OpenStackConfig(object):
         new_args.update(os_args)
         return new_args
 
-    def get_one_cloud(self, **kwargs):
+    def get_one_cloud(self, cloud=None, validate=True,
+                      argparse=None, **kwargs):
+        """Retrieve a single cloud configuration and merge additional options
 
-        args = self._fix_args(kwargs)
+        :param string cloud:
+            The name of the configuration to load from clouds.yaml
+        :param boolean validate:
+            Validate that required arguments are present and certain
+            argument combinations are valid
+        :param Namespace argparse:
+            An argparse Namespace object; allows direct passing in of
+            argparse options to be added to the cloud config.  Values
+            of None and '' will be removed.
+        :param kwargs: Additional configuration options
+        """
 
-        if 'cloud' in args:
-            name = args['cloud']
-            del args['cloud']
+        args = self._fix_args(kwargs, argparse=argparse)
+
+        if cloud:
+            name = cloud
         else:
             name = 'openstack'
 
@@ -199,19 +228,20 @@ class OpenStackConfig(object):
                 if type(config[key]) is not bool:
                     config[key] = get_boolean(config[key])
 
-        for key in REQUIRED_VALUES:
-            if key not in config or not config[key]:
+        if validate:
+            for key in REQUIRED_VALUES:
+                if key not in config or not config[key]:
+                    raise exceptions.OpenStackConfigException(
+                        'Unable to find full auth information for cloud'
+                        ' {name} in config files {files}'
+                        ' or environment variables.'.format(
+                            name=name, files=','.join(self._config_files)))
+            if 'project_name' not in config and 'project_id' not in config:
                 raise exceptions.OpenStackConfigException(
-                    'Unable to find full auth information for cloud {name} in'
-                    ' config files {files}'
+                    'Neither project_name or project_id information found'
+                    ' for cloud {name} in config files {files}'
                     ' or environment variables.'.format(
                         name=name, files=','.join(self._config_files)))
-        if 'project_name' not in config and 'project_id' not in config:
-            raise exceptions.OpenStackConfigException(
-                'Neither project_name or project_id information found'
-                ' for cloud {name} in config files {files}'
-                ' or environment variables.'.format(
-                    name=name, files=','.join(self._config_files)))
 
         # If any of the defaults reference other values, we need to expand
         for (key, value) in config.items():
