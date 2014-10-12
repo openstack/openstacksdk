@@ -23,8 +23,8 @@ For example:
 import sys
 
 from examples import common
-from openstack.auth import service_filter
 from openstack import connection
+from openstack.identity import identity_service
 
 
 def make_session(opts):
@@ -37,12 +37,10 @@ def make_session(opts):
         'user_domain_name': opts.user_domain_name,
         'user_name': opts.user_name,
         'password': opts.password,
-        'region_name': opts.region_name,
         'verify': opts.verify,
         'token': opts.token,
     }
-    preference = service_filter.ServiceFilter(region=opts.region_name)
-    conn = connection.Connection(preference=preference, **args)
+    conn = connection.Connection(preference=opts.user_preferences, **args)
     return conn.session
 
 
@@ -51,7 +49,7 @@ def run_session(opts):
     if argument is None:
         raise Exception("A path argument must be specified")
     sess = make_session(opts)
-    filtration = service_filter.ServiceFilter(service_type='Identity')
+    filtration = identity_service.IdentityService()
     print("Session: %s" % sess)
     print(sess.get(argument, service=filtration).text)
     return

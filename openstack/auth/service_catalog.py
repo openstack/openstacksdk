@@ -17,8 +17,10 @@
 # limitations under the License.
 
 import copy
+import re
 
 import six
+from six.moves.urllib import parse
 
 from openstack import exceptions
 
@@ -31,6 +33,32 @@ class ServiceCatalog(object):
             self.catalog = []
             raise exceptions.EmptyCatalog('The service catalog is missing')
         self.catalog = copy.deepcopy(catalog)
+        self._normalize()
+        self._parse_endpoints()
+
+    def _normalize(self):
+        return
+
+    def _parse_endpoints(self):
+        pattern = re.compile('/v\d[\d.]*')
+        for service in self.catalog:
+            for endpoint in service.get('endpoints', []):
+                url = endpoint.get('url', '')
+                if not url:
+                    continue
+                split = parse.urlsplit(url)
+                split = list(split)
+                path = split[2]
+                vstr = pattern.search(path)
+                if not vstr:
+                    endpoint['url'] = endpoint['url'].rstrip('/')
+                    continue
+                start, end = vstr.span()
+                endpoint['version'] = path[start + 1:end]
+                path = path[:start] + '/%(version)s' + path[end:]
+                path = path.rstrip('/')
+                split[2] = path
+                endpoint['url'] = parse.urlunsplit(split)
 
     def get_urls(self, filtration):
         """Fetch and filter endpoints for the specified service.
@@ -54,6 +82,11 @@ class ServiceCatalog(object):
                 if not filtration.match_visibility(endpoint.get('interface')):
                     continue
                 url = endpoint.get('url')
+                version = endpoint.get('version', None)
+                if version:
+                    if filtration.version:
+                        version = filtration.version
+                    url = url % {'version': version}
                 if url:
                     eps += [url]
         return eps
@@ -75,10 +108,6 @@ class ServiceCatalog(object):
 
 class ServiceCatalogV2(ServiceCatalog):
     """The V2 service catalog from Keystone."""
-    def __init__(self, catalog):
-        super(ServiceCatalogV2, self).__init__(catalog)
-        self._normalize()
-
     def _normalize(self):
         """Handle differences in the way v2 and v3 catalogs specify endpoints.
 
@@ -87,11 +116,11 @@ class ServiceCatalogV2(ServiceCatalog):
         for service in self.catalog:
             eps = []
             for endpoint in service['endpoints']:
-                if 'adminURL' in endpoint:
+                if 'publicURL' in endpoint:
                     eps += [{
-                        'interface': 'admin',
+                        'interface': 'public',
                         'region': endpoint['region'],
-                        'url': endpoint['adminURL'],
+                        'url': endpoint['publicURL'],
                     }]
                 if 'internalURL' in endpoint:
                     eps += [{
@@ -99,10 +128,10 @@ class ServiceCatalogV2(ServiceCatalog):
                         'region': endpoint['region'],
                         'url': endpoint['internalURL'],
                     }]
-                if 'publicURL' in endpoint:
+                if 'adminURL' in endpoint:
                     eps += [{
-                        'interface': 'public',
+                        'interface': 'admin',
                         'region': endpoint['region'],
-                        'url': endpoint['publicURL'],
+                        'url': endpoint['adminURL'],
                     }]
             service['endpoints'] = eps

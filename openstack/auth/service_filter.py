@@ -23,7 +23,7 @@ class ServiceFilter(object):
     VISIBILITY = [PUBLIC, INTERNAL, ADMIN]
 
     def __init__(self, service_type=ANY, visibility=PUBLIC, region=None,
-                 service_name=None):
+                 service_name=None, version=None):
         """" Create a service identifier.
 
         :param string service_type: The desired type of service.
@@ -31,18 +31,13 @@ class ServiceFilter(object):
                                   `public` (default), `internal` or `admin`.
         :param string region: The desired region (optional).
         :param string service_name: Name of the service
+        :param string version: Version of service to use.
         """
         self.service_type = service_type.lower()
-        if not visibility:
-            msg = "Visibility must be specified to locate service"
-            raise exceptions.SDKException(msg)
-        visibility = visibility.rstrip('URL')
-        if visibility not in self.VISIBILITY:
-            msg = "Visibility <%s> not in %s" % (visibility, self.VISIBILITY)
-            raise exceptions.SDKException(msg)
-        self.visibility = visibility.lower()
+        self.set_visibility(visibility)
         self.region = region
         self.service_name = service_name
+        self.version = version
 
     def __repr__(self):
         ret = "service_type=%s" % self.service_type
@@ -51,13 +46,16 @@ class ServiceFilter(object):
             ret += ",region=%s" % self.region
         if self.service_name:
             ret += ",service_name=%s" % self.service_name
+        if self.version:
+            ret += ",version=%s" % self.version
         return ret
 
     def join(self, default):
         return ServiceFilter(service_type=default.service_type,
                              visibility=default.visibility,
                              region=self.region,
-                             service_name=self.service_name)
+                             service_name=self.service_name,
+                             version=self.version)
 
     def match_service_type(self, service_type):
         if self.service_type == self.ANY:
@@ -80,3 +78,14 @@ class ServiceFilter(object):
 
     def match_visibility(self, visibility):
         return self.visibility == visibility
+
+    def set_visibility(self, visibility):
+        if not visibility:
+            msg = "Visibility must be specified to locate service"
+            raise exceptions.SDKException(msg)
+        visibility = visibility.replace('URL', '')
+        visibility = visibility.lower()
+        if visibility not in self.VISIBILITY:
+            msg = "Visibility <%s> not in %s" % (visibility, self.VISIBILITY)
+            raise exceptions.SDKException(msg)
+        self.visibility = visibility

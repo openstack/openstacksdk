@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-TEST_ADMIN_URL = 'http://identity.region1.admin/'
+TEST_ADMIN_URL = 'http://identity.region1.admin/v1.1/123123'
 TEST_DOMAIN_ID = '1'
 TEST_DOMAIN_NAME = 'aDomain'
 TEST_EXPIRES = '2020-01-01 00:00:10.000123+00:00'
@@ -28,28 +28,28 @@ TEST_USER_ID = 'youid'
 TEST_SERVICE_CATALOG_V2 = [
     {
         "endpoints": [{
-            "adminURL": "http://compute.region2.admin/",
+            "adminURL": "http://compute.region2.admin/v1/",
             "region": "RegionTwo",
-            "internalURL": "http://compute.region2.internal/",
-            "publicURL": "http://compute.region2.public/",
+            "internalURL": "http://compute.region2.internal/v1/",
+            "publicURL": "http://compute.region2.public/v1/",
         }],
         "type": "compute",
         "name": "nova2"
     }, {
         "endpoints": [{
-            "adminURL": "http://compute.region1.admin/",
+            "adminURL": "http://compute.region1.admin/v2.0/",
             "region": "RegionOne",
-            "internalURL": "http://compute.region1.internal/",
-            "publicURL": "http://compute.region1.public/",
+            "internalURL": "http://compute.region1.internal/v2.0/",
+            "publicURL": "http://compute.region1.public/v2.0/",
         }],
         "type": "compute",
         "name": "nova"
     }, {
         "endpoints": [{
-            "adminURL": "http://image.region1.admin/",
+            "adminURL": "http://image.region1.admin/v2",
             "region": "RegionOne",
-            "internalURL": "http://image.region1.internal/",
-            "publicURL": "http://image.region1.public/",
+            "internalURL": "http://image.region1.internal/v2",
+            "publicURL": "http://image.region1.public/v2",
         }],
         "type": "image",
         "name": "glance"
@@ -57,8 +57,8 @@ TEST_SERVICE_CATALOG_V2 = [
         "endpoints": [{
             "adminURL": TEST_ADMIN_URL,
             "region": "RegionOne",
-            "internalURL": "http://identity.region1.internal/",
-            "publicURL": "http://identity.region1.public/",
+            "internalURL": "http://identity.region1.internal/v1.1/123123",
+            "publicURL": "http://identity.region1.public/v1.1/123123",
         }],
         "type": "identity",
         "name": "keystone"
@@ -72,87 +72,99 @@ TEST_SERVICE_CATALOG_V2 = [
         "type": "object-store",
         "name": "swift"
     }]
-TEST_SERVICE_CATALOG_V2_NORMALIZED = [
+TEST_SERVICE_CATALOG_NORMALIZED = [
     {
         "endpoints": [{
-            "interface": "admin",
+            "interface": "public",
             "region": "RegionTwo",
-            "url": "http://compute.region2.admin/",
+            "url": "http://compute.region2.public/%(version)s",
+            'version': 'v1',
         }, {
             "interface": "internal",
             "region": "RegionTwo",
-            "url": "http://compute.region2.internal/",
+            "url": "http://compute.region2.internal/%(version)s",
+            'version': 'v1',
         }, {
-            "interface": "public",
+            "interface": "admin",
             "region": "RegionTwo",
-            "url": "http://compute.region2.public/",
+            "url": "http://compute.region2.admin/%(version)s",
+            'version': 'v1',
         }],
         "type": "compute",
         "name": "nova2"
     }, {
         "endpoints": [{
-            "interface": "admin",
+            "interface": "public",
             "region": "RegionOne",
-            "url": "http://compute.region1.admin/",
+            "url": "http://compute.region1.public/%(version)s",
+            'version': 'v2.0',
         }, {
             "interface": "internal",
             "region": "RegionOne",
-            "url": "http://compute.region1.internal/",
+            "url": "http://compute.region1.internal/%(version)s",
+            'version': 'v2.0',
         }, {
-            "interface": "public",
+            "interface": "admin",
             "region": "RegionOne",
-            "url": "http://compute.region1.public/",
+            "url": "http://compute.region1.admin/%(version)s",
+            'version': 'v2.0',
         }],
         "type": "compute",
         "name": "nova"
     }, {
         "endpoints": [{
-            "interface": "admin",
+            "interface": "public",
             "region": "RegionOne",
-            "url": "http://image.region1.admin/",
+            "url": "http://image.region1.public/%(version)s",
+            'version': 'v2',
         }, {
             "interface": "internal",
             "region": "RegionOne",
-            "url": "http://image.region1.internal/",
+            "url": "http://image.region1.internal/%(version)s",
+            'version': 'v2',
         }, {
-            "interface": "public",
+            "interface": "admin",
             "region": "RegionOne",
-            "url": "http://image.region1.public/",
+            "url": "http://image.region1.admin/%(version)s",
+            'version': 'v2',
         }],
         "type": "image",
-        "name": "glance"
+        "name": "glance",
     }, {
         "endpoints": [{
-            "interface": "admin",
+            "interface": "public",
             "region": "RegionOne",
-            "url": TEST_ADMIN_URL,
+            "url": "http://identity.region1.public/%(version)s/123123",
+            'version': 'v1.1',
         }, {
             "interface": "internal",
             "region": "RegionOne",
-            "url": "http://identity.region1.internal/",
+            "url": "http://identity.region1.internal/%(version)s/123123",
+            'version': 'v1.1',
         }, {
-            "interface": "public",
+            "interface": "admin",
             "region": "RegionOne",
-            "url": "http://identity.region1.public/",
+            "url": "http://identity.region1.admin/%(version)s/123123",
+            'version': 'v1.1',
         }],
         "type": "identity",
-        "name": "keystone"
+        "name": "keystone",
     }, {
         "endpoints": [{
-            "interface": "admin",
+            "interface": "public",
             "region": "RegionOne",
-            "url": "http://object-store.region1.admin/",
+            "url": "http://object-store.region1.public",
         }, {
             "interface": "internal",
             "region": "RegionOne",
-            "url": "http://object-store.region1.internal/",
+            "url": "http://object-store.region1.internal",
         }, {
-            "interface": "public",
+            "interface": "admin",
             "region": "RegionOne",
-            "url": "http://object-store.region1.public/",
+            "url": "http://object-store.region1.admin",
         }],
         "type": "object-store",
-        "name": "swift"
+        "name": "swift",
     }]
 TEST_RESPONSE_DICT_V2 = {
     "access": {
@@ -174,15 +186,15 @@ TEST_RESPONSE_DICT_V2 = {
 TEST_SERVICE_CATALOG_V3 = [
     {
         "endpoints": [{
-            "url": "http://compute.region2.public/",
+            "url": "http://compute.region2.public/v1/",
             "region": "RegionTwo",
             "interface": "public"
         }, {
-            "url": "http://compute.region2.internal/",
+            "url": "http://compute.region2.internal/v1/",
             "region": "RegionTwo",
             "interface": "internal"
         }, {
-            "url": "http://compute.region2.admin/",
+            "url": "http://compute.region2.admin/v1/",
             "region": "RegionTwo",
             "interface": "admin"
         }],
@@ -190,15 +202,15 @@ TEST_SERVICE_CATALOG_V3 = [
         "name": "nova2",
     }, {
         "endpoints": [{
-            "url": "http://compute.region1.public/",
+            "url": "http://compute.region1.public/v2.0/",
             "region": "RegionOne",
             "interface": "public"
         }, {
-            "url": "http://compute.region1.internal/",
+            "url": "http://compute.region1.internal/v2.0/",
             "region": "RegionOne",
             "interface": "internal"
         }, {
-            "url": "http://compute.region1.admin/",
+            "url": "http://compute.region1.admin/v2.0/",
             "region": "RegionOne",
             "interface": "admin"
         }],
@@ -206,35 +218,36 @@ TEST_SERVICE_CATALOG_V3 = [
         "name": "nova",
     }, {
         "endpoints": [{
-            "url": "http://image.region1.public/",
+            "url": "http://image.region1.public/v2",
             "region": "RegionOne",
             "interface": "public"
         }, {
-            "url": "http://image.region1.internal/",
+            "url": "http://image.region1.internal/v2",
             "region": "RegionOne",
             "interface": "internal"
         }, {
-            "url": "http://image.region1.admin/",
+            "url": "http://image.region1.admin/v2",
             "region": "RegionOne",
             "interface": "admin"
         }],
         "type": "image",
-        "name": "glance"
+        "name": "glance",
     }, {
         "endpoints": [{
-            "url": "http://identity.region1.public/",
+            "url": "http://identity.region1.public/v1.1/123123",
             "region": "RegionOne",
             "interface": "public"
         }, {
-            "url": "http://identity.region1.internal/",
+            "url": "http://identity.region1.internal/v1.1/123123",
             "region": "RegionOne",
             "interface": "internal"
         }, {
-            "url": "http://identity.region1.admin/",
+            "url": "http://identity.region1.admin/v1.1/123123",
             "region": "RegionOne",
             "interface": "admin"
         }],
-        "type": "identity"
+        "type": "identity",
+        "name": "keystone",
     }, {
         "endpoints": [{
             "url": "http://object-store.region1.public/",
@@ -249,7 +262,8 @@ TEST_SERVICE_CATALOG_V3 = [
             "region": "RegionOne",
             "interface": "admin"
         }],
-        "type": "object-store"
+        "type": "object-store",
+        "name": "swift",
     }]
 
 TEST_RESPONSE_DICT_V3 = {

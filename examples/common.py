@@ -41,6 +41,8 @@ import sys
 import traceback
 import uuid
 
+from openstack import user_preference
+
 CONSOLE_MESSAGE_FORMAT = '%(levelname)s: %(name)s %(message)s'
 _logger = logging.getLogger(__name__)
 
@@ -88,6 +90,58 @@ def get_open_fds():
         procs.split('\n')
     )
     return [d.replace('\000', '|') for d in procs_list]
+
+
+class UserPreferenceAction(argparse.Action):
+    """A custom action to parse user preferences as key=value pairs
+
+    Stores results in users preferences object.
+    """
+    pref = user_preference.UserPreference()
+
+    @classmethod
+    def env(cls, *vars):
+        for v in vars:
+            values = os.environ.get(v, None)
+            if values is None:
+                continue
+            cls.set_option(v, values)
+            return cls.pref
+        return cls.pref
+
+    @classmethod
+    def set_option(cls, var, values):
+        if var == 'OS_REGION_NAME':
+            var = 'region'
+        var = var.replace('--os-api-', '')
+        var = var.replace('OS_API_', '')
+        var = var.lower()
+        for kvp in values.split(','):
+            if var == 'region':
+                if '=' in kvp:
+                    service, value = kvp.split('=')
+                else:
+                    service = cls.pref.ALL
+                    value = kvp
+            else:
+                if '=' in kvp:
+                    service, value = kvp.split('=')
+                else:
+                    service = cls.pref.ALL
+                    value = kvp
+            if var == 'name':
+                cls.pref.set_name(service, value)
+            elif var == 'region':
+                cls.pref.set_region(service, value)
+            elif var == 'version':
+                cls.pref.set_version(service, value)
+            elif var == 'visibility':
+                cls.pref.set_visibility(service, value)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        if getattr(namespace, self.dest, None) is None:
+            setattr(namespace, self.dest, UserPreferenceAction.pref)
+        self.set_option(option_string, values)
 
 
 def env(*vars, **kwargs):
@@ -177,11 +231,37 @@ def option_parser():
         help='Authentication password (Env: OS_PASSWORD)',
     )
     parser.add_argument(
-        '--os-region-name',
-        dest='region_name',
-        metavar='<region>',
-        default=env('OS_REGION_NAME'),
-        help='Service region (Env: OS_REGION_NAME)')
+        '--os-api-name',
+        dest='user_preferences',
+        metavar='<service>=<name>',
+        action=UserPreferenceAction,
+        default=UserPreferenceAction.env('OS_API_NAME'),
+        help='Desired API names defaults to env[OS_API_NAME]',
+    )
+    parser.add_argument(
+        '--os-api-region',
+        dest='user_preferences',
+        metavar='<service>=<region>',
+        action=UserPreferenceAction,
+        default=UserPreferenceAction.env('OS_API_REGION', 'OS_REGION_NAME'),
+        help='Desired API region defaults to env[OS_API_REGION]',
+    )
+    parser.add_argument(
+        '--os-api-version',
+        dest='user_preferences',
+        metavar='<service>=<version>',
+        action=UserPreferenceAction,
+        default=UserPreferenceAction.env('OS_API_VERSION'),
+        help='Desired API versions defaults to env[OS_API_VERSION]',
+    )
+    parser.add_argument(
+        '--os-api-visibility',
+        dest='user_preferences',
+        metavar='<service>=<visibility>',
+        action=UserPreferenceAction,
+        default=UserPreferenceAction.env('OS_API_VISIBILITY'),
+        help='Desired API visibility defaults to env[OS_API_VISIBILITY]',
+    )
     verify_group = parser.add_mutually_exclusive_group()
     verify_group.add_argument(
         '--os-cacert',

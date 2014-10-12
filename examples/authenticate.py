@@ -56,7 +56,6 @@ def make_authenticate(opts):
         'user_domain_name': opts.user_domain_name,
         'user_name': opts.user_name,
         'password': opts.password,
-        'region_name': opts.region_name,
         'verify': opts.verify,
         'token': opts.token,
     }
