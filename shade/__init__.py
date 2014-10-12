@@ -28,21 +28,9 @@ import troveclient.client as trove_client
 from troveclient import exceptions as trove_exceptions
 import pbr.version
 
+from shade import meta
+
 __version__ = pbr.version.VersionInfo('shade').version_string()
-
-
-def find_nova_addresses(addresses, ext_tag, key_name=None):
-
-    ret = []
-    for (k, v) in addresses.iteritems():
-        if key_name and k == key_name:
-            ret.extend([addrs['addr'] for addrs in v])
-        else:
-            for interface_spec in v:
-                if ('OS-EXT-IPS:type' in interface_spec
-                        and interface_spec['OS-EXT-IPS:type'] == ext_tag):
-                    ret.append(interface_spec['addr'])
-    return ret
 
 
 class OpenStackCloudException(Exception):
@@ -413,6 +401,11 @@ class OpenStackCloud(object):
             if server.name == server_name:
                 return server.id
         return None
+
+    def get_server_meta(self, server):
+        server_vars = meta.get_hostvars_from_server(self, server)
+        groups = meta.get_groups_from_server(self, server, server_vars)
+        return dict(server_vars=server_vars, groups=groups)
 
     def list_ironic_nodes(self):
         return self.ironic_client.node.list()
