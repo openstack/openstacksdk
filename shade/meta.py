@@ -13,9 +13,9 @@
 # limitations under the License.
 
 import re
-from types import NoneType
+import types
 
-NON_CALLABLES = (basestring, bool, dict, int, list, NoneType)
+NON_CALLABLES = (basestring, bool, dict, int, list, types.NoneType)
 
 
 def find_nova_addresses(addresses, ext_tag, key_name=None):
@@ -91,7 +91,7 @@ def get_hostvars_from_server(cloud, server):
     else:
         interface_ips = find_nova_addresses(
             getattr(server, 'addresses'), 'floating', 'public')
-    # TODO: I want this to be richer
+    # TODO(mordred): I want this to be richer, "first" is not best
     server_vars['interface_ip'] = interface_ips[0]
 
     server_vars.update(to_dict(server))
@@ -121,7 +121,6 @@ def to_dict(obj, slug=True, prefix='nova'):
     return instance
 
 
-# TODO: this is something both various modules and plugins could use
 def slugify(pre='', value=''):
     sep = ''
     if pre is not None and len(pre):

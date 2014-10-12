@@ -13,10 +13,9 @@
 # limitations under the License.
 
 import logging
-import os
 
-from cinderclient.v1 import client as cinder_client
 from cinderclient import exceptions as cinder_exceptions
+from cinderclient.v1 import client as cinder_client
 import glanceclient
 from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
@@ -24,9 +23,10 @@ from keystoneclient import client as keystone_client
 from novaclient import exceptions as nova_exceptions
 from novaclient.v1_1 import client as nova_client
 import os_client_config
+import pbr.version
 import troveclient.client as trove_client
 from troveclient import exceptions as trove_exceptions
-import pbr.version
+
 
 from shade import meta
 
@@ -52,8 +52,8 @@ def openstack_cloud(**kwargs):
 
 
 def _get_service_values(kwargs, service_key):
-    return { k[:-(len(service_key) + 1)] : kwargs[k]
-             for k in kwargs.keys() if k.endswith(service_key) }
+    return {k[:-(len(service_key) + 1)]: kwargs[k]
+            for k in kwargs.keys() if k.endswith(service_key)}
 
 
 class OpenStackCloud(object):
@@ -226,19 +226,19 @@ class OpenStackCloud(object):
 
             try:
                 self._cinder_client.authenticate()
-            except cinder_exceptions.Unauthorized, e:
+            except cinder_exceptions.Unauthorized as e:
                 self.log.debug("cinder Unauthorized", exc_info=True)
                 raise OpenStackCloudException(
                     "Invalid OpenStack Cinder credentials.: %s" % e.message)
-            except cinder_exceptions.AuthorizationFailure, e:
+            except cinder_exceptions.AuthorizationFailure as e:
                 self.log.debug("cinder AuthorizationFailure", exc_info=True)
                 raise OpenStackCloudException(
                     "Unable to authorize user: %s" % e.message)
 
             if self._cinder_client is None:
                 raise OpenStackCloudException(
-                    "Failed to instantiate cinder client. This could mean that your"
-                    " credentials are wrong.")
+                    "Failed to instantiate cinder client."
+                    " This could mean that your credentials are wrong.")
 
         return self._cinder_client
 
@@ -271,35 +271,37 @@ class OpenStackCloud(object):
                 self.auth_url,
                 region_name=self.region_name,
                 service_type=self.get_service_type('database'),
-                )
+            )
 
             try:
                 self._trove_client.authenticate()
-            except trove_exceptions.Unauthorized, e:
+            except trove_exceptions.Unauthorized as e:
                 self.log.debug("trove Unauthorized", exc_info=True)
                 raise OpenStackCloudException(
                     "Invalid OpenStack Trove credentials.: %s" % e.message)
-            except trove_exceptions.AuthorizationFailure, e:
+            except trove_exceptions.AuthorizationFailure as e:
                 self.log.debug("trove AuthorizationFailure", exc_info=True)
                 raise OpenStackCloudException(
                     "Unable to authorize user: %s" % e.message)
 
             if self._trove_client is None:
                 raise OpenStackCloudException(
-                    "Failed to instantiate cinder client. This could mean that your"
-                    " credentials are wrong.")
+                    "Failed to instantiate Trove client."
+                    " This could mean that your credentials are wrong.")
 
         return self._trove_client
-        
+
     @property
     def ironic_client(self):
         if self._ironic_client is None:
             token = self.keystone_client.auth_token
             endpoint = self.get_endpoint(service_type='baremetal')
             try:
-                self._ironic_client = ironic_client.Client('1', endpoint, token=token)
+                self._ironic_client = ironic_client.Client(
+                    '1', endpoint, token=token)
             except Exception as e:
-                raise OpenStackCloudException("Error in connecting to ironic: %s" % e.message)
+                raise OpenStackCloudException(
+                    "Error in connecting to ironic: %s" % e.message)
         return self._ironic_client
 
     def get_name(self):
