@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+import time
 
 from cinderclient import exceptions as cinder_exceptions
 from cinderclient.v1 import client as cinder_client
@@ -398,16 +399,38 @@ class OpenStackCloud(object):
                 return v.id
         return None
 
-    def get_server_id(self, server_name):
+    def get_server_by_name(self, server_name):
         for server in self.nova_client.servers.list():
             if server.name == server_name:
-                return server.id
+                return server
+        return None
+
+    def get_server_id(self, server_name):
+        server = get_server_by_name(server_name)
+        if server:
+            return server.id
         return None
 
     def get_server_meta(self, server):
         server_vars = meta.get_hostvars_from_server(self, server)
         groups = meta.get_groups_from_server(self, server, server_vars)
         return dict(server_vars=server_vars, groups=groups)
+
+    def delete_server(self, name, wait=False, timeout=180):
+        server_list = self.nova_client.servers.list(True, {'name': name})
+        if server_list:
+            server = [x for x in server_list if x.name == module.params['name']]
+            self.nova_client.servers.delete(server.pop())
+        if not wait:
+            return
+        expire = time.time() + timeout
+        while time.time() < expire:
+            server = nova.servers.list(True, {'name': name})
+            if not server:
+                return
+            time.sleep(5)
+        raise OpenStackCloudException(
+            "Timed out waiting for server to get deleted.")
 
     def list_ironic_nodes(self):
         return self.ironic_client.node.list()
