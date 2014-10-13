@@ -58,20 +58,12 @@ def get_groups_from_server(cloud, server, server_vars):
 
     groups.append('instance-%s' % server.id)
 
-    flavor_id = server.flavor['id']
-    groups.append('flavor-%s' % flavor_id)
-    flavor_name = cloud.get_flavor_name(flavor_id)
-    if flavor_name:
-        groups.append('flavor-%s' % flavor_name)
-
-    image_id = server.image['id']
-    groups.append('image-%s' % image_id)
-    image_name = cloud.get_image_name(image_id)
-    if image_name:
-        groups.append('image-%s' % image_name)
+    for key in ('flavor', 'image'):
+        if 'name' in server_vars[key]:
+            groups.append('%s-%s' % (key, server_vars[key]['name']))
 
     for key, value in server.metadata.iteritems():
-        groups.append('meta_%s_%s' % (key, value))
+        groups.append('meta-%s_%s' % (key, value))
 
     az = server_vars.get('az', None)
     if az:
@@ -98,6 +90,16 @@ def get_hostvars_from_server(cloud, server):
 
     server_vars['region'] = cloud.region
     server_vars['cloud'] = cloud.name
+
+    flavor_id = server.flavor['id']
+    flavor_name = cloud.get_flavor_name(flavor_id)
+    if flavor_name:
+        server_vars['flavor']['name'] = flavor_name
+
+    image_id = server.image['id']
+    image_name = cloud.get_image_name(image_id)
+    if image_name:
+        server_vars['image']['name'] = image_name
 
     server_vars['volumes'] = [
         obj_to_dict(f) for f in cloud.get_volumes(server)]
