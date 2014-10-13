@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+import operator
 import time
 
 from cinderclient import exceptions as cinder_exceptions
@@ -311,12 +312,30 @@ class OpenStackCloud(object):
     def get_region(self):
         return self.region_name
 
-    def get_flavor_name(self, flavor_id):
+    @property
+    def flavor_cache(self):
         if not self._flavor_cache:
-            self._flavor_cache = dict(
-                [(flavor.id, flavor.name)
-                    for flavor in self.nova_client.flavors.list()])
-        return self._flavor_cache.get(flavor_id, None)
+            self._flavor_cache = {
+                flavor.id: flavor
+                for flavor in self.nova_client.flavors.list()}
+        return self._flavor_cache
+
+    def get_flavor_name(self, flavor_id):
+        flavor = self.flavor_cache.get(flavor_id, None)
+        if flavor:
+            return flavor.name
+        return None
+
+    def get_flavor_by_ram(self, ram, include=None):
+        for flavor in sorted(
+                self.flavor_cache.values(),
+                key=operator.attrgetter('ram')):
+            if (flavor.ram >= ram and
+                    (not include or include in flavor.name)):
+                return flavor
+        raise OpenStackCloudException(
+            "Cloud not find a flavor with {ram} and '{include}'".format(
+                ram=ram, include=include))
 
     def get_endpoint(self, service_type):
         if service_type in self.endpoints:
@@ -349,13 +368,13 @@ class OpenStackCloud(object):
             # This can fail both because we don't have glanceclient installed
             # and because the cloud may not expose the glance API publically
             for image in self.glance_client.images.list():
-                images[image.id] = image.name
+                images[image.id] = image
         except (OpenStackCloudException,
                 glanceclient.exc.HTTPInternalServerError):
             # We didn't have glance, let's try nova
             # If this doesn't work - we just let the exception propagate
             for image in self.nova_client.images.list():
-                images[image.id] = image.name
+                images[image.id] = image
         return images
 
     def list_images(self):
@@ -366,13 +385,21 @@ class OpenStackCloud(object):
     def get_image_name(self, image_id):
         if image_id not in self.list_images():
             self._image_cache[image_id] = None
-        return self._image_cache[image_id]
+        return self._image_cache[image_id].name
 
-    def get_image_id(self, image_name):
-        for (image_id, name) in self.list_images().items():
-            if name == image_name:
-                return image_id
+    def get_image_id(self, image_name, exclude=None):
+        image = self.get_image_by_name(image_name, exclude)
+        if image:
+            return image.id
         return None
+
+    def get_image_by_name(self, name, exclude=None):
+        for (image_id, image) in self.list_images().items():
+            if (name in image.name and (
+                    not exclude or exclude not in image.name)):
+                return image
+        raise OpenStackCloudException(
+            "Error finding image id from name(%s)" % name)
 
     def _get_volumes_from_cloud(self):
         try:
@@ -415,6 +442,128 @@ class OpenStackCloud(object):
         server_vars = meta.get_hostvars_from_server(self, server)
         groups = meta.get_groups_from_server(self, server, server_vars)
         return dict(server_vars=server_vars, groups=groups)
+
+    def add_ip_from_pool(self, server, pools):
+
+        # instantiate FloatingIPManager object
+        floating_ip_obj = floating_ips.FloatingIPManager(self.nova_client)
+
+        # empty dict and list
+        usable_floating_ips = {}
+
+        # get the list of all floating IPs. Mileage may
+        # vary according to Nova Compute configuration
+        # per cloud provider
+        all_floating_ips = floating_ip_obj.list()
+
+        # iterate through all pools of IP address. Empty
+        # string means all and is the default value
+        for pool in pools:
+            # temporary list per pool
+            pool_ips = []
+            # loop through all floating IPs
+            for f_ip in all_floating_ips:
+                # if not reserved and the correct pool, add
+                if f_ip.instance_id is None and (f_ip.pool == pool):
+                    pool_ips.append(f_ip.ip)
+                    # only need one
+                    break
+
+            # if the list is empty, add for this pool
+            if not pool_ips:
+                try:
+                    new_ip = self.nova_client.floating_ips.create(pool)
+                except Exception as e:
+                    raise OpenStackCloudException(
+                        "Unable to create floating ip in pool %s" % pool)
+                pool_ips.append(new_ip.ip)
+            # Add to the main list
+            usable_floating_ips[pool] = pool_ips
+
+        # finally, add ip(s) to instance for each pool
+        for pool in usable_floating_ips:
+            for ip in usable_floating_ips[pool]:
+                self.add_ip_list(server, [ip])
+                # We only need to assign one ip - but there is an inherent
+                # race condition and some other cloud operation may have
+                # stolen an available floating ip
+                break
+
+    def add_ip_list(self, server, ips):
+        # add ip(s) to instance
+        for ip in ips:
+            try:
+                server.add_floating_ip(ip)
+            except Exception as e:
+                raise OpenStackCloudException(
+                    "Error attaching IP {ip} to instance {id}: {msg} ".format(
+                        ip=ip, id=server.id, msg=e.message))
+
+    def add_auto_ip(self, server):
+        try:
+            new_ip = self.nova_client.floating_ips.create()
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Unable to create floating ip: %s" % (e.message))
+        try:
+            self.add_ip_list(server, [new_ip])
+        except OpenStackCloudException:
+            # Clean up - we auto-created this ip, and it's not attached
+            # to the server, so the cloud will not know what to do with it
+            self.nova_client.floating_ips.delete(new_ip)
+            raise
+
+    def add_ips_to_server(self, server, auto_ip=True, ips=None, ip_pool=None):
+        if ip_pool:
+            self.add_ip_from_pool(server, ip_pool)
+        elif ips:
+            self.add_ip_list(server, ips)
+        elif auto_ip:
+            self.add_auto_ip(server)
+        else:
+            return server
+
+        # this may look redundant, but if there is now a
+        # floating IP, then it needs to be obtained from
+        # a recent server object if the above code path exec'd
+        try:
+            server = self.nova_client.servers.get(server.id)
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Error in getting info from instance: %s " % e.message)
+        return server
+
+    def create_server(self, bootargs, bootkwargs,
+                      auto_ip=True, ips=None, ip_pool=None,
+                      wait=False, timeout=180):
+        try:
+            server = self.nova_client.servers.create(*bootargs, **bootkwargs)
+            server = self.nova_client.servers.get(server.id)
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Error in creating instance: %s %s %s" % e.message)
+        if server.status == 'ERROR':
+            raise OpenStackCloudException(
+                "Error in creating the server.")
+        if wait:
+            expire = time.time() + timeout
+            while time.time() < expire:
+                try:
+                    server = self.nova_client.servers.get(server.id)
+                except Exception:
+                    continue
+
+                if server.status == 'ACTIVE':
+                    return self.add_ips_to_server(server, auto_ip, ips, ip_pool)
+
+                if server.status == 'ERROR':
+                    raise OpenStackCloudException(
+                        "Error in creating the server, please check logs")
+                time.sleep(2)
+
+            raise OpenStackCloudException(
+                "Timeout waiting for the server to come up.")
+        return server
 
     def delete_server(self, name, wait=False, timeout=180):
         server_list = self.nova_client.servers.list(True, {'name': name})
