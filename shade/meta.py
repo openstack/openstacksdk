@@ -83,8 +83,10 @@ def get_hostvars_from_server(cloud, server):
     else:
         interface_ips = find_nova_addresses(
             getattr(server, 'addresses'), 'floating', 'public')
-    # TODO(mordred): I want this to be richer, "first" is not best
-    server_vars['interface_ip'] = interface_ips[0]
+
+    if interface_ips:
+        # TODO(mordred): I want this to be richer, "first" is not best
+        server_vars['interface_ip'] = interface_ips[0]
 
     server_vars.update(obj_to_dict(server))
 

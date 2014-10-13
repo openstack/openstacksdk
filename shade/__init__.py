@@ -428,6 +428,12 @@ class OpenStackCloud(object):
                 return v.id
         return None
 
+    def get_server_by_id(self, server_id):
+        for server in self.nova_client.servers.list():
+            if server.id == server_id:
+                return server
+        return None
+
     def get_server_by_name(self, server_name):
         for server in self.nova_client.servers.list():
             if server.name == server_name:
