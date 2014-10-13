@@ -385,7 +385,9 @@ class OpenStackCloud(object):
     def get_image_name(self, image_id):
         if image_id not in self.list_images():
             self._image_cache[image_id] = None
-        return self._image_cache[image_id].name
+        if self._image_cache[image_id]:
+            return self._image_cache[image_id].name
+        return None
 
     def get_image_id(self, image_name, exclude=None):
         image = self.get_image_by_name(image_name, exclude)
