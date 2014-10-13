@@ -94,36 +94,25 @@ def get_hostvars_from_server(cloud, server):
     # TODO(mordred): I want this to be richer, "first" is not best
     server_vars['interface_ip'] = interface_ips[0]
 
-    server_vars.update(to_dict(server))
+    server_vars.update(obj_to_dict(server))
 
-    server_vars['nova_region'] = cloud.region
-    server_vars['openstack_cloud'] = cloud.name
+    server_vars['region'] = cloud.region
+    server_vars['cloud'] = cloud.name
 
-    server_vars['cinder_volumes'] = [
-        to_dict(f, slug=False) for f in cloud.get_volumes(server)]
+    server_vars['volumes'] = [
+        obj_to_dict(f) for f in cloud.get_volumes(server)]
 
-    az = server_vars.get('nova_os-ext-az_availability_zone', None)
+    az = server_vars.get('OS-EXT-AZ:availability_zone', None)
     if az:
-        server_vars['nova_az'] = az
+        server_vars['az'] = az
 
     return server_vars
 
 
-def to_dict(obj, slug=True, prefix='nova'):
+def obj_to_dict(obj):
     instance = {}
     for key in dir(obj):
         value = getattr(obj, key)
         if (isinstance(value, NON_CALLABLES) and not key.startswith('_')):
-            if slug:
-                key = slugify(prefix, key)
             instance[key] = value
-
     return instance
-
-
-def slugify(pre='', value=''):
-    sep = ''
-    if pre is not None and len(pre):
-        sep = '_'
-    return '%s%s%s' % (
-        pre, sep, re.sub('[^\w-]', '_', value).lower().lstrip('_'))
