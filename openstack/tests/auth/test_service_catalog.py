@@ -14,7 +14,12 @@ import testtools
 
 from openstack.auth import service_catalog as catalog
 from openstack.auth import service_filter
+from openstack.compute import compute_service
 from openstack import exceptions as exc
+from openstack.identity import identity_service
+from openstack.image import image_service
+from openstack.network import network_service
+from openstack.object_store import object_store_service
 from openstack.tests.auth import common
 
 
@@ -121,3 +126,16 @@ class TestServiceCatalogV3(TestServiceCatalog):
     def test_get_urls_visibility(self):
         sot = catalog.ServiceCatalog(common.TEST_SERVICE_CATALOG_V3)
         self.get_urls_visibility(sot)
+
+    def test_get_versions(self):
+        sot = catalog.ServiceCatalog(common.TEST_SERVICE_CATALOG_V3)
+        service = compute_service.ComputeService()
+        self.assertEqual(['v1', 'v2.0'], sot.get_versions(service))
+        service = identity_service.IdentityService()
+        self.assertEqual(['v1.1'], sot.get_versions(service))
+        service = image_service.ImageService()
+        self.assertEqual(['v2'], sot.get_versions(service))
+        service = network_service.NetworkService()
+        self.assertEqual(None, sot.get_versions(service))
+        service = object_store_service.ObjectStoreService()
+        self.assertEqual([], sot.get_versions(service))

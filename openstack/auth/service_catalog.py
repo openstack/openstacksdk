@@ -60,15 +60,12 @@ class ServiceCatalog(object):
                 split[2] = path
                 endpoint['url'] = parse.urlunsplit(split)
 
-    def get_urls(self, filtration):
-        """Fetch and filter endpoints for the specified service.
+    def _get_endpoints(self, filtration):
+        """Fetch and filter urls and version tuples for the specified service.
 
-        Returns endpoints for the specified service (or all) containing
-        the specified type (or all) and region (or all) and service name.
-
-        If there is no name in the service catalog the service_name check will
-        be skipped.  This allows compatibility with services that existed
-        before the name was available in the catalog.
+        Returns a tuple containting the url and version for the specified
+        service (or all) containing the specified type, name, region and
+        visibility.
         """
         eps = []
         for service in self.catalog:
@@ -81,15 +78,47 @@ class ServiceCatalog(object):
                     continue
                 if not filtration.match_visibility(endpoint.get('interface')):
                     continue
-                url = endpoint.get('url')
+                url = endpoint.get('url', None)
+                if not url:
+                    continue
                 version = endpoint.get('version', None)
-                if version:
-                    if filtration.version:
-                        version = filtration.version
-                    url = url % {'version': version}
-                if url:
-                    eps += [url]
+                eps.append((url, version))
         return eps
+
+    def get_urls(self, filtration):
+        """Fetch the urls based on the given service filter.
+
+        Returns a list of urls based on the service filter.  If not endpoints
+        are found that match the service filter, an empty list is returned.
+        The filter may specify type, name, region, version and visibility.
+        """
+        urls = []
+        for url, version in self._get_endpoints(filtration):
+            if version:
+                if filtration.version:
+                    version = filtration.version
+                url = url % {'version': version}
+            urls.append(url)
+        return urls
+
+    def get_versions(self, filtration):
+        """Fetch the versions based on the given service filter.
+
+        Returns a list of versions based on the service filter.  If there is
+        no endpoint matching the filter, None will be returned.  An empty
+        list of versions means the service is supported, but no version is
+        specified in the service catalog.  The filter may specify type, name,
+        region, version and visibility.
+        """
+        vers = None
+        for url, version in self._get_endpoints(filtration):
+            vers = vers or []
+            if not version:
+                continue
+            if filtration.version and version != filtration.version:
+                continue
+            vers.append(version)
+        return vers
 
     def get_url(self, service):
         """Fetch an endpoint from the service catalog.
