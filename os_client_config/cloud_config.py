@@ -18,3 +18,17 @@ class CloudConfig(object):
         self.name = name
         self.region = region
         self.config = config
+
+    def __getattr__(self, key):
+        """Return arbitrary attributes."""
+
+        if key.startswith('os_'):
+            key = key[3:]
+
+        if key in [attr.replace('-', '_') for attr in self.config]:
+            return self.config[key]
+        else:
+            return None
+
+    def __iter__(self):
+        return self.config.__iter__()
