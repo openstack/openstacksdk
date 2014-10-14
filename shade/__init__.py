@@ -53,6 +53,12 @@ def openstack_cloud(**kwargs):
         cloud_config.name, cloud_config.region, **cloud_config.config)
 
 
+def operator_cloud(**kwargs):
+    cloud_config = os_client_config.OpenStackConfig().get_one_cloud(**kwargs)
+    return OperatorCloud(
+        cloud_config.name, cloud_config.region, **cloud_config.config)
+
+
 def _get_service_values(kwargs, service_key):
     return {k[:-(len(service_key) + 1)]: kwargs[k]
             for k in kwargs.keys() if k.endswith(service_key)}
@@ -292,19 +298,6 @@ class OpenStackCloud(object):
                     " This could mean that your credentials are wrong.")
 
         return self._trove_client
-
-    @property
-    def ironic_client(self):
-        if self._ironic_client is None:
-            token = self.keystone_client.auth_token
-            endpoint = self.get_endpoint(service_type='baremetal')
-            try:
-                self._ironic_client = ironic_client.Client(
-                    '1', endpoint, token=token)
-            except Exception as e:
-                raise OpenStackCloudException(
-                    "Error in connecting to ironic: %s" % e.message)
-        return self._ironic_client
 
     def get_name(self):
         return self.name
@@ -589,17 +582,51 @@ class OpenStackCloud(object):
         raise OpenStackCloudException(
             "Timed out waiting for server to get deleted.")
 
-    def list_ironic_nodes(self):
-        return self.ironic_client.node.list()
 
-    def get_ironic_node(self, node_name):
-        return self.ironic_client.node.get(node_name)
+class OperatorCloud(OpenStackCloud):
 
-    def list_ironic_ports(self):
+    @property
+    def ironic_client(self):
+        if self._ironic_client is None:
+            ironic_logging = logging.getLogger('ironicclient')
+            ironic_logging.addHandler(logging.NullHandler())
+            token = self.keystone_client.auth_token
+            endpoint = self.get_endpoint(service_type='baremetal')
+            try:
+                self._ironic_client = ironic_client.Client(
+                    '1', endpoint, token=token)
+            except Exception as e:
+                raise OpenStackCloudException(
+                    "Error in connecting to ironic: %s" % e.message)
+        return self._ironic_client
+
+    def list_nics(self):
         return self.ironic_client.port.list()
 
-    def get_ironic_port(self, port_name):
-        return self.ironic_client.port.get(port_name)
+    def get_nic_by_mac(self, mac):
+        try:
+            return self.ironic_client.port.get(mac)
+        except ironic_exceptions.ClientException:
+            return None
 
-    def list_ironic_ports_for_node(self, node_name):
-        return self.ironic_client.node.list_ports(node_name)
+    def list_machines(self):
+        return self.ironic_client.node.list()
+
+    def get_machine_by_uuid(self, uuid):
+        try:
+            return self.ironic_client.node.get(uuid)
+        except ironic_exceptions.ClientException:
+            return None
+
+    def get_machine_by_mac(self, mac):
+        try:
+            port = self.ironic_client.port.get(mac)
+            return self.ironic_client.node.get(port.node_uuid)
+        except ironic_exceptions.ClientException:
+            return None
+
+    def create_machine(self, **kwargs):
+        return self.ironic_client.node.create(**kwargs)
+
+    def delete_machine(self, uuid):
+        return self.ironic_client.node.delete(uuid)
