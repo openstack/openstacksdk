@@ -30,7 +30,7 @@ import sys
 from examples import common
 from examples import transport
 from openstack.auth import base
-from openstack.auth.identity import authenticator
+from openstack import connection
 
 
 class TestAuthenticator(base.BaseAuthPlugin):
@@ -60,7 +60,8 @@ def make_authenticate(opts):
         'verify': opts.verify,
         'token': opts.token,
     }
-    return authenticator.create(**args)
+    conn = connection.Connection(**args)
+    return conn.authenticator
 
 
 def run_authenticate(opts):

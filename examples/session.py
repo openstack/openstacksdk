@@ -24,7 +24,7 @@ import sys
 
 from examples import common
 from openstack.auth import service_filter
-from openstack import session
+from openstack import connection
 
 
 def make_session(opts):
@@ -41,11 +41,9 @@ def make_session(opts):
         'verify': opts.verify,
         'token': opts.token,
     }
-    return session.Session.create(
-        user_agent='SDKExample',
-        region=opts.region_name,
-        **args
-    )
+    preference = service_filter.ServiceFilter(region=opts.region_name)
+    conn = connection.Connection(preference=preference, **args)
+    return conn.session
 
 
 def run_session(opts):
