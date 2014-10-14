@@ -603,6 +603,9 @@ class OperatorCloud(OpenStackCloud):
     def list_nics(self):
         return self.ironic_client.port.list()
 
+    def list_nics_for_machine(self, uuid):
+        return self.ironic_client.node.list_ports(uuid)
+
     def get_nic_by_mac(self, mac):
         try:
             return self.ironic_client.port.get(mac)
@@ -625,8 +628,36 @@ class OperatorCloud(OpenStackCloud):
         except ironic_exceptions.ClientException:
             return None
 
-    def create_machine(self, **kwargs):
-        return self.ironic_client.node.create(**kwargs)
+    def register_machine(self, nics, **kwargs):
+        try:
+            machine = self.ironic_client.node.create(**kwargs)
+        except Exception as e:
+            raise OpenStackCloudException(
+                    "Error registering machine with Ironic: %s" % e.message)
 
-    def delete_machine(self, uuid):
-        return self.ironic_client.node.delete(uuid)
+        created_nics = []
+        try:
+            for row in nics:
+                nic = self.ironic_client.port.create(address=row['mac'],
+                                                     node_uuid=machine.uuid)
+                created_nics.append(nic.uuid)
+        except Exception as e:
+            for uuid in created_nics:
+                self.ironic_client.port.delete(uuid)
+            self.ironic_client.node.delete(machine.uuid)
+            raise OpenStackCloudException(
+                    "Error registering NICs with Ironic: %s" % e.message)
+        return machine
+
+    def unregister_machine(self, nics, uuid):
+        for nic in nics:
+            try:
+                self.ironic_client.port.delete(
+                        self.ironic_client.port.get_by_address(nic['mac']))
+            except Exception as e:
+                raise OpenStackCloudException(e.message)
+        try:
+            self.ironic_client.node.delete(uuid)
+        except Exception as e:
+            raise OpenStackCloudException(
+                    "Error unregistering machine from Ironic: %s" % e.message)
