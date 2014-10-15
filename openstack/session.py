@@ -12,6 +12,7 @@
 
 import logging
 
+from openstack import user_preference
 from openstack import utils
 
 
@@ -28,12 +29,12 @@ class Session(object):
 
         :param transport: A transport layer for the session.
         :param authenticator: An authenticator to authenticate the session.
-        :param ServiceFilter preference: Service filter preference.
-        :type preference: :class:`openstack.auth.service_filter.ServiceFilter`
+        :param UserPreference preference: User service preferences.
+        :type preference: :class:`openstack.user_preference.UserPreference`
         """
         self.transport = transport
         self.authenticator = authenticator
-        self.preference = preference
+        self.preference = preference or user_preference.UserPreference()
 
     def _request(self, path, method, service=None, authenticate=True,
                  **kwargs):
@@ -58,8 +59,10 @@ class Session(object):
             token = self.authenticator.get_token(self.transport)
             if token:
                 headers['X-Auth-Token'] = token
-        if service and self.preference:
-            service = self.preference.join(service)
+        if service:
+            preference = self.preference.get_preference(service.service_type)
+            if preference:
+                service = preference.join(service)
 
         endpoint = self.authenticator.get_endpoint(self.transport, service)
         url = utils.urljoin(endpoint, path)
@@ -83,3 +86,6 @@ class Session(object):
 
     def patch(self, path, **kwargs):
         return self._request(path, 'PATCH', **kwargs)
+
+    def get_services(self):
+        return self.preference.get_services()

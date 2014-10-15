@@ -105,3 +105,12 @@ class TestServiceFilter(testtools.TestCase):
                          six.text_type(a))
         self.assertEqual("service_type=identity,visibility=public",
                          six.text_type(b))
+
+    def test_set_visibility(self):
+        sot = filt.ServiceFilter()
+        sot.set_visibility("PUBLICURL")
+        self.assertEqual('public', sot.visibility)
+        sot.set_visibility("INTERNALURL")
+        self.assertEqual('internal', sot.visibility)
+        sot.set_visibility("ADMINURL")
+        self.assertEqual('admin', sot.visibility)
