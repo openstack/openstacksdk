@@ -74,7 +74,7 @@ def get_groups_from_server(cloud, server, server_vars):
     return groups
 
 
-def get_hostvars_from_server(cloud, server):
+def get_hostvars_from_server(cloud, server, mounts=None):
     server_vars = dict()
     # Fist, add an IP address
     if (cloud.private):
@@ -105,6 +105,12 @@ def get_hostvars_from_server(cloud, server):
 
     server_vars['volumes'] = [
         obj_to_dict(f) for f in cloud.get_volumes(server)]
+    if mounts:
+        for mount in mounts:
+            for vol in server_vars['volumes']:
+                if vol['display_name'] == mount['display_name']:
+                    if 'mount' in mount:
+                        vol['mount'] = mount['mount']
 
     az = server_vars.get('OS-EXT-AZ:availability_zone', None)
     if az:
