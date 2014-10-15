@@ -54,8 +54,8 @@ class TestServiceFilter(testtools.TestCase):
                          six.text_type(sot))
         self.assertRaises(exceptions.SDKException, filt.ServiceFilter,
                           service_type='identity', visibility='b')
-        self.assertRaises(exceptions.SDKException, filt.ServiceFilter,
-                          service_type='identity', visibility=None)
+        sot = filt.ServiceFilter(service_type='identity', visibility=None)
+        self.assertEqual("service_type=identity", six.text_type(sot))
 
     def test_match_service_type(self):
         sot = filt.ServiceFilter(service_type='identity')
@@ -105,6 +105,16 @@ class TestServiceFilter(testtools.TestCase):
                          six.text_type(a))
         self.assertEqual("service_type=identity,visibility=public",
                          six.text_type(b))
+
+    def test_join_visibility(self):
+        user_preference = filt.ServiceFilter(visibility='public')
+        service_default = filt.ServiceFilter(visibility='admin')
+        result = user_preference.join(service_default)
+        self.assertEqual("public", result.visibility)
+        user_preference = filt.ServiceFilter(visibility=None)
+        service_default = filt.ServiceFilter(visibility='admin')
+        result = user_preference.join(service_default)
+        self.assertEqual("admin", result.visibility)
 
     def test_set_visibility(self):
         sot = filt.ServiceFilter()
