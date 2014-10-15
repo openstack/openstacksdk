@@ -16,6 +16,8 @@ from openstack.auth import service_filter
 class OrchestrationService(service_filter.ServiceFilter):
     """The orchestration service."""
 
+    valid_versions = [service_filter.ValidVersion('v1')]
+
     def __init__(self):
         """Create an orchestration service."""
         super(OrchestrationService, self).__init__(

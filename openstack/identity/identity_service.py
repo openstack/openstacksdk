@@ -16,6 +16,11 @@ from openstack.auth import service_filter
 class IdentityService(service_filter.ServiceFilter):
     """The identity service."""
 
+    valid_versions = [
+        service_filter.ValidVersion('v3'),
+        service_filter.ValidVersion('v2'),
+    ]
+
     def __init__(self, **kwargs):
         """Create an identity service."""
         kwargs['service_type'] = 'identity'

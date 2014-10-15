@@ -23,6 +23,11 @@ class TestIdentityService(testtools.TestCase):
         self.assertEqual('public', sot.visibility)
         self.assertIsNone(sot.region)
         self.assertIsNone(sot.service_name)
+        self.assertEqual(2, len(sot.valid_versions))
+        self.assertEqual('v3', sot.valid_versions[0].module)
+        self.assertEqual('v3', sot.valid_versions[0].path)
+        self.assertEqual('v2', sot.valid_versions[1].module)
+        self.assertEqual('v2', sot.valid_versions[1].path)
 
     def test_admin_service(self):
         sot = identity_service.AdminService()

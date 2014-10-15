@@ -16,6 +16,8 @@ from openstack.auth import service_filter
 class NetworkService(service_filter.ServiceFilter):
     """The network service."""
 
+    valid_versions = [service_filter.ValidVersion('v2', 'v2.0')]
+
     def __init__(self):
         """Create an network service."""
         super(NetworkService, self).__init__(service_type='network')

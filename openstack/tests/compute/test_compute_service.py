@@ -23,3 +23,6 @@ class TestComputeService(testtools.TestCase):
         self.assertEqual('public', sot.visibility)
         self.assertIsNone(sot.region)
         self.assertIsNone(sot.service_name)
+        self.assertEqual(1, len(sot.valid_versions))
+        self.assertEqual('v2', sot.valid_versions[0].module)
+        self.assertEqual('v2', sot.valid_versions[0].path)

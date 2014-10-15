@@ -58,6 +58,8 @@ try to find it and if that fails, you would create it::
         network = conn.network.create_network({"name": "jenkins"})
 
 """
+import logging
+import sys
 
 from stevedore import driver
 
@@ -68,6 +70,7 @@ from openstack import transport as xport
 
 USER_AGENT = 'OSPythonSDK'
 """Default value for the HTTP User-Agent header"""
+_logger = logging.getLogger(__name__)
 
 
 class Connection(object):
@@ -128,6 +131,7 @@ class Connection(object):
                                                         **auth_args)
         self.session = session.Session(self.transport, self.authenticator,
                                        preference)
+        self._open()
 
     def _create_transport(self, transport, verify, user_agent):
         if transport:
@@ -157,3 +161,21 @@ class Connection(object):
         valid_list = plugin.valid_options
         args = dict((n, auth_args[n]) for n in valid_list if n in auth_args)
         return plugin(**args)
+
+    def _open(self):
+        """Open the connection.
+
+        NOTE(thowe): Have this set up some lazy loader instead.
+        """
+        for service in self.session.get_services():
+            self._load(service)
+
+    def _load(self, service):
+        attr_name = service.get_service_module()
+        module = service.get_module() + "._proxy"
+        try:
+            __import__(module)
+            proxy = getattr(sys.modules[module], "Proxy")
+            setattr(self, attr_name, proxy(self.session))
+        except Exception as e:
+            _logger.warn("Unable to load %s: %s" % (module, e))
