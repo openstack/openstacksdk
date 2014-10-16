@@ -46,6 +46,19 @@ class TestV2Auth(testtools.TestCase):
         self.assertEqual(expected, sot.get_auth_data(headers))
         self.assertEqual({}, headers)
 
+    def test_empty_token(self):
+        kargs = {
+            'password': common.TEST_PASS,
+            'token': '',
+            'user_name': common.TEST_USER,
+        }
+
+        sot = v2.Auth(TEST_URL, **kargs)
+
+        self.assertEqual(common.TEST_USER, sot.user_name)
+        self.assertEqual(common.TEST_PASS, sot.password)
+        self.assertEqual(None, sot.token)
+
     def test_token(self):
         kargs = {
             'project_id': common.TEST_TENANT_ID,

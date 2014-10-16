@@ -68,7 +68,7 @@ class Auth(base.BaseIdentityPlugin):
         self.user_id = user_id
         self.user_name = user_name
         self.password = password
-        self.token = token
+        self.token = token or None
         self.trust_id = trust_id
         self.tenant_id = project_id
         self.tenant_name = project_name
