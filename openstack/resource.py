@@ -58,17 +58,32 @@ class prop(object):
         >>> u = User()
         >>> u.age = 'thirty'
         TypeError: Invalid type for attr age
+
+
+    By specifying an alias attribute name, that alias will be read when the
+    primary attribute name does not appear within the resource:
+
+        >>> class User(Resource):
+        ...     name = prop('address', alias='location')
+        ...
+        >>> u = User(location='Far Away')
+        >>> print u['address']
+        Far Away
     """
 
-    def __init__(self, name, type=None):
+    def __init__(self, name, alias=None, type=None):
         self.name = name
         self.type = type
+        self.alias = alias
 
     def __get__(self, instance, owner):
         try:
             return instance._attrs[self.name]
         except KeyError:
-            raise AttributeError('Unset property: %s' % self.name)
+            try:
+                return instance._attrs[self.alias]
+            except KeyError:
+                raise AttributeError('Unset property: %s' % self.name)
 
     def __set__(self, instance, value):
         if self.type and not isinstance(value, self.type):
@@ -80,7 +95,10 @@ class prop(object):
         try:
             del instance._attrs[self.name]
         except KeyError:
-            raise AttributeError('Unset property: %s' % self.name)
+            try:
+                del instance._attrs[self.alias]
+            except KeyError:
+                raise AttributeError('Unset property: %s' % self.name)
 
 
 @six.add_metaclass(abc.ABCMeta)
