@@ -46,13 +46,21 @@ class BaseAuthPlugin(object):
         authenticator should use best effort with the information available to
         determine the endpoint.
 
-        :param Transport transport: A transport object so the authenticator
-                                    can make HTTP calls
-        :param ServiceFilter service: The filter to identify the desired
-                                      service.
+        :param Transport transport: Authenticator may need to make HTTP calls.
+        :param ServiceFilter service: Filter to identify the desired service.
 
         :returns string: The base URL that will be used to talk to the
                          required service or None if not available.
+        """
+
+    @abc.abstractmethod
+    def get_versions(self, transport, service, **kwargs):
+        """Return the valid versions for the given service.
+
+        :param Transport transport: Authenticator may need to make HTTP calls.
+        :param ServiceFilter service: Filter to identify the desired service.
+
+        :returns list: Returns list of versions that match the filter.
         """
 
     def invalidate(self):
@@ -69,13 +77,3 @@ class BaseAuthPlugin(object):
                        If nothing happens returns False to indicate give up.
         """
         return False
-
-    @classmethod
-    def get_options(cls):
-        """Return the list of parameters associated with the auth plugin.
-
-        This list may be used to generate arguments.
-
-        :returns list: A list of strings describing plugin parameters.
-        """
-        return []

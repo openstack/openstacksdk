@@ -124,3 +124,14 @@ class BaseIdentityPlugin(base.BaseAuthPlugin):
         """
         service_catalog = self.get_access(transport).service_catalog
         return service_catalog.get_url(service)
+
+    def get_versions(self, transport, service, **kwargs):
+        """Return the valid versions for the given service.
+
+        :param Transport transport: Authenticator may need to make HTTP calls.
+        :param ServiceFilter service: Filter to identify the desired service.
+
+        :returns list: Returns list of versions that match the filter.
+        """
+        service_catalog = self.get_access(transport).service_catalog
+        return service_catalog.get_versions(service)
