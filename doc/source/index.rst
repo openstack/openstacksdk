@@ -17,5 +17,6 @@ Classes
 .. toctree::
    :maxdepth: 1
 
+   connection
    session
    transport

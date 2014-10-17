@@ -10,35 +10,76 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""
+The ``Connection`` class is the primary interface to the Python SDK.
+``openstack.connection.Connection`` is the class that maintains context for
+a connection to a cloud provider.  The connection has an attribute to
+access each supported service.  The service attributes are created
+dynamically based on user preferences and the service catalog.
+"""
+
 from stevedore import driver
 
 from openstack import exceptions
 from openstack import session
 from openstack import transport as xport
 
+
 USER_AGENT = 'OSPythonSDK'
+"""Default value for the HTTP User-Agent header"""
 
 
 class Connection(object):
+
     AUTH_PLUGIN_NAMESPACE = "openstack.auth.plugin"
+    """Namespace for the authorization plugin entry point"""
 
     def __init__(self, transport=None, authenticator=None, preference=None,
                  verify=True, user_agent=USER_AGENT,
                  auth_plugin=None, **auth_args):
-        """Connection to a cloud provider.
+        """Create a context for a connection to a cloud provider.
 
-        Context for a connection to a cloud provider.  The context generally
-        contains a transport, authenticator, and sesssion.  You may pass in
-        a previously created transport and authenticator or you may pass in
-        the parameters to create a transport and authenticator.
+        A connection needs a transport and an authenticator.  The user may pass
+        in a transport and authenticator they want to use or they may pass in
+        the parameters to create a transport and authenticator.  The connection
+        creates a
+        :class:`Session <openstack.session.Session>` which uses the transport
+        and authenticator to perform HTTP requests.
 
-        :param transport: A transport to make HTTP requests.
-        :param authenticator: Authenticator to authenticate session.
-        :param preference: User service preferences.
-        :param boolean/string verify: ``True`` to verify SSL or CA_BUNDLE path.
-        :param string user_agent: Value for ``User-Agent`` header.
-        :param string auth_plugin: Name of the authorization plugin.
-        :param auth_args: Arguments to create authenticator.
+        :param transport: A transport object such as that was previously
+            created.  If this parameter is not passed in, the connection will
+            create a transport.
+        :type transport: :class:`openstack.transport.Transport`
+        :param authenticator: An authenticator derived from ``BaseAuthPlugin``
+            that was previously created.  Two common authentication identity
+            plugins are
+            :class:`identity_v2 <openstack.auth.identity.v2.Auth>` and
+            :class:`identity_v3 <openstack.auth.identity.v3.Auth>`.
+            If this parameter is not passsed in, the connection will create an
+            authenticator.
+        :type authenticator: :class:`openstack.auth.base.BaseAuthPlugin`
+        :param preference: If the user has any special preferences such as the
+            service name, region, version or visibility, they may be provided
+            in the preference object.  If no preferences are provided, the
+            services that appear first in the service catalog will be used.
+        :type preference: :class:`openstack.user_preference.UserPreference`
+        :param bool verify: If a transport is not provided to the connection,
+            this parameter will be used to create a transport.  If ``verify``
+            is set to true, which is the default, the SSL cert will be
+            verified.  It can also be set to a CA_BUNDLE path.
+        :param str user_agent: If a transport is not provided to the
+            connection, this parameter will be used to create a transport.
+            The value of this parameter is used for the ``User-Agent`` HTTP
+            header. The default value is the module level attribute
+            ``USER_AGENT`` which is set to ``"OSPythonSDK"``.
+        :param str auth_plugin: The name of authentication plugin to use.  If
+            the authentication plugin name is not provided, the connection will
+            try to guess what plugin to use based on the *auth_url* in the
+            *auth_args*.  Two common values for the plugin would be
+            ``identityv2`` and ``identityv3``.
+        :param auth_args: The rest of the parameters provided are assumed to be
+            authentication arguments that are used by the authentication
+            plugin.
         """
         self.transport = self._create_transport(transport, verify, user_agent)
         self.authenticator = self._create_authenticator(authenticator,
