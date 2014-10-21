@@ -17,7 +17,7 @@ class IdentityService(service_filter.ServiceFilter):
     """The identity service."""
 
     def __init__(self, **kwargs):
-        """Create an image service."""
+        """Create an identity service."""
         kwargs['service_type'] = 'identity'
         super(IdentityService, self).__init__(**kwargs)
 
