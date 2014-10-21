@@ -1,39 +1,12 @@
 Transport
 =========
+.. automodule:: openstack.transport
 
-Class ``openstack.transport.Transport`` is a subclass of ``requests.Session``
-that adds some features that are common in OpenStack APIs or can be globally
-controlled by an application.  Its use is incredibly similar to
-``requests.Session`` such that we only will cover the differences in detail
-here.
-
-Transport object
+Transport Object
 ----------------
 
-.. class:: openstack.transport.Transport(user_agent=None, verify=True, redirect=DEFAULT_REDIRECT_LIMIT)
-
-Create a new ``Transport`` object.  In addition to those listed below, all
-arguments available to ``requests.Session`` are available here:
-
-* user_agent -  Set the default ``User-Agent`` header (default: ``None``)
-* verify - If ``True``, the SSL cert will be verified.  It can also be set to
-  a CA_BUNDLE path.  (default: ``True``)
-* redirect - Disallow redirects if ``False``, or allow ``requests.Session`` to
-  handle redirects if ``True``. An integer can instead be passed to specify
-  the maximum number of redirections followed.
-
-Method ``Transport.request(method, url, redirect=None, **kwargs)``
-
-Perform an HTTP request. The following arguments differ from
-``requests.Session``:
-
-* redirect - (integer) The maximum number of redirections followed in a
-  request. (boolean) No redirections if False, ``requests.Session`` handles
-  redirection if True. (default:
-  ``openstack.transport.DEFAULT_REDIRECT_LIMIT``)
-* json - Request body to be encoded as JSON.  Overwrites ``data`` argument if
-  present. (default: ``None``)
-* user_agent -  Set the default ``User-Agent`` header (default: ``None``)
+.. autoclass:: openstack.transport.Transport
+   :members:
 
 Examples
 --------

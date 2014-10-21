@@ -11,13 +11,19 @@
 # under the License.
 
 """
-Wrapper class for requests.Session adds some common OpenStack functionality
+The ``openstack.transport.Transport`` is a subclass of ``requests.Session``
+that adds some features that are common in OpenStack APIs or can be globally
+controlled by an application.  Its use is incredibly similar to
+``requests.Session`` such that we only will cover the differences in detail
+here.
 
-- log all requests and responses at debug level
-- json-encode request body passed in to request() in json keyword arg
-- set default user_agent at Transport creation; set to None to skip the header
-- set default verify at Transport creation
+The common OpenStack functionality added include:
 
+* Log all requests and responses at debug level.
+* Support json encoding in the request() method.
+* Set the default user_agent at Transport creation.  If it is set to None to
+  skip the header.
+* Set the default verify at Transport creation.
 """
 
 import json
@@ -51,7 +57,10 @@ class Transport(requests.Session):
             redirect=DEFAULT_REDIRECT_LIMIT,
             accept=JSON,
     ):
-        """Wraps requests.Session to add some OpenStack-specific features
+        """Create a new ``Transport`` object.
+
+        In addition to those listed below, all arguments available to
+        ``requests.Session`` are available here:
 
         :param string user_agent: Set the default ``User-Agent`` header;
                                   Header is omitted if ``None`` and no value
@@ -85,6 +94,9 @@ class Transport(requests.Session):
     def request(self, method, url, redirect=None, **kwargs):
         """Send a request
 
+        Perform an HTTP request. The following arguments differ from
+        ``requests.Session``:
+
         :param string method: Request HTTP method
         :param string url: Request URL
         :param boolean/integer redirect: (integer) The maximum number of
@@ -94,6 +106,7 @@ class Transport(requests.Session):
                                          if True. (optional)
 
         The following additional kw args are supported:
+
         :param object json: Request body to be encoded as JSON
                             Overwrites ``data`` argument if present
         :param string accept: Set the ``Accept`` header; overwrites
