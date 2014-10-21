@@ -78,16 +78,27 @@ class prop(object):
 
     def __get__(self, instance, owner):
         try:
-            return instance._attrs[self.name]
+            value = instance._attrs[self.name]
         except KeyError:
             try:
                 return instance._attrs[self.alias]
             except KeyError:
                 raise AttributeError('Unset property: %s' % self.name)
 
+        if self.type and not isinstance(value, self.type):
+            value = self.type(value)
+            attr = getattr(value, 'parsed', None)
+            if attr is not None:
+                value = attr
+
+        return value
+
     def __set__(self, instance, value):
         if self.type and not isinstance(value, self.type):
-            raise TypeError('Invalid type for attr %s' % self.name)
+            try:
+                value = str(self.type(value))  # validate to fail fast
+            except AttributeError:
+                raise TypeError('Invalid type for attr: %s' % self.name)
 
         instance._attrs[self.name] = value
 
@@ -145,6 +156,11 @@ class Resource(collections.MutableMapping):
             attrs = {}
 
         self._attrs = attrs
+        # ensure setters are called for type coercion
+        for k, v in attrs.items():
+            if k != 'id':  # id property is read only
+                setattr(self, k, v)
+
         self._dirty = set() if loaded else set(attrs.keys())
         self._loaded = loaded
 

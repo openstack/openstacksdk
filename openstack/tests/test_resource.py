@@ -16,6 +16,7 @@ import httpretty
 import mock
 
 from openstack import exceptions
+from openstack import format
 from openstack import resource
 from openstack import session
 from openstack.tests import base
@@ -34,6 +35,7 @@ fake_base_path = '/fakes/%(name)s/data'
 fake_path = '/fakes/rey/data'
 
 fake_data = {'id': fake_id,
+             'enabled': True,
              'name': fake_name,
              'attr1': fake_attr1,
              'attr2': fake_attr2}
@@ -49,6 +51,7 @@ class FakeResource(resource.Resource):
     allow_create = allow_retrieve = allow_update = True
     allow_delete = allow_list = allow_head = True
 
+    enabled = resource.prop('enabled', type=format.BoolStr)
     name = resource.prop('name')
     first = resource.prop('attr1')
     second = resource.prop('attr2')
@@ -85,6 +88,7 @@ class ResourceTests(base.TestTransportBase):
         self.stub_url(httpretty.POST, path=fake_path, json=fake_body)
 
         obj = FakeResource.new(name=fake_name,
+                               enabled=True,
                                attr1=fake_attr1,
                                attr2=fake_attr2)
 
@@ -93,16 +97,19 @@ class ResourceTests(base.TestTransportBase):
 
         last_req = httpretty.last_request().parsed_body[fake_resource]
 
-        self.assertEqual(3, len(last_req))
+        self.assertEqual(4, len(last_req))
+        self.assertEqual('True', last_req['enabled'])
         self.assertEqual(fake_name, last_req['name'])
         self.assertEqual(fake_attr1, last_req['attr1'])
         self.assertEqual(fake_attr2, last_req['attr2'])
 
         self.assertEqual(fake_id, obj.id)
+        self.assertEqual('True', obj['enabled'])
         self.assertEqual(fake_name, obj['name'])
         self.assertEqual(fake_attr1, obj['attr1'])
         self.assertEqual(fake_attr2, obj['attr2'])
 
+        self.assertEqual(True, obj.enabled)
         self.assertEqual(fake_name, obj.name)
         self.assertEqual(fake_attr1, obj.first)
         self.assertEqual(fake_attr2, obj.second)
@@ -368,3 +375,17 @@ class TestFind(base.TestCase):
         self.assertEqual(fake_attr2, faker.id)
         faker.id_attribute = 'id'
         self.assertEqual(fake_id, faker.id)
+
+    def test_boolstr_prop(self):
+        faker = FakeResource(fake_data)
+        self.assertEqual(True, faker.enabled)
+        self.assertEqual('True', faker['enabled'])
+
+        faker.enabled = False
+        self.assertEqual(False, faker.enabled)
+        self.assertEqual('False', faker['enabled'])
+
+        # should fail fast
+        def set_invalid():
+            faker.enabled = 'INVALID'
+        self.assertRaises(ValueError, set_invalid)
