@@ -73,3 +73,6 @@ latex_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 #intersphinx_mapping = {'http://docs.python.org/': None}
+
+# Include both the class and __init__ docstrings when describing the class
+autoclass_content = "both"
