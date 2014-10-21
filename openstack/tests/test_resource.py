@@ -130,6 +130,36 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual(fake_attr2, obj.second)
 
     @httpretty.activate
+    def test_get_with_headers(self):
+        header1 = "fake-value1"
+        header2 = "fake-value2"
+        headers = {"header1": header1,
+                   "header2": header2}
+        self.stub_url(httpretty.GET, path=[fake_path, fake_id], json=fake_body,
+                      **headers)
+
+        class FakeResource2(FakeResource):
+            header1 = resource.prop("header1")
+            header2 = resource.prop("header2")
+
+        obj = FakeResource2.get_by_id(self.session, fake_id,
+                                      path_args=fake_arguments,
+                                      include_headers=True)
+
+        self.assertEqual(fake_id, obj.id)
+        self.assertEqual(fake_name, obj['name'])
+        self.assertEqual(fake_attr1, obj['attr1'])
+        self.assertEqual(fake_attr2, obj['attr2'])
+        self.assertEqual(header1, obj['header1'])
+        self.assertEqual(header2, obj['header2'])
+
+        self.assertEqual(fake_name, obj.name)
+        self.assertEqual(fake_attr1, obj.first)
+        self.assertEqual(fake_attr2, obj.second)
+        self.assertEqual(header1, obj.header1)
+        self.assertEqual(header2, obj.header2)
+
+    @httpretty.activate
     def test_head(self):
         self.stub_url(httpretty.HEAD, path=[fake_path, fake_id],
                       name=fake_name,
