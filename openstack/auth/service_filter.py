@@ -10,12 +10,22 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""
+The ``ServiceFilter`` is the base class for service identifiers and user
+service preferences.  Each
+:class:`Resource <openstack.resource.Resource>` has a service identifier to
+associate the resource with a service.  An example of a service identifier
+would be ``openstack.compute.compute_service.ComputeService``.
+The preferences are stored in the
+:class:`UserPreference <openstack.user_preference.UserPreference>` object.
+The service preference and the service identifier are joined to create a
+filter to match a service.
+"""
+
 from openstack import exceptions
 
 
 class ServiceFilter(object):
-    """The basic structure of an authentication plugin."""
-
     ANY = 'any'
     PUBLIC = 'public'
     INTERNAL = 'internal'
@@ -24,7 +34,7 @@ class ServiceFilter(object):
 
     def __init__(self, service_type=ANY, visibility=PUBLIC, region=None,
                  service_name=None, version=None):
-        """" Create a service identifier.
+        """Create a service identifier.
 
         :param string service_type: The desired type of service.
         :param string visibility: The exposure of the endpoint. Should be
@@ -52,6 +62,14 @@ class ServiceFilter(object):
         return ret
 
     def join(self, default):
+        """Create a new service filter by joining filters.
+
+        Create a new service filter by joining this service preference with
+        the default service identifier.
+
+        :param default: Default service identifier from the resource.
+        :type default: :class:`openstack.auth.service_filter.ServiceFilter`
+        """
         return ServiceFilter(service_type=default.service_type,
                              visibility=self.visibility or default.visibility,
                              region=self.region,
@@ -59,11 +77,13 @@ class ServiceFilter(object):
                              version=self.version)
 
     def match_service_type(self, service_type):
+        """Service types are equavilent."""
         if self.service_type == self.ANY:
             return True
         return self.service_type == service_type
 
     def match_service_name(self, service_name):
+        """Service names are equavilent."""
         if not self.service_name:
             return True
         if self.service_name == service_name:
@@ -71,6 +91,7 @@ class ServiceFilter(object):
         return False
 
     def match_region(self, region):
+        """Service regions are equavilent."""
         if not self.region:
             return True
         if self.region == region:
@@ -78,11 +99,13 @@ class ServiceFilter(object):
         return False
 
     def match_visibility(self, visibility):
+        """Service visibilities are equavilent."""
         if not self.visibility:
             return True
         return self.visibility == visibility
 
     def set_visibility(self, visibility):
+        """Set the visibility of the service filter."""
         if not visibility:
             self.visibility = None
             return
