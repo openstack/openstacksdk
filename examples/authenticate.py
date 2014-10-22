@@ -29,21 +29,7 @@ import sys
 
 from examples import common
 from examples import transport
-from openstack.auth import base
 from openstack import connection
-
-
-class TestAuthenticator(base.BaseAuthPlugin):
-    def __init__(self, token, endpoint):
-        super(TestAuthenticator, self).__init__()
-        self.token = token
-        self.endpoint = endpoint
-
-    def get_token(self, transport, **kwargs):
-        return self.token
-
-    def get_endpoint(self, transport, service, **kwargs):
-        return self.endpoint
 
 
 def make_authenticate(opts):

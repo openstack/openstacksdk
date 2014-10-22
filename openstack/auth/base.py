@@ -10,6 +10,28 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""
+The base class for an authenticator.  A plugin must define the get_token,
+get_endpoint, and get_versions methods.  The simpliest example would be
+something that is just given such as::
+
+    class SimpleAuthenticator(base.BaseAuthPlugin):
+        def __init__(self, token, endpoint, versions):
+            super(SimpleAuthenticator, self).__init__()
+            self.token = token
+            self.endpoint = endpoint
+            self.versions = versions
+
+        def get_token(self, transport, **kwargs):
+            return self.token
+
+        def get_endpoint(self, transport, service, **kwargs):
+            return self.endpoint
+
+        def get_versions(self, transport, service, **kwargs):
+            return self.versions
+"""
+
 import abc
 
 import six
@@ -17,7 +39,6 @@ import six
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseAuthPlugin(object):
-    """The basic structure of an authenticator."""
 
     @abc.abstractmethod
     def get_token(self, transport, **kwargs):
@@ -35,6 +56,7 @@ class BaseAuthPlugin(object):
 
         :param transport: A transport object so the authenticator can make
                           HTTP calls.
+        :type transport: :class:`Transport <openstack.transport.Transport>`
         :return string: A token to use.
         """
 
@@ -46,8 +68,11 @@ class BaseAuthPlugin(object):
         authenticator should use best effort with the information available to
         determine the endpoint.
 
-        :param Transport transport: Authenticator may need to make HTTP calls.
-        :param ServiceFilter service: Filter to identify the desired service.
+        :param transport: Authenticator may need to make HTTP calls.
+        :type transport: :class:`Transport <openstack.transport.Transport>`
+        :param service: Filter to identify the desired service.
+        :type service: :class:`ServiceFilter
+            <openstack.auth.service_filter.ServiceFilter>`
 
         :returns string: The base URL that will be used to talk to the
                          required service or None if not available.
@@ -57,8 +82,11 @@ class BaseAuthPlugin(object):
     def get_versions(self, transport, service, **kwargs):
         """Return the valid versions for the given service.
 
-        :param Transport transport: Authenticator may need to make HTTP calls.
-        :param ServiceFilter service: Filter to identify the desired service.
+        :param transport: Authenticator may need to make HTTP calls.
+        :type transport: :class:`Transport <openstack.transport.Transport>`
+        :param service: Filter to identify the desired service.
+        :type service: :class:`ServiceFilter
+            <openstack.auth.service_filter.ServiceFilter>`
 
         :returns list: Returns list of versions that match the filter.
         """
