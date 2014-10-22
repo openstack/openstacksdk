@@ -10,6 +10,25 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""
+The :class:`~openstack.resource.Resource` class is a base
+class that represent a remote resource.  Attributes of the resource
+are defined by the responses from the server rather than in code so
+that we don't have to try and keep up with all possible attributes
+and extensions. This may be changed in the future.
+
+The :class:`~openstack.resource.prop` class is a helper for
+definiting properties in a resource.
+
+For update management, :class:`~openstack.resource.Resource`
+maintains a dirty list so when updating an object only the attributes
+that have actually been changed are sent to the server.
+
+There is also some support here for lazy loading that needs improvement.
+
+There are plenty of examples of use of this class in the SDK code.
+"""
+
 import abc
 import collections
 
@@ -21,9 +40,9 @@ from openstack import utils
 
 
 class prop(object):
-    """A helper for defining properties on a Resource.
+    """A helper for defining properties in a resource.
 
-    A Resource.prop defines some known attributes within a resource's values.
+    A prop defines some known attributes within a resource's values.
     For example we know a User resource will have a name:
 
         >>> class User(Resource):
@@ -114,41 +133,36 @@ class prop(object):
 
 @six.add_metaclass(abc.ABCMeta)
 class Resource(collections.MutableMapping):
-    """A base class that represents a remote resource.
 
-    Attributes of the resource are defined by the responses from the server
-    rather than in code so that we don't have to try and keep up with all
-    possible attributes and extensions. This may be changed in the future.
-
-    For update management we maintain a dirty list so when updating an object
-    only the attributes that have actually been changed are sent to the server.
-
-    There is some support here for lazy loading that needs improvement.
-    """
-
-    # the singular and plural forms of the key element
+    #: Singular form of key for resource.
     resource_key = None
+    #: Common name for resource.
     resource_name = None
+    #: Plural form of key for resource.
     resources_key = None
 
-    # The attribute associated with the id and name
+    #: Attribute key associated with the id for this resource.
     id_attribute = 'id'
+    #: Attribute key associated with the name for this resource.
     name_attribute = 'name'
 
-    # the base part of the url for this resource
+    #: The base part of the url for this resource.
     base_path = ''
 
-    # The service this belongs to. e.g. 'identity'
-    # (unused, is a session/auth_plugin attribute for determining URL)
+    #: The service associated with this resource to find the service URL.
     service = None
 
-    # limit the abilities of a subclass. You should set these to true if your
-    # resource supports that function.
+    #: Allow create operation for this resource.
     allow_create = False
+    #: Allow retrieve/get operation for this resource.
     allow_retrieve = False
+    #: Allow update operation for this resource.
     allow_update = False
+    #: Allow delete operation for this resource.
     allow_delete = False
+    #: Allow list operation for this resource.
     allow_list = False
+    #: Allow head operation for this resource.
     allow_head = False
 
     def __init__(self, attrs=None, loaded=False):
@@ -190,7 +204,7 @@ class Resource(collections.MutableMapping):
 
     @classmethod
     def existing(cls, **kwargs):
-        """Create a new object representation of an existing resource.
+        """Create a new instance of an existing remote resource.
 
         It is marked as an exact replication of a resource present on a server.
         """
@@ -231,7 +245,6 @@ class Resource(collections.MutableMapping):
 
     @property
     def id(self):
-        # id is read only
         return self._attrs.get(self.id_attribute, None)
 
     @id.deleter
@@ -240,6 +253,7 @@ class Resource(collections.MutableMapping):
 
     @property
     def is_dirty(self):
+        """True if the resource needs to be updated to the remote."""
         return len(self._dirty) > 0
 
     def _reset_dirty(self):
@@ -251,6 +265,7 @@ class Resource(collections.MutableMapping):
 
     @classmethod
     def create_by_id(cls, session, attrs, r_id=None, path_args=None):
+        """Create a remote resource from attributes."""
         if not cls.allow_create:
             raise exceptions.MethodNotSupported('create')
 
@@ -276,6 +291,7 @@ class Resource(collections.MutableMapping):
         return resp
 
     def create(self, session):
+        """Create a remote resource from this instance."""
         resp = self.create_by_id(session, self._attrs, self.id, path_args=self)
         self._attrs[self.id_attribute] = resp[self.id_attribute]
         self._reset_dirty()
@@ -283,6 +299,7 @@ class Resource(collections.MutableMapping):
     @classmethod
     def get_data_by_id(cls, session, r_id, path_args=None,
                        include_headers=False):
+        """Get a remote resource from an id as attributes."""
         if not cls.allow_retrieve:
             raise exceptions.MethodNotSupported('retrieve')
 
@@ -304,11 +321,13 @@ class Resource(collections.MutableMapping):
 
     @classmethod
     def get_by_id(cls, session, r_id, path_args=None, include_headers=False):
+        """Get a remote resource from an id as an object."""
         body = cls.get_data_by_id(session, r_id, path_args=path_args,
                                   include_headers=include_headers)
         return cls.existing(**body)
 
     def get(self, session, include_headers=False):
+        """Get the remote resource associated with this class."""
         body = self.get_data_by_id(session, self.id, path_args=self,
                                    include_headers=include_headers)
         self._attrs.update(body)
@@ -316,6 +335,7 @@ class Resource(collections.MutableMapping):
 
     @classmethod
     def head_data_by_id(cls, session, r_id, path_args=None):
+        """Get remote resource headers from an id as attributes."""
         if not cls.allow_head:
             raise exceptions.MethodNotSupported('head')
 
@@ -331,16 +351,19 @@ class Resource(collections.MutableMapping):
 
     @classmethod
     def head_by_id(cls, session, r_id, path_args=None):
+        """Get remote resource headers from an id as an object."""
         data = cls.head_data_by_id(session, r_id, path_args=path_args)
         return cls.existing(**data)
 
     def head(self, session):
+        """Get the remote resource headers associated with this class."""
         data = self.head_data_by_id(session, self.id, path_args=self)
         self._attrs.update(data)
         self._loaded = True
 
     @classmethod
     def update_by_id(cls, session, r_id, attrs, path_args=None):
+        """Update a remote resource with the given attributes."""
         if not cls.allow_update:
             raise exceptions.MethodNotSupported('update')
 
@@ -362,6 +385,7 @@ class Resource(collections.MutableMapping):
         return resp
 
     def update(self, session):
+        """Update the remote resource associated with this instance."""
         if not self.is_dirty:
             return
 
@@ -379,6 +403,7 @@ class Resource(collections.MutableMapping):
 
     @classmethod
     def delete_by_id(cls, session, r_id, path_args=None):
+        """Delete a remote resource associated with the given id."""
         if not cls.allow_delete:
             raise exceptions.MethodNotSupported('delete')
 
@@ -390,10 +415,13 @@ class Resource(collections.MutableMapping):
         session.delete(url, service=cls.service, accept=None)
 
     def delete(self, session):
+        """Delete the remote resource associated with this instance."""
         self.delete_by_id(session, self.id, path_args=self)
 
     @classmethod
     def list(cls, session, limit=None, marker=None, path_args=None, **params):
+        """Get a list of resources as an array of objects."""
+
         # NOTE(jamielennox): Is it possible we can return a generator from here
         # and allow us to keep paging rather than limit and marker?
         if not cls.allow_list:
@@ -422,6 +450,7 @@ class Resource(collections.MutableMapping):
 
     @classmethod
     def find(cls, session, name_or_id, path_args=None):
+        """Find a resource by name or id as an instance."""
         try:
             args = {
                 cls.id_attribute: name_or_id,
