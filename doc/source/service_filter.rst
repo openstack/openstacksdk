@@ -12,8 +12,8 @@ ServiceFilter object
 Examples
 --------
 
-The ``ServiceFilter`` class can be built with a service type, visibility,
-region, name, and version.
+The :class:`~openstack.auth.service_filter.ServiceFilter` class can be built
+with a service type, visibility, region, name, and version.
 
 Create a service filter
 ~~~~~~~~~~~~~~~~~~~~~~~

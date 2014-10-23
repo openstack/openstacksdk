@@ -40,7 +40,7 @@ Additional HTTP Methods
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Just as in ``requests.Session``, all of the HTTP verbs have corresponding
-methods in the ``Transport`` object.
+methods in the :class:`~openstack.transport.Transport` object.
 
 SSL/TLS and Certificates
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -84,6 +84,6 @@ the ``User-Agent`` header is as follows:
 
 * If the ``user_agent`` argument is included in the ``request()`` call use it
 * Else if ``User-Agent`` is set in the headers dict use it
-* Else if ``user_agent`` argument is included in the ``Transport`` construction
-  use it
+* Else if ``user_agent`` argument is included in the
+  :class:`~openstack.transport.Transport` construction use it
 * Else use ``transport.DEFAULT_USER_AGENT``
