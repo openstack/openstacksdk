@@ -11,9 +11,9 @@
 # under the License.
 
 """
-``openstack.session.Session`` is the class that maintains session layer
-similar to the OSI model session layer.  The session has a transport and
-an authenticator.  The transport is used by the session and authenticator
+The :class:`~openstack.session.Session` is the class that maintains session
+layer similar to the OSI model session layer.  The session has a transport
+and an authenticator.  The transport is used by the session and authenticator
 for HTTP layer transport.  The authenticator is responsible for providing an
 authentication token and an endpoint to communicate with.
 """
@@ -30,29 +30,29 @@ _logger = logging.getLogger(__name__)
 class Session(object):
 
     def __init__(self, transport, authenticator, preference=None):
-        """Create a new ``Session`` object with a transport and authenticator.
+        """Create a new object with a transport and authenticator.
 
         Session layer which uses the transport for communication.  The
         authenticator also uses the transport to keep authenticated.
 
         :param transport: A transport that provides an HTTP request method.
             The transport is also to be used by the authenticator, if needed.
-        :type transport: :class:`openstack.transport.Transport`
+        :type transport: :class:`~openstack.transport.Transport`
         :param authenticator: An authenticator that provides get_token and
             get_endpoint methods for the session.
-        :type authenticator: :class:`openstack.auth.base.BaseAuthPlugin`
+        :type authenticator: :class:`~openstack.auth.base.BaseAuthPlugin`
         :param preference: If the user has any special preferences such as the
             service name, region, version or visibility, they may be provided
             in the preference object.  If no preferences are provided, the
             services that appear first in the service catalog will be used.
-        :type preference: :class:`openstack.user_preference.UserPreference`
+        :type preference: :class:`~openstack.user_preference.UserPreference`
 
         All the other methods of the session accept the following parameters:
 
         :param str path: Path relative to service base url.
         :param service: a service filter for the authenticator to determine
             the correct endpoint to use.
-        :type service: :class:`openstack.auth.service_filter.ServiceFilter`
+        :type service: :class:`~openstack.auth.service_filter.ServiceFilter`
         :param bool authenticate: A flag that indicates if a token should be
             attached to the request.  This parameter defaults to true.
         :param kwargs: The remaining arguments are passed to the transport
@@ -70,9 +70,8 @@ class Session(object):
 
         :param string path: Path relative to authentictor base url.
         :param string method: The http method to use. (eg. 'GET', 'POST').
-        :param ServiceFilter service: Object that filters service to
-                                      the authenticator.
-        :type service: :class:`openstack.auth.service_filter.ServiceFilter`
+        :param service: Object that filters service to the authenticator.
+        :type service: :class:`~openstack.auth.service_filter.ServiceFilter`
         :param bool authenticate: True if a token should be attached
         :param kwargs: any other parameter that can be passed to transport
                        and authenticator.

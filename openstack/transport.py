@@ -11,11 +11,11 @@
 # under the License.
 
 """
-The ``openstack.transport.Transport`` is a subclass of ``requests.Session``
-that adds some features that are common in OpenStack APIs or can be globally
-controlled by an application.  Its use is incredibly similar to
-``requests.Session`` such that we only will cover the differences in detail
-here.
+The :class:`~openstack.transport.Transport` is a subclass of
+``requests.Session`` that adds some features that are common in OpenStack
+APIs or can be globally controlled by an application.  Its use is incredibly
+similar to ``requests.Session`` such that we only will cover the differences
+in detail here.
 
 The common OpenStack functionality added include:
 
@@ -57,7 +57,7 @@ class Transport(requests.Session):
             redirect=DEFAULT_REDIRECT_LIMIT,
             accept=JSON,
     ):
-        """Create a new ``Transport`` object.
+        """Create a new :class:`~openstack.transport.Transport` object.
 
         In addition to those listed below, all arguments available to
         ``requests.Session`` are available here:

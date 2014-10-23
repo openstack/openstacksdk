@@ -47,7 +47,7 @@ class BaseIdentityPlugin(base.BaseAuthPlugin):
         invoked.
 
         :param transport: A transport object for the authenticator.
-        :type transport: :class:`Transport <openstack.transport.Transport>`
+        :type transport: :class:`~openstack.transport.Transport`
 
         :raises InvalidResponse: The response returned wasn't appropriate.
         :raises HttpError: An error from an invalid HTTP response.
@@ -61,7 +61,7 @@ class BaseIdentityPlugin(base.BaseAuthPlugin):
         If a valid token is not present then a new one will be fetched.
 
         :param transport: A transport object for the authenticator.
-        :type transport: :class:`Transport <openstack.transport.Transport>`
+        :type transport: :class:`~openstack.transport.Transport`
 
         :raises HttpError: An error from an invalid HTTP response.
 
@@ -99,7 +99,7 @@ class BaseIdentityPlugin(base.BaseAuthPlugin):
         one will be fetched.
 
         :param transport: A transport object for the authenticator.
-        :type transport: :class:`Transport <openstack.transport.Transport>`
+        :type transport: :class:`~openstack.transport.Transport`
 
         :raises HttpError: An error from an invalid HTTP response.
 
@@ -133,10 +133,9 @@ class BaseIdentityPlugin(base.BaseAuthPlugin):
         the transport.
 
         :param transport: A transport object for the authenticator.
-        :type transport: :class:`Transport <openstack.transport.Transport>`
+        :type transport: :class:`~openstack.transport.Transport`
         :param service: The filter to identify the desired service.
-        :type service: :class:`ServiceFilter
-            <openstack.auth.service_filter.ServiceFilter>`
+        :type service: :class:`~openstack.auth.service_filter.ServiceFilter`
 
         :raises HttpError: An error from an invalid HTTP response.
 
@@ -149,10 +148,9 @@ class BaseIdentityPlugin(base.BaseAuthPlugin):
         """Return the valid versions for the given service.
 
         :param Transport transport: Authenticator may need to make HTTP calls.
-        :type transport: :class:`Transport <openstack.transport.Transport>`
+        :type transport: :class:`~openstack.transport.Transport`
         :param ServiceFilter service: Filter to identify the desired service.
-        :type service: :class:`ServiceFilter
-            <openstack.auth.service_filter.ServiceFilter>`
+        :type service: :class:`~openstack.auth.service_filter.ServiceFilter`
 
         :returns list: Returns list of versions that match the filter.
         """

@@ -11,13 +11,13 @@
 # under the License.
 
 """
-The ``ServiceFilter`` is the base class for service identifiers and user
-service preferences.  Each
-:class:`Resource <openstack.resource.Resource>` has a service identifier to
+The :class:`~openstack.auth.service_filter.ServiceFilter` is the base class
+for service identifiers and user service preferences.  Each
+:class:`~openstack.resource.Resource` has a service identifier to
 associate the resource with a service.  An example of a service identifier
 would be ``openstack.compute.compute_service.ComputeService``.
 The preferences are stored in the
-:class:`UserPreference <openstack.user_preference.UserPreference>` object.
+:class:`~openstack.user_preference.UserPreference` object.
 The service preference and the service identifier are joined to create a
 filter to match a service.
 """
@@ -68,7 +68,7 @@ class ServiceFilter(object):
         the default service identifier.
 
         :param default: Default service identifier from the resource.
-        :type default: :class:`openstack.auth.service_filter.ServiceFilter`
+        :type default: :class:`~openstack.auth.service_filter.ServiceFilter`
         """
         return ServiceFilter(service_type=default.service_type,
                              visibility=self.visibility or default.visibility,

@@ -11,10 +11,11 @@
 # under the License.
 
 """
-``openstack.user_preference.UserPreference`` is the class that is used to
+:class:`~openstack.user_preference.UserPreference` is the class that is used to
 define the various preferences for different services.  The preferences that
 are currently supported are service name, region, version and visibility.
-The ``UserPreference`` and the ``Connection`` classes are the most important
+The :class:`~openstack.user_preference.UserPreference` and the
+:class:`~openstack.connection.Connection` classes are the most important
 user facing classes.
 """
 
@@ -39,9 +40,10 @@ class UserPreference(object):
     def __init__(self):
         """User preference for each service.
 
-        Create a new ``UserPreference`` object with no preferences defined, but
-        knowledge of the services. Services are identified by their service
-        type, e.g.: 'identity', 'compute', etc.
+        Create a new :class:`~openstack.user_preference.UserPreference`
+        object with no preferences defined, but knowledge of the services.
+        Services are identified by their service type, e.g.: 'identity',
+        'compute', etc.
         """
         self._preferences = {}
         self._services = {}

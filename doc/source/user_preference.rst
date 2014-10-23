@@ -11,7 +11,8 @@ UserPreference Object
 Examples
 --------
 
-The ``UserPreference`` class is constructed with no arguments.
+The :class:`~openstack.user_preference.UserPreference` class is constructed
+with no arguments.
 
 Set Methods
 ~~~~~~~~~~~

@@ -11,17 +11,17 @@
 # under the License.
 
 """
-The ``Connection`` class is the primary interface to the Python SDK.
-``openstack.connection.Connection`` is the class that maintains context for
-a connection to a cloud provider.  The connection has an attribute to
-access each supported service.  The service attributes are created
-dynamically based on user preferences and the service catalog.
+The :class:`~openstack.connection.Connection` class is the primary interface
+to the Python SDK it maintains a context for a connection to a cloud provider.
+The connection has an attribute to access each supported service.  The service
+attributes are created dynamically based on user preferences and the service
+catalog.
 
 Examples
 --------
 
-At a minimum, the ``Connection`` class needs to be created with an
-authenticator or the parameters to build one.
+At a minimum, the :class:`~openstack.connection.Connection` class needs to be
+created with an authenticator or the parameters to build one.
 
 Create a connection
 ~~~~~~~~~~~~~~~~~~~
@@ -84,26 +84,26 @@ class Connection(object):
         in a transport and authenticator they want to use or they may pass in
         the parameters to create a transport and authenticator.  The connection
         creates a
-        :class:`Session <openstack.session.Session>` which uses the transport
+        :class:`~openstack.session.Session` which uses the transport
         and authenticator to perform HTTP requests.
 
         :param transport: A transport object such as that was previously
             created.  If this parameter is not passed in, the connection will
             create a transport.
-        :type transport: :class:`openstack.transport.Transport`
-        :param authenticator: An authenticator derived from ``BaseAuthPlugin``
-            that was previously created.  Two common authentication identity
-            plugins are
+        :type transport: :class:`~openstack.transport.Transport`
+        :param authenticator: An authenticator derived from the base
+            authenticator plugin that was previously created.  Two common
+            authentication identity plugins are
             :class:`identity_v2 <openstack.auth.identity.v2.Auth>` and
             :class:`identity_v3 <openstack.auth.identity.v3.Auth>`.
             If this parameter is not passsed in, the connection will create an
             authenticator.
-        :type authenticator: :class:`openstack.auth.base.BaseAuthPlugin`
+        :type authenticator: :class:`~openstack.auth.base.BaseAuthPlugin`
         :param preference: If the user has any special preferences such as the
             service name, region, version or visibility, they may be provided
             in the preference object.  If no preferences are provided, the
             services that appear first in the service catalog will be used.
-        :type preference: :class:`openstack.user_preference.UserPreference`
+        :type preference: :class:`~openstack.user_preference.UserPreference`
         :param bool verify: If a transport is not provided to the connection,
             this parameter will be used to create a transport.  If ``verify``
             is set to true, which is the default, the SSL cert will be
