@@ -10,6 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""
+The base identity plugin.  Identity plugins must define the authorize method.
+For examples of this class, see the v2 and v3 authentication plugins.
+"""
+
 import abc
 
 import six
@@ -20,10 +25,15 @@ from openstack.auth import base
 @six.add_metaclass(abc.ABCMeta)
 class BaseIdentityPlugin(base.BaseAuthPlugin):
 
-    # Consider a token valid if it does not expire for this many seconds
+    #: Consider a token valid if it does not expire for this many seconds
     BEST_BEFORE_SECONDS = 1
 
     def __init__(self, auth_url=None, reauthenticate=True):
+        """Create a identity authorization plugin.
+
+        :param string auth_url: Authorization URL
+        :param bool reauthenticate: Should the plugin attempt reauthorization.
+        """
         super(BaseIdentityPlugin, self).__init__()
         self.auth_url = auth_url
         self.access_info = None
@@ -36,6 +46,9 @@ class BaseIdentityPlugin(base.BaseAuthPlugin):
         Thus method will authenticate and fetch a new AccessInfo when
         invoked.
 
+        :param transport: A transport object for the authenticator.
+        :type transport: :class:`Transport <openstack.transport.Transport>`
+
         :raises InvalidResponse: The response returned wasn't appropriate.
         :raises HttpError: An error from an invalid HTTP response.
 
@@ -46,6 +59,9 @@ class BaseIdentityPlugin(base.BaseAuthPlugin):
         """Return a valid auth token.
 
         If a valid token is not present then a new one will be fetched.
+
+        :param transport: A transport object for the authenticator.
+        :type transport: :class:`Transport <openstack.transport.Transport>`
 
         :raises HttpError: An error from an invalid HTTP response.
 
@@ -82,6 +98,9 @@ class BaseIdentityPlugin(base.BaseAuthPlugin):
         If a valid AccessInfo is present then it is returned otherwise a new
         one will be fetched.
 
+        :param transport: A transport object for the authenticator.
+        :type transport: :class:`Transport <openstack.transport.Transport>`
+
         :raises HttpError: An error from an invalid HTTP response.
 
         :returns AccessInfo: Valid AccessInfo
@@ -113,10 +132,11 @@ class BaseIdentityPlugin(base.BaseAuthPlugin):
         If a valid token is not present then a new one will be fetched using
         the transport.
 
-        :param Transport transport: A transport object so the authenticator
-                                    can authenticate.
-        :param ServiceFilter service: The filter to identify the desired
-                                      service.
+        :param transport: A transport object for the authenticator.
+        :type transport: :class:`Transport <openstack.transport.Transport>`
+        :param service: The filter to identify the desired service.
+        :type service: :class:`ServiceFilter
+            <openstack.auth.service_filter.ServiceFilter>`
 
         :raises HttpError: An error from an invalid HTTP response.
 
@@ -129,7 +149,10 @@ class BaseIdentityPlugin(base.BaseAuthPlugin):
         """Return the valid versions for the given service.
 
         :param Transport transport: Authenticator may need to make HTTP calls.
+        :type transport: :class:`Transport <openstack.transport.Transport>`
         :param ServiceFilter service: Filter to identify the desired service.
+        :type service: :class:`ServiceFilter
+            <openstack.auth.service_filter.ServiceFilter>`
 
         :returns list: Returns list of versions that match the filter.
         """
