@@ -10,6 +10,24 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""
+Identity v2 authorization plugins.  The plugin must be constructed with an
+auhorization URL and a user id, user name or token.  A user id or user name
+would also require a password. For example::
+
+    from openstack.auth.identity import v2
+    from openstack import transport
+
+    args = {
+        'password': 'openSesame',
+        'auth_url': 'https://10.1.1.1:5000/v2.0/',
+        'user_name': 'alibaba',
+    }
+    auth = v2.Auth(**args)
+    xport = transport.Transport()
+    accessInfo = auth.authorize(xport)
+"""
+
 import logging
 
 from openstack.auth import access
@@ -21,6 +39,7 @@ _logger = logging.getLogger(__name__)
 
 class Auth(base.BaseIdentityPlugin):
 
+    #: Valid options for this plugin
     valid_options = [
         'auth_url',
         'user_name',
@@ -44,7 +63,9 @@ class Auth(base.BaseIdentityPlugin):
                  trust_id=None):
         """Construct an Identity V2 Authentication Plugin.
 
-        A user_name, user_id or token must be provided.
+        A user_name, user_id or token must be provided.  More detailed
+        information on some of the methods can be found in the base class
+        :class:`BaseIdentityPlugin <openstack.auth.base.BaseIdentityPlugin>`.
 
         :param string auth_url: Identity service endpoint for authorization.
         :param string user_name: Username for authentication.
@@ -74,6 +95,7 @@ class Auth(base.BaseIdentityPlugin):
         self.tenant_name = project_name
 
     def authorize(self, transport, **kwargs):
+        """Obtain access information from an OpenStack Identity Service."""
         headers = {'Accept': 'application/json'}
         url = self.auth_url.rstrip('/') + '/tokens'
         params = {'auth': self.get_auth_data(headers)}
@@ -96,6 +118,7 @@ class Auth(base.BaseIdentityPlugin):
         return access.AccessInfoV2(**resp_data)
 
     def get_auth_data(self, headers):
+        """Identity v2 token authentication data."""
         if self.token is None:
             auth = {'password': self.password}
             if self.user_id:
@@ -107,6 +130,7 @@ class Auth(base.BaseIdentityPlugin):
         return {'token': {'id': self.token}}
 
     def invalidate(self):
+        """Invalidate the current authentication data."""
         if super(Auth, self).invalidate():
             self.token = None
             return True
