@@ -10,6 +10,24 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""
+Identity v3 authorization plugins.  The plugin must be constructed with an
+auhorization URL and a user id, user name or token.  A user id or user name
+would also require a password. For example::
+
+    from openstack.auth.identity import v3
+    from openstack import transport
+
+    args = {
+        'password': 'openSesame',
+        'auth_url': 'https://10.1.1.1:5000/v3/',
+        'user_name': 'alibaba',
+    }
+    auth = v3.Auth(**args)
+    xport = transport.Transport()
+    accessInfo = auth.authorize(xport)
+"""
+
 import abc
 import logging
 
@@ -24,6 +42,7 @@ _logger = logging.getLogger(__name__)
 
 class Auth(base.BaseIdentityPlugin):
 
+    #: Valid options for this plugin
     valid_options = [
         'auth_url',
         'domain_id',
@@ -61,6 +80,8 @@ class Auth(base.BaseIdentityPlugin):
 
         This authorization plugin should be constructed with a password
         and user_id or user_name.  It may also be constructed with a token.
+        More detailed information on some of the methods can be found in the
+        base class :class:`~openstack.auth.identity.base.BaseIdentityPlugin`.
 
         :param string auth_url: Identity service endpoint for authentication.
         :param string domain_id: Domain ID for domain scoping.
@@ -115,6 +136,7 @@ class Auth(base.BaseIdentityPlugin):
         return '%s/auth/tokens' % self.auth_url.rstrip('/')
 
     def authorize(self, transport, **kwargs):
+        """Obtain access information from an OpenStack Identity Service."""
         headers = {'Accept': 'application/json'}
         body = {'auth': {'identity': {}}}
         ident = body['auth']['identity']
@@ -167,6 +189,7 @@ class Auth(base.BaseIdentityPlugin):
                                    **resp_data)
 
     def invalidate(self):
+        """Invalidate the current authentication data."""
         if super(Auth, self).invalidate():
             self.auth_methods = [self.password_method]
             return True
@@ -199,7 +222,14 @@ class AuthMethod(object):
 
 
 class PasswordMethod(AuthMethod):
+    """Identity v3 password authentication method.
+
+    The identity v3 authorization password method derived from
+    :class:`~openstack.auth.identity.v3.AuthMethod`.
+    """
+
     def get_auth_data(self, transport, auth, headers, **kwargs):
+        """Identity v3 password authentication data."""
         user = {'password': self.password}
 
         if self.user_id:
@@ -216,6 +246,13 @@ class PasswordMethod(AuthMethod):
 
 
 class TokenMethod(AuthMethod):
+    """Identity v3 token authentication method.
+
+    The identity v3 authorization token method derived from
+    :class:`~openstack.auth.identity.v3.AuthMethod`.
+    """
+
     def get_auth_data(self, transport, auth, headers, **kwargs):
+        """Identity v3 token authentication data."""
         headers['X-Auth-Token'] = self.token
         return 'token', {'id': self.token}
