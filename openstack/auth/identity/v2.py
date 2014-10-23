@@ -65,7 +65,7 @@ class Auth(base.BaseIdentityPlugin):
 
         A user_name, user_id or token must be provided.  More detailed
         information on some of the methods can be found in the base class
-        :class:`BaseIdentityPlugin <openstack.auth.base.BaseIdentityPlugin>`.
+        :class:`~openstack.auth.identity.base.BaseIdentityPlugin`.
 
         :param string auth_url: Identity service endpoint for authorization.
         :param string user_name: Username for authentication.
