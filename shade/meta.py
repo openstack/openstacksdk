@@ -103,8 +103,13 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     if image_name:
         server_vars['image']['name'] = image_name
 
-    server_vars['volumes'] = [
-        obj_to_dict(f) for f in cloud.get_volumes(server)]
+    volumes = []
+    for vol in cloud.get_volumes(server):
+        volume = obj_to_dict(vol)
+        # Make things easier to consume elsewhere
+        volume['device'] = volume['attachments'][0]['device']
+        volumes.append(volume)
+    server_vars['volumes'] = volumes
     if mounts:
         for mount in mounts:
             for vol in server_vars['volumes']:
