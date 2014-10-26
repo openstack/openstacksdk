@@ -158,7 +158,7 @@ class OpenStackConfig(object):
 
         for cloud in self._get_cloud_sections():
             for region in self._get_regions(cloud).split(','):
-                clouds.append(self.get_one_cloud(cloud, region))
+                clouds.append(self.get_one_cloud(cloud, region_name=region))
         return clouds
 
     def _fix_args(self, args, argparse=None):
