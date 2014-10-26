@@ -38,7 +38,7 @@ class Port(resource.Resource):
     device_id = resource.prop('device_id')
     device_owner = resource.prop('device_owner')
     extra_dhcp_opts = resource.prop('extra_dhcp_opts', type=dict)
-    fixed_ips = resource.prop('fixed_ips', type=dict)
+    fixed_ips = resource.prop('fixed_ips')
     mac_address = resource.prop('mac_address')
     name = resource.prop('name')
     network_id = resource.prop('network_id')

@@ -91,3 +91,19 @@ class Object(resource.Resource):
                            headers=headers).content
 
         return resp
+
+    def create(self, session, data=None):
+        """Create a remote resource from this instance."""
+        if not self.allow_create:
+            raise exceptions.MethodNotSupported('create')
+
+        url = utils.urljoin("", self.base_path % self, self.id)
+
+        if data is not None:
+            resp = session.put(url, service=self.service, data=data,
+                               accept="bytes").headers
+        else:
+            resp = session.post(url, service=self.service, data=None,
+                                accept=None).headers
+
+        self._attrs.update(resp)

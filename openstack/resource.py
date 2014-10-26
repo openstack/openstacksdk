@@ -165,6 +165,8 @@ class Resource(collections.MutableMapping):
     #: Allow head operation for this resource.
     allow_head = False
 
+    patch_update = True
+
     def __init__(self, attrs=None, loaded=False):
         if attrs is None:
             attrs = {}
@@ -295,6 +297,7 @@ class Resource(collections.MutableMapping):
         resp = self.create_by_id(session, self._attrs, self.id, path_args=self)
         self._attrs[self.id_attribute] = resp[self.id_attribute]
         self._reset_dirty()
+        return self
 
     @classmethod
     def get_data_by_id(cls, session, r_id, path_args=None,
@@ -332,6 +335,7 @@ class Resource(collections.MutableMapping):
                                    include_headers=include_headers)
         self._attrs.update(body)
         self._loaded = True
+        return self
 
     @classmethod
     def head_data_by_id(cls, session, r_id, path_args=None):
@@ -377,7 +381,10 @@ class Resource(collections.MutableMapping):
         else:
             url = cls.base_path
         url = utils.urljoin(url, r_id)
-        resp = session.patch(url, service=cls.service, json=body).body
+        if cls.patch_update:
+            resp = session.patch(url, service=cls.service, json=body).body
+        else:
+            resp = session.put(url, service=cls.service, json=body).body
 
         if cls.resource_key:
             resp = resp[cls.resource_key]
@@ -400,6 +407,7 @@ class Resource(collections.MutableMapping):
             assert resp_id == self.id
 
         self._reset_dirty()
+        return self
 
     @classmethod
     def delete_by_id(cls, session, r_id, path_args=None):
@@ -449,22 +457,21 @@ class Resource(collections.MutableMapping):
         return [cls.existing(**data) for data in resp]
 
     @classmethod
-    def find(cls, session, name_or_id, path_args=None):
+    def find(cls, session, name_or_id, path_args=None, id_only=True):
         """Find a resource by name or id as an instance."""
         try:
-            args = {
-                cls.id_attribute: name_or_id,
-                'fields': cls.id_attribute,
-                'path_args': path_args,
-            }
-            info = cls.list(session, **args)
+            params = {cls.id_attribute: name_or_id}
+            if id_only:
+                params['fields'] = cls.id_attribute
+            info = cls.list(session, path_args=path_args, **params)
             if len(info) == 1:
                 return info[0]
         except exceptions.HttpException:
             pass
         if cls.name_attribute:
-            params = {cls.name_attribute: name_or_id,
-                      'fields': cls.id_attribute}
+            params = {cls.name_attribute: name_or_id}
+            if id_only:
+                params['fields'] = cls.id_attribute
             info = cls.list(session, path_args=path_args, **params)
             if len(info) == 1:
                 return info[0]

@@ -16,8 +16,7 @@ from openstack import resource
 
 
 class FloatingIP(resource.Resource):
-    id_attribute = "floating_ip_address"
-    name_attribute = None
+    name_attribute = "floating_ip_address"
     resource_name = "floating ip"
     resource_key = 'floatingip'
     resources_key = 'floatingips'
@@ -30,6 +29,7 @@ class FloatingIP(resource.Resource):
     allow_update = True
     allow_delete = True
     allow_list = True
+    patch_update = False
 
     # Properties
     fixed_ip_address = resource.prop('fixed_ip_address')

@@ -10,8 +10,174 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import floatingip
+from openstack.network.v2 import network
+from openstack.network.v2 import port
+from openstack.network.v2 import router
+from openstack.network.v2 import security_group
+from openstack.network.v2 import security_group_rule
+from openstack.network.v2 import subnet
+
 
 class Proxy(object):
 
     def __init__(self, session):
         self.session = session
+
+    def create_ip(self, **data):
+        return floatingip.FloatingIP(data).create(self.session)
+
+    def delete_ip(self, **data):
+        floatingip.FloatingIP(**data).delete(self.session)
+
+    def find_available_ip(self):
+        return floatingip.FloatingIP.find_available(self.session)
+
+    def find_ip(self, name_or_id):
+        return floatingip.FloatingIP.find(self.session, name_or_id)
+
+    def get_ip(self, **data):
+        return floatingip.FloatingIP(**data).get(self.session)
+
+    def list_ips(self, **params):
+        return floatingip.FloatingIP.list(self.session, **params)
+
+    def update_ip(self, **data):
+        return floatingip.FloatingIP(**data).update(self.session)
+
+    def create_network(self, **data):
+        return network.Network(data).create(self.session)
+
+    def delete_network(self, **data):
+        network.Network(data).delete(self.session)
+
+    def find_network(self, name_or_id):
+        return network.Network.find(self.session, name_or_id)
+
+    def get_network(self, **data):
+        return network.Network(data).get(self.session)
+
+    def list_networks(self, **params):
+        return network.Network.list(self.session, **params)
+
+    def update_network(self, **data):
+        return network.Network(data).update(self.session)
+
+    def create_port(self, **data):
+        return port.Port(data).create(self.session)
+
+    def delete_port(self, **data):
+        return port.Port(data).delete(self.session)
+
+    def find_port(self, name_or_id):
+        return port.Port.find(self.session, name_or_id)
+
+    def get_port(self, **data):
+        return port.Port(data).get(self.session)
+
+    def list_ports(self, **params):
+        return port.Port.list(self.session, **params)
+
+    def update_port(self, **data):
+        return port.Port(data).update(self.session)
+
+    def add_ip_to_port(self, port, ip):
+        ip['port_id'] = port.id
+        return ip.update(self.session)
+
+    def remove_ip_from_port(self, ip):
+        ip['port_id'] = None
+        return ip.update(self.session)
+
+    def get_subnet_ports(self, subnet_id):
+        result = []
+        ports = self.list_ports()
+        for puerta in ports:
+            for fixed_ip in puerta.fixed_ips:
+                if fixed_ip['subnet_id'] == subnet_id:
+                    result.append(puerta)
+        return result
+
+    def create_router(self, **data):
+        return router.Router(data).create(self.session)
+
+    def delete_router(self, **data):
+        return router.Router(**data).delete(self.session)
+
+    def find_router(self, name_or_id):
+        return router.Router.find(self.session, name_or_id)
+
+    def get_router(self, **data):
+        return router.Router(**data).get(self.session)
+
+    def list_routers(self, **params):
+        return router.Router.list(self.session, **params)
+
+    def update_router(self, **data):
+        return router.Router(**data).update(self.session)
+
+    def router_add_interface(self, router, subnet_id):
+        router.add_interface(self.session, subnet_id)
+
+    def router_remove_interface(self, router, subnet_id):
+        router.remove_interface(self.session, subnet_id)
+
+    def create_security_group(self, **data):
+        return security_group.SecurityGroup(data).create(self.session)
+
+    def delete_security_group(self, **data):
+        return security_group.SecurityGroup(**data).delete(self.session)
+
+    def find_security_group(self, name_or_id):
+        return security_group.SecurityGroup.find(self.session, name_or_id)
+
+    def get_security_group(self, **data):
+        return security_group.SecurityGroup(**data).get(self.session)
+
+    def list_security_groups(self, **params):
+        return security_group.SecurityGroup.list(self.session, **params)
+
+    def update_security_group(self, **data):
+        return security_group.SecurityGroup(**data).update(self.session)
+
+    def create_security_group_rule(self, **data):
+        obj = security_group_rule.SecurityGroupRule(data)
+        return obj.create(self.session)
+
+    def delete_security_group_rule(self, **data):
+        obj = security_group_rule.SecurityGroupRule(**data)
+        return obj.delete(self.session)
+
+    def find_security_group_rule(self, name_or_id):
+        return security_group_rule.SecurityGroupRule.find(self.session,
+                                                          name_or_id)
+
+    def get_security_group_rule(self, **data):
+        obj = security_group_rule.SecurityGroupRule(**data)
+        return obj.get(self.session)
+
+    def list_security_group_rules(self, **params):
+        return security_group_rule.SecurityGroupRule.list(self.session,
+                                                          **params)
+
+    def update_security_group_rule(self, **data):
+        obj = security_group_rule.SecurityGroupRule(**data)
+        return obj.update(self.session)
+
+    def create_subnet(self, **data):
+        return subnet.Subnet(data).create(self.session)
+
+    def delete_subnet(self, **data):
+        return subnet.Subnet(**data).delete(self.session)
+
+    def find_subnet(self, name_or_id):
+        return subnet.Subnet.find(self.session, name_or_id)
+
+    def get_subnet(self, **data):
+        return subnet.Subnet(**data).get(self.session)
+
+    def list_subnets(self, **params):
+        return subnet.Subnet.list(self.session, **params)
+
+    def update_subnet(self, **data):
+        return subnet.Subnet(**data).update(self.session)

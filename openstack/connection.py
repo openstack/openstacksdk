@@ -179,3 +179,48 @@ class Connection(object):
             setattr(self, attr_name, proxy(self.session))
         except Exception as e:
             _logger.warn("Unable to load %s: %s" % (module, e))
+
+    def create(self, obj):
+        """Create an object.
+
+        :param obj: A resource object.
+        :type resource: :class:`~openstack.resource.Resource`
+        """
+        obj.create(self.session)
+        return obj
+
+    def get(self, obj, include_headers=False):
+        """Get an object.
+
+        :param obj: A resource object.
+        :type resource: :class:`~openstack.resource.Resource`
+        :param bool include_headers: Read object headers.
+        """
+        obj.get(self.session, include_headers)
+        return obj
+
+    def head(self, obj):
+        """Get an object.
+
+        :param obj: A resource object.
+        :type resource: :class:`~openstack.resource.Resource`
+        """
+        obj.head(self.session)
+        return obj
+
+    def update(self, obj):
+        """Update an object.
+
+        :param obj: A resource object.
+        :type resource: :class:`~openstack.resource.Resource`
+        """
+        obj.update(self.session)
+        return obj
+
+    def delete(self, obj):
+        """Delete an object.
+
+        :param obj: A resource object.
+        :type resource: :class:`~openstack.resource.Resource`
+        """
+        obj.delete(self.session)

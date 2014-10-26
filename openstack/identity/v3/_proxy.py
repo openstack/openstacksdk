@@ -19,25 +19,19 @@ class Proxy(object):
         self.session = session
 
     def create_project(self, **data):
-        obj = project.Project(**data)
-        obj.create(self.session)
-        return obj
+        return project.Project(data).create(self.session)
 
-    def get_project(self, r_id):
-        obj = project.Project({'id': r_id})
-        obj.get(self.session)
-        return obj
+    def delete_project(self, **data):
+        project.Project(data).delete(self.session)
 
-    def update_project(self, **data):
-        obj = project.Project(**data)
-        obj.update(self.session)
+    def find_project(self, name_or_id):
+        return project.Project.find(self.session, name_or_id)
 
-    def delete_project(self, r_id):
-        obj = project.Project({'id': r_id})
-        obj.delete(self.session)
+    def get_project(self, **data):
+        return project.Project(data).get(self.session)
 
     def list_projects(self, **params):
         return project.Project.list(self.session, **params)
 
-    def find_project(self, name_or_id):
-        return project.Project.find(self.session, name_or_id)
+    def update_project(self, **data):
+        return project.Project(**data).update(self.session)

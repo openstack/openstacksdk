@@ -291,7 +291,7 @@ def option_parser():
     parser.add_argument(
         '--data',
         metavar='<data>',
-        default='{}',
+        default={},
         help='Json data for command.',
     )
     parser.add_argument(

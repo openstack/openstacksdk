@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import time
+
 from openstack.compute import compute_service
 from openstack.compute.v2 import server_ip
 from openstack import resource
@@ -109,3 +111,28 @@ class Server(resource.Resource):
             action['metadata'] = metadata
         body = {'createImage': action}
         return self.action(session, body)
+
+    def wait_for_status(self, session, status='ACTIVE', interval=5, wait=120):
+        """Wait for the server to be in some status."""
+        try:
+            if self.status == status:
+                return True
+        except AttributeError:
+            pass
+        total_sleep = 0
+        while total_sleep < wait:
+            self.get(session)
+            if self.status == status:
+                return True
+            time.sleep(interval)
+            total_sleep += interval
+        return False
+
+    def get_floating_ips(self):
+        """Get the floating ips associated with this server."""
+        addresses = self.addresses[self.name]
+        result = []
+        for address in addresses:
+            if address['OS-EXT-IPS:type'] == 'floating':
+                result.append(address['addr'])
+        return result
