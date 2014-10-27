@@ -29,7 +29,7 @@ class BaseIdentityPlugin(base.BaseAuthPlugin):
     BEST_BEFORE_SECONDS = 1
 
     def __init__(self, auth_url=None, reauthenticate=True):
-        """Create a identity authorization plugin.
+        """Create an identity authorization plugin.
 
         :param string auth_url: Authorization URL
         :param bool reauthenticate: Should the plugin attempt reauthorization.

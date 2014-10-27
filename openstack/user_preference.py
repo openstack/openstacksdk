@@ -89,7 +89,7 @@ class UserPreference(object):
         return self._preferences.get(service, None)
 
     def get_services(self):
-        """Get a a list of all the known services."""
+        """Get a list of all the known services."""
         services = []
         for name, service in six.iteritems(self._services):
             services.append(service)

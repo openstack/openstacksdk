@@ -96,7 +96,7 @@ class Connection(object):
             authentication identity plugins are
             :class:`identity_v2 <openstack.auth.identity.v2.Auth>` and
             :class:`identity_v3 <openstack.auth.identity.v3.Auth>`.
-            If this parameter is not passsed in, the connection will create an
+            If this parameter is not passed in, the connection will create an
             authenticator.
         :type authenticator: :class:`~openstack.auth.base.BaseAuthPlugin`
         :param preference: If the user has any special preferences such as the
