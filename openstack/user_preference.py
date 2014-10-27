@@ -105,18 +105,24 @@ class UserPreference(object):
                (service, self.service_names))
         raise exceptions.SDKException(msg)
 
+    def _setattr_on_service(self, service, attr, name, is_callable=False):
+        if service == self.ALL:
+            services = self.service_names
+        else:
+            services = [service]
+        for serv in services:
+            if is_callable:
+                getattr(self._get_service(serv), attr)(name)
+            else:
+                setattr(self._get_service(serv), attr, name)
+
     def set_name(self, service, name):
         """Set the desired name for the specified service.
 
         :param str service: Service type.
         :param str name: Desired service name.
         """
-        if service == self.ALL:
-            services = self.service_names
-        else:
-            services = [service]
-        for service in services:
-            self._get_service(service).service_name = name
+        self._setattr_on_service(service, 'service_name', name)
 
     def set_region(self, service, region):
         """Set the desired region for the specified service.
@@ -124,12 +130,7 @@ class UserPreference(object):
         :param str service: Service type.
         :param str region: Desired service region.
         """
-        if service == self.ALL:
-            services = self.service_names
-        else:
-            services = [service]
-        for service in services:
-            self._get_service(service).region = region
+        self._setattr_on_service(service, 'region', region)
 
     def set_version(self, service, version):
         """Set the desired version for the specified service.
@@ -137,12 +138,7 @@ class UserPreference(object):
         :param str service: Service type.
         :param str version: Desired service version.
         """
-        if service == self.ALL:
-            services = self.service_names
-        else:
-            services = [service]
-        for service in services:
-            self._get_service(service).version = version
+        self._setattr_on_service(service, 'version', version)
 
     def set_visibility(self, service, visibility):
         """Set the desired visibility for the specified service.
@@ -150,9 +146,5 @@ class UserPreference(object):
         :param str service: Service type.
         :param str visibility: Desired service visibility.
         """
-        if service == self.ALL:
-            services = self.service_names
-        else:
-            services = [service]
-        for service in services:
-            self._get_service(service).set_visibility(visibility)
+        self._setattr_on_service(service, 'set_visibility', visibility,
+                                 is_callable=True)
