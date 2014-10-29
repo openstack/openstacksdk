@@ -10,12 +10,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.auth.identity import v2
 from openstack import connection
 from openstack import exceptions
 from openstack.tests import base
+from openstack import transport
+from openstack import user_preference
 
 
 class TestConnection(base.TestCase):
+    def setUp(self):
+        super(TestConnection, self).setUp()
+        self.xport = transport.Transport()
+        self.auth = v2.Auth(auth_url='http://127.0.0.1/v2', token='b')
+        self.pref = user_preference.UserPreference()
+
     def test_create_transport(self):
         conn = connection.Connection(authenticator='2', verify=True,
                                      user_agent='1')
@@ -73,8 +82,28 @@ class TestConnection(base.TestCase):
         )
 
     def test_create_session(self):
-        args = {'transport': '0', 'authenticator': '1', 'preference': '2'}
+        args = {
+            'transport': self.xport,
+            'authenticator': self.auth,
+            'preference': self.pref,
+        }
         conn = connection.Connection(**args)
-        self.assertEqual('0', conn.session.transport)
-        self.assertEqual('1', conn.session.authenticator)
-        self.assertEqual('2', conn.session.preference)
+        self.assertEqual(self.xport, conn.session.transport)
+        self.assertEqual(self.auth, conn.session.authenticator)
+        self.assertEqual(self.pref, conn.session.preference)
+        self.assertEqual('openstack.compute.v2._proxy',
+                         conn.compute.__class__.__module__)
+        self.assertEqual('openstack.database.v1._proxy',
+                         conn.database.__class__.__module__)
+        self.assertEqual('openstack.identity.v3._proxy',
+                         conn.identity.__class__.__module__)
+        self.assertEqual('openstack.image.v1._proxy',
+                         conn.image.__class__.__module__)
+        self.assertEqual('openstack.network.v2._proxy',
+                         conn.network.__class__.__module__)
+        self.assertEqual('openstack.object_store.v1._proxy',
+                         conn.object_store.__class__.__module__)
+        self.assertEqual('openstack.orchestration.v1._proxy',
+                         conn.orchestration.__class__.__module__)
+        self.assertEqual('openstack.telemetry.v2._proxy',
+                         conn.telemetry.__class__.__module__)

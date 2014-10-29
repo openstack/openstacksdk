@@ -15,6 +15,7 @@ import testtools
 
 from openstack.auth import service_filter as filt
 from openstack import exceptions
+from openstack.identity import identity_service
 
 
 class TestServiceFilter(testtools.TestCase):
@@ -124,3 +125,15 @@ class TestServiceFilter(testtools.TestCase):
         self.assertEqual('internal', sot.visibility)
         sot.set_visibility("ADMINURL")
         self.assertEqual('admin', sot.visibility)
+
+    def test_get_module(self):
+        sot = identity_service.IdentityService()
+        self.assertEqual('openstack.identity.v3', sot.get_module())
+        self.assertEqual('identity', sot.get_service_module())
+
+
+class TestValidVersion(testtools.TestCase):
+    def test_constructor(self):
+        sot = filt.ValidVersion('v1.0', 'v1')
+        self.assertEqual('v1.0', sot.module)
+        self.assertEqual('v1', sot.path)

@@ -16,6 +16,8 @@ from openstack.auth import service_filter
 class TelemetryService(service_filter.ServiceFilter):
     """The telemetry service."""
 
+    valid_versions = [service_filter.ValidVersion('v2')]
+
     def __init__(self):
         """Create a telemetry service."""
         super(TelemetryService, self).__init__(service_type='metering')

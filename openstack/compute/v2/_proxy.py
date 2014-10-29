@@ -10,14 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.auth import service_filter
+from openstack.compute.v2 import flavor
 
 
-class DatabaseService(service_filter.ServiceFilter):
-    """The database service."""
+class Proxy(object):
 
-    valid_versions = [service_filter.ValidVersion('v1')]
+    def __init__(self, session):
+        self.session = session
 
-    def __init__(self):
-        """Create an database service."""
-        super(DatabaseService, self).__init__(service_type='database')
+    def list_flavors(self, **params):
+        return flavor.Flavor.list(self.session, **params)

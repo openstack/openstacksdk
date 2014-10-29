@@ -16,6 +16,8 @@ from openstack.auth import service_filter
 class ObjectStoreService(service_filter.ServiceFilter):
     """The object store service."""
 
+    valid_versions = [service_filter.ValidVersion('v1')]
+
     def __init__(self):
         """Create an object store service."""
         super(ObjectStoreService, self).__init__(service_type='object-store')

@@ -16,6 +16,8 @@ from openstack.auth import service_filter
 class ComputeService(service_filter.ServiceFilter):
     """The compute service."""
 
+    valid_versions = [service_filter.ValidVersion('v2')]
+
     def __init__(self):
         """Create an compute service."""
         super(ComputeService, self).__init__(service_type='compute')

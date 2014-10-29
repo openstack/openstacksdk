@@ -25,12 +25,25 @@ filter to match a service.
 from openstack import exceptions
 
 
+class ValidVersion(object):
+
+    def __init__(self, module, path=None):
+        """" Valid service version.
+
+        :param string module: Module associated with version.
+        :param string path: URL path version.
+        """
+        self.module = module
+        self.path = path or module
+
+
 class ServiceFilter(object):
     ANY = 'any'
     PUBLIC = 'public'
     INTERNAL = 'internal'
     ADMIN = 'admin'
     VISIBILITY = [PUBLIC, INTERNAL, ADMIN]
+    valid_versions = []
 
     def __init__(self, service_type=ANY, visibility=PUBLIC, region=None,
                  service_name=None, version=None):
@@ -115,3 +128,20 @@ class ServiceFilter(object):
             msg = "Visibility <%s> not in %s" % (visibility, self.VISIBILITY)
             raise exceptions.SDKException(msg)
         self.visibility = visibility
+
+    def get_module(self):
+        """Get the full module name associated with the service."""
+        module = self.__class__.__module__.split('.')
+        module = ".".join(module[:-1])
+        # NOTE(thowe): Only support for one valid version right now.
+        module = module + "." + self.valid_versions[0].module
+        return module
+
+    def get_service_module(self):
+        """Get the module version of the service name.
+
+        This would often be the same as the service type except in cases like
+        object store where the service type is `object-store` and the module
+        is `object_store`.
+        """
+        return self.__class__.__module__.split('.')[1]
