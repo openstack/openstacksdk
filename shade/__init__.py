@@ -417,11 +417,18 @@ class OpenStackCloud(object):
                     volumes.append(volume)
         return volumes
 
-    def get_volume_id(self, volume_name):
-        for v in self.cinder_client.volumes.list():
-            if v.display_name == volume_name:
-                return v.id
+    def get_volume_id(self, name_or_id):
+        image = self.get_volume(name_or_id)
+        if image:
+            return image.id
         return None
+
+    def get_volume(self, name_or_id):
+        for v in self.list_volumes():
+            if name_or_id in (v.display_name, v.id):
+                return v
+        raise OpenStackCloudException(
+            "Error finding volume from %s" % name_or_id)
 
     def get_server_by_id(self, server_id):
         for server in self.nova_client.servers.list():
@@ -538,7 +545,19 @@ class OpenStackCloud(object):
 
     def create_server(self, bootargs, bootkwargs,
                       auto_ip=True, ips=None, ip_pool=None,
+                      root_volume=None, terminate_volume=False,
                       wait=False, timeout=180):
+
+        if root_volume:
+            if terminate_volume:
+                suffix = ':::1'
+            else:
+                suffix = ':::0'
+            volume_id = self.get_volume_id(root_volume) + suffix
+            if 'block_device_mapping' not in bootkwargs:
+                bootkwargs['block_device_mapping'] = dict()
+            bootkwargs['block_device_mapping']['vda'] = volume_id
+
         try:
             server = self.nova_client.servers.create(*bootargs, **bootkwargs)
             server = self.nova_client.servers.get(server.id)
