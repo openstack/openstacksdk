@@ -376,25 +376,27 @@ class OpenStackCloud(object):
         return self._image_cache
 
     def get_image_name(self, image_id):
-        if image_id not in self.list_images():
-            self._image_cache[image_id] = None
-        if self._image_cache[image_id]:
-            return self._image_cache[image_id].name
+        image = self.get_image(image_id, exclude)
+        if image:
+            return image.id
+        self._image_cache[image_id] = None
         return None
 
     def get_image_id(self, image_name, exclude=None):
-        image = self.get_image_by_name(image_name, exclude)
+        image = self.get_image(image_name, exclude)
         if image:
             return image.id
         return None
 
-    def get_image_by_name(self, name, exclude=None):
+    def get_image(self, name_or_id, exclude=None):
         for (image_id, image) in self.list_images().items():
-            if (name in image.name and (
+            if image_id == name_or_id:
+                return image
+            if (name_or_id in image.name and (
                     not exclude or exclude not in image.name)):
                 return image
         raise OpenStackCloudException(
-            "Error finding image id from name(%s)" % name)
+            "Error finding image from %s" % name_or_id)
 
     def _get_volumes_from_cloud(self):
         try:
