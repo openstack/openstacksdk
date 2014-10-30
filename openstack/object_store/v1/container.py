@@ -96,7 +96,7 @@ class Container(resource.Resource):
     #: Content-Type header, if present.
     detect_content_type = resource.prop("x-detect-content-type", type=bool)
     #: In combination with Expect: 100-Continue, specify an
-    #: "If-None-Match: *" header to query whether the server already
+    #: "If-None-Match: \*" header to query whether the server already
     #: has a copy of the object before any data is sent.
     if_none_match = resource.prop("if-none-match")
 
