@@ -15,7 +15,7 @@ from openstack import exceptions
 from openstack import resource
 
 
-class Keypairs(resource.Resource):
+class Keypair(resource.Resource):
     id_attribute = 'name'
     name_attribute = 'fingerprint'
     resource_key = 'keypair'
@@ -40,7 +40,7 @@ class Keypairs(resource.Resource):
         if attrs is not None:
             if 'keypair' in attrs:
                 attrs = attrs['keypair']
-        super(Keypairs, self).__init__(attrs, loaded)
+        super(Keypair, self).__init__(attrs, loaded)
 
     def create(self, session):
         """Create a new keypair from this instance.

@@ -13,7 +13,7 @@
 import mock
 import testtools
 
-from openstack.compute.v2 import keypairs
+from openstack.compute.v2 import keypair
 from openstack import exceptions
 
 EXAMPLE = {
@@ -25,10 +25,10 @@ EXAMPLE = {
 }
 
 
-class TestKeypairs(testtools.TestCase):
+class TestKeypair(testtools.TestCase):
 
     def test_basic(self):
-        sot = keypairs.Keypairs()
+        sot = keypair.Keypair()
         self.assertEqual('keypair', sot.resource_key)
         self.assertEqual('keypairs', sot.resources_key)
         self.assertEqual('/os-keypairs', sot.base_path)
@@ -40,7 +40,7 @@ class TestKeypairs(testtools.TestCase):
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = keypairs.Keypairs(EXAMPLE)
+        sot = keypair.Keypair(EXAMPLE)
         self.assertEqual(EXAMPLE['keypair']['fingerprint'], sot.fingerprint)
         self.assertEqual(EXAMPLE['keypair']['name'], sot.name)
         self.assertEqual(EXAMPLE['keypair']['public_key'], sot.public_key)
@@ -51,7 +51,7 @@ class TestKeypairs(testtools.TestCase):
         sess = mock.Mock()
         sess.get = mock.MagicMock()
         sess.get.return_value = resp
-        sot = keypairs.Keypairs()
+        sot = keypair.Keypair()
         result = sot.find(sess, "kato")
         url = 'os-keypairs/kato'
         sess.get.assert_called_with(url, service=sot.service)
@@ -63,5 +63,5 @@ class TestKeypairs(testtools.TestCase):
         sess = mock.Mock()
         sess.get = mock.MagicMock()
         sess.get.side_effect = exceptions.HttpException("404")
-        sot = keypairs.Keypairs()
+        sot = keypair.Keypair()
         self.assertRaises(exceptions.ResourceNotFound, sot.find, sess, "kato")
