@@ -10,15 +10,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 import testtools
 
 from openstack.compute.v2 import keypairs
+from openstack import exceptions
 
-IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
-    'fingerprint': '1',
-    'name': '2',
-    'public_key': '3',
+    'keypair': {
+        'fingerprint': '1',
+        'name': '2',
+        'public_key': '3',
+    }
 }
 
 
@@ -26,7 +29,7 @@ class TestKeypairs(testtools.TestCase):
 
     def test_basic(self):
         sot = keypairs.Keypairs()
-        self.assertEqual('keypairs', sot.resource_key)
+        self.assertEqual('keypair', sot.resource_key)
         self.assertEqual('keypairs', sot.resources_key)
         self.assertEqual('/os-keypairs', sot.base_path)
         self.assertEqual('compute', sot.service.service_type)
@@ -38,6 +41,27 @@ class TestKeypairs(testtools.TestCase):
 
     def test_make_it(self):
         sot = keypairs.Keypairs(EXAMPLE)
-        self.assertEqual(EXAMPLE['fingerprint'], sot.fingerprint)
-        self.assertEqual(EXAMPLE['name'], sot.name)
-        self.assertEqual(EXAMPLE['public_key'], sot.public_key)
+        self.assertEqual(EXAMPLE['keypair']['fingerprint'], sot.fingerprint)
+        self.assertEqual(EXAMPLE['keypair']['name'], sot.name)
+        self.assertEqual(EXAMPLE['keypair']['public_key'], sot.public_key)
+
+    def test_find(self):
+        resp = mock.Mock()
+        resp.body = EXAMPLE
+        sess = mock.Mock()
+        sess.get = mock.MagicMock()
+        sess.get.return_value = resp
+        sot = keypairs.Keypairs()
+        result = sot.find(sess, "kato")
+        url = 'os-keypairs/kato'
+        sess.get.assert_called_with(url, service=sot.service)
+        self.assertEqual(EXAMPLE['keypair']['fingerprint'], result.fingerprint)
+        self.assertEqual(EXAMPLE['keypair']['name'], result.name)
+        self.assertEqual(EXAMPLE['keypair']['public_key'], result.public_key)
+
+    def test_find_not_found(self):
+        sess = mock.Mock()
+        sess.get = mock.MagicMock()
+        sess.get.side_effect = exceptions.HttpException("404")
+        sot = keypairs.Keypairs()
+        self.assertRaises(exceptions.ResourceNotFound, sot.find, sess, "kato")
