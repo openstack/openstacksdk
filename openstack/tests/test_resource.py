@@ -72,7 +72,7 @@ class ResourceTests(base.TestTransportBase):
     def test_empty_id(self):
         self.stub_url(httpretty.GET, path=[fake_path], json=fake_body)
         obj = FakeResource.new(**fake_arguments)
-        obj.get(self.session)
+        self.assertEqual(obj, obj.get(self.session))
 
         self.assertEqual(fake_id, obj.id)
         self.assertEqual(fake_name, obj['name'])
@@ -92,7 +92,7 @@ class ResourceTests(base.TestTransportBase):
                                attr1=fake_attr1,
                                attr2=fake_attr2)
 
-        obj.create(self.session)
+        self.assertEqual(obj, obj.create(self.session))
         self.assertFalse(obj.is_dirty)
 
         last_req = httpretty.last_request().parsed_body[fake_resource]
@@ -191,7 +191,7 @@ class ResourceTests(base.TestTransportBase):
         obj = FakeResource.new(name=fake_name,
                                attr1=new_attr1,
                                attr2=new_attr2)
-        obj.create(self.session)
+        self.assertEqual(obj, obj.create(self.session))
         self.assertFalse(obj.is_dirty)
         self.assertEqual(new_attr1, obj['attr1'])
 
@@ -199,7 +199,7 @@ class ResourceTests(base.TestTransportBase):
         obj.second = fake_attr2
         self.assertTrue(obj.is_dirty)
 
-        obj.update(self.session)
+        self.assertEqual(obj, obj.update(self.session))
         self.assertFalse(obj.is_dirty)
 
         last_req = httpretty.last_request().parsed_body[fake_resource]

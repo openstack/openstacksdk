@@ -295,6 +295,7 @@ class Resource(collections.MutableMapping):
         resp = self.create_by_id(session, self._attrs, self.id, path_args=self)
         self._attrs[self.id_attribute] = resp[self.id_attribute]
         self._reset_dirty()
+        return self
 
     @classmethod
     def get_data_by_id(cls, session, r_id, path_args=None,
@@ -332,6 +333,7 @@ class Resource(collections.MutableMapping):
                                    include_headers=include_headers)
         self._attrs.update(body)
         self._loaded = True
+        return self
 
     @classmethod
     def head_data_by_id(cls, session, r_id, path_args=None):
@@ -360,6 +362,7 @@ class Resource(collections.MutableMapping):
         data = self.head_data_by_id(session, self.id, path_args=self)
         self._attrs.update(data)
         self._loaded = True
+        return self
 
     @classmethod
     def update_by_id(cls, session, r_id, attrs, path_args=None):
@@ -400,6 +403,7 @@ class Resource(collections.MutableMapping):
             assert resp_id == self.id
 
         self._reset_dirty()
+        return self
 
     @classmethod
     def delete_by_id(cls, session, r_id, path_args=None):
