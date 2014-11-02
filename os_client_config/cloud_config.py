@@ -15,7 +15,7 @@
 
 class CloudConfig(object):
     def __init__(self, name, region, config):
-        self.name = name
+        self.name = name or 'openstack'
         self.region = region
         self.config = config
 

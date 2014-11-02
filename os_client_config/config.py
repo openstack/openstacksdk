@@ -115,10 +115,14 @@ class OpenStackConfig(object):
 
     def _get_base_cloud_config(self, name):
         cloud = dict()
-        if name in self.cloud_config['clouds']:
-            our_cloud = self.cloud_config['clouds'][name]
-        else:
-            our_cloud = dict()
+
+        # Only validate cloud name if one was given
+        if name and name not in self.cloud_config['clouds']:
+            raise exceptions.OpenStackConfigException(
+                "Named cloud {name} requested that was not found.".format(
+                    name=name))
+
+        our_cloud = self.cloud_config['clouds'].get(name, dict())
 
         # Get the defaults (including env vars) first
         cloud.update(self.defaults)
@@ -208,15 +212,10 @@ class OpenStackConfig(object):
 
         args = self._fix_args(kwargs, argparse=argparse)
 
-        if cloud:
-            name = cloud
-        else:
-            name = 'openstack'
-
         if 'region_name' not in args:
-            args['region_name'] = self._get_region(name)
+            args['region_name'] = self._get_region(cloud)
 
-        config = self._get_base_cloud_config(name)
+        config = self._get_base_cloud_config(cloud)
 
         # Can't just do update, because None values take over
         for (key, val) in args.iteritems():
@@ -233,15 +232,15 @@ class OpenStackConfig(object):
                 if key not in config or not config[key]:
                     raise exceptions.OpenStackConfigException(
                         'Unable to find full auth information for cloud'
-                        ' {name} in config files {files}'
+                        ' {cloud} in config files {files}'
                         ' or environment variables.'.format(
-                            name=name, files=','.join(self._config_files)))
+                            cloud=cloud, files=','.join(self._config_files)))
             if 'project_name' not in config and 'project_id' not in config:
                 raise exceptions.OpenStackConfigException(
                     'Neither project_name or project_id information found'
-                    ' for cloud {name} in config files {files}'
+                    ' for cloud {cloud} in config files {files}'
                     ' or environment variables.'.format(
-                        name=name, files=','.join(self._config_files)))
+                        cloud=cloud, files=','.join(self._config_files)))
 
         # If any of the defaults reference other values, we need to expand
         for (key, value) in config.items():
@@ -249,7 +248,7 @@ class OpenStackConfig(object):
                 config[key] = value.format(**config)
 
         return cloud_config.CloudConfig(
-            name=name, region=config['region_name'], config=config)
+            name=cloud, region=config['region_name'], config=config)
 
 if __name__ == '__main__':
     config = OpenStackConfig().get_all_clouds()
