@@ -10,16 +10,17 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.orchestration.v1 import stack
+from openstack.orchestration.v1 import _proxy
+from openstack.tests import test_proxy_base
 
 
-class Proxy(object):
+class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
+    def setUp(self):
+        super(TestOrchestrationProxy, self).setUp()
+        self.proxy = _proxy.Proxy(self.session)
 
-    def __init__(self, session):
-        self.session = session
-
-    def find_stack(self, name_or_id):
-        return stack.Stack.find(self.session, name_or_id)
-
-    def list_stack(self):
-        return stack.Stack.list(self.session)
+    def test_stack(self):
+        self.verify_find('openstack.orchestration.v1.stack.Stack.find',
+                         self.proxy.find_stack)
+        self.verify_list('openstack.orchestration.v1.stack.Stack.list',
+                         self.proxy.list_stack)
