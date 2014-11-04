@@ -58,6 +58,7 @@ from openstack.database import database_service
 from openstack import exceptions
 from openstack.identity import identity_service
 from openstack.image import image_service
+from openstack.keystore import keystore_service
 from openstack.network import network_service
 from openstack.object_store import object_store_service
 from openstack.orchestration import orchestration_service
@@ -105,6 +106,9 @@ class UserPreference(object):
         serv = orchestration_service.OrchestrationService()
         serv.set_visibility(None)
         self._services[serv.service_type] = serv
+        serv = keystore_service.KeystoreService()
+        serv.set_visibility(None)
+        self._services[serv.service_type] = serv
         serv = telemetry_service.TelemetryService()
         serv.set_visibility(None)
         self._services[serv.service_type] = serv
@@ -121,7 +125,7 @@ class UserPreference(object):
         return self._preferences.get(service, None)
 
     def get_services(self):
-        """Get a list of all the known services."""
+        """Get a a list of all the known services."""
         services = []
         for name, service in six.iteritems(self._services):
             services.append(service)
@@ -137,24 +141,18 @@ class UserPreference(object):
                (service, self.service_names))
         raise exceptions.SDKException(msg)
 
-    def _setattr_on_service(self, service, attr, name, is_callable=False):
-        if service == self.ALL:
-            services = self.service_names
-        else:
-            services = [service]
-        for serv in services:
-            if is_callable:
-                getattr(self._get_service(serv), attr)(name)
-            else:
-                setattr(self._get_service(serv), attr, name)
-
     def set_name(self, service, name):
         """Set the desired name for the specified service.
 
         :param str service: Service type.
         :param str name: Desired service name.
         """
-        self._setattr_on_service(service, 'service_name', name)
+        if service == self.ALL:
+            services = self.service_names
+        else:
+            services = [service]
+        for service in services:
+            self._get_service(service).service_name = name
 
     def set_region(self, service, region):
         """Set the desired region for the specified service.
@@ -162,7 +160,12 @@ class UserPreference(object):
         :param str service: Service type.
         :param str region: Desired service region.
         """
-        self._setattr_on_service(service, 'region', region)
+        if service == self.ALL:
+            services = self.service_names
+        else:
+            services = [service]
+        for service in services:
+            self._get_service(service).region = region
 
     def set_version(self, service, version):
         """Set the desired version for the specified service.
@@ -170,7 +173,12 @@ class UserPreference(object):
         :param str service: Service type.
         :param str version: Desired service version.
         """
-        self._setattr_on_service(service, 'version', version)
+        if service == self.ALL:
+            services = self.service_names
+        else:
+            services = [service]
+        for service in services:
+            self._get_service(service).version = version
 
     def set_visibility(self, service, visibility):
         """Set the desired visibility for the specified service.
@@ -178,5 +186,9 @@ class UserPreference(object):
         :param str service: Service type.
         :param str visibility: Desired service visibility.
         """
-        self._setattr_on_service(service, 'set_visibility', visibility,
-                                 is_callable=True)
+        if service == self.ALL:
+            services = self.service_names
+        else:
+            services = [service]
+        for service in services:
+            self._get_service(service).set_visibility(visibility)

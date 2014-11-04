@@ -23,6 +23,7 @@ class TestUserPreference(base.TestCase):
             'database',
             'identity',
             'image',
+            'keystore',
             'metering',
             'network',
             'object-store',
