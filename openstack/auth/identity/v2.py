@@ -41,6 +41,7 @@ class Auth(base.BaseIdentityPlugin):
 
     #: Valid options for this plugin
     valid_options = [
+        'access_info',
         'auth_url',
         'user_name',
         'user_id',
@@ -53,6 +54,7 @@ class Auth(base.BaseIdentityPlugin):
     ]
 
     def __init__(self, auth_url,
+                 access_info=None,
                  user_name=None,
                  user_id=None,
                  password='',
@@ -68,6 +70,7 @@ class Auth(base.BaseIdentityPlugin):
         :class:`~openstack.auth.identity.base.BaseIdentityPlugin`.
 
         :param string auth_url: Identity service endpoint for authorization.
+        :param string access_info: Access info from previous authentication.
         :param string user_name: Username for authentication.
         :param string user_id: User ID for authentication.
         :param string password: Password for authentication.
@@ -86,6 +89,7 @@ class Auth(base.BaseIdentityPlugin):
             msg = 'You need to specify either a user_name, user_id or token'
             raise TypeError(msg)
 
+        self.access_info = access_info or None
         self.user_id = user_id
         self.user_name = user_name
         self.password = password
@@ -96,6 +100,9 @@ class Auth(base.BaseIdentityPlugin):
 
     def authorize(self, transport, **kwargs):
         """Obtain access information from an OpenStack Identity Service."""
+        if self.token and self.access_info:
+            return access.AccessInfoV2(**self.access_info)
+
         headers = {'Accept': 'application/json'}
         url = self.auth_url.rstrip('/') + '/tokens'
         params = {'auth': self.get_auth_data(headers)}
@@ -132,6 +139,7 @@ class Auth(base.BaseIdentityPlugin):
     def invalidate(self):
         """Invalidate the current authentication data."""
         if super(Auth, self).invalidate():
+            self.access_info = None
             self.token = None
             return True
         return False

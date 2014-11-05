@@ -170,6 +170,20 @@ class TestV2Auth(testtools.TestCase):
         ecatalog['version'] = 'v2.0'
         self.assertEqual(ecatalog, resp._info)
 
+    def test_authorize_token_access_info(self):
+        ecatalog = TEST_RESPONSE_DICT['access'].copy()
+        ecatalog['version'] = 'v2.0'
+        kargs = {
+            'access_info': ecatalog,
+            'token': common.TEST_TOKEN,
+        }
+        sot = v2.Auth(TEST_URL, **kargs)
+        xport = self.create_mock_transport(TEST_RESPONSE_DICT)
+
+        resp = sot.authorize(xport)
+
+        self.assertEqual(ecatalog, resp._info)
+
     def test_authorize_bad_response(self):
         kargs = {'token': common.TEST_TOKEN}
         sot = v2.Auth(TEST_URL, **kargs)
@@ -179,6 +193,7 @@ class TestV2Auth(testtools.TestCase):
 
     def test_invalidate(self):
         kargs = {
+            'access_info': {'a': 'b'},
             'password': common.TEST_PASS,
             'token': common.TEST_TOKEN,
             'user_name': common.TEST_USER,
@@ -194,11 +209,14 @@ class TestV2Auth(testtools.TestCase):
         expected = {'passwordCredentials': {'password': common.TEST_PASS,
                                             'username': common.TEST_USER}}
         headers = {}
+        self.assertEqual(None, sot.token)
+        self.assertEqual(None, sot.access_info)
         self.assertEqual(expected, sot.get_auth_data(headers))
         self.assertEqual({}, headers)
 
     def test_valid_options(self):
         expected = [
+            'access_info',
             'auth_url',
             'user_name',
             'user_id',

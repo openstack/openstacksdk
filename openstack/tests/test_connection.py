@@ -62,24 +62,30 @@ class TestConnection(base.TestCase):
         self.assertEqual('1', conn.authenticator.password_method.user_name)
         self.assertEqual('2', conn.authenticator.password_method.password)
 
-    def test_create_authenticator_no_name_2(self):
+    def test_create_authenticator_discoverable(self):
+        auth_args = {
+            'auth_url': '0',
+            'user_name': '1',
+            'password': '2',
+        }
+        conn = connection.Connection(transport='0', auth_plugin='identity',
+                                     **auth_args)
+        self.assertEqual('0', conn.authenticator.auth_url)
+        self.assertEqual(
+            '1',
+            conn.authenticator.auth_plugin.password_method.user_name)
+        self.assertEqual(
+            '2',
+            conn.authenticator.auth_plugin.password_method.password)
+
+    def test_create_authenticator_no_name(self):
         auth_args = {
             'auth_url': 'http://localhost/v2',
             'user_name': '1',
             'password': '2',
         }
         conn = connection.Connection(transport='0', **auth_args)
-        self.assertEqual('openstack.auth.identity.v2',
-                         conn.authenticator.__class__.__module__)
-
-    def test_create_authenticator_no_name_3(self):
-        auth_args = {
-            'auth_url': 'http://localhost/v3',
-            'user_name': '1',
-            'password': '2',
-        }
-        conn = connection.Connection(transport='0', **auth_args)
-        self.assertEqual('openstack.auth.identity.v3',
+        self.assertEqual('openstack.auth.identity.discoverable',
                          conn.authenticator.__class__.__module__)
 
     def test_create_authenticator_no_nothing(self):

@@ -44,6 +44,7 @@ class Auth(base.BaseIdentityPlugin):
 
     #: Valid options for this plugin
     valid_options = [
+        'access_info',
         'auth_url',
         'domain_id',
         'domain_name',
@@ -62,6 +63,7 @@ class Auth(base.BaseIdentityPlugin):
     ]
 
     def __init__(self, auth_url,
+                 access_info=None,
                  domain_id=None,
                  domain_name=None,
                  password='',
@@ -84,6 +86,7 @@ class Auth(base.BaseIdentityPlugin):
         base class :class:`~openstack.auth.identity.base.BaseIdentityPlugin`.
 
         :param string auth_url: Identity service endpoint for authentication.
+        :param string access_info: Access info including service catalog.
         :param string domain_id: Domain ID for domain scoping.
         :param string domain_name: Domain name for domain scoping.
         :param string password: User password for authentication.
@@ -109,6 +112,7 @@ class Auth(base.BaseIdentityPlugin):
             msg = 'You need to specify either a user_name, user_id or token'
             raise TypeError(msg)
 
+        self.access_info = access_info
         self.domain_id = domain_id
         self.domain_name = domain_name
         self.project_domain_id = project_domain_id
@@ -128,6 +132,7 @@ class Auth(base.BaseIdentityPlugin):
             self.token_method = TokenMethod(token=token)
             self.auth_methods = [self.token_method]
         else:
+            self.token_method = None
             self.auth_methods = [self.password_method]
 
     @property
@@ -140,6 +145,10 @@ class Auth(base.BaseIdentityPlugin):
         headers = {'Accept': 'application/json'}
         body = {'auth': {'identity': {}}}
         ident = body['auth']['identity']
+
+        if self.token_method and self.access_info:
+            return access.AccessInfoV3(self.token_method.token,
+                                       **self.access_info)
 
         for method in self.auth_methods:
             name, auth_data = method.get_auth_data(transport, self, headers)
@@ -192,6 +201,7 @@ class Auth(base.BaseIdentityPlugin):
         """Invalidate the current authentication data."""
         if super(Auth, self).invalidate():
             self.auth_methods = [self.password_method]
+            self.access_info = None
             return True
         return False
 
