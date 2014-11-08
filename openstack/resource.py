@@ -424,33 +424,49 @@ class Resource(collections.MutableMapping):
 
     @classmethod
     def list(cls, session, limit=None, marker=None, path_args=None, **params):
-        """Get a list of resources as an array of objects."""
+        """Return a generator that will page through results of GET requests.
 
-        # NOTE(jamielennox): Is it possible we can return a generator from here
-        # and allow us to keep paging rather than limit and marker?
+        This method starts at `limit` and `marker` (both defaulting to None),
+        advances the marker to the last item received, and continues paging
+        until no results are returned.
+        """
         if not cls.allow_list:
             raise exceptions.MethodNotSupported('list')
 
-        filters = {}
+        more_data = True
 
-        if limit:
-            filters['limit'] = limit
-        if marker:
-            filters['marker'] = marker
+        while more_data:
+            filters = {}
 
-        if path_args:
-            url = cls.base_path % path_args
-        else:
-            url = cls.base_path
-        if filters:
-            url = '%s?%s' % (url, url_parse.urlencode(filters))
+            if limit:
+                filters['limit'] = limit
+            if marker:
+                filters['marker'] = marker
 
-        resp = session.get(url, service=cls.service, params=params).body
+            if path_args:
+                url = cls.base_path % path_args
+            else:
+                url = cls.base_path
+            if filters:
+                url = '%s?%s' % (url, url_parse.urlencode(filters))
 
-        if cls.resources_key:
-            resp = resp[cls.resources_key]
+            resp = session.get(url, service=cls.service, params=params).body
 
-        return [cls.existing(**data) for data in resp]
+            if cls.resources_key:
+                resp = resp[cls.resources_key]
+
+            # TODO(briancurtin): Although there are a few different ways
+            # across services, we can know from a response if it's the end
+            # without doing an extra request to get an empty response.
+            # Resources should probably carry something like a `_should_page`
+            # method to handle their service's pagination style.
+            if not resp:
+                more_data = False
+
+            for data in resp:
+                value = cls.existing(**data)
+                marker = value.id
+                yield value
 
     @classmethod
     def find(cls, session, name_or_id, path_args=None):
@@ -462,20 +478,36 @@ class Resource(collections.MutableMapping):
                 'path_args': path_args,
             }
             info = cls.list(session, **args)
-            if len(info) == 1:
-                return info[0]
+            # If there is exactly one result available, return it.
+            result = None
+            try:
+                result = next(info)
+                next(info)
+            except StopIteration:
+                if result is not None:
+                    return result
         except exceptions.HttpException:
             pass
+
         if cls.name_attribute:
             params = {cls.name_attribute: name_or_id,
                       'fields': cls.id_attribute}
             info = cls.list(session, path_args=path_args, **params)
-            if len(info) == 1:
-                return info[0]
-            if len(info) > 1:
+            result = None
+            # Take the first value as our result. If another value is,
+            # available then raise DuplicateResource.
+            try:
+                result = next(info)
+                next(info)
                 msg = "More than one %s exists with the name '%s'."
                 msg = (msg % (cls.get_resource_name(), name_or_id))
                 raise exceptions.DuplicateResource(msg)
+            except StopIteration:
+                # We got here because `info` either gave us the result
+                # or it was empty.
+                if result is not None:
+                    return result
+
         msg = ("No %s with a name or ID of '%s' exists." %
                (cls.get_resource_name(), name_or_id))
         raise exceptions.ResourceNotFound(msg)

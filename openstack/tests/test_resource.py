@@ -234,14 +234,19 @@ class ResourceTests(base.TestTransportBase):
         for i in range(len(results)):
             results[i]['id'] = fake_id + i
 
+        marker = "marker=%d" % results[-1]['id']
+        self.stub_url(httpretty.GET,
+                      path=[fake_path + "?" + marker],
+                      json={fake_resources: []},
+                      match_querystring=True)
         self.stub_url(httpretty.GET,
                       path=[fake_path],
                       json={fake_resources: results})
 
-        objs = FakeResource.list(self.session, marker='x',
+        objs = FakeResource.list(self.session, limit=1,
                                  path_args=fake_arguments)
-
-        self.assertIn('marker=x', httpretty.last_request().path)
+        objs = list(objs)
+        self.assertIn(marker, httpretty.last_request().path)
         self.assertEqual(3, len(objs))
 
         for obj in objs:
@@ -318,18 +323,19 @@ class TestFind(base.TestCase):
 
         self.assertEqual(self.ID, result.id)
         p = {'fields': 'id', 'name': self.NAME}
-        self.mock_get.assert_called_with(fake_path, params=p, service=None)
+        self.mock_get.assert_any_call(fake_path, params=p, service=None)
 
     def test_id(self):
-        resp = FakeResponse({FakeResource.resources_key: [self.matrix]})
-        self.mock_get.return_value = resp
+        self.mock_get.side_effect = [
+            FakeResponse({FakeResource.resources_key: [self.matrix]})
+        ]
 
         result = FakeResource.find(self.mock_session, self.ID,
                                    path_args=fake_arguments)
 
         self.assertEqual(self.ID, result.id)
         p = {'fields': 'id', 'id': self.ID}
-        self.mock_get.assert_called_with(fake_path, params=p, service=None)
+        self.mock_get.assert_any_call(fake_path, params=p, service=None)
 
     def test_nameo(self):
         self.mock_get.side_effect = [
@@ -344,7 +350,7 @@ class TestFind(base.TestCase):
         FakeResource.name_attribute = 'name'
         self.assertEqual(self.ID, result.id)
         p = {'fields': 'id', 'nameo': self.NAME}
-        self.mock_get.assert_called_with(fake_path, params=p, service=None)
+        self.mock_get.assert_any_call(fake_path, params=p, service=None)
 
     def test_dups(self):
         dup = {'id': 'Larry'}
@@ -356,8 +362,9 @@ class TestFind(base.TestCase):
 
     def test_id_attribute_find(self):
         floater = {'ip_address': "127.0.0.1"}
-        resp = FakeResponse({FakeResource.resources_key: [floater]})
-        self.mock_get.return_value = resp
+        self.mock_get.side_effect = [
+            FakeResponse({FakeResource.resources_key: [floater]})
+        ]
 
         FakeResource.id_attribute = 'ip_address'
         result = FakeResource.find(self.mock_session, "127.0.0.1",
@@ -366,7 +373,7 @@ class TestFind(base.TestCase):
         FakeResource.id_attribute = 'id'
 
         p = {'fields': 'ip_address', 'ip_address': "127.0.0.1"}
-        self.mock_get.assert_called_with(fake_path, params=p, service=None)
+        self.mock_get.assert_any_call(fake_path, params=p, service=None)
 
     def test_nada(self):
         resp = FakeResponse({FakeResource.resources_key: []})
