@@ -28,25 +28,12 @@ If you use the environment variables, authenticate with:
 import sys
 
 from examples import common
+from examples import connection
 from examples import transport
-from openstack import connection
 
 
 def make_authenticate(opts):
-    args = {
-        'auth_plugin': opts.auth_plugin,
-        'auth_url': opts.auth_url,
-        'project_name': opts.project_name,
-        'domain_name': opts.domain_name,
-        'project_domain_name': opts.project_domain_name,
-        'user_domain_name': opts.user_domain_name,
-        'user_name': opts.user_name,
-        'password': opts.password,
-        'verify': opts.verify,
-        'token': opts.token,
-    }
-    conn = connection.Connection(**args)
-    return conn.authenticator
+    return connection.make_connection(opts).session.authenticator
 
 
 def run_authenticate(opts):

@@ -23,25 +23,12 @@ For example:
 import sys
 
 from examples import common
-from openstack import connection
+from examples import connection
 from openstack.identity import identity_service
 
 
 def make_session(opts):
-    args = {
-        'auth_plugin': opts.auth_plugin,
-        'auth_url': opts.auth_url,
-        'project_name': opts.project_name,
-        'domain_name': opts.domain_name,
-        'project_domain_name': opts.project_domain_name,
-        'user_domain_name': opts.user_domain_name,
-        'user_name': opts.user_name,
-        'password': opts.password,
-        'verify': opts.verify,
-        'token': opts.token,
-    }
-    conn = connection.Connection(preference=opts.user_preferences, **args)
-    return conn.session
+    return connection.make_connection(opts).session
 
 
 def run_session(opts):
