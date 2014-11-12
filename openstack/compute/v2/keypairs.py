@@ -11,12 +11,14 @@
 # under the License.
 
 from openstack.compute import compute_service
+from openstack import exceptions
 from openstack import resource
 
 
 class Keypairs(resource.Resource):
-    id_attribute = 'fingerprint'
-    resource_key = 'keypairs'
+    id_attribute = 'name'
+    name_attribute = 'fingerprint'
+    resource_key = 'keypair'
     resources_key = 'keypairs'
     base_path = '/os-keypairs'
     service = compute_service.ComputeService()
@@ -31,4 +33,33 @@ class Keypairs(resource.Resource):
     # Properties
     fingerprint = resource.prop('fingerprint')
     name = resource.prop('name')
+    private_key = resource.prop('private_key')
     public_key = resource.prop('public_key')
+
+    def __init__(self, attrs=None, loaded=False):
+        if attrs is not None:
+            if 'keypair' in attrs:
+                attrs = attrs['keypair']
+        super(Keypairs, self).__init__(attrs, loaded)
+
+    def create(self, session):
+        """Create a new keypair from this instance.
+
+        This is needed because the name is the id, but we can't create one
+        with a PUT.  That and we need the private_key out of the response.
+        """
+        resp = self.create_by_id(session, self._attrs, None, path_args=self)
+        self._attrs = resp
+        self._reset_dirty()
+        return self
+
+    @classmethod
+    def find(cls, session, name_or_id, path_args=None, id_only=True):
+        """Find a keypair by name because list filtering does not work."""
+        try:
+            return cls.get_by_id(session, name_or_id)
+        except exceptions.HttpException:
+            pass
+        msg = ("No %s with a name or ID of '%s' exists." %
+               (cls.get_resource_name(), name_or_id))
+        raise exceptions.ResourceNotFound(msg)
