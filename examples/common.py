@@ -231,6 +231,13 @@ def option_parser():
         help='Authentication password (Env: OS_PASSWORD)',
     )
     parser.add_argument(
+        '--os-access-info',
+        dest='access_info',
+        metavar='<access-info>',
+        default=env('OS_ACCESS_INFO'),
+        help='Access info (Env: OS_ACCESS_INFO)',
+    )
+    parser.add_argument(
         '--os-api-name',
         dest='user_preferences',
         metavar='<service>=<name>',

@@ -63,7 +63,6 @@ import sys
 
 from stevedore import driver
 
-from openstack import exceptions
 from openstack import session
 from openstack import transport as xport
 
@@ -142,15 +141,7 @@ class Connection(object):
         if authenticator:
             return authenticator
         if auth_plugin is None:
-            if 'auth_url' not in auth_args:
-                msg = ("auth_url was not provided.")
-                raise exceptions.AuthorizationFailure(msg)
-            auth_url = auth_args['auth_url']
-            endpoint_version = auth_url.split('v')[-1][0]
-            if endpoint_version == '2':
-                auth_plugin = 'identity_v2'
-            else:
-                auth_plugin = 'identity_v3'
+            auth_plugin = 'identity'
 
         mgr = driver.DriverManager(
             namespace=self.AUTH_PLUGIN_NAMESPACE,

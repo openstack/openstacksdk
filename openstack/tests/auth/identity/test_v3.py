@@ -138,6 +138,21 @@ class TestV3Auth(testtools.TestCase):
         ecatalog['version'] = 'v3'
         self.assertEqual(ecatalog, resp._info)
 
+    def test_authorize_token_access_info(self):
+        ecatalog = common.TEST_RESPONSE_DICT_V3['token'].copy()
+        kargs = {
+            'access_info': ecatalog,
+            'token': common.TEST_TOKEN,
+        }
+        sot = v3.Auth(TEST_URL, **kargs)
+        xport = self.create_mock_transport(common.TEST_RESPONSE_DICT_V3)
+
+        resp = sot.authorize(xport)
+
+        ecatalog['auth_token'] = common.TEST_TOKEN
+        ecatalog['version'] = 'v3'
+        self.assertEqual(ecatalog, resp._info)
+
     def test_authorize_token_domain_id(self):
         kargs = {
             'domain_id': common.TEST_DOMAIN_ID,
@@ -317,6 +332,7 @@ class TestV3Auth(testtools.TestCase):
             'user_name': common.TEST_USER,
             'password': common.TEST_PASS,
             'token': common.TEST_TOKEN,
+            'access_info': {},
         }
         sot = v3.Auth(TEST_URL, **kargs)
         self.assertEqual(1, len(sot.auth_methods))
@@ -325,6 +341,7 @@ class TestV3Auth(testtools.TestCase):
 
         self.assertEqual(True, sot.invalidate())
 
+        self.assertEqual(None, sot.access_info)
         self.assertEqual(1, len(sot.auth_methods))
         auther = sot.auth_methods[0]
         self.assertEqual(common.TEST_USER, auther.user_name)
@@ -332,6 +349,7 @@ class TestV3Auth(testtools.TestCase):
 
     def test_valid_options(self):
         expected = [
+            'access_info',
             'auth_url',
             'domain_id',
             'domain_name',
