@@ -1,5 +1,6 @@
-Welcome!
-========
+============
+Contributing
+============
 
 python-openstacksdk is a Stackforge project, mirrored on `GitHub`_.  Bugs and
 Blueprints are handled on `Launchpad`_.  Code reviews are hosted on `Gerrit`_.
@@ -9,16 +10,16 @@ Blueprints are handled on `Launchpad`_.  Code reviews are hosted on `Gerrit`_.
 .. _Gerrit: https://review.openstack.org/#/q/project:stackforge/python-openstacksdk,n,z
 
 Getting Setup
-=============
+-------------
 
 Python
-------
+******
 
 The python-openstacksdk project supports Python versions 2.6, 2.7, 3.3+, and
 pypy, so you'll need to have at least one of those to get started.
 
 virtualenv
-----------
+**********
 
 Rather than installing the project's dependencies into your system-wide Python
 installation, you should create a virtual environment for this project.::
@@ -30,7 +31,7 @@ installation, you should create a virtual environment for this project.::
    (sdk)$
 
 tox
----
+***
 
 We use `tox <https://tox.readthedocs.org>`_ as our test runner, as it provides
 the ability to run your test against multiple versions. Going back to the
@@ -48,7 +49,7 @@ environment to run.::
    (sdk)$ tox -e py33
 
 Using the code
---------------
+**************
 
 To run the examples or otherwise use the SDK within your environment, you'll
 need to get the project's dependencies.::
@@ -60,7 +61,7 @@ need to get the project's dependencies.::
 
 
 Project Layout
-==============
+--------------
 
 The code is laid out in the following structure. This example shows files
 relevant to working with code for the compute service's servers.::
@@ -85,7 +86,7 @@ relevant to working with code for the compute service's servers.::
                    test_server.py
 
 Session
--------
+*******
 
 The :class:`openstack.session.Session` manages an authenticator,
 transport, and user preferences. It exposes methods corresponding to
@@ -121,7 +122,7 @@ follows a
 that isn't suitable for this library.
 
 Resource
---------
+********
 
 The :class:`openstack.resource.Resource` base class is the building block
 of any service implementation. ``Resource`` objects correspond to the
@@ -162,7 +163,7 @@ to support the fact that multiple ``Server``\s can be returned, and each
 is identified with a singular noun in the response.
 
 Proxy
------
+*****
 
 Each service implements a ``Proxy`` class, within the
 ``openstack/<program_name>/vX/_proxy.py`` module. For example, the v2 compute
@@ -184,7 +185,7 @@ under construction, as we figure out the best way to implement them in a
 way which will apply nicely across all of the services.
 
 Connection
-----------
+**********
 
 The :class:`openstack.connection.Connection` class builds atop a ``Session``
 object, and provides a higher level interface constructed of ``Proxy``
@@ -199,17 +200,17 @@ corresponding ``Proxy`` object, the high-level interface to your service
 should now be exposed.
 
 Contacting the Team
-===================
+-------------------
 
 IRC
----
+***
 
 The developers of this project are available in the
 `#openstack-sdks <http://webchat.freenode.net?channels=%23openstack-sdks>`_
 channel on Freenode.
 
 Email
------
+*****
 
 The `openstack-dev <mailto:openstack-dev@openstack.org?subject=[python-openstacksdk]%20Question%20about%20the%20python-openstacksdk>`_
 mailing list fields questions of all types on OpenStack. Using the

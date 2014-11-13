@@ -1,10 +1,10 @@
 .. include:: ../../README.rst
 
-Contents
+Welcome!
 ========
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    installation
    usage
