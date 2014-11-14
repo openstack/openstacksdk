@@ -100,7 +100,7 @@ class prop(object):
             value = instance._attrs[self.name]
         except KeyError:
             try:
-                return instance._attrs[self.alias]
+                value = instance._attrs[self.alias]
             except KeyError:
                 raise AttributeError('Unset property: %s' % self.name)
 

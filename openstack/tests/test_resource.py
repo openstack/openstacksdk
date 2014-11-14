@@ -58,6 +58,19 @@ class FakeResource(resource.Resource):
     third = resource.prop('attr3', alias='attr_three')
 
 
+class PropTests(base.TestCase):
+
+    def test_with_alias_and_type(self):
+        class Test(resource.Resource):
+            attr = resource.prop("attr1", alias="attr2", type=bool)
+
+        t = Test(attrs={"attr2": 500})
+
+        # Don't test with assertTrue because 500 evalutes to True.
+        # Need to test that bool(500) happened and attr2 *is* True.
+        self.assertIs(t.attr, True)
+
+
 class ResourceTests(base.TestTransportBase):
 
     TEST_URL = fakes.FakeAuthenticator.ENDPOINT
