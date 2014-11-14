@@ -253,26 +253,8 @@ class ResourceTests(base.TestTransportBase):
     def test_attrs(self):
         obj = FakeResource()
 
-        try:
-            obj.name
-        except AttributeError:
-            pass
-        else:
-            self.fail("Didn't raise attribute error")
-
-        try:
-            del obj.name
-        except AttributeError:
-            pass
-        else:
-            self.fail("Didn't raise attribute error")
-
-        try:
-            obj.third
-        except AttributeError:
-            pass
-        else:
-            self.fail("Didn't raise attribute error")
+        self.assertIsNone(obj.name)
+        del obj.name
 
     def test_composite_attr_happy(self):
         obj = FakeResource.existing(**{'attr3': '3'})

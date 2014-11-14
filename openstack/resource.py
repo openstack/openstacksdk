@@ -102,7 +102,7 @@ class prop(object):
             try:
                 return instance._attrs[self.alias]
             except KeyError:
-                raise AttributeError('Unset property: %s' % self.name)
+                return None
 
         if self.type and not isinstance(value, self.type):
             value = self.type(value)
@@ -128,7 +128,7 @@ class prop(object):
             try:
                 del instance._attrs[self.alias]
             except KeyError:
-                raise AttributeError('Unset property: %s' % self.name)
+                pass
 
 
 @six.add_metaclass(abc.ABCMeta)
