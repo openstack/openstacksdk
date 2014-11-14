@@ -66,7 +66,7 @@ class PropTests(base.TestCase):
 
         t = Test(attrs={"attr2": 500})
 
-        # Don't test with assertTrue because 500 evalutes to True.
+        # Don't test with assertTrue because 500 evaluates to True.
         # Need to test that bool(500) happened and attr2 *is* True.
         self.assertIs(t.attr, True)
 
