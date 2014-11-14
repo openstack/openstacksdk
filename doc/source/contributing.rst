@@ -22,13 +22,44 @@ virtualenv
 **********
 
 Rather than installing the project's dependencies into your system-wide Python
-installation, you should create a virtual environment for this project.::
+installation, you should create a virtual environment for this project.
+
+Install
+^^^^^^^
+
+Debian based platforms::
+
+   apt-get install -y python-virtualenv
+
+RedHat based platforms::
+
+   yum install -y python-virtualenv
+
+Other::
+
+   pip install virtualenv
+
+Setup
+^^^^^
+::
 
    $ virtualenv sdk
    New python executable in sdk/bin/python
    Installing setuptools, pip...done.
    $ source sdk/bin/activate
    (sdk)$
+
+Getting the code
+****************
+
+If you haven't contributed in the openstack community before, be sure to read:
+
+  https://wiki.openstack.org/wiki/How_To_Contribute
+  https://wiki.openstack.org/wiki/Gerrit_Workflow
+
+and then you'll be ready to::
+
+  git clone https://github.com/stackforge/python-openstacksdk.git
 
 tox
 ***
