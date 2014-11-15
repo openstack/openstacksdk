@@ -370,6 +370,26 @@ class ResourceTests(base.TestTransportBase):
         del t.id
         self.assertTrue(Test.id_attribute not in t._attrs)
 
+    def test_from_id_with_name(self):
+        name = "Sandy Koufax"
+
+        obj = FakeResource.from_id(name)
+        self.assertEqual(obj.id, name)
+
+    def test_from_id_with_object(self):
+        name = "Mickey Mantle"
+        obj = FakeResource.new(name=name)
+
+        new_obj = FakeResource.from_id(obj)
+        self.assertIs(new_obj, obj)
+        self.assertEqual(new_obj.name, obj.name)
+
+    def test_from_id_with_bad_value(self):
+        def should_raise():
+            FakeResource.from_id(3.14)
+
+        self.assertThat(should_raise, matchers.raises(ValueError))
+
 
 class FakeResponse:
     def __init__(self, response):
