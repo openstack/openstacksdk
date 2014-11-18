@@ -70,6 +70,18 @@ class PropTests(base.TestCase):
         # Need to test that bool(500) happened and attr2 *is* True.
         self.assertIs(t.attr, True)
 
+    def test_defaults(self):
+        new_default = 100
+
+        class Test(resource.Resource):
+            attr1 = resource.prop("attr1")
+            attr2 = resource.prop("attr2", default=new_default)
+
+        t = Test()
+
+        self.assertIsNone(t.attr1)
+        self.assertEqual(t.attr2, new_default)
+
 
 class ResourceTests(base.TestTransportBase):
 

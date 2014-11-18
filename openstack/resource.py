@@ -90,10 +90,11 @@ class prop(object):
         Far Away
     """
 
-    def __init__(self, name, alias=None, type=None):
+    def __init__(self, name, alias=None, type=None, default=None):
         self.name = name
         self.type = type
         self.alias = alias
+        self.default = default
 
     def __get__(self, instance, owner):
         try:
@@ -102,7 +103,7 @@ class prop(object):
             try:
                 value = instance._attrs[self.alias]
             except KeyError:
-                return None
+                return self.default
 
         if self.type and not isinstance(value, self.type):
             value = self.type(value)
