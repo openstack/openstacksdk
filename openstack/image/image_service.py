@@ -16,7 +16,10 @@ from openstack.auth import service_filter
 class ImageService(service_filter.ServiceFilter):
     """The image service."""
 
-    valid_versions = [service_filter.ValidVersion('v1')]
+    valid_versions = [
+        service_filter.ValidVersion('v1'),
+        service_filter.ValidVersion('v2'),
+    ]
 
     def __init__(self):
         """Create an image service."""
