@@ -36,10 +36,9 @@ class SecurityGroup(resource.Resource):
 
     def __init__(self, attrs=None, loaded=False):
         super(SecurityGroup, self).__init__(attrs=attrs, loaded=loaded)
-        try:
+        # Convert any raw rules to SecurityGroupRule objects.
+        if self.security_group_rules:
             rules = []
             for rule in self.security_group_rules:
                 rules.append(group_rules.SecurityGroupRule.existing(**rule))
             self.security_group_rules = rules
-        except AttributeError:
-            pass
