@@ -74,7 +74,7 @@ class ServiceCatalog(object):
             if not filtration.match_service_name(service.get('name')):
                 continue
             for endpoint in service.get('endpoints', []):
-                if not filtration.match_region(endpoint.get('region')):
+                if not filtration.match_region(endpoint.get('region', None)):
                     continue
                 if not filtration.match_visibility(endpoint.get('interface')):
                     continue
@@ -137,6 +137,18 @@ class ServiceCatalog(object):
 
 class ServiceCatalogV2(ServiceCatalog):
     """The V2 service catalog from Keystone."""
+
+    def _extract_details(self, endpoint, interface):
+        value = {
+            'interface': interface,
+            'url': endpoint['%sURL' % interface]
+        }
+        region = endpoint.get('region', None)
+        if region:
+            value['region'] = region
+
+        return value
+
     def _normalize(self):
         """Handle differences in the way v2 and v3 catalogs specify endpoints.
 
@@ -146,21 +158,9 @@ class ServiceCatalogV2(ServiceCatalog):
             eps = []
             for endpoint in service['endpoints']:
                 if 'publicURL' in endpoint:
-                    eps += [{
-                        'interface': 'public',
-                        'region': endpoint['region'],
-                        'url': endpoint['publicURL'],
-                    }]
+                    eps += [self._extract_details(endpoint, "public")]
                 if 'internalURL' in endpoint:
-                    eps += [{
-                        'interface': 'internal',
-                        'region': endpoint['region'],
-                        'url': endpoint['internalURL'],
-                    }]
+                    eps += [self._extract_details(endpoint, "internal")]
                 if 'adminURL' in endpoint:
-                    eps += [{
-                        'interface': 'admin',
-                        'region': endpoint['region'],
-                        'url': endpoint['adminURL'],
-                    }]
+                    eps += [self._extract_details(endpoint, "admin")]
             service['endpoints'] = eps

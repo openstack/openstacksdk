@@ -28,6 +28,14 @@ TEST_USER_ID = 'youid'
 TEST_SERVICE_CATALOG_V2 = [
     {
         "endpoints": [{
+            "adminURL": "http://compute.region0.admin/v1.1/",
+            "internalURL": "http://compute.region0.internal/v1.1/",
+            "publicURL": "http://compute.region0.public/v1.1/",
+        }],
+        "type": "compute",
+        "name": "nova0"
+    }, {
+        "endpoints": [{
             "adminURL": "http://compute.region2.admin/v1/",
             "region": "RegionTwo",
             "internalURL": "http://compute.region2.internal/v1/",
@@ -74,6 +82,22 @@ TEST_SERVICE_CATALOG_V2 = [
     }]
 TEST_SERVICE_CATALOG_NORMALIZED = [
     {
+        "endpoints": [{
+            "interface": "public",
+            "url": "http://compute.region0.public/%(version)s",
+            'version': 'v1.1',
+        }, {
+            "interface": "internal",
+            "url": "http://compute.region0.internal/%(version)s",
+            'version': 'v1.1',
+        }, {
+            "interface": "admin",
+            "url": "http://compute.region0.admin/%(version)s",
+            'version': 'v1.1',
+        }],
+        "type": "compute",
+        "name": "nova0"
+    }, {
         "endpoints": [{
             "interface": "public",
             "region": "RegionTwo",
@@ -185,6 +209,19 @@ TEST_RESPONSE_DICT_V2 = {
 
 TEST_SERVICE_CATALOG_V3 = [
     {
+        "endpoints": [{
+            "url": "http://compute.region0.public/v1.1/",
+            "interface": "public"
+        }, {
+            "url": "http://compute.region0.internal/v1.1/",
+            "interface": "internal"
+        }, {
+            "url": "http://compute.region0.admin/v1.1/",
+            "interface": "admin"
+        }],
+        "type": "compute",
+        "name": "nova0",
+    }, {
         "endpoints": [{
             "url": "http://compute.region2.public/v1/",
             "region": "RegionTwo",
