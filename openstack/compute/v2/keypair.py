@@ -54,7 +54,7 @@ class Keypair(resource.Resource):
         return self
 
     @classmethod
-    def find(cls, session, name_or_id, path_args=None, id_only=True):
+    def find(cls, session, name_or_id, path_args=None):
         """Find a keypair by name because list filtering does not work."""
         try:
             return cls.get_by_id(session, name_or_id)
