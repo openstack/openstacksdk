@@ -125,8 +125,6 @@ HTTP verbs, and injects your authentication token into a request,
 determines any service preferences callers may have set, gets the endpoint
 from the authenticator, and sends the request out through the transport.
 
-For more information, see
-
 Authenticator
 ^^^^^^^^^^^^^
 
@@ -158,8 +156,8 @@ Resource
 The :class:`openstack.resource.Resource` base class is the building block
 of any service implementation. ``Resource`` objects correspond to the
 resources each service's REST API works with, so the
-:class:`openstack.compute.v2.Server` subclass maps to the compute service's
-``https://openstack:1234/v2/servers`` resource.
+:class:`openstack.compute.v2.server.Server` subclass maps to the compute
+service's ``https://openstack:1234/v2/servers`` resource.
 
 The base ``Resource`` contains methods to support the typical
 `CRUD <http://en.wikipedia.org/wiki/Create,_read,_update_and_delete>`_
