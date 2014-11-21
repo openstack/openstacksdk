@@ -46,6 +46,8 @@ class FloatingIP(resource.Resource):
             'fields': cls.id_attribute,
         }
         info = cls.list(session, **args)
-        if len(info) > 0:
-            return info[0]
-        raise exceptions.ResourceNotFound("No available floating ips exist.")
+        try:
+            return next(info)
+        except StopIteration:
+            msg = "No available floating ips exist."
+            raise exceptions.ResourceNotFound(msg)
