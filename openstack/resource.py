@@ -249,7 +249,7 @@ class Resource(collections.MutableMapping):
         return self._attrs.get(self.id_attribute, None)
 
     @id.deleter
-    def id_del(self):
+    def id(self):
         del self._attrs[self.id_attribute]
 
     @property

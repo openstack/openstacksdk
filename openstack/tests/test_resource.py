@@ -302,6 +302,18 @@ class ResourceTests(base.TestTransportBase):
         except AttributeError:
             self.fail("third was not found in fallback as expected")
 
+    def test_id_del(self):
+
+        class Test(resource.Resource):
+            id_attribute = "my_id"
+
+        attrs = {"my_id": 100}
+        t = Test(attrs=attrs)
+
+        self.assertEqual(t.id, attrs["my_id"])
+        del t.id
+        self.assertTrue(Test.id_attribute not in t._attrs)
+
 
 class FakeResponse:
     def __init__(self, response):
