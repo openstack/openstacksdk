@@ -87,12 +87,14 @@ class OpenStackConfig(object):
     def _load_config_file(self):
         for path in self._config_files:
             if os.path.exists(path):
-                return yaml.load(open(path, 'r'))
+                with open(path, 'r') as f:
+                    return yaml.safe_load(f)
 
     def _load_vendor_file(self):
         for path in self._vendor_files:
             if os.path.exists(path):
-                return yaml.load(open(path, 'r'))
+                with open(path, 'r') as f:
+                    return yaml.safe_load(f)
 
     def get_cache_max_age(self):
         return self._cache_max_age
