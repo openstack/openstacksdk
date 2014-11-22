@@ -117,10 +117,7 @@ class prop(object):
 
     def __set__(self, instance, value):
         if self.type and not isinstance(value, self.type):
-            try:
-                value = str(self.type(value))  # validate to fail fast
-            except AttributeError:
-                raise TypeError('Invalid type for attr: %s' % self.name)
+            value = str(self.type(value))  # validate to fail fast
 
         instance._attrs[self.name] = value
 

@@ -14,6 +14,7 @@ import copy
 
 import httpretty
 import mock
+from testtools import matchers
 
 from openstack import exceptions
 from openstack import format
@@ -84,6 +85,32 @@ class PropTests(base.TestCase):
 
     def test_get_without_instance(self):
         self.assertIsNone(FakeResource.name)
+
+    def test_set_ValueError(self):
+        class Test(resource.Resource):
+            attr = resource.prop("attr", type=int)
+
+        t = Test()
+
+        def should_raise():
+            t.attr = "this is not an int"
+
+        self.assertThat(should_raise, matchers.raises(ValueError))
+
+    def test_set_TypeError(self):
+        class Type(object):
+            def __init__(self):
+                pass
+
+        class Test(resource.Resource):
+            attr = resource.prop("attr", type=Type)
+
+        t = Test()
+
+        def should_raise():
+            t.attr = "this type takes no args"
+
+        self.assertThat(should_raise, matchers.raises(TypeError))
 
 
 class ResourceTests(base.TestTransportBase):
