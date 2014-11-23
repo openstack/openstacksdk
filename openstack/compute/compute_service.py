@@ -18,6 +18,7 @@ class ComputeService(service_filter.ServiceFilter):
 
     valid_versions = [service_filter.ValidVersion('v2')]
 
-    def __init__(self):
+    def __init__(self, version=None):
         """Create an compute service."""
-        super(ComputeService, self).__init__(service_type='compute')
+        super(ComputeService, self).__init__(service_type='compute',
+                                             version=version)

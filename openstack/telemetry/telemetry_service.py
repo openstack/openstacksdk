@@ -18,6 +18,7 @@ class TelemetryService(service_filter.ServiceFilter):
 
     valid_versions = [service_filter.ValidVersion('v2')]
 
-    def __init__(self):
+    def __init__(self, version=None):
         """Create a telemetry service."""
-        super(TelemetryService, self).__init__(service_type='metering')
+        super(TelemetryService, self).__init__(service_type='metering',
+                                               version=version)

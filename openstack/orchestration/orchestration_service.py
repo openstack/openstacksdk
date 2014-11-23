@@ -18,8 +18,9 @@ class OrchestrationService(service_filter.ServiceFilter):
 
     valid_versions = [service_filter.ValidVersion('v1')]
 
-    def __init__(self):
+    def __init__(self, version=None):
         """Create an orchestration service."""
         super(OrchestrationService, self).__init__(
-            service_type='orchestration'
+            service_type='orchestration',
+            version=version
         )

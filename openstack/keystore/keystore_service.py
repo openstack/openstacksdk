@@ -18,6 +18,7 @@ class KeystoreService(service_filter.ServiceFilter):
 
     valid_versions = [service_filter.ValidVersion('v1')]
 
-    def __init__(self):
+    def __init__(self, version=None):
         """Create an image service."""
-        super(KeystoreService, self).__init__(service_type='keystore')
+        super(KeystoreService, self).__init__(service_type='keystore',
+                                              version=version)

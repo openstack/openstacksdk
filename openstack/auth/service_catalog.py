@@ -95,8 +95,7 @@ class ServiceCatalog(object):
         urls = []
         for url, version in self._get_endpoints(filtration):
             if version:
-                if filtration.version:
-                    version = filtration.version
+                version = filtration.get_version(version)
                 url = url % {'version': version}
             urls.append(url)
         return urls

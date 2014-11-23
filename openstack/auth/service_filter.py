@@ -67,6 +67,7 @@ class ValidVersion(object):
 
 
 class ServiceFilter(object):
+    UNVERSIONED = ''
     ANY = 'any'
     PUBLIC = 'public'
     INTERNAL = 'internal'
@@ -112,11 +113,15 @@ class ServiceFilter(object):
         :param default: Default service identifier from the resource.
         :type default: :class:`~openstack.auth.service_filter.ServiceFilter`
         """
+        if default.version == self.UNVERSIONED:
+            version = default.version
+        else:
+            version = self.version
         return ServiceFilter(service_type=default.service_type,
                              visibility=self.visibility or default.visibility,
                              region=self.region,
                              service_name=self.service_name,
-                             version=self.version)
+                             version=version)
 
     def match_service_type(self, service_type):
         """Service types are equavilent."""
@@ -174,3 +179,12 @@ class ServiceFilter(object):
         is `object_store`.
         """
         return self.__class__.__module__.split('.')[1]
+
+    def get_version(self, version):
+        """Get the desired version.
+
+        If the service does not have a version, use the suggested version.
+        """
+        if self.version is None:
+            return version
+        return self.version

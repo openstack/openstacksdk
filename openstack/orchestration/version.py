@@ -18,7 +18,9 @@ class Version(resource.Resource):
     resource_key = 'version'
     resources_key = 'versions'
     base_path = '/'
-    service = orchestration_service.OrchestrationService()
+    service = orchestration_service.OrchestrationService(
+        version=orchestration_service.OrchestrationService.UNVERSIONED
+    )
 
     # capabilities
     allow_list = True
