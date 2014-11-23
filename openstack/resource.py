@@ -168,6 +168,18 @@ class Resource(collections.MutableMapping):
     put_update = False
 
     def __init__(self, attrs=None, loaded=False):
+        """Construct a Resource to interact with a service's REST API.
+
+        The Resource class offers two class methods to construct
+        resource objects, which are preferrable to entering through
+        this initializer. See :meth:`Resource.new` and
+        :meth:`Resource.existing`.
+
+        :param dict attrs: The attributes to set when constructing
+                           this Resource.
+        :param bool loaded: ``True`` if this Resource exists on
+                            the server, ``False`` if it does not.
+        """
         if attrs is None:
             attrs = {}
 
@@ -201,14 +213,20 @@ class Resource(collections.MutableMapping):
 
         Internally set flags such that it is marked as not present on the
         server.
+
+        :param dict kwargs: Each of the named arguments will be set as
+                            attributes on the resulting Resource object.
         """
         return cls(kwargs, loaded=False)
 
     @classmethod
     def existing(cls, **kwargs):
-        """Create a new instance of an existing remote resource.
+        """Create an instance of an existing remote resource.
 
         It is marked as an exact replication of a resource present on a server.
+
+        :param dict kwargs: Each of the named arguments will be set as
+                            attributes on the resulting Resource object.
         """
         return cls(kwargs, loaded=True)
 
@@ -247,6 +265,15 @@ class Resource(collections.MutableMapping):
 
     @property
     def id(self):
+        """The identifier associated with this resource.
+
+        The true value of the ``id`` property comes from the
+        attribute set as :data:`id_attribute`. For example,
+        a container's name may be the appropirate identifier,
+        so ``id_attribute = "name"`` would be set on the
+        :class:`Resource`, and ``Resource.name`` would be
+        conveniently accessible through ``id``.
+        """
         return self._attrs.get(self.id_attribute, None)
 
     @id.deleter
@@ -267,7 +294,22 @@ class Resource(collections.MutableMapping):
 
     @classmethod
     def create_by_id(cls, session, attrs, resource_id=None, path_args=None):
-        """Create a remote resource from attributes."""
+        """Create a remote resource from its attributes.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+        :param dict attrs: The attributes to be sent in the body
+                           of the request.
+        :param resource_id: This resource's identifier, if needed by
+                            the request. The default is ``None``.
+        :param dict path_args: A dictionary of arguments to construct
+                               a compound URL.
+                               See `How path_args are used`_ for details.
+
+        :return: A ``dict`` representing the response body.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_create` is not set to ``True``.
+        """
         if not cls.allow_create:
             raise exceptions.MethodNotSupported('create')
 
@@ -293,7 +335,15 @@ class Resource(collections.MutableMapping):
         return resp
 
     def create(self, session):
-        """Create a remote resource from this instance."""
+        """Create a remote resource from this instance.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+
+        :return: This :class:`Resource` instance.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_create` is not set to ``True``.
+        """
         resp = self.create_by_id(session, self._attrs, self.id, path_args=self)
         self._attrs[self.id_attribute] = resp[self.id_attribute]
         self._reset_dirty()
@@ -302,7 +352,23 @@ class Resource(collections.MutableMapping):
     @classmethod
     def get_data_by_id(cls, session, resource_id, path_args=None,
                        include_headers=False):
-        """Get a remote resource from an id as attributes."""
+        """Get a the attributes of a remote resource from an id.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+        :param resource_id: This resource's identifier, if needed by
+                            the request. The default is ``None``.
+        :param dict path_args: A dictionary of arguments to construct
+                               a compound URL.
+                               See `How path_args are used`_ for details.
+        :param bool include_headers: ``True`` if header data should be
+                                     included in the response body,
+                                     ``False`` if not.
+
+        :return: A ``dict`` representing the response body.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_retrieve` is not set to ``True``.
+        """
         if not cls.allow_retrieve:
             raise exceptions.MethodNotSupported('retrieve')
 
@@ -325,13 +391,38 @@ class Resource(collections.MutableMapping):
     @classmethod
     def get_by_id(cls, session, resource_id, path_args=None,
                   include_headers=False):
-        """Get a remote resource from an id as an object."""
+        """Get an object representing a remote resource from an id.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+        :param resource_id: This resource's identifier, if needed by
+                            the request. The default is ``None``.
+        :param dict path_args: A dictionary of arguments to construct
+                               a compound URL.
+                               See `How path_args are used`_ for details.
+        :param bool include_headers: ``True`` if header data should be
+                                     included in the response body,
+                                     ``False`` if not.
+
+        :return: A :class:`Resource` object representing the
+                 response body.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_retrieve` is not set to ``True``.
+        """
         body = cls.get_data_by_id(session, resource_id, path_args=path_args,
                                   include_headers=include_headers)
         return cls.existing(**body)
 
     def get(self, session, include_headers=False):
-        """Get the remote resource associated with this class."""
+        """Get the remote resource associated with this instance.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+
+        :return: This :class:`Resource` instance.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_retrieve` is not set to ``True``.
+        """
         body = self.get_data_by_id(session, self.id, path_args=self,
                                    include_headers=include_headers)
         self._attrs.update(body)
@@ -340,7 +431,20 @@ class Resource(collections.MutableMapping):
 
     @classmethod
     def head_data_by_id(cls, session, resource_id, path_args=None):
-        """Get remote resource headers from an id as attributes."""
+        """Get a dictionary representing the headers of a remote resource.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+        :param resource_id: This resource's identifier, if needed by
+                            the request. The default is ``None``.
+        :param dict path_args: A dictionary of arguments to construct
+                               a compound URL.
+                               See `How path_args are used`_ for details.
+
+        :return: A ``dict`` representing the headers.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_head` is not set to ``True``.
+        """
         if not cls.allow_head:
             raise exceptions.MethodNotSupported('head')
 
@@ -356,12 +460,33 @@ class Resource(collections.MutableMapping):
 
     @classmethod
     def head_by_id(cls, session, resource_id, path_args=None):
-        """Get remote resource headers from an id as an object."""
+        """Get an object representing the headers of a remote resource.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+        :param resource_id: This resource's identifier, if needed by
+                            the request. The default is ``None``.
+        :param dict path_args: A dictionary of arguments to construct
+                               a compound URL.
+                               See `How path_args are used`_ for details.
+
+        :return: A :class:`Resource` representing the headers.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_head` is not set to ``True``.
+        """
         data = cls.head_data_by_id(session, resource_id, path_args=path_args)
         return cls.existing(**data)
 
     def head(self, session):
-        """Get the remote resource headers associated with this class."""
+        """Get the remote resource headers associated with this instance.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+
+        :return: This :class:`Resource` instance.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_head` is not set to ``True``.
+        """
         data = self.head_data_by_id(session, self.id, path_args=self)
         self._attrs.update(data)
         self._loaded = True
@@ -369,7 +494,22 @@ class Resource(collections.MutableMapping):
 
     @classmethod
     def update_by_id(cls, session, resource_id, attrs, path_args=None):
-        """Update a remote resource with the given attributes."""
+        """Update a remote resource with the given attributes.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+        :param resource_id: This resource's identifier, if needed by
+                            the request. The default is ``None``.
+        :param dict attrs: The attributes to be sent in the body
+                           of the request.
+        :param dict path_args: A dictionary of arguments to construct
+                               a compound URL.
+                               See `How path_args are used`_ for details.
+
+        :return: A ``dict`` representing the response body.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_update` is not set to ``True``.
+        """
         if not cls.allow_update:
             raise exceptions.MethodNotSupported('update')
 
@@ -394,7 +534,15 @@ class Resource(collections.MutableMapping):
         return resp
 
     def update(self, session):
-        """Update the remote resource associated with this instance."""
+        """Update the remote resource associated with this instance.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+
+        :return: This :class:`Resource` instance.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_update` is not set to ``True``.
+        """
         if not self.is_dirty:
             return
 
@@ -413,7 +561,20 @@ class Resource(collections.MutableMapping):
 
     @classmethod
     def delete_by_id(cls, session, resource_id, path_args=None):
-        """Delete a remote resource associated with the given id."""
+        """Delete a remote resource with the given id.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+        :param resource_id: This resource's identifier, if needed by
+                            the request. The default is ``None``.
+        :param dict path_args: A dictionary of arguments to construct
+                               a compound URL.
+                               See `How path_args are used`_ for details.
+
+        :return: ``None``
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_delete` is not set to ``True``.
+        """
         if not cls.allow_delete:
             raise exceptions.MethodNotSupported('delete')
 
@@ -425,16 +586,44 @@ class Resource(collections.MutableMapping):
         session.delete(url, service=cls.service, accept=None)
 
     def delete(self, session):
-        """Delete the remote resource associated with this instance."""
+        """Delete the remote resource associated with this instance.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+
+        :return: ``None``
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_update` is not set to ``True``.
+        """
         self.delete_by_id(session, self.id, path_args=self)
 
     @classmethod
     def list(cls, session, limit=None, marker=None, path_args=None, **params):
-        """Return a generator that will page through results of GET requests.
+        """Get a response that is a list of potentially paginated objects.
 
-        This method starts at `limit` and `marker` (both defaulting to None),
-        advances the marker to the last item received, and continues paging
-        until no results are returned.
+        This method starts at ``limit`` and ``marker`` (both defaulting to
+        None), advances the marker to the last item received in each response,
+        and continues making requests for more resources until no results
+        are returned.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+        :param limit: The maximum amount of results to retrieve.
+                      The default is ``None``, which means no limit will be
+                      set, and the underlying API will return its default
+                      amount of responses.
+        :param marker: The position in the list to begin requests from.
+                       The type of value to use for ``marker`` depends on
+                       the API being called.
+        :param dict path_args: A dictionary of arguments to construct
+                               a compound URL.
+                               See `How path_args are used`_ for details.
+        :param dict params: Parameters to be passed into the underlying
+                            :meth:`~openstack.session.Session.get` method.
+
+        :return: A generator of :class:`Resource` objects.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_list` is not set to ``True``.
         """
         if not cls.allow_list:
             raise exceptions.MethodNotSupported('list')
@@ -484,7 +673,20 @@ class Resource(collections.MutableMapping):
 
     @classmethod
     def find(cls, session, name_or_id, path_args=None):
-        """Find a resource by name or id as an instance."""
+        """Find a resource by its name or id.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+        :param resource_id: This resource's identifier, if needed by
+                            the request. The default is ``None``.
+        :param dict path_args: A dictionary of arguments to construct
+                               a compound URL.
+                               See `How path_args are used`_ for details.
+
+        :return: The :class:`Resource` object matching the given name or id.
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+                 resource can be found with that name or id.
+        """
         try:
             args = {
                 cls.id_attribute: name_or_id,
