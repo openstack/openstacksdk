@@ -36,7 +36,7 @@ class Proxy(object):
     def find_extension(self, name_or_id):
         return extension.Extension.find(self.session, name_or_id)
 
-    def list_extension(self):
+    def list_extensions(self):
         return extension.Extension.list(self.session)
 
     def create_ip(self, **data):
@@ -72,7 +72,7 @@ class Proxy(object):
     def get_health_monitor(self, **data):
         return health_monitor.HealthMonitor(data).get(self.session)
 
-    def list_health_monitor(self):
+    def list_health_monitors(self):
         return health_monitor.HealthMonitor.list(self.session)
 
     def update_health_monitor(self, **data):
@@ -90,7 +90,7 @@ class Proxy(object):
     def get_listener(self, **data):
         return listener.Listener(data).get(self.session)
 
-    def list_listener(self):
+    def list_listeners(self):
         return listener.Listener.list(self.session)
 
     def update_listener(self, **data):
@@ -108,7 +108,7 @@ class Proxy(object):
     def get_load_balancer(self, **data):
         return load_balancer.LoadBalancer(data).get(self.session)
 
-    def list_load_balancer(self):
+    def list_load_balancers(self):
         return load_balancer.LoadBalancer.list(self.session)
 
     def update_load_balancer(self, **data):
@@ -126,7 +126,7 @@ class Proxy(object):
     def get_metering_label(self, **data):
         return metering_label.MeteringLabel(data).get(self.session)
 
-    def list_metering_label(self):
+    def list_metering_labels(self):
         return metering_label.MeteringLabel.list(self.session)
 
     def update_metering_label(self, **data):
@@ -145,7 +145,7 @@ class Proxy(object):
     def get_metering_label_rule(self, **data):
         return metering_label_rule.MeteringLabelRule(data).get(self.session)
 
-    def list_metering_label_rule(self):
+    def list_metering_label_rules(self):
         return metering_label_rule.MeteringLabelRule.list(self.session)
 
     def update_metering_label_rule(self, **data):
@@ -181,7 +181,7 @@ class Proxy(object):
     def get_pool(self, **data):
         return pool.Pool(data).get(self.session)
 
-    def list_pool(self):
+    def list_pools(self):
         return pool.Pool.list(self.session)
 
     def update_pool(self, **data):
@@ -199,7 +199,7 @@ class Proxy(object):
     def get_pool_member(self, **data):
         return pool_member.PoolMember(data).get(self.session)
 
-    def list_pool_member(self):
+    def list_pool_members(self):
         return pool_member.PoolMember.list(self.session)
 
     def update_pool_member(self, **data):
@@ -240,7 +240,7 @@ class Proxy(object):
                     result.append(puerta)
         return result
 
-    def list_quota(self):
+    def list_quotas(self):
         return quota.Quota.list(self.session)
 
     def create_router(self, **data):

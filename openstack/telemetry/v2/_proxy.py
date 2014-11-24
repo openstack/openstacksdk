@@ -36,7 +36,7 @@ class Proxy(object):
     def get_alarm(self, **data):
         return alarm.Alarm(data).get(self.session)
 
-    def list_alarm(self):
+    def list_alarms(self):
         return alarm.Alarm.list(self.session)
 
     def update_alarm(self, **data):
@@ -45,19 +45,19 @@ class Proxy(object):
     def find_alarm_change(self, name_or_id):
         return alarm_change.AlarmChange.find(self.session, name_or_id)
 
-    def list_alarm_change(self):
+    def list_alarm_changes(self):
         return alarm_change.AlarmChange.list(self.session)
 
     def find_capability(self, name_or_id):
         return capability.Capability.find(self.session, name_or_id)
 
-    def list_capability(self):
+    def list_capabilitys(self):
         return capability.Capability.list(self.session)
 
     def find_meter(self, name_or_id):
         return meter.Meter.find(self.session, name_or_id)
 
-    def list_meter(self):
+    def list_meters(self):
         return meter.Meter.list(self.session)
 
     def find_resource(self, name_or_id):
@@ -66,7 +66,7 @@ class Proxy(object):
     def get_resource(self, **data):
         return resource.Resource(data).get(self.session)
 
-    def list_resource(self):
+    def list_resources(self):
         return resource.Resource.list(self.session)
 
     def create_sample(self, **data):
@@ -75,7 +75,7 @@ class Proxy(object):
     def find_sample(self, name_or_id):
         return sample.Sample.find(self.session, name_or_id)
 
-    def list_sample(self):
+    def list_samples(self):
         return sample.Sample.list(self.session)
 
     def find_statistics(self, name_or_id):

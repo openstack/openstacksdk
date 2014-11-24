@@ -19,16 +19,26 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         super(TestImageProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
-    def test_image(self):
+    def test_image_create(self):
         self.verify_create('openstack.image.v1.image.Image.create',
                            self.proxy.create_image)
+
+    def test_image_delete(self):
         self.verify_delete('openstack.image.v1.image.Image.delete',
                            self.proxy.delete_image)
+
+    def test_image_find(self):
         self.verify_find('openstack.image.v1.image.Image.find',
                          self.proxy.find_image)
+
+    def test_image_get(self):
         self.verify_get('openstack.image.v1.image.Image.get',
                         self.proxy.get_image)
+
+    def test_image_list(self):
         self.verify_list('openstack.image.v1.image.Image.list',
                          self.proxy.list_images)
+
+    def test_image_update(self):
         self.verify_update('openstack.image.v1.image.Image.update',
                            self.proxy.update_image)

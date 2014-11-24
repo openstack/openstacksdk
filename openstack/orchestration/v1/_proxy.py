@@ -21,5 +21,5 @@ class Proxy(object):
     def find_stack(self, name_or_id):
         return stack.Stack.find(self.session, name_or_id)
 
-    def list_stack(self):
+    def list_stacks(self):
         return stack.Stack.list(self.session)

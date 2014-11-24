@@ -19,60 +19,84 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
         super(TestTelemetryProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
-    def test_alarm(self):
+    def test_alarm_change_find(self):
+        self.verify_find(
+            'openstack.telemetry.v2.alarm_change.AlarmChange.find',
+            self.proxy.find_alarm_change)
+
+    def test_alarm_change_list(self):
+        self.verify_list(
+            'openstack.telemetry.v2.alarm_change.AlarmChange.list',
+            self.proxy.list_alarm_changes)
+
+    def test_alarm_create(self):
         self.verify_create('openstack.telemetry.v2.alarm.Alarm.create',
                            self.proxy.create_alarm)
+
+    def test_alarm_delete(self):
         self.verify_delete('openstack.telemetry.v2.alarm.Alarm.delete',
                            self.proxy.delete_alarm)
+
+    def test_alarm_find(self):
         self.verify_find('openstack.telemetry.v2.alarm.Alarm.find',
                          self.proxy.find_alarm)
+
+    def test_alarm_get(self):
         self.verify_get('openstack.telemetry.v2.alarm.Alarm.get',
                         self.proxy.get_alarm)
+
+    def test_alarm_list(self):
         self.verify_list('openstack.telemetry.v2.alarm.Alarm.list',
-                         self.proxy.list_alarm)
+                         self.proxy.list_alarms)
+
+    def test_alarm_update(self):
         self.verify_update('openstack.telemetry.v2.alarm.Alarm.update',
                            self.proxy.update_alarm)
 
-    def test_alarm_change(self):
-        self.verify_find(
-            'openstack.telemetry.v2.alarm_change.AlarmChange.find',
-            self.proxy.find_alarm_change
-        )
-        self.verify_list(
-            'openstack.telemetry.v2.alarm_change.AlarmChange.list',
-            self.proxy.list_alarm_change
-        )
-
-    def test_capability(self):
+    def test_capability_find(self):
         self.verify_find('openstack.telemetry.v2.capability.Capability.find',
                          self.proxy.find_capability)
-        self.verify_list('openstack.telemetry.v2.capability.Capability.list',
-                         self.proxy.list_capability)
 
-    def test_meter(self):
+    def test_capability_list(self):
+        self.verify_list('openstack.telemetry.v2.capability.Capability.list',
+                         self.proxy.list_capabilitys)
+
+    def test_meter_find(self):
         self.verify_find('openstack.telemetry.v2.meter.Meter.find',
                          self.proxy.find_meter)
-        self.verify_list('openstack.telemetry.v2.meter.Meter.list',
-                         self.proxy.list_meter)
 
-    def test_resource(self):
+    def test_meter_list(self):
+        self.verify_list('openstack.telemetry.v2.meter.Meter.list',
+                         self.proxy.list_meters)
+
+    def test_resource_find(self):
         self.verify_find('openstack.telemetry.v2.resource.Resource.find',
                          self.proxy.find_resource)
+
+    def test_resource_get(self):
         self.verify_get('openstack.telemetry.v2.resource.Resource.get',
                         self.proxy.get_resource)
-        self.verify_list('openstack.telemetry.v2.resource.Resource.list',
-                         self.proxy.list_resource)
 
-    def test_sample(self):
+    def test_resource_list(self):
+        self.verify_list('openstack.telemetry.v2.resource.Resource.list',
+                         self.proxy.list_resources)
+
+    def test_sample_create(self):
         self.verify_create('openstack.telemetry.v2.sample.Sample.create',
                            self.proxy.create_sample)
+
+    def test_sample_find(self):
         self.verify_find('openstack.telemetry.v2.sample.Sample.find',
                          self.proxy.find_sample)
-        self.verify_list('openstack.telemetry.v2.sample.Sample.list',
-                         self.proxy.list_sample)
 
-    def test_statistics(self):
+    def test_sample_list(self):
+        self.verify_list('openstack.telemetry.v2.sample.Sample.list',
+                         self.proxy.list_samples)
+
+    def test_statistics_find(self):
         self.verify_find('openstack.telemetry.v2.statistics.Statistics.find',
                          self.proxy.find_statistics)
+
+    def test_statistics_list(self):
         self.verify_list('openstack.telemetry.v2.statistics.Statistics.list',
                          self.proxy.list_statistics)

@@ -19,44 +19,74 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         super(TestIdentityProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
-    def test_role(self):
+    def test_role_create(self):
         self.verify_create('openstack.identity.v2.role.Role.create',
                            self.proxy.create_role)
+
+    def test_role_delete(self):
         self.verify_delete('openstack.identity.v2.role.Role.delete',
                            self.proxy.delete_role)
+
+    def test_role_find(self):
         self.verify_find('openstack.identity.v2.role.Role.find',
                          self.proxy.find_role)
+
+    def test_role_get(self):
         self.verify_get('openstack.identity.v2.role.Role.get',
                         self.proxy.get_role)
+
+    def test_role_list(self):
         self.verify_list('openstack.identity.v2.role.Role.list',
-                         self.proxy.list_role)
+                         self.proxy.list_roles)
+
+    def test_role_update(self):
         self.verify_update('openstack.identity.v2.role.Role.update',
                            self.proxy.update_role)
 
-    def test_tenant(self):
+    def test_tenant_create(self):
         self.verify_create('openstack.identity.v2.tenant.Tenant.create',
                            self.proxy.create_tenant)
+
+    def test_tenant_delete(self):
         self.verify_delete('openstack.identity.v2.tenant.Tenant.delete',
                            self.proxy.delete_tenant)
+
+    def test_tenant_find(self):
         self.verify_find('openstack.identity.v2.tenant.Tenant.find',
                          self.proxy.find_tenant)
+
+    def test_tenant_get(self):
         self.verify_get('openstack.identity.v2.tenant.Tenant.get',
                         self.proxy.get_tenant)
+
+    def test_tenant_list(self):
         self.verify_list('openstack.identity.v2.tenant.Tenant.list',
-                         self.proxy.list_tenant)
+                         self.proxy.list_tenants)
+
+    def test_tenant_update(self):
         self.verify_update('openstack.identity.v2.tenant.Tenant.update',
                            self.proxy.update_tenant)
 
-    def test_user(self):
+    def test_user_create(self):
         self.verify_create('openstack.identity.v2.user.User.create',
                            self.proxy.create_user)
+
+    def test_user_delete(self):
         self.verify_delete('openstack.identity.v2.user.User.delete',
                            self.proxy.delete_user)
+
+    def test_user_find(self):
         self.verify_find('openstack.identity.v2.user.User.find',
                          self.proxy.find_user)
+
+    def test_user_get(self):
         self.verify_get('openstack.identity.v2.user.User.get',
                         self.proxy.get_user)
+
+    def test_user_list(self):
         self.verify_list('openstack.identity.v2.user.User.list',
-                         self.proxy.list_user)
+                         self.proxy.list_users)
+
+    def test_user_update(self):
         self.verify_update('openstack.identity.v2.user.User.update',
                            self.proxy.update_user)

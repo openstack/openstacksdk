@@ -32,7 +32,7 @@ class Proxy(object):
     def get_role(self, **data):
         return role.Role(data).get(self.session)
 
-    def list_role(self):
+    def list_roles(self):
         return role.Role.list(self.session)
 
     def update_role(self, **data):
@@ -50,7 +50,7 @@ class Proxy(object):
     def get_tenant(self, **data):
         return tenant.Tenant(data).get(self.session)
 
-    def list_tenant(self):
+    def list_tenants(self):
         return tenant.Tenant.list(self.session)
 
     def update_tenant(self, **data):
@@ -68,7 +68,7 @@ class Proxy(object):
     def get_user(self, **data):
         return user.User(data).get(self.session)
 
-    def list_user(self):
+    def list_users(self):
         return user.User.list(self.session)
 
     def update_user(self, **data):
