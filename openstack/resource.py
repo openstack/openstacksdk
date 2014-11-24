@@ -97,6 +97,8 @@ class prop(object):
         self.default = default
 
     def __get__(self, instance, owner):
+        if instance is None:
+            return None
         try:
             value = instance._attrs[self.name]
         except KeyError:
