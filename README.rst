@@ -143,6 +143,4 @@ Or, get all of the clouds.
       print(cloud.name, cloud.region, cloud.config)
 
 * Free software: Apache license
-* Documentation: http://docs.openstack.org/developer/os-client-config
-* Source: http://git.openstack.org/cgit/openstack/os-client-config
-* Bugs: http://bugs.launchpad.net/os-client-config
+* Source: http://git.openstack.org/cgit/stackforge/os-client-config
