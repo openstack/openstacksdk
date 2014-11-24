@@ -11,8 +11,17 @@ Welcome!
    contributing
    glossary
 
-Classes
--------
+Resource Level Classes
+----------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   resources/object_store/v1/container
+   resources/object_store/v1/obj
+
+Low-Level Classes
+-----------------
 
 .. toctree::
    :maxdepth: 1
