@@ -21,6 +21,7 @@ class ImageService(service_filter.ServiceFilter):
         service_filter.ValidVersion('v2'),
     ]
 
-    def __init__(self):
+    def __init__(self, version=None):
         """Create an image service."""
-        super(ImageService, self).__init__(service_type='image')
+        super(ImageService, self).__init__(service_type='image',
+                                           version=version)

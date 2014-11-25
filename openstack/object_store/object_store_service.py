@@ -18,6 +18,7 @@ class ObjectStoreService(service_filter.ServiceFilter):
 
     valid_versions = [service_filter.ValidVersion('v1')]
 
-    def __init__(self):
+    def __init__(self, version=None):
         """Create an object store service."""
-        super(ObjectStoreService, self).__init__(service_type='object-store')
+        super(ObjectStoreService, self).__init__(service_type='object-store',
+                                                 version=version)

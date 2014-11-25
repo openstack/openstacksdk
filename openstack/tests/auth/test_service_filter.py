@@ -117,6 +117,15 @@ class TestServiceFilter(testtools.TestCase):
         result = user_preference.join(service_default)
         self.assertEqual("admin", result.visibility)
 
+    def test_join_version(self):
+        user_preference = filt.ServiceFilter(version='v2')
+        service_default = filt.ServiceFilter()
+        self.assertEqual('v2', user_preference.join(service_default).version)
+        service_default = filt.ServiceFilter(
+            version=filt.ServiceFilter.UNVERSIONED
+        )
+        self.assertEqual('', user_preference.join(service_default).version)
+
     def test_set_visibility(self):
         sot = filt.ServiceFilter()
         sot.set_visibility("PUBLICURL")
@@ -130,6 +139,16 @@ class TestServiceFilter(testtools.TestCase):
         sot = identity_service.IdentityService()
         self.assertEqual('openstack.identity.v3', sot.get_module())
         self.assertEqual('identity', sot.get_service_module())
+
+    def test_get_version(self):
+        sot = identity_service.IdentityService()
+        self.assertEqual('v3', sot.get_version('v3'))
+        sot = identity_service.IdentityService(
+            version=identity_service.IdentityService.UNVERSIONED
+        )
+        self.assertEqual('', sot.get_version('v3'))
+        sot = identity_service.IdentityService(version='v2')
+        self.assertEqual('v2', sot.get_version('v3'))
 
 
 class TestValidVersion(testtools.TestCase):

@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.compute import compute_service
+from openstack.identity import identity_service
 from openstack import resource
 
 
@@ -18,14 +18,20 @@ class Version(resource.Resource):
     resource_key = 'version'
     resources_key = 'versions'
     base_path = '/'
-    service = compute_service.ComputeService(
-        version=compute_service.ComputeService.UNVERSIONED
+    service = identity_service.IdentityService(
+        version=identity_service.IdentityService.UNVERSIONED
     )
 
     # capabilities
     allow_list = True
 
     # Properties
-    links = resource.prop('links')
+    media_types = resource.prop('media-types')
     status = resource.prop('status')
     updated = resource.prop('updated')
+
+    @classmethod
+    def list(cls, session, **params):
+        resp = session.get(cls.base_path, service=cls.service, params=params)
+        for data in resp.body[cls.resources_key]['values']:
+            yield cls.existing(**data)
