@@ -264,7 +264,7 @@ class Resource(collections.MutableMapping):
     ##
 
     @classmethod
-    def create_by_id(cls, session, attrs, r_id=None, path_args=None):
+    def create_by_id(cls, session, attrs, resource_id=None, path_args=None):
         """Create a remote resource from attributes."""
         if not cls.allow_create:
             raise exceptions.MethodNotSupported('create')
@@ -278,8 +278,8 @@ class Resource(collections.MutableMapping):
             url = cls.base_path % path_args
         else:
             url = cls.base_path
-        if r_id:
-            url = utils.urljoin(url, r_id)
+        if resource_id:
+            url = utils.urljoin(url, resource_id)
             resp = session.put(url, service=cls.service, json=body).body
         else:
             resp = session.post(url, service=cls.service,
@@ -298,7 +298,7 @@ class Resource(collections.MutableMapping):
         return self
 
     @classmethod
-    def get_data_by_id(cls, session, r_id, path_args=None,
+    def get_data_by_id(cls, session, resource_id, path_args=None,
                        include_headers=False):
         """Get a remote resource from an id as attributes."""
         if not cls.allow_retrieve:
@@ -308,7 +308,7 @@ class Resource(collections.MutableMapping):
             url = cls.base_path % path_args
         else:
             url = cls.base_path
-        url = utils.urljoin(url, r_id)
+        url = utils.urljoin(url, resource_id)
         response = session.get(url, service=cls.service)
         body = response.body
 
@@ -321,9 +321,10 @@ class Resource(collections.MutableMapping):
         return body
 
     @classmethod
-    def get_by_id(cls, session, r_id, path_args=None, include_headers=False):
+    def get_by_id(cls, session, resource_id, path_args=None,
+                  include_headers=False):
         """Get a remote resource from an id as an object."""
-        body = cls.get_data_by_id(session, r_id, path_args=path_args,
+        body = cls.get_data_by_id(session, resource_id, path_args=path_args,
                                   include_headers=include_headers)
         return cls.existing(**body)
 
@@ -336,7 +337,7 @@ class Resource(collections.MutableMapping):
         return self
 
     @classmethod
-    def head_data_by_id(cls, session, r_id, path_args=None):
+    def head_data_by_id(cls, session, resource_id, path_args=None):
         """Get remote resource headers from an id as attributes."""
         if not cls.allow_head:
             raise exceptions.MethodNotSupported('head')
@@ -345,16 +346,16 @@ class Resource(collections.MutableMapping):
             url = cls.base_path % path_args
         else:
             url = cls.base_path
-        url = utils.urljoin(url, r_id)
+        url = utils.urljoin(url, resource_id)
 
         data = session.head(url, service=cls.service, accept=None).headers
 
         return data
 
     @classmethod
-    def head_by_id(cls, session, r_id, path_args=None):
+    def head_by_id(cls, session, resource_id, path_args=None):
         """Get remote resource headers from an id as an object."""
-        data = cls.head_data_by_id(session, r_id, path_args=path_args)
+        data = cls.head_data_by_id(session, resource_id, path_args=path_args)
         return cls.existing(**data)
 
     def head(self, session):
@@ -365,7 +366,7 @@ class Resource(collections.MutableMapping):
         return self
 
     @classmethod
-    def update_by_id(cls, session, r_id, attrs, path_args=None):
+    def update_by_id(cls, session, resource_id, attrs, path_args=None):
         """Update a remote resource with the given attributes."""
         if not cls.allow_update:
             raise exceptions.MethodNotSupported('update')
@@ -379,7 +380,7 @@ class Resource(collections.MutableMapping):
             url = cls.base_path % path_args
         else:
             url = cls.base_path
-        url = utils.urljoin(url, r_id)
+        url = utils.urljoin(url, resource_id)
         resp = session.patch(url, service=cls.service, json=body).body
 
         if cls.resource_key:
@@ -406,7 +407,7 @@ class Resource(collections.MutableMapping):
         return self
 
     @classmethod
-    def delete_by_id(cls, session, r_id, path_args=None):
+    def delete_by_id(cls, session, resource_id, path_args=None):
         """Delete a remote resource associated with the given id."""
         if not cls.allow_delete:
             raise exceptions.MethodNotSupported('delete')
@@ -415,7 +416,7 @@ class Resource(collections.MutableMapping):
             url = cls.base_path % path_args
         else:
             url = cls.base_path
-        url = utils.urljoin(url, r_id)
+        url = utils.urljoin(url, resource_id)
         session.delete(url, service=cls.service, accept=None)
 
     def delete(self, session):
