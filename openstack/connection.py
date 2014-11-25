@@ -61,8 +61,7 @@ try to find it and if that fails, you would create it::
 import logging
 import sys
 
-from stevedore import driver
-
+from openstack import module_loader
 from openstack import session
 from openstack import transport as xport
 
@@ -73,9 +72,6 @@ _logger = logging.getLogger(__name__)
 
 
 class Connection(object):
-
-    AUTH_PLUGIN_NAMESPACE = "openstack.auth.plugin"
-    """Namespace for the authorization plugin entry point"""
 
     def __init__(self, transport=None, authenticator=None, preference=None,
                  verify=True, user_agent=USER_AGENT,
@@ -140,15 +136,7 @@ class Connection(object):
     def _create_authenticator(self, authenticator, auth_plugin, **auth_args):
         if authenticator:
             return authenticator
-        if auth_plugin is None:
-            auth_plugin = 'identity'
-
-        mgr = driver.DriverManager(
-            namespace=self.AUTH_PLUGIN_NAMESPACE,
-            name=auth_plugin,
-            invoke_on_load=False,
-        )
-        plugin = mgr.driver
+        plugin = module_loader.ModuleLoader().get_auth_plugin(auth_plugin)
         valid_list = plugin.valid_options
         args = dict((n, auth_args[n]) for n in valid_list if n in auth_args)
         return plugin(**args)
