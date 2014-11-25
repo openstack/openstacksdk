@@ -82,6 +82,9 @@ class PropTests(base.TestCase):
         self.assertIsNone(t.attr1)
         self.assertEqual(t.attr2, new_default)
 
+    def test_get_without_instance(self):
+        self.assertIsNone(FakeResource.name)
+
 
 class ResourceTests(base.TestTransportBase):
 
