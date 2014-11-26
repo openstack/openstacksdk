@@ -26,7 +26,8 @@ from openstack.tests.auth import common
 class TestServiceCatalog(testtools.TestCase):
     def get_urls(self, sot):
         sf = service_filter.ServiceFilter(service_type='compute')
-        exp = ["http://compute.region2.public/v1",
+        exp = ["http://compute.region0.public/v1.1",
+               "http://compute.region2.public/v1",
                "http://compute.region1.public/v2.0"]
         self.assertEqual(exp, sot.get_urls(sf))
         sf = service_filter.ServiceFilter(service_type='image')
@@ -130,7 +131,7 @@ class TestServiceCatalogV3(TestServiceCatalog):
     def test_get_versions(self):
         sot = catalog.ServiceCatalog(common.TEST_SERVICE_CATALOG_V3)
         service = compute_service.ComputeService()
-        self.assertEqual(['v1', 'v2.0'], sot.get_versions(service))
+        self.assertEqual(['v1.1', 'v1', 'v2.0'], sot.get_versions(service))
         service = identity_service.IdentityService()
         self.assertEqual(['v1.1'], sot.get_versions(service))
         service = image_service.ImageService()
