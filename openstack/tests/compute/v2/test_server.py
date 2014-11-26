@@ -14,6 +14,7 @@ import mock
 import testtools
 
 from openstack.compute.v2 import server
+from openstack import exceptions
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
@@ -202,3 +203,100 @@ class TestServer(testtools.TestCase):
         url = 'servers/IDENTIFIER/action'
         body = {"createImage": {'name': name}}
         self.sess.put.assert_called_with(url, service=sot.service, json=body)
+
+    def test_wait_for_status_nothing(self):
+        self.sess.get = mock.MagicMock()
+        sot = server.Server(attrs={'id': IDENTIFIER, 'status': 'ACTIVE'})
+
+        self.assertEqual(sot, sot.wait_for_status(self.sess, 'ACTIVE', [],
+                                                  1, 2))
+
+        expected = []
+        self.assertEqual(expected, self.sess.get.call_args_list)
+
+    def test_wait_for_status(self):
+        resp1 = mock.Mock()
+        resp1.body = {'server': {'status': 'BUILDING'}}
+        resp2 = mock.Mock()
+        resp2.body = {'server': {'status': 'ACTIVE'}}
+        self.sess.get = mock.MagicMock()
+        self.sess.get.side_effect = [resp1, resp2]
+        sot = server.Server(attrs={'id': IDENTIFIER})
+
+        self.assertEqual(sot, sot.wait_for_status(self.sess, 'ACTIVE', [],
+                                                  1, 2))
+
+        url = 'servers/IDENTIFIER'
+        thecall = mock.call(url, service=sot.service)
+        expected = [thecall, thecall]
+        self.assertEqual(expected, self.sess.get.call_args_list)
+
+    def test_wait_for_status_timeout(self):
+        resp1 = mock.Mock()
+        resp1.body = {'server': {'status': 'BUILDING'}}
+        resp2 = mock.Mock()
+        resp2.body = {'server': {'status': 'BUILDING'}}
+        self.sess.get = mock.MagicMock()
+        self.sess.get.side_effect = [resp1, resp2]
+        sot = server.Server(attrs={'id': IDENTIFIER})
+
+        self.assertRaises(exceptions.ResourceTimeout, sot.wait_for_status,
+                          self.sess, 'ACTIVE', ['ERROR'], 1, 2)
+
+        url = 'servers/IDENTIFIER'
+        thecall = mock.call(url, service=sot.service)
+        expected = [thecall, thecall]
+        self.assertEqual(expected, self.sess.get.call_args_list)
+
+    def test_wait_for_status_failures(self):
+        resp1 = mock.Mock()
+        resp1.body = {'server': {'status': 'BUILDING'}}
+        resp2 = mock.Mock()
+        resp2.body = {'server': {'status': 'ERROR'}}
+        self.sess.get = mock.MagicMock()
+        self.sess.get.side_effect = [resp1, resp2]
+        sot = server.Server(attrs={'id': IDENTIFIER})
+
+        self.assertRaises(exceptions.ResourceFailure, sot.wait_for_status,
+                          self.sess, 'ACTIVE', ['ERROR'], 1, 2)
+
+        url = 'servers/IDENTIFIER'
+        thecall = mock.call(url, service=sot.service)
+        expected = [thecall, thecall]
+        self.assertEqual(expected, self.sess.get.call_args_list)
+
+    def test_get_ips(self):
+        name = "jenkins"
+        fixed = {
+            "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:f9:58:b4",
+            "version": 4,
+            "addr": "10.3.3.8",
+            "OS-EXT-IPS:type": "fixed",
+        }
+        float1 = {
+            "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:f9:58:b4",
+            "version": 4,
+            "addr": "15.125.3.1",
+            "OS-EXT-IPS:type": "floating",
+        }
+        float2 = {
+            "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:f9:58:b4",
+            "version": 4,
+            "addr": "15.125.3.2",
+            "OS-EXT-IPS:type": "floating",
+        }
+
+        addresses = {name: [fixed]}
+        attrs = {'id': IDENTIFIER, 'name': name, 'addresses': addresses}
+        sot = server.Server(attrs=attrs)
+        self.assertEqual([], sot.get_floating_ips())
+
+        addresses = {name: [fixed, float1, float2]}
+        attrs = {'id': IDENTIFIER, 'name': name, 'addresses': addresses}
+        sot = server.Server(attrs=attrs)
+        self.assertEqual(["15.125.3.1", "15.125.3.2"], sot.get_floating_ips())
+
+        addresses = {name: [float1, fixed]}
+        attrs = {'id': IDENTIFIER, 'name': name, 'addresses': addresses}
+        sot = server.Server(attrs=attrs)
+        self.assertEqual(["15.125.3.1"], sot.get_floating_ips())
