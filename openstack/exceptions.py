@@ -16,6 +16,8 @@
 Exception definitions.
 """
 
+import six
+
 
 class SDKException(Exception):
     """The base exception class for all exceptions this library raises."""
@@ -61,6 +63,15 @@ class HttpException(SDKException):
     def __init__(self, message, details=None):
         super(HttpException, self).__init__(message)
         self.details = details
+
+    def __unicode__(self):
+        msg = self.__class__.__name__ + ": " + self.message
+        if self.details:
+            msg += ", " + six.text_type(self.details)
+        return msg
+
+    def __str__(self):
+        return self.__unicode__()
 
 
 class MethodNotSupported(SDKException):
