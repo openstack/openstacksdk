@@ -26,6 +26,7 @@ class SecurityGroupRule(resource.Resource):
     allow_update = True
     allow_delete = True
     allow_list = True
+    put_update = True
 
     # Properties
     direction = resource.prop('direction')

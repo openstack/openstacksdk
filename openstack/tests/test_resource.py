@@ -270,6 +270,20 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual(fake_attr1, obj.first)
         self.assertEqual(fake_attr2, obj.second)
 
+        put_data = {'id': fake_id, 'name': 'putty'}
+        put_body = {fake_resource: put_data}
+        self.stub_url(httpretty.PUT,
+                      path=[fake_path, fake_id],
+                      json=put_body)
+        obj['attr1'] = 'update_again'
+        FakeResource.put_update = True
+        self.assertEqual(obj, obj.update(self.session))
+        last_req = httpretty.last_request()
+        self.assertEqual('PUT', last_req.command)
+        last_data = last_req.parsed_body[fake_resource]
+        self.assertEqual(1, len(last_data))
+        self.assertEqual('update_again', last_data['attr1'])
+
     @httpretty.activate
     def test_delete(self):
         self.stub_url(httpretty.GET, path=[fake_path, fake_id], json=fake_body)
