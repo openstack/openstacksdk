@@ -26,6 +26,7 @@ class Subnet(resource.Resource):
     allow_update = True
     allow_delete = True
     allow_list = True
+    put_update = True
 
     # Properties
     allocation_pools = resource.prop('allocation_pools')

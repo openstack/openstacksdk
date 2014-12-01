@@ -165,6 +165,8 @@ class Resource(collections.MutableMapping):
     #: Allow head operation for this resource.
     allow_head = False
 
+    put_update = False
+
     def __init__(self, attrs=None, loaded=False):
         if attrs is None:
             attrs = {}
@@ -381,7 +383,10 @@ class Resource(collections.MutableMapping):
         else:
             url = cls.base_path
         url = utils.urljoin(url, resource_id)
-        resp = session.patch(url, service=cls.service, json=body).body
+        if cls.put_update:
+            resp = session.put(url, service=cls.service, json=body).body
+        else:
+            resp = session.patch(url, service=cls.service, json=body).body
 
         if cls.resource_key:
             resp = resp[cls.resource_key]
