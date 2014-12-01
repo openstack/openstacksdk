@@ -19,8 +19,10 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         super(TestOrchestrationProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
-    def test_stack(self):
+    def test_stack_find(self):
         self.verify_find('openstack.orchestration.v1.stack.Stack.find',
                          self.proxy.find_stack)
+
+    def test_stack_list(self):
         self.verify_list('openstack.orchestration.v1.stack.Stack.list',
-                         self.proxy.list_stack)
+                         self.proxy.list_stacks)

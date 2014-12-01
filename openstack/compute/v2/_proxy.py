@@ -29,7 +29,7 @@ class Proxy(object):
     def find_extension(self, name_or_id):
         return extension.Extension.find(self.session, name_or_id)
 
-    def list_extension(self):
+    def list_extensions(self):
         return extension.Extension.list(self.session)
 
     def create_flavor(self, **data):
@@ -62,7 +62,7 @@ class Proxy(object):
     def get_image(self, **data):
         return image.Image(data).get(self.session)
 
-    def list_image(self):
+    def list_images(self):
         return image.Image.list(self.session)
 
     def update_image(self, **data):
@@ -131,7 +131,7 @@ class Proxy(object):
     def get_server_interface(self, **data):
         return server_interface.ServerInterface(data).get(self.session)
 
-    def list_server_interface(self):
+    def list_server_interfaces(self):
         return server_interface.ServerInterface.list(self.session)
 
     def update_server_interface(self, **data):
@@ -140,5 +140,5 @@ class Proxy(object):
     def find_server_ip(self, name_or_id):
         return server_ip.ServerIP.find(self.session, name_or_id)
 
-    def list_server_ip(self):
+    def list_server_ips(self):
         return server_ip.ServerIP.list(self.session)

@@ -19,44 +19,70 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
         super(TestDatabaseProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
-    def test_database(self):
+    def test_database_create(self):
         self.verify_create('openstack.database.v1.database.Database.create',
                            self.proxy.create_database)
+
+    def test_database_delete(self):
         self.verify_delete('openstack.database.v1.database.Database.delete',
                            self.proxy.delete_database)
+
+    def test_database_find(self):
         self.verify_find('openstack.database.v1.database.Database.find',
                          self.proxy.find_database)
+
+    def test_database_list(self):
         self.verify_list('openstack.database.v1.database.Database.list',
                          self.proxy.list_database)
 
-    def test_flavor(self):
+    def test_flavor_find(self):
         self.verify_find('openstack.database.v1.flavor.Flavor.find',
                          self.proxy.find_flavor)
+
+    def test_flavor_get(self):
         self.verify_get('openstack.database.v1.flavor.Flavor.get',
                         self.proxy.get_flavor)
+
+    def test_flavor_list(self):
         self.verify_list('openstack.database.v1.flavor.Flavor.list',
                          self.proxy.list_flavor)
 
-    def test_instance(self):
+    def test_instance_create(self):
         self.verify_create('openstack.database.v1.instance.Instance.create',
                            self.proxy.create_instance)
+
+    def test_instance_delete(self):
         self.verify_delete('openstack.database.v1.instance.Instance.delete',
                            self.proxy.delete_instance)
+
+    def test_instance_find(self):
         self.verify_find('openstack.database.v1.instance.Instance.find',
                          self.proxy.find_instance)
+
+    def test_instance_get(self):
         self.verify_get('openstack.database.v1.instance.Instance.get',
                         self.proxy.get_instance)
+
+    def test_instance_list(self):
         self.verify_list('openstack.database.v1.instance.Instance.list',
                          self.proxy.list_instance)
+
+    def test_instance_update(self):
         self.verify_update('openstack.database.v1.instance.Instance.update',
                            self.proxy.update_instance)
 
-    def test_user(self):
+    def test_user_create(self):
         self.verify_create('openstack.database.v1.user.User.create',
                            self.proxy.create_user)
+
+    def test_user_delete(self):
         self.verify_delete('openstack.database.v1.user.User.delete',
                            self.proxy.delete_user)
+
+    def test_user_find(self):
         self.verify_find('openstack.database.v1.user.User.find',
                          self.proxy.find_user)
+
+    def test_user_list(self):
         self.verify_list('openstack.database.v1.user.User.list',
                          self.proxy.list_user)

@@ -37,7 +37,7 @@ class Proxy(object):
     def get_credential(self, **data):
         return credential.Credential(data).get(self.session)
 
-    def list_credential(self):
+    def list_credentials(self):
         return credential.Credential.list(self.session)
 
     def update_credential(self, **data):
@@ -55,7 +55,7 @@ class Proxy(object):
     def get_domain(self, **data):
         return domain.Domain(data).get(self.session)
 
-    def list_domain(self):
+    def list_domains(self):
         return domain.Domain.list(self.session)
 
     def update_domain(self, **data):
@@ -73,7 +73,7 @@ class Proxy(object):
     def get_endpoint(self, **data):
         return endpoint.Endpoint(data).get(self.session)
 
-    def list_endpoint(self):
+    def list_endpoints(self):
         return endpoint.Endpoint.list(self.session)
 
     def update_endpoint(self, **data):
@@ -91,7 +91,7 @@ class Proxy(object):
     def get_group(self, **data):
         return group.Group(data).get(self.session)
 
-    def list_group(self):
+    def list_groups(self):
         return group.Group.list(self.session)
 
     def update_group(self, **data):
@@ -109,7 +109,7 @@ class Proxy(object):
     def get_policy(self, **data):
         return policy.Policy(data).get(self.session)
 
-    def list_policy(self):
+    def list_policys(self):
         return policy.Policy.list(self.session)
 
     def update_policy(self, **data):
@@ -127,7 +127,7 @@ class Proxy(object):
     def get_project(self, **data):
         return project.Project(data).get(self.session)
 
-    def list_project(self):
+    def list_projects(self):
         return project.Project.list(self.session)
 
     def update_project(self, **data):
@@ -145,7 +145,7 @@ class Proxy(object):
     def get_service(self, **data):
         return service.Service(data).get(self.session)
 
-    def list_service(self):
+    def list_services(self):
         return service.Service.list(self.session)
 
     def update_service(self, **data):
@@ -163,7 +163,7 @@ class Proxy(object):
     def get_user(self, **data):
         return user.User(data).get(self.session)
 
-    def list_user(self):
+    def list_users(self):
         return user.User.list(self.session)
 
     def update_user(self, **data):
