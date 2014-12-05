@@ -469,10 +469,18 @@ class Resource(collections.MutableMapping):
             if not resp:
                 more_data = False
 
+            # Keep track of how many items we've yielded. If we yielded
+            # less than our limit, we don't need to do an extra request
+            # to get back an empty data set, which acts as a sentinel.
+            yielded = 0
             for data in resp:
                 value = cls.existing(**data)
                 marker = value.id
+                yielded += 1
                 yield value
+
+            if limit and yielded < limit:
+                more_data = False
 
     @classmethod
     def find(cls, session, name_or_id, path_args=None):

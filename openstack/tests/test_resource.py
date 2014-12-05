@@ -324,6 +324,18 @@ class ResourceTests(base.TestTransportBase):
             self.assertEqual(fake_name, obj.name)
             self.assertIsInstance(obj, FakeResource)
 
+    def test_list_bail_out(self):
+        results = [fake_data.copy(), fake_data.copy(), fake_data.copy()]
+        body = mock.Mock(body={fake_resources: results})
+        attrs = {"get.return_value": body}
+        session = mock.Mock(**attrs)
+
+        list(FakeResource.list(session, limit=len(results) + 1,
+                               path_args=fake_arguments))
+
+        # Ensure we only made one call to complete this.
+        self.assertEqual(session.get.call_count, 1)
+
     def test_attrs(self):
         obj = FakeResource()
 
