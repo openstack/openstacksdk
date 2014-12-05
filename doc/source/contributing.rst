@@ -54,8 +54,8 @@ Getting the code
 
 If you haven't contributed in the openstack community before, be sure to read:
 
-  https://wiki.openstack.org/wiki/How_To_Contribute
-  https://wiki.openstack.org/wiki/Gerrit_Workflow
+  http://docs.openstack.org/infra/manual/developers.html
+  http://docs.openstack.org/infra/manual/developers.html#development-workflow
 
 and then you'll be ready to::
 
