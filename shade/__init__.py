@@ -38,6 +38,9 @@ __version__ = pbr.version.VersionInfo('shade').version_string()
 class OpenStackCloudException(Exception):
     pass
 
+class OpenStackCloudTimeout(OpenStackCloudException):
+    pass
+
 
 def openstack_clouds(config=None):
     if not config:
@@ -404,14 +407,14 @@ class OpenStackCloud(object):
         except Exception:
             return []
 
-    def list_volumes(self):
-        if self._volume_cache is None:
+    def list_volumes(self, cache=True):
+        if self._volume_cache is None or not cache:
             self._volume_cache = self._get_volumes_from_cloud()
         return self._volume_cache
 
-    def get_volumes(self, server):
+    def get_volumes(self, server, cache=True):
         volumes = []
-        for volume in self.list_volumes():
+        for volume in self.list_volumes(cache=cache):
             for attach in volume.attachments:
                 if attach['server_id'] == server.id:
                     volumes.append(volume)
@@ -423,12 +426,18 @@ class OpenStackCloud(object):
             return image.id
         return None
 
-    def get_volume(self, name_or_id):
-        for v in self.list_volumes():
+    def get_volume(self, name_or_id, cache=True, error=True):
+        for v in self.list_volumes(cache=cache):
             if name_or_id in (v.display_name, v.id):
                 return v
-        raise OpenStackCloudException(
-            "Error finding volume from %s" % name_or_id)
+        if error:
+            raise OpenStackCloudException(
+                "Error finding volume from %s" % name_or_id)
+        return None
+
+    def volume_exists(self, name_or_id):
+        return self.get_volume(
+            name_or_id, cache=False, error=False) is not None
 
     def get_server_by_id(self, server_id):
         for server in self.nova_client.servers.list():
@@ -446,6 +455,12 @@ class OpenStackCloud(object):
         server = get_server_by_name(server_name)
         if server:
             return server.id
+        return None
+
+    def get_server(self, name_or_id):
+        for server in self.list_servers():
+            if name_or_id in (server.name, server.id):
+                return server
         return None
 
     def get_server_meta(self, server):
@@ -600,9 +615,19 @@ class OpenStackCloud(object):
             if not server:
                 return
             time.sleep(5)
-        raise OpenStackCloudException(
+        raise OpenStackCloudTimeout(
             "Timed out waiting for server to get deleted.")
 
+    def delete_volume(self, name_or_id, wait=False, timeout=180):
+        volume = self.get_volume(name_or_id)
+
+        expire = time.time() + timeout
+        while time.time() < expire:
+            if self.volume_exists(volume.id, cache=False):
+                return
+            time.sleep(5)
+        raise OpenStackCloudTimeout(
+            "Timed out waiting for server to get deleted.")
 
 class OperatorCloud(OpenStackCloud):
 
