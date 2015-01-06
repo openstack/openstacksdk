@@ -9,3 +9,4 @@ python-cinderclient
 python-neutronclient
 python-troveclient
 python-ironicclient
+python-swiftclient
