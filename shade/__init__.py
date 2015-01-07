@@ -39,6 +39,8 @@ from shade import meta
 __version__ = pbr.version.VersionInfo('shade').version_string()
 OBJECT_MD5_KEY = 'x-shade-md5'
 OBJECT_SHA256_KEY = 'x-shade-sha256'
+IMAGE_MD5_KEY = 'org.openstack.shade.md5'
+IMAGE_SHA256_KEY = 'org.openstack.shade.sha256'
 
 
 class OpenStackCloudException(Exception):
@@ -412,7 +414,7 @@ class OpenStackCloud(object):
             self._image_cache = self._get_images_from_cloud()
         return self._image_cache
 
-    def get_image_name(self, image_id, exclude):
+    def get_image_name(self, image_id, exclude=None):
         image = self.get_image(image_id, exclude)
         if image:
             return image.id
@@ -434,6 +436,77 @@ class OpenStackCloud(object):
                 return image
         raise OpenStackCloudException(
             "Error finding image from %s" % name_or_id)
+
+    def create_image(
+            self, name, filename, container='images',
+            md5=None, sha256=None,
+            disk_format=None, container_format=None,
+            wait=False, timeout=3600, **kwargs):
+        if not md5 or not sha256:
+            (md5, sha256) = self._get_file_hashes(filename)
+        current_image = self.get_image(name)
+        if (current_image and current_image.get(IMAGE_MD5_KEY, '') == md5
+                and current_image.get(IMAGE_SHA256_KEY, '') == sha256):
+            self.log.debug(
+                "image {name} exists and is up to date".format(name=name))
+            return
+        kwargs[IMAGE_MD5_KEY] = md5
+        kwargs[IMAGE_SHA256_KEY] = sha256
+        # This makes me want to die inside
+        if self._get_glance_api_version() == '2':
+            return self._upload_image_v2(
+                name, filename, container,
+                current_image=current_image,
+                wait=wait, timeout=timeout, **kwargs)
+        else:
+            return self._upload_image_v1(name, filename, md5=md5)
+
+    def _upload_image_v1(
+            self, name, filename,
+            disk_format=None, container_format=None,
+            **image_properties):
+        image = self.glance_client.images.create(
+            name=name, is_public=False, disk_format=disk_format,
+            container_format=container_format, **image_properties)
+        image.update(data=open(filename, 'rb'))
+        return image.id
+
+    def _upload_image_v2(
+            self, name, filename, container, current_image=None,
+            wait=True, timeout=None, **image_properties):
+        self.create_object(
+            container, name, filename,
+            md5=image_properties['md5'], sha256=image_properties['sha256'])
+        if not current_image:
+            current_image = self.get_image(name)
+        # TODO(mordred): Can we do something similar to what nodepool does
+        # using glance properties to not delete then upload but instead make a
+        # new "good" image and then mark the old one as "bad"
+        # self.glance_client.images.delete(current_image)
+        image_properties['name'] = name
+        task = self.glance_client.tasks.create(
+            type='import', input=dict(
+                import_from='{container}/{name}'.format(
+                    container=container, name=name),
+                image_properties=image_properties))
+        if wait:
+            if timeout:
+                expire = time.time() + timeout
+            while timeout is None or time.time() < expire:
+                status = self.glance_client.tasks.get(task.id)
+
+                if status.status == 'success':
+                    return status.result['image_id']
+                if status.status == 'failure':
+                    raise OpenStackCloudException(
+                        "Image creation failed: {message}".format(
+                            message=status.message))
+                time.sleep(10)
+
+            raise OpenStackCloudTimeout(
+                "Timeout waiting for the image to import.")
+        else:
+            return None
 
     def _get_volumes_from_cloud(self):
         try:
