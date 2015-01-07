@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import re
 import types
 
 NON_CALLABLES = (basestring, bool, dict, int, list, types.NoneType)

@@ -24,6 +24,7 @@ from ironicclient import exceptions as ironic_exceptions
 from keystoneclient import client as keystone_client
 from novaclient import exceptions as nova_exceptions
 from novaclient.v1_1 import client as nova_client
+from novaclient.v1_1 import floating_ips
 import os_client_config
 import pbr.version
 import troveclient.client as trove_client
@@ -37,6 +38,7 @@ __version__ = pbr.version.VersionInfo('shade').version_string()
 
 class OpenStackCloudException(Exception):
     pass
+
 
 class OpenStackCloudTimeout(OpenStackCloudException):
     pass
@@ -378,7 +380,7 @@ class OpenStackCloud(object):
             self._image_cache = self._get_images_from_cloud()
         return self._image_cache
 
-    def get_image_name(self, image_id):
+    def get_image_name(self, image_id, exclude):
         image = self.get_image(image_id, exclude)
         if image:
             return image.id
@@ -452,7 +454,7 @@ class OpenStackCloud(object):
         return None
 
     def get_server_id(self, server_name):
-        server = get_server_by_name(server_name)
+        server = self.get_server_by_name(server_name)
         if server:
             return server.id
         return None
@@ -498,7 +500,7 @@ class OpenStackCloud(object):
             if not pool_ips:
                 try:
                     new_ip = self.nova_client.floating_ips.create(pool)
-                except Exception as e:
+                except Exception:
                     raise OpenStackCloudException(
                         "Unable to create floating ip in pool %s" % pool)
                 pool_ips.append(new_ip.ip)
@@ -591,7 +593,8 @@ class OpenStackCloud(object):
                     continue
 
                 if server.status == 'ACTIVE':
-                    return self.add_ips_to_server(server, auto_ip, ips, ip_pool)
+                    return self.add_ips_to_server(
+                        server, auto_ip, ips, ip_pool)
 
                 if server.status == 'ERROR':
                     raise OpenStackCloudException(
@@ -605,13 +608,13 @@ class OpenStackCloud(object):
     def delete_server(self, name, wait=False, timeout=180):
         server_list = self.nova_client.servers.list(True, {'name': name})
         if server_list:
-            server = [x for x in server_list if x.name == module.params['name']]
+            server = [x for x in server_list if x.name == name]
             self.nova_client.servers.delete(server.pop())
         if not wait:
             return
         expire = time.time() + timeout
         while time.time() < expire:
-            server = nova.servers.list(True, {'name': name})
+            server = self.nova_client.servers.list(True, {'name': name})
             if not server:
                 return
             time.sleep(5)
@@ -628,6 +631,7 @@ class OpenStackCloud(object):
             time.sleep(5)
         raise OpenStackCloudTimeout(
             "Timed out waiting for server to get deleted.")
+
 
 class OperatorCloud(OpenStackCloud):
 
@@ -679,7 +683,7 @@ class OperatorCloud(OpenStackCloud):
             machine = self.ironic_client.node.create(**kwargs)
         except Exception as e:
             raise OpenStackCloudException(
-                    "Error registering machine with Ironic: %s" % e.message)
+                "Error registering machine with Ironic: %s" % e.message)
 
         created_nics = []
         try:
@@ -692,18 +696,18 @@ class OperatorCloud(OpenStackCloud):
                 self.ironic_client.port.delete(uuid)
             self.ironic_client.node.delete(machine.uuid)
             raise OpenStackCloudException(
-                    "Error registering NICs with Ironic: %s" % e.message)
+                "Error registering NICs with Ironic: %s" % e.message)
         return machine
 
     def unregister_machine(self, nics, uuid):
         for nic in nics:
             try:
                 self.ironic_client.port.delete(
-                        self.ironic_client.port.get_by_address(nic['mac']))
+                    self.ironic_client.port.get_by_address(nic['mac']))
             except Exception as e:
                 raise OpenStackCloudException(e.message)
         try:
             self.ironic_client.node.delete(uuid)
         except Exception as e:
             raise OpenStackCloudException(
-                    "Error unregistering machine from Ironic: %s" % e.message)
+                "Error unregistering machine from Ironic: %s" % e.message)
