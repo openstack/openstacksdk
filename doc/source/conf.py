@@ -11,7 +11,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'shade'
-copyright = u'2014, Monty Taylor'
+copyright = u'2014 Hewlett-Packard Development Company, L.P.'
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
