@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import types
-
-NON_CALLABLES = (basestring, bool, dict, int, list, types.NoneType)
-
 
 def find_nova_addresses(addresses, ext_tag, key_name=None):
 
@@ -127,6 +123,6 @@ def obj_to_dict(obj):
     instance = {}
     for key in dir(obj):
         value = getattr(obj, key)
-        if (isinstance(value, NON_CALLABLES) and not key.startswith('_')):
+        if not callable(value) and not key.startswith('_'):
             instance[key] = value
     return instance
