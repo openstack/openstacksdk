@@ -682,10 +682,9 @@ class OpenStackCloud(object):
                 "Error in getting info from instance: %s " % e.message)
         return server
 
-    def create_server(self, bootargs, bootkwargs,
-                      auto_ip=True, ips=None, ip_pool=None,
+    def create_server(self, auto_ip=True, ips=None, ip_pool=None,
                       root_volume=None, terminate_volume=False,
-                      wait=False, timeout=180):
+                      wait=False, timeout=180, **bootkwargs):
 
         if root_volume:
             if terminate_volume:
@@ -698,7 +697,7 @@ class OpenStackCloud(object):
             bootkwargs['block_device_mapping']['vda'] = volume_id
 
         try:
-            server = self.nova_client.servers.create(*bootargs, **bootkwargs)
+            server = self.nova_client.servers.create(**bootkwargs)
             server = self.nova_client.servers.get(server.id)
         except Exception as e:
             self.log.debug("nova instance create failed", exc_info=True)
