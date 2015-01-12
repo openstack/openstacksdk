@@ -501,6 +501,8 @@ class OpenStackCloud(object):
                 try:
                     new_ip = self.nova_client.floating_ips.create(pool)
                 except Exception:
+                    self.log.debug(
+                        "nova floating ip create failed", exc_info=True)
                     raise OpenStackCloudException(
                         "Unable to create floating ip in pool %s" % pool)
                 pool_ips.append(new_ip.ip)
@@ -522,6 +524,8 @@ class OpenStackCloud(object):
             try:
                 server.add_floating_ip(ip)
             except Exception as e:
+                self.log.debug(
+                    "nova floating ip add failed", exc_info=True)
                 raise OpenStackCloudException(
                     "Error attaching IP {ip} to instance {id}: {msg} ".format(
                         ip=ip, id=server.id, msg=e.message))
@@ -530,6 +534,8 @@ class OpenStackCloud(object):
         try:
             new_ip = self.nova_client.floating_ips.create()
         except Exception as e:
+            self.log.debug(
+                "nova floating ip create failed", exc_info=True)
             raise OpenStackCloudException(
                 "Unable to create floating ip: %s" % (e.message))
         try:
@@ -556,6 +562,7 @@ class OpenStackCloud(object):
         try:
             server = self.nova_client.servers.get(server.id)
         except Exception as e:
+            self.log.debug("nova info failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error in getting info from instance: %s " % e.message)
         return server
@@ -579,6 +586,7 @@ class OpenStackCloud(object):
             server = self.nova_client.servers.create(*bootargs, **bootkwargs)
             server = self.nova_client.servers.get(server.id)
         except Exception as e:
+            self.log.debug("nova instance create failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error in creating instance: %s" % e.message)
         if server.status == 'ERROR':
@@ -646,6 +654,7 @@ class OperatorCloud(OpenStackCloud):
                 self._ironic_client = ironic_client.Client(
                     '1', endpoint, token=token)
             except Exception as e:
+                self.log.debug("ironic auth failed", exc_info=True)
                 raise OpenStackCloudException(
                     "Error in connecting to ironic: %s" % e.message)
         return self._ironic_client
@@ -682,6 +691,7 @@ class OperatorCloud(OpenStackCloud):
         try:
             machine = self.ironic_client.node.create(**kwargs)
         except Exception as e:
+            self.log.debug("ironic machine registration failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error registering machine with Ironic: %s" % e.message)
 
@@ -692,6 +702,8 @@ class OperatorCloud(OpenStackCloud):
                                                      node_uuid=machine.uuid)
                 created_nics.append(nic.uuid)
         except Exception as e:
+            self.log.debug("ironic NIC registration failed", exc_info=True)
+            # TODO(mordred) Handle failures here
             for uuid in created_nics:
                 self.ironic_client.port.delete(uuid)
             self.ironic_client.node.delete(machine.uuid)
@@ -705,9 +717,13 @@ class OperatorCloud(OpenStackCloud):
                 self.ironic_client.port.delete(
                     self.ironic_client.port.get_by_address(nic['mac']))
             except Exception as e:
+                self.log.debug(
+                    "ironic NIC unregistration failed", exc_info=True)
                 raise OpenStackCloudException(e.message)
         try:
             self.ironic_client.node.delete(uuid)
         except Exception as e:
+            self.log.debug(
+                "ironic machine unregistration failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error unregistering machine from Ironic: %s" % e.message)
