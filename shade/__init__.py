@@ -393,25 +393,35 @@ class OpenStackCloud(object):
     def delete_keypair(self, name):
         return self.nova_client.keypairs.delete(name)
 
-    def _get_images_from_cloud(self):
+    def _get_images_from_cloud(self, filter_deleted):
         # First, try to actually get images from glance, it's more efficient
         images = dict()
         try:
             # This can fail both because we don't have glanceclient installed
             # and because the cloud may not expose the glance API publically
-            for image in self.glance_client.images.list():
-                images[image.id] = image
+            image_list = self.glance_client.images.list()
         except (OpenStackCloudException,
                 glanceclient.exc.HTTPInternalServerError):
             # We didn't have glance, let's try nova
             # If this doesn't work - we just let the exception propagate
-            for image in self.nova_client.images.list():
+            image_list = self.nova_client.images.list()
+        for image in image_list:
+            # The cloud might return DELETED for invalid images.
+            # While that's cute and all, that's an implementation detail.
+            if not filter_deleted:
+                images[image.id] = image
+            elif image.status != 'DELETED':
                 images[image.id] = image
         return images
 
-    def list_images(self):
+    def list_images(self, filter_deleted=True):
+        """Get available glance images.
+
+        :param filter_deleted: Control whether deleted images are returned.
+        :returns: A dictionary of glance images indexed by image UUID.
+        """
         if self._image_cache is None:
-            self._image_cache = self._get_images_from_cloud()
+            self._image_cache = self._get_images_from_cloud(filter_deleted)
         return self._image_cache
 
     def get_image_name(self, image_id, exclude=None):
