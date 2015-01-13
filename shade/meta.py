@@ -120,6 +120,14 @@ def get_hostvars_from_server(cloud, server, mounts=None):
 
 
 def obj_to_dict(obj):
+    """ Turn an object with attributes into a dict suitable for serializing.
+
+    Some of the things that are returned in OpenStack are objects with
+    attributes. That's awesome - except when you want to expose them as JSON
+    structures. We use this as the basis of get_hostvars_from_server above so
+    that we can just have a plain dict of all of the values that exist in the
+    nova metadata for a server.
+    """
     instance = {}
     for key in dir(obj):
         value = getattr(obj, key)
