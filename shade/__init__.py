@@ -556,23 +556,25 @@ class OpenStackCloud(object):
         return self.get_volume(
             name_or_id, cache=False, error=False) is not None
 
-    def get_server_by_id(self, server_id):
-        for server in self.nova_client.servers.list():
-            if server.id == server_id:
-                return server
-        return None
-
-    def get_server_by_name(self, server_name):
-        for server in self.nova_client.servers.list():
-            if server.name == server_name:
-                return server
-        return None
-
-    def get_server_id(self, server_name):
-        server = self.get_server_by_name(server_name)
+    def get_server_id(self, name_or_id):
+        server = self.get_server(name_or_id)
         if server:
             return server.id
         return None
+
+    def _get_server_ip(self, server, **kwargs):
+        addrs = meta.find_nova_addresses(server.addresses, *kwargs)
+        if not addrs:
+            return None
+        return addrs[0]
+
+    def get_server_private_ip(self, server):
+        return self._get_server_ip(
+            server, ext_tag='fixed', key_name='private')
+
+    def get_server_public_ip(self, server):
+        return self._get_server_ip(
+            server, ext_tag='floating', key_name='public')
 
     def get_server(self, name_or_id):
         for server in self.list_servers():
