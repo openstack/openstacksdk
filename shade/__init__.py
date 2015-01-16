@@ -587,6 +587,12 @@ class OpenStackCloud(object):
         groups = meta.get_groups_from_server(self, server, server_vars)
         return dict(server_vars=server_vars, groups=groups)
 
+    def get_security_group(self, name_or_id):
+        for secgroup in self.nova_client.security_groups.list():
+            if name_or_id in (secgroup.name, secgroup.id):
+                return secgroup
+        return None
+
     def add_ip_from_pool(self, server, pools):
 
         # instantiate FloatingIPManager object
