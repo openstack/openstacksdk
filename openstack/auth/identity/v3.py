@@ -102,7 +102,8 @@ class Auth(base.BaseIdentityPlugin):
         :param string user_name: User name for authentication.
         :param string user_id: User ID for authentication.
 
-        :raises TypeError: if a user_id, user_name or token is not provided.
+        :raises :class:`~openstack.exceptions.AuthorizationFailure`: if a
+        user_id, user_name or token is not provided.
         """
 
         super(Auth, self).__init__(auth_url=auth_url,
@@ -110,7 +111,7 @@ class Auth(base.BaseIdentityPlugin):
 
         if not (user_id or user_name or token):
             msg = 'You need to specify either a user_name, user_id or token'
-            raise TypeError(msg)
+            raise exceptions.AuthorizationFailure(msg)
 
         self.access_info = access_info
         self.domain_id = domain_id
