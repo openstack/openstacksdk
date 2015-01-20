@@ -119,7 +119,7 @@ class Connection(object):
             the authentication plugin name is not provided, the connection will
             try to guess what plugin to use based on the *auth_url* in the
             *auth_args*.  Two common values for the plugin would be
-            ``identityv2`` and ``identityv3``.
+            ``identity_v2`` and ``identity_v3``.
         :param auth_args: The rest of the parameters provided are assumed to be
             authentication arguments that are used by the authentication
             plugin.
