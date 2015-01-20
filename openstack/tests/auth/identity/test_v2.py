@@ -24,6 +24,11 @@ TEST_RESPONSE_DICT = common.TEST_RESPONSE_DICT_V2
 
 
 class TestV2Auth(testtools.TestCase):
+
+    def test_missing_args(self):
+        with testtools.ExpectedException(exceptions.AuthorizationFailure):
+            v2.Auth(TEST_URL)
+
     def test_password(self):
         kargs = {
             'password': common.TEST_PASS,

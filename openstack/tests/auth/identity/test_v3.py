@@ -21,6 +21,11 @@ TEST_URL = 'http://127.0.0.1:5000/v3.0'
 
 
 class TestV3Auth(testtools.TestCase):
+
+    def test_missing_args(self):
+        with testtools.ExpectedException(exceptions.AuthorizationFailure):
+            v3.Auth(TEST_URL)
+
     def test_password_user_domain(self):
         kargs = {
             'trust_id': common.TEST_TRUST_ID,
