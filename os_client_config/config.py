@@ -47,13 +47,12 @@ def get_boolean(value):
     return False
 
 
-def _get_os_environ():
-    ret = dict(auth_plugin='password', auth=dict())
+def _get_os_environ(defaults):
     for (k, v) in os.environ.items():
         if k.startswith('OS_'):
             newkey = k[3:].lower()
-            ret[newkey] = v
-    return ret
+            defaults[newkey] = v
+    return defaults
 
 
 def _auth_update(old_dict, new_dict):
@@ -72,7 +71,12 @@ class OpenStackConfig(object):
         self._config_files = config_files or CONFIG_FILES
         self._vendor_files = vendor_files or VENDOR_FILES
 
-        self.defaults = _get_os_environ()
+        defaults = dict(
+            auth_plugin='password',
+            auth=dict(),
+            compute_api_version='1.1',
+        )
+        self.defaults = _get_os_environ(defaults)
 
         # use a config file if it exists where expected
         self.cloud_config = self._load_config_file()
