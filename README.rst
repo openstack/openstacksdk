@@ -57,23 +57,27 @@ An example config file is probably helpful:
   clouds:
     mordred:
       cloud: hp
-      username: mordred@inaugust.com
-      password: XXXXXXXXX
-      project_id: mordred@inaugust.com
+      auth:
+        username: mordred@inaugust.com
+        password: XXXXXXXXX
+        project_name: mordred@inaugust.com
       region_name: region-b.geo-1
       dns_service_type: hpext:dns
+      compute_api_version: 1.1
     monty:
-      auth_url: https://region-b.geo-1.identity.hpcloudsvc.com:35357/v2.0
-      username: monty.taylor@hp.com
-      password: XXXXXXXX
-      project_id: monty.taylor@hp.com-default-tenant
+      auth:
+        auth_url: https://region-b.geo-1.identity.hpcloudsvc.com:35357/v2.0
+        username: monty.taylor@hp.com
+        password: XXXXXXXX
+        project_name: monty.taylor@hp.com-default-tenant
       region_name: region-b.geo-1
       dns_service_type: hpext:dns
     infra:
       cloud: rackspace
-      username: openstackci
-      password: XXXXXXXX
-      project_id: 610275
+      auth:
+        username: openstackci
+        password: XXXXXXXX
+        project_id: 610275
       region_name: DFW,ORD,IAD
 
 You may note a few things. First, since auth_url settings are silly
@@ -92,6 +96,17 @@ the setting with the default service type. That might strike you funny when
 setting `service_type` and it does me too - but that's just the world we live
 in.
 
+Auth Settings
+-------------
+
+Keystone has auth plugins - which means it's not possible to know ahead of time
+which auth settings are needed. `os-client-config` sets the default plugin type
+to `password`, which is what things all were before plugins came about. In
+order to facilitate validation of values, all of the parameters that exist
+as a result of a chosen plugin need to go into the auth dict. For password
+auth, this includes `auth_url`, `username` and `password` as well as anything
+related to domains, projects and trusts.
+
 Cache Settings
 --------------
 
@@ -107,9 +122,10 @@ understands a simple set of cache control settings.
   clouds:
     mordred:
       cloud: hp
-      username: mordred@inaugust.com
-      password: XXXXXXXXX
-      project_id: mordred@inaugust.com
+      auth:
+        username: mordred@inaugust.com
+        password: XXXXXXXXX
+        project_name: mordred@inaugust.com
       region_name: region-b.geo-1
       dns_service_type: hpext:dns
 
