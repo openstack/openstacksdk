@@ -34,6 +34,21 @@ def find_nova_addresses(addresses, ext_tag=None, key_name=None, version=4):
     return ret
 
 
+def get_server_ip(server, **kwargs):
+    addrs = find_nova_addresses(server.addresses, **kwargs)
+    if not addrs:
+        return None
+    return addrs[0]
+
+
+def get_server_private_ip(server):
+    return get_server_ip(server, ext_tag='fixed', key_name='private')
+
+
+def get_server_public_ip(server):
+    return get_server_ip(server, ext_tag='floating', key_name='public')
+
+
 def get_groups_from_server(cloud, server, server_vars):
     groups = []
 
@@ -77,20 +92,17 @@ def get_groups_from_server(cloud, server, server_vars):
 
 
 def get_hostvars_from_server(cloud, server, mounts=None):
-    server_vars = dict()
+    server_vars = obj_to_dict(server)
+
     # Fist, add an IP address
-    if (cloud.private):
-        interface_ips = find_nova_addresses(
-            getattr(server, 'addresses'), 'fixed', 'private')
+    server_vars['public_v4'] = get_server_public_ip(server)
+    server_vars['private_v4'] = get_server_private_ip(server)
+    if cloud.private:
+        interface_ip = server_vars['private_v4']
     else:
-        interface_ips = find_nova_addresses(
-            getattr(server, 'addresses'), 'floating', 'public')
-
-    if interface_ips:
-        # TODO(mordred): I want this to be richer, "first" is not best
-        server_vars['interface_ip'] = interface_ips[0]
-
-    server_vars.update(obj_to_dict(server))
+        interface_ip = server_vars['public_v4']
+    if interface_ip:
+        server_vars['interface_ip'] = interface_ip
 
     server_vars['region'] = cloud.region
     server_vars['cloud'] = cloud.name

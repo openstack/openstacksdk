@@ -402,8 +402,16 @@ class OpenStackCloud(object):
     def list_servers(self):
         return self.nova_client.servers.list()
 
+    def list_server_dicts(self):
+        return [self.get_openstack_vars(server)
+                for server in self.list_servers()]
+
     def list_keypairs(self):
         return self.nova_client.keypairs.list()
+
+    def list_keypair_dicts(self):
+        return [meta.obj_to_dict(keypair)
+                for keypair in self.list_keypairs()]
 
     def create_keypair(self, name, public_key):
         return self.nova_client.keypairs.create(name, public_key)
@@ -463,6 +471,12 @@ class OpenStackCloud(object):
                     not exclude or exclude not in image.name)):
                 return image
         return None
+
+    def get_image_dict(self, name_or_id, exclude=None):
+        image = self.get_image(name_or_id, exclude)
+        if not image:
+            return image
+        return meta.obj_to_dict(image)
 
     def create_image(
             self, name, filename, container='images',
@@ -575,25 +589,23 @@ class OpenStackCloud(object):
             return server.id
         return None
 
-    def _get_server_ip(self, server, **kwargs):
-        addrs = meta.find_nova_addresses(server.addresses, *kwargs)
-        if not addrs:
-            return None
-        return addrs[0]
-
     def get_server_private_ip(self, server):
-        return self._get_server_ip(
-            server, ext_tag='fixed', key_name='private')
+        return meta.get_server_private_ip(server)
 
     def get_server_public_ip(self, server):
-        return self._get_server_ip(
-            server, ext_tag='floating', key_name='public')
+        return meta.get_server_public_ip(server)
 
     def get_server(self, name_or_id):
         for server in self.list_servers():
             if name_or_id in (server.name, server.id):
                 return server
         return None
+
+    def get_server_dict(self, name_or_id):
+        server = self.get_server(name_or_id)
+        if not server:
+            return server
+        return self.get_openstack_vars(server)
 
     def get_server_meta(self, server):
         server_vars = meta.get_hostvars_from_server(self, server)
@@ -605,6 +617,9 @@ class OpenStackCloud(object):
             if name_or_id in (secgroup.name, secgroup.id):
                 return secgroup
         return None
+
+    def get_openstack_vars(self, server):
+        return meta.get_hostvars_from_server(self, server)
 
     def add_ip_from_pool(self, server, pools):
 
