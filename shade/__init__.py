@@ -17,21 +17,19 @@ import logging
 import operator
 import time
 
-from cinderclient import exceptions as cinder_exceptions
 from cinderclient.v1 import client as cinder_client
 import glanceclient
 from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
-from keystoneclient import client as keystone_client
-from novaclient import exceptions as nova_exceptions
-from novaclient.v1_1 import client as nova_client
+from keystoneclient import auth as ksc_auth
+from keystoneclient import session as ksc_session
+from novaclient import client as nova_client
 from novaclient.v1_1 import floating_ips
 import os_client_config
 import pbr.version
 import swiftclient.client as swift_client
 import swiftclient.exceptions as swift_exceptions
 import troveclient.client as trove_client
-from troveclient import exceptions as trove_exceptions
 
 
 from shade import meta
@@ -98,32 +96,37 @@ def _iterate_timeout(timeout, message):
 class OpenStackCloud(object):
 
     def __init__(self, cloud, region='',
+                 auth_plugin='password',
+                 insecure=False, verify=None, cacert=None, cert=None, key=None,
                  image_cache=None, flavor_cache=None, volume_cache=None,
                  debug=False, **kwargs):
 
         self.name = cloud
         self.region = region
 
-        self.username = kwargs['username']
-        self.password = kwargs['password']
-        self.project_name = kwargs['project_name']
-        self.auth_url = kwargs['auth_url']
+        self.auth_plugin = auth_plugin
+        self.auth = kwargs.get('auth')
 
         self.region_name = kwargs.get('region_name', region)
-        self.auth_token = kwargs.get('auth_token', None)
+        self._auth_token = kwargs.get('auth_token', None)
 
         self.service_types = _get_service_values(kwargs, 'service_type')
         self.endpoints = _get_service_values(kwargs, 'endpoint')
         self.api_versions = _get_service_values(kwargs, 'api_version')
 
-        self.user_domain_name = kwargs.get('user_domain_name', None)
-        self.project_domain_name = kwargs.get('project_domain_name', None)
-
-        self.insecure = kwargs.get('insecure', False)
         self.endpoint_type = kwargs.get('endpoint_type', 'publicURL')
-        self.cert = kwargs.get('cert', None)
-        self.cacert = kwargs.get('cacert', None)
         self.private = kwargs.get('private', False)
+
+        if verify is None:
+            if insecure:
+                verify = False
+            else:
+                verify = cacert or True
+        self.verify = verify
+
+        if cert and key:
+            cert = (cert, key)
+        self.cert = cert
 
         self._image_cache = image_cache
         self._flavor_cache = flavor_cache
@@ -133,11 +136,12 @@ class OpenStackCloud(object):
 
         self.debug = debug
 
+        self._keystone_session = None
+
         self._nova_client = None
         self._glance_client = None
         self._glance_endpoint = None
         self._ironic_client = None
-        self._keystone_client = None
         self._cinder_client = None
         self._trove_client = None
         self._swift_client = None
@@ -152,42 +156,22 @@ class OpenStackCloud(object):
     def get_service_type(self, service):
         return self.service_types.get(service, service)
 
+    def _get_nova_api_version(self):
+        return self.api_versions['compute']
+
     @property
     def nova_client(self):
         if self._nova_client is None:
-            kwargs = dict(
-                region_name=self.region_name,
-                service_type=self.get_service_type('compute'),
-                insecure=self.insecure,
-            )
-            # Try to use keystone directly first, for potential token reuse
-            try:
-                kwargs['auth_token'] = self.keystone_client.auth_token
-                kwargs['bypass_url'] = self.get_endpoint(
-                    self.get_service_type('compute'))
-            except OpenStackCloudException:
-                pass
 
             # Make the connection
-            self._nova_client = nova_client.Client(
-                self.username,
-                self.password,
-                self.project_name,
-                self.auth_url,
-                **kwargs
-            )
-
-            self._nova_client.authenticate()
             try:
-                self._nova_client.authenticate()
-            except nova_exceptions.Unauthorized as e:
-                self.log.debug("nova Unauthorized", exc_info=True)
-                raise OpenStackCloudException(
-                    "Invalid OpenStack Nova credentials: %s" % e.message)
-            except nova_exceptions.AuthorizationFailure as e:
-                self.log.debug("nova AuthorizationFailure", exc_info=True)
-                raise OpenStackCloudException(
-                    "Unable to authorize user: %s" % e.message)
+                self._nova_client = nova_client.Client(
+                    self._get_nova_api_version(),
+                    session=self.keystone_session,
+                    region_name=self.region_name)
+            except Exception:
+                self.log.debug("Couldn't construct nova object", exc_info=True)
+                raise
 
             if self._nova_client is None:
                 raise OpenStackCloudException(
@@ -197,33 +181,46 @@ class OpenStackCloud(object):
         return self._nova_client
 
     @property
-    def keystone_client(self):
-        if self._keystone_client is None:
+    def keystone_session(self):
+        if self._keystone_session is None:
             # keystoneclient does crazy things with logging that are
             # none of them interesting
             keystone_logging = logging.getLogger('keystoneclient')
             keystone_logging.addHandler(logging.NullHandler())
 
             try:
-                if self.auth_token:
-                    self._keystone_client = keystone_client.Client(
-                        endpoint=self.auth_url,
-                        token=self.auth_token)
-                else:
-                    self._keystone_client = keystone_client.Client(
-                        username=self.username,
-                        password=self.password,
-                        project_name=self.project_name,
-                        region_name=self.region_name,
-                        auth_url=self.auth_url,
-                        user_domain_name=self.user_domain_name,
-                        project_domain_name=self.project_domain_name)
-                self._keystone_client.authenticate()
+                auth_plugin = ksc_auth.get_plugin_class(self.auth_plugin)
+            except Exception as e:
+                self.log.debug("keystone auth plugin failure", exc_info=True)
+                raise OpenStackCloudException(
+                    "Could not find auth plugin: {plugin}".format(
+                    plugin=self.auth_plugin))
+            try:
+                keystone_auth = auth_plugin(**self.auth)
+            except Exception as e:
+                self.log.debug(
+                    "keystone couldn't construct plugin", exc_info=True)
+                raise OpenStackCloudException(
+                    "Error constructing auth plugin: {plugin}".format(
+                        plugin=self.auth_plugin))
+
+            try:
+                self._keystone_session = ksc_session.Session(
+                    auth=keystone_auth,
+                    verify=self.verify,
+                    cert=self.cert)
+                self._auth_token = self._keystone_session.get_token()
             except Exception as e:
                 self.log.debug("keystone unknown issue", exc_info=True)
                 raise OpenStackCloudException(
                     "Error authenticating to the keystone: %s " % e.message)
-        return self._keystone_client
+        return self._keystone_session
+
+    @property
+    def auth_token(self):
+        if not self._auth_token:
+            self._auth_token = self.keystone_session.get_token()
+        return self._auth_token
 
     def _get_glance_api_version(self):
         if 'image' in self.api_versions:
@@ -247,13 +244,13 @@ class OpenStackCloud(object):
     @property
     def glance_client(self):
         if self._glance_client is None:
-            token = self.keystone_client.auth_token
+            token = self.auth_token
             endpoint = self._get_glance_endpoint()
             glance_api_version = self._get_glance_api_version()
             try:
                 self._glance_client = glanceclient.Client(
                     glance_api_version, endpoint, token=token,
-                    session=self.keystone_client.session)
+                    session=self.keystone_session)
             except Exception as e:
                 self.log.debug("glance unknown issue", exc_info=True)
                 raise OpenStackCloudException(
@@ -266,7 +263,7 @@ class OpenStackCloud(object):
     @property
     def swift_client(self):
         if self._swift_client is None:
-            token = self.keystone_client.auth_token
+            token = self.auth_token
             endpoint = self.get_endpoint(
                 service_type=self.get_service_type('object-store'))
             self._swift_client = swift_client.Connection(
@@ -282,23 +279,8 @@ class OpenStackCloud(object):
         if self._cinder_client is None:
             # Make the connection
             self._cinder_client = cinder_client.Client(
-                self.username,
-                self.password,
-                self.project_name,
-                self.auth_url,
-                region_name=self.region_name,
-            )
-
-            try:
-                self._cinder_client.authenticate()
-            except cinder_exceptions.Unauthorized as e:
-                self.log.debug("cinder Unauthorized", exc_info=True)
-                raise OpenStackCloudException(
-                    "Invalid OpenStack Cinder credentials.: %s" % e.message)
-            except cinder_exceptions.AuthorizationFailure as e:
-                self.log.debug("cinder AuthorizationFailure", exc_info=True)
-                raise OpenStackCloudException(
-                    "Unable to authorize user: %s" % e.message)
+                session=self.keystone_session,
+                region_name=self.region_name)
 
             if self._cinder_client is None:
                 raise OpenStackCloudException(
@@ -330,24 +312,10 @@ class OpenStackCloud(object):
             # is one
             self._trove_client = trove_client.Client(
                 trove_api_version,
-                self.username,
-                self.password,
-                self.project_name,
-                self.auth_url,
+                session=self.keystone_session,
                 region_name=self.region_name,
                 service_type=self.get_service_type('database'),
             )
-
-            try:
-                self._trove_client.authenticate()
-            except trove_exceptions.Unauthorized as e:
-                self.log.debug("trove Unauthorized", exc_info=True)
-                raise OpenStackCloudException(
-                    "Invalid OpenStack Trove credentials.: %s" % e.message)
-            except trove_exceptions.AuthorizationFailure as e:
-                self.log.debug("trove AuthorizationFailure", exc_info=True)
-                raise OpenStackCloudException(
-                    "Unable to authorize user: %s" % e.message)
 
             if self._trove_client is None:
                 raise OpenStackCloudException(
@@ -391,8 +359,10 @@ class OpenStackCloud(object):
         if service_type in self.endpoints:
             return self.endpoints[service_type]
         try:
-            endpoint = self.keystone_client.service_catalog.url_for(
-                service_type=service_type, endpoint_type=self.endpoint_type)
+            endpoint = self.keystone_session.get_endpoint(
+                service_type=service_type,
+                interface=self.endpoint_type,
+                region_name=self.region_name)
         except Exception as e:
             self.log.debug("keystone cannot get endpoint", exc_info=True)
             raise OpenStackCloudException(
@@ -892,7 +862,7 @@ class OperatorCloud(OpenStackCloud):
         if self._ironic_client is None:
             ironic_logging = logging.getLogger('ironicclient')
             ironic_logging.addHandler(logging.NullHandler())
-            token = self.keystone_client.auth_token
+            token = self.auth_token
             endpoint = self.get_endpoint(service_type='baremetal')
             try:
                 self._ironic_client = ironic_client.Client(
