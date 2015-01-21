@@ -18,7 +18,6 @@ import os
 import yaml
 
 from os_client_config import cloud_config
-from os_client_config import defaults_dict
 from os_client_config import exceptions
 from os_client_config import vendors
 
@@ -44,31 +43,22 @@ def get_boolean(value):
     return False
 
 
+def _get_os_environ():
+    ret = dict()
+    for (k, v) in os.environ.items():
+        if k.startswith('OS_'):
+            newkey = k[3:].lower()
+            ret[newkey] = v
+    return ret
+
+
 class OpenStackConfig(object):
 
     def __init__(self, config_files=None, vendor_files=None):
         self._config_files = config_files or CONFIG_FILES
         self._vendor_files = vendor_files or VENDOR_FILES
 
-        defaults = defaults_dict.DefaultsDict()
-        defaults.add('username')
-        defaults.add('user_domain_name')
-        defaults.add('password')
-        defaults.add(
-            'project_name', defaults.get('username', None),
-            also='tenant_name')
-        defaults.add('project_id', also='tenant_id')
-        defaults.add('project_domain_name')
-        defaults.add('auth_url')
-        defaults.add('region_name')
-        defaults.add('cache')
-        defaults.add('auth_token')
-        defaults.add('insecure')
-        defaults.add('endpoint_type')
-        defaults.add('cacert')
-        defaults.add('auth_type')
-
-        self.defaults = defaults
+        self.defaults = _get_os_environ()
 
         # use a config file if it exists where expected
         self.cloud_config = self._load_config_file()
