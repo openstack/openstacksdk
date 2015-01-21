@@ -17,6 +17,11 @@ import os
 
 import yaml
 
+try:
+    import keystoneclient.auth as ksc_auth
+except ImportError:
+    ksc_auth = None
+
 from os_client_config import cloud_config
 from os_client_config import exceptions
 from os_client_config import vendors
@@ -31,7 +36,6 @@ CACHE_PATH = os.path.join(os.path.expanduser(
     os.environ.get('XDG_CACHE_PATH', os.path.join('~', '.cache'))),
     'openstack')
 BOOL_KEYS = ('insecure', 'cache')
-REQUIRED_VALUES = ('auth_url', 'username', 'password')
 VENDOR_SEARCH_PATH = [os.getcwd(), CONFIG_HOME, '/etc/openstack']
 VENDOR_FILES = [
     os.path.join(d, 'clouds-public.yaml') for d in VENDOR_SEARCH_PATH]
@@ -44,12 +48,22 @@ def get_boolean(value):
 
 
 def _get_os_environ():
-    ret = dict()
+    ret = dict(auth_plugin='password', auth=dict())
     for (k, v) in os.environ.items():
         if k.startswith('OS_'):
             newkey = k[3:].lower()
             ret[newkey] = v
     return ret
+
+
+def _auth_update(old_dict, new_dict):
+    """Like dict.update, except handling the nested dict called auth."""
+    for (k, v) in new_dict.items():
+        if k == 'auth':
+            old_dict[k].update(v)
+        else:
+            old_dict[k] = v
+    return old_dict
 
 
 class OpenStackConfig(object):
@@ -124,15 +138,15 @@ class OpenStackConfig(object):
             cloud_name = our_cloud['cloud']
             vendor_file = self._load_vendor_file()
             if vendor_file and cloud_name in vendor_file['public-clouds']:
-                cloud.update(vendor_file['public-clouds'][cloud_name])
+                _auth_update(cloud, vendor_file['public-clouds'][cloud_name])
             else:
                 try:
-                    cloud.update(vendors.CLOUD_DEFAULTS[cloud_name])
+                    _auth_update(cloud, vendors.CLOUD_DEFAULTS[cloud_name])
                 except KeyError:
                     # Can't find the requested vendor config, go about business
                     pass
 
-        cloud.update(our_cloud)
+        _auth_update(cloud, our_cloud)
         if 'cloud' in cloud:
             del cloud['cloud']
 
@@ -186,6 +200,53 @@ class OpenStackConfig(object):
         new_args.update(os_args)
         return new_args
 
+    def _find_winning_auth_value(self, opt, config):
+        opt_name = opt.name.replace('-', '_')
+        if opt_name in config:
+            return config[opt_name]
+        else:
+            for d_opt in opt.deprecated_opts:
+                d_opt_name = d_opt.name.replace('-', '_')
+                if d_opt_name in config:
+                    return config[d_opt_name]
+
+    def _validate_auth(self, config):
+        # May throw a keystoneclient.exceptions.NoMatchingPlugin
+        plugin_options = ksc_auth.get_plugin_class(
+            config['auth_plugin']).get_options()
+
+        for p_opt in plugin_options:
+            # if it's in config.auth, win, kill it from config dict
+            # if it's in config and not in config.auth, move it
+            # deprecated loses to current
+            # provided beats default, deprecated or not
+            winning_value = self._find_winning_auth_value(
+                p_opt, config['auth'])
+            if not winning_value:
+                winning_value = self._find_winning_auth_value(p_opt, config)
+
+            # if the plugin tells us that this value is required
+            # then error if it's doesn't exist now
+            if not winning_value and p_opt.required:
+                raise exceptions.OpenStackConfigException(
+                    'Unable to find auth information for cloud'
+                    ' {cloud} in config files {files}'
+                    ' or environment variables. Missing value {auth_key}'
+                    ' required for auth plugin {plugin}'.format(
+                        cloud=cloud, files=','.join(self._config_files),
+                        auth_key=p_opt.name, plugin=config['auth_plugin']))
+
+            # Clean up after ourselves
+            for opt in [p_opt.name] + [o.name for o in p_opt.deprecated_opts]:
+                opt = opt.replace('-', '_')
+                config.pop(opt, None)
+                config['auth'].pop(opt, None)
+
+            if winning_value:
+                config['auth'][p_opt.name.replace('-', '_')] = winning_value
+
+            return config
+
     def get_one_cloud(self, cloud=None, validate=True,
                       argparse=None, **kwargs):
         """Retrieve a single cloud configuration and merge additional options
@@ -219,20 +280,8 @@ class OpenStackConfig(object):
                 if type(config[key]) is not bool:
                     config[key] = get_boolean(config[key])
 
-        if validate:
-            for key in REQUIRED_VALUES:
-                if key not in config or not config[key]:
-                    raise exceptions.OpenStackConfigException(
-                        'Unable to find full auth information for cloud'
-                        ' {cloud} in config files {files}'
-                        ' or environment variables.'.format(
-                            cloud=cloud, files=','.join(self._config_files)))
-            if 'project_name' not in config and 'project_id' not in config:
-                raise exceptions.OpenStackConfigException(
-                    'Neither project_name or project_id information found'
-                    ' for cloud {cloud} in config files {files}'
-                    ' or environment variables.'.format(
-                        cloud=cloud, files=','.join(self._config_files)))
+        if validate and ksc_auth:
+            config = self._validate_auth(config)
 
         # If any of the defaults reference other values, we need to expand
         for (key, value) in config.items():

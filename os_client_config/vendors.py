@@ -1,3 +1,4 @@
+# flake8: noqa
 # Copyright (c) 2014 Hewlett-Packard Development Company, L.P.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -14,12 +15,16 @@
 
 CLOUD_DEFAULTS = dict(
     hp=dict(
-        auth_url='https://region-b.geo-1.identity.hpcloudsvc.com:35357/v2.0',
+        auth=dict(
+            auth_url='https://region-b.geo-1.identity.hpcloudsvc.com:35357/v2.0',
+        ),
         region_name='region-b.geo-1',
         dns_service_type='hpext:dns',
     ),
     rackspace=dict(
-        auth_url='https://identity.api.rackspacecloud.com/v2.0/',
+        auth=dict(
+            auth_url='https://identity.api.rackspacecloud.com/v2.0/',
+        ),
         database_service_type='rax:database',
         image_api_version='2',
     )
