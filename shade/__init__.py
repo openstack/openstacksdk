@@ -77,6 +77,24 @@ def _get_service_values(kwargs, service_key):
             for k in kwargs.keys() if k.endswith(service_key)}
 
 
+def _iterate_timeout(timeout, message):
+    """Iterate and raise an exception on timeout.
+
+    This is a generator that will continually yield and sleep for 2
+    seconds, and if the timeout is reached, will raise an exception
+    with <message>.
+
+    """
+
+    start = time.time()
+    count = 0
+    while (timeout is None) or (time.time() < start + timeout):
+        count += 1
+        yield count
+        time.sleep(2)
+    raise OpenStackCloudTimeout(message)
+
+
 class OpenStackCloud(object):
 
     def __init__(self, cloud, region='',
@@ -500,9 +518,9 @@ class OpenStackCloud(object):
                     container=container, name=name),
                 image_properties=image_properties))
         if wait:
-            if timeout:
-                expire = time.time() + timeout
-            while timeout is None or time.time() < expire:
+            for count in _iterate_timeout(
+                    timeout,
+                    "Timeout waiting for the image to import."):
                 status = self.glance_client.tasks.get(task.id)
 
                 if status.status == 'success':
@@ -511,10 +529,6 @@ class OpenStackCloud(object):
                     raise OpenStackCloudException(
                         "Image creation failed: {message}".format(
                             message=status.message))
-                time.sleep(10)
-
-            raise OpenStackCloudTimeout(
-                "Timeout waiting for the image to import.")
         else:
             return None
 
@@ -715,8 +729,9 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Error in creating the server.")
         if wait:
-            expire = time.time() + timeout
-            while time.time() < expire:
+            for count in _iterate_timeout(
+                    timeout,
+                    "Timeout waiting for the server to come up."):
                 try:
                     server = self.nova_client.servers.get(server.id)
                 except Exception:
@@ -729,10 +744,6 @@ class OpenStackCloud(object):
                 if server.status == 'ERROR':
                     raise OpenStackCloudException(
                         "Error in creating the server, please check logs")
-                time.sleep(2)
-
-            raise OpenStackCloudException(
-                "Timeout waiting for the server to come up.")
         return server
 
     def delete_server(self, name, wait=False, timeout=180):
@@ -742,25 +753,21 @@ class OpenStackCloud(object):
             self.nova_client.servers.delete(server.pop())
         if not wait:
             return
-        expire = time.time() + timeout
-        while time.time() < expire:
+        for count in _iterate_timeout(
+                timeout,
+                "Timed out waiting for server to get deleted."):
             server = self.nova_client.servers.list(True, {'name': name})
             if not server:
                 return
-            time.sleep(5)
-        raise OpenStackCloudTimeout(
-            "Timed out waiting for server to get deleted.")
 
     def delete_volume(self, name_or_id, wait=False, timeout=180):
         volume = self.get_volume(name_or_id)
 
-        expire = time.time() + timeout
-        while time.time() < expire:
+        for count in _iterate_timeout(
+                timeout,
+                "Timed out waiting for server to get deleted."):
             if self.volume_exists(volume.id, cache=False):
                 return
-            time.sleep(5)
-        raise OpenStackCloudTimeout(
-            "Timed out waiting for server to get deleted.")
 
     def get_container(self, name, skip_cache=False):
         if skip_cache or name not in self._container_cache:
