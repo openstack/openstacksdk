@@ -230,6 +230,22 @@ class Resource(collections.MutableMapping):
         """
         return cls(kwargs, loaded=True)
 
+    @classmethod
+    def from_id(cls, value):
+        """Create an instance from an ID or return an existing instance.
+
+        Instance creation is done via cls.new.
+        """
+        # This method is useful in the higher level, in cases where operations
+        # need to depend on having Resource objects, but the API is flexible
+        # in taking text values which represent those objects.
+        if isinstance(value, cls):
+            return value
+        elif isinstance(value, six.string_types):
+            return cls.new(**{cls.id_attribute: value})
+        else:
+            raise ValueError("value must be %s instance or id" % cls.__name__)
+
     ##
     # MUTABLE MAPPING IMPLEMENTATION
     ##
