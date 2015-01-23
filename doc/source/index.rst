@@ -11,6 +11,22 @@ Welcome!
    contributing
    glossary
 
+User Guides
+-----------
+
+.. toctree::
+   :maxdepth: 1
+
+   userguides/object_store
+
+High-Level Interface
+--------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   highlevel/object_store
+
 Resource Level Classes
 ----------------------
 

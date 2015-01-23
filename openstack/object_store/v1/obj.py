@@ -53,7 +53,7 @@ class Object(resource.Resource):
     #: See http://www.ietf.org/rfc/rfc2616.txt.
     if_match = resource.prop("if-match", type=dict)
     #: In combination with Expect: 100-Continue, specify an
-    #: "If-None-Match: *" header to query whether the server already
+    #: "If-None-Match: \*" header to query whether the server already
     #: has a copy of the object before any data is sent.
     if_none_match = resource.prop("if-none-match", type=dict)
     #: See http://www.ietf.org/rfc/rfc2616.txt.
@@ -167,3 +167,19 @@ class Object(resource.Resource):
                            headers=headers).content
 
         return resp
+
+    def create(self, session, data=None):
+        """Create a remote resource from this instance."""
+        if not self.allow_create:
+            raise exceptions.MethodNotSupported('create')
+
+        url = utils.urljoin("", self.base_path % self, self.id)
+
+        if data is not None:
+            resp = session.put(url, service=self.service, data=data,
+                               accept="bytes").headers
+        else:
+            resp = session.post(url, service=self.service, data=None,
+                                accept=None).headers
+
+        self._attrs.update(resp)
