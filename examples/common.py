@@ -117,18 +117,11 @@ class UserPreferenceAction(argparse.Action):
         var = var.replace('OS_API_', '')
         var = var.lower()
         for kvp in values.split(','):
-            if var == 'region':
-                if '=' in kvp:
-                    service, value = kvp.split('=')
-                else:
-                    service = cls.pref.ALL
-                    value = kvp
+            if '=' in kvp:
+                service, value = kvp.split('=')
             else:
-                if '=' in kvp:
-                    service, value = kvp.split('=')
-                else:
-                    service = cls.pref.ALL
-                    value = kvp
+                service = cls.pref.ALL
+                value = kvp
             if var == 'name':
                 cls.pref.set_name(service, value)
             elif var == 'region':
