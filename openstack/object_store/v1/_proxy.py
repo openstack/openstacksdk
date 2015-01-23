@@ -19,34 +19,40 @@ class Proxy(object):
     def __init__(self, session):
         self.session = session
 
-    def get_account_metadata(self, container=None):
+    def get_account_metadata(self):
         """Get metatdata for this account.
 
-        :param container: The container to retreive metadata for.
-        :type container:
+        :rtype:
             :class:`~openstack.object_store.v1.container.Container`
         """
-        # TODO(briancurtin): should just use Container.head directly?
-        if container is None:
-            container = _container.Container()
-        container.head(self.session)
-        return container
+        return _container.Container().head(self.session)
 
     def set_account_metadata(self, container):
         """Set metatdata for this account.
 
-        :param container: The container to set metadata for.
+        :param container: Account metadata specified on a
+            :class:`~openstack.object_store.v1.container.Container` object
+            to be sent to the server.
         :type container:
             :class:`~openstack.object_store.v1.container.Container`
+
+        :rtype: ``None``
         """
         container.update(self.session)
-        return container
 
     def containers(self, limit=None, marker=None, **kwargs):
-        """Return a generator that yields the account's Container objects.
+        """Obtain Container objects for this account.
 
-        :param int limit: Set the limit of how many containers to retrieve.
+        :param int limit: Set the limit of how many containers to retrieve
+            in each request to the server. By default, the value is ``None``,
+            retrieving the maximum amount of containers per request that
+            your server allows.
         :param str marker: The name of the container to begin iterating from.
+            By default, the value is ``None``, returning all available
+            containers.
+
+        :rtype: A generator of
+            :class:`~openstack.object_store.v1.container.Container` objects.
         """
         return _container.Container.list(self.session, limit=limit,
                                          marker=marker, **kwargs)
@@ -54,44 +60,58 @@ class Proxy(object):
     def get_container_metadata(self, container):
         """Get metatdata for a container.
 
-        :param container: The container to retreive metadata for.
+        :param container: The container to retreive metadata for. You can
+            pass a container object or the name of a container to
+            retrieve metadata for.
         :type container:
             :class:`~openstack.object_store.v1.container.Container`
+
+        :rtype:
+            :class:`~openstack.object_store.v1.container.Container`
+        :raises: :exc:`ValueError` when an unnamed container object was
+            specified, as this would instead retrieve account metadata.
         """
         container = _container.Container.from_id(container)
-        # TODO(briancurtin): may want to check if the container has a
-        # name at this point. If it doesn't, this call will work but it's
-        # actually getting *account* metadata.
-        container.head(self.session)
-        return container
+        if getattr(container, "name") is None:
+            msg = "A named container or a name itself must be passed"
+            raise ValueError(msg)
+
+        return container.head(self.session)
 
     def set_container_metadata(self, container):
         """Set metatdata for a container.
 
-        :param container: The container to set metadata for.
+        :param container: A container object containing metadata to be set.
         :type container:
             :class:`~openstack.object_store.v1.container.Container`
+
+        :rtype: ``None``
         """
         container.create(self.session)
-        return container
 
     def create_container(self, container):
         """Create a container,
 
-        :param container: A container name or object.
+        :param container: The container to create. You can pass a container
+            object or the name of a container to create.
         :type container:
+            :class:`~openstack.object_store.v1.container.Container`
+
+        :rtype:
             :class:`~openstack.object_store.v1.container.Container`
         """
         container = _container.Container.from_id(container)
-        container.create(self.session)
-        return container
+        return container.create(self.session)
 
     def delete_container(self, container):
         """Delete a container.
 
-        :param container: A container name or object.
+        :param container: The container to delete. You can pass a container
+            object or the name of a container to delete.
         :type container:
             :class:`~openstack.object_store.v1.container.Container`
+
+        :rtype: ``None``
         """
         container = _container.Container.from_id(container)
         container.delete(self.session)
@@ -99,9 +119,13 @@ class Proxy(object):
     def objects(self, container, limit=None, marker=None, **kwargs):
         """Return a generator that yields the Container's objects.
 
-        :param container: A container name or object.
+        :param container: A container object or the name of a container
+            that you want to retrieve objects from.
         :type container:
             :class:`~openstack.object_store.v1.container.Container`
+
+        :rtype: A generator of
+            :class:`~openstack.object_store.v1.obj.Object` objects.
         """
         container = _container.Container.from_id(container)
 
@@ -151,8 +175,7 @@ class Proxy(object):
             cnt = _container.Container.from_id(container)
             obj.container = cnt.name
 
-        obj.create(self.session, data)
-        return obj
+        return obj.create(self.session, data)
 
     def copy_object(self):
         """Copy an object."""
@@ -163,6 +186,8 @@ class Proxy(object):
 
         :param obj: The object to delete.
         :type obj: :class:`~openstack.object_store.v1.obj.Object`
+
+        :rtype: ``None``
         """
         obj.delete(self.session)
 
@@ -171,15 +196,18 @@ class Proxy(object):
 
         :param obj: The object to retreive metadata from.
         :type obj: :class:`~openstack.object_store.v1.obj.Object`
+
+        :return: A :class:`~openstack.object_store.v1.obj.Object`
+            populated with the server's response.
         """
-        obj.head(self.session)
-        return obj
+        return obj.head(self.session)
 
     def set_object_metadata(self, obj):
         """Set metatdata for an object.
 
         :param obj: The object to set metadata for.
         :type obj: :class:`~openstack.object_store.v1.obj.Object`
+
+        :rtype: ``None``
         """
         obj.create(self.session)
-        return obj
