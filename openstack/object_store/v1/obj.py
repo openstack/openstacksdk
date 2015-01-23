@@ -84,12 +84,12 @@ class Object(resource.Resource):
     #: the object, in bytes.
     content_length = resource.prop("content-length")
     #: The MIME type of the object.
-    content_type = resource.prop("content-type")
+    content_type = resource.prop("content_type", alias="content-type")
     #: The type of ranges that the object accepts.
     accept_ranges = resource.prop("accept-ranges")
     #: The date and time that the object was created or the last
     #: time that the metadata was changed.
-    last_modified = resource.prop("last-modified")
+    last_modified = resource.prop("last_modified", alias="last-modified")
     #: For objects smaller than 5 GB, this value is the MD5 checksum
     #: of the object content. The value is not quoted.
     #: For manifest objects, this value is the MD5 checksum of the
