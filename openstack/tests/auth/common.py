@@ -177,15 +177,15 @@ TEST_SERVICE_CATALOG_NORMALIZED = [
         "endpoints": [{
             "interface": "public",
             "region": "RegionOne",
-            "url": "http://object-store.region1.public",
+            "url": "http://object-store.region1.public/%(version)s",
         }, {
             "interface": "internal",
             "region": "RegionOne",
-            "url": "http://object-store.region1.internal",
+            "url": "http://object-store.region1.internal/%(version)s",
         }, {
             "interface": "admin",
             "region": "RegionOne",
-            "url": "http://object-store.region1.admin",
+            "url": "http://object-store.region1.admin/%(version)s",
         }],
         "type": "object-store",
         "name": "swift",

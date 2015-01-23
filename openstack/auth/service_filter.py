@@ -117,11 +117,17 @@ class ServiceFilter(object):
             version = default.version
         else:
             version = self.version
-        return ServiceFilter(service_type=default.service_type,
-                             visibility=self.visibility or default.visibility,
-                             region=self.region,
-                             service_name=self.service_name,
-                             version=version)
+        response = ServiceFilter()
+        response.service_type = default.service_type
+        response.service_name = self.service_name
+        response.valid_versions = default.valid_versions
+        response.visibility = default.visibility
+        if self.visibility:
+            response.visibility = self.visibility
+        if self.region:
+            response.region = self.region
+        response.version = version
+        return response
 
     def match_service_type(self, service_type):
         """Service types are equavilent."""
@@ -163,12 +169,21 @@ class ServiceFilter(object):
             raise exceptions.SDKException(msg)
         self.visibility = visibility
 
+    def _get_valid_version(self):
+        if self.valid_versions:
+            if self.version:
+                for valid in self.valid_versions:
+                    # NOTE(thowe): should support fuzzy match e.g: v2.1==v2
+                    if self.version == valid.module:
+                        return valid
+            return self.valid_versions[0]
+        return ValidVersion('')
+
     def get_module(self):
         """Get the full module name associated with the service."""
         module = self.__class__.__module__.split('.')
         module = ".".join(module[:-1])
-        # NOTE(thowe): Only support for one valid version right now.
-        module = module + "." + self.valid_versions[0].module
+        module = module + "." + self._get_valid_version().module
         return module
 
     def get_service_module(self):
@@ -180,11 +195,16 @@ class ServiceFilter(object):
         """
         return self.__class__.__module__.split('.')[1]
 
-    def get_version(self, version):
-        """Get the desired version.
+    def get_version_path(self, version):
+        """Get the desired version path.
 
         If the service does not have a version, use the suggested version.
         """
-        if self.version is None:
+        if self.version is not None:
+            return self.version
+        valid = self._get_valid_version()
+        if valid.path:
+            return valid.path
+        if version:
             return version
-        return self.version
+        return ''

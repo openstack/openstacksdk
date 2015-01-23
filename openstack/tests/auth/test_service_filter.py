@@ -140,15 +140,15 @@ class TestServiceFilter(testtools.TestCase):
         self.assertEqual('openstack.identity.v3', sot.get_module())
         self.assertEqual('identity', sot.get_service_module())
 
-    def test_get_version(self):
+    def test_get_version_path(self):
         sot = identity_service.IdentityService()
-        self.assertEqual('v3', sot.get_version('v3'))
-        sot = identity_service.IdentityService(
-            version=identity_service.IdentityService.UNVERSIONED
-        )
-        self.assertEqual('', sot.get_version('v3'))
+        self.assertEqual('v3', sot.get_version_path('v2'))
         sot = identity_service.IdentityService(version='v2')
-        self.assertEqual('v2', sot.get_version('v3'))
+        self.assertEqual('v2', sot.get_version_path('v3'))
+        sot = identity_service.IdentityService(version='v2.1')
+        self.assertEqual('v2.1', sot.get_version_path('v3'))
+        sot = identity_service.IdentityService(version='')
+        self.assertEqual('', sot.get_version_path('v3'))
 
 
 class TestValidVersion(testtools.TestCase):
