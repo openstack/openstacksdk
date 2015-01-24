@@ -647,24 +647,7 @@ class Resource(collections.MutableMapping):
         more_data = True
 
         while more_data:
-            filters = {}
-
-            if limit:
-                filters['limit'] = limit
-            if marker:
-                filters['marker'] = marker
-
-            if path_args:
-                url = cls.base_path % path_args
-            else:
-                url = cls.base_path
-            if filters:
-                url = '%s?%s' % (url, url_parse.urlencode(filters))
-
-            resp = session.get(url, service=cls.service, params=params).body
-
-            if cls.resources_key:
-                resp = resp[cls.resources_key]
+            resp = cls.page(session, limit, marker, path_args, **params)
 
             # TODO(briancurtin): Although there are a few different ways
             # across services, we can know from a response if it's the end
@@ -686,6 +669,49 @@ class Resource(collections.MutableMapping):
 
             if limit and yielded < limit:
                 more_data = False
+
+    @classmethod
+    def page(cls, session, limit, marker, path_args=None, **params):
+        """Get a one page response.
+
+        This method gets starting at ``marker`` with a maximum of ``limit``
+        records.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+        :param limit: The maximum amount of results to retrieve.
+        :param marker: The position in the list to begin requests from.
+                       The type of value to use for ``marker`` depends on
+                       the API being called.
+        :param dict path_args: A dictionary of arguments to construct
+                               a compound URL.
+                               See `How path_args are used`_ for details.
+        :param dict params: Parameters to be passed into the underlying
+                            :meth:`~openstack.session.Session.get` method.
+
+        :return: An array of :class:`Resource` objects.
+        """
+
+        filters = {}
+
+        if limit:
+            filters['limit'] = limit
+        if marker:
+            filters['marker'] = marker
+
+        if path_args:
+            url = cls.base_path % path_args
+        else:
+            url = cls.base_path
+        if filters:
+            url = '%s?%s' % (url, url_parse.urlencode(filters))
+
+        resp = session.get(url, service=cls.service, params=params).body
+
+        if cls.resources_key:
+            resp = resp[cls.resources_key]
+
+        return resp
 
     @classmethod
     def find(cls, session, name_or_id, path_args=None):
