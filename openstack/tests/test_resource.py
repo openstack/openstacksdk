@@ -449,7 +449,8 @@ class TestFind(base.TestCase):
 
         self.assertEqual(self.ID, result.id)
         p = {'fields': 'id', 'name': self.NAME}
-        self.mock_get.assert_any_call(fake_path, params=p, service=None)
+        path = fake_path + "?limit=2"
+        self.mock_get.assert_any_call(path, params=p, service=None)
 
     def test_id(self):
         self.mock_get.side_effect = [
@@ -461,7 +462,8 @@ class TestFind(base.TestCase):
 
         self.assertEqual(self.ID, result.id)
         p = {'fields': 'id', 'id': self.ID}
-        self.mock_get.assert_any_call(fake_path, params=p, service=None)
+        path = fake_path + "?limit=2"
+        self.mock_get.assert_any_call(path, params=p, service=None)
 
     def test_nameo(self):
         self.mock_get.side_effect = [
@@ -476,7 +478,8 @@ class TestFind(base.TestCase):
         FakeResource.name_attribute = 'name'
         self.assertEqual(self.ID, result.id)
         p = {'fields': 'id', 'nameo': self.NAME}
-        self.mock_get.assert_any_call(fake_path, params=p, service=None)
+        path = fake_path + "?limit=2"
+        self.mock_get.assert_any_call(path, params=p, service=None)
 
     def test_dups(self):
         dup = {'id': 'Larry'}
@@ -499,7 +502,8 @@ class TestFind(base.TestCase):
         FakeResource.id_attribute = 'id'
 
         p = {'fields': 'ip_address', 'ip_address': "127.0.0.1"}
-        self.mock_get.assert_any_call(fake_path, params=p, service=None)
+        path = fake_path + "?limit=2"
+        self.mock_get.assert_any_call(path, params=p, service=None)
 
     def test_nada(self):
         resp = FakeResponse({FakeResource.resources_key: []})

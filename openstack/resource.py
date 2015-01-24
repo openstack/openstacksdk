@@ -671,7 +671,7 @@ class Resource(collections.MutableMapping):
                 more_data = False
 
     @classmethod
-    def page(cls, session, limit, marker, path_args=None, **params):
+    def page(cls, session, limit, marker=None, path_args=None, **params):
         """Get a one page response.
 
         This method gets starting at ``marker`` with a maximum of ``limit``
@@ -734,35 +734,21 @@ class Resource(collections.MutableMapping):
                 'fields': cls.id_attribute,
                 'path_args': path_args,
             }
-            info = cls.list(session, **args)
-            # If there is exactly one result available, return it.
-            result = None
-            try:
-                result = next(info)
-                next(info)
-            except StopIteration:
-                if result is not None:
-                    return result
+            info = cls.page(session, limit=2, **args)
+            if len(info) == 1:
+                return cls.existing(**info[0])
         except exceptions.HttpException:
             pass
 
         if cls.name_attribute:
             params = {cls.name_attribute: name_or_id,
                       'fields': cls.id_attribute}
-            info = cls.list(session, path_args=path_args, **params)
-            result = None
-            # Take the first value as our result. If another value is,
-            # available then raise DuplicateResource.
-            try:
-                result = next(info)
-                next(info)
+            info = cls.page(session, limit=2, path_args=path_args, **params)
+            if len(info) == 1:
+                return cls.existing(**info[0])
+            if len(info) > 1:
                 msg = "More than one %s exists with the name '%s'."
                 msg = (msg % (cls.get_resource_name(), name_or_id))
                 raise exceptions.DuplicateResource(msg)
-            except StopIteration:
-                # We got here because `info` either gave us the result
-                # or it was empty.
-                if result is not None:
-                    return result
 
         return None
