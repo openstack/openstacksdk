@@ -20,12 +20,23 @@ from openstack.object_store.v1 import obj
 CONTAINER_NAME = "mycontainer"
 OBJECT_NAME = "myobject"
 
+# Object can receive both last-modified in headers and last_modified in
+# the body. However, originally, only last-modified was handled as an
+# expected prop but it was named last_modified. Under Python 3, creating
+# an Object with the body value last_modified causes the _attrs dictionary
+# size to change while iterating over its values as we have an attribute
+# called `last_modified` and we attempt to grow an additional attribute
+# called `last-modified`, which is the "name" of `last_modified`.
+# The same is true of content_type and content-type, or any prop
+# attribute which would follow the same pattern.
+# This example should represent the body values returned by a GET, so the keys
+# must be underscores.
 OBJ_EXAMPLE = {
     "hash": "243f87b91224d85722564a80fd3cb1f1",
-    "last-modified": "2014-07-13T18:41:03.319240",
+    "last_modified": "2014-07-13T18:41:03.319240",
     "bytes": 252466,
     "name": OBJECT_NAME,
-    "content-type": "application/octet-stream"
+    "content_type": "application/octet-stream"
 }
 
 HEAD_EXAMPLE = {
@@ -72,15 +83,7 @@ class TestObject(testtools.TestCase):
         self.assertEqual(CONTAINER_NAME, sot.container)
 
     def test_head(self):
-        sot = obj.Object.existing(**OBJ_EXAMPLE)
-
-        # Update object with HEAD data
-        sot._attrs.update(HEAD_EXAMPLE)
-
-        # Attributes from creation
-        self.assertEqual(OBJ_EXAMPLE['name'], sot.name)
-        self.assertEqual(OBJ_EXAMPLE['hash'], sot.hash)
-        self.assertEqual(OBJ_EXAMPLE['bytes'], sot.bytes)
+        sot = obj.Object.existing(**HEAD_EXAMPLE)
 
         # Attributes from header
         self.assertEqual(HEAD_EXAMPLE['container'], sot.container)
