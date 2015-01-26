@@ -115,6 +115,7 @@ class OpenStackCloud(object):
 
         self._nova_client = None
         self._glance_client = None
+        self._glance_endpoint = None
         self._ironic_client = None
         self._keystone_client = None
         self._cinder_client = None
@@ -204,11 +205,12 @@ class OpenStackCloud(object):
                     "Error authenticating to the keystone: %s " % e.message)
         return self._keystone_client
 
-    def _get_glance_api_version(self, endpoint):
+    def _get_glance_api_version(self):
         if 'image' in self.api_versions:
             return self.api_versions['image']
         # Yay. We get to guess ...
         # Get rid of trailing '/' if present
+        endpoint = self._get_glance_endpoint()
         if endpoint.endswith('/'):
             endpoint = endpoint[:-1]
         url_bits = endpoint.split('/')
@@ -216,13 +218,18 @@ class OpenStackCloud(object):
             return url_bits[-1][1]
         return '1'  # Who knows? Let's just try 1 ...
 
+    def _get_glance_endpoint(self):
+        if self._glance_endpoint is None:
+            self._glance_endpoint = self.get_endpoint(
+                service_type=self.get_service_type('image'))
+        return self._glance_endpoint
+
     @property
     def glance_client(self):
         if self._glance_client is None:
             token = self.keystone_client.auth_token
-            endpoint = self.get_endpoint(
-                service_type=self.get_service_type('image'))
-            glance_api_version = self._get_glance_api_version(endpoint)
+            endpoint = self._get_glance_endpoint()
+            glance_api_version = self._get_glance_api_version()
             try:
                 self._glance_client = glanceclient.Client(
                     glance_api_version, endpoint, token=token,
