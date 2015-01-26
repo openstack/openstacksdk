@@ -10,8 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import time
+
 from openstack.compute import compute_service
 from openstack.compute.v2 import server_ip
+from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
@@ -109,3 +112,51 @@ class Server(resource.Resource):
             action['metadata'] = metadata
         body = {'createImage': action}
         return self.action(session, body)
+
+    def wait_for_status(self, session, status='ACTIVE', failures=None,
+                        interval=5, wait=120):
+        """Wait for the server to be in some status.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+        :param status: Desired status of the server.
+        :param list failures: Statuses that would indicate the transition
+                              failed such as 'ERROR'.
+        :param interval: Number of seconds to wait between checks.
+        :param wait: Maximum number of seconds to wait for transition.
+
+        :return: Method returns self on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
+                 to status failed to occur in wait seconds.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` resource
+                 transitioned to one of the failure states.
+        """
+        try:
+            if self.status == status:
+                return self
+        except AttributeError:
+            pass
+        total_sleep = 0
+        if failures is None:
+            failures = []
+        while total_sleep < wait:
+            self.get(session)
+            if self.status == status:
+                return self
+            if self.status in failures:
+                msg = ("Resource %s transitioned to failure state %s" %
+                       (self.id, self.status))
+                raise exceptions.ResourceFailure(msg)
+            time.sleep(interval)
+            total_sleep += interval
+        msg = "Timeout waiting for %s to transition to %s" % (self.id, status)
+        raise exceptions.ResourceTimeout(msg)
+
+    def get_floating_ips(self):
+        """Get the floating ips associated with this server."""
+        addresses = self.addresses[self.name]
+        result = []
+        for address in addresses:
+            if address['OS-EXT-IPS:type'] == 'floating':
+                result.append(address['addr'])
+        return result

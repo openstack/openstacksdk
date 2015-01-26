@@ -87,3 +87,13 @@ class ResourceNotFound(SDKException):
 class DuplicateResource(SDKException):
     """More than one resource exists with that name."""
     pass
+
+
+class ResourceTimeout(SDKException):
+    """Timeout waiting for resource."""
+    pass
+
+
+class ResourceFailure(SDKException):
+    """General resource failure."""
+    pass
