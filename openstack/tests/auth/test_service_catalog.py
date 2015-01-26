@@ -37,7 +37,16 @@ class TestServiceCatalog(testtools.TestCase):
         self.assertEqual(["http://identity.region1.public/v1.1/123123"],
                          sot.get_urls(sf))
         sf = service_filter.ServiceFilter(service_type='object-store')
-        self.assertEqual(["http://object-store.region1.public"],
+        self.assertEqual(["http://object-store.region1.public/"],
+                         sot.get_urls(sf))
+        sf = service_filter.ServiceFilter(service_type='object-store',
+                                          version='v9')
+        self.assertEqual(["http://object-store.region1.public/v9"],
+                         sot.get_urls(sf))
+        sf = service_filter.ServiceFilter(service_type='object-store')
+        osf = object_store_service.ObjectStoreService()
+        sf = sf.join(osf)
+        self.assertEqual(["http://object-store.region1.public/v1"],
                          sot.get_urls(sf))
 
     def get_urls_name(self, sot):

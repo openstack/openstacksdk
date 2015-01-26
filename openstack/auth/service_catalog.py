@@ -51,7 +51,8 @@ class ServiceCatalog(object):
                 path = split[2]
                 vstr = pattern.search(path)
                 if not vstr:
-                    endpoint['url'] = endpoint['url'].rstrip('/')
+                    endpoint['url'] = (endpoint['url'].rstrip('/') +
+                                       '/%(version)s')
                     continue
                 start, end = vstr.span()
                 endpoint['version'] = path[start + 1:end]
@@ -94,9 +95,8 @@ class ServiceCatalog(object):
         """
         urls = []
         for url, version in self._get_endpoints(filtration):
-            if version:
-                version = filtration.get_version(version)
-                url = url % {'version': version}
+            version = filtration.get_version_path(version)
+            url = url % {'version': version}
             urls.append(url)
         return urls
 
