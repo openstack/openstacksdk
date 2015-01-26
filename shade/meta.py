@@ -13,6 +13,11 @@
 # limitations under the License.
 
 
+import six
+
+NON_CALLABLES = (six.string_types, bool, dict, int, list, type(None))
+
+
 def find_nova_addresses(addresses, ext_tag=None, key_name=None, version=4):
 
     ret = []
@@ -133,6 +138,6 @@ def obj_to_dict(obj):
     instance = {}
     for key in dir(obj):
         value = getattr(obj, key)
-        if not callable(value) and not key.startswith('_'):
+        if isinstance(value, NON_CALLABLES) and not key.startswith('_'):
             instance[key] = value
     return instance

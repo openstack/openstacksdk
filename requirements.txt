@@ -1,6 +1,7 @@
 pbr>=0.5.21,<1.0
 
 os-client-config
+six
 
 python-novaclient
 python-keystoneclient>=0.11.0
