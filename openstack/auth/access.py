@@ -16,7 +16,7 @@
 
 import datetime
 
-from oslo.utils import timeutils
+from oslo_utils import timeutils
 
 from openstack.auth import service_catalog as catalog
 
