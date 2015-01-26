@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import hashlib
 import logging
 import operator
 import time
@@ -27,6 +28,8 @@ from novaclient.v1_1 import client as nova_client
 from novaclient.v1_1 import floating_ips
 import os_client_config
 import pbr.version
+import swiftclient.client as swift_client
+import swiftclient.exceptions as swift_exceptions
 import troveclient.client as trove_client
 from troveclient import exceptions as trove_exceptions
 
@@ -34,6 +37,8 @@ from troveclient import exceptions as trove_exceptions
 from shade import meta
 
 __version__ = pbr.version.VersionInfo('shade').version_string()
+OBJECT_MD5_KEY = 'x-shade-md5'
+OBJECT_SHA256_KEY = 'x-shade-sha256'
 
 
 class OpenStackCloudException(Exception):
@@ -51,11 +56,12 @@ def openstack_clouds(config=None):
             for f in config.get_all_clouds()]
 
 
-def openstack_cloud(**kwargs):
+def openstack_cloud(debug=False, **kwargs):
     cloud_config = os_client_config.OpenStackConfig().get_one_cloud(
         **kwargs)
     return OpenStackCloud(
-        cloud_config.name, cloud_config.region, **cloud_config.config)
+        cloud_config.name, cloud_config.region,
+        debug=debug, **cloud_config.config)
 
 
 def operator_cloud(**kwargs):
@@ -102,6 +108,8 @@ class OpenStackCloud(object):
         self._image_cache = image_cache
         self._flavor_cache = flavor_cache
         self._volume_cache = volume_cache
+        self._container_cache = dict()
+        self._file_hash_cache = dict()
 
         self.debug = debug
 
@@ -111,9 +119,13 @@ class OpenStackCloud(object):
         self._keystone_client = None
         self._cinder_client = None
         self._trove_client = None
+        self._swift_client = None
 
         self.log = logging.getLogger('shade')
-        self.log.setLevel(logging.INFO)
+        log_level = logging.INFO
+        if self.debug:
+            log_level = logging.DEBUG
+        self.log.setLevel(log_level)
         self.log.addHandler(logging.StreamHandler())
 
     def get_service_type(self, service):
@@ -223,6 +235,19 @@ class OpenStackCloud(object):
             if not self._glance_client:
                 raise OpenStackCloudException("Error connecting to glance")
         return self._glance_client
+
+    @property
+    def swift_client(self):
+        if self._swift_client is None:
+            token = self.keystone_client.auth_token
+            endpoint = self.get_endpoint(
+                service_type=self.get_service_type('object-store'))
+            self._swift_client = swift_client.Connection(
+                preauthurl=endpoint,
+                preauthtoken=token,
+                os_options=dict(region_name=self.region_name),
+            )
+        return self._swift_client
 
     @property
     def cinder_client(self):
@@ -639,6 +664,107 @@ class OpenStackCloud(object):
             time.sleep(5)
         raise OpenStackCloudTimeout(
             "Timed out waiting for server to get deleted.")
+
+    def get_container(self, name, skip_cache=False):
+        if skip_cache or name not in self._container_cache:
+            try:
+                container = self.swift_client.head_container(name)
+                self._container_cache[name] = container
+            except swift_exceptions.ClientException as e:
+                if e.http_status == 404:
+                    return None
+                self.log.debug("swift container fetch failed", exc_info=True)
+                raise OpenStackCloudException(
+                    "Container fetch failed: %s (%s/%s)" % (
+                        e.http_reason, e.http_host, e.http_path))
+        return self._container_cache[name]
+
+    def create_container(self, name):
+        container = self.get_container(name)
+        if container:
+            return container
+        try:
+            self.swift_client.put_container(name)
+            return self.get_container(name, skip_cache=True)
+        except swift_exceptions.ClientException as e:
+            self.log.debug("swift container create failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Container creation failed: %s (%s/%s)" % (
+                    e.http_reason, e.http_host, e.http_path))
+
+    def _get_file_hashes(self, filename):
+        if filename not in self._file_hash_cache:
+            md5 = hashlib.md5()
+            sha256 = hashlib.sha256()
+            with open(filename, 'rb') as file_obj:
+                for chunk in iter(lambda: file_obj.read(8192), b''):
+                    md5.update(chunk)
+                    sha256.update(chunk)
+            self._file_hash_cache[filename] = dict(
+                md5=md5.digest(), sha256=sha256.digest)
+        return (self._file_hash_cache[filename]['md5'],
+                self._file_hash_cache[filename]['sha256'])
+
+    def _is_object_stale(
+        self, container, name, filename, file_md5=None, file_sha256=None):
+
+        metadata = self.get_object_metadata(container, name)
+        if not metadata:
+            self.log.debug(
+                "swift stale check, no object: {container}/{name}".format(
+                    container=container, name=name))
+            return True
+
+        if file_md5 is None or file_sha256 is None:
+            (file_md5, file_sha256) = self._get_file_hashes(filename)
+
+        if metadata.get(OBJECT_MD5_KEY, '') != file_md5:
+            self.log.debug(
+                "swift md5 mismatch: {filename}!={container}/{name}".format(
+                    filename=filename, container=container, name=name))
+            return True
+        if metadata.get(OBJECT_SHA256_KEY, '') != file_sha256:
+            self.log.debug(
+                "swift sha256 mismatch: {filename}!={container}/{name}".format(
+                    filename=filename, container=container, name=name))
+            return True
+
+        self.log.debug(
+            "swift object up to date: {container}/{name}".format(
+            container=container, name=name))
+        return False
+
+    def create_object(
+            self, container, name, filename=None,
+            md5=None, sha256=None, **headers):
+        if not filename:
+            filename = name
+
+        if self._is_object_stale(container, name, filename, md5, sha256):
+
+            self.create_container(container)
+
+            with open(filename, 'r') as fileobj:
+                self.log.debug(
+                    "swift uploading {filename} to {container}/{name}".format(
+                        filename=filename, container=container, name=name))
+                self.swift_client.put_object(container, name, contents=fileobj)
+
+        (md5, sha256) = self._get_file_hashes(filename)
+        headers[OBJECT_MD5_KEY] = md5
+        headers[OBJECT_SHA256_KEY] = sha256
+        self.swift_client.post_object(container, name, headers=headers)
+
+    def get_object_metadata(self, container, name):
+        try:
+            return self.swift_client.head_object(container, name)
+        except swift_exceptions.ClientException as e:
+            if e.http_status == 404:
+                return None
+            self.log.debug("swift metadata fetch failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Object metadata fetch failed: %s (%s/%s)" % (
+                    e.http_reason, e.http_host, e.http_path))
 
 
 class OperatorCloud(OpenStackCloud):
