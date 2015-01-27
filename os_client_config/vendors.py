@@ -26,6 +26,7 @@ CLOUD_DEFAULTS = dict(
             auth_url='https://identity.api.rackspacecloud.com/v2.0/',
         ),
         database_service_type='rax:database',
+        compute_service_name='cloudServersOpenStack',
         image_api_version='2',
     )
 )
