@@ -112,6 +112,7 @@ class OpenStackCloud(object):
         self._auth_token = kwargs.get('auth_token', None)
 
         self.service_types = _get_service_values(kwargs, 'service_type')
+        self.service_names = _get_service_values(kwargs, 'service_name')
         self.endpoints = _get_service_values(kwargs, 'endpoint')
         self.api_versions = _get_service_values(kwargs, 'api_version')
 
@@ -158,6 +159,9 @@ class OpenStackCloud(object):
     def get_service_type(self, service):
         return self.service_types.get(service, service)
 
+    def get_service_name(self, service):
+        return self.service_names.get(service, None)
+
     def _get_nova_api_version(self):
         return self.api_versions['compute']
 
@@ -170,6 +174,7 @@ class OpenStackCloud(object):
                 self._nova_client = nova_client.Client(
                     self._get_nova_api_version(),
                     session=self.keystone_session,
+                    service_name=self.get_service_name('compute'),
                     region_name=self.region_name)
             except Exception:
                 self.log.debug("Couldn't construct nova object", exc_info=True)
