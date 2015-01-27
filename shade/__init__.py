@@ -405,6 +405,15 @@ class OpenStackCloud(object):
     def delete_keypair(self, name):
         return self.nova_client.keypairs.delete(name)
 
+    def list_networks(self):
+        return self.neutron_client.list_networks()['networks']
+
+    def get_network(self, name_or_id):
+        for network in self.list_networks():
+            if name_or_id in (network['id'], network['name']):
+                return network
+        return None
+
     def _get_images_from_cloud(self, filter_deleted):
         # First, try to actually get images from glance, it's more efficient
         images = dict()
