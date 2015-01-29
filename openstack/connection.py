@@ -52,9 +52,8 @@ Find or create
 If you wanted to make sure you had a network named 'jenkins', you would first
 try to find it and if that fails, you would create it::
 
-    try:
-        network = conn.network.find_network("jenkins")
-    except exceptions.ResourceNotFound:
+    network = conn.network.find_network("jenkins")
+    if network is None:
         network = conn.network.create_network({"name": "jenkins"})
 
 """

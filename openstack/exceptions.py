@@ -79,11 +79,6 @@ class MethodNotSupported(SDKException):
     pass
 
 
-class ResourceNotFound(SDKException):
-    """The requested resource was not found."""
-    pass
-
-
 class DuplicateResource(SDKException):
     """More than one resource exists with that name."""
     pass

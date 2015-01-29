@@ -25,7 +25,6 @@ import sys
 
 from examples import common
 from openstack import connection
-from openstack import exceptions
 
 
 def create_jenkins(opts):
@@ -38,15 +37,13 @@ def create_jenkins(opts):
     args = vars(opts)
     conn = connection.Connection(preference=opts.user_preferences, **args)
 
-    try:
-        network = conn.network.find_network(name)
-    except exceptions.ResourceNotFound:
+    network = conn.network.find_network(name)
+    if network is None:
         network = conn.network.create_network(name=name)
     print(str(network))
 
-    try:
-        subnet = conn.network.find_subnet(name)
-    except exceptions.ResourceNotFound:
+    subnet = conn.network.find_subnet(name)
+    if subnet is None:
         args = {
             "name": name,
             "network_id": network.id,
@@ -58,9 +55,8 @@ def create_jenkins(opts):
     print(str(subnet))
 
     extnet = conn.network.find_network("Ext-Net")
-    try:
-        router = conn.network.find_router(name)
-    except exceptions.ResourceNotFound:
+    router = conn.network.find_router(name)
+    if router is None:
         args = {
             "name": name,
             "external_gateway_info": {"network_id": extnet.id}
@@ -69,9 +65,8 @@ def create_jenkins(opts):
         conn.network.router_add_interface(router, subnet.id)
     print(str(router))
 
-    try:
-        sg = conn.network.find_security_group(name)
-    except exceptions.ResourceNotFound:
+    sg = conn.network.find_security_group(name)
+    if sg is None:
         sg = conn.network.create_security_group(name=name)
         print(str(sg))
         rule = {
@@ -164,9 +159,8 @@ def create_jenkins(opts):
         print('rule allow ssh')
     print(str(sg))
 
-    try:
-        kp = conn.compute.find_keypair(name)
-    except exceptions.ResourceNotFound:
+    kp = conn.compute.find_keypair(name)
+    if kp is None:
         kp = conn.compute.create_keypair(name=name)
         try:
             os.remove('jenkins')
@@ -185,10 +179,8 @@ def create_jenkins(opts):
         f.close()
     print(str(kp))
 
-    try:
-        server = conn.compute.find_server(name)
-        server = conn.get(server)
-    except exceptions.ResourceNotFound:
+    server = conn.compute.find_server(name)
+    if server is None:
         f = open('examples/cloud-init.sh', 'r')
         cmd = f.read()
         f.close()
@@ -203,15 +195,16 @@ def create_jenkins(opts):
             "user_data": b64str,
         }
         server = conn.compute.create_server(**args)
+    else:
+        server = conn.get(server)
     print(str(server))
     print('Waiting for the server to come up....')
     conn.compute.wait_for_status(server)
     print('Server is up.')
 
     if len(server.get_floating_ips()) <= 0:
-        try:
-            ip = conn.network.find_available_ip()
-        except exceptions.ResourceNotFound:
+        ip = conn.network.find_available_ip()
+        if ip is None:
             ip = conn.network.create_ip(floating_network_id=extnet.id)
         port = next(conn.network.list_ports(device_id=server.id, fields='id'))
         conn.network.add_ip_to_port(port, ip)
@@ -228,8 +221,8 @@ def delete_jenkins(opts):
     args = vars(opts)
     conn = connection.Connection(preference=opts.user_preferences, **args)
 
-    try:
-        server = conn.compute.find_server(name)
+    server = conn.compute.find_server(name)
+    if server is not None:
         server = conn.get(server)
         print(str(server))
         ips = server.get_floating_ips()
@@ -239,25 +232,18 @@ def delete_jenkins(opts):
             conn.network.remove_ip_from_port(ip)
             conn.delete(ip)
         conn.delete(server)
-    except exceptions.ResourceNotFound:
-        pass
 
-    try:
-        kp = conn.compute.find_keypair(name)
+    kp = conn.compute.find_keypair(name)
+    if kp is not None:
         print(str(kp))
         conn.delete(kp)
-    except exceptions.ResourceNotFound:
-        pass
 
-    try:
-        router = conn.network.find_router(name)
+    router = conn.network.find_router(name)
+    if router is not None:
         print(str(router))
-    except exceptions.ResourceNotFound:
-        router = None
-        pass
 
-    try:
-        subnet = conn.network.find_subnet(name)
+    subnet = conn.network.find_subnet(name)
+    if subnet is not None:
         print(str(subnet))
         if router:
             try:
@@ -267,28 +253,17 @@ def delete_jenkins(opts):
         for port in conn.network.get_subnet_ports(subnet.id):
             print(str(port))
             conn.delete(port)
-    except exceptions.ResourceNotFound:
-        subnet = None
-        pass
 
-    try:
-        if router:
-            conn.delete(router)
-    except exceptions.ResourceNotFound:
-        pass
+    if router is not None:
+        conn.delete(router)
 
-    try:
-        if subnet:
-            conn.delete(subnet)
-    except exceptions.ResourceNotFound:
-        pass
+    if subnet:
+        conn.delete(subnet)
 
-    try:
-        network = conn.network.find_network(name)
+    network = conn.network.find_network(name)
+    if network is not None:
         print(str(network))
         conn.delete(network)
-    except exceptions.ResourceNotFound:
-        pass
 
 
 def run_jenkins(opts):

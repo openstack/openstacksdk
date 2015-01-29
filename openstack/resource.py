@@ -699,9 +699,8 @@ class Resource(collections.MutableMapping):
                                a compound URL.
                                See `How path_args are used`_ for details.
 
-        :return: The :class:`Resource` object matching the given name or id.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
-                 resource can be found with that name or id.
+        :return: The :class:`Resource` object matching the given name or id
+                 or None if nothing matches.
         """
         try:
             args = {
@@ -740,6 +739,4 @@ class Resource(collections.MutableMapping):
                 if result is not None:
                     return result
 
-        msg = ("No %s with a name or ID of '%s' exists." %
-               (cls.get_resource_name(), name_or_id))
-        raise exceptions.ResourceNotFound(msg)
+        return None

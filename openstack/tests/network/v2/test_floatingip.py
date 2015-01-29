@@ -13,7 +13,6 @@
 import mock
 import testtools
 
-from openstack import exceptions
 from openstack.network.v2 import floatingip
 
 IDENTIFIER = '10.0.0.1'
@@ -78,5 +77,5 @@ class TestFloatingIP(testtools.TestCase):
         fake_response.body = {floatingip.FloatingIP.resources_key: []}
         mock_get.return_value = fake_response
 
-        self.assertRaises(exceptions.ResourceNotFound,
-                          floatingip.FloatingIP.find_available, mock_session)
+        self.assertEqual(None,
+                         floatingip.FloatingIP.find_available(mock_session))

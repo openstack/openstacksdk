@@ -64,4 +64,4 @@ class TestKeypair(testtools.TestCase):
         sess.get = mock.MagicMock()
         sess.get.side_effect = exceptions.HttpException("404")
         sot = keypair.Keypair()
-        self.assertRaises(exceptions.ResourceNotFound, sot.find, sess, "kato")
+        self.assertEqual(None, sot.find(sess, "kato"))

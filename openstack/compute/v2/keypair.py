@@ -60,6 +60,4 @@ class Keypair(resource.Resource):
             return cls.get_by_id(session, name_or_id)
         except exceptions.HttpException:
             pass
-        msg = ("No %s with a name or ID of '%s' exists." %
-               (cls.get_resource_name(), name_or_id))
-        raise exceptions.ResourceNotFound(msg)
+        return None

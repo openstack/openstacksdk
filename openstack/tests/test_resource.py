@@ -474,8 +474,7 @@ class TestFind(base.TestCase):
         resp = FakeResponse({FakeResource.resources_key: []})
         self.mock_get.return_value = resp
 
-        self.assertRaises(exceptions.ResourceNotFound, FakeResource.find,
-                          self.mock_session, self.NAME)
+        self.assertEqual(None, FakeResource.find(self.mock_session, self.NAME))
 
     def test_no_name(self):
         self.mock_get.side_effect = [
@@ -484,8 +483,7 @@ class TestFind(base.TestCase):
         ]
         FakeResource.name_attribute = None
 
-        self.assertRaises(exceptions.ResourceNotFound, FakeResource.find,
-                          self.mock_session, self.NAME)
+        self.assertEqual(None, FakeResource.find(self.mock_session, self.NAME))
 
     def test_repr_name(self):
         FakeResource.resource_name = 'foo'

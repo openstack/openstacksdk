@@ -19,7 +19,6 @@ To use python-openstacksdk in a project::
     # Third, create a connection
     conn = connection.Connection(preference=pref, **auth_args)
     # Finally, access your desired services
-    try:
-        network = conn.network.find_network("matrix")
-    except exceptions.ResourceNotFound:
+    network = conn.network.find_network("matrix")
+    if network is None:
         network = conn.network.create_network({"name": "matrix"})

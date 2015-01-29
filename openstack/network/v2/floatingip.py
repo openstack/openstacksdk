@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import exceptions
 from openstack.network import network_service
 from openstack import resource
 
@@ -50,5 +49,4 @@ class FloatingIP(resource.Resource):
         try:
             return next(info)
         except StopIteration:
-            msg = "No available floating ips exist."
-            raise exceptions.ResourceNotFound(msg)
+            return None
