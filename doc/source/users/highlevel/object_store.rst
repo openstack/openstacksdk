@@ -1,7 +1,7 @@
 Object Store API
 ================
 
-For details on how to use this API, see :doc:`/userguides/object_store`
+For details on how to use this API, see :doc:`/users/userguides/object_store`
 
 .. automodule:: openstack.object_store.v1._proxy
 
