@@ -599,3 +599,18 @@ class RoleCreate(task_manager.Task):
 class RoleDelete(task_manager.Task):
     def main(self, client):
         return client.keystone_client.roles.delete(**self.args)
+
+
+class StackList(task_manager.Task):
+    def main(self, client):
+        return client.heat_client.stacks.list()
+
+
+class StackCreate(task_manager.Task):
+    def main(self, client):
+        return client.heat_client.stacks.create(**self.args)
+
+
+class StackDelete(task_manager.Task):
+    def main(self, client):
+        return client.heat_client.stacks.delete(**self.args)

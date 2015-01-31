@@ -196,6 +196,15 @@ def _no_pending_images(images):
     return True
 
 
+def _no_pending_stacks(stacks):
+    '''If there are any stacks not in a steady state, don't cache'''
+    for stack in stacks:
+        status = stack['status']
+        if '_COMPLETE' not in status and '_FAILED' not in status:
+            return False
+    return True
+
+
 class OpenStackCloud(object):
     """Represent a connection to an OpenStack Cloud.
 
@@ -802,6 +811,62 @@ class OpenStackCloud(object):
                 'dns', designate_client.Client)
         return self._designate_client
 
+    def create_stack(
+            self, name,
+            template_file=None, template_url=None,
+            template_object=None, files=None,
+            rollback=True,
+            wait=False, timeout=180,
+            **parameters):
+        tpl_files, template = template_utils.get_template_contents(
+            template_file=template_file,
+            template_url=template_url,
+            template_object=template_object,
+            object_request=object_request,
+            files=files)
+        params = dict(
+            stack_name=name,
+            disable_rollback=not rollback,
+            parameters=parameters,
+            template=template,
+            files=tpl_files,
+        )
+        try:
+            stack = self.manager.submitTask(_tasks.StackCreate(**params))
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Error creating stack {name}: {message}".format(
+                    name=name, message=e.message))
+        if not wait:
+            return stack
+        for count in _iterate_timeout(
+                timeout,
+                "Timed out waiting for heat stack to finish"):
+            if self.get_stack(name, cache=False):
+                return stack
+
+    def delete_stack(self, name_or_id):
+        """Delete a Heat Stack
+
+        :param name_or_id: Stack name or id.
+
+        :returns: True if delete succeeded, False otherwise.
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during
+            the openstack API call
+        """
+        stack = self.get_stack(name_or_id=name_or_id)
+        if stack is None:
+            self.log.debug("Stack %s not found for deleting" % name_or_id)
+            return False
+
+        try:
+            self.manager.submitTask(_tasks.StackDelete(id=stack['id']))
+        except Exception:
+            raise OpenStackCloudException(
+                "Failed to delete stack {id}".format(id=stack['id']))
+        return True
+
     def get_name(self):
         return self.name
 
@@ -1001,6 +1066,22 @@ class OpenStackCloud(object):
         records = self._list_records(zone_id=zone_id)
         return _utils._filter_list(records, name_or_id, filters)
 
+    def search_stacks(self, name_or_id=None, filters=None):
+        """Search Heat stacks.
+
+        :param name_or_id: Name or id of the desired stack.
+        :param filters: a dict containing additional filters to use. e.g.
+                {'stack_status': 'CREATE_COMPLETE'}
+
+        :returns: a list of dict containing the stack description.
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during the
+            openstack API call.
+        """
+        stacks = self.list_stacks()
+        return _utils._filter_list(
+            stacks, name_or_id, filters, name_name='stack_name')
+
     def list_keypairs(self):
         """List all available keypairs.
 
@@ -1102,6 +1183,21 @@ class OpenStackCloud(object):
         except Exception as e:
             raise OpenStackCloudException(
                 "Error fetching flavor list: %s" % e)
+
+    @_cache_on_arguments(should_cache_fn=_no_pending_stacks)
+    def list_stacks(self):
+        """List all Heat stacks.
+
+        :returns: a list of dict containing the stack description.
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during the
+            openstack API call.
+        """
+        try:
+            stacks = self.manager.submitTask(_tasks.StackList())
+        except Exception as e:
+            raise OpenStackCloudException(str(e))
+        return meta.obj_list_to_dict(stacks)
 
     def list_security_groups(self):
         """List all available security groups.
@@ -1621,6 +1717,21 @@ class OpenStackCloud(object):
         f = lambda name_or_id, filters: self._search_records(
             zone_id, name_or_id, filters)
         return _utils._get_entity(f, name_or_id, filters)
+
+    def get_stack(self, name_or_id, filters=None):
+        """Get exactly one Heat stack.
+
+        :param name_or_id: Name or id of the desired stack.
+        :param filters: a dict containing additional filters to use. e.g.
+                {'stack_status': 'CREATE_COMPLETE'}
+
+        :returns: a dict containing the stack description
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during the
+            openstack API call or if multiple matches are found.
+        """
+        return _utils._get_entity(
+            self.search_stacks, name_or_id, filters)
 
     def create_keypair(self, name, public_key):
         """Create a new keypair.
