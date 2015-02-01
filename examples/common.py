@@ -67,6 +67,8 @@ def find_resource_cls(opts):
 
 
 def get_data_option(opts):
+    if not opts.data:
+        return opts.data
     try:
         iddy = uuid.UUID(opts.data)
         return {'id': iddy}
