@@ -29,9 +29,15 @@ class ServerInterface(resource.Resource):
     allow_list = True
 
     # Properties
+    #: Fixed IP addresses with subnet IDs.
     fixed_ips = resource.prop('fixed_ips')
+    #: The MAC address.
     mac_addr = resource.prop('mac_addr')
+    #: The network ID.
     net_id = resource.prop('net_id')
+    #: The ID of the port for which you want to create an interface.
     port_id = resource.prop('port_id')
+    #: The port state.
     port_state = resource.prop('port_state')
+    #: The UUID for the server.
     server_id = resource.prop('server_id')

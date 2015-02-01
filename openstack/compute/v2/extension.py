@@ -24,9 +24,16 @@ class Extension(resource.Resource):
     allow_list = True
 
     # Properties
+    #: A short name by which this extension is also known.
     alias = resource.prop('alias')
+    #: Text describing this extension's purpose.
     description = resource.prop('description')
+    #: Links pertaining to this extension. This is a list of dictionaries,
+    #: each including keys ``href`` and ``rel``.
     links = resource.prop('links')
+    #: The name of the extension.
     name = resource.prop('name')
+    #: A URL pointing to the namespace for this extension.
     namespace = resource.prop('namespace')
+    # Timestamp when this extension was last updated.
     updated = resource.prop('updated')

@@ -28,12 +28,23 @@ class Image(resource.Resource):
     allow_list = True
 
     # Properties
+    #: Timestamp when the image was created.
     created = resource.prop('created')
+    #: Links pertaining to this image. This is a list of dictionaries,
+    #: each including keys ``href`` and ``rel``, and optionally ``type``.
     links = resource.prop('links')
+    #: Metadata pertaining to this image. *Type: dict*
     metadata = resource.prop('metadata', type=dict)
+    #: The mimimum disk size. *Type: int*
     min_disk = resource.prop('minDisk', type=int)
+    #: The minimum RAM size. *Type: int*
     min_ram = resource.prop('minRam', type=int)
+    #: The name of this image.
     name = resource.prop('name')
+    #: If this image is still building, its progress is represented here.
+    #: Once an image is created, progres will be 100. *Type: int*
     progress = resource.prop('progress', type=int)
+    #: The status of this image.
     status = resource.prop('status')
+    #: Timestamp when the image was updated.
     updated = resource.prop('updated')

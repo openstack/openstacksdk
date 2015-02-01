@@ -35,18 +35,47 @@ class Server(resource.Resource):
     # Properties
     access_ipv4 = resource.prop('accessIPv4')
     access_ipv6 = resource.prop('accessIPv6')
+    #: A dictionary of addresses this server can be accessed through.
+    #: The dictionary contains keys such as ``private`` and ``public``,
+    #: each containing a list of dictionaries for addresses of that type.
+    #: The addresses are contained in a dictionary with keys ``addr``
+    #: and ``version``, which is either 4 or 6 depending on the protocol
+    #: of the IP address. *Type: dict*
     addresses = resource.prop('addresses', type=dict)
+    #: Timestamp of when the server was created.
     created = resource.prop('created')
-    flavor = resource.prop('flavorRef', alias='flavor')
+    #: A dictionary with details on the flavor this server is running.
+    #: The dictionary includes a key for the ``id`` of the flavor, as well
+    #: as a ``links`` key, which includes a list of relevant links for this
+    #: flavor. *Type: dict*
+    flavor = resource.prop('flavorRef', alias='flavor', type=dict)
+    #: An ID representing the host of this server.
     host_id = resource.prop('hostId')
-    image = resource.prop('imageRef', alias='image')
+    #: A dictionary with details on the image this server is running.
+    #: The dictionary includes a key for ``id`` of the image, as well
+    #: as a ``links`` key, which includes a list of relevant links for this
+    #: image. *Type: dict*
+    image = resource.prop('imageRef', alias='image', type=dict)
+    #: A list of dictionaries holding links relevant to this server.
     links = resource.prop('links')
-    metadata = resource.prop('metadata')
+    #: Metadata stored for this server. *Type: dict*
+    metadata = resource.prop('metadata', type=dict)
+    #: The name of this server.
     name = resource.prop('name')
+    #: While the server is building, this value represents the percentage
+    #: of completion. Once it is completed, it will be 100.  *Type: int*
     progress = resource.prop('progress', type=int)
+    #: The project this server is associated with.
     project_id = resource.prop('tenant_id')
+    #: The state this server is in. Valid values include ``ACTIVE``,
+    #: ``BUILDING``, ``DELETED``, ``ERROR``, ``HARD_REBOOT``, ``PASSWORD``,
+    #: ``PAUSED``, ``REBOOT``, ``REBUILD``, ``RESCUED``, ``RESIZED``,
+    #: ``REVERT_RESIZE``, ``SHUTOFF``, ``SOFT_DELETED``, ``STOPPED``,
+    #: ``SUSPENDED``, ``UNKNOWN``, or ``VERIFY_RESIZE``.
     status = resource.prop('status')
+    #: Timestamp of when this server was last updated.
     updated = resource.prop('updated')
+    #: The user ID associated with this server.
     user_id = resource.prop('user_id')
 
     def ips(self, session):

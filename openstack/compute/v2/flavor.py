@@ -28,9 +28,17 @@ class Flavor(resource.Resource):
     allow_list = True
 
     # Properties
+    #: Size of the disk this flavor offers. *Type: int*
     disk = resource.prop('disk', type=int)
+    #: ``True`` if this is a publicly visible flavor. ``False`` if this is
+    #: a private image. *Type: bool*
     is_public = resource.prop('os-flavor-access:is_public', type=bool)
+    #: Links pertaining to this flavor. This is a list of dictionaries,
+    #: each including keys ``href`` and ``rel``.
     links = resource.prop('links')
+    #: The name of this flavor.
     name = resource.prop('name')
+    #: The amount of RAM (in MB) this flavor offers. *Type: int*
     ram = resource.prop('ram', type=int)
+    #: The number of virtual CPUs this flavor offers. *Type: int*
     vcpus = resource.prop('vcpus', type=int)
