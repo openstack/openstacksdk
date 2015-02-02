@@ -37,7 +37,7 @@ Find a router and update the administrative state.
 
 """
 
-from openstack.network.v2 import floatingip
+from openstack.network.v2 import floating_ip
 from openstack.network.v2 import network
 from openstack.network.v2 import port
 from openstack.network.v2 import router
@@ -48,12 +48,12 @@ from openstack.network.v2 import subnet
 
 class Thin(object):
 
-    create_ip = floatingip.FloatingIP.create_by_id
-    delete_ip = floatingip.FloatingIP.delete_by_id
-    find_ip = floatingip.FloatingIP.find
-    get_ip = floatingip.FloatingIP.get_data_by_id
-    list_ips = floatingip.FloatingIP.list
-    update_ip = floatingip.FloatingIP.update_by_id
+    create_ip = floating_ip.FloatingIP.create_by_id
+    delete_ip = floating_ip.FloatingIP.delete_by_id
+    find_ip = floating_ip.FloatingIP.find
+    get_ip = floating_ip.FloatingIP.get_data_by_id
+    list_ips = floating_ip.FloatingIP.list
+    update_ip = floating_ip.FloatingIP.update_by_id
 
     create_network = network.Network.create_by_id
     delete_network = network.Network.delete_by_id

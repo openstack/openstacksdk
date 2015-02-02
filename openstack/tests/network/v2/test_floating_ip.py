@@ -13,7 +13,7 @@
 import mock
 import testtools
 
-from openstack.network.v2 import floatingip
+from openstack.network.v2 import floating_ip
 
 IDENTIFIER = '10.0.0.1'
 EXAMPLE = {
@@ -29,7 +29,7 @@ EXAMPLE = {
 class TestFloatingIP(testtools.TestCase):
 
     def test_basic(self):
-        sot = floatingip.FloatingIP()
+        sot = floating_ip.FloatingIP()
         self.assertEqual('floatingip', sot.resource_key)
         self.assertEqual('floatingips', sot.resources_key)
         self.assertEqual('/v2.0/floatingips', sot.base_path)
@@ -41,7 +41,7 @@ class TestFloatingIP(testtools.TestCase):
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = floatingip.FloatingIP(EXAMPLE)
+        sot = floating_ip.FloatingIP(EXAMPLE)
         self.assertEqual(EXAMPLE['fixed_ip_address'], sot.fixed_ip_address)
         self.assertEqual(EXAMPLE['floating_ip_address'],
                          sot.floating_ip_address)
@@ -58,24 +58,24 @@ class TestFloatingIP(testtools.TestCase):
         mock_session.get = mock_get
         data = {'floating_ip_address': '10.0.0.1'}
         fake_response = mock.Mock()
-        fake_response.body = {floatingip.FloatingIP.resources_key: [data]}
+        fake_response.body = {floating_ip.FloatingIP.resources_key: [data]}
         mock_get.return_value = fake_response
 
-        result = floatingip.FloatingIP.find_available(mock_session)
+        result = floating_ip.FloatingIP.find_available(mock_session)
 
         self.assertEqual('10.0.0.1', result.id)
         p = {'fields': 'floating_ip_address', 'port_id': ''}
-        mock_get.assert_called_with(floatingip.FloatingIP.base_path,
+        mock_get.assert_called_with(floating_ip.FloatingIP.base_path,
                                     params=p,
-                                    service=floatingip.FloatingIP.service)
+                                    service=floating_ip.FloatingIP.service)
 
     def test_find_available_nada(self):
         mock_session = mock.Mock()
         mock_get = mock.Mock()
         mock_session.get = mock_get
         fake_response = mock.Mock()
-        fake_response.body = {floatingip.FloatingIP.resources_key: []}
+        fake_response.body = {floating_ip.FloatingIP.resources_key: []}
         mock_get.return_value = fake_response
 
         self.assertEqual(None,
-                         floatingip.FloatingIP.find_available(mock_session))
+                         floating_ip.FloatingIP.find_available(mock_session))

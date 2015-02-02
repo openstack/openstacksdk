@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network.v2 import extension
-from openstack.network.v2 import floatingip
+from openstack.network.v2 import floating_ip
 from openstack.network.v2 import health_monitor
 from openstack.network.v2 import listener
 from openstack.network.v2 import load_balancer
@@ -40,25 +40,25 @@ class Proxy(object):
         return extension.Extension.list(self.session)
 
     def create_ip(self, **data):
-        return floatingip.FloatingIP(data).create(self.session)
+        return floating_ip.FloatingIP(data).create(self.session)
 
     def delete_ip(self, **data):
-        floatingip.FloatingIP(**data).delete(self.session)
+        floating_ip.FloatingIP(**data).delete(self.session)
 
     def find_available_ip(self):
-        return floatingip.FloatingIP.find_available(self.session)
+        return floating_ip.FloatingIP.find_available(self.session)
 
     def find_ip(self, name_or_id):
-        return floatingip.FloatingIP.find(self.session, name_or_id)
+        return floating_ip.FloatingIP.find(self.session, name_or_id)
 
     def get_ip(self, **data):
-        return floatingip.FloatingIP(**data).get(self.session)
+        return floating_ip.FloatingIP(**data).get(self.session)
 
     def list_ips(self, **params):
-        return floatingip.FloatingIP.list(self.session, **params)
+        return floating_ip.FloatingIP.list(self.session, **params)
 
     def update_ip(self, **data):
-        return floatingip.FloatingIP(**data).update(self.session)
+        return floating_ip.FloatingIP(**data).update(self.session)
 
     def create_health_monitor(self, **data):
         return health_monitor.HealthMonitor(data).create(self.session)
