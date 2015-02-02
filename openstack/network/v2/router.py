@@ -30,19 +30,41 @@ class Router(resource.Resource):
     put_update = True
 
     # Properties
+    #: The administrative state of the router, which is up ``True``
+    #: or down ``False``. *Type: bool*
     admin_state_up = resource.prop('admin_state_up', type=bool)
+    #: The ``network_id``, for the external gateway. *Type: dict*
     external_gateway_info = resource.prop('external_gateway_info', type=dict)
+    #: The router name.
     name = resource.prop('name')
+    #: The project this router is associated with.
     project_id = resource.prop('tenant_id')
+    #: The router status.
     status = resource.prop('status')
 
     def add_interface(self, session, subnet_id):
+        """Add an internal interface to a logical router.
+
+        :param session: The session to communicate through.
+        :type session: :class:`~openstack.session.Session`
+        :param str subnet_id: The ID of a subnet to add.
+
+        :returns: The body of the response as a dictionary.
+        """
         body = {'subnet_id': subnet_id}
         url = utils.urljoin(self.base_path, self.id, 'add_router_interface')
         resp = session.put(url, service=self.service, json=body).body
         return resp
 
     def remove_interface(self, session, subnet_id):
+        """Remove an internal interface from a logical router.
+
+        :param session: The session to communicate through.
+        :type session: :class:`~openstack.session.Session`
+        :param str subnet_id: The ID of a subnet to remove.
+
+        :returns: The body of the response as a dictionary.
+        """
         body = {'subnet_id': subnet_id}
         url = utils.urljoin(self.base_path, self.id, 'remove_router_interface')
         resp = session.put(url, service=self.service, json=body).body

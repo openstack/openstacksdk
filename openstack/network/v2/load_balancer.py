@@ -29,6 +29,7 @@ class LoadBalancer(resource.Resource):
     put_update = True
 
     # Properties
+    # TODO(briancurtin): find documentation for these properties
     admin_state_up = resource.prop('admin_state_up', type=bool)
     description = resource.prop('description')
     name = resource.prop('name')

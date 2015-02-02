@@ -29,6 +29,7 @@ class PoolMember(resource.Resource):
     put_update = True
 
     # Properties
+    # TODO(briancurtin): I can't find where this is documented.
     address = resource.prop('address')
     admin_state_up = resource.prop('admin_state_up', type=bool)
     project_id = resource.prop('tenant_id')
