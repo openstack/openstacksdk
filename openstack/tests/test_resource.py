@@ -112,6 +112,45 @@ class PropTests(base.TestCase):
 
         self.assertThat(should_raise, matchers.raises(TypeError))
 
+    def test_resource_type(self):
+        class FakestResource(resource.Resource):
+            shortstop = resource.prop("shortstop", type=FakeResource)
+            third_base = resource.prop("third_base", type=FakeResource)
+
+        sot = FakestResource()
+        id1 = "Ernie Banks"
+        id2 = "Ron Santo"
+        sot.shortstop = id1
+        sot.third_base = id2
+
+        resource1 = FakeResource.new(id=id1)
+        self.assertEqual(sot.shortstop, resource1)
+        self.assertEqual(sot.shortstop.id, id1)
+        self.assertEqual(type(sot.shortstop), FakeResource)
+
+        resource2 = FakeResource.new(id=id2)
+        self.assertEqual(sot.third_base, resource2)
+        self.assertEqual(sot.third_base.id, id2)
+        self.assertEqual(type(sot.third_base), FakeResource)
+
+        sot2 = FakestResource()
+        sot2.shortstop = resource1
+        sot2.third_base = resource2
+        self.assertEqual(sot2.shortstop, resource1)
+        self.assertEqual(sot2.shortstop.id, id1)
+        self.assertEqual(type(sot2.shortstop), FakeResource)
+        self.assertEqual(sot2.third_base, resource2)
+        self.assertEqual(sot2.third_base.id, id2)
+        self.assertEqual(type(sot2.third_base), FakeResource)
+
+        body = {
+            "shortstop": id1,
+            "third_base": id2
+        }
+        sot3 = FakestResource(body)
+        self.assertEqual(sot3.shortstop, FakeResource({"id": id1}))
+        self.assertEqual(sot3.third_base, FakeResource({"id": id2}))
+
 
 class ResourceTests(base.TestTransportBase):
 
