@@ -376,6 +376,12 @@ class OpenStackCloud(object):
             return flavor.name
         return None
 
+    def get_flavor(self, name_or_id):
+        for id, flavor in self.flavor_cache.items():
+            if name_or_id in (id, flavor.name):
+                return flavor
+        return None
+
     def get_flavor_by_ram(self, ram, include=None):
         for flavor in sorted(
                 self.flavor_cache.values(),
