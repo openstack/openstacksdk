@@ -462,8 +462,7 @@ class OpenStackCloud(object):
             if (name_or_id in image.name and (
                     not exclude or exclude not in image.name)):
                 return image
-        raise OpenStackCloudException(
-            "Error finding image from %s" % name_or_id)
+        return None
 
     def create_image(
             self, name, filename, container='images',
