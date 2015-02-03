@@ -27,29 +27,32 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_list('openstack.network.v2.extension.Extension.list',
                          self.proxy.list_extensions)
 
-    def test_floatingip_create(self):
-        self.verify_create('openstack.network.v2.floatingip.FloatingIP.create',
-                           self.proxy.create_ip)
+    def test_floating_ip_create(self):
+        self.verify_create(
+            'openstack.network.v2.floating_ip.FloatingIP.create',
+            self.proxy.create_ip)
 
-    def test_floatingip_delete(self):
-        self.verify_delete('openstack.network.v2.floatingip.FloatingIP.delete',
-                           self.proxy.delete_ip)
+    def test_floating_ip_delete(self):
+        self.verify_delete(
+            'openstack.network.v2.floating_ip.FloatingIP.delete',
+            self.proxy.delete_ip)
 
-    def test_floatingip_find(self):
-        self.verify_find('openstack.network.v2.floatingip.FloatingIP.find',
+    def test_floating_ip_find(self):
+        self.verify_find('openstack.network.v2.floating_ip.FloatingIP.find',
                          self.proxy.find_ip)
 
-    def test_floatingip_get(self):
-        self.verify_get('openstack.network.v2.floatingip.FloatingIP.get',
+    def test_floating_ip_get(self):
+        self.verify_get('openstack.network.v2.floating_ip.FloatingIP.get',
                         self.proxy.get_ip)
 
-    def test_floatingip_list(self):
-        self.verify_list('openstack.network.v2.floatingip.FloatingIP.list',
+    def test_floating_ip_list(self):
+        self.verify_list('openstack.network.v2.floating_ip.FloatingIP.list',
                          self.proxy.list_ips)
 
-    def test_floatingip_update(self):
-        self.verify_update('openstack.network.v2.floatingip.FloatingIP.update',
-                           self.proxy.update_ip)
+    def test_floating_ip_update(self):
+        self.verify_update(
+            'openstack.network.v2.floating_ip.FloatingIP.update',
+            self.proxy.update_ip)
 
     def test_health_monitor_create(self):
         self.verify_create(
