@@ -336,6 +336,37 @@ class ResourceTests(base.TestTransportBase):
         # Ensure we only made one call to complete this.
         self.assertEqual(session.get.call_count, 1)
 
+    def test_page(self):
+        session = mock.Mock()
+        session.get = mock.Mock()
+        records = [{'id': 'squid'}]
+        response = FakeResponse({FakeResource.resources_key: records})
+        session.get.return_value = response
+
+        objs = FakeResource.page(session, 1, None, path_args=fake_arguments)
+
+        self.assertEqual(records, objs)
+        path = fake_path + '?limit=1'
+        session.get.assert_called_with(path, params={}, service=None)
+
+        objs = FakeResource.page(session, None, 'a', path_args=fake_arguments)
+
+        self.assertEqual(records, objs)
+        path = fake_path + '?marker=a'
+        session.get.assert_called_with(path, params={}, service=None)
+
+        objs = FakeResource.page(session, None, None, path_args=fake_arguments)
+
+        self.assertEqual(records, objs)
+        path = fake_path
+        session.get.assert_called_with(path, params={}, service=None)
+
+        objs = FakeResource.page(session, None, None)
+
+        self.assertEqual(records, objs)
+        path = fake_base_path
+        session.get.assert_called_with(path, params={}, service=None)
+
     def test_attrs(self):
         obj = FakeResource()
 
