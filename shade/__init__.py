@@ -531,6 +531,76 @@ class OpenStackCloud(object):
         else:
             return None
 
+    def create_volume(self, wait=True, timeout=None, **volkwargs):
+        """Create a volume.
+
+        :param wait: If true, waits for volume to be created.
+        :param timeout: Seconds to wait for volume creation. None is forever.
+        :param volkwargs: Keyword arguments as expected for cinder client.
+
+        :returns: The created volume object.
+
+        :raises: OpenStackCloudTimeout if wait time exceeded.
+        :raises: OpenStackCloudException on operation error.
+        """
+
+        cinder = self.cinder_client
+
+        try:
+            volume = cinder.volumes.create(**volkwargs)
+        except Exception as e:
+            self.log.debug("Volume creation failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Error in creating volume: %s" % e.message)
+
+        if volume.status == 'error':
+            raise OpenStackCloudException("Error in creating volume")
+
+        if wait:
+            vol_id = volume.id
+            for count in _iterate_timeout(
+                    timeout,
+                    "Timeout waiting for the volume to be available."):
+                volume = self.get_volume(vol_id, cache=False, error=False)
+
+                if not volume:
+                    continue
+
+                if volume.status == 'available':
+                    return volume
+
+                if volume.status == 'error':
+                    raise OpenStackCloudException(
+                        "Error in creating volume, please check logs")
+
+    def delete_volume(self, name_or_id=None, wait=True, timeout=None):
+        """Delete a volume.
+
+        :param name_or_id: Name or unique ID of the volume.
+        :param wait: If true, waits for volume to be deleted.
+        :param timeout: Seconds to wait for volume deletion. None is forever.
+
+        :raises: OpenStackCloudTimeout if wait time exceeded.
+        :raises: OpenStackCloudException on operation error.
+        """
+
+        cinder = self.cinder_client
+        volume = self.get_volume(name_or_id, cache=False)
+
+        try:
+            cinder.volumes.delete(volume.id)
+        except Exception as e:
+            self.log.debug("Volume deletion failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Error in deleting volume: %s" % e.message)
+
+        if wait:
+            for count in _iterate_timeout(
+                    timeout,
+                    "Timeout waiting for the volume to be deleted."):
+                if not self.volume_exists(volume.id):
+                    return
+
     def _get_volumes_from_cloud(self):
         try:
             return self.cinder_client.volumes.list()
@@ -758,15 +828,6 @@ class OpenStackCloud(object):
                 "Timed out waiting for server to get deleted."):
             server = self.nova_client.servers.list(True, {'name': name})
             if not server:
-                return
-
-    def delete_volume(self, name_or_id, wait=False, timeout=180):
-        volume = self.get_volume(name_or_id)
-
-        for count in _iterate_timeout(
-                timeout,
-                "Timed out waiting for server to get deleted."):
-            if self.volume_exists(volume.id, cache=False):
                 return
 
     def get_container(self, name, skip_cache=False):
