@@ -25,6 +25,7 @@ from keystoneclient import auth as ksc_auth
 from keystoneclient import session as ksc_session
 from novaclient import client as nova_client
 from novaclient.v1_1 import floating_ips
+from neutronclient.v2_0 import client as neutron_client
 import os_client_config
 import pbr.version
 import swiftclient.client as swift_client
@@ -138,13 +139,14 @@ class OpenStackCloud(object):
 
         self._keystone_session = None
 
-        self._nova_client = None
+        self._cinder_client = None
         self._glance_client = None
         self._glance_endpoint = None
         self._ironic_client = None
-        self._cinder_client = None
-        self._trove_client = None
+        self._neutron_client = None
+        self._nova_client = None
         self._swift_client = None
+        self._trove_client = None
 
         self.log = logging.getLogger('shade')
         log_level = logging.INFO
@@ -323,6 +325,15 @@ class OpenStackCloud(object):
                     " This could mean that your credentials are wrong.")
 
         return self._trove_client
+
+    @property
+    def neutron_client(self):
+        if self._neutron_client is None:
+            self._neutron_client = neutron_client.Client(
+                token=self.auth_token,
+                session=self.keystone_session,
+                region_name=self.region_name)
+        return self._neutron_client
 
     def get_name(self):
         return self.name
