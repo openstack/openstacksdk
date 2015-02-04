@@ -211,7 +211,6 @@ class OpenStackCloud(object):
                     auth=keystone_auth,
                     verify=self.verify,
                     cert=self.cert)
-                self._auth_token = self._keystone_session.get_token()
             except Exception as e:
                 self.log.debug("keystone unknown issue", exc_info=True)
                 raise OpenStackCloudException(
