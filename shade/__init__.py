@@ -36,8 +36,8 @@ import troveclient.client as trove_client
 from shade import meta
 
 __version__ = pbr.version.VersionInfo('shade').version_string()
-OBJECT_MD5_KEY = 'x-shade-md5'
-OBJECT_SHA256_KEY = 'x-shade-sha256'
+OBJECT_MD5_KEY = 'x-object-meta-x-shade-md5'
+OBJECT_SHA256_KEY = 'x-object-meta-x-shade-sha256'
 IMAGE_MD5_KEY = 'org.openstack.shade.md5'
 IMAGE_SHA256_KEY = 'org.openstack.shade.sha256'
 
@@ -853,7 +853,7 @@ class OpenStackCloud(object):
                     md5.update(chunk)
                     sha256.update(chunk)
             self._file_hash_cache[filename] = dict(
-                md5=md5.digest(), sha256=sha256.digest)
+                md5=md5.hexdigest(), sha256=sha256.hexdigest())
         return (self._file_hash_cache[filename]['md5'],
                 self._file_hash_cache[filename]['sha256'])
 
