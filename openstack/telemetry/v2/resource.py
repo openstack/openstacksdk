@@ -16,7 +16,7 @@ from openstack.telemetry import telemetry_service
 
 class Resource(resource.Resource):
     id_attribute = 'resource_id'
-    base_path = '/v2/resources'
+    base_path = '/resources'
     service = telemetry_service.TelemetryService()
 
     # Supported Operations

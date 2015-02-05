@@ -35,7 +35,7 @@ class TestResource(testtools.TestCase):
         sot = resource.Resource(EXAMPLE)
         self.assertIsNone(sot.resource_key)
         self.assertIsNone(sot.resources_key)
-        self.assertEqual('/v2/resources', sot.base_path)
+        self.assertEqual('/resources', sot.base_path)
         self.assertEqual('metering', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)

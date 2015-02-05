@@ -57,7 +57,7 @@ class TestAlarm(testtools.TestCase):
         sot = alarm.Alarm()
         self.assertIsNone(sot.resource_key)
         self.assertIsNone(sot.resources_key)
-        self.assertEqual('/v2/alarms', sot.base_path)
+        self.assertEqual('/alarms', sot.base_path)
         self.assertEqual('metering', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)
@@ -91,13 +91,13 @@ class TestAlarm(testtools.TestCase):
         sot = alarm.Alarm(EXAMPLE)
         sot.check_state(self.sess)
 
-        url = 'v2/alarms/IDENTIFIER/state'
+        url = 'alarms/IDENTIFIER/state'
         self.sess.get.assert_called_with(url, service=sot.service)
 
     def test_change_status(self):
         sot = alarm.Alarm(EXAMPLE)
         self.assertEqual(self.resp.body, sot.change_state(self.sess, 'alarm'))
 
-        url = 'v2/alarms/IDENTIFIER/state'
+        url = 'alarms/IDENTIFIER/state'
         self.sess.put.assert_called_with(url, service=sot.service,
                                          json='alarm')

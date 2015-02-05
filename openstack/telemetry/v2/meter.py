@@ -17,7 +17,7 @@ from openstack.telemetry import telemetry_service
 class Meter(resource.Resource):
     id_attribute = 'meter_id'
     resource_key = 'meter'
-    base_path = '/v2/meters'
+    base_path = '/meters'
     service = telemetry_service.TelemetryService()
 
     # Supported Operations

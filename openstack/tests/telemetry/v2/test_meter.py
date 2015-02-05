@@ -33,7 +33,7 @@ class TestMeter(testtools.TestCase):
         sot = meter.Meter()
         self.assertEqual('meter', sot.resource_key)
         self.assertIsNone(sot.resources_key)
-        self.assertEqual('/v2/meters', sot.base_path)
+        self.assertEqual('/meters', sot.base_path)
         self.assertEqual('metering', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_retrieve)

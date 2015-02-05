@@ -17,7 +17,7 @@ from openstack import utils
 
 class Alarm(resource.Resource):
     id_attribute = 'alarm_id'
-    base_path = '/v2/alarms'
+    base_path = '/alarms'
     service = telemetry_service.TelemetryService()
 
     # Supported Operations

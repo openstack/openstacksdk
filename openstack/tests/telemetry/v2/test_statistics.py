@@ -39,7 +39,7 @@ class TestStatistics(testtools.TestCase):
         sot = statistics.Statistics()
         self.assertEqual('statistics', sot.resource_key)
         self.assertIsNone(sot.resources_key)
-        self.assertEqual('/v2/meters/%(meter_name)s/statistics', sot.base_path)
+        self.assertEqual('/meters/%(meter_name)s/statistics', sot.base_path)
         self.assertEqual('metering', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_retrieve)
@@ -74,7 +74,7 @@ class TestStatistics(testtools.TestCase):
         args = {'meter_name': 'example'}
         reply = statistics.Statistics.list(sess, path_args=args)
 
-        url = '/v2/meters/example/statistics'
+        url = '/meters/example/statistics'
         self.assertEqual(1, len(reply))
         sess.get.assert_called_with(url, service=reply[0].service, params={})
         self.assertEqual(EXAMPLE['aggregate'], reply[0].aggregate)
