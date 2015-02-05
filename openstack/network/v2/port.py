@@ -17,7 +17,7 @@ from openstack import resource
 class Port(resource.Resource):
     resource_key = 'port'
     resources_key = 'ports'
-    base_path = '/v2.0/ports'
+    base_path = '/ports'
     service = network_service.NetworkService()
 
     # capabilities

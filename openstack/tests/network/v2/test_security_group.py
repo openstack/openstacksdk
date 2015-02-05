@@ -57,7 +57,7 @@ class TestSecurityGroup(testtools.TestCase):
         sot = security_group.SecurityGroup()
         self.assertEqual('security_group', sot.resource_key)
         self.assertEqual('security_groups', sot.resources_key)
-        self.assertEqual('/v2.0/security-groups', sot.base_path)
+        self.assertEqual('/security-groups', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)

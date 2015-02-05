@@ -31,7 +31,7 @@ class TestExtension(testtools.TestCase):
         sot = extension.Extension()
         self.assertEqual('extension', sot.resource_key)
         self.assertEqual('extensions', sot.resources_key)
-        self.assertEqual('/v2.0/extensions', sot.base_path)
+        self.assertEqual('/extensions', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_retrieve)

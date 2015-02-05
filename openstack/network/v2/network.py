@@ -17,7 +17,7 @@ from openstack import resource
 class Network(resource.Resource):
     resource_key = 'network'
     resources_key = 'networks'
-    base_path = '/v2.0/networks'
+    base_path = '/networks'
     service = network_service.NetworkService()
 
     # capabilities

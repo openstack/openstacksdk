@@ -36,7 +36,7 @@ class TestSubnet(testtools.TestCase):
         sot = subnet.Subnet()
         self.assertEqual('subnet', sot.resource_key)
         self.assertEqual('subnets', sot.resources_key)
-        self.assertEqual('/v2.0/subnets', sot.base_path)
+        self.assertEqual('/subnets', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)

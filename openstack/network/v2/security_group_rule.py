@@ -17,7 +17,7 @@ from openstack import resource
 class SecurityGroupRule(resource.Resource):
     resource_key = 'security_group_rule'
     resources_key = 'security_group_rules'
-    base_path = '/v2.0/security-group-rules'
+    base_path = '/security-group-rules'
     service = network_service.NetworkService()
 
     # capabilities

@@ -32,7 +32,7 @@ class TestFloatingIP(testtools.TestCase):
         sot = floating_ip.FloatingIP()
         self.assertEqual('floatingip', sot.resource_key)
         self.assertEqual('floatingips', sot.resources_key)
-        self.assertEqual('/v2.0/floatingips', sot.base_path)
+        self.assertEqual('/floatingips', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)

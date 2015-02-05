@@ -43,7 +43,7 @@ class TestPort(testtools.TestCase):
         sot = port.Port()
         self.assertEqual('port', sot.resource_key)
         self.assertEqual('ports', sot.resources_key)
-        self.assertEqual('/v2.0/ports', sot.base_path)
+        self.assertEqual('/ports', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)

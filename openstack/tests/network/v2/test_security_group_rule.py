@@ -35,7 +35,7 @@ class TestSecurityGroupRule(testtools.TestCase):
         sot = security_group_rule.SecurityGroupRule()
         self.assertEqual('security_group_rule', sot.resource_key)
         self.assertEqual('security_group_rules', sot.resources_key)
-        self.assertEqual('/v2.0/security-group-rules', sot.base_path)
+        self.assertEqual('/security-group-rules', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)

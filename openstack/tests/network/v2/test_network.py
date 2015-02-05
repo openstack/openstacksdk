@@ -37,7 +37,7 @@ class TestNetwork(testtools.TestCase):
         sot = network.Network()
         self.assertEqual('network', sot.resource_key)
         self.assertEqual('networks', sot.resources_key)
-        self.assertEqual('/v2.0/networks', sot.base_path)
+        self.assertEqual('/networks', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)

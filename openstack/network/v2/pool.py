@@ -17,7 +17,7 @@ from openstack import resource
 class Pool(resource.Resource):
     resource_key = 'pool'
     resources_key = 'pools'
-    base_path = '/v2.0/pools'
+    base_path = '/pools'
     service = network_service.NetworkService()
 
     # capabilities

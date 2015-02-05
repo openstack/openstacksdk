@@ -17,7 +17,7 @@ from openstack import resource
 class Subnet(resource.Resource):
     resource_key = 'subnet'
     resources_key = 'subnets'
-    base_path = '/v2.0/subnets'
+    base_path = '/subnets'
     service = network_service.NetworkService()
 
     # capabilities

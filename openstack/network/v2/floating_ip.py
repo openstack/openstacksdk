@@ -20,7 +20,7 @@ class FloatingIP(resource.Resource):
     resource_name = "floating ip"
     resource_key = 'floatingip'
     resources_key = 'floatingips'
-    base_path = '/v2.0/floatingips'
+    base_path = '/floatingips'
     service = network_service.NetworkService()
 
     # capabilities

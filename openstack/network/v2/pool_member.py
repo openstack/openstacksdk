@@ -17,7 +17,7 @@ from openstack import resource
 class PoolMember(resource.Resource):
     resource_key = 'member'
     resources_key = 'members'
-    base_path = '/v2.0/pools/%(pool_id)s/members'
+    base_path = '/pools/%(pool_id)s/members'
     service = network_service.NetworkService()
 
     # capabilities

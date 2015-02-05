@@ -18,7 +18,7 @@ from openstack import utils
 class Router(resource.Resource):
     resource_key = 'router'
     resources_key = 'routers'
-    base_path = '/v2.0/routers'
+    base_path = '/routers'
     service = network_service.NetworkService()
 
     # capabilities

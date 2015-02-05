@@ -17,7 +17,7 @@ from openstack import resource
 class LoadBalancer(resource.Resource):
     resource_key = 'loadbalancer'
     resources_key = 'loadbalancers'
-    base_path = '/v2.0/loadbalancers'
+    base_path = '/loadbalancers'
     service = network_service.NetworkService()
 
     # capabilities

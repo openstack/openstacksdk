@@ -17,7 +17,7 @@ from openstack import resource
 class Quota(resource.Resource):
     resource_key = 'quota'
     resources_key = 'quotas'
-    base_path = '/v2.0/quotas'
+    base_path = '/quotas'
     service = network_service.NetworkService()
 
     # capabilities

@@ -32,7 +32,7 @@ class TestRouter(testtools.TestCase):
         sot = router.Router()
         self.assertEqual('router', sot.resource_key)
         self.assertEqual('routers', sot.resources_key)
-        self.assertEqual('/v2.0/routers', sot.base_path)
+        self.assertEqual('/routers', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)
@@ -60,7 +60,7 @@ class TestRouter(testtools.TestCase):
 
         self.assertEqual(response.body, sot.add_interface(sess, '3'))
 
-        url = 'v2.0/routers/IDENTIFIER/add_router_interface'
+        url = 'routers/IDENTIFIER/add_router_interface'
         body = {"subnet_id": "3"}
         sess.put.assert_called_with(url, service=sot.service, json=body)
 
@@ -74,6 +74,6 @@ class TestRouter(testtools.TestCase):
 
         self.assertEqual(response.body, sot.remove_interface(sess, '3'))
 
-        url = 'v2.0/routers/IDENTIFIER/remove_router_interface'
+        url = 'routers/IDENTIFIER/remove_router_interface'
         body = {"subnet_id": "3"}
         sess.put.assert_called_with(url, service=sot.service, json=body)

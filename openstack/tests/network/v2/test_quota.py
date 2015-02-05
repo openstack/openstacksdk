@@ -31,7 +31,7 @@ class TestQuota(testtools.TestCase):
         sot = quota.Quota()
         self.assertEqual('quota', sot.resource_key)
         self.assertEqual('quotas', sot.resources_key)
-        self.assertEqual('/v2.0/quotas', sot.base_path)
+        self.assertEqual('/quotas', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_retrieve)

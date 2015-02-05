@@ -17,7 +17,7 @@ from openstack import resource
 class Extension(resource.Resource):
     resource_key = 'extension'
     resources_key = 'extensions'
-    base_path = '/v2.0/extensions'
+    base_path = '/extensions'
     service = network_service.NetworkService()
 
     # capabilities

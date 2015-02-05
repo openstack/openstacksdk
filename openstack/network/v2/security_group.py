@@ -18,7 +18,7 @@ from openstack import resource
 class SecurityGroup(resource.Resource):
     resource_key = 'security_group'
     resources_key = 'security_groups'
-    base_path = '/v2.0/security-groups'
+    base_path = '/security-groups'
     service = network_service.NetworkService()
 
     # capabilities
