@@ -44,6 +44,17 @@ fake_record2 = {
 
 class TestTransport(base.TestTransportBase):
 
+    def setUp(self):
+        super(TestTransport, self).setUp()
+
+        self._orig_user_agent = transport.USER_AGENT
+        self.test_user_agent = transport.USER_AGENT = "testing/1.0"
+
+    def tearDown(self):
+        super(TestTransport, self).tearDown()
+
+        transport.USER_AGENT = self._orig_user_agent
+
     @httpretty.activate
     def test_request(self):
         self.stub_url(httpretty.GET, body=fake_response)
@@ -169,220 +180,76 @@ class TestTransport(base.TestTransportBase):
 
         resp = xport.get(self.TEST_URL, accept=None)
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual(
-            'User-Agent',
-            transport.DEFAULT_USER_AGENT,
-        )
+        self.assertRequestHeaderEqual('User-Agent', self.test_user_agent)
 
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': None},
-            accept=None,
-        )
+        resp = xport.get(self.TEST_URL, headers={'User-Agent': None},
+                         accept=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', None)
 
         resp = xport.get(self.TEST_URL, user_agent=None, accept=None)
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', None)
+        self.assertRequestHeaderEqual('User-Agent', self.test_user_agent)
 
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': ''},
-            accept=None,
-        )
+        resp = xport.get(self.TEST_URL, headers={'User-Agent': ''},
+                         accept=None)
         self.assertTrue(resp.ok)
         self.assertRequestHeaderEqual('User-Agent', '')
 
         resp = xport.get(self.TEST_URL, user_agent='', accept=None)
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', '')
+        self.assertRequestHeaderEqual('User-Agent', self.test_user_agent)
 
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': 'new-agent'},
-            accept=None,
-        )
+        new_agent = 'new-agent'
+        resp = xport.get(self.TEST_URL, headers={'User-Agent': new_agent},
+                         accept=None)
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', 'new-agent')
+        self.assertRequestHeaderEqual('User-Agent', new_agent)
 
-        resp = xport.get(self.TEST_URL, user_agent='new-agent', accept=None)
+        resp = xport.get(self.TEST_URL, user_agent=new_agent, accept=None)
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', 'new-agent')
+        self.assertRequestHeaderEqual('User-Agent', '%s %s' % (
+                                      new_agent, self.test_user_agent))
 
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': 'new-agent'},
-            user_agent=None,
-            accept=None,
-        )
+        custom_value = 'new-agent'
+        resp = xport.get(self.TEST_URL, headers={'User-Agent': custom_value},
+                         user_agent=None, accept=None)
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', None)
+        self.assertRequestHeaderEqual('User-Agent', custom_value)
 
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': None},
-            user_agent='overrides-agent',
-            accept=None,
-        )
+        override = 'overrides-agent'
+        resp = xport.get(self.TEST_URL, headers={'User-Agent': None},
+                         user_agent=override, accept=None)
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
+        self.assertRequestHeaderEqual('User-Agent', '%s %s' % (
+                                      override, self.test_user_agent))
 
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': 'new-agent'},
-            user_agent='overrides-agent',
-            accept=None,
-        )
+        resp = xport.get(self.TEST_URL, headers={'User-Agent': custom_value},
+                         user_agent=override, accept=None)
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
+        self.assertRequestHeaderEqual('User-Agent', '%s %s' % (
+                                      override, self.test_user_agent))
 
     @httpretty.activate
     def test_user_agent_arg_none(self):
+        # None gets converted to the transport.USER_AGENT by default.
         self.stub_url(httpretty.GET, body=fake_response)
         xport = transport.Transport(user_agent=None)
 
         resp = xport.get(self.TEST_URL, accept=None)
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual(
-            'User-Agent',
-            transport.DEFAULT_USER_AGENT,
-        )
-
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': None},
-            accept=None,
-        )
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', None)
-
-        resp = xport.get(self.TEST_URL, user_agent=None, accept=None)
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', None)
-
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': ''},
-            accept=None,
-        )
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', '')
-
-        resp = xport.get(self.TEST_URL, user_agent='', accept=None)
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', '')
-
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': 'new-agent'},
-            accept=None,
-        )
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', 'new-agent')
-
-        resp = xport.get(self.TEST_URL, user_agent='new-agent', accept=None)
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', 'new-agent')
-
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': 'new-agent'},
-            user_agent=None,
-            accept=None,
-        )
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', None)
-
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': None},
-            user_agent='overrides-agent',
-            accept=None,
-        )
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
-
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': 'new-agent'},
-            user_agent='overrides-agent',
-            accept=None,
-        )
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
+        self.assertRequestHeaderEqual('User-Agent', self.test_user_agent)
 
     @httpretty.activate
     def test_user_agent_arg_default(self):
         self.stub_url(httpretty.GET, body=fake_response)
-        xport = transport.Transport(user_agent='test-agent')
+        agent = 'test-agent'
+        xport = transport.Transport(user_agent=agent)
 
         resp = xport.get(self.TEST_URL, accept=None)
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', 'test-agent')
-
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': None},
-            accept=None,
-        )
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', None)
-
-        resp = xport.get(self.TEST_URL, user_agent=None, accept=None)
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', None)
-
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': ''},
-            accept=None,
-        )
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', '')
-
-        resp = xport.get(self.TEST_URL, user_agent='', accept=None)
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', '')
-
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': 'new-agent'},
-            accept=None,
-        )
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', 'new-agent')
-
-        resp = xport.get(self.TEST_URL, user_agent='new-agent', accept=None)
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', 'new-agent')
-
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': 'new-agent'},
-            user_agent=None,
-            accept=None,
-        )
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', None)
-
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': None},
-            user_agent='overrides-agent',
-            accept=None,
-        )
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
-
-        resp = xport.get(
-            self.TEST_URL,
-            headers={'User-Agent': 'new-agent'},
-            user_agent='overrides-agent',
-            accept=None,
-        )
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', 'overrides-agent')
+        self.assertRequestHeaderEqual('User-Agent', '%s %s' % (
+                                      agent, self.test_user_agent))
 
     def test_verify_no_arg(self):
         xport = transport.Transport()

@@ -1,4 +1,5 @@
 .. TODO(briancurtin): turn this into a full guide on the Connection class
+.. TODO(briancurtin): cover user_agent setting
 
 =====
 Usage

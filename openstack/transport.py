@@ -92,18 +92,28 @@ for an API.
 
 See: https://en.wikipedia.org/wiki/Post/Redirect/Get
 
-User Agent
+User-Agent
 ~~~~~~~~~~
 
-The ``User-Agent`` header may be set when the Transport object is created in
-addition to the existing per-request mode.  The determination of how to set
-the ``User-Agent`` header is as follows:
+User-Agent handling as constructed by this class follows
+`RFC 7231 Section 5.5.3 <http://tools.ietf.org/html/rfc7231#section-5.5.3>`_.
+A well-formed user-agent is constructed on name/version product identifiers,
+such that ``MyProgram/1.0`` is a proper user-agent.
 
-* If the ``user_agent`` argument is included in the ``request()`` call use it
-* Else if ``User-Agent`` is set in the headers dict use it
-* Else if ``user_agent`` argument is included in the
-  :class:`~openstack.transport.Transport` construction use it
-* Else use ``transport.DEFAULT_USER_AGENT``
+* The default :attr:`~openstack.transport.USER_AGENT` contains
+  the SDK version as well as RFC-compliant values from
+  ``requests.utils.default_user_agent``, including versions of ``requests``,
+  Python, and the operating system.
+* Any ``user_agent`` argument passed when creating a
+  :class:`~openstack.transport.Transport` is prepended to the default.
+* Any ``user_agent`` passed in a
+  :meth:`~openstack.transport.Transport.request` call is prepended
+  to one used for that ``Transport`` instance.
+* Any string passed as the ``User-Agent`` in a dictionary of
+  headers to :meth:`~openstack.transport.Transport.request` will be
+  used directly. If at the same time a ``user_agent`` argument has been passed
+  to ``request()``, it will be used and follows the rules above.
+
 """
 
 import json
@@ -116,16 +126,17 @@ from six.moves import urllib
 import openstack
 from openstack import exceptions
 
-
-DEFAULT_USER_AGENT = 'python-OpenStackSDK/' + openstack.__version__
+#: Default value for the HTTP User-Agent header. The default includes the
+#: version information of the SDK as well as ``requests``, Python,
+#: and the operating system.
+USER_AGENT = "python-openstacksdk/%s %s" % (
+    openstack.__version__, requests.utils.default_user_agent())
 
 _logger = logging.getLogger(__name__)
 JSON = 'application/json'
 
 
 class Transport(requests.Session):
-
-    _user_agent = DEFAULT_USER_AGENT
 
     REDIRECT_STATUSES = (301, 302, 303, 305, 307)
     DEFAULT_REDIRECT_LIMIT = 30
@@ -142,9 +153,12 @@ class Transport(requests.Session):
         In addition to those listed below, all arguments available to
         ``requests.Session`` are available here:
 
-        :param string user_agent: Set the default ``User-Agent`` header;
-                                  Header is omitted if ``None`` and no value
-                                  is supplied in the ``request()`` call.
+        :param string user_agent: Set the ``User-Agent`` header. When
+                                  no value is provided, the default of
+                                  :attr:`~openstack.transport.USER_AGENT`
+                                  will be used. When a value is provided,
+                                  it will be prepended to
+                                  :attr:`~openstack.transport.USER_AGENT`.
         :param boolean/string verify: If ``True``, the SSL cert will be
                                       verified. A CA_BUNDLE path can also be
                                       provided.
@@ -155,18 +169,18 @@ class Transport(requests.Session):
                                          if True. (optional)
         :param string accept: Type of output to accept
 
-        User agent handling is as follows:
-
-        * if user_agent arg is included in the request() call, use it
-        * else if 'User-Agent' is set in the headers dict, use it
-        * else if user_agent arg is included in the __init__() call, use it
-        * else use DEFAULT_USER_AGENT
-
         """
 
         super(Transport, self).__init__()
-        if user_agent:
-            self._user_agent = user_agent
+
+        # Per RFC 7231 Section 5.5.3, identifiers in a user-agent should
+        # be ordered by decreasing significance. If a user sets their product,
+        # we prepend it to the SDK version and then the Python version.
+        if user_agent is None:
+            self._user_agent = USER_AGENT
+        else:
+            self._user_agent = "%s %s" % (user_agent, USER_AGENT)
+
         self.verify = verify
         self._redirect = redirect
         self._accept = accept
@@ -192,9 +206,8 @@ class Transport(requests.Session):
         :param string accept: Set the ``Accept`` header; overwrites
                                   any value that may be in the headers dict.
                                   Header is omitted if ``None``.
-        :param string user_agent: Set the ``User-Agent`` header; overwrites
-                                  any value that may be in the headers dict.
-                                  Header is omitted if ``None``.
+        :param string user_agent: Prepend an additional value to the existing
+                                  ``User-Agent`` header.
 
         Remaining kw args from requests.Session.request() supported
 
@@ -209,14 +222,19 @@ class Transport(requests.Session):
             kwargs['data'] = json.dumps(json_data)
             headers['Content-Type'] = JSON
 
-        # Set User-Agent header if user_agent arg included, or
-        # fall through the default chain as described above
-        if 'user_agent' in kwargs:
-            headers['User-Agent'] = kwargs.pop('user_agent')
-        elif self._user_agent:
-            headers.setdefault('User-Agent', self._user_agent)
+        # Prepend the caller's user_agent to User-Agent header if included,
+        # or use the default that this transport was created with.
+        # Note: Only attempt to work with strings and avoid needlessly
+        # concatenating an empty string.
+        user_agent = kwargs.pop('user_agent', None)
+        if isinstance(user_agent, six.string_types) and user_agent != '':
+            headers['User-Agent'] = '%s %s' % (user_agent, self._user_agent)
+        elif 'User-Agent' in headers:
+            # If they've specified their own headers with a User-Agent,
+            # use that directly.
+            pass
         else:
-            headers.setdefault('User-Agent', DEFAULT_USER_AGENT)
+            headers.setdefault('User-Agent', self._user_agent)
 
         if redirect is None:
             redirect = self._redirect

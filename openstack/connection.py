@@ -64,16 +64,13 @@ from openstack import module_loader
 from openstack import session
 from openstack import transport as xport
 
-
-USER_AGENT = 'OSPythonSDK'
-"""Default value for the HTTP User-Agent header"""
 _logger = logging.getLogger(__name__)
 
 
 class Connection(object):
 
     def __init__(self, transport=None, authenticator=None, preference=None,
-                 verify=True, user_agent=USER_AGENT,
+                 verify=True, user_agent=None,
                  auth_plugin=None, **auth_args):
         """Create a context for a connection to a cloud provider.
 
@@ -106,10 +103,11 @@ class Connection(object):
             is set to true, which is the default, the SSL cert will be
             verified.  It can also be set to a CA_BUNDLE path.
         :param str user_agent: If a transport is not provided to the
-            connection, this parameter will be used to create a transport.
-            The value of this parameter is used for the ``User-Agent`` HTTP
-            header. The default value is the module level attribute
-            ``USER_AGENT`` which is set to ``"OSPythonSDK"``.
+            connection, this parameter will be used when creating a transport.
+            The value given here will be prepended to the default, which is
+            specified in :attr:`~openstack.transport.USER_AGENT`.
+            The resulting ``user_agent`` value is used for the ``User-Agent``
+            HTTP header.
         :param str auth_plugin: The name of authentication plugin to use.  If
             the authentication plugin name is not provided, the connection will
             try to guess what plugin to use based on the *auth_url* in the

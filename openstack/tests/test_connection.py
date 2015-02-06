@@ -36,7 +36,7 @@ class TestConnection(base.TestCase):
         conn = connection.Connection(authenticator='2', verify=True,
                                      user_agent='1')
         self.assertTrue(conn.transport.verify)
-        self.assertEqual('1', conn.transport._user_agent)
+        self.assertIn('1', conn.transport._user_agent)
 
     def test_create_authenticator_v2(self):
         auth_args = {
@@ -120,6 +120,12 @@ class TestConnection(base.TestCase):
                          conn.orchestration.__class__.__module__)
         self.assertEqual('openstack.telemetry.v2._proxy',
                          conn.telemetry.__class__.__module__)
+
+    def test_custom_user_agent(self):
+        user_agent = "MyProgram/1.0"
+        conn = connection.Connection(authenticator=self.auth,
+                                     user_agent=user_agent)
+        self.assertTrue(conn.transport._user_agent.startswith(user_agent))
 
 
 class TestService(service_filter.ServiceFilter):
