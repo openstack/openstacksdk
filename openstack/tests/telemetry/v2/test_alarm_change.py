@@ -34,7 +34,7 @@ class TestAlarmChange(testtools.TestCase):
         sot = alarm_change.AlarmChange()
         self.assertEqual('alarm_change', sot.resource_key)
         self.assertIsNone(sot.resources_key)
-        self.assertEqual('/v2/alarms/%(alarm_id)s/history', sot.base_path)
+        self.assertEqual('/alarms/%(alarm_id)s/history', sot.base_path)
         self.assertEqual('metering', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_retrieve)

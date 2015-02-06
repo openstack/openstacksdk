@@ -17,7 +17,7 @@ from openstack.telemetry import telemetry_service
 class AlarmChange(resource.Resource):
     id_attribute = 'event_id'
     resource_key = 'alarm_change'
-    base_path = '/v2/alarms/%(alarm_id)s/history'
+    base_path = '/alarms/%(alarm_id)s/history'
     service = telemetry_service.TelemetryService()
 
     # Supported Operations

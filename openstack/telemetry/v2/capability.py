@@ -19,7 +19,7 @@ from openstack.telemetry import telemetry_service
 class Capability(resource.Resource):
     resource_key = 'capability'
     resources_key = 'capabilities'
-    base_path = '/v2/capabilities'
+    base_path = '/capabilities'
     service = telemetry_service.TelemetryService()
 
     # Supported Operations

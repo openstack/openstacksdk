@@ -52,7 +52,7 @@ class TestSample(testtools.TestCase):
         sot = sample.Sample(SAMPLE)
         self.assertIsNone(sot.resource_key)
         self.assertIsNone(sot.resources_key)
-        self.assertEqual('/v2/meters/%(meter)s', sot.base_path)
+        self.assertEqual('/meters/%(meter)s', sot.base_path)
         self.assertEqual('metering', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertFalse(sot.allow_retrieve)
@@ -132,7 +132,7 @@ class TestSample(testtools.TestCase):
         new_sample = sample.Sample.new(**data)
 
         new_sample.create(sess)
-        url = '/v2/meters/temperature'
+        url = '/meters/temperature'
         sess.post.assert_called_with(url, service=new_sample.service,
                                      json=[data])
         self.assertIsNone(new_sample.id)

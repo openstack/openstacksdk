@@ -35,7 +35,7 @@ class TestCapability(testtools.TestCase):
         sot = capability.Capability()
         self.assertEqual('capability', sot.resource_key)
         self.assertEqual('capabilities', sot.resources_key)
-        self.assertEqual('/v2/capabilities', sot.base_path)
+        self.assertEqual('/capabilities', sot.base_path)
         self.assertEqual('metering', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_retrieve)
