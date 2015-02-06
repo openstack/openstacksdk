@@ -23,8 +23,10 @@ class Stack(resource.Resource):
     # capabilities
     # NOTE(thowe): Special handling for other operations
     allow_list = True
+    allow_retrieve = True
 
     # Properties
+    name = resource.prop('stack_name')
     capabilities = resource.prop('capabilities')
     creation_time = resource.prop('creation_time')
     description = resource.prop('description')
@@ -33,7 +35,6 @@ class Stack(resource.Resource):
     notification_topics = resource.prop('notification_topics')
     outputs = resource.prop('outputs')
     parameters = resource.prop('parameters', type=dict)
-    stack_name = resource.prop('stack_name')
     stack_status = resource.prop('stack_status')
     stack_status_reason = resource.prop('stack_status_reason')
     template_description = resource.prop('template_description')

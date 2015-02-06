@@ -23,3 +23,6 @@ class Proxy(object):
 
     def list_stacks(self):
         return stack.Stack.list(self.session)
+
+    def get_stack(self, **data):
+        return stack.Stack(data).get(self.session)

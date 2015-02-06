@@ -43,7 +43,7 @@ class TestStack(testtools.TestCase):
         self.assertEqual('/stacks', sot.base_path)
         self.assertEqual('orchestration', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_retrieve)
+        self.assertTrue(sot.allow_retrieve)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
@@ -60,7 +60,7 @@ class TestStack(testtools.TestCase):
                          sot.notification_topics)
         self.assertEqual(EXAMPLE['outputs'], sot.outputs)
         self.assertEqual(EXAMPLE['parameters'], sot.parameters)
-        self.assertEqual(EXAMPLE['stack_name'], sot.stack_name)
+        self.assertEqual(EXAMPLE['stack_name'], sot.name)
         self.assertEqual(EXAMPLE['stack_status'], sot.stack_status)
         self.assertEqual(EXAMPLE['stack_status_reason'],
                          sot.stack_status_reason)
