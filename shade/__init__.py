@@ -690,6 +690,141 @@ class OpenStackCloud(object):
         return self.get_volume(
             name_or_id, cache=False, error=False) is not None
 
+    def get_volume_attach_device(self, volume, server_id):
+        """Return the device name a volume is attached to for a server.
+
+        This can also be used to verify if a volume is attached to
+        a particular server.
+
+        :param volume: Volume object
+        :param server_id: ID of server to check
+
+        :returns: Device name if attached, None if volume is not attached.
+        """
+        for attach in volume.attachments:
+            if server_id == attach['server_id']:
+                return attach['device']
+        return None
+
+    def detach_volume(self, server, volume, wait=True, timeout=None):
+        """Detach a volume from a server.
+
+        :param server: The server object to detach from.
+        :param volume: The volume object to detach.
+        :param wait: If true, waits for volume to be detached.
+        :param timeout: Seconds to wait for volume detachment. None is forever.
+
+        :raises: OpenStackCloudTimeout if wait time exceeded.
+        :raises: OpenStackCloudException on operation error.
+        """
+        nova = self.nova_client
+
+        dev = self.get_volume_attach_device(volume, server.id)
+        if not dev:
+            raise OpenStackCloudException(
+                "Volume %s is not attached to server %s"
+                % (volume.id, server.id)
+            )
+
+        try:
+            nova.volumes.delete_server_volume(server.id, volume.id)
+        except Exception as e:
+            self.log.debug("nova volume detach failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Error detaching volume %s from server %s: %s" %
+                (volume.id, server.id, e)
+            )
+
+        if wait:
+            for count in _iterate_timeout(
+                    timeout,
+                    "Timeout waiting for volume %s to detach." % volume.id):
+                try:
+                    vol = self.get_volume(volume.id, cache=False)
+                except Exception:
+                    self.log.debug(
+                        "Error getting volume info %s" % volume.id,
+                        exc_info=True)
+                    continue
+
+                if vol.status == 'available':
+                    return
+
+                if vol.status == 'error':
+                    raise OpenStackCloudException(
+                        "Error in detaching volume %s" % volume.id
+                    )
+
+    def attach_volume(self, server, volume, device=None,
+                      wait=True, timeout=None):
+        """Attach a volume to a server.
+
+        This will attach a volume, described by the passed in volume
+        object (as returned by get_volume()), to the server described by
+        the passed in server object (as returned by get_server()) on the
+        named device on the server.
+
+        If the volume is already attached to the server, or generally not
+        available, then an exception is raised. To re-attach to a server,
+        but under a different device, the user must detach it first.
+
+        :param server: The server object to attach to.
+        :param volume: The volume object to attach.
+        :param device: The device name where the volume will attach.
+        :param wait: If true, waits for volume to be attached.
+        :param timeout: Seconds to wait for volume attachment. None is forever.
+
+        :raises: OpenStackCloudTimeout if wait time exceeded.
+        :raises: OpenStackCloudException on operation error.
+        """
+        nova = self.nova_client
+
+        dev = self.get_volume_attach_device(volume, server.id)
+        if dev:
+            raise OpenStackCloudException(
+                "Volume %s already attached to server %s on device %s"
+                % (volume.id, server.id, dev)
+            )
+
+        if volume.status != 'available':
+            raise OpenStackCloudException(
+                "Volume %s is not available. Status is '%s'"
+                % (volume.id, volume.status)
+            )
+
+        try:
+            nova.volumes.create_server_volume(server.id, volume.id, device)
+        except Exception as e:
+            self.log.debug(
+                "nova volume attach of %s failed" % volume.id, exc_info=True)
+            raise OpenStackCloudException(
+                "Error attaching volume %s to server %s: %s" %
+                (volume.id, server.id, e)
+            )
+
+        if wait:
+            for count in _iterate_timeout(
+                    timeout,
+                    "Timeout waiting for volume %s to attach." % volume.id):
+                try:
+                    vol = self.get_volume(volume.id, cache=False)
+                except Exception:
+                    self.log.debug(
+                        "Error getting volume info %s" % volume.id,
+                        exc_info=True)
+                    continue
+
+                if self.get_volume_attach_device(vol, server.id):
+                    return
+
+                # TODO(Shrews) check to see if a volume can be in error status
+                #              and also attached. If so, we should move this
+                #              above the get_volume_attach_device call
+                if vol.status == 'error':
+                    raise OpenStackCloudException(
+                        "Error in attaching volume %s" % volume.id
+                    )
+
     def get_server_id(self, name_or_id):
         server = self.get_server(name_or_id)
         if server:
