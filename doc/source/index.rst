@@ -1,54 +1,22 @@
-.. include:: ../../README.rst
+Welcome to the OpenStack SDK!
+=============================
 
-Welcome!
-========
+This documentation is split into two sections: one for `users <users/index>`_
+looking to build applications which make use of OpenStack, and another for
+those looking to `contribute <contributors/index>`_ to this project.
+
+For Users
+---------
 
 .. toctree::
    :maxdepth: 2
 
-   users/installation
-   users/usage
-   contributors/contributing
-   users/glossary
+   users/index
 
-User Guides
------------
+For Contributors
+----------------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   users/userguides/object_store
-
-High-Level Interface
---------------------
-
-.. toctree::
-   :maxdepth: 1
-
-   users/highlevel/object_store
-
-Resource Level Classes
-----------------------
-
-.. toctree::
-   :maxdepth: 1
-
-   users/resources/object_store/v1/container
-   users/resources/object_store/v1/obj
-
-Low-Level Classes
------------------
-
-.. toctree::
-   :maxdepth: 1
-
-   users/connection
-   users/user_preference
-   users/session
-   users/transport
-   users/base_auth_plugin
-   users/identity_base
-   users/identity_v2
-   users/identity_v3
-   users/resource
-   users/service_filter
+   contributors/index

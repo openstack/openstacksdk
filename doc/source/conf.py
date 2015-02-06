@@ -52,6 +52,11 @@ pygments_style = 'sphinx'
 
 autodoc_member_order = "bysource"
 
+# Locations to exclude when looking for source files.
+# * Glossary is not included in any toctree, so it raised warnings, but it
+#   is explicitly linked to from the top of users/index.rst.
+exclude_patterns = ["users/glossary.rst"]
+
 # -- Options for HTML output --------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  Major themes that come with

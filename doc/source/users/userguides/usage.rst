@@ -1,3 +1,5 @@
+.. TODO(briancurtin): turn this into a full guide on the Connection class
+
 =====
 Usage
 =====
