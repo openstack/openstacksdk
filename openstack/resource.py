@@ -706,7 +706,7 @@ class Resource(collections.MutableMapping):
                 more_data = False
 
     @classmethod
-    def page(cls, session, limit, marker=None, path_args=None, **params):
+    def page(cls, session, limit=None, marker=None, path_args=None, **params):
         """Get a one page response.
 
         This method gets starting at ``marker`` with a maximum of ``limit``
@@ -714,7 +714,8 @@ class Resource(collections.MutableMapping):
 
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
-        :param limit: The maximum amount of results to retrieve.
+        :param limit: The maximum amount of results to retrieve. The default
+                      is to retrieve as many results as the service allows.
         :param marker: The position in the list to begin requests from.
                        The type of value to use for ``marker`` depends on
                        the API being called.
@@ -724,7 +725,7 @@ class Resource(collections.MutableMapping):
         :param dict params: Parameters to be passed into the underlying
                             :meth:`~openstack.session.Session.get` method.
 
-        :return: An array of :class:`Resource` objects.
+        :return: A list of dictionaries returned in the response body.
         """
 
         filters = {}
