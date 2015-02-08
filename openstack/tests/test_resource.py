@@ -401,6 +401,12 @@ class ResourceTests(base.TestTransportBase):
         del t.id
         self.assertTrue(Test.id_attribute not in t._attrs)
 
+    def test_from_name_with_name(self):
+        name = "Ernie Banks"
+
+        obj = FakeResource.from_name(name)
+        self.assertEqual(obj.name, name)
+
     def test_from_id_with_name(self):
         name = "Sandy Koufax"
 

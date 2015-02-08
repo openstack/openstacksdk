@@ -231,20 +231,55 @@ class Resource(collections.MutableMapping):
         return cls(kwargs, loaded=True)
 
     @classmethod
-    def from_id(cls, value):
-        """Create an instance from an ID or return an existing instance.
-
-        Instance creation is done via cls.new.
-        """
+    def _from_attr(cls, attribute, value):
         # This method is useful in the higher level, in cases where operations
         # need to depend on having Resource objects, but the API is flexible
         # in taking text values which represent those objects.
         if isinstance(value, cls):
             return value
         elif isinstance(value, six.string_types):
-            return cls.new(**{cls.id_attribute: value})
+            return cls.new(**{attribute: value})
         else:
-            raise ValueError("value must be %s instance or id" % cls.__name__)
+            raise ValueError("value must be %s instance or %s" % (
+                cls.__name__, attribute))
+
+    @classmethod
+    def from_id(cls, value):
+        """Create an instance from an ID or return an existing instance.
+
+        New instances are created with :meth:`~openstack.resource.Resource.new`
+
+        :param value: If ``value`` is an instance of this Resource type,
+                      it is returned.
+                      If ``value`` is an ID which an instance of this
+                      Resource type can be created with, one is created
+                      and returned.
+
+        :rtype: :class:`~openstack.resource.Resource` or the
+                appropriate subclass.
+        :raises: :exc:`ValueError` if ``value`` is not an instance of
+                 this Resource type or a valid ``id``.
+        """
+        return cls._from_attr(cls.id_attribute, value)
+
+    @classmethod
+    def from_name(cls, value):
+        """Create an instance from a name or return an existing instance.
+
+        New instances are created with :meth:`~openstack.resource.Resource.new`
+
+        :param value: If ``value`` is an instance of this Resource type,
+                      it is returned.
+                      If ``value`` is a name which an instance of this
+                      Resource type can be created with, one is created
+                      and returned.
+
+        :rtype: :class:`~openstack.resource.Resource` or the
+                appropriate subclass.
+         :raises: :exc:`ValueError` if ``value`` is not an instance of
+                  this Resource type or a valid ``name``.
+        """
+        return cls._from_attr(cls.name_attribute, value)
 
     ##
     # MUTABLE MAPPING IMPLEMENTATION
