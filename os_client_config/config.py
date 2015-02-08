@@ -271,7 +271,7 @@ class OpenStackConfig(object):
 
         args = self._fix_args(kwargs, argparse=argparse)
 
-        if 'region_name' not in args:
+        if 'region_name' not in args or args['region_name'] is None:
             args['region_name'] = self._get_region(cloud)
 
         config = self._get_base_cloud_config(cloud)
