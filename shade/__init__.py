@@ -932,7 +932,7 @@ class OpenStackCloud(object):
         return (self._file_hash_cache[filename]['md5'],
                 self._file_hash_cache[filename]['sha256'])
 
-    def _is_object_stale(
+    def is_object_stale(
         self, container, name, filename, file_md5=None, file_sha256=None):
 
         metadata = self.get_object_metadata(container, name)
@@ -967,7 +967,7 @@ class OpenStackCloud(object):
         if not filename:
             filename = name
 
-        if self._is_object_stale(container, name, filename, md5, sha256):
+        if self.is_object_stale(container, name, filename, md5, sha256):
 
             self.create_container(container)
 
