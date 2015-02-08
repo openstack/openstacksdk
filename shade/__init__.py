@@ -42,6 +42,12 @@ IMAGE_MD5_KEY = 'org.openstack.shade.md5'
 IMAGE_SHA256_KEY = 'org.openstack.shade.sha256'
 
 
+OBJECT_CONTAINER_ACLS = {
+    'public': ".r:*,.rlistings",
+    'private': '',
+}
+
+
 class OpenStackCloudException(Exception):
     pass
 
@@ -792,18 +798,60 @@ class OpenStackCloud(object):
                         e.http_reason, e.http_host, e.http_path))
         return self._container_cache[name]
 
-    def create_container(self, name):
+    def create_container(self, name, public=False):
         container = self.get_container(name)
         if container:
             return container
         try:
             self.swift_client.put_container(name)
+            if public:
+                self.set_container_access(name, 'public')
             return self.get_container(name, skip_cache=True)
         except swift_exceptions.ClientException as e:
             self.log.debug("swift container create failed", exc_info=True)
             raise OpenStackCloudException(
                 "Container creation failed: %s (%s/%s)" % (
                     e.http_reason, e.http_host, e.http_path))
+
+    def delete_container(self, name):
+        try:
+            self.swift_client.delete_container(name)
+        except swift_exceptions.ClientException as e:
+            if e.http_status == 404:
+                return
+            self.log.debug("swift container delete failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Container deletion failed: %s (%s/%s)" % (
+                    e.http_reason, e.http_host, e.http_path))
+
+    def update_container(self, name, headers):
+        try:
+            self.swift_client.post_container(name, headers)
+        except swift_exceptions.ClientException as e:
+            self.log.debug("swift container update failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Container update failed: %s (%s/%s)" % (
+                    e.http_reason, e.http_host, e.http_path))
+
+    def set_container_access(self, name, access):
+        if access not in OBJECT_CONTAINER_ACLS:
+            raise OpenStackCloudException(
+                "Invalid container access specified: %s.  Must be one of %s"
+                % (access, list(OBJECT_CONTAINER_ACLS.keys())))
+        header = {'x-container-read': OBJECT_CONTAINER_ACLS[access]}
+        self.update_container(name, header)
+
+    def get_container_access(self, name):
+        container = self.get_container(name, skip_cache=True)
+        if not container:
+            raise OpenStackCloudException("Container not found: %s" % name)
+        acl = container.get('x-container-read', '')
+        try:
+            return [p for p, a in OBJECT_CONTAINER_ACLS.items()
+                    if acl == a].pop()
+        except IndexError:
+            raise OpenStackCloudException(
+                "Could not determine container access for ACL: %s." % acl)
 
     def _get_file_hashes(self, filename):
         if filename not in self._file_hash_cache:
@@ -867,6 +915,16 @@ class OpenStackCloud(object):
         headers[OBJECT_MD5_KEY] = md5
         headers[OBJECT_SHA256_KEY] = sha256
         self.swift_client.post_object(container, name, headers=headers)
+
+    def delete_object(self, container, name):
+        if not self.get_object_metadata(container, name):
+            return
+        try:
+            self.swift_client.delete_object(container, name)
+        except swift_exceptions.ClientException as e:
+            raise OpenStackCloudException(
+                "Object deletion failed: %s (%s/%s)" % (
+                    e.http_reason, e.http_host, e.http_path))
 
     def get_object_metadata(self, container, name):
         try:
