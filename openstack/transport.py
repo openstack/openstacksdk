@@ -244,8 +244,10 @@ class Transport(requests.Session):
         try:
             resp.raise_for_status()
         except requests.RequestException as e:
-            raise exceptions.HttpException(six.text_type(e),
-                                           self._parse_error_response(resp))
+            raise exceptions.HttpException(
+                six.text_type(e),
+                details=self._parse_error_response(resp),
+                status_code=resp.status_code)
         if accept == JSON:
             try:
                 resp.body = resp.json()
