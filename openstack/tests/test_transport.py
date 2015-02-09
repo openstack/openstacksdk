@@ -270,16 +270,22 @@ class TestTransport(base.TestTransportBase):
     @httpretty.activate
     def test_not_found(self):
         xport = transport.Transport()
-        self.stub_url(httpretty.GET, status=404)
+        status = 404
+        self.stub_url(httpretty.GET, status=status)
 
-        self.assertRaises(exceptions.HttpException, xport.get, self.TEST_URL)
+        exc = self.assertRaises(exceptions.HttpException, xport.get,
+                                self.TEST_URL)
+        self.assertEqual(status, exc.status_code)
 
     @httpretty.activate
     def test_server_error(self):
         xport = transport.Transport()
+        status = 500
         self.stub_url(httpretty.GET, status=500)
 
-        self.assertRaises(exceptions.HttpException, xport.get, self.TEST_URL)
+        exc = self.assertRaises(exceptions.HttpException, xport.get,
+                                self.TEST_URL)
+        self.assertEqual(status, exc.status_code)
 
 
 class TestTransportDebug(base.TestTransportBase):

@@ -22,8 +22,8 @@ import six
 class SDKException(Exception):
     """The base exception class for all exceptions this library raises."""
     def __init__(self, message=None):
-        message = self.__class__.__name__ if message is None else message
-        super(Exception, self).__init__(message)
+        self.message = self.__class__.__name__ if message is None else message
+        super(Exception, self).__init__(self.message)
 
 
 class AuthorizationFailure(SDKException):
@@ -60,9 +60,10 @@ class InvalidResponse(SDKException):
 
 
 class HttpException(SDKException):
-    def __init__(self, message, details=None):
+    def __init__(self, message, details=None, status_code=None):
         super(HttpException, self).__init__(message)
         self.details = details
+        self.status_code = status_code
 
     def __unicode__(self):
         msg = self.__class__.__name__ + ": " + self.message
