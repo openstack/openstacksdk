@@ -251,7 +251,7 @@ class OpenStackConfig(object):
             if winning_value:
                 config['auth'][p_opt.name.replace('-', '_')] = winning_value
 
-            return config
+        return config
 
     def get_one_cloud(self, cloud=None, validate=True,
                       argparse=None, **kwargs):
