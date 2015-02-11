@@ -968,9 +968,6 @@ class OpenStackCloud(object):
             filename = name
 
         if self.is_object_stale(container, name, filename, md5, sha256):
-
-            self.create_container(container)
-
             with open(filename, 'r') as fileobj:
                 self.log.debug(
                     "swift uploading {filename} to {container}/{name}".format(
