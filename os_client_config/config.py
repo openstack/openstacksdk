@@ -249,7 +249,13 @@ class OpenStackConfig(object):
                 config['auth'].pop(opt, None)
 
             if winning_value:
-                config['auth'][p_opt.name.replace('-', '_')] = winning_value
+                # Prefer the plugin configuration dest value if the value's key
+                # is marked as depreciated.
+                if p_opt.dest is None:
+                    config['auth'][p_opt.name.replace('-', '_')] = (
+                        winning_value)
+                else:
+                    config['auth'][p_opt.dest] = winning_value
 
         return config
 
