@@ -59,7 +59,10 @@ def _auth_update(old_dict, new_dict):
     """Like dict.update, except handling the nested dict called auth."""
     for (k, v) in new_dict.items():
         if k == 'auth':
-            old_dict[k].update(v)
+            if k in old_dict:
+                old_dict[k].update(v)
+            else:
+                old_dict[k] = v.copy()
         else:
             old_dict[k] = v
     return old_dict
@@ -73,7 +76,6 @@ class OpenStackConfig(object):
 
         defaults = dict(
             auth_plugin='password',
-            auth=dict(),
             compute_api_version='1.1',
         )
         self.defaults = _get_os_environ(defaults)
@@ -273,6 +275,8 @@ class OpenStackConfig(object):
             args['region_name'] = self._get_region(cloud)
 
         config = self._get_base_cloud_config(cloud)
+        if 'auth' not in config:
+            config['auth'] = dict()
 
         # Can't just do update, because None values take over
         for (key, val) in args.iteritems():
