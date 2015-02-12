@@ -229,6 +229,11 @@ class OpenStackCloud(object):
         return self._keystone_session
 
     @property
+    def service_catalog(self):
+        return self.keystone_session.auth.get_access(
+            self.keystone_session).service_catalog.get_data()
+
+    @property
     def auth_token(self):
         if not self._auth_token:
             self._auth_token = self.keystone_session.get_token()
