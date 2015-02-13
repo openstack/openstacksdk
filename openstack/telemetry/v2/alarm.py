@@ -41,7 +41,7 @@ class Alarm(resource.Resource):
     severity = resource.prop('severity')
     state = resource.prop('state')
     state_changed_at = resource.prop('state_timestamp')
-    threshold_rule = resource.prop('threshold_rule')
+    threshold_rule = resource.prop('threshold_rule', type=dict)
     time_constraints = resource.prop('time_constraints')
     type = resource.prop('type')
     updated_at = resource.prop('timestamp')
