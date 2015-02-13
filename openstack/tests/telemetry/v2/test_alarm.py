@@ -27,6 +27,7 @@ EXAMPLE = {
     'ok_actions': ['6'],
     'project_id': '7',
     'repeat_actions': False,
+    'severity': 'low',
     'state': 'insufficient data',
     'state_timestamp': '8',
     'timestamp': '9',
@@ -79,6 +80,7 @@ class TestAlarm(testtools.TestCase):
         self.assertEqual(EXAMPLE['ok_actions'], sot.ok_actions)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertFalse(sot.repeat_actions)
+        self.assertEqual(EXAMPLE['severity'], sot.severity)
         self.assertEqual(EXAMPLE['state'], sot.state)
         self.assertEqual(EXAMPLE['state_timestamp'], sot.state_changed_at)
         self.assertEqual(EXAMPLE['timestamp'], sot.updated_at)

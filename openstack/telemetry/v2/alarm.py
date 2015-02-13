@@ -38,6 +38,7 @@ class Alarm(resource.Resource):
     ok_actions = resource.prop('ok_actions')
     project_id = resource.prop('project_id')
     repeat_actions = resource.prop('repeat_actions', type=bool)
+    severity = resource.prop('severity')
     state = resource.prop('state')
     state_changed_at = resource.prop('state_timestamp')
     threshold_rule = resource.prop('threshold_rule')
