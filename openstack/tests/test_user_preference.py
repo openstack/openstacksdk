@@ -25,6 +25,7 @@ class TestUserPreference(base.TestCase):
             'image',
             'keystore',
             'metering',
+            'metric',
             'network',
             'object-store',
             'orchestration',
@@ -48,6 +49,9 @@ class TestUserPreference(base.TestCase):
         self.assertEqual(None, pref.get_preference('metering'))
         pref.set_version('metering', 'v6')
         self.assertEqual('v6', pref.get_preference('metering').version)
+        self.assertEqual(None, pref.get_preference('metric'))
+        pref.set_version('metric', 'v9')
+        self.assertEqual('v9', pref.get_preference('metric').version)
         self.assertEqual(None, pref.get_preference('network'))
         pref.set_version('network', 'v7')
         self.assertEqual('v7', pref.get_preference('network').version)
