@@ -14,8 +14,7 @@ from openstack.compute.v2 import extension
 from openstack.compute.v2 import flavor
 from openstack.compute.v2 import image
 from openstack.compute.v2 import keypair
-from openstack.compute.v2 import limits_absolute
-from openstack.compute.v2 import limits_rate
+from openstack.compute.v2 import limits
 from openstack.compute.v2 import server
 from openstack.compute.v2 import server_interface
 from openstack.compute.v2 import server_ip
@@ -86,17 +85,15 @@ class Proxy(object):
     def update_keypair(self, **data):
         return keypair.Keypair(data).update(self.session)
 
-    def find_limits_absolute(self, name_or_id):
-        return limits_absolute.LimitsAbsolute.find(self.session, name_or_id)
+    def limits(self):
+        """Retrieve limits that are applied to the project's account
 
-    def list_limits_absolute(self):
-        return limits_absolute.LimitsAbsolute.list(self.session)
-
-    def find_limits_rate(self, name_or_id):
-        return limits_rate.LimitsRate.find(self.session, name_or_id)
-
-    def list_limits_rate(self):
-        return limits_rate.LimitsRate.list(self.session)
+        :returns: A Limits object, including both
+                  :class:`~openstack.compute.v2.limits.AbsoluteLimits` and
+                  :class:`~openstack.compute.v2.limits.RateLimits`
+        :rtype: :class:`~openstack.compute.v2.limits.Limits`
+        """
+        return limits.Limits().get(self.session)
 
     def create_server(self, **data):
         return server.Server(data).create(self.session)
