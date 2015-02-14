@@ -764,6 +764,23 @@ class ResourceTests(base.TestTransportBase):
         # When we call with paginated=False, make sure we made one call
         self._test_list_call_count(False)
 
+    @mock.patch("openstack.resource.Resource.page")
+    def test_determine_limit(self, fake_page):
+        full_page = [fake_data.copy(), fake_data.copy(), fake_data.copy()]
+        last_page = [fake_data.copy()]
+
+        session = mock.MagicMock()
+        pages = [full_page, full_page, last_page]
+        fake_page.side_effect = pages
+
+        # Don't specify a limit. Resource.list will determine the limit
+        # is 3 based on the first `full_page`.
+        results = list(FakeResource.list(session, path_args=fake_arguments,
+                       paginated=True))
+
+        self.assertEqual(fake_page.call_count, len(pages))
+        self.assertEqual(len(results), sum([len(page) for page in pages]))
+
     def test_page(self):
         session = mock.Mock()
         session.get = mock.Mock()

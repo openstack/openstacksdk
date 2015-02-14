@@ -804,6 +804,11 @@ class Resource(collections.MutableMapping):
         and continues making requests for more resources until no results
         are returned.
 
+        When no ``limit`` is provided, the server will return its maximum
+        amount of items per page. After that response, the limit will be
+        determined and sent in subsequent requests to the server. That limit
+        will be used to calculate when all items have been received.
+
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
         :param limit: The maximum amount of results to retrieve.
@@ -837,11 +842,6 @@ class Resource(collections.MutableMapping):
         while more_data:
             resp = cls.page(session, limit, marker, path_args, **params)
 
-            # TODO(briancurtin): Although there are a few different ways
-            # across services, we can know from a response if it's the end
-            # without doing an extra request to get an empty response.
-            # Resources should probably carry something like a `_should_page`
-            # method to handle their service's pagination style.
             if not resp:
                 more_data = False
 
@@ -857,6 +857,8 @@ class Resource(collections.MutableMapping):
 
             if not paginated or limit and yielded < limit:
                 more_data = False
+
+            limit = yielded
 
     @classmethod
     def page(cls, session, limit=None, marker=None, path_args=None, **params):

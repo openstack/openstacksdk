@@ -122,10 +122,11 @@ class Test_containers(TestObjectStoreProxy, base.TestTransportBase):
     @httpretty.activate
     def test_containers_with_marker(self):
         marker = six.text_type("container2")
-        marker_param = "?marker=%s" % marker
+        marker_param = "marker=%s" % marker
 
         self.stub_url(httpretty.GET,
-                      path=[container.Container.base_path + marker_param],
+                      path=[container.Container.base_path + "?" +
+                            marker_param],
                       json=self.containers_body)
 
         count = 0
@@ -302,11 +303,12 @@ class Test_objects(TestObjectStoreProxy, base.TestTransportBase):
     @httpretty.activate
     def test_objects_with_marker(self):
         marker = six.text_type("object2")
-        marker_param = "?marker=%s" % marker
+        marker_param = "marker=%s" % marker
 
         self.stub_url(httpretty.GET,
                       path=[obj.Object.base_path %
-                            {"container": self.container_name} + marker_param],
+                            {"container": self.container_name} + "?" +
+                            marker_param],
                       json=self.objects_body)
 
         count = 0
