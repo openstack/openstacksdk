@@ -10,29 +10,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import six
-
 from openstack.metric import metric_service
 from openstack import resource
 
 
-class Capability(resource.Resource):
+class Capabilities(resource.Resource):
     base_path = '/capabilities'
     service = metric_service.MetricService()
 
     # Supported Operations
-    allow_list = True
+    allow_retrieve = True
 
-    # Properties
-    value = resource.prop('value')
-
-    @classmethod
-    def page(cls, session, limit, marker=None, path_args=None, **params):
-        if marker:
-            return []
-
-        resp = super(Capability, cls).page(session, limit,
-                                           marker, path_args, **params)
-
-        return [{"id": key, "value": value}
-                for key, value in six.iteritems(resp)]
+    #: The supported methods of aggregation.
+    aggregation_methods = resource.prop('aggregation_methods', type=list)
