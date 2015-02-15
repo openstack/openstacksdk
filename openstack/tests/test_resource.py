@@ -361,7 +361,7 @@ class ResourceTests(base.TestTransportBase):
         path = fake_path
         session.get.assert_called_with(path, params={}, service=None)
 
-        objs = FakeResource.page(session, None, None)
+        objs = FakeResource.page(session)
 
         self.assertEqual(records, objs)
         path = fake_base_path
