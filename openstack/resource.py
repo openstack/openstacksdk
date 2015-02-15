@@ -332,6 +332,23 @@ class Resource(collections.MutableMapping):
         del self._attrs[self.id_attribute]
 
     @property
+    def name(self):
+        """The name associated with this resource.
+
+        The true value of the ``name`` property comes from the
+        attribute set as :data:`name_attribute`.
+        """
+        return self._attrs.get(self.name_attribute, None)
+
+    @name.setter
+    def name(self, value):
+        self._attrs[self.name_attribute] = value
+
+    @name.deleter
+    def name(self):
+        del self._attrs[self.name_attribute]
+
+    @property
     def is_dirty(self):
         """True if the resource needs to be updated to the remote."""
         return len(self._dirty) > 0

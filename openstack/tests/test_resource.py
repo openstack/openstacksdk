@@ -547,6 +547,23 @@ class TestFind(base.TestCase):
         faker.id_attribute = 'id'
         self.assertEqual(fake_id, faker.id)
 
+    def test_name_attribute(self):
+        class Person_ES(resource.Resource):
+            name_attribute = "nombre"
+            nombre = resource.prop('nombre')
+
+        name = "Brian"
+        args = {'nombre': name}
+
+        person = Person_ES(args)
+        self.assertEqual(person.nombre, name)
+        self.assertEqual(person.name, name)
+
+        new_name = "Julien"
+        person.name = new_name
+        self.assertEqual(person.nombre, new_name)
+        self.assertEqual(person.name, new_name)
+
     def test_boolstr_prop(self):
         faker = FakeResource(fake_data)
         self.assertEqual(True, faker.enabled)
