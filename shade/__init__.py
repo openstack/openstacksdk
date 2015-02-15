@@ -784,6 +784,8 @@ class OpenStackCloud(object):
         elif ips:
             self.add_ip_list(server, ips)
         elif auto_ip:
+            if self.get_server_public_ip(server):
+                return server
             self.add_auto_ip(server)
         else:
             return server
