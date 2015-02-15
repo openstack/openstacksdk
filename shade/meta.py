@@ -153,3 +153,13 @@ def obj_to_dict(obj):
         if isinstance(value, NON_CALLABLES) and not key.startswith('_'):
             instance[key] = value
     return instance
+
+
+def warlock_to_dict(obj):
+    # glanceclient v2 uses warlock to construct its objects. Warlock does
+    # deep black magic to attribute look up to support validation things that
+    # means we cannot use normal obj_to_dict
+    obj_dict = {}
+    for key in obj.keys():
+        obj_dict[key] = obj[key]
+    return obj_dict
