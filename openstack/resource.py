@@ -134,6 +134,12 @@ class prop(object):
             else:
                 value = str(self.type(value))  # validate to fail fast
 
+        # If we already have a value set for the alias name, pop it out
+        # and store the real name instead. This happens when the alias
+        # has the same name as this prop is named.
+        if self.alias in instance._attrs:
+            instance._attrs.pop(self.alias)
+
         instance._attrs[self.name] = value
 
     def __delete__(self, instance):

@@ -156,6 +156,18 @@ class PropTests(base.TestCase):
         self.assertEqual(sot3.shortstop, FakeResource({"id": id1}))
         self.assertEqual(sot3.third_base, FakeResource({"id": id2}))
 
+    def test_set_alias_same_name(self):
+        class Test(resource.Resource):
+            attr = resource.prop("something", alias="attr")
+
+        val = "hey"
+        args = {"attr": val}
+        sot = Test(args)
+
+        self.assertEqual(sot._attrs["something"], val)
+        self.assertIsNone(sot._attrs.get("attr"))
+        self.assertEqual(sot.attr, val)
+
 
 class ResourceTests(base.TestTransportBase):
 
