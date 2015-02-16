@@ -72,7 +72,7 @@ class PropTests(base.TestCase):
         self.assertIs(t.attr, True)
 
     def test_defaults(self):
-        new_default = 100
+        new_default = "new_default"
 
         class Test(resource.Resource):
             attr1 = resource.prop("attr1")
@@ -82,6 +82,11 @@ class PropTests(base.TestCase):
 
         self.assertIsNone(t.attr1)
         self.assertEqual(t.attr2, new_default)
+
+        # When the default value is passed in, it is left untouched.
+        # Check that attr2 is literally the same object we set as default.
+        t.attr2 = new_default
+        self.assertIs(t.attr2, new_default)
 
     def test_get_without_instance(self):
         self.assertIsNone(FakeResource.name)

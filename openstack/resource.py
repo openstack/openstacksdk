@@ -116,6 +116,9 @@ class prop(object):
         return value
 
     def __set__(self, instance, value):
+        if value == self.default:
+            return
+
         if self.type and not isinstance(value, self.type):
             value = str(self.type(value))  # validate to fail fast
 
