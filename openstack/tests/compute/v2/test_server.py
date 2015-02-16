@@ -22,10 +22,10 @@ EXAMPLE = {
     'accessIPv6': '2',
     'addresses': {'region': '3'},
     'created': '4',
-    'flavor': {'id': '5'},
+    'flavorRef': 5,
     'hostId': '6',
     'id': IDENTIFIER,
-    'image': {'id': '8'},
+    'imageRef': 8,
     'links': '9',
     'metadata': '10',
     'name': '11',
@@ -65,10 +65,10 @@ class TestServer(testtools.TestCase):
         self.assertEqual(EXAMPLE['accessIPv6'], sot.access_ipv6)
         self.assertEqual(EXAMPLE['addresses'], sot.addresses)
         self.assertEqual(EXAMPLE['created'], sot.created)
-        self.assertEqual(EXAMPLE['flavor'], sot.flavor)
+        self.assertEqual(EXAMPLE['flavorRef'], sot.flavor)
         self.assertEqual(EXAMPLE['hostId'], sot.host_id)
         self.assertEqual(EXAMPLE['id'], sot.id)
-        self.assertEqual(EXAMPLE['image'], sot.image)
+        self.assertEqual(EXAMPLE['imageRef'], sot.image)
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['metadata'], sot.metadata)
         self.assertEqual(EXAMPLE['name'], sot.name)
