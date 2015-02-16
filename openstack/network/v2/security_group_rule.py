@@ -29,12 +29,37 @@ class SecurityGroupRule(resource.Resource):
     put_update = True
 
     # Properties
+    #: ``ingress`` or ``egress``: The direction in which the security group
+    #: rule is applied. For a compute instance, an ingress security group
+    #: rule is applied to incoming ingress traffic for that instance.
+    #: An egress rule is applied to traffic leaving the instance.
     direction = resource.prop('direction')
+    #: Must be IPv4 or IPv6, and addresses represented in CIDR must match
+    #: the ingress or egress rules.
     ethertype = resource.prop('ethertype')
+    #: The maximum port number in the range that is matched by the
+    #: security group rule. The port_range_min attribute constrains
+    #: the port_range_max attribute. If the protocol is ICMP, this
+    #: value must be an ICMP type.
     port_range_max = resource.prop('port_range_max')
+    #: The minimum port number in the range that is matched by the
+    #: security group rule. If the protocol is TCP or UDP, this value
+    #: must be less than or equal to the value of the port_range_max
+    #: attribute. If the protocol is ICMP, this value must be an ICMP type.
     port_range_min = resource.prop('port_range_min')
+    #: The project this rule is associated with.
     project_id = resource.prop('tenant_id')
+    #: The protocol that is matched by the security group rule.
+    #: Valid values are ``null``, ``tcp``, ``udp``, and ``icmp``.
     protocol = resource.prop('protocol')
+    #: The remote group ID to be associated with this security group rule.
+    #: You can specify either ``remote_group_id`` or ``remote_ip_prefix``
+    #: in the request body.
     remote_group_id = resource.prop('remote_group_id')
+    #: The remote IP prefix to be associated with this security group rule.
+    #: You can specify either ``remote_group_id`` or ``remote_ip_prefix``
+    #: in the request body. This attribute matches the specified IP prefix
+    #: as the source IP address of the IP packet.
     remote_ip_prefix = resource.prop('remote_ip_prefix')
+    #: The security group ID to associate with this security group rule.
     security_group_id = resource.prop('security_group_id')

@@ -29,6 +29,7 @@ class Listener(resource.Resource):
     put_update = True
 
     # Properties
+    # TODO(briancurtin): find documentation for these properties
     connection_limit = resource.prop('connection_limit')
     default_pool_id = resource.prop('default_pool_id')
     description = resource.prop('description')

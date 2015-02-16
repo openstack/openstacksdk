@@ -32,11 +32,22 @@ class FloatingIP(resource.Resource):
     put_update = True
 
     # Properties
+    #: The fixed IP address associated with the floating IP. If you
+    #: intend to associate the floating IP with a fixed IP at creation
+    #: time, then you must indicate the identifier of the internal port.
+    #: If an internal port has multiple associated IP addresses, the
+    #: service chooses the first IP unless you explicitly specify the
+    #: parameter fixed_ip_address to select a specific IP.
     fixed_ip_address = resource.prop('fixed_ip_address')
+    #: The floating IP address.
     floating_ip_address = resource.prop('floating_ip_address')
+    #: The ID of the network associated with the floating IP.
     floating_network_id = resource.prop('floating_network_id')
+    #: The port ID.
     port_id = resource.prop('port_id')
+    #: The project this floating IP is associated with.
     project_id = resource.prop('tenant_id')
+    #: The ID of an associated router.
     router_id = resource.prop('router_id')
 
     @classmethod

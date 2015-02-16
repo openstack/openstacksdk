@@ -24,9 +24,15 @@ class Extension(resource.Resource):
     allow_list = True
 
     # Properties
+    #: An alias the extension is known under.
     alias = resource.prop('alias')
+    #: Text describing what the extension does.
     description = resource.prop('description')
+    #: Links pertaining to this extension.
     links = resource.prop('links')
+    #: The name of this extension.
     name = resource.prop('name')
+    #: A URL pointing to the namespace for this extension.
     namespace = resource.prop('namespace')
+    #: Timestamp when the extension was last updated.
     updated = resource.prop('updated')
