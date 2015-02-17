@@ -208,10 +208,7 @@ class Resource(collections.MutableMapping):
         self._loaded = loaded
 
         self._attrs = attrs
-        # ensure setters are called for type coercion
-        for k, v in attrs.items():
-            if k != 'id':  # id property is read only
-                setattr(self, k, v)
+        self.update_attrs(attrs)
 
     def __repr__(self):
         return "%s: %s" % (self.get_resource_name(), self._attrs)
@@ -376,6 +373,28 @@ class Resource(collections.MutableMapping):
 
     def _reset_dirty(self):
         self._dirty = set()
+
+    def update_attrs(self, *args, **kwargs):
+        """Update the attributes on this resource
+
+        Note that this is implemented because Resource.update overrides
+        the update method we would get from the MutableMapping base class.
+
+        :params args: A dictionary of attributes to be updated.
+        :params kwargs: Named arguments to be set on this instance.
+                        When a key corresponds to a resource.prop,
+                        it will be set via resource.prop.__setitem__.
+
+        :rtype: None
+        """
+        # ensure setters are called for type coercion
+        for key, value in dict(*args).items():
+            if key != "id":  # id property is read only
+                self._attrs[key] = value
+                setattr(self, key, value)
+
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     ##
     # CRUD OPERATIONS

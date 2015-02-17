@@ -502,6 +502,26 @@ class ResourceTests(base.TestTransportBase):
         sot3 = Test({"attr": 1})
         self.assertTrue(sot3.is_dirty)
 
+    def test_update_attrs(self):
+        class Test(resource.Resource):
+            moe = resource.prop("the-attr")
+            larry = resource.prop("the-attr2")
+            curly = resource.prop("the-attr3", type=int)
+
+        value1 = "one"
+        value2 = "two"
+        value3 = "3"
+
+        sot = Test({"the-attr": value1})
+
+        sot.update_attrs({"the-attr2": value2})
+        sot.update_attrs(curly=value3)
+
+        self.assertEqual(sot.moe, value1)
+        self.assertEqual(sot.larry, value2)
+        self.assertEqual(type(sot.curly), int)
+        self.assertEqual(sot.curly, int(value3))
+
 
 class FakeResponse:
     def __init__(self, response):
