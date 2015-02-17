@@ -639,7 +639,8 @@ class ResourceTests(base.TestTransportBase):
                       json=json_body)
 
         objs = resource_class.list(self.session, limit=1,
-                                   path_args=fake_arguments)
+                                   path_args=fake_arguments,
+                                   paginated=True)
         objs = list(objs)
         self.assertIn(marker, httpretty.last_request().path)
         self.assertEqual(3, len(objs))
@@ -650,17 +651,27 @@ class ResourceTests(base.TestTransportBase):
             self.assertEqual(fake_name, obj.name)
             self.assertIsInstance(obj, FakeResource)
 
-    def test_list_bail_out(self):
+    def _test_list_call_count(self, paginated):
+        # Test that we've only made one call to receive all data
         results = [fake_data.copy(), fake_data.copy(), fake_data.copy()]
         body = mock.Mock(body={fake_resources: results})
         attrs = {"get.return_value": body}
         session = mock.Mock(**attrs)
 
         list(FakeResource.list(session, limit=len(results) + 1,
-                               path_args=fake_arguments))
+                               path_args=fake_arguments,
+                               paginated=paginated))
 
         # Ensure we only made one call to complete this.
         self.assertEqual(session.get.call_count, 1)
+
+    def test_list_bail_out(self):
+        # When we get less data than limit, make sure we made one call
+        self._test_list_call_count(True)
+
+    def test_list_nonpaginated(self):
+        # When we call with paginated=False, make sure we made one call
+        self._test_list_call_count(False)
 
     def test_page(self):
         session = mock.Mock()

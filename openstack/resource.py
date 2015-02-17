@@ -706,8 +706,9 @@ class Resource(collections.MutableMapping):
         self.delete_by_id(session, self.id, path_args=self)
 
     @classmethod
-    def list(cls, session, limit=None, marker=None, path_args=None, **params):
-        """Get a response that is a list of potentially paginated objects.
+    def list(cls, session, limit=None, marker=None, path_args=None,
+             paginated=False, **params):
+        """Get a response that is a list of objects.
 
         This method starts at ``limit`` and ``marker`` (both defaulting to
         None), advances the marker to the last item received in each response,
@@ -726,6 +727,12 @@ class Resource(collections.MutableMapping):
         :param dict path_args: A dictionary of arguments to construct
                                a compound URL.
                                See `How path_args are used`_ for details.
+        :param bool paginated: ``True`` if a GET to this resource returns
+                               a paginated series of responses, or ``False``
+                               if a GET returns only one page of data.
+                               **When paginated is False only one
+                               page of data will be returned regardless
+                               of the API's support of pagination.**
         :param dict params: Parameters to be passed into the underlying
                             :meth:`~openstack.session.Session.get` method.
 
@@ -759,7 +766,7 @@ class Resource(collections.MutableMapping):
                 yielded += 1
                 yield value
 
-            if limit and yielded < limit:
+            if not paginated or limit and yielded < limit:
                 more_data = False
 
     @classmethod
