@@ -314,7 +314,7 @@ class ResourceTests(base.TestTransportBase):
         self.assertFalse(obj.is_dirty)
 
         last_req = httpretty.last_request().parsed_body[fake_resource]
-        self.assertEqual(1, len(last_req))
+        self.assertEqual(2, len(last_req))
         self.assertEqual(fake_attr1, last_req['attr1'])
 
         self.assertEqual(fake_id, obj.id)
@@ -482,6 +482,25 @@ class ResourceTests(base.TestTransportBase):
             FakeResource.from_id(3.14)
 
         self.assertThat(should_raise, matchers.raises(ValueError))
+
+    def test_dirty_list(self):
+        class Test(resource.Resource):
+            attr = resource.prop("attr")
+
+        # Check if dirty after setting by prop
+        sot1 = Test()
+        self.assertFalse(sot1.is_dirty)
+        sot1.attr = 1
+        self.assertTrue(sot1.is_dirty)
+
+        # Check if dirty after setting by mapping
+        sot2 = Test()
+        sot2["attr"] = 1
+        self.assertTrue(sot1.is_dirty)
+
+        # Check if dirty after creation
+        sot3 = Test({"attr": 1})
+        self.assertTrue(sot3.is_dirty)
 
 
 class FakeResponse:

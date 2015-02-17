@@ -100,10 +100,10 @@ class prop(object):
         if instance is None:
             return None
         try:
-            value = instance._attrs[self.name]
+            value = instance[self.name]
         except KeyError:
             try:
-                value = instance._attrs[self.alias]
+                value = instance[self.alias]
             except KeyError:
                 return self.default
 
@@ -140,14 +140,14 @@ class prop(object):
         if self.alias in instance._attrs:
             instance._attrs.pop(self.alias)
 
-        instance._attrs[self.name] = value
+        instance[self.name] = value
 
     def __delete__(self, instance):
         try:
-            del instance._attrs[self.name]
+            del instance[self.name]
         except KeyError:
             try:
-                del instance._attrs[self.alias]
+                del instance[self.alias]
             except KeyError:
                 pass
 
@@ -204,14 +204,14 @@ class Resource(collections.MutableMapping):
         if attrs is None:
             attrs = {}
 
+        self._dirty = set() if loaded else set(attrs.keys())
+        self._loaded = loaded
+
         self._attrs = attrs
         # ensure setters are called for type coercion
         for k, v in attrs.items():
             if k != 'id':  # id property is read only
                 setattr(self, k, v)
-
-        self._dirty = set() if loaded else set(attrs.keys())
-        self._loaded = loaded
 
     def __repr__(self):
         return "%s: %s" % (self.get_resource_name(), self._attrs)
