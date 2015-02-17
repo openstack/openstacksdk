@@ -13,7 +13,6 @@
 import mock
 import testtools
 
-from openstack import exceptions
 from openstack.object_store.v1 import container
 
 
@@ -179,20 +178,3 @@ class TestContainer(testtools.TestCase):
     def test_update(self):
         sot = container.Container.new(name=CONTAINER_NAME)
         self._test_create_update(sot, sot.update, self.sess.post)
-
-    def _test_cant(self, sot, call):
-        sot.allow_create = False
-        self.assertRaises(exceptions.MethodNotSupported,
-                          call, self.sess)
-
-    def test_cant_create(self):
-        sot = container.Container.new(name=CONTAINER_NAME)
-        sot.allow_create = False
-        self.assertRaises(exceptions.MethodNotSupported,
-                          sot.create, self.sess)
-
-    def test_cant_update(self):
-        sot = container.Container.new(name=CONTAINER_NAME)
-        sot.allow_update = False
-        self.assertRaises(exceptions.MethodNotSupported,
-                          sot.update, self.sess)

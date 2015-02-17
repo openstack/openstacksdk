@@ -100,27 +100,78 @@ class Container(resource.Resource):
     #: has a copy of the object before any data is sent.
     if_none_match = resource.prop("if-none-match")
 
-    def _do_create_update(self, session, method):
-        url = utils.urljoin(self.base_path, self.id)
+    @classmethod
+    def _do_create_update(cls, method, session, attrs, resource_id):
+        """Helper method to call put and post
+
+        The internals of create and update are the same exept for
+        the session method.
+        """
+        url = utils.urljoin(cls.base_path, resource_id)
 
         # Only send actual headers, not potentially set body values.
-        headers = self._attrs.copy()
+        headers = attrs.copy()
         for val in ("name", "count", "bytes"):
             headers.pop(val, None)
 
-        data = method(url, service=self.service, accept=None,
+        return method(url, service=cls.service, accept=None,
                       headers=headers).headers
-        self._reset_dirty()
-        return data
 
-    def create(self, session):
-        if not self.allow_create:
-            raise exceptions.MethodNotSupported('create')
+    @classmethod
+    def update_by_id(cls, session, resource_id, attrs, path_args=None):
+        """Update a Container with the given attributes.
 
-        return self._do_create_update(session, session.put)
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+        :param resource_id: This resource's identifier, if needed by
+                            the request. The default is ``None``.
+        :param dict attrs: The attributes to be sent in the body
+                           of the request.
+        :param dict path_args: This parameter is sent by the base
+                               class but is ignored for this method.
 
-    def update(self, session):
-        if not self.allow_update:
+        :return: A ``dict`` representing the response headers.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_update` is not set to ``True``.
+        """
+        if not cls.allow_update:
             raise exceptions.MethodNotSupported('update')
 
-        return self._do_create_update(session, session.post)
+        return cls._do_create_update(session.post, session, attrs,
+                                     resource_id)
+
+    @classmethod
+    def create_by_id(cls, session, attrs, resource_id=None):
+        """Create a Container from its attributes.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+        :param dict attrs: The attributes to be sent in the body
+                           of the request.
+        :param resource_id: This resource's identifier, if needed by
+                            the request. The default is ``None``.
+
+        :return: A ``dict`` representing the response headers.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_create` is not set to ``True``.
+        """
+        if not cls.allow_create:
+            raise exceptions.MethodNotSupported('create')
+
+        return cls._do_create_update(session.put, session, attrs,
+                                     resource_id)
+
+    def create(self, session):
+        """Create a Container from this instance.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+
+        :return: This :class:`~openstack.object_store.v1.container.Container`
+                 instance.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_create` is not set to ``True``.
+        """
+        self.create_by_id(session, self._attrs, self.id)
+        self._reset_dirty()
+        return self
