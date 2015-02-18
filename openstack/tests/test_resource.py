@@ -11,6 +11,7 @@
 # under the License.
 
 import copy
+import json
 
 import httpretty
 import mock
@@ -521,6 +522,40 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual(sot.larry, value2)
         self.assertEqual(type(sot.curly), int)
         self.assertEqual(sot.curly, int(value3))
+
+    def _test_resource_serialization(self, session_method, resource_method):
+        attr_type = resource.Resource
+
+        class Test(resource.Resource):
+            allow_create = True
+            attr = resource.prop("attr", type=attr_type)
+
+        the_id = 123
+        sot = Test()
+        sot.attr = resource.Resource({"id": the_id})
+        self.assertEqual(type(sot.attr), attr_type)
+
+        def fake_call(*args, **kwargs):
+            attrs = kwargs["json"]
+            try:
+                json.dumps(attrs)
+            except TypeError as e:
+                self.fail("Unable to serialize _attrs: %s" % e)
+            return mock.Mock(body=attrs)
+
+        session = mock.Mock()
+        setattr(session, session_method, mock.Mock(side_effect=fake_call))
+
+        if resource_method == "create_by_id":
+            session.create_by_id(session, sot._attrs)
+        elif resource_method == "update_by_id":
+            session.update_by_id(session, None, sot._attrs)
+
+    def test_create_serializes_resource_types(self):
+        self._test_resource_serialization("post", "create_by_id")
+
+    def test_update_serializes_resource_types(self):
+        self._test_resource_serialization("patch", "update_by_id")
 
 
 class FakeResponse:
