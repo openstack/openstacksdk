@@ -51,6 +51,7 @@ The resulting preference print out would look something like::
     service_type=identity,region=zion,version=v3
 """
 
+import logging
 import six
 
 from openstack.block_store import block_store_service
@@ -63,10 +64,13 @@ from openstack.image import image_service
 from openstack.key_management import key_management_service
 from openstack.message import message_service
 from openstack.metric import metric_service
+from openstack import module_loader
 from openstack.network import network_service
 from openstack.object_store import object_store_service
 from openstack.orchestration import orchestration_service
 from openstack.telemetry import telemetry_service
+
+_logger = logging.getLogger(__name__)
 
 
 class Profile(object):
@@ -74,8 +78,10 @@ class Profile(object):
     ALL = "*"
     """Wildcard service identifier representing all services."""
 
-    def __init__(self):
-        """Preferences for each service.
+    def __init__(self, extensions=None):
+        """User preference for each service.
+
+        :param list extensions: List of entry point namespace to load.
 
         Create a new :class:`~openstack.profile.Profile`
         object with no preferences defined, but knowledge of the services.
@@ -129,10 +135,26 @@ class Profile(object):
         serv.set_visibility(None)
         self._services[serv.service_type] = serv
 
+        if extensions:
+            for extension in extensions:
+                self.load_extension(extension)
         self.service_names = sorted(self._services.keys())
 
     def __repr__(self):
         return repr(self._preferences)
+
+    def load_extension(self, namespace):
+        """Load a service extension.
+
+        :param str namespace: Entry point namespace
+        """
+        services = module_loader.load_service_extensions(namespace)
+        for service_type in services:
+            if service_type in self._services:
+                _logger.debug("Overriding %s with %s", service_type,
+                              services[service_type])
+            self._services[service_type] = services[service_type]
+        self.service_names = sorted(self._services.keys())
 
     def get_preference(self, service):
         """Get a service preference.
