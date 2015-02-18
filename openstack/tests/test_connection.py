@@ -26,7 +26,7 @@ class TestConnection(base.TestCase):
     def setUp(self):
         super(TestConnection, self).setUp()
         self.xport = transport.Transport()
-        self.auth = v2.Auth(auth_url='http://127.0.0.1/v2', token='b')
+        self.auth = v2.Token(auth_url='http://127.0.0.1/v2', token='b')
         self.pref = user_preference.UserPreference()
         self.conn = connection.Connection(authenticator=mock.MagicMock(),
                                           transport=mock.MagicMock())
@@ -44,7 +44,8 @@ class TestConnection(base.TestCase):
             'user_name': '1',
             'password': '2',
         }
-        conn = connection.Connection(transport='0', auth_plugin='identity_v2',
+        conn = connection.Connection(transport='0',
+                                     auth_plugin='identity_v2_password',
                                      **auth_args)
         self.assertEqual('0', conn.authenticator.auth_url)
         self.assertEqual('1', conn.authenticator.user_name)
@@ -56,11 +57,12 @@ class TestConnection(base.TestCase):
             'user_name': '1',
             'password': '2',
         }
-        conn = connection.Connection(transport='0', auth_plugin='identity_v3',
+        conn = connection.Connection(transport='0',
+                                     auth_plugin='identity_v3_password',
                                      **auth_args)
         self.assertEqual('0', conn.authenticator.auth_url)
-        self.assertEqual('1', conn.authenticator.password_method.user_name)
-        self.assertEqual('2', conn.authenticator.password_method.password)
+        self.assertEqual('1', conn.authenticator.auth_methods[0].user_name)
+        self.assertEqual('2', conn.authenticator.auth_methods[0].password)
 
     def test_create_authenticator_discoverable(self):
         auth_args = {
@@ -73,10 +75,10 @@ class TestConnection(base.TestCase):
         self.assertEqual('0', conn.authenticator.auth_url)
         self.assertEqual(
             '1',
-            conn.authenticator.auth_plugin.password_method.user_name)
+            conn.authenticator.auth_plugin.auth_methods[0].user_name)
         self.assertEqual(
             '2',
-            conn.authenticator.auth_plugin.password_method.password)
+            conn.authenticator.auth_plugin.auth_methods[0].password)
 
     def test_create_authenticator_no_name(self):
         auth_args = {
