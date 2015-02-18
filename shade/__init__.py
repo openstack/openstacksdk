@@ -478,7 +478,8 @@ class OpenStackCloud(object):
         for (image_id, image) in self.list_images().items():
             if image_id == name_or_id:
                 return image
-            if (name_or_id in image.name and (
+            if (image is not None and
+                    name_or_id in image.name and (
                     not exclude or exclude not in image.name)):
                 return image
         return None
