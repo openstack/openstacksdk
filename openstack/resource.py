@@ -108,10 +108,16 @@ class prop(object):
                 return self.default
 
         if self.type and not isinstance(value, self.type):
-            value = self.type(value)
-            attr = getattr(value, 'parsed', None)
-            if attr is not None:
-                value = attr
+            if issubclass(self.type, Resource):
+                if isinstance(value, six.string_types):
+                    value = self.type({"id": value})
+                else:
+                    value = self.type(value)
+            else:
+                value = self.type(value)
+                attr = getattr(value, 'parsed', None)
+                if attr is not None:
+                    value = attr
 
         return value
 
@@ -120,7 +126,13 @@ class prop(object):
             return
 
         if self.type and not isinstance(value, self.type):
-            value = str(self.type(value))  # validate to fail fast
+            if issubclass(self.type, Resource):
+                if isinstance(value, six.string_types):
+                    value = self.type({"id": value})
+                else:
+                    value = self.type(value)
+            else:
+                value = str(self.type(value))  # validate to fail fast
 
         instance._attrs[self.name] = value
 
