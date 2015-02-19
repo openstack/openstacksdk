@@ -24,8 +24,8 @@ from ironicclient import exceptions as ironic_exceptions
 from keystoneclient import auth as ksc_auth
 from keystoneclient import session as ksc_session
 from novaclient import client as nova_client
-from novaclient.v1_1 import floating_ips
 from novaclient import exceptions as nova_exceptions
+from novaclient.v2 import floating_ips
 from neutronclient.v2_0 import client as neutron_client
 import os_client_config
 import pbr.version
