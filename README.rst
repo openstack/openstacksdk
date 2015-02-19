@@ -26,18 +26,22 @@ Sometimes an example is nice.
   from shade import *
   import time
 
+  # Initialize cloud
+  # Cloud configs are read with os-client-config
   cloud = openstack_cloud('mordred')
 
-  nova = cloud.nova_client
-  print nova.servers.list()
-  s = nova.servers.list()[0]
+  # OpenStackCloud object has an interface exposing OpenStack services methods
+  print cloud.list_servers()
+  s = cloud.list_servers()[0]
 
+  # But you can also access the underlying python-*client objects
   cinder = cloud.cinder_client
   volumes = cinder.volumes.list()
-  print volumes
   volume_id = [v for v in volumes if v.status == 'available'][0].id
-  nova.volumes.create_server_volume(s.id, volume_id, None)
+  nova = cloud.nova_client
+  print nova.volumes.create_server_volume(s.id, volume_id, None)
   attachments = []
+  print volume_id
   while not attachments:
       print "Waiting for attach to finish"
       time.sleep(1)
