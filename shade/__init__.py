@@ -430,6 +430,52 @@ class OpenStackCloud(object):
                 return network
         return None
 
+    # TODO(Shrews): This will eventually need to support tenant ID and
+    # provider networks, which are admin-level params.
+    def create_network(self, name, shared=False, admin_state_up=True):
+        """Create a network.
+
+        :param name: Name of the network being created.
+        :param shared: Set the network as shared.
+        :param admin_state_up: Set the network administrative state to up.
+
+        :returns: The network object.
+        :raises: OpenStackCloudException on operation error.
+        """
+        neutron = self.neutron_client
+
+        network = {
+            'name': name,
+            'shared': shared,
+            'admin_state_up': admin_state_up
+        }
+
+        try:
+            net = neutron.create_network({'network': network})
+        except Exception as e:
+            self.log.debug("Network creation failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Error in creating network %s: %s" % (name, e.message))
+        # Turns out neutron returns an actual dict, so no need for the
+        # use of meta.obj_to_dict() here (which would not work against
+        # a dict).
+        return net['network']
+
+    def delete_network(self, name_or_id):
+        """Delete a network.
+
+        :param name_or_id: Name or ID of the network being deleted.
+        :raises: OpenStackCloudException on operation error.
+        """
+        neutron = self.neutron_client
+        network = self.get_network(name_or_id)
+        try:
+            neutron.delete_network(network['id'])
+        except Exception as e:
+            self.log.debug("Network deletion failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Error in deleting network %s: %s" % (name_or_id, e.message))
+
     def _get_images_from_cloud(self, filter_deleted):
         # First, try to actually get images from glance, it's more efficient
         images = dict()
