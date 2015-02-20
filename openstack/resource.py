@@ -384,7 +384,7 @@ class Resource(collections.MutableMapping):
         :params args: A dictionary of attributes to be updated.
         :params kwargs: Named arguments to be set on this instance.
                         When a key corresponds to a resource.prop,
-                        it will be set via resource.prop.__setitem__.
+                        it will be set via resource.prop.__set__.
 
         :rtype: None
         """
