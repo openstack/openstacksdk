@@ -99,23 +99,10 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_update('openstack.compute.v2.keypair.Keypair.update',
                            self.proxy.update_keypair)
 
-    def test_limits_absolute_find(self):
-        self.verify_find(
-            'openstack.compute.v2.limits_absolute.LimitsAbsolute.find',
-            self.proxy.find_limits_absolute)
-
-    def test_limits_absolute_list(self):
-        self.verify_list(
-            'openstack.compute.v2.limits_absolute.LimitsAbsolute.list',
-            self.proxy.list_limits_absolute)
-
-    def test_limits_rate_find(self):
-        self.verify_find('openstack.compute.v2.limits_rate.LimitsRate.find',
-                         self.proxy.find_limits_rate)
-
-    def test_limits_rate_list(self):
-        self.verify_list('openstack.compute.v2.limits_rate.LimitsRate.list',
-                         self.proxy.list_limits_rate)
+    def test_limits(self):
+        self.verify_get(
+            'openstack.compute.v2.limits.Limits.get',
+            self.proxy.limits)
 
     def test_server_interface_create(self):
         self.verify_create(
