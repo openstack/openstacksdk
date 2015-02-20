@@ -16,7 +16,7 @@ from openstack import resource
 
 class AbsoluteLimits(resource.Resource):
 
-    #: The maximum amount of key-value pairs to be set as image metadata.
+    #: The number of key-value pairs that can be set as image metadata.
     image_meta = resource.prop("maxImageMeta")
     #: The maximum number of personality contents that can be supplied.
     personality = resource.prop("maxPersonality")
@@ -28,7 +28,7 @@ class AbsoluteLimits(resource.Resource):
     security_groups = resource.prop("maxSecurityGroups")
     #: The amount of security groups currently in use.
     security_groups_used = resource.prop("totalSecurityGroupsUsed")
-    #: The maximum amount of key-value pairs to be set as sever metadata.
+    #: The number of key-value pairs that can be set as sever metadata.
     server_meta = resource.prop("maxServerMeta")
     #: The maximum amount of cores.
     total_cores = resource.prop("maxTotalCores")
