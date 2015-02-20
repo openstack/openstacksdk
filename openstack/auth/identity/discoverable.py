@@ -62,12 +62,12 @@ class Auth(base.BaseIdentityPlugin):
             raise exceptions.AuthorizationFailure(msg)
         endpoint_version = auth_url.split('v')[-1][0]
         if endpoint_version == '2':
-            if 'token' in auth_args:
+            if auth_args.get('token'):
                 plugin = v2.Token
             else:
                 plugin = v2.Password
         else:
-            if 'token' in auth_args:
+            if auth_args.get('token'):
                 plugin = v3.Token
             else:
                 plugin = v3.Password
