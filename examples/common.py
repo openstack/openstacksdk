@@ -42,8 +42,8 @@ import traceback
 import uuid
 
 from openstack import user_preference
+from openstack import utils
 
-CONSOLE_MESSAGE_FORMAT = '%(levelname)s: %(name)s %(message)s'
 _logger = logging.getLogger(__name__)
 
 
@@ -318,31 +318,9 @@ def option_parser():
     return parser
 
 
-def configure_logging(opts):
-    """Typical app logging setup
-
-    Based on OSC/cliff
-
-    """
-
-    root_logger = logging.getLogger('')
-
-    # Always send higher-level messages to the console via stderr
-    console = logging.StreamHandler(sys.stderr)
-    formatter = logging.Formatter(CONSOLE_MESSAGE_FORMAT)
-    console.setFormatter(formatter)
-    root_logger.addHandler(console)
-
-    if opts.debug:
-        root_logger.setLevel(logging.DEBUG)
-    else:
-        root_logger.setLevel(logging.WARNING)
-    return
-
-
 def setup():
     opts = option_parser().parse_args()
-    configure_logging(opts)
+    utils.enable_logging(opts.debug)
     return opts
 
 
