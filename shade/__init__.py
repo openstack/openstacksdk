@@ -106,7 +106,6 @@ class OpenStackCloud(object):
     def __init__(self, cloud, region='',
                  auth_plugin='password',
                  insecure=False, verify=None, cacert=None, cert=None, key=None,
-                 image_cache=None, flavor_cache=None, volume_cache=None,
                  debug=False, **kwargs):
 
         self.name = cloud
@@ -137,10 +136,10 @@ class OpenStackCloud(object):
             cert = (cert, key)
         self.cert = cert
 
-        self._image_cache = image_cache
-        self._flavor_cache = flavor_cache
         self._extension_cache = None
-        self._volume_cache = volume_cache
+        self._flavor_cache = None
+        self._image_cache = None
+        self._volume_cache = None
         self._container_cache = dict()
         self._file_hash_cache = dict()
 
