@@ -5,3 +5,4 @@ Volume Resources
    :maxdepth: 1
 
    v2/type
+   v2/volume
