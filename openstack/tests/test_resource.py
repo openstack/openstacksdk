@@ -23,6 +23,7 @@ from openstack import session
 from openstack.tests import base
 from openstack.tests import fakes
 from openstack import transport
+from openstack import utils
 
 fake_name = 'rey'
 fake_id = 99
@@ -57,6 +58,12 @@ class FakeResource(resource.Resource):
     first = resource.prop('attr1')
     second = resource.prop('attr2')
     third = resource.prop('attr3', alias='attr_three')
+
+
+class FakeResourceNoKeys(FakeResource):
+
+    resource_key = None
+    resources_key = None
 
 
 class PropTests(base.TestCase):
@@ -194,6 +201,253 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual(fake_attr1, obj.first)
         self.assertEqual(fake_attr2, obj.second)
 
+    def test_not_allowed(self):
+        class Nope(resource.Resource):
+            allow_create = allow_retrieve = allow_update = False
+            allow_delete = allow_list = allow_head = False
+
+        nope = Nope()
+
+        def cant_create():
+            nope.create_by_id(1, 2)
+
+        def cant_retrieve():
+            nope.get_data_by_id(1, 2)
+
+        def cant_update():
+            nope.update_by_id(1, 2, 3)
+
+        def cant_delete():
+            nope.delete_by_id(1, 2)
+
+        def cant_list():
+            for i in nope.list(1):
+                pass
+
+        def cant_head():
+            nope.head_data_by_id(1, 2)
+
+        self.assertThat(cant_create,
+                        matchers.raises(exceptions.MethodNotSupported))
+        self.assertThat(cant_retrieve,
+                        matchers.raises(exceptions.MethodNotSupported))
+        self.assertThat(cant_update,
+                        matchers.raises(exceptions.MethodNotSupported))
+        self.assertThat(cant_delete,
+                        matchers.raises(exceptions.MethodNotSupported))
+        self.assertThat(cant_list,
+                        matchers.raises(exceptions.MethodNotSupported))
+        self.assertThat(cant_head,
+                        matchers.raises(exceptions.MethodNotSupported))
+
+    def _test_create_by_id(self, key, response_value, response_body,
+                           attrs, json_body):
+
+        class FakeResource2(FakeResource):
+            resource_key = key
+            service = "my_service"
+
+        response = mock.MagicMock()
+        response.body = response_body
+
+        sess = mock.MagicMock()
+        sess.put = mock.MagicMock(return_value=response)
+        sess.post = mock.MagicMock(return_value=response)
+
+        resp = FakeResource2.create_by_id(sess, attrs)
+        self.assertEqual(resp, response_value)
+        sess.post.assert_called_with(FakeResource2.base_path,
+                                     service=FakeResource2.service,
+                                     json=json_body)
+
+        r_id = "my_id"
+        resp = FakeResource2.create_by_id(sess, attrs, resource_id=r_id)
+        self.assertEqual(resp, response_value)
+        sess.put.assert_called_with(
+            utils.urljoin(FakeResource2.base_path, r_id),
+            service=FakeResource2.service,
+            json=json_body)
+
+        path_args = {"name": "my_name"}
+        resp = FakeResource2.create_by_id(sess, attrs, path_args=path_args)
+        self.assertEqual(resp, response_value)
+        sess.post.assert_called_with(FakeResource2.base_path % path_args,
+                                     service=FakeResource2.service,
+                                     json=json_body)
+
+        resp = FakeResource2.create_by_id(sess, attrs, resource_id=r_id,
+                                          path_args=path_args)
+        self.assertEqual(resp, response_value)
+        sess.put.assert_called_with(
+            utils.urljoin(FakeResource2.base_path % path_args, r_id),
+            service=FakeResource2.service,
+            json=json_body)
+
+    def test_create_without_resource_key(self):
+        key = None
+        response_value = [1, 2, 3]
+        response_body = response_value
+        attrs = {"a": 1, "b": 2, "c": 3}
+        json_body = attrs
+        self._test_create_by_id(key, response_value, response_body,
+                                attrs, json_body)
+
+    def test_create_with_resource_key(self):
+        key = "my_key"
+        response_value = [1, 2, 3]
+        response_body = {key: response_value}
+        attrs = {"a": 1, "b": 2, "c": 3}
+        json_body = {key: attrs}
+        self._test_create_by_id(key, response_value, response_body,
+                                attrs, json_body)
+
+    def _test_get_data_by_id(self, key, response_value, response_body):
+        class FakeResource2(FakeResource):
+            resource_key = key
+            service = "my_service"
+
+        response = mock.MagicMock()
+        response.body = response_body
+
+        sess = mock.MagicMock()
+        sess.get = mock.MagicMock(return_value=response)
+
+        r_id = "my_id"
+        resp = FakeResource2.get_data_by_id(sess, resource_id=r_id)
+        self.assertEqual(resp, response_value)
+        sess.get.assert_called_with(
+            utils.urljoin(FakeResource2.base_path, r_id),
+            service=FakeResource2.service)
+
+        path_args = {"name": "my_name"}
+        resp = FakeResource2.get_data_by_id(sess, resource_id=r_id,
+                                            path_args=path_args)
+        self.assertEqual(resp, response_value)
+        sess.get.assert_called_with(
+            utils.urljoin(FakeResource2.base_path % path_args, r_id),
+            service=FakeResource2.service)
+
+    def test_get_data_without_resource_key(self):
+        key = None
+        response_value = [1, 2, 3]
+        response_body = response_value
+        self._test_get_data_by_id(key, response_value, response_body)
+
+    def test_get_data_with_resource_key(self):
+        key = "my_key"
+        response_value = [1, 2, 3]
+        response_body = {key: response_value}
+        self._test_get_data_by_id(key, response_value, response_body)
+
+    def _test_head_data_by_id(self, key, response_value):
+        class FakeResource2(FakeResource):
+            resource_key = key
+            service = "my_service"
+
+        response = mock.MagicMock()
+        response.headers = response_value
+
+        sess = mock.MagicMock()
+        sess.head = mock.MagicMock(return_value=response)
+
+        r_id = "my_id"
+        resp = FakeResource2.head_data_by_id(sess, resource_id=r_id)
+        self.assertEqual(resp, response_value)
+        sess.head.assert_called_with(
+            utils.urljoin(FakeResource2.base_path, r_id),
+            service=FakeResource2.service,
+            accept=None)
+
+        path_args = {"name": "my_name"}
+        resp = FakeResource2.head_data_by_id(sess, resource_id=r_id,
+                                             path_args=path_args)
+        self.assertEqual(resp, response_value)
+        sess.head.assert_called_with(
+            utils.urljoin(FakeResource2.base_path % path_args, r_id),
+            service=FakeResource2.service,
+            accept=None)
+
+    def test_head_data_without_resource_key(self):
+        key = None
+        response_value = {"key1": "value1", "key2": "value2"}
+        self._test_head_data_by_id(key, response_value)
+
+    def test_head_data_with_resource_key(self):
+        key = "my_key"
+        response_value = {"key1": "value1", "key2": "value2"}
+        self._test_head_data_by_id(key, response_value)
+
+    def _test_update_by_id(self, key, response_value, response_body,
+                           attrs, json_body):
+
+        class FakeResource2(FakeResource):
+            resource_key = key
+            service = "my_service"
+
+        response = mock.MagicMock()
+        response.body = response_body
+
+        sess = mock.MagicMock()
+        sess.patch = mock.MagicMock(return_value=response)
+
+        r_id = "my_id"
+        resp = FakeResource2.update_by_id(sess, r_id, attrs)
+        self.assertEqual(resp, response_value)
+        sess.patch.assert_called_with(
+            utils.urljoin(FakeResource2.base_path, r_id),
+            service=FakeResource2.service,
+            json=json_body)
+
+        path_args = {"name": "my_name"}
+        resp = FakeResource2.update_by_id(sess, r_id, attrs,
+                                          path_args=path_args)
+        self.assertEqual(resp, response_value)
+        sess.patch.assert_called_with(
+            utils.urljoin(FakeResource2.base_path % path_args, r_id),
+            service=FakeResource2.service,
+            json=json_body)
+
+    def test_update_without_resource_key(self):
+        key = None
+        response_value = [1, 2, 3]
+        response_body = response_value
+        attrs = {"a": 1, "b": 2, "c": 3}
+        json_body = attrs
+        self._test_update_by_id(key, response_value, response_body,
+                                attrs, json_body)
+
+    def test_update_with_resource_key(self):
+        key = "my_key"
+        response_value = [1, 2, 3]
+        response_body = {key: response_value}
+        attrs = {"a": 1, "b": 2, "c": 3}
+        json_body = {key: attrs}
+        self._test_update_by_id(key, response_value, response_body,
+                                attrs, json_body)
+
+    def test_delete_by_id(self):
+        class FakeResource2(FakeResource):
+            service = "my_service"
+
+        sess = mock.MagicMock()
+        sess.delete = mock.MagicMock(return_value=None)
+
+        r_id = "my_id"
+        resp = FakeResource2.delete_by_id(sess, r_id)
+        self.assertIsNone(resp)
+        sess.delete.assert_called_with(
+            utils.urljoin(FakeResource2.base_path, r_id),
+            service=FakeResource2.service,
+            accept=None)
+
+        path_args = {"name": "my_name"}
+        resp = FakeResource2.delete_by_id(sess, r_id, path_args=path_args)
+        self.assertIsNone(resp)
+        sess.delete.assert_called_with(
+            utils.urljoin(FakeResource2.base_path % path_args, r_id),
+            service=FakeResource2.service,
+            accept=None)
+
     @httpretty.activate
     def test_create(self):
         self.stub_url(httpretty.POST, path=fake_path, json=fake_body)
@@ -289,6 +543,7 @@ class ResourceTests(base.TestTransportBase):
 
     @httpretty.activate
     def test_update(self):
+        FakeResource.put_update = False
         new_attr1 = 'attr5'
         new_attr2 = 'attr6'
         fake_body1 = copy.deepcopy(fake_body)
@@ -334,11 +589,26 @@ class ResourceTests(base.TestTransportBase):
         obj['attr1'] = 'update_again'
         FakeResource.put_update = True
         self.assertEqual(obj, obj.update(self.session))
+        FakeResource.put_update = False
         last_req = httpretty.last_request()
         self.assertEqual('PUT', last_req.command)
         last_data = last_req.parsed_body[fake_resource]
         self.assertEqual(1, len(last_data))
         self.assertEqual('update_again', last_data['attr1'])
+
+    def test_update_early_exit(self):
+        obj = FakeResource()
+        obj._dirty = []  # Bail out early if there's nothing to update.
+
+        self.assertIsNone(obj.update("session"))
+
+    def test_update_no_id_attribute(self):
+        obj = FakeResource.new(id=1, attr="value1")
+        obj._dirty = {"attr": "value2"}
+        obj.update_by_id = mock.MagicMock(return_value=dict())
+        # If no id_attribute is returned in the update response, make sure
+        # we handle the resulting KeyError.
+        self.assertEqual(obj.update("session"), obj)
 
     @httpretty.activate
     def test_delete(self):
@@ -354,7 +624,7 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual('/endpoint/fakes/rey/data/99', last_req.path)
 
     @httpretty.activate
-    def test_list(self):
+    def _test_list(self, json_sentinel, json_body, resource_class):
         results = [fake_data.copy(), fake_data.copy(), fake_data.copy()]
         for i in range(len(results)):
             results[i]['id'] = fake_id + i
@@ -362,14 +632,14 @@ class ResourceTests(base.TestTransportBase):
         marker = "marker=%d" % results[-1]['id']
         self.stub_url(httpretty.GET,
                       path=[fake_path + "?" + marker],
-                      json={fake_resources: []},
+                      json=json_sentinel,
                       match_querystring=True)
         self.stub_url(httpretty.GET,
                       path=[fake_path],
-                      json={fake_resources: results})
+                      json=json_body)
 
-        objs = FakeResource.list(self.session, limit=1,
-                                 path_args=fake_arguments)
+        objs = resource_class.list(self.session, limit=1,
+                                   path_args=fake_arguments)
         objs = list(objs)
         self.assertIn(marker, httpretty.last_request().path)
         self.assertEqual(3, len(objs))
@@ -422,6 +692,26 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual(records, objs)
         path = fake_base_path
         session.get.assert_called_with(path, params={}, service=None)
+
+    def _get_expected_results(self):
+        results = [fake_data.copy(), fake_data.copy(), fake_data.copy()]
+        for i in range(len(results)):
+            results[i]['id'] = fake_id + i
+        return results
+
+    @httpretty.activate
+    def test_list_keyed_resource(self):
+        sentinel = {fake_resources: []}
+        body = {fake_resources: self._get_expected_results()}
+        cls = FakeResource
+        self._test_list(sentinel, body, cls)
+
+    @httpretty.activate
+    def test_list_non_keyed_resource(self):
+        sentinel = []
+        body = self._get_expected_results()
+        cls = FakeResourceNoKeys
+        self._test_list(sentinel, body, cls)
 
     def test_attrs(self):
         obj = FakeResource()
@@ -521,6 +811,94 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual(sot.larry, value2)
         self.assertEqual(type(sot.curly), int)
         self.assertEqual(sot.curly, int(value3))
+
+
+class ResourceMapping(base.TestCase):
+
+    def test__getitem(self):
+        value = 10
+
+        class Test(resource.Resource):
+            attr = resource.prop("attr")
+
+        t = Test(attrs={"attr": value})
+
+        self.assertEqual(t["attr"], value)
+
+    def test__setitem__existing_item_changed(self):
+
+        class Test(resource.Resource):
+            pass
+
+        t = Test()
+        key = "attr"
+        value = 1
+        t[key] = value
+
+        self.assertEqual(t._attrs[key], value)
+        self.assertTrue(key in t._dirty)
+
+    def test__setitem__existing_item_unchanged(self):
+
+        class Test(resource.Resource):
+            pass
+
+        key = "attr"
+        value = 1
+        t = Test(attrs={key: value})
+        t._reset_dirty()  # Clear dirty list so this checks as unchanged.
+        t[key] = value
+
+        self.assertEqual(t._attrs[key], value)
+        self.assertTrue(key not in t._dirty)
+
+    def test__setitem__new_item(self):
+
+        class Test(resource.Resource):
+            pass
+
+        t = Test()
+        key = "attr"
+        value = 1
+        t[key] = value
+
+        self.assertEqual(t._attrs[key], value)
+        self.assertTrue(key in t._dirty)
+
+    def test__delitem__(self):
+
+        class Test(resource.Resource):
+            pass
+
+        key = "attr"
+        value = 1
+        t = Test(attrs={key: value})
+
+        del t[key]
+
+        self.assertTrue(key not in t._attrs)
+        self.assertTrue(key in t._dirty)
+
+    def test__len__(self):
+
+        class Test(resource.Resource):
+            pass
+
+        attrs = {"a": 1, "b": 2, "c": 3}
+        t = Test(attrs=attrs)
+
+        self.assertEqual(len(t), len(attrs.keys()))
+
+    def test__iter__(self):
+
+        class Test(resource.Resource):
+            pass
+
+        attrs = {"a": 1, "b": 2, "c": 3}
+        t = Test(attrs=attrs)
+
+        for attr in t:
+            self.assertEqual(t[attr], attrs[attr])
 
 
 class FakeResponse:
@@ -672,3 +1050,15 @@ class TestFind(base.TestCase):
         def set_invalid():
             faker.enabled = 'INVALID'
         self.assertRaises(ValueError, set_invalid)
+
+    @mock.patch("openstack.resource.Resource.list")
+    def test_fallthrough(self, mock_list):
+        class FakeResource2(FakeResource):
+            name_attribute = None
+
+            @classmethod
+            def page(cls, session, limit=None, marker=None, path_args=None,
+                     **params):
+                raise exceptions.HttpException("exception")
+
+        self.assertEqual(None, FakeResource2.find("session", "123"))
