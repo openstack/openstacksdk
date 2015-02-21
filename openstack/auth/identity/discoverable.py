@@ -23,7 +23,7 @@ example::
     args = {
         'password': 'openSesame',
         'auth_url': 'https://10.1.1.1:5000/v3/',
-        'user_name': 'alibaba',
+        'username': 'alibaba',
     }
     auth = discoverable.Auth(**args)
     xport = transport.Transport()
@@ -52,7 +52,7 @@ class Auth(base.BaseIdentityPlugin):
 
         :param string auth_url: Identity service endpoint for authentication.
 
-        :raises TypeError: if a user_id, user_name or token is not provided.
+        :raises TypeError: if a user_id, username or token is not provided.
         """
 
         super(Auth, self).__init__(auth_url=auth_url)

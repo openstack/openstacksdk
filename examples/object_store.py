@@ -81,7 +81,7 @@ def main():
         'domain_name': opts.domain_name,
         'project_domain_name': opts.project_domain_name,
         'user_domain_name': opts.user_domain_name,
-        'user_name': opts.user_name,
+        'username': opts.username,
         'password': opts.password,
         'verify': opts.verify,
         'token': opts.token,

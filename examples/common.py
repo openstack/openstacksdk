@@ -213,7 +213,7 @@ def option_parser():
     )
     parser.add_argument(
         '--os-username',
-        dest='user_name',
+        dest='username',
         metavar='<auth-username>',
         default=env('OS_USERNAME'),
         help='Authentication username (Env: OS_USERNAME)',

@@ -21,7 +21,7 @@ would also require a password. For example::
     args = {
         'password': 'openSesame',
         'auth_url': 'https://10.1.1.1:5000/v2.0/',
-        'user_name': 'alibaba',
+        'username': 'alibaba',
     }
     auth = v2.Auth(**args)
     xport = transport.Transport()
@@ -115,7 +115,7 @@ class Password(Auth):
     valid_options = [
         'access_info',
         'auth_url',
-        'user_name',
+        'username',
         'user_id',
         'password',
         'project_id',
@@ -124,38 +124,38 @@ class Password(Auth):
         'trust_id',
     ]
 
-    def __init__(self, auth_url, user_name=_NOT_PASSED, password=None,
+    def __init__(self, auth_url, username=_NOT_PASSED, password=None,
                  user_id=_NOT_PASSED, **kwargs):
-        """A plugin for authenticating with a user_name and password.
+        """A plugin for authenticating with a username and password.
 
-        A user_name or user_id must be provided.
+        A username or user_id must be provided.
 
         :param string auth_url: Identity service endpoint for authorization.
-        :param string user_name: Username for authentication.
+        :param string username: Username for authentication.
         :param string password: Password for authentication.
         :param string user_id: User ID for authentication.
 
-        :raises TypeError: if a user_id or user_name is not provided.
+        :raises TypeError: if a user_id or username is not provided.
         """
         super(Password, self).__init__(auth_url, **kwargs)
 
-        if user_name is _NOT_PASSED and user_id is _NOT_PASSED:
-            msg = 'You need to specify either a user_name or user_id'
+        if username is _NOT_PASSED and user_id is _NOT_PASSED:
+            msg = 'You need to specify either a username or user_id'
             raise TypeError(msg)
-        if user_name is _NOT_PASSED:
-            user_name = None
+        if username is _NOT_PASSED:
+            username = None
         if user_id is _NOT_PASSED:
             user_id = None
 
         self.user_id = user_id
-        self.user_name = user_name
+        self.username = username
         self.password = password
 
     def get_auth_data(self, headers=None):
         auth = {'password': self.password}
 
-        if self.user_name:
-            auth['username'] = self.user_name
+        if self.username:
+            auth['username'] = self.username
         elif self.user_id:
             auth['userId'] = self.user_id
 

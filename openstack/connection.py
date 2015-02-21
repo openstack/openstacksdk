@@ -34,7 +34,7 @@ by this connection.::
     auth_args = {
         'auth_url': 'http://172.20.1.108:5000/v3',
         'project_name': 'admin',
-        'user_name': 'admin',
+        'username': 'admin',
         'password': 'admin',
     }
     conn = connection.Connection(**auth_args)

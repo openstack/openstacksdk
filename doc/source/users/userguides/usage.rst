@@ -18,7 +18,7 @@ To use python-openstacksdk in a project::
     auth_args = {
         'auth_url': 'http://172.20.1.108:5000/v3',
         'project_name': 'hacker',
-        'user_name': 'neo',
+        'username': 'neo',
         'password': 'bluepill',
     }
 

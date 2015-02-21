@@ -32,7 +32,7 @@ class TestV2Auth(testtools.TestCase):
         sot = v2.Password(TEST_URL, common.TEST_USER, common.TEST_PASS,
                           **kargs)
 
-        self.assertEqual(common.TEST_USER, sot.user_name)
+        self.assertEqual(common.TEST_USER, sot.username)
         self.assertEqual(common.TEST_PASS, sot.password)
         self.assertEqual(common.TEST_TRUST_ID, sot.trust_id)
         self.assertEqual(common.TEST_TENANT_ID, sot.tenant_id)
@@ -49,7 +49,7 @@ class TestV2Auth(testtools.TestCase):
         sot = v2.Password(TEST_URL, None, common.TEST_PASS,
                           **kargs)
 
-        self.assertEqual(None, sot.user_name)
+        self.assertEqual(None, sot.username)
         self.assertEqual(common.TEST_PASS, sot.password)
         self.assertEqual(common.TEST_TRUST_ID, sot.trust_id)
         self.assertEqual(common.TEST_TENANT_ID, sot.tenant_id)

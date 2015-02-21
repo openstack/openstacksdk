@@ -41,33 +41,33 @@ class TestConnection(base.TestCase):
     def test_create_authenticator_v2(self):
         auth_args = {
             'auth_url': '0',
-            'user_name': '1',
+            'username': '1',
             'password': '2',
         }
         conn = connection.Connection(transport='0',
                                      auth_plugin='identity_v2_password',
                                      **auth_args)
         self.assertEqual('0', conn.authenticator.auth_url)
-        self.assertEqual('1', conn.authenticator.user_name)
+        self.assertEqual('1', conn.authenticator.username)
         self.assertEqual('2', conn.authenticator.password)
 
     def test_create_authenticator_v3(self):
         auth_args = {
             'auth_url': '0',
-            'user_name': '1',
+            'username': '1',
             'password': '2',
         }
         conn = connection.Connection(transport='0',
                                      auth_plugin='identity_v3_password',
                                      **auth_args)
         self.assertEqual('0', conn.authenticator.auth_url)
-        self.assertEqual('1', conn.authenticator.auth_methods[0].user_name)
+        self.assertEqual('1', conn.authenticator.auth_methods[0].username)
         self.assertEqual('2', conn.authenticator.auth_methods[0].password)
 
     def test_create_authenticator_discoverable(self):
         auth_args = {
             'auth_url': '0',
-            'user_name': '1',
+            'username': '1',
             'password': '2',
         }
         conn = connection.Connection(transport='0', auth_plugin='identity',
@@ -75,7 +75,7 @@ class TestConnection(base.TestCase):
         self.assertEqual('0', conn.authenticator.auth_url)
         self.assertEqual(
             '1',
-            conn.authenticator.auth_plugin.auth_methods[0].user_name)
+            conn.authenticator.auth_plugin.auth_methods[0].username)
         self.assertEqual(
             '2',
             conn.authenticator.auth_plugin.auth_methods[0].password)
@@ -83,7 +83,7 @@ class TestConnection(base.TestCase):
     def test_create_authenticator_no_name(self):
         auth_args = {
             'auth_url': 'http://localhost/v2',
-            'user_name': '1',
+            'username': '1',
             'password': '2',
         }
         conn = connection.Connection(transport='0', **auth_args)

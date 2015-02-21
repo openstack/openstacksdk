@@ -36,14 +36,14 @@ class TestDiscoverableAuth(testtools.TestCase):
             'user_domain_id',
             'user_domain_name',
             'user_id',
-            'user_name',
+            'username',
         ]
         self.assertEqual(expected, sorted(discoverable.Auth.valid_options))
 
     def test_create2(self):
         auth_args = {
             'auth_url': 'http://localhost/v2',
-            'user_name': '1',
+            'username': '1',
             'password': '2',
         }
         auth = discoverable.Auth(**auth_args)
@@ -53,7 +53,7 @@ class TestDiscoverableAuth(testtools.TestCase):
     def test_create3(self):
         auth_args = {
             'auth_url': 'http://localhost/v3',
-            'user_name': '1',
+            'username': '1',
             'password': '2',
         }
         auth = discoverable.Auth(**auth_args)
@@ -63,7 +63,7 @@ class TestDiscoverableAuth(testtools.TestCase):
     def test_create_who_knows(self):
         auth_args = {
             'auth_url': 'http://localhost:5000/',
-            'user_name': '1',
+            'username': '1',
             'password': '2',
         }
         auth = discoverable.Auth(**auth_args)
@@ -79,7 +79,7 @@ class TestDiscoverableAuth(testtools.TestCase):
     def test_methods(self):
         auth_args = {
             'auth_url': 'http://localhost:5000/',
-            'user_name': '1',
+            'username': '1',
             'password': '2',
         }
         auth = discoverable.Auth(**auth_args)

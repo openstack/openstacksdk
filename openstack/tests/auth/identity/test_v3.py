@@ -26,7 +26,7 @@ class TestV3Auth(testtools.TestCase):
                  'project_id': common.TEST_PROJECT_ID,
                  'project_name': common.TEST_PROJECT_NAME}
 
-        method = v3.PasswordMethod(user_name=common.TEST_USER,
+        method = v3.PasswordMethod(username=common.TEST_USER,
                                    user_id=common.TEST_USER_ID,
                                    user_domain_id=common.TEST_DOMAIN_ID,
                                    user_domain_name=common.TEST_DOMAIN_NAME,
@@ -36,7 +36,7 @@ class TestV3Auth(testtools.TestCase):
         self.assertEqual(1, len(sot.auth_methods))
         auther = sot.auth_methods[0]
         self.assertEqual(common.TEST_USER_ID, auther.user_id)
-        self.assertEqual(common.TEST_USER, auther.user_name)
+        self.assertEqual(common.TEST_USER, auther.username)
         self.assertEqual(common.TEST_DOMAIN_ID, auther.user_domain_id)
         self.assertEqual(common.TEST_DOMAIN_NAME, auther.user_domain_name)
         self.assertEqual(common.TEST_PASS, auther.password)
@@ -60,7 +60,7 @@ class TestV3Auth(testtools.TestCase):
                  'project_id': common.TEST_PROJECT_ID,
                  'project_name': common.TEST_PROJECT_NAME}
 
-        methods = [v3.PasswordMethod(user_name=common.TEST_USER,
+        methods = [v3.PasswordMethod(username=common.TEST_USER,
                                      user_id=common.TEST_USER_ID,
                                      password=common.TEST_PASS)]
         sot = v3.Auth(TEST_URL, methods, **kargs)
@@ -68,7 +68,7 @@ class TestV3Auth(testtools.TestCase):
         self.assertEqual(1, len(sot.auth_methods))
         auther = sot.auth_methods[0]
         self.assertEqual(common.TEST_USER_ID, auther.user_id)
-        self.assertEqual(common.TEST_USER, auther.user_name)
+        self.assertEqual(common.TEST_USER, auther.username)
         self.assertEqual(None, auther.user_domain_id)
         self.assertEqual(None, auther.user_domain_name)
         self.assertEqual(common.TEST_PASS, auther.password)
@@ -288,7 +288,7 @@ class TestV3Auth(testtools.TestCase):
         self.assertEqual(ecatalog, resp._info)
 
     def test_authorize_multi_method(self):
-        methods = [v3.PasswordMethod(user_name=common.TEST_USER,
+        methods = [v3.PasswordMethod(username=common.TEST_USER,
                                      password=common.TEST_PASS),
                    v3.TokenMethod(token=common.TEST_TOKEN)]
         sot = v3.Auth(TEST_URL, methods)
