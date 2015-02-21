@@ -263,7 +263,9 @@ class Password(_AuthConstructor):
 
 class TokenMethod(AuthMethod):
 
-    _method_parameters = ['token']
+    _method_parameters = ['token',
+                          'user_domain_id',
+                          'user_domain_name']
 
     def __init__(self, **kwargs):
         """Construct an Auth plugin to fetch a token from a token.
