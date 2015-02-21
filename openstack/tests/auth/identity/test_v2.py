@@ -41,6 +41,25 @@ class TestV2Auth(testtools.TestCase):
                                             'username': common.TEST_USER}}
         self.assertEqual(expected, sot.get_auth_data())
 
+    def test_password_no_user(self):
+        kargs = {'trust_id': common.TEST_TRUST_ID,
+                 'project_id': common.TEST_TENANT_ID,
+                 'project_name': common.TEST_TENANT_NAME}
+
+        sot = v2.Password(TEST_URL, None, common.TEST_PASS,
+                          **kargs)
+
+        self.assertEqual(None, sot.user_name)
+        self.assertEqual(common.TEST_PASS, sot.password)
+        self.assertEqual(common.TEST_TRUST_ID, sot.trust_id)
+        self.assertEqual(common.TEST_TENANT_ID, sot.tenant_id)
+        self.assertEqual(common.TEST_TENANT_NAME, sot.tenant_name)
+        expected = {'passwordCredentials': {'password': common.TEST_PASS}}
+        self.assertEqual(expected, sot.get_auth_data())
+
+    def test_password_no_nothing(self):
+        self.assertRaises(TypeError, v2.Password, TEST_URL)
+
     def test_token(self):
         kargs = {'trust_id': common.TEST_TRUST_ID,
                  'tenant_id': common.TEST_TENANT_ID,

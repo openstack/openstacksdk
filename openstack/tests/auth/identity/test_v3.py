@@ -51,6 +51,7 @@ class TestV3Auth(testtools.TestCase):
         self.assertEqual(None, sot.project_domain_id)
         self.assertEqual(None, sot.project_domain_name)
         self.assertEqual(TEST_URL + '/auth/tokens', sot.token_url)
+        self.assertTrue(sot.include_catalog)
 
     def test_password_domain(self):
         kargs = {'domain_id': common.TEST_DOMAIN_ID,
@@ -82,6 +83,7 @@ class TestV3Auth(testtools.TestCase):
         self.assertEqual(None, sot.project_domain_id)
         self.assertEqual(None, sot.project_domain_name)
         self.assertEqual(TEST_URL + '/auth/tokens', sot.token_url)
+        self.assertTrue(sot.include_catalog)
 
     def test_token_project_domain(self):
         kargs = {'project_domain_id': common.TEST_DOMAIN_ID,
@@ -125,6 +127,25 @@ class TestV3Auth(testtools.TestCase):
         resp = sot.authorize(xport)
 
         eurl = TEST_URL + '/auth/tokens'
+        eheaders = {'Accept': 'application/json',
+                    'X-Auth-Token': common.TEST_TOKEN}
+        ejson = {'auth': {'identity': {'token': {'id': common.TEST_TOKEN},
+                          'methods': ['token']}}}
+        xport.post.assert_called_with(eurl, headers=eheaders, json=ejson)
+        ecatalog = common.TEST_RESPONSE_DICT_V3['token'].copy()
+        ecatalog['auth_token'] = common.TEST_SUBJECT
+        ecatalog['version'] = 'v3'
+        self.assertEqual(ecatalog, resp._info)
+
+    def test_authorize_token_include_catalog(self):
+        kargs = {'include_catalog': False}
+        methods = [v3.TokenMethod(token=common.TEST_TOKEN)]
+        sot = v3.Auth(TEST_URL, methods, **kargs)
+        xport = self.create_mock_transport(common.TEST_RESPONSE_DICT_V3)
+
+        resp = sot.authorize(xport)
+
+        eurl = TEST_URL + '/auth/tokens?nocatalog'
         eheaders = {'Accept': 'application/json',
                     'X-Auth-Token': common.TEST_TOKEN}
         ejson = {'auth': {'identity': {'token': {'id': common.TEST_TOKEN},

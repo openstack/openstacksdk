@@ -50,7 +50,8 @@ class Auth(base.BaseIdentityPlugin):
                  project_name=None,
                  project_domain_id=None,
                  project_domain_name=None,
-                 reauthenticate=True):
+                 reauthenticate=True,
+                 include_catalog=True):
         """Construct an Identity V3 Authentication Plugin.
 
         :param string auth_url: Identity service endpoint for authentication.
@@ -65,6 +66,8 @@ class Auth(base.BaseIdentityPlugin):
         :param bool reauthenticate: Allow fetching a new token if the current
                                     one is going to expire.
                                     (optional) default True
+        :param bool include_catalog: Include the service catalog in the
+                                     returned token. (optional) default True.
         """
 
         super(Auth, self).__init__(auth_url=auth_url,
@@ -78,6 +81,7 @@ class Auth(base.BaseIdentityPlugin):
         self.project_name = project_name
         self.project_domain_id = project_domain_id
         self.project_domain_name = project_domain_name
+        self.include_catalog = include_catalog
 
     @property
     def token_url(self):
@@ -126,8 +130,14 @@ class Auth(base.BaseIdentityPlugin):
         elif self.trust_id:
             body['auth']['scope'] = {'OS-TRUST:trust': {'id': self.trust_id}}
 
-        _logger.debug('Making authentication request to %s', self.token_url)
-        resp = transport.post(self.token_url, json=body, headers=headers)
+        # NOTE(jamielennox): we add nocatalog here rather than in token_url
+        # directly as some federation plugins require the base token_url
+        token_url = self.token_url
+        if not self.include_catalog:
+            token_url += '?nocatalog'
+
+        _logger.debug('Making authentication request to %s', token_url)
+        resp = transport.post(token_url, json=body, headers=headers)
 
         try:
             resp_data = resp.json()['token']
@@ -181,7 +191,7 @@ class AuthMethod(object):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class _AuthConstructor(Auth):
+class AuthConstructor(Auth):
     """AuthConstructor creates an authentication plugin with one method.
 
     AuthConstructor is a means of creating an authentication plugin that
@@ -198,7 +208,7 @@ class _AuthConstructor(Auth):
     def __init__(self, auth_url, *args, **kwargs):
         method_kwargs = self._auth_method_class._extract_kwargs(kwargs)
         method = self._auth_method_class(*args, **method_kwargs)
-        super(_AuthConstructor, self).__init__(auth_url, [method], **kwargs)
+        super(AuthConstructor, self).__init__(auth_url, [method], **kwargs)
 
 
 class PasswordMethod(AuthMethod):
@@ -237,7 +247,7 @@ class PasswordMethod(AuthMethod):
         return 'password', {'user': user}
 
 
-class Password(_AuthConstructor):
+class Password(AuthConstructor):
 
     #: Valid options for this plugin
     valid_options = [
@@ -279,7 +289,7 @@ class TokenMethod(AuthMethod):
         return 'token', {'id': self.token}
 
 
-class Token(_AuthConstructor):
+class Token(AuthConstructor):
 
     #: Valid options for this plugin
     valid_options = [
