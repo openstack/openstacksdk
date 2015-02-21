@@ -31,8 +31,11 @@ class ServerMeta(resource.Resource):
     allow_list = True
 
     # Properties
+    #: The metadata key.
     key = resource.prop('key')
+    #: The ID of a server.
     server_id = resource.prop('server_id')
+    #: The metadata value.
     value = resource.prop('value')
 
     @classmethod

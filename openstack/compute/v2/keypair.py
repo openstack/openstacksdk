@@ -31,9 +31,14 @@ class Keypair(resource.Resource):
     allow_list = True
 
     # Properties
+    #: The short fingerprint associated with the ``public_key`` for
+    #: this keypair.
     fingerprint = resource.prop('fingerprint')
+    #: A name identifying the keypair
     name = resource.prop('name')
+    #: The private key for the keypair
     private_key = resource.prop('private_key')
+    #: The SSH public key that is paired with the server.
     public_key = resource.prop('public_key')
 
     def __init__(self, attrs=None, loaded=False):

@@ -27,9 +27,13 @@ class ServerIP(resource.Resource):
     allow_list = True
 
     # Properties
+    #: The IP address. The format of the address depends on :attr:`version`
     addr = resource.prop('addr')
+    #: The network label, such as public or private.
     network_label = resource.prop('network_label')
+    #: The UUID for the server.
     server_id = resource.prop('server_id')
+    # Version of the IP protocol. Currently either 4 or 6.
     version = resource.prop('version')
 
     @classmethod

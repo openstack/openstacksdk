@@ -26,6 +26,7 @@ class ServerMetadata(resource.Resource):
     allow_update = True
 
     # Properties
+    #: The ID of a server.
     server_id = resource.prop('server_id')
 
     @classmethod
