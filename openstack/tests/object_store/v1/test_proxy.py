@@ -35,15 +35,14 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
 
 class Test_account_metadata(TestObjectStoreProxy):
 
-    @mock.patch("openstack.resource.Resource")
-    def test_get_account_metadata(self, mock_resource):
+    @mock.patch("openstack.resource.Resource.head")
+    def test_get_account_metadata(self, mock_head):
         cont = container.Container()
-        mock_resource = mock.MagicMock()
-        mock_resource.head.return_value = cont
+        mock_head.return_value = cont
 
         result = self.proxy.get_account_metadata()
 
-        self.assertEqual(result, cont)
+        self.assertEqual(cont, result)
 
     def test_set_account_metadata(self):
         container = mock.MagicMock()

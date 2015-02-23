@@ -176,6 +176,45 @@ class PropTests(base.TestCase):
         self.assertEqual(sot.attr, val)
 
 
+class HeaderTests(base.TestCase):
+    class Test(resource.Resource):
+        hey = resource.header("vocals")
+        ho = resource.header("guitar")
+        letsgo = resource.header("bass")
+
+    def test_get(self):
+        val = "joey"
+        args = {"vocals": val}
+        sot = HeaderTests.Test({'headers': args})
+        self.assertEqual(val, sot.hey)
+        self.assertEqual(None, sot.ho)
+        self.assertEqual(None, sot.letsgo)
+
+    def test_set_new(self):
+        args = {"vocals": "joey", "bass": "deedee"}
+        sot = HeaderTests.Test({'headers': args})
+        sot._reset_dirty()
+        sot.ho = "johnny"
+        self.assertEqual("johnny", sot.ho)
+        self.assertTrue(sot.is_dirty)
+
+    def test_set_old(self):
+        args = {"vocals": "joey", "bass": "deedee"}
+        sot = HeaderTests.Test({'headers': args})
+        sot._reset_dirty()
+        sot.letsgo = "cj"
+        self.assertEqual("cj", sot.letsgo)
+        self.assertTrue(sot.is_dirty)
+
+    def test_set_brand_new(self):
+        sot = HeaderTests.Test({'headers': {}})
+        sot._reset_dirty()
+        sot.ho = "johnny"
+        self.assertEqual("johnny", sot.ho)
+        self.assertTrue(sot.is_dirty)
+        self.assertEqual({'headers': {"guitar": "johnny"}}, sot)
+
+
 class ResourceTests(base.TestTransportBase):
 
     TEST_URL = fakes.FakeAuthenticator.ENDPOINT
@@ -352,7 +391,7 @@ class ResourceTests(base.TestTransportBase):
 
         r_id = "my_id"
         resp = FakeResource2.head_data_by_id(sess, resource_id=r_id)
-        self.assertEqual(resp, response_value)
+        self.assertEqual({'headers': response_value}, resp)
         sess.head.assert_called_with(
             utils.urljoin(FakeResource2.base_path, r_id),
             service=FakeResource2.service,
@@ -361,7 +400,7 @@ class ResourceTests(base.TestTransportBase):
         path_args = {"name": "my_name"}
         resp = FakeResource2.head_data_by_id(sess, resource_id=r_id,
                                              path_args=path_args)
-        self.assertEqual(resp, response_value)
+        self.assertEqual({'headers': response_value}, resp)
         sess.head.assert_called_with(
             utils.urljoin(FakeResource2.base_path % path_args, r_id),
             service=FakeResource2.service,
@@ -504,8 +543,8 @@ class ResourceTests(base.TestTransportBase):
                       **headers)
 
         class FakeResource2(FakeResource):
-            header1 = resource.prop("header1")
-            header2 = resource.prop("header2")
+            header1 = resource.header("header1")
+            header2 = resource.header("header2")
 
         obj = FakeResource2.get_by_id(self.session, fake_id,
                                       path_args=fake_arguments,
@@ -515,8 +554,8 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual(fake_name, obj['name'])
         self.assertEqual(fake_attr1, obj['attr1'])
         self.assertEqual(fake_attr2, obj['attr2'])
-        self.assertEqual(header1, obj['header1'])
-        self.assertEqual(header2, obj['header2'])
+        self.assertEqual(header1, obj['headers']['header1'])
+        self.assertEqual(header2, obj['headers']['header2'])
 
         self.assertEqual(fake_name, obj.name)
         self.assertEqual(fake_attr1, obj.first)
@@ -526,20 +565,21 @@ class ResourceTests(base.TestTransportBase):
 
     @httpretty.activate
     def test_head(self):
+        class FakeResource2(FakeResource):
+            header1 = resource.header("header1")
+            header2 = resource.header("header2")
+
         self.stub_url(httpretty.HEAD, path=[fake_path, fake_id],
-                      name=fake_name,
-                      attr1=fake_attr1,
-                      attr2=fake_attr2)
-        obj = FakeResource.head_by_id(self.session, fake_id,
-                                      path_args=fake_arguments)
+                      header1='one',
+                      header2='two')
+        obj = FakeResource2.head_by_id(self.session, fake_id,
+                                       path_args=fake_arguments)
 
-        self.assertEqual(fake_name, obj['name'])
-        self.assertEqual(fake_attr1, obj['attr1'])
-        self.assertEqual(fake_attr2, obj['attr2'])
+        self.assertEqual('one', obj['headers']['header1'])
+        self.assertEqual('two', obj['headers']['header2'])
 
-        self.assertEqual(fake_name, obj.name)
-        self.assertEqual(fake_attr1, obj.first)
-        self.assertEqual(fake_attr2, obj.second)
+        self.assertEqual('one', obj.header1)
+        self.assertEqual('two', obj.header2)
 
     @httpretty.activate
     def test_update(self):

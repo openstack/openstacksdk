@@ -69,7 +69,7 @@ LIST_EXAMPLE = [
 class TestAccount(testtools.TestCase):
 
     def test_make_it(self):
-        sot = container.Container.new(**ACCOUNT_EXAMPLE)
+        sot = container.Container.new(**{'headers': ACCOUNT_EXAMPLE})
         self.assertIsNone(sot.id)
         self.assertEqual(ACCOUNT_EXAMPLE['x-timestamp'], sot.timestamp)
         self.assertEqual(ACCOUNT_EXAMPLE['x-account-bytes-used'],
@@ -117,7 +117,7 @@ class TestContainer(testtools.TestCase):
         sot = container.Container(CONT_EXAMPLE)
 
         # Update container with HEAD data
-        sot._attrs.update(HEAD_EXAMPLE)
+        sot._attrs.update({'headers': HEAD_EXAMPLE})
 
         # Attributes from create
         self.assertEqual(CONT_EXAMPLE['name'], sot.id)

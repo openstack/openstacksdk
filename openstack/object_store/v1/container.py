@@ -11,7 +11,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import exceptions
 from openstack.object_store import object_store_service
 from openstack import resource
 from openstack import utils
@@ -31,20 +30,20 @@ class Container(resource.Resource):
 
     # Account data (when id=None)
     #: The transaction date and time.
-    timestamp = resource.prop("x-timestamp")
+    timestamp = resource.header("x-timestamp")
     #: The total number of bytes that are stored in Object Storage for
     #: the account.
-    account_bytes_used = resource.prop("x-account-bytes-used")
+    account_bytes_used = resource.header("x-account-bytes-used")
     #: The number of containers.
-    account_container_count = resource.prop("x-account-container-count")
+    account_container_count = resource.header("x-account-container-count")
     #: The number of objects in the account.
-    account_object_count = resource.prop("x-account-object-count")
+    account_object_count = resource.header("x-account-object-count")
     #: The secret key value for temporary URLs. If not set,
     #: this header is not returned by this operation.
-    meta_temp_url_key = resource.prop("x-account-meta-temp-url-key")
+    meta_temp_url_key = resource.header("x-account-meta-temp-url-key")
     #: A second secret key value for temporary URLs. If not set,
     #: this header is not returned by this operation.
-    meta_temp_url_key_2 = resource.prop("x-account-meta-temp-url-key-2")
+    meta_temp_url_key_2 = resource.header("x-account-meta-temp-url-key-2")
 
     # Container body data (when id=None)
     #: The name of the container.
@@ -57,9 +56,9 @@ class Container(resource.Resource):
 
     # Container metadata (when id=name)
     #: The number of objects.
-    object_count = resource.prop("x-container-object-count")
+    object_count = resource.header("x-container-object-count")
     #: The count of bytes used in total.
-    bytes_used = resource.prop("x-container-bytes-used")
+    bytes_used = resource.header("x-container-bytes-used")
 
     # Request headers (when id=None)
     #: If set to True, Object Storage queries all replicas to return the
@@ -67,55 +66,38 @@ class Container(resource.Resource):
     #: faster after it finds one valid replica. Because setting this
     #: header to True is more expensive for the back end, use it only
     #: when it is absolutely needed.
-    newest = resource.prop("x-newest", type=bool)
+    newest = resource.header("x-newest", type=bool)
 
     # Request headers (when id=name)
     #: The ACL that grants read access. If not set, this header is not
     #: returned by this operation.
-    read_ACL = resource.prop("x-container-read")
+    read_ACL = resource.header("x-container-read")
     #: The ACL that grants write access. If not set, this header is not
     #: returned by this operation.
-    write_ACL = resource.prop("x-container-write")
+    write_ACL = resource.header("x-container-write")
     #: The destination for container synchronization. If not set,
     #: this header is not returned by this operation.
-    sync_to = resource.prop("x-container-sync-to")
+    sync_to = resource.header("x-container-sync-to")
     #: The secret key for container synchronization. If not set,
     #: this header is not returned by this operation.
-    sync_key = resource.prop("x-container-sync-key")
+    sync_key = resource.header("x-container-sync-key")
     #: Enables versioning on this container. The value is the name
     #: of another container. You must UTF-8-encode and then URL-encode
     #: the name before you include it in the header. To disable
     #: versioning, set the header to an empty string.
-    versions_location = resource.prop("x-versions-location")
+    versions_location = resource.header("x-versions-location")
     #: Set to any value to disable versioning.
-    remove_versions_location = resource.prop("x-remove-versions-location")
+    remove_versions_location = resource.header("x-remove-versions-location")
     #: Changes the MIME type for the object.
-    content_type = resource.prop("content-type")
+    content_type = resource.header("content-type")
     #: If set to true, Object Storage guesses the content type based
     #: on the file extension and ignores the value sent in the
     #: Content-Type header, if present.
-    detect_content_type = resource.prop("x-detect-content-type", type=bool)
+    detect_content_type = resource.header("x-detect-content-type", type=bool)
     #: In combination with Expect: 100-Continue, specify an
     #: "If-None-Match: \*" header to query whether the server already
     #: has a copy of the object before any data is sent.
-    if_none_match = resource.prop("if-none-match")
-
-    @classmethod
-    def _do_create_update(cls, method, session, attrs, resource_id):
-        """Helper method to call put and post
-
-        The internals of create and update are the same exept for
-        the session method.
-        """
-        url = utils.urljoin(cls.base_path, resource_id)
-
-        # Only send actual headers, not potentially set body values.
-        headers = attrs.copy()
-        for val in ("name", "count", "bytes"):
-            headers.pop(val, None)
-
-        return method(url, service=cls.service, accept=None,
-                      headers=headers).headers
+    if_none_match = resource.header("if-none-match")
 
     @classmethod
     def update_by_id(cls, session, resource_id, attrs, path_args=None):
@@ -131,14 +113,11 @@ class Container(resource.Resource):
                                class but is ignored for this method.
 
         :return: A ``dict`` representing the response headers.
-        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-                 :data:`Resource.allow_update` is not set to ``True``.
         """
-        if not cls.allow_update:
-            raise exceptions.MethodNotSupported('update')
-
-        return cls._do_create_update(session.post, session, attrs,
-                                     resource_id)
+        url = utils.urljoin(cls.base_path, resource_id)
+        headers = attrs[resource.HEADERS]
+        return session.post(url, service=cls.service, accept=None,
+                            headers=headers).headers
 
     @classmethod
     def create_by_id(cls, session, attrs, resource_id=None):
@@ -152,14 +131,11 @@ class Container(resource.Resource):
                             the request. The default is ``None``.
 
         :return: A ``dict`` representing the response headers.
-        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-                 :data:`Resource.allow_create` is not set to ``True``.
         """
-        if not cls.allow_create:
-            raise exceptions.MethodNotSupported('create')
-
-        return cls._do_create_update(session.put, session, attrs,
-                                     resource_id)
+        url = utils.urljoin(cls.base_path, resource_id)
+        headers = attrs[resource.HEADERS]
+        return session.put(url, service=cls.service, accept=None,
+                           headers=headers).headers
 
     def create(self, session):
         """Create a Container from this instance.
@@ -169,9 +145,8 @@ class Container(resource.Resource):
 
         :return: This :class:`~openstack.object_store.v1.container.Container`
                  instance.
-        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-                 :data:`Resource.allow_create` is not set to ``True``.
         """
-        self.create_by_id(session, self._attrs, self.id)
+        resp = self.create_by_id(session, self._attrs, self.id)
+        self.set_headers(resp)
         self._reset_dirty()
         return self
