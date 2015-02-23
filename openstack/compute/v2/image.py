@@ -21,26 +21,24 @@ class Image(resource.Resource):
     service = compute_service.ComputeService()
 
     # capabilities
-    allow_create = True
     allow_retrieve = True
-    allow_update = True
     allow_delete = True
     allow_list = True
 
     # Properties
-    #: Timestamp when the image was created.
-    created = resource.prop('created')
     #: Links pertaining to this image. This is a list of dictionaries,
     #: each including keys ``href`` and ``rel``, and optionally ``type``.
     links = resource.prop('links')
+    #: The name of this image.
+    name = resource.prop('name')
+    #: Timestamp when the image was created.
+    created = resource.prop('created')
     #: Metadata pertaining to this image. *Type: dict*
     metadata = resource.prop('metadata', type=dict)
     #: The mimimum disk size. *Type: int*
     min_disk = resource.prop('minDisk', type=int)
     #: The minimum RAM size. *Type: int*
     min_ram = resource.prop('minRam', type=int)
-    #: The name of this image.
-    name = resource.prop('name')
     #: If this image is still building, its progress is represented here.
     #: Once an image is created, progres will be 100. *Type: int*
     progress = resource.prop('progress', type=int)
@@ -48,3 +46,13 @@ class Image(resource.Resource):
     status = resource.prop('status')
     #: Timestamp when the image was updated.
     updated = resource.prop('updated')
+    #: Size of the image in bytes. *Type: int*
+    size = resource.prop('OS-EXT-IMG-SIZE:size', type=int)
+
+
+class ImageDetail(Image):
+    base_path = '/images/detail'
+
+    allow_retrieve = False
+    allow_delete = False
+    allow_list = True

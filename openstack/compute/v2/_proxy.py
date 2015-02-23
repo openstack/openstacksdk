@@ -59,9 +59,6 @@ class Proxy(object):
     def update_flavor(self, **data):
         return flavor.Flavor(data).update(self.session)
 
-    def create_image(self, **data):
-        return image.Image(data).create(self.session)
-
     def delete_image(self, **data):
         image.Image(data).delete(self.session)
 
@@ -71,11 +68,18 @@ class Proxy(object):
     def get_image(self, **data):
         return image.Image(data).get(self.session)
 
-    def list_images(self):
-        return image.Image.list(self.session)
+    def list_images(self, details=True):
+        """Return a generator of images
 
-    def update_image(self, **data):
-        return image.Image(data).update(self.session)
+        :param bool details: When ``True``, returns
+            :class:`~openstack.compute.v2.image.ImageDetail` objects,
+            otherwise :class:`~openstack.compute.v2.image.Image`.
+            *Default: ``True``*
+
+        :returns: A generator of image objects
+        """
+        img = image.ImageDetail if details else image.Image
+        return img.list(self.session, paginate=False)
 
     def create_keypair(self, **data):
         return keypair.Keypair(data).create(self.session)

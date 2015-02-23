@@ -59,10 +59,6 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_update('openstack.compute.v2.flavor.Flavor.update',
                            self.proxy.update_flavor)
 
-    def test_image_create(self):
-        self.verify_create('openstack.compute.v2.image.Image.create',
-                           self.proxy.create_image)
-
     def test_image_delete(self):
         self.verify_delete('openstack.compute.v2.image.Image.delete',
                            self.proxy.delete_image)
@@ -75,13 +71,17 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_get('openstack.compute.v2.image.Image.get',
                         self.proxy.get_image)
 
-    def test_image_list(self):
+    def test_image_list_basic(self):
         self.verify_list('openstack.compute.v2.image.Image.list',
-                         self.proxy.list_images)
+                         self.proxy.list_images,
+                         method_kwargs={"details": False},
+                         expected_kwargs={"paginate": False})
 
-    def test_image_update(self):
-        self.verify_update('openstack.compute.v2.image.Image.update',
-                           self.proxy.update_image)
+    def test_image_list_detail(self):
+        self.verify_list('openstack.compute.v2.image.ImageDetail.list',
+                         self.proxy.list_images,
+                         method_kwargs={"details": True},
+                         expected_kwargs={"paginate": False})
 
     def test_keypair_create(self):
         self.verify_create('openstack.compute.v2.keypair.Keypair.create',
