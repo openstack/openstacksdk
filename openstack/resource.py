@@ -211,7 +211,8 @@ class Resource(collections.MutableMapping):
         self.update_attrs(attrs)
 
     def __repr__(self):
-        return "%s: %s" % (self.get_resource_name(), self._attrs)
+        return "%s(attrs=%s, loaded=%s)" % (self.__class__.__name__,
+                                            self._attrs, self._loaded)
 
     @classmethod
     def get_resource_name(cls):

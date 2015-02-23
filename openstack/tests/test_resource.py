@@ -1010,14 +1010,18 @@ class TestFind(base.TestCase):
 
         self.assertEqual(None, FakeResource.find(self.mock_session, self.NAME))
 
-    def test_repr_name(self):
-        FakeResource.resource_name = 'foo'
-        self.assertEqual('foo: {}', repr(FakeResource()))
-        FakeResource.resource_name = None
-        FakeResource.resource_key = None
-        self.assertEqual('FakeResource: {}', repr(FakeResource()))
-        FakeResource.resource_key = fake_resource
-        self.assertEqual(fake_resource + ': {}', repr(FakeResource()))
+    def test_repr(self):
+        fr = FakeResource()
+        fr._loaded = False
+        fr.first = "hey"
+        fr.second = "hi"
+        fr.third = "nah"
+        the_repr = repr(fr)
+        result = eval(the_repr)
+        self.assertEqual(fr._loaded, result._loaded)
+        self.assertEqual(fr.first, result.first)
+        self.assertEqual(fr.second, result.second)
+        self.assertEqual(fr.third, result.third)
 
     def test_id_attribute(self):
         faker = FakeResource(fake_data)
