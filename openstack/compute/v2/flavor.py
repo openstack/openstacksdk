@@ -28,17 +28,30 @@ class Flavor(resource.Resource):
     allow_list = True
 
     # Properties
-    #: Size of the disk this flavor offers. *Type: int*
-    disk = resource.prop('disk', type=int)
-    #: ``True`` if this is a publicly visible flavor. ``False`` if this is
-    #: a private image. *Type: bool*
-    is_public = resource.prop('os-flavor-access:is_public', type=bool)
     #: Links pertaining to this flavor. This is a list of dictionaries,
     #: each including keys ``href`` and ``rel``.
     links = resource.prop('links')
     #: The name of this flavor.
     name = resource.prop('name')
+
+
+class FlavorDetail(Flavor):
+    base_path = '/flavors/detail'
+
+    #: Size of the disk this flavor offers. *Type: int*
+    disk = resource.prop('disk', type=int)
+    #: ``True`` if this is a publicly visible flavor. ``False`` if this is
+    #: a private image. *Type: bool*
+    is_public = resource.prop('os-flavor-access:is_public', type=bool)
     #: The amount of RAM (in MB) this flavor offers. *Type: int*
     ram = resource.prop('ram', type=int)
     #: The number of virtual CPUs this flavor offers. *Type: int*
     vcpus = resource.prop('vcpus', type=int)
+    #: Size of the swap partitions.
+    swap = resource.prop('swap')
+    #: Size of the ephemeral data disk attached to this server. *Type: int*
+    ephemeral = resource.prop('OS-FLV-EXT-DATA:ephemeral', type=int)
+    #: ``True`` if this flavor is disabled, ``False`` if not.
+    disabled = resource.prop('OS-FLV-DISABLED:disabled')
+    #: The bandwidth scaling factor this flavor receives on the network.
+    rxtx_factor = resource.prop('rxtx_factor', type=float)

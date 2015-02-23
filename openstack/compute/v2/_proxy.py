@@ -31,20 +31,30 @@ class Proxy(object):
     def list_extensions(self):
         return extension.Extension.list(self.session)
 
+    def find_flavor(self, name_or_id):
+        return flavor.Flavor.find(self.session, name_or_id)
+
     def create_flavor(self, **data):
         return flavor.Flavor(data).create(self.session)
 
     def delete_flavor(self, **data):
         flavor.Flavor(data).delete(self.session)
 
-    def find_flavor(self, name_or_id):
-        return flavor.Flavor.find(self.session, name_or_id)
-
     def get_flavor(self, **data):
         return flavor.Flavor(data).get(self.session)
 
-    def list_flavors(self, **params):
-        return flavor.Flavor.list(self.session, **params)
+    def list_flavors(self, details=True, **params):
+        """Return a generator of flavors
+
+        :param bool details: When ``True``, returns
+            :class:`~openstack.compute.v2.flavor.FlavorDetail` objects,
+            otherwise :class:`~openstack.compute.v2.flavor.Flavor`.
+            *Default: ``True``*
+
+        :returns: A generator of flavor objects
+        """
+        flv = flavor.FlavorDetail if details else flavor.Flavor
+        return flv.list(self.session, paginate=False, **params)
 
     def update_flavor(self, **data):
         return flavor.Flavor(data).update(self.session)

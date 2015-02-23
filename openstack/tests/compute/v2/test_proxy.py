@@ -43,9 +43,17 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_get('openstack.compute.v2.flavor.Flavor.get',
                         self.proxy.get_flavor)
 
-    def test_flavor_list(self):
+    def test_flavor_list_basic(self):
         self.verify_list('openstack.compute.v2.flavor.Flavor.list',
-                         self.proxy.list_flavors)
+                         self.proxy.list_flavors,
+                         method_kwargs={"details": False},
+                         expected_kwargs={"paginate": False})
+
+    def test_flavor_list_detail(self):
+        self.verify_list('openstack.compute.v2.flavor.FlavorDetail.list',
+                         self.proxy.list_flavors,
+                         method_kwargs={"details": True},
+                         expected_kwargs={"paginate": False})
 
     def test_flavor_update(self):
         self.verify_update('openstack.compute.v2.flavor.Flavor.update',

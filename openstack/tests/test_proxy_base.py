@@ -20,31 +20,46 @@ class TestProxyBase(base.TestCase):
         super(TestProxyBase, self).setUp()
         self.session = mock.MagicMock()
 
-    def _verify(self, mock_method, test_method, method_args=None,
-                expected=None):
+    def _verify(self, mock_method, test_method,
+                method_args=None, method_kwargs=None,
+                expected_args=None, expected_kwargs=None,
+                expected_result=None):
         with mock.patch(mock_method) as mocked:
-            mocked.return_value = expected
-            if method_args is not None:
-                self.assertEqual(expected, test_method(method_args))
-                mocked.assert_called_with(self.session, method_args)
+            mocked.return_value = expected_result
+            if any([method_args, method_kwargs]):
+                method_args = method_args or ()
+                method_kwargs = method_kwargs or {}
+                expected_args = expected_args or ()
+                expected_kwargs = expected_kwargs or {}
+
+                self.assertEqual(expected_result, test_method(*method_args,
+                                 **method_kwargs))
+                mocked.assert_called_with(self.session,
+                                          *expected_args, **expected_kwargs)
             else:
-                self.assertEqual(expected, test_method())
+                self.assertEqual(expected_result, test_method())
                 mocked.assert_called_with(self.session)
 
-    def verify_create(self, mock_method, test_method):
-        self._verify(mock_method, test_method, expected="result")
+    def verify_create(self, mock_method, test_method, **kwargs):
+        self._verify(mock_method, test_method, expected_result="result",
+                     **kwargs)
 
-    def verify_delete(self, mock_method, test_method):
-        self._verify(mock_method, test_method)
+    def verify_delete(self, mock_method, test_method, **kwargs):
+        self._verify(mock_method, test_method, **kwargs)
 
-    def verify_get(self, mock_method, test_method):
-        self._verify(mock_method, test_method, expected="result")
+    def verify_get(self, mock_method, test_method, **kwargs):
+        self._verify(mock_method, test_method, expected_result="result",
+                     **kwargs)
 
-    def verify_find(self, mock_method, test_method):
-        self._verify(mock_method, test_method, ["name_or_id"], "result")
+    def verify_find(self, mock_method, test_method, **kwargs):
+        self._verify(mock_method, test_method, method_args=["name_or_id"],
+                     expected_args=["name_or_id"], expected_result="result",
+                     **kwargs)
 
-    def verify_list(self, mock_method, test_method):
-        self._verify(mock_method, test_method, expected=["result"])
+    def verify_list(self, mock_method, test_method, **kwargs):
+        self._verify(mock_method, test_method, expected_result=["result"],
+                     **kwargs)
 
-    def verify_update(self, mock_method, test_method):
-        self._verify(mock_method, test_method, expected="result")
+    def verify_update(self, mock_method, test_method, **kwargs):
+        self._verify(mock_method, test_method, expected_result="result",
+                     **kwargs)
