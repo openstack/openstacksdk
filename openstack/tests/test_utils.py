@@ -10,14 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import unittest
-
 import mock
+import testtools
 
 from openstack import utils
 
 
-class Test_enable_logging(unittest.TestCase):
+class Test_enable_logging(testtools.TestCase):
 
     def _console_tests(self, fake_logging, level, debug):
         the_logger = mock.MagicMock()
@@ -56,7 +55,7 @@ class Test_enable_logging(unittest.TestCase):
         self._file_tests(fake_logging, fake_logging.WARNING, False)
 
 
-class Test_urljoin(unittest.TestCase):
+class Test_urljoin(testtools.TestCase):
 
     def test_strings(self):
         root = "http://www.example.com"
@@ -71,3 +70,68 @@ class Test_urljoin(unittest.TestCase):
 
         result = utils.urljoin(root, *leaves)
         self.assertEqual(result, "http://www.example.com/foo/")
+
+
+class Test_CaseInsensitiveDict(testtools.TestCase):
+
+    def test_create(self):
+        sot1 = utils.CaseInsensitiveDict()
+        self.assertEqual(sot1, {})
+
+        d = {"hello": "hi"}
+        sot2 = utils.CaseInsensitiveDict(d)
+        self.assertEqual(sot2, d)
+
+    def test_get_set(self):
+        sot = utils.CaseInsensitiveDict()
+        value = 100
+        sot["LOL"] = value
+        self.assertEqual(sot["lol"], value)
+        self.assertIn("LOL", sot._dict)
+
+        self.assertRaises(KeyError, sot.__setitem__, None, None)
+        self.assertRaises(KeyError, sot.__getitem__, None)
+
+    def test_del(self):
+        sot = utils.CaseInsensitiveDict()
+        value = 200
+        sot["ROFL"] = value
+        self.assertEqual(sot["rofl"], value)
+
+        del sot["rOfL"]
+
+        self.assertNotIn("ROFL", sot)
+
+    def test_contains(self):
+        sot = utils.CaseInsensitiveDict()
+        sot["LMAO"] = 1
+
+        self.assertIn("lMaO", sot)
+        self.assertNotIn("lol", sot)
+
+    def test_iter(self):
+        parent = {"a": 1, "b": 2}
+        sot = utils.CaseInsensitiveDict(parent)
+
+        for key in sot:
+            self.assertIn(key, parent)
+
+    def test_len(self):
+        parent = {"a": 1, "b": 2}
+        sot = utils.CaseInsensitiveDict(parent)
+
+        self.assertEqual(len(parent), len(sot))
+
+    def test_repr(self):
+        parent = {"a": 1, "b": 2}
+        sot = utils.CaseInsensitiveDict(parent)
+
+        self.assertEqual(repr(parent), repr(sot))
+
+    def test_copy(self):
+        parent = {"a": 1, "b": 2}
+        sot = utils.CaseInsensitiveDict(parent)
+
+        new = sot.copy()
+        self.assertEqual(new, sot)
+        self.assertIsNot(new, sot)
