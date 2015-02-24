@@ -11,3 +11,5 @@ python-neutronclient>=2.3.10
 python-troveclient
 python-ironicclient
 python-swiftclient
+
+dogpile.cache>=0.5.3
