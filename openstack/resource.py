@@ -456,6 +456,24 @@ class Resource(collections.MutableMapping):
     # CRUD OPERATIONS
     ##
 
+    @staticmethod
+    def _convert_ids(attrs):
+        """Return an attribute dictionary suitable for create/update
+
+        As some attributes may be Resource types, their ``id`` attribute
+        needs to be put in the Resource instance's place in order
+        to be properly serialized and understood by the server.
+        """
+        if attrs is None:
+            return
+
+        converted = attrs.copy()
+        for key, value in converted.items():
+            if isinstance(value, Resource):
+                converted[key] = value.id
+
+        return converted
+
     @classmethod
     def create_by_id(cls, session, attrs, resource_id=None, path_args=None):
         """Create a remote resource from its attributes.
@@ -476,6 +494,9 @@ class Resource(collections.MutableMapping):
         """
         if not cls.allow_create:
             raise exceptions.MethodNotSupported('create')
+
+        # Convert attributes from Resource types into their ids.
+        attrs = cls._convert_ids(attrs)
 
         if cls.resource_key:
             body = {cls.resource_key: attrs}
@@ -676,6 +697,9 @@ class Resource(collections.MutableMapping):
         """
         if not cls.allow_update:
             raise exceptions.MethodNotSupported('update')
+
+        # Convert attributes from Resource types into their ids.
+        attrs = cls._convert_ids(attrs)
 
         if cls.resource_key:
             body = {cls.resource_key: attrs}
