@@ -152,6 +152,52 @@ class prop(object):
                 pass
 
 
+#: Key in attributes for header properties
+HEADERS = 'headers'
+
+
+class header(prop):
+    """A helper for defining header properties in a resource.
+
+    This property should be used for values passed in the header of a resource.
+    Header values are stored in a special 'headers' attribute of a resource.
+    Using this property will make it easier for users to access those values.
+    For example, and object store container:
+
+        >>> class Container(Resource):
+        ...     name = prop("name")
+        ...     object_count = header("x-container-object-count")
+        ...
+        >>> c = Container({name='pix'})
+        >>> c.head(session)
+        >>> print c["headers"]["x-container-object-count"]
+        4
+        >>> print c.object_count
+        4
+
+    The first print shows accessing the header value without the property
+    and the second print shows accessing the header with the property helper.
+    """
+
+    def _get_headers(self, instance):
+        if instance is None:
+            return None
+        if HEADERS in instance:
+            return instance[HEADERS]
+        return None
+
+    def __get__(self, instance, owner):
+        headers = self._get_headers(instance)
+        return super(header, self).__get__(headers, owner)
+
+    def __set__(self, instance, value):
+        headers = self._get_headers(instance)
+        if headers is None:
+            headers = instance._attrs[HEADERS] = {}
+        headers[self.name] = value
+        instance.set_headers(headers)
+
+
 @six.add_metaclass(abc.ABCMeta)
 class Resource(collections.MutableMapping):
 
@@ -397,6 +443,15 @@ class Resource(collections.MutableMapping):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+    def get_headers(self):
+        if HEADERS in self._attrs:
+            return self._attrs[HEADERS]
+        return {}
+
+    def set_headers(self, values):
+        self._attrs[HEADERS] = values
+        self._dirty.add(HEADERS)
+
     ##
     # CRUD OPERATIONS
     ##
@@ -493,7 +548,7 @@ class Resource(collections.MutableMapping):
             body = body[cls.resource_key]
 
         if include_headers:
-            body.update(response.headers)
+            body[HEADERS] = response.headers
 
         return body
 
@@ -550,7 +605,7 @@ class Resource(collections.MutableMapping):
                                a compound URL.
                                See `How path_args are used`_ for details.
 
-        :return: A ``dict`` representing the headers.
+        :return: A ``dict`` containing the headers.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
                  :data:`Resource.allow_head` is not set to ``True``.
         """
@@ -565,7 +620,7 @@ class Resource(collections.MutableMapping):
 
         data = session.head(url, service=cls.service, accept=None).headers
 
-        return data
+        return {HEADERS: data}
 
     @classmethod
     def head_by_id(cls, session, resource_id, path_args=None):

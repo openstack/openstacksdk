@@ -13,7 +13,6 @@
 import mock
 import testtools
 
-from openstack import exceptions
 from openstack.object_store.v1 import obj
 
 
@@ -39,17 +38,19 @@ OBJ_EXAMPLE = {
     "content_type": "application/octet-stream"
 }
 
-HEAD_EXAMPLE = {
-    'content-length': '252466',
+DICT_EXAMPLE = {
     'container': CONTAINER_NAME,
     'name': OBJECT_NAME,
-    'accept-ranges': 'bytes',
-    'last-modified': 'Sun, 13 Jul 2014 18:41:04 GMT',
-    'etag': '243f87b91224d85722564a80fd3cb1f1',
-    'x-timestamp': '1405276863.31924',
-    'date': 'Thu, 28 Aug 2014 14:41:59 GMT',
-    'content-type': 'application/octet-stream',
-    'id': 'tx5fb5ad4f4d0846c6b2bc7-0053ff3fb7'
+    'headers': {
+        'content-length': '252466',
+        'accept-ranges': 'bytes',
+        'last-modified': 'Sun, 13 Jul 2014 18:41:04 GMT',
+        'etag': '243f87b91224d85722564a80fd3cb1f1',
+        'x-timestamp': '1405276863.31924',
+        'date': 'Thu, 28 Aug 2014 14:41:59 GMT',
+        'content-type': 'application/octet-stream',
+        'id': 'tx5fb5ad4f4d0846c6b2bc7-0053ff3fb7'
+    }
 }
 
 
@@ -83,17 +84,18 @@ class TestObject(testtools.TestCase):
         self.assertEqual(CONTAINER_NAME, sot.container)
 
     def test_head(self):
-        sot = obj.Object.existing(**HEAD_EXAMPLE)
+        sot = obj.Object.existing(**DICT_EXAMPLE)
 
         # Attributes from header
-        self.assertEqual(HEAD_EXAMPLE['container'], sot.container)
-        self.assertEqual(HEAD_EXAMPLE['content-length'], sot.content_length)
-        self.assertEqual(HEAD_EXAMPLE['accept-ranges'], sot.accept_ranges)
-        self.assertEqual(HEAD_EXAMPLE['last-modified'], sot.last_modified)
-        self.assertEqual(HEAD_EXAMPLE['etag'], sot.etag)
-        self.assertEqual(HEAD_EXAMPLE['x-timestamp'], sot.timestamp)
-        self.assertEqual(HEAD_EXAMPLE['date'], sot.date)
-        self.assertEqual(HEAD_EXAMPLE['content-type'], sot.content_type)
+        self.assertEqual(DICT_EXAMPLE['container'], sot.container)
+        headers = DICT_EXAMPLE['headers']
+        self.assertEqual(headers['content-length'], sot.content_length)
+        self.assertEqual(headers['accept-ranges'], sot.accept_ranges)
+        self.assertEqual(headers['last-modified'], sot.last_modified)
+        self.assertEqual(headers['etag'], sot.etag)
+        self.assertEqual(headers['x-timestamp'], sot.timestamp)
+        self.assertEqual(headers['date'], sot.date)
+        self.assertEqual(headers['content-type'], sot.content_type)
 
     def test_get(self):
         sot = obj.Object.new(container=CONTAINER_NAME, name=OBJECT_NAME)
@@ -110,8 +112,3 @@ class TestObject(testtools.TestCase):
         self.sess.get.assert_called_with(url, service=sot.service,
                                          accept="bytes", headers=headers)
         self.assertEqual(rv, self.resp.content)
-
-    def test_cant_get(self):
-        sot = obj.Object.new(container=CONTAINER_NAME, name=OBJECT_NAME)
-        sot.allow_retrieve = False
-        self.assertRaises(exceptions.MethodNotSupported, sot.get, self.sess)
