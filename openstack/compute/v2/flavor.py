@@ -33,11 +33,6 @@ class Flavor(resource.Resource):
     links = resource.prop('links')
     #: The name of this flavor.
     name = resource.prop('name')
-
-
-class FlavorDetail(Flavor):
-    base_path = '/flavors/detail'
-
     #: Size of the disk this flavor offers. *Type: int*
     disk = resource.prop('disk', type=int)
     #: ``True`` if this is a publicly visible flavor. ``False`` if this is
@@ -55,3 +50,13 @@ class FlavorDetail(Flavor):
     disabled = resource.prop('OS-FLV-DISABLED:disabled')
     #: The bandwidth scaling factor this flavor receives on the network.
     rxtx_factor = resource.prop('rxtx_factor', type=float)
+
+
+class FlavorDetail(Flavor):
+    base_path = '/flavors/detail'
+
+    allow_create = False
+    allow_retrieve = False
+    allow_update = False
+    allow_delete = False
+    allow_list = True
