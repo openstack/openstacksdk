@@ -21,7 +21,7 @@ NON_CALLABLES = (six.string_types, bool, dict, int, list, type(None))
 def find_nova_addresses(addresses, ext_tag=None, key_name=None, version=4):
 
     ret = []
-    for (k, v) in addresses.iteritems():
+    for (k, v) in iter(addresses.items()):
         if key_name and k == key_name:
             ret.extend([addrs['addr'] for addrs in v
                         if addrs['version'] == version])
@@ -79,7 +79,7 @@ def get_groups_from_server(cloud, server, server_vars):
         if 'name' in server_vars[key]:
             groups.append('%s-%s' % (key, server_vars[key]['name']))
 
-    for key, value in server.metadata.iteritems():
+    for key, value in iter(server.metadata.items()):
         groups.append('meta-%s_%s' % (key, value))
 
     az = server_vars.get('az', None)
