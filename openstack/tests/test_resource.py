@@ -812,16 +812,19 @@ class ResourceTests(base.TestTransportBase):
         value1 = "one"
         value2 = "two"
         value3 = "3"
+        value4 = "fore"
 
         sot = Test({"the-attr": value1})
 
-        sot.update_attrs({"the-attr2": value2})
+        sot.update_attrs({"the-attr2": value2, "notprop": value4})
         sot.update_attrs(curly=value3)
 
-        self.assertEqual(sot.moe, value1)
-        self.assertEqual(sot.larry, value2)
-        self.assertEqual(type(sot.curly), int)
-        self.assertEqual(sot.curly, int(value3))
+        self.assertEqual(value1, sot.moe)
+        self.assertEqual(value1, sot["the-attr"])
+        self.assertEqual(value2, sot.larry)
+        self.assertEqual(int, type(sot.curly))
+        self.assertEqual(int(value3), sot.curly)
+        self.assertEqual(value4, sot["notprop"])
 
 
 class ResourceMapping(base.TestCase):
