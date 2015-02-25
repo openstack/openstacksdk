@@ -25,6 +25,7 @@ from keystoneclient import auth as ksc_auth
 from keystoneclient import session as ksc_session
 from novaclient import client as nova_client
 from novaclient.v1_1 import floating_ips
+from novaclient import exceptions as nova_exceptions
 from neutronclient.v2_0 import client as neutron_client
 import os_client_config
 import pbr.version
@@ -138,6 +139,7 @@ class OpenStackCloud(object):
 
         self._image_cache = image_cache
         self._flavor_cache = flavor_cache
+        self._extension_cache = None
         self._volume_cache = volume_cache
         self._container_cache = dict()
         self._file_hash_cache = dict()
@@ -420,6 +422,23 @@ class OpenStackCloud(object):
 
     def delete_keypair(self, name):
         return self.nova_client.keypairs.delete(name)
+
+    @property
+    def extension_cache(self):
+        if not self._extension_cache:
+            self._extension_cache = set()
+
+            try:
+                resp, body = self.nova_client.client.get('/extensions')
+                if resp.status_code == 200:
+                    for x in body['extensions']:
+                        self._extension_cache.add(x['alias'])
+            except nova_exceptions.NotFound:
+                pass
+        return self._extension_cache
+
+    def has_extension(self, extension_name):
+        return extension_name in self.extension_cache
 
     def list_networks(self):
         return self.neutron_client.list_networks()['networks']
