@@ -509,6 +509,13 @@ class OpenStackCloud(object):
             return image
         return meta.obj_to_dict(image)
 
+    def create_image_snapshot(self, name, **metadata):
+        image = self.nova_client.servers.create_image(
+            name, **metadata)
+        if image:
+            return meta.obj_to_dict(image)
+        return None
+
     def create_image(
             self, name, filename, container='images',
             md5=None, sha256=None,
