@@ -700,6 +700,8 @@ class Resource(collections.MutableMapping):
 
         # Convert attributes from Resource types into their ids.
         attrs = cls._convert_ids(attrs)
+        if attrs and cls.id_attribute in attrs:
+            del attrs[cls.id_attribute]
 
         if cls.resource_key:
             body = {cls.resource_key: attrs}
