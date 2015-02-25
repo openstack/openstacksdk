@@ -115,7 +115,7 @@ class Container(resource.Resource):
         :return: A ``dict`` representing the response headers.
         """
         url = utils.urljoin(cls.base_path, resource_id)
-        headers = attrs[resource.HEADERS]
+        headers = attrs.get(resource.HEADERS, dict())
         return session.post(url, service=cls.service, accept=None,
                             headers=headers).headers
 
@@ -133,7 +133,7 @@ class Container(resource.Resource):
         :return: A ``dict`` representing the response headers.
         """
         url = utils.urljoin(cls.base_path, resource_id)
-        headers = attrs[resource.HEADERS]
+        headers = attrs.get(resource.HEADERS, dict())
         return session.put(url, service=cls.service, accept=None,
                            headers=headers).headers
 

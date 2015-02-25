@@ -178,3 +178,18 @@ class TestContainer(testtools.TestCase):
     def test_update(self):
         sot = container.Container.new(name=CONTAINER_NAME)
         self._test_create_update(sot, sot.update, self.sess.post)
+
+    def _test_no_headers(self, sot, sot_call, sess_method):
+        sot = container.Container.new(name=CONTAINER_NAME)
+        sot.create(self.sess)
+        url = "/%s" % CONTAINER_NAME
+        self.sess.put.assert_called_with(url, service=sot.service,
+                                         accept=None, headers=dict())
+
+    def test_create_no_headers(self):
+        sot = container.Container.new(name=CONTAINER_NAME)
+        self._test_no_headers(sot, sot.create, self.sess.put)
+
+    def test_update_no_headers(self):
+        sot = container.Container.new(name=CONTAINER_NAME)
+        self._test_no_headers(sot, sot.update, self.sess.post)
