@@ -1001,7 +1001,9 @@ class OpenStackCloud(object):
 
                 if server.status == 'ERROR':
                     raise OpenStackCloudException(
-                        "Error in creating the server, please check logs")
+                        "Error in creating the server",
+                        extra_data=dict(
+                            server=meta.obj_to_dict(server)))
         return server
 
     def delete_server(self, name, wait=False, timeout=180):
