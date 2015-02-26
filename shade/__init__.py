@@ -1236,12 +1236,30 @@ class OpenStackCloud(object):
 class OperatorCloud(OpenStackCloud):
 
     @property
+    def auth_token(self):
+        if self.auth_plugin in (None, "None", ''):
+            return self._auth_token
+        if not self._auth_token:
+            self._auth_token = self.keystone_session.get_token()
+        return self._auth_token
+
+    @property
     def ironic_client(self):
         if self._ironic_client is None:
             ironic_logging = logging.getLogger('ironicclient')
             ironic_logging.addHandler(logging.NullHandler())
             token = self.auth_token
-            endpoint = self.get_endpoint(service_type='baremetal')
+            if self.auth_plugin in (None, "None", ''):
+                # TODO: This needs to be improved logic wise, perhaps a list,
+                # or enhancement of the data stuctures with-in the library
+                # to allow for things aside password authentication, or no
+                # authentication if so desired by the user.
+                #
+                # Attempt to utilize a pre-stored endpoint in the auth
+                # dict as the endpoint.
+                endpoint = self.auth['endpoint']
+            else:
+                endpoint = self.get_endpoint(service_type='baremetal')
             try:
                 self._ironic_client = ironic_client.Client(
                     '1', endpoint, token=token)
