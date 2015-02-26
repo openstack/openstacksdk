@@ -39,8 +39,6 @@ class Object(resource.Resource):
     bytes = resource.prop("bytes")
 
     # Headers for HEAD and GET requests
-    #: Authentication token.
-    auth_token = resource.header("x-auth-token")
     #: If set to True, Object Storage queries all replicas to return
     #: the most recent one. If you omit this header, Object Storage
     #: responds faster after it finds one valid replica. Because
