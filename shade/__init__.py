@@ -20,6 +20,7 @@ import time
 from cinderclient.v1 import client as cinder_client
 from dogpile import cache
 import glanceclient
+import glanceclient.exc
 from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
 from keystoneclient import auth as ksc_auth
@@ -40,8 +41,8 @@ from shade import meta
 __version__ = pbr.version.VersionInfo('shade').version_string()
 OBJECT_MD5_KEY = 'x-object-meta-x-shade-md5'
 OBJECT_SHA256_KEY = 'x-object-meta-x-shade-sha256'
-IMAGE_MD5_KEY = 'org.openstack.shade.md5'
-IMAGE_SHA256_KEY = 'org.openstack.shade.sha256'
+IMAGE_MD5_KEY = 'owner_specified.shade.md5'
+IMAGE_SHA256_KEY = 'owner_specified.shade.sha256'
 
 
 OBJECT_CONTAINER_ACLS = {
@@ -51,7 +52,9 @@ OBJECT_CONTAINER_ACLS = {
 
 
 class OpenStackCloudException(Exception):
-    pass
+    def __init__(self, message, extra_data=None):
+        self.message = message
+        self.extra_data = extra_data
 
 
 class OpenStackCloudTimeout(OpenStackCloudException):
@@ -468,6 +471,9 @@ class OpenStackCloud(object):
                 images[image.id] = image
         return images
 
+    def _reset_image_cache(self):
+        self._image_cache = None
+
     def list_images(self, filter_deleted=True):
         """Get available glance images.
 
@@ -506,7 +512,12 @@ class OpenStackCloud(object):
         image = self.get_image(name_or_id, exclude)
         if not image:
             return image
-        return meta.obj_to_dict(image)
+        if getattr(image, 'validate', None):
+            # glanceclient returns a "warlock" object if you use v2
+            return meta.warlock_to_dict(image)
+        else:
+            # glanceclient returns a normal object if you use v1
+            return meta.obj_to_dict(image)
 
     def create_image_snapshot(self, name, **metadata):
         image = self.nova_client.servers.create_image(
@@ -522,65 +533,115 @@ class OpenStackCloud(object):
             wait=False, timeout=3600, **kwargs):
         if not md5 or not sha256:
             (md5, sha256) = self._get_file_hashes(filename)
-        current_image = self.get_image(name)
+        current_image = self.get_image_dict(name)
         if (current_image and current_image.get(IMAGE_MD5_KEY, '') == md5
                 and current_image.get(IMAGE_SHA256_KEY, '') == sha256):
             self.log.debug(
                 "image {name} exists and is up to date".format(name=name))
-            return
+            return current_image
         kwargs[IMAGE_MD5_KEY] = md5
         kwargs[IMAGE_SHA256_KEY] = sha256
         # This makes me want to die inside
-        if self._get_glance_api_version() == '2':
+        glance_api_version = self._get_glance_api_version()
+        if glance_api_version == '2':
             return self._upload_image_v2(
                 name, filename, container,
                 current_image=current_image,
                 wait=wait, timeout=timeout, **kwargs)
-        else:
-            return self._upload_image_v1(name, filename, md5=md5)
+        elif glance_api_version == '1':
+            image_kwargs = dict(properties=kwargs)
+            if disk_format:
+                image_kwargs['disk_format'] = disk_format
+            if container_format:
+                image_kwargs['container_format'] = container_format
 
-    def _upload_image_v1(
-            self, name, filename,
-            disk_format=None, container_format=None,
-            **image_properties):
-        image = self.glance_client.images.create(
-            name=name, is_public=False, disk_format=disk_format,
-            container_format=container_format, **image_properties)
+            return self._upload_image_v1(name, filename, **image_kwargs)
+
+    def _upload_image_v1(self, name, filename, **image_kwargs):
+        image = self.glance_client.images.create(name=name, **image_kwargs)
         image.update(data=open(filename, 'rb'))
-        return image.id
+        return self.get_image_dict(image.id)
 
     def _upload_image_v2(
             self, name, filename, container, current_image=None,
             wait=True, timeout=None, **image_properties):
         self.create_object(
             container, name, filename,
-            md5=image_properties['md5'], sha256=image_properties['sha256'])
+            md5=image_properties.get('md5', None),
+            sha256=image_properties.get('sha256', None))
         if not current_image:
             current_image = self.get_image(name)
         # TODO(mordred): Can we do something similar to what nodepool does
         # using glance properties to not delete then upload but instead make a
         # new "good" image and then mark the old one as "bad"
         # self.glance_client.images.delete(current_image)
-        image_properties['name'] = name
         task = self.glance_client.tasks.create(
             type='import', input=dict(
                 import_from='{container}/{name}'.format(
                     container=container, name=name),
-                image_properties=image_properties))
+                image_properties=dict(name=name)))
         if wait:
             for count in _iterate_timeout(
                     timeout,
                     "Timeout waiting for the image to import."):
-                status = self.glance_client.tasks.get(task.id)
+                try:
+                    status = self.glance_client.tasks.get(task.id)
+                except glanceclient.exc.HTTPServiceUnavailable:
+                    # Intermittent failure - catch and try again
+                    continue
 
                 if status.status == 'success':
-                    return status.result['image_id']
+                    self._reset_image_cache()
+                    image = self.get_image(status.result['image_id'])
+                    self.update_image_properties(
+                        image=image,
+                        **image_properties)
+                    return self.get_image_dict(status.result['image_id'])
                 if status.status == 'failure':
                     raise OpenStackCloudException(
                         "Image creation failed: {message}".format(
-                            message=status.message))
+                            message=status.message),
+                        extra_data=status)
         else:
-            return None
+            return meta.warlock_to_dict(task)
+
+    def update_image_properties(
+            self, image=None, name_or_id=None, **properties):
+        if not image:
+            image = self.get_image(name_or_id)
+
+        img_props = {}
+        for k, v in properties.iteritems():
+            if v and k in ['ramdisk', 'kernel']:
+                v = self.get_image_id(v)
+                k = '{0}_id'.format(k)
+            img_props[k] = v
+
+        # This makes me want to die inside
+        if self._get_glance_api_version() == '2':
+            return self._update_image_properties_v2(image, img_props)
+        else:
+            return self._update_image_properties_v1(image, img_props)
+
+    def _update_image_properties_v2(self, image, properties):
+        img_props = {}
+        for k, v in properties.iteritems():
+            if image.get(k, None) != v:
+                img_props[k] = str(v)
+        if not img_props:
+            return False
+        self.glance_client.images.update(image.id, **img_props)
+        return True
+
+    def _update_image_properties_v1(self, image, properties):
+        img_props = {}
+        for k, v in properties.iteritems():
+            if image.properties.get(k, None) != v:
+                img_props[k] = v
+        if not img_props:
+            return False
+        image.update(properties=img_props)
+        return True
 
     def create_volume(self, wait=True, timeout=None, **volkwargs):
         """Create a volume.
