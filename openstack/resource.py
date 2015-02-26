@@ -122,10 +122,8 @@ class prop(object):
         return value
 
     def __set__(self, instance, value):
-        if value == self.default:
-            return
-
-        if self.type and not isinstance(value, self.type):
+        if (self.type and not isinstance(value, self.type) and
+                value != self.default):
             if issubclass(self.type, Resource):
                 if isinstance(value, six.string_types):
                     value = self.type({"id": value})

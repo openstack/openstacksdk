@@ -96,6 +96,15 @@ class PropTests(base.TestCase):
         t.attr2 = new_default
         self.assertIs(t.attr2, new_default)
 
+        not_default = 'not default'
+        t2 = Test({'attr2': not_default})
+        self.assertEqual(t2.attr2, not_default)
+
+        # Assert that if the default is passed in, it overrides the previously
+        # set value (bug #1425996)
+        t2.attr2 = new_default
+        self.assertEqual(t2.attr2, new_default)
+
     def test_get_without_instance(self):
         self.assertIsNone(FakeResource.name)
 
