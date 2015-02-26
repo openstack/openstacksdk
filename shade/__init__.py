@@ -18,6 +18,7 @@ import operator
 import time
 
 from cinderclient.v1 import client as cinder_client
+from dogpile import cache
 import glanceclient
 from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
@@ -106,7 +107,7 @@ class OpenStackCloud(object):
     def __init__(self, cloud, region='',
                  auth_plugin='password',
                  insecure=False, verify=None, cacert=None, cert=None, key=None,
-                 debug=False, **kwargs):
+                 debug=False, cache_interval=None, **kwargs):
 
         self.name = cloud
         self.region = region
@@ -136,10 +137,8 @@ class OpenStackCloud(object):
             cert = (cert, key)
         self.cert = cert
 
-        self._extension_cache = None
-        self._flavor_cache = None
-        self._image_cache = None
-        self._volume_cache = None
+        self._cache = cache.make_region().configure(
+            'dogpile.cache.memory', expiration_time=cache_interval)
         self._container_cache = dict()
         self._file_hash_cache = dict()
 
@@ -359,11 +358,11 @@ class OpenStackCloud(object):
 
     @property
     def flavor_cache(self):
-        if not self._flavor_cache:
-            self._flavor_cache = {
-                flavor.id: flavor
-                for flavor in self.nova_client.flavors.list()}
-        return self._flavor_cache
+        @self._cache.cache_on_arguments()
+        def _flavor_cache():
+            return {flavor.id: flavor for flavor in
+                    self.nova_client.flavors.list()}
+        return _flavor_cache()
 
     def get_flavor_name(self, flavor_id):
         flavor = self.flavor_cache.get(flavor_id, None)
@@ -475,9 +474,10 @@ class OpenStackCloud(object):
         :param filter_deleted: Control whether deleted images are returned.
         :returns: A dictionary of glance images indexed by image UUID.
         """
-        if self._image_cache is None:
-            self._image_cache = self._get_images_from_cloud(filter_deleted)
-        return self._image_cache
+        @self._cache.cache_on_arguments()
+        def _list_images():
+            return self._get_images_from_cloud(filter_deleted)
+        return _list_images()
 
     def get_image_name(self, image_id, exclude=None):
         image = self.get_image(image_id, exclude)
@@ -659,9 +659,10 @@ class OpenStackCloud(object):
             return []
 
     def list_volumes(self, cache=True):
-        if self._volume_cache is None or not cache:
-            self._volume_cache = self._get_volumes_from_cloud()
-        return self._volume_cache
+        @self._cache.cache_on_arguments()
+        def _list_volumes():
+            return self._get_volumes_from_cloud()
+        return _list_volumes()
 
     def get_volumes(self, server, cache=True):
         volumes = []
