@@ -3,7 +3,7 @@ pbr>=0.5.21,<1.0
 os-client-config>=0.4.0
 six
 
-python-novaclient
+python-novaclient>=2.21.0
 python-keystoneclient>=0.11.0
 python-glanceclient
 python-cinderclient
