@@ -22,44 +22,76 @@ import yaml
 from os_client_config import cloud_config
 from os_client_config import config
 
+VENDOR_CONF = {
+    'public-clouds': {
+        '_test_cloud_in_our_cloud': {
+            'auth': {
+                'username': 'testotheruser',
+                'project_name': 'testproject',
+            },
+        },
+    }
+}
+USER_CONF = {
+    'clouds': {
+        '_test_cloud_': {
+            'cloud': '_test_cloud_in_our_cloud',
+            'auth': {
+                'username': 'testuser',
+                'password': 'testpass',
+            },
+            'region_name': 'test-region',
+        },
+        '_test_cloud_no_vendor': {
+            'cloud': '_test_non_existant_cloud',
+            'auth': {
+                'username': 'testuser',
+                'password': 'testpass',
+                'project_name': 'testproject',
+            },
+            'region_name': 'test-region',
+        },
+    },
+    'cache': {'max_age': 1},
+}
+
+
+def _write_yaml(obj):
+    # Assume NestedTempfile so we don't have to cleanup
+    with tempfile.NamedTemporaryFile(delete=False) as obj_yaml:
+        obj_yaml.write(yaml.safe_dump(obj).encode('utf-8'))
+        return obj_yaml.name
+
 
 class TestConfig(testtools.TestCase):
-    def get_config(self):
-        config = {
-            'clouds': {
-                '_test_cloud_': {
-                    'auth': {
-                        'username': 'testuser',
-                        'password': 'testpass',
-                        'project_name': 'testproject',
-                    },
-                    'region_name': 'test-region',
-                },
-            },
-            'cache': {'max_age': 1},
-        }
-        tdir = self.useFixture(fixtures.TempDir())
-        config['cache']['path'] = tdir.path
-        return config
-
     def test_get_one_cloud(self):
         c = config.OpenStackConfig()
         self.assertIsInstance(c.get_one_cloud(), cloud_config.CloudConfig)
 
     def test_get_one_cloud_with_config_files(self):
         self.useFixture(fixtures.NestedTempfile())
-        with tempfile.NamedTemporaryFile() as cloud_yaml:
-            cloud_yaml.write(yaml.safe_dump(self.get_config()).encode('utf-8'))
-            cloud_yaml.flush()
-            c = config.OpenStackConfig(config_files=[cloud_yaml.name])
+        conf = dict(USER_CONF)
+        tdir = self.useFixture(fixtures.TempDir())
+        conf['cache']['path'] = tdir.path
+        cloud_yaml = _write_yaml(conf)
+        vendor_yaml = _write_yaml(VENDOR_CONF)
+        c = config.OpenStackConfig(config_files=[cloud_yaml],
+                                   vendor_files=[vendor_yaml])
         self.assertIsInstance(c.cloud_config, dict)
         self.assertIn('cache', c.cloud_config)
         self.assertIsInstance(c.cloud_config['cache'], dict)
         self.assertIn('max_age', c.cloud_config['cache'])
         self.assertIn('path', c.cloud_config['cache'])
         cc = c.get_one_cloud('_test_cloud_')
+        self._assert_cloud_details(cc)
+        cc = c.get_one_cloud('_test_cloud_no_vendor')
+        self._assert_cloud_details(cc)
+
+    def _assert_cloud_details(self, cc):
         self.assertIsInstance(cc, cloud_config.CloudConfig)
         self.assertTrue(extras.safe_hasattr(cc, 'auth'))
         self.assertIsInstance(cc.auth, dict)
+        self.assertIsNone(cc.cloud)
         self.assertIn('username', cc.auth)
         self.assertEqual('testuser', cc.auth['username'])
+        self.assertEqual('testproject', cc.auth['project_name'])
