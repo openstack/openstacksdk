@@ -26,6 +26,7 @@ from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
 from keystoneclient import auth as ksc_auth
 from keystoneclient import session as ksc_session
+from keystoneclient import client as keystone_client
 from novaclient import client as nova_client
 from novaclient import exceptions as nova_exceptions
 from novaclient.v2 import floating_ips
@@ -188,6 +189,8 @@ class OpenStackCloud(object):
 
         (self.verify, self.cert) = _ssl_args(verify, cacert, cert, key)
 
+        # dogpile.cache.memory does not clear things out of the memory dict,
+        # so there is a possibility of memory bloat over time.
         self._cache = cache.make_region().configure(
             'dogpile.cache.memory', expiration_time=cache_interval)
         self._container_cache = dict()
@@ -199,6 +202,7 @@ class OpenStackCloud(object):
         self._glance_client = None
         self._glance_endpoint = None
         self._ironic_client = None
+        self._keystone_client = None
         self._neutron_client = None
         self._nova_client = None
         self._swift_client = None
@@ -278,6 +282,21 @@ class OpenStackCloud(object):
         return self._keystone_session
 
     @property
+    def keystone_client(self):
+        if self._keystone_client is None:
+            try:
+                self._keystone_client = keystone_client.Client(
+                    session=self.keystone_session,
+                    auth_url=self.keystone_session.get_endpoint(
+                        interface=ksc_auth.AUTH_INTERFACE))
+            except Exception as e:
+                self.log.debug(
+                    "Couldn't construct keystone object", exc_info=True)
+                raise OpenStackCloudException(
+                    "Error constructing keystone client: %s" % e.message)
+        return self._keystone_client
+
+    @property
     def service_catalog(self):
         return self.keystone_session.auth.get_access(
             self.keystone_session).service_catalog.get_data()
@@ -287,6 +306,136 @@ class OpenStackCloud(object):
         if not self._auth_token:
             self._auth_token = self.keystone_session.get_token()
         return self._auth_token
+
+    @property
+    def project_cache(self):
+        @self._cache.cache_on_arguments()
+        def _project_cache():
+            return {project.id: project for project in
+                    self._project_manager.list()}
+        return _project_cache()
+
+    @property
+    def _project_manager(self):
+        # Keystone v2 calls this attribute tenants
+        # Keystone v3 calls it projects
+        # Yay for usable APIs!
+        return getattr(
+            self.keystone_client, 'projects', self.keystone_client.tenants)
+
+    def _get_project(self, name_or_id):
+        """Retrieve a project by name or id."""
+
+        # TODO(mordred): This, and other keystone operations, need to have
+        #                domain information passed in. When there is no
+        #                available domain information, we should default to
+        #                the currently scoped domain which we can requset from
+        #                the session.
+        for id, project in self.project_cache.items():
+            if name_or_id in (id, project.name):
+                return project
+        return None
+
+    def get_project(self, name_or_id):
+        """Retrieve a project by name or id."""
+        project = self._get_project(name_or_id)
+        if project:
+            return meta.obj_to_dict(project)
+        return None
+
+    def update_project(self, name_or_id, description=None, enabled=True):
+        try:
+            project = self._get_project(name_or_id)
+            return meta.obj_to_dict(
+                project.update(description=description, enabled=enabled))
+        except Exception as e:
+            self.log.debug("keystone update project issue", exc_info=True)
+            raise OpenStackCloudException(
+                "Error in updating project {project}: {message}".format(
+                    project=name_or_id, message=e.message))
+
+    def create_project(self, name, description=None, enabled=True):
+        """Create a project."""
+        try:
+            self._project_manager.create(
+                project_name=name, description=description, enabled=enabled)
+        except Exception as e:
+            self.log.debug("keystone create project issue", exc_info=True)
+            raise OpenStackCloudException(
+                "Error in creating project {project}: {message}".format(
+                    project=name, message=e.message))
+
+    def delete_project(self, name_or_id):
+        try:
+            project = self._get_project(name_or_id)
+            self._project_manager.delete(project.id)
+        except Exception as e:
+            self.log.debug("keystone delete project issue", exc_info=True)
+            raise OpenStackCloudException(
+                "Error in deleting project {project}: {message}".format(
+                    project=name_or_id, message=e.message))
+
+    @property
+    def user_cache(self):
+        @self._cache.cache_on_arguments()
+        def _user_cache():
+            return {user.id: user for user in
+                    self.keystone_client.users.list()}
+        return _user_cache()
+
+    def _get_user(self, name_or_id):
+        """Retrieve a user by name or id."""
+
+        for id, user in self.user_cache.items():
+            if name_or_id in (id, user.name):
+                return user
+        return None
+
+    def get_user(self, name_or_id):
+        """Retrieve a user by name or id."""
+        user = self._get_user(name_or_id)
+        if user:
+            return meta.obj_to_dict(user)
+        return None
+
+    def update_user(self, name_or_id, email=None, enabled=True):
+        try:
+            user = self._get_user(name_or_id)
+            return meta.obj_to_dict(
+                user.update(email=email, enabled=enabled))
+        except Exception as e:
+            self.log.debug("keystone update user issue", exc_info=True)
+            raise OpenStackCloudException(
+                "Error in updating user {user}: {message}".format(
+                    user=name_or_id, message=e.message))
+
+    def create_user(
+            self, name, password=None, email=None, project=None,
+            enabled=True):
+        """Create a user."""
+        try:
+            if project:
+                project_id = self._get_project(project).id
+            else:
+                project_id = None
+            self.keystone_client.users.create(
+                user_name=name, password=password, email=email,
+                project=project_id, enabled=enabled)
+        except Exception as e:
+            self.log.debug("keystone create user issue", exc_info=True)
+            raise OpenStackCloudException(
+                "Error in creating user {user}: {message}".format(
+                    user=name, message=e.message))
+
+    def delete_user(self, name_or_id):
+        try:
+            user = self._get_user(name_or_id)
+            self._user_manager.delete(user.id)
+        except Exception as e:
+            self.log.debug("keystone delete user issue", exc_info=True)
+            raise OpenStackCloudException(
+                "Error in deleting user {user}: {message}".format(
+                    user=name_or_id, message=e.message))
 
     def _get_glance_api_version(self):
         if 'image' in self.api_versions:
