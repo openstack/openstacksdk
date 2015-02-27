@@ -197,7 +197,7 @@ class OpenStackConfig(object):
 
         os_args = dict()
         new_args = dict()
-        for (key, val) in args.iteritems():
+        for (key, val) in iter(args.items()):
             key = key.replace('-', '_')
             if key.startswith('os'):
                 os_args[key[3:]] = val
@@ -285,7 +285,7 @@ class OpenStackConfig(object):
             config['auth'] = dict()
 
         # Can't just do update, because None values take over
-        for (key, val) in args.iteritems():
+        for (key, val) in iter(args.items()):
             if val is not None:
                 config[key] = val
 
