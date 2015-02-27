@@ -26,7 +26,8 @@ class TestProxyBase(base.TestCase):
                 expected_result=None):
         with mock.patch(mock_method) as mocked:
             mocked.return_value = expected_result
-            if any([method_args, method_kwargs]):
+            if any([method_args, method_kwargs,
+                    expected_args, expected_kwargs]):
                 method_args = method_args or ()
                 method_kwargs = method_kwargs or {}
                 expected_args = expected_args or ()

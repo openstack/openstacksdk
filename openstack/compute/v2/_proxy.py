@@ -54,7 +54,7 @@ class Proxy(object):
         :returns: A generator of flavor objects
         """
         flv = flavor.FlavorDetail if details else flavor.Flavor
-        return flv.list(self.session, paginate=False, **params)
+        return flv.list(self.session, **params)
 
     def update_flavor(self, **data):
         return flavor.Flavor(data).update(self.session)
@@ -79,7 +79,7 @@ class Proxy(object):
         :returns: A generator of image objects
         """
         img = image.ImageDetail if details else image.Image
-        return img.list(self.session, paginate=False)
+        return img.list(self.session, paginated=True)
 
     def create_keypair(self, **data):
         return keypair.Keypair(data).create(self.session)
@@ -122,7 +122,7 @@ class Proxy(object):
         return server.Server(data).get(self.session)
 
     def list_servers(self):
-        return server.Server.list(self.session)
+        return server.Server.list(self.session, paginated=True)
 
     def update_server(self, **data):
         return server.Server(data).update(self.session)

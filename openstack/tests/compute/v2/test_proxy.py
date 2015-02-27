@@ -46,14 +46,12 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
     def test_flavor_list_basic(self):
         self.verify_list('openstack.compute.v2.flavor.Flavor.list',
                          self.proxy.list_flavors,
-                         method_kwargs={"details": False},
-                         expected_kwargs={"paginate": False})
+                         method_kwargs={"details": False})
 
     def test_flavor_list_detail(self):
         self.verify_list('openstack.compute.v2.flavor.FlavorDetail.list',
                          self.proxy.list_flavors,
-                         method_kwargs={"details": True},
-                         expected_kwargs={"paginate": False})
+                         method_kwargs={"details": True})
 
     def test_flavor_update(self):
         self.verify_update('openstack.compute.v2.flavor.Flavor.update',
@@ -75,13 +73,13 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_list('openstack.compute.v2.image.Image.list',
                          self.proxy.list_images,
                          method_kwargs={"details": False},
-                         expected_kwargs={"paginate": False})
+                         expected_kwargs={"paginated": True})
 
     def test_image_list_detail(self):
         self.verify_list('openstack.compute.v2.image.ImageDetail.list',
                          self.proxy.list_images,
                          method_kwargs={"details": True},
-                         expected_kwargs={"paginate": False})
+                         expected_kwargs={"paginated": True})
 
     def test_keypair_create(self):
         self.verify_create('openstack.compute.v2.keypair.Keypair.create',
@@ -168,7 +166,8 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
 
     def test_server_list(self):
         self.verify_list('openstack.compute.v2.server.Server.list',
-                         self.proxy.list_servers)
+                         self.proxy.list_servers,
+                         expected_kwargs={"paginated": True})
 
     def test_server_update(self):
         self.verify_update('openstack.compute.v2.server.Server.update',
