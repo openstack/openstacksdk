@@ -62,10 +62,10 @@ class OpenStackCloudTimeout(OpenStackCloudException):
     pass
 
 
-def openstack_clouds(config=None):
+def openstack_clouds(config=None, debug=False, **kwargs):
     if not config:
         config = os_client_config.OpenStackConfig()
-    return [OpenStackCloud(f.name, f.region, **f.config)
+    return [OpenStackCloud(name=f.name, debug=debug, **f.config)
             for f in config.get_all_clouds()]
 
 
@@ -73,14 +73,33 @@ def openstack_cloud(debug=False, **kwargs):
     cloud_config = os_client_config.OpenStackConfig().get_one_cloud(
         **kwargs)
     return OpenStackCloud(
-        cloud_config.name, cloud_config.region,
+        name=cloud_config.name,
         debug=debug, **cloud_config.config)
 
 
-def operator_cloud(**kwargs):
+def operator_cloud(debug=False, **kwargs):
     cloud_config = os_client_config.OpenStackConfig().get_one_cloud(**kwargs)
     return OperatorCloud(
-        cloud_config.name, cloud_config.region, **cloud_config.config)
+        cloud_config.name, debug=debug, **cloud_config.config)
+
+
+def _ssl_args(verify, cacert, cert, key):
+    if cacert:
+        if not os.path.exists(cacert):
+            raise OpenStackCloudException(
+                "CA Cert {0} does not exist".format(cacert))
+        verify = cacert
+
+    if cert:
+        if not os.path.exists(cert):
+            raise OpenStackCloudException(
+                "Client Cert {0} does not exist".format(cert))
+        if key:
+            if not os.path.exists(key):
+                raise OpenStackCloudException(
+                    "Client key {0} does not exist".format(key))
+            cert = (cert, key)
+    return (verify, cert)
 
 
 def _get_service_values(kwargs, service_key):
@@ -116,11 +135,20 @@ class OpenStackCloud(object):
     and that Floating IP will be actualized either via neutron or via nova
     depending on how this particular cloud has decided to arrange itself.
 
-    :param cloud: A Cloud Configuration object, obtained from os-client-config
-    :type cloud: :py:class:`os_client_config.config.OpenStackConfig`
-    :param string region: The region of the cloud that all operations should
-                          be performed against.
+    :param string name: The name of the cloud
+    :param dict auth: Dictionary containing authentication information.
+                      Depending on the value of auth_plugin, the contents
+                      of this dict can vary wildly.
+    :param string region_name: The region of the cloud that all operations
+                               should be performed against.
+                               (optional, default '')
     :param string auth_plugin: The name of the keystone auth_plugin to be used
+    :param string endpoint_type: The type of endpoint to get for services
+                                 from the service catalog. Valid types are
+                                 `public` ,`internal` or `admin`. (optional,
+                                 defaults to `public`)
+    :param bool private: Whether to return or use private IPs by default for
+                         servers. (optional, defaults to False)
     :param bool verify: The verification arguments to pass to requests. True
                         tells requests to verify SSL requests, False to not
                         verify. (optional, defaults to True)
@@ -138,52 +166,32 @@ class OpenStackCloud(object):
                                (optional, defaults to None)
     """
 
-    def __init__(self, cloud, region='',
+    def __init__(self, name, auth,
+                 region_name='',
                  auth_plugin='password',
+                 endpoint_type='public',
+                 private=False,
                  verify=True, cacert=None, cert=None, key=None,
                  debug=False, cache_interval=None, **kwargs):
 
-        self.name = cloud
-        self.region = region
-
+        self.name = name
+        self.auth = auth
+        self.region_name = region_name
         self.auth_plugin = auth_plugin
-        self.auth = kwargs.get('auth')
-
-        self.region_name = kwargs.get('region_name', region)
-        self._auth_token = kwargs.get('auth_token', None)
+        self.endpoint_type = endpoint_type
+        self.private = private
 
         self.service_types = _get_service_values(kwargs, 'service_type')
         self.service_names = _get_service_values(kwargs, 'service_name')
         self.endpoints = _get_service_values(kwargs, 'endpoint')
         self.api_versions = _get_service_values(kwargs, 'api_version')
 
-        self.endpoint_type = kwargs.get('endpoint_type', 'publicURL')
-        self.private = kwargs.get('private', False)
-
-        if cacert:
-            if not os.path.exists(cacert):
-                raise OpenStackCloudException(
-                    "CA Cert {0} does not exist".format(cacert))
-            verify = cacert
-        self.verify = verify
-
-        if cert:
-            if not os.path.exists(cert):
-                raise OpenStackCloudException(
-                    "Client Cert {0} does not exist".format(cert))
-            if key:
-                if not os.path.exists(key):
-                    raise OpenStackCloudException(
-                        "Client key {0} does not exist".format(key))
-                cert = (cert, key)
-        self.cert = cert
+        (self.verify, self.cert) = _ssl_args(verify, cacert, cert, key)
 
         self._cache = cache.make_region().configure(
             'dogpile.cache.memory', expiration_time=cache_interval)
         self._container_cache = dict()
         self._file_hash_cache = dict()
-
-        self.debug = debug
 
         self._keystone_session = None
 
@@ -198,7 +206,7 @@ class OpenStackCloud(object):
 
         self.log = logging.getLogger('shade')
         log_level = logging.INFO
-        if self.debug:
+        if debug:
             log_level = logging.DEBUG
         self.log.setLevel(log_level)
         self.log.addHandler(logging.StreamHandler())
