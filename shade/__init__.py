@@ -15,6 +15,7 @@
 import hashlib
 import logging
 import operator
+import os
 import time
 
 from cinderclient.v1 import client as cinder_client
@@ -106,10 +107,40 @@ def _iterate_timeout(timeout, message):
 
 
 class OpenStackCloud(object):
+    """Represent a connection to an OpenStack Cloud.
+
+    OpenStackCloud is the entry point for all cloud operations, regardless
+    of which OpenStack service those operations may ultimately come from.
+    The operations on an OpenStackCloud are resource oriented rather than
+    REST API operation oriented. For instance, one will request a Floating IP
+    and that Floating IP will be actualized either via neutron or via nova
+    depending on how this particular cloud has decided to arrange itself.
+
+    :param cloud: A Cloud Configuration object, obtained from os-client-config
+    :type cloud: :py:class:`os_client_config.config.OpenStackConfig`
+    :param string region: The region of the cloud that all operations should
+                          be performed against.
+    :param string auth_plugin: The name of the keystone auth_plugin to be used
+    :param bool verify: The verification arguments to pass to requests. True
+                        tells requests to verify SSL requests, False to not
+                        verify. (optional, defaults to True)
+    :param string cacert: A path to a CA Cert bundle that can be used as part
+                          of verifying SSL requests. If this is set, verify
+                          is set to True. (optional)
+    :param string cert: A path to a client certificate to pass to requests.
+                        (optional)
+    :param string key: A path to a client key to pass to requests. (optional)
+    :param bool debug: Enable or disable debug logging (optional, defaults to
+                       False)
+    :param int cache_interval: How long to cache items fetched from the cloud.
+                               Value will be passed to dogpile.cache. None
+                               means to just use the default in dogpile.cache.
+                               (optional, defaults to None)
+    """
 
     def __init__(self, cloud, region='',
                  auth_plugin='password',
-                 insecure=False, verify=None, cacert=None, cert=None, key=None,
+                 verify=True, cacert=None, cert=None, key=None,
                  debug=False, cache_interval=None, **kwargs):
 
         self.name = cloud
@@ -129,15 +160,22 @@ class OpenStackCloud(object):
         self.endpoint_type = kwargs.get('endpoint_type', 'publicURL')
         self.private = kwargs.get('private', False)
 
-        if verify is None:
-            if insecure:
-                verify = False
-            else:
-                verify = cacert or True
+        if cacert:
+            if not os.path.exists(cacert):
+                raise OpenStackCloudException(
+                    "CA Cert {0} does not exist".format(cacert))
+            verify = cacert
         self.verify = verify
 
-        if cert and key:
-            cert = (cert, key)
+        if cert:
+            if not os.path.exists(cert):
+                raise OpenStackCloudException(
+                    "Client Cert {0} does not exist".format(cert))
+            if key:
+                if not os.path.exists(key):
+                    raise OpenStackCloudException(
+                        "Client key {0} does not exist".format(key))
+                cert = (cert, key)
         self.cert = cert
 
         self._cache = cache.make_region().configure(
