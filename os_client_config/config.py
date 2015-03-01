@@ -294,6 +294,10 @@ class OpenStackConfig(object):
                 if type(config[key]) is not bool:
                     config[key] = get_boolean(config[key])
 
+        if 'auth_plugin' in config:
+            if config['auth_plugin'] in ('', 'None', None):
+                validate = False
+
         if validate and ksc_auth:
             config = self._validate_auth(config)
 
