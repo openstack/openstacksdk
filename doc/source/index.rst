@@ -21,3 +21,6 @@ For Contributors
    :maxdepth: 2
 
    contributors/index
+
+For a listing of terms used throughout the SDK, including the names of
+projects and services supported by it, see the `Glossary <glossary.html>`_.

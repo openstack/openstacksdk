@@ -2,7 +2,7 @@ Getting started with the OpenStack SDK
 ======================================
 
 For a listing of terms used throughout the SDK, including the names of
-projects and services supported by it, see the `Glossary <glossary>`_.
+projects and services supported by it, see the `Glossary <../glossary.html>`_.
 
 Installation
 ------------

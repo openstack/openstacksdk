@@ -339,8 +339,8 @@ class Resource(collections.MutableMapping):
 
         :rtype: :class:`~openstack.resource.Resource` or the
                 appropriate subclass.
-         :raises: :exc:`ValueError` if ``value`` is not an instance of
-                  this Resource type or a valid ``name``.
+        :raises: :exc:`ValueError` if ``value`` is not an instance of
+                this Resource type or a valid ``name``.
         """
         return cls._from_attr(cls.name_attribute, value)
 
