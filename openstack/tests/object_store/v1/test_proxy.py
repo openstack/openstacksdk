@@ -50,7 +50,7 @@ class Test_account_metadata(TestObjectStoreProxy):
 
         result = self.proxy.set_account_metadata(container)
 
-        self.assertIs(result, None)
+        self.assertIsNone(result)
 
         container.update.assert_called_once_with(self.session)
 
@@ -95,9 +95,9 @@ class Test_containers(TestObjectStoreProxy, base.TestTransportBase):
         count = 0
         for actual, expected in zip(self.proxy.containers(),
                                     self.containers_body):
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
             count += 1
-        self.assertEqual(count, len(self.containers_body))
+        self.assertEqual(len(self.containers_body), count)
 
     @httpretty.activate
     def test_containers_limited(self):
@@ -114,7 +114,7 @@ class Test_containers(TestObjectStoreProxy, base.TestTransportBase):
             self.assertEqual(actual, expected)
             count += 1
 
-        self.assertEqual(count, len(self.containers_body))
+        self.assertEqual(len(self.containers_body), count)
         # Since we've chosen a limit larger than the body, only one request
         # should be made, so it should be the last one.
         self.assertIn(limit_param, httpretty.last_request().path)
@@ -133,10 +133,10 @@ class Test_containers(TestObjectStoreProxy, base.TestTransportBase):
                                     self.containers_body):
             # Make sure the marker made it into the actual request.
             self.assertIn(marker_param, httpretty.last_request().path)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
             count += 1
 
-        self.assertEqual(count, len(self.containers_body))
+        self.assertEqual(len(self.containers_body), count)
 
         # Since we have to make one request beyond the end, because no
         # limit was provided, make sure the last container appears as
@@ -169,7 +169,7 @@ class Test_container_metadata(TestObjectStoreProxy):
 
         result = self.proxy.get_container_metadata(name)
 
-        self.assertEqual(result.name, name)
+        self.assertEqual(name, result.name)
         created_container.head.assert_called_once_with(self.session)
 
     def test_set_container_metadata_object(self):
@@ -191,7 +191,7 @@ class Test_create_container(TestObjectStoreProxy):
 
         result = self.proxy.create_container(container)
 
-        self.assertIs(result, container)
+        self.assertIs(container, result)
         container.create.assert_called_once_with(self.session)
 
     @mock.patch("openstack.resource.Resource.from_id")
@@ -204,7 +204,7 @@ class Test_create_container(TestObjectStoreProxy):
 
         result = self.proxy.create_container(name)
 
-        self.assertEqual(result.name, name)
+        self.assertEqual(name, result.name)
         created_container.create.assert_called_once_with(self.session)
 
 
@@ -273,9 +273,9 @@ class Test_objects(TestObjectStoreProxy, base.TestTransportBase):
         count = 0
         for actual, expected in zip(self.proxy.objects(self.container_name),
                                     self.returned_objects):
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
             count += 1
-        self.assertEqual(count, len(self.returned_objects))
+        self.assertEqual(len(self.returned_objects), count)
 
     @httpretty.activate
     def test_objects_limited(self):
@@ -291,10 +291,10 @@ class Test_objects(TestObjectStoreProxy, base.TestTransportBase):
         for actual, expected in zip(self.proxy.objects(self.container_name,
                                                        limit=limit),
                                     self.returned_objects):
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
             count += 1
 
-        self.assertEqual(count, len(self.returned_objects))
+        self.assertEqual(len(self.returned_objects), count)
         # Since we've chosen a limit larger than the body, only one request
         # should be made, so it should be the last one.
         self.assertIn(limit_param, httpretty.last_request().path)
@@ -315,10 +315,10 @@ class Test_objects(TestObjectStoreProxy, base.TestTransportBase):
                                     self.returned_objects):
             # Make sure the marker made it into the actual request.
             self.assertIn(marker_param, httpretty.last_request().path)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)
             count += 1
 
-        self.assertEqual(count, len(self.returned_objects))
+        self.assertEqual(len(self.returned_objects), count)
 
         # Since we have to make one request beyond the end, because no
         # limit was provided, make sure the last container appears as
@@ -336,7 +336,7 @@ class Test_get_object_data(TestObjectStoreProxy):
 
         result = self.proxy.get_object_data(ob)
 
-        self.assertEqual(result, the_data)
+        self.assertEqual(the_data, result)
         ob.get.assert_called_once_with(self.session)
 
 
@@ -383,9 +383,9 @@ class Test_create_object(TestObjectStoreProxy):
         result = self.proxy.create_object(self.the_data, self.object_name,
                                           cont)
 
-        self.assertIs(result, created_object)
-        self.assertEqual(result.name, self.object_name)
-        self.assertEqual(result.container, self.container_name)
+        self.assertIs(created_object, result)
+        self.assertEqual(self.object_name, result.name)
+        self.assertEqual(self.container_name, result.container)
         created_object.create.assert_called_once_with(self.session,
                                                       self.the_data)
 
@@ -397,9 +397,9 @@ class Test_create_object(TestObjectStoreProxy):
 
         result = self.proxy.create_object(self.the_data, ob, cont)
 
-        self.assertIs(result, ob)
-        self.assertEqual(result.name, self.object_name)
-        self.assertEqual(result.container, self.container_name)
+        self.assertIs(ob, result)
+        self.assertEqual(self.object_name, result.name)
+        self.assertEqual(self.container_name, result.container)
         ob.create.assert_called_once_with(self.session, self.the_data)
 
     def test_create_with_full_obj_no_container_arg(self):
@@ -410,9 +410,9 @@ class Test_create_object(TestObjectStoreProxy):
 
         result = self.proxy.create_object(self.the_data, ob)
 
-        self.assertIs(result, ob)
-        self.assertEqual(result.name, self.object_name)
-        self.assertEqual(result.container, self.container_name)
+        self.assertIs(ob, result)
+        self.assertEqual(self.object_name, result.name)
+        self.assertEqual(self.container_name, result.container)
         ob.create.assert_called_once_with(self.session, self.the_data)
 
 
@@ -426,7 +426,7 @@ class Test_object_metadata(TestObjectStoreProxy):
 
         result = self.proxy.get_object_metadata(ob)
 
-        self.assertIs(result, ob)
+        self.assertIs(ob, result)
         ob.head.assert_called_once_with(self.session)
 
     def test_set_object_metadata(self):

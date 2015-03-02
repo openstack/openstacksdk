@@ -146,12 +146,12 @@ class TestContainer(testtools.TestCase):
         # Since the list method is mocked out, just pass None for the session.
         response = container.Container.list(None)
 
-        self.assertTrue(len(response), len(LIST_EXAMPLE))
+        self.assertEqual(len(LIST_EXAMPLE), len(response))
         for item in range(len(response)):
-            self.assertEqual(type(response[item]), container.Container)
-            self.assertEqual(response[item].name, LIST_EXAMPLE[item]["name"])
-            self.assertEqual(response[item].count, LIST_EXAMPLE[item]["count"])
-            self.assertEqual(response[item].bytes, LIST_EXAMPLE[item]["bytes"])
+            self.assertEqual(container.Container, type(response[item]))
+            self.assertEqual(LIST_EXAMPLE[item]["name"], response[item].name)
+            self.assertEqual(LIST_EXAMPLE[item]["count"], response[item].count)
+            self.assertEqual(LIST_EXAMPLE[item]["bytes"], response[item].bytes)
 
     def _test_create_update(self, sot, sot_call, sess_method):
         sot.read_ACL = "some ACL"

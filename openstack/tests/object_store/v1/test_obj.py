@@ -111,4 +111,4 @@ class TestObject(testtools.TestCase):
         url = "/%s/%s" % (CONTAINER_NAME, OBJECT_NAME)
         self.sess.get.assert_called_with(url, service=sot.service,
                                          accept="bytes", headers=headers)
-        self.assertEqual(rv, self.resp.content)
+        self.assertEqual(self.resp.content, rv)
