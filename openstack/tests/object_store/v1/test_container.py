@@ -21,7 +21,6 @@ CONTAINER_NAME = "mycontainer"
 ACCOUNT_EXAMPLE = {
     'content-length': '0',
     'accept-ranges': 'bytes',
-    'x-timestamp': '1403312946.78273',
     'id': 'tx4272aa0d6e1e4f8f971f8-0053b84f54',
     'date': 'Sat, 05 Jul 2014 19:17:40 GMT',
     'x-account-bytes-used': '12345',
@@ -42,7 +41,6 @@ HEAD_EXAMPLE = {
     'accept-ranges': 'bytes',
     'id': 'tx1878fdc50f9b4978a3fdc-0053c31462',
     'date': 'Sun, 13 Jul 2014 23:21:06 GMT',
-    'x-timestamp': '1403312946.79252',
     'x-container-read': 'read-settings',
     'x-container-write': 'write-settings',
     'x-container-sync-to': 'sync-to',
@@ -71,7 +69,6 @@ class TestAccount(testtools.TestCase):
     def test_make_it(self):
         sot = container.Container.new(**{'headers': ACCOUNT_EXAMPLE})
         self.assertIsNone(sot.id)
-        self.assertEqual(ACCOUNT_EXAMPLE['x-timestamp'], sot.timestamp)
         self.assertEqual(ACCOUNT_EXAMPLE['x-account-bytes-used'],
                          sot.account_bytes_used)
         self.assertEqual(ACCOUNT_EXAMPLE['x-account-container-count'],

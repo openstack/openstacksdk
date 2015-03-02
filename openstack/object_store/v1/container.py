@@ -29,8 +29,6 @@ class Container(resource.Resource):
     allow_head = True
 
     # Account data (when id=None)
-    #: The transaction date and time.
-    timestamp = resource.header("x-timestamp")
     #: The total number of bytes that are stored in Object Storage for
     #: the account.
     account_bytes_used = resource.header("x-account-bytes-used")
