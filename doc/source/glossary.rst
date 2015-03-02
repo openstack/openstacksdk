@@ -1,5 +1,4 @@
-.. TODO(dtroyer): Resource needs further fleshing out, revise once the
-..               object model in the SDK is finalized.
+:orphan:
 
 Glossary
 ========

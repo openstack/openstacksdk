@@ -5,7 +5,7 @@ Network Resources
    :maxdepth: 1
 
    v2/extension
-   v2/floatingip
+   v2/floating_ip
    v2/health_monitor
    v2/listener
    v2/load_balancer
