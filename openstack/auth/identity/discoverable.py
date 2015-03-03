@@ -39,10 +39,10 @@ from openstack import exceptions
 class Auth(base.BaseIdentityPlugin):
 
     #: Valid options for this plugin
-    valid_options = list(set(v2.Password.valid_options +
-                             v2.Token.valid_options +
-                             v3.Password.valid_options +
-                             v3.Token.valid_options))
+    valid_options = set(list(v3.Password.valid_options)
+                        + list(v3.Token.valid_options)
+                        + list(v2.Password.valid_options)
+                        + list(v2.Token.valid_options))
 
     def __init__(self, auth_url=None, **auth_args):
         """Construct an Identity Authentication Plugin.

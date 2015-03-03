@@ -112,7 +112,7 @@ _NOT_PASSED = object()
 class Password(Auth):
 
     #: Valid options for Password plugin
-    valid_options = [
+    valid_options = {
         'access_info',
         'auth_url',
         'username',
@@ -124,7 +124,7 @@ class Password(Auth):
         'tenant_id',
         'reauthenticate',
         'trust_id',
-    ]
+    }
 
     def __init__(self, auth_url, username=_NOT_PASSED, password=None,
                  user_id=_NOT_PASSED, **kwargs):
@@ -167,7 +167,7 @@ class Password(Auth):
 class Token(Auth):
 
     #: Valid options for this plugin
-    valid_options = [
+    valid_options = {
         'access_info',
         'auth_url',
         'project_id',
@@ -177,7 +177,7 @@ class Token(Auth):
         'reauthenticate',
         'token',
         'trust_id',
-    ]
+    }
 
     def __init__(self, auth_url, token, **kwargs):
         """A plugin for authenticating with an existing token.
