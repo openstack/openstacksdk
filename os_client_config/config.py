@@ -164,6 +164,9 @@ class OpenStackConfig(object):
                     # Can't find the requested vendor config, go about business
                     pass
 
+        if 'auth' not in cloud:
+            cloud['auth'] = dict()
+
         _auth_update(cloud, our_cloud)
         if 'cloud' in cloud:
             del cloud['cloud']
@@ -171,10 +174,31 @@ class OpenStackConfig(object):
         return self._fix_backwards_madness(cloud)
 
     def _fix_backwards_madness(self, cloud):
+        cloud = self._fix_backwards_project(cloud)
+        cloud = self._fix_backwards_auth_plugin(cloud)
+        return cloud
+
+    def _fix_backwards_project(self, cloud):
         # Do the lists backwards so that project_name is the ultimate winner
         mappings = {
             'project_name': ('tenant_id', 'project_id',
                              'tenant_name', 'project_name'),
+        }
+        for target_key, possible_values in mappings.items():
+            target = None
+            for key in possible_values:
+                if key in cloud:
+                    target = cloud[key]
+                    del cloud[key]
+                if key in cloud['auth']:
+                    target = cloud['auth'][key]
+                    del cloud['auth'][key]
+            cloud['auth'][target_key] = target
+        return cloud
+
+    def _fix_backwards_auth_plugin(self, cloud):
+        # Do the lists backwards so that auth_type is the ultimate winner
+        mappings = {
             'auth_type': ('auth_plugin', 'auth_type'),
         }
         for target_key, possible_values in mappings.items():
@@ -299,8 +323,6 @@ class OpenStackConfig(object):
             args['region_name'] = self._get_region(cloud)
 
         config = self._get_base_cloud_config(cloud)
-        if 'auth' not in config:
-            config['auth'] = dict()
 
         # Can't just do update, because None values take over
         for (key, val) in iter(args.items()):

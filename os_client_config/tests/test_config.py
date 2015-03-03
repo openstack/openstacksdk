@@ -64,19 +64,23 @@ def _write_yaml(obj):
 
 
 class TestConfig(testtools.TestCase):
-    def test_get_one_cloud(self):
-        c = config.OpenStackConfig()
-        self.assertIsInstance(c.get_one_cloud(), cloud_config.CloudConfig)
-
-    def test_get_one_cloud_with_config_files(self):
+    def setUp(self):
+        super(TestConfig, self).setUp()
         self.useFixture(fixtures.NestedTempfile())
         conf = dict(USER_CONF)
         tdir = self.useFixture(fixtures.TempDir())
         conf['cache']['path'] = tdir.path
-        cloud_yaml = _write_yaml(conf)
-        vendor_yaml = _write_yaml(VENDOR_CONF)
-        c = config.OpenStackConfig(config_files=[cloud_yaml],
-                                   vendor_files=[vendor_yaml])
+        self.cloud_yaml = _write_yaml(conf)
+        self.vendor_yaml = _write_yaml(VENDOR_CONF)
+
+    def test_get_one_cloud(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        self.assertIsInstance(c.get_one_cloud(), cloud_config.CloudConfig)
+
+    def test_get_one_cloud_with_config_files(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
         self.assertIsInstance(c.cloud_config, dict)
         self.assertIn('cache', c.cloud_config)
         self.assertIsInstance(c.cloud_config['cache'], dict)
