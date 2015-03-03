@@ -14,12 +14,10 @@ from openstack.database.v1 import database
 from openstack.database.v1 import flavor
 from openstack.database.v1 import instance
 from openstack.database.v1 import user
+from openstack import proxy
 
 
-class Proxy(object):
-
-    def __init__(self, session):
-        self.session = session
+class Proxy(proxy.BaseProxy):
 
     def create_database(self, **data):
         return database.Database(data).create(self.session)

@@ -18,12 +18,10 @@ from openstack.compute.v2 import limits
 from openstack.compute.v2 import server
 from openstack.compute.v2 import server_interface
 from openstack.compute.v2 import server_ip
+from openstack import proxy
 
 
-class Proxy(object):
-
-    def __init__(self, session):
-        self.session = session
+class Proxy(proxy.BaseProxy):
 
     def find_extension(self, name_or_id):
         return extension.Extension.find(self.session, name_or_id)

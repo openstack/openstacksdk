@@ -13,12 +13,10 @@
 from openstack.keystore.v1 import container
 from openstack.keystore.v1 import order
 from openstack.keystore.v1 import secret
+from openstack import proxy
 
 
-class Proxy(object):
-
-    def __init__(self, session):
-        self.session = session
+class Proxy(proxy.BaseProxy):
 
     def create_container(self, **data):
         return container.Container(data).create(self.session)

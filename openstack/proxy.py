@@ -10,11 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.metric.v1 import capabilities
-from openstack import proxy
 
+class BaseProxy(object):
 
-class Proxy(proxy.BaseProxy):
-
-    def list_capabilities(self):
-        return capabilities.Capabilities.list(self.session)
+    def __init__(self, session):
+        self.session = session

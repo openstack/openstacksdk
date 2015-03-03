@@ -12,12 +12,10 @@
 
 from openstack.object_store.v1 import container as _container
 from openstack.object_store.v1 import obj as _obj
+from openstack import proxy
 
 
-class Proxy(object):
-
-    def __init__(self, session):
-        self.session = session
+class Proxy(proxy.BaseProxy):
 
     def get_account_metadata(self):
         """Get metatdata for this account.
