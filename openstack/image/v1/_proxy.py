@@ -11,12 +11,10 @@
 # under the License.
 
 from openstack.image.v1 import image
+from openstack import proxy
 
 
-class Proxy(object):
-
-    def __init__(self, session):
-        self.session = session
+class Proxy(proxy.BaseProxy):
 
     def create_image(self, **data):
         return image.Image(data).create(self.session)

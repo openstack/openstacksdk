@@ -18,12 +18,10 @@ from openstack.identity.v3 import policy
 from openstack.identity.v3 import project
 from openstack.identity.v3 import service
 from openstack.identity.v3 import user
+from openstack import proxy
 
 
-class Proxy(object):
-
-    def __init__(self, session):
-        self.session = session
+class Proxy(proxy.BaseProxy):
 
     def create_credential(self, **data):
         return credential.Credential(data).create(self.session)

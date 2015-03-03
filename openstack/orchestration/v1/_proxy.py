@@ -11,12 +11,10 @@
 # under the License.
 
 from openstack.orchestration.v1 import stack
+from openstack import proxy
 
 
-class Proxy(object):
-
-    def __init__(self, session):
-        self.session = session
+class Proxy(proxy.BaseProxy):
 
     def find_stack(self, name_or_id):
         return stack.Stack.find(self.session, name_or_id)

@@ -61,6 +61,7 @@ import logging
 import sys
 
 from openstack import module_loader
+from openstack import proxy
 from openstack import session
 from openstack import transport as xport
 
@@ -151,8 +152,11 @@ class Connection(object):
         module = service.get_module() + "._proxy"
         try:
             __import__(module)
-            proxy = getattr(sys.modules[module], "Proxy")
-            setattr(self, attr_name, proxy(self.session))
+            proxy_class = getattr(sys.modules[module], "Proxy")
+            if not issubclass(proxy_class, proxy.BaseProxy):
+                raise TypeError("%s.Proxy must inherit from BaseProxy" %
+                                proxy_class.__module__)
+            setattr(self, attr_name, proxy_class(self.session))
         except Exception as e:
             _logger.warn("Unable to load %s: %s" % (module, e))
 

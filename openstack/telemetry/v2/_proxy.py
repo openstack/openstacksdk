@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import proxy
 from openstack.telemetry.v2 import alarm
 from openstack.telemetry.v2 import alarm_change
 from openstack.telemetry.v2 import capability
@@ -19,10 +20,7 @@ from openstack.telemetry.v2 import sample
 from openstack.telemetry.v2 import statistics
 
 
-class Proxy(object):
-
-    def __init__(self, session):
-        self.session = session
+class Proxy(proxy.BaseProxy):
 
     def create_alarm(self, **data):
         return alarm.Alarm(data).create(self.session)

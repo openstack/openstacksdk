@@ -26,12 +26,10 @@ from openstack.network.v2 import router
 from openstack.network.v2 import security_group
 from openstack.network.v2 import security_group_rule
 from openstack.network.v2 import subnet
+from openstack import proxy
 
 
-class Proxy(object):
-
-    def __init__(self, session):
-        self.session = session
+class Proxy(proxy.BaseProxy):
 
     def find_extension(self, name_or_id):
         return extension.Extension.find(self.session, name_or_id)

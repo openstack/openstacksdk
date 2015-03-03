@@ -13,12 +13,10 @@
 from openstack.identity.v2 import role
 from openstack.identity.v2 import tenant
 from openstack.identity.v2 import user
+from openstack import proxy
 
 
-class Proxy(object):
-
-    def __init__(self, session):
-        self.session = session
+class Proxy(proxy.BaseProxy):
 
     def create_role(self, **data):
         return role.Role(data).create(self.session)
