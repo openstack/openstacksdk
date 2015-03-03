@@ -89,21 +89,21 @@ class PropTests(base.TestCase):
         t = Test()
 
         self.assertIsNone(t.attr1)
-        self.assertEqual(t.attr2, new_default)
+        self.assertEqual(new_default, t.attr2)
 
         # When the default value is passed in, it is left untouched.
         # Check that attr2 is literally the same object we set as default.
         t.attr2 = new_default
-        self.assertIs(t.attr2, new_default)
+        self.assertIs(new_default, t.attr2)
 
         not_default = 'not default'
         t2 = Test({'attr2': not_default})
-        self.assertEqual(t2.attr2, not_default)
+        self.assertEqual(not_default, t2.attr2)
 
         # Assert that if the default is passed in, it overrides the previously
         # set value (bug #1425996)
         t2.attr2 = new_default
-        self.assertEqual(t2.attr2, new_default)
+        self.assertEqual(new_default, t2.attr2)
 
     def test_get_without_instance(self):
         self.assertIsNone(FakeResource.name)
@@ -146,32 +146,32 @@ class PropTests(base.TestCase):
         sot.third_base = id2
 
         resource1 = FakeResource.new(id=id1)
-        self.assertEqual(sot.shortstop, resource1)
-        self.assertEqual(sot.shortstop.id, id1)
-        self.assertEqual(type(sot.shortstop), FakeResource)
+        self.assertEqual(resource1, sot.shortstop)
+        self.assertEqual(id1, sot.shortstop.id)
+        self.assertEqual(FakeResource, type(sot.shortstop))
 
         resource2 = FakeResource.new(id=id2)
-        self.assertEqual(sot.third_base, resource2)
-        self.assertEqual(sot.third_base.id, id2)
-        self.assertEqual(type(sot.third_base), FakeResource)
+        self.assertEqual(resource2, sot.third_base)
+        self.assertEqual(id2, sot.third_base.id)
+        self.assertEqual(FakeResource, type(sot.third_base))
 
         sot2 = FakestResource()
         sot2.shortstop = resource1
         sot2.third_base = resource2
-        self.assertEqual(sot2.shortstop, resource1)
-        self.assertEqual(sot2.shortstop.id, id1)
-        self.assertEqual(type(sot2.shortstop), FakeResource)
-        self.assertEqual(sot2.third_base, resource2)
-        self.assertEqual(sot2.third_base.id, id2)
-        self.assertEqual(type(sot2.third_base), FakeResource)
+        self.assertEqual(resource1, sot2.shortstop)
+        self.assertEqual(id1, sot2.shortstop.id)
+        self.assertEqual(FakeResource, type(sot2.shortstop))
+        self.assertEqual(resource2, sot2.third_base)
+        self.assertEqual(id2, sot2.third_base.id)
+        self.assertEqual(FakeResource, type(sot2.third_base))
 
         body = {
             "shortstop": id1,
             "third_base": id2
         }
         sot3 = FakestResource(body)
-        self.assertEqual(sot3.shortstop, FakeResource({"id": id1}))
-        self.assertEqual(sot3.third_base, FakeResource({"id": id2}))
+        self.assertEqual(FakeResource({"id": id1}), sot3.shortstop)
+        self.assertEqual(FakeResource({"id": id2}), sot3.third_base)
 
     def test_set_alias_same_name(self):
         class Test(resource.Resource):
@@ -181,9 +181,9 @@ class PropTests(base.TestCase):
         args = {"attr": val}
         sot = Test(args)
 
-        self.assertEqual(sot._attrs["something"], val)
+        self.assertEqual(val, sot._attrs["something"])
         self.assertIsNone(sot._attrs.get("attr"))
-        self.assertEqual(sot.attr, val)
+        self.assertEqual(val, sot.attr)
 
 
 class HeaderTests(base.TestCase):
@@ -304,14 +304,14 @@ class ResourceTests(base.TestTransportBase):
         sess.post = mock.MagicMock(return_value=response)
 
         resp = FakeResource2.create_by_id(sess, attrs)
-        self.assertEqual(resp, response_value)
+        self.assertEqual(response_value, resp)
         sess.post.assert_called_with(FakeResource2.base_path,
                                      service=FakeResource2.service,
                                      json=json_body)
 
         r_id = "my_id"
         resp = FakeResource2.create_by_id(sess, attrs, resource_id=r_id)
-        self.assertEqual(resp, response_value)
+        self.assertEqual(response_value, resp)
         sess.put.assert_called_with(
             utils.urljoin(FakeResource2.base_path, r_id),
             service=FakeResource2.service,
@@ -319,14 +319,14 @@ class ResourceTests(base.TestTransportBase):
 
         path_args = {"name": "my_name"}
         resp = FakeResource2.create_by_id(sess, attrs, path_args=path_args)
-        self.assertEqual(resp, response_value)
+        self.assertEqual(response_value, resp)
         sess.post.assert_called_with(FakeResource2.base_path % path_args,
                                      service=FakeResource2.service,
                                      json=json_body)
 
         resp = FakeResource2.create_by_id(sess, attrs, resource_id=r_id,
                                           path_args=path_args)
-        self.assertEqual(resp, response_value)
+        self.assertEqual(response_value, resp)
         sess.put.assert_called_with(
             utils.urljoin(FakeResource2.base_path % path_args, r_id),
             service=FakeResource2.service,
@@ -363,7 +363,7 @@ class ResourceTests(base.TestTransportBase):
 
         r_id = "my_id"
         resp = FakeResource2.get_data_by_id(sess, resource_id=r_id)
-        self.assertEqual(resp, response_value)
+        self.assertEqual(response_value, resp)
         sess.get.assert_called_with(
             utils.urljoin(FakeResource2.base_path, r_id),
             service=FakeResource2.service)
@@ -371,7 +371,7 @@ class ResourceTests(base.TestTransportBase):
         path_args = {"name": "my_name"}
         resp = FakeResource2.get_data_by_id(sess, resource_id=r_id,
                                             path_args=path_args)
-        self.assertEqual(resp, response_value)
+        self.assertEqual(response_value, resp)
         sess.get.assert_called_with(
             utils.urljoin(FakeResource2.base_path % path_args, r_id),
             service=FakeResource2.service)
@@ -441,7 +441,7 @@ class ResourceTests(base.TestTransportBase):
 
         r_id = "my_id"
         resp = FakeResource2.update_by_id(sess, r_id, attrs)
-        self.assertEqual(resp, response_value)
+        self.assertEqual(response_value, resp)
         sess.patch.assert_called_with(
             utils.urljoin(FakeResource2.base_path, r_id),
             service=FakeResource2.service,
@@ -450,7 +450,7 @@ class ResourceTests(base.TestTransportBase):
         path_args = {"name": "my_name"}
         resp = FakeResource2.update_by_id(sess, r_id, attrs,
                                           path_args=path_args)
-        self.assertEqual(resp, response_value)
+        self.assertEqual(response_value, resp)
         sess.patch.assert_called_with(
             utils.urljoin(FakeResource2.base_path % path_args, r_id),
             service=FakeResource2.service,
@@ -663,7 +663,7 @@ class ResourceTests(base.TestTransportBase):
         obj.update_by_id = mock.MagicMock(return_value=dict())
         # If no id_attribute is returned in the update response, make sure
         # we handle the resulting KeyError.
-        self.assertEqual(obj.update("session"), obj)
+        self.assertEqual(obj, obj.update("session"))
 
     @httpretty.activate
     def test_delete(self):
@@ -718,7 +718,7 @@ class ResourceTests(base.TestTransportBase):
                                paginated=paginated))
 
         # Ensure we only made one call to complete this.
-        self.assertEqual(session.get.call_count, 1)
+        self.assertEqual(1, session.get.call_count)
 
     def test_list_bail_out(self):
         # When we get less data than limit, make sure we made one call
@@ -809,7 +809,7 @@ class ResourceTests(base.TestTransportBase):
         attrs = {"my_id": 100}
         t = Test(attrs=attrs)
 
-        self.assertEqual(t.id, attrs["my_id"])
+        self.assertEqual(attrs["my_id"], t.id)
         del t.id
         self.assertTrue(Test.id_attribute not in t._attrs)
 
@@ -817,13 +817,13 @@ class ResourceTests(base.TestTransportBase):
         name = "Ernie Banks"
 
         obj = FakeResource.from_name(name)
-        self.assertEqual(obj.name, name)
+        self.assertEqual(name, obj.name)
 
     def test_from_id_with_name(self):
         name = "Sandy Koufax"
 
         obj = FakeResource.from_id(name)
-        self.assertEqual(obj.id, name)
+        self.assertEqual(name, obj.id)
 
     def test_from_id_with_object(self):
         name = "Mickey Mantle"
@@ -831,7 +831,7 @@ class ResourceTests(base.TestTransportBase):
 
         new_obj = FakeResource.from_id(obj)
         self.assertIs(new_obj, obj)
-        self.assertEqual(new_obj.name, obj.name)
+        self.assertEqual(obj.name, new_obj.name)
 
     def test_from_id_with_bad_value(self):
         def should_raise():
@@ -892,7 +892,7 @@ class ResourceMapping(base.TestCase):
 
         t = Test(attrs={"attr": value})
 
-        self.assertEqual(t["attr"], value)
+        self.assertEqual(value, t["attr"])
 
     def test__setitem__existing_item_changed(self):
 
@@ -904,7 +904,7 @@ class ResourceMapping(base.TestCase):
         value = 1
         t[key] = value
 
-        self.assertEqual(t._attrs[key], value)
+        self.assertEqual(value, t._attrs[key])
         self.assertTrue(key in t._dirty)
 
     def test__setitem__existing_item_unchanged(self):
@@ -918,7 +918,7 @@ class ResourceMapping(base.TestCase):
         t._reset_dirty()  # Clear dirty list so this checks as unchanged.
         t[key] = value
 
-        self.assertEqual(t._attrs[key], value)
+        self.assertEqual(value, t._attrs[key])
         self.assertTrue(key not in t._dirty)
 
     def test__setitem__new_item(self):
@@ -931,7 +931,7 @@ class ResourceMapping(base.TestCase):
         value = 1
         t[key] = value
 
-        self.assertEqual(t._attrs[key], value)
+        self.assertEqual(value, t._attrs[key])
         self.assertTrue(key in t._dirty)
 
     def test__delitem__(self):
@@ -956,7 +956,7 @@ class ResourceMapping(base.TestCase):
         attrs = {"a": 1, "b": 2, "c": 3}
         t = Test(attrs=attrs)
 
-        self.assertEqual(len(t), len(attrs.keys()))
+        self.assertEqual(len(attrs.keys()), len(t))
 
     def test__iter__(self):
 
@@ -967,7 +967,7 @@ class ResourceMapping(base.TestCase):
         t = Test(attrs=attrs)
 
         for attr in t:
-            self.assertEqual(t[attr], attrs[attr])
+            self.assertEqual(attrs[attr], t[attr])
 
     def _test_resource_serialization(self, session_method, resource_method):
         attr_type = resource.Resource
@@ -979,7 +979,7 @@ class ResourceMapping(base.TestCase):
         the_id = 123
         sot = Test()
         sot.attr = resource.Resource({"id": the_id})
-        self.assertEqual(type(sot.attr), attr_type)
+        self.assertEqual(attr_type, type(sot.attr))
 
         def fake_call(*args, **kwargs):
             attrs = kwargs["json"]
@@ -1136,13 +1136,13 @@ class TestFind(base.TestCase):
         args = {'nombre': name}
 
         person = Person_ES(args)
-        self.assertEqual(person.nombre, name)
-        self.assertEqual(person.name, name)
+        self.assertEqual(name, person.nombre)
+        self.assertEqual(name, person.name)
 
         new_name = "Julien"
         person.name = new_name
-        self.assertEqual(person.nombre, new_name)
-        self.assertEqual(person.name, new_name)
+        self.assertEqual(new_name, person.nombre)
+        self.assertEqual(new_name, person.name)
 
     def test_boolstr_prop(self):
         faker = FakeResource(fake_data)
