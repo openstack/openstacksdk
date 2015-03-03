@@ -120,6 +120,8 @@ class Password(Auth):
         'password',
         'project_id',
         'project_name',
+        'tenant_name',
+        'tenant_id',
         'reauthenticate',
         'trust_id',
     ]
@@ -170,6 +172,8 @@ class Token(Auth):
         'auth_url',
         'project_id',
         'project_name',
+        'tenant_name',
+        'tenant_id',
         'reauthenticate',
         'token',
         'trust_id',

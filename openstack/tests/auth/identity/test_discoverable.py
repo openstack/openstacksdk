@@ -31,6 +31,8 @@ class TestDiscoverableAuth(testtools.TestCase):
             'project_id',
             'project_name',
             'reauthenticate',
+            'tenant_id',
+            'tenant_name',
             'token',
             'trust_id',
             'user_domain_id',
