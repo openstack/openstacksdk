@@ -20,7 +20,7 @@ from openstack.tests.auth import common
 
 class TestDiscoverableAuth(testtools.TestCase):
     def test_valid_options(self):
-        expected = [
+        expected = {
             'access_info',
             'auth_url',
             'domain_id',
@@ -39,8 +39,8 @@ class TestDiscoverableAuth(testtools.TestCase):
             'user_domain_name',
             'user_id',
             'username',
-        ]
-        self.assertEqual(expected, sorted(discoverable.Auth.valid_options))
+        }
+        self.assertEqual(expected, discoverable.Auth.valid_options)
 
     def test_create2(self):
         auth_args = {

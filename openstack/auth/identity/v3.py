@@ -250,7 +250,7 @@ class PasswordMethod(AuthMethod):
 class Password(AuthConstructor):
 
     #: Valid options for this plugin
-    valid_options = [
+    valid_options = {
         'access_info',
         'auth_url',
         'domain_id',
@@ -266,7 +266,7 @@ class Password(AuthConstructor):
         'user_domain_name',
         'user_id',
         'username',
-    ]
+    }
 
     _auth_method_class = PasswordMethod
 
@@ -292,7 +292,7 @@ class TokenMethod(AuthMethod):
 class Token(AuthConstructor):
 
     #: Valid options for this plugin
-    valid_options = [
+    valid_options = {
         'access_info',
         'auth_url',
         'domain_id',
@@ -306,7 +306,7 @@ class Token(AuthConstructor):
         'trust_id',
         'user_domain_id',
         'user_domain_name',
-    ]
+    }
 
     _auth_method_class = TokenMethod
 
