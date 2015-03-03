@@ -75,7 +75,7 @@ class OpenStackConfig(object):
         self._vendor_files = vendor_files or VENDOR_FILES
 
         defaults = dict(
-            auth_plugin='password',
+            auth_type='password',
             compute_api_version='1.1',
         )
         self.defaults = _get_os_environ(defaults)
@@ -168,16 +168,22 @@ class OpenStackConfig(object):
         if 'cloud' in cloud:
             del cloud['cloud']
 
-        return self._fix_project_madness(cloud)
+        return self._fix_backwards_madness(cloud)
 
-    def _fix_project_madness(self, cloud):
-        project_name = None
-        # Do the list backwards so that project_name is the ultimate winner
-        for key in ('tenant_id', 'project_id', 'tenant_name', 'project_name'):
-            if key in cloud:
-                project_name = cloud[key]
-                del cloud[key]
-        cloud['project_name'] = project_name
+    def _fix_backwards_madness(self, cloud):
+        # Do the lists backwards so that project_name is the ultimate winner
+        mappings = {
+            'project_name': ('tenant_id', 'project_id',
+                             'tenant_name', 'project_name'),
+            'auth_type': ('auth_plugin', 'auth_type'),
+        }
+        for target_key, possible_values in mappings.items():
+            target = None
+            for key in possible_values:
+                if key in cloud:
+                    target = cloud[key]
+                    del cloud[key]
+            cloud[target_key] = target
         return cloud
 
     def get_all_clouds(self):
@@ -231,7 +237,7 @@ class OpenStackConfig(object):
     def _validate_auth(self, config):
         # May throw a keystoneclient.exceptions.NoMatchingPlugin
         plugin_options = ksc_auth.get_plugin_class(
-            config['auth_plugin']).get_options()
+            config['auth_type']).get_options()
 
         for p_opt in plugin_options:
             # if it's in config.auth, win, kill it from config dict
@@ -252,7 +258,7 @@ class OpenStackConfig(object):
                     ' or environment variables. Missing value {auth_key}'
                     ' required for auth plugin {plugin}'.format(
                         cloud=cloud, files=','.join(self._config_files),
-                        auth_key=p_opt.name, plugin=config['auth_plugin']))
+                        auth_key=p_opt.name, plugin=config.get('auth_type')))
 
             # Clean up after ourselves
             for opt in [p_opt.name] + [o.name for o in p_opt.deprecated_opts]:
@@ -306,8 +312,8 @@ class OpenStackConfig(object):
                 if type(config[key]) is not bool:
                     config[key] = get_boolean(config[key])
 
-        if 'auth_plugin' in config:
-            if config['auth_plugin'] in ('', 'None', None):
+        if 'auth_type' in config:
+            if config['auth_type'] in ('', 'None', None):
                 validate = False
 
         if validate and ksc_auth:
