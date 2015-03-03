@@ -193,3 +193,14 @@ class Server(resource.Resource):
             if address['OS-EXT-IPS:type'] == 'floating':
                 result.append(address['addr'])
         return result
+
+
+class ServerDetail(Server):
+    base_path = '/servers/detail'
+
+    # capabilities
+    allow_create = False
+    allow_retrieve = False
+    allow_update = False
+    allow_delete = False
+    allow_list = True

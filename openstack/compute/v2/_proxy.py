@@ -119,8 +119,9 @@ class Proxy(proxy.BaseProxy):
     def get_server(self, **data):
         return server.Server(data).get(self.session)
 
-    def list_servers(self):
-        return server.Server.list(self.session, paginated=True)
+    def list_servers(self, details=True):
+        srv = server.ServerDetail if details else server.Server
+        return srv.list(self.session, paginated=True)
 
     def update_server(self, **data):
         return server.Server(data).update(self.session)

@@ -83,6 +83,18 @@ class TestServer(testtools.TestCase):
         self.assertEqual(EXAMPLE['updated'], sot.updated)
         self.assertEqual(EXAMPLE['user_id'], sot.user_id)
 
+    def test_detail(self):
+        sot = server.ServerDetail()
+        self.assertEqual('server', sot.resource_key)
+        self.assertEqual('servers', sot.resources_key)
+        self.assertEqual('/servers/detail', sot.base_path)
+        self.assertEqual('compute', sot.service.service_type)
+        self.assertFalse(sot.allow_create)
+        self.assertFalse(sot.allow_retrieve)
+        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_delete)
+        self.assertTrue(sot.allow_list)
+
     def test_change_passowrd(self):
         sot = server.Server(EXAMPLE)
 
