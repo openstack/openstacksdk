@@ -13,6 +13,8 @@
 import time
 
 from openstack.compute import compute_service
+from openstack.compute.v2 import flavor
+from openstack.compute.v2 import image
 from openstack.compute.v2 import server_ip
 from openstack import exceptions
 from openstack import resource
@@ -50,14 +52,14 @@ class Server(resource.Resource):
     #: The dictionary includes a key for the ``id`` of the flavor, as well
     #: as a ``links`` key, which includes a list of relevant links for this
     #: flavor. *Type: dict*
-    flavor = resource.prop('flavorRef', alias='flavor', type=dict)
+    flavor = resource.prop('flavorRef', alias='flavor', type=flavor.Flavor)
     #: An ID representing the host of this server.
     host_id = resource.prop('hostId')
     #: A dictionary with details on the image this server is running.
     #: The dictionary includes a key for ``id`` of the image, as well
     #: as a ``links`` key, which includes a list of relevant links for this
     #: image. *Type: dict*
-    image = resource.prop('imageRef', alias='image', type=dict)
+    image = resource.prop('imageRef', alias='image', type=image.Image)
     #: A list of dictionaries holding links relevant to this server.
     links = resource.prop('links')
     #: Metadata stored for this server. *Type: dict*

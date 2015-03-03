@@ -13,6 +13,8 @@
 import mock
 import testtools
 
+from openstack.compute.v2 import flavor
+from openstack.compute.v2 import image
 from openstack.compute.v2 import server
 from openstack import exceptions
 
@@ -67,9 +69,11 @@ class TestServer(testtools.TestCase):
         self.assertEqual(EXAMPLE['addresses'], sot.addresses)
         self.assertEqual(EXAMPLE['created'], sot.created)
         self.assertEqual(EXAMPLE['flavorRef'], sot.flavor)
+        self.assertEqual(type(sot.flavor), flavor.Flavor)
         self.assertEqual(EXAMPLE['hostId'], sot.host_id)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['imageRef'], sot.image)
+        self.assertEqual(type(sot.image), image.Image)
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['metadata'], sot.metadata)
         self.assertEqual(EXAMPLE['name'], sot.name)
