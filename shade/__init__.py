@@ -1337,3 +1337,53 @@ class OperatorCloud(OpenStackCloud):
                 "ironic machine unregistration failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error unregistering machine from Ironic: %s" % e.message)
+
+    def validate_node(self, uuid):
+        try:
+            ifaces = self.ironic_client.node.validate(uuid)
+        except Exception as e:
+            self.log.debug(
+                "ironic node validation call failed", exc_info=True)
+            raise OpenStackCloudException(e.message)
+
+        if not ifaces.deploy or not ifaces.power:
+            raise OpenStackCloudException(
+                "ironic node %s failed to validate. "
+                "(deploy: %s, power: %s)" % (ifaces.deploy, ifaces.power))
+
+    def node_set_provision_state(self, uuid, state, configdrive=None):
+        try:
+            self.ironic_client.node.set_provision_state(
+                uuid,
+                state,
+                configdrive
+            )
+        except Exception as e:
+            self.log.debug(
+                "ironic node failed change provision state to %s" % state,
+                exc_info=True)
+            raise OpenStackCloudException(e.message)
+
+    def activate_node(self, uuid, configdrive=None):
+        self.node_set_provision_state(uuid, 'active', configdrive)
+
+    def deactivate_node(self, uuid):
+        self.node_set_provision_state(uuid, 'deleted')
+
+    def set_node_instance_info(self, uuid, patch):
+        try:
+            self.ironic_client.node.update(uuid, patch)
+        except Exception as e:
+            self.log.debug(
+                "Failed to update instance_info", exc_info=True)
+            raise OpenStackCloudException(e.message)
+
+    def purge_node_instance_info(self, uuid):
+        patch = []
+        patch.append({'op': 'remove', 'path': '/instance_info'})
+        try:
+            return self.ironic_client.node.update(uuid, patch)
+        except Exception as e:
+            self.log.debug(
+                "Failed to delete instance_info", exc_info=True)
+            raise OpenStackCloudException(e.message)
