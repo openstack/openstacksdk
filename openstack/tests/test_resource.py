@@ -15,6 +15,7 @@ import json
 
 import httpretty
 import mock
+import requests
 from testtools import matchers
 
 from openstack import exceptions
@@ -223,6 +224,12 @@ class HeaderTests(base.TestCase):
         self.assertEqual("johnny", sot.ho)
         self.assertTrue(sot.is_dirty)
         self.assertEqual({'headers': {"guitar": "johnny"}}, sot)
+
+    def test_1428342(self):
+        sot = HeaderTests.Test({'headers':
+                               requests.structures.CaseInsensitiveDict()})
+
+        self.assertIsNone(sot.hey)
 
 
 class ResourceTests(base.TestTransportBase):
