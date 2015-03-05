@@ -69,11 +69,11 @@ class TestAccount(testtools.TestCase):
     def test_make_it(self):
         sot = container.Container.new(**{'headers': ACCOUNT_EXAMPLE})
         self.assertIsNone(sot.id)
-        self.assertEqual(ACCOUNT_EXAMPLE['x-account-bytes-used'],
+        self.assertEqual(int(ACCOUNT_EXAMPLE['x-account-bytes-used']),
                          sot.account_bytes_used)
-        self.assertEqual(ACCOUNT_EXAMPLE['x-account-container-count'],
+        self.assertEqual(int(ACCOUNT_EXAMPLE['x-account-container-count']),
                          sot.account_container_count)
-        self.assertEqual(ACCOUNT_EXAMPLE['x-account-object-count'],
+        self.assertEqual(int(ACCOUNT_EXAMPLE['x-account-object-count']),
                          sot.account_object_count)
 
 
@@ -123,9 +123,9 @@ class TestContainer(testtools.TestCase):
         self.assertEqual(CONT_EXAMPLE['bytes'], sot.bytes)
 
         # Attributes from header
-        self.assertEqual(HEAD_EXAMPLE['x-container-object-count'],
+        self.assertEqual(int(HEAD_EXAMPLE['x-container-object-count']),
                          sot.object_count)
-        self.assertEqual(HEAD_EXAMPLE['x-container-bytes-used'],
+        self.assertEqual(int(HEAD_EXAMPLE['x-container-bytes-used']),
                          sot.bytes_used)
         self.assertEqual(HEAD_EXAMPLE['x-container-read'],
                          sot.read_ACL)

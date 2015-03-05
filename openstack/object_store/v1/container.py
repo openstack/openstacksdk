@@ -31,11 +31,12 @@ class Container(resource.Resource):
     # Account data (when id=None)
     #: The total number of bytes that are stored in Object Storage for
     #: the account.
-    account_bytes_used = resource.header("x-account-bytes-used")
+    account_bytes_used = resource.header("x-account-bytes-used", type=int)
     #: The number of containers.
-    account_container_count = resource.header("x-account-container-count")
+    account_container_count = resource.header("x-account-container-count",
+                                              type=int)
     #: The number of objects in the account.
-    account_object_count = resource.header("x-account-object-count")
+    account_object_count = resource.header("x-account-object-count", type=int)
     #: The secret key value for temporary URLs. If not set,
     #: this header is not returned by this operation.
     meta_temp_url_key = resource.header("x-account-meta-temp-url-key")
@@ -54,9 +55,9 @@ class Container(resource.Resource):
 
     # Container metadata (when id=name)
     #: The number of objects.
-    object_count = resource.header("x-container-object-count")
+    object_count = resource.header("x-container-object-count", type=int)
     #: The count of bytes used in total.
-    bytes_used = resource.header("x-container-bytes-used")
+    bytes_used = resource.header("x-container-bytes-used", type=int)
 
     # Request headers (when id=None)
     #: If set to True, Object Storage queries all replicas to return the
