@@ -23,6 +23,7 @@ except ImportError:
     ksc_auth = None
 
 from os_client_config import cloud_config
+from os_client_config import defaults
 from os_client_config import exceptions
 from os_client_config import vendors
 
@@ -41,18 +42,23 @@ VENDOR_FILES = [
     os.path.join(d, 'clouds-public.yaml') for d in VENDOR_SEARCH_PATH]
 
 
+def set_default(key, value):
+    defaults._defaults[key] = value
+
+
 def get_boolean(value):
     if value.lower() == 'true':
         return True
     return False
 
 
-def _get_os_environ(defaults):
+def _get_os_environ():
+    ret = dict(defaults._defaults)
     for (k, v) in os.environ.items():
         if k.startswith('OS_'):
             newkey = k[3:].lower()
-            defaults[newkey] = v
-    return defaults
+            ret[newkey] = v
+    return ret
 
 
 def _auth_update(old_dict, new_dict):
@@ -74,11 +80,7 @@ class OpenStackConfig(object):
         self._config_files = config_files or CONFIG_FILES
         self._vendor_files = vendor_files or VENDOR_FILES
 
-        defaults = dict(
-            auth_type='password',
-            compute_api_version='1.1',
-        )
-        self.defaults = _get_os_environ(defaults)
+        self.defaults = _get_os_environ()
 
         # use a config file if it exists where expected
         self.cloud_config = self._load_config_file()

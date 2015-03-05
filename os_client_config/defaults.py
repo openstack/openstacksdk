@@ -1,4 +1,3 @@
-# flake8: noqa
 # Copyright (c) 2014 Hewlett-Packard Development Company, L.P.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -13,21 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-CLOUD_DEFAULTS = dict(
-    hp=dict(
-        auth=dict(
-            auth_url='https://region-b.geo-1.identity.hpcloudsvc.com:35357/v2.0',
-        ),
-        region_name='region-b.geo-1',
-        dns_service_type='hpext:dns',
-        image_api_version='1',
-    ),
-    rackspace=dict(
-        auth=dict(
-            auth_url='https://identity.api.rackspacecloud.com/v2.0/',
-        ),
-        database_service_type='rax:database',
-        compute_service_name='cloudServersOpenStack',
-        image_api_version='2',
-    )
+_defaults = dict(
+    auth_type='password',
+    compute_api_version='2',
+    identity_api_version='2',
+    image_api_version='1',
+    network_api_version='2',
+    object_api_version='1',
+    volume_api_version='1',
 )
