@@ -15,8 +15,7 @@ from openstack import resource
 
 
 class FloatingIP(resource.Resource):
-    id_attribute = "floating_ip_address"
-    name_attribute = None
+    name_attribute = "floating_ip_address"
     resource_name = "floating ip"
     resource_key = 'floatingip'
     resources_key = 'floatingips'

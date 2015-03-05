@@ -91,7 +91,7 @@ def delete_jenkins(conn, name, opts):
 def run_jenkins(opts):
     argument = opts.argument
     conn = connection.make_connection(opts)
-    name = opts.data.pop('name', 'jankins')
+    name = opts.data.pop('name', 'jenkins')
     if argument == "delete":
         return(delete_jenkins(conn, name, opts))
     return(create_jenkins(conn, name, opts))
