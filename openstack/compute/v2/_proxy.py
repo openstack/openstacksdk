@@ -125,8 +125,10 @@ class Proxy(proxy.BaseProxy):
     def update_server(self, **data):
         return server.Server(data).update(self.session)
 
-    def wait_for_status(self, server, status='ACTIVE', interval=2, wait=120):
-        return server.wait_for_status(self.session, status, interval, wait)
+    def wait_for_status(self, server, status='ACTIVE', failures=['ERROR'],
+                        interval=2, wait=120):
+        return server.wait_for_status(self.session, status, failures, interval,
+                                      wait)
 
     def create_server_interface(self, **data):
         return server_interface.ServerInterface(data).create(self.session)
