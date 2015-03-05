@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
+
 from openstack.network.v2 import _proxy
 from openstack.tests import test_proxy_base
 
@@ -356,6 +358,47 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_update(
             'openstack.network.v2.security_group.SecurityGroup.update',
             self.proxy.update_security_group)
+
+    def test_security_group_open_port(self):
+        mock_class = 'openstack.network.v2._proxy.Proxy'
+        mock_method = mock_class + '.create_security_group_rule'
+        expected_result = 'result'
+        sgid = 1
+        port = 2
+        with mock.patch(mock_method) as mocked:
+            mocked.return_value = expected_result
+            actual = self.proxy.security_group_open_port(sgid, port)
+            self.assertEqual(expected_result, actual)
+            expected_args = {
+                'direction': 'ingress',
+                'protocol': 'tcp',
+                'remote_ip_prefix': '0.0.0.0/0',
+                'port_range_max': port,
+                'security_group_id': sgid,
+                'port_range_min': port,
+                'ethertype': 'IPv4',
+            }
+            mocked.assert_called_with(**expected_args)
+
+    def test_security_group_allow_ping(self):
+        mock_class = 'openstack.network.v2._proxy.Proxy'
+        mock_method = mock_class + '.create_security_group_rule'
+        expected_result = 'result'
+        sgid = 1
+        with mock.patch(mock_method) as mocked:
+            mocked.return_value = expected_result
+            actual = self.proxy.security_group_allow_ping(sgid)
+            self.assertEqual(expected_result, actual)
+            expected_args = {
+                'direction': 'ingress',
+                'protocol': 'icmp',
+                'remote_ip_prefix': '0.0.0.0/0',
+                'port_range_max': None,
+                'security_group_id': sgid,
+                'port_range_min': None,
+                'ethertype': 'IPv4',
+            }
+            mocked.assert_called_with(**expected_args)
 
     def test_security_group_rule_create(self):
         self.verify_create(
