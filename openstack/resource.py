@@ -104,7 +104,8 @@ class prop(object):
         except KeyError:
             try:
                 value = instance[self.alias]
-            except KeyError:
+            except (KeyError, AttributeError):
+                # If we either don't find the key or we don't have an alias
                 return self.default
 
         if self.type and not isinstance(value, self.type):
