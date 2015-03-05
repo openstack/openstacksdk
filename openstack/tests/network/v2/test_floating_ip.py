@@ -15,10 +15,11 @@ import testtools
 
 from openstack.network.v2 import floating_ip
 
-IDENTIFIER = '10.0.0.1'
+IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
+    'id': IDENTIFIER,
     'fixed_ip_address': '1',
-    'floating_ip_address': IDENTIFIER,
+    'floating_ip_address': '127.0.0.1',
     'floating_network_id': '3',
     'port_id': '5',
     'tenant_id': '6',
@@ -47,7 +48,7 @@ class TestFloatingIP(testtools.TestCase):
                          sot.floating_ip_address)
         self.assertEqual(EXAMPLE['floating_network_id'],
                          sot.floating_network_id)
-        self.assertEqual(EXAMPLE['floating_ip_address'], sot.id)
+        self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['port_id'], sot.port_id)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['router_id'], sot.router_id)
@@ -56,15 +57,15 @@ class TestFloatingIP(testtools.TestCase):
         mock_session = mock.Mock()
         mock_get = mock.Mock()
         mock_session.get = mock_get
-        data = {'floating_ip_address': '10.0.0.1'}
+        data = {'id': 'one', 'floating_ip_address': '10.0.0.1'}
         fake_response = mock.Mock()
         fake_response.body = {floating_ip.FloatingIP.resources_key: [data]}
         mock_get.return_value = fake_response
 
         result = floating_ip.FloatingIP.find_available(mock_session)
 
-        self.assertEqual('10.0.0.1', result.id)
-        p = {'fields': 'floating_ip_address', 'port_id': ''}
+        self.assertEqual('one', result.id)
+        p = {'fields': 'id', 'port_id': ''}
         mock_get.assert_called_with(floating_ip.FloatingIP.base_path,
                                     params=p,
                                     service=floating_ip.FloatingIP.service)
