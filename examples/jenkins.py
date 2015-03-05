@@ -68,95 +68,13 @@ def create_jenkins(opts):
     sg = conn.network.find_security_group(name)
     if sg is None:
         sg = conn.network.create_security_group(name=name)
-        print(str(sg))
-        rule = {
-            'direction': 'ingress',
-            'remote_ip_prefix': '0.0.0.0/0',
-            'protocol': 'tcp',
-            'port_range_max': 9022,
-            'port_range_min': 9022,
-            'security_group_id': sg.id,
-            'ethertype': 'IPv4'
-        }
-        conn.network.create_security_group_rule(**rule)
-        print('rule allow 9022')
-        rule = {
-            'direction': 'ingress',
-            'remote_ip_prefix': '0.0.0.0/0',
-            'protocol': 'tcp',
-            'port_range_max': 443,
-            'port_range_min': 443,
-            'security_group_id': sg.id,
-            'ethertype': 'IPv4'
-        }
-        conn.network.create_security_group_rule(**rule)
-        print('rule allow HTTPS')
-        rule = {
-            'direction': 'ingress',
-            'remote_ip_prefix': '0.0.0.0/0',
-            'protocol': 'icmp',
-            'port_range_max': None,
-            'port_range_min': None,
-            'security_group_id': sg.id,
-            'ethertype': 'IPv4'
-        }
-        conn.network.create_security_group_rule(**rule)
-        print('rule allow ping')
-        rule = {
-            'direction': 'ingress',
-            'remote_ip_prefix': '0.0.0.0/0',
-            'protocol': 'tcp',
-            'port_range_max': 80,
-            'port_range_min': 80,
-            'security_group_id': sg.id,
-            'ethertype': 'IPv4'
-        }
-        conn.network.create_security_group_rule(**rule)
-        print('rule allow HTTP')
-        rule = {
-            'direction': 'ingress',
-            'remote_ip_prefix': None,
-            'protocol': None,
-            'port_range_max': None,
-            'port_range_min': None,
-            'security_group_id': sg.id,
-            'ethertype': 'IPv6'
-        }
-        conn.network.create_security_group_rule(**rule)
-        print('rule allow IPv6')
-        rule = {
-            'direction': 'ingress',
-            'remote_ip_prefix': '0.0.0.0/0',
-            'protocol': 'tcp',
-            'port_range_max': 8080,
-            'port_range_min': 8080,
-            'security_group_id': sg.id,
-            'ethertype': 'IPv4'
-        }
-        conn.network.create_security_group_rule(**rule)
-        print('rule allow 8080')
-        rule = {
-            'direction': 'ingress',
-            'remote_ip_prefix': '0.0.0.0/0',
-            'protocol': 'tcp',
-            'port_range_max': 4222,
-            'port_range_min': 4222,
-            'security_group_id': sg.id,
-            'ethertype': 'IPv4'
-        }
-        conn.network.create_security_group_rule(**rule)
-        print('rule allow 4222')
-        rule = {
-            'direction': 'ingress',
-            'remote_ip_prefix': '0.0.0.0/0',
-            'protocol': 'tcp',
-            'port_range_max': 22,
-            'port_range_min': 22,
-            'security_group_id': sg.id,
-            'ethertype': 'IPv4'
-        }
-        conn.network.create_security_group_rule(**rule)
-        print('rule allow ssh')
+        conn.network.security_group_open_port(sg.id, 9022)
+        conn.network.security_group_open_port(sg.id, 443)
+        conn.network.security_group_open_port(sg.id, 80)
+        conn.network.security_group_open_port(sg.id, 8080)
+        conn.network.security_group_open_port(sg.id, 4222)
+        conn.network.security_group_open_port(sg.id, 22)
+        conn.network.security_group_allow_ping(sg.id)
     print(str(sg))
 
     kp = conn.compute.find_keypair(name)

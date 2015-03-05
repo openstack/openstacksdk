@@ -283,6 +283,30 @@ class Proxy(proxy.BaseProxy):
     def update_security_group(self, **data):
         return security_group.SecurityGroup(**data).update(self.session)
 
+    def security_group_open_port(self, sgid, port, protocol='tcp'):
+        rule = {
+            'direction': 'ingress',
+            'remote_ip_prefix': '0.0.0.0/0',
+            'protocol': protocol,
+            'port_range_max': port,
+            'port_range_min': port,
+            'security_group_id': sgid,
+            'ethertype': 'IPv4'
+        }
+        return self.create_security_group_rule(**rule)
+
+    def security_group_allow_ping(self, sgid):
+        rule = {
+            'direction': 'ingress',
+            'remote_ip_prefix': '0.0.0.0/0',
+            'protocol': 'icmp',
+            'port_range_max': None,
+            'port_range_min': None,
+            'security_group_id': sgid,
+            'ethertype': 'IPv4'
+        }
+        return self.create_security_group_rule(**rule)
+
     def create_security_group_rule(self, **data):
         obj = security_group_rule.SecurityGroupRule(data)
         return obj.create(self.session)
