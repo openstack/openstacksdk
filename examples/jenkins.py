@@ -20,82 +20,19 @@ To run:
 """
 
 import base64
-import os
 import sys
 
 from examples import common
-from openstack import connection
+from examples import connection
+from examples import network
 
 
-def create_jenkins(opts):
-    name = opts.data.pop('name', 'jenkins')
-    dns_nameservers = opts.data.pop('dns_nameservers', '206.164.176.34')
-    cidr = opts.data.pop('cidr', '10.3.3.0/24')
+def create_jenkins(conn, name, opts):
     flavor = opts.data.pop('flavor', '103')
     image = opts.data.pop('image', 'bec3cab5-4722-40b9-a78a-3489218e22fe')
 
-    args = vars(opts)
-    conn = connection.Connection(preference=opts.user_preferences, **args)
-
-    network = conn.network.find_network(name)
-    if network is None:
-        network = conn.network.create_network(name=name)
-    print(str(network))
-
-    subnet = conn.network.find_subnet(name)
-    if subnet is None:
-        args = {
-            "name": name,
-            "network_id": network.id,
-            "ip_version": "4",
-            "dns_nameservers": [dns_nameservers],
-            "cidr": cidr,
-        }
-        subnet = conn.network.create_subnet(**args)
-    print(str(subnet))
-
-    extnet = conn.network.find_network("Ext-Net")
-    router = conn.network.find_router(name)
-    if router is None:
-        args = {
-            "name": name,
-            "external_gateway_info": {"network_id": extnet.id}
-        }
-        router = conn.network.create_router(**args)
-        conn.network.router_add_interface(router, subnet.id)
-    print(str(router))
-
-    sg = conn.network.find_security_group(name)
-    if sg is None:
-        sg = conn.network.create_security_group(name=name)
-        conn.network.security_group_open_port(sg.id, 9022)
-        conn.network.security_group_open_port(sg.id, 443)
-        conn.network.security_group_open_port(sg.id, 80)
-        conn.network.security_group_open_port(sg.id, 8080)
-        conn.network.security_group_open_port(sg.id, 4222)
-        conn.network.security_group_open_port(sg.id, 22)
-        conn.network.security_group_allow_ping(sg.id)
-    print(str(sg))
-
-    kp = conn.compute.find_keypair(name)
-    if kp is None:
-        kp = conn.compute.create_keypair(name=name)
-        try:
-            os.remove('jenkins')
-        except OSError:
-            pass
-        try:
-            os.remove('jenkins.pub')
-        except OSError:
-            pass
-        print(str(kp))
-        f = open('jenkins', 'w')
-        f.write("%s" % kp.private_key)
-        f.close()
-        f = open('jenkins.pub', 'w')
-        f.write("%s" % kp.public_key)
-        f.close()
-    print(str(kp))
+    ports = [9022, 443, 80, 8080, 422, 22]
+    net = network.create(conn, name, opts, ports_to_open=ports)
 
     server = conn.compute.find_server(name)
     if server is None:
@@ -109,7 +46,7 @@ def create_jenkins(opts):
             "imageRef": image,
             "imageRef": image,
             "key_name": name,
-            "networks": [{"uuid": network.id}],
+            "networks": [{"uuid": net.id}],
             "user_data": b64str,
         }
         server = conn.compute.create_server(**args)
@@ -121,6 +58,7 @@ def create_jenkins(opts):
     print('Server is up.')
 
     if len(server.get_floating_ips()) <= 0:
+        extnet = conn.network.find_network("Ext-Net")
         ip = conn.network.find_available_ip()
         if ip is None:
             ip = conn.network.create_ip(floating_network_id=extnet.id)
@@ -134,11 +72,7 @@ def create_jenkins(opts):
     return
 
 
-def delete_jenkins(opts):
-    name = opts.data.pop('name', 'jenkins')
-    args = vars(opts)
-    conn = connection.Connection(preference=opts.user_preferences, **args)
-
+def delete_jenkins(conn, name, opts):
     server = conn.compute.find_server(name)
     if server is not None:
         server = conn.get(server)
@@ -151,44 +85,16 @@ def delete_jenkins(opts):
             conn.delete(ip)
         conn.delete(server)
 
-    kp = conn.compute.find_keypair(name)
-    if kp is not None:
-        print(str(kp))
-        conn.delete(kp)
-
-    router = conn.network.find_router(name)
-    if router is not None:
-        print(str(router))
-
-    subnet = conn.network.find_subnet(name)
-    if subnet is not None:
-        print(str(subnet))
-        if router:
-            try:
-                conn.network.router_remove_interface(router, subnet.id)
-            except Exception:
-                pass
-        for port in conn.network.get_subnet_ports(subnet.id):
-            print(str(port))
-            conn.delete(port)
-
-    if router is not None:
-        conn.delete(router)
-
-    if subnet:
-        conn.delete(subnet)
-
-    network = conn.network.find_network(name)
-    if network is not None:
-        print(str(network))
-        conn.delete(network)
+    network.delete(conn, name)
 
 
 def run_jenkins(opts):
     argument = opts.argument
+    conn = connection.make_connection(opts)
+    name = opts.data.pop('name', 'jankins')
     if argument == "delete":
-        return(delete_jenkins(opts))
-    return(create_jenkins(opts))
+        return(delete_jenkins(conn, name, opts))
+    return(create_jenkins(conn, name, opts))
 
 
 if __name__ == "__main__":
