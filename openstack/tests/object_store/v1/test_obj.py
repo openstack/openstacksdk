@@ -63,7 +63,11 @@ class TestObject(testtools.TestCase):
         self.resp.headers = {"X-Trans-Id": "abcdef"}
         self.sess = mock.Mock()
         self.sess.get = mock.MagicMock()
+        self.sess.put = mock.MagicMock()
+        self.sess.post = mock.MagicMock()
         self.sess.get.return_value = self.resp
+        self.sess.put.return_value = self.resp
+        self.sess.post.return_value = self.resp
 
     def test_basic(self):
         sot = obj.Object.new(**OBJ_EXAMPLE)
@@ -112,3 +116,21 @@ class TestObject(testtools.TestCase):
         self.sess.get.assert_called_with(url, service=sot.service,
                                          accept="bytes", headers=headers)
         self.assertEqual(self.resp.content, rv)
+
+    def _test_create(self, method, data, accept):
+        sot = obj.Object.new(container=CONTAINER_NAME, name=OBJECT_NAME)
+        sot.newest = True
+        headers = {"x-newest": True}
+
+        rv = sot.create(self.sess, data=data)
+
+        url = "/%s/%s" % (CONTAINER_NAME, OBJECT_NAME)
+        method.assert_called_with(url, service=sot.service, data=data,
+                                  accept=accept, headers=headers)
+        self.assertEqual(self.resp.headers, rv.get_headers())
+
+    def test_create_data(self):
+        self._test_create(self.sess.put, "data", "bytes")
+
+    def test_create_no_data(self):
+        self._test_create(self.sess.post, None, None)

@@ -162,11 +162,12 @@ class Object(resource.Resource):
         """Create a remote resource from this instance."""
         url = utils.urljoin("", self.base_path % self, self.id)
 
+        headers = self.get_headers()
         if data is not None:
             resp = session.put(url, service=self.service, data=data,
-                               accept="bytes").headers
+                               accept="bytes", headers=headers).headers
         else:
             resp = session.post(url, service=self.service, data=None,
-                                accept=None).headers
+                                accept=None, headers=headers).headers
         self.set_headers(resp)
         return self
