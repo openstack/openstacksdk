@@ -52,7 +52,7 @@ def get_server_public_ip(server):
 def get_groups_from_server(cloud, server, server_vars):
     groups = []
 
-    region = cloud.region
+    region = cloud.region_name
     cloud_name = cloud.name
 
     # Create a group for the cloud
@@ -104,7 +104,7 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     if interface_ip:
         server_vars['interface_ip'] = interface_ip
 
-    server_vars['region'] = cloud.region
+    server_vars['region'] = cloud.region_name
     server_vars['cloud'] = cloud.name
 
     flavor_id = server.flavor['id']

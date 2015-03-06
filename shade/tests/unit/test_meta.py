@@ -49,7 +49,7 @@ class TestMeta(testtools.TestCase):
 
     def test_get_groups_from_server(self):
         class Cloud(object):
-            region = 'test-region'
+            region_name = 'test-region'
             name = 'test-name'
 
         class Server(object):

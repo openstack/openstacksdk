@@ -63,10 +63,10 @@ class OpenStackCloudTimeout(OpenStackCloudException):
     pass
 
 
-def openstack_clouds(config=None, debug=False, **kwargs):
+def openstack_clouds(config=None, debug=False):
     if not config:
         config = os_client_config.OpenStackConfig()
-    return [OpenStackCloud(name=f.name, debug=debug, **f.config)
+    return [OpenStackCloud(cloud=f.name, debug=debug, **f.config)
             for f in config.get_all_clouds()]
 
 
@@ -74,7 +74,7 @@ def openstack_cloud(debug=False, **kwargs):
     cloud_config = os_client_config.OpenStackConfig().get_one_cloud(
         **kwargs)
     return OpenStackCloud(
-        name=cloud_config.name,
+        cloud=cloud_config.name,
         debug=debug, **cloud_config.config)
 
 
@@ -167,7 +167,7 @@ class OpenStackCloud(object):
                                (optional, defaults to None)
     """
 
-    def __init__(self, name, auth,
+    def __init__(self, cloud, auth,
                  region_name='',
                  auth_plugin='password',
                  endpoint_type='public',
@@ -175,7 +175,7 @@ class OpenStackCloud(object):
                  verify=True, cacert=None, cert=None, key=None,
                  debug=False, cache_interval=None, **kwargs):
 
-        self.name = name
+        self.name = cloud
         self.auth = auth
         self.region_name = region_name
         self.auth_plugin = auth_plugin
@@ -197,6 +197,7 @@ class OpenStackCloud(object):
         self._file_hash_cache = dict()
 
         self._keystone_session = None
+        self._auth_token = None
 
         self._cinder_client = None
         self._glance_client = None
@@ -684,7 +685,6 @@ class OpenStackCloud(object):
         image = self.get_image(image_id, exclude)
         if image:
             return image.id
-        self._image_cache[image_id] = None
         return None
 
     def get_image_id(self, image_name, exclude=None):
@@ -755,6 +755,7 @@ class OpenStackCloud(object):
     def _upload_image_v1(self, name, filename, **image_kwargs):
         image = self.glance_client.images.create(name=name, **image_kwargs)
         image.update(data=open(filename, 'rb'))
+        self._cache.invalidate()
         return self.get_image_dict(image.id)
 
     def _upload_image_v2(
