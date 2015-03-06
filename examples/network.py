@@ -68,24 +68,32 @@ def create(conn, name, opts, ports_to_open=[80, 22]):
 
     kp = conn.compute.find_keypair(name)
     if kp is None:
-        # TODO(terrylhowe): Perhaps create keypair from id_rsa by default
-        # and maybe create id_rsa if it doesn't exist.
-        kp = conn.compute.create_keypair(name=name)
+        dirname = os.path.expanduser("~/.ssh")
         try:
-            os.remove(name)
+            os.mkdir(dirname, 0o700)
         except OSError:
             pass
+        filename = os.path.join(dirname, name)
+        filenamepub = filename + '.pub'
+        args = {'name': name}
+        pubkey = None
         try:
-            os.remove(name + '.pub')
-        except OSError:
+            f = open(filenamepub, 'r')
+            pubkey = f.read()
+            f.close()
+            args['public_key'] = pubkey
+        except IOError:
             pass
-        print(str(kp))
-        f = open(name, 'w')
-        f.write("%s" % kp.private_key)
-        f.close()
-        f = open(name + '.pub', 'w')
-        f.write("%s" % kp.public_key)
-        f.close()
+        kp = conn.compute.create_keypair(**args)
+        if pubkey is None:
+            f = open(filename, 'w')
+            f.write("%s" % kp.private_key)
+            f.close()
+            f = open(filenamepub, 'w')
+            f.write("%s" % kp.public_key)
+            f.close()
+            os.chmod(filename, 0o640)
+            os.chmod(filenamepub, 0o644)
     print(str(kp))
 
     return network
