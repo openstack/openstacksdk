@@ -33,7 +33,6 @@ Typical environment variables to set and export for authentication include:
 """
 
 import argparse
-import json
 import logging
 import os
 import subprocess
@@ -73,7 +72,7 @@ def get_data_option(opts):
         iddy = uuid.UUID(opts.data)
         return {'id': iddy}
     except ValueError:
-        return json.loads(opts.data)
+        return eval(opts.data)
 
 
 def get_open_fds():
