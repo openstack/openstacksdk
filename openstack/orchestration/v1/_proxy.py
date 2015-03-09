@@ -24,3 +24,6 @@ class Proxy(proxy.BaseProxy):
 
     def get_stack(self, **data):
         return stack.Stack(data).get(self.session)
+
+    def delete_stack(self, **data):
+        return stack.Stack(data).delete(self.session)

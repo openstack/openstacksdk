@@ -24,6 +24,7 @@ class Stack(resource.Resource):
     # NOTE(thowe): Special handling for other operations
     allow_list = True
     allow_retrieve = True
+    allow_delete = True
 
     # Properties
     name = resource.prop('stack_name')

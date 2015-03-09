@@ -30,3 +30,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
     def test_stack_get(self):
         self.verify_get('openstack.orchestration.v1.stack.Stack.get',
                         self.proxy.get_stack)
+
+    def test_stack_delete(self):
+        self.verify_get('openstack.orchestration.v1.stack.Stack.delete',
+                        self.proxy.delete_stack)
