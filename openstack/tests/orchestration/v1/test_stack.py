@@ -45,7 +45,7 @@ class TestStack(testtools.TestCase):
         self.assertFalse(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)
         self.assertFalse(sot.allow_update)
-        self.assertFalse(sot.allow_delete)
+        self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
