@@ -36,9 +36,6 @@ class Sample(resource.Resource):
     user_id = resource.prop('user_id')
     volume = resource.prop('volume', alias='counter_volume')
 
-    def __repr__(self):
-        return "sample: %s" % self._attrs
-
     @classmethod
     def list(cls, session, path_args=None, **params):
         url = cls.base_path % path_args

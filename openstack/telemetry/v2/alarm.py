@@ -47,9 +47,6 @@ class Alarm(resource.Resource):
     updated_at = resource.prop('timestamp')
     user_id = resource.prop('user_id')
 
-    def __repr__(self):
-        return "alarm: %s" % self._attrs
-
     def change_state(self, session, next_state):
         """Set the state of an alarm.
 

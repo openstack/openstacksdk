@@ -32,6 +32,3 @@ class Resource(resource.Resource):
     resource_id = resource.prop('resource_id')
     source = resource.prop('source')
     user_id = resource.prop('user_id')
-
-    def __repr__(self):
-        return "resource: %s" % (self._attrs)
