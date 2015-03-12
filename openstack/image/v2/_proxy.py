@@ -13,12 +13,10 @@
 from openstack.image.v2 import image
 from openstack.image.v2 import member
 from openstack.image.v2 import tag
+from openstack import proxy
 
 
-class Proxy(object):
-
-    def __init__(self, session):
-        self.session = session
+class Proxy(proxy.BaseProxy):
 
     def create_image(self, **data):
         return image.Image(data).create(self.session)
