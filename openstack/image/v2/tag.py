@@ -11,25 +11,45 @@
 # under the License.
 
 from openstack.image import image_service
+from openstack.image.v2 import image
 from openstack import resource
+from openstack import utils
 
 
 class Tag(resource.Resource):
-    id_attribute = 'tag'
-    resources_key = 'tags'
-    base_path = '/images/%(image_id)s/tags'
+    id_attribute = "image"
+    base_path = "/images/%(image)s/tags"
     service = image_service.ImageService()
 
     # capabilities
     allow_create = True
     allow_delete = True
 
-    # Properties
-    image_id = resource.prop('image_id')
+    #: The image to manipulate
+    image = resource.prop("image", type=image.Image)
 
-    def create(self, session):
-        """Create a remote resource from this instance."""
-        # Service expects a naked PUT. Omit properties.
-        self.create_by_id(session, None, self.id, path_args=self)
-        self._reset_dirty()
-        return self
+    def create(self, session, tag):
+        """Set a tag on the image
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+        :param string tag: A tag to set on the image
+
+        :return: ``None``
+        """
+        url = utils.urljoin(self.base_path %
+                            {"image": self.image.id}, tag)
+        session.put(url, service=self.service, accept=None)
+
+    def delete(self, session, tag):
+        """Delete a tag on the image
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+        :param string tag: The tag to delete on the image
+
+        :return: ``None``
+        """
+        url = utils.urljoin(self.base_path %
+                            {"image": self.image.id}, tag)
+        session.delete(url, service=self.service, accept=None)

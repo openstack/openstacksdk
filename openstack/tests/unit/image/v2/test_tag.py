@@ -13,23 +13,27 @@
 import mock
 import testtools
 
+from openstack.image.v2 import image
 from openstack.image.v2 import tag
-
-IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
-    'image_id': 'IMAGE_ID',
-    'tag': IDENTIFIER,
-}
 
 
 class TestTag(testtools.TestCase):
+
+    def setUp(self):
+        super(TestTag, self).setUp()
+
+        self.session = mock.Mock()
+        self.session.put = mock.Mock()
+        self.session.delete = mock.Mock()
+
+        self.img = image.Image({"id": "123"})
+
     def test_basic(self):
         sot = tag.Tag()
         self.assertIsNone(sot.resource_key)
-        self.assertEqual('tags', sot.resources_key)
-        self.assertEqual('/images/%(image_id)s/tags', sot.base_path)
+        self.assertEqual('/images/%(image)s/tags', sot.base_path)
         self.assertEqual('image', sot.service.service_type)
-        self.assertEqual('tag', sot.id_attribute)
+        self.assertEqual('image', sot.id_attribute)
         self.assertTrue(sot.allow_create)
         self.assertFalse(sot.allow_retrieve)
         self.assertFalse(sot.allow_update)
@@ -37,14 +41,23 @@ class TestTag(testtools.TestCase):
         self.assertFalse(sot.allow_list)
 
     def test_make_it(self):
-        sot = tag.Tag(EXAMPLE)
-        self.assertEqual(IDENTIFIER, sot.id)
-        self.assertEqual(EXAMPLE['image_id'], sot.image_id)
+        sot = tag.Tag({"image": self.img})
+        self.assertEqual(self.img, sot.image)
+
+    def _test_action(self, sot_method, session_method):
+        test_tag = "testing"
+
+        sot = tag.Tag({"image": self.img})
+        rv = getattr(sot, sot_method)(self.session, test_tag)
+
+        url = 'images/%(image)s/tags/%(tag)s' % {
+            "image": self.img.get_id(self.img), "tag": test_tag}
+        self.assertIsNone(rv)
+        session_method.assert_called_with(url, service=sot.service,
+                                          accept=None)
 
     def test_create(self):
-        sess = mock.Mock()
-        resp = mock.Mock()
-        sess.put = mock.Mock(return_value=resp)
-        url = 'images/{image_id}/tags/{tag}'.format(**EXAMPLE)
-        tag.Tag(EXAMPLE).create(sess)
-        sess.put.assert_called_with(url, service=tag.Tag.service, json=None)
+        self._test_action("create", self.session.put)
+
+    def test_delete(self):
+        self._test_action("delete", self.session.delete)
