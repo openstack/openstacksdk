@@ -16,6 +16,9 @@ from openstack import proxy
 
 class Proxy(proxy.BaseProxy):
 
+    def create_stack(self, **data):
+        return stack.Stack(data).create(self.session)
+
     def find_stack(self, name_or_id):
         return stack.Stack.find(self.session, name_or_id)
 

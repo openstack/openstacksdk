@@ -15,6 +15,7 @@ from openstack import resource
 
 
 class Stack(resource.Resource):
+    name_attribute = 'stack_name'
     resource_key = 'stack'
     resources_key = 'stacks'
     base_path = '/stacks'
@@ -22,6 +23,7 @@ class Stack(resource.Resource):
 
     # capabilities
     # NOTE(thowe): Special handling for other operations
+    allow_create = True
     allow_list = True
     allow_retrieve = True
     allow_delete = True
@@ -36,8 +38,18 @@ class Stack(resource.Resource):
     notification_topics = resource.prop('notification_topics')
     outputs = resource.prop('outputs')
     parameters = resource.prop('parameters', type=dict)
-    stack_status = resource.prop('stack_status')
-    stack_status_reason = resource.prop('stack_status_reason')
+    status = resource.prop('stack_status')
+    status_reason = resource.prop('stack_status_reason')
     template_description = resource.prop('template_description')
+    template_url = resource.prop('template_url')
     timeout_mins = resource.prop('timeout_mins')
     updated_time = resource.prop('updated_time')
+
+    @classmethod
+    def create_by_id(cls, session, attrs, resource_id=None, path_args=None):
+        body = attrs.copy()
+        body.pop('id', None)
+        body.pop('name', None)
+        url = cls.base_path
+        resp = session.post(url, service=cls.service, json=body).body
+        return resp[cls.resource_key]

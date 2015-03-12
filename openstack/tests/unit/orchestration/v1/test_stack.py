@@ -10,27 +10,37 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 import testtools
 
 from openstack.orchestration.v1 import stack
 
-IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+FAKE_ID = 'ce8ae86c-9810-4cb1-8888-7fb53bc523bf'
+FAKE_NAME = 'test_stack'
+FAKE = {
     'capabilities': '1',
     'creation_time': '2',
     'description': '3',
     'disable_rollback': True,
-    'id': IDENTIFIER,
+    'id': FAKE_ID,
     'links': '6',
     'notification_topics': '7',
     'outputs': '8',
     'parameters': {'OS::stack_id': '9'},
-    'stack_name': '10',
-    'stack_status': '11',
-    'stack_status_reason': '12',
+    'name': FAKE_NAME,
+    'status': '11',
+    'status_reason': '12',
     'template_description': '13',
+    'template_url': 'http://www.example.com/wordpress.yaml',
     'timeout_mins': '14',
     'updated_time': '15',
+}
+FAKE_CREATE_RESPONSE = {
+    'stack': {
+        'id': FAKE_ID,
+        'links': [{
+            'href': 'stacks/%s/%s' % (FAKE_NAME, FAKE_ID),
+            'rel': 'self'}]}
 }
 
 
@@ -42,29 +52,49 @@ class TestStack(testtools.TestCase):
         self.assertEqual('stacks', sot.resources_key)
         self.assertEqual('/stacks', sot.base_path)
         self.assertEqual('orchestration', sot.service.service_type)
-        self.assertFalse(sot.allow_create)
+        self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)
         self.assertFalse(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = stack.Stack(EXAMPLE)
-        self.assertEqual(EXAMPLE['capabilities'], sot.capabilities)
-        self.assertEqual(EXAMPLE['creation_time'], sot.creation_time)
-        self.assertEqual(EXAMPLE['description'], sot.description)
-        self.assertEqual(EXAMPLE['disable_rollback'], sot.disable_rollback)
-        self.assertEqual(EXAMPLE['id'], sot.id)
-        self.assertEqual(EXAMPLE['links'], sot.links)
-        self.assertEqual(EXAMPLE['notification_topics'],
+        sot = stack.Stack(FAKE)
+        self.assertEqual(FAKE['capabilities'], sot.capabilities)
+        self.assertEqual(FAKE['creation_time'], sot.creation_time)
+        self.assertEqual(FAKE['description'], sot.description)
+        self.assertEqual(FAKE['disable_rollback'], sot.disable_rollback)
+        self.assertEqual(FAKE['id'], sot.id)
+        self.assertEqual(FAKE['links'], sot.links)
+        self.assertEqual(FAKE['notification_topics'],
                          sot.notification_topics)
-        self.assertEqual(EXAMPLE['outputs'], sot.outputs)
-        self.assertEqual(EXAMPLE['parameters'], sot.parameters)
-        self.assertEqual(EXAMPLE['stack_name'], sot.name)
-        self.assertEqual(EXAMPLE['stack_status'], sot.stack_status)
-        self.assertEqual(EXAMPLE['stack_status_reason'],
-                         sot.stack_status_reason)
-        self.assertEqual(EXAMPLE['template_description'],
+        self.assertEqual(FAKE['outputs'], sot.outputs)
+        self.assertEqual(FAKE['parameters'], sot.parameters)
+        self.assertEqual(FAKE['name'], sot.name)
+        self.assertEqual(FAKE['status'], sot.status)
+        self.assertEqual(FAKE['status_reason'],
+                         sot.status_reason)
+        self.assertEqual(FAKE['template_description'],
                          sot.template_description)
-        self.assertEqual(EXAMPLE['timeout_mins'], sot.timeout_mins)
-        self.assertEqual(EXAMPLE['updated_time'], sot.updated_time)
+        self.assertEqual(FAKE['template_url'],
+                         sot.template_url)
+        self.assertEqual(FAKE['timeout_mins'], sot.timeout_mins)
+        self.assertEqual(FAKE['updated_time'], sot.updated_time)
+
+    def test_create(self):
+        resp = mock.MagicMock()
+        resp.body = FAKE_CREATE_RESPONSE
+        sess = mock.Mock()
+        sess.post = mock.MagicMock()
+        sess.post.return_value = resp
+        sot = stack.Stack(FAKE)
+
+        sot.create(sess)
+
+        url = '/stacks'
+        body = FAKE.copy()
+        body.pop('id')
+        body.pop('name')
+        sess.post.assert_called_with(url, service=sot.service, json=body)
+        self.assertEqual(FAKE_ID, sot.id)
+        self.assertEqual(FAKE_NAME, sot.name)
