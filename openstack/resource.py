@@ -456,7 +456,7 @@ class Resource(collections.MutableMapping):
     ##
 
     @staticmethod
-    def _get_id(value):
+    def get_id(value):
         """If a value is a Resource, return the canonical ID."""
         if isinstance(value, Resource):
             return value.id

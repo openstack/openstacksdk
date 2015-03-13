@@ -888,6 +888,16 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual(int(value3), sot.curly)
         self.assertEqual(value4, sot["notprop"])
 
+    def test_get_id(self):
+        class Test(resource.Resource):
+            pass
+
+        ID = "an id"
+        res = Test({"id": ID})
+
+        self.assertEqual(ID, resource.Resource.get_id(ID))
+        self.assertEqual(ID, resource.Resource.get_id(res))
+
 
 class ResourceMapping(base.TestCase):
 
