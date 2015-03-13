@@ -117,3 +117,25 @@ class BaseProxy(object):
         """
         res = resource_type.new(**attrs)
         return res.create(self.session)
+
+    @_check_resource(strict=False)
+    def _get(self, resource_type, value):
+        """Get a resource
+
+        :param resource_type: The type of resource to get.
+        :type resource_type: :class:`~openstack.resource.Resource`
+        :param value: The value to get. Can be either the ID of a
+                      resource or a :class:`~openstack.resource.Resource`
+                      subclass.
+
+        :returns: The result of the ``get``
+        :rtype: :class:`~openstack.resource.Resource`
+        """
+
+        res = resource_type.existing(id=resource.Resource.get_id(value))
+        try:
+            return res.get(self.session)
+        except exceptions.NotFoundException as exc:
+            raise exceptions.ResourceNotFound(
+                "No %s found for %s" % (resource_type.__name__, value),
+                details=exc.details, status_code=exc.status_code)

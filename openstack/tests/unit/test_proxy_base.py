@@ -91,6 +91,10 @@ class TestProxyBase(base.TestCase):
         self._verify(mock_method, test_method, expected_result="result",
                      **kwargs)
 
+    def verify_get2(self, mock_method, test_method, **kwargs):
+        self._verify2(mock_method, test_method, expected_result="result",
+                      **kwargs)
+
     def verify_find(self, mock_method, test_method, **kwargs):
         self._verify(mock_method, test_method, method_args=["name_or_id"],
                      expected_args=["name_or_id"], expected_result="result",

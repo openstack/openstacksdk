@@ -212,8 +212,17 @@ class Proxy(proxy.BaseProxy):
     def find_server(self, name_or_id):
         return server.Server.find(self.session, name_or_id)
 
-    def get_server(self, **data):
-        return server.Server(data).get(self.session)
+    def get_server(self, value):
+        """Get a single server
+
+        :param value: The value can be the ID of a server or a
+                      :class:`~openstack.compute.v2.server.Server` instance.
+
+        :returns: One :class:`~openstack.compute.v2.server.Server`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(server.Server, value)
 
     def list_servers(self, details=True):
         srv = server.ServerDetail if details else server.Server

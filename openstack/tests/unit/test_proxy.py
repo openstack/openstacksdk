@@ -30,12 +30,16 @@ class CreateableResource(resource.Resource):
     allow_create = True
 
 
+class RetrieveableResource(resource.Resource):
+    allow_retrieve = True
+
+
 class Test_check_resource(testtools.TestCase):
 
     def setUp(self):
         super(Test_check_resource, self).setUp()
 
-        def method(self, expected_type, value=None, *args, **kwargs):
+        def method(self, expected_type, value):
             return value
 
         self.sot = mock.Mock()
@@ -59,13 +63,6 @@ class Test_check_resource(testtools.TestCase):
         self.assertRaisesRegexp(ValueError, "A Resource must be passed",
                                 decorated, self.sot, resource.Resource,
                                 "this-is-not-a-resource")
-
-    def test_strict_None(self):
-        # strict should only type check when `actual` is a value
-        decorated = proxy._check_resource(strict=True)(self.sot.method)
-        rv = decorated(self.sot, resource.Resource)
-
-        self.assertIsNone(rv)
 
     def test_incorrect_resource(self):
         class OneType(resource.Resource):
@@ -193,3 +190,44 @@ class TestProxyCreate(testtools.TestCase):
         self.assertEqual(rv, self.fake_result)
         CreateableResource.new.assert_called_once_with(**attrs)
         self.res.create.assert_called_once_with(self.session)
+
+
+class TestProxyGet(testtools.TestCase):
+
+    def setUp(self):
+        super(TestProxyGet, self).setUp()
+
+        self.session = mock.Mock()
+
+        self.fake_id = 1
+        self.fake_name = "fake_name"
+        self.fake_result = "fake_result"
+        self.res = mock.Mock(spec=RetrieveableResource)
+        self.res.id = self.fake_id
+        self.res.get = mock.Mock(return_value=self.fake_result)
+
+        self.sot = proxy.BaseProxy(self.session)
+        RetrieveableResource.existing = mock.Mock(return_value=self.res)
+
+    def test_get_resource(self):
+        rv = self.sot._get(RetrieveableResource, self.res)
+
+        RetrieveableResource.existing.assert_called_with(id=self.res.id)
+        self.res.get.assert_called_with(self.session)
+        self.assertEqual(rv, self.fake_result)
+
+    def test_get_id(self):
+        rv = self.sot._get(RetrieveableResource, self.fake_id)
+
+        RetrieveableResource.existing.assert_called_with(id=self.fake_id)
+        self.res.get.assert_called_with(self.session)
+        self.assertEqual(rv, self.fake_result)
+
+    def test_get_not_found(self):
+        self.res.get.side_effect = exceptions.NotFoundException(
+            message="test", status_code=404)
+
+        self.assertRaisesRegexp(
+            exceptions.ResourceNotFound,
+            "No %s found for %s" % (RetrieveableResource.__name__, self.res),
+            self.sot._get, RetrieveableResource, self.res)
