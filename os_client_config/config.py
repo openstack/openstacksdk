@@ -88,13 +88,15 @@ class OpenStackConfig(object):
             self.cloud_config = dict(
                 clouds=dict(openstack=dict(self.defaults)))
 
-        self._cache_max_age = 300
+        self._cache_max_age = None
         self._cache_path = CACHE_PATH
-        self._cache_class = 'dogpile.cache.memory'
+        self._cache_class = 'dogpile.cache.null'
         self._cache_arguments = {}
         if 'cache' in self.cloud_config:
             self._cache_max_age = self.cloud_config['cache'].get(
                 'max_age', self._cache_max_age)
+            if self._cache_max_age:
+                self._cache_class = 'dogpile.cache.memory'
             self._cache_path = os.path.expanduser(
                 self.cloud_config['cache'].get('path', self._cache_path))
             self._cache_class = self.cloud_config['cache'].get(

@@ -112,13 +112,21 @@ Cache Settings
 
 Accessing a cloud is often expensive, so it's quite common to want to do some
 client-side caching of those operations. To facilitate that, os-client-config
-understands a simple set of cache control settings.
+understands passing through cache settings to dogpile.cache, with the following
+behaviors:
+
+* Listing no config settings means you get a null cache.
+* `cache.max_age` and nothing else gets you memory cache.
+* Otherwise, `cache.class` and `cache.arguments` are passed in
 
 ::
 
   cache:
-    path: ~/.cache/openstack
-    max_age: 300
+    class: dogpile.cache.pylibmc
+    max_age: 3600
+    arguments:
+      url:
+        - 127.0.0.1
   clouds:
     mordred:
       cloud: hp
