@@ -78,14 +78,14 @@ class TestTransportBase(TestCase):
 
         httpretty.register_uri(method, base_url, **kwargs)
 
-    def assertRequestHeaderEqual(self, name, val):
+    def assertRequestHeaderEqual(self, mocked_req, name, val):
         """Verify that the last request made contains a header and its value
 
         The request must have already been made and httpretty must have been
         activated for the request.
 
         """
-        headers = httpretty.last_request().headers
+        headers = mocked_req.last_request.headers
         self.assertEqual(val, headers.get(name))
 
     def assertResponseOK(self, resp, status=200, body=None):
