@@ -112,10 +112,15 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     if flavor_name:
         server_vars['flavor']['name'] = flavor_name
 
-    image_id = server.image['id']
-    image_name = cloud.get_image_name(image_id)
-    if image_name:
-        server_vars['image']['name'] = image_name
+    # OpenStack can return image as a string when you've booted from volume
+    if unicode(server.image) == server.image:
+        image_id = server.image
+    else:
+        image_id = server.image.get('id', None)
+    if image_id:
+        image_name = cloud.get_image_name(image_id)
+        if image_name:
+            server_vars['image']['name'] = image_name
 
     volumes = []
     for vol in cloud.get_volumes(server):
