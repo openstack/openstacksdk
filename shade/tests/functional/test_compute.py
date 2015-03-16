@@ -37,14 +37,14 @@ class TestCompute(base.TestCase):
         self.image = pick_image(self.nova.images.list())
         if self.image is None:
             self.addDetail('pick_image', 'no sensible image available')
-        self.addCleanup(self._cleanup_servers)
 
     def _cleanup_servers(self):
         for i in self.nova.servers.list():
-            if i.name.startswith('test'):
+            if i.name.startswith('test_create'):
                 self.nova.servers.delete(i)
 
     def test_create_server(self):
+        self.addCleanup(self._cleanup_servers)
         server = self.cloud.create_server(name='test_create_server',
                                           image=self.image, flavor=self.flavor)
         self.assertIsInstance(server, Server)
