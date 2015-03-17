@@ -12,17 +12,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""
-test_shade
-----------------------------------
-
-Tests for `shade` module.
-"""
-
+import shade
 from shade.tests import base
 
 
 class TestShade(base.TestCase):
 
-    def test_something(self):
-        pass
+    def test_openstack_cloud(self):
+        self.assertIsInstance(shade.openstack_cloud(), shade.OpenStackCloud)
