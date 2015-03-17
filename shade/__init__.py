@@ -163,7 +163,7 @@ class OpenStackCloud(object):
                        False)
     :param int cache_interval: How long to cache items fetched from the cloud.
                                Value will be passed to dogpile.cache. None
-                               means to just use the default in dogpile.cache.
+                               means do not cache at all.
                                (optional, defaults to None)
     """
 
@@ -190,9 +190,15 @@ class OpenStackCloud(object):
         (self.verify, self.cert) = _ssl_args(verify, cacert, cert, key)
 
         # dogpile.cache.memory does not clear things out of the memory dict,
-        # so there is a possibility of memory bloat over time.
+        # so there is a possibility of memory bloat over time. By passing
+        # None a user will not get any in-memory cache and thus not have
+        # a large memory leak.
+        if cache_interval is None:
+            backend_name = 'dogpile.cache.null'
+        else:
+            backend_name = 'dogpile.cache.memory'
         self._cache = cache.make_region().configure(
-            'dogpile.cache.memory', expiration_time=cache_interval)
+            backend_name, expiration_time=cache_interval)
         self._container_cache = dict()
         self._file_hash_cache = dict()
 
