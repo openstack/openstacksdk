@@ -273,7 +273,7 @@ class TestTransport(base.TestTransportBase):
         status = 404
         self.stub_url(httpretty.GET, status=status)
 
-        exc = self.assertRaises(exceptions.HttpException, xport.get,
+        exc = self.assertRaises(exceptions.NotFoundException, xport.get,
                                 self.TEST_URL)
         self.assertEqual(status, exc.status_code)
 

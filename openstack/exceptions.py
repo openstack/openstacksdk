@@ -75,6 +75,11 @@ class HttpException(SDKException):
         return self.__unicode__()
 
 
+class NotFoundException(HttpException):
+    """HTTP 404 Not Found."""
+    pass
+
+
 class MethodNotSupported(SDKException):
     """The resource does not support this operation type."""
     pass
