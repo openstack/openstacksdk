@@ -17,6 +17,7 @@ import fixtures
 import httpretty
 import mock
 import requests
+import requests_mock
 import six
 
 from openstack import exceptions
@@ -55,200 +56,230 @@ class TestTransport(base.TestTransportBase):
 
         transport.USER_AGENT = self._orig_user_agent
 
-    @httpretty.activate
-    def test_request(self):
-        self.stub_url(httpretty.GET, body=fake_response)
+    @requests_mock.Mocker()
+    def test_request(self, mock_req):
+        mock_req.get(self.TEST_URL, text=fake_response)
+        req = "GET"
+
         xport = transport.Transport()
-        resp = xport.request('GET', self.TEST_URL, accept=None)
-        self.assertEqual(httpretty.GET, httpretty.last_request().method)
+        resp = xport.request(req, self.TEST_URL, accept=None)
+
+        self.assertEqual(req, mock_req.last_request.method)
         self.assertResponseOK(resp, body=fake_response)
 
-    @httpretty.activate
-    def test_request_json(self):
-        self.stub_url(httpretty.GET, json=fake_record1)
+    @requests_mock.Mocker()
+    def test_request_json(self, mock_req):
+        mock_req.get(self.TEST_URL, json=fake_record1)
+        req = "GET"
+
         xport = transport.Transport()
-        resp = xport.request('GET', self.TEST_URL, accept=None)
-        self.assertEqual(httpretty.GET, httpretty.last_request().method)
+        resp = xport.request(req, self.TEST_URL, accept=None)
+
+        self.assertEqual(req, mock_req.last_request.method)
         self.assertResponseOK(resp, body=json.dumps(fake_record1))
         self.assertEqual(fake_record1, resp.json())
 
-    @httpretty.activate
-    def test_delete(self):
-        self.stub_url(httpretty.DELETE, body=fake_response)
+    @requests_mock.Mocker()
+    def test_delete(self, mock_req):
+        mock_req.delete(self.TEST_URL, text=fake_response)
+
         xport = transport.Transport()
         resp = xport.delete(self.TEST_URL, accept=None)
-        self.assertEqual(httpretty.DELETE, httpretty.last_request().method)
+
+        self.assertEqual("DELETE", mock_req.last_request.method)
         self.assertResponseOK(resp, body=fake_response)
 
-    @httpretty.activate
-    def test_get(self):
-        self.stub_url(httpretty.GET, body=fake_response)
+    @requests_mock.Mocker()
+    def test_get(self, mock_req):
+        mock_req.get(self.TEST_URL, text=fake_response)
+
         xport = transport.Transport()
         resp = xport.get(self.TEST_URL, accept=None)
-        self.assertEqual(httpretty.GET, httpretty.last_request().method)
+
+        self.assertEqual("GET", mock_req.last_request.method)
         self.assertResponseOK(resp, body=fake_response)
 
-    @httpretty.activate
-    def test_head(self):
-        self.stub_url(httpretty.HEAD, body='')
+    @requests_mock.Mocker()
+    def test_head(self, mock_req):
+        mock_req.head(self.TEST_URL, text="")
+
         xport = transport.Transport()
         resp = xport.head(self.TEST_URL, accept=None)
-        self.assertEqual(httpretty.HEAD, httpretty.last_request().method)
+
+        self.assertEqual("HEAD", mock_req.last_request.method)
         self.assertResponseOK(resp, body='')
 
-    @httpretty.activate
-    def test_options(self):
-        self.stub_url(httpretty.OPTIONS, body=fake_response)
-        xport = transport.Transport()
-        resp = xport.options(self.TEST_URL, accept=None)
-        self.assertEqual(httpretty.OPTIONS, httpretty.last_request().method)
-        self.assertResponseOK(resp, body=fake_response)
+    @requests_mock.Mocker()
+    def test_patch(self, mock_req):
+        mock_req.patch(self.TEST_URL, text=fake_response_json)
 
-    @httpretty.activate
-    def test_patch(self):
-        self.stub_url(httpretty.PATCH, body=fake_response_json)
         xport = transport.Transport()
         resp = xport.patch(self.TEST_URL, json=fake_record2)
-        self.assertEqual(httpretty.PATCH, httpretty.last_request().method)
+
+        self.assertEqual("PATCH", mock_req.last_request.method)
         self.assertEqual(
             json.dumps(fake_record2),
-            httpretty.last_request().body.decode('utf-8'),
+            mock_req.last_request.body,
         )
         self.assertResponseOK(resp, body=fake_response_json)
 
-    @httpretty.activate
-    def test_post(self):
-        self.stub_url(httpretty.POST, body=fake_response_json)
+    @requests_mock.Mocker()
+    def test_post(self, mock_req):
+        mock_req.post(self.TEST_URL, text=fake_response_json)
+
         xport = transport.Transport()
         resp = xport.post(self.TEST_URL, json=fake_record2)
-        self.assertEqual(httpretty.POST, httpretty.last_request().method)
+
+        self.assertEqual("POST", mock_req.last_request.method)
         self.assertEqual(
             json.dumps(fake_record2),
-            httpretty.last_request().body.decode('utf-8'),
+            mock_req.last_request.body,
         )
         self.assertResponseOK(resp, body=fake_response_json)
 
-    @httpretty.activate
-    def test_put(self):
-        self.stub_url(httpretty.PUT, body=fake_response)
-        xport = transport.Transport()
+    @requests_mock.Mocker()
+    def test_put(self, mock_req):
+        mock_req.put(self.TEST_URL, text=fake_response)
 
+        xport = transport.Transport()
         resp = xport.put(self.TEST_URL, data=fake_request, accept=None)
-        self.assertEqual(httpretty.PUT, httpretty.last_request().method)
+
+        self.assertEqual("PUT", mock_req.last_request.method)
         self.assertEqual(
             fake_request,
-            httpretty.last_request().body.decode('utf-8'),
+            mock_req.last_request.body,
         )
         self.assertResponseOK(resp, body=fake_response)
 
-    @httpretty.activate
-    def test_put_json(self):
-        self.stub_url(httpretty.PUT, body=fake_response_json)
-        xport = transport.Transport()
+    @requests_mock.Mocker()
+    def test_put_json(self, mock_req):
+        mock_req.put(self.TEST_URL, text=fake_response_json)
 
+        xport = transport.Transport()
         resp = xport.put(self.TEST_URL, json=fake_record2)
-        self.assertEqual(httpretty.PUT, httpretty.last_request().method)
+
+        self.assertEqual("PUT", mock_req.last_request.method)
         self.assertEqual(
             json.dumps(fake_record2),
-            httpretty.last_request().body.decode('utf-8'),
+            mock_req.last_request.body,
         )
         self.assertResponseOK(resp, body=fake_response_json)
 
-    @httpretty.activate
-    def test_request_accept(self):
+    @requests_mock.Mocker()
+    def test_request_accept(self, mock_req):
         fake_record1_str = json.dumps(fake_record1)
-        self.stub_url(httpretty.POST, body=fake_record1_str)
+        mock_req.post(self.TEST_URL, text=fake_record1_str)
+
         xport = transport.Transport()
         resp = xport.post(self.TEST_URL, json=fake_record2, accept=None)
-        self.assertRequestHeaderEqual('Accept', '*/*')
+
+        self.assertRequestHeaderEqual(mock_req, 'Accept', '*/*')
         self.assertEqual(fake_record1, resp.json())
 
         resp = xport.post(self.TEST_URL, json=fake_record2,
                           accept=transport.JSON)
-        self.assertRequestHeaderEqual('Accept', transport.JSON)
+
+        self.assertRequestHeaderEqual(mock_req, 'Accept', transport.JSON)
         self.assertEqual(fake_record1, resp.json())
 
         xport = transport.Transport(accept=transport.JSON)
         resp = xport.post(self.TEST_URL, json=fake_record2)
-        self.assertRequestHeaderEqual('Accept', transport.JSON)
+
+        self.assertRequestHeaderEqual(mock_req, 'Accept', transport.JSON)
         self.assertEqual(fake_record1, resp.json())
 
-    @httpretty.activate
-    def test_user_agent_no_arg(self):
-        self.stub_url(httpretty.GET, body=fake_response)
-        xport = transport.Transport()
+    @requests_mock.Mocker()
+    def test_user_agent_no_arg(self, mock_req):
+        mock_req.get(self.TEST_URL, text=fake_response)
 
+        xport = transport.Transport()
         resp = xport.get(self.TEST_URL, accept=None)
+
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', self.test_user_agent)
+        self.assertRequestHeaderEqual(mock_req, 'User-Agent',
+                                      self.test_user_agent)
 
         resp = xport.get(self.TEST_URL, headers={'User-Agent': None},
                          accept=None)
+
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', None)
+        self.assertRequestHeaderEqual(mock_req, 'User-Agent', None)
 
         resp = xport.get(self.TEST_URL, user_agent=None, accept=None)
+
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', self.test_user_agent)
+        self.assertRequestHeaderEqual(mock_req, 'User-Agent',
+                                      self.test_user_agent)
 
         resp = xport.get(self.TEST_URL, headers={'User-Agent': ''},
                          accept=None)
+
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', '')
+        self.assertRequestHeaderEqual(mock_req, 'User-Agent', '')
 
         resp = xport.get(self.TEST_URL, user_agent='', accept=None)
+
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', self.test_user_agent)
+        self.assertRequestHeaderEqual(mock_req, 'User-Agent',
+                                      self.test_user_agent)
 
         new_agent = 'new-agent'
         resp = xport.get(self.TEST_URL, headers={'User-Agent': new_agent},
                          accept=None)
+
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', new_agent)
+        self.assertRequestHeaderEqual(mock_req, 'User-Agent', new_agent)
 
         resp = xport.get(self.TEST_URL, user_agent=new_agent, accept=None)
+
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', '%s %s' % (
+        self.assertRequestHeaderEqual(mock_req, 'User-Agent', '%s %s' % (
                                       new_agent, self.test_user_agent))
 
         custom_value = 'new-agent'
         resp = xport.get(self.TEST_URL, headers={'User-Agent': custom_value},
                          user_agent=None, accept=None)
+
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', custom_value)
+        self.assertRequestHeaderEqual(mock_req, 'User-Agent', custom_value)
 
         override = 'overrides-agent'
         resp = xport.get(self.TEST_URL, headers={'User-Agent': None},
                          user_agent=override, accept=None)
+
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', '%s %s' % (
+        self.assertRequestHeaderEqual(mock_req, 'User-Agent', '%s %s' % (
                                       override, self.test_user_agent))
 
         resp = xport.get(self.TEST_URL, headers={'User-Agent': custom_value},
                          user_agent=override, accept=None)
+
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', '%s %s' % (
+        self.assertRequestHeaderEqual(mock_req, 'User-Agent', '%s %s' % (
                                       override, self.test_user_agent))
 
-    @httpretty.activate
-    def test_user_agent_arg_none(self):
+    @requests_mock.Mocker()
+    def test_user_agent_arg_none(self, mock_req):
         # None gets converted to the transport.USER_AGENT by default.
-        self.stub_url(httpretty.GET, body=fake_response)
+        mock_req.get(self.TEST_URL, text=fake_response)
+
         xport = transport.Transport(user_agent=None)
-
         resp = xport.get(self.TEST_URL, accept=None)
-        self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', self.test_user_agent)
 
-    @httpretty.activate
-    def test_user_agent_arg_default(self):
-        self.stub_url(httpretty.GET, body=fake_response)
+        self.assertTrue(resp.ok)
+        self.assertRequestHeaderEqual(mock_req, 'User-Agent',
+                                      self.test_user_agent)
+
+    @requests_mock.Mocker()
+    def test_user_agent_arg_default(self, mock_req):
+        mock_req.get(self.TEST_URL, text=fake_response)
+
         agent = 'test-agent'
         xport = transport.Transport(user_agent=agent)
-
         resp = xport.get(self.TEST_URL, accept=None)
+
         self.assertTrue(resp.ok)
-        self.assertRequestHeaderEqual('User-Agent', '%s %s' % (
+        self.assertRequestHeaderEqual(mock_req, 'User-Agent', '%s %s' % (
                                       agent, self.test_user_agent))
 
     def test_verify_no_arg(self):
@@ -267,21 +298,23 @@ class TestTransport(base.TestTransportBase):
         xport = transport.Transport(verify='ca-file')
         self.assertEqual('ca-file', xport.verify)
 
-    @httpretty.activate
-    def test_not_found(self):
+    @requests_mock.Mocker()
+    def test_not_found(self, mock_req):
         xport = transport.Transport()
         status = 404
-        self.stub_url(httpretty.GET, status=status)
+
+        mock_req.get(self.TEST_URL, status_code=status)
 
         exc = self.assertRaises(exceptions.HttpException, xport.get,
                                 self.TEST_URL)
         self.assertEqual(status, exc.status_code)
 
-    @httpretty.activate
-    def test_server_error(self):
+    @requests_mock.Mocker()
+    def test_server_error(self, mock_req):
         xport = transport.Transport()
         status = 500
-        self.stub_url(httpretty.GET, status=500)
+
+        mock_req.get(self.TEST_URL, status_code=500)
 
         exc = self.assertRaises(exceptions.HttpException, xport.get,
                                 self.TEST_URL)
@@ -297,9 +330,10 @@ class TestTransportDebug(base.TestTransportBase):
             fixtures.FakeLogger(level=logging.DEBUG),
         )
 
-    @httpretty.activate
-    def test_debug_post(self):
-        self.stub_url(httpretty.POST, body=fake_response)
+    @requests_mock.Mocker()
+    def test_debug_post(self, mock_req):
+        mock_req.post(self.TEST_URL, text=fake_response)
+
         xport = transport.Transport()
         headers = {
             'User-Agent': 'fake-curl',
@@ -316,10 +350,10 @@ class TestTransportDebug(base.TestTransportBase):
             json=fake_record2,
             accept=None,
         )
-        self.assertEqual(httpretty.POST, httpretty.last_request().method)
+        self.assertEqual("POST", mock_req.last_request.method)
         self.assertEqual(
             json.dumps(fake_record2),
-            httpretty.last_request().body.decode('utf-8'),
+            mock_req.last_request.body,
         )
         self.assertResponseOK(resp, body=fake_response)
 
