@@ -305,7 +305,7 @@ class TestTransport(base.TestTransportBase):
 
         mock_req.get(self.TEST_URL, status_code=status)
 
-        exc = self.assertRaises(exceptions.HttpException, xport.get,
+        exc = self.assertRaises(exceptions.NotFoundException, xport.get,
                                 self.TEST_URL)
         self.assertEqual(status, exc.status_code)
 
