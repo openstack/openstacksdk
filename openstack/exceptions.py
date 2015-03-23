@@ -90,6 +90,11 @@ class DuplicateResource(SDKException):
     pass
 
 
+class ResourceNotFound(NotFoundException):
+    """No resource exists with that name or id."""
+    pass
+
+
 class ResourceTimeout(SDKException):
     """Timeout waiting for resource."""
     pass
