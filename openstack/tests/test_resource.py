@@ -10,10 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import copy
 import json
+import os
 
-import httpretty
 import mock
 import requests
 from testtools import matchers
@@ -24,7 +23,6 @@ from openstack import resource
 from openstack import session
 from openstack.tests import base
 from openstack.tests import fakes
-from openstack import transport
 from openstack import utils
 
 fake_name = 'rey'
@@ -238,13 +236,16 @@ class ResourceTests(base.TestTransportBase):
 
     def setUp(self):
         super(ResourceTests, self).setUp()
-        self.transport = transport.Transport(accept=transport.JSON)
-        self.auth = fakes.FakeAuthenticator()
-        self.session = session.Session(self.transport, self.auth)
+        self.session = mock.Mock(spec=session.Session)
 
-    @httpretty.activate
+    def assertCalledURL(self, method, url):
+        # call_args gives a tuple of *args and tuple of **kwargs.
+        # Check that the first arg in *args (the URL) has our url.
+        self.assertEqual(method.call_args[0][0], url)
+
     def test_empty_id(self):
-        self.stub_url(httpretty.GET, path=[fake_path], json=fake_body)
+        self.session.get.return_value = mock.Mock(body=fake_body)
+
         obj = FakeResource.new(**fake_arguments)
         self.assertEqual(obj, obj.get(self.session))
 
@@ -437,6 +438,7 @@ class ResourceTests(base.TestTransportBase):
                            attrs, json_body):
 
         class FakeResource2(FakeResource):
+            put_update = False
             resource_key = key
             service = "my_service"
 
@@ -504,9 +506,9 @@ class ResourceTests(base.TestTransportBase):
             service=FakeResource2.service,
             accept=None)
 
-    @httpretty.activate
     def test_create(self):
-        self.stub_url(httpretty.POST, path=fake_path, json=fake_body)
+        resp = mock.Mock(body=fake_body)
+        self.session.post = mock.Mock(return_value=resp)
 
         obj = FakeResource.new(name=fake_name,
                                enabled=True,
@@ -516,7 +518,8 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual(obj, obj.create(self.session))
         self.assertFalse(obj.is_dirty)
 
-        last_req = httpretty.last_request().parsed_body[fake_resource]
+        last_req = self.session.post.call_args[1]["json"][
+            FakeResource.resource_key]
 
         self.assertEqual(4, len(last_req))
         self.assertEqual('True', last_req['enabled'])
@@ -535,11 +538,17 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual(fake_attr1, obj.first)
         self.assertEqual(fake_attr2, obj.second)
 
-    @httpretty.activate
     def test_get(self):
-        self.stub_url(httpretty.GET, path=[fake_path, fake_id], json=fake_body)
+        resp = mock.Mock(body=fake_body)
+        self.session.get = mock.Mock(return_value=resp)
+
         obj = FakeResource.get_by_id(self.session, fake_id,
                                      path_args=fake_arguments)
+
+        # Check that the proper URL is being built.
+        self.assertCalledURL(self.session.get,
+                             os.path.join(fake_base_path % fake_arguments,
+                                          str(fake_id))[1:])
 
         self.assertEqual(fake_id, obj.id)
         self.assertEqual(fake_name, obj['name'])
@@ -550,14 +559,14 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual(fake_attr1, obj.first)
         self.assertEqual(fake_attr2, obj.second)
 
-    @httpretty.activate
     def test_get_with_headers(self):
         header1 = "fake-value1"
         header2 = "fake-value2"
         headers = {"header1": header1,
                    "header2": header2}
-        self.stub_url(httpretty.GET, path=[fake_path, fake_id], json=fake_body,
-                      **headers)
+
+        resp = mock.Mock(body=fake_body, headers=headers)
+        self.session.get = mock.Mock(return_value=resp)
 
         class FakeResource2(FakeResource):
             header1 = resource.header("header1")
@@ -566,6 +575,10 @@ class ResourceTests(base.TestTransportBase):
         obj = FakeResource2.get_by_id(self.session, fake_id,
                                       path_args=fake_arguments,
                                       include_headers=True)
+
+        self.assertCalledURL(self.session.get,
+                             os.path.join(fake_base_path % fake_arguments,
+                                          str(fake_id))[1:])
 
         self.assertEqual(fake_id, obj.id)
         self.assertEqual(fake_name, obj['name'])
@@ -580,17 +593,20 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual(header1, obj.header1)
         self.assertEqual(header2, obj.header2)
 
-    @httpretty.activate
     def test_head(self):
         class FakeResource2(FakeResource):
             header1 = resource.header("header1")
             header2 = resource.header("header2")
 
-        self.stub_url(httpretty.HEAD, path=[fake_path, fake_id],
-                      header1='one',
-                      header2='two')
+        resp = mock.Mock(headers={"header1": "one", "header2": "two"})
+        self.session.head = mock.Mock(return_value=resp)
+
         obj = FakeResource2.head_by_id(self.session, fake_id,
                                        path_args=fake_arguments)
+
+        self.assertCalledURL(self.session.head,
+                             os.path.join(fake_base_path % fake_arguments,
+                                          str(fake_id))[1:])
 
         self.assertEqual('one', obj['headers']['header1'])
         self.assertEqual('two', obj['headers']['header2'])
@@ -598,65 +614,67 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual('one', obj.header1)
         self.assertEqual('two', obj.header2)
 
-    @httpretty.activate
-    def test_update(self):
-        FakeResource.put_update = False
-        new_attr1 = 'attr5'
-        new_attr2 = 'attr6'
-        fake_body1 = copy.deepcopy(fake_body)
-        fake_body1[fake_resource]['attr1'] = new_attr1
+    def test_patch_update(self):
+        class FakeResourcePatch(FakeResource):
+            put_update = False
 
-        self.stub_url(httpretty.POST, path=fake_path, json=fake_body1)
-        self.stub_url(httpretty.PATCH,
-                      path=[fake_path, fake_id],
-                      json=fake_body)
+        resp = mock.Mock(body=fake_body)
+        self.session.patch = mock.Mock(return_value=resp)
 
-        obj = FakeResource.new(name=fake_name,
-                               attr1=new_attr1,
-                               attr2=new_attr2)
-        self.assertEqual(obj, obj.create(self.session))
-        self.assertFalse(obj.is_dirty)
-        self.assertEqual(new_attr1, obj['attr1'])
-
-        obj['attr1'] = fake_attr1
-        obj.second = fake_attr2
+        obj = FakeResourcePatch.new(id=fake_id, name=fake_name,
+                                    attr1=fake_attr1, attr2=fake_attr2)
         self.assertTrue(obj.is_dirty)
 
         self.assertEqual(obj, obj.update(self.session))
         self.assertFalse(obj.is_dirty)
 
-        last_req = httpretty.last_request().parsed_body[fake_resource]
-        self.assertEqual(2, len(last_req))
+        self.assertCalledURL(self.session.patch,
+                             os.path.join(fake_base_path % fake_arguments,
+                                          str(fake_id))[1:])
+
+        last_req = self.session.patch.call_args[1]["json"][
+            FakeResource.resource_key]
+
+        self.assertEqual(3, len(last_req))
+        self.assertEqual(fake_name, last_req['name'])
         self.assertEqual(fake_attr1, last_req['attr1'])
+        self.assertEqual(fake_attr2, last_req['attr2'])
 
         self.assertEqual(fake_id, obj.id)
-        self.assertEqual(fake_name, obj['name'])
-        self.assertEqual(fake_attr1, obj['attr1'])
-        self.assertEqual(fake_attr2, obj['attr2'])
-
         self.assertEqual(fake_name, obj.name)
         self.assertEqual(fake_attr1, obj.first)
         self.assertEqual(fake_attr2, obj.second)
 
-        obj = FakeResource.new(id=fake_id,
-                               name=fake_name,
-                               attr1=new_attr1,
-                               attr2=new_attr2)
-        put_data = {'id': fake_id}
-        put_body = {fake_resource: put_data}
-        self.stub_url(httpretty.PUT,
-                      path=[fake_path, fake_id],
-                      json=put_body)
-        FakeResource.put_update = True
+    def test_put_update(self):
+        class FakeResourcePut(FakeResource):
+            put_update = True
+
+        resp = mock.Mock(body=fake_body)
+        self.session.put = mock.Mock(return_value=resp)
+
+        obj = FakeResourcePut.new(id=fake_id, name=fake_name,
+                                  attr1=fake_attr1, attr2=fake_attr2)
+        self.assertTrue(obj.is_dirty)
+
         self.assertEqual(obj, obj.update(self.session))
-        FakeResource.put_update = False
-        last_req = httpretty.last_request()
-        self.assertEqual('PUT', last_req.command)
-        last_data = last_req.parsed_body[fake_resource]
-        self.assertEqual(3, len(last_data))
-        self.assertEqual(new_attr2, last_data['attr2'])
-        self.assertEqual(new_attr1, last_data['attr1'])
-        self.assertEqual(fake_name, last_data['name'])
+        self.assertFalse(obj.is_dirty)
+
+        self.assertCalledURL(self.session.put,
+                             os.path.join(fake_base_path % fake_arguments,
+                                          str(fake_id))[1:])
+
+        last_req = self.session.put.call_args[1]["json"][
+            FakeResource.resource_key]
+
+        self.assertEqual(3, len(last_req))
+        self.assertEqual(fake_name, last_req['name'])
+        self.assertEqual(fake_attr1, last_req['attr1'])
+        self.assertEqual(fake_attr2, last_req['attr2'])
+
+        self.assertEqual(fake_id, obj.id)
+        self.assertEqual(fake_name, obj.name)
+        self.assertEqual(fake_attr1, obj.first)
+        self.assertEqual(fake_attr2, obj.second)
 
     def test_update_early_exit(self):
         obj = FakeResource()
@@ -672,39 +690,37 @@ class ResourceTests(base.TestTransportBase):
         # we handle the resulting KeyError.
         self.assertEqual(obj, obj.update("session"))
 
-    @httpretty.activate
     def test_delete(self):
-        self.stub_url(httpretty.GET, path=[fake_path, fake_id], json=fake_body)
-        self.stub_url(httpretty.DELETE, [fake_path, fake_id])
-        obj = FakeResource.get_by_id(self.session, fake_id,
-                                     path_args=fake_arguments)
-
+        obj = FakeResource({"id": fake_id, "name": fake_name})
         obj.delete(self.session)
 
-        last_req = httpretty.last_request()
-        self.assertEqual('DELETE', last_req.method)
-        self.assertEqual('/endpoint/fakes/rey/data/99', last_req.path)
+        self.assertCalledURL(self.session.delete,
+                             os.path.join(fake_base_path % fake_arguments,
+                                          str(fake_id))[1:])
 
-    @httpretty.activate
-    def _test_list(self, json_sentinel, json_body, resource_class):
+    def _test_list(self, resource_class):
         results = [fake_data.copy(), fake_data.copy(), fake_data.copy()]
         for i in range(len(results)):
             results[i]['id'] = fake_id + i
 
+        if resource_class.resources_key is not None:
+            body = {resource_class.resources_key:
+                    self._get_expected_results()}
+            sentinel = {resource_class.resources_key: []}
+        else:
+            body = self._get_expected_results()
+            sentinel = []
+
         marker = "marker=%d" % results[-1]['id']
-        self.stub_url(httpretty.GET,
-                      path=[fake_path + "?" + marker],
-                      json=json_sentinel,
-                      match_querystring=True)
-        self.stub_url(httpretty.GET,
-                      path=[fake_path],
-                      json=json_body)
+
+        self.session.get.side_effect = [mock.Mock(body=body),
+                                        mock.Mock(body=sentinel)]
 
         objs = resource_class.list(self.session, limit=1,
                                    path_args=fake_arguments,
                                    paginated=True)
         objs = list(objs)
-        self.assertIn(marker, httpretty.last_request().path)
+        self.assertIn(marker, self.session.get.call_args[0][0])
         self.assertEqual(3, len(objs))
 
         for obj in objs:
@@ -712,6 +728,18 @@ class ResourceTests(base.TestTransportBase):
             self.assertEqual(fake_name, obj['name'])
             self.assertEqual(fake_name, obj.name)
             self.assertIsInstance(obj, FakeResource)
+
+    def _get_expected_results(self):
+        results = [fake_data.copy(), fake_data.copy(), fake_data.copy()]
+        for i in range(len(results)):
+            results[i]['id'] = fake_id + i
+        return results
+
+    def test_list_keyed_resource(self):
+        self._test_list(FakeResource)
+
+    def test_list_non_keyed_resource(self):
+        self._test_list(FakeResourceNoKeys)
 
     def _test_list_call_count(self, paginated):
         # Test that we've only made one call to receive all data
@@ -765,26 +793,6 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual(records, objs)
         path = fake_base_path
         session.get.assert_called_with(path, params={}, service=None)
-
-    def _get_expected_results(self):
-        results = [fake_data.copy(), fake_data.copy(), fake_data.copy()]
-        for i in range(len(results)):
-            results[i]['id'] = fake_id + i
-        return results
-
-    @httpretty.activate
-    def test_list_keyed_resource(self):
-        sentinel = {fake_resources: []}
-        body = {fake_resources: self._get_expected_results()}
-        cls = FakeResource
-        self._test_list(sentinel, body, cls)
-
-    @httpretty.activate
-    def test_list_non_keyed_resource(self):
-        sentinel = []
-        body = self._get_expected_results()
-        cls = FakeResourceNoKeys
-        self._test_list(sentinel, body, cls)
 
     def test_attrs(self):
         obj = FakeResource()
@@ -897,6 +905,74 @@ class ResourceTests(base.TestTransportBase):
 
         self.assertEqual(ID, resource.Resource.get_id(ID))
         self.assertEqual(ID, resource.Resource.get_id(res))
+
+    def test_repr(self):
+        fr = FakeResource()
+        fr._loaded = False
+        fr.first = "hey"
+        fr.second = "hi"
+        fr.third = "nah"
+        the_repr = repr(fr)
+        result = eval(the_repr)
+        self.assertEqual(fr._loaded, result._loaded)
+        self.assertEqual(fr.first, result.first)
+        self.assertEqual(fr.second, result.second)
+        self.assertEqual(fr.third, result.third)
+
+    def test_id_attribute(self):
+        faker = FakeResource(fake_data)
+        self.assertEqual(fake_id, faker.id)
+        faker.id_attribute = 'name'
+        self.assertEqual(fake_name, faker.id)
+        faker.id_attribute = 'attr1'
+        self.assertEqual(fake_attr1, faker.id)
+        faker.id_attribute = 'attr2'
+        self.assertEqual(fake_attr2, faker.id)
+        faker.id_attribute = 'id'
+        self.assertEqual(fake_id, faker.id)
+
+    def test_name_attribute(self):
+        class Person_ES(resource.Resource):
+            name_attribute = "nombre"
+            nombre = resource.prop('nombre')
+
+        name = "Brian"
+        args = {'nombre': name}
+
+        person = Person_ES(args)
+        self.assertEqual(name, person.nombre)
+        self.assertEqual(name, person.name)
+
+        new_name = "Julien"
+        person.name = new_name
+        self.assertEqual(new_name, person.nombre)
+        self.assertEqual(new_name, person.name)
+
+    def test_boolstr_prop(self):
+        faker = FakeResource(fake_data)
+        self.assertEqual(True, faker.enabled)
+        self.assertEqual('True', faker['enabled'])
+
+        faker.enabled = False
+        self.assertEqual(False, faker.enabled)
+        self.assertEqual('False', faker['enabled'])
+
+        # should fail fast
+        def set_invalid():
+            faker.enabled = 'INVALID'
+        self.assertRaises(ValueError, set_invalid)
+
+    @mock.patch("openstack.resource.Resource.list")
+    def test_fallthrough(self, mock_list):
+        class FakeResource2(FakeResource):
+            name_attribute = None
+
+            @classmethod
+            def page(cls, session, limit=None, marker=None, path_args=None,
+                     **params):
+                raise exceptions.HttpException("exception")
+
+        self.assertEqual(None, FakeResource2.find("session", "123"))
 
 
 class ResourceMapping(base.TestCase):
@@ -1118,71 +1194,3 @@ class TestFind(base.TestCase):
         FakeResource.name_attribute = None
 
         self.assertEqual(None, FakeResource.find(self.mock_session, self.NAME))
-
-    def test_repr(self):
-        fr = FakeResource()
-        fr._loaded = False
-        fr.first = "hey"
-        fr.second = "hi"
-        fr.third = "nah"
-        the_repr = repr(fr)
-        result = eval(the_repr)
-        self.assertEqual(fr._loaded, result._loaded)
-        self.assertEqual(fr.first, result.first)
-        self.assertEqual(fr.second, result.second)
-        self.assertEqual(fr.third, result.third)
-
-    def test_id_attribute(self):
-        faker = FakeResource(fake_data)
-        self.assertEqual(fake_id, faker.id)
-        faker.id_attribute = 'name'
-        self.assertEqual(fake_name, faker.id)
-        faker.id_attribute = 'attr1'
-        self.assertEqual(fake_attr1, faker.id)
-        faker.id_attribute = 'attr2'
-        self.assertEqual(fake_attr2, faker.id)
-        faker.id_attribute = 'id'
-        self.assertEqual(fake_id, faker.id)
-
-    def test_name_attribute(self):
-        class Person_ES(resource.Resource):
-            name_attribute = "nombre"
-            nombre = resource.prop('nombre')
-
-        name = "Brian"
-        args = {'nombre': name}
-
-        person = Person_ES(args)
-        self.assertEqual(name, person.nombre)
-        self.assertEqual(name, person.name)
-
-        new_name = "Julien"
-        person.name = new_name
-        self.assertEqual(new_name, person.nombre)
-        self.assertEqual(new_name, person.name)
-
-    def test_boolstr_prop(self):
-        faker = FakeResource(fake_data)
-        self.assertEqual(True, faker.enabled)
-        self.assertEqual('True', faker['enabled'])
-
-        faker.enabled = False
-        self.assertEqual(False, faker.enabled)
-        self.assertEqual('False', faker['enabled'])
-
-        # should fail fast
-        def set_invalid():
-            faker.enabled = 'INVALID'
-        self.assertRaises(ValueError, set_invalid)
-
-    @mock.patch("openstack.resource.Resource.list")
-    def test_fallthrough(self, mock_list):
-        class FakeResource2(FakeResource):
-            name_attribute = None
-
-            @classmethod
-            def page(cls, session, limit=None, marker=None, path_args=None,
-                     **params):
-                raise exceptions.HttpException("exception")
-
-        self.assertEqual(None, FakeResource2.find("session", "123"))
