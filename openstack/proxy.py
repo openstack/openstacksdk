@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack import resource
 
 
@@ -41,3 +42,43 @@ class BaseProxy(object):
 
     def __init__(self, session):
         self.session = session
+
+    @_check_resource(strict=False)
+    def _delete(self, resource_type, value, ignore_missing=True):
+        """Delete a resource
+
+        :param resource_type: The type of resource to delete. This should
+                              be a :class:`~openstack.resource.Resource`
+                              subclass with a ``from_id`` method.
+        :param value: The value to delete. Can be either the ID of a
+                      resource or a :class:`~openstack.resource.Resource`
+                      subclass.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: The result of the ``delete``
+        :raises: ``ValueError`` if ``value`` is a
+                 :class:`~openstack.resource.Resource` that doesn't match
+                 the ``resource_type``.
+                 :class:`~openstack.exceptions.ResourceNotFound` when
+                 ignore_missing if ``False`` and a nonexistent resource
+                 is attempted to be deleted.
+
+        """
+        res = resource_type.existing(id=resource.Resource.get_id(value))
+
+        try:
+            rv = res.delete(self.session)
+        except exceptions.NotFoundException as exc:
+            if ignore_missing:
+                return None
+            else:
+                # Reraise with a more specific type and message
+                raise exceptions.ResourceNotFound(
+                    "No %s found for %s" % (resource_type.__name__, value),
+                    details=exc.details, status_code=exc.status_code)
+
+        return rv

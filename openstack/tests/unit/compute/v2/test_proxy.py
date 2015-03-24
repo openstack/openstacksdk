@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.compute.v2 import _proxy
+from openstack.compute.v2 import server
 from openstack.tests.unit import test_proxy_base
 
 
@@ -153,8 +154,19 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_server)
 
     def test_server_delete(self):
-        self.verify_delete('openstack.compute.v2.server.Server.delete',
-                           self.proxy.delete_server)
+        self.verify_delete2('openstack.proxy.BaseProxy._delete',
+                            self.proxy.delete_server,
+                            method_args=["resource_or_id"],
+                            expected_args=[server.Server, "resource_or_id",
+                                           True])
+
+    def test_server_delete_ignore(self):
+        self.verify_delete2('openstack.proxy.BaseProxy._delete',
+                            self.proxy.delete_server,
+                            method_args=["resource_or_id"],
+                            method_kwargs={"ignore_missing": False},
+                            expected_args=[server.Server,
+                                           "resource_or_id", False])
 
     def test_server_find(self):
         self.verify_find('openstack.compute.v2.server.Server.find',
