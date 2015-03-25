@@ -58,6 +58,9 @@ class OpenStackCloudException(Exception):
         self.message = message
         self.extra_data = extra_data
 
+    def __str__(self):
+        return "%s (Extra: %s)" % (self.message, self.extra_data)
+
 
 class OpenStackCloudTimeout(OpenStackCloudException):
     pass
