@@ -162,9 +162,13 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_list('openstack.compute.v2.server_ip.ServerIP.list',
                          self.proxy.list_server_ips)
 
-    def test_server_create(self):
-        self.verify_create('openstack.compute.v2.server.Server.create',
-                           self.proxy.create_server)
+    def test_server_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_server,
+                            method_kwargs=kwargs,
+                            expected_args=[server.Server],
+                            expected_kwargs=kwargs)
 
     def test_server_delete(self):
         self.verify_delete2(server.Server, self.proxy.delete_server, False)

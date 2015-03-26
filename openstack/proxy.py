@@ -102,3 +102,18 @@ class BaseProxy(object):
         res = resource_type.existing(id=resource.Resource.get_id(value))
         res.update_attrs(attrs)
         return res.update(self.session)
+
+    def _create(self, resource_type, **attrs):
+        """Create a resource from attributes
+
+        :param resource_type: The type of resource to create.
+        :type resource_type: :class:`~openstack.resource.Resource`
+        :param **attrs: Attributes from which to create a Resource object.
+                        These attributes will be used in conjunction with
+                        ``resource_type``.
+
+        :returns: The result of the ``create``
+        :rtype: :class:`~openstack.resource.Resource`
+        """
+        res = resource_type.new(**attrs)
+        return res.create(self.session)

@@ -73,6 +73,10 @@ class TestProxyBase(base.TestCase):
         self._verify(mock_method, test_method, expected_result="result",
                      **kwargs)
 
+    def verify_create2(self, mock_method, test_method, **kwargs):
+        self._verify2(mock_method, test_method, expected_result="result",
+                      **kwargs)
+
     def verify_delete(self, mock_method, test_method, **kwargs):
         self._verify(mock_method, test_method, **kwargs)
 

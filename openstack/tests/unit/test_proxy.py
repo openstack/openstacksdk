@@ -26,6 +26,10 @@ class UpdateableResource(resource.Resource):
     allow_update = True
 
 
+class CreateableResource(resource.Resource):
+    allow_create = True
+
+
 class Test_check_resource(testtools.TestCase):
 
     def setUp(self):
@@ -165,3 +169,27 @@ class TestProxyUpdate(testtools.TestCase):
 
     def test_update_id(self):
         self._test_update(self.fake_id)
+
+
+class TestProxyCreate(testtools.TestCase):
+
+    def setUp(self):
+        super(TestProxyCreate, self).setUp()
+
+        self.session = mock.Mock()
+
+        self.fake_result = "fake_result"
+        self.res = mock.Mock(spec=CreateableResource)
+        self.res.create = mock.Mock(return_value=self.fake_result)
+
+        self.sot = proxy.BaseProxy(self.session)
+
+    def test_create_attributes(self):
+        CreateableResource.new = mock.Mock(return_value=self.res)
+
+        attrs = {"x": 1, "y": 2, "z": 3}
+        rv = self.sot._create(CreateableResource, **attrs)
+
+        self.assertEqual(rv, self.fake_result)
+        CreateableResource.new.assert_called_once_with(**attrs)
+        self.res.create.assert_called_once_with(self.session)

@@ -144,8 +144,17 @@ class Proxy(proxy.BaseProxy):
         """
         return limits.Limits().get(self.session)
 
-    def create_server(self, **data):
-        return server.Server(data).create(self.session)
+    def create_server(self, **attrs):
+        """Create a new server from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.compute.v2.server.Server`,
+                           comprised of the properties on the Server class.
+
+        :returns: The results of server creation
+        :rtype: :class:`~openstack.compute.v2.server.Server`
+        """
+        return self._create(server.Server, **attrs)
 
     def delete_server(self, value, ignore_missing=True):
         """Delete a server
