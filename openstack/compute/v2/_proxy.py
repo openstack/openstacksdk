@@ -172,8 +172,18 @@ class Proxy(proxy.BaseProxy):
         srv = server.ServerDetail if details else server.Server
         return srv.list(self.session, paginated=True)
 
-    def update_server(self, **data):
-        return server.Server(data).update(self.session)
+    def update_server(self, value, **attrs):
+        """Update a server
+
+        :param value: Either the id of a server or a
+                      :class:`~openstack.compute.v2.server.Server` instance.
+        :attrs kwargs: The attributes to update on the server represented
+                       by ``value``.
+
+        :returns: The updated server
+        :rtype: :class:`~openstack.compute.v2.server.Server`
+        """
+        return self._update(server.Server, value, **attrs)
 
     def wait_for_server(self, value, status='ACTIVE', failures=['ERROR'],
                         interval=2, wait=120):

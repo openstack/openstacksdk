@@ -186,8 +186,13 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          expected_kwargs={"paginated": True})
 
     def test_server_update(self):
-        self.verify_update('openstack.compute.v2.server.Server.update',
-                           self.proxy.update_server)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_server,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[server.Server, "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_server_wait_for(self):
         value = server.Server(attrs={'id': '1234'})

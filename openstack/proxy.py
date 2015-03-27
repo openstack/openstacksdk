@@ -82,3 +82,23 @@ class BaseProxy(object):
                     details=exc.details, status_code=exc.status_code)
 
         return rv
+
+    @_check_resource(strict=False)
+    def _update(self, resource_type, value, **attrs):
+        """Update a resource
+
+        :param resource_type: The type of resource to update.
+        :type resource_type: :class:`~openstack.resource.Resource`
+        :param value: The resource to update. This must either be a
+                      :class:`~openstack.resource.Resource` or an id
+                      that corresponds to a resource.
+        :param **attrs: Attributes to update on a Resource object.
+                        These attributes will be used in conjunction with
+                        ``resource_type``.
+
+        :returns: The result of the ``update``
+        :rtype: :class:`~openstack.resource.Resource`
+        """
+        res = resource_type.existing(id=resource.Resource.get_id(value))
+        res.update_attrs(attrs)
+        return res.update(self.session)

@@ -22,6 +22,10 @@ class DeleteableResource(resource.Resource):
     allow_delete = True
 
 
+class UpdateableResource(resource.Resource):
+    allow_update = True
+
+
 class Test_check_resource(testtools.TestCase):
 
     def setUp(self):
@@ -127,3 +131,37 @@ class TestProxyDelete(testtools.TestCase):
 
         self.assertRaises(exceptions.HttpException, self.sot._delete,
                           DeleteableResource, self.res, ignore_missing=False)
+
+
+class TestProxyUpdate(testtools.TestCase):
+
+    def setUp(self):
+        super(TestProxyUpdate, self).setUp()
+
+        self.session = mock.Mock()
+
+        self.fake_id = 1
+        self.fake_result = "fake_result"
+
+        self.res = mock.Mock(spec=UpdateableResource)
+        self.res.update = mock.Mock(return_value=self.fake_result)
+        self.res.update_attrs = mock.Mock()
+
+        self.sot = proxy.BaseProxy(self.session)
+
+        self.attrs = {"x": 1, "y": 2, "z": 3}
+
+        UpdateableResource.existing = mock.Mock(return_value=self.res)
+
+    def _test_update(self, value):
+        rv = self.sot._update(UpdateableResource, value, **self.attrs)
+
+        self.assertEqual(rv, self.fake_result)
+        self.res.update_attrs.assert_called_once_with(self.attrs)
+        self.res.update.assert_called_once_with(self.session)
+
+    def test_update_resource(self):
+        self._test_update(self.res)
+
+    def test_update_id(self):
+        self._test_update(self.fake_id)
