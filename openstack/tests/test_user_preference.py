@@ -29,6 +29,7 @@ class TestUserPreference(base.TestCase):
             'network',
             'object-store',
             'orchestration',
+            'volume',
         ]
         self.assertEqual(expected, pref.service_names)
 

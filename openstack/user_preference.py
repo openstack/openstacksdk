@@ -64,6 +64,7 @@ from openstack.network import network_service
 from openstack.object_store import object_store_service
 from openstack.orchestration import orchestration_service
 from openstack.telemetry import telemetry_service
+from openstack.volume import volume_service
 
 
 class UserPreference(object):
@@ -116,6 +117,10 @@ class UserPreference(object):
         serv = telemetry_service.TelemetryService()
         serv.set_visibility(None)
         self._services[serv.service_type] = serv
+        serv = volume_service.VolumeService()
+        serv.set_visibility(None)
+        self._services[serv.service_type] = serv
+
         self.service_names = sorted(self._services.keys())
 
     def __repr__(self):
