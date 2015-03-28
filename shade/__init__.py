@@ -42,6 +42,7 @@ import warnings
 warnings.filterwarnings('ignore', 'Certificate has no `subjectAltName`')
 
 from shade import meta
+from shade import task_manager
 
 __version__ = pbr.version.VersionInfo('shade').version_string()
 OBJECT_MD5_KEY = 'x-object-meta-x-shade-md5'
@@ -192,6 +193,10 @@ class OpenStackCloud(object):
                                (optional, defaults to dogpile.cache.null)
     :param dict cache_arguments: Additional arguments to pass to the cache
                                  constructor (optional, defaults to None)
+    :param TaskManager manager: Optional task manager to use for running
+                                OpenStack API tasks. Unless you're doing
+                                rate limiting client side, you almost
+                                certainly don't need this. (optional)
     """
 
     def __init__(self, cloud, auth,
@@ -204,6 +209,7 @@ class OpenStackCloud(object):
                  debug=False, cache_interval=None,
                  cache_class='dogpile.cache.null',
                  cache_arguments=None,
+                 manager=None,
                  **kwargs):
 
         self.name = cloud
@@ -213,6 +219,11 @@ class OpenStackCloud(object):
         self.endpoint_type = endpoint_type
         self.private = private
         self.api_timeout = api_timeout
+        if manager is not None:
+            self.manager = manager
+        else:
+            self.manager = task_manager.TaskManager(
+                name=self.name, client=self)
 
         self.service_types = _get_service_values(kwargs, 'service_type')
         self.service_names = _get_service_values(kwargs, 'service_name')
