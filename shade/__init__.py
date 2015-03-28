@@ -150,6 +150,8 @@ class OpenStackCloud(object):
                                  defaults to `public`)
     :param bool private: Whether to return or use private IPs by default for
                          servers. (optional, defaults to False)
+    :param float api_timeout: A timeout to pass to REST client constructors
+                              indicating network-level timeouts. (optional)
     :param bool verify: The verification arguments to pass to requests. True
                         tells requests to verify SSL requests, False to not
                         verify. (optional, defaults to True)
@@ -173,6 +175,7 @@ class OpenStackCloud(object):
                  endpoint_type='public',
                  private=False,
                  verify=True, cacert=None, cert=None, key=None,
+                 api_timeout=None,
                  debug=False, cache_interval=None, **kwargs):
 
         self.name = cloud
@@ -181,6 +184,7 @@ class OpenStackCloud(object):
         self.auth_plugin = auth_plugin
         self.endpoint_type = endpoint_type
         self.private = private
+        self.api_timeout = api_timeout
 
         self.service_types = _get_service_values(kwargs, 'service_type')
         self.service_names = _get_service_values(kwargs, 'service_name')
@@ -241,7 +245,8 @@ class OpenStackCloud(object):
                     self._get_nova_api_version(),
                     session=self.keystone_session,
                     service_name=self.get_service_name('compute'),
-                    region_name=self.region_name)
+                    region_name=self.region_name,
+                    timeout=self.api_timeout)
             except Exception:
                 self.log.debug("Couldn't construct nova object", exc_info=True)
                 raise
