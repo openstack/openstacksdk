@@ -178,11 +178,10 @@ class PropTests(base.TestCase):
             attr = resource.prop("something", alias="attr")
 
         val = "hey"
-        args = {"attr": val}
+        args = {"something": val}
         sot = Test(args)
 
         self.assertEqual(val, sot._attrs["something"])
-        self.assertIsNone(sot._attrs.get("attr"))
         self.assertEqual(val, sot.attr)
 
 
@@ -523,13 +522,13 @@ class ResourceTests(base.TestTransportBase):
             FakeResource.resource_key]
 
         self.assertEqual(4, len(last_req))
-        self.assertEqual('True', last_req['enabled'])
+        self.assertTrue(last_req['enabled'])
         self.assertEqual(fake_name, last_req['name'])
         self.assertEqual(fake_attr1, last_req['attr1'])
         self.assertEqual(fake_attr2, last_req['attr2'])
 
         self.assertEqual(fake_id, obj.id)
-        self.assertEqual('True', obj['enabled'])
+        self.assertTrue(obj['enabled'])
         self.assertEqual(fake_name, obj['name'])
         self.assertEqual(fake_attr1, obj['attr1'])
         self.assertEqual(fake_attr2, obj['attr2'])
@@ -879,23 +878,35 @@ class ResourceTests(base.TestTransportBase):
             moe = resource.prop("the-attr")
             larry = resource.prop("the-attr2")
             curly = resource.prop("the-attr3", type=int)
+            shemp = resource.prop("the-attr4")
 
         value1 = "one"
         value2 = "two"
         value3 = "3"
         value4 = "fore"
+        value5 = "fiver"
 
         sot = Test({"the-attr": value1})
 
         sot.update_attrs({"the-attr2": value2, "notprop": value4})
-        sot.update_attrs(curly=value3)
-
+        self.assertTrue(sot.is_dirty)
         self.assertEqual(value1, sot.moe)
         self.assertEqual(value1, sot["the-attr"])
         self.assertEqual(value2, sot.larry)
+        self.assertEqual(value4, sot.notprop)
+
+        sot._reset_dirty()
+
+        sot.update_attrs(curly=value3)
+        self.assertTrue(sot.is_dirty)
         self.assertEqual(int, type(sot.curly))
         self.assertEqual(int(value3), sot.curly)
-        self.assertEqual(value4, sot["notprop"])
+
+        sot._reset_dirty()
+
+        sot.update_attrs(**{"the-attr4": value5})
+        self.assertTrue(sot.is_dirty)
+        self.assertEqual(value5, sot.shemp)
 
     def test_get_id(self):
         class Test(resource.Resource):
@@ -951,12 +962,12 @@ class ResourceTests(base.TestTransportBase):
 
     def test_boolstr_prop(self):
         faker = FakeResource(fake_data)
-        self.assertEqual(True, faker.enabled)
-        self.assertEqual('True', faker['enabled'])
+        self.assertTrue(faker.enabled)
+        self.assertTrue(faker['enabled'])
 
-        faker.enabled = False
-        self.assertEqual(False, faker.enabled)
-        self.assertEqual('False', faker['enabled'])
+        faker._attrs['enabled'] = False
+        self.assertFalse(faker.enabled)
+        self.assertFalse(faker['enabled'])
 
         # should fail fast
         def set_invalid():
