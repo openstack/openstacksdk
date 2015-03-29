@@ -13,7 +13,7 @@ python-cinderclient<1.2
 python-neutronclient>=2.3.10
 python-troveclient
 python-ironicclient>=0.5.1
-python-swiftclient
+python-swiftclient>=2.5.0
 python-designateclient>=1.3.0
 
 dogpile.cache>=0.5.3

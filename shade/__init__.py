@@ -694,6 +694,7 @@ class OpenStackCloud(object):
                         auth_token=token,
                         object_storage_url=endpoint,
                         region_name=self.region_name),
+                    timeout=self.api_timeout,
                 )
             except OpenStackCloudException:
                 raise
