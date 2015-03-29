@@ -1450,6 +1450,9 @@ class OpenStackCloud(object):
         if not filename:
             filename = name
 
+        # On some clouds this is not necessary. On others it is. I'm confused.
+        self.create_container(container)
+
         if self.is_object_stale(container, name, filename, md5, sha256):
             with open(filename, 'r') as fileobj:
                 self.log.debug(
