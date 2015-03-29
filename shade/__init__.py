@@ -37,6 +37,9 @@ import swiftclient.client as swift_client
 import swiftclient.exceptions as swift_exceptions
 import troveclient.client as trove_client
 
+# Disable the Rackspace warnings about deprecated certificates. We are aware
+import warnings
+warnings.filterwarnings('ignore', 'Certificate has no `subjectAltName`')
 
 from shade import meta
 
