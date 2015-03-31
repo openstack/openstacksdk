@@ -303,7 +303,8 @@ class OpenStackCloud(object):
                 self._keystone_client = keystone_client.Client(
                     session=self.keystone_session,
                     auth_url=self.keystone_session.get_endpoint(
-                        interface=ksc_auth.AUTH_INTERFACE))
+                        interface=ksc_auth.AUTH_INTERFACE),
+                    timeout=self.api_timeout)
             except Exception as e:
                 self.log.debug(
                     "Couldn't construct keystone object", exc_info=True)
@@ -480,7 +481,8 @@ class OpenStackCloud(object):
             try:
                 self._glance_client = glanceclient.Client(
                     glance_api_version, endpoint, token=token,
-                    session=self.keystone_session)
+                    session=self.keystone_session,
+                    timeout=self.api_timeout)
             except Exception as e:
                 self.log.debug("glance unknown issue", exc_info=True)
                 raise OpenStackCloudException(
@@ -510,7 +512,8 @@ class OpenStackCloud(object):
             # Make the connection
             self._cinder_client = cinder_client.Client(
                 session=self.keystone_session,
-                region_name=self.region_name)
+                region_name=self.region_name,
+                timeout=self.api_timeout)
 
             if self._cinder_client is None:
                 raise OpenStackCloudException(
@@ -545,6 +548,7 @@ class OpenStackCloud(object):
                 session=self.keystone_session,
                 region_name=self.region_name,
                 service_type=self.get_service_type('database'),
+                timeout=self.api_timeout,
             )
 
             if self._trove_client is None:
@@ -560,7 +564,8 @@ class OpenStackCloud(object):
             self._neutron_client = neutron_client.Client(
                 token=self.auth_token,
                 session=self.keystone_session,
-                region_name=self.region_name)
+                region_name=self.region_name,
+                timeout=self.api_timeout)
         return self._neutron_client
 
     def get_name(self):
@@ -1518,7 +1523,8 @@ class OperatorCloud(OpenStackCloud):
                 endpoint = self.get_endpoint(service_type='baremetal')
             try:
                 self._ironic_client = ironic_client.Client(
-                    '1', endpoint, token=token)
+                    '1', endpoint, token=token,
+                    timeout=self.api_timeout)
             except Exception as e:
                 self.log.debug("ironic auth failed", exc_info=True)
                 raise OpenStackCloudException(
