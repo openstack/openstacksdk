@@ -253,11 +253,7 @@ class Transport(requests.Session):
         if accept:
             headers.setdefault('Accept', accept)
 
-        self._log_request(method, url, **kwargs)
-
         resp = self._send_request(method, url, redirect, **kwargs)
-
-        self._log_response(resp)
 
         try:
             resp.raise_for_status()
@@ -286,6 +282,8 @@ class Transport(requests.Session):
         # requests lib follows some browser patterns where it will redirect
         # POSTs as GETs for certain statuses which is not want we want for an
         # API. See: https://en.wikipedia.org/wiki/Post/Redirect/Get
+
+        self._log_request(method, url, **kwargs)
 
         resp = super(Transport, self).request(method, url, **kwargs)
 
