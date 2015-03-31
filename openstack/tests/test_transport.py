@@ -14,7 +14,6 @@ import json
 import logging
 
 import fixtures
-import httpretty
 import mock
 import requests
 import requests_mock
@@ -384,135 +383,134 @@ class TestTransportRedirects(base.TestTransportBase):
         'http://finaldestination:55/',
     ]
 
-    def setup_redirects(
-            self,
-            method=httpretty.GET,
-            status=305,
-            redirect_kwargs={},
-            final_kwargs={},
-    ):
-        redirect_kwargs.setdefault('body', fake_redirect)
+    def setup_redirects(self, mocked_req, method="GET", status_code=305,
+                        redirect_kwargs=None, final_kwargs=None):
+        if redirect_kwargs is None:
+            redirect_kwargs = {}
+
+        if final_kwargs is None:
+            final_kwargs = {}
+
+        redirect_kwargs.setdefault('text', fake_redirect)
 
         for s, d in zip(self.REDIRECT_CHAIN, self.REDIRECT_CHAIN[1:]):
-            httpretty.register_uri(
-                method,
-                s,
-                status=status,
-                location=d,
-                **redirect_kwargs
-            )
+            mocked_req.register_uri(method, s, status_code=status_code,
+                                    headers={"location": d}, **redirect_kwargs)
 
-        final_kwargs.setdefault('status', 200)
-        final_kwargs.setdefault('body', fake_response)
-        httpretty.register_uri(method, self.REDIRECT_CHAIN[-1], **final_kwargs)
+        final_kwargs.setdefault('status_code', 200)
+        final_kwargs.setdefault('text', fake_response)
+        mocked_req.register_uri(method, self.REDIRECT_CHAIN[-1],
+                                **final_kwargs)
 
-    @httpretty.activate
-    def test_get_redirect(self):
-        self.setup_redirects()
+    @requests_mock.Mocker()
+    def test_get_redirect(self, mock_req):
+        self.setup_redirects(mock_req)
+
         xport = transport.Transport()
         resp = xport.get(self.REDIRECT_CHAIN[-2], accept=None)
+
         self.assertResponseOK(resp, body=fake_response)
 
-    @httpretty.activate
-    def test_get_redirect_json(self):
-        self.setup_redirects(
-            final_kwargs={'body': fake_response_json},
-        )
+    @requests_mock.Mocker()
+    def test_get_redirect_json(self, mock_req):
+        self.setup_redirects(mock_req,
+                             final_kwargs={'text': fake_response_json})
+
         xport = transport.Transport()
         resp = xport.get(self.REDIRECT_CHAIN[-2])
+
         self.assertResponseOK(resp, body=fake_response_json)
 
-    @httpretty.activate
-    def test_post_keeps_correct_method(self):
-        self.setup_redirects(method=httpretty.POST, status=301)
+    @requests_mock.Mocker()
+    def test_post_keeps_correct_method(self, mock_req):
+        self.setup_redirects(mock_req, method="POST", status_code=301)
+
         xport = transport.Transport()
         resp = xport.post(self.REDIRECT_CHAIN[-2], accept=None)
+
         self.assertResponseOK(resp, body=fake_response)
 
-    @httpretty.activate
-    def test_post_keeps_correct_method_json(self):
-        self.setup_redirects(
-            method=httpretty.POST,
-            status=301,
-            final_kwargs={'body': fake_response_json},
-        )
+    @requests_mock.Mocker()
+    def test_post_keeps_correct_method_json(self, mock_req):
+        self.setup_redirects(mock_req, method="POST", status_code=301,
+                             final_kwargs={'text': fake_response_json})
+
         xport = transport.Transport()
         resp = xport.post(self.REDIRECT_CHAIN[-2])
+
         self.assertResponseOK(resp, body=fake_response_json)
 
-    @httpretty.activate
-    def test_redirect_forever(self):
-        self.setup_redirects()
+    @requests_mock.Mocker()
+    def test_redirect_forever(self, mock_req):
+        self.setup_redirects(mock_req)
+
         xport = transport.Transport()
         resp = xport.get(self.REDIRECT_CHAIN[0], accept=None)
+
         self.assertResponseOK(resp)
         # Request history length is 1 less than the source chain due to the
         # last response not being a redirect and not added to the history.
         self.assertEqual(len(self.REDIRECT_CHAIN) - 1, len(resp.history))
 
-    @httpretty.activate
-    def test_redirect_forever_json(self):
-        self.setup_redirects(
-            final_kwargs={'body': fake_response_json},
-        )
+    @requests_mock.Mocker()
+    def test_redirect_forever_json(self, mock_req):
+        self.setup_redirects(mock_req,
+                             final_kwargs={'text': fake_response_json})
+
         xport = transport.Transport()
         resp = xport.get(self.REDIRECT_CHAIN[0])
+
         self.assertResponseOK(resp)
         # Request history length is 1 less than the source chain due to the
         # last response not being a redirect and not added to the history.
         self.assertEqual(len(self.REDIRECT_CHAIN) - 1, len(resp.history))
 
-    @httpretty.activate
-    def test_no_redirect(self):
-        self.setup_redirects()
+    @requests_mock.Mocker()
+    def test_no_redirect(self, mock_req):
+        self.setup_redirects(mock_req)
+
         xport = transport.Transport(redirect=False)
         resp = xport.get(self.REDIRECT_CHAIN[0], accept=None)
+
         self.assertEqual(305, resp.status_code)
         self.assertEqual(self.REDIRECT_CHAIN[0], resp.url)
 
-    @httpretty.activate
-    def test_no_redirect_json(self):
-        self.setup_redirects(
-            final_kwargs={'body': fake_response_json},
-        )
-        xport = transport.Transport(redirect=False)
-        self.assertRaises(
-            exceptions.InvalidResponse,
-            xport.get,
-            self.REDIRECT_CHAIN[0],
-        )
+    @requests_mock.Mocker()
+    def test_no_redirect_json(self, mock_req):
+        self.setup_redirects(mock_req,
+                             final_kwargs={'text': fake_response_json})
 
-    @httpretty.activate
-    def test_redirect_limit(self):
-        self.setup_redirects()
+        xport = transport.Transport(redirect=False)
+        self.assertRaises(exceptions.InvalidResponse, xport.get,
+                          self.REDIRECT_CHAIN[0])
+
+    @requests_mock.Mocker()
+    def test_redirect_limit(self, mock_req):
+        self.setup_redirects(mock_req)
+
         for i in (1, 2):
             xport = transport.Transport(redirect=i)
             resp = xport.get(self.REDIRECT_CHAIN[0], accept=None)
+
             self.assertResponseOK(resp, status=305, body=fake_redirect)
             self.assertEqual(self.REDIRECT_CHAIN[i], resp.url)
 
-    @httpretty.activate
-    def test_redirect_limit_json(self):
-        self.setup_redirects(
-            final_kwargs={'body': fake_response_json},
-        )
+    @requests_mock.Mocker()
+    def test_redirect_limit_json(self, mock_req):
+        self.setup_redirects(mock_req,
+                             final_kwargs={'text': fake_response_json})
+
         for i in (1, 2):
             xport = transport.Transport(redirect=i)
-            self.assertRaises(
-                exceptions.InvalidResponse,
-                xport.get,
-                self.REDIRECT_CHAIN[0],
-            )
+            self.assertRaises(exceptions.InvalidResponse, xport.get,
+                              self.REDIRECT_CHAIN[0])
 
-    @httpretty.activate
-    def test_history_matches_requests(self):
-        self.setup_redirects(status=301)
+    @requests_mock.Mocker()
+    def test_history_matches_requests(self, mock_req):
+        self.setup_redirects(mock_req, status_code=301)
+
         xport = transport.Transport(redirect=True, accept=None)
-        req_resp = requests.get(
-            self.REDIRECT_CHAIN[0],
-            allow_redirects=True,
-        )
-
+        req_resp = requests.get(self.REDIRECT_CHAIN[0], allow_redirects=True)
         resp = xport.get(self.REDIRECT_CHAIN[0])
 
         self.assertEqual(type(resp.history), type(req_resp.history))
@@ -522,18 +520,13 @@ class TestTransportRedirects(base.TestTransportBase):
             self.assertEqual(s.url, r.url)
             self.assertEqual(s.status_code, r.status_code)
 
-    @httpretty.activate
-    def test_history_matches_requests_json(self):
-        self.setup_redirects(
-            status=301,
-            final_kwargs={'body': fake_response_json},
-        )
-        xport = transport.Transport(redirect=True)
-        req_resp = requests.get(
-            self.REDIRECT_CHAIN[0],
-            allow_redirects=True,
-        )
+    @requests_mock.Mocker()
+    def test_history_matches_requests_json(self, mock_req):
+        self.setup_redirects(mock_req, status_code=301,
+                             final_kwargs={'text': fake_response_json})
 
+        xport = transport.Transport(redirect=True)
+        req_resp = requests.get(self.REDIRECT_CHAIN[0], allow_redirects=True)
         resp = xport.get(self.REDIRECT_CHAIN[0])
 
         self.assertEqual(type(resp.history), type(req_resp.history))
