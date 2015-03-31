@@ -35,6 +35,7 @@ def make_connection(opts):
         'user_domain_name': opts.user_domain_name,
         'username': opts.username,
         'password': opts.password,
+        'trust_id': opts.trust_id,
         'verify': opts.verify,
         'token': opts.token,
     }

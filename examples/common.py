@@ -290,6 +290,13 @@ def option_parser():
         help='Defaults to env[OS_TOKEN]',
     )
     parser.add_argument(
+        '--os-trust-id',
+        dest='trust_id',
+        metavar='<trust_id>',
+        default=env('OS_TRUST_ID', default=None),
+        help='Defaults to env[OS_TRUST_ID]',
+    )
+    parser.add_argument(
         '--data',
         metavar='<data>',
         default={},
