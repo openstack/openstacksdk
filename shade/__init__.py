@@ -750,12 +750,14 @@ class OpenStackCloud(object):
         # a dict).
         return new_router['router']
 
-    def update_router(self, router_id, name=None, admin_state_up=None):
+    def update_router(self, router_id, name=None, admin_state_up=None,
+                      ext_gateway_net_id=None):
         """Update an existing logical router.
 
         :param router_id: The router UUID.
         :param name: The router name.
         :param admin_state_up: The administrative state of the router.
+        :param ext_gateway_net_id: The network ID for the external gateway.
 
         :returns: The router object.
         :raises: OpenStackCloudException on operation error.
@@ -766,6 +768,10 @@ class OpenStackCloud(object):
             router['name'] = name
         if admin_state_up:
             router['admin_state_up'] = admin_state_up
+        if ext_gateway_net_id:
+            router['external_gateway_info'] = {
+                'network_id': ext_gateway_net_id
+            }
 
         if not router:
             self.log.debug("No router data to update")
