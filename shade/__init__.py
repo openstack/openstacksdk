@@ -668,6 +668,15 @@ class OpenStackCloud(object):
                 return network
         return None
 
+    def list_routers(self):
+        return self.neutron_client.list_routers()['routers']
+
+    def get_router(self, name_or_id):
+        for router in self.list_routers():
+            if name_or_id in (router['id'], router['name']):
+                return router
+        return None
+
     # TODO(Shrews): This will eventually need to support tenant ID and
     # provider networks, which are admin-level params.
     def create_network(self, name, shared=False, admin_state_up=True):
@@ -713,6 +722,97 @@ class OpenStackCloud(object):
             self.log.debug("Network deletion failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error in deleting network %s: %s" % (name_or_id, e.message))
+
+    def create_router(self, name=None, admin_state_up=True):
+        """Create a logical router.
+
+        :param name: The router name.
+        :param admin_state_up: The administrative state of the router.
+
+        :returns: The router object.
+        :raises: OpenStackCloudException on operation error.
+        """
+        neutron = self.neutron_client
+        router = {
+            'admin_state_up': admin_state_up
+        }
+        if name:
+            router['name'] = name
+
+        try:
+            new_router = neutron.create_router(dict(router=router))
+        except Exception as e:
+            self.log.debug("Router create failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Error creating router %s: %s" % (name, e))
+        # Turns out neutron returns an actual dict, so no need for the
+        # use of meta.obj_to_dict() here (which would not work against
+        # a dict).
+        return new_router['router']
+
+    def update_router(self, router_id, name=None, admin_state_up=None):
+        """Update an existing logical router.
+
+        :param router_id: The router UUID.
+        :param name: The router name.
+        :param admin_state_up: The administrative state of the router.
+
+        :returns: The router object.
+        :raises: OpenStackCloudException on operation error.
+        """
+        neutron = self.neutron_client
+        router = {}
+        if name:
+            router['name'] = name
+        if admin_state_up:
+            router['admin_state_up'] = admin_state_up
+
+        if not router:
+            self.log.debug("No router data to update")
+            return
+
+        try:
+            new_router = neutron.update_router(router_id, dict(router=router))
+        except Exception as e:
+            self.log.debug("Router update failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Error updating router %s: %s" % (name, e))
+        # Turns out neutron returns an actual dict, so no need for the
+        # use of meta.obj_to_dict() here (which would not work against
+        # a dict).
+        return new_router['router']
+
+    def delete_router(self, name_or_id):
+        """Delete a logical router.
+
+        If a name, instead of a unique UUID, is supplied, it is possible
+        that we could find more than one matching router since names are
+        not required to be unique. An error will be raised in this case.
+
+        :param name_or_id: Name or ID of the router being deleted.
+        :raises: OpenStackCloudException on operation error.
+        """
+        neutron = self.neutron_client
+
+        routers = []
+        for router in self.list_routers():
+            if name_or_id in (router['id'], router['name']):
+                routers.append(router)
+
+        if not routers:
+            raise OpenStackCloudException(
+                "Router %s not found." % name_or_id)
+
+        if len(routers) > 1:
+            raise OpenStackCloudException(
+                "More than one router named %s. Use ID." % name_or_id)
+
+        try:
+            neutron.delete_router(routers[0]['id'])
+        except Exception as e:
+            self.log.debug("Router delete failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Error deleting router %s: %s" % (name_or_id, e))
 
     def _get_images_from_cloud(self, filter_deleted):
         # First, try to actually get images from glance, it's more efficient
