@@ -944,6 +944,31 @@ class OpenStackCloud(object):
             return meta.obj_to_dict(image)
         return None
 
+    def delete_image(self, name_or_id, wait=False, timeout=3600):
+        image = self.get_image(name_or_id)
+        try:
+            # Note that in v1, the param name is image, but in v2,
+            # it's image_id
+            glance_api_version = self._get_glance_api_version()
+            if glance_api_version == '2':
+                self.manager.submitTask(
+                    _tasks.ImageDelete(image_id=image.id))
+            elif glance_api_version == '1':
+                self.manager.submitTask(
+                    _tasks.ImageDelete(image=image.id))
+        except Exception as e:
+            self.log.debug("Image deletion failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Error in deleting image: %s" % e.message)
+
+        if wait:
+            for count in _iterate_timeout(
+                    timeout,
+                    "Timeout waiting for the image to be deleted."):
+                self._cache.invalidate()
+                if self.get_image(image.id) is None:
+                    return
+
     def create_image(
             self, name, filename, container='images',
             md5=None, sha256=None,

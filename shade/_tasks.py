@@ -132,6 +132,11 @@ class ImageCreate(task_manager.Task):
         return client.glance_client.images.create(**self.args)
 
 
+class ImageDelete(task_manager.Task):
+    def main(self, client):
+        return client.glance_client.images.delete(**self.args)
+
+
 class ImageTaskCreate(task_manager.Task):
     def main(self, client):
         return client.glance_client.tasks.create(**self.args)
