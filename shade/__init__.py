@@ -1438,6 +1438,33 @@ class OpenStackCloud(object):
                             server=meta.obj_to_dict(server)))
         return server
 
+    def rebuild_server(self, server_id, image_id, wait=False, timeout=180):
+        try:
+            server = self.nova_client.servers.rebuild(server_id, image_id)
+        except Exception as e:
+            self.log.debug("nova instance rebuild failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Error in rebuilding instance: {0}".format(e))
+        if wait:
+            for count in _iterate_timeout(
+                    timeout,
+                    "Timeout waiting for server {0} to "
+                    "rebuild.".format(server_id)):
+                try:
+                    server = self.nova_client.servers.get(server_id)
+                except Exception:
+                    continue
+
+                if server.status == 'ACTIVE':
+                    break
+
+                if server.status == 'ERROR':
+                    raise OpenStackCloudException(
+                        "Error in rebuilding the server",
+                        extra_data=dict(
+                            server=meta.obj_to_dict(server)))
+        return server
+
     def delete_server(self, name, wait=False, timeout=180):
         server_list = self.nova_client.servers.list(True, {'name': name})
         if server_list:
