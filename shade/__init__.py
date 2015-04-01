@@ -1027,20 +1027,30 @@ class OpenStackCloud(object):
                     container=container, name=name),
                 image_properties=dict(name=name))))
         if wait:
+            image_id = None
             for count in _iterate_timeout(
                     timeout,
                     "Timeout waiting for the image to import."):
                 try:
-                    status = self.manager.submitTask(
-                        _tasks.ImageTaskGet(task_id=glance_task.id))
+                    if image_id is None:
+                        status = self.manager.submitTask(
+                            _tasks.ImageTaskGet(task_id=glance_task.id))
                 except glanceclient.exc.HTTPServiceUnavailable:
                     # Intermittent failure - catch and try again
                     continue
 
                 if status.status == 'success':
+                    image_id = status.result['image_id']
                     self._reset_image_cache()
+                    try:
+                        image = self.get_image(image_id)
+                    except glanceclient.exc.HTTPServiceUnavailable:
+                        # Intermittent failure - catch and try again
+                        continue
+                    if image is None:
+                        continue
                     self.update_image_properties(
-                        name_or_id=status.result['image_id'],
+                        image=image,
                         **image_properties)
                     return self.get_image_dict(status.result['image_id'])
                 if status.status == 'failure':
