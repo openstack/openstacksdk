@@ -526,11 +526,14 @@ class OpenStackCloud(object):
             token = self.auth_token
             endpoint = self._get_glance_endpoint()
             glance_api_version = self._get_glance_api_version()
+            kwargs = dict()
+            if self.api_timeout is not None:
+                kwargs['timeout'] = self.api_timeout
             try:
                 self._glance_client = glanceclient.Client(
                     glance_api_version, endpoint, token=token,
                     session=self.keystone_session,
-                    timeout=self.api_timeout)
+                    **kwargs)
             except Exception as e:
                 self.log.debug("glance unknown issue", exc_info=True)
                 raise OpenStackCloudException(
