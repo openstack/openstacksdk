@@ -190,7 +190,7 @@ class OpenStackCloud(object):
                                means do not cache at all.
                                (optional, defaults to None)
     :param string cache_class: What dogpile.cache cache class to use.
-                               (optional, defaults to dogpile.cache.null)
+                               (optional, defaults to "dogpile.cache.null")
     :param dict cache_arguments: Additional arguments to pass to the cache
                                  constructor (optional, defaults to None)
     :param TaskManager manager: Optional task manager to use for running
