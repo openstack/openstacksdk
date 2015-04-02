@@ -1414,7 +1414,7 @@ class OpenStackCloud(object):
         except Exception as e:
             self.log.debug("nova instance create failed", exc_info=True)
             raise OpenStackCloudException(
-                "Error in creating instance: %s" % e.message)
+                "Error in creating instance: {0}".format(e))
         if server.status == 'ERROR':
             raise OpenStackCloudException(
                 "Error in creating the server.")
