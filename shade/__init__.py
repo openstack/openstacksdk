@@ -72,22 +72,37 @@ class OpenStackCloudTimeout(OpenStackCloudException):
 def openstack_clouds(config=None, debug=False):
     if not config:
         config = os_client_config.OpenStackConfig()
-    return [OpenStackCloud(cloud=f.name, debug=debug, **f.config)
-            for f in config.get_all_clouds()]
+    return [
+        OpenStackCloud(
+            cloud=f.name, debug=debug,
+            cache_interval=config.get_cache_max_age(),
+            cache_class=config.get_cache_class(),
+            cache_arguments=config.get_cache_arguments(),
+            **f.config)
+        for f in config.get_all_clouds()
+    ]
 
 
 def openstack_cloud(debug=False, **kwargs):
-    cloud_config = os_client_config.OpenStackConfig().get_one_cloud(
-        **kwargs)
+    config = os_client_config.OpenStackConfig()
+    cloud_config = config.get_one_cloud(**kwargs)
     return OpenStackCloud(
         cloud=cloud_config.name,
+        cache_interval=config.get_cache_max_age(),
+        cache_class=config.get_cache_class(),
+        cache_arguments=config.get_cache_arguments(),
         debug=debug, **cloud_config.config)
 
 
 def operator_cloud(debug=False, **kwargs):
-    cloud_config = os_client_config.OpenStackConfig().get_one_cloud(**kwargs)
+    config = os_client_config.OpenStackConfig()
+    cloud_config = config.get_one_cloud(**kwargs)
     return OperatorCloud(
-        cloud_config.name, debug=debug, **cloud_config.config)
+        cloud_config.name, debug=debug,
+        cache_interval=config.get_cache_max_age(),
+        cache_class=config.get_cache_class(),
+        cache_arguments=config.get_cache_arguments(),
+        **cloud_config.config)
 
 
 def _ssl_args(verify, cacert, cert, key):
@@ -173,6 +188,10 @@ class OpenStackCloud(object):
                                Value will be passed to dogpile.cache. None
                                means do not cache at all.
                                (optional, defaults to None)
+    :param string cache_class: What dogpile.cache cache class to use.
+                               (optional, defaults to dogpile.cache.null)
+    :param dict cache_arguments: Additional arguments to pass to the cache
+                                 constructor (optional, defaults to None)
     """
 
     def __init__(self, cloud, auth,
@@ -182,7 +201,10 @@ class OpenStackCloud(object):
                  private=False,
                  verify=True, cacert=None, cert=None, key=None,
                  api_timeout=None,
-                 debug=False, cache_interval=None, **kwargs):
+                 debug=False, cache_interval=None,
+                 cache_class='dogpile.cache.null',
+                 cache_arguments=None,
+                 **kwargs):
 
         self.name = cloud
         self.auth = auth
@@ -199,16 +221,9 @@ class OpenStackCloud(object):
 
         (self.verify, self.cert) = _ssl_args(verify, cacert, cert, key)
 
-        # dogpile.cache.memory does not clear things out of the memory dict,
-        # so there is a possibility of memory bloat over time. By passing
-        # None a user will not get any in-memory cache and thus not have
-        # a large memory leak.
-        if cache_interval is None:
-            backend_name = 'dogpile.cache.null'
-        else:
-            backend_name = 'dogpile.cache.memory'
         self._cache = cache.make_region().configure(
-            backend_name, expiration_time=cache_interval)
+            cache_class, expiration_time=cache_interval,
+            arguments=cache_arguments)
         self._container_cache = dict()
         self._file_hash_cache = dict()
 
