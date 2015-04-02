@@ -221,7 +221,9 @@ class OpenStackCloud(object):
 
         (self.verify, self.cert) = _ssl_args(verify, cacert, cert, key)
 
-        self._cache = cache.make_region().configure(
+        self._cache = cache.make_region(
+            function_key_generator=self._make_cache_key
+        ).configure(
             cache_class, expiration_time=cache_interval,
             arguments=cache_arguments)
         self._container_cache = dict()
@@ -246,6 +248,23 @@ class OpenStackCloud(object):
             log_level = logging.DEBUG
         self.log.setLevel(log_level)
         self.log.addHandler(logging.StreamHandler())
+
+    def _make_cache_key(self, namespace, fn):
+        fname = fn.__name__
+        if namespace is None:
+            name_key = self.name
+        else:
+            name_key = '%s:%s' % (self.name, namespace)
+
+        def generate_key(*args, **kwargs):
+            arg_key = ','.join(args)
+            kwargs_keys = kwargs.keys()
+            kwargs_keys.sort()
+            kwargs_key = ','.join(
+                ['%s:%s' % (k, kwargs[k]) for k in kwargs_keys])
+            return "_".join(
+                [name_key, fname, arg_key, kwargs_key])
+        return generate_key
 
     def get_service_type(self, service):
         return self.service_types.get(service, service)
@@ -595,10 +614,10 @@ class OpenStackCloud(object):
     @property
     def flavor_cache(self):
         @self._cache.cache_on_arguments()
-        def _flavor_cache():
+        def _flavor_cache(cloud):
             return {flavor.id: flavor for flavor in
                     self.nova_client.flavors.list()}
-        return _flavor_cache()
+        return _flavor_cache(self.name)
 
     def get_flavor_name(self, flavor_id):
         flavor = self.flavor_cache.get(flavor_id, None)
