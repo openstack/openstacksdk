@@ -25,16 +25,16 @@ from shade import (
 from shade.tests import base
 
 
-class TestRebuild(base.TestCase):
+class TestRebuildServer(base.TestCase):
 
     def setUp(self):
-        super(TestRebuild, self).setUp()
+        super(TestRebuildServer, self).setUp()
         self.client = OpenStackCloud("cloud", {})
 
-    def test_server_rebuild_rebuild_exception(self):
+    def test_rebuild_server_rebuild_exception(self):
         """
         Test that an exception in the novaclient rebuild raises an exception in
-        server_rebuild.
+        rebuild_server.
         """
         with patch("shade.OpenStackCloud"):
             config = {
@@ -44,10 +44,10 @@ class TestRebuild(base.TestCase):
             self.assertRaises(
                 OpenStackCloudException, self.client.rebuild_server, "a", "b")
 
-    def test_server_rebuild_server_error(self):
+    def test_rebuild_server_server_error(self):
         """
         Test that a server error while waiting for the server to rebuild
-        raises an exception in server_rebuild.
+        raises an exception in rebuild_server.
         """
         with patch("shade.OpenStackCloud"):
             config = {
@@ -59,10 +59,10 @@ class TestRebuild(base.TestCase):
                 OpenStackCloudException,
                 self.client.rebuild_server, "a", "b", wait=True)
 
-    def test_server_rebuild_timeout(self):
+    def test_rebuild_server_timeout(self):
         """
         Test that a timeout while waiting for the server to rebuild raises an
-        exception in server_rebuild.
+        exception in rebuild_server.
         """
         with patch("shade.OpenStackCloud"):
             config = {
@@ -74,9 +74,9 @@ class TestRebuild(base.TestCase):
                 OpenStackCloudTimeout,
                 self.client.rebuild_server, "a", "b", wait=True, timeout=1)
 
-    def test_server_rebuild_no_wait(self):
+    def test_rebuild_server_no_wait(self):
         """
-        Test that server_rebuild with no wait and no exception in the
+        Test that rebuild_server with no wait and no exception in the
         novaclient rebuild call returns the server instance.
         """
         with patch("shade.OpenStackCloud"):
@@ -88,9 +88,9 @@ class TestRebuild(base.TestCase):
             self.assertEqual(
                 self.client.rebuild_server("a", "b"), mock_server)
 
-    def test_server_rebuild_wait(self):
+    def test_rebuild_server_wait(self):
         """
-        Test that server_rebuild with a wait returns the server instance when
+        Test that rebuild_server with a wait returns the server instance when
         its status changes to "ACTIVE".
         """
         with patch("shade.OpenStackCloud"):
