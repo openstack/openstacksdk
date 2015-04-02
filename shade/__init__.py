@@ -1732,6 +1732,124 @@ class OpenStackCloud(object):
                 "Object metadata fetch failed: %s (%s/%s)" % (
                     e.http_reason, e.http_host, e.http_path))
 
+    def create_subnet(self, network_name_or_id, cidr, ip_version=4,
+                      enable_dhcp=False, subnet_name=None, tenant_id=None,
+                      allocation_pools=None, gateway_ip=None,
+                      dns_nameservers=None, host_routes=None,
+                      ipv6_ra_mode=None, ipv6_address_mode=None):
+        """Create a subnet on a specified network.
+
+        :param string network_name_or_id:
+           The unique name or ID of the attached network. If a non-unique
+           name is supplied, an exception is raised.
+        :param string cidr:
+           The CIDR.
+        :param int ip_version:
+           The IP version, which is 4 or 6.
+        :param bool enable_dhcp:
+           Set to ``True`` if DHCP is enabled and ``False`` if disabled.
+           Default is ``False``.
+        :param string subnet_name:
+           The name of the subnet.
+        :param string tenant_id:
+           The ID of the tenant who owns the network. Only administrative users
+           can specify a tenant ID other than their own.
+        :param list allocation_pools:
+           A list of dictionaries of the start and end addresses for the
+           allocation pools. For example::
+
+             [
+               {
+                 "start": "192.168.199.2",
+                 "end": "192.168.199.254"
+               }
+             ]
+
+        :param string gateway_ip:
+           The gateway IP address. When you specify both allocation_pools and
+           gateway_ip, you must ensure that the gateway IP does not overlap
+           with the specified allocation pools.
+        :param list dns_nameservers:
+           A list of DNS name servers for the subnet. For example::
+
+             [ "8.8.8.7", "8.8.8.8" ]
+
+        :param list host_routes:
+           A list of host route dictionaries for the subnet. For example::
+
+             [
+               {
+                 "destination": "0.0.0.0/0",
+                 "nexthop": "123.456.78.9"
+               },
+               {
+                 "destination": "192.168.0.0/24",
+                 "nexthop": "192.168.0.1"
+               }
+             ]
+
+        :param string ipv6_ra_mode:
+           IPv6 Router Advertisement mode. Valid values are: 'dhcpv6-stateful',
+           'dhcpv6-stateless', or 'slaac'.
+        :param string ipv6_address_mode:
+           IPv6 address mode. Valid values are: 'dhcpv6-stateful',
+           'dhcpv6-stateless', or 'slaac'.
+
+        :returns: The new subnet object.
+        :raises: OpenStackCloudException on operation error.
+        """
+
+        networks = []
+        for network in self.list_networks():
+            if network_name_or_id in (network['id'], network['name']):
+                networks.append(network)
+
+        if not networks:
+            raise OpenStackCloudException(
+                "Network %s not found." % network_name_or_id)
+
+        if len(networks) > 1:
+            raise OpenStackCloudException(
+                "More than one network named %s. Use ID." % network_name_or_id)
+
+        # The body of the neutron message for the subnet we wish to create.
+        # This includes attributes that are required or have defaults.
+        subnet = {
+            'network_id': networks[0]['id'],
+            'cidr': cidr,
+            'ip_version': ip_version,
+            'enable_dhcp': enable_dhcp
+        }
+
+        # Add optional attributes to the message.
+        if subnet_name:
+            subnet['name'] = subnet_name
+        if tenant_id:
+            subnet['tenant_id'] = tenant_id
+        if allocation_pools:
+            subnet['allocation_pools'] = allocation_pools
+        if gateway_ip:
+            subnet['gateway_ip'] = gateway_ip
+        if dns_nameservers:
+            subnet['dns_nameservers'] = dns_nameservers
+        if host_routes:
+            subnet['host_routes'] = host_routes
+        if ipv6_ra_mode:
+            subnet['ipv6_ra_mode'] = ipv6_ra_mode
+        if ipv6_address_mode:
+            subnet['ipv6_address_mode'] = ipv6_address_mode
+
+        try:
+            new_subnet = self.manager.submitTask(
+                _tasks.SubnetCreate(body=dict(subnet=subnet)))
+        except Exception as e:
+            self.log.debug("Subnet creation failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Error in creating subnet on network %s: %s"
+                % (network_name_or_id, e))
+
+        return new_subnet['subnet']
+
 
 class OperatorCloud(OpenStackCloud):
 
