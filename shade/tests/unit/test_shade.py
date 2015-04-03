@@ -123,3 +123,41 @@ class TestShade(base.TestCase):
                           self.cloud.create_subnet,
                           'donald', '192.168.199.0/24')
         self.assertFalse(mock_client.create_subnet.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_delete_subnet(self, mock_client, mock_list):
+        subnet1 = dict(id='123', name='mickey')
+        mock_list.return_value = [subnet1]
+        self.cloud.delete_subnet('mickey')
+        self.assertTrue(mock_client.delete_subnet.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_delete_subnet_not_found(self, mock_client, mock_list):
+        subnet1 = dict(id='123', name='mickey')
+        mock_list.return_value = [subnet1]
+        self.assertRaises(shade.OpenStackCloudException,
+                          self.cloud.delete_subnet,
+                          'goofy')
+        self.assertFalse(mock_client.delete_subnet.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_delete_subnet_multiple_found(self, mock_client, mock_list):
+        subnet1 = dict(id='123', name='mickey')
+        subnet2 = dict(id='456', name='mickey')
+        mock_list.return_value = [subnet1, subnet2]
+        self.assertRaises(shade.OpenStackCloudException,
+                          self.cloud.delete_subnet,
+                          'mickey')
+        self.assertFalse(mock_client.delete_subnet.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_delete_subnet_multiple_using_id(self, mock_client, mock_list):
+        subnet1 = dict(id='123', name='mickey')
+        subnet2 = dict(id='456', name='mickey')
+        mock_list.return_value = [subnet1, subnet2]
+        self.cloud.delete_subnet('123')
+        self.assertTrue(mock_client.delete_subnet.called)
