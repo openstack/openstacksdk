@@ -45,6 +45,18 @@ documented in our `setup <setup.html>`_ section.
 
    setup
 
+Testing
+-------
+
+The project contains two test packages, one for unit tests and one for
+functional tests. The ``openstack.tests.unit`` package tests the SDK's
+features in isolation. The ``openstack.tests.functional`` package tests
+the SDK's features against an OpenStack cloud.
+
+.. toctree::
+
+   testing
+
 Project Layout
 --------------
 
