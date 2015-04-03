@@ -1806,9 +1806,19 @@ class OperatorCloud(OpenStackCloud):
     def list_machines(self):
         return self.ironic_client.node.list()
 
-    def get_machine_by_uuid(self, uuid):
+    def get_machine(self, name_or_id):
+        """Get Machine by name or uuid
+
+        Search the baremetal host out by utilizing the supplied id value
+        which can consist of a name or UUID.
+
+        :param name_or_id: A node name or UUID that will be looked up.
+
+        :returns: Dictonary representing the node found or None if no nodes
+                  are found.
+        """
         try:
-            return self.ironic_client.node.get(uuid)
+            return meta.obj_to_dict(self.ironic_client.node.get(name_or_id))
         except ironic_exceptions.ClientException:
             return None
 
