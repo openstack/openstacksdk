@@ -251,3 +251,8 @@ class SubnetList(task_manager.Task):
 class SubnetDelete(task_manager.Task):
     def main(self, client):
         client.neutron_client.delete_subnet(**self.args)
+
+
+class SubnetUpdate(task_manager.Task):
+    def main(self, client):
+        return client.neutron_client.update_subnet(**self.args)
