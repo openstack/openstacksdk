@@ -174,3 +174,21 @@ class TestShade(base.TestCase):
     def test_update_subnet(self, mock_client):
         self.cloud.update_subnet(subnet_id=123, subnet_name='goofy')
         self.assertTrue(mock_client.update_subnet.called)
+
+
+class TestShadeOperator(base.TestCase):
+
+    def setUp(self):
+        super(TestShadeOperator, self).setUp()
+        self.cloud = shade.operator_cloud()
+
+    def test_operator_cloud(self):
+        self.assertIsInstance(self.cloud, shade.OperatorCloud)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_patch_machine(self, mock_client):
+        node_id = 'node01'
+        patch = []
+        patch.append({'op': 'remove', 'path': '/instance_info'})
+        self.cloud.patch_machine(node_id, patch)
+        self.assertTrue(mock_client.node.update.called)

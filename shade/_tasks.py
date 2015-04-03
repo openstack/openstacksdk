@@ -256,3 +256,8 @@ class SubnetDelete(task_manager.Task):
 class SubnetUpdate(task_manager.Task):
     def main(self, client):
         return client.neutron_client.update_subnet(**self.args)
+
+
+class MachinePatch(task_manager.Task):
+    def main(self, client):
+        return client.ironic_client.node.update(**self.args)

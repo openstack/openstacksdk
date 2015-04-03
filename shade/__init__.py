@@ -2108,6 +2108,55 @@ class OperatorCloud(OpenStackCloud):
             raise OpenStackCloudException(
                 "Error unregistering machine from Ironic: %s" % e.message)
 
+    def patch_machine(self, name_or_id, patch):
+        """Patch Machine Information
+
+        This method allows for an interface to manipulate node entries
+        within Ironic.  Specifically, it is a pass-through for the
+        ironicclient.nodes.update interface which allows the Ironic Node
+        properties to be updated.
+
+        :param node_id: The server object to attach to.
+        :param patch: The JSON Patch document is a list of dictonary objects
+                      that comply with RFC 6902 which can be found at
+                      https://tools.ietf.org/html/rfc6902.
+
+                      Example patch construction:
+
+                      patch=[]
+                      patch.append({
+                          'op': 'remove',
+                          'path': '/instance_info'
+                      })
+                      patch.append({
+                          'op': 'replace',
+                          'path': '/name',
+                          'value': 'newname'
+                      })
+                      patch.append({
+                          'op': 'add',
+                          'path': '/driver_info/username',
+                          'value': 'administrator'
+                      })
+
+        :raises: OpenStackCloudException on operation error.
+
+        :returns: Dictonary representing the newly updated node.
+        """
+
+        try:
+            return meta.obj_to_dict(
+                self.manager.submitTask(
+                    _tasks.MachinePatch(node_id=name_or_id,
+                                        patch=patch,
+                                        http_method='PATCH')))
+        except Exception as e:
+            self.log.debug(
+                "Machine patch update failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Error updating machine via patch operation. node: %s. "
+                "%s" % (name_or_id, e))
+
     def validate_node(self, uuid):
         try:
             ifaces = self.ironic_client.node.validate(uuid)
