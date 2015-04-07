@@ -1155,7 +1155,7 @@ class OpenStackCloud(object):
         volume = self.get_volume(name_or_id, cache=False)
 
         try:
-            volume = self.manager.submitTask(
+            self.manager.submitTask(
                 _tasks.VolumeDelete(volume=volume.id))
         except Exception as e:
             self.log.debug("Volume deletion failed", exc_info=True)
@@ -1244,7 +1244,8 @@ class OpenStackCloud(object):
 
         try:
             self.manager.submitTask(
-                _tasks.VolumeDetach(volume_id=volume, server_id=server.id))
+                _tasks.VolumeDetach(attachment_id=volume.id,
+                                    server_id=server.id))
         except Exception as e:
             self.log.debug("nova volume detach failed", exc_info=True)
             raise OpenStackCloudException(
