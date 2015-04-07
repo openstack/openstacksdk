@@ -2068,27 +2068,68 @@ class OperatorCloud(OpenStackCloud):
             return None
 
     def register_machine(self, nics, **kwargs):
+        """Register Baremetal with Ironic
+
+        Allows for the registration of Baremetal nodes with Ironic
+        and population of pertinant node information or configuration
+        to be passed to the Ironic API for the node.
+
+        This method also creates ports for a list of MAC addresses passed
+        in to be utilized for boot and potentially network configuration.
+
+        If a failure is detected creating the network ports, any ports
+        created are deleted, and the node is removed from Ironic.
+
+        :param list nics: An array of MAC addresses that represent the
+                          network interfaces for the node to be created.
+
+                          Example:
+                          [
+                          {'mac': 'aa:bb:cc:dd:ee:01'},
+                          {'mac': 'aa:bb:cc:dd:ee:02'}
+                          ]
+
+        :param **kwargs: Key value pairs to be passed to the Ironic API,
+                         including uuid, name, chassis_uuid, driver_info,
+                         parameters.
+
+        :raises: OpenStackCloudException on operation error.
+
+        :returns: Returns a dictonary representing the new
+                  baremetal node.
+        """
         try:
-            machine = self.ironic_client.node.create(**kwargs)
+            machine = self.manager.submitTask(
+                _tasks.MachineCreate(**kwargs))
         except Exception as e:
             self.log.debug("ironic machine registration failed", exc_info=True)
             raise OpenStackCloudException(
-                "Error registering machine with Ironic: %s" % e.message)
+                "Error registering machine with Ironic: %s" % e)
 
         created_nics = []
         try:
             for row in nics:
-                nic = self.ironic_client.port.create(address=row['mac'],
-                                                     node_uuid=machine.uuid)
+                nic = self.manager.submitTask(
+                    _tasks.MachinePortCreate(address=row['mac'],
+                                             node_uuid=machine.uuid))
                 created_nics.append(nic.uuid)
+
         except Exception as e:
             self.log.debug("ironic NIC registration failed", exc_info=True)
             # TODO(mordred) Handle failures here
-            for uuid in created_nics:
-                self.ironic_client.port.delete(uuid)
-            self.ironic_client.node.delete(machine.uuid)
+            try:
+                for uuid in created_nics:
+                    try:
+                        self.manager.submitTask(
+                            _tasks.MachinePortDelete(
+                                port_id=uuid))
+                    except:
+                        pass
+            finally:
+                self.manager.submitTask(
+                    _tasks.MachineDelete(node_id=machine.uuid))
             raise OpenStackCloudException(
-                "Error registering NICs with Ironic: %s" % e.message)
+                "Error registering NICs with baremetal service: %s" % e)
         return meta.obj_to_dict(machine)
 
     def unregister_machine(self, nics, uuid):
