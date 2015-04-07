@@ -219,3 +219,12 @@ class TestShadeOperator(base.TestCase):
         self.assertTrue(mock_client.node.create.called)
         self.assertTrue(mock_client.port.create.called)
         self.assertTrue(mock_client.node.delete.called)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_unregister_machine(self, mock_client):
+        nics = [{'mac': '00:00:00:00:00:00'}]
+        uuid = "00000000-0000-0000-0000-000000000000"
+        self.cloud.unregister_machine(nics, uuid)
+        self.assertTrue(mock_client.node.delete.called)
+        self.assertTrue(mock_client.port.delete.called)
+        self.assertTrue(mock_client.port.get_by_address.called)
