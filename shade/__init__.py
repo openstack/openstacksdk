@@ -160,12 +160,12 @@ class OpenStackCloud(object):
 
     :param string name: The name of the cloud
     :param dict auth: Dictionary containing authentication information.
-                      Depending on the value of auth_plugin, the contents
+                      Depending on the value of auth_type, the contents
                       of this dict can vary wildly.
     :param string region_name: The region of the cloud that all operations
                                should be performed against.
                                (optional, default '')
-    :param string auth_plugin: The name of the keystone auth_plugin to be used
+    :param string auth_type: The name of the keystone auth_type to be used
     :param string endpoint_type: The type of endpoint to get for services
                                  from the service catalog. Valid types are
                                  `public` ,`internal` or `admin`. (optional,
@@ -201,7 +201,7 @@ class OpenStackCloud(object):
 
     def __init__(self, cloud, auth,
                  region_name='',
-                 auth_plugin='password',
+                 auth_type='password',
                  endpoint_type='public',
                  private=False,
                  verify=True, cacert=None, cert=None, key=None,
@@ -215,7 +215,7 @@ class OpenStackCloud(object):
         self.name = cloud
         self.auth = auth
         self.region_name = region_name
-        self.auth_plugin = auth_plugin
+        self.auth_type = auth_type
         self.endpoint_type = endpoint_type
         self.private = private
         self.api_timeout = api_timeout
@@ -318,12 +318,12 @@ class OpenStackCloud(object):
             keystone_logging.addHandler(logging.NullHandler())
 
             try:
-                auth_plugin = ksc_auth.get_plugin_class(self.auth_plugin)
+                auth_plugin = ksc_auth.get_plugin_class(self.auth_type)
             except Exception as e:
                 self.log.debug("keystone auth plugin failure", exc_info=True)
                 raise OpenStackCloudException(
                     "Could not find auth plugin: {plugin}".format(
-                    plugin=self.auth_plugin))
+                    plugin=self.auth_type))
             try:
                 keystone_auth = auth_plugin(**self.auth)
             except Exception as e:
@@ -331,7 +331,7 @@ class OpenStackCloud(object):
                     "keystone couldn't construct plugin", exc_info=True)
                 raise OpenStackCloudException(
                     "Error constructing auth plugin: {plugin}".format(
-                        plugin=self.auth_plugin))
+                        plugin=self.auth_type))
 
             try:
                 self._keystone_session = ksc_session.Session(
@@ -1737,7 +1737,7 @@ class OperatorCloud(OpenStackCloud):
 
     @property
     def auth_token(self):
-        if self.auth_plugin in (None, "None", ''):
+        if self.auth_type in (None, "None", ''):
             return self._auth_token
         if not self._auth_token:
             self._auth_token = self.keystone_session.get_token()
@@ -1749,7 +1749,7 @@ class OperatorCloud(OpenStackCloud):
             ironic_logging = logging.getLogger('ironicclient')
             ironic_logging.addHandler(logging.NullHandler())
             token = self.auth_token
-            if self.auth_plugin in (None, "None", ''):
+            if self.auth_type in (None, "None", ''):
                 # TODO: This needs to be improved logic wise, perhaps a list,
                 # or enhancement of the data stuctures with-in the library
                 # to allow for things aside password authentication, or no
