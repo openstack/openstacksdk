@@ -269,8 +269,7 @@ class OpenStackCloud(object):
 
         def generate_key(*args, **kwargs):
             arg_key = ','.join(args)
-            kwargs_keys = kwargs.keys()
-            kwargs_keys.sort()
+            kwargs_keys = sorted(kwargs.keys())
             kwargs_key = ','.join(
                 ['%s:%s' % (k, kwargs[k]) for k in kwargs_keys])
             return "_".join(
