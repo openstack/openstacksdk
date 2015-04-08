@@ -29,6 +29,20 @@ class TestMemoryCache(base.TestCase):
             'max_age': 10,
             'class': 'dogpile.cache.memory',
         },
+        'clouds':
+        {
+            '_cache_test_':
+            {
+                'auth':
+                {
+                    'auth_url': 'http://198.51.100.1:35357/v2.0',
+                    'username': '_test_user_',
+                    'password': '_test_pass_',
+                    'project_name': '_test_project_',
+                },
+                'region_name': '_test_region_',
+            },
+        },
     }
 
     def setUp(self):
@@ -59,13 +73,9 @@ class TestMemoryCache(base.TestCase):
         mock_project_b.id = 'project_b'
         keystone_mock.projects.list.return_value = [mock_project,
                                                     mock_project_b]
-        # Caching should hide this from us until we invalidate
-        # TODO(clint) fix os-client-config which doesn't actually let us use
-        # the memory cache.
-        # TODO(clint) refactor to allow invalidating just the project cache.
-        #self.assertEqual(
-        #    {'project_a': mock_project}, self.cloud.project_cache)
-        #self.cloud._cache.invalidate()
-        #self.assertEqual(
-        #    {'project_a': mock_project,
-        #     'project_b': mock_project_b}, self.cloud.project_cache)
+        self.assertEqual(
+            {'project_a': mock_project}, self.cloud.project_cache)
+        self.cloud.get_project_cache.invalidate(self.cloud)
+        self.assertEqual(
+            {'project_a': mock_project,
+             'project_b': mock_project_b}, self.cloud.project_cache)

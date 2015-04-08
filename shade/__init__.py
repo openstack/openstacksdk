@@ -85,7 +85,9 @@ def openstack_clouds(config=None, debug=False):
 
 
 def openstack_cloud(debug=False, **kwargs):
-    config = os_client_config.OpenStackConfig()
+    config = kwargs.get('config')
+    if config is None:
+        config = os_client_config.OpenStackConfig()
     cloud_config = config.get_one_cloud(**kwargs)
     return OpenStackCloud(
         cloud=cloud_config.name,
