@@ -730,6 +730,12 @@ class OpenStackCloud(object):
     def list_subnets(self):
         return self.manager.submitTask(_tasks.SubnetList())['subnets']
 
+    def get_subnet(self, name_or_id):
+        for subnet in self.list_subnets():
+            if name_or_id in (subnet['id'], subnet['name']):
+                return subnet
+        return None
+
     # TODO(Shrews): This will eventually need to support tenant ID and
     # provider networks, which are admin-level params.
     def create_network(self, name, shared=False, admin_state_up=True):
