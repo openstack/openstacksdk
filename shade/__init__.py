@@ -148,6 +148,21 @@ def _iterate_timeout(timeout, message):
     raise OpenStackCloudTimeout(message)
 
 
+def _cache_on_arguments(func):
+    def _cache_decorator(obj, *args, **kwargs):
+        the_method = obj._cache.cache_on_arguments()(
+            func.__get__(obj, type(obj)))
+        return the_method(*args, **kwargs)
+
+    def invalidate(obj, *args, **kwargs):
+        return obj._cache.cache_on_arguments()(func).invalidate(
+            *args, **kwargs)
+
+    _cache_decorator.invalidate = invalidate
+
+    return _cache_decorator
+
+
 class OpenStackCloud(object):
     """Represent a connection to an OpenStack Cloud.
 
@@ -372,11 +387,12 @@ class OpenStackCloud(object):
 
     @property
     def project_cache(self):
-        @self._cache.cache_on_arguments()
-        def _project_cache():
-            return {project.id: project for project in
-                    self._project_manager.list()}
-        return _project_cache()
+        return self.get_project_cache()
+
+    @_cache_on_arguments
+    def get_project_cache(self):
+        return {project.id: project for project in
+                self._project_manager.list()}
 
     @property
     def _project_manager(self):
@@ -439,12 +455,10 @@ class OpenStackCloud(object):
                     project=name_or_id, message=e.message))
 
     @property
+    @_cache_on_arguments
     def user_cache(self):
-        @self._cache.cache_on_arguments()
-        def _user_cache():
-            user_list = self.manager.submitTask(_tasks.UserListTask())
-            return {user.id: user for user in user_list}
-        return _user_cache()
+        user_list = self.manager.submitTask(_tasks.UserListTask())
+        return {user.id: user for user in user_list}
 
     def _get_user(self, name_or_id):
         """Retrieve a user by name or id."""
@@ -625,12 +639,10 @@ class OpenStackCloud(object):
         return self.region_name
 
     @property
+    @_cache_on_arguments
     def flavor_cache(self):
-        @self._cache.cache_on_arguments()
-        def _flavor_cache(cloud):
-            return {flavor.id: flavor for flavor in
-                    self.manager.submitTask(_tasks.FlavorList())}
-        return _flavor_cache(self.name)
+        return {flavor.id: flavor for flavor in
+                self.manager.submitTask(_tasks.FlavorList())}
 
     def get_flavor_name(self, flavor_id):
         flavor = self.flavor_cache.get(flavor_id, None)
@@ -892,16 +904,14 @@ class OpenStackCloud(object):
     def _reset_image_cache(self):
         self._image_cache = None
 
+    @_cache_on_arguments
     def list_images(self, filter_deleted=True):
         """Get available glance images.
 
         :param filter_deleted: Control whether deleted images are returned.
         :returns: A dictionary of glance images indexed by image UUID.
         """
-        @self._cache.cache_on_arguments()
-        def _list_images():
-            return self._get_images_from_cloud(filter_deleted)
-        return _list_images()
+        return self._get_images_from_cloud(filter_deleted)
 
     def get_image_name(self, image_id, exclude=None):
         image = self.get_image(image_id, exclude)
@@ -1174,11 +1184,9 @@ class OpenStackCloud(object):
         except Exception:
             return []
 
+    @_cache_on_arguments
     def list_volumes(self, cache=True):
-        @self._cache.cache_on_arguments()
-        def _list_volumes():
-            return self._get_volumes_from_cloud()
-        return _list_volumes()
+        return self._get_volumes_from_cloud()
 
     def get_volumes(self, server, cache=True):
         volumes = []
