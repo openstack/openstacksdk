@@ -2417,6 +2417,62 @@ class OperatorCloud(OpenStackCloud):
                 exc_info=True)
             raise OpenStackCloudException(e.message)
 
+    def set_machine_maintenance_state(
+            self,
+            name_or_id,
+            state=True,
+            reason=None):
+        """Set Baremetal Machine Maintenance State
+
+        Sets Baremetal maintenance state and maintenance reason.
+
+        :param string name_or_id: The Name or UUID value representing the
+                                  baremetal node.
+        :param boolean state: The desired state of the node.  True being in
+                              maintenance where as False means the machine
+                              is not in maintenance mode.  This value
+                              defaults to True if not explicitly set.
+        :param string reason: An optional freeform string that is supplied to
+                              the baremetal API to allow for notation as to why
+                              the node is in maintenance state.
+
+        :raises: OpenStackCloudException on operation error.
+
+        :returns: Per the API, no value should be returned with a successful
+                  operation.
+        """
+        try:
+            if state:
+                return self.manager.submitTask(
+                    _tasks.MachineSetMaintenance(node_id=name_or_id,
+                                                 state='true',
+                                                 maint_reason=reason))
+            else:
+                return self.manager.submitTask(
+                    _tasks.MachineSetMaintenance(node_id=name_or_id,
+                                                 state='false'))
+        except Exception as e:
+            self.log.debug(
+                "failed setting maintenance state on node %s" % name_or_id,
+                exc_info=True)
+            raise OpenStackCloudException(
+                "Error setting machine maintenance on node %s. "
+                "state: %s" % (name_or_id, e))
+
+    def remove_machine_from_maintenance(self, name_or_id):
+        """Remove Baremetal Machine from Maintenance State
+
+        Similarly to set_machine_maintenance_state, this method
+        removes a machine from maintenance state.  It must be noted
+        that this method simpily calls set_machine_maintenace_state
+        for the name_or_id requested and sets the state to False.
+
+        :param string name_or_id: The Name or UUID value representing the
+                                  baremetal node.
+        :returns: Dictonary object representing the updated node.
+        """
+        self.set_machine_maintenance_state(name_or_id, False)
+
     def activate_node(self, uuid, configdrive=None):
         return meta.obj_to_dict(
             self.node_set_provision_state(uuid, 'active', configdrive))

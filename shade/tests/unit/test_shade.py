@@ -491,6 +491,32 @@ class TestShadeOperator(base.TestCase):
         self.assertTrue(mock_client.port.delete.called)
         self.assertTrue(mock_client.port.get_by_address.called)
 
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_set_machine_maintenace_state(self, mock_client):
+        node_id = 'node01'
+        reason = 'no reason'
+        self.cloud.set_machine_maintenance_state(node_id, True, reason=reason)
+        mock_client.node.set_maintenance.assert_called_with(
+            node_id='node01',
+            state='true',
+            maint_reason='no reason')
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_set_machine_maintenace_state_false(self, mock_client):
+        node_id = 'node01'
+        self.cloud.set_machine_maintenance_state(node_id, False)
+        mock_client.node.set_maintenance.assert_called_with(
+            node_id='node01',
+            state='false')
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_remove_machine_from_maintenance(self, mock_client):
+        node_id = 'node01'
+        self.cloud.remove_machine_from_maintenance(node_id)
+        mock_client.node.set_maintenance.assert_called_with(
+            node_id='node01',
+            state='false')
+
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_get_image_name(self, glance_mock):
 

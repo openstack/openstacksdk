@@ -291,3 +291,8 @@ class MachinePortCreate(task_manager.Task):
 class MachinePortDelete(task_manager.Task):
     def main(self, client):
         return client.ironic_client.port.delete(**self.args)
+
+
+class MachineSetMaintenance(task_manager.Task):
+    def main(self, client):
+        return client.ironic_client.node.set_maintenance(**self.args)
