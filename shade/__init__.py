@@ -833,7 +833,7 @@ class OpenStackCloud(object):
         except Exception as e:
             self.log.debug("Router update failed", exc_info=True)
             raise OpenStackCloudException(
-                "Error updating router %s: %s" % (name, e))
+                "Error updating router %s: %s" % (router_id, e))
         # Turns out neutron returns an actual dict, so no need for the
         # use of meta.obj_to_dict() here (which would not work against
         # a dict).
