@@ -159,7 +159,7 @@ class VolumeCreate(task_manager.Task):
 
 class VolumeDelete(task_manager.Task):
     def main(self, client):
-        return client.cinder_client.volumes.delete(**self.args)
+        client.cinder_client.volumes.delete(**self.args)
 
 
 class VolumeList(task_manager.Task):
