@@ -79,3 +79,21 @@ class TestMemoryCache(base.TestCase):
         self.assertEqual(
             {'project_a': mock_project,
              'project_b': mock_project_b}, self.cloud.project_cache)
+
+    @mock.patch('shade.OpenStackCloud.cinder_client')
+    def test_list_volumes(self, cinder_mock):
+        mock_volume = mock.MagicMock()
+        mock_volume.id = 'volume1'
+        mock_volume.status = 'available'
+        mock_volume.display_name = 'Volume 1 Display Name'
+        cinder_mock.volumes.list.return_value = [mock_volume]
+        self.assertEqual([mock_volume], self.cloud.list_volumes())
+        mock_volume2 = mock.MagicMock()
+        mock_volume2.id = 'volume2'
+        mock_volume2.status = 'available'
+        mock_volume2.display_name = 'Volume 2 Display Name'
+        cinder_mock.volumes.list.return_value = [mock_volume, mock_volume2]
+        self.assertEqual([mock_volume], self.cloud.list_volumes())
+        self.cloud.list_volumes.invalidate(self.cloud)
+        self.assertEqual([mock_volume, mock_volume2],
+                         self.cloud.list_volumes())
