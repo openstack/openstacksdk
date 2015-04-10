@@ -1153,7 +1153,7 @@ class OpenStackCloud(object):
             for count in _iterate_timeout(
                     timeout,
                     "Timeout waiting for the volume to be available."):
-                volume = self.get_volume(vol_id, cache=False, error=False)
+                volume = self.get_volume(vol_id, error=False)
 
                 if not volume:
                     continue
@@ -1176,7 +1176,7 @@ class OpenStackCloud(object):
         :raises: OpenStackCloudException on operation error.
         """
 
-        volume = self.get_volume(name_or_id, cache=False)
+        volume = self.get_volume(name_or_id)
 
         try:
             self.manager.submitTask(
@@ -1201,6 +1201,9 @@ class OpenStackCloud(object):
 
     @_cache_on_arguments(should_cache_fn=_no_pending_volumes)
     def list_volumes(self, cache=True):
+        if not cache:
+            warnings.warn('cache argument to list_volumes is deprecated. Use '
+                          ' invalidate instead.')
         return self._get_volumes_from_cloud()
 
     def get_volumes(self, server, cache=True):
@@ -1228,7 +1231,7 @@ class OpenStackCloud(object):
 
     def volume_exists(self, name_or_id):
         return self.get_volume(
-            name_or_id, cache=False, error=False) is not None
+            name_or_id, error=False) is not None
 
     def get_volume_attach_device(self, volume, server_id):
         """Return the device name a volume is attached to for a server.
