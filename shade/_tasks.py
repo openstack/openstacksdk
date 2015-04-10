@@ -296,3 +296,8 @@ class MachinePortDelete(task_manager.Task):
 class MachineSetMaintenance(task_manager.Task):
     def main(self, client):
         return client.ironic_client.node.set_maintenance(**self.args)
+
+
+class MachineSetPower(task_manager.Task):
+    def main(self, client):
+        return client.ironic_client.node.set_power_state(**self.args)
