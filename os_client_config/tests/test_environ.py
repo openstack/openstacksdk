@@ -15,32 +15,36 @@
 
 from os_client_config import cloud_config
 from os_client_config import config
-from os_client_config import exceptions
 from os_client_config.tests import base
 
 import fixtures
 
 
-class TestConfig(base.TestCase):
+class TestEnviron(base.TestCase):
 
-    def test_get_one_cloud(self):
-        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
-                                   vendor_files=[self.vendor_yaml])
-        self.assertIsInstance(c.get_one_cloud(), cloud_config.CloudConfig)
-
-    def test_no_environ(self):
-        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
-                                   vendor_files=[self.vendor_yaml])
-        self.assertRaises(
-            exceptions.OpenStackConfigException, c.get_one_cloud, 'envvars')
-
-    def test_environ_exists(self):
+    def setUp(self):
+        super(TestEnviron, self).setUp()
         self.useFixture(
             fixtures.EnvironmentVariable('OS_AUTH_URL', 'https://example.com'))
         self.useFixture(
             fixtures.EnvironmentVariable('OS_USERNAME', 'testuser'))
         self.useFixture(
             fixtures.EnvironmentVariable('OS_PROJECT_NAME', 'testproject'))
+
+    def test_get_one_cloud(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        self.assertIsInstance(c.get_one_cloud(), cloud_config.CloudConfig)
+
+    def test_envvar_name_override(self):
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_CLOUD_NAME', 'openstack'))
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        cc = c.get_one_cloud('openstack')
+        self._assert_cloud_details(cc)
+
+    def test_environ_exists(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
         cc = c.get_one_cloud('envvars')

@@ -14,6 +14,7 @@
 
 from os_client_config import cloud_config
 from os_client_config import config
+from os_client_config import exceptions
 from os_client_config.tests import base
 
 
@@ -36,3 +37,9 @@ class TestConfig(base.TestCase):
         self._assert_cloud_details(cc)
         cc = c.get_one_cloud('_test_cloud_no_vendor')
         self._assert_cloud_details(cc)
+
+    def test_no_environ(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        self.assertRaises(
+            exceptions.OpenStackConfigException, c.get_one_cloud, 'envvars')

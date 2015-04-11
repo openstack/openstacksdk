@@ -90,13 +90,24 @@ class OpenStackConfig(object):
             self.cloud_config = dict(
                 clouds=dict(openstack=dict(self.defaults)))
 
+        self.envvar_key = os.environ.pop('OS_CLOUD_NAME', None)
+        if self.envvar_key:
+            if self.envvar_key in self.cloud_config['clouds']:
+                raise exceptions.OpenStackConfigException(
+                    'clouds.yaml defines a cloud named "{0}", but'
+                    ' OS_CLOUD_NAME is also set to "{0}". Please rename'
+                    ' either your environment based cloud, or one of your'
+                    ' file-based clouds.'.format(self.envvar_key))
+        else:
+            self.envvar_key = 'envvars'
+
         envvars = _get_os_environ()
         if envvars:
-            if 'envvars' in self.cloud_config['clouds']:
+            if self.envvar_key in self.cloud_config['clouds']:
                 raise exceptions.OpenStackConfigException(
-                    'clouds.yaml defines a cloud named envvars, and OS_'
+                    'clouds.yaml defines a cloud named {0}, and OS_*'
                     ' env vars are set')
-            self.cloud_config['clouds']['envvars'] = envvars
+            self.cloud_config['clouds'][self.envvar_key] = envvars
 
         self._cache_max_age = None
         self._cache_path = CACHE_PATH
@@ -333,8 +344,8 @@ class OpenStackConfig(object):
         :param kwargs: Additional configuration options
         """
 
-        if cloud is None and 'envvars' in self._get_cloud_sections():
-            cloud = 'envvars'
+        if cloud is None and self.envvar_key in self._get_cloud_sections():
+            cloud = self.envvar_key
 
         args = self._fix_args(kwargs, argparse=argparse)
 
