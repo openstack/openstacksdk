@@ -38,7 +38,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'os-client-config'
-copyright = u'2013, OpenStack Foundation'
+copyright = u'2015, various OpenStack developers'
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
