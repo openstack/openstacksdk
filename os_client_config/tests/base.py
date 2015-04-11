@@ -15,9 +15,87 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+
+import os
+import tempfile
+
+from os_client_config import cloud_config
+
+import extras
+import fixtures
 from oslotest import base
+import yaml
+
+
+VENDOR_CONF = {
+    'public-clouds': {
+        '_test_cloud_in_our_cloud': {
+            'auth': {
+                'username': 'testotheruser',
+                'project_name': 'testproject',
+            },
+        },
+    }
+}
+USER_CONF = {
+    'clouds': {
+        '_test_cloud_': {
+            'cloud': '_test_cloud_in_our_cloud',
+            'auth': {
+                'username': 'testuser',
+                'password': 'testpass',
+            },
+            'region_name': 'test-region',
+        },
+        '_test_cloud_no_vendor': {
+            'cloud': '_test_non_existant_cloud',
+            'auth': {
+                'username': 'testuser',
+                'password': 'testpass',
+                'project_name': 'testproject',
+            },
+            'region_name': 'test-region',
+        },
+    },
+    'cache': {'max_age': 1},
+}
+
+
+def _write_yaml(obj):
+    # Assume NestedTempfile so we don't have to cleanup
+    with tempfile.NamedTemporaryFile(delete=False) as obj_yaml:
+        obj_yaml.write(yaml.safe_dump(obj).encode('utf-8'))
+        return obj_yaml.name
 
 
 class TestCase(base.BaseTestCase):
-
     """Test case base class for all unit tests."""
+
+    def setUp(self):
+        super(TestCase, self).setUp()
+
+        self.useFixture(fixtures.NestedTempfile())
+        conf = dict(USER_CONF)
+        tdir = self.useFixture(fixtures.TempDir())
+        conf['cache']['path'] = tdir.path
+        self.cloud_yaml = _write_yaml(conf)
+        self.vendor_yaml = _write_yaml(VENDOR_CONF)
+
+        # Isolate the test runs from the environment
+        # Do this as two loops because you can't modify the dict in a loop
+        # over the dict in 3.4
+        keys_to_isolate = []
+        for env in os.environ.keys():
+            if env.startswith('OS_'):
+                keys_to_isolate.append(env)
+        for env in keys_to_isolate:
+            self.useFixture(fixtures.EnvironmentVariable(env))
+
+    def _assert_cloud_details(self, cc):
+        self.assertIsInstance(cc, cloud_config.CloudConfig)
+        self.assertTrue(extras.safe_hasattr(cc, 'auth'))
+        self.assertIsInstance(cc.auth, dict)
+        self.assertIsNone(cc.cloud)
+        self.assertIn('username', cc.auth)
+        self.assertEqual('testuser', cc.auth['username'])
+        self.assertEqual('testproject', cc.auth['project_name'])

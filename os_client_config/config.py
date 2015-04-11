@@ -54,10 +54,12 @@ def get_boolean(value):
 
 def _get_os_environ():
     ret = dict(defaults._defaults)
-    for (k, v) in os.environ.items():
-        if k.startswith('OS_'):
-            newkey = k[3:].lower()
-            ret[newkey] = v
+    environkeys = [k for k in os.environ.keys() if k.startswith('OS_')]
+    if not environkeys:
+        return None
+    for k in environkeys:
+        newkey = k[3:].lower()
+        ret[newkey] = os.environ[k]
     return ret
 
 
@@ -80,13 +82,21 @@ class OpenStackConfig(object):
         self._config_files = config_files or CONFIG_FILES
         self._vendor_files = vendor_files or VENDOR_FILES
 
-        self.defaults = _get_os_environ()
+        self.defaults = dict(defaults._defaults)
 
         # use a config file if it exists where expected
         self.cloud_config = self._load_config_file()
         if not self.cloud_config:
             self.cloud_config = dict(
                 clouds=dict(openstack=dict(self.defaults)))
+
+        envvars = _get_os_environ()
+        if envvars:
+            if 'envvars' in self.cloud_config['clouds']:
+                raise exceptions.OpenStackConfigException(
+                    'clouds.yaml defines a cloud named envvars, and OS_'
+                    ' env vars are set')
+            self.cloud_config['clouds']['envvars'] = envvars
 
         self._cache_max_age = None
         self._cache_path = CACHE_PATH
@@ -109,6 +119,7 @@ class OpenStackConfig(object):
             if os.path.exists(path):
                 with open(path, 'r') as f:
                     return yaml.safe_load(f)
+        return dict(clouds=dict())
 
     def _load_vendor_file(self):
         for path in self._vendor_files:
@@ -135,7 +146,7 @@ class OpenStackConfig(object):
             # No region configured
             return ''
 
-    def _get_region(self, cloud):
+    def _get_region(self, cloud=None):
         return self._get_regions(cloud).split(',')[0]
 
     def _get_cloud_sections(self):
@@ -152,7 +163,7 @@ class OpenStackConfig(object):
 
         our_cloud = self.cloud_config['clouds'].get(name, dict())
 
-        # Get the defaults (including env vars) first
+        # Get the defaults
         cloud.update(self.defaults)
 
         # yes, I know the next line looks silly
@@ -197,7 +208,8 @@ class OpenStackConfig(object):
                 if key in cloud['auth']:
                     target = cloud['auth'][key]
                     del cloud['auth'][key]
-            cloud['auth'][target_key] = target
+            if target:
+                cloud['auth'][target_key] = target
         return cloud
 
     def _fix_backwards_auth_plugin(self, cloud):
@@ -320,6 +332,9 @@ class OpenStackConfig(object):
             of None and '' will be removed.
         :param kwargs: Additional configuration options
         """
+
+        if cloud is None and 'envvars' in self._get_cloud_sections():
+            cloud = 'envvars'
 
         args = self._fix_args(kwargs, argparse=argparse)
 

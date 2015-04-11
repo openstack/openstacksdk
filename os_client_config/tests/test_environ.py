@@ -12,9 +12,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+
 from os_client_config import cloud_config
 from os_client_config import config
+from os_client_config import exceptions
 from os_client_config.tests import base
+
+import fixtures
 
 
 class TestConfig(base.TestCase):
@@ -23,6 +27,31 @@ class TestConfig(base.TestCase):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
         self.assertIsInstance(c.get_one_cloud(), cloud_config.CloudConfig)
+
+    def test_no_environ(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        self.assertRaises(
+            exceptions.OpenStackConfigException, c.get_one_cloud, 'envvars')
+
+    def test_environ_exists(self):
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_AUTH_URL', 'https://example.com'))
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_USERNAME', 'testuser'))
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_PROJECT_NAME', 'testproject'))
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        cc = c.get_one_cloud('envvars')
+        self._assert_cloud_details(cc)
+        self.assertNotIn('auth_url', cc.config)
+        self.assertIn('auth_url', cc.config['auth'])
+        self.assertNotIn('auth_url', cc.config)
+        cc = c.get_one_cloud('_test_cloud_')
+        self._assert_cloud_details(cc)
+        cc = c.get_one_cloud('_test_cloud_no_vendor')
+        self._assert_cloud_details(cc)
 
     def test_get_one_cloud_with_config_files(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],

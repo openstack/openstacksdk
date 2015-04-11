@@ -16,14 +16,13 @@ os-client-config honors all of the normal `OS_*` variables. It does not
 provide backwards compatibility to service-specific variables such as
 `NOVA_USERNAME`.
 
-If you have environment variables and no config files, os-client-config
-will produce a cloud config object named "openstack" containing your
-values from the environment.
+If you have OpenStack environment variables seet and no config files,
+os-client-config will produce a cloud config object named "envvars" containing
+your values from the environment.
 
 Service specific settings, like the nova service type, are set with the
 default service type as a prefix. For instance, to set a special service_type
-for trove (because you're using Rackspace) set:
-::
+for trove set::
 
   export OS_DATABASE_SERVICE_TYPE=rax:database
 
@@ -40,7 +39,7 @@ locations:
 The first file found wins.
 
 The keys are all of the keys you'd expect from `OS_*` - except lower case
-and without the OS prefix. So, username is set with `username`.
+and without the OS prefix. So, region name is set with `region_name`.
 
 Service specific settings, like the nova service type, are set with the
 default service type as a prefix. For instance, to set a special service_type
@@ -118,6 +117,10 @@ behaviors:
 * Listing no config settings means you get a null cache.
 * `cache.max_age` and nothing else gets you memory cache.
 * Otherwise, `cache.class` and `cache.arguments` are passed in
+
+`os-client-config` does not actually cache anything itself, but it collects
+and presents the cache information so that your various applications that
+are connecting to OpenStack can share a cache should you desire.
 
 ::
 
