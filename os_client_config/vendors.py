@@ -45,5 +45,7 @@ CLOUD_DEFAULTS = dict(
             auth_url='http://auth.api.thenebulacloud.com:5000/v2.0/',
             region_name='ca-ymq-1',
         ),
+        image_api_version='1',
+        image_format='qcow2',
     ),
 )
