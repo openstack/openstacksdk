@@ -21,6 +21,7 @@ CLOUD_DEFAULTS = dict(
         region_name='region-b.geo-1',
         dns_service_type='hpext:dns',
         image_api_version='1',
+        image_format='qcow2',
     ),
     rackspace=dict(
         auth=dict(
@@ -29,5 +30,14 @@ CLOUD_DEFAULTS = dict(
         database_service_type='rax:database',
         compute_service_name='cloudServersOpenStack',
         image_api_version='2',
-    )
+        image_format='vhd',
+    ),
+    dreamhost=dict(
+        auth=dict(
+            auth_url='https://keystone.dream.io/v2.0',
+            region_name='RegionOne',
+        ),
+        image_api_version='2',
+        image_format='raw',
+    ),
 )
