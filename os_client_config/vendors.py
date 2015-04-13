@@ -48,4 +48,12 @@ CLOUD_DEFAULTS = dict(
         image_api_version='1',
         image_format='qcow2',
     ),
+    runabove=dict(
+        auth=dict(
+            auth_url='https://auth.runabove.io/v2.0',
+        ),
+        image_api_version='1',
+        image_format='qcow2',
+    ),
+
 )
