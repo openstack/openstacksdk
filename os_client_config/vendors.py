@@ -35,16 +35,16 @@ CLOUD_DEFAULTS = dict(
     dreamhost=dict(
         auth=dict(
             auth_url='https://keystone.dream.io/v2.0',
-            region_name='RegionOne',
         ),
+        region_name='RegionOne',
         image_api_version='2',
         image_format='raw',
     ),
     vexxhost=dict(
         auth=dict(
             auth_url='http://auth.api.thenebulacloud.com:5000/v2.0/',
-            region_name='ca-ymq-1',
         ),
+        region_name='ca-ymq-1',
         image_api_version='1',
         image_format='qcow2',
     ),
