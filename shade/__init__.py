@@ -297,11 +297,12 @@ class OpenStackCloud(object):
 
         def generate_key(*args, **kwargs):
             arg_key = ','.join(args)
-            kwargs_keys = sorted(kwargs.keys())
+            kw_keys = sorted(kwargs.keys())
             kwargs_key = ','.join(
-                ['%s:%s' % (k, kwargs[k]) for k in kwargs_keys])
-            return "_".join(
+                ['%s:%s' % (k, kwargs[k]) for k in kw_keys if k != 'cache'])
+            ans = "_".join(
                 [name_key, fname, arg_key, kwargs_key])
+            return ans
         return generate_key
 
     def get_service_type(self, service):
