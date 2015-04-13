@@ -40,4 +40,10 @@ CLOUD_DEFAULTS = dict(
         image_api_version='2',
         image_format='raw',
     ),
+    vexxhost=dict(
+        auth=dict(
+            auth_url='http://auth.api.thenebulacloud.com:5000/v2.0/',
+            region_name='ca-ymq-1',
+        ),
+    ),
 )
