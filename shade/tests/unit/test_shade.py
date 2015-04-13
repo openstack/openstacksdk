@@ -15,7 +15,7 @@
 import mock
 
 import shade
-from shade.tests import base
+from shade.tests.unit import base
 
 
 class TestShade(base.TestCase):

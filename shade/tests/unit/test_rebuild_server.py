@@ -22,7 +22,7 @@ Tests for the `rebuild_server` command.
 from mock import patch, Mock
 from shade import (
     OpenStackCloud, OpenStackCloudException, OpenStackCloudTimeout)
-from shade.tests import base
+from shade.tests.unit import base
 
 
 class TestRebuildServer(base.TestCase):
@@ -72,7 +72,7 @@ class TestRebuildServer(base.TestCase):
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
                 OpenStackCloudTimeout,
-                self.client.rebuild_server, "a", "b", wait=True, timeout=1)
+                self.client.rebuild_server, "a", "b", wait=True, timeout=0.001)
 
     def test_rebuild_server_no_wait(self):
         """

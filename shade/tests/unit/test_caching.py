@@ -18,7 +18,7 @@ import os_client_config as occ
 import yaml
 
 import shade
-from shade.tests import base
+from shade.tests.unit import base
 
 
 class TestMemoryCache(base.TestCase):
@@ -26,7 +26,7 @@ class TestMemoryCache(base.TestCase):
     CACHING_CONFIG = {
         'cache':
         {
-            'max_age': 10,
+            'max_age': 90,
             'class': 'dogpile.cache.memory',
         },
         'clouds':

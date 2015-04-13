@@ -25,7 +25,7 @@ _TRUE_VALUES = ('true', '1', 'yes')
 
 class TestCase(testtools.TestCase):
 
-    """Test case base class for all unit tests."""
+    """Test case base class for all tests."""
 
     def setUp(self):
         """Run before each test method to initialize test environment."""
