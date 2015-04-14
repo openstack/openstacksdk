@@ -182,3 +182,8 @@ class TestMemoryCache(base.TestCase):
         self.cloud.create_user(name='abc123 name')
         # Cache should have been invalidated
         self.assertEqual({'abc123': mock_user}, self.cloud.get_user_cache())
+        # Now delete and ensure it disappears
+        keystone_mock.users.list.return_value = []
+        self.cloud.delete_user('abc123')
+        self.assertEqual({}, self.cloud.get_user_cache())
+        self.assertTrue(keystone_mock.users.delete.was_called)
