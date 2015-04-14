@@ -469,9 +469,12 @@ class OpenStackCloud(object):
                     project=name_or_id, message=e.message))
 
     @property
-    @_cache_on_arguments()
     def user_cache(self):
-        user_list = self.manager.submitTask(_tasks.UserListTask())
+        return self.get_user_cache()
+
+    @_cache_on_arguments()
+    def get_user_cache(self):
+        user_list = self.manager.submitTask(_tasks.UserList())
         return {user.id: user for user in user_list}
 
     def _get_user(self, name_or_id):
