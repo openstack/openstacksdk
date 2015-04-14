@@ -74,7 +74,7 @@ class TestVolume(testtools.TestCase):
         self.assertEqual(VOLUME["bootable"], sot.bootable)
         self.assertEqual(VOLUME["created_at"], sot.created)
         self.assertEqual(VOLUME["description"], sot.description)
-        self.assertEqual(VOLUME["volume_type"], sot.volume_type)
+        self.assertEqual(VOLUME["volume_type"], sot.type)
         self.assertEqual(VOLUME["snapshot_id"], sot.snapshot)
         self.assertEqual(VOLUME["source_volid"], sot.source_volume)
         self.assertEqual(VOLUME["metadata"], sot.metadata)

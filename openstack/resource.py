@@ -31,6 +31,7 @@ There are plenty of examples of use of this class in the SDK code.
 
 import abc
 import collections
+import itertools
 
 import six
 from six.moves.urllib import parse as url_parse
@@ -434,13 +435,10 @@ class Resource(collections.MutableMapping):
         :rtype: None
         """
         # ensure setters are called for type coercion
-        for key, value in dict(*args).items():
+        for key, value in itertools.chain(dict(*args).items(), kwargs.items()):
             if key != "id":  # id property is read only
-                self._attrs[key] = value
                 setattr(self, key, value)
-
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+                self[key] = value
 
     def get_headers(self):
         if HEADERS in self._attrs:
