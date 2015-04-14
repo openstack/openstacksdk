@@ -3,6 +3,7 @@
 .. toctree::
    :maxdepth: 2
 
+   vendor-support
    contributing
    installation
 
