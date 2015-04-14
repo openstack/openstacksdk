@@ -160,6 +160,19 @@ def obj_to_dict(obj):
     return instance
 
 
+def obj_list_to_dict(list):
+    """Enumerate through lists of objects and return lists of dictonaries.
+
+    Some of the objects returned in OpenStack are actually lists of objects,
+    and in order to expose the data structures as JSON, we need to facilitate
+    the conversion to lists of dictonaries.
+    """
+    new_list = []
+    for obj in list:
+        new_list.append(obj_to_dict(obj))
+    return new_list
+
+
 def warlock_to_dict(obj):
     # glanceclient v2 uses warlock to construct its objects. Warlock does
     # deep black magic to attribute look up to support validation things that
