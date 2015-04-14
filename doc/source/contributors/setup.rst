@@ -122,33 +122,6 @@ environment to use the SDK in. This step installs the following dependencies.
 * `stevedore <https://pypi.python.org/pypi/stevedore>`_, which we use for
   working with plugins. stevedore builds on setuptools ``entry_points``.
 
-Running the Tests
------------------
-
-In order to run the entire test suite, simply run the ``tox`` command inside
-of your source checkout. This will attempt to run every test command listed
-inside of ``tox.ini``, which includes Python 2.6, 2.7, 3.3, 3.4, PyPy, and
-a PEP 8 check. You should run the full test suite on all versions before
-submitting changes for review in order to avoid unexpected failures in
-the continuous integration system.::
-
-   (sdk3)$ tox
-   ...
-   py33: commands succeeded
-   py34: commands succeeded
-   py26: commands succeeded
-   py27: commands succeeded
-   pypy: commands succeeded
-   pep8: commands succeeded
-   congratulations :)
-
-During development, it may be more convenient to run a subset of the tests
-to keep test time to a minimum. You can choose to run the tests only on one
-version. A step further is to run only the tests you are working on.::
-
-   (sdk3)$ tox -e py34                # Run run the tests on Python 3.4
-   (sdk3)$ tox -e py34 TestContainer  # Run only the TestContainer tests on 3.4
-
 Building the Documentation
 --------------------------
 
