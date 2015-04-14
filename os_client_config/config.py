@@ -109,7 +109,7 @@ class OpenStackConfig(object):
                     ' env vars are set')
             self.cloud_config['clouds'][self.envvar_key] = envvars
 
-        self._cache_max_age = None
+        self._cache_max_age = 0
         self._cache_path = CACHE_PATH
         self._cache_class = 'dogpile.cache.null'
         self._cache_arguments = {}
