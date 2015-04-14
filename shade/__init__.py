@@ -2029,19 +2029,19 @@ class OperatorCloud(OpenStackCloud):
         return self._ironic_client
 
     def list_nics(self):
-        return self.ironic_client.port.list()
+        return meta.obj_list_to_dict(self.ironic_client.port.list())
 
     def list_nics_for_machine(self, uuid):
-        return self.ironic_client.node.list_ports(uuid)
+        return meta.obj_list_to_dict(self.ironic_client.node.list_ports(uuid))
 
     def get_nic_by_mac(self, mac):
         try:
-            return self.ironic_client.port.get(mac)
+            return meta.obj_to_dict(self.ironic_client.port.get(mac))
         except ironic_exceptions.ClientException:
             return None
 
     def list_machines(self):
-        return self.ironic_client.node.list()
+        return meta.obj_list_to_dict(self.ironic_client.node.list())
 
     def get_machine(self, name_or_id):
         """Get Machine by name or uuid
@@ -2062,7 +2062,8 @@ class OperatorCloud(OpenStackCloud):
     def get_machine_by_mac(self, mac):
         try:
             port = self.ironic_client.port.get(mac)
-            return self.ironic_client.node.get(port.node_uuid)
+            return meta.obj_to_dict(
+                self.ironic_client.node.get(port.node_uuid))
         except ironic_exceptions.ClientException:
             return None
 
@@ -2088,7 +2089,7 @@ class OperatorCloud(OpenStackCloud):
             self.ironic_client.node.delete(machine.uuid)
             raise OpenStackCloudException(
                 "Error registering NICs with Ironic: %s" % e.message)
-        return machine
+        return meta.obj_to_dict(machine)
 
     def unregister_machine(self, nics, uuid):
         for nic in nics:
@@ -2122,10 +2123,12 @@ class OperatorCloud(OpenStackCloud):
 
     def node_set_provision_state(self, uuid, state, configdrive=None):
         try:
-            self.ironic_client.node.set_provision_state(
-                uuid,
-                state,
-                configdrive
+            return meta.obj_to_dict(
+                self.ironic_client.node.set_provision_state(
+                    uuid,
+                    state,
+                    configdrive
+                )
             )
         except Exception as e:
             self.log.debug(
@@ -2134,14 +2137,16 @@ class OperatorCloud(OpenStackCloud):
             raise OpenStackCloudException(e.message)
 
     def activate_node(self, uuid, configdrive=None):
-        self.node_set_provision_state(uuid, 'active', configdrive)
+        return meta.obj_to_dict(
+            self.node_set_provision_state(uuid, 'active', configdrive))
 
     def deactivate_node(self, uuid):
         self.node_set_provision_state(uuid, 'deleted')
 
     def set_node_instance_info(self, uuid, patch):
         try:
-            self.ironic_client.node.update(uuid, patch)
+            return meta.obj_to_dict(
+                self.ironic_client.node.update(uuid, patch))
         except Exception as e:
             self.log.debug(
                 "Failed to update instance_info", exc_info=True)
@@ -2151,7 +2156,8 @@ class OperatorCloud(OpenStackCloud):
         patch = []
         patch.append({'op': 'remove', 'path': '/instance_info'})
         try:
-            return self.ironic_client.node.update(uuid, patch)
+            return meta.obj_to_dict(
+                self.ironic_client.node.update(uuid, patch))
         except Exception as e:
             self.log.debug(
                 "Failed to delete instance_info", exc_info=True)
