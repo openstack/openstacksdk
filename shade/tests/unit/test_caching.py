@@ -168,3 +168,17 @@ class TestMemoryCache(base.TestCase):
         mock_user.id = '999'
         keystone_mock.users.list.return_value = [mock_user]
         self.assertEqual({'999': mock_user}, self.cloud.get_user_cache())
+
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_modify_user_invalidates_cache(self, keystone_mock):
+        mock_user = mock.MagicMock()
+        mock_user.id = 'abc123'
+        # first cache an empty list
+        keystone_mock.users.list.return_value = []
+        self.assertEqual({}, self.cloud.get_user_cache())
+        # now add one
+        keystone_mock.users.list.return_value = [mock_user]
+        keystone_mock.users.create.return_value = mock_user
+        self.cloud.create_user(name='abc123 name')
+        # Cache should have been invalidated
+        self.assertEqual({'abc123': mock_user}, self.cloud.get_user_cache())

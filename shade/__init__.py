@@ -520,6 +520,7 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Error in creating user {user}: {message}".format(
                     user=name, message=e.message))
+        self.get_user_cache.invalidate(self)
 
     def delete_user(self, name_or_id):
         try:
