@@ -24,6 +24,7 @@ import sys
 
 from examples import common
 from examples import connection
+from examples.keypair import create as keypair
 from examples import network
 
 
@@ -33,6 +34,7 @@ def create_jenkins(conn, name, opts):
 
     ports = [9022, 443, 80, 8080, 422, 22]
     net = network.create(conn, name, opts, ports_to_open=ports)
+    keypair.create(conn, name)
 
     server = conn.compute.find_server(name)
     if server is None:
@@ -67,6 +69,7 @@ def create_jenkins(conn, name, opts):
         ip = conn.get(ip)
         print("ssh -i jenkins ubuntu@%s" % ip.floating_ip_address)
         print("http://%s:8080" % ip.floating_ip_address)
+        print("login jenkins/demo")
 
     return
 

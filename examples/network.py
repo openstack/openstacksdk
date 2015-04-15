@@ -19,7 +19,6 @@ To run:
     python examples/network.py
 """
 
-import os
 import sys
 
 from examples import common
@@ -66,45 +65,10 @@ def create(conn, name, opts, ports_to_open=[80, 22]):
         conn.network.security_group_allow_ping(sg.id)
     print(str(sg))
 
-    kp = conn.compute.find_keypair(name)
-    if kp is None:
-        dirname = os.path.expanduser("~/.ssh")
-        try:
-            os.mkdir(dirname, 0o700)
-        except OSError:
-            pass
-        filename = os.path.join(dirname, name)
-        filenamepub = filename + '.pub'
-        args = {'name': name}
-        pubkey = None
-        try:
-            f = open(filenamepub, 'r')
-            pubkey = f.read()
-            f.close()
-            args['public_key'] = pubkey
-        except IOError:
-            pass
-        kp = conn.compute.create_keypair(**args)
-        if pubkey is None:
-            f = open(filename, 'w')
-            f.write("%s" % kp.private_key)
-            f.close()
-            f = open(filenamepub, 'w')
-            f.write("%s" % kp.public_key)
-            f.close()
-            os.chmod(filename, 0o640)
-            os.chmod(filenamepub, 0o644)
-    print(str(kp))
-
     return network
 
 
 def delete(conn, name):
-
-    kp = conn.compute.find_keypair(name)
-    if kp is not None:
-        print(str(kp))
-        conn.delete(kp)
 
     router = conn.network.find_router(name)
     if router is not None:

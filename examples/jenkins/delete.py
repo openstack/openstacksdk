@@ -23,6 +23,7 @@ import sys
 
 from examples import common
 from examples import connection
+from examples.keypair import delete as keypair
 from examples import network
 
 
@@ -39,6 +40,7 @@ def delete_jenkins(conn, name, opts):
             conn.delete(ip)
         conn.delete(server)
 
+    keypair.delete(conn, name)
     network.delete(conn, name)
 
 
