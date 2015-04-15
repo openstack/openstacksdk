@@ -170,7 +170,10 @@ class TestShade(base.TestCase):
         self.cloud.delete_subnet('123')
         self.assertTrue(mock_client.delete_subnet.called)
 
+    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_update_subnet(self, mock_client):
-        self.cloud.update_subnet(subnet_id=123, subnet_name='goofy')
+    def test_update_subnet(self, mock_client, mock_list):
+        subnet1 = dict(id='123', name='mickey')
+        mock_list.return_value = [subnet1]
+        self.cloud.update_subnet('123', subnet_name='goofy')
         self.assertTrue(mock_client.update_subnet.called)
