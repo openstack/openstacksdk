@@ -27,6 +27,14 @@ class TestShade(base.TestCase):
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, shade.OpenStackCloud)
 
+    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
+    def test_get_subnet(self, mock_list):
+        subnet = dict(id='123', name='mickey')
+        mock_list.return_value = [subnet]
+        r = self.cloud.get_subnet('mickey')
+        self.assertIsNotNone(r)
+        self.assertDictEqual(subnet, r)
+
     @mock.patch.object(shade.OpenStackCloud, 'list_routers')
     def test_get_router(self, mock_list):
         router1 = dict(id='123', name='mickey')
