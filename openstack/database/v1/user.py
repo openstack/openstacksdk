@@ -48,7 +48,7 @@ class User(resource.Resource):
 
     @classmethod
     def create_by_id(cls, session, attrs, r_id=None, path_args=None):
-        url = cls.base_path % path_args
+        url = cls._get_url(path_args)
         # Create expects an array of users
         body = {'users': [attrs]}
         resp = session.post(url, service=cls.service, json=body).body

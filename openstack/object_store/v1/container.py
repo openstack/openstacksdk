@@ -13,7 +13,6 @@
 
 from openstack.object_store import object_store_service
 from openstack import resource
-from openstack import utils
 
 
 class Container(resource.Resource):
@@ -113,7 +112,7 @@ class Container(resource.Resource):
 
         :return: A ``dict`` representing the response headers.
         """
-        url = utils.urljoin(cls.base_path, resource_id)
+        url = cls._get_url(None, resource_id)
         headers = attrs.get(resource.HEADERS, dict())
         return session.post(url, service=cls.service, accept=None,
                             headers=headers).headers
@@ -131,7 +130,7 @@ class Container(resource.Resource):
 
         :return: A ``dict`` representing the response headers.
         """
-        url = utils.urljoin(cls.base_path, resource_id)
+        url = cls._get_url(None, resource_id)
         headers = attrs.get(resource.HEADERS, dict())
         return session.put(url, service=cls.service, accept=None,
                            headers=headers).headers

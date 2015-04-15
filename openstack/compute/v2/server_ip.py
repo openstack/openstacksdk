@@ -38,7 +38,7 @@ class ServerIP(resource.Resource):
 
     @classmethod
     def list(cls, session, path_args=None, **params):
-        url = cls.base_path % path_args
+        url = cls._get_url(path_args)
         resp = session.get(url, service=cls.service, params=params)
         ray = []
         for network_label, addresses in six.iteritems(resp.body['addresses']):

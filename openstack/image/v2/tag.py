@@ -13,7 +13,6 @@
 from openstack.image import image_service
 from openstack.image.v2 import image
 from openstack import resource
-from openstack import utils
 
 
 class Tag(resource.Resource):
@@ -37,8 +36,7 @@ class Tag(resource.Resource):
 
         :return: ``None``
         """
-        url = utils.urljoin(self.base_path %
-                            {"image": self.image.id}, tag)
+        url = self._get_url({"image": self.image.id}, tag)
         session.put(url, service=self.service, accept=None)
 
     def delete(self, session, tag):
@@ -50,6 +48,5 @@ class Tag(resource.Resource):
 
         :return: ``None``
         """
-        url = utils.urljoin(self.base_path %
-                            {"image": self.image.id}, tag)
+        url = self._get_url({"image": self.image.id}, tag)
         session.delete(url, service=self.service, accept=None)

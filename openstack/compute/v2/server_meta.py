@@ -14,7 +14,6 @@ import six
 
 from openstack.compute import compute_service
 from openstack import resource
-from openstack import utils
 
 
 class ServerMeta(resource.Resource):
@@ -40,8 +39,7 @@ class ServerMeta(resource.Resource):
 
     @classmethod
     def create_by_id(cls, session, attrs, resource_id=None, path_args=None):
-        url = cls.base_path % path_args
-        url = utils.urljoin(url, resource_id)
+        url = cls._get_url(path_args, resource_id)
         body = {cls.resource_key: {attrs['key']: attrs['value']}}
         resp = session.put(url, service=cls.service, json=body).body
         return {'key': resource_id,
@@ -50,8 +48,7 @@ class ServerMeta(resource.Resource):
     @classmethod
     def get_data_by_id(cls, session, resource_id, path_args=None,
                        include_headers=False):
-        url = cls.base_path % path_args
-        url = utils.urljoin(url, resource_id)
+        url = cls._get_url(path_args, resource_id)
         resp = session.get(url, service=cls.service).body
         return {'key': resource_id,
                 'value': resp[cls.resource_key][resource_id]}
@@ -62,8 +59,7 @@ class ServerMeta(resource.Resource):
 
     @classmethod
     def delete_by_id(cls, session, resource_id, path_args=None):
-        url = cls.base_path % path_args
-        url = utils.urljoin(url, resource_id)
+        url = cls._get_url(path_args, resource_id)
         session.delete(url, service=cls.service, accept=None)
 
     @classmethod

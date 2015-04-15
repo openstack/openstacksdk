@@ -38,7 +38,7 @@ class Sample(resource.Resource):
 
     @classmethod
     def list(cls, session, path_args=None, **params):
-        url = cls.base_path % path_args
+        url = cls._get_url(path_args)
         resp = session.get(url, service=cls.service, params=params)
 
         changes = []
@@ -47,7 +47,7 @@ class Sample(resource.Resource):
         return changes
 
     def create(self, session):
-        url = self.base_path % {'meter': self.meter}
+        url = self._get_url(self)
         # telemetry expects a list of samples
         resp = session.post(url, service=self.service, json=[self._attrs])
 

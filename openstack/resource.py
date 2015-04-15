@@ -482,6 +482,16 @@ class Resource(collections.MutableMapping):
         return converted
 
     @classmethod
+    def _get_url(cls, path_args=None, resource_id=None):
+        if path_args:
+            url = cls.base_path % path_args
+        else:
+            url = cls.base_path
+        if resource_id is not None:
+            url = utils.urljoin(url, resource_id)
+        return url
+
+    @classmethod
     def create_by_id(cls, session, attrs, resource_id=None, path_args=None):
         """Create a remote resource from its attributes.
 
@@ -511,15 +521,11 @@ class Resource(collections.MutableMapping):
         else:
             body = attrs
 
-        if path_args:
-            url = cls.base_path % path_args
-        else:
-            url = cls.base_path
+        url = cls._get_url(path_args, resource_id)
         args = {'json': body}
         if headers:
             args[HEADERS] = headers
         if resource_id:
-            url = utils.urljoin(url, resource_id)
             resp = session.put(url, service=cls.service, **args).body
         else:
             resp = session.post(url, service=cls.service, **args).body
@@ -567,11 +573,7 @@ class Resource(collections.MutableMapping):
         if not cls.allow_retrieve:
             raise exceptions.MethodNotSupported(cls, 'retrieve')
 
-        if path_args:
-            url = cls.base_path % path_args
-        else:
-            url = cls.base_path
-        url = utils.urljoin(url, resource_id)
+        url = cls._get_url(path_args, resource_id)
         response = session.get(url, service=cls.service)
         body = response.body
 
@@ -643,11 +645,7 @@ class Resource(collections.MutableMapping):
         if not cls.allow_head:
             raise exceptions.MethodNotSupported(cls, 'head')
 
-        if path_args:
-            url = cls.base_path % path_args
-        else:
-            url = cls.base_path
-        url = utils.urljoin(url, resource_id)
+        url = cls._get_url(path_args, resource_id)
 
         data = session.head(url, service=cls.service, accept=None).headers
 
@@ -719,11 +717,7 @@ class Resource(collections.MutableMapping):
         else:
             body = attrs
 
-        if path_args:
-            url = cls.base_path % path_args
-        else:
-            url = cls.base_path
-        url = utils.urljoin(url, resource_id)
+        url = cls._get_url(path_args, resource_id)
         args = {'json': body}
         if headers:
             args[HEADERS] = headers
@@ -782,11 +776,7 @@ class Resource(collections.MutableMapping):
         if not cls.allow_delete:
             raise exceptions.MethodNotSupported(cls, 'delete')
 
-        if path_args:
-            url = cls.base_path % path_args
-        else:
-            url = cls.base_path
-        url = utils.urljoin(url, resource_id)
+        url = cls._get_url(path_args, resource_id)
         session.delete(url, service=cls.service, accept=None)
 
     def delete(self, session):
@@ -897,10 +887,7 @@ class Resource(collections.MutableMapping):
         if marker:
             filters['marker'] = marker
 
-        if path_args:
-            url = cls.base_path % path_args
-        else:
-            url = cls.base_path
+        url = cls._get_url(path_args)
         if filters:
             url = '%s?%s' % (url, url_parse.urlencode(filters))
 
