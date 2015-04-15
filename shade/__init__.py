@@ -751,6 +751,9 @@ class OpenStackCloud(object):
                 return router
         return None
 
+    def list_subnets(self):
+        return self.manager.submitTask(_tasks.SubnetList())['subnets']
+
     # TODO(Shrews): This will eventually need to support tenant ID and
     # provider networks, which are admin-level params.
     def create_network(self, name, shared=False, admin_state_up=True):
@@ -1870,6 +1873,37 @@ class OpenStackCloud(object):
                 % (network_name_or_id, e))
 
         return new_subnet['subnet']
+
+    def delete_subnet(self, name_or_id):
+        """Delete a subnet.
+
+        If a name, instead of a unique UUID, is supplied, it is possible
+        that we could find more than one matching subnet since names are
+        not required to be unique. An error will be raised in this case.
+
+        :param name_or_id: Name or ID of the subnet being deleted.
+        :raises: OpenStackCloudException on operation error.
+        """
+        subnets = []
+        for subnet in self.list_subnets():
+            if name_or_id in (subnet['id'], subnet['name']):
+                subnets.append(subnet)
+
+        if not subnets:
+            raise OpenStackCloudException(
+                "Subnet %s not found." % name_or_id)
+
+        if len(subnets) > 1:
+            raise OpenStackCloudException(
+                "More than one subnet named %s. Use ID." % name_or_id)
+
+        try:
+            self.manager.submitTask(
+                _tasks.SubnetDelete(subnet=subnets[0]['id']))
+        except Exception as e:
+            self.log.debug("Subnet delete failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Error deleting subnet %s: %s" % (name_or_id, e))
 
 
 class OperatorCloud(OpenStackCloud):

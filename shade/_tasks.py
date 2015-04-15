@@ -241,3 +241,13 @@ class ObjectMetadata(task_manager.Task):
 class SubnetCreate(task_manager.Task):
     def main(self, client):
         return client.neutron_client.create_subnet(**self.args)
+
+
+class SubnetList(task_manager.Task):
+    def main(self, client):
+        return client.neutron_client.list_subnets()
+
+
+class SubnetDelete(task_manager.Task):
+    def main(self, client):
+        client.neutron_client.delete_subnet(**self.args)
