@@ -236,3 +236,8 @@ class ObjectUpdate(task_manager.Task):
 class ObjectMetadata(task_manager.Task):
     def main(self, client):
         return client.swift_client.head_object(**self.args)
+
+
+class SubnetCreate(task_manager.Task):
+    def main(self, client):
+        return client.neutron_client.create_subnet(**self.args)

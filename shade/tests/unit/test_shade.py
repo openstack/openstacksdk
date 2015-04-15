@@ -88,3 +88,38 @@ class TestShade(base.TestCase):
         mock_list.return_value = [router1, router2]
         self.cloud.delete_router('123')
         self.assertTrue(mock_client.delete_router.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'list_networks')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_create_subnet(self, mock_client, mock_list):
+        net1 = dict(id='123', name='donald')
+        mock_list.return_value = [net1]
+        pool = [{'start': '192.168.199.2', 'end': '192.168.199.254'}]
+        dns = ['8.8.8.8']
+        routes = [{"destination": "0.0.0.0/0", "nexthop": "123.456.78.9"}]
+        self.cloud.create_subnet('donald', '192.168.199.0/24',
+                                 allocation_pools=pool,
+                                 dns_nameservers=dns,
+                                 host_routes=routes)
+        self.assertTrue(mock_client.create_subnet.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'list_networks')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_create_subnet_bad_network(self, mock_client, mock_list):
+        net1 = dict(id='123', name='donald')
+        mock_list.return_value = [net1]
+        self.assertRaises(shade.OpenStackCloudException,
+                          self.cloud.create_subnet,
+                          'duck', '192.168.199.0/24')
+        self.assertFalse(mock_client.create_subnet.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'list_networks')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_create_subnet_non_unique_network(self, mock_client, mock_list):
+        net1 = dict(id='123', name='donald')
+        net2 = dict(id='456', name='donald')
+        mock_list.return_value = [net1, net2]
+        self.assertRaises(shade.OpenStackCloudException,
+                          self.cloud.create_subnet,
+                          'donald', '192.168.199.0/24')
+        self.assertFalse(mock_client.create_subnet.called)
