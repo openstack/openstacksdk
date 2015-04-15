@@ -1905,6 +1905,83 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Error deleting subnet %s: %s" % (name_or_id, e))
 
+    def update_subnet(self, subnet_id, subnet_name=None, enable_dhcp=None,
+                      gateway_ip=None, allocation_pools=None,
+                      dns_nameservers=None, host_routes=None):
+        """Update an existing subnet.
+
+        :param string subnet_name:
+           The name of the subnet.
+        :param bool enable_dhcp:
+           Set to ``True`` if DHCP is enabled and ``False`` if disabled.
+        :param string gateway_ip:
+           The gateway IP address. When you specify both allocation_pools and
+           gateway_ip, you must ensure that the gateway IP does not overlap
+           with the specified allocation pools.
+        :param list allocation_pools:
+           A list of dictionaries of the start and end addresses for the
+           allocation pools. For example::
+
+             [
+               {
+                 "start": "192.168.199.2",
+                 "end": "192.168.199.254"
+               }
+             ]
+
+        :param list dns_nameservers:
+           A list of DNS name servers for the subnet. For example::
+
+             [ "8.8.8.7", "8.8.8.8" ]
+
+        :param list host_routes:
+           A list of host route dictionaries for the subnet. For example::
+
+             [
+               {
+                 "destination": "0.0.0.0/0",
+                 "nexthop": "123.456.78.9"
+               },
+               {
+                 "destination": "192.168.0.0/24",
+                 "nexthop": "192.168.0.1"
+               }
+             ]
+
+        :returns: The updated subnet object.
+        :raises: OpenStackCloudException on operation error.
+        """
+        subnet = {}
+        if subnet_name:
+            subnet['name'] = subnet_name
+        if enable_dhcp is not None:
+            subnet['enable_dhcp'] = enable_dhcp
+        if gateway_ip:
+            subnet['gateway_ip'] = gateway_ip
+        if allocation_pools:
+            subnet['allocation_pools'] = allocation_pools
+        if dns_nameservers:
+            subnet['dns_nameservers'] = dns_nameservers
+        if host_routes:
+            subnet['host_routes'] = host_routes
+
+        if not subnet:
+            self.log.debug("No subnet data to update")
+            return
+
+        try:
+            new_subnet = self.manager.submitTask(
+                _tasks.SubnetUpdate(
+                    subnet=subnet_id, body=dict(subnet=subnet)))
+        except Exception as e:
+            self.log.debug("Subnet update failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Error updating subnet %s: %s" % (subnet_id, e))
+        # Turns out neutron returns an actual dict, so no need for the
+        # use of meta.obj_to_dict() here (which would not work against
+        # a dict).
+        return new_subnet['subnet']
+
 
 class OperatorCloud(OpenStackCloud):
 
