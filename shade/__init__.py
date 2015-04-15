@@ -1152,6 +1152,7 @@ class OpenStackCloud(object):
             self.log.debug("Volume creation failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error in creating volume: %s" % e.message)
+        self.list_volumes.invalidate(self)
 
         if volume.status == 'error':
             raise OpenStackCloudException("Error in creating volume")

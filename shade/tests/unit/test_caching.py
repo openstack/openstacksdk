@@ -113,3 +113,35 @@ class TestMemoryCache(base.TestCase):
         cinder_mock.volumes.list.return_value = [mock_volume, mock_volume2]
         self.assertEqual([mock_volume, mock_volume2],
                          self.cloud.list_volumes())
+
+    @mock.patch.object(shade.OpenStackCloud, 'cinder_client')
+    def test_create_volume_invalidates(self, cinder_mock):
+        mock_volb4 = mock.MagicMock()
+        mock_volb4.id = 'volume1'
+        mock_volb4.status = 'available'
+        mock_volb4.display_name = 'Volume 1 Display Name'
+        cinder_mock.volumes.list.return_value = [mock_volb4]
+        self.assertEqual([mock_volb4], self.cloud.list_volumes())
+        volume = dict(display_name='junk_vol',
+                      size=1,
+                      display_description='test junk volume')
+        mock_vol = mock.Mock()
+        mock_vol.status = 'creating'
+        mock_vol.id = '12345'
+        cinder_mock.volumes.create.return_value = mock_vol
+        cinder_mock.volumes.list.return_value = [mock_volb4, mock_vol]
+
+        def creating_available():
+            def now_available():
+                mock_vol.status = 'available'
+                return mock.DEFAULT
+            cinder_mock.volumes.list.side_effect = now_available
+            return mock.DEFAULT
+        cinder_mock.volumes.list.side_effect = creating_available
+        self.cloud.create_volume(wait=True, timeout=None, **volume)
+        self.assertTrue(cinder_mock.volumes.create.called)
+        self.assertEqual(3, cinder_mock.volumes.list.call_count)
+        # If cache was not invalidated, we would not see our own volume here
+        # because the first volume was available and thus would already be
+        # cached.
+        self.assertEqual([mock_volb4, mock_vol], self.cloud.list_volumes())
