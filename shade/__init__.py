@@ -24,6 +24,7 @@ import glanceclient
 import glanceclient.exc
 from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
+import jsonpatch
 from keystoneclient import auth as ksc_auth
 from keystoneclient import session as ksc_session
 from keystoneclient import client as keystone_client
@@ -2292,6 +2293,100 @@ class OperatorCloud(OpenStackCloud):
                 "Machine patch update failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error updating machine via patch operation. node: %s. "
+                "%s" % (name_or_id, e))
+
+    def update_machine(self, name_or_id, chassis_uuid=None, driver=None,
+                       driver_info=None, name=None, instance_info=None,
+                       instance_uuid=None, properties=None):
+        """Update a machine with new configuration information
+
+        A user-friendly method to perform updates of a machine, in whole or
+        part.
+
+        :param string name_or_id: A machine name or UUID to be updated.
+        :param string chassis_uuid: Assign a chassis UUID to the machine.
+                                    NOTE: As of the Kilo release, this value
+                                    cannot be changed once set. If a user
+                                    attempts to change this value, then the
+                                    Ironic API, as of Kilo, will reject the
+                                    request.
+        :param string driver: The driver name for controlling the machine.
+        :param dict driver_info: The dictonary defining the configuration
+                                 that the driver will utilize to control
+                                 the machine.  Permutations of this are
+                                 dependent upon the specific driver utilized.
+        :param string name: A human relatable name to represent the machine.
+        :param dict instance_info: A dictonary of configuration information
+                                   that conveys to the driver how the host
+                                   is to be configured when deployed.
+                                   be deployed to the machine.
+        :param string instance_uuid: A UUID value representing the instance
+                                     that the deployed machine represents.
+        :param dict properties: A dictonary defining the properties of a
+                                machine.
+
+        :raises: OpenStackCloudException on operation error.
+
+        :returns: Dictonary containing a machine sub-dictonary consisting
+                  of the updated data returned from the API update operation,
+                  and a list named changes which contains all of the API paths
+                  that received updates.
+        """
+        try:
+            machine = self.get_machine(name_or_id)
+
+            machine_config = {}
+            new_config = {}
+
+            if chassis_uuid:
+                machine_config['chassis_uuid'] = machine['chassis_uuid']
+                new_config['chassis_uuid'] = chassis_uuid
+
+            if driver:
+                machine_config['driver'] = machine['driver']
+                new_config['driver'] = driver
+
+            if driver_info:
+                machine_config['driver_info'] = machine['driver_info']
+                new_config['driver_info'] = driver_info
+
+            if name:
+                machine_config['name'] = machine['name']
+                new_config['name'] = name
+
+            if instance_info:
+                machine_config['instance_info'] = machine['instance_info']
+                new_config['instance_info'] = instance_info
+
+            if instance_uuid:
+                machine_config['instance_uuid'] = machine['instance_uuid']
+                new_config['instance_uuid'] = instance_uuid
+
+            if properties:
+                machine_config['properties'] = machine['properties']
+                new_config['properties'] = properties
+
+            patch = jsonpatch.JsonPatch.from_diff(machine_config, new_config)
+
+            if not patch:
+                return dict(
+                    node=machine,
+                    changes=None
+                )
+            else:
+                machine = self.patch_machine(machine['uuid'], list(patch))
+                change_list = []
+                for change in list(patch):
+                    change_list.append(change['path'])
+                return dict(
+                    node=machine,
+                    changes=change_list
+                )
+        except Exception as e:
+            self.log.debug(
+                "Machine update failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Error updating machine node %s. "
                 "%s" % (name_or_id, e))
 
     def validate_node(self, uuid):

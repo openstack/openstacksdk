@@ -212,6 +212,250 @@ class TestShadeOperator(base.TestCase):
         self.assertTrue(mock_client.node.update.called)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    @mock.patch.object(shade.OperatorCloud, 'patch_machine')
+    def test_update_machine_patch_no_action(self, mock_patch, mock_client):
+        class client_return_value:
+            uuid = '00000000-0000-0000-0000-000000000000'
+            name = 'node01'
+
+        expected_machine = dict(
+            uuid='00000000-0000-0000-0000-000000000000',
+            name='node01'
+        )
+        mock_client.node.get.return_value = client_return_value
+
+        update_dict = self.cloud.update_machine('node01')
+        self.assertIsNone(update_dict['changes'])
+        self.assertFalse(mock_patch.called)
+        self.assertDictEqual(expected_machine, update_dict['node'])
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    @mock.patch.object(shade.OperatorCloud, 'patch_machine')
+    def test_update_machine_patch_no_action_name(self, mock_patch,
+                                                 mock_client):
+        class client_return_value:
+            uuid = '00000000-0000-0000-0000-000000000000'
+            name = 'node01'
+
+        expected_machine = dict(
+            uuid='00000000-0000-0000-0000-000000000000',
+            name='node01'
+        )
+        mock_client.node.get.return_value = client_return_value
+
+        update_dict = self.cloud.update_machine('node01', name='node01')
+        self.assertIsNone(update_dict['changes'])
+        self.assertFalse(mock_patch.called)
+        self.assertDictEqual(expected_machine, update_dict['node'])
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    @mock.patch.object(shade.OperatorCloud, 'patch_machine')
+    def test_update_machine_patch_action_name(self, mock_patch,
+                                              mock_client):
+        class client_return_value:
+            uuid = '00000000-0000-0000-0000-000000000000'
+            name = 'evil'
+
+        expected_patch = [dict(op='replace', path='/name', value='good')]
+
+        mock_client.node.get.return_value = client_return_value
+
+        update_dict = self.cloud.update_machine('evil', name='good')
+        self.assertIsNotNone(update_dict['changes'])
+        self.assertEqual('/name', update_dict['changes'][0])
+        self.assertTrue(mock_patch.called)
+        mock_patch.assert_called_with(
+            '00000000-0000-0000-0000-000000000000',
+            expected_patch)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    @mock.patch.object(shade.OperatorCloud, 'patch_machine')
+    def test_update_machine_patch_update_name(self, mock_patch,
+                                              mock_client):
+        class client_return_value:
+            uuid = '00000000-0000-0000-0000-000000000000'
+            name = 'evil'
+
+        expected_patch = [dict(op='replace', path='/name', value='good')]
+
+        mock_client.node.get.return_value = client_return_value
+
+        update_dict = self.cloud.update_machine('evil', name='good')
+        self.assertIsNotNone(update_dict['changes'])
+        self.assertEqual('/name', update_dict['changes'][0])
+        self.assertTrue(mock_patch.called)
+        mock_patch.assert_called_with(
+            '00000000-0000-0000-0000-000000000000',
+            expected_patch)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    @mock.patch.object(shade.OperatorCloud, 'patch_machine')
+    def test_update_machine_patch_update_chassis_uuid(self, mock_patch,
+                                                      mock_client):
+        class client_return_value:
+            uuid = '00000000-0000-0000-0000-000000000000'
+            chassis_uuid = None
+
+        expected_patch = [
+            dict(
+                op='replace',
+                path='/chassis_uuid',
+                value='00000000-0000-0000-0000-000000000001'
+            )]
+
+        mock_client.node.get.return_value = client_return_value
+
+        update_dict = self.cloud.update_machine(
+            '00000000-0000-0000-0000-000000000000',
+            chassis_uuid='00000000-0000-0000-0000-000000000001')
+        self.assertIsNotNone(update_dict['changes'])
+        self.assertEqual('/chassis_uuid', update_dict['changes'][0])
+        self.assertTrue(mock_patch.called)
+        mock_patch.assert_called_with(
+            '00000000-0000-0000-0000-000000000000',
+            expected_patch)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    @mock.patch.object(shade.OperatorCloud, 'patch_machine')
+    def test_update_machine_patch_update_driver(self, mock_patch,
+                                                mock_client):
+        class client_return_value:
+            uuid = '00000000-0000-0000-0000-000000000000'
+            driver = None
+
+        expected_patch = [
+            dict(
+                op='replace',
+                path='/driver',
+                value='fake'
+            )]
+
+        mock_client.node.get.return_value = client_return_value
+
+        update_dict = self.cloud.update_machine(
+            '00000000-0000-0000-0000-000000000000',
+            driver='fake'
+        )
+        self.assertIsNotNone(update_dict['changes'])
+        self.assertEqual('/driver', update_dict['changes'][0])
+        self.assertTrue(mock_patch.called)
+        mock_patch.assert_called_with(
+            '00000000-0000-0000-0000-000000000000',
+            expected_patch)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    @mock.patch.object(shade.OperatorCloud, 'patch_machine')
+    def test_update_machine_patch_update_driver_info(self, mock_patch,
+                                                     mock_client):
+        class client_return_value:
+            uuid = '00000000-0000-0000-0000-000000000000'
+            driver_info = None
+
+        expected_patch = [
+            dict(
+                op='replace',
+                path='/driver_info',
+                value=dict(var='fake')
+            )]
+
+        mock_client.node.get.return_value = client_return_value
+
+        update_dict = self.cloud.update_machine(
+            '00000000-0000-0000-0000-000000000000',
+            driver_info=dict(var="fake")
+        )
+        self.assertIsNotNone(update_dict['changes'])
+        self.assertEqual('/driver_info', update_dict['changes'][0])
+        self.assertTrue(mock_patch.called)
+        mock_patch.assert_called_with(
+            '00000000-0000-0000-0000-000000000000',
+            expected_patch)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    @mock.patch.object(shade.OperatorCloud, 'patch_machine')
+    def test_update_machine_patch_update_instance_info(self, mock_patch,
+                                                       mock_client):
+        class client_return_value:
+            uuid = '00000000-0000-0000-0000-000000000000'
+            instance_info = None
+
+        expected_patch = [
+            dict(
+                op='replace',
+                path='/instance_info',
+                value=dict(var='fake')
+            )]
+
+        mock_client.node.get.return_value = client_return_value
+
+        update_dict = self.cloud.update_machine(
+            '00000000-0000-0000-0000-000000000000',
+            instance_info=dict(var="fake")
+        )
+        self.assertIsNotNone(update_dict['changes'])
+        self.assertEqual('/instance_info', update_dict['changes'][0])
+        self.assertTrue(mock_patch.called)
+        mock_patch.assert_called_with(
+            '00000000-0000-0000-0000-000000000000',
+            expected_patch)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    @mock.patch.object(shade.OperatorCloud, 'patch_machine')
+    def test_update_machine_patch_update_instance_uuid(self, mock_patch,
+                                                       mock_client):
+        class client_return_value:
+            uuid = '00000000-0000-0000-0000-000000000000'
+            instance_uuid = None
+
+        expected_patch = [
+            dict(
+                op='replace',
+                path='/instance_uuid',
+                value='00000000-0000-0000-0000-000000000002'
+            )]
+
+        mock_client.node.get.return_value = client_return_value
+
+        update_dict = self.cloud.update_machine(
+            '00000000-0000-0000-0000-000000000000',
+            instance_uuid='00000000-0000-0000-0000-000000000002'
+        )
+        self.assertIsNotNone(update_dict['changes'])
+        self.assertEqual('/instance_uuid', update_dict['changes'][0])
+        self.assertTrue(mock_patch.called)
+        mock_patch.assert_called_with(
+            '00000000-0000-0000-0000-000000000000',
+            expected_patch)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    @mock.patch.object(shade.OperatorCloud, 'patch_machine')
+    def test_update_machine_patch_update_properties(self, mock_patch,
+                                                    mock_client):
+        class client_return_value:
+            uuid = '00000000-0000-0000-0000-000000000000'
+            properties = None
+
+        expected_patch = [
+            dict(
+                op='replace',
+                path='/properties',
+                value=dict(var='fake')
+            )]
+
+        mock_client.node.get.return_value = client_return_value
+
+        update_dict = self.cloud.update_machine(
+            '00000000-0000-0000-0000-000000000000',
+            properties=dict(var="fake")
+        )
+        self.assertIsNotNone(update_dict['changes'])
+        self.assertEqual('/properties', update_dict['changes'][0])
+        self.assertTrue(mock_patch.called)
+        mock_patch.assert_called_with(
+            '00000000-0000-0000-0000-000000000000',
+            expected_patch)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_register_machine(self, mock_client):
         class fake_node:
             uuid = "00000000-0000-0000-0000-000000000000"
