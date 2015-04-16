@@ -1185,6 +1185,7 @@ class OpenStackCloud(object):
         :raises: OpenStackCloudException on operation error.
         """
 
+        self.list_volumes.invalidate(self)
         volume = self.get_volume(name_or_id)
 
         try:
@@ -1195,6 +1196,7 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Error in deleting volume: %s" % e.message)
 
+        self.list_volumes.invalidate(self)
         if wait:
             for count in _iterate_timeout(
                     timeout,

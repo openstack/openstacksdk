@@ -145,3 +145,19 @@ class TestMemoryCache(base.TestCase):
         # because the first volume was available and thus would already be
         # cached.
         self.assertEqual([mock_volb4, mock_vol], self.cloud.list_volumes())
+
+        # And now delete and check same thing since list is cached as all
+        # available
+        mock_vol.status = 'deleting'
+
+        def deleting_gone():
+            def now_gone():
+                cinder_mock.volumes.list.return_value = [mock_volb4]
+                return mock.DEFAULT
+            cinder_mock.volumes.list.side_effect = now_gone
+            return mock.DEFAULT
+        cinder_mock.volumes.list.return_value = [mock_volb4, mock_vol]
+        cinder_mock.volumes.list.side_effect = deleting_gone
+        cinder_mock.volumes.delete.return_value = mock_vol
+        self.cloud.delete_volume('12345')
+        self.assertEqual([mock_volb4], self.cloud.list_volumes())
