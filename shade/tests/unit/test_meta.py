@@ -70,3 +70,16 @@ class TestMeta(testtools.TestCase):
              'test-region_test-az',
              'test-name_test-region_test-az'],
             meta.get_groups_from_server(Cloud(), Server(), server_vars))
+
+    def test_obj_list_to_dict(self):
+        """Test conversion of a list of objects to a list of dictonaries"""
+        class obj0(object):
+            value = 0
+
+        class obj1(object):
+            value = 1
+
+        list = [obj0, obj1]
+        new_list = meta.obj_list_to_dict(list)
+        self.assertEqual(new_list[0]['value'], 0)
+        self.assertEqual(new_list[1]['value'], 1)
