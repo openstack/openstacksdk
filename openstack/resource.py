@@ -499,7 +499,7 @@ class Resource(collections.MutableMapping):
                  :data:`Resource.allow_create` is not set to ``True``.
         """
         if not cls.allow_create:
-            raise exceptions.MethodNotSupported('create')
+            raise exceptions.MethodNotSupported(cls, 'create')
 
         # Convert attributes from Resource types into their ids.
         attrs = cls._convert_ids(attrs)
@@ -561,7 +561,7 @@ class Resource(collections.MutableMapping):
                  :data:`Resource.allow_retrieve` is not set to ``True``.
         """
         if not cls.allow_retrieve:
-            raise exceptions.MethodNotSupported('retrieve')
+            raise exceptions.MethodNotSupported(cls, 'retrieve')
 
         if path_args:
             url = cls.base_path % path_args
@@ -637,7 +637,7 @@ class Resource(collections.MutableMapping):
                  :data:`Resource.allow_head` is not set to ``True``.
         """
         if not cls.allow_head:
-            raise exceptions.MethodNotSupported('head')
+            raise exceptions.MethodNotSupported(cls, 'head')
 
         if path_args:
             url = cls.base_path % path_args
@@ -702,7 +702,7 @@ class Resource(collections.MutableMapping):
                  :data:`Resource.allow_update` is not set to ``True``.
         """
         if not cls.allow_update:
-            raise exceptions.MethodNotSupported('update')
+            raise exceptions.MethodNotSupported(cls, 'update')
 
         # Convert attributes from Resource types into their ids.
         attrs = cls._convert_ids(attrs)
@@ -772,7 +772,7 @@ class Resource(collections.MutableMapping):
                  :data:`Resource.allow_delete` is not set to ``True``.
         """
         if not cls.allow_delete:
-            raise exceptions.MethodNotSupported('delete')
+            raise exceptions.MethodNotSupported(cls, 'delete')
 
         if path_args:
             url = cls.base_path % path_args
@@ -834,7 +834,7 @@ class Resource(collections.MutableMapping):
                  :data:`Resource.allow_list` is not set to ``True``.
         """
         if not cls.allow_list:
-            raise exceptions.MethodNotSupported('list')
+            raise exceptions.MethodNotSupported(cls, 'list')
 
         more_data = True
 
