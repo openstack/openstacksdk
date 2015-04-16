@@ -11,6 +11,9 @@
 # under the License.
 
 from openstack.database.v1 import _proxy
+from openstack.database.v1 import database
+from openstack.database.v1 import instance
+from openstack.database.v1 import user
 from openstack.tests.unit import test_proxy_base
 
 
@@ -24,8 +27,12 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_database)
 
     def test_database_delete(self):
-        self.verify_delete('openstack.database.v1.database.Database.delete',
-                           self.proxy.delete_database)
+        self.verify_delete2(database.Database, self.proxy.delete_database,
+                            False)
+
+    def test_database_delete_ignore(self):
+        self.verify_delete2(database.Database, self.proxy.delete_database,
+                            True)
 
     def test_database_find(self):
         self.verify_find('openstack.database.v1.database.Database.find',
@@ -52,8 +59,12 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_instance)
 
     def test_instance_delete(self):
-        self.verify_delete('openstack.database.v1.instance.Instance.delete',
-                           self.proxy.delete_instance)
+        self.verify_delete2(instance.Instance, self.proxy.delete_instance,
+                            False)
+
+    def test_instance_delete_ignore(self):
+        self.verify_delete2(instance.Instance, self.proxy.delete_instance,
+                            True)
 
     def test_instance_find(self):
         self.verify_find('openstack.database.v1.instance.Instance.find',
@@ -76,8 +87,10 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_user)
 
     def test_user_delete(self):
-        self.verify_delete('openstack.database.v1.user.User.delete',
-                           self.proxy.delete_user)
+        self.verify_delete2(user.User, self.proxy.delete_user, False)
+
+    def test_user_delete_ignore(self):
+        self.verify_delete2(user.User, self.proxy.delete_user, True)
 
     def test_user_find(self):
         self.verify_find('openstack.database.v1.user.User.find',

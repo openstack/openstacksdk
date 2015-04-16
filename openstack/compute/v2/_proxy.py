@@ -35,8 +35,20 @@ class Proxy(proxy.BaseProxy):
     def create_flavor(self, **data):
         return flavor.Flavor(data).create(self.session)
 
-    def delete_flavor(self, **data):
-        flavor.Flavor(data).delete(self.session)
+    def delete_flavor(self, value, ignore_missing=True):
+        """Delete a flavor
+
+        :param value: The value can be either the ID of a flavor or a
+                      :class:`~openstack.compute.v2.flavor.Flavor` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the flavor does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(flavor.Flavor, value, ignore_missing)
 
     def get_flavor(self, **data):
         return flavor.Flavor(data).get(self.session)
@@ -57,8 +69,20 @@ class Proxy(proxy.BaseProxy):
     def update_flavor(self, **data):
         return flavor.Flavor(data).update(self.session)
 
-    def delete_image(self, **data):
-        image.Image(data).delete(self.session)
+    def delete_image(self, value, ignore_missing=True):
+        """Delete an image
+
+        :param value: The value can be either the ID of an image or a
+                      :class:`~openstack.compute.v2.image.Image` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the image does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(image.Image, value, ignore_missing)
 
     def find_image(self, name_or_id):
         return image.Image.find(self.session, name_or_id)
@@ -82,8 +106,20 @@ class Proxy(proxy.BaseProxy):
     def create_keypair(self, **data):
         return keypair.Keypair(data).create(self.session)
 
-    def delete_keypair(self, **data):
-        keypair.Keypair(data).delete(self.session)
+    def delete_keypair(self, value, ignore_missing=True):
+        """Delete a keypair
+
+        :param value: The value can be either the ID of a keypair or a
+                      :class:`~openstack.compute.v2.keypair.Keypair` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the keypair does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(keypair.Keypair, value, ignore_missing)
 
     def get_keypair(self, **data):
         return keypair.Keypair(data).get(self.session)
@@ -146,8 +182,21 @@ class Proxy(proxy.BaseProxy):
     def create_server_interface(self, **data):
         return server_interface.ServerInterface(data).create(self.session)
 
-    def delete_server_interface(self, **data):
-        server_interface.ServerInterface(data).delete(self.session)
+    def delete_server_interface(self, value, ignore_missing=True):
+        """Delete a server interface
+
+        :param value: The value can be either the ID of a server or a
+               :class:`~openstack.compute.v2.server_interface.ServerInterface`
+               instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the server interface does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(server_interface.ServerInterface, value, ignore_missing)
 
     def find_server_interface(self, name_or_id):
         return server_interface.ServerInterface.find(self.session, name_or_id)
