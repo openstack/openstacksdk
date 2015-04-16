@@ -942,6 +942,7 @@ class ResourceTests(base.TestTransportBase):
         fr.second = "hi"
         fr.third = "nah"
         the_repr = repr(fr)
+        the_repr = the_repr.replace('openstack.tests.unit.test_resource.', '')
         result = eval(the_repr)
         self.assertEqual(fr._loaded, result._loaded)
         self.assertEqual(fr.first, result.first)
