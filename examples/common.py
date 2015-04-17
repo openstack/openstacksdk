@@ -72,7 +72,14 @@ def get_data_option(opts):
         iddy = uuid.UUID(opts.data)
         return {'id': iddy}
     except ValueError:
-        return eval(opts.data)
+        data = opts.data
+        if data.startswith('openstack.'):
+            fullname = data.split('(')[0]
+            classname = fullname.split('.')[-1]
+            modulename = fullname.replace('.' + classname, '')
+            data = data.replace('openstack.',
+                                '__import__("' + modulename + '").')
+        return eval(data)
 
 
 def get_open_fds():
