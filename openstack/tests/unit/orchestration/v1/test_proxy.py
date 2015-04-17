@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.orchestration.v1 import _proxy
+from openstack.orchestration.v1 import stack
 from openstack.tests.unit import test_proxy_base
 
 
@@ -32,5 +33,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
                         self.proxy.get_stack)
 
     def test_stack_delete(self):
-        self.verify_get('openstack.orchestration.v1.stack.Stack.delete',
-                        self.proxy.delete_stack)
+        self.verify_delete2(stack.Stack, self.proxy.delete_stack, False)
+
+    def test_stack_delete_ignore(self):
+        self.verify_delete2(stack.Stack, self.proxy.delete_stack, True)
