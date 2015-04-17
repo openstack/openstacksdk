@@ -16,7 +16,6 @@ import testtools
 from openstack.compute.v2 import flavor
 from openstack.compute.v2 import image
 from openstack.compute.v2 import server
-from openstack import exceptions
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
@@ -220,67 +219,6 @@ class TestServer(testtools.TestCase):
         url = 'servers/IDENTIFIER/action'
         body = {"createImage": {'name': name}}
         self.sess.put.assert_called_with(url, service=sot.service, json=body)
-
-    def test_wait_for_status_nothing(self):
-        self.sess.get = mock.MagicMock()
-        sot = server.Server(attrs={'id': IDENTIFIER, 'status': 'ACTIVE'})
-
-        self.assertEqual(sot, sot.wait_for_status(self.sess, 'ACTIVE', [],
-                                                  1, 2))
-
-        expected = []
-        self.assertEqual(expected, self.sess.get.call_args_list)
-
-    def test_wait_for_status(self):
-        resp1 = mock.Mock()
-        resp1.body = {'server': {'status': 'BUILDING'}}
-        resp2 = mock.Mock()
-        resp2.body = {'server': {'status': 'ACTIVE'}}
-        self.sess.get = mock.MagicMock()
-        self.sess.get.side_effect = [resp1, resp2]
-        sot = server.Server(attrs={'id': IDENTIFIER})
-
-        self.assertEqual(sot, sot.wait_for_status(self.sess, 'ACTIVE', [],
-                                                  1, 2))
-
-        url = 'servers/IDENTIFIER'
-        thecall = mock.call(url, service=sot.service)
-        expected = [thecall, thecall]
-        self.assertEqual(expected, self.sess.get.call_args_list)
-
-    def test_wait_for_status_timeout(self):
-        resp1 = mock.Mock()
-        resp1.body = {'server': {'status': 'BUILDING'}}
-        resp2 = mock.Mock()
-        resp2.body = {'server': {'status': 'BUILDING'}}
-        self.sess.get = mock.MagicMock()
-        self.sess.get.side_effect = [resp1, resp2]
-        sot = server.Server(attrs={'id': IDENTIFIER})
-
-        self.assertRaises(exceptions.ResourceTimeout, sot.wait_for_status,
-                          self.sess, 'ACTIVE', ['ERROR'], 1, 2)
-
-        url = 'servers/IDENTIFIER'
-        thecall = mock.call(url, service=sot.service)
-        expected = [thecall, thecall]
-        self.assertEqual(expected, self.sess.get.call_args_list)
-
-    def test_wait_for_status_failures(self):
-        resp1 = mock.Mock()
-        resp1.body = {'server': {'status': 'BUILDING'}}
-        resp2 = mock.Mock()
-        resp2.body = {'server': {'status': 'ERROR'}}
-        self.sess.get = mock.MagicMock()
-        self.sess.get.side_effect = [resp1, resp2]
-        sot = server.Server(attrs={'id': IDENTIFIER})
-
-        self.assertRaises(exceptions.ResourceFailure, sot.wait_for_status,
-                          self.sess, 'ACTIVE', ['ERROR'], 1, 2)
-
-        url = 'servers/IDENTIFIER'
-        thecall = mock.call(url, service=sot.service)
-        expected = [thecall, thecall]
-        self.assertEqual(expected, self.sess.get.call_args_list)
 
     def test_get_ips(self):
         name = "jenkins"

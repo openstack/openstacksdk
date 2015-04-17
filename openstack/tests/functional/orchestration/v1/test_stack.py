@@ -45,5 +45,7 @@ class TestStack(unittest.TestCase):
                          'heat-templates/plain/hot/F20/WordPress_Native.yaml'
         )
 
+        self.conn.orchestration.wait_for_stack(stack)
+
         self.assertIsNotNone(stack.id)
         self.assertEqual('test_stack', stack.name)
