@@ -21,8 +21,20 @@ class Proxy(proxy.BaseProxy):
     def create_container(self, **data):
         return container.Container(data).create(self.session)
 
-    def delete_container(self, **data):
-        container.Container(data).delete(self.session)
+    def delete_container(self, value, ignore_missing=True):
+        """Delete a container
+
+        :param value: The value can be either the ID of a container or a
+               :class:`~openstack.keystore.v2.container.Container` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the container does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(container.Container, value, ignore_missing)
 
     def find_container(self, name_or_id):
         return container.Container.find(self.session, name_or_id)
@@ -39,8 +51,20 @@ class Proxy(proxy.BaseProxy):
     def create_order(self, **data):
         return order.Order(data).create(self.session)
 
-    def delete_order(self, **data):
-        order.Order(data).delete(self.session)
+    def delete_order(self, value, ignore_missing=True):
+        """Delete an order
+
+        :param value: The value can be either the ID of a order or a
+                      :class:`~openstack.keystore.v2.order.Order` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the order does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(order.Order, value, ignore_missing)
 
     def find_order(self, name_or_id):
         return order.Order.find(self.session, name_or_id)
@@ -57,8 +81,20 @@ class Proxy(proxy.BaseProxy):
     def create_secret(self, **data):
         return secret.Secret(data).create(self.session)
 
-    def delete_secret(self, **data):
-        secret.Secret(data).delete(self.session)
+    def delete_secret(self, value, ignore_missing=True):
+        """Delete a secret
+
+        :param value: The value can be either the ID of a secret or a
+                      :class:`~openstack.keystore.v2.secret.Secret` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the secret does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(secret.Secret, value, ignore_missing)
 
     def find_secret(self, name_or_id):
         return secret.Secret.find(self.session, name_or_id)
