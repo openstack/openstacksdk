@@ -216,3 +216,17 @@ class TestMemoryCache(base.TestCase):
         nova_mock.flavors.list.return_value = [fake_flavor]
         self.cloud.get_flavor_cache.invalidate(self.cloud)
         self.assertEqual({'555': fake_flavor}, self.cloud.get_flavor_cache())
+
+    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
+    def test_list_images(self, glance_mock):
+        glance_mock.images.list.return_value = []
+        self.assertEqual({}, self.cloud.list_images())
+
+        class Image(object):
+            id = '22'
+            name = '22 name'
+            status = 'success'
+        fake_image = Image()
+        glance_mock.images.list.return_value = [fake_image]
+        self.cloud.list_images.invalidate(self.cloud)
+        self.assertEqual({'22': fake_image}, self.cloud.list_images())
