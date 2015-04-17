@@ -82,7 +82,10 @@ class NotFoundException(HttpException):
 
 class MethodNotSupported(SDKException):
     """The resource does not support this operation type."""
-    pass
+    def __init__(self, cls, method):
+        msg = ('The %s method is not supported for %s.%s' %
+               (method, cls.__module__, cls.__name__))
+        super(Exception, self).__init__(msg)
 
 
 class DuplicateResource(SDKException):
