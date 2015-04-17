@@ -32,6 +32,20 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         super(TestObjectStoreProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
+    def test_container_delete(self):
+        self.verify_delete2(container.Container, self.proxy.delete_container,
+                            False)
+
+    def test_container_delete_ignore(self):
+        self.verify_delete2(container.Container, self.proxy.delete_container,
+                            True)
+
+    def test_object_delete(self):
+        self.verify_delete2(obj.Object, self.proxy.delete_object, False)
+
+    def test_object_delete_ignore(self):
+        self.verify_delete2(obj.Object, self.proxy.delete_object, True)
+
 
 class Test_account_metadata(TestObjectStoreProxy):
 
@@ -207,31 +221,6 @@ class Test_create_container(TestObjectStoreProxy):
 
         self.assertEqual(name, result.name)
         created_container.create.assert_called_once_with(self.session)
-
-
-class Test_delete_container(TestObjectStoreProxy):
-
-    @mock.patch("openstack.resource.Resource.from_id")
-    def test_container_object(self, mock_fi):
-        container = mock.MagicMock()
-        mock_fi.return_value = container
-
-        result = self.proxy.delete_container(container)
-
-        self.assertIsNone(result)
-        container.delete.assert_called_once_with(self.session)
-
-    @mock.patch("openstack.resource.Resource.from_id")
-    def test_container_name(self, mock_fi):
-        name = six.text_type("my_container")
-        created_container = mock.MagicMock()
-        created_container.name = name
-        mock_fi.return_value = created_container
-
-        result = self.proxy.delete_container(name)
-
-        self.assertIsNone(result)
-        created_container.delete.assert_called_once_with(self.session)
 
 
 class Test_objects(TestObjectStoreProxy, base.TestTransportBase):
@@ -438,17 +427,6 @@ class Test_object_metadata(TestObjectStoreProxy):
 
         self.assertIsNone(result)
         ob.create.assert_called_once_with(self.session)
-
-
-class Test_delete_object(TestObjectStoreProxy):
-
-    def test_delete_object(self):
-        ob = mock.MagicMock()
-
-        result = self.proxy.delete_object(ob)
-
-        self.assertIsNone(result)
-        ob.delete.assert_called_once_with(self.session)
 
 
 class Test_copy_object(TestObjectStoreProxy):
