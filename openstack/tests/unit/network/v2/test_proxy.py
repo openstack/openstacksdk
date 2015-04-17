@@ -13,6 +13,20 @@
 import mock
 
 from openstack.network.v2 import _proxy
+from openstack.network.v2 import floating_ip
+from openstack.network.v2 import health_monitor
+from openstack.network.v2 import listener
+from openstack.network.v2 import load_balancer
+from openstack.network.v2 import metering_label
+from openstack.network.v2 import metering_label_rule
+from openstack.network.v2 import network
+from openstack.network.v2 import pool
+from openstack.network.v2 import pool_member
+from openstack.network.v2 import port
+from openstack.network.v2 import router
+from openstack.network.v2 import security_group
+from openstack.network.v2 import security_group_rule
+from openstack.network.v2 import subnet
 from openstack.tests.unit import test_proxy_base
 
 
@@ -35,9 +49,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             self.proxy.create_ip)
 
     def test_floating_ip_delete(self):
-        self.verify_delete(
-            'openstack.network.v2.floating_ip.FloatingIP.delete',
-            self.proxy.delete_ip)
+        self.verify_delete2(floating_ip.FloatingIP, self.proxy.delete_ip,
+                            False)
+
+    def test_floating_ip_delete_ignore(self):
+        self.verify_delete2(floating_ip.FloatingIP, self.proxy.delete_ip,
+                            True)
 
     def test_floating_ip_find(self):
         self.verify_find('openstack.network.v2.floating_ip.FloatingIP.find',
@@ -62,9 +79,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             self.proxy.create_health_monitor)
 
     def test_health_monitor_delete(self):
-        self.verify_delete(
-            'openstack.network.v2.health_monitor.HealthMonitor.delete',
-            self.proxy.delete_health_monitor)
+        self.verify_delete2(health_monitor.HealthMonitor,
+                            self.proxy.delete_health_monitor, False)
+
+    def test_health_monitor_delete_ignore(self):
+        self.verify_delete2(health_monitor.HealthMonitor,
+                            self.proxy.delete_health_monitor, True)
 
     def test_health_monitor_find(self):
         self.verify_find(
@@ -91,8 +111,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_listener)
 
     def test_listener_delete(self):
-        self.verify_delete('openstack.network.v2.listener.Listener.delete',
-                           self.proxy.delete_listener)
+        self.verify_delete2(listener.Listener,
+                            self.proxy.delete_listener, False)
+
+    def test_listener_delete_ignore(self):
+        self.verify_delete2(listener.Listener,
+                            self.proxy.delete_listener, True)
 
     def test_listener_find(self):
         self.verify_find('openstack.network.v2.listener.Listener.find',
@@ -116,9 +140,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             self.proxy.create_load_balancer)
 
     def test_load_balancer_delete(self):
-        self.verify_delete(
-            'openstack.network.v2.load_balancer.LoadBalancer.delete',
-            self.proxy.delete_load_balancer)
+        self.verify_delete2(load_balancer.LoadBalancer,
+                            self.proxy.delete_load_balancer, False)
+
+    def test_load_balancer_delete_ignore(self):
+        self.verify_delete2(load_balancer.LoadBalancer,
+                            self.proxy.delete_load_balancer, True)
 
     def test_load_balancer_find(self):
         self.verify_find(
@@ -145,9 +172,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             self.proxy.create_metering_label)
 
     def test_metering_label_delete(self):
-        self.verify_delete(
-            'openstack.network.v2.metering_label.MeteringLabel.delete',
-            self.proxy.delete_metering_label)
+        self.verify_delete2(metering_label.MeteringLabel,
+                            self.proxy.delete_metering_label, False)
+
+    def test_metering_label_delete_ignore(self):
+        self.verify_delete2(metering_label.MeteringLabel,
+                            self.proxy.delete_metering_label, True)
 
     def test_metering_label_find(self):
         self.verify_find(
@@ -176,10 +206,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             self.proxy.create_metering_label_rule)
 
     def test_metering_label_rule_delete(self):
-        self.verify_delete(
-            ('openstack.network.v2.metering_label_rule.MeteringLabelRule' +
-             '.delete'),
-            self.proxy.delete_metering_label_rule)
+        self.verify_delete2(metering_label_rule.MeteringLabelRule,
+                            self.proxy.delete_metering_label_rule, False)
+
+    def test_metering_label_rule_delete_ignore(self):
+        self.verify_delete2(metering_label_rule.MeteringLabelRule,
+                            self.proxy.delete_metering_label_rule, True)
 
     def test_metering_label_rule_find(self):
         self.verify_find(
@@ -207,8 +239,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_network)
 
     def test_network_delete(self):
-        self.verify_delete('openstack.network.v2.network.Network.delete',
-                           self.proxy.delete_network)
+        self.verify_delete2(network.Network, self.proxy.delete_network, False)
+
+    def test_network_delete_ignore(self):
+        self.verify_delete2(network.Network, self.proxy.delete_network, True)
 
     def test_network_find(self):
         self.verify_find('openstack.network.v2.network.Network.find',
@@ -232,9 +266,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             self.proxy.create_pool_member)
 
     def test_pool_member_delete(self):
-        self.verify_delete(
-            'openstack.network.v2.pool_member.PoolMember.delete',
-            self.proxy.delete_pool_member)
+        self.verify_delete2(pool_member.PoolMember,
+                            self.proxy.delete_pool_member, False)
+
+    def test_pool_member_delete_ignore(self):
+        self.verify_delete2(pool_member.PoolMember,
+                            self.proxy.delete_pool_member, True)
 
     def test_pool_member_find(self):
         self.verify_find('openstack.network.v2.pool_member.PoolMember.find',
@@ -258,8 +295,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_pool)
 
     def test_pool_delete(self):
-        self.verify_delete('openstack.network.v2.pool.Pool.delete',
-                           self.proxy.delete_pool)
+        self.verify_delete2(pool.Pool, self.proxy.delete_pool, False)
+
+    def test_pool_delete_ignore(self):
+        self.verify_delete2(pool.Pool, self.proxy.delete_pool, True)
 
     def test_pool_find(self):
         self.verify_find('openstack.network.v2.pool.Pool.find',
@@ -282,8 +321,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_port)
 
     def test_port_delete(self):
-        self.verify_delete('openstack.network.v2.port.Port.delete',
-                           self.proxy.delete_port)
+        self.verify_delete2(port.Port, self.proxy.delete_port, False)
+
+    def test_port_delete_ignore(self):
+        self.verify_delete2(port.Port, self.proxy.delete_port, True)
 
     def test_port_find(self):
         self.verify_find('openstack.network.v2.port.Port.find',
@@ -310,8 +351,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_router)
 
     def test_router_delete(self):
-        self.verify_delete('openstack.network.v2.router.Router.delete',
-                           self.proxy.delete_router)
+        self.verify_delete2(router.Router, self.proxy.delete_router, False)
+
+    def test_router_delete_ignore(self):
+        self.verify_delete2(router.Router, self.proxy.delete_router, True)
 
     def test_router_find(self):
         self.verify_find('openstack.network.v2.router.Router.find',
@@ -335,9 +378,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             self.proxy.create_security_group)
 
     def test_security_group_delete(self):
-        self.verify_delete(
-            'openstack.network.v2.security_group.SecurityGroup.delete',
-            self.proxy.delete_security_group)
+        self.verify_delete2(security_group.SecurityGroup,
+                            self.proxy.delete_security_group, False)
+
+    def test_security_group_delete_ignore(self):
+        self.verify_delete2(security_group.SecurityGroup,
+                            self.proxy.delete_security_group, True)
 
     def test_security_group_find(self):
         self.verify_find(
@@ -407,10 +453,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             self.proxy.create_security_group_rule)
 
     def test_security_group_rule_delete(self):
-        self.verify_delete(
-            ('openstack.network.v2.security_group_rule.SecurityGroupRule' +
-             '.delete'),
-            self.proxy.delete_security_group_rule)
+        self.verify_delete2(security_group_rule.SecurityGroupRule,
+                            self.proxy.delete_security_group_rule, False)
+
+    def test_security_group_rule_delete_ignore(self):
+        self.verify_delete2(security_group_rule.SecurityGroupRule,
+                            self.proxy.delete_security_group_rule, True)
 
     def test_security_group_rule_find(self):
         self.verify_find(
@@ -438,8 +486,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_subnet)
 
     def test_subnet_delete(self):
-        self.verify_delete('openstack.network.v2.subnet.Subnet.delete',
-                           self.proxy.delete_subnet)
+        self.verify_delete2(subnet.Subnet, self.proxy.delete_subnet, False)
+
+    def test_subnet_delete_ignore(self):
+        self.verify_delete2(subnet.Subnet, self.proxy.delete_subnet, True)
 
     def test_subnet_find(self):
         self.verify_find('openstack.network.v2.subnet.Subnet.find',
