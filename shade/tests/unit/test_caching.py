@@ -203,3 +203,16 @@ class TestMemoryCache(base.TestCase):
         self.cloud.delete_user('abc123')
         self.assertEqual({}, self.cloud.get_user_cache())
         self.assertTrue(keystone_mock.users.delete.was_called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_get_flavor_cache(self, nova_mock):
+        nova_mock.flavors.list.return_value = []
+        self.assertEqual({}, self.cloud.get_flavor_cache())
+
+        class Flavor(object):
+            id = '555'
+            name = 'vanilla'
+        fake_flavor = Flavor()
+        nova_mock.flavors.list.return_value = [fake_flavor]
+        self.cloud.get_flavor_cache.invalidate(self.cloud)
+        self.assertEqual({'555': fake_flavor}, self.cloud.get_flavor_cache())

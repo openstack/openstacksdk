@@ -672,8 +672,11 @@ class OpenStackCloud(object):
         return self.region_name
 
     @property
-    @_cache_on_arguments()
     def flavor_cache(self):
+        return self.get_flavor_cache()
+
+    @_cache_on_arguments()
+    def get_flavor_cache(self):
         return {flavor.id: flavor for flavor in
                 self.manager.submitTask(_tasks.FlavorList())}
 
