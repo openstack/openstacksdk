@@ -27,25 +27,39 @@ class TestShade(base.TestCase):
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, shade.OpenStackCloud)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
-    def test_get_subnet(self, mock_list):
+    def test__filter_list_name_or_id(self):
+        el1 = dict(id=100, name='donald')
+        el2 = dict(id=200, name='pluto')
+        data = [el1, el2]
+        ret = self.cloud._filter_list(data, 'donald', None)
+        self.assertEquals([el1], ret)
+
+    def test__filter_list_filter(self):
+        el1 = dict(id=100, name='donald', other='duck')
+        el2 = dict(id=200, name='donald', other='trump')
+        data = [el1, el2]
+        ret = self.cloud._filter_list(data, 'donald', {'other': 'duck'})
+        self.assertEquals([el1], ret)
+
+    @mock.patch.object(shade.OpenStackCloud, 'search_subnets')
+    def test_get_subnet(self, mock_search):
         subnet = dict(id='123', name='mickey')
-        mock_list.return_value = [subnet]
+        mock_search.return_value = [subnet]
         r = self.cloud.get_subnet('mickey')
         self.assertIsNotNone(r)
         self.assertDictEqual(subnet, r)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_routers')
-    def test_get_router(self, mock_list):
+    @mock.patch.object(shade.OpenStackCloud, 'search_routers')
+    def test_get_router(self, mock_search):
         router1 = dict(id='123', name='mickey')
-        mock_list.return_value = [router1]
+        mock_search.return_value = [router1]
         r = self.cloud.get_router('mickey')
         self.assertIsNotNone(r)
         self.assertDictEqual(router1, r)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_routers')
-    def test_get_router_not_found(self, mock_list):
-        mock_list.return_value = []
+    @mock.patch.object(shade.OpenStackCloud, 'search_routers')
+    def test_get_router_not_found(self, mock_search):
+        mock_search.return_value = []
         r = self.cloud.get_router('goofy')
         self.assertIsNone(r)
 
@@ -62,49 +76,48 @@ class TestShade(base.TestCase):
         self.cloud.update_router('123', name='goofy')
         self.assertTrue(mock_client.update_router.called)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_routers')
+    @mock.patch.object(shade.OpenStackCloud, 'search_routers')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_router(self, mock_client, mock_list):
+    def test_delete_router(self, mock_client, mock_search):
         router1 = dict(id='123', name='mickey')
-        mock_list.return_value = [router1]
+        mock_search.return_value = [router1]
         self.cloud.delete_router('mickey')
         self.assertTrue(mock_client.delete_router.called)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_routers')
+    @mock.patch.object(shade.OpenStackCloud, 'search_routers')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_router_not_found(self, mock_client, mock_list):
-        router1 = dict(id='123', name='mickey')
-        mock_list.return_value = [router1]
+    def test_delete_router_not_found(self, mock_client, mock_search):
+        mock_search.return_value = []
         self.assertRaises(shade.OpenStackCloudException,
                           self.cloud.delete_router,
                           'goofy')
         self.assertFalse(mock_client.delete_router.called)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_routers')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_router_multiple_found(self, mock_client, mock_list):
+    def test_delete_router_multiple_found(self, mock_client):
         router1 = dict(id='123', name='mickey')
         router2 = dict(id='456', name='mickey')
-        mock_list.return_value = [router1, router2]
+        mock_client.list_routers.return_value = dict(routers=[router1,
+                                                              router2])
         self.assertRaises(shade.OpenStackCloudException,
                           self.cloud.delete_router,
                           'mickey')
         self.assertFalse(mock_client.delete_router.called)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_routers')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_router_multiple_using_id(self, mock_client, mock_list):
+    def test_delete_router_multiple_using_id(self, mock_client):
         router1 = dict(id='123', name='mickey')
         router2 = dict(id='456', name='mickey')
-        mock_list.return_value = [router1, router2]
+        mock_client.list_routers.return_value = dict(routers=[router1,
+                                                              router2])
         self.cloud.delete_router('123')
         self.assertTrue(mock_client.delete_router.called)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_networks')
+    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_create_subnet(self, mock_client, mock_list):
+    def test_create_subnet(self, mock_client, mock_search):
         net1 = dict(id='123', name='donald')
-        mock_list.return_value = [net1]
+        mock_search.return_value = [net1]
         pool = [{'start': '192.168.199.2', 'end': '192.168.199.254'}]
         dns = ['8.8.8.8']
         routes = [{"destination": "0.0.0.0/0", "nexthop": "123.456.78.9"}]
@@ -124,52 +137,51 @@ class TestShade(base.TestCase):
                           'duck', '192.168.199.0/24')
         self.assertFalse(mock_client.create_subnet.called)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_networks')
+    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_create_subnet_non_unique_network(self, mock_client, mock_list):
+    def test_create_subnet_non_unique_network(self, mock_client, mock_search):
         net1 = dict(id='123', name='donald')
         net2 = dict(id='456', name='donald')
-        mock_list.return_value = [net1, net2]
+        mock_search.return_value = [net1, net2]
         self.assertRaises(shade.OpenStackCloudException,
                           self.cloud.create_subnet,
                           'donald', '192.168.199.0/24')
         self.assertFalse(mock_client.create_subnet.called)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
+    @mock.patch.object(shade.OpenStackCloud, 'search_subnets')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_subnet(self, mock_client, mock_list):
+    def test_delete_subnet(self, mock_client, mock_search):
         subnet1 = dict(id='123', name='mickey')
-        mock_list.return_value = [subnet1]
+        mock_search.return_value = [subnet1]
         self.cloud.delete_subnet('mickey')
         self.assertTrue(mock_client.delete_subnet.called)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
+    @mock.patch.object(shade.OpenStackCloud, 'search_subnets')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_subnet_not_found(self, mock_client, mock_list):
-        subnet1 = dict(id='123', name='mickey')
-        mock_list.return_value = [subnet1]
+    def test_delete_subnet_not_found(self, mock_client, mock_search):
+        mock_search.return_value = []
         self.assertRaises(shade.OpenStackCloudException,
                           self.cloud.delete_subnet,
                           'goofy')
         self.assertFalse(mock_client.delete_subnet.called)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_subnet_multiple_found(self, mock_client, mock_list):
+    def test_delete_subnet_multiple_found(self, mock_client):
         subnet1 = dict(id='123', name='mickey')
         subnet2 = dict(id='456', name='mickey')
-        mock_list.return_value = [subnet1, subnet2]
+        mock_client.list_subnets.return_value = dict(subnets=[subnet1,
+                                                              subnet2])
         self.assertRaises(shade.OpenStackCloudException,
                           self.cloud.delete_subnet,
                           'mickey')
         self.assertFalse(mock_client.delete_subnet.called)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_subnet_multiple_using_id(self, mock_client, mock_list):
+    def test_delete_subnet_multiple_using_id(self, mock_client):
         subnet1 = dict(id='123', name='mickey')
         subnet2 = dict(id='456', name='mickey')
-        mock_list.return_value = [subnet1, subnet2]
+        mock_client.list_subnets.return_value = dict(subnets=[subnet1,
+                                                              subnet2])
         self.cloud.delete_subnet('123')
         self.assertTrue(mock_client.delete_subnet.called)
 

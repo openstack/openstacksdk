@@ -738,32 +738,85 @@ class OpenStackCloud(object):
     def has_extension(self, extension_name):
         return extension_name in self.extension_cache
 
+    def _filter_list(self, data, name_or_id, filters):
+        """Filter a list by name/ID and arbitrary meta data.
+
+        :param list data:
+            The list of dictionary data to filter. It is expected that
+            each dictionary contains an 'id' and 'name' key if a value
+            for name_or_id is given.
+        :param string name_or_id:
+            The name or ID of the entity being filtered.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering.
+        """
+        if name_or_id:
+            identifier_matches = []
+            for e in data:
+                if name_or_id in (e['id'], e['name']):
+                    identifier_matches.append(e)
+            data = identifier_matches
+
+        if not filters:
+            return data
+
+        filtered = []
+        for e in data:
+            filtered.append(e)
+            for key in filters.keys():
+                if key not in e or e[key] != filters[key]:
+                    filtered.pop()
+                    break
+        return filtered
+
+    def _get_entity(self, func, name_or_id, filters):
+        """Return a single entity from the list returned by a given method.
+
+        :param callable func:
+            A function that takes `name_or_id` and `filters` as parameters
+            and returns a list of entities to filter.
+        :param string name_or_id:
+            The name or ID of the entity being filtered.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering.
+        """
+        entities = func(name_or_id, filters)
+        if not entities:
+            return None
+        if len(entities) > 1:
+            raise OpenStackCloudException(
+                "Multiple matches found for %s" % name_or_id)
+        return entities[0]
+
+    def search_networks(self, name_or_id=None, filters=None):
+        networks = self.list_networks()
+        return self._filter_list(networks, name_or_id, filters)
+
+    def search_routers(self, name_or_id=None, filters=None):
+        routers = self.list_routers()
+        return self._filter_list(routers, name_or_id, filters)
+
+    def search_subnets(self, name_or_id=None, filters=None):
+        subnets = self.list_subnets()
+        return self._filter_list(subnets, name_or_id, filters)
+
     def list_networks(self):
         return self.manager.submitTask(_tasks.NetworkList())['networks']
-
-    def get_network(self, name_or_id):
-        for network in self.list_networks():
-            if name_or_id in (network['id'], network['name']):
-                return network
-        return None
 
     def list_routers(self):
         return self.manager.submitTask(_tasks.RouterList())['routers']
 
-    def get_router(self, name_or_id):
-        for router in self.list_routers():
-            if name_or_id in (router['id'], router['name']):
-                return router
-        return None
-
     def list_subnets(self):
         return self.manager.submitTask(_tasks.SubnetList())['subnets']
 
-    def get_subnet(self, name_or_id):
-        for subnet in self.list_subnets():
-            if name_or_id in (subnet['id'], subnet['name']):
-                return subnet
-        return None
+    def get_network(self, name_or_id, filters=None):
+        return self._get_entity(self.search_networks, name_or_id, filters)
+
+    def get_router(self, name_or_id, filters=None):
+        return self._get_entity(self.search_routers, name_or_id, filters)
+
+    def get_subnet(self, name_or_id, filters=None):
+        return self._get_entity(self.search_subnets, name_or_id, filters)
 
     # TODO(Shrews): This will eventually need to support tenant ID and
     # provider networks, which are admin-level params.
@@ -803,6 +856,10 @@ class OpenStackCloud(object):
         :raises: OpenStackCloudException on operation error.
         """
         network = self.get_network(name_or_id)
+        if not network:
+            raise OpenStackCloudException(
+                "Network %s not found." % name_or_id)
+
         try:
             self.manager.submitTask(
                 _tasks.NetworkDelete(network=network['id']))
@@ -900,22 +957,14 @@ class OpenStackCloud(object):
         :param name_or_id: Name or ID of the router being deleted.
         :raises: OpenStackCloudException on operation error.
         """
-        routers = []
-        for router in self.list_routers():
-            if name_or_id in (router['id'], router['name']):
-                routers.append(router)
-
-        if not routers:
+        router = self.get_router(name_or_id)
+        if not router:
             raise OpenStackCloudException(
                 "Router %s not found." % name_or_id)
 
-        if len(routers) > 1:
-            raise OpenStackCloudException(
-                "More than one router named %s. Use ID." % name_or_id)
-
         try:
             self.manager.submitTask(
-                _tasks.RouterDelete(router=routers[0]['id']))
+                _tasks.RouterDelete(router=router['id']))
         except Exception as e:
             self.log.debug("Router delete failed", exc_info=True)
             raise OpenStackCloudException(
@@ -1853,23 +1902,15 @@ class OpenStackCloud(object):
         :raises: OpenStackCloudException on operation error.
         """
 
-        networks = []
-        for network in self.list_networks():
-            if network_name_or_id in (network['id'], network['name']):
-                networks.append(network)
-
-        if not networks:
+        network = self.get_network(network_name_or_id)
+        if not network:
             raise OpenStackCloudException(
                 "Network %s not found." % network_name_or_id)
-
-        if len(networks) > 1:
-            raise OpenStackCloudException(
-                "More than one network named %s. Use ID." % network_name_or_id)
 
         # The body of the neutron message for the subnet we wish to create.
         # This includes attributes that are required or have defaults.
         subnet = {
-            'network_id': networks[0]['id'],
+            'network_id': network['id'],
             'cidr': cidr,
             'ip_version': ip_version,
             'enable_dhcp': enable_dhcp
@@ -1914,22 +1955,14 @@ class OpenStackCloud(object):
         :param name_or_id: Name or ID of the subnet being deleted.
         :raises: OpenStackCloudException on operation error.
         """
-        subnets = []
-        for subnet in self.list_subnets():
-            if name_or_id in (subnet['id'], subnet['name']):
-                subnets.append(subnet)
-
-        if not subnets:
+        subnet = self.get_subnet(name_or_id)
+        if not subnet:
             raise OpenStackCloudException(
                 "Subnet %s not found." % name_or_id)
 
-        if len(subnets) > 1:
-            raise OpenStackCloudException(
-                "More than one subnet named %s. Use ID." % name_or_id)
-
         try:
             self.manager.submitTask(
-                _tasks.SubnetDelete(subnet=subnets[0]['id']))
+                _tasks.SubnetDelete(subnet=subnet['id']))
         except Exception as e:
             self.log.debug("Subnet delete failed", exc_info=True)
             raise OpenStackCloudException(
