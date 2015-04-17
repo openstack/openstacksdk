@@ -11,6 +11,14 @@
 # under the License.
 
 from openstack.identity.v3 import _proxy
+from openstack.identity.v3 import credential
+from openstack.identity.v3 import domain
+from openstack.identity.v3 import endpoint
+from openstack.identity.v3 import group
+from openstack.identity.v3 import policy
+from openstack.identity.v3 import project
+from openstack.identity.v3 import service
+from openstack.identity.v3 import user
 from openstack.tests.unit import test_proxy_base
 
 
@@ -25,9 +33,12 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
             self.proxy.create_credential)
 
     def test_credential_delete(self):
-        self.verify_delete(
-            'openstack.identity.v3.credential.Credential.delete',
-            self.proxy.delete_credential)
+        self.verify_delete2(credential.Credential,
+                            self.proxy.delete_credential, False)
+
+    def test_credential_delete_ignore(self):
+        self.verify_delete2(credential.Credential,
+                            self.proxy.delete_credential, True)
 
     def test_credential_find(self):
         self.verify_find('openstack.identity.v3.credential.Credential.find',
@@ -51,8 +62,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_domain)
 
     def test_domain_delete(self):
-        self.verify_delete('openstack.identity.v3.domain.Domain.delete',
-                           self.proxy.delete_domain)
+        self.verify_delete2(domain.Domain, self.proxy.delete_domain, False)
+
+    def test_domain_delete_ignore(self):
+        self.verify_delete2(domain.Domain, self.proxy.delete_domain, True)
 
     def test_domain_find(self):
         self.verify_find('openstack.identity.v3.domain.Domain.find',
@@ -75,8 +88,12 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_endpoint)
 
     def test_endpoint_delete(self):
-        self.verify_delete('openstack.identity.v3.endpoint.Endpoint.delete',
-                           self.proxy.delete_endpoint)
+        self.verify_delete2(endpoint.Endpoint, self.proxy.delete_endpoint,
+                            False)
+
+    def test_endpoint_delete_ignore(self):
+        self.verify_delete2(endpoint.Endpoint, self.proxy.delete_endpoint,
+                            True)
 
     def test_endpoint_find(self):
         self.verify_find('openstack.identity.v3.endpoint.Endpoint.find',
@@ -99,8 +116,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_group)
 
     def test_group_delete(self):
-        self.verify_delete('openstack.identity.v3.group.Group.delete',
-                           self.proxy.delete_group)
+        self.verify_delete2(group.Group, self.proxy.delete_group, False)
+
+    def test_group_delete_ignore(self):
+        self.verify_delete2(group.Group, self.proxy.delete_group, True)
 
     def test_group_find(self):
         self.verify_find('openstack.identity.v3.group.Group.find',
@@ -123,8 +142,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_policy)
 
     def test_policy_delete(self):
-        self.verify_delete('openstack.identity.v3.policy.Policy.delete',
-                           self.proxy.delete_policy)
+        self.verify_delete2(policy.Policy, self.proxy.delete_policy, False)
+
+    def test_policy_delete_ignore(self):
+        self.verify_delete2(policy.Policy, self.proxy.delete_policy, True)
 
     def test_policy_find(self):
         self.verify_find('openstack.identity.v3.policy.Policy.find',
@@ -147,8 +168,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_project)
 
     def test_project_delete(self):
-        self.verify_delete('openstack.identity.v3.project.Project.delete',
-                           self.proxy.delete_project)
+        self.verify_delete2(project.Project, self.proxy.delete_project, False)
+
+    def test_project_delete_ignore(self):
+        self.verify_delete2(project.Project, self.proxy.delete_project, True)
 
     def test_project_find(self):
         self.verify_find('openstack.identity.v3.project.Project.find',
@@ -171,8 +194,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_service)
 
     def test_service_delete(self):
-        self.verify_delete('openstack.identity.v3.service.Service.delete',
-                           self.proxy.delete_service)
+        self.verify_delete2(service.Service, self.proxy.delete_service, False)
+
+    def test_service_delete_ignore(self):
+        self.verify_delete2(service.Service, self.proxy.delete_service, True)
 
     def test_service_find(self):
         self.verify_find('openstack.identity.v3.service.Service.find',
@@ -195,8 +220,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_user)
 
     def test_user_delete(self):
-        self.verify_delete('openstack.identity.v3.user.User.delete',
-                           self.proxy.delete_user)
+        self.verify_delete2(user.User, self.proxy.delete_user, False)
+
+    def test_user_delete_ignore(self):
+        self.verify_delete2(user.User, self.proxy.delete_user, True)
 
     def test_user_find(self):
         self.verify_find('openstack.identity.v3.user.User.find',

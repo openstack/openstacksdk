@@ -26,8 +26,20 @@ class Proxy(proxy.BaseProxy):
     def create_credential(self, **data):
         return credential.Credential(data).create(self.session)
 
-    def delete_credential(self, **data):
-        credential.Credential(data).delete(self.session)
+    def delete_credential(self, value, ignore_missing=True):
+        """Delete a credential
+
+        :param value: The value can be either the ID of a credential or a
+               :class:`~openstack.identity.v3.credential.Credential` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the credential does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(credential.Credential, value, ignore_missing)
 
     def find_credential(self, name_or_id):
         return credential.Credential.find(self.session, name_or_id)
@@ -44,8 +56,20 @@ class Proxy(proxy.BaseProxy):
     def create_domain(self, **data):
         return domain.Domain(data).create(self.session)
 
-    def delete_domain(self, **data):
-        domain.Domain(data).delete(self.session)
+    def delete_domain(self, value, ignore_missing=True):
+        """Delete a domain
+
+        :param value: The value can be either the ID of a domain or a
+                      :class:`~openstack.identity.v3.domain.Domain` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the domain does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(domain.Domain, value, ignore_missing)
 
     def find_domain(self, name_or_id):
         return domain.Domain.find(self.session, name_or_id)
@@ -62,8 +86,20 @@ class Proxy(proxy.BaseProxy):
     def create_endpoint(self, **data):
         return endpoint.Endpoint(data).create(self.session)
 
-    def delete_endpoint(self, **data):
-        endpoint.Endpoint(data).delete(self.session)
+    def delete_endpoint(self, value, ignore_missing=True):
+        """Delete an endpoint
+
+        :param value: The value can be either the ID of an endpoint or a
+               :class:`~openstack.identity.v3.endpoint.Endpoint` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the endpoint does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(endpoint.Endpoint, value, ignore_missing)
 
     def find_endpoint(self, name_or_id):
         return endpoint.Endpoint.find(self.session, name_or_id)
@@ -80,8 +116,20 @@ class Proxy(proxy.BaseProxy):
     def create_group(self, **data):
         return group.Group(data).create(self.session)
 
-    def delete_group(self, **data):
-        group.Group(data).delete(self.session)
+    def delete_group(self, value, ignore_missing=True):
+        """Delete a group
+
+        :param value: The value can be either the ID of a group or a
+                      :class:`~openstack.identity.v3.group.Group` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the group does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(group.Group, value, ignore_missing)
 
     def find_group(self, name_or_id):
         return group.Group.find(self.session, name_or_id)
@@ -98,8 +146,20 @@ class Proxy(proxy.BaseProxy):
     def create_policy(self, **data):
         return policy.Policy(data).create(self.session)
 
-    def delete_policy(self, **data):
-        policy.Policy(data).delete(self.session)
+    def delete_policy(self, value, ignore_missing=True):
+        """Delete a policy
+
+        :param value: The value can be either the ID of a policy or a
+                      :class:`~openstack.identity.v3.policy.Policy` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the policy does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(policy.Policy, value, ignore_missing)
 
     def find_policy(self, name_or_id):
         return policy.Policy.find(self.session, name_or_id)
@@ -116,8 +176,20 @@ class Proxy(proxy.BaseProxy):
     def create_project(self, **data):
         return project.Project(data).create(self.session)
 
-    def delete_project(self, **data):
-        project.Project(data).delete(self.session)
+    def delete_project(self, value, ignore_missing=True):
+        """Delete a project
+
+        :param value: The value can be either the ID of a project or a
+                      :class:`~openstack.identity.v3.project.Project` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the project does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(project.Project, value, ignore_missing)
 
     def find_project(self, name_or_id):
         return project.Project.find(self.session, name_or_id)
@@ -134,8 +206,20 @@ class Proxy(proxy.BaseProxy):
     def create_service(self, **data):
         return service.Service(data).create(self.session)
 
-    def delete_service(self, **data):
-        service.Service(data).delete(self.session)
+    def delete_service(self, value, ignore_missing=True):
+        """Delete a service
+
+        :param value: The value can be either the ID of a service or a
+                      :class:`~openstack.identity.v3.service.Service` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the service does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(service.Service, value, ignore_missing)
 
     def find_service(self, name_or_id):
         return service.Service.find(self.session, name_or_id)
@@ -152,8 +236,20 @@ class Proxy(proxy.BaseProxy):
     def create_user(self, **data):
         return user.User(data).create(self.session)
 
-    def delete_user(self, **data):
-        user.User(data).delete(self.session)
+    def delete_user(self, value, ignore_missing=True):
+        """Delete a user
+
+        :param value: The value can be either the ID of a user or a
+                      :class:`~openstack.identity.v3.user.User` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the user does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(user.User, value, ignore_missing)
 
     def find_user(self, name_or_id):
         return user.User.find(self.session, name_or_id)

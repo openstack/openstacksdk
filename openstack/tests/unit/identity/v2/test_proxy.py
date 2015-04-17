@@ -11,6 +11,9 @@
 # under the License.
 
 from openstack.identity.v2 import _proxy
+from openstack.identity.v2 import role
+from openstack.identity.v2 import tenant
+from openstack.identity.v2 import user
 from openstack.tests.unit import test_proxy_base
 
 
@@ -24,8 +27,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_role)
 
     def test_role_delete(self):
-        self.verify_delete('openstack.identity.v2.role.Role.delete',
-                           self.proxy.delete_role)
+        self.verify_delete2(role.Role, self.proxy.delete_role, False)
+
+    def test_role_delete_ignore(self):
+        self.verify_delete2(role.Role, self.proxy.delete_role, True)
 
     def test_role_find(self):
         self.verify_find('openstack.identity.v2.role.Role.find',
@@ -48,8 +53,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_tenant)
 
     def test_tenant_delete(self):
-        self.verify_delete('openstack.identity.v2.tenant.Tenant.delete',
-                           self.proxy.delete_tenant)
+        self.verify_delete2(tenant.Tenant, self.proxy.delete_tenant, False)
+
+    def test_tenant_delete_ignore(self):
+        self.verify_delete2(tenant.Tenant, self.proxy.delete_tenant, True)
 
     def test_tenant_find(self):
         self.verify_find('openstack.identity.v2.tenant.Tenant.find',
@@ -72,8 +79,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_user)
 
     def test_user_delete(self):
-        self.verify_delete('openstack.identity.v2.user.User.delete',
-                           self.proxy.delete_user)
+        self.verify_delete2(user.User, self.proxy.delete_user, False)
+
+    def test_user_delete_ignore(self):
+        self.verify_delete2(user.User, self.proxy.delete_user, True)
 
     def test_user_find(self):
         self.verify_find('openstack.identity.v2.user.User.find',

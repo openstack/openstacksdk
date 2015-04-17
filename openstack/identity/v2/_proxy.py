@@ -21,8 +21,20 @@ class Proxy(proxy.BaseProxy):
     def create_role(self, **data):
         return role.Role(data).create(self.session)
 
-    def delete_role(self, **data):
-        role.Role(data).delete(self.session)
+    def delete_role(self, value, ignore_missing=True):
+        """Delete a role
+
+        :param value: The value can be either the ID of a role or a
+                      :class:`~openstack.identity.v2.role.Role` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the role does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(role.Role, value, ignore_missing)
 
     def find_role(self, name_or_id):
         return role.Role.find(self.session, name_or_id)
@@ -39,8 +51,20 @@ class Proxy(proxy.BaseProxy):
     def create_tenant(self, **data):
         return tenant.Tenant(data).create(self.session)
 
-    def delete_tenant(self, **data):
-        tenant.Tenant(data).delete(self.session)
+    def delete_tenant(self, value, ignore_missing=True):
+        """Delete a tenant
+
+        :param value: The value can be either the ID of a tenant or a
+                      :class:`~openstack.identity.v2.tenant.Tenant` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the tenant does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(tenant.Tenant, value, ignore_missing)
 
     def find_tenant(self, name_or_id):
         return tenant.Tenant.find(self.session, name_or_id)
@@ -57,8 +81,20 @@ class Proxy(proxy.BaseProxy):
     def create_user(self, **data):
         return user.User(data).create(self.session)
 
-    def delete_user(self, **data):
-        user.User(data).delete(self.session)
+    def delete_user(self, value, ignore_missing=True):
+        """Delete a user
+
+        :param value: The value can be either the ID of a user or a
+                      :class:`~openstack.identity.v2.user.User` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the user does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(user.User, value, ignore_missing)
 
     def find_user(self, name_or_id):
         return user.User.find(self.session, name_or_id)
