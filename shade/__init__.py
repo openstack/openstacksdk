@@ -492,16 +492,28 @@ class OpenStackCloud(object):
             return meta.obj_to_dict(user)
         return None
 
-    def update_user(self, name_or_id, email=None, enabled=True):
+    def update_user(self, name_or_id, email=None, enabled=None):
+        self.get_user_cache.invalidate(self)
+        user = self._get_user(name_or_id)
+        user_args = {}
+        if email is not None:
+            user_args['email'] = email
+        if enabled is not None:
+            user_args['enabled'] = enabled
+        if not user_args:
+            self.log.debug("No user data to update")
+            return None
+        user_args['user'] = user
+
         try:
-            user = self._get_user(name_or_id)
-            return meta.obj_to_dict(
-                user.update(email=email, enabled=enabled))
+            user = self.manager.submitTask(_tasks.UserUpdate(**user_args))
         except Exception as e:
             self.log.debug("keystone update user issue", exc_info=True)
             raise OpenStackCloudException(
                 "Error in updating user {user}: {message}".format(
-                    user=name_or_id, message=e.message))
+                    user=name_or_id, message=str(e)))
+        self.get_user_cache.invalidate(self)
+        return meta.obj_to_dict(user)
 
     def create_user(
             self, name, password=None, email=None, project=None,

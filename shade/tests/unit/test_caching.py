@@ -189,6 +189,15 @@ class TestMemoryCache(base.TestCase):
                           'email': 'abc123@domain.test'}, created)
         # Cache should have been invalidated
         self.assertEqual({'abc123': fake_user}, self.cloud.get_user_cache())
+        # Update and check to see if it is updated
+        fake_user2 = User()
+        fake_user2.email = 'abc123-changed@domain.test'
+        keystone_mock.users.update.return_value = fake_user2
+        keystone_mock.users.list.return_value = [fake_user2]
+        self.cloud.update_user('abc123', email='abc123-changed@domain.test')
+        keystone_mock.users.update.assert_called_with(
+            user=fake_user2, email='abc123-changed@domain.test')
+        self.assertEqual({'abc123': fake_user2}, self.cloud.get_user_cache())
         # Now delete and ensure it disappears
         keystone_mock.users.list.return_value = []
         self.cloud.delete_user('abc123')
