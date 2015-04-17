@@ -19,8 +19,20 @@ class Proxy(proxy.BaseProxy):
     def create_image(self, **data):
         return image.Image(data).create(self.session)
 
-    def delete_image(self, **data):
-        return image.Image(data).delete(self.session)
+    def delete_image(self, value, ignore_missing=True):
+        """Delete an image
+
+        :param value: The value can be either the ID of an image or a
+                      :class:`~openstack.image.v1.image.Image` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the image does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(image.Image, value, ignore_missing)
 
     def find_image(self, name_or_id):
         return image.Image.find(self.session, name_or_id)
