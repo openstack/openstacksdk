@@ -28,5 +28,18 @@ class Proxy(proxy.BaseProxy):
     def get_stack(self, **data):
         return stack.Stack(data).get(self.session)
 
-    def delete_stack(self, **data):
-        return stack.Stack(data).delete(self.session)
+    def delete_stack(self, value, ignore_missing=True):
+        """Delete a stack
+
+        :param value: The value can be either the ID of a stack or a
+                      :class:`~openstack.orchestration.v1.stack.Stack`
+                      instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the stack does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(stack.Stack, value, ignore_missing)
