@@ -10,8 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.image.v1 import _proxy
-from openstack.image.v1 import image
+from openstack.image.v2 import _proxy
+from openstack.image.v2 import image
+from openstack.image.v2 import member
+from openstack.image.v2 import tag
 from openstack.tests.unit import test_proxy_base
 
 
@@ -20,28 +22,20 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         super(TestImageProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
-    def test_image_create(self):
-        self.verify_create('openstack.image.v1.image.Image.create',
-                           self.proxy.create_image)
-
     def test_image_delete(self):
         self.verify_delete2(image.Image, self.proxy.delete_image, False)
 
     def test_image_delete_ignore(self):
         self.verify_delete2(image.Image, self.proxy.delete_image, True)
 
-    def test_image_find(self):
-        self.verify_find('openstack.image.v1.image.Image.find',
-                         self.proxy.find_image)
+    def test_member_delete(self):
+        self.verify_delete2(member.Member, self.proxy.delete_member, False)
 
-    def test_image_get(self):
-        self.verify_get('openstack.image.v1.image.Image.get',
-                        self.proxy.get_image)
+    def test_member_delete_ignore(self):
+        self.verify_delete2(member.Member, self.proxy.delete_member, True)
 
-    def test_image_list(self):
-        self.verify_list('openstack.image.v1.image.Image.list',
-                         self.proxy.list_images)
+    def test_tag_delete(self):
+        self.verify_delete2(tag.Tag, self.proxy.delete_tag, False)
 
-    def test_image_update(self):
-        self.verify_update('openstack.image.v1.image.Image.update',
-                           self.proxy.update_image)
+    def test_tag_delete_ignore(self):
+        self.verify_delete2(tag.Tag, self.proxy.delete_tag, True)
