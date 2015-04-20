@@ -40,8 +40,20 @@ class Proxy(proxy.BaseProxy):
     def create_ip(self, **data):
         return floating_ip.FloatingIP(data).create(self.session)
 
-    def delete_ip(self, **data):
-        floating_ip.FloatingIP(**data).delete(self.session)
+    def delete_ip(self, value, ignore_missing=True):
+        """Delete a floating ip
+
+        :param value: The value can be either the ID of a floating ip or a
+               :class:`~openstack.network.v2.floating_ip.FloatingIP` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the floating ip does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(floating_ip.FloatingIP, value, ignore_missing)
 
     def find_available_ip(self):
         return floating_ip.FloatingIP.find_available(self.session)
@@ -61,8 +73,23 @@ class Proxy(proxy.BaseProxy):
     def create_health_monitor(self, **data):
         return health_monitor.HealthMonitor(data).create(self.session)
 
-    def delete_health_monitor(self, **data):
         health_monitor.HealthMonitor(data).delete(self.session)
+
+    def delete_health_monitor(self, value, ignore_missing=True):
+        """Delete a health monitor
+
+        :param value: The value can be either the ID of a health monitor or a
+               :class:`~openstack.network.v2.health_monitor.HealthMonitor`
+               instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the health monitor does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(health_monitor.HealthMonitor, value, ignore_missing)
 
     def find_health_monitor(self, name_or_id):
         return health_monitor.HealthMonitor.find(self.session, name_or_id)
@@ -79,8 +106,20 @@ class Proxy(proxy.BaseProxy):
     def create_listener(self, **data):
         return listener.Listener(data).create(self.session)
 
-    def delete_listener(self, **data):
-        listener.Listener(data).delete(self.session)
+    def delete_listener(self, value, ignore_missing=True):
+        """Delete a listener
+
+        :param value: The value can be either the ID of a listner or a
+               :class:`~openstack.network.v2.listener.Listener` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the listner does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(listener.Listener, value, ignore_missing)
 
     def find_listener(self, name_or_id):
         return listener.Listener.find(self.session, name_or_id)
@@ -97,8 +136,21 @@ class Proxy(proxy.BaseProxy):
     def create_load_balancer(self, **data):
         return load_balancer.LoadBalancer(data).create(self.session)
 
-    def delete_load_balancer(self, **data):
-        load_balancer.LoadBalancer(data).delete(self.session)
+    def delete_load_balancer(self, value, ignore_missing=True):
+        """Delete a load balancer
+
+        :param value: The value can be either the ID of a load balancer or a
+               :class:`~openstack.network.v2.load_balancer.LoadBalancer`
+               instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the load balancer does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(load_balancer.LoadBalancer, value, ignore_missing)
 
     def find_load_balancer(self, name_or_id):
         return load_balancer.LoadBalancer.find(self.session, name_or_id)
@@ -115,8 +167,21 @@ class Proxy(proxy.BaseProxy):
     def create_metering_label(self, **data):
         return metering_label.MeteringLabel(data).create(self.session)
 
-    def delete_metering_label(self, **data):
-        metering_label.MeteringLabel(data).delete(self.session)
+    def delete_metering_label(self, value, ignore_missing=True):
+        """Delete a metering label
+
+        :param value: The value can be either the ID of a metering label or a
+               :class:`~openstack.network.v2.metering_label.MeteringLabel`
+               instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the metering label does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(metering_label.MeteringLabel, value, ignore_missing)
 
     def find_metering_label(self, name_or_id):
         return metering_label.MeteringLabel.find(self.session, name_or_id)
@@ -133,8 +198,23 @@ class Proxy(proxy.BaseProxy):
     def create_metering_label_rule(self, **data):
         return metering_label_rule.MeteringLabelRule(data).create(self.session)
 
-    def delete_metering_label_rule(self, **data):
-        metering_label_rule.MeteringLabelRule(data).delete(self.session)
+    def delete_metering_label_rule(self, value, ignore_missing=True):
+        """Delete a metering label rule
+
+        :param value: The value can be either the ID of a metering label rule
+        or a
+        :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
+        instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the metering label rule does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(metering_label_rule.MeteringLabelRule,
+                     value, ignore_missing)
 
     def find_metering_label_rule(self, name_or_id):
         return metering_label_rule.MeteringLabelRule.find(self.session,
@@ -152,8 +232,20 @@ class Proxy(proxy.BaseProxy):
     def create_network(self, **data):
         return network.Network(data).create(self.session)
 
-    def delete_network(self, **data):
-        network.Network(data).delete(self.session)
+    def delete_network(self, value, ignore_missing=True):
+        """Delete a network
+
+        :param value: The value can be either the ID of a network or a
+                      :class:`~openstack.network.v2.network.Network` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the network does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(network.Network, value, ignore_missing)
 
     def find_network(self, name_or_id):
         return network.Network.find(self.session, name_or_id)
@@ -170,8 +262,20 @@ class Proxy(proxy.BaseProxy):
     def create_pool(self, **data):
         return pool.Pool(data).create(self.session)
 
-    def delete_pool(self, **data):
-        pool.Pool(data).delete(self.session)
+    def delete_pool(self, value, ignore_missing=True):
+        """Delete a pool
+
+        :param value: The value can be either the ID of a pool or a
+                      :class:`~openstack.network.v2.pool.Pool` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the pool does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(pool.Pool, value, ignore_missing)
 
     def find_pool(self, name_or_id):
         return pool.Pool.find(self.session, name_or_id)
@@ -188,8 +292,21 @@ class Proxy(proxy.BaseProxy):
     def create_pool_member(self, **data):
         return pool_member.PoolMember(data).create(self.session)
 
-    def delete_pool_member(self, **data):
-        pool_member.PoolMember(data).delete(self.session)
+    def delete_pool_member(self, value, ignore_missing=True):
+        """Delete a pool member
+
+        :param value: The value can be either the ID of a pool member or a
+                      :class:`~openstack.network.v2.pool_member.PoolMember`
+                      instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the pool member does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(pool_member.PoolMember, value, ignore_missing)
 
     def find_pool_member(self, name_or_id):
         return pool_member.PoolMember.find(self.session, name_or_id)
@@ -206,8 +323,20 @@ class Proxy(proxy.BaseProxy):
     def create_port(self, **data):
         return port.Port(data).create(self.session)
 
-    def delete_port(self, **data):
-        return port.Port(data).delete(self.session)
+    def delete_port(self, value, ignore_missing=True):
+        """Delete a port
+
+        :param value: The value can be either the ID of a port or a
+                      :class:`~openstack.network.v2.port.Port` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the port does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(port.Port, value, ignore_missing)
 
     def find_port(self, name_or_id):
         return port.Port.find(self.session, name_or_id)
@@ -244,8 +373,20 @@ class Proxy(proxy.BaseProxy):
     def create_router(self, **data):
         return router.Router(data).create(self.session)
 
-    def delete_router(self, **data):
-        return router.Router(**data).delete(self.session)
+    def delete_router(self, value, ignore_missing=True):
+        """Delete a router
+
+        :param value: The value can be either the ID of a router or a
+                      :class:`~openstack.network.v2.router.Router` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the router does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(router.Router, value, ignore_missing)
 
     def find_router(self, name_or_id):
         return router.Router.find(self.session, name_or_id)
@@ -268,8 +409,21 @@ class Proxy(proxy.BaseProxy):
     def create_security_group(self, **data):
         return security_group.SecurityGroup(data).create(self.session)
 
-    def delete_security_group(self, **data):
-        return security_group.SecurityGroup(**data).delete(self.session)
+    def delete_security_group(self, value, ignore_missing=True):
+        """Delete a security group
+
+        :param value: The value can be either the ID of a security group or a
+               :class:`~openstack.network.v2.security_group.SecurityGroup`
+               instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the security group does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(security_group.SecurityGroup, value, ignore_missing)
 
     def find_security_group(self, name_or_id):
         return security_group.SecurityGroup.find(self.session, name_or_id)
@@ -311,9 +465,23 @@ class Proxy(proxy.BaseProxy):
         obj = security_group_rule.SecurityGroupRule(data)
         return obj.create(self.session)
 
-    def delete_security_group_rule(self, **data):
-        obj = security_group_rule.SecurityGroupRule(**data)
-        return obj.delete(self.session)
+    def delete_security_group_rule(self, value, ignore_missing=True):
+        """Delete a security group rule
+
+        :param value: The value can be either the ID of a security group rule
+        or a
+        :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
+        instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the security group rule does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(security_group_rule.SecurityGroupRule,
+                     value, ignore_missing)
 
     def find_security_group_rule(self, name_or_id):
         return security_group_rule.SecurityGroupRule.find(self.session,
@@ -334,8 +502,20 @@ class Proxy(proxy.BaseProxy):
     def create_subnet(self, **data):
         return subnet.Subnet(data).create(self.session)
 
-    def delete_subnet(self, **data):
-        return subnet.Subnet(**data).delete(self.session)
+    def delete_subnet(self, value, ignore_missing=True):
+        """Delete a subnet
+
+        :param value: The value can be either the ID of a subnet or a
+                      :class:`~openstack.network.v2.subnet.Subnet` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the subnet does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(subnet.Subnet, value, ignore_missing)
 
     def find_subnet(self, name_or_id):
         return subnet.Subnet.find(self.session, name_or_id)
