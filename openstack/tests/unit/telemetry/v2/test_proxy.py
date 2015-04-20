@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.telemetry.v2 import _proxy
+from openstack.telemetry.v2 import alarm
 from openstack.tests.unit import test_proxy_base
 
 
@@ -34,8 +35,10 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
                            self.proxy.create_alarm)
 
     def test_alarm_delete(self):
-        self.verify_delete('openstack.telemetry.v2.alarm.Alarm.delete',
-                           self.proxy.delete_alarm)
+        self.verify_delete2(alarm.Alarm, self.proxy.delete_alarm, False)
+
+    def test_alarm_delete_ignore(self):
+        self.verify_delete2(alarm.Alarm, self.proxy.delete_alarm, True)
 
     def test_alarm_find(self):
         self.verify_find('openstack.telemetry.v2.alarm.Alarm.find',

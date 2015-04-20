@@ -25,8 +25,20 @@ class Proxy(proxy.BaseProxy):
     def create_alarm(self, **data):
         return alarm.Alarm(data).create(self.session)
 
-    def delete_alarm(self, **data):
-        alarm.Alarm(data).delete(self.session)
+    def delete_alarm(self, value, ignore_missing=True):
+        """Delete an alarm
+
+        :param value: The value can be either the ID of an alarm or a
+                      :class:`~openstack.telemetry.v2.alarm.Alarm` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the alarm does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(alarm.Alarm, value, ignore_missing)
 
     def find_alarm(self, name_or_id):
         return alarm.Alarm.find(self.session, name_or_id)
