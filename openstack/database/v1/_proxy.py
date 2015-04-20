@@ -22,8 +22,20 @@ class Proxy(proxy.BaseProxy):
     def create_database(self, **data):
         return database.Database(data).create(self.session)
 
-    def delete_database(self, **data):
-        database.Database(data).delete(self.session)
+    def delete_database(self, value, ignore_missing=True):
+        """Delete a database
+
+        :param value: The value can be either the ID of a database or a
+               :class:`~openstack.database.v1.database.Database` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the database does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(database.Database, value, ignore_missing)
 
     def find_database(self, name_or_id):
         return database.Database.find(self.session, name_or_id)
@@ -43,8 +55,20 @@ class Proxy(proxy.BaseProxy):
     def create_instance(self, **data):
         return instance.Instance(data).create(self.session)
 
-    def delete_instance(self, **data):
-        instance.Instance(data).delete(self.session)
+    def delete_instance(self, value, ignore_missing=True):
+        """Delete an instance
+
+        :param value: The value can be either the ID of an instance or a
+               :class:`~openstack.database.v1.instance.Instance` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the instance does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(instance.Instance, value, ignore_missing)
 
     def find_instance(self, name_or_id):
         return instance.Instance.find(self.session, name_or_id)
@@ -61,8 +85,20 @@ class Proxy(proxy.BaseProxy):
     def create_user(self, **data):
         return user.User(data).create(self.session)
 
-    def delete_user(self, **data):
-        user.User(data).delete(self.session)
+    def delete_user(self, value, ignore_missing=True):
+        """Delete a user
+
+        :param value: The value can be either the ID of a user or a
+                      :class:`~openstack.database.v1.user.User` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the user does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(user.User, value, ignore_missing)
 
     def find_user(self, name_or_id):
         return user.User.find(self.session, name_or_id)
