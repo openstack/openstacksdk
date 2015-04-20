@@ -101,18 +101,22 @@ class Proxy(proxy.BaseProxy):
         container = _container.Container.from_id(container)
         return container.create(self.session)
 
-    def delete_container(self, container):
-        """Delete a container.
+    def delete_container(self, value, ignore_missing=True):
+        """Delete a container
 
-        :param container: The container to delete. You can pass a container
-            object or the name of a container to delete.
-        :type container:
-            :class:`~openstack.object_store.v1.container.Container`
+        :param value: The value can be either the name of a container or a
+                      :class:`~openstack.object_store.v1.container.Container`
+                      instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the container does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
 
-        :rtype: ``None``
+        :returns: ``None``
         """
-        container = _container.Container.from_id(container)
-        container.delete(self.session)
+        # TODO(brian): s/_container/container once other changes propogate
+        self._delete(_container.Container, value, ignore_missing)
 
     def objects(self, container, limit=None, marker=None, **kwargs):
         """Return a generator that yields the Container's objects.
@@ -179,15 +183,22 @@ class Proxy(proxy.BaseProxy):
         """Copy an object."""
         raise NotImplementedError
 
-    def delete_object(self, obj):
-        """Delete an object.
+    def delete_object(self, value, ignore_missing=True):
+        """Delete an object
 
-        :param obj: The object to delete.
-        :type obj: :class:`~openstack.object_store.v1.obj.Object`
+        :param value: The value can be either the name of an object or a
+                      :class:`~openstack.object_store.v1.container.Container`
+                      instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the object does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
 
-        :rtype: ``None``
+        :returns: ``None``
         """
-        obj.delete(self.session)
+        # TODO(brian): s/_obj/obj once other changes propogate
+        self._delete(_obj.Object, value, ignore_missing)
 
     def get_object_metadata(self, obj):
         """Get metatdata for an object.
