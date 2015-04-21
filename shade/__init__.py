@@ -1931,13 +1931,15 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Error deleting subnet %s: %s" % (name_or_id, e))
 
-    def update_subnet(self, subnet_id, subnet_name=None, enable_dhcp=None,
+    def update_subnet(self, name_or_id, subnet_name=None, enable_dhcp=None,
                       gateway_ip=None, allocation_pools=None,
                       dns_nameservers=None, host_routes=None):
         """Update an existing subnet.
 
+        :param string name_or_id:
+           Name or ID of the subnet to update.
         :param string subnet_name:
-           The name of the subnet.
+           The new name of the subnet.
         :param bool enable_dhcp:
            Set to ``True`` if DHCP is enabled and ``False`` if disabled.
         :param string gateway_ip:
@@ -1995,14 +1997,27 @@ class OpenStackCloud(object):
             self.log.debug("No subnet data to update")
             return
 
+        # Find matching subnets, raising an exception if none are found
+        # or multiple matches are found.
+        subnets = []
+        for sub in self.list_subnets():
+            if name_or_id in (sub['id'], sub['name']):
+                subnets.append(sub)
+        if not subnets:
+            raise OpenStackCloudException(
+                "Subnet %s not found." % name_or_id)
+        if len(subnets) > 1:
+            raise OpenStackCloudException(
+                "More than one subnet named %s. Use ID." % name_or_id)
+
         try:
             new_subnet = self.manager.submitTask(
                 _tasks.SubnetUpdate(
-                    subnet=subnet_id, body=dict(subnet=subnet)))
+                    subnet=subnets[0]['id'], body=dict(subnet=subnet)))
         except Exception as e:
             self.log.debug("Subnet update failed", exc_info=True)
             raise OpenStackCloudException(
-                "Error updating subnet %s: %s" % (subnet_id, e))
+                "Error updating subnet %s: %s" % (name_or_id, e))
         # Turns out neutron returns an actual dict, so no need for the
         # use of meta.obj_to_dict() here (which would not work against
         # a dict).
