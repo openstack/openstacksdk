@@ -1177,6 +1177,7 @@ class OpenStackCloud(object):
                 if status.status == 'success':
                     image_id = status.result['image_id']
                     self._reset_image_cache()
+                    self.list_images.invalidate(self)
                     try:
                         image = self.get_image(image_id)
                     except glanceclient.exc.HTTPServiceUnavailable:
@@ -1187,6 +1188,7 @@ class OpenStackCloud(object):
                     self.update_image_properties(
                         image=image,
                         **image_properties)
+                    self.list_images.invalidate(self)
                     return self.get_image_dict(status.result['image_id'])
                 if status.status == 'failure':
                     raise OpenStackCloudException(
@@ -1202,7 +1204,7 @@ class OpenStackCloud(object):
             image = self.get_image(name_or_id)
 
         img_props = {}
-        for k, v in properties.iteritems():
+        for k, v in iter(properties.items()):
             if v and k in ['ramdisk', 'kernel']:
                 v = self.get_image_id(v)
                 k = '{0}_id'.format(k)
@@ -1216,7 +1218,7 @@ class OpenStackCloud(object):
 
     def _update_image_properties_v2(self, image, properties):
         img_props = {}
-        for k, v in properties.iteritems():
+        for k, v in iter(properties.items()):
             if image.get(k, None) != v:
                 img_props[k] = str(v)
         if not img_props:
@@ -1227,7 +1229,7 @@ class OpenStackCloud(object):
 
     def _update_image_properties_v1(self, image, properties):
         img_props = {}
-        for k, v in properties.iteritems():
+        for k, v in iter(properties.items()):
             if image.properties.get(k, None) != v:
                 img_props[k] = v
         if not img_props:

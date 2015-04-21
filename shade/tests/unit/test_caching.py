@@ -242,6 +242,13 @@ class TestMemoryCache(base.TestCase):
         self.cloud.list_images.invalidate(self.cloud)
         self.assertEqual({'22': fake_image}, self.cloud.list_images())
 
+    def _call_create_image(self, name, container=None):
+        imagefile = tempfile.NamedTemporaryFile(delete=False)
+        imagefile.write(b'\0')
+        imagefile.close()
+        self.cloud.create_image(
+            name, imagefile.name, container=container, wait=True)
+
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_create_image_v1(self, glance_mock):
         self.cloud.api_versions['image'] = '1'
@@ -255,10 +262,7 @@ class TestMemoryCache(base.TestCase):
         fake_image = Image()
         glance_mock.images.create.return_value = fake_image
         glance_mock.images.list.return_value = [fake_image]
-        imagefile = tempfile.NamedTemporaryFile(delete=False)
-        imagefile.write(b'\0')
-        imagefile.close()
-        self.cloud.create_image('42 name', imagefile.name)
+        self._call_create_image('42 name')
         args = {'name': '42 name',
                 'properties': {'owner_specified.shade.md5': mock.ANY,
                                'owner_specified.shade.sha256': mock.ANY}}
@@ -266,3 +270,62 @@ class TestMemoryCache(base.TestCase):
         glance_mock.images.update.assert_called_with(data=mock.ANY,
                                                      image=fake_image)
         self.assertEqual({'42': fake_image}, self.cloud.list_images())
+
+    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_create_image_v2(self, swift_mock, glance_mock):
+        self.cloud.api_versions['image'] = '2'
+
+        class Container(object):
+            name = 'image_upload_v2_test_container'
+
+        fake_container = Container()
+        swift_mock.put_container.return_value = fake_container
+        swift_mock.head_object.return_value = {}
+        glance_mock.images.list.return_value = []
+        self.assertEqual({}, self.cloud.list_images())
+
+        # V2's warlock objects just work like dicts
+        class FakeImage(dict):
+            status = 'CREATED'
+            id = '99'
+            name = '99 name'
+
+        fake_image = FakeImage()
+        fake_image.update({
+            'id': '99',
+            'name': '99 name',
+            shade.IMAGE_MD5_KEY: '',
+            shade.IMAGE_SHA256_KEY: '',
+        })
+        glance_mock.images.list.return_value = [fake_image]
+
+        class FakeTask(dict):
+            status = 'success'
+            result = {'image_id': '99'}
+
+        fake_task = FakeTask()
+        fake_task.update({
+            'id': '100',
+            'status': 'success',
+        })
+        glance_mock.tasks.get.return_value = fake_task
+        self._call_create_image(name='99 name',
+                                container='image_upload_v2_test_container')
+        args = {'headers': {'x-object-meta-x-shade-md5': mock.ANY,
+                            'x-object-meta-x-shade-sha256': mock.ANY},
+                'obj': '99 name',
+                'container': 'image_upload_v2_test_container'}
+        swift_mock.post_object.assert_called_with(**args)
+        swift_mock.put_object.assert_called_with(
+            contents=mock.ANY,
+            obj='99 name',
+            container='image_upload_v2_test_container')
+        glance_mock.tasks.create.assert_called_with(type='import', input={
+            'import_from': 'image_upload_v2_test_container/99 name',
+            'image_properties': {'name': '99 name'}})
+        args = {'owner_specified.shade.md5': mock.ANY,
+                'owner_specified.shade.sha256': mock.ANY,
+                'image_id': '99'}
+        glance_mock.images.update.assert_called_with(**args)
+        self.assertEqual({'99': fake_image}, self.cloud.list_images())
