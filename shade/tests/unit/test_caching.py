@@ -58,7 +58,8 @@ class TestMemoryCache(base.TestCase):
 
         self.cloud_config = occ.OpenStackConfig(config_files=[config.name],
                                                 vendor_files=[vendor.name])
-        self.cloud = shade.openstack_cloud(config=self.cloud_config)
+        self.cloud = shade.openstack_cloud(cloud='_cache_test_',
+                                           config=self.cloud_config)
 
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, shade.OpenStackCloud)
