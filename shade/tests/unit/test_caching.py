@@ -241,3 +241,28 @@ class TestMemoryCache(base.TestCase):
         glance_mock.images.list.return_value = [fake_image]
         self.cloud.list_images.invalidate(self.cloud)
         self.assertEqual({'22': fake_image}, self.cloud.list_images())
+
+    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
+    def test_create_image_v1(self, glance_mock):
+        self.cloud.api_versions['image'] = '1'
+        glance_mock.images.list.return_value = []
+        self.assertEqual({}, self.cloud.list_images())
+
+        class Image(object):
+            id = '42'
+            name = '42 name'
+            status = 'success'
+        fake_image = Image()
+        glance_mock.images.create.return_value = fake_image
+        glance_mock.images.list.return_value = [fake_image]
+        imagefile = tempfile.NamedTemporaryFile(delete=False)
+        imagefile.write(b'\0')
+        imagefile.close()
+        self.cloud.create_image('42 name', imagefile.name)
+        args = {'name': '42 name',
+                'properties': {'owner_specified.shade.md5': mock.ANY,
+                               'owner_specified.shade.sha256': mock.ANY}}
+        glance_mock.images.create.assert_called_with(**args)
+        glance_mock.images.update.assert_called_with(data=mock.ANY,
+                                                     image=fake_image)
+        self.assertEqual({'42': fake_image}, self.cloud.list_images())
