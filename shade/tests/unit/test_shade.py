@@ -54,9 +54,12 @@ class TestShade(base.TestCase):
         self.cloud.create_router(name='goofy', admin_state_up=True)
         self.assertTrue(mock_client.create_router.called)
 
+    @mock.patch.object(shade.OpenStackCloud, 'list_routers')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_update_router(self, mock_client):
-        self.cloud.update_router(router_id=123, name='goofy')
+    def test_update_router(self, mock_client, mock_list):
+        router1 = dict(id='123', name='mickey')
+        mock_list.return_value = [router1]
+        self.cloud.update_router('123', name='goofy')
         self.assertTrue(mock_client.update_router.called)
 
     @mock.patch.object(shade.OpenStackCloud, 'list_routers')

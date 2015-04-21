@@ -834,12 +834,12 @@ class OpenStackCloud(object):
         # a dict).
         return new_router['router']
 
-    def update_router(self, router_id, name=None, admin_state_up=None,
+    def update_router(self, name_or_id, name=None, admin_state_up=None,
                       ext_gateway_net_id=None):
         """Update an existing logical router.
 
-        :param router_id: The router UUID.
-        :param name: The router name.
+        :param name_or_id: The name or UUID of the router to update.
+        :param name: The new router name.
         :param admin_state_up: The administrative state of the router.
         :param ext_gateway_net_id: The network ID for the external gateway.
 
@@ -860,14 +860,27 @@ class OpenStackCloud(object):
             self.log.debug("No router data to update")
             return
 
+        # Find matching routers, raising an exception if none are found
+        # or multiple matches are found.
+        routers = []
+        for r in self.list_routers():
+            if name_or_id in (r['id'], r['name']):
+                routers.append(r)
+        if not routers:
+            raise OpenStackCloudException(
+                "Router %s not found." % name_or_id)
+        if len(routers) > 1:
+            raise OpenStackCloudException(
+                "More than one router named %s. Use ID." % name_or_id)
+
         try:
             new_router = self.manager.submitTask(
                 _tasks.RouterUpdate(
-                    router=router_id, body=dict(router=router)))
+                    router=routers[0]['id'], body=dict(router=router)))
         except Exception as e:
             self.log.debug("Router update failed", exc_info=True)
             raise OpenStackCloudException(
-                "Error updating router %s: %s" % (router_id, e))
+                "Error updating router %s: %s" % (name_or_id, e))
         # Turns out neutron returns an actual dict, so no need for the
         # use of meta.obj_to_dict() here (which would not work against
         # a dict).
