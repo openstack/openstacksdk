@@ -921,23 +921,15 @@ class OpenStackCloud(object):
             self.log.debug("No router data to update")
             return
 
-        # Find matching routers, raising an exception if none are found
-        # or multiple matches are found.
-        routers = []
-        for r in self.list_routers():
-            if name_or_id in (r['id'], r['name']):
-                routers.append(r)
-        if not routers:
+        curr_router = self.get_router(name_or_id)
+        if not curr_router:
             raise OpenStackCloudException(
                 "Router %s not found." % name_or_id)
-        if len(routers) > 1:
-            raise OpenStackCloudException(
-                "More than one router named %s. Use ID." % name_or_id)
 
         try:
             new_router = self.manager.submitTask(
                 _tasks.RouterUpdate(
-                    router=routers[0]['id'], body=dict(router=router)))
+                    router=curr_router['id'], body=dict(router=router)))
         except Exception as e:
             self.log.debug("Router update failed", exc_info=True)
             raise OpenStackCloudException(
@@ -2034,23 +2026,15 @@ class OpenStackCloud(object):
             self.log.debug("No subnet data to update")
             return
 
-        # Find matching subnets, raising an exception if none are found
-        # or multiple matches are found.
-        subnets = []
-        for sub in self.list_subnets():
-            if name_or_id in (sub['id'], sub['name']):
-                subnets.append(sub)
-        if not subnets:
+        curr_subnet = self.get_subnet(name_or_id)
+        if not curr_subnet:
             raise OpenStackCloudException(
                 "Subnet %s not found." % name_or_id)
-        if len(subnets) > 1:
-            raise OpenStackCloudException(
-                "More than one subnet named %s. Use ID." % name_or_id)
 
         try:
             new_subnet = self.manager.submitTask(
                 _tasks.SubnetUpdate(
-                    subnet=subnets[0]['id'], body=dict(subnet=subnet)))
+                    subnet=curr_subnet['id'], body=dict(subnet=subnet)))
         except Exception as e:
             self.log.debug("Subnet update failed", exc_info=True)
             raise OpenStackCloudException(

@@ -68,11 +68,11 @@ class TestShade(base.TestCase):
         self.cloud.create_router(name='goofy', admin_state_up=True)
         self.assertTrue(mock_client.create_router.called)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_routers')
+    @mock.patch.object(shade.OpenStackCloud, 'get_router')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_update_router(self, mock_client, mock_list):
+    def test_update_router(self, mock_client, mock_get):
         router1 = dict(id='123', name='mickey')
-        mock_list.return_value = [router1]
+        mock_get.return_value = router1
         self.cloud.update_router('123', name='goofy')
         self.assertTrue(mock_client.update_router.called)
 
@@ -185,11 +185,11 @@ class TestShade(base.TestCase):
         self.cloud.delete_subnet('123')
         self.assertTrue(mock_client.delete_subnet.called)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
+    @mock.patch.object(shade.OpenStackCloud, 'get_subnet')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_update_subnet(self, mock_client, mock_list):
+    def test_update_subnet(self, mock_client, mock_get):
         subnet1 = dict(id='123', name='mickey')
-        mock_list.return_value = [subnet1]
+        mock_get.return_value = subnet1
         self.cloud.update_subnet('123', subnet_name='goofy')
         self.assertTrue(mock_client.update_subnet.called)
 
