@@ -93,6 +93,7 @@ def get_groups_from_server(cloud, server, server_vars):
 
 def get_hostvars_from_server(cloud, server, mounts=None):
     server_vars = obj_to_dict(server)
+    server_vars.pop('links', None)
 
     # Fist, add an IP address
     server_vars['public_v4'] = get_server_public_ip(server)
@@ -111,6 +112,7 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     flavor_name = cloud.get_flavor_name(flavor_id)
     if flavor_name:
         server_vars['flavor']['name'] = flavor_name
+    server_vars['flavor'].pop('links', None)
 
     # OpenStack can return image as a string when you've booted from volume
     if unicode(server.image) == server.image:
@@ -121,6 +123,7 @@ def get_hostvars_from_server(cloud, server, mounts=None):
         image_name = cloud.get_image_name(image_id)
         if image_name:
             server_vars['image']['name'] = image_name
+    server_vars['image'].pop('links', None)
 
     volumes = []
     for volume in cloud.get_volumes(server):
