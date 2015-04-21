@@ -161,3 +161,10 @@ class TestMemoryCache(base.TestCase):
         cinder_mock.volumes.delete.return_value = mock_vol
         self.cloud.delete_volume('12345')
         self.assertEqual([mock_volb4], self.cloud.list_volumes())
+
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_get_user_cache(self, keystone_mock):
+        mock_user = mock.MagicMock()
+        mock_user.id = '999'
+        keystone_mock.users.list.return_value = [mock_user]
+        self.assertEqual({'999': mock_user}, self.cloud.get_user_cache())
