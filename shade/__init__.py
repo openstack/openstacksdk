@@ -512,7 +512,7 @@ class OpenStackCloud(object):
                 project_id = self._get_project(project).id
             else:
                 project_id = None
-            self.manager.submitTask(_tasks.UserCreate(
+            user = self.manager.submitTask(_tasks.UserCreate(
                 user_name=name, password=password, email=email,
                 project=project_id, enabled=enabled))
         except Exception as e:
@@ -521,6 +521,7 @@ class OpenStackCloud(object):
                 "Error in creating user {user}: {message}".format(
                     user=name, message=e.message))
         self.get_user_cache.invalidate(self)
+        return meta.obj_to_dict(user)
 
     def delete_user(self, name_or_id):
         self.get_user_cache.invalidate(self)
