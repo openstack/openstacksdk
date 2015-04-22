@@ -32,6 +32,11 @@ class UserDelete(task_manager.Task):
         return client.keystone_client.users.delete(**self.args)
 
 
+class UserUpdate(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.users.update(**self.args)
+
+
 class FlavorList(task_manager.Task):
     def main(self, client):
         return client.nova_client.flavors.list()
