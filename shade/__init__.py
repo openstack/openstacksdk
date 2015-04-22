@@ -1035,7 +1035,7 @@ class OpenStackCloud(object):
     def get_image_name(self, image_id, exclude=None):
         image = self.get_image(image_id, exclude)
         if image:
-            return image.id
+            return image.name
         return None
 
     def get_image_id(self, image_name, exclude=None):

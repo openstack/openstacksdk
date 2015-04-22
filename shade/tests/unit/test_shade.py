@@ -246,3 +246,27 @@ class TestShadeOperator(base.TestCase):
         self.assertTrue(mock_client.node.delete.called)
         self.assertTrue(mock_client.port.delete.called)
         self.assertTrue(mock_client.port.get_by_address.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
+    def test_get_image_name(self, glance_mock):
+
+        class Image(object):
+            id = '22'
+            name = '22 name'
+            status = 'success'
+        fake_image = Image()
+        glance_mock.images.list.return_value = [fake_image]
+        self.assertEqual('22 name', self.cloud.get_image_name('22'))
+        self.assertEqual('22 name', self.cloud.get_image_name('22 name'))
+
+    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
+    def test_get_image_id(self, glance_mock):
+
+        class Image(object):
+            id = '22'
+            name = '22 name'
+            status = 'success'
+        fake_image = Image()
+        glance_mock.images.list.return_value = [fake_image]
+        self.assertEqual('22', self.cloud.get_image_id('22'))
+        self.assertEqual('22', self.cloud.get_image_id('22 name'))
