@@ -258,6 +258,26 @@ class SubnetUpdate(task_manager.Task):
         return client.neutron_client.update_subnet(**self.args)
 
 
+class MachineCreate(task_manager.Task):
+    def main(self, client):
+        return client.ironic_client.node.create(**self.args)
+
+
+class MachineDelete(task_manager.Task):
+    def main(self, client):
+        return client.ironic_client.node.delete(**self.args)
+
+
 class MachinePatch(task_manager.Task):
     def main(self, client):
         return client.ironic_client.node.update(**self.args)
+
+
+class MachinePortCreate(task_manager.Task):
+    def main(self, client):
+        return client.ironic_client.port.create(**self.args)
+
+
+class MachinePortDelete(task_manager.Task):
+    def main(self, client):
+        return client.ironic_client.port.delete(**self.args)

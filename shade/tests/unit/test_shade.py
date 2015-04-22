@@ -210,3 +210,30 @@ class TestShadeOperator(base.TestCase):
         patch.append({'op': 'remove', 'path': '/instance_info'})
         self.cloud.patch_machine(node_id, patch)
         self.assertTrue(mock_client.node.update.called)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_register_machine(self, mock_client):
+        class fake_node:
+            uuid = "00000000-0000-0000-0000-000000000000"
+
+        expected_return_value = dict(
+            uuid="00000000-0000-0000-0000-000000000000",
+        )
+        mock_client.node.create.return_value = fake_node
+        nics = [{'mac': '00:00:00:00:00:00'}]
+        return_value = self.cloud.register_machine(nics)
+        self.assertDictEqual(expected_return_value, return_value)
+        self.assertTrue(mock_client.node.create.called)
+        self.assertTrue(mock_client.port.create.called)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_register_machine_port_create_failed(self, mock_client):
+        nics = [{'mac': '00:00:00:00:00:00'}]
+        mock_client.port.create.side_effect = (
+            shade.OpenStackCloudException("Error"))
+        self.assertRaises(shade.OpenStackCloudException,
+                          self.cloud.register_machine,
+                          nics)
+        self.assertTrue(mock_client.node.create.called)
+        self.assertTrue(mock_client.port.create.called)
+        self.assertTrue(mock_client.node.delete.called)
