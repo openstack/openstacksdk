@@ -523,14 +523,16 @@ class OpenStackCloud(object):
         self.get_user_cache.invalidate(self)
 
     def delete_user(self, name_or_id):
+        self.get_user_cache.invalidate(self)
         try:
             user = self._get_user(name_or_id)
-            self._user_manager.delete(user.id)
+            self.manager.submitTask(_tasks.UserDelete(user=user))
         except Exception as e:
             self.log.debug("keystone delete user issue", exc_info=True)
             raise OpenStackCloudException(
                 "Error in deleting user {user}: {message}".format(
                     user=name_or_id, message=e.message))
+        self.get_user_cache.invalidate(self)
 
     def _get_glance_api_version(self):
         if 'image' in self.api_versions:

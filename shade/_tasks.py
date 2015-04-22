@@ -27,6 +27,11 @@ class UserCreate(task_manager.Task):
         return client.keystone_client.users.create(**self.args)
 
 
+class UserDelete(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.users.delete(**self.args)
+
+
 class FlavorList(task_manager.Task):
     def main(self, client):
         return client.nova_client.flavors.list()
