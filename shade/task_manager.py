@@ -17,8 +17,9 @@
 # limitations under the License.
 
 import abc
-import sys
 import logging
+import sys
+import threading
 import time
 
 import six
@@ -32,7 +33,9 @@ class Task(object):
     around each external REST interaction. Task provides an interface
     to encapsulate each such interaction. Also, although shade itself
     operates normally in a single-threaded direct action manner, consuming
-    programs may provide a multi-threaded TaskManager themselves.
+    programs may provide a multi-threaded TaskManager themselves. For that
+    reason, Task uses threading events to ensure appropriate wait conditions.
+    These should be a no-op in single-threaded applications.
 
     A consumer is expected to overload the main method.
 
@@ -44,6 +47,7 @@ class Task(object):
         self._exception = None
         self._traceback = None
         self._result = None
+        self._finished = threading.Event()
         self.args = kw
 
     @abc.abstractmethod
@@ -52,12 +56,15 @@ class Task(object):
 
     def done(self, result):
         self._result = result
+        self._finished.set()
 
     def exception(self, e, tb):
         self._exception = e
         self._traceback = tb
+        self._finished.set()
 
     def wait(self):
+        self._finished.wait()
         if self._exception:
             six.reraise(self._exception, None, self._traceback)
         return self._result
