@@ -2184,25 +2184,48 @@ class OperatorCloud(OpenStackCloud):
                 self.manager.submitTask(
                     _tasks.MachineDelete(node_id=machine.uuid))
             raise OpenStackCloudException(
-                "Error registering NICs with baremetal service: %s" % e)
+                "Error registering NICs with the baremetal service: %s" % e)
         return meta.obj_to_dict(machine)
 
     def unregister_machine(self, nics, uuid):
+        """Unregister Baremetal from Ironic
+
+        Removes entries for Network Interfaces and baremetal nodes
+        from an Ironic API
+
+        :param list nics: An array of strings that consist of MAC addresses
+        to be removed.
+        :param string uuid: The UUID of the node to be deleted.
+
+        :raises: OpenStackCloudException on operation failure.
+        """
+
+        # TODO(TheJulia): Change to lookup the MAC addresses and/or block any
+        # the action if the node is in an Active state as the API would.
         for nic in nics:
             try:
-                self.ironic_client.port.delete(
-                    self.ironic_client.port.get_by_address(nic['mac']))
+                self.manager.submitTask(
+                    _tasks.MachinePortDelete(
+                        port_id=(
+                            self.ironic_client.port.get_by_address(nic['mac'])
+                    )))
+
             except Exception as e:
                 self.log.debug(
-                    "ironic NIC unregistration failed", exc_info=True)
-                raise OpenStackCloudException(e.message)
+                    "baremetal NIC unregistration failed", exc_info=True)
+                raise OpenStackCloudException(
+                    "Error removing NIC '%s' from baremetal API for "
+                    "node '%s'. Error: %s" % (nic, uuid, e))
         try:
-            self.ironic_client.node.delete(uuid)
+            self.manager.submitTask(
+                _tasks.MachineDelete(node_id=uuid))
+
         except Exception as e:
             self.log.debug(
-                "ironic machine unregistration failed", exc_info=True)
+                "baremetal machine unregistration failed", exc_info=True)
             raise OpenStackCloudException(
-                "Error unregistering machine from Ironic: %s" % e.message)
+                "Error unregistering machine %s from the baremetal API. "
+                "Error: %s" % (uuid, e))
 
     def patch_machine(self, name_or_id, patch):
         """Patch Machine Information
