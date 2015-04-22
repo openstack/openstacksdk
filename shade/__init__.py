@@ -171,7 +171,7 @@ def _cache_on_arguments(*cache_on_args, **cache_on_kwargs):
 def _no_pending_volumes(volumes):
     '''If there are any volumes not in a steady state, don't cache'''
     for volume in volumes:
-        if volume.status not in ('available', 'error'):
+        if volume['status'] not in ('available', 'error'):
             return False
     return True
 
@@ -743,8 +743,8 @@ class OpenStackCloud(object):
 
         :param list data:
             The list of dictionary data to filter. It is expected that
-            each dictionary contains an 'id' and 'name' key if a value
-            for name_or_id is given.
+            each dictionary contains an 'id', 'name' (or 'display_name')
+            key if a value for name_or_id is given.
         :param string name_or_id:
             The name or ID of the entity being filtered.
         :param dict filters:
@@ -753,7 +753,11 @@ class OpenStackCloud(object):
         if name_or_id:
             identifier_matches = []
             for e in data:
-                if name_or_id in (e['id'], e['name']):
+                e_id = e.get('id', None)
+                e_name = e.get('name', None)
+                # cinder likes to be different and use display_name
+                e_display_name = e.get('display_name', None)
+                if name_or_id in (e_id, e_name, e_display_name):
                     identifier_matches.append(e)
             data = identifier_matches
 
@@ -800,6 +804,10 @@ class OpenStackCloud(object):
         subnets = self.list_subnets()
         return self._filter_list(subnets, name_or_id, filters)
 
+    def search_volumes(self, name_or_id=None, filters=None):
+        volumes = self.list_volumes()
+        return self._filter_list(volumes, name_or_id, filters)
+
     def list_networks(self):
         return self.manager.submitTask(_tasks.NetworkList())['networks']
 
@@ -809,6 +817,15 @@ class OpenStackCloud(object):
     def list_subnets(self):
         return self.manager.submitTask(_tasks.SubnetList())['subnets']
 
+    @_cache_on_arguments(should_cache_fn=_no_pending_volumes)
+    def list_volumes(self, cache=True):
+        if not cache:
+            warnings.warn('cache argument to list_volumes is deprecated. Use '
+                          'invalidate instead.')
+        return meta.obj_list_to_dict(
+            self.manager.submitTask(_tasks.VolumeList())
+        )
+
     def get_network(self, name_or_id, filters=None):
         return self._get_entity(self.search_networks, name_or_id, filters)
 
@@ -817,6 +834,9 @@ class OpenStackCloud(object):
 
     def get_subnet(self, name_or_id, filters=None):
         return self._get_entity(self.search_subnets, name_or_id, filters)
+
+    def get_volume(self, name_or_id, filters=None):
+        return self._get_entity(self.search_volumes, name_or_id, filters)
 
     # TODO(Shrews): This will eventually need to support tenant ID and
     # provider networks, which are admin-level params.
@@ -1212,23 +1232,25 @@ class OpenStackCloud(object):
                 "Error in creating volume: %s" % e.message)
         self.list_volumes.invalidate(self)
 
-        if volume.status == 'error':
+        volume = meta.obj_to_dict(volume)
+
+        if volume['status'] == 'error':
             raise OpenStackCloudException("Error in creating volume")
 
         if wait:
-            vol_id = volume.id
+            vol_id = volume['id']
             for count in _iterate_timeout(
                     timeout,
                     "Timeout waiting for the volume to be available."):
-                volume = self.get_volume(vol_id, error=False)
+                volume = self.get_volume(vol_id)
 
                 if not volume:
                     continue
 
-                if volume.status == 'available':
+                if volume['status'] == 'available':
                     return volume
 
-                if volume.status == 'error':
+                if volume['status'] == 'error':
                     raise OpenStackCloudException(
                         "Error in creating volume, please check logs")
 
@@ -1248,7 +1270,7 @@ class OpenStackCloud(object):
 
         try:
             self.manager.submitTask(
-                _tasks.VolumeDelete(volume=volume.id))
+                _tasks.VolumeDelete(volume=volume['id']))
         except Exception as e:
             self.log.debug("Volume deletion failed", exc_info=True)
             raise OpenStackCloudException(
@@ -1259,48 +1281,25 @@ class OpenStackCloud(object):
             for count in _iterate_timeout(
                     timeout,
                     "Timeout waiting for the volume to be deleted."):
-                if not self.volume_exists(volume.id):
+                if not self.volume_exists(volume['id']):
                     return
-
-    def _get_volumes_from_cloud(self):
-        try:
-            return self.manager.submitTask(_tasks.VolumeList())
-        except Exception:
-            return []
-
-    @_cache_on_arguments(should_cache_fn=_no_pending_volumes)
-    def list_volumes(self, cache=True):
-        if not cache:
-            warnings.warn('cache argument to list_volumes is deprecated. Use '
-                          ' invalidate instead.')
-        return self._get_volumes_from_cloud()
 
     def get_volumes(self, server, cache=True):
         volumes = []
         for volume in self.list_volumes(cache=cache):
-            for attach in volume.attachments:
+            for attach in volume['attachments']:
                 if attach['server_id'] == server.id:
                     volumes.append(volume)
         return volumes
 
     def get_volume_id(self, name_or_id):
-        image = self.get_volume(name_or_id)
-        if image:
-            return image.id
-        return None
-
-    def get_volume(self, name_or_id, cache=True, error=True):
-        for v in self.list_volumes(cache=cache):
-            if name_or_id in (v.display_name, v.id):
-                return v
-        if error:
-            raise OpenStackCloudException(
-                "Error finding volume from %s" % name_or_id)
+        volume = self.get_volume(name_or_id)
+        if volume:
+            return volume['id']
         return None
 
     def volume_exists(self, name_or_id):
-        return self.get_volume(
-            name_or_id, error=False) is not None
+        return self.get_volume(name_or_id) is not None
 
     def get_volume_attach_device(self, volume, server_id):
         """Return the device name a volume is attached to for a server.
@@ -1313,7 +1312,7 @@ class OpenStackCloud(object):
 
         :returns: Device name if attached, None if volume is not attached.
         """
-        for attach in volume.attachments:
+        for attach in volume['attachments']:
             if server_id == attach['server_id']:
                 return attach['device']
         return None
@@ -1333,38 +1332,38 @@ class OpenStackCloud(object):
         if not dev:
             raise OpenStackCloudException(
                 "Volume %s is not attached to server %s"
-                % (volume.id, server.id)
+                % (volume['id'], server.id)
             )
 
         try:
             self.manager.submitTask(
-                _tasks.VolumeDetach(attachment_id=volume.id,
+                _tasks.VolumeDetach(attachment_id=volume['id'],
                                     server_id=server.id))
         except Exception as e:
             self.log.debug("nova volume detach failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error detaching volume %s from server %s: %s" %
-                (volume.id, server.id, e)
+                (volume['id'], server.id, e)
             )
 
         if wait:
             for count in _iterate_timeout(
                     timeout,
-                    "Timeout waiting for volume %s to detach." % volume.id):
+                    "Timeout waiting for volume %s to detach." % volume['id']):
                 try:
-                    vol = self.get_volume(volume.id, cache=False)
+                    vol = self.get_volume(volume['id'])
                 except Exception:
                     self.log.debug(
-                        "Error getting volume info %s" % volume.id,
+                        "Error getting volume info %s" % volume['id'],
                         exc_info=True)
                     continue
 
-                if vol.status == 'available':
+                if vol['status'] == 'available':
                     return
 
-                if vol.status == 'error':
+                if vol['status'] == 'error':
                     raise OpenStackCloudException(
-                        "Error in detaching volume %s" % volume.id
+                        "Error in detaching volume %s" % volume['id']
                     )
 
     def attach_volume(self, server, volume, device=None,
@@ -1393,36 +1392,38 @@ class OpenStackCloud(object):
         if dev:
             raise OpenStackCloudException(
                 "Volume %s already attached to server %s on device %s"
-                % (volume.id, server.id, dev)
+                % (volume['id'], server.id, dev)
             )
 
-        if volume.status != 'available':
+        if volume['status'] != 'available':
             raise OpenStackCloudException(
                 "Volume %s is not available. Status is '%s'"
-                % (volume.id, volume.status)
+                % (volume['id'], volume['status'])
             )
 
         try:
             self.manager.submitTask(
-                _tasks.VolumeAttach(
-                    volume_id=volume.id, server_id=server.id, device=device))
+                _tasks.VolumeAttach(volume_id=volume['id'],
+                                    server_id=server.id,
+                                    device=device))
         except Exception as e:
             self.log.debug(
-                "nova volume attach of %s failed" % volume.id, exc_info=True)
+                "nova volume attach of %s failed" % volume['id'],
+                exc_info=True)
             raise OpenStackCloudException(
                 "Error attaching volume %s to server %s: %s" %
-                (volume.id, server.id, e)
+                (volume['id'], server.id, e)
             )
 
         if wait:
             for count in _iterate_timeout(
                     timeout,
-                    "Timeout waiting for volume %s to attach." % volume.id):
+                    "Timeout waiting for volume %s to attach." % volume['id']):
                 try:
-                    vol = self.get_volume(volume.id, cache=False)
+                    vol = self.get_volume(volume['id'])
                 except Exception:
                     self.log.debug(
-                        "Error getting volume info %s" % volume.id,
+                        "Error getting volume info %s" % volume['id'],
                         exc_info=True)
                     continue
 
@@ -1432,9 +1433,9 @@ class OpenStackCloud(object):
                 # TODO(Shrews) check to see if a volume can be in error status
                 #              and also attached. If so, we should move this
                 #              above the get_volume_attach_device call
-                if vol.status == 'error':
+                if vol['status'] == 'error':
                     raise OpenStackCloudException(
-                        "Error in attaching volume %s" % volume.id
+                        "Error in attaching volume %s" % volume['id']
                     )
 
     def get_server_id(self, name_or_id):
