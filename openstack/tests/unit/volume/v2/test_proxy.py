@@ -12,12 +12,35 @@
 
 from openstack.tests.unit import test_proxy_base
 from openstack.volume.v2 import _proxy
+from openstack.volume.v2 import snapshot
+from openstack.volume.v2 import type
+from openstack.volume.v2 import volume
 
 
 class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super(TestVolumeProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
+
+    def test_snapshot_delete(self):
+        self.verify_delete2(snapshot.Snapshot, self.proxy.delete_snapshot,
+                            False)
+
+    def test_snapshot_delete_ignore(self):
+        self.verify_delete2(snapshot.Snapshot, self.proxy.delete_snapshot,
+                            True)
+
+    def test_type_delete(self):
+        self.verify_delete2(type.Type, self.proxy.delete_type, False)
+
+    def test_type_delete_ignore(self):
+        self.verify_delete2(type.Type, self.proxy.delete_type, True)
+
+    def test_volume_delete(self):
+        self.verify_delete2(volume.Volume, self.proxy.delete_volume, False)
+
+    def test_volume_delete_ignore(self):
+        self.verify_delete2(volume.Volume, self.proxy.delete_volume, True)
 
     def test_volume_get(self):
         self.verify_get('openstack.volume.v2.volume.Volume.get',

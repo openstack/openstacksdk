@@ -11,6 +11,8 @@
 # under the License.
 
 from openstack import proxy
+from openstack.volume.v2 import snapshot
+from openstack.volume.v2 import type
 from openstack.volume.v2 import volume
 
 
@@ -18,3 +20,48 @@ class Proxy(proxy.BaseProxy):
 
     def get_volume(self, **data):
         return volume.Volume(data).get(self.session)
+
+    def delete_snapshot(self, value, ignore_missing=True):
+        """Delete a snapshot
+
+        :param value: The value can be either the ID of a snapshot or a
+                      :class:`~openstack.volume.v2.snapshot.Snapshot` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the snapshot does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(snapshot.Snapshot, value, ignore_missing)
+
+    def delete_type(self, value, ignore_missing=True):
+        """Delete a type
+
+        :param value: The value can be either the ID of a type or a
+                      :class:`~openstack.volume.v2.type.Type` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the type does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(type.Type, value, ignore_missing)
+
+    def delete_volume(self, value, ignore_missing=True):
+        """Delete a volume
+
+        :param value: The value can be either the ID of a volume or a
+                      :class:`~openstack.volume.v2.volume.Volume` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the volume does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server.
+
+        :returns: ``None``
+        """
+        self._delete(volume.Volume, value, ignore_missing)
