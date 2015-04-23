@@ -16,7 +16,7 @@ Example Create a jenkins server
 Create all the pieces parts to get a jenkins server up and running.
 
 To run:
-    python examples/jenkins.py
+    python examples/jenkins/create.py
 """
 
 import base64
@@ -43,7 +43,6 @@ def create_jenkins(conn, name, opts):
         args = {
             "name": name,
             "flavorRef": flavor,
-            "imageRef": image,
             "imageRef": image,
             "key_name": name,
             "networks": [{"uuid": net.id}],
@@ -72,28 +71,9 @@ def create_jenkins(conn, name, opts):
     return
 
 
-def delete_jenkins(conn, name, opts):
-    server = conn.compute.find_server(name)
-    if server is not None:
-        server = conn.get(server)
-        print(str(server))
-        ips = server.get_floating_ips()
-        for ip in ips:
-            print(str(ip))
-            ip = conn.network.find_ip(ip)
-            conn.network.remove_ip_from_port(ip)
-            conn.delete(ip)
-        conn.delete(server)
-
-    network.delete(conn, name)
-
-
 def run_jenkins(opts):
-    argument = opts.argument
     conn = connection.make_connection(opts)
     name = opts.data.pop('name', 'jenkins')
-    if argument == "delete":
-        return(delete_jenkins(conn, name, opts))
     return(create_jenkins(conn, name, opts))
 
 
