@@ -123,8 +123,7 @@ def get_hostvars_from_server(cloud, server, mounts=None):
             server_vars['image']['name'] = image_name
 
     volumes = []
-    for vol in cloud.get_volumes(server):
-        volume = obj_to_dict(vol)
+    for volume in cloud.get_volumes(server):
         # Make things easier to consume elsewhere
         volume['device'] = volume['attachments'][0]['device']
         volumes.append(volume)
