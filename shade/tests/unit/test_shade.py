@@ -15,6 +15,7 @@
 import mock
 
 import shade
+from shade import meta
 from shade.tests.unit import base
 
 
@@ -192,6 +193,55 @@ class TestShade(base.TestCase):
         mock_get.return_value = subnet1
         self.cloud.update_subnet('123', subnet_name='goofy')
         self.assertTrue(mock_client.update_subnet.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'list_flavors')
+    def test_get_flavor_by_ram(self, mock_list):
+        class Flavor1(object):
+            id = '1'
+            name = 'vanilla ice cream'
+            ram = 100
+
+        class Flavor2(object):
+            id = '2'
+            name = 'chocolate ice cream'
+            ram = 200
+
+        vanilla = meta.obj_to_dict(Flavor1())
+        chocolate = meta.obj_to_dict(Flavor2())
+        mock_list.return_value = [vanilla, chocolate]
+        flavor = self.cloud.get_flavor_by_ram(ram=150)
+        self.assertEquals(chocolate, flavor)
+
+    @mock.patch.object(shade.OpenStackCloud, 'list_flavors')
+    def test_get_flavor_by_ram_and_include(self, mock_list):
+        class Flavor1(object):
+            id = '1'
+            name = 'vanilla ice cream'
+            ram = 100
+
+        class Flavor2(object):
+            id = '2'
+            name = 'chocolate ice cream'
+            ram = 200
+
+        class Flavor3(object):
+            id = '3'
+            name = 'strawberry ice cream'
+            ram = 250
+
+        vanilla = meta.obj_to_dict(Flavor1())
+        chocolate = meta.obj_to_dict(Flavor2())
+        strawberry = meta.obj_to_dict(Flavor3())
+        mock_list.return_value = [vanilla, chocolate, strawberry]
+        flavor = self.cloud.get_flavor_by_ram(ram=150, include='strawberry')
+        self.assertEquals(strawberry, flavor)
+
+    @mock.patch.object(shade.OpenStackCloud, 'list_flavors')
+    def test_get_flavor_by_ram_not_found(self, mock_list):
+        mock_list.return_value = []
+        self.assertRaises(shade.OpenStackCloudException,
+                          self.cloud.get_flavor_by_ram,
+                          ram=100)
 
 
 class TestShadeOperator(base.TestCase):

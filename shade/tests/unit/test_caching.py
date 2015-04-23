@@ -216,17 +216,18 @@ class TestMemoryCache(base.TestCase):
         self.assertTrue(keystone_mock.users.delete.was_called)
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_get_flavor_cache(self, nova_mock):
+    def test_list_flavors(self, nova_mock):
         nova_mock.flavors.list.return_value = []
-        self.assertEqual({}, self.cloud.get_flavor_cache())
+        self.assertEqual([], self.cloud.list_flavors())
 
         class Flavor(object):
             id = '555'
             name = 'vanilla'
         fake_flavor = Flavor()
+        fake_flavor_dict = meta.obj_to_dict(fake_flavor)
         nova_mock.flavors.list.return_value = [fake_flavor]
-        self.cloud.get_flavor_cache.invalidate(self.cloud)
-        self.assertEqual({'555': fake_flavor}, self.cloud.get_flavor_cache())
+        self.cloud.list_flavors.invalidate(self.cloud)
+        self.assertEqual([fake_flavor_dict], self.cloud.list_flavors())
 
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_list_images(self, glance_mock):

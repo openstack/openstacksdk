@@ -671,36 +671,30 @@ class OpenStackCloud(object):
     def get_region(self):
         return self.region_name
 
-    @property
-    def flavor_cache(self):
-        return self.get_flavor_cache()
-
-    @_cache_on_arguments()
-    def get_flavor_cache(self):
-        return {flavor.id: flavor for flavor in
-                self.manager.submitTask(_tasks.FlavorList())}
-
     def get_flavor_name(self, flavor_id):
-        flavor = self.flavor_cache.get(flavor_id, None)
+        flavor = self.get_flavor(flavor_id)
         if flavor:
-            return flavor.name
-        return None
-
-    def get_flavor(self, name_or_id):
-        for id, flavor in self.flavor_cache.items():
-            if name_or_id in (id, flavor.name):
-                return flavor
+            return flavor['name']
         return None
 
     def get_flavor_by_ram(self, ram, include=None):
-        for flavor in sorted(
-                self.flavor_cache.values(),
-                key=operator.attrgetter('ram')):
-            if (flavor.ram >= ram and
-                    (not include or include in flavor.name)):
+        """Get a flavor based on amount of RAM available.
+
+        Finds the flavor with the least amount of RAM that is at least
+        as much as the specified amount. If `include` is given, further
+        filter based on matching flavor name.
+
+        :param int ram: Minimum amount of RAM.
+        :param string include: If given, will return a flavor whose name
+            contains this string as a substring.
+        """
+        flavors = self.list_flavors()
+        for flavor in sorted(flavors, key=operator.itemgetter('ram')):
+            if (flavor['ram'] >= ram and
+                    (not include or include in flavor['name'])):
                 return flavor
         raise OpenStackCloudException(
-            "Cloud not find a flavor with {ram} and '{include}'".format(
+            "Could not find a flavor with {ram} and '{include}'".format(
                 ram=ram, include=include))
 
     def get_endpoint(self, service_type):
@@ -826,6 +820,10 @@ class OpenStackCloud(object):
         volumes = self.list_volumes()
         return self._filter_list(volumes, name_or_id, filters)
 
+    def search_flavors(self, name_or_id=None, filters=None):
+        flavors = self.list_flavors()
+        return self._filter_list(flavors, name_or_id, filters)
+
     def list_networks(self):
         return self.manager.submitTask(_tasks.NetworkList())['networks']
 
@@ -844,6 +842,12 @@ class OpenStackCloud(object):
             self.manager.submitTask(_tasks.VolumeList())
         )
 
+    @_cache_on_arguments()
+    def list_flavors(self):
+        return meta.obj_list_to_dict(
+            self.manager.submitTask(_tasks.FlavorList())
+        )
+
     def get_network(self, name_or_id, filters=None):
         return self._get_entity(self.search_networks, name_or_id, filters)
 
@@ -855,6 +859,9 @@ class OpenStackCloud(object):
 
     def get_volume(self, name_or_id, filters=None):
         return self._get_entity(self.search_volumes, name_or_id, filters)
+
+    def get_flavor(self, name_or_id, filters=None):
+        return self._get_entity(self.search_flavors, name_or_id, filters)
 
     # TODO(Shrews): This will eventually need to support tenant ID and
     # provider networks, which are admin-level params.
