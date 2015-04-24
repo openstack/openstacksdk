@@ -15,6 +15,7 @@
 import mock
 
 import shade
+from shade import exc
 from shade import meta
 from shade.tests.unit import base
 
@@ -89,7 +90,7 @@ class TestShade(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     def test_delete_router_not_found(self, mock_client, mock_search):
         mock_search.return_value = []
-        self.assertRaises(shade.OpenStackCloudException,
+        self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.delete_router,
                           'goofy')
         self.assertFalse(mock_client.delete_router.called)
@@ -100,7 +101,7 @@ class TestShade(base.TestCase):
         router2 = dict(id='456', name='mickey')
         mock_client.list_routers.return_value = dict(routers=[router1,
                                                               router2])
-        self.assertRaises(shade.OpenStackCloudException,
+        self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.delete_router,
                           'mickey')
         self.assertFalse(mock_client.delete_router.called)
@@ -133,7 +134,7 @@ class TestShade(base.TestCase):
     def test_create_subnet_bad_network(self, mock_client, mock_list):
         net1 = dict(id='123', name='donald')
         mock_list.return_value = [net1]
-        self.assertRaises(shade.OpenStackCloudException,
+        self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.create_subnet,
                           'duck', '192.168.199.0/24')
         self.assertFalse(mock_client.create_subnet.called)
@@ -144,7 +145,7 @@ class TestShade(base.TestCase):
         net1 = dict(id='123', name='donald')
         net2 = dict(id='456', name='donald')
         mock_search.return_value = [net1, net2]
-        self.assertRaises(shade.OpenStackCloudException,
+        self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.create_subnet,
                           'donald', '192.168.199.0/24')
         self.assertFalse(mock_client.create_subnet.called)
@@ -161,7 +162,7 @@ class TestShade(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     def test_delete_subnet_not_found(self, mock_client, mock_search):
         mock_search.return_value = []
-        self.assertRaises(shade.OpenStackCloudException,
+        self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.delete_subnet,
                           'goofy')
         self.assertFalse(mock_client.delete_subnet.called)
@@ -172,7 +173,7 @@ class TestShade(base.TestCase):
         subnet2 = dict(id='456', name='mickey')
         mock_client.list_subnets.return_value = dict(subnets=[subnet1,
                                                               subnet2])
-        self.assertRaises(shade.OpenStackCloudException,
+        self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.delete_subnet,
                           'mickey')
         self.assertFalse(mock_client.delete_subnet.called)
@@ -524,8 +525,8 @@ class TestShadeOperator(base.TestCase):
     def test_register_machine_port_create_failed(self, mock_client):
         nics = [{'mac': '00:00:00:00:00:00'}]
         mock_client.port.create.side_effect = (
-            shade.OpenStackCloudException("Error"))
-        self.assertRaises(shade.OpenStackCloudException,
+            exc.OpenStackCloudException("Error"))
+        self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.register_machine,
                           nics)
         self.assertTrue(mock_client.node.create.called)
