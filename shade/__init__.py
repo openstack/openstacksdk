@@ -183,6 +183,14 @@ def _no_pending_volumes(volumes):
     return True
 
 
+def _no_pending_images(images):
+    '''If there are any images not in a steady state, don't cache'''
+    for image_id, image in iter(images.items()):
+        if image.status not in ('active', 'deleted', 'killed'):
+            return False
+    return True
+
+
 class OpenStackCloud(object):
     """Represent a connection to an OpenStack Cloud.
 
@@ -1030,7 +1038,7 @@ class OpenStackCloud(object):
     def _reset_image_cache(self):
         self._image_cache = None
 
-    @_cache_on_arguments()
+    @_cache_on_arguments(should_cache_fn=_no_pending_images)
     def list_images(self, filter_deleted=True):
         """Get available glance images.
 

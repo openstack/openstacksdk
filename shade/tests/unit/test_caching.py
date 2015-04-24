@@ -242,6 +242,58 @@ class TestMemoryCache(base.TestCase):
         self.cloud.list_images.invalidate(self.cloud)
         self.assertEqual({'22': fake_image}, self.cloud.list_images())
 
+    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
+    def test_list_images_ignores_unsteady_status(self, glance_mock):
+        class Image(object):
+            id = None
+            name = None
+            status = None
+        steady_image = Image()
+        steady_image.id = '68'
+        steady_image.name = 'Jagr'
+        steady_image.status = 'active'
+        for status in ('queued', 'saving', 'pending_delete'):
+            active_image = Image()
+            active_image.id = self.getUniqueString()
+            active_image.name = self.getUniqueString()
+            active_image.status = status
+            glance_mock.images.list.return_value = [active_image]
+            self.assertEqual({active_image.id: active_image},
+                             self.cloud.list_images())
+            glance_mock.images.list.return_value = [active_image, steady_image]
+            # Should expect steady_image to appear if active wasn't cached
+            self.assertEqual({active_image.id: active_image,
+                              '68': steady_image},
+                             self.cloud.list_images())
+
+    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
+    def test_list_images_caches_steady_status(self, glance_mock):
+        class Image(object):
+            id = None
+            name = None
+            status = None
+        steady_image = Image()
+        steady_image.id = '91'
+        steady_image.name = 'Federov'
+        steady_image.status = 'active'
+        first_image = None
+        for status in ('active', 'deleted', 'killed'):
+            active_image = Image()
+            active_image.id = self.getUniqueString()
+            active_image.name = self.getUniqueString()
+            active_image.status = status
+            if not first_image:
+                first_image = active_image
+            glance_mock.images.list.return_value = [active_image]
+            self.assertEqual({first_image.id: first_image},
+                             self.cloud.list_images())
+            glance_mock.images.list.return_value = [active_image, steady_image]
+            # because we skipped the create_image code path, no invalidation
+            # was done, so we _SHOULD_ expect steady state images to cache and
+            # therefore we should _not_ expect to see the new one here
+            self.assertEqual({first_image.id: first_image},
+                             self.cloud.list_images())
+
     def _call_create_image(self, name, container=None):
         imagefile = tempfile.NamedTemporaryFile(delete=False)
         imagefile.write(b'\0')
