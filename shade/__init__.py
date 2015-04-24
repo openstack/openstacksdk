@@ -375,8 +375,7 @@ class OpenStackCloud(object):
             try:
                 self._keystone_client = keystone_client.Client(
                     session=self.keystone_session,
-                    auth_url=self.keystone_session.get_endpoint(
-                        interface=ksc_auth.AUTH_INTERFACE),
+                    auth_url=self.get_endpoint('identity'),
                     timeout=self.api_timeout)
             except Exception as e:
                 self.log.debug(
@@ -549,7 +548,7 @@ class OpenStackCloud(object):
             return self.api_versions['image']
         # Yay. We get to guess ...
         # Get rid of trailing '/' if present
-        endpoint = self._get_glance_endpoint()
+        endpoint = self.get_endpoint('image')
         if endpoint.endswith('/'):
             endpoint = endpoint[:-1]
         url_bits = endpoint.split('/')
@@ -557,17 +556,11 @@ class OpenStackCloud(object):
             return url_bits[-1][1]
         return '1'  # Who knows? Let's just try 1 ...
 
-    def _get_glance_endpoint(self):
-        if self._glance_endpoint is None:
-            self._glance_endpoint = self.get_endpoint(
-                service_type=self.get_service_type('image'))
-        return self._glance_endpoint
-
     @property
     def glance_client(self):
         if self._glance_client is None:
             token = self.auth_token
-            endpoint = self._get_glance_endpoint()
+            endpoint = self.get_endpoint('image')
             glance_api_version = self._get_glance_api_version()
             kwargs = dict()
             if self.api_timeout is not None:
@@ -591,7 +584,7 @@ class OpenStackCloud(object):
         if self._swift_client is None:
             token = self.auth_token
             endpoint = self.get_endpoint(
-                service_type=self.get_service_type('object-store'))
+                service_key='object-store')
             self._swift_client = swift_client.Connection(
                 preauthurl=endpoint,
                 preauthtoken=token,
@@ -633,7 +626,7 @@ class OpenStackCloud(object):
     def trove_client(self):
         if self._trove_client is None:
             endpoint = self.get_endpoint(
-                service_type=self.get_service_type('database'))
+                service_key='database')
             trove_api_version = self._get_trove_api_version(endpoint)
             # Make the connection - can't use keystone session until there
             # is one
@@ -694,18 +687,24 @@ class OpenStackCloud(object):
             "Could not find a flavor with {ram} and '{include}'".format(
                 ram=ram, include=include))
 
-    def get_endpoint(self, service_type):
-        if service_type in self.endpoints:
-            return self.endpoints[service_type]
+    def get_endpoint(self, service_key):
+        if service_key in self.endpoints:
+            return self.endpoints[service_key]
         try:
-            endpoint = self.keystone_session.get_endpoint(
-                service_type=service_type,
-                interface=self.endpoint_type,
-                region_name=self.region_name)
+            # keystone is a special case in keystone, because what?
+            if service_key == 'identity':
+                endpoint = self.keystone_session.get_endpoint(
+                    interface=ksc_auth.AUTH_INTERFACE)
+            else:
+                endpoint = self.keystone_session.get_endpoint(
+                    service_type=self.get_service_type(service_key),
+                    service_name=self.get_service_name(service_key),
+                    interface=self.endpoint_type,
+                    region_name=self.region_name)
         except Exception as e:
             self.log.debug("keystone cannot get endpoint", exc_info=True)
             raise OpenStackCloudException(
-                "Error getting %s endpoint: %s" % (service_type, str(e)))
+                "Error getting %s endpoint: %s" % (service_key, str(e)))
         return endpoint
 
     def list_servers(self):
@@ -2110,7 +2109,7 @@ class OperatorCloud(OpenStackCloud):
                 # dict as the endpoint.
                 endpoint = self.auth['endpoint']
             else:
-                endpoint = self.get_endpoint(service_type='baremetal')
+                endpoint = self.get_endpoint(service_key='baremetal')
             try:
                 self._ironic_client = ironic_client.Client(
                     '1', endpoint, token=token,

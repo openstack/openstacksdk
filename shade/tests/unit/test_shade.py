@@ -12,7 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystoneclient import auth as ksc_auth
+
 import mock
+import testtools
 
 import shade
 from shade import exc
@@ -591,3 +594,31 @@ class TestShadeOperator(base.TestCase):
         glance_mock.images.list.return_value = [fake_image]
         self.assertEqual('22', self.cloud.get_image_id('22'))
         self.assertEqual('22', self.cloud.get_image_id('22 name'))
+
+    def test_get_endpoint_provided(self):
+        self.cloud.endpoints['image'] = 'http://fake.url'
+        self.assertEqual('http://fake.url', self.cloud.get_endpoint('image'))
+
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
+    def test_get_endpoint_session(self, session_mock):
+        session_mock.get_endpoint.return_value = 'http://fake.url'
+        self.assertEqual('http://fake.url', self.cloud.get_endpoint('image'))
+
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
+    def test_get_endpoint_exception(self, session_mock):
+        class FakeException(Exception):
+            pass
+
+        def side_effect(*args, **kwargs):
+            raise FakeException("No service")
+        session_mock.get_endpoint.side_effect = side_effect
+        with testtools.ExpectedException(
+                exc.OpenStackCloudException,
+                "Error getting image endpoint: No service"):
+            self.cloud.get_endpoint("image")
+
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
+    def test_get_endpoint_identity(self, session_mock):
+        self.cloud.get_endpoint('identity')
+        session_mock.get_endpoint.assert_called_with(
+            interface=ksc_auth.AUTH_INTERFACE)
