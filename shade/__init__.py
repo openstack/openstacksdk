@@ -59,11 +59,17 @@ OBJECT_CONTAINER_ACLS = {
 
 class OpenStackCloudException(Exception):
     def __init__(self, message, extra_data=None):
-        self.message = message
+        args = [message]
+        if extra_data:
+            args.append(extra_data)
+        super(OpenStackCloudException, self).__init__(*args)
         self.extra_data = extra_data
 
     def __str__(self):
-        return "%s (Extra: %s)" % (self.message, self.extra_data)
+        if self.extra_data is not None:
+            return "%s (Extra: %s)" % (
+                Exception.__str__(self), self.extra_data)
+        return Exception.__str__(self)
 
 
 class OpenStackCloudTimeout(OpenStackCloudException):
