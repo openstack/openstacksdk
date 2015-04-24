@@ -369,7 +369,7 @@ class OpenStackCloud(object):
             except Exception as e:
                 self.log.debug("keystone unknown issue", exc_info=True)
                 raise OpenStackCloudException(
-                    "Error authenticating to the keystone: %s " % e.message)
+                    "Error authenticating to the keystone: %s " % str(e))
         return self._keystone_session
 
     @property
@@ -385,7 +385,7 @@ class OpenStackCloud(object):
                 self.log.debug(
                     "Couldn't construct keystone object", exc_info=True)
                 raise OpenStackCloudException(
-                    "Error constructing keystone client: %s" % e.message)
+                    "Error constructing keystone client: %s" % str(e))
         return self._keystone_client
 
     @property
@@ -445,7 +445,7 @@ class OpenStackCloud(object):
             self.log.debug("keystone update project issue", exc_info=True)
             raise OpenStackCloudException(
                 "Error in updating project {project}: {message}".format(
-                    project=name_or_id, message=e.message))
+                    project=name_or_id, message=str(e)))
 
     def create_project(self, name, description=None, enabled=True):
         """Create a project."""
@@ -456,7 +456,7 @@ class OpenStackCloud(object):
             self.log.debug("keystone create project issue", exc_info=True)
             raise OpenStackCloudException(
                 "Error in creating project {project}: {message}".format(
-                    project=name, message=e.message))
+                    project=name, message=str(e)))
 
     def delete_project(self, name_or_id):
         try:
@@ -466,7 +466,7 @@ class OpenStackCloud(object):
             self.log.debug("keystone delete project issue", exc_info=True)
             raise OpenStackCloudException(
                 "Error in deleting project {project}: {message}".format(
-                    project=name_or_id, message=e.message))
+                    project=name_or_id, message=str(e)))
 
     @property
     def user_cache(self):
@@ -531,7 +531,7 @@ class OpenStackCloud(object):
             self.log.debug("keystone create user issue", exc_info=True)
             raise OpenStackCloudException(
                 "Error in creating user {user}: {message}".format(
-                    user=name, message=e.message))
+                    user=name, message=str(e)))
         self.get_user_cache.invalidate(self)
         return meta.obj_to_dict(user)
 
@@ -544,7 +544,7 @@ class OpenStackCloud(object):
             self.log.debug("keystone delete user issue", exc_info=True)
             raise OpenStackCloudException(
                 "Error in deleting user {user}: {message}".format(
-                    user=name_or_id, message=e.message))
+                    user=name_or_id, message=str(e)))
         self.get_user_cache.invalidate(self)
 
     def _get_glance_api_version(self):
@@ -583,7 +583,7 @@ class OpenStackCloud(object):
             except Exception as e:
                 self.log.debug("glance unknown issue", exc_info=True)
                 raise OpenStackCloudException(
-                    "Error in connecting to glance: %s" % e.message)
+                    "Error in connecting to glance: %s" % str(e))
 
             if not self._glance_client:
                 raise OpenStackCloudException("Error connecting to glance")
@@ -714,7 +714,7 @@ class OpenStackCloud(object):
         except Exception as e:
             self.log.debug("keystone cannot get endpoint", exc_info=True)
             raise OpenStackCloudException(
-                "Error getting %s endpoint: %s" % (service_type, e.message))
+                "Error getting %s endpoint: %s" % (service_type, str(e)))
         return endpoint
 
     def list_servers(self):
@@ -881,7 +881,7 @@ class OpenStackCloud(object):
         except Exception as e:
             self.log.debug("Network creation failed", exc_info=True)
             raise OpenStackCloudException(
-                "Error in creating network %s: %s" % (name, e.message))
+                "Error in creating network %s: %s" % (name, str(e)))
         # Turns out neutron returns an actual dict, so no need for the
         # use of meta.obj_to_dict() here (which would not work against
         # a dict).
@@ -904,7 +904,7 @@ class OpenStackCloud(object):
         except Exception as e:
             self.log.debug("Network deletion failed", exc_info=True)
             raise OpenStackCloudException(
-                "Error in deleting network %s: %s" % (name_or_id, e.message))
+                "Error in deleting network %s: %s" % (name_or_id, str(e)))
 
     def create_router(self, name=None, admin_state_up=True):
         """Create a logical router.
@@ -1087,7 +1087,7 @@ class OpenStackCloud(object):
         except Exception as e:
             self.log.debug("Image deletion failed", exc_info=True)
             raise OpenStackCloudException(
-                "Error in deleting image: %s" % e.message)
+                "Error in deleting image: %s" % str(e))
 
         if wait:
             for count in _iterate_timeout(
@@ -1247,7 +1247,7 @@ class OpenStackCloud(object):
         except Exception as e:
             self.log.debug("Volume creation failed", exc_info=True)
             raise OpenStackCloudException(
-                "Error in creating volume: %s" % e.message)
+                "Error in creating volume: %s" % str(e))
         self.list_volumes.invalidate(self)
 
         volume = meta.obj_to_dict(volume)
@@ -1292,7 +1292,7 @@ class OpenStackCloud(object):
         except Exception as e:
             self.log.debug("Volume deletion failed", exc_info=True)
             raise OpenStackCloudException(
-                "Error in deleting volume: %s" % e.message)
+                "Error in deleting volume: %s" % str(e))
 
         self.list_volumes.invalidate(self)
         if wait:
@@ -1551,7 +1551,7 @@ class OpenStackCloud(object):
                     "nova floating ip add failed", exc_info=True)
                 raise OpenStackCloudException(
                     "Error attaching IP {ip} to instance {id}: {msg} ".format(
-                        ip=ip, id=server.id, msg=e.message))
+                        ip=ip, id=server.id, msg=str(e)))
 
     def add_auto_ip(self, server):
         try:
@@ -1560,7 +1560,7 @@ class OpenStackCloud(object):
             self.log.debug(
                 "nova floating ip create failed", exc_info=True)
             raise OpenStackCloudException(
-                "Unable to create floating ip: %s" % (e.message))
+                "Unable to create floating ip: %s" % (str(e)))
         try:
             self.add_ip_list(server, [new_ip])
         except OpenStackCloudException:
@@ -1590,7 +1590,7 @@ class OpenStackCloud(object):
         except Exception as e:
             self.log.debug("nova info failed", exc_info=True)
             raise OpenStackCloudException(
-                "Error in getting info from instance: %s " % e.message)
+                "Error in getting info from instance: %s " % str(e))
         return server
 
     def create_server(self, auto_ip=True, ips=None, ip_pool=None,
@@ -2098,7 +2098,7 @@ class OperatorCloud(OpenStackCloud):
             except Exception as e:
                 self.log.debug("ironic auth failed", exc_info=True)
                 raise OpenStackCloudException(
-                    "Error in connecting to ironic: %s" % e.message)
+                    "Error in connecting to ironic: %s" % str(e))
         return self._ironic_client
 
     def list_nics(self):
@@ -2300,7 +2300,7 @@ class OperatorCloud(OpenStackCloud):
         except Exception as e:
             self.log.debug(
                 "ironic node validation call failed", exc_info=True)
-            raise OpenStackCloudException(e.message)
+            raise OpenStackCloudException(str(e))
 
         if not ifaces.deploy or not ifaces.power:
             raise OpenStackCloudException(
@@ -2320,7 +2320,7 @@ class OperatorCloud(OpenStackCloud):
             self.log.debug(
                 "ironic node failed change provision state to %s" % state,
                 exc_info=True)
-            raise OpenStackCloudException(e.message)
+            raise OpenStackCloudException(str(e))
 
     def activate_node(self, uuid, configdrive=None):
         return meta.obj_to_dict(
@@ -2336,7 +2336,7 @@ class OperatorCloud(OpenStackCloud):
         except Exception as e:
             self.log.debug(
                 "Failed to update instance_info", exc_info=True)
-            raise OpenStackCloudException(e.message)
+            raise OpenStackCloudException(str(e))
 
     def purge_node_instance_info(self, uuid):
         patch = []
@@ -2347,4 +2347,4 @@ class OperatorCloud(OpenStackCloud):
         except Exception as e:
             self.log.debug(
                 "Failed to delete instance_info", exc_info=True)
-            raise OpenStackCloudException(e.message)
+            raise OpenStackCloudException(str(e))
