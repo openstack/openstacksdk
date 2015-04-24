@@ -57,3 +57,15 @@ class TestCompute(base.TestCase):
                                  image=self.image, flavor=self.flavor)
         server_deleted = self.cloud.delete_server('test_delete_server')
         self.assertIsNone(server_deleted)
+
+    def test_get_image_id(self):
+        self.assertEqual(
+            self.image.id, self.cloud.get_image_id(self.image.id))
+        self.assertEqual(
+            self.image.id, self.cloud.get_image_id(self.image.name))
+
+    def test_get_image_name(self):
+        self.assertEqual(
+            self.image.name, self.cloud.get_image_name(self.image.id))
+        self.assertEqual(
+            self.image.name, self.cloud.get_image_name(self.image.name))
