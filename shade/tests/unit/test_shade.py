@@ -618,7 +618,25 @@ class TestShadeOperator(base.TestCase):
             self.cloud.get_endpoint("image")
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
+    def test_get_endpoint_unavailable(self, session_mock):
+        session_mock.get_endpoint.return_value = None
+        with testtools.ExpectedException(
+                exc.OpenStackCloudUnavailableService,
+                "Cloud.*does not have a image service"):
+            self.cloud.get_endpoint("image")
+
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
     def test_get_endpoint_identity(self, session_mock):
         self.cloud.get_endpoint('identity')
         session_mock.get_endpoint.assert_called_with(
             interface=ksc_auth.AUTH_INTERFACE)
+
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
+    def test_has_service_no(self, session_mock):
+        session_mock.get_endpoint.return_value = None
+        self.assertFalse(self.cloud.has_service("image"))
+
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
+    def test_has_service_yes(self, session_mock):
+        session_mock.get_endpoint.return_value = 'http://fake.url'
+        self.assertTrue(self.cloud.has_service("image"))

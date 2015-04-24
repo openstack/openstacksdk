@@ -317,6 +317,8 @@ class OpenStackCloud(object):
 
             # Make the connection
             try:
+                # trigger exception on lack of compute. (what?)
+                self.get_endpoint('compute')
                 self._nova_client = nova_client.Client(
                     self._get_nova_api_version(),
                     session=self.keystone_session,
@@ -596,6 +598,8 @@ class OpenStackCloud(object):
     def cinder_client(self):
 
         if self._cinder_client is None:
+            # trigger exception on lack of cinder
+            self.get_endpoint('volume')
             # Make the connection
             self._cinder_client = cinder_client.Client(
                 session=self.keystone_session,
@@ -648,6 +652,8 @@ class OpenStackCloud(object):
     @property
     def neutron_client(self):
         if self._neutron_client is None:
+            # trigger exception on lack of neutron
+            self.get_endpoint('network')
             self._neutron_client = neutron_client.Client(
                 token=self.auth_token,
                 session=self.keystone_session,
@@ -705,7 +711,18 @@ class OpenStackCloud(object):
             self.log.debug("keystone cannot get endpoint", exc_info=True)
             raise OpenStackCloudException(
                 "Error getting %s endpoint: %s" % (service_key, str(e)))
+        if endpoint is None:
+            raise OpenStackCloudUnavailableService(
+                "Cloud {cloud} does not have a {service} service".format(
+                    cloud=self.name, service=service_key))
         return endpoint
+
+    def has_service(self, service_key):
+        try:
+            self.get_endpoint(service_key)
+            return True
+        except OpenStackCloudException:
+            return False
 
     def list_servers(self):
         return self.manager.submitTask(_tasks.ServerList())
