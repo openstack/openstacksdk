@@ -54,7 +54,7 @@ def create_jenkins(conn, name, opts):
         server = conn.get(server)
     print(str(server))
     print('Waiting for the server to come up....')
-    conn.compute.wait_for_status(server)
+    conn.compute.wait_for_server(server)
     print('Server is up.')
 
     if len(server.get_floating_ips()) <= 0:

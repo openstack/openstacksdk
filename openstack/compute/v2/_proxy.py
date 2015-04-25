@@ -19,6 +19,7 @@ from openstack.compute.v2 import server
 from openstack.compute.v2 import server_interface
 from openstack.compute.v2 import server_ip
 from openstack import proxy
+from openstack import resource
 
 
 class Proxy(proxy.BaseProxy):
@@ -174,10 +175,10 @@ class Proxy(proxy.BaseProxy):
     def update_server(self, **data):
         return server.Server(data).update(self.session)
 
-    def wait_for_status(self, server, status='ACTIVE', failures=['ERROR'],
+    def wait_for_server(self, value, status='ACTIVE', failures=['ERROR'],
                         interval=2, wait=120):
-        return server.wait_for_status(self.session, status, failures, interval,
-                                      wait)
+        return resource.wait_for_status(self.session, value, status,
+                                        failures, interval, wait)
 
     def create_server_interface(self, **data):
         return server_interface.ServerInterface(data).create(self.session)

@@ -15,6 +15,7 @@ import testtools
 
 from openstack.orchestration.v1 import stack
 
+
 FAKE_ID = 'ce8ae86c-9810-4cb1-8888-7fb53bc523bf'
 FAKE_NAME = 'test_stack'
 FAKE = {

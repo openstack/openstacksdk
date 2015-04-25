@@ -32,6 +32,7 @@ There are plenty of examples of use of this class in the SDK code.
 import abc
 import collections
 import itertools
+import time
 
 import six
 from six.moves.urllib import parse as url_parse
@@ -942,3 +943,47 @@ class Resource(collections.MutableMapping):
                 raise exceptions.DuplicateResource(msg)
 
         return None
+
+
+def wait_for_status(session, resource, status=None, failures=None,
+                    interval=5, wait=120):
+    """Wait for the resource to be in a particular status.
+
+    :param resource: The resource to wait on to reach the status. The resource
+                     must have a status attribute.
+    :type resource: :class:`~openstack.resource.Resource`
+    :param session: The session to use for making this request.
+    :type session: :class:`~openstack.session.Session`
+    :param status: Desired status of the resource.
+    :param list failures: Statuses that would indicate the transition
+                          failed such as 'ERROR'.
+    :param interval: Number of seconds to wait between checks.
+    :param wait: Maximum number of seconds to wait for transition.
+
+    :return: Method returns self on success.
+    :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
+             to status failed to occur in wait seconds.
+    :raises: :class:`~openstack.exceptions.ResourceFailure` resource
+             transitioned to one of the failure states.
+    :raises: :class:`~AttributeError` if the resource does not have a status
+             attribute
+    """
+    if resource.status == status:
+        return resource
+
+    total_sleep = 0
+    if failures is None:
+        failures = []
+
+    while total_sleep < wait:
+        resource.get(session)
+        if resource.status == status:
+            return resource
+        if resource.status in failures:
+            msg = ("Resource %s transitioned to failure state %s" %
+                   (resource.id, resource.status))
+            raise exceptions.ResourceFailure(msg)
+        time.sleep(interval)
+        total_sleep += interval
+    msg = "Timeout waiting for %s to transition to %s" % (resource.id, status)
+    raise exceptions.ResourceTimeout(msg)

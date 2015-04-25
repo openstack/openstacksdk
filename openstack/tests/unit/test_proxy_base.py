@@ -99,3 +99,6 @@ class TestProxyBase(base.TestCase):
     def verify_update(self, mock_method, test_method, **kwargs):
         self._verify(mock_method, test_method, expected_result="result",
                      **kwargs)
+
+    def verify_wait_for_status(self, mock_method, test_method, **kwargs):
+        self._verify(mock_method, test_method, **kwargs)

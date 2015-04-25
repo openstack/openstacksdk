@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import json
 import os
 
@@ -41,7 +42,8 @@ fake_data = {'id': fake_id,
              'enabled': True,
              'name': fake_name,
              'attr1': fake_attr1,
-             'attr2': fake_attr2}
+             'attr2': fake_attr2,
+             'status': None}
 fake_body = {fake_resource: fake_data}
 
 
@@ -59,6 +61,7 @@ class FakeResource(resource.Resource):
     first = resource.prop('attr1')
     second = resource.prop('attr2')
     third = resource.prop('attr3', alias='attr_three')
+    status = resource.prop('status')
 
 
 class FakeResourceNoKeys(FakeResource):
@@ -1224,3 +1227,63 @@ class TestFind(base.TestCase):
         FakeResource.name_attribute = None
 
         self.assertEqual(None, FakeResource.find(self.mock_session, self.NAME))
+
+
+class TestWaitForStatus(base.TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(TestWaitForStatus, self).__init__(*args, **kwargs)
+        self.build = FakeResponse(self.body_with_status(fake_body, 'BUILD'))
+        self.active = FakeResponse(self.body_with_status(fake_body, 'ACTIVE'))
+        self.error = FakeResponse(self.body_with_status(fake_body, 'ERROR'))
+
+    def setUp(self):
+        super(TestWaitForStatus, self).setUp()
+        self.sess = mock.MagicMock()
+
+    def body_with_status(self, body, status):
+        body_copy = copy.deepcopy(body)
+        body_copy[fake_resource]['status'] = status
+        return body_copy
+
+    def test_wait_for_status_nothing(self):
+        self.sess.get = mock.MagicMock()
+        sot = FakeResource.new(**fake_data)
+        sot.status = 'ACTIVE'
+
+        self.assertEqual(sot, resource.wait_for_status(
+            self.sess, sot, 'ACTIVE', [], 1, 2))
+        self.assertEqual([], self.sess.get.call_args_list)
+
+    def test_wait_for_status(self):
+        self.sess.get = mock.MagicMock()
+        self.sess.get.side_effect = [self.build, self.active]
+        sot = FakeResource.new(**fake_data)
+
+        self.assertEqual(sot, resource.wait_for_status(
+            self.sess, sot, 'ACTIVE', [], 1, 2))
+
+    def test_wait_for_status_timeout(self):
+        self.sess.get = mock.MagicMock()
+        self.sess.get.side_effect = [self.build, self.build]
+        sot = FakeResource.new(**fake_data)
+
+        self.assertRaises(exceptions.ResourceTimeout, resource.wait_for_status,
+                          self.sess, sot, 'ACTIVE', ['ERROR'], 1, 2)
+
+    def test_wait_for_status_failures(self):
+        self.sess.get = mock.MagicMock()
+        self.sess.get.side_effect = [self.build, self.error]
+        sot = FakeResource.new(**fake_data)
+
+        self.assertRaises(exceptions.ResourceFailure, resource.wait_for_status,
+                          self.sess, sot, 'ACTIVE', ['ERROR'], 1, 2)
+
+    def test_wait_for_status_no_status(self):
+        class FakeResourceNoStatus(resource.Resource):
+            allow_retrieve = True
+
+        sot = FakeResourceNoStatus.new(id=123)
+
+        self.assertRaises(AttributeError, resource.wait_for_status,
+                          self.sess, sot, 'ACTIVE', ['ERROR'], 1, 2)
