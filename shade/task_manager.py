@@ -26,6 +26,20 @@ import six
 
 @six.add_metaclass(abc.ABCMeta)
 class Task(object):
+    """Represent a task to be performed on an OpenStack Cloud.
+
+    Some consumers need to inject things like rate-limiting or auditing
+    around each external REST interaction. Task provides an interface
+    to encapsulate each such interaction. Also, although shade itself
+    operates normally in a single-threaded direct action manner, consuming
+    programs may provide a multi-threaded TaskManager themselves.
+
+    A consumer is expected to overload the main method.
+
+    :param dict kw: Any args that are expected to be passed to something in
+                    the main payload at execution time.
+    """
+
     def __init__(self, **kw):
         self._exception = None
         self._traceback = None
