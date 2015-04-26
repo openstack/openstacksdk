@@ -117,8 +117,9 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     server_vars['flavor'].pop('links', None)
 
     # OpenStack can return image as a string when you've booted from volume
-    if unicode(server.image) == server.image:
+    if str(server.image) == server.image:
         image_id = server.image
+        server_vars['image'] = dict(id=image_id)
     else:
         image_id = server.image.get('id', None)
     if image_id:
