@@ -316,3 +316,18 @@ class MachineSetPower(task_manager.Task):
 class MachineSetProvision(task_manager.Task):
     def main(self, client):
         return client.ironic_client.node.set_provision_state(**self.args)
+
+
+class ServiceCreate(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.services.create(**self.args)
+
+
+class ServiceList(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.services.list()
+
+
+class ServiceDelete(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.services.delete(**self.args)

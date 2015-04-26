@@ -51,6 +51,14 @@ class FakeServer(object):
         self.status = status
 
 
+class FakeService(object):
+    def __init__(self, id, name, type, description=''):
+        self.id = id
+        self.name = name
+        self.type = type
+        self.description = description
+
+
 class FakeUser(object):
     def __init__(self, id, email, name):
         self.id = id
