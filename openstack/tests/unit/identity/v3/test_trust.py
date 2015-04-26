@@ -23,6 +23,7 @@ EXAMPLE = {
     'trustee_user_id': '2',
     'trustor_user_id': '3',
     'roles': [{'name': 'test-role'}],
+    'redelegation_count': '0',
 }
 
 
@@ -49,3 +50,4 @@ class TestTrust(testtools.TestCase):
         self.assertEqual(EXAMPLE['trustee_user_id'], sot.trustee_user_id)
         self.assertEqual(EXAMPLE['trustor_user_id'], sot.trustor_user_id)
         self.assertEqual(EXAMPLE['roles'], sot.roles)
+        self.assertEqual(EXAMPLE['redelegation_count'], sot.redelegation_count)

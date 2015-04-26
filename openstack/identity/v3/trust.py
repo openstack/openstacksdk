@@ -55,3 +55,5 @@ class Trust(resource.Resource):
     #: trustor must already be granted these roles in the project referenced
     #: by the ``project_id`` attribute. *Type: list*
     roles = resource.prop('roles')
+    #: Redelegation count
+    redelegation_count = resource.prop('redelegation_count')

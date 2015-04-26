@@ -18,6 +18,7 @@ from openstack.identity.v3 import group
 from openstack.identity.v3 import policy
 from openstack.identity.v3 import project
 from openstack.identity.v3 import service
+from openstack.identity.v3 import trust
 from openstack.identity.v3 import user
 from openstack.tests.unit import test_proxy_base
 
@@ -240,3 +241,29 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
     def test_user_update(self):
         self.verify_update('openstack.identity.v3.user.User.update',
                            self.proxy.update_user)
+
+    def test_trust_create(self):
+        self.verify_create('openstack.identity.v3.trust.Trust.create',
+                           self.proxy.create_trust)
+
+    def test_trust_delete(self):
+        self.verify_delete2(trust.Trust, self.proxy.delete_trust, False)
+
+    def test_trust_delete_ignore(self):
+        self.verify_delete2(trust.Trust, self.proxy.delete_trust, True)
+
+    def test_trust_find(self):
+        self.verify_find('openstack.identity.v3.trust.Trust.find',
+                         self.proxy.find_trust)
+
+    def test_trust_get(self):
+        self.verify_get('openstack.identity.v3.trust.Trust.get',
+                        self.proxy.get_trust)
+
+    def test_trust_list(self):
+        self.verify_list('openstack.identity.v3.trust.Trust.list',
+                         self.proxy.list_trusts)
+
+    def test_trust_update(self):
+        self.verify_update('openstack.identity.v3.trust.Trust.update',
+                           self.proxy.update_trust)

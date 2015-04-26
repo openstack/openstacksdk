@@ -17,6 +17,7 @@ from openstack.identity.v3 import group
 from openstack.identity.v3 import policy
 from openstack.identity.v3 import project
 from openstack.identity.v3 import service
+from openstack.identity.v3 import trust
 from openstack.identity.v3 import user
 from openstack import proxy
 
@@ -262,3 +263,21 @@ class Proxy(proxy.BaseProxy):
 
     def update_user(self, **data):
         return user.User(data).update(self.session)
+
+    def create_trust(self, **data):
+        return trust.Trust(data).create(self.session)
+
+    def delete_trust(self, value, ignore_missing=True):
+        self._delete(trust.Trust, value, ignore_missing)
+
+    def find_trust(self, name_or_id):
+        return trust.Trust.find(self.session, name_or_id)
+
+    def get_trust(self, **data):
+        return trust.Trust(data).get(self.session)
+
+    def list_trusts(self):
+        return trust.Trust.list(self.session)
+
+    def update_trust(self, **data):
+        return trust.Trust(data).update(self.session)
