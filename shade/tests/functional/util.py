@@ -18,20 +18,21 @@ util
 
 Util methods for functional tests
 """
+import operator
 
 
 def pick_flavor(flavors):
-    """Given a flavor list pick a reasonable one."""
-    for flavor in flavors:
-        if flavor.name == 'm1.tiny':
-            return flavor
-
-    for flavor in flavors:
-        if flavor.name == 'm1.small':
-            return flavor
+    """Given a flavor list pick the smallest one."""
+    for flavor in sorted(
+            flavors,
+            key=operator.attrgetter('ram')):
+        return flavor
 
 
 def pick_image(images):
     for image in images:
         if image.name.startswith('cirros') and image.name.endswith('-uec'):
+            return image
+    for image in images:
+        if image.name.lower().startswith('ubuntu'):
             return image
