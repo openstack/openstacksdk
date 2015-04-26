@@ -2824,3 +2824,115 @@ class OperatorCloud(OpenStackCloud):
                 "Failed to delete service {id}".format(id=service['id']),
                 exc_info=True)
             raise OpenStackCloudException(str(e))
+
+    def create_endpoint(self, service_name_or_id, public_url,
+                        internal_url=None, admin_url=None, region=None):
+        """Create a Keystone endpoint.
+
+        :param service_name_or_id: Service name or id for this endpoint.
+        :param public_url: Endpoint public URL.
+        :param internal_url: Endpoint internal URL.
+        :param admin_url: Endpoint admin URL.
+        :param region: Endpoint region.
+
+        :returns: a dict containing the endpoint description.
+
+        :raise OpenStackCloudException: if the service cannot be found or if
+            something goes wrong during the openstack API call.
+        """
+        # ToDo: support v3 api (dguerri)
+        service = self.get_service(name_or_id=service_name_or_id)
+        if service is None:
+            raise OpenStackCloudException("service {service} not found".format(
+                service=service_name_or_id))
+        try:
+            endpoint = self.manager.submitTask(_tasks.EndpointCreate(
+                service_id=service['id'],
+                region=region,
+                publicurl=public_url,
+                internalurl=internal_url,
+                adminurl=admin_url
+            ))
+        except Exception as e:
+            self.log.debug(
+                "Failed to create endpoint for service {service}".format(
+                    service=service['name'], exc_info=True))
+            raise OpenStackCloudException(str(e))
+        return meta.obj_to_dict(endpoint)
+
+    def list_endpoints(self):
+        """List Keystone endpoints.
+
+        :returns: a list of dict containing the endpoint description.
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        # ToDo: support v3 api (dguerri)
+        try:
+            endpoints = self.manager.submitTask(_tasks.EndpointList())
+        except Exception as e:
+            self.log.debug("Failed to list endpoints", exc_info=True)
+            raise OpenStackCloudException(str(e))
+        return meta.obj_list_to_dict(endpoints)
+
+    def search_endpoints(self, id=None, filters=None):
+        """List Keystone endpoints.
+
+        :param id: endpoint id.
+        :param filters: a dict containing additional filters to use. e.g.
+                {'region': 'region-a.geo-1'}
+
+        :returns: a list of dict containing the endpoint description. Each dict
+            contains the following attributes::
+                - id: <endpoint id>
+                - region: <endpoint region>
+                - public_url: <endpoint public url>
+                - internal_url: <endpoint internal url> (optional)
+                - admin_url: <endpoint admin url> (optional)
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        endpoints = self.list_endpoints()
+        return _utils._filter_list(endpoints, id, filters)
+
+    def get_endpoint(self, id, filters=None):
+        """Get exactly one Keystone endpoint.
+
+        :param id: endpoint id.
+        :param filters: a dict containing additional filters to use. e.g.
+                {'region': 'region-a.geo-1'}
+
+        :returns: a dict containing the endpoint description. i.e. a dict
+            containing the following attributes::
+                - id: <endpoint id>
+                - region: <endpoint region>
+                - public_url: <endpoint public url>
+                - internal_url: <endpoint internal url> (optional)
+                - admin_url: <endpoint admin url> (optional)
+        """
+        return _utils._get_entity(self.search_endpoints, id, filters)
+
+    def delete_endpoint(self, id):
+        """Delete a Keystone endpoint.
+
+        :param id: Id of the endpoint to delete.
+
+        :returns: None
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during
+            the openstack API call.
+        """
+        # ToDo: support v3 api (dguerri)
+        endpoint = self.get_endpoint(id=id)
+        if endpoint is None:
+            return
+
+        try:
+            self.manager.submitTask(_tasks.EndpointDelete(id=id))
+        except Exception as e:
+            self.log.debug(
+                "Failed to delete endpoint {id}".format(id=id),
+                exc_info=True)
+            raise OpenStackCloudException(str(e))

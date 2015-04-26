@@ -331,3 +331,18 @@ class ServiceList(task_manager.Task):
 class ServiceDelete(task_manager.Task):
     def main(self, client):
         return client.keystone_client.services.delete(**self.args)
+
+
+class EndpointCreate(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.endpoints.create(**self.args)
+
+
+class EndpointList(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.endpoints.list()
+
+
+class EndpointDelete(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.endpoints.delete(**self.args)
