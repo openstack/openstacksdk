@@ -16,7 +16,6 @@ import hashlib
 import logging
 import operator
 import os
-import time
 
 from cinderclient.v1 import client as cinder_client
 from dogpile import cache
@@ -45,6 +44,7 @@ from shade.exc import *  # noqa
 from shade import meta
 from shade import task_manager
 from shade import _tasks
+from shade import _utils
 
 __version__ = pbr.version.VersionInfo('shade').version_string()
 OBJECT_MD5_KEY = 'x-object-meta-x-shade-md5'
@@ -110,24 +110,6 @@ def _ssl_args(verify, cacert, cert, key):
 def _get_service_values(kwargs, service_key):
     return {k[:-(len(service_key) + 1)]: kwargs[k]
             for k in kwargs.keys() if k.endswith(service_key)}
-
-
-def _iterate_timeout(timeout, message):
-    """Iterate and raise an exception on timeout.
-
-    This is a generator that will continually yield and sleep for 2
-    seconds, and if the timeout is reached, will raise an exception
-    with <message>.
-
-    """
-
-    start = time.time()
-    count = 0
-    while (timeout is None) or (time.time() < start + timeout):
-        count += 1
-        yield count
-        time.sleep(2)
-    raise OpenStackCloudTimeout(message)
 
 
 def _cache_on_arguments(*cache_on_args, **cache_on_kwargs):
@@ -1237,7 +1219,7 @@ class OpenStackCloud(object):
                 "Error in deleting image: %s" % str(e))
 
         if wait:
-            for count in _iterate_timeout(
+            for count in _utils._iterate_timeout(
                     timeout,
                     "Timeout waiting for the image to be deleted."):
                 self._cache.invalidate()
@@ -1326,7 +1308,7 @@ class OpenStackCloud(object):
                 image_properties=dict(name=name))))
         if wait:
             image_id = None
-            for count in _iterate_timeout(
+            for count in _utils._iterate_timeout(
                     timeout,
                     "Timeout waiting for the image to import."):
                 try:
@@ -1429,7 +1411,7 @@ class OpenStackCloud(object):
 
         if wait:
             vol_id = volume['id']
-            for count in _iterate_timeout(
+            for count in _utils._iterate_timeout(
                     timeout,
                     "Timeout waiting for the volume to be available."):
                 volume = self.get_volume(vol_id)
@@ -1468,7 +1450,7 @@ class OpenStackCloud(object):
 
         self.list_volumes.invalidate(self)
         if wait:
-            for count in _iterate_timeout(
+            for count in _utils._iterate_timeout(
                     timeout,
                     "Timeout waiting for the volume to be deleted."):
                 if not self.volume_exists(volume['id']):
@@ -1537,7 +1519,7 @@ class OpenStackCloud(object):
             )
 
         if wait:
-            for count in _iterate_timeout(
+            for count in _utils._iterate_timeout(
                     timeout,
                     "Timeout waiting for volume %s to detach." % volume['id']):
                 try:
@@ -1606,7 +1588,7 @@ class OpenStackCloud(object):
             )
 
         if wait:
-            for count in _iterate_timeout(
+            for count in _utils._iterate_timeout(
                     timeout,
                     "Timeout waiting for volume %s to attach." % volume['id']):
                 try:
@@ -1782,7 +1764,7 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Error in creating the server.")
         if wait:
-            for count in _iterate_timeout(
+            for count in _utils._iterate_timeout(
                     timeout,
                     "Timeout waiting for the server to come up."):
                 try:
@@ -1812,7 +1794,7 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Error in rebuilding instance: {0}".format(e))
         if wait:
-            for count in _iterate_timeout(
+            for count in _utils._iterate_timeout(
                     timeout,
                     "Timeout waiting for server {0} to "
                     "rebuild.".format(server_id)):
@@ -1848,7 +1830,7 @@ class OpenStackCloud(object):
             return
         if not wait:
             return
-        for count in _iterate_timeout(
+        for count in _utils._iterate_timeout(
                 timeout,
                 "Timed out waiting for server to get deleted."):
             try:
