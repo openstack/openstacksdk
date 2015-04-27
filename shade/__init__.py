@@ -2238,7 +2238,7 @@ class OperatorCloud(OpenStackCloud):
         except Exception as e:
             self.log.debug("ironic machine registration failed", exc_info=True)
             raise OpenStackCloudException(
-                "Error registering machine with Ironic: %s" % e)
+                "Error registering machine with Ironic: %s" % str(e))
 
         created_nics = []
         try:
@@ -2263,7 +2263,8 @@ class OperatorCloud(OpenStackCloud):
                 self.manager.submitTask(
                     _tasks.MachineDelete(node_id=machine.uuid))
             raise OpenStackCloudException(
-                "Error registering NICs with the baremetal service: %s" % e)
+                "Error registering NICs with the baremetal service: %s"
+                % str(e))
         return meta.obj_to_dict(machine)
 
     def unregister_machine(self, nics, uuid):
@@ -2294,7 +2295,7 @@ class OperatorCloud(OpenStackCloud):
                     "baremetal NIC unregistration failed", exc_info=True)
                 raise OpenStackCloudException(
                     "Error removing NIC '%s' from baremetal API for "
-                    "node '%s'. Error: %s" % (nic, uuid, e))
+                    "node '%s'. Error: %s" % (nic, uuid, str(e)))
         try:
             self.manager.submitTask(
                 _tasks.MachineDelete(node_id=uuid))
@@ -2304,7 +2305,7 @@ class OperatorCloud(OpenStackCloud):
                 "baremetal machine unregistration failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error unregistering machine %s from the baremetal API. "
-                "Error: %s" % (uuid, e))
+                "Error: %s" % (uuid, str(e)))
 
     def patch_machine(self, name_or_id, patch):
         """Patch Machine Information
@@ -2353,7 +2354,7 @@ class OperatorCloud(OpenStackCloud):
                 "Machine patch update failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error updating machine via patch operation. node: %s. "
-                "%s" % (name_or_id, e))
+                "%s" % (name_or_id, str(e)))
 
     def update_machine(self, name_or_id, chassis_uuid=None, driver=None,
                        driver_info=None, name=None, instance_info=None,
@@ -2551,7 +2552,7 @@ class OperatorCloud(OpenStackCloud):
                 exc_info=True)
             raise OpenStackCloudException(
                 "Error setting machine maintenance on node %s. "
-                "state: %s" % (name_or_id, e))
+                "state: %s" % (name_or_id, str(e)))
 
     def remove_machine_from_maintenance(self, name_or_id):
         """Remove Baremetal Machine from Maintenance State
