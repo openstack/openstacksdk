@@ -654,6 +654,45 @@ class TestShadeOperator(base.TestCase):
             node_id='node01',
             state='reboot')
 
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_node_set_provision_state(self, mock_client):
+        mock_client.node.set_provision_state.return_value = None
+        node_id = 'node01'
+        return_value = self.cloud.node_set_provision_state(
+            node_id,
+            'active',
+            configdrive='http://127.0.0.1/file.iso')
+        self.assertEqual({}, return_value)
+        mock_client.node.set_provision_state.assert_called_with(
+            node_uuid='node01',
+            state='active',
+            configdrive='http://127.0.0.1/file.iso')
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_activate_node(self, mock_client):
+        mock_client.node.set_provision_state.return_value = None
+        node_id = 'node02'
+        return_value = self.cloud.activate_node(
+            node_id,
+            configdrive='http://127.0.0.1/file.iso')
+        self.assertEqual(None, return_value)
+        mock_client.node.set_provision_state.assert_called_with(
+            node_uuid='node02',
+            state='active',
+            configdrive='http://127.0.0.1/file.iso')
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_deactivate_node(self, mock_client):
+        mock_client.node.set_provision_state.return_value = None
+        node_id = 'node03'
+        return_value = self.cloud.deactivate_node(
+            node_id)
+        self.assertEqual(None, return_value)
+        mock_client.node.set_provision_state.assert_called_with(
+            node_uuid='node03',
+            state='deleted',
+            configdrive=None)
+
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_get_image_name(self, glance_mock):
 

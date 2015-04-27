@@ -301,3 +301,8 @@ class MachineSetMaintenance(task_manager.Task):
 class MachineSetPower(task_manager.Task):
     def main(self, client):
         return client.ironic_client.node.set_power_state(**self.args)
+
+
+class MachineSetProvision(task_manager.Task):
+    def main(self, client):
+        return client.ironic_client.node.set_provision_state(**self.args)

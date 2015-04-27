@@ -2489,18 +2489,40 @@ class OperatorCloud(OpenStackCloud):
                 "ironic node %s failed to validate. "
                 "(deploy: %s, power: %s)" % (ifaces.deploy, ifaces.power))
 
-    def node_set_provision_state(self, uuid, state, configdrive=None):
+    def node_set_provision_state(self, name_or_id, state, configdrive=None):
+        """Set Node Provision State
+
+        Enables a user to provision a Machine and optionally define a
+        config drive to be utilized.
+
+        :param string name_or_id: The Name or UUID value representing the
+                              baremetal node.
+        :param string state: The desired provision state for the
+                             baremetal node.
+        :param string configdrive: An optional URL or file or path
+                                   representing the configdrive. In the
+                                   case of a directory, the client API
+                                   will create a properly formatted
+                                   configuration drive file and post the
+                                   file contents to the API for
+                                   deployment.
+
+        :raises: OpenStackCloudException on operation error.
+
+        :returns: Per the API, no value should be returned with a successful
+                  operation.
+        """
         try:
             return meta.obj_to_dict(
-                self.ironic_client.node.set_provision_state(
-                    uuid,
-                    state,
-                    configdrive
+                self.manager.submitTask(
+                    _tasks.MachineSetProvision(node_uuid=name_or_id,
+                                               state=state,
+                                               configdrive=configdrive))
                 )
-            )
         except Exception as e:
             self.log.debug(
-                "ironic node failed change provision state to %s" % state,
+                "Baremetal machine node failed change provision state to %s"
+                % state,
                 exc_info=True)
             raise OpenStackCloudException(str(e))
 
@@ -2659,8 +2681,7 @@ class OperatorCloud(OpenStackCloud):
         self._set_machine_power_state(name_or_id, 'reboot')
 
     def activate_node(self, uuid, configdrive=None):
-        return meta.obj_to_dict(
-            self.node_set_provision_state(uuid, 'active', configdrive))
+        self.node_set_provision_state(uuid, 'active', configdrive)
 
     def deactivate_node(self, uuid):
         self.node_set_provision_state(uuid, 'deleted')
