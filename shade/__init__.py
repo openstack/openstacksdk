@@ -2392,12 +2392,15 @@ class OperatorCloud(OpenStackCloud):
                   and a list named changes which contains all of the API paths
                   that received updates.
         """
+        machine = self.get_machine(name_or_id)
+        if not machine:
+            raise OpenStackCloudException(
+                "Machine update failed to find Machine: %s. " % name_or_id)
+
+        machine_config = {}
+        new_config = {}
+
         try:
-            machine = self.get_machine(name_or_id)
-
-            machine_config = {}
-            new_config = {}
-
             if chassis_uuid:
                 machine_config['chassis_uuid'] = machine['chassis_uuid']
                 new_config['chassis_uuid'] = chassis_uuid
@@ -2425,9 +2428,31 @@ class OperatorCloud(OpenStackCloud):
             if properties:
                 machine_config['properties'] = machine['properties']
                 new_config['properties'] = properties
+        except KeyError as e:
+            self.log.debug(
+                "Unexpected machine response missing key %s [%s]" % (
+                    e.args[0], name_or_id))
+            self.log.debug(
+                "Machine update failed - update value preparation failed. "
+                "Potential API failure or change has been encountered",
+                exc_info=True)
+            raise OpenStackCloudException(
+                "Machine update failed - machine [%s] missing key %s. "
+                "Potential API issue."
+                % (name_or_id, e.args[0]))
 
+        try:
             patch = jsonpatch.JsonPatch.from_diff(machine_config, new_config)
+        except Exception as e:
+            self.log.debug(
+                "Machine update failed - patch object generation failed",
+                exc_info=True)
+            raise OpenStackCloudException(
+                "Machine update failed - Error generating JSON patch object "
+                "for submission to the API. Machine: %s Error: %s"
+                % (name_or_id, str(e)))
 
+        try:
             if not patch:
                 return dict(
                     node=machine,
@@ -2444,10 +2469,11 @@ class OperatorCloud(OpenStackCloud):
                 )
         except Exception as e:
             self.log.debug(
-                "Machine update failed", exc_info=True)
+                "Machine update failed - patch operation failed",
+                exc_info=True)
             raise OpenStackCloudException(
-                "Error updating machine node %s. "
-                "%s" % (name_or_id, e))
+                "Machine update failed - patch operation failed Machine: %s "
+                "Error: %s" % (name_or_id, str(e)))
 
     def validate_node(self, uuid):
         try:
