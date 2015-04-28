@@ -773,7 +773,15 @@ class OpenStackCloud(object):
         :param string name_or_id:
             The name or ID of the entity being filtered.
         :param dict filters:
-            A dictionary of meta data to use for further filtering.
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
         """
         if name_or_id:
             identifier_matches = []
@@ -789,11 +797,26 @@ class OpenStackCloud(object):
         if not filters:
             return data
 
+        def _dict_filter(f, d):
+            if not d:
+                return False
+            for key in f.keys():
+                if isinstance(f[key], dict):
+                    if not _dict_filter(f[key], d.get(key, None)):
+                        return False
+                elif d.get(key, None) != f[key]:
+                    return False
+            return True
+
         filtered = []
         for e in data:
             filtered.append(e)
             for key in filters.keys():
-                if key not in e or e[key] != filters[key]:
+                if isinstance(filters[key], dict):
+                    if not _dict_filter(filters[key], e.get(key, None)):
+                        filtered.pop()
+                        break
+                elif e.get(key, None) != filters[key]:
                     filtered.pop()
                     break
         return filtered

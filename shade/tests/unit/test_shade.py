@@ -41,6 +41,32 @@ class TestShade(base.TestCase):
         ret = self.cloud._filter_list(data, 'donald', {'other': 'duck'})
         self.assertEquals([el1], ret)
 
+    def test__filter_list_dict1(self):
+        el1 = dict(id=100, name='donald', last='duck',
+                   other=dict(category='duck'))
+        el2 = dict(id=200, name='donald', last='trump',
+                   other=dict(category='human'))
+        el3 = dict(id=300, name='donald', last='ronald mac',
+                   other=dict(category='clown'))
+        data = [el1, el2, el3]
+        ret = self.cloud._filter_list(data, 'donald',
+                                      {'other': {'category': 'clown'}})
+        self.assertEquals([el3], ret)
+
+    def test__filter_list_dict2(self):
+        el1 = dict(id=100, name='donald', last='duck',
+                   other=dict(category='duck', financial=dict(status='poor')))
+        el2 = dict(id=200, name='donald', last='trump',
+                   other=dict(category='human', financial=dict(status='rich')))
+        el3 = dict(id=300, name='donald', last='ronald mac',
+                   other=dict(category='clown', financial=dict(status='rich')))
+        data = [el1, el2, el3]
+        ret = self.cloud._filter_list(data, 'donald',
+                                      {'other': {
+                                          'financial': {'status': 'rich'}
+                                      }})
+        self.assertEquals([el2, el3], ret)
+
     @mock.patch.object(shade.OpenStackCloud, 'search_subnets')
     def test_get_subnet(self, mock_search):
         subnet = dict(id='123', name='mickey')
