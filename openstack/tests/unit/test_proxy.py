@@ -34,6 +34,10 @@ class RetrieveableResource(resource.Resource):
     allow_retrieve = True
 
 
+class ListableResource(resource.Resource):
+    allow_list = True
+
+
 class Test_check_resource(testtools.TestCase):
 
     def setUp(self):
@@ -231,3 +235,36 @@ class TestProxyGet(testtools.TestCase):
             exceptions.ResourceNotFound,
             "No %s found for %s" % (RetrieveableResource.__name__, self.res),
             self.sot._get, RetrieveableResource, self.res)
+
+
+class TestProxyList(testtools.TestCase):
+
+    def setUp(self):
+        super(TestProxyList, self).setUp()
+
+        self.session = mock.Mock()
+
+        self.fake_a = 1
+        self.fake_b = 2
+        self.fake_resource = resource.Resource.new(id=self.fake_a)
+        self.fake_response = [resource.Resource()]
+        self.fake_query = {"a": self.fake_resource, "b": self.fake_b}
+
+        self.sot = proxy.BaseProxy(self.session)
+        ListableResource.list = mock.Mock()
+        ListableResource.list.return_value = self.fake_response
+
+    def _test_list(self, paginated, **query):
+        rv = self.sot._list(ListableResource, paginated=paginated, **query)
+
+        self.assertEqual(self.fake_response, rv)
+        ListableResource.list.assert_called_once_with(self.session,
+                                                      paginated=paginated,
+                                                      a=self.fake_a,
+                                                      b=self.fake_b)
+
+    def test_list_paginated(self):
+        self._test_list(True, **self.fake_query)
+
+    def test_list_non_paginated(self):
+        self._test_list(False, **self.fake_query)

@@ -139,3 +139,25 @@ class BaseProxy(object):
             raise exceptions.ResourceNotFound(
                 "No %s found for %s" % (resource_type.__name__, value),
                 details=exc.details, status_code=exc.status_code)
+
+    def _list(self, resource_type, paginated=False, **query):
+        """List a resource
+
+        :param resource_type: The type of resource to delete. This should
+                              be a :class:`~openstack.resource.Resource`
+                              subclass with a ``from_id`` method.
+        :param bool paginated: When set to ``False``, expect all of the data
+                               to be returned in one response. When set to
+                               ``True``, the resource supports data being
+                               returned across multiple pages.
+        :param kwargs **query: Keyword arguments that are sent to the list
+                               method, which are then attached as query
+                               parameters on the request URL.
+
+        :returns: A generator of Resource objects.
+        :raises: ``ValueError`` if ``value`` is a
+                 :class:`~openstack.resource.Resource` that doesn't match
+                 the ``resource_type``.
+        """
+        query = resource_type._convert_ids(query)
+        return resource_type.list(self.session, paginated=paginated, **query)

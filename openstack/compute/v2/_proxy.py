@@ -251,9 +251,65 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(server.Server, value)
 
-    def list_servers(self, details=True):
+    def servers(self, details=True, **query):
+        """Retrieve a generator of servers
+
+        :param bool details: When set to ``False``
+                    :class:`~openstack.compute.v2.server.Server` instances
+                    will be returned. The default, ``True``, will cause
+                    :class:`~openstack.compute.v2.server.ServerDetail`
+                    instances to be returned.
+        :param kwargs **query: Optional query parameters to be sent to limit
+                               the servers being returned.
+                               Available parameters include:
+
+                               * changes_since: A time/date stamp for when
+                                                the server last changed
+                                                status.
+                               * image: An image resource or ID.
+                               * flavor: A flavor resource or ID.
+                               * name: Name of the server as a string.
+                                       Can be queried with regular
+                                       expressions. The regular expression
+                                       ?name=bob returns both bob and bobb.
+                                       If you must match on only bob,
+                                       you can use a regular expression that
+                                       matches the syntax of the underlying
+                                       database server that is implemented
+                                       for Compute, such as MySQL or
+                                       PostgreSQL.
+                               * status: Value of the status of the server so
+                                         that you can filter on "ACTIVE" for
+                                         example.
+                               * host: Name of the host as a string.
+                               * limit: Requests a specified page size of
+                                        returned items from the query.
+                                        Returns a number of items up to the
+                                        specified limit value. Use the limit
+                                        parameter to make an initial limited
+                                        request and use the ID of the
+                                        last-seen item from the response as
+                                        the marker parameter value in a
+                                        subsequent limited request.
+                               * marker: Specifies the ID of the last-seen
+                                         item. Use the limit parameter to
+                                         make an initial limited request
+                                         and use the ID of the last-seen
+                                         item from the response as the
+                                         marker parameter value in a
+                                         subsequent limited request.
+
+        :returns: A generator of server instances.
+        """
         srv = server.ServerDetail if details else server.Server
-        return srv.list(self.session, paginated=True)
+
+        # Server expects changes-since, but we use an underscore
+        # so it can be a proper Python name.
+        if "changes_since" in query:
+            val = query.pop("changes_since")
+            query["changes-since"] = val
+
+        return self._list(srv, paginated=True, **query)
 
     def update_server(self, value, **attrs):
         """Update a server
