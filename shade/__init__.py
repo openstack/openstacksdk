@@ -824,6 +824,10 @@ class OpenStackCloud(object):
         flavors = self.list_flavors()
         return self._filter_list(flavors, name_or_id, filters)
 
+    def search_security_groups(self, name_or_id=None, filters=None):
+        groups = self.list_security_groups()
+        return self._filter_list(groups, name_or_id, filters)
+
     def list_networks(self):
         return self.manager.submitTask(_tasks.NetworkList())['networks']
 
@@ -848,6 +852,11 @@ class OpenStackCloud(object):
             self.manager.submitTask(_tasks.FlavorList())
         )
 
+    def list_security_groups(self):
+        return meta.obj_list_to_dict(
+            self.manager.submitTask(_tasks.SecurityGroupList())
+        )
+
     def get_network(self, name_or_id, filters=None):
         return self._get_entity(self.search_networks, name_or_id, filters)
 
@@ -862,6 +871,10 @@ class OpenStackCloud(object):
 
     def get_flavor(self, name_or_id, filters=None):
         return self._get_entity(self.search_flavors, name_or_id, filters)
+
+    def get_security_group(self, name_or_id, filters=None):
+        return self._get_entity(self.search_security_groups,
+                                name_or_id, filters)
 
     # TODO(Shrews): This will eventually need to support tenant ID and
     # provider networks, which are admin-level params.
@@ -1491,12 +1504,6 @@ class OpenStackCloud(object):
         server_vars = meta.get_hostvars_from_server(self, server)
         groups = meta.get_groups_from_server(self, server, server_vars)
         return dict(server_vars=server_vars, groups=groups)
-
-    def get_security_group(self, name_or_id):
-        for secgroup in self.manager.submitTask(_tasks.SecurityGroupList()):
-            if name_or_id in (secgroup.name, secgroup.id):
-                return secgroup
-        return None
 
     def get_openstack_vars(self, server):
         return meta.get_hostvars_from_server(self, server)
