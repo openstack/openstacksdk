@@ -24,7 +24,7 @@ import sys
 from examples import common
 from examples import connection
 from examples.keypair import delete as keypair
-from examples import network
+from examples.network import delete as network
 
 
 def delete_jenkins(conn, name, opts):

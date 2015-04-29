@@ -13,59 +13,16 @@
 """
 Network examples
 
-Create and destroy all the pieces parts to have a working network.
+Destroy all the pieces parts of a working network.
 
 To run:
-    python examples/network.py
+    python examples/network/delete.py
 """
 
 import sys
 
 from examples import common
 from examples import connection
-
-
-def create(conn, name, opts, ports_to_open=[80, 22]):
-    dns_nameservers = opts.data.pop('dns_nameservers', '206.164.176.34')
-    cidr = opts.data.pop('cidr', '10.3.3.0/24')
-
-    network = conn.network.find_network(name)
-    if network is None:
-        network = conn.network.create_network(name=name)
-    print(str(network))
-
-    subnet = conn.network.find_subnet(name)
-    if subnet is None:
-        args = {
-            "name": name,
-            "network_id": network.id,
-            "ip_version": "4",
-            "dns_nameservers": [dns_nameservers],
-            "cidr": cidr,
-        }
-        subnet = conn.network.create_subnet(**args)
-    print(str(subnet))
-
-    extnet = conn.network.find_network("Ext-Net")
-    router = conn.network.find_router(name)
-    if router is None:
-        args = {
-            "name": name,
-            "external_gateway_info": {"network_id": extnet.id}
-        }
-        router = conn.network.create_router(**args)
-        conn.network.router_add_interface(router, subnet.id)
-    print(str(router))
-
-    sg = conn.network.find_security_group(name)
-    if sg is None:
-        sg = conn.network.create_security_group(name=name)
-        for port in ports_to_open:
-            conn.network.security_group_open_port(sg.id, port)
-        conn.network.security_group_allow_ping(sg.id)
-    print(str(sg))
-
-    return network
 
 
 def delete(conn, name):
@@ -99,12 +56,9 @@ def delete(conn, name):
 
 
 def run_network(opts):
-    argument = opts.argument
     name = opts.data.pop('name', 'netty')
     conn = connection.make_connection(opts)
-    if argument == "delete":
-        return(delete(conn, name))
-    return(create(conn, name, opts))
+    return(delete(conn, name))
 
 
 if __name__ == "__main__":
