@@ -49,14 +49,14 @@ _logger = logging.getLogger(__name__)
 def find_resource_cls(opts):
     argument = opts.argument
     if argument.find('/') > 0:
-        # called with file e.g.: openstack/network/v2_0/network.py
+        # called with file e.g.: openstack/network/v2/network.py
         args = argument.split('/')
         args[-1] = args[-1].replace('.py', '')
         from_str = '.'.join(args)
         class_str = args[-1].title()
         class_str = class_str.replace('_', '')
     else:
-        # called with path e.g.: openstack.network.v2_0.network.Network
+        # called with path e.g.: openstack.network.v2.network.Network
         args = argument.rpartition('.')
         from_str = args[0]
         class_str = args[2]

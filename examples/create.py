@@ -14,7 +14,7 @@
 Example Create Command
 
 For example:
-    python -m examples.create openstack/network/v2_0/network.py \
+    python -m examples.create openstack/network/v2/network.py \
            --data '{"name": "foo"}'
 """
 
