@@ -678,17 +678,19 @@ class TestShadeOperator(base.TestCase):
         self.assertEqual('22', self.cloud.get_image_id('22'))
         self.assertEqual('22', self.cloud.get_image_id('22 name'))
 
-    def test_get_endpoint_provided(self):
+    def test_get_session_endpoint_provided(self):
         self.cloud.endpoints['image'] = 'http://fake.url'
-        self.assertEqual('http://fake.url', self.cloud.get_endpoint('image'))
+        self.assertEqual(
+            'http://fake.url', self.cloud.get_session_endpoint('image'))
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
-    def test_get_endpoint_session(self, session_mock):
+    def test_get_session_endpoint_session(self, session_mock):
         session_mock.get_endpoint.return_value = 'http://fake.url'
-        self.assertEqual('http://fake.url', self.cloud.get_endpoint('image'))
+        self.assertEqual(
+            'http://fake.url', self.cloud.get_session_endpoint('image'))
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
-    def test_get_endpoint_exception(self, session_mock):
+    def test_get_session_endpoint_exception(self, session_mock):
         class FakeException(Exception):
             pass
 
@@ -698,19 +700,19 @@ class TestShadeOperator(base.TestCase):
         with testtools.ExpectedException(
                 exc.OpenStackCloudException,
                 "Error getting image endpoint: No service"):
-            self.cloud.get_endpoint("image")
+            self.cloud.get_session_endpoint("image")
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
-    def test_get_endpoint_unavailable(self, session_mock):
+    def test_get_session_endpoint_unavailable(self, session_mock):
         session_mock.get_endpoint.return_value = None
         with testtools.ExpectedException(
                 exc.OpenStackCloudUnavailableService,
                 "Cloud.*does not have a image service"):
-            self.cloud.get_endpoint("image")
+            self.cloud.get_session_endpoint("image")
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
-    def test_get_endpoint_identity(self, session_mock):
-        self.cloud.get_endpoint('identity')
+    def test_get_session_endpoint_identity(self, session_mock):
+        self.cloud.get_session_endpoint('identity')
         session_mock.get_endpoint.assert_called_with(
             interface=ksc_auth.AUTH_INTERFACE)
 

@@ -318,7 +318,7 @@ class OpenStackCloud(object):
             # Make the connection
             try:
                 # trigger exception on lack of compute. (what?)
-                self.get_endpoint('compute')
+                self.get_session_endpoint('compute')
                 self._nova_client = nova_client.Client(
                     self._get_nova_api_version(),
                     session=self.keystone_session,
@@ -377,7 +377,7 @@ class OpenStackCloud(object):
             try:
                 self._keystone_client = keystone_client.Client(
                     session=self.keystone_session,
-                    auth_url=self.get_endpoint('identity'),
+                    auth_url=self.get_session_endpoint('identity'),
                     timeout=self.api_timeout)
             except Exception as e:
                 self.log.debug(
@@ -550,7 +550,7 @@ class OpenStackCloud(object):
             return self.api_versions['image']
         # Yay. We get to guess ...
         # Get rid of trailing '/' if present
-        endpoint = self.get_endpoint('image')
+        endpoint = self.get_session_endpoint('image')
         if endpoint.endswith('/'):
             endpoint = endpoint[:-1]
         url_bits = endpoint.split('/')
@@ -562,7 +562,7 @@ class OpenStackCloud(object):
     def glance_client(self):
         if self._glance_client is None:
             token = self.auth_token
-            endpoint = self.get_endpoint('image')
+            endpoint = self.get_session_endpoint('image')
             glance_api_version = self._get_glance_api_version()
             kwargs = dict()
             if self.api_timeout is not None:
@@ -585,7 +585,7 @@ class OpenStackCloud(object):
     def swift_client(self):
         if self._swift_client is None:
             token = self.auth_token
-            endpoint = self.get_endpoint(
+            endpoint = self.get_session_endpoint(
                 service_key='object-store')
             self._swift_client = swift_client.Connection(
                 preauthurl=endpoint,
@@ -599,7 +599,7 @@ class OpenStackCloud(object):
 
         if self._cinder_client is None:
             # trigger exception on lack of cinder
-            self.get_endpoint('volume')
+            self.get_session_endpoint('volume')
             # Make the connection
             self._cinder_client = cinder_client.Client(
                 session=self.keystone_session,
@@ -629,8 +629,7 @@ class OpenStackCloud(object):
     @property
     def trove_client(self):
         if self._trove_client is None:
-            endpoint = self.get_endpoint(
-                service_key='database')
+            endpoint = self.get_session_endpoint(service_key='database')
             trove_api_version = self._get_trove_api_version(endpoint)
             # Make the connection - can't use keystone session until there
             # is one
@@ -653,7 +652,7 @@ class OpenStackCloud(object):
     def neutron_client(self):
         if self._neutron_client is None:
             # trigger exception on lack of neutron
-            self.get_endpoint('network')
+            self.get_session_endpoint('network')
             self._neutron_client = neutron_client.Client(
                 token=self.auth_token,
                 session=self.keystone_session,
@@ -693,7 +692,7 @@ class OpenStackCloud(object):
             "Could not find a flavor with {ram} and '{include}'".format(
                 ram=ram, include=include))
 
-    def get_endpoint(self, service_key):
+    def get_session_endpoint(self, service_key):
         if service_key in self.endpoints:
             return self.endpoints[service_key]
         try:
@@ -719,7 +718,7 @@ class OpenStackCloud(object):
 
     def has_service(self, service_key):
         try:
-            self.get_endpoint(service_key)
+            self.get_session_endpoint(service_key)
             return True
         except OpenStackCloudException:
             return False
@@ -2151,7 +2150,7 @@ class OperatorCloud(OpenStackCloud):
                 # dict as the endpoint.
                 endpoint = self.auth['endpoint']
             else:
-                endpoint = self.get_endpoint(service_key='baremetal')
+                endpoint = self.get_session_endpoint(service_key='baremetal')
             try:
                 self._ironic_client = ironic_client.Client(
                     '1', endpoint, token=token,

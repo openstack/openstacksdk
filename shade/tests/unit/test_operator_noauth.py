@@ -34,14 +34,14 @@ class TestShadeOperatorNoAuth(base.TestCase):
             auth=dict(endpoint="http://localhost:6385")
         )
 
-    @mock.patch.object(shade.OperatorCloud, 'get_endpoint')
+    @mock.patch.object(shade.OperatorCloud, 'get_session_endpoint')
     @mock.patch.object(ironicclient.client, 'Client')
     def test_ironic_noauth_selection_using_a_task(
             self, mock_client, mock_endpoint):
         """Test noauth selection for Ironic in OperatorCloud
 
         Utilize a task to trigger the client connection attempt
-        and evaluate if get_endpoint was called while the client
+        and evaluate if get_session_endpoint was called while the client
         was still called.
         """
         self.cloud_noauth.patch_machine('name', {})
