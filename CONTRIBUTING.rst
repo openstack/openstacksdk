@@ -24,6 +24,9 @@ signed OpenStack's contributor's agreement.
 Project Hosting Details
 -------------------------
 
+Project Documentation
+    http://docs.openstack.org/infra/shade/
+
 Bug tracker
     http://storyboard.openstack.org
 
@@ -31,7 +34,7 @@ Mailing list (prefix subjects with ``[shade]`` for faster responses)
     http://lists.openstack.org/cgi-bin/mailman/listinfo/openstack-infra
 
 Code Hosting
-    * https://git.openstack.org/cgit/openstack-infra/shade
+    https://git.openstack.org/cgit/openstack-infra/shade
 
 Code Review
     https://review.openstack.org/#/q/status:open+project:openstack-infra/shade,n,z
