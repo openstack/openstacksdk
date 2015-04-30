@@ -33,10 +33,10 @@ class TestCompute(base.TestCase):
         self.nova = self.cloud.nova_client
         self.flavor = pick_flavor(self.nova.flavors.list())
         if self.flavor is None:
-            self.addDetail('pick_flavor', 'no sensible flavor available')
+            self.assertFalse('no sensible flavor available')
         self.image = pick_image(self.nova.images.list())
         if self.image is None:
-            self.addDetail('pick_image', 'no sensible image available')
+            self.assertFalse('no sensible image available')
 
     def _cleanup_servers(self):
         for i in self.nova.servers.list():
