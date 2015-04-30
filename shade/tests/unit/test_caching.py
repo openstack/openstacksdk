@@ -302,7 +302,7 @@ class TestMemoryCache(base.TestCase):
             name, imagefile.name, container=container, wait=True)
 
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
-    def test_create_image_v1(self, glance_mock):
+    def test_create_image_put(self, glance_mock):
         self.cloud.api_versions['image'] = '1'
         glance_mock.images.list.return_value = []
         self.assertEqual({}, self.cloud.list_images())
@@ -325,8 +325,9 @@ class TestMemoryCache(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_create_image_v2(self, swift_mock, glance_mock):
+    def test_create_image_task(self, swift_mock, glance_mock):
         self.cloud.api_versions['image'] = '2'
+        self.cloud.image_api_use_tasks = True
 
         class Container(object):
             name = 'image_upload_v2_test_container'

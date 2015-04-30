@@ -240,6 +240,10 @@ class OpenStackCloud(object):
                                 OpenStack API tasks. Unless you're doing
                                 rate limiting client side, you almost
                                 certainly don't need this. (optional)
+    :param bool image_api_use_tasks: Whether or not this cloud needs to
+                                     use the glance task-create interface for
+                                     image upload activities instead of direct
+                                     calls. (optional, defaults to False)
     """
 
     def __init__(self, cloud, auth,
@@ -253,6 +257,7 @@ class OpenStackCloud(object):
                  cache_class='dogpile.cache.null',
                  cache_arguments=None,
                  manager=None,
+                 image_api_use_tasks=False,
                  **kwargs):
 
         self.name = cloud
@@ -272,6 +277,7 @@ class OpenStackCloud(object):
         self.service_names = _get_service_values(kwargs, 'service_name')
         self.endpoints = _get_service_values(kwargs, 'endpoint')
         self.api_versions = _get_service_values(kwargs, 'api_version')
+        self.image_api_use_tasks = image_api_use_tasks
 
         (self.verify, self.cert) = _ssl_args(verify, cacert, cert, key)
 
@@ -1128,22 +1134,21 @@ class OpenStackCloud(object):
         kwargs[IMAGE_MD5_KEY] = md5
         kwargs[IMAGE_SHA256_KEY] = sha256
         # This makes me want to die inside
-        glance_api_version = self._get_glance_api_version()
-        if glance_api_version == '2':
-            return self._upload_image_v2(
+        if self.image_api_use_tasks:
+            return self._upload_image_task(
                 name, filename, container,
                 current_image=current_image,
                 wait=wait, timeout=timeout, **kwargs)
-        elif glance_api_version == '1':
+        else:
             image_kwargs = dict(properties=kwargs)
             if disk_format:
                 image_kwargs['disk_format'] = disk_format
             if container_format:
                 image_kwargs['container_format'] = container_format
 
-            return self._upload_image_v1(name, filename, **image_kwargs)
+            return self._upload_image_put(name, filename, **image_kwargs)
 
-    def _upload_image_v1(self, name, filename, **image_kwargs):
+    def _upload_image_put(self, name, filename, **image_kwargs):
         image = self.manager.submitTask(_tasks.ImageCreate(
             name=name, **image_kwargs))
         self.manager.submitTask(_tasks.ImageUpdate(
@@ -1151,7 +1156,7 @@ class OpenStackCloud(object):
         self._cache.invalidate()
         return self.get_image_dict(image.id)
 
-    def _upload_image_v2(
+    def _upload_image_task(
             self, name, filename, container, current_image=None,
             wait=True, timeout=None, **image_properties):
         self.create_object(
