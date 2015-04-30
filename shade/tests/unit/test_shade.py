@@ -243,6 +243,20 @@ class TestShade(base.TestCase):
                           self.cloud.get_flavor_by_ram,
                           ram=100)
 
+    @mock.patch.object(shade.OpenStackCloud, 'list_flavors')
+    def test_get_flavor_string_and_int(self, mock_list):
+        class Flavor1(object):
+            id = '1'
+            name = 'vanilla ice cream'
+            ram = 100
+
+        vanilla = meta.obj_to_dict(Flavor1())
+        mock_list.return_value = [vanilla]
+        flavor1 = self.cloud.get_flavor('1')
+        self.assertEquals(vanilla, flavor1)
+        flavor2 = self.cloud.get_flavor(1)
+        self.assertEquals(vanilla, flavor2)
+
 
 class TestShadeOperator(base.TestCase):
 

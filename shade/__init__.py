@@ -780,11 +780,11 @@ class OpenStackCloud(object):
         if name_or_id:
             identifier_matches = []
             for e in data:
-                e_id = e.get('id', None)
+                e_id = str(e.get('id', None))
                 e_name = e.get('name', None)
                 # cinder likes to be different and use display_name
                 e_display_name = e.get('display_name', None)
-                if name_or_id in (e_id, e_name, e_display_name):
+                if str(name_or_id) in (e_id, e_name, e_display_name):
                     identifier_matches.append(e)
             data = identifier_matches
 
