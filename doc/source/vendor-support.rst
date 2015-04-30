@@ -41,6 +41,7 @@ IAD            Washington, D.C.
 * Compute Service Name is `cloudServersOpenStack`
 * Image API Version is 2
 * Images must be in `vhd` format
+* Images must be uploaded using the Glance Task Interface
 
 Dreamhost
 ---------

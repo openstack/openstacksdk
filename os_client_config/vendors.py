@@ -30,6 +30,7 @@ CLOUD_DEFAULTS = dict(
         database_service_type='rax:database',
         compute_service_name='cloudServersOpenStack',
         image_api_version='2',
+        image_api_use_tasks=True,
         image_format='vhd',
     ),
     dreamhost=dict(
