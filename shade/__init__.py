@@ -2470,19 +2470,27 @@ class OperatorCloud(OpenStackCloud):
 
         :raises: OpenStackCloudException on operation error.
 
-        :returns: Per the API, no value should be returned with a successful
-                  operation.
+        :returns: None
         """
         try:
             if state:
-                return self.manager.submitTask(
+                result = self.manager.submitTask(
                     _tasks.MachineSetMaintenance(node_id=name_or_id,
                                                  state='true',
                                                  maint_reason=reason))
             else:
-                return self.manager.submitTask(
+                result = self.manager.submitTask(
                     _tasks.MachineSetMaintenance(node_id=name_or_id,
                                                  state='false'))
+            if result is not None:
+                self.log.debug(
+                    "Failed setting machine maintenance state on node %s. "
+                    "User requested '%s'.' Received: %s" % (
+                        name_or_id, state, result))
+                raise OpenStackCloudException(
+                    "Failed setting machine maintenance state on node %s. "
+                    "Received: %s" % (name_or_id, result))
+            return None
         except Exception as e:
             self.log.debug(
                 "failed setting maintenance state on node %s" % name_or_id,
@@ -2501,7 +2509,10 @@ class OperatorCloud(OpenStackCloud):
 
         :param string name_or_id: The Name or UUID value representing the
                                   baremetal node.
-        :returns: Dictonary object representing the updated node.
+
+        :raises: OpenStackCloudException on operation error.
+
+        :returns: None
         """
         self.set_machine_maintenance_state(name_or_id, False)
 

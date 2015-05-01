@@ -557,6 +557,7 @@ class TestShadeOperator(base.TestCase):
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_set_machine_maintenace_state(self, mock_client):
+        mock_client.node.set_maintenance.return_value = None
         node_id = 'node01'
         reason = 'no reason'
         self.cloud.set_machine_maintenance_state(node_id, True, reason=reason)
@@ -567,6 +568,7 @@ class TestShadeOperator(base.TestCase):
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_set_machine_maintenace_state_false(self, mock_client):
+        mock_client.node.set_maintenance.return_value = None
         node_id = 'node01'
         self.cloud.set_machine_maintenance_state(node_id, False)
         mock_client.node.set_maintenance.assert_called_with(
@@ -575,6 +577,7 @@ class TestShadeOperator(base.TestCase):
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_remove_machine_from_maintenance(self, mock_client):
+        mock_client.node.set_maintenance.return_value = None
         node_id = 'node01'
         self.cloud.remove_machine_from_maintenance(node_id)
         mock_client.node.set_maintenance.assert_called_with(
