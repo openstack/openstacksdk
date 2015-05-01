@@ -2096,6 +2096,8 @@ class OpenStackCloud(object):
 
 
 class OperatorCloud(OpenStackCloud):
+    """Represent a privileged/operator connection to an OpenStack Cloud.
+    """
 
     @property
     def auth_token(self):
