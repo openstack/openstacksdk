@@ -2505,6 +2505,93 @@ class OperatorCloud(OpenStackCloud):
         """
         self.set_machine_maintenance_state(name_or_id, False)
 
+    def _set_machine_power_state(self, name_or_id, state):
+        """Set machine power state to on or off
+
+        This private method allows a user to turn power on or off to
+        a node via the Baremetal API.
+
+        :params string name_or_id: A string representing the baremetal
+                                   node to have power turned to an "on"
+                                   state.
+        :params string state: A value of "on", "off", or "reboot" that is
+                              passed to the baremetal API to be asserted to
+                              the machine.  In the case of the "reboot" state,
+                              Ironic will return the host to the "on" state.
+
+        :raises: OpenStackCloudException on operation error or.
+
+        :returns: None
+        """
+        try:
+            power = self.manager.submitTask(
+                _tasks.MachineSetPower(node_id=name_or_id,
+                                       state=state))
+            if power is not None:
+                self.log.debug(
+                    "Failed setting machine power state on node %s. User "
+                    "requested '%s'.' Received: %s" % (
+                        name_or_id, state, power))
+                raise OpenStackCloudException(
+                    "Failed setting machine power state on node %s. "
+                    "Received: %s" % (name_or_id, power))
+            return None
+        except Exception as e:
+            self.log.debug(
+                "Error setting machine power state on node %s. User "
+                "requested '%s'.'" % (name_or_id, state),
+                exc_info=True)
+            raise OpenStackCloudException(
+                "Error setting machine power state on node %s. "
+                "Error: %s" % (name_or_id, str(e)))
+
+    def set_machine_power_on(self, name_or_id):
+        """Activate baremetal machine power
+
+        This is a method that sets the node power state to "on".
+
+        :params string name_or_id: A string representing the baremetal
+                                   node to have power turned to an "on"
+                                   state.
+
+        :raises: OpenStackCloudException on operation error.
+
+        :returns: None
+        """
+        self._set_machine_power_state(name_or_id, 'on')
+
+    def set_machine_power_off(self, name_or_id):
+        """De-activate baremetal machine power
+
+        This is a method that sets the node power state to "off".
+
+        :params string name_or_id: A string representing the baremetal
+                                   node to have power turned to an "off"
+                                   state.
+
+        :raises: OpenStackCloudException on operation error.
+
+        :returns:
+        """
+        self._set_machine_power_state(name_or_id, 'off')
+
+    def set_machine_power_reboot(self, name_or_id):
+        """De-activate baremetal machine power
+
+        This is a method that sets the node power state to "reboot", which
+        in essence changes the machine power state to "off", and that back
+        to "on".
+
+        :params string name_or_id: A string representing the baremetal
+                                   node to have power turned to an "off"
+                                   state.
+
+        :raises: OpenStackCloudException on operation error.
+
+        :returns: None
+        """
+        self._set_machine_power_state(name_or_id, 'reboot')
+
     def activate_node(self, uuid, configdrive=None):
         return meta.obj_to_dict(
             self.node_set_provision_state(uuid, 'active', configdrive))

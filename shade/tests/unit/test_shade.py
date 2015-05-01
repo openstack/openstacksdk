@@ -581,6 +581,46 @@ class TestShadeOperator(base.TestCase):
             node_id='node01',
             state='false')
 
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_set_machine_power_on(self, mock_client):
+        mock_client.node.set_power_state.return_value = None
+        node_id = 'node01'
+        return_value = self.cloud.set_machine_power_on(node_id)
+        self.assertEqual(None, return_value)
+        mock_client.node.set_power_state.assert_called_with(
+            node_id='node01',
+            state='on')
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_set_machine_power_off(self, mock_client):
+        mock_client.node.set_power_state.return_value = None
+        node_id = 'node01'
+        return_value = self.cloud.set_machine_power_off(node_id)
+        self.assertEqual(None, return_value)
+        mock_client.node.set_power_state.assert_called_with(
+            node_id='node01',
+            state='off')
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_set_machine_power_reboot(self, mock_client):
+        mock_client.node.set_power_state.return_value = None
+        node_id = 'node01'
+        return_value = self.cloud.set_machine_power_reboot(node_id)
+        self.assertEqual(None, return_value)
+        mock_client.node.set_power_state.assert_called_with(
+            node_id='node01',
+            state='reboot')
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_set_machine_power_reboot_failure(self, mock_client):
+        mock_client.node.set_power_state.return_value = 'failure'
+        self.assertRaises(shade.OpenStackCloudException,
+                          self.cloud.set_machine_power_reboot,
+                          'node01')
+        mock_client.node.set_power_state.assert_called_with(
+            node_id='node01',
+            state='reboot')
+
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_get_image_name(self, glance_mock):
 
