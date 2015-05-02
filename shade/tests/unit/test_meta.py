@@ -14,6 +14,7 @@
 
 import mock
 import testtools
+import warlock
 
 from shade import exc
 from shade import meta
@@ -26,6 +27,7 @@ class FakeCloud(object):
     region_name = 'test-region'
     name = 'test-name'
     private = False
+    _unused = "useless"
 
     def get_flavor_name(self, id):
         return 'test-flavor-name'
@@ -173,3 +175,29 @@ class TestMeta(testtools.TestCase):
         self.assertRaises(
             FakeException,
             meta.get_hostvars_from_server, mock_cloud, FakeServer())
+
+    def test_obj_to_dict(self):
+        cloud = FakeCloud()
+        cloud.server = FakeServer()
+        cloud_dict = meta.obj_to_dict(cloud)
+        self.assertEqual(FakeCloud.name, cloud_dict['name'])
+        self.assertNotIn('_unused', cloud_dict)
+        self.assertNotIn('get_flavor_name', cloud_dict)
+        self.assertNotIn('server', cloud_dict)
+
+    def test_warlock_to_dict(self):
+        schema = {
+            'name': 'Test',
+            'properties': {
+                'id': {'type': 'string'},
+                'name': {'type': 'string'},
+                '_unused': {'type': 'string'},
+            }
+        }
+        test_model = warlock.model_factory(schema)
+        test_obj = test_model(
+            id='471c2475-da2f-47ac-aba5-cb4aa3d546f5',
+            name='test-image')
+        test_dict = meta.warlock_to_dict(test_obj)
+        self.assertNotIn('_unused', test_dict)
+        self.assertEqual('test-image', test_dict['name'])

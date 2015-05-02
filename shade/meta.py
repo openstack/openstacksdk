@@ -186,6 +186,7 @@ def warlock_to_dict(obj):
     # deep black magic to attribute look up to support validation things that
     # means we cannot use normal obj_to_dict
     obj_dict = {}
-    for key in obj.keys():
-        obj_dict[key] = obj[key]
+    for (key, value) in obj.items():
+        if isinstance(value, NON_CALLABLES) and not key.startswith('_'):
+            obj_dict[key] = value
     return obj_dict
