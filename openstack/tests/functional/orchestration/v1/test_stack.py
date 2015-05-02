@@ -10,31 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import unittest
-
-import os_client_config
-
-from openstack import connection
-from openstack import user_preference
+from openstack.tests.functional import base
 
 
-class TestStack(unittest.TestCase):
-    def setUp(self):
-        test_cloud = os_client_config.OpenStackConfig().get_one_cloud(
-            'test_cloud')
-
-        pref = user_preference.UserPreference()
-        pref.set_region(pref.ALL, test_cloud.region)
-
-        self.conn = connection.Connection(
-            preference=pref,
-            auth_url=test_cloud.config['auth']['auth_url'],
-            project_name=test_cloud.config['auth']['project_name'],
-            username=test_cloud.config['auth']['username'],
-            password=test_cloud.config['auth']['password'])
-
-        if self.conn.compute.find_keypair('heat_key') is None:
-            self.conn.compute.create_keypair(name='heat_key')
+class TestStack(base.BaseFunctionalTest):
 
     def test_create_stack(self):
         stack = self.conn.orchestration.create_stack(

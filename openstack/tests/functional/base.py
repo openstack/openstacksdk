@@ -10,20 +10,22 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import six
+import unittest
 
-from openstack.tests.functional import base
+import os_client_config
+
+from openstack import connection
+from openstack import user_preference
 
 
-class TestFlavor(base.BaseFunctionalTest):
+class BaseFunctionalTest(unittest.TestCase):
+    def setUp(self):
+        test_cloud = os_client_config.OpenStackConfig().get_one_cloud(
+            'test_cloud')
 
-    def test_flavors(self):
-        flavors = list(self.conn.compute.list_flavors())
-        self.assertGreater(len(flavors), 0)
+        pref = user_preference.UserPreference()
+        pref.set_region(pref.ALL, test_cloud.region)
 
-        for flavor in flavors:
-            self.assertIsInstance(flavor.id, six.string_types)
-            self.assertIsInstance(flavor.name, six.string_types)
-            self.assertIsInstance(flavor.disk, int)
-            self.assertIsInstance(flavor.ram, int)
-            self.assertIsInstance(flavor.vcpus, int)
+        self.conn = connection.Connection(
+            preference=pref,
+            **test_cloud.config['auth'])
