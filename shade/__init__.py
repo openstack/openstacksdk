@@ -862,9 +862,16 @@ class OpenStackCloud(object):
         if not cache:
             warnings.warn('cache argument to list_volumes is deprecated. Use '
                           'invalidate instead.')
-        return meta.obj_list_to_dict(
-            self.manager.submitTask(_tasks.VolumeList())
-        )
+        try:
+            return meta.obj_list_to_dict(
+                self.manager.submitTask(_tasks.VolumeList())
+            )
+        except Exception as e:
+            self.log.debug(
+                "cinder could not list volumes: {message}".format(
+                    message=str(e)),
+                exc_info=True)
+            raise OpenStackCloudException("Error fetching volume list")
 
     @_cache_on_arguments()
     def list_flavors(self):
