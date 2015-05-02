@@ -35,6 +35,8 @@ Region Name    Human Name
 DFW            Dallas
 ORD            Chicago
 IAD            Washington, D.C.
+SYD            Sydney
+HKG            Hong Kong
 ============== ================
 
 * Database Service Type is `rax:database`
@@ -68,7 +70,7 @@ Region Name    Human Name
 ca-ymq-1       Montreal
 ============== ================
 
-* Image API Version is 1
+* Image API Version is 2
 * Images must be in `qcow2` format
 
 RunAbove
@@ -83,5 +85,5 @@ SBG-1          Strassbourg, FR
 BHS-1          Beauharnois, QC
 ============== ================
 
-* Image API Version is 1
+* Image API Version is 2
 * Images must be in `qcow2` format
