@@ -66,7 +66,8 @@ class Task(object):
     def wait(self):
         self._finished.wait()
         if self._exception:
-            six.reraise(self._exception, None, self._traceback)
+            six.reraise(type(self._exception), self._exception,
+                        self._traceback)
         return self._result
 
     def run(self, client):
