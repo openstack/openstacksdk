@@ -41,6 +41,7 @@ import troveclient.client as trove_client
 import warnings
 warnings.filterwarnings('ignore', 'Certificate has no `subjectAltName`')
 
+from shade.exc import *  # noqa
 from shade import meta
 from shade import task_manager
 from shade import _tasks
@@ -56,25 +57,6 @@ OBJECT_CONTAINER_ACLS = {
     'public': ".r:*,.rlistings",
     'private': '',
 }
-
-
-class OpenStackCloudException(Exception):
-    def __init__(self, message, extra_data=None):
-        args = [message]
-        if extra_data:
-            args.append(extra_data)
-        super(OpenStackCloudException, self).__init__(*args)
-        self.extra_data = extra_data
-
-    def __str__(self):
-        if self.extra_data is not None:
-            return "%s (Extra: %s)" % (
-                Exception.__str__(self), self.extra_data)
-        return Exception.__str__(self)
-
-
-class OpenStackCloudTimeout(OpenStackCloudException):
-    pass
 
 
 def openstack_clouds(config=None, debug=False):

@@ -20,8 +20,8 @@ Tests for the `create_server` command.
 """
 
 from mock import patch, Mock
-from shade import (
-    OpenStackCloud, OpenStackCloudException, OpenStackCloudTimeout)
+from shade import OpenStackCloud
+from shade.exc import (OpenStackCloudException, OpenStackCloudTimeout)
 from shade.tests import base
 
 
