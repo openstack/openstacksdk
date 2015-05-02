@@ -169,6 +169,3 @@ Or, get all of the clouds.
   cloud_config = os_client_config.OpenStackConfig().get_all_clouds()
   for cloud in cloud_config:
       print(cloud.name, cloud.region, cloud.config)
-
-* Free software: Apache license
-* Source: http://git.openstack.org/cgit/stackforge/os-client-config
