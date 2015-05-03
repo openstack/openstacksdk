@@ -2124,7 +2124,24 @@ class OpenStackCloud(object):
 
 class OperatorCloud(OpenStackCloud):
     """Represent a privileged/operator connection to an OpenStack Cloud.
+
+    `OperatorCloud` is the entry point for all admin operations, regardless
+    of which OpenStack service those operations are for.
+
+    See the :class:`OpenStackCloud` class for a description of most options.
+    `OperatorCloud` overrides the default value of `endpoint_type` from
+    `public` to `admin`.
+
+    :param string endpoint_type: The type of endpoint to get for services
+                                 from the service catalog. Valid types are
+                                 `public` ,`internal` or `admin`. (optional,
+                                 defaults to `admin`)
     """
+
+    def __init__(self, *args, **kwargs):
+        super(OperatorCloud, self).__init__(*args, **kwargs)
+        if 'endpoint_type' not in kwargs:
+            self.endpoint_type = 'admin'
 
     @property
     def auth_token(self):
