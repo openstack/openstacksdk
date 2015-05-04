@@ -13,11 +13,13 @@
 # limitations under the License.
 
 import hashlib
+import inspect
 import logging
 import operator
 import os
 
 from cinderclient.v1 import client as cinder_client
+from decorator import decorator
 from dogpile import cache
 import glanceclient
 import glanceclient.exc
@@ -58,6 +60,32 @@ OBJECT_CONTAINER_ACLS = {
     'public': ".r:*,.rlistings",
     'private': '',
 }
+
+
+def valid_kwargs(*valid_args):
+    # This decorator checks if argument passed as **kwargs to a function are
+    # present in valid_args.
+    #
+    # Typically, valid_kwargs is used when we want to distinguish between
+    # None and omitted arguments and we still want to validate the argument
+    # list.
+    #
+    # Example usage:
+    #
+    # @valid_kwargs('opt_arg1', 'opt_arg2')
+    # def my_func(self, mandatory_arg1, mandatory_arg2, **kwargs):
+    #   ...
+    #
+    @decorator
+    def func_wrapper(func, *args, **kwargs):
+        argspec = inspect.getargspec(func)
+        for k in kwargs:
+            if k not in argspec.args[1:] and k not in valid_args:
+                raise TypeError(
+                    "{f}() got an unexpected keyword argument "
+                    "'{arg}'".format(f=inspect.stack()[1][3], arg=k))
+        return func(*args, **kwargs)
+    return func_wrapper
 
 
 def openstack_clouds(config=None, debug=False):
@@ -730,6 +758,10 @@ class OpenStackCloud(object):
         subnets = self.list_subnets()
         return _utils._filter_list(subnets, name_or_id, filters)
 
+    def search_ports(self, name_or_id=None, filters=None):
+        ports = self.list_ports()
+        return _utils._filter_list(ports, name_or_id, filters)
+
     def search_volumes(self, name_or_id=None, filters=None):
         volumes = self.list_volumes()
         return _utils._filter_list(volumes, name_or_id, filters)
@@ -777,6 +809,16 @@ class OpenStackCloud(object):
             self.log.debug("subnet list failed: %s" % e, exc_info=True)
             raise OpenStackCloudException(
                 "Error fetching subnet list: %s" % e)
+
+    def list_ports(self):
+        try:
+            return self.manager.submitTask(_tasks.PortList())['ports']
+        except Exception as e:
+            self.log.debug(
+                "neutron could not list ports: {msg}".format(
+                    msg=str(e)), exc_info=True)
+            raise OpenStackCloudException(
+                "error fetching port list: {msg}".format(msg=str(e)))
 
     @_cache_on_arguments(should_cache_fn=_no_pending_volumes)
     def list_volumes(self, cache=True):
@@ -902,6 +944,9 @@ class OpenStackCloud(object):
 
     def get_subnet(self, name_or_id, filters=None):
         return _utils._get_entity(self.search_subnets, name_or_id, filters)
+
+    def get_port(self, name_or_id, filters=None):
+        return _utils._get_entity(self.search_ports, name_or_id, filters)
 
     def get_volume(self, name_or_id, filters=None):
         return _utils._get_entity(self.search_volumes, name_or_id, filters)
@@ -2117,6 +2162,125 @@ class OpenStackCloud(object):
         # use of meta.obj_to_dict() here (which would not work against
         # a dict).
         return new_subnet['subnet']
+
+    @valid_kwargs('name', 'admin_state_up', 'mac_address', 'fixed_ips',
+                  'subnet_id', 'ip_address', 'security_groups',
+                  'allowed_address_pairs', 'extra_dhcp_opts', 'device_owner',
+                  'device_id')
+    def create_port(self, network_id, **kwargs):
+        """Create a port
+
+        :param network_id: The ID of the network. (Required)
+        :param name: A symbolic name for the port. (Optional)
+        :param admin_state_up: The administrative status of the port,
+            which is up (true, default) or down (false). (Optional)
+        :param mac_address: The MAC address. (Optional)
+        :param fixed_ips: If you specify only a subnet ID, OpenStack Networking
+            allocates an available IP from that subnet to the port. (Optional)
+        :param subnet_id: If you specify only a subnet ID, OpenStack Networking
+            allocates an available IP from that subnet to the port. (Optional)
+            If you specify both a subnet ID and an IP address, OpenStack
+            Networking tries to allocate the specified address to the port.
+        :param ip_address: If you specify both a subnet ID and an IP address,
+            OpenStack Networking tries to allocate the specified address to
+            the port.
+        :param security_groups: List of security group UUIDs. (Optional)
+        :param allowed_address_pairs: Allowed address pairs list (Optional)
+            For example::
+
+              [
+                {
+                  "ip_address": "23.23.23.1",
+                  "mac_address": "fa:16:3e:c4:cd:3f"
+                }, ...
+              ]
+        :param extra_dhcp_opts: Extra DHCP options. (Optional).
+            For example::
+
+              [
+                {
+                  "opt_name": "opt name1",
+                  "opt_value": "value1"
+                }, ...
+              ]
+        :param device_owner: The ID of the entity that uses this port.
+            For example, a DHCP agent.  (Optional)
+        :param device_id: The ID of the device that uses this port.
+            For example, a virtual server. (Optional)
+
+        :returns: a dictionary describing the created port.
+
+        :raises: ``OpenStackCloudException`` on operation error.
+        """
+        kwargs['network_id'] = network_id
+
+        try:
+            return self.manager.submitTask(
+                _tasks.PortCreate(body={'port': kwargs}))['port']
+        except Exception as e:
+            self.log.debug("failed to create a new port for network"
+                           "'{net}'".format(net=network_id),
+                           exc_info=True)
+            raise OpenStackCloudException(
+                "error creating a new port for network "
+                "'{net}': {msg}".format(net=network_id, msg=str(e)))
+
+    @valid_kwargs('name', 'admin_state_up', 'fixed_ips', 'security_groups')
+    def update_port(self, name_or_id, **kwargs):
+        """Update a port
+
+        Note: to unset an attribute use None value. To leave an attribute
+        untouched just omit it.
+
+        :param name_or_id: name or id of the port to update. (Required)
+        :param name: A symbolic name for the port. (Optional)
+        :param admin_state_up: The administrative status of the port,
+            which is up (true) or down (false). (Optional)
+        :param fixed_ips: If you specify only a subnet ID, OpenStack Networking
+            allocates an available IP from that subnet to the port. (Optional)
+        :param security_groups: List of security group UUIDs. (Optional)
+
+        :returns: a dictionary describing the updated port.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        port = self.get_port(name_or_id=name_or_id)
+        if port is None:
+            raise OpenStackCloudException(
+                "failed to find port '{port}'".format(port=name_or_id))
+
+        try:
+            return self.manager.submitTask(
+                _tasks.PortUpdate(
+                    port=port['id'], body={'port': kwargs}))['port']
+        except Exception as e:
+            self.log.debug("failed to update port '{port}'".format(
+                port=name_or_id), exc_info=True)
+            raise OpenStackCloudException(
+                "failed to update port '{port}': {msg}".format(
+                    port=name_or_id, msg=str(e)))
+
+    def delete_port(self, name_or_id):
+        """Delete a port
+
+        :param name_or_id: id or name of the port to delete.
+
+        :returns: None.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        port = self.get_port(name_or_id=name_or_id)
+        if port is None:
+            return
+
+        try:
+            self.manager.submitTask(_tasks.PortDelete(port=port['id']))
+        except Exception as e:
+            self.log.debug("failed to delete port '{port}'".format(
+                port=name_or_id), exc_info=True)
+            raise OpenStackCloudException(
+                "failed to delete port '{port}': {msg}".format(
+                    port=name_or_id, msg=str(e)))
 
 
 class OperatorCloud(OpenStackCloud):
