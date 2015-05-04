@@ -30,7 +30,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the snapshot does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent snapshot.
 
         :returns: ``None``
         """
@@ -45,7 +45,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the type does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent type.
 
         :returns: ``None``
         """
@@ -60,7 +60,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the volume does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent volume.
 
         :returns: ``None``
         """
