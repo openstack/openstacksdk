@@ -54,9 +54,14 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_credentials)
 
     def test_credential_update(self):
-        self.verify_update(
-            'openstack.identity.v3.credential.Credential.update',
-            self.proxy.update_credential)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_credential,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[credential.Credential,
+                                           "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_domain_create(self):
         self.verify_create('openstack.identity.v3.domain.Domain.create',
@@ -81,8 +86,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_domains)
 
     def test_domain_update(self):
-        self.verify_update('openstack.identity.v3.domain.Domain.update',
-                           self.proxy.update_domain)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_domain,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[domain.Domain, "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_endpoint_create(self):
         self.verify_create('openstack.identity.v3.endpoint.Endpoint.create',
@@ -109,8 +119,14 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_endpoints)
 
     def test_endpoint_update(self):
-        self.verify_update('openstack.identity.v3.endpoint.Endpoint.update',
-                           self.proxy.update_endpoint)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_endpoint,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[endpoint.Endpoint,
+                                           "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_group_create(self):
         self.verify_create('openstack.identity.v3.group.Group.create',
@@ -135,8 +151,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_groups)
 
     def test_group_update(self):
-        self.verify_update('openstack.identity.v3.group.Group.update',
-                           self.proxy.update_group)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_group,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[group.Group, "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_policy_create(self):
         self.verify_create('openstack.identity.v3.policy.Policy.create',
@@ -161,8 +182,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_policys)
 
     def test_policy_update(self):
-        self.verify_update('openstack.identity.v3.policy.Policy.update',
-                           self.proxy.update_policy)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_policy,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[policy.Policy, "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_project_create(self):
         self.verify_create('openstack.identity.v3.project.Project.create',
@@ -187,8 +213,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_projects)
 
     def test_project_update(self):
-        self.verify_update('openstack.identity.v3.project.Project.update',
-                           self.proxy.update_project)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_project,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[project.Project, "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_service_create(self):
         self.verify_create('openstack.identity.v3.service.Service.create',
@@ -213,8 +244,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_services)
 
     def test_service_update(self):
-        self.verify_update('openstack.identity.v3.service.Service.update',
-                           self.proxy.update_service)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_service,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[service.Service, "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_user_create(self):
         self.verify_create('openstack.identity.v3.user.User.create',
@@ -239,8 +275,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_users)
 
     def test_user_update(self):
-        self.verify_update('openstack.identity.v3.user.User.update',
-                           self.proxy.update_user)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_user,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[user.User, "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_trust_create(self):
         self.verify_create('openstack.identity.v3.trust.Trust.create',
@@ -265,5 +306,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_trusts)
 
     def test_trust_update(self):
-        self.verify_update('openstack.identity.v3.trust.Trust.update',
-                           self.proxy.update_trust)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_trust,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[trust.Trust, "resource_or_id"],
+                            expected_kwargs=kwargs)

@@ -36,7 +36,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the credential does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent credential.
 
         :returns: ``None``
         """
@@ -51,8 +51,19 @@ class Proxy(proxy.BaseProxy):
     def list_credentials(self):
         return credential.Credential.list(self.session)
 
-    def update_credential(self, **data):
-        return credential.Credential(data).update(self.session)
+    def update_credential(self, value, **attrs):
+        """Update a credential
+
+        :param value: Either the id of a credential or a
+                      :class:`~openstack.compute.v2.credential.Credential`
+                      instance.
+        :attrs kwargs: The attributes to update on the credential represented
+                       by ``value``.
+
+        :returns: The updated credential
+        :rtype: :class:`~openstack.compute.v2.credential.Credential`
+        """
+        return self._update(credential.Credential, value, **attrs)
 
     def create_domain(self, **data):
         return domain.Domain(data).create(self.session)
@@ -66,7 +77,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the domain does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent domain.
 
         :returns: ``None``
         """
@@ -81,8 +92,18 @@ class Proxy(proxy.BaseProxy):
     def list_domains(self):
         return domain.Domain.list(self.session)
 
-    def update_domain(self, **data):
-        return domain.Domain(data).update(self.session)
+    def update_domain(self, value, **attrs):
+        """Update a domain
+
+        :param value: Either the id of a domain or a
+                      :class:`~openstack.compute.v2.domain.Domain` instance.
+        :attrs kwargs: The attributes to update on the domain represented
+                       by ``value``.
+
+        :returns: The updated domain
+        :rtype: :class:`~openstack.compute.v2.domain.Domain`
+        """
+        return self._update(domain.Domain, value, **attrs)
 
     def create_endpoint(self, **data):
         return endpoint.Endpoint(data).create(self.session)
@@ -96,7 +117,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the endpoint does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent endpoint.
 
         :returns: ``None``
         """
@@ -111,8 +132,19 @@ class Proxy(proxy.BaseProxy):
     def list_endpoints(self):
         return endpoint.Endpoint.list(self.session)
 
-    def update_endpoint(self, **data):
-        return endpoint.Endpoint(data).update(self.session)
+    def update_endpoint(self, value, **attrs):
+        """Update a endpoint
+
+        :param value: Either the id of a endpoint or a
+                      :class:`~openstack.compute.v2.endpoint.Endpoint`
+                      instance.
+        :attrs kwargs: The attributes to update on the endpoint represented
+                       by ``value``.
+
+        :returns: The updated endpoint
+        :rtype: :class:`~openstack.compute.v2.endpoint.Endpoint`
+        """
+        return self._update(endpoint.Endpoint, value, **attrs)
 
     def create_group(self, **data):
         return group.Group(data).create(self.session)
@@ -126,7 +158,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the group does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent group.
 
         :returns: ``None``
         """
@@ -141,8 +173,18 @@ class Proxy(proxy.BaseProxy):
     def list_groups(self):
         return group.Group.list(self.session)
 
-    def update_group(self, **data):
-        return group.Group(data).update(self.session)
+    def update_group(self, value, **attrs):
+        """Update a group
+
+        :param value: Either the id of a group or a
+                      :class:`~openstack.compute.v2.group.Group` instance.
+        :attrs kwargs: The attributes to update on the group represented
+                       by ``value``.
+
+        :returns: The updated group
+        :rtype: :class:`~openstack.compute.v2.group.Group`
+        """
+        return self._update(group.Group, value, **attrs)
 
     def create_policy(self, **data):
         return policy.Policy(data).create(self.session)
@@ -156,7 +198,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the policy does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent policy.
 
         :returns: ``None``
         """
@@ -171,8 +213,18 @@ class Proxy(proxy.BaseProxy):
     def list_policys(self):
         return policy.Policy.list(self.session)
 
-    def update_policy(self, **data):
-        return policy.Policy(data).update(self.session)
+    def update_policy(self, value, **attrs):
+        """Update a policy
+
+        :param value: Either the id of a policy or a
+                      :class:`~openstack.compute.v2.policy.Policy` instance.
+        :attrs kwargs: The attributes to update on the policy represented
+                       by ``value``.
+
+        :returns: The updated policy
+        :rtype: :class:`~openstack.compute.v2.policy.Policy`
+        """
+        return self._update(policy.Policy, value, **attrs)
 
     def create_project(self, **data):
         return project.Project(data).create(self.session)
@@ -186,7 +238,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the project does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent project.
 
         :returns: ``None``
         """
@@ -201,8 +253,18 @@ class Proxy(proxy.BaseProxy):
     def list_projects(self):
         return project.Project.list(self.session)
 
-    def update_project(self, **data):
-        return project.Project(data).update(self.session)
+    def update_project(self, value, **attrs):
+        """Update a project
+
+        :param value: Either the id of a project or a
+                      :class:`~openstack.compute.v2.project.Project` instance.
+        :attrs kwargs: The attributes to update on the project represented
+                       by ``value``.
+
+        :returns: The updated project
+        :rtype: :class:`~openstack.compute.v2.project.Project`
+        """
+        return self._update(project.Project, value, **attrs)
 
     def create_service(self, **data):
         return service.Service(data).create(self.session)
@@ -216,7 +278,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the service does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent service.
 
         :returns: ``None``
         """
@@ -231,8 +293,18 @@ class Proxy(proxy.BaseProxy):
     def list_services(self):
         return service.Service.list(self.session)
 
-    def update_service(self, **data):
-        return service.Service(data).update(self.session)
+    def update_service(self, value, **attrs):
+        """Update a service
+
+        :param value: Either the id of a service or a
+                      :class:`~openstack.compute.v2.service.Service` instance.
+        :attrs kwargs: The attributes to update on the service represented
+                       by ``value``.
+
+        :returns: The updated service
+        :rtype: :class:`~openstack.compute.v2.service.Service`
+        """
+        return self._update(service.Service, value, **attrs)
 
     def create_user(self, **data):
         return user.User(data).create(self.session)
@@ -246,7 +318,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the user does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent user.
 
         :returns: ``None``
         """
@@ -261,8 +333,18 @@ class Proxy(proxy.BaseProxy):
     def list_users(self):
         return user.User.list(self.session)
 
-    def update_user(self, **data):
-        return user.User(data).update(self.session)
+    def update_user(self, value, **attrs):
+        """Update a user
+
+        :param value: Either the id of a user or a
+                      :class:`~openstack.compute.v2.user.User` instance.
+        :attrs kwargs: The attributes to update on the user represented
+                       by ``value``.
+
+        :returns: The updated user
+        :rtype: :class:`~openstack.compute.v2.user.User`
+        """
+        return self._update(user.User, value, **attrs)
 
     def create_trust(self, **data):
         return trust.Trust(data).create(self.session)
@@ -279,5 +361,15 @@ class Proxy(proxy.BaseProxy):
     def list_trusts(self):
         return trust.Trust.list(self.session)
 
-    def update_trust(self, **data):
-        return trust.Trust(data).update(self.session)
+    def update_trust(self, value, **attrs):
+        """Update a trust
+
+        :param value: Either the id of a trust or a
+                      :class:`~openstack.compute.v2.trust.Trust` instance.
+        :attrs kwargs: The attributes to update on the trust represented
+                       by ``value``.
+
+        :returns: The updated trust
+        :rtype: :class:`~openstack.compute.v2.trust.Trust`
+        """
+        return self._update(trust.Trust, value, **attrs)

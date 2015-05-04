@@ -45,8 +45,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_roles)
 
     def test_role_update(self):
-        self.verify_update('openstack.identity.v2.role.Role.update',
-                           self.proxy.update_role)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_role,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[role.Role, "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_tenant_create(self):
         self.verify_create('openstack.identity.v2.tenant.Tenant.create',
@@ -71,8 +76,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_tenants)
 
     def test_tenant_update(self):
-        self.verify_update('openstack.identity.v2.tenant.Tenant.update',
-                           self.proxy.update_tenant)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_tenant,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[tenant.Tenant, "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_user_create(self):
         self.verify_create('openstack.identity.v2.user.User.create',
@@ -97,5 +107,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_users)
 
     def test_user_update(self):
-        self.verify_update('openstack.identity.v2.user.User.update',
-                           self.proxy.update_user)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_user,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[user.User, "resource_or_id"],
+                            expected_kwargs=kwargs)
