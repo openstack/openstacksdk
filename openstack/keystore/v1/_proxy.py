@@ -30,7 +30,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the container does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent container.
 
         :returns: ``None``
         """
@@ -45,8 +45,19 @@ class Proxy(proxy.BaseProxy):
     def list_container(self):
         return container.Container.list(self.session)
 
-    def update_container(self, **data):
-        return container.Container(data).update(self.session)
+    def update_container(self, value, **attrs):
+        """Update a container
+
+        :param value: Either the id of a container or a
+                      :class:`~openstack.compute.v2.container.Container`
+                      instance.
+        :attrs kwargs: The attributes to update on the container represented
+                       by ``value``.
+
+        :returns: The updated container
+        :rtype: :class:`~openstack.compute.v2.container.Container`
+        """
+        return self._update(container.Container, value, **attrs)
 
     def create_order(self, **data):
         return order.Order(data).create(self.session)
@@ -60,7 +71,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the order does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent order.
 
         :returns: ``None``
         """
@@ -75,8 +86,18 @@ class Proxy(proxy.BaseProxy):
     def list_order(self):
         return order.Order.list(self.session)
 
-    def update_order(self, **data):
-        return order.Order(data).update(self.session)
+    def update_order(self, value, **attrs):
+        """Update a order
+
+        :param value: Either the id of a order or a
+                      :class:`~openstack.compute.v2.order.Order` instance.
+        :attrs kwargs: The attributes to update on the order represented
+                       by ``value``.
+
+        :returns: The updated order
+        :rtype: :class:`~openstack.compute.v2.order.Order`
+        """
+        return self._update(order.Order, value, **attrs)
 
     def create_secret(self, **data):
         return secret.Secret(data).create(self.session)
@@ -90,7 +111,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the secret does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent secret.
 
         :returns: ``None``
         """
@@ -105,5 +126,15 @@ class Proxy(proxy.BaseProxy):
     def list_secret(self):
         return secret.Secret.list(self.session)
 
-    def update_secret(self, **data):
-        return secret.Secret(data).update(self.session)
+    def update_secret(self, value, **attrs):
+        """Update a secret
+
+        :param value: Either the id of a secret or a
+                      :class:`~openstack.compute.v2.secret.Secret` instance.
+        :attrs kwargs: The attributes to update on the secret represented
+                       by ``value``.
+
+        :returns: The updated secret
+        :rtype: :class:`~openstack.compute.v2.secret.Secret`
+        """
+        return self._update(secret.Secret, value, **attrs)

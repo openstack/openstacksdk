@@ -47,8 +47,14 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_container)
 
     def test_container_update(self):
-        self.verify_update('openstack.keystore.v1.container.Container.update',
-                           self.proxy.update_container)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_container,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[container.Container,
+                                           "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_order_create(self):
         self.verify_create('openstack.keystore.v1.order.Order.create',
@@ -73,8 +79,13 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_order)
 
     def test_order_update(self):
-        self.verify_update('openstack.keystore.v1.order.Order.update',
-                           self.proxy.update_order)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_order,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[order.Order, "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_secret_create(self):
         self.verify_create('openstack.keystore.v1.secret.Secret.create',
@@ -99,5 +110,10 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_secret)
 
     def test_secret_update(self):
-        self.verify_update('openstack.keystore.v1.secret.Secret.update',
-                           self.proxy.update_secret)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_secret,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[secret.Secret, "resource_or_id"],
+                            expected_kwargs=kwargs)
