@@ -65,8 +65,13 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          method_kwargs={"details": True})
 
     def test_flavor_update(self):
-        self.verify_update('openstack.compute.v2.flavor.Flavor.update',
-                           self.proxy.update_flavor)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_flavor,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[flavor.Flavor, "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_image_delete(self):
         self.verify_delete2(image.Image, self.proxy.delete_image, False)
@@ -121,8 +126,13 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_keypairs)
 
     def test_keypair_update(self):
-        self.verify_update('openstack.compute.v2.keypair.Keypair.update',
-                           self.proxy.update_keypair)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_keypair,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[keypair.Keypair, "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_limits(self):
         self.verify_get(
@@ -161,9 +171,14 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
             self.proxy.list_server_interfaces)
 
     def test_server_interface_update(self):
-        self.verify_update(
-            'openstack.compute.v2.server_interface.ServerInterface.update',
-            self.proxy.update_server_interface)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_server_interface,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[server_interface.ServerInterface,
+                                           "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_server_ip_find(self):
         self.verify_find('openstack.compute.v2.server_ip.ServerIP.find',

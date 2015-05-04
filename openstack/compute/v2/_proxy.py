@@ -76,8 +76,18 @@ class Proxy(proxy.BaseProxy):
         flv = flavor.FlavorDetail if details else flavor.Flavor
         return flv.list(self.session, **params)
 
-    def update_flavor(self, **data):
-        return flavor.Flavor(data).update(self.session)
+    def update_flavor(self, value, **attrs):
+        """Update a flavor
+
+        :param value: Either the id of a flavor or a
+                      :class:`~openstack.compute.v2.flavor.Flavor` instance.
+        :attrs kwargs: The attributes to update on the flavor represented
+                       by ``value``.
+
+        :returns: The updated flavor
+        :rtype: :class:`~openstack.compute.v2.flavor.Flavor`
+        """
+        return self._update(flavor.Flavor, value, **attrs)
 
     def delete_image(self, value, ignore_missing=True):
         """Delete an image
@@ -149,8 +159,18 @@ class Proxy(proxy.BaseProxy):
     def list_keypairs(self, **params):
         return keypair.Keypair.list(self.session, **params)
 
-    def update_keypair(self, **data):
-        return keypair.Keypair(data).update(self.session)
+    def update_keypair(self, value, **attrs):
+        """Update a keypair
+
+        :param value: Either the id of a keypair or a
+                      :class:`~openstack.compute.v2.keypair.Keypair` instance.
+        :attrs kwargs: The attributes to update on the keypair represented
+                       by ``value``.
+
+        :returns: The updated keypair
+        :rtype: :class:`~openstack.compute.v2.keypair.Keypair`
+        """
+        return self._update(keypair.Keypair, value, **attrs)
 
     def limits(self):
         """Retrieve limits that are applied to the project's account
@@ -254,8 +274,20 @@ class Proxy(proxy.BaseProxy):
     def list_server_interfaces(self):
         return server_interface.ServerInterface.list(self.session)
 
-    def update_server_interface(self, **data):
-        return server_interface.ServerInterface(data).update(self.session)
+    def update_server_interface(self, value, **attrs):
+        """Update a server interface
+
+        :param value: Either the id of a server interface or a
+                      :class:
+                      `~openstack.compute.v2.server_interface.ServerInterface`
+                      instance.
+        :attrs kwargs: The attributes to update on the server interface
+                       represented by ``value``.
+
+        :returns: The updated server interface
+        :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
+        """
+        return self._update(server_interface.ServerInterface, value, **attrs)
 
     def find_server_ip(self, name_or_id):
         return server_ip.ServerIP.find(self.session, name_or_id)
