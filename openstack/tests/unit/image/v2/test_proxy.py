@@ -28,11 +28,29 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
     def test_image_delete_ignore(self):
         self.verify_delete2(image.Image, self.proxy.delete_image, True)
 
+    def test_image_update(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_image,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[image.Image, "resource_or_id"],
+                            expected_kwargs=kwargs)
+
     def test_member_delete(self):
         self.verify_delete2(member.Member, self.proxy.delete_member, False)
 
     def test_member_delete_ignore(self):
         self.verify_delete2(member.Member, self.proxy.delete_member, True)
+
+    def test_member_update(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_member,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[member.Member, "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_tag_delete(self):
         self.verify_delete2(tag.Tag, self.proxy.delete_tag, False)
