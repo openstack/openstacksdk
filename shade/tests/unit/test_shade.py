@@ -324,6 +324,31 @@ class TestShade(base.TestCase):
         flavor2 = self.cloud.get_flavor(1)
         self.assertEquals(vanilla, flavor2)
 
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_list_security_groups_neutron(self, mock_nova, mock_neutron):
+        self.cloud.secgroup_source = 'neutron'
+        self.cloud.list_security_groups()
+        self.assertTrue(mock_neutron.list_security_groups.called)
+        self.assertFalse(mock_nova.security_groups.list.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_list_security_groups_nova(self, mock_nova, mock_neutron):
+        self.cloud.secgroup_source = 'nova'
+        self.cloud.list_security_groups()
+        self.assertFalse(mock_neutron.list_security_groups.called)
+        self.assertTrue(mock_nova.security_groups.list.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_list_security_groups_none(self, mock_nova, mock_neutron):
+        self.cloud.secgroup_source = None
+        self.assertRaises(shade.OpenStackCloudUnavailableFeature,
+                          self.cloud.list_security_groups)
+        self.assertFalse(mock_neutron.list_security_groups.called)
+        self.assertFalse(mock_nova.security_groups.list.called)
+
 
 class TestShadeOperator(base.TestCase):
 

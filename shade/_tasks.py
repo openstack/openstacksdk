@@ -192,7 +192,12 @@ class VolumeAttach(task_manager.Task):
         client.nova_client.volumes.create_server_volume(**self.args)
 
 
-class SecurityGroupList(task_manager.Task):
+class NeutronSecurityGroupList(task_manager.Task):
+    def main(self, client):
+        return client.neutron_client.list_security_groups()
+
+
+class NovaSecurityGroupList(task_manager.Task):
     def main(self, client):
         return client.nova_client.security_groups.list()
 
