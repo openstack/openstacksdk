@@ -16,16 +16,24 @@ import os_client_config
 
 from openstack import connection
 from openstack import user_preference
+from openstack import utils
 
 
 class BaseFunctionalTest(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         test_cloud = os_client_config.OpenStackConfig().get_one_cloud(
             'test_cloud')
 
         pref = user_preference.UserPreference()
         pref.set_region(pref.ALL, test_cloud.region)
+        if test_cloud.debug:
+            utils.enable_logging(True)
 
-        self.conn = connection.Connection(
-            preference=pref,
-            **test_cloud.config['auth'])
+        auth = test_cloud.config['auth']
+        cls.conn = connection.Connection(preference=pref, **auth)
+
+    @classmethod
+    def assertIs(cls, expected, actual):
+        if expected != actual:
+            raise Exception(expected + ' != ' + actual)
