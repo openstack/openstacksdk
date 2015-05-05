@@ -37,6 +37,8 @@ approach, this is where you'll want to begin.
    Telemetry <userguides/telemetry>
    Volume <userguides/volume>
 
+It may also be useful to try out some working code `examples <examples.html>`_.
+
 API Documentation
 -----------------
 
