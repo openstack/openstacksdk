@@ -213,6 +213,11 @@ class FloatingIPAttach(task_manager.Task):
         return client.nova_client.servers.add_floating_ip(**self.args)
 
 
+class FloatingIPPoolList(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.floating_ip_pools.list()
+
+
 class ContainerGet(task_manager.Task):
     def main(self, client):
         return client.swift_client.head_container(**self.args)

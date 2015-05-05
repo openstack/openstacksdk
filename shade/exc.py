@@ -34,3 +34,7 @@ class OpenStackCloudTimeout(OpenStackCloudException):
 
 class OpenStackCloudUnavailableService(OpenStackCloudException):
     pass
+
+
+class OpenStackCloudUnavailableExtension(OpenStackCloudException):
+    pass
