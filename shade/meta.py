@@ -95,7 +95,7 @@ def get_groups_from_server(cloud, server, server_vars):
 
 
 def get_hostvars_from_server(cloud, server, mounts=None):
-    server_vars = obj_to_dict(server)
+    server_vars = server
     server_vars.pop('links', None)
 
     # Fist, add an IP address

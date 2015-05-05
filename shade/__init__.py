@@ -729,9 +729,6 @@ class OpenStackCloud(object):
         except OpenStackCloudException:
             return False
 
-    def list_servers(self):
-        return self.manager.submitTask(_tasks.ServerList())
-
     def list_server_dicts(self):
         return [self.get_openstack_vars(server)
                 for server in self.list_servers()]
@@ -869,6 +866,10 @@ class OpenStackCloud(object):
         groups = self.list_security_groups()
         return self._filter_list(groups, name_or_id, filters)
 
+    def search_servers(self, name_or_id=None, filters=None):
+        servers = self.list_servers()
+        return self._filter_list(servers, name_or_id, filters)
+
     def list_networks(self):
         return self.manager.submitTask(_tasks.NetworkList())['networks']
 
@@ -905,6 +906,16 @@ class OpenStackCloud(object):
             self.manager.submitTask(_tasks.SecurityGroupList())
         )
 
+    def list_servers(self):
+        try:
+            return meta.obj_list_to_dict(
+                self.manager.submitTask(_tasks.ServerList())
+            )
+        except Exception as e:
+            self.log.debug("server list failed: %s" % e, exc_info=True)
+            raise OpenStackCloudException(
+                "Error fetching server list: %s" % e)
+
     def get_network(self, name_or_id, filters=None):
         return self._get_entity(self.search_networks, name_or_id, filters)
 
@@ -923,6 +934,9 @@ class OpenStackCloud(object):
     def get_security_group(self, name_or_id, filters=None):
         return self._get_entity(self.search_security_groups,
                                 name_or_id, filters)
+
+    def get_server(self, name_or_id, filters=None):
+        return self._get_entity(self.search_servers, name_or_id, filters)
 
     # TODO(Shrews): This will eventually need to support tenant ID and
     # provider networks, which are admin-level params.
@@ -1537,12 +1551,6 @@ class OpenStackCloud(object):
     def get_server_public_ip(self, server):
         return meta.get_server_public_ip(server)
 
-    def get_server(self, name_or_id):
-        for server in self.list_servers():
-            if name_or_id in (server.name, server.id):
-                return server
-        return None
-
     def get_server_dict(self, name_or_id):
         server = self.get_server(name_or_id)
         if not server:
@@ -1733,7 +1741,7 @@ class OpenStackCloud(object):
     def delete_server(self, name, wait=False, timeout=180):
         server = self.get_server(name)
         if server:
-            self.manager.submitTask(_tasks.ServerDelete(server=server))
+            self.manager.submitTask(_tasks.ServerDelete(server=server.id))
         else:
             return
         if not wait:
@@ -1743,7 +1751,7 @@ class OpenStackCloud(object):
                 "Timed out waiting for server to get deleted."):
             try:
                 server = self.manager.submitTask(
-                    _tasks.ServerGet(server=server))
+                    _tasks.ServerGet(server=server.id))
                 if not server:
                     return
             except nova_exceptions.NotFound:

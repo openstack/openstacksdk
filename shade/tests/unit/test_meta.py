@@ -106,7 +106,8 @@ class TestMeta(testtools.TestCase):
         self.assertEqual(new_list[1]['value'], 1)
 
     def test_basic_hostvars(self):
-        hostvars = meta.get_hostvars_from_server(FakeCloud(), FakeServer())
+        hostvars = meta.get_hostvars_from_server(
+            FakeCloud(), meta.obj_to_dict(FakeServer()))
         self.assertNotIn('links', hostvars)
         self.assertEqual(PRIVATE_V4, hostvars['private_v4'])
         self.assertEqual(PUBLIC_V4, hostvars['public_v4'])
@@ -126,19 +127,22 @@ class TestMeta(testtools.TestCase):
     def test_private_interface_ip(self):
         cloud = FakeCloud()
         cloud.private = True
-        hostvars = meta.get_hostvars_from_server(cloud, FakeServer())
+        hostvars = meta.get_hostvars_from_server(
+            cloud, meta.obj_to_dict(FakeServer()))
         self.assertEqual(PRIVATE_V4, hostvars['interface_ip'])
 
     def test_image_string(self):
         server = FakeServer()
         server.image = 'fake-image-id'
-        hostvars = meta.get_hostvars_from_server(FakeCloud(), server)
+        hostvars = meta.get_hostvars_from_server(
+            FakeCloud(), meta.obj_to_dict(server))
         self.assertEquals('fake-image-id', hostvars['image']['id'])
 
     def test_az(self):
         server = FakeServer()
         server.__dict__['OS-EXT-AZ:availability_zone'] = 'az1'
-        hostvars = meta.get_hostvars_from_server(FakeCloud(), server)
+        hostvars = meta.get_hostvars_from_server(
+            FakeCloud(), meta.obj_to_dict(server))
         self.assertEquals('az1', hostvars['az'])
 
     def test_has_volume(self):
@@ -150,7 +154,8 @@ class TestMeta(testtools.TestCase):
         mock_volume.attachments = [{'device': '/dev/sda0'}]
         mock_volume_dict = meta.obj_to_dict(mock_volume)
         mock_cloud.get_volumes.return_value = [mock_volume_dict]
-        hostvars = meta.get_hostvars_from_server(mock_cloud, FakeServer())
+        hostvars = meta.get_hostvars_from_server(
+            mock_cloud, meta.obj_to_dict(FakeServer()))
         self.assertEquals('volume1', hostvars['volumes'][0]['id'])
         self.assertEquals('/dev/sda0', hostvars['volumes'][0]['device'])
 
@@ -160,7 +165,8 @@ class TestMeta(testtools.TestCase):
         def side_effect(*args):
             raise exc.OpenStackCloudException("No Volumes")
         mock_cloud.get_volumes.side_effect = side_effect
-        hostvars = meta.get_hostvars_from_server(mock_cloud, FakeServer())
+        hostvars = meta.get_hostvars_from_server(
+            mock_cloud, meta.obj_to_dict(FakeServer()))
         self.assertEquals([], hostvars['volumes'])
 
     def test_unknown_volume_exception(self):
@@ -174,7 +180,9 @@ class TestMeta(testtools.TestCase):
         mock_cloud.get_volumes.side_effect = side_effect
         self.assertRaises(
             FakeException,
-            meta.get_hostvars_from_server, mock_cloud, FakeServer())
+            meta.get_hostvars_from_server,
+            mock_cloud,
+            meta.obj_to_dict(FakeServer()))
 
     def test_obj_to_dict(self):
         cloud = FakeCloud()

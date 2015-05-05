@@ -42,7 +42,7 @@ class TestDeleteServer(base.TestCase):
         server.name = 'daffy'
         nova_mock.servers.list.return_value = [server]
         self.cloud.delete_server('daffy', wait=False)
-        nova_mock.servers.delete.assert_called_with(server=server)
+        nova_mock.servers.delete.assert_called_with(server=server.id)
 
     @mock.patch('shade.OpenStackCloud.nova_client')
     def test_delete_server_already_gone(self, nova_mock):
@@ -70,15 +70,15 @@ class TestDeleteServer(base.TestCase):
 
         def _delete_wily(*args, **kwargs):
             self.assertIn('server', kwargs)
-            self.assertEqual('9999', kwargs['server'].id)
+            self.assertEqual('9999', kwargs['server'])
             nova_mock.servers.list.return_value = []
 
             def _raise_notfound(*args, **kwargs):
                 self.assertIn('server', kwargs)
-                self.assertEqual('9999', kwargs['server'].id)
+                self.assertEqual('9999', kwargs['server'])
                 raise nova_exc.NotFound(code='404')
             nova_mock.servers.get.side_effect = _raise_notfound
 
         nova_mock.servers.delete.side_effect = _delete_wily
         self.cloud.delete_server('wily', wait=True)
-        nova_mock.servers.delete.assert_called_with(server=server)
+        nova_mock.servers.delete.assert_called_with(server=server.id)

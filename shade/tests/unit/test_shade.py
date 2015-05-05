@@ -72,6 +72,26 @@ class TestShade(base.TestCase):
                                       }})
         self.assertEquals([el2, el3], ret)
 
+    @mock.patch.object(shade.OpenStackCloud, 'search_servers')
+    def test_get_server(self, mock_search):
+        server1 = dict(id='123', name='mickey')
+        mock_search.return_value = [server1]
+        r = self.cloud.get_server('mickey')
+        self.assertIsNotNone(r)
+        self.assertDictEqual(server1, r)
+
+    @mock.patch.object(shade.OpenStackCloud, 'search_servers')
+    def test_get_server_not_found(self, mock_search):
+        mock_search.return_value = []
+        r = self.cloud.get_server('doesNotExist')
+        self.assertIsNone(r)
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_list_servers_exception(self, mock_client):
+        mock_client.servers.list.side_effect = Exception()
+        self.assertRaises(exc.OpenStackCloudException,
+                          self.cloud.list_servers)
+
     @mock.patch.object(shade.OpenStackCloud, 'search_subnets')
     def test_get_subnet(self, mock_search):
         subnet = dict(id='123', name='mickey')
