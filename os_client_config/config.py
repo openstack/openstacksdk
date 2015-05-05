@@ -31,15 +31,22 @@ CONFIG_HOME = os.path.join(os.path.expanduser(
     os.environ.get('XDG_CONFIG_HOME', os.path.join('~', '.config'))),
     'openstack')
 CONFIG_SEARCH_PATH = [os.getcwd(), CONFIG_HOME, '/etc/openstack']
+YAML_SUFFIXES = ('.yaml', '.yml')
 CONFIG_FILES = [
-    os.path.join(d, 'clouds.yaml') for d in CONFIG_SEARCH_PATH]
+    os.path.join(d, 'clouds' + s)
+    for d in CONFIG_SEARCH_PATH
+    for s in YAML_SUFFIXES
+]
 CACHE_PATH = os.path.join(os.path.expanduser(
     os.environ.get('XDG_CACHE_PATH', os.path.join('~', '.cache'))),
     'openstack')
 BOOL_KEYS = ('insecure', 'cache')
 VENDOR_SEARCH_PATH = [os.getcwd(), CONFIG_HOME, '/etc/openstack']
 VENDOR_FILES = [
-    os.path.join(d, 'clouds-public.yaml') for d in VENDOR_SEARCH_PATH]
+    os.path.join(d, 'clouds-public' + s)
+    for d in VENDOR_SEARCH_PATH
+    for s in YAML_SUFFIXES
+]
 
 
 def set_default(key, value):
@@ -126,14 +133,13 @@ class OpenStackConfig(object):
                 'arguments', self._cache_arguments)
 
     def _load_config_file(self):
-        for path in self._config_files:
-            if os.path.exists(path):
-                with open(path, 'r') as f:
-                    return yaml.safe_load(f)
-        return dict(clouds=dict())
+        return self._load_yaml_file(self._config_files)
 
     def _load_vendor_file(self):
-        for path in self._vendor_files:
+        return self._load_yaml_file(self._vendor_files)
+
+    def _load_yaml_file(self, filelist):
+        for path in filelist:
             if os.path.exists(path):
                 with open(path, 'r') as f:
                     return yaml.safe_load(f)
