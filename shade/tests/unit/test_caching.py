@@ -232,16 +232,17 @@ class TestMemoryCache(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_list_images(self, glance_mock):
         glance_mock.images.list.return_value = []
-        self.assertEqual({}, self.cloud.list_images())
+        self.assertEqual([], self.cloud.list_images())
 
         class Image(object):
             id = '22'
             name = '22 name'
             status = 'success'
         fake_image = Image()
+        fake_image_dict = meta.obj_to_dict(fake_image)
         glance_mock.images.list.return_value = [fake_image]
         self.cloud.list_images.invalidate(self.cloud)
-        self.assertEqual({'22': fake_image}, self.cloud.list_images())
+        self.assertEqual([fake_image_dict], self.cloud.list_images())
 
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_list_images_ignores_unsteady_status(self, glance_mock):
@@ -253,18 +254,19 @@ class TestMemoryCache(base.TestCase):
         steady_image.id = '68'
         steady_image.name = 'Jagr'
         steady_image.status = 'active'
+        steady_image_dict = meta.obj_to_dict(steady_image)
         for status in ('queued', 'saving', 'pending_delete'):
             active_image = Image()
             active_image.id = self.getUniqueString()
             active_image.name = self.getUniqueString()
             active_image.status = status
             glance_mock.images.list.return_value = [active_image]
-            self.assertEqual({active_image.id: active_image},
+            active_image_dict = meta.obj_to_dict(active_image)
+            self.assertEqual([active_image_dict],
                              self.cloud.list_images())
             glance_mock.images.list.return_value = [active_image, steady_image]
             # Should expect steady_image to appear if active wasn't cached
-            self.assertEqual({active_image.id: active_image,
-                              '68': steady_image},
+            self.assertEqual([active_image_dict, steady_image_dict],
                              self.cloud.list_images())
 
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
@@ -283,17 +285,16 @@ class TestMemoryCache(base.TestCase):
             active_image.id = self.getUniqueString()
             active_image.name = self.getUniqueString()
             active_image.status = status
+            active_image_dict = meta.obj_to_dict(active_image)
             if not first_image:
-                first_image = active_image
+                first_image = active_image_dict
             glance_mock.images.list.return_value = [active_image]
-            self.assertEqual({first_image.id: first_image},
-                             self.cloud.list_images())
+            self.assertEqual([first_image], self.cloud.list_images())
             glance_mock.images.list.return_value = [active_image, steady_image]
             # because we skipped the create_image code path, no invalidation
             # was done, so we _SHOULD_ expect steady state images to cache and
             # therefore we should _not_ expect to see the new one here
-            self.assertEqual({first_image.id: first_image},
-                             self.cloud.list_images())
+            self.assertEqual([first_image], self.cloud.list_images())
 
     def _call_create_image(self, name, container=None):
         imagefile = tempfile.NamedTemporaryFile(delete=False)
@@ -306,7 +307,7 @@ class TestMemoryCache(base.TestCase):
     def test_create_image_put(self, glance_mock):
         self.cloud.api_versions['image'] = '1'
         glance_mock.images.list.return_value = []
-        self.assertEqual({}, self.cloud.list_images())
+        self.assertEqual([], self.cloud.list_images())
 
         class Image(object):
             id = '42'
@@ -322,7 +323,8 @@ class TestMemoryCache(base.TestCase):
         glance_mock.images.create.assert_called_with(**args)
         glance_mock.images.update.assert_called_with(data=mock.ANY,
                                                      image=fake_image)
-        self.assertEqual({'42': fake_image}, self.cloud.list_images())
+        fake_image_dict = meta.obj_to_dict(fake_image)
+        self.assertEqual([fake_image_dict], self.cloud.list_images())
 
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     @mock.patch.object(shade.OpenStackCloud, 'swift_client')
@@ -337,7 +339,7 @@ class TestMemoryCache(base.TestCase):
         swift_mock.put_container.return_value = fake_container
         swift_mock.head_object.return_value = {}
         glance_mock.images.list.return_value = []
-        self.assertEqual({}, self.cloud.list_images())
+        self.assertEqual([], self.cloud.list_images())
 
         # V2's warlock objects just work like dicts
         class FakeImage(dict):
@@ -382,4 +384,5 @@ class TestMemoryCache(base.TestCase):
                 'owner_specified.shade.sha256': mock.ANY,
                 'image_id': '99'}
         glance_mock.images.update.assert_called_with(**args)
-        self.assertEqual({'99': fake_image}, self.cloud.list_images())
+        fake_image_dict = meta.obj_to_dict(fake_image)
+        self.assertEqual([fake_image_dict], self.cloud.list_images())

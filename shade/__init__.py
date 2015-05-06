@@ -167,7 +167,7 @@ def _no_pending_volumes(volumes):
 
 def _no_pending_images(images):
     '''If there are any images not in a steady state, don't cache'''
-    for image_id, image in iter(images.items()):
+    for image in images:
         if image.status not in ('active', 'deleted', 'killed'):
             return False
     return True
@@ -870,6 +870,10 @@ class OpenStackCloud(object):
         servers = self.list_servers()
         return self._filter_list(servers, name_or_id, filters)
 
+    def search_images(self, name_or_id=None, filters=None):
+        images = self.list_images()
+        return self._filter_list(images, name_or_id, filters)
+
     def list_networks(self):
         return self.manager.submitTask(_tasks.NetworkList())['networks']
 
@@ -916,6 +920,46 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Error fetching server list: %s" % e)
 
+    @_cache_on_arguments(should_cache_fn=_no_pending_images)
+    def list_images(self, filter_deleted=True):
+        """Get available glance images.
+
+        :param filter_deleted: Control whether deleted images are returned.
+        :returns: A list of glance images.
+        """
+        # First, try to actually get images from glance, it's more efficient
+        images = []
+        try:
+            # If the cloud does not expose the glance API publically
+            image_gen = self.manager.submitTask(_tasks.GlanceImageList())
+
+            # Deal with the generator to make a list
+            image_list = [image for image in image_gen]
+
+            if image_list:
+                if getattr(image_list[0], 'validate', None):
+                    # glanceclient returns a "warlock" object if you use v2
+                    image_list = meta.warlock_list_to_dict(image_list)
+                else:
+                    # glanceclient returns a normal object if you use v1
+                    image_list = meta.obj_list_to_dict(image_list)
+        except (OpenStackCloudException,
+                glanceclient.exc.HTTPInternalServerError):
+            # We didn't have glance, let's try nova
+            # If this doesn't work - we just let the exception propagate
+            image_list = meta.obj_list_to_dict(
+                self.manager.submitTask(_tasks.NovaImageList())
+            )
+
+        for image in image_list:
+            # The cloud might return DELETED for invalid images.
+            # While that's cute and all, that's an implementation detail.
+            if not filter_deleted:
+                images.append(image)
+            elif image.status != 'DELETED':
+                images.append(image)
+        return images
+
     def get_network(self, name_or_id, filters=None):
         return self._get_entity(self.search_networks, name_or_id, filters)
 
@@ -937,6 +981,9 @@ class OpenStackCloud(object):
 
     def get_server(self, name_or_id, filters=None):
         return self._get_entity(self.search_servers, name_or_id, filters)
+
+    def get_image(self, name_or_id, filters=None):
+        return self._get_entity(self.search_images, name_or_id, filters)
 
     # TODO(Shrews): This will eventually need to support tenant ID and
     # provider networks, which are admin-level params.
@@ -1082,70 +1129,29 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Error deleting router %s: %s" % (name_or_id, e))
 
-    def _get_images_from_cloud(self, filter_deleted):
-        # First, try to actually get images from glance, it's more efficient
-        images = dict()
-        try:
-            # If the cloud does not expose the glance API publically
-            image_list = self.manager.submitTask(_tasks.GlanceImageList())
-        except (OpenStackCloudException,
-                glanceclient.exc.HTTPInternalServerError):
-            # We didn't have glance, let's try nova
-            # If this doesn't work - we just let the exception propagate
-            image_list = self.manager.submitTask(_tasks.NovaImageList())
-        for image in image_list:
-            # The cloud might return DELETED for invalid images.
-            # While that's cute and all, that's an implementation detail.
-            if not filter_deleted:
-                images[image.id] = image
-            elif image.status != 'DELETED':
-                images[image.id] = image
-        return images
-
     def _reset_image_cache(self):
         self._image_cache = None
 
-    @_cache_on_arguments(should_cache_fn=_no_pending_images)
-    def list_images(self, filter_deleted=True):
-        """Get available glance images.
-
-        :param filter_deleted: Control whether deleted images are returned.
-        :returns: A dictionary of glance images indexed by image UUID.
-        """
-        return self._get_images_from_cloud(filter_deleted)
+    def get_image_exclude(self, name_or_id, exclude):
+        for image in self.search_images(name_or_id):
+            if exclude:
+                if exclude not in image.name:
+                    return image
+            else:
+                return image
+        return None
 
     def get_image_name(self, image_id, exclude=None):
-        image = self.get_image(image_id, exclude)
+        image = self.get_image_exclude(image_id, exclude)
         if image:
             return image.name
         return None
 
     def get_image_id(self, image_name, exclude=None):
-        image = self.get_image(image_name, exclude)
+        image = self.get_image_exclude(image_name, exclude)
         if image:
             return image.id
         return None
-
-    def get_image(self, name_or_id, exclude=None):
-        for (image_id, image) in self.list_images().items():
-            if image_id == name_or_id:
-                return image
-            if (image is not None and
-                    name_or_id == image.name and (
-                    not exclude or exclude not in image.name)):
-                return image
-        return None
-
-    def get_image_dict(self, name_or_id, exclude=None):
-        image = self.get_image(name_or_id, exclude)
-        if not image:
-            return image
-        if getattr(image, 'validate', None):
-            # glanceclient returns a "warlock" object if you use v2
-            return meta.warlock_to_dict(image)
-        else:
-            # glanceclient returns a normal object if you use v1
-            return meta.obj_to_dict(image)
 
     def create_image_snapshot(self, name, **metadata):
         image = self.manager.submitTask(_tasks.ImageSnapshotCreate(
@@ -1186,7 +1192,7 @@ class OpenStackCloud(object):
             wait=False, timeout=3600, **kwargs):
         if not md5 or not sha256:
             (md5, sha256) = self._get_file_hashes(filename)
-        current_image = self.get_image_dict(name)
+        current_image = self.get_image(name)
         if (current_image and current_image.get(IMAGE_MD5_KEY, '') == md5
                 and current_image.get(IMAGE_SHA256_KEY, '') == sha256):
             self.log.debug(
@@ -1215,7 +1221,7 @@ class OpenStackCloud(object):
         self.manager.submitTask(_tasks.ImageUpdate(
             image=image, data=open(filename, 'rb')))
         self._cache.invalidate()
-        return self.get_image_dict(image.id)
+        return self.get_image(image.id)
 
     def _upload_image_task(
             self, name, filename, container, current_image=None,
@@ -1263,7 +1269,7 @@ class OpenStackCloud(object):
                         image=image,
                         **image_properties)
                     self.list_images.invalidate(self)
-                    return self.get_image_dict(status.result['image_id'])
+                    return self.get_image(status.result['image_id'])
                 if status.status == 'failure':
                     raise OpenStackCloudException(
                         "Image creation failed: {message}".format(

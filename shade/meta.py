@@ -191,3 +191,10 @@ def warlock_to_dict(obj):
         if isinstance(value, NON_CALLABLES) and not key.startswith('_'):
             obj_dict[key] = value
     return obj_dict
+
+
+def warlock_list_to_dict(list):
+    new_list = []
+    for obj in list:
+        new_list.append(warlock_to_dict(obj))
+    return new_list

@@ -72,6 +72,20 @@ class TestShade(base.TestCase):
                                       }})
         self.assertEquals([el2, el3], ret)
 
+    @mock.patch.object(shade.OpenStackCloud, 'search_images')
+    def test_get_images(self, mock_search):
+        image1 = dict(id='123', name='mickey')
+        mock_search.return_value = [image1]
+        r = self.cloud.get_image('mickey')
+        self.assertIsNotNone(r)
+        self.assertDictEqual(image1, r)
+
+    @mock.patch.object(shade.OpenStackCloud, 'search_images')
+    def test_get_image_not_found(self, mock_search):
+        mock_search.return_value = []
+        r = self.cloud.get_image('doesNotExist')
+        self.assertIsNone(r)
+
     @mock.patch.object(shade.OpenStackCloud, 'search_servers')
     def test_get_server(self, mock_search):
         server1 = dict(id='123', name='mickey')
