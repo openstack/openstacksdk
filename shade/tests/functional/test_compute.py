@@ -55,7 +55,8 @@ class TestCompute(base.TestCase):
     def test_delete_server(self):
         self.cloud.create_server(name='test_delete_server',
                                  image=self.image, flavor=self.flavor)
-        server_deleted = self.cloud.delete_server('test_delete_server')
+        server_deleted = self.cloud.delete_server('test_delete_server',
+                                                  wait=True)
         self.assertIsNone(server_deleted)
 
     def test_get_image_id(self):

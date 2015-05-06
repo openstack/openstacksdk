@@ -1731,21 +1731,22 @@ class OpenStackCloud(object):
         return server
 
     def delete_server(self, name, wait=False, timeout=180):
-        # TODO(mordred): Why is this not using self.get_server()?
-        server_list = self.manager.submitTask(_tasks.ServerList(
-            detailed=True, search_opts={'name': name}))
-        # TODO(mordred): Why, after searching for a name, are we filtering
-        # again?
-        if server_list:
-            server = [x for x in server_list if x.name == name]
-            self.manager.submitTask(_tasks.ServerDelete(server=server.pop()))
+        server = self.get_server(name)
+        if server:
+            self.manager.submitTask(_tasks.ServerDelete(server=server))
+        else:
+            return
         if not wait:
             return
         for count in _iterate_timeout(
                 timeout,
                 "Timed out waiting for server to get deleted."):
-            server = self.manager.submitTask(_tasks.ServerGet(server=server))
-            if not server:
+            try:
+                server = self.manager.submitTask(
+                    _tasks.ServerGet(server=server))
+                if not server:
+                    return
+            except nova_exceptions.NotFound:
                 return
 
     def get_container(self, name, skip_cache=False):
