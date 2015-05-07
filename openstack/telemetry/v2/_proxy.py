@@ -34,7 +34,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the alarm does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent alarm.
 
         :returns: ``None``
         """
@@ -49,8 +49,18 @@ class Proxy(proxy.BaseProxy):
     def list_alarms(self):
         return alarm.Alarm.list(self.session)
 
-    def update_alarm(self, **data):
-        return alarm.Alarm(data).update(self.session)
+    def update_alarm(self, value, **attrs):
+        """Update a alarm
+
+        :param value: Either the id of a alarm or a
+                      :class:`~openstack.compute.v2.alarm.Alarm` instance.
+        :attrs kwargs: The attributes to update on the alarm represented
+                       by ``value``.
+
+        :returns: The updated alarm
+        :rtype: :class:`~openstack.compute.v2.alarm.Alarm`
+        """
+        return self._update(alarm.Alarm, value, **attrs)
 
     def find_alarm_change(self, name_or_id):
         return alarm_change.AlarmChange.find(self.session, name_or_id)
