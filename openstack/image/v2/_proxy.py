@@ -30,7 +30,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the image does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent image.
 
         :returns: ``None``
         """
@@ -45,8 +45,18 @@ class Proxy(proxy.BaseProxy):
     def list_images(self, **params):
         return image.Image.list(self.session, **params)
 
-    def update_image(self, **data):
-        return image.Image(data).update(self.session)
+    def update_image(self, value, **attrs):
+        """Update a image
+
+        :param value: Either the id of a image or a
+                      :class:`~openstack.compute.v2.image.Image` instance.
+        :attrs kwargs: The attributes to update on the image represented
+                       by ``value``.
+
+        :returns: The updated image
+        :rtype: :class:`~openstack.compute.v2.image.Image`
+        """
+        return self._update(image.Image, value, **attrs)
 
     def create_member(self, **data):
         return member.Member(data).create(self.session)
@@ -60,7 +70,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the member does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent member.
 
         :returns: ``None``
         """
@@ -75,8 +85,18 @@ class Proxy(proxy.BaseProxy):
     def list_members(self, **params):
         return member.Member.list(self.session, **params)
 
-    def update_member(self, **data):
-        return member.Member(data).update(self.session)
+    def update_member(self, value, **attrs):
+        """Update a member
+
+        :param value: Either the id of a member or a
+                      :class:`~openstack.compute.v2.member.Member` instance.
+        :attrs kwargs: The attributes to update on the member represented
+                       by ``value``.
+
+        :returns: The updated member
+        :rtype: :class:`~openstack.compute.v2.member.Member`
+        """
+        return self._update(member.Member, value, **attrs)
 
     def create_tag(self, **data):
         return tag.Tag(data).create(self.session)
@@ -90,7 +110,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the tag does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent tag.
 
         :returns: ``None``
         """
