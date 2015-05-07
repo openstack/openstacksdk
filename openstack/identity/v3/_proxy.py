@@ -24,8 +24,17 @@ from openstack import proxy
 
 class Proxy(proxy.BaseProxy):
 
-    def create_credential(self, **data):
-        return credential.Credential(data).create(self.session)
+    def create_credential(self, **attrs):
+        """Create a new credential from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.compute.v2.credential.Credential`,
+            comprised of the properties on the Credential class.
+
+        :returns: The results of credential creation
+        :rtype: :class:`~openstack.compute.v2.credential.Credential`
+        """
+        return self._create(credential.Credential, **attrs)
 
     def delete_credential(self, value, ignore_missing=True):
         """Delete a credential
@@ -65,8 +74,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(credential.Credential, value, **attrs)
 
-    def create_domain(self, **data):
-        return domain.Domain(data).create(self.session)
+    def create_domain(self, **attrs):
+        """Create a new domain from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.compute.v2.domain.Domain`,
+                           comprised of the properties on the Domain class.
+
+        :returns: The results of domain creation
+        :rtype: :class:`~openstack.compute.v2.domain.Domain`
+        """
+        return self._create(domain.Domain, **attrs)
 
     def delete_domain(self, value, ignore_missing=True):
         """Delete a domain
@@ -105,8 +123,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(domain.Domain, value, **attrs)
 
-    def create_endpoint(self, **data):
-        return endpoint.Endpoint(data).create(self.session)
+    def create_endpoint(self, **attrs):
+        """Create a new endpoint from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.compute.v2.endpoint.Endpoint`,
+                           comprised of the properties on the Endpoint class.
+
+        :returns: The results of endpoint creation
+        :rtype: :class:`~openstack.compute.v2.endpoint.Endpoint`
+        """
+        return self._create(endpoint.Endpoint, **attrs)
 
     def delete_endpoint(self, value, ignore_missing=True):
         """Delete an endpoint
@@ -146,8 +173,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(endpoint.Endpoint, value, **attrs)
 
-    def create_group(self, **data):
-        return group.Group(data).create(self.session)
+    def create_group(self, **attrs):
+        """Create a new group from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.compute.v2.group.Group`,
+                           comprised of the properties on the Group class.
+
+        :returns: The results of group creation
+        :rtype: :class:`~openstack.compute.v2.group.Group`
+        """
+        return self._create(group.Group, **attrs)
 
     def delete_group(self, value, ignore_missing=True):
         """Delete a group
@@ -186,8 +222,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(group.Group, value, **attrs)
 
-    def create_policy(self, **data):
-        return policy.Policy(data).create(self.session)
+    def create_policy(self, **attrs):
+        """Create a new policy from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.compute.v2.policy.Policy`,
+                           comprised of the properties on the Policy class.
+
+        :returns: The results of policy creation
+        :rtype: :class:`~openstack.compute.v2.policy.Policy`
+        """
+        return self._create(policy.Policy, **attrs)
 
     def delete_policy(self, value, ignore_missing=True):
         """Delete a policy
@@ -226,8 +271,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(policy.Policy, value, **attrs)
 
-    def create_project(self, **data):
-        return project.Project(data).create(self.session)
+    def create_project(self, **attrs):
+        """Create a new project from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.compute.v2.project.Project`,
+                           comprised of the properties on the Project class.
+
+        :returns: The results of project creation
+        :rtype: :class:`~openstack.compute.v2.project.Project`
+        """
+        return self._create(project.Project, **attrs)
 
     def delete_project(self, value, ignore_missing=True):
         """Delete a project
@@ -266,8 +320,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(project.Project, value, **attrs)
 
-    def create_service(self, **data):
-        return service.Service(data).create(self.session)
+    def create_service(self, **attrs):
+        """Create a new service from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.compute.v2.service.Service`,
+                           comprised of the properties on the Service class.
+
+        :returns: The results of service creation
+        :rtype: :class:`~openstack.compute.v2.service.Service`
+        """
+        return self._create(service.Service, **attrs)
 
     def delete_service(self, value, ignore_missing=True):
         """Delete a service
@@ -306,8 +369,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(service.Service, value, **attrs)
 
-    def create_user(self, **data):
-        return user.User(data).create(self.session)
+    def create_user(self, **attrs):
+        """Create a new user from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.compute.v2.user.User`,
+                           comprised of the properties on the User class.
+
+        :returns: The results of user creation
+        :rtype: :class:`~openstack.compute.v2.user.User`
+        """
+        return self._create(user.User, **attrs)
 
     def delete_user(self, value, ignore_missing=True):
         """Delete a user
@@ -346,8 +418,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(user.User, value, **attrs)
 
-    def create_trust(self, **data):
-        return trust.Trust(data).create(self.session)
+    def create_trust(self, **attrs):
+        """Create a new trust from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.compute.v2.trust.Trust`,
+                           comprised of the properties on the Trust class.
+
+        :returns: The results of trust creation
+        :rtype: :class:`~openstack.compute.v2.trust.Trust`
+        """
+        return self._create(trust.Trust, **attrs)
 
     def delete_trust(self, value, ignore_missing=True):
         self._delete(trust.Trust, value, ignore_missing)

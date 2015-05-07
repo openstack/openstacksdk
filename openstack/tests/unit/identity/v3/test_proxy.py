@@ -28,10 +28,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         super(TestIdentityProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
-    def test_credential_create(self):
-        self.verify_create(
-            'openstack.identity.v3.credential.Credential.create',
-            self.proxy.create_credential)
+    def test_credential_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_credential,
+                            method_kwargs=kwargs,
+                            expected_args=[credential.Credential],
+                            expected_kwargs=kwargs)
 
     def test_credential_delete(self):
         self.verify_delete2(credential.Credential,
@@ -63,9 +66,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                                            "resource_or_id"],
                             expected_kwargs=kwargs)
 
-    def test_domain_create(self):
-        self.verify_create('openstack.identity.v3.domain.Domain.create',
-                           self.proxy.create_domain)
+    def test_domain_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_domain,
+                            method_kwargs=kwargs,
+                            expected_args=[domain.Domain],
+                            expected_kwargs=kwargs)
 
     def test_domain_delete(self):
         self.verify_delete2(domain.Domain, self.proxy.delete_domain, False)
@@ -94,9 +101,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                             expected_args=[domain.Domain, "resource_or_id"],
                             expected_kwargs=kwargs)
 
-    def test_endpoint_create(self):
-        self.verify_create('openstack.identity.v3.endpoint.Endpoint.create',
-                           self.proxy.create_endpoint)
+    def test_endpoint_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_endpoint,
+                            method_kwargs=kwargs,
+                            expected_args=[endpoint.Endpoint],
+                            expected_kwargs=kwargs)
 
     def test_endpoint_delete(self):
         self.verify_delete2(endpoint.Endpoint, self.proxy.delete_endpoint,
@@ -128,9 +139,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                                            "resource_or_id"],
                             expected_kwargs=kwargs)
 
-    def test_group_create(self):
-        self.verify_create('openstack.identity.v3.group.Group.create',
-                           self.proxy.create_group)
+    def test_group_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_group,
+                            method_kwargs=kwargs,
+                            expected_args=[group.Group],
+                            expected_kwargs=kwargs)
 
     def test_group_delete(self):
         self.verify_delete2(group.Group, self.proxy.delete_group, False)
@@ -159,9 +174,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                             expected_args=[group.Group, "resource_or_id"],
                             expected_kwargs=kwargs)
 
-    def test_policy_create(self):
-        self.verify_create('openstack.identity.v3.policy.Policy.create',
-                           self.proxy.create_policy)
+    def test_policy_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_policy,
+                            method_kwargs=kwargs,
+                            expected_args=[policy.Policy],
+                            expected_kwargs=kwargs)
 
     def test_policy_delete(self):
         self.verify_delete2(policy.Policy, self.proxy.delete_policy, False)
@@ -190,9 +209,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                             expected_args=[policy.Policy, "resource_or_id"],
                             expected_kwargs=kwargs)
 
-    def test_project_create(self):
-        self.verify_create('openstack.identity.v3.project.Project.create',
-                           self.proxy.create_project)
+    def test_project_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_project,
+                            method_kwargs=kwargs,
+                            expected_args=[project.Project],
+                            expected_kwargs=kwargs)
 
     def test_project_delete(self):
         self.verify_delete2(project.Project, self.proxy.delete_project, False)
@@ -221,9 +244,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                             expected_args=[project.Project, "resource_or_id"],
                             expected_kwargs=kwargs)
 
-    def test_service_create(self):
-        self.verify_create('openstack.identity.v3.service.Service.create',
-                           self.proxy.create_service)
+    def test_service_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_service,
+                            method_kwargs=kwargs,
+                            expected_args=[service.Service],
+                            expected_kwargs=kwargs)
 
     def test_service_delete(self):
         self.verify_delete2(service.Service, self.proxy.delete_service, False)
@@ -252,9 +279,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                             expected_args=[service.Service, "resource_or_id"],
                             expected_kwargs=kwargs)
 
-    def test_user_create(self):
-        self.verify_create('openstack.identity.v3.user.User.create',
-                           self.proxy.create_user)
+    def test_user_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_user,
+                            method_kwargs=kwargs,
+                            expected_args=[user.User],
+                            expected_kwargs=kwargs)
 
     def test_user_delete(self):
         self.verify_delete2(user.User, self.proxy.delete_user, False)
@@ -283,9 +314,13 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                             expected_args=[user.User, "resource_or_id"],
                             expected_kwargs=kwargs)
 
-    def test_trust_create(self):
-        self.verify_create('openstack.identity.v3.trust.Trust.create',
-                           self.proxy.create_trust)
+    def test_trust_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_trust,
+                            method_kwargs=kwargs,
+                            expected_args=[trust.Trust],
+                            expected_kwargs=kwargs)
 
     def test_trust_delete(self):
         self.verify_delete2(trust.Trust, self.proxy.delete_trust, False)
