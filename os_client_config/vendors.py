@@ -32,6 +32,7 @@ CLOUD_DEFAULTS = dict(
         image_api_version='2',
         image_api_use_tasks=True,
         image_format='vhd',
+        floating_ip_source=None,
     ),
     dreamhost=dict(
         auth=dict(
@@ -48,6 +49,7 @@ CLOUD_DEFAULTS = dict(
         region_name='ca-ymq-1',
         image_api_version='2',
         image_format='qcow2',
+        floating_ip_source=None,
     ),
     runabove=dict(
         auth=dict(
@@ -55,6 +57,7 @@ CLOUD_DEFAULTS = dict(
         ),
         image_api_version='2',
         image_format='qcow2',
+        floating_ip_source=None,
     ),
 
 )
