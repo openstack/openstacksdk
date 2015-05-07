@@ -25,7 +25,7 @@ import sys
 from examples import common
 from examples import connection
 from examples.keypair import create as keypair
-from examples import network
+from examples.network import create as network
 
 
 def create_jenkins(conn, name, opts):
