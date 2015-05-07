@@ -357,7 +357,10 @@ class OpenStackConfig(object):
         # Can't just do update, because None values take over
         for (key, val) in iter(args.items()):
             if val is not None:
-                config[key] = val
+                if key == 'auth' and config[key] is not None:
+                    config[key] = _auth_update(config[key], val)
+                else:
+                    config[key] = val
 
         for key in BOOL_KEYS:
             if key in config:

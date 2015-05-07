@@ -43,3 +43,9 @@ class TestConfig(base.TestCase):
                                    vendor_files=[self.vendor_yaml])
         self.assertRaises(
             exceptions.OpenStackConfigException, c.get_one_cloud, 'envvars')
+
+    def test_get_one_cloud_auth_merge(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml])
+        cc = c.get_one_cloud(cloud='_test_cloud_', auth={'username': 'user'})
+        self.assertEqual('user', cc.auth['username'])
+        self.assertEqual('testpass', cc.auth['password'])
