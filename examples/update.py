@@ -14,7 +14,7 @@
 Example Update Command
 
 For example:
-    python -m examples.update openstack/network/v2_0/network.py \
+    python -m examples.update openstack/network/v2/network.py \
            --data '{"name": "foo"}'
 """
 
