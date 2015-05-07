@@ -16,8 +16,17 @@ from openstack import proxy
 
 class Proxy(proxy.BaseProxy):
 
-    def create_image(self, **data):
-        return image.Image(data).create(self.session)
+    def create_image(self, **attrs):
+        """Create a new image from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.image.v1.image.Image`,
+                           comprised of the properties on the Image class.
+
+        :returns: The results of image creation
+        :rtype: :class:`~openstack.compute.v2.image.Image`
+        """
+        return self._create(image.Image, **attrs)
 
     def delete_image(self, value, ignore_missing=True):
         """Delete an image

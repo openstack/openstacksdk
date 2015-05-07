@@ -18,8 +18,17 @@ from openstack import proxy
 
 class Proxy(proxy.BaseProxy):
 
-    def create_image(self, **data):
-        return image.Image(data).create(self.session)
+    def create_image(self, **attrs):
+        """Create a new image from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.image.v2.image.Image`,
+                           comprised of the properties on the Image class.
+
+        :returns: The results of image creation
+        :rtype: :class:`~openstack.compute.v2.image.Image`
+        """
+        return self._create(image.Image, **attrs)
 
     def delete_image(self, value, ignore_missing=True):
         """Delete an image
@@ -58,8 +67,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(image.Image, value, **attrs)
 
-    def create_member(self, **data):
-        return member.Member(data).create(self.session)
+    def create_member(self, **attrs):
+        """Create a new member from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.image.v2.member.Member`,
+                           comprised of the properties on the Member class.
+
+        :returns: The results of member creation
+        :rtype: :class:`~openstack.compute.v2.member.Member`
+        """
+        return self._create(member.Member, **attrs)
 
     def delete_member(self, value, ignore_missing=True):
         """Delete a member
@@ -98,8 +116,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(member.Member, value, **attrs)
 
-    def create_tag(self, **data):
-        return tag.Tag(data).create(self.session)
+    def create_tag(self, **attrs):
+        """Create a new tag from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.image.v2.tag.Tag`,
+                           comprised of the properties on the Tag class.
+
+        :returns: The results of tag creation
+        :rtype: :class:`~openstack.compute.v2.tag.Tag`
+        """
+        return self._create(tag.Tag, **attrs)
 
     def delete_tag(self, value, ignore_missing=True):
         """Delete a tag
