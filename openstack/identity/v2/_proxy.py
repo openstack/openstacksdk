@@ -30,7 +30,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the role does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent role.
 
         :returns: ``None``
         """
@@ -45,8 +45,18 @@ class Proxy(proxy.BaseProxy):
     def list_roles(self):
         return role.Role.list(self.session)
 
-    def update_role(self, **data):
-        return role.Role(data).update(self.session)
+    def update_role(self, value, **attrs):
+        """Update a role
+
+        :param value: Either the id of a role or a
+                      :class:`~openstack.compute.v2.role.Role` instance.
+        :attrs kwargs: The attributes to update on the role represented
+                       by ``value``.
+
+        :returns: The updated role
+        :rtype: :class:`~openstack.compute.v2.role.Role`
+        """
+        return self._update(role.Role, value, **attrs)
 
     def create_tenant(self, **data):
         return tenant.Tenant(data).create(self.session)
@@ -60,7 +70,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the tenant does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent tenant.
 
         :returns: ``None``
         """
@@ -75,8 +85,18 @@ class Proxy(proxy.BaseProxy):
     def list_tenants(self):
         return tenant.Tenant.list(self.session)
 
-    def update_tenant(self, **data):
-        return tenant.Tenant(data).update(self.session)
+    def update_tenant(self, value, **attrs):
+        """Update a tenant
+
+        :param value: Either the id of a tenant or a
+                      :class:`~openstack.compute.v2.tenant.Tenant` instance.
+        :attrs kwargs: The attributes to update on the tenant represented
+                       by ``value``.
+
+        :returns: The updated tenant
+        :rtype: :class:`~openstack.compute.v2.tenant.Tenant`
+        """
+        return self._update(tenant.Tenant, value, **attrs)
 
     def create_user(self, **data):
         return user.User(data).create(self.session)
@@ -90,7 +110,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the user does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent user.
 
         :returns: ``None``
         """
@@ -105,5 +125,15 @@ class Proxy(proxy.BaseProxy):
     def list_users(self):
         return user.User.list(self.session)
 
-    def update_user(self, **data):
-        return user.User(data).update(self.session)
+    def update_user(self, value, **attrs):
+        """Update a user
+
+        :param value: Either the id of a user or a
+                      :class:`~openstack.compute.v2.user.User` instance.
+        :attrs kwargs: The attributes to update on the user represented
+                       by ``value``.
+
+        :returns: The updated user
+        :rtype: :class:`~openstack.compute.v2.user.User`
+        """
+        return self._update(user.User, value, **attrs)
