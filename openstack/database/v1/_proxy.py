@@ -19,8 +19,17 @@ from openstack import proxy
 
 class Proxy(proxy.BaseProxy):
 
-    def create_database(self, **data):
-        return database.Database(data).create(self.session)
+    def create_database(self, **attrs):
+        """Create a new database from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.compute.v2.database.Database`,
+                           comprised of the properties on the Database class.
+
+        :returns: The results of server creation
+        :rtype: :class:`~openstack.compute.v2.database.Database`
+        """
+        return self._create(database.Database, **attrs)
 
     def delete_database(self, value, ignore_missing=True):
         """Delete a database
@@ -52,8 +61,17 @@ class Proxy(proxy.BaseProxy):
     def list_flavor(self):
         return flavor.Flavor.list(self.session)
 
-    def create_instance(self, **data):
-        return instance.Instance(data).create(self.session)
+    def create_instance(self, **attrs):
+        """Create a new instance from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.compute.v2.instance.Instance`,
+                           comprised of the properties on the Instance class.
+
+        :returns: The results of server creation
+        :rtype: :class:`~openstack.compute.v2.instance.Instance`
+        """
+        return self._create(instance.Instance, **attrs)
 
     def delete_instance(self, value, ignore_missing=True):
         """Delete an instance
@@ -93,8 +111,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(instance.Instance, value, **attrs)
 
-    def create_user(self, **data):
-        return user.User(data).create(self.session)
+    def create_user(self, **attrs):
+        """Create a new user from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.compute.v2.user.User`,
+                           comprised of the properties on the User class.
+
+        :returns: The results of server creation
+        :rtype: :class:`~openstack.compute.v2.user.User`
+        """
+        return self._create(user.User, **attrs)
 
     def delete_user(self, value, ignore_missing=True):
         """Delete a user
