@@ -33,8 +33,17 @@ class Proxy(proxy.BaseProxy):
     def find_flavor(self, name_or_id):
         return flavor.Flavor.find(self.session, name_or_id)
 
-    def create_flavor(self, **data):
-        return flavor.Flavor(data).create(self.session)
+    def create_flavor(self, **attrs):
+        """Create a new flavor from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.compute.v2.flavor.Flavor`,
+                           comprised of the properties on the Flavor class.
+
+        :returns: The results of server creation
+        :rtype: :class:`~openstack.compute.v2.flavor.Flavor`
+        """
+        return self._create(flavor.Flavor, **attrs)
 
     def delete_flavor(self, value, ignore_missing=True):
         """Delete a flavor
@@ -104,8 +113,17 @@ class Proxy(proxy.BaseProxy):
         img = image.ImageDetail if details else image.Image
         return img.list(self.session, paginated=True)
 
-    def create_keypair(self, **data):
-        return keypair.Keypair(data).create(self.session)
+    def create_keypair(self, **attrs):
+        """Create a new keypair from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.compute.v2.keypair.Keypair`,
+                           comprised of the properties on the Keypair class.
+
+        :returns: The results of server creation
+        :rtype: :class:`~openstack.compute.v2.keypair.Keypair`
+        """
+        return self._create(keypair.Keypair, **attrs)
 
     def delete_keypair(self, value, ignore_missing=True):
         """Delete a keypair
@@ -199,8 +217,17 @@ class Proxy(proxy.BaseProxy):
         return resource.wait_for_status(self.session, value, status,
                                         failures, interval, wait)
 
-    def create_server_interface(self, **data):
-        return server_interface.ServerInterface(data).create(self.session)
+    def create_server_interface(self, **attrs):
+        """Create a new server interface from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.compute.v2.server_interface.ServerInterface`,
+            comprised of the properties on the ServerInterface class.
+
+        :returns: The results of server creation
+        :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
+        """
+        return self._create(server_interface.ServerInterface, **attrs)
 
     def delete_server_interface(self, value, ignore_missing=True):
         """Delete a server interface
