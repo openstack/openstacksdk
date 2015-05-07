@@ -79,8 +79,14 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_instance)
 
     def test_instance_update(self):
-        self.verify_update('openstack.database.v1.instance.Instance.update',
-                           self.proxy.update_instance)
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_instance,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[instance.Instance,
+                                           "resource_or_id"],
+                            expected_kwargs=kwargs)
 
     def test_user_create(self):
         self.verify_create('openstack.database.v1.user.User.create',

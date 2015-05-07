@@ -31,7 +31,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the database does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent database.
 
         :returns: ``None``
         """
@@ -64,7 +64,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the instance does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent instance.
 
         :returns: ``None``
         """
@@ -79,8 +79,19 @@ class Proxy(proxy.BaseProxy):
     def list_instance(self):
         return instance.Instance.list(self.session)
 
-    def update_instance(self, **data):
-        return instance.Instance(data).update(self.session)
+    def update_instance(self, value, **attrs):
+        """Update a instance
+
+        :param value: Either the id of a instance or a
+                      :class:`~openstack.compute.v2.instance.Instance`
+                      instance.
+        :attrs kwargs: The attributes to update on the instance represented
+                       by ``value``.
+
+        :returns: The updated instance
+        :rtype: :class:`~openstack.compute.v2.instance.Instance`
+        """
+        return self._update(instance.Instance, value, **attrs)
 
     def create_user(self, **data):
         return user.User(data).create(self.session)
@@ -94,7 +105,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the user does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent user.
 
         :returns: ``None``
         """
