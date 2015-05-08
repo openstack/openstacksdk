@@ -37,8 +37,17 @@ class Proxy(proxy.BaseProxy):
     def list_extensions(self):
         return extension.Extension.list(self.session)
 
-    def create_ip(self, **data):
-        return floating_ip.FloatingIP(data).create(self.session)
+    def create_ip(self, **attrs):
+        """Create a new floating ip from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+               a :class:`~openstack.network.v2.floating_ip.FloatingIP`,
+               comprised of the properties on the FloatingIP class.
+
+        :returns: The results of floating ip creation
+        :rtype: :class:`~openstack.network.v2.floating_ip.FloatingIP`
+        """
+        return self._create(floating_ip.FloatingIP, **attrs)
 
     def delete_ip(self, value, ignore_missing=True):
         """Delete a floating ip
@@ -81,10 +90,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(floating_ip.FloatingIP, value, **attrs)
 
-    def create_health_monitor(self, **data):
-        return health_monitor.HealthMonitor(data).create(self.session)
+    def create_health_monitor(self, **attrs):
+        """Create a new health monitor from attributes
 
-        health_monitor.HealthMonitor(data).delete(self.session)
+        :param dict attrs: Keyword arguments which will be used to create
+               a :class:`~openstack.network.v2.health_monitor.HealthMonitor`,
+               comprised of the properties on the HealthMonitor class.
+
+        :returns: The results of health monitor creation
+        :rtype: :class:`~openstack.network.v2.health_monitor.HealthMonitor`
+        """
+        return self._create(health_monitor.HealthMonitor, **attrs)
 
     def delete_health_monitor(self, value, ignore_missing=True):
         """Delete a health monitor
@@ -125,8 +141,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(health_monitor.HealthMonitor, value, **attrs)
 
-    def create_listener(self, **data):
-        return listener.Listener(data).create(self.session)
+    def create_listener(self, **attrs):
+        """Create a new listener from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.network.v2.listener.Listener`,
+                           comprised of the properties on the Listener class.
+
+        :returns: The results of listener creation
+        :rtype: :class:`~openstack.network.v2.listener.Listener`
+        """
+        return self._create(listener.Listener, **attrs)
 
     def delete_listener(self, value, ignore_missing=True):
         """Delete a listener
@@ -166,8 +191,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(listener.Listener, value, **attrs)
 
-    def create_load_balancer(self, **data):
-        return load_balancer.LoadBalancer(data).create(self.session)
+    def create_load_balancer(self, **attrs):
+        """Create a new load balancer from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+               a :class:`~openstack.network.v2.load_balancer.LoadBalancer`,
+               comprised of the properties on the LoadBalancer class.
+
+        :returns: The results of load balancer creation
+        :rtype: :class:`~openstack.network.v2.load_balancer.LoadBalancer`
+        """
+        return self._create(load_balancer.LoadBalancer, **attrs)
 
     def delete_load_balancer(self, value, ignore_missing=True):
         """Delete a load balancer
@@ -208,8 +242,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(load_balancer.LoadBalancer, value, **attrs)
 
-    def create_metering_label(self, **data):
-        return metering_label.MeteringLabel(data).create(self.session)
+    def create_metering_label(self, **attrs):
+        """Create a new metering label from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+               a :class:`~openstack.network.v2.metering_label.MeteringLabel`,
+               comprised of the properties on the MeteringLabel class.
+
+        :returns: The results of metering label creation
+        :rtype: :class:`~openstack.network.v2.metering_label.MeteringLabel`
+        """
+        return self._create(metering_label.MeteringLabel, **attrs)
 
     def delete_metering_label(self, value, ignore_missing=True):
         """Delete a metering label
@@ -250,8 +293,18 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(metering_label.MeteringLabel, value, **attrs)
 
-    def create_metering_label_rule(self, **data):
-        return metering_label_rule.MeteringLabelRule(data).create(self.session)
+    def create_metering_label_rule(self, **attrs):
+        """Create a new metering label rule from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+        a :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`,
+        comprised of the properties on the MeteringLabelRule class.
+
+        :returns: The results of metering label rule creation
+        :rtype:
+        :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
+        """
+        return self._create(metering_label_rule.MeteringLabelRule, **attrs)
 
     def delete_metering_label_rule(self, value, ignore_missing=True):
         """Delete a metering label rule
@@ -297,8 +350,18 @@ class Proxy(proxy.BaseProxy):
         return self._update(metering_label_rule.MeteringLabelRule, value,
                             **attrs)
 
-    def create_network(self, **data):
-        return network.Network(data).create(self.session)
+    def create_network(self, **attrs):
+        """Create a new network from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.network.v2.network.Network`,
+                           comprised of the properties on the Network class.
+
+        :returns: The results of network creation
+        :rtype:
+        :class:`~openstack.network.v2.network.Network`
+        """
+        return self._create(network.Network, **attrs)
 
     def delete_network(self, value, ignore_missing=True):
         """Delete a network
@@ -337,8 +400,18 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(network.Network, value, **attrs)
 
-    def create_pool(self, **data):
-        return pool.Pool(data).create(self.session)
+    def create_pool(self, **attrs):
+        """Create a new pool from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.network.v2.pool.Pool`,
+                           comprised of the properties on the Pool class.
+
+        :returns: The results of pool creation
+        :rtype:
+        :class:`~openstack.network.v2.pool.Pool`
+        """
+        return self._create(pool.Pool, **attrs)
 
     def delete_pool(self, value, ignore_missing=True):
         """Delete a pool
@@ -377,8 +450,18 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(pool.Pool, value, **attrs)
 
-    def create_pool_member(self, **data):
-        return pool_member.PoolMember(data).create(self.session)
+    def create_pool_member(self, **attrs):
+        """Create a new pool member from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+               a :class:`~openstack.network.v2.pool_member.PoolMember`,
+               comprised of the properties on the PoolMember class.
+
+        :returns: The results of pool member creation
+        :rtype:
+        :class:`~openstack.network.v2.pool_member.PoolMember`
+        """
+        return self._create(pool_member.PoolMember, **attrs)
 
     def delete_pool_member(self, value, ignore_missing=True):
         """Delete a pool member
@@ -419,8 +502,18 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(pool_member.PoolMember, value, **attrs)
 
-    def create_port(self, **data):
-        return port.Port(data).create(self.session)
+    def create_port(self, **attrs):
+        """Create a new port from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.network.v2.port.Port`,
+                           comprised of the properties on the Port class.
+
+        :returns: The results of port creation
+        :rtype:
+        :class:`~openstack.network.v2.port.Port`
+        """
+        return self._create(port.Port, **attrs)
 
     def delete_port(self, value, ignore_missing=True):
         """Delete a port
@@ -479,8 +572,18 @@ class Proxy(proxy.BaseProxy):
     def list_quotas(self):
         return quota.Quota.list(self.session)
 
-    def create_router(self, **data):
-        return router.Router(data).create(self.session)
+    def create_router(self, **attrs):
+        """Create a new router from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.network.v2.router.Router`,
+                           comprised of the properties on the Router class.
+
+        :returns: The results of router creation
+        :rtype:
+        :class:`~openstack.network.v2.router.Router`
+        """
+        return self._create(router.Router, **attrs)
 
     def delete_router(self, value, ignore_missing=True):
         """Delete a router
@@ -525,8 +628,18 @@ class Proxy(proxy.BaseProxy):
     def router_remove_interface(self, router, subnet_id):
         router.remove_interface(self.session, subnet_id)
 
-    def create_security_group(self, **data):
-        return security_group.SecurityGroup(data).create(self.session)
+    def create_security_group(self, **attrs):
+        """Create a new security group from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+               a :class:`~openstack.network.v2.security_group.SecurityGroup`,
+               comprised of the properties on the SecurityGroup class.
+
+        :returns: The results of security group creation
+        :rtype:
+        :class:`~openstack.network.v2.security_group.SecurityGroup`
+        """
+        return self._create(security_group.SecurityGroup, **attrs)
 
     def delete_security_group(self, value, ignore_missing=True):
         """Delete a security group
@@ -592,9 +705,18 @@ class Proxy(proxy.BaseProxy):
         }
         return self.create_security_group_rule(**rule)
 
-    def create_security_group_rule(self, **data):
-        obj = security_group_rule.SecurityGroupRule(data)
-        return obj.create(self.session)
+    def create_security_group_rule(self, **attrs):
+        """Create a new security group rule from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+        a :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`,
+        comprised of the properties on the SecurityGroupRule class.
+
+        :returns: The results of security group rule creation
+        :rtype:
+        :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
+        """
+        return self._create(security_group_rule.SecurityGroupRule, **attrs)
 
     def delete_security_group_rule(self, value, ignore_missing=True):
         """Delete a security group rule
@@ -642,8 +764,18 @@ class Proxy(proxy.BaseProxy):
         return self._update(security_group_rule.SecurityGroupRule, value,
                             **attrs)
 
-    def create_subnet(self, **data):
-        return subnet.Subnet(data).create(self.session)
+    def create_subnet(self, **attrs):
+        """Create a new subnet from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.network.v2.subnet.Subnet`,
+                           comprised of the properties on the Subnet class.
+
+        :returns: The results of subnet creation
+        :rtype:
+        :class:`~openstack.network.v2.subnet.Subnet`
+        """
+        return self._create(subnet.Subnet, **attrs)
 
     def delete_subnet(self, value, ignore_missing=True):
         """Delete a subnet
