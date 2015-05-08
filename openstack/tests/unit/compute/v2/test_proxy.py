@@ -32,9 +32,13 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_list('openstack.compute.v2.extension.Extension.list',
                          self.proxy.list_extensions)
 
-    def test_flavor_create(self):
-        self.verify_create('openstack.compute.v2.flavor.Flavor.create',
-                           self.proxy.create_flavor)
+    def test_flavor_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_flavor,
+                            method_kwargs=kwargs,
+                            expected_args=[flavor.Flavor],
+                            expected_kwargs=kwargs)
 
     def test_flavor_delete(self):
         self.verify_delete2(flavor.Flavor, self.proxy.delete_flavor, False)
@@ -90,9 +94,13 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          method_kwargs={"details": True},
                          expected_kwargs={"paginated": True})
 
-    def test_keypair_create(self):
-        self.verify_create('openstack.compute.v2.keypair.Keypair.create',
-                           self.proxy.create_keypair)
+    def test_keypair_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_keypair,
+                            method_kwargs=kwargs,
+                            expected_args=[keypair.Keypair],
+                            expected_kwargs=kwargs)
 
     def test_keypair_delete(self):
         self.verify_delete2(keypair.Keypair, self.proxy.delete_keypair, False)
@@ -121,10 +129,13 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
             'openstack.compute.v2.limits.Limits.get',
             self.proxy.limits)
 
-    def test_server_interface_create(self):
-        self.verify_create(
-            'openstack.compute.v2.server_interface.ServerInterface.create',
-            self.proxy.create_server_interface)
+    def test_server_interface_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_server_interface,
+                            method_kwargs=kwargs,
+                            expected_args=[server_interface.ServerInterface],
+                            expected_kwargs=kwargs)
 
     def test_server_interface_delete(self):
         self.verify_delete2(server_interface.ServerInterface,
