@@ -19,7 +19,6 @@ test_compute
 Functional tests for `shade` compute methods.
 """
 
-from novaclient.v2.servers import Server
 from shade import openstack_cloud
 from shade.tests import base
 from shade.tests.functional.util import pick_flavor, pick_image
@@ -47,10 +46,9 @@ class TestCompute(base.TestCase):
         self.addCleanup(self._cleanup_servers)
         server = self.cloud.create_server(name='test_create_server',
                                           image=self.image, flavor=self.flavor)
-        self.assertIsInstance(server, Server)
-        self.assertEquals(server.name, 'test_create_server')
-        self.assertEquals(server.image['id'], self.image.id)
-        self.assertEquals(server.flavor['id'], self.flavor.id)
+        self.assertEquals(server['name'], 'test_create_server')
+        self.assertEquals(server['image']['id'], self.image.id)
+        self.assertEquals(server['flavor']['id'], self.flavor.id)
 
     def test_delete_server(self):
         self.cloud.create_server(name='test_delete_server',

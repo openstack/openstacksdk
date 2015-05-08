@@ -37,9 +37,9 @@ Sometimes an example is nice.
   # But you can also access the underlying python-*client objects
   cinder = cloud.cinder_client
   volumes = cinder.volumes.list()
-  volume_id = [v for v in volumes if v.status == 'available'][0].id
+  volume_id = [v for v in volumes if v['status'] == 'available'][0]['id']
   nova = cloud.nova_client
-  print nova.volumes.create_server_volume(s.id, volume_id, None)
+  print nova.volumes.create_server_volume(s['id'], volume_id, None)
   attachments = []
   print volume_id
   while not attachments:

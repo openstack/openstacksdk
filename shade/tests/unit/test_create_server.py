@@ -20,6 +20,7 @@ Tests for the `create_server` command.
 """
 
 from mock import patch, Mock
+from shade import meta
 from shade import OpenStackCloud
 from shade.exc import (OpenStackCloudException, OpenStackCloudTimeout)
 from shade.tests import base, fakes
@@ -115,8 +116,8 @@ class TestCreateServer(base.TestCase):
                 "servers.get.return_value": fake_server
             }
             OpenStackCloud.nova_client = Mock(**config)
-            self.assertEqual(
-                self.client.create_server(), fake_server)
+            self.assertEqual(meta.obj_to_dict(fake_server),
+                             self.client.create_server())
 
     def test_create_server_wait(self):
         """

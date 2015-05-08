@@ -1677,7 +1677,11 @@ class OpenStackCloud(object):
     def create_server(self, auto_ip=True, ips=None, ip_pool=None,
                       root_volume=None, terminate_volume=False,
                       wait=False, timeout=180, **bootkwargs):
+        """Create a virtual server instance.
 
+        :returns: A dict representing the created server.
+        :raises: OpenStackCloudException on operation error.
+        """
         if root_volume:
             if terminate_volume:
                 suffix = ':::1'
@@ -1703,21 +1707,22 @@ class OpenStackCloud(object):
                     timeout,
                     "Timeout waiting for the server to come up."):
                 try:
-                    server = self.manager.submitTask(
-                        _tasks.ServerGet(server=server))
+                    server = meta.obj_to_dict(
+                        self.manager.submitTask(
+                            _tasks.ServerGet(server=server))
+                    )
                 except Exception:
                     continue
 
-                if server.status == 'ACTIVE':
+                if server['status'] == 'ACTIVE':
                     return self.add_ips_to_server(
                         server, auto_ip, ips, ip_pool)
 
-                if server.status == 'ERROR':
+                if server['status'] == 'ERROR':
                     raise OpenStackCloudException(
                         "Error in creating the server",
-                        extra_data=dict(
-                            server=meta.obj_to_dict(server)))
-        return server
+                        extra_data=dict(server=server))
+        return meta.obj_to_dict(server)
 
     def rebuild_server(self, server_id, image_id, wait=False, timeout=180):
         try:
@@ -1733,20 +1738,21 @@ class OpenStackCloud(object):
                     "Timeout waiting for server {0} to "
                     "rebuild.".format(server_id)):
                 try:
-                    server = self.manager.submitTask(
-                        _tasks.ServerGet(server=server))
+                    server = meta.obj_to_dict(
+                        self.manager.submitTask(
+                            _tasks.ServerGet(server=server))
+                    )
                 except Exception:
                     continue
 
-                if server.status == 'ACTIVE':
-                    break
+                if server['status'] == 'ACTIVE':
+                    return server
 
-                if server.status == 'ERROR':
+                if server['status'] == 'ERROR':
                     raise OpenStackCloudException(
                         "Error in rebuilding the server",
-                        extra_data=dict(
-                            server=meta.obj_to_dict(server)))
-        return server
+                        extra_data=dict(server=server))
+        return meta.obj_to_dict(server)
 
     def delete_server(self, name, wait=False, timeout=180):
         server = self.get_server(name)
