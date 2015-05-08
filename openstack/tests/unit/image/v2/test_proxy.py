@@ -22,6 +22,14 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         super(TestImageProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
+    def test_image_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_image,
+                            method_kwargs=kwargs,
+                            expected_args=[image.Image],
+                            expected_kwargs=kwargs)
+
     def test_image_delete(self):
         self.verify_delete2(image.Image, self.proxy.delete_image, False)
 
@@ -37,6 +45,14 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                             expected_args=[image.Image, "resource_or_id"],
                             expected_kwargs=kwargs)
 
+    def test_member_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_member,
+                            method_kwargs=kwargs,
+                            expected_args=[member.Member],
+                            expected_kwargs=kwargs)
+
     def test_member_delete(self):
         self.verify_delete2(member.Member, self.proxy.delete_member, False)
 
@@ -50,6 +66,14 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                             method_args=["resource_or_id"],
                             method_kwargs=kwargs,
                             expected_args=[member.Member, "resource_or_id"],
+                            expected_kwargs=kwargs)
+
+    def test_tag_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_tag,
+                            method_kwargs=kwargs,
+                            expected_args=[tag.Tag],
                             expected_kwargs=kwargs)
 
     def test_tag_delete(self):
