@@ -12,6 +12,7 @@
 
 from openstack.telemetry.v2 import _proxy
 from openstack.telemetry.v2 import alarm
+from openstack.telemetry.v2 import sample
 from openstack.tests.unit import test_proxy_base
 
 
@@ -30,9 +31,13 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
             'openstack.telemetry.v2.alarm_change.AlarmChange.list',
             self.proxy.list_alarm_changes)
 
-    def test_alarm_create(self):
-        self.verify_create('openstack.telemetry.v2.alarm.Alarm.create',
-                           self.proxy.create_alarm)
+    def test_alarm_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_alarm,
+                            method_kwargs=kwargs,
+                            expected_args=[alarm.Alarm],
+                            expected_kwargs=kwargs)
 
     def test_alarm_delete(self):
         self.verify_delete2(alarm.Alarm, self.proxy.delete_alarm, False)
@@ -89,9 +94,13 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
         self.verify_list('openstack.telemetry.v2.resource.Resource.list',
                          self.proxy.list_resources)
 
-    def test_sample_create(self):
-        self.verify_create('openstack.telemetry.v2.sample.Sample.create',
-                           self.proxy.create_sample)
+    def test_sample_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_sample,
+                            method_kwargs=kwargs,
+                            expected_args=[sample.Sample],
+                            expected_kwargs=kwargs)
 
     def test_sample_find(self):
         self.verify_find('openstack.telemetry.v2.sample.Sample.find',
