@@ -87,19 +87,18 @@ class Proxy(proxy.BaseProxy):
         """
         container.create(self.session)
 
-    def create_container(self, container):
-        """Create a container,
+    def create_container(self, **attrs):
+        """Create a new container from attributes
 
-        :param container: The container to create. You can pass a container
-            object or the name of a container to create.
-        :type container:
-            :class:`~openstack.object_store.v1.container.Container`
+        :param dict attrs: Keyword arguments which will be used to create
+               a :class:`~openstack.object_store.v1.container.Container`,
+               comprised of the properties on the Container class.
 
-        :rtype:
-            :class:`~openstack.object_store.v1.container.Container`
+        :returns: The results of container creation
+        :rtype: :class:`~openstack.compute.v2.container.Container`
         """
-        container = _container.Container.from_id(container)
-        return container.create(self.session)
+        # TODO(brian): s/_container/container once other changes propogate
+        return self._create(_container.Container, **attrs)
 
     def delete_container(self, value, ignore_missing=True):
         """Delete a container
@@ -160,24 +159,18 @@ class Proxy(proxy.BaseProxy):
         with open(path, "w") as out:
             out.write(self.get_object_data(obj))
 
-    def create_object(self, data, obj, container=None, **kwargs):
-        """Create an object within the object store.
+    def create_object(self, **attrs):
+        """Create a new object from attributes
 
-        :param data: The data to store.
-        :param obj: The name of the object to create, or an obj.Object
-        :type obj: :class:`~openstack.object_store.v1.obj.Object`
+        :param dict attrs: Keyword arguments which will be used to create
+               a :class:`~openstack.object_store.v1.obj.Object`,
+               comprised of the properties on the Object class.
+
+        :returns: The results of object creation
+        :rtype: :class:`~openstack.compute.v2.container.Container`
         """
-        obj = _obj.Object.from_id(obj)
-
-        # If we were given an Object complete with an underlying Container,
-        # this attribute access will succeed. Otherwise we'll need to set
-        # a container value on `obj` out of the `container` value.
-        name = getattr(obj, "container")
-        if not name:
-            cnt = _container.Container.from_id(container)
-            obj.container = cnt.name
-
-        return obj.create(self.session, data)
+        # TODO(brian): s/_container/container once other changes propogate
+        return self._create(_obj.Object, **attrs)
 
     def copy_object(self):
         """Copy an object."""
