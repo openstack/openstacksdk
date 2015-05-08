@@ -21,6 +21,18 @@ class Proxy(proxy.BaseProxy):
     def get_volume(self, **data):
         return volume.Volume(data).get(self.session)
 
+    def create_snapshot(self, **attrs):
+        """Create a new snapshot from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.volume.v2.snapshot.Snapshot`,
+                           comprised of the properties on the Snapshot class.
+
+        :returns: The results of snapshot creation
+        :rtype: :class:`~openstack.volume.v2.snapshot.Snapshot`
+        """
+        return self._create(snapshot.Snapshot, **attrs)
+
     def delete_snapshot(self, value, ignore_missing=True):
         """Delete a snapshot
 
@@ -36,6 +48,18 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(snapshot.Snapshot, value, ignore_missing)
 
+    def create_type(self, **attrs):
+        """Create a new type from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.volume.v2.type.Type`,
+                           comprised of the properties on the Type class.
+
+        :returns: The results of type creation
+        :rtype: :class:`~openstack.volume.v2.type.Type`
+        """
+        return self._create(type.Type, **attrs)
+
     def delete_type(self, value, ignore_missing=True):
         """Delete a type
 
@@ -50,6 +74,18 @@ class Proxy(proxy.BaseProxy):
         :returns: ``None``
         """
         self._delete(type.Type, value, ignore_missing)
+
+    def create_volume(self, **attrs):
+        """Create a new volume from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.volume.v2.volume.Volume`,
+                           comprised of the properties on the Volume class.
+
+        :returns: The results of volume creation
+        :rtype: :class:`~openstack.volume.v2.volume.Volume`
+        """
+        return self._create(volume.Volume, **attrs)
 
     def delete_volume(self, value, ignore_missing=True):
         """Delete a volume
