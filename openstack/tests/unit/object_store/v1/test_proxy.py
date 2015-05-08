@@ -40,11 +40,27 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         self.verify_delete2(container.Container, self.proxy.delete_container,
                             True)
 
+    def test_container_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_container,
+                            method_kwargs=kwargs,
+                            expected_args=[container.Container],
+                            expected_kwargs=kwargs)
+
     def test_object_delete(self):
         self.verify_delete2(obj.Object, self.proxy.delete_object, False)
 
     def test_object_delete_ignore(self):
         self.verify_delete2(obj.Object, self.proxy.delete_object, True)
+
+    def test_object_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_object,
+                            method_kwargs=kwargs,
+                            expected_args=[obj.Object],
+                            expected_kwargs=kwargs)
 
 
 class Test_account_metadata(TestObjectStoreProxy):
@@ -196,33 +212,6 @@ class Test_container_metadata(TestObjectStoreProxy):
         container.create.assert_called_once_with(self.session)
 
 
-class Test_create_container(TestObjectStoreProxy):
-
-    @mock.patch("openstack.resource.Resource.from_id")
-    def test_container_object(self, mock_fi):
-        container = mock.MagicMock()
-        container.create.return_value = container
-        mock_fi.return_value = container
-
-        result = self.proxy.create_container(container)
-
-        self.assertIs(container, result)
-        container.create.assert_called_once_with(self.session)
-
-    @mock.patch("openstack.resource.Resource.from_id")
-    def test_container_name(self, mock_fi):
-        name = six.text_type("my_container")
-        created_container = mock.MagicMock()
-        created_container.name = name
-        created_container.create.return_value = created_container
-        mock_fi.return_value = created_container
-
-        result = self.proxy.create_container(name)
-
-        self.assertEqual(name, result.name)
-        created_container.create.assert_called_once_with(self.session)
-
-
 class Test_objects(TestObjectStoreProxy, base.TestTransportBase):
 
     TEST_URL = fakes.FakeAuthenticator.ENDPOINT
@@ -348,63 +337,6 @@ class Test_save_object(TestObjectStoreProxy):
         fake_open.assert_called_once_with(file_path, "w")
         fake_handle = fake_open()
         fake_handle.write.assert_called_once_with(the_data)
-
-
-class Test_create_object(TestObjectStoreProxy):
-
-    def setUp(self):
-        super(Test_create_object, self).setUp()
-        self.the_data = six.b("here's some data")
-        self.container_name = six.text_type("my_container")
-        self.object_name = six.text_type("my_object")
-
-    @mock.patch("openstack.object_store.v1.obj.Object.from_id")
-    def test_create_with_obj_name_real_container(self, mock_fi):
-        created_object = mock.MagicMock()
-        created_object.name = self.object_name
-        created_object.create.return_value = created_object
-        # Since we're using a MagicMock, we have to explicitly set this to
-        # None otherwise when it gets accessed it'll have a value which
-        # is not what we want to happen.
-        created_object.container = None
-        mock_fi.return_value = created_object
-
-        cont = container.Container.new(name=self.container_name)
-
-        result = self.proxy.create_object(self.the_data, self.object_name,
-                                          cont)
-
-        self.assertIs(created_object, result)
-        self.assertEqual(self.object_name, result.name)
-        self.assertEqual(self.container_name, result.container)
-        created_object.create.assert_called_once_with(self.session,
-                                                      self.the_data)
-
-    def test_create_with_real_obj_real_container(self):
-        ob = obj.Object.new(name=self.object_name)
-        ob.create = mock.MagicMock()
-        ob.create.return_value = ob
-        cont = container.Container.new(name=self.container_name)
-
-        result = self.proxy.create_object(self.the_data, ob, cont)
-
-        self.assertIs(ob, result)
-        self.assertEqual(self.object_name, result.name)
-        self.assertEqual(self.container_name, result.container)
-        ob.create.assert_called_once_with(self.session, self.the_data)
-
-    def test_create_with_full_obj_no_container_arg(self):
-        ob = obj.Object.new(name=self.object_name,
-                            container=self.container_name)
-        ob.create = mock.MagicMock()
-        ob.create.return_value = ob
-
-        result = self.proxy.create_object(self.the_data, ob)
-
-        self.assertIs(ob, result)
-        self.assertEqual(self.object_name, result.name)
-        self.assertEqual(self.container_name, result.container)
-        ob.create.assert_called_once_with(self.session, self.the_data)
 
 
 class Test_object_metadata(TestObjectStoreProxy):
