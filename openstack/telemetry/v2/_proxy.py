@@ -22,8 +22,17 @@ from openstack.telemetry.v2 import statistics
 
 class Proxy(proxy.BaseProxy):
 
-    def create_alarm(self, **data):
-        return alarm.Alarm(data).create(self.session)
+    def create_alarm(self, **attrs):
+        """Create a new alarm from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.telemetry.v2.alarm.Alarm`,
+                           comprised of the properties on the Alarm class.
+
+        :returns: The results of alarm creation
+        :rtype: :class:`~openstack.telemetry.v2.alarm.Alarm`
+        """
+        return self._create(alarm.Alarm, **attrs)
 
     def delete_alarm(self, value, ignore_missing=True):
         """Delete an alarm
@@ -89,8 +98,17 @@ class Proxy(proxy.BaseProxy):
     def list_resources(self):
         return resource.Resource.list(self.session)
 
-    def create_sample(self, **data):
-        return sample.Sample(data).create(self.session)
+    def create_sample(self, **attrs):
+        """Create a new sample from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.telemetry.v2.sample.Sample`,
+                           comprised of the properties on the Sample class.
+
+        :returns: The results of sample creation
+        :rtype: :class:`~openstack.telemetry.v2.sample.Sample`
+        """
+        return self._create(sample.Sample, **attrs)
 
     def find_sample(self, name_or_id):
         return sample.Sample.find(self.session, name_or_id)
