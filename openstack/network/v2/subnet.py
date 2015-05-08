@@ -44,6 +44,13 @@ class Subnet(resource.Resource):
     host_routes = resource.prop('host_routes')
     #: The IP version, which is ``4`` or ``6``.
     ip_version = resource.prop('ip_version')
+
+    #: The IPv6 address modes which are 'dhcpv6-stateful', 'dhcpv6-stateless',
+    #: or 'SLAAC'
+    ipv6_address_mode = resource.prop('ipv6_address_mode')
+    #: The IPv6 router advertisements modes
+    ipv6_ra_mode = resource.prop('ipv6_ra_mode')
+
     #: The subnet name.
     name = resource.prop('name')
     #: The ID of the attached network.

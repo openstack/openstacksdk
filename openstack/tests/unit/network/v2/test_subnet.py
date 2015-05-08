@@ -24,6 +24,8 @@ EXAMPLE = {
     'host_routes': '6',
     'id': IDENTIFIER,
     'ip_version': '8',
+    'ipv6_address_mode': 'dhcpv6-stateless',
+    'ipv6_ra_mode': 'radvd',
     'name': '9',
     'network_id': '10',
     'tenant_id': '11',
@@ -54,6 +56,8 @@ class TestSubnet(testtools.TestCase):
         self.assertEqual(EXAMPLE['host_routes'], sot.host_routes)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['ip_version'], sot.ip_version)
+        self.assertEqual(EXAMPLE['ipv6_address_mode'], sot.ipv6_address_mode)
+        self.assertEqual(EXAMPLE['ipv6_ra_mode'], sot.ipv6_ra_mode)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['network_id'], sot.network_id)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
