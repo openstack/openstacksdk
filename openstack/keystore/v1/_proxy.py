@@ -18,8 +18,17 @@ from openstack import proxy
 
 class Proxy(proxy.BaseProxy):
 
-    def create_container(self, **data):
-        return container.Container(data).create(self.session)
+    def create_container(self, **attrs):
+        """Create a new container from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+               a :class:`~openstack.keystore.v1.container.Container`,
+               comprised of the properties on the Container class.
+
+        :returns: The results of container creation
+        :rtype: :class:`~openstack.keystore.v1.container.Container`
+        """
+        return self._create(container.Container, **attrs)
 
     def delete_container(self, value, ignore_missing=True):
         """Delete a container
@@ -59,8 +68,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(container.Container, value, **attrs)
 
-    def create_order(self, **data):
-        return order.Order(data).create(self.session)
+    def create_order(self, **attrs):
+        """Create a new order from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.keystore.v1.order.Order`,
+                           comprised of the properties on the Order class.
+
+        :returns: The results of order creation
+        :rtype: :class:`~openstack.keystore.v1.order.Order`
+        """
+        return self._create(order.Order, **attrs)
 
     def delete_order(self, value, ignore_missing=True):
         """Delete an order
@@ -99,8 +117,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(order.Order, value, **attrs)
 
-    def create_secret(self, **data):
-        return secret.Secret(data).create(self.session)
+    def create_secret(self, **attrs):
+        """Create a new secret from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.keystore.v1.secret.Secret`,
+                           comprised of the properties on the Order class.
+
+        :returns: The results of secret creation
+        :rtype: :class:`~openstack.keystore.v1.secret.Secret`
+        """
+        return self._create(secret.Secret, **attrs)
 
     def delete_secret(self, value, ignore_missing=True):
         """Delete a secret
