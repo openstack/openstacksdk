@@ -9,6 +9,10 @@ put in a config file. It will read environment variables and config files,
 and it also contains some vendor specific default values so that you don't
 have to know extra info to use OpenStack
 
+* If you have a config file, you will get the clouds listed in it
+* If you have environment variables, you will get a cloud named 'envvars'
+* If you have neither, you will get a cloud named 'defaults' with base defaults
+
 Environment Variables
 ---------------------
 
@@ -16,10 +20,10 @@ os-client-config honors all of the normal `OS_*` variables. It does not
 provide backwards compatibility to service-specific variables such as
 `NOVA_USERNAME`.
 
-If you have OpenStack environment variables seet and no config files,
-os-client-config will produce a cloud config object named "envvars" containing
-your values from the environment. If you don't like the name "envvars", that's
-ok, you can override it by setting `OS_CLOUD_NAME`.
+If you have OpenStack environment variables set, os-client-config will produce
+a cloud config object named "envvars" containing your values from the
+environment. If you don't like the name "envvars", that's ok, you can override
+it by setting `OS_CLOUD_NAME`.
 
 Service specific settings, like the nova service type, are set with the
 default service type as a prefix. For instance, to set a special service_type

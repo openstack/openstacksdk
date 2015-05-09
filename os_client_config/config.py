@@ -91,30 +91,33 @@ class OpenStackConfig(object):
 
         self.defaults = dict(defaults._defaults)
 
-        # use a config file if it exists where expected
+        # First, use a config file if it exists where expected
         self.cloud_config = self._load_config_file()
-        if not self.cloud_config:
-            self.cloud_config = dict(
-                clouds=dict(openstack=dict(self.defaults)))
 
-        self.envvar_key = os.environ.pop('OS_CLOUD_NAME', None)
-        if self.envvar_key:
-            if self.envvar_key in self.cloud_config['clouds']:
-                raise exceptions.OpenStackConfigException(
-                    'clouds.yaml defines a cloud named "{0}", but'
-                    ' OS_CLOUD_NAME is also set to "{0}". Please rename'
-                    ' either your environment based cloud, or one of your'
-                    ' file-based clouds.'.format(self.envvar_key))
-        else:
-            self.envvar_key = 'envvars'
+        if not self.cloud_config:
+            self.cloud_config = {'clouds': {}}
+        if 'clouds' not in self.cloud_config:
+            self.cloud_config['clouds'] = {}
+
+        # Next, process environment variables and add them to the mix
+        self.envvar_key = os.environ.pop('OS_CLOUD_NAME', 'envvars')
+        if self.envvar_key in self.cloud_config['clouds']:
+            raise exceptions.OpenStackConfigException(
+                'clouds.yaml defines a cloud named "{0}", but'
+                ' OS_CLOUD_NAME is also set to "{0}". Please rename'
+                ' either your environment based cloud, or one of your'
+                ' file-based clouds.'.format(self.envvar_key))
 
         envvars = _get_os_environ()
         if envvars:
-            if self.envvar_key in self.cloud_config['clouds']:
-                raise exceptions.OpenStackConfigException(
-                    'clouds.yaml defines a cloud named {0}, and OS_*'
-                    ' env vars are set')
             self.cloud_config['clouds'][self.envvar_key] = envvars
+
+        # Finally, fall through and make a cloud that starts with defaults
+        # because we need somewhere to put arguments, and there are neither
+        # config files or env vars
+        if not self.cloud_config['clouds']:
+            self.cloud_config = dict(
+                clouds=dict(defaults=dict(self.defaults)))
 
         self._cache_max_age = 0
         self._cache_path = CACHE_PATH

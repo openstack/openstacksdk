@@ -59,6 +59,9 @@ USER_CONF = {
     },
     'cache': {'max_age': 1},
 }
+NO_CONF = {
+    'cache': {'max_age': 1},
+}
 
 
 def _write_yaml(obj):
@@ -80,6 +83,7 @@ class TestCase(base.BaseTestCase):
         conf['cache']['path'] = tdir.path
         self.cloud_yaml = _write_yaml(conf)
         self.vendor_yaml = _write_yaml(VENDOR_CONF)
+        self.no_yaml = _write_yaml(NO_CONF)
 
         # Isolate the test runs from the environment
         # Do this as two loops because you can't modify the dict in a loop

@@ -12,6 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
+
+import fixtures
+
 from os_client_config import cloud_config
 from os_client_config import config
 from os_client_config import exceptions
@@ -43,6 +47,14 @@ class TestConfig(base.TestCase):
                                    vendor_files=[self.vendor_yaml])
         self.assertRaises(
             exceptions.OpenStackConfigException, c.get_one_cloud, 'envvars')
+
+    def test_fallthrough(self):
+        c = config.OpenStackConfig(config_files=[self.no_yaml],
+                                   vendor_files=[self.no_yaml])
+        for k in os.environ.keys():
+            if k.startswith('OS_'):
+                self.useFixture(fixtures.EnvironmentVariable(k))
+        c.get_one_cloud(cloud='defaults')
 
     def test_get_one_cloud_auth_merge(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml])
