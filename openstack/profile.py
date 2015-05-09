@@ -59,6 +59,7 @@ from openstack import exceptions
 from openstack.identity import identity_service
 from openstack.image import image_service
 from openstack.keystore import keystore_service
+from openstack.messaging import messaging_service
 from openstack.metric import metric_service
 from openstack.network import network_service
 from openstack.object_store import object_store_service
@@ -118,6 +119,9 @@ class Profile(object):
         serv.set_visibility(None)
         self._services[serv.service_type] = serv
         serv = volume_service.VolumeService()
+        serv.set_visibility(None)
+        self._services[serv.service_type] = serv
+        serv = messaging_service.MessagingService()
         serv.set_visibility(None)
         self._services[serv.service_type] = serv
 
