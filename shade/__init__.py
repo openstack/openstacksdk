@@ -290,12 +290,6 @@ class OpenStackCloud(object):
     def get_service_name(self, service):
         return self.service_names.get(service, None)
 
-    def _get_nova_api_version(self):
-        return self.api_versions['compute']
-
-    def _get_ironic_api_version(self):
-        return self.api_versions.get('baremetal', '1')
-
     @property
     def nova_client(self):
         if self._nova_client is None:
@@ -305,7 +299,7 @@ class OpenStackCloud(object):
                 # trigger exception on lack of compute. (what?)
                 self.get_session_endpoint('compute')
                 self._nova_client = nova_client.Client(
-                    self._get_nova_api_version(),
+                    self.api_versions['compute'],
                     session=self.keystone_session,
                     service_name=self.get_service_name('compute'),
                     region_name=self.region_name,
@@ -530,19 +524,6 @@ class OpenStackCloud(object):
                     user=name_or_id, message=str(e)))
         self.get_user_cache.invalidate(self)
 
-    def _get_glance_api_version(self):
-        if 'image' in self.api_versions:
-            return self.api_versions['image']
-        # Yay. We get to guess ...
-        # Get rid of trailing '/' if present
-        endpoint = self.get_session_endpoint('image')
-        if endpoint.endswith('/'):
-            endpoint = endpoint[:-1]
-        url_bits = endpoint.split('/')
-        if url_bits[-1].startswith('v'):
-            return url_bits[-1][1]
-        return '1'  # Who knows? Let's just try 1 ...
-
     @property
     def glance_client(self):
         # Note that glanceclient doesn't use keystoneclient sessions
@@ -552,13 +533,12 @@ class OpenStackCloud(object):
         # expiration.
         token = self.auth_token
         endpoint = self.get_session_endpoint('image')
-        glance_api_version = self._get_glance_api_version()
         kwargs = dict()
         if self.api_timeout is not None:
             kwargs['timeout'] = self.api_timeout
         try:
             self._glance_client = glanceclient.Client(
-                glance_api_version, endpoint, token=token,
+                self.api_versions['image'], endpoint, token=token,
                 session=self.keystone_session,
                 **kwargs)
         except Exception as e:
@@ -602,28 +582,14 @@ class OpenStackCloud(object):
 
         return self._cinder_client
 
-    def _get_trove_api_version(self, endpoint):
-        if 'database' in self.api_versions:
-            return self.api_versions['database']
-        # Yay. We get to guess ...
-        # Get rid of trailing '/' if present
-        if endpoint.endswith('/'):
-            endpoint = endpoint[:-1]
-        url_bits = endpoint.split('/')
-        for bit in url_bits:
-            if bit.startswith('v'):
-                return bit[1:]
-        return '1.0'  # Who knows? Let's just try 1.0 ...
-
     @property
     def trove_client(self):
         if self._trove_client is None:
-            endpoint = self.get_session_endpoint(service_key='database')
-            trove_api_version = self._get_trove_api_version(endpoint)
+            self.get_session_endpoint(service_key='database')
             # Make the connection - can't use keystone session until there
             # is one
             self._trove_client = trove_client.Client(
-                trove_api_version,
+                self.api_versions['database'],
                 session=self.keystone_session,
                 region_name=self.region_name,
                 service_type=self.get_service_type('database'),
@@ -1133,7 +1099,7 @@ class OpenStackCloud(object):
         try:
             # Note that in v1, the param name is image, but in v2,
             # it's image_id
-            glance_api_version = self._get_glance_api_version()
+            glance_api_version = self.api_versions['image']
             if glance_api_version == '2':
                 self.manager.submitTask(
                     _tasks.ImageDelete(image_id=image.id))
@@ -1283,7 +1249,7 @@ class OpenStackCloud(object):
             img_props[k] = v
 
         # This makes me want to die inside
-        if self._get_glance_api_version() == '2':
+        if self.api_versions['image'] == '2':
             return self._update_image_properties_v2(image, img_props)
         else:
             return self._update_image_properties_v1(image, img_props)
@@ -2204,7 +2170,7 @@ class OperatorCloud(OpenStackCloud):
                 endpoint = self.get_session_endpoint(service_key='baremetal')
             try:
                 self._ironic_client = ironic_client.Client(
-                    self._get_ironic_api_version(), endpoint, token=token,
+                    self.api_versions['baremetal'], endpoint, token=token,
                     timeout=self.api_timeout)
             except Exception as e:
                 self.log.debug("ironic auth failed", exc_info=True)
