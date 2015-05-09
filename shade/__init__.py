@@ -307,6 +307,9 @@ class OpenStackCloud(object):
     def _get_nova_api_version(self):
         return self.api_versions['compute']
 
+    def _get_ironic_api_version(self):
+        return self.api_versions.get('baremetal', '1')
+
     @property
     def nova_client(self):
         if self._nova_client is None:
@@ -2245,7 +2248,7 @@ class OperatorCloud(OpenStackCloud):
                 endpoint = self.get_session_endpoint(service_key='baremetal')
             try:
                 self._ironic_client = ironic_client.Client(
-                    '1', endpoint, token=token,
+                    self._get_ironic_api_version(), endpoint, token=token,
                     timeout=self.api_timeout)
             except Exception as e:
                 self.log.debug("ironic auth failed", exc_info=True)
