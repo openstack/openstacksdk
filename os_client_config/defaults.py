@@ -14,7 +14,9 @@
 
 _defaults = dict(
     auth_type='password',
+    baremetal_api_version='1',
     compute_api_version='2',
+    database_api_version='1.0',
     floating_ip_source='neutron',
     identity_api_version='2',
     image_api_use_tasks=False,
