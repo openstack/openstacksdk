@@ -15,11 +15,11 @@
 _defaults = dict(
     auth_type='password',
     compute_api_version='2',
+    floating_ip_source='neutron',
     identity_api_version='2',
     image_api_use_tasks=False,
     image_api_version='1',
     network_api_version='2',
     object_api_version='1',
     volume_api_version='1',
-    floating_ip_source='neutron',
 )
