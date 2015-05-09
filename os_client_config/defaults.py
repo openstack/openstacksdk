@@ -25,3 +25,7 @@ _defaults = dict(
     object_api_version='1',
     volume_api_version='1',
 )
+
+
+def get_defaults():
+    return _defaults.copy()

@@ -60,7 +60,7 @@ def get_boolean(value):
 
 
 def _get_os_environ():
-    ret = dict(defaults._defaults)
+    ret = defaults.get_defaults()
     environkeys = [k for k in os.environ.keys() if k.startswith('OS_')]
     if not environkeys:
         return None
@@ -89,7 +89,7 @@ class OpenStackConfig(object):
         self._config_files = config_files or CONFIG_FILES
         self._vendor_files = vendor_files or VENDOR_FILES
 
-        self.defaults = dict(defaults._defaults)
+        self.defaults = defaults.get_defaults()
 
         # First, use a config file if it exists where expected
         self.cloud_config = self._load_config_file()
