@@ -92,3 +92,20 @@ BHS-1          Beauharnois, QC
 * Image API Version is 2
 * Images must be in `qcow2` format
 * Floating IPs are not needed
+
+UnitedStack
+-----------
+
+https://identity.api.ustack.com/v3
+
+============== ================
+Region Name    Human Name
+============== ================
+bj1            Beijing
+gd1            Guangdong
+============== ================
+
+* Identity API Version is 3
+* Image API Version is 2
+* Images must be in `raw` format
+* Floating IPs are not needed

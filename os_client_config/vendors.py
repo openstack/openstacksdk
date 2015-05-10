@@ -59,5 +59,13 @@ CLOUD_DEFAULTS = dict(
         image_format='qcow2',
         floating_ip_source=None,
     ),
-
+    unitedstack=dict(
+        auth=dict(
+            auth_url='https://identity.api.ustack.com/v3',
+        ),
+        identity_api_version='3',
+        image_api_version='2',
+        image_format='raw',
+        floating_ip_source=None,
+    ),
 )
