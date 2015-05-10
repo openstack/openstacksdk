@@ -162,6 +162,11 @@ class ImageUpdate(task_manager.Task):
         client.glance_client.images.update(**self.args)
 
 
+class ImageUpload(task_manager.Task):
+    def main(self, client):
+        client.glance_client.images.upload(**self.args)
+
+
 class VolumeCreate(task_manager.Task):
     def main(self, client):
         return client.cinder_client.volumes.create(**self.args)

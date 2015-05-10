@@ -15,6 +15,7 @@
 import hashlib
 import logging
 import operator
+import os
 import time
 
 from cinderclient.v1 import client as cinder_client
@@ -1264,11 +1265,35 @@ class OpenStackCloud(object):
 
             return self._upload_image_put(name, filename, **image_kwargs)
 
-    def _upload_image_put(self, name, filename, **image_kwargs):
+    def _upload_image_put_v2(self, name, image_data, **image_kwargs):
+        if 'properties' in image_kwargs:
+            img_props = image_kwargs.pop('properties')
+            for k, v in iter(img_props.items()):
+                image_kwargs[k] = str(v)
+        image = self.manager.submitTask(_tasks.ImageCreate(
+            name=name, **image_kwargs))
+        curr = image_data.tell()
+        image_data.seek(0, os.SEEK_END)
+        data_size = image_data.tell()
+        image_data.seek(curr)
+        self.manager.submitTask(_tasks.ImageUpload(
+            image_id=image.id, image_data=image_data, image_size=data_size))
+        return image
+
+    def _upload_image_put_v1(self, name, image_data, **image_kwargs):
         image = self.manager.submitTask(_tasks.ImageCreate(
             name=name, **image_kwargs))
         self.manager.submitTask(_tasks.ImageUpdate(
-            image=image, data=open(filename, 'rb')))
+            image=image, data=image_data))
+        return image
+
+    def _upload_image_put(self, name, filename, **image_kwargs):
+        image_data = open(filename, 'rb')
+        # Because reasons and crying bunnies
+        if self.api_versions['image'] == '2':
+            image = self._upload_image_put_v2(name, image_data, **image_kwargs)
+        else:
+            image = self._upload_image_put_v1(name, image_data, **image_kwargs)
         self._cache.invalidate()
         return self.get_image(image.id)
 
