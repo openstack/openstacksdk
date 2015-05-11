@@ -22,7 +22,7 @@ Tests for the `create_server` command.
 from mock import patch, Mock
 from shade import OpenStackCloud
 from shade.exc import (OpenStackCloudException, OpenStackCloudTimeout)
-from shade.tests import base
+from shade.tests import base, fakes
 
 
 class TestCreateServer(base.TestCase):
@@ -109,14 +109,14 @@ class TestCreateServer(base.TestCase):
         novaclient create call returns the server instance.
         """
         with patch("shade.OpenStackCloud"):
-            mock_server = Mock(status="BUILD")
+            fake_server = fakes.FakeServer('', '', 'BUILD')
             config = {
-                "servers.create.return_value": mock_server,
-                "servers.get.return_value": mock_server
+                "servers.create.return_value": fake_server,
+                "servers.get.return_value": fake_server
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertEqual(
-                self.client.create_server(), mock_server)
+                self.client.create_server(), fake_server)
 
     def test_create_server_wait(self):
         """
@@ -124,15 +124,16 @@ class TestCreateServer(base.TestCase):
         its status changes to "ACTIVE".
         """
         with patch("shade.OpenStackCloud"):
-            mock_server = Mock(status="ACTIVE")
+            fake_server = fakes.FakeServer('', '', 'ACTIVE')
             config = {
-                "servers.create.return_value": Mock(status="BUILD"),
+                "servers.create.return_value": fakes.FakeServer('', '',
+                                                                'ACTIVE'),
                 "servers.get.side_effect": [
-                    Mock(status="BUILD"), mock_server]
+                    Mock(status="BUILD"), fake_server]
             }
             OpenStackCloud.nova_client = Mock(**config)
             with patch.object(OpenStackCloud, "add_ips_to_server",
-                              return_value=mock_server):
+                              return_value=fake_server):
                 self.assertEqual(
                     self.client.create_server(wait=True),
-                    mock_server)
+                    fake_server)

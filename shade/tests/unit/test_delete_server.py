@@ -23,6 +23,7 @@ import mock
 from novaclient import exceptions as nova_exc
 
 from shade import OpenStackCloud
+from shade.tests import fakes
 from shade.tests.unit import base
 
 
@@ -37,9 +38,7 @@ class TestDeleteServer(base.TestCase):
         """
         Test that novaclient server delete is called when wait=False
         """
-        server = mock.MagicMock(id='1234',
-                                status='ACTIVE')
-        server.name = 'daffy'
+        server = fakes.FakeServer('1234', 'daffy', 'ACTIVE')
         nova_mock.servers.list.return_value = [server]
         self.cloud.delete_server('daffy', wait=False)
         nova_mock.servers.delete.assert_called_with(server=server.id)
@@ -63,9 +62,7 @@ class TestDeleteServer(base.TestCase):
         """
         Test that delete_server waits for NotFound from novaclient
         """
-        server = mock.MagicMock(id='9999',
-                                status='ACTIVE')
-        server.name = 'wily'
+        server = fakes.FakeServer('9999', 'wily', 'ACTIVE')
         nova_mock.servers.list.return_value = [server]
 
         def _delete_wily(*args, **kwargs):

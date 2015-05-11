@@ -19,6 +19,7 @@ import yaml
 
 import shade
 from shade import meta
+from shade.tests import fakes
 from shade.tests.unit import base
 
 
@@ -67,82 +68,68 @@ class TestMemoryCache(base.TestCase):
 
     @mock.patch('shade.OpenStackCloud.keystone_client')
     def test_project_cache(self, keystone_mock):
-        mock_project = mock.MagicMock()
-        mock_project.id = 'project_a'
-        keystone_mock.projects.list.return_value = [mock_project]
-        self.assertEqual({'project_a': mock_project}, self.cloud.project_cache)
-        mock_project_b = mock.MagicMock()
-        mock_project_b.id = 'project_b'
-        keystone_mock.projects.list.return_value = [mock_project,
-                                                    mock_project_b]
+        project = fakes.FakeProject('project_a')
+        keystone_mock.projects.list.return_value = [project]
+        self.assertEqual({'project_a': project}, self.cloud.project_cache)
+        project_b = fakes.FakeProject('project_b')
+        keystone_mock.projects.list.return_value = [project,
+                                                    project_b]
         self.assertEqual(
-            {'project_a': mock_project}, self.cloud.project_cache)
+            {'project_a': project}, self.cloud.project_cache)
         self.cloud.get_project_cache.invalidate(self.cloud)
         self.assertEqual(
-            {'project_a': mock_project,
-             'project_b': mock_project_b}, self.cloud.project_cache)
+            {'project_a': project,
+             'project_b': project_b}, self.cloud.project_cache)
 
     @mock.patch('shade.OpenStackCloud.cinder_client')
     def test_list_volumes(self, cinder_mock):
-        mock_volume = mock.MagicMock()
-        mock_volume.id = 'volume1'
-        mock_volume.status = 'available'
-        mock_volume.display_name = 'Volume 1 Display Name'
-        mock_volume_dict = meta.obj_to_dict(mock_volume)
-        cinder_mock.volumes.list.return_value = [mock_volume]
-        self.assertEqual([mock_volume_dict], self.cloud.list_volumes())
-        mock_volume2 = mock.MagicMock()
-        mock_volume2.id = 'volume2'
-        mock_volume2.status = 'available'
-        mock_volume2.display_name = 'Volume 2 Display Name'
-        mock_volume2_dict = meta.obj_to_dict(mock_volume2)
-        cinder_mock.volumes.list.return_value = [mock_volume, mock_volume2]
-        self.assertEqual([mock_volume_dict], self.cloud.list_volumes())
+        fake_volume = fakes.FakeVolume('volume1', 'available',
+                                       'Volume 1 Display Name')
+        fake_volume_dict = meta.obj_to_dict(fake_volume)
+        cinder_mock.volumes.list.return_value = [fake_volume]
+        self.assertEqual([fake_volume_dict], self.cloud.list_volumes())
+        fake_volume2 = fakes.FakeVolume('volume2', 'available',
+                                        'Volume 2 Display Name')
+        fake_volume2_dict = meta.obj_to_dict(fake_volume2)
+        cinder_mock.volumes.list.return_value = [fake_volume, fake_volume2]
+        self.assertEqual([fake_volume_dict], self.cloud.list_volumes())
         self.cloud.list_volumes.invalidate(self.cloud)
-        self.assertEqual([mock_volume_dict, mock_volume2_dict],
+        self.assertEqual([fake_volume_dict, fake_volume2_dict],
                          self.cloud.list_volumes())
 
     @mock.patch('shade.OpenStackCloud.cinder_client')
     def test_list_volumes_creating_invalidates(self, cinder_mock):
-        mock_volume = mock.MagicMock()
-        mock_volume.id = 'volume1'
-        mock_volume.status = 'creating'
-        mock_volume.display_name = 'Volume 1 Display Name'
-        mock_volume_dict = meta.obj_to_dict(mock_volume)
-        cinder_mock.volumes.list.return_value = [mock_volume]
-        self.assertEqual([mock_volume_dict], self.cloud.list_volumes())
-        mock_volume2 = mock.MagicMock()
-        mock_volume2.id = 'volume2'
-        mock_volume2.status = 'available'
-        mock_volume2.display_name = 'Volume 2 Display Name'
-        mock_volume2_dict = meta.obj_to_dict(mock_volume2)
-        cinder_mock.volumes.list.return_value = [mock_volume, mock_volume2]
-        self.assertEqual([mock_volume_dict, mock_volume2_dict],
+        fake_volume = fakes.FakeVolume('volume1', 'creating',
+                                       'Volume 1 Display Name')
+        fake_volume_dict = meta.obj_to_dict(fake_volume)
+        cinder_mock.volumes.list.return_value = [fake_volume]
+        self.assertEqual([fake_volume_dict], self.cloud.list_volumes())
+        fake_volume2 = fakes.FakeVolume('volume2', 'available',
+                                        'Volume 2 Display Name')
+        fake_volume2_dict = meta.obj_to_dict(fake_volume2)
+        cinder_mock.volumes.list.return_value = [fake_volume, fake_volume2]
+        self.assertEqual([fake_volume_dict, fake_volume2_dict],
                          self.cloud.list_volumes())
 
     @mock.patch.object(shade.OpenStackCloud, 'cinder_client')
     def test_create_volume_invalidates(self, cinder_mock):
-        mock_volb4 = mock.MagicMock()
-        mock_volb4.id = 'volume1'
-        mock_volb4.status = 'available'
-        mock_volb4.display_name = 'Volume 1 Display Name'
-        mock_volb4_dict = meta.obj_to_dict(mock_volb4)
-        cinder_mock.volumes.list.return_value = [mock_volb4]
-        self.assertEqual([mock_volb4_dict], self.cloud.list_volumes())
+        fake_volb4 = fakes.FakeVolume('volume1', 'available',
+                                      'Volume 1 Display Name')
+        fake_volb4_dict = meta.obj_to_dict(fake_volb4)
+        cinder_mock.volumes.list.return_value = [fake_volb4]
+        self.assertEqual([fake_volb4_dict], self.cloud.list_volumes())
         volume = dict(display_name='junk_vol',
                       size=1,
                       display_description='test junk volume')
-        mock_vol = mock.Mock()
-        mock_vol.status = 'creating'
-        mock_vol.id = '12345'
-        mock_vol_dict = meta.obj_to_dict(mock_vol)
-        cinder_mock.volumes.create.return_value = mock_vol
-        cinder_mock.volumes.list.return_value = [mock_volb4, mock_vol]
+        fake_vol = fakes.FakeVolume('12345', 'creating', '')
+        fake_vol_dict = meta.obj_to_dict(fake_vol)
+        cinder_mock.volumes.create.return_value = fake_vol
+        cinder_mock.volumes.list.return_value = [fake_volb4, fake_vol]
 
         def creating_available():
             def now_available():
-                mock_vol.status = 'available'
-                mock_vol_dict['status'] = 'available'
+                fake_vol.status = 'available'
+                fake_vol_dict['status'] = 'available'
                 return mock.DEFAULT
             cinder_mock.volumes.list.side_effect = now_available
             return mock.DEFAULT
@@ -153,40 +140,36 @@ class TestMemoryCache(base.TestCase):
         # If cache was not invalidated, we would not see our own volume here
         # because the first volume was available and thus would already be
         # cached.
-        self.assertEqual([mock_volb4_dict, mock_vol_dict],
+        self.assertEqual([fake_volb4_dict, fake_vol_dict],
                          self.cloud.list_volumes())
 
         # And now delete and check same thing since list is cached as all
         # available
-        mock_vol.status = 'deleting'
-        mock_vol_dict = meta.obj_to_dict(mock_vol)
+        fake_vol.status = 'deleting'
+        fake_vol_dict = meta.obj_to_dict(fake_vol)
 
         def deleting_gone():
             def now_gone():
-                cinder_mock.volumes.list.return_value = [mock_volb4]
+                cinder_mock.volumes.list.return_value = [fake_volb4]
                 return mock.DEFAULT
             cinder_mock.volumes.list.side_effect = now_gone
             return mock.DEFAULT
-        cinder_mock.volumes.list.return_value = [mock_volb4, mock_vol]
+        cinder_mock.volumes.list.return_value = [fake_volb4, fake_vol]
         cinder_mock.volumes.list.side_effect = deleting_gone
-        cinder_mock.volumes.delete.return_value = mock_vol_dict
+        cinder_mock.volumes.delete.return_value = fake_vol_dict
         self.cloud.delete_volume('12345')
-        self.assertEqual([mock_volb4_dict], self.cloud.list_volumes())
+        self.assertEqual([fake_volb4_dict], self.cloud.list_volumes())
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_get_user_cache(self, keystone_mock):
-        mock_user = mock.MagicMock()
-        mock_user.id = '999'
-        keystone_mock.users.list.return_value = [mock_user]
-        self.assertEqual({'999': mock_user}, self.cloud.get_user_cache())
+        fake_user = fakes.FakeUser('999', '', '')
+        keystone_mock.users.list.return_value = [fake_user]
+        self.assertEqual({'999': fake_user}, self.cloud.get_user_cache())
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_modify_user_invalidates_cache(self, keystone_mock):
-        class User(object):
-            id = 'abc123'
-            email = 'abc123@domain.test'
-            name = 'abc123 name'
-        fake_user = User()
+        fake_user = fakes.FakeUser('abc123', 'abc123@domain.test',
+                                   'abc123 name')
         # first cache an empty list
         keystone_mock.users.list.return_value = []
         self.assertEqual({}, self.cloud.get_user_cache())
@@ -201,8 +184,8 @@ class TestMemoryCache(base.TestCase):
         # Cache should have been invalidated
         self.assertEqual({'abc123': fake_user}, self.cloud.get_user_cache())
         # Update and check to see if it is updated
-        fake_user2 = User()
-        fake_user2.email = 'abc123-changed@domain.test'
+        fake_user2 = fakes.FakeUser('abc123', 'abc123 name',
+                                    'abc123-changed@domain.test')
         keystone_mock.users.update.return_value = fake_user2
         keystone_mock.users.list.return_value = [fake_user2]
         self.cloud.update_user('abc123', email='abc123-changed@domain.test')
@@ -220,10 +203,7 @@ class TestMemoryCache(base.TestCase):
         nova_mock.flavors.list.return_value = []
         self.assertEqual([], self.cloud.list_flavors())
 
-        class Flavor(object):
-            id = '555'
-            name = 'vanilla'
-        fake_flavor = Flavor()
+        fake_flavor = fakes.FakeFlavor('555', 'vanilla')
         fake_flavor_dict = meta.obj_to_dict(fake_flavor)
         nova_mock.flavors.list.return_value = [fake_flavor]
         self.cloud.list_flavors.invalidate(self.cloud)
@@ -234,11 +214,7 @@ class TestMemoryCache(base.TestCase):
         glance_mock.images.list.return_value = []
         self.assertEqual([], self.cloud.list_images())
 
-        class Image(object):
-            id = '22'
-            name = '22 name'
-            status = 'success'
-        fake_image = Image()
+        fake_image = fakes.FakeImage('22', '22 name', 'success')
         fake_image_dict = meta.obj_to_dict(fake_image)
         glance_mock.images.list.return_value = [fake_image]
         self.cloud.list_images.invalidate(self.cloud)
@@ -246,20 +222,11 @@ class TestMemoryCache(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_list_images_ignores_unsteady_status(self, glance_mock):
-        class Image(object):
-            id = None
-            name = None
-            status = None
-        steady_image = Image()
-        steady_image.id = '68'
-        steady_image.name = 'Jagr'
-        steady_image.status = 'active'
+        steady_image = fakes.FakeImage('68', 'Jagr', 'active')
         steady_image_dict = meta.obj_to_dict(steady_image)
         for status in ('queued', 'saving', 'pending_delete'):
-            active_image = Image()
-            active_image.id = self.getUniqueString()
-            active_image.name = self.getUniqueString()
-            active_image.status = status
+            active_image = fakes.FakeImage(self.getUniqueString(),
+                                           self.getUniqueString(), status)
             glance_mock.images.list.return_value = [active_image]
             active_image_dict = meta.obj_to_dict(active_image)
             self.assertEqual([active_image_dict],
@@ -271,20 +238,11 @@ class TestMemoryCache(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_list_images_caches_steady_status(self, glance_mock):
-        class Image(object):
-            id = None
-            name = None
-            status = None
-        steady_image = Image()
-        steady_image.id = '91'
-        steady_image.name = 'Federov'
-        steady_image.status = 'active'
+        steady_image = fakes.FakeImage('91', 'Federov', 'active')
         first_image = None
         for status in ('active', 'deleted', 'killed'):
-            active_image = Image()
-            active_image.id = self.getUniqueString()
-            active_image.name = self.getUniqueString()
-            active_image.status = status
+            active_image = fakes.FakeImage(self.getUniqueString(),
+                                           self.getUniqueString(), status)
             active_image_dict = meta.obj_to_dict(active_image)
             if not first_image:
                 first_image = active_image_dict
@@ -309,11 +267,7 @@ class TestMemoryCache(base.TestCase):
         glance_mock.images.list.return_value = []
         self.assertEqual([], self.cloud.list_images())
 
-        class Image(object):
-            id = '42'
-            name = '42 name'
-            status = 'success'
-        fake_image = Image()
+        fake_image = fakes.FakeImage('42', '42 name', 'success')
         glance_mock.images.create.return_value = fake_image
         glance_mock.images.list.return_value = [fake_image]
         self._call_create_image('42 name')
