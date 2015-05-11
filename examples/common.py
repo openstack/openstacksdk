@@ -172,6 +172,14 @@ def option_parser():
         description='A demonstration framework')
     # Global arguments
     parser.add_argument(
+        '--os-cloud',
+        dest='cloud',
+        metavar='<cloud>',
+        default=env('OS_CLOUD', default=None),
+        help=('Cloud configuration from ' +
+              'https://pypi.python.org/pypi/os-client-config (Env: OS_CLOUD)')
+    )
+    parser.add_argument(
         '--os-auth-plugin',
         dest='auth_plugin',
         metavar='<auth-plugin>',

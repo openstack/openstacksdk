@@ -21,25 +21,17 @@ For example:
 
 import sys
 
+import os_client_config
+
 from examples import common
 from openstack import connection
 
 
 def make_connection(opts):
-    args = {
-        'auth_plugin': opts.auth_plugin,
-        'auth_url': opts.auth_url,
-        'project_name': opts.project_name,
-        'domain_name': opts.domain_name,
-        'project_domain_name': opts.project_domain_name,
-        'user_domain_name': opts.user_domain_name,
-        'username': opts.username,
-        'password': opts.password,
-        'trust_id': opts.trust_id,
-        'verify': opts.verify,
-        'token': opts.token,
-    }
-    conn = connection.Connection(preference=opts.user_preferences, **args)
+    occ = os_client_config.OpenStackConfig()
+    cloud = occ.get_one_cloud(opts.cloud, opts)
+    auth = cloud.config['auth']
+    conn = connection.Connection(preference=opts.user_preferences, **auth)
     return conn
 
 
