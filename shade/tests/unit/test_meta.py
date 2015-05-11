@@ -184,6 +184,8 @@ class TestMeta(testtools.TestCase):
         self.assertNotIn('_unused', cloud_dict)
         self.assertNotIn('get_flavor_name', cloud_dict)
         self.assertNotIn('server', cloud_dict)
+        self.assertTrue(hasattr(cloud_dict, 'name'))
+        self.assertEquals(cloud_dict.name, cloud_dict['name'])
 
     def test_warlock_to_dict(self):
         schema = {
@@ -201,3 +203,5 @@ class TestMeta(testtools.TestCase):
         test_dict = meta.warlock_to_dict(test_obj)
         self.assertNotIn('_unused', test_dict)
         self.assertEqual('test-image', test_dict['name'])
+        self.assertTrue(hasattr(test_dict, 'name'))
+        self.assertEquals(test_dict.name, test_dict['name'])
