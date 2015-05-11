@@ -15,6 +15,7 @@
 
 import os
 
+import appdirs
 import yaml
 
 try:
@@ -27,26 +28,34 @@ from os_client_config import defaults
 from os_client_config import exceptions
 from os_client_config import vendors
 
-CONFIG_HOME = os.path.join(os.path.expanduser(
-    os.environ.get('XDG_CONFIG_HOME', os.path.join('~', '.config'))),
-    'openstack')
-CONFIG_SEARCH_PATH = [os.getcwd(), CONFIG_HOME, '/etc/openstack']
+APPDIRS = appdirs.AppDirs('openstack', 'OpenStack', multipath='/etc')
+CONFIG_HOME = APPDIRS.user_config_dir
+CACHE_PATH = APPDIRS.user_cache_dir
+
+UNIX_CONFIG_HOME = os.path.join(
+    os.path.expanduser(os.path.join('~', '.config')), 'openstack')
+UNIX_SITE_CONFIG_HOME = '/etc/openstack'
+
+SITE_CONFIG_HOME = APPDIRS.site_config_dir
+
+CONFIG_SEARCH_PATH = [
+    os.getcwd(),
+    CONFIG_HOME, UNIX_CONFIG_HOME,
+    SITE_CONFIG_HOME, UNIX_SITE_CONFIG_HOME
+]
 YAML_SUFFIXES = ('.yaml', '.yml')
 CONFIG_FILES = [
     os.path.join(d, 'clouds' + s)
     for d in CONFIG_SEARCH_PATH
     for s in YAML_SUFFIXES
 ]
-CACHE_PATH = os.path.join(os.path.expanduser(
-    os.environ.get('XDG_CACHE_PATH', os.path.join('~', '.cache'))),
-    'openstack')
-BOOL_KEYS = ('insecure', 'cache')
-VENDOR_SEARCH_PATH = [os.getcwd(), CONFIG_HOME, '/etc/openstack']
 VENDOR_FILES = [
     os.path.join(d, 'clouds-public' + s)
-    for d in VENDOR_SEARCH_PATH
+    for d in CONFIG_SEARCH_PATH
     for s in YAML_SUFFIXES
 ]
+
+BOOL_KEYS = ('insecure', 'cache')
 
 
 def set_default(key, value):
