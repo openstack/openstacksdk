@@ -24,7 +24,18 @@ approach, this is where you'll want to begin.
    :maxdepth: 1
 
    Connecting to an OpenStack Cloud <userguides/usage>
-   Working with data in the Object Store <userguides/object_store>
+   CDN <userguides/cdn>
+   Compute <userguides/compute>
+   Database <userguides/database>
+   Identity <userguides/identity>
+   Image <userguides/image>
+   Keystore <userguides/keystore>
+   Metric <userguides/metric>
+   Network <userguides/network>
+   Object Store <userguides/object_store>
+   Orchestration <userguides/orchestration>
+   Telemetry <userguides/telemetry>
+   Volume <userguides/volume>
 
 API Documentation
 -----------------
@@ -55,7 +66,18 @@ but listed below are the ones provided by this SDK by default.
 .. toctree::
    :maxdepth: 1
 
+   CDN <proxies/cdn>
+   Compute <proxies/compute>
+   Database <proxies/database>
+   Identity <proxies/identity>
+   Image <proxies/image>
+   Keystore <proxies/keystore>
+   Metric <proxies/metric>
+   Network <proxies/network>
    Object Store <proxies/object_store>
+   Orchestration <proxies/orchestration>
+   Telemetry <proxies/telemetry>
+   Volume <proxies/volume>
 
 Resource Interface
 ******************
