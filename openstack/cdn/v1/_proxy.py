@@ -10,11 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.cdn.v1 import ping
 from openstack import proxy
 
 
 class Proxy(proxy.BaseProxy):
-
-    def ping(self):
-        return ping.Ping().get(self.session)
+    pass
