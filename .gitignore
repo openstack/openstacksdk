@@ -28,9 +28,6 @@ pip-log.txt
 nosetests.xml
 .testrepository
 
-# os-client-config
-clouds.yaml
-
 # Translations
 *.mo
 
