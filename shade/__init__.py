@@ -747,23 +747,27 @@ class OpenStackCloud(object):
     def delete_keypair(self, name):
         return self.manager.submitTask(_tasks.KeypairDelete(key=name))
 
-    @property
-    def extension_cache(self):
-        if not self._extension_cache:
-            self._extension_cache = set()
+    @_cache_on_arguments()
+    def _nova_extensions(self):
+        extensions = set()
 
-            try:
-                resp, body = self.manager.submitTask(
-                    _tasks.NovaUrlGet(url='/extensions'))
-                if resp.status_code == 200:
-                    for x in body['extensions']:
-                        self._extension_cache.add(x['alias'])
-            except nova_exceptions.NotFound:
-                pass
-        return self._extension_cache
+        try:
+            resp, body = self.manager.submitTask(
+                _tasks.NovaUrlGet(url='/extensions'))
+            for x in body['extensions']:
+                extensions.add(x['alias'])
+        except Exception as e:
+            self.log.debug(
+                "nova could not list extensions: {msg}".format(
+                    msg=str(e)), exc_info=True)
+            raise OpenStackCloudException(
+                "error fetching extension list for nova: {msg}".format(
+                    msg=str(e)))
 
-    def has_extension(self, extension_name):
-        return extension_name in self.extension_cache
+        return extensions
+
+    def _has_nova_extension(self, extension_name):
+        return extension_name in self._nova_extensions()
 
     def _filter_list(self, data, name_or_id, filters):
         """Filter a list by name/ID and arbitrary meta data.
