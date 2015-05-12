@@ -49,6 +49,10 @@ VENDOR_FILES = [
 ]
 
 
+# NOTE(dtroyer): This turns out to be not the best idea so let's move
+#                overriding defaults to a kwarg to OpenStackConfig.__init__()
+#                Remove this sometime in June 2015 once OSC is comfortably
+#                changed-over and global-defaults is updated.
 def set_default(key, value):
     defaults._defaults[key] = value
 
@@ -85,11 +89,14 @@ def _auth_update(old_dict, new_dict):
 
 class OpenStackConfig(object):
 
-    def __init__(self, config_files=None, vendor_files=None):
+    def __init__(self, config_files=None, vendor_files=None,
+                 override_defaults=None):
         self._config_files = config_files or CONFIG_FILES
         self._vendor_files = vendor_files or VENDOR_FILES
 
         self.defaults = defaults.get_defaults()
+        if override_defaults:
+            self.defaults.update(override_defaults)
 
         # First, use a config file if it exists where expected
         self.cloud_config = self._load_config_file()
