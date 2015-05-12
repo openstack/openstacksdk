@@ -18,6 +18,7 @@ import fixtures
 
 from os_client_config import cloud_config
 from os_client_config import config
+from os_client_config import defaults
 from os_client_config import exceptions
 from os_client_config.tests import base
 
@@ -28,6 +29,31 @@ class TestConfig(base.TestCase):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
         self.assertIsInstance(c.get_one_cloud(), cloud_config.CloudConfig)
+
+    def test_get_one_cloud_auth_defaults(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml])
+        cc = c.get_one_cloud(cloud='_test_cloud_', auth={'username': 'user'})
+        self.assertEqual('user', cc.auth['username'])
+        self.assertEqual(
+            defaults._defaults['auth_type'],
+            cc.auth_type,
+        )
+        self.assertEqual(
+            defaults._defaults['identity_api_version'],
+            cc.identity_api_version,
+        )
+
+    def test_get_one_cloud_auth_override_defaults(self):
+        default_options = {'auth_type': 'token'}
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   override_defaults=default_options)
+        cc = c.get_one_cloud(cloud='_test_cloud_', auth={'username': 'user'})
+        self.assertEqual('user', cc.auth['username'])
+        self.assertEqual('token', cc.auth_type)
+        self.assertEqual(
+            defaults._defaults['identity_api_version'],
+            cc.identity_api_version,
+        )
 
     def test_get_one_cloud_with_config_files(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
