@@ -29,6 +29,7 @@ from openstack.network.v2 import router
 from openstack.network.v2 import security_group
 from openstack.network.v2 import security_group_rule
 from openstack.network.v2 import subnet
+from openstack.network.v2 import vpn_service
 from openstack.tests.unit import test_proxy_base
 
 
@@ -671,4 +672,46 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             method_args=["resource_or_id"],
                             method_kwargs=kwargs,
                             expected_args=[subnet.Subnet, "resource_or_id"],
+                            expected_kwargs=kwargs)
+
+    def test_vpn_service_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_vpn_service,
+                            method_kwargs=kwargs,
+                            expected_args=[vpn_service.VPNService],
+                            expected_kwargs=kwargs)
+
+    def test_vpn_service_delete(self):
+        self.verify_delete2(vpn_service.VPNService,
+                            self.proxy.delete_vpn_service, False)
+
+    def test_vpn_service_delete_ignore(self):
+        self.verify_delete2(vpn_service.VPNService,
+                            self.proxy.delete_vpn_service, True)
+
+    def test_vpn_service_find(self):
+        self.verify_find('openstack.network.v2.vpn_service.VPNService.find',
+                         self.proxy.find_vpn_service)
+
+    def test_vpn_service_get(self):
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_vpn_service,
+                         method_args=["resource_or_id"],
+                         expected_args=[vpn_service.VPNService,
+                                        "resource_or_id"])
+
+    def test_vpn_services(self):
+        self.verify_list2(self.proxy.vpn_services,
+                          expected_args=[vpn_service.VPNService],
+                          expected_kwargs={})
+
+    def test_vpn_service_update(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_update2('openstack.proxy.BaseProxy._update',
+                            self.proxy.update_vpn_service,
+                            method_args=["resource_or_id"],
+                            method_kwargs=kwargs,
+                            expected_args=[vpn_service.VPNService,
+                                           "resource_or_id"],
                             expected_kwargs=kwargs)
