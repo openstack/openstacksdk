@@ -46,8 +46,17 @@ class Proxy(proxy.BaseProxy):
     def find_image(self, name_or_id):
         return image.Image.find(self.session, name_or_id)
 
-    def get_image(self, **data):
-        return image.Image(data).get(self.session)
+    def get_image(self, value):
+        """Get a single image
+
+        :param value: The value can be the ID of an image or a
+                      :class:`~openstack.image.v1.image.Image` instance.
+
+        :returns: One :class:`~openstack.image.v1.image.Image`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(image.Image, value)
 
     def list_images(self, **params):
         return image.Image.list(self.session, **params)
