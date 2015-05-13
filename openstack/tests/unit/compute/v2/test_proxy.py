@@ -51,8 +51,10 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_flavor)
 
     def test_flavor_get(self):
-        self.verify_get('openstack.compute.v2.flavor.Flavor.get',
-                        self.proxy.get_flavor)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_flavor,
+                         method_args=["resource_or_id"],
+                         expected_args=[flavor.Flavor, "resource_or_id"])
 
     def test_flavor_list_basic(self):
         self.verify_list('openstack.compute.v2.flavor.Flavor.list',
@@ -84,8 +86,10 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_image)
 
     def test_image_get(self):
-        self.verify_get('openstack.compute.v2.image.Image.get',
-                        self.proxy.get_image)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_image,
+                         method_args=["resource_or_id"],
+                         expected_args=[image.Image, "resource_or_id"])
 
     def test_image_list_basic(self):
         self.verify_list('openstack.compute.v2.image.Image.list',
@@ -118,8 +122,10 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_keypair)
 
     def test_keypair_get(self):
-        self.verify_get('openstack.compute.v2.keypair.Keypair.get',
-                        self.proxy.get_keypair)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_keypair,
+                         method_args=["resource_or_id"],
+                         expected_args=[keypair.Keypair, "resource_or_id"])
 
     def test_keypair_list(self):
         self.verify_list('openstack.compute.v2.keypair.Keypair.list',
@@ -161,9 +167,11 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
             self.proxy.find_server_interface)
 
     def test_server_interface_get(self):
-        self.verify_get(
-            'openstack.compute.v2.server_interface.ServerInterface.get',
-            self.proxy.get_server_interface)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_server_interface,
+                         method_args=["resource_or_id"],
+                         expected_args=[server_interface.ServerInterface,
+                                        "resource_or_id"])
 
     def test_server_interface_list(self):
         self.verify_list(

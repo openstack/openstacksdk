@@ -60,8 +60,17 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(flavor.Flavor, value, ignore_missing)
 
-    def get_flavor(self, **data):
-        return flavor.Flavor(data).get(self.session)
+    def get_flavor(self, value):
+        """Get a single flavor
+
+        :param value: The value can be the ID of a flavor or a
+                      :class:`~openstack.compute.v2.flavor.Flavor` instance.
+
+        :returns: One :class:`~openstack.compute.v2.flavor.Flavor`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(flavor.Flavor, value)
 
     def list_flavors(self, details=True, **params):
         """Return a generator of flavors
@@ -107,8 +116,17 @@ class Proxy(proxy.BaseProxy):
     def find_image(self, name_or_id):
         return image.Image.find(self.session, name_or_id)
 
-    def get_image(self, **data):
-        return image.Image(data).get(self.session)
+    def get_image(self, value):
+        """Get a single image
+
+        :param value: The value can be the ID of an image or a
+                      :class:`~openstack.compute.v2.image.Image` instance.
+
+        :returns: One :class:`~openstack.compute.v2.image.Image`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(image.Image, value)
 
     def list_images(self, details=True):
         """Return a generator of images
@@ -150,8 +168,17 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(keypair.Keypair, value, ignore_missing)
 
-    def get_keypair(self, **data):
-        return keypair.Keypair(data).get(self.session)
+    def get_keypair(self, value):
+        """Get a single keypair
+
+        :param value: The value can be the ID of a keypair or a
+                      :class:`~openstack.compute.v2.keypair.Keypair` instance.
+
+        :returns: One :class:`~openstack.compute.v2.keypair.Keypair`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(keypair.Keypair, value)
 
     def find_keypair(self, name_or_id):
         return keypair.Keypair.find(self.session, name_or_id)
@@ -277,8 +304,19 @@ class Proxy(proxy.BaseProxy):
     def find_server_interface(self, name_or_id):
         return server_interface.ServerInterface.find(self.session, name_or_id)
 
-    def get_server_interface(self, **data):
-        return server_interface.ServerInterface(data).get(self.session)
+    def get_server_interface(self, value):
+        """Get a single server interface
+
+        :param value: The value can be the ID of a server interface or a
+               :class:`~openstack.compute.v2.server_interface.ServerInterface`
+               instance.
+
+        :returns: One
+            :class:`~openstack.compute.v2.server_interface.ServerInterface`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(server_interface.ServerInterface, value)
 
     def list_server_interfaces(self):
         return server_interface.ServerInterface.list(self.session)
