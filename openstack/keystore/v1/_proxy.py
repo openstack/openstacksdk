@@ -48,8 +48,18 @@ class Proxy(proxy.BaseProxy):
     def find_container(self, name_or_id):
         return container.Container.find(self.session, name_or_id)
 
-    def get_container(self, **data):
-        return container.Container(data).get(self.session)
+    def get_container(self, value):
+        """Get a single container
+
+        :param value: The value can be the ID of a container or a
+                      :class:`~openstack.keystore.v1.container.Container`
+                      instance.
+
+        :returns: One :class:`~openstack.keystore.v1.container.Container`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(container.Container, value)
 
     def list_container(self):
         return container.Container.list(self.session)
@@ -98,8 +108,18 @@ class Proxy(proxy.BaseProxy):
     def find_order(self, name_or_id):
         return order.Order.find(self.session, name_or_id)
 
-    def get_order(self, **data):
-        return order.Order(data).get(self.session)
+    def get_order(self, value):
+        """Get a single order
+
+        :param value: The value can be the ID of an order or a
+                      :class:`~openstack.keystore.v1.order.Order`
+                      instance.
+
+        :returns: One :class:`~openstack.keystore.v1.order.Order`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(order.Order, value)
 
     def list_order(self):
         return order.Order.list(self.session)
@@ -147,8 +167,18 @@ class Proxy(proxy.BaseProxy):
     def find_secret(self, name_or_id):
         return secret.Secret.find(self.session, name_or_id)
 
-    def get_secret(self, **data):
-        return secret.Secret(data).get(self.session)
+    def get_secret(self, value):
+        """Get a single secret
+
+        :param value: The value can be the ID of a secret or a
+                      :class:`~openstack.keystore.v1.secret.Secret`
+                      instance.
+
+        :returns: One :class:`~openstack.keystore.v1.secret.Secret`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(secret.Secret, value)
 
     def list_secret(self):
         return secret.Secret.list(self.session)

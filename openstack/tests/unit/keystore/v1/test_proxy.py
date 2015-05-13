@@ -43,8 +43,10 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_container)
 
     def test_container_get(self):
-        self.verify_get('openstack.keystore.v1.container.Container.get',
-                        self.proxy.get_container)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_container,
+                         method_args=["resource_or_id"],
+                         expected_args=[container.Container, "resource_or_id"])
 
     def test_container_list(self):
         self.verify_list('openstack.keystore.v1.container.Container.list',
@@ -79,8 +81,10 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_order)
 
     def test_order_get(self):
-        self.verify_get('openstack.keystore.v1.order.Order.get',
-                        self.proxy.get_order)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_order,
+                         method_args=["resource_or_id"],
+                         expected_args=[order.Order, "resource_or_id"])
 
     def test_order_list(self):
         self.verify_list('openstack.keystore.v1.order.Order.list',
@@ -114,8 +118,10 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_secret)
 
     def test_secret_get(self):
-        self.verify_get('openstack.keystore.v1.secret.Secret.get',
-                        self.proxy.get_secret)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_secret,
+                         method_args=["resource_or_id"],
+                         expected_args=[secret.Secret, "resource_or_id"])
 
     def test_secret_list(self):
         self.verify_list('openstack.keystore.v1.secret.Secret.list',
