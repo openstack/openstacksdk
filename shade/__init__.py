@@ -15,7 +15,6 @@
 import hashlib
 import logging
 import operator
-import os
 import time
 
 from cinderclient.v1 import client as cinder_client
@@ -99,19 +98,10 @@ def operator_cloud(debug=False, **kwargs):
 
 def _ssl_args(verify, cacert, cert, key):
     if cacert:
-        if not os.path.exists(cacert):
-            raise OpenStackCloudException(
-                "CA Cert {0} does not exist".format(cacert))
         verify = cacert
 
     if cert:
-        if not os.path.exists(cert):
-            raise OpenStackCloudException(
-                "Client Cert {0} does not exist".format(cert))
         if key:
-            if not os.path.exists(key):
-                raise OpenStackCloudException(
-                    "Client key {0} does not exist".format(key))
             cert = (cert, key)
     return (verify, cert)
 
