@@ -207,8 +207,10 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_server)
 
     def test_server_get(self):
-        self.verify_get('openstack.compute.v2.server.Server.get',
-                        self.proxy.get_server)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_server,
+                         method_args=["resource_or_id"],
+                         expected_args=[server.Server, "resource_or_id"])
 
     def test_server_list(self):
         self.verify_list('openstack.compute.v2.server.Server.list',
