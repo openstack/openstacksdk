@@ -48,8 +48,17 @@ class Proxy(proxy.BaseProxy):
     def find_role(self, name_or_id):
         return role.Role.find(self.session, name_or_id)
 
-    def get_role(self, **data):
-        return role.Role(data).get(self.session)
+    def get_role(self, value):
+        """Get a single role
+
+        :param value: The value can be the ID of a role or a
+                      :class:`~openstack.identity.v2.role.Role` instance.
+
+        :returns: One :class:`~openstack.identity.v2.role.Role`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(role.Role, value)
 
     def list_roles(self):
         return role.Role.list(self.session)
@@ -97,8 +106,17 @@ class Proxy(proxy.BaseProxy):
     def find_tenant(self, name_or_id):
         return tenant.Tenant.find(self.session, name_or_id)
 
-    def get_tenant(self, **data):
-        return tenant.Tenant(data).get(self.session)
+    def get_tenant(self, value):
+        """Get a single tenant
+
+        :param value: The value can be the ID of a tenant or a
+                      :class:`~openstack.identity.v2.tenant.Tenant` instance.
+
+        :returns: One :class:`~openstack.identity.v2.tenant.Tenant`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(tenant.Tenant, value)
 
     def list_tenants(self):
         return tenant.Tenant.list(self.session)
@@ -146,8 +164,17 @@ class Proxy(proxy.BaseProxy):
     def find_user(self, name_or_id):
         return user.User.find(self.session, name_or_id)
 
-    def get_user(self, **data):
-        return user.User(data).get(self.session)
+    def get_user(self, value):
+        """Get a single user
+
+        :param value: The value can be the ID of a user or a
+                      :class:`~openstack.identity.v2.user.User` instance.
+
+        :returns: One :class:`~openstack.identity.v2.user.User`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(user.User, value)
 
     def list_users(self):
         return user.User.list(self.session)

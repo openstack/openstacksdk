@@ -54,8 +54,18 @@ class Proxy(proxy.BaseProxy):
     def find_credential(self, name_or_id):
         return credential.Credential.find(self.session, name_or_id)
 
-    def get_credential(self, **data):
-        return credential.Credential(data).get(self.session)
+    def get_credential(self, value):
+        """Get a single credential
+
+        :param value: The value can be the ID of a credential or a
+                      :class:`~openstack.identity.v3.credential.Credential`
+                      instance.
+
+        :returns: One :class:`~openstack.identity.v3.credential.Credential`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(credential.Credential, value)
 
     def list_credentials(self):
         return credential.Credential.list(self.session)
@@ -104,8 +114,17 @@ class Proxy(proxy.BaseProxy):
     def find_domain(self, name_or_id):
         return domain.Domain.find(self.session, name_or_id)
 
-    def get_domain(self, **data):
-        return domain.Domain(data).get(self.session)
+    def get_domain(self, value):
+        """Get a single domain
+
+        :param value: The value can be the ID of a domain or a
+                      :class:`~openstack.identity.v3.domain.Domain` instance.
+
+        :returns: One :class:`~openstack.identity.v3.domain.Domain`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(domain.Domain, value)
 
     def list_domains(self):
         return domain.Domain.list(self.session)
@@ -153,8 +172,18 @@ class Proxy(proxy.BaseProxy):
     def find_endpoint(self, name_or_id):
         return endpoint.Endpoint.find(self.session, name_or_id)
 
-    def get_endpoint(self, **data):
-        return endpoint.Endpoint(data).get(self.session)
+    def get_endpoint(self, value):
+        """Get a single endpoint
+
+        :param value: The value can be the ID of an endpoint or a
+                      :class:`~openstack.identity.v3.endpoint.Endpoint`
+                      instance.
+
+        :returns: One :class:`~openstack.identity.v3.endpoint.Endpoint`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(endpoint.Endpoint, value)
 
     def list_endpoints(self):
         return endpoint.Endpoint.list(self.session)
@@ -203,8 +232,18 @@ class Proxy(proxy.BaseProxy):
     def find_group(self, name_or_id):
         return group.Group.find(self.session, name_or_id)
 
-    def get_group(self, **data):
-        return group.Group(data).get(self.session)
+    def get_group(self, value):
+        """Get a single group
+
+        :param value: The value can be the ID of a group or a
+                      :class:`~openstack.identity.v3.group.Group`
+                      instance.
+
+        :returns: One :class:`~openstack.identity.v3.group.Group`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(group.Group, value)
 
     def list_groups(self):
         return group.Group.list(self.session)
@@ -252,8 +291,17 @@ class Proxy(proxy.BaseProxy):
     def find_policy(self, name_or_id):
         return policy.Policy.find(self.session, name_or_id)
 
-    def get_policy(self, **data):
-        return policy.Policy(data).get(self.session)
+    def get_policy(self, value):
+        """Get a single policy
+
+        :param value: The value can be the ID of a policy or a
+                      :class:`~openstack.identity.v3.policy.Policy` instance.
+
+        :returns: One :class:`~openstack.identity.v3.policy.Policy`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(policy.Policy, value)
 
     def list_policys(self):
         return policy.Policy.list(self.session)
@@ -301,8 +349,17 @@ class Proxy(proxy.BaseProxy):
     def find_project(self, name_or_id):
         return project.Project.find(self.session, name_or_id)
 
-    def get_project(self, **data):
-        return project.Project(data).get(self.session)
+    def get_project(self, value):
+        """Get a single project
+
+        :param value: The value can be the ID of a project or a
+                      :class:`~openstack.identity.v3.project.Project` instance.
+
+        :returns: One :class:`~openstack.identity.v3.project.Project`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(project.Project, value)
 
     def list_projects(self):
         return project.Project.list(self.session)
@@ -350,8 +407,17 @@ class Proxy(proxy.BaseProxy):
     def find_service(self, name_or_id):
         return service.Service.find(self.session, name_or_id)
 
-    def get_service(self, **data):
-        return service.Service(data).get(self.session)
+    def get_service(self, value):
+        """Get a single service
+
+        :param value: The value can be the ID of a service or a
+                      :class:`~openstack.identity.v3.service.Service` instance.
+
+        :returns: One :class:`~openstack.identity.v3.service.Service`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(service.Service, value)
 
     def list_services(self):
         return service.Service.list(self.session)
@@ -399,8 +465,17 @@ class Proxy(proxy.BaseProxy):
     def find_user(self, name_or_id):
         return user.User.find(self.session, name_or_id)
 
-    def get_user(self, **data):
-        return user.User(data).get(self.session)
+    def get_user(self, value):
+        """Get a single user
+
+        :param value: The value can be the ID of a user or a
+                      :class:`~openstack.identity.v3.user.User` instance.
+
+        :returns: One :class:`~openstack.identity.v3.user.User`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(user.User, value)
 
     def list_users(self):
         return user.User.list(self.session)
@@ -436,8 +511,17 @@ class Proxy(proxy.BaseProxy):
     def find_trust(self, name_or_id):
         return trust.Trust.find(self.session, name_or_id)
 
-    def get_trust(self, **data):
-        return trust.Trust(data).get(self.session)
+    def get_trust(self, value):
+        """Get a single trust
+
+        :param value: The value can be the ID of a trust or a
+                      :class:`~openstack.identity.v3.trust.Trust` instance.
+
+        :returns: One :class:`~openstack.identity.v3.trust.Trust`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(trust.Trust, value)
 
     def list_trusts(self):
         return trust.Trust.list(self.session)
