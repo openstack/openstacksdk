@@ -52,11 +52,33 @@ class Proxy(proxy.BaseProxy):
     def list_database(self):
         return database.Database.list(self.session)
 
+    def get_database(self, value):
+        """Get a single database
+
+        :param value: The value can be the ID of a database or a
+                      :class:`~openstack.database.v1.database.Database`
+                      instance.
+
+        :returns: One :class:`~openstack.database.v1.database.Database`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(database.Database, value)
+
     def find_flavor(self, name_or_id):
         return flavor.Flavor.find(self.session, name_or_id)
 
-    def get_flavor(self, **data):
-        return flavor.Flavor(data).get(self.session)
+    def get_flavor(self, value):
+        """Get a single flavor
+
+        :param value: The value can be the ID of a flavor or a
+                      :class:`~openstack.database.v1.flavor.Flavor` instance.
+
+        :returns: One :class:`~openstack.database.v1.flavor.Flavor`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(flavor.Flavor, value)
 
     def list_flavor(self):
         return flavor.Flavor.list(self.session)
@@ -91,8 +113,18 @@ class Proxy(proxy.BaseProxy):
     def find_instance(self, name_or_id):
         return instance.Instance.find(self.session, name_or_id)
 
-    def get_instance(self, **data):
-        return instance.Instance(data).get(self.session)
+    def get_instance(self, value):
+        """Get a single instance
+
+        :param value: The value can be the ID of an instance or a
+                      :class:`~openstack.database.v1.instance.Instance`
+                      instance.
+
+        :returns: One :class:`~openstack.database.v1.instance.Instance`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(instance.Instance, value)
 
     def list_instance(self):
         return instance.Instance.list(self.session)
@@ -143,3 +175,15 @@ class Proxy(proxy.BaseProxy):
 
     def list_user(self):
         return user.User.list(self.session)
+
+    def get_user(self, value):
+        """Get a single user
+
+        :param value: The value can be the ID of a user or a
+                      :class:`~openstack.database.v1.user.User` instance.
+
+        :returns: One :class:`~openstack.database.v1.user.User`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(user.User, value)

@@ -12,6 +12,7 @@
 
 from openstack.database.v1 import _proxy
 from openstack.database.v1 import database
+from openstack.database.v1 import flavor
 from openstack.database.v1 import instance
 from openstack.database.v1 import user
 from openstack.tests.unit import test_proxy_base
@@ -46,13 +47,21 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
         self.verify_list('openstack.database.v1.database.Database.list',
                          self.proxy.list_database)
 
+    def test_database_get(self):
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_database,
+                         method_args=["resource_or_id"],
+                         expected_args=[database.Database, "resource_or_id"])
+
     def test_flavor_find(self):
         self.verify_find('openstack.database.v1.flavor.Flavor.find',
                          self.proxy.find_flavor)
 
     def test_flavor_get(self):
-        self.verify_get('openstack.database.v1.flavor.Flavor.get',
-                        self.proxy.get_flavor)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_flavor,
+                         method_args=["resource_or_id"],
+                         expected_args=[flavor.Flavor, "resource_or_id"])
 
     def test_flavor_list(self):
         self.verify_list('openstack.database.v1.flavor.Flavor.list',
@@ -79,8 +88,10 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_instance)
 
     def test_instance_get(self):
-        self.verify_get('openstack.database.v1.instance.Instance.get',
-                        self.proxy.get_instance)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_instance,
+                         method_args=["resource_or_id"],
+                         expected_args=[instance.Instance, "resource_or_id"])
 
     def test_instance_list(self):
         self.verify_list('openstack.database.v1.instance.Instance.list',
@@ -117,3 +128,9 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
     def test_user_list(self):
         self.verify_list('openstack.database.v1.user.User.list',
                          self.proxy.list_user)
+
+    def test_user_get(self):
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_user,
+                         method_args=["resource_or_id"],
+                         expected_args=[user.User, "resource_or_id"])
