@@ -50,6 +50,28 @@ Service specific settings, like the nova service type, are set with the
 default service type as a prefix. For instance, to set a special service_type
 for trove (because you're using Rackspace) set:
 
+Site Specific File Locations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to `~/.config/openstack` and `/etc/openstack` - some platforms
+have other locations they like to put things. `os-client-config` will also
+look in an OS specific config dir
+
+* `USER_CONFIG_DIR`
+* `SITE_CONFIG_DIR`
+
+`USER_CONFIG_DIR` is different on Linux, OSX and Windows.
+
+* Linux: `~/.config/openstack`
+* OSX: `~/Library/Application Support/openstack`
+* Windows: `C:\\Users\\USERNAME\\AppData\\Local\\OpenStack\\openstack`
+
+`SITE_CONFIG_DIR` is different on Linux, OSX and Windows.
+
+* Linux: `/etc/openstack`
+* OSX: `/Library/Application Support/openstack`
+* Windows: `C:\\ProgramData\\OpenStack\\openstack`
+
 ::
 
   database_service_type: 'rax:database'
