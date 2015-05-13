@@ -80,13 +80,13 @@ class Proxy(proxy.BaseProxy):
         """Update a ip
 
         :param value: Either the id of a ip or a
-                      :class:`~openstack.compute.v2.floating_ip.FloatingIP`
+                      :class:`~openstack.network.v2.floating_ip.FloatingIP`
                       instance.
         :attrs kwargs: The attributes to update on the ip represented
                        by ``value``.
 
         :returns: The updated ip
-        :rtype: :class:`~openstack.compute.v2.floating_ip.FloatingIP`
+        :rtype: :class:`~openstack.network.v2.floating_ip.FloatingIP`
         """
         return self._update(floating_ip.FloatingIP, value, **attrs)
 
@@ -131,13 +131,13 @@ class Proxy(proxy.BaseProxy):
         """Update a health monitor
 
         :param value: Either the id of a health monitor or a
-                      :class:`~openstack.compute.v2.health_monitor.
+                      :class:`~openstack.network.v2.health_monitor.
                       HealthMonitor` instance.
         :attrs kwargs: The attributes to update on the health monitor
                        represented by ``value``.
 
         :returns: The updated health monitor
-        :rtype: :class:`~openstack.compute.v2.health_monitor.HealthMonitor`
+        :rtype: :class:`~openstack.network.v2.health_monitor.HealthMonitor`
         """
         return self._update(health_monitor.HealthMonitor, value, **attrs)
 
@@ -181,13 +181,13 @@ class Proxy(proxy.BaseProxy):
         """Update a listener
 
         :param value: Either the id of a listener or a
-                      :class:`~openstack.compute.v2.listener.Listener`
+                      :class:`~openstack.network.v2.listener.Listener`
                       instance.
         :attrs kwargs: The attributes to update on the listener represented
                        by ``value``.
 
         :returns: The updated listener
-        :rtype: :class:`~openstack.compute.v2.listener.Listener`
+        :rtype: :class:`~openstack.network.v2.listener.Listener`
         """
         return self._update(listener.Listener, value, **attrs)
 
@@ -232,13 +232,13 @@ class Proxy(proxy.BaseProxy):
         """Update a load balancer
 
         :param value: Either the id of a load balancer or a
-                      :class:`~openstack.compute.v2.load_balancer.LoadBalancer`
+                      :class:`~openstack.network.v2.load_balancer.LoadBalancer`
                       instance.
         :attrs kwargs: The attributes to update on the load balancer
                        represented by ``value``.
 
         :returns: The updated load balancer
-        :rtype: :class:`~openstack.compute.v2.load_balancer.LoadBalancer`
+        :rtype: :class:`~openstack.network.v2.load_balancer.LoadBalancer`
         """
         return self._update(load_balancer.LoadBalancer, value, **attrs)
 
@@ -283,13 +283,13 @@ class Proxy(proxy.BaseProxy):
         """Update a metering label
 
         :param value: Either the id of a metering label or a
-                      :class:`~openstack.compute.v2.metering_label.
+                      :class:`~openstack.network.v2.metering_label.
                       MeteringLabel` instance.
         :attrs kwargs: The attributes to update on the metering label
                        represented by ``value``.
 
         :returns: The updated metering label
-        :rtype: :class:`~openstack.compute.v2.metering_label.MeteringLabel`
+        :rtype: :class:`~openstack.network.v2.metering_label.MeteringLabel`
         """
         return self._update(metering_label.MeteringLabel, value, **attrs)
 
@@ -338,13 +338,13 @@ class Proxy(proxy.BaseProxy):
         """Update a metering label rule
 
         :param value: Either the id of a metering label rule or a
-                      :class:`~openstack.compute.v2.metering_label_rule.
+                      :class:`~openstack.network.v2.metering_label_rule.
                       MeteringLabelRule` instance.
         :attrs kwargs: The attributes to update on the metering label rule
                        represented by ``value``.
 
         :returns: The updated metering label rule
-        :rtype: :class:`~openstack.compute.v2.metering_label_rule.
+        :rtype: :class:`~openstack.network.v2.metering_label_rule.
                        MeteringLabelRule`
         """
         return self._update(metering_label_rule.MeteringLabelRule, value,
@@ -391,12 +391,12 @@ class Proxy(proxy.BaseProxy):
         """Update a network
 
         :param value: Either the id of a network or a
-                      :class:`~openstack.compute.v2.network.Network` instance.
+                      :class:`~openstack.network.v2.network.Network` instance.
         :attrs kwargs: The attributes to update on the network represented
                        by ``value``.
 
         :returns: The updated network
-        :rtype: :class:`~openstack.compute.v2.network.Network`
+        :rtype: :class:`~openstack.network.v2.network.Network`
         """
         return self._update(network.Network, value, **attrs)
 
@@ -441,12 +441,12 @@ class Proxy(proxy.BaseProxy):
         """Update a pool
 
         :param value: Either the id of a pool or a
-                      :class:`~openstack.compute.v2.pool.Pool` instance.
+                      :class:`~openstack.network.v2.pool.Pool` instance.
         :attrs kwargs: The attributes to update on the pool represented
                        by ``value``.
 
         :returns: The updated pool
-        :rtype: :class:`~openstack.compute.v2.pool.Pool`
+        :rtype: :class:`~openstack.network.v2.pool.Pool`
         """
         return self._update(pool.Pool, value, **attrs)
 
@@ -492,13 +492,13 @@ class Proxy(proxy.BaseProxy):
         """Update a pool member
 
         :param value: Either the id of a pool member or a
-                      :class:`~openstack.compute.v2.pool_member.PoolMember`
+                      :class:`~openstack.network.v2.pool_member.PoolMember`
                       instance.
         :attrs kwargs: The attributes to update on the pool member represented
                        by ``value``.
 
         :returns: The updated pool member
-        :rtype: :class:`~openstack.compute.v2.pool_member.PoolMember`
+        :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
         return self._update(pool_member.PoolMember, value, **attrs)
 
@@ -543,12 +543,12 @@ class Proxy(proxy.BaseProxy):
         """Update a port
 
         :param value: Either the id of a port or a
-                      :class:`~openstack.compute.v2.port.Port` instance.
+                      :class:`~openstack.network.v2.port.Port` instance.
         :attrs kwargs: The attributes to update on the port represented
                        by ``value``.
 
         :returns: The updated port
-        :rtype: :class:`~openstack.compute.v2.port.Port`
+        :rtype: :class:`~openstack.network.v2.port.Port`
         """
         return self._update(port.Port, value, **attrs)
 
@@ -613,12 +613,12 @@ class Proxy(proxy.BaseProxy):
         """Update a router
 
         :param value: Either the id of a router or a
-                      :class:`~openstack.compute.v2.router.Router` instance.
+                      :class:`~openstack.network.v2.router.Router` instance.
         :attrs kwargs: The attributes to update on the router represented
                        by ``value``.
 
         :returns: The updated router
-        :rtype: :class:`~openstack.compute.v2.router.Router`
+        :rtype: :class:`~openstack.network.v2.router.Router`
         """
         return self._update(router.Router, value, **attrs)
 
@@ -670,14 +670,14 @@ class Proxy(proxy.BaseProxy):
         """Update a security group
 
         :param value: Either the id of a security group or a
-                      :class:`~openstack.compute.v2.security_group.
+                      :class:`~openstack.network.v2.security_group.
                               SecurityGroup`
                       instance.
         :attrs kwargs: The attributes to update on the security group
                        represented by ``value``.
 
         :returns: The updated security group
-        :rtype: :class:`~openstack.compute.v2.security_group.SecurityGroup`
+        :rtype: :class:`~openstack.network.v2.security_group.SecurityGroup`
         """
         return self._update(security_group.SecurityGroup, value, **attrs)
 
@@ -752,13 +752,13 @@ class Proxy(proxy.BaseProxy):
         """Update a security group rule
 
         :param value: Either the id of a security group rule or a
-                      :class:`~openstack.compute.v2.security_group_rule.
+                      :class:`~openstack.network.v2.security_group_rule.
                       SecurityGroupRule` instance.
         :attrs kwargs: The attributes to update on the security group rule
                        represented by ``value``.
 
         :returns: The updated security group rule
-        :rtype: :class:`~openstack.compute.v2.security_group_rule.
+        :rtype: :class:`~openstack.network.v2.security_group_rule.
                         SecurityGroupRule`
         """
         return self._update(security_group_rule.SecurityGroupRule, value,
@@ -805,11 +805,11 @@ class Proxy(proxy.BaseProxy):
         """Update a subnet
 
         :param value: Either the id of a subnet or a
-                      :class:`~openstack.compute.v2.subnet.Subnet` instance.
+                      :class:`~openstack.network.v2.subnet.Subnet` instance.
         :attrs kwargs: The attributes to update on the subnet represented
                        by ``value``.
 
         :returns: The updated subnet
-        :rtype: :class:`~openstack.compute.v2.subnet.Subnet`
+        :rtype: :class:`~openstack.network.v2.subnet.Subnet`
         """
         return self._update(subnet.Subnet, value, **attrs)
