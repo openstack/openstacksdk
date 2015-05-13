@@ -29,6 +29,14 @@ from shade.tests.unit import base
 
 
 class TestDeleteServer(base.TestCase):
+    novaclient_exceptions = (nova_exc.BadRequest,
+                             nova_exc.Unauthorized,
+                             nova_exc.Forbidden,
+                             nova_exc.MethodNotAllowed,
+                             nova_exc.Conflict,
+                             nova_exc.OverLimit,
+                             nova_exc.RateLimit,
+                             nova_exc.HTTPNotImplemented)
 
     def setUp(self):
         super(TestDeleteServer, self).setUp()
@@ -89,14 +97,7 @@ class TestDeleteServer(base.TestCase):
         nova_mock.servers.list.return_value = [fakes.FakeServer('1212',
                                                                 'speedy',
                                                                 'ACTIVE')]
-        for fail in (nova_exc.BadRequest,
-                     nova_exc.Unauthorized,
-                     nova_exc.Forbidden,
-                     nova_exc.MethodNotAllowed,
-                     nova_exc.Conflict,
-                     nova_exc.OverLimit,
-                     nova_exc.RateLimit,
-                     nova_exc.HTTPNotImplemented):
+        for fail in self.novaclient_exceptions:
 
             def _raise_fail(server):
                 raise fail(code=fail.http_status)
@@ -105,6 +106,27 @@ class TestDeleteServer(base.TestCase):
             exc = self.assertRaises(shade_exc.OpenStackCloudException,
                                     self.cloud.delete_server, 'speedy',
                                     wait=False)
+            # Note that message is deprecated from Exception, but not in
+            # the novaclient exceptions.
+            self.assertIn(fail.message, str(exc))
+
+    @mock.patch('shade.OpenStackCloud.nova_client')
+    def test_delete_server_get_fails(self, nova_mock):
+        """
+        Test that delete_server wraps novaclient exceptions on wait fails
+        """
+        nova_mock.servers.list.return_value = [fakes.FakeServer('2000',
+                                                                'yosemite',
+                                                                'ACTIVE')]
+        for fail in self.novaclient_exceptions:
+
+            def _raise_fail(server):
+                raise fail(code=fail.http_status)
+
+            nova_mock.servers.get.side_effect = _raise_fail
+            exc = self.assertRaises(shade_exc.OpenStackCloudException,
+                                    self.cloud.delete_server, 'yosemite',
+                                    wait=True)
             # Note that message is deprecated from Exception, but not in
             # the novaclient exceptions.
             self.assertIn(fail.message, str(exc))
