@@ -64,8 +64,11 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_ip)
 
     def test_floating_ip_get(self):
-        self.verify_get('openstack.network.v2.floating_ip.FloatingIP.get',
-                        self.proxy.get_ip)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_ip,
+                         method_args=["resource_or_id"],
+                         expected_args=[floating_ip.FloatingIP,
+                                        "resource_or_id"])
 
     def test_floating_ip_list(self):
         self.verify_list('openstack.network.v2.floating_ip.FloatingIP.list',
@@ -103,9 +106,11 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             self.proxy.find_health_monitor)
 
     def test_health_monitor_get(self):
-        self.verify_get(
-            'openstack.network.v2.health_monitor.HealthMonitor.get',
-            self.proxy.get_health_monitor)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_health_monitor,
+                         method_args=["resource_or_id"],
+                         expected_args=[health_monitor.HealthMonitor,
+                                        "resource_or_id"])
 
     def test_health_monitor_list(self):
         self.verify_list(
@@ -143,8 +148,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_listener)
 
     def test_listener_get(self):
-        self.verify_get('openstack.network.v2.listener.Listener.get',
-                        self.proxy.get_listener)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_listener,
+                         method_args=["resource_or_id"],
+                         expected_args=[listener.Listener, "resource_or_id"])
 
     def test_listener_list(self):
         self.verify_list('openstack.network.v2.listener.Listener.list',
@@ -182,8 +189,11 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             self.proxy.find_load_balancer)
 
     def test_load_balancer_get(self):
-        self.verify_get('openstack.network.v2.load_balancer.LoadBalancer.get',
-                        self.proxy.get_load_balancer)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_load_balancer,
+                         method_args=["resource_or_id"],
+                         expected_args=[load_balancer.LoadBalancer,
+                                        "resource_or_id"])
 
     def test_load_balancer_list(self):
         self.verify_list(
@@ -222,9 +232,11 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             self.proxy.find_metering_label)
 
     def test_metering_label_get(self):
-        self.verify_get(
-            'openstack.network.v2.metering_label.MeteringLabel.get',
-            self.proxy.get_metering_label)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_metering_label,
+                         method_args=["resource_or_id"],
+                         expected_args=[metering_label.MeteringLabel,
+                                        "resource_or_id"])
 
     def test_metering_label_list(self):
         self.verify_list(
@@ -264,9 +276,11 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             self.proxy.find_metering_label_rule)
 
     def test_metering_label_rule_get(self):
-        self.verify_get(
-            'openstack.network.v2.metering_label_rule.MeteringLabelRule.get',
-            self.proxy.get_metering_label_rule)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_metering_label_rule,
+                         method_args=["resource_or_id"],
+                         expected_args=[metering_label_rule.MeteringLabelRule,
+                                        "resource_or_id"])
 
     def test_metering_label_rule_list(self):
         self.verify_list(
@@ -304,8 +318,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_network)
 
     def test_network_get(self):
-        self.verify_get('openstack.network.v2.network.Network.get',
-                        self.proxy.get_network)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_network,
+                         method_args=["resource_or_id"],
+                         expected_args=[network.Network, "resource_or_id"])
 
     def test_network_list(self):
         self.verify_list('openstack.network.v2.network.Network.list',
@@ -341,8 +357,11 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_pool_member)
 
     def test_pool_member_get(self):
-        self.verify_get('openstack.network.v2.pool_member.PoolMember.get',
-                        self.proxy.get_pool_member)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_pool_member,
+                         method_args=["resource_or_id"],
+                         expected_args=[pool_member.PoolMember,
+                                        "resource_or_id"])
 
     def test_pool_member_list(self):
         self.verify_list('openstack.network.v2.pool_member.PoolMember.list',
@@ -377,8 +396,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_pool)
 
     def test_pool_get(self):
-        self.verify_get('openstack.network.v2.pool.Pool.get',
-                        self.proxy.get_pool)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_pool,
+                         method_args=["resource_or_id"],
+                         expected_args=[pool.Pool, "resource_or_id"])
 
     def test_pool_list(self):
         self.verify_list('openstack.network.v2.pool.Pool.list',
@@ -412,8 +433,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_port)
 
     def test_port_get(self):
-        self.verify_get('openstack.network.v2.port.Port.get',
-                        self.proxy.get_port)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_port,
+                         method_args=["resource_or_id"],
+                         expected_args=[port.Port, "resource_or_id"])
 
     def test_port_list(self):
         self.verify_list('openstack.network.v2.port.Port.list',
@@ -451,8 +474,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_router)
 
     def test_router_get(self):
-        self.verify_get('openstack.network.v2.router.Router.get',
-                        self.proxy.get_router)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_router,
+                         method_args=["resource_or_id"],
+                         expected_args=[router.Router, "resource_or_id"])
 
     def test_router_list(self):
         self.verify_list('openstack.network.v2.router.Router.list',
@@ -489,9 +514,11 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             self.proxy.find_security_group)
 
     def test_security_group_get(self):
-        self.verify_get(
-            'openstack.network.v2.security_group.SecurityGroup.get',
-            self.proxy.get_security_group)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_security_group,
+                         method_args=["resource_or_id"],
+                         expected_args=[security_group.SecurityGroup,
+                                        "resource_or_id"])
 
     def test_security_group_list(self):
         self.verify_list(
@@ -572,9 +599,11 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             self.proxy.find_security_group_rule)
 
     def test_security_group_rule_get(self):
-        self.verify_get(
-            'openstack.network.v2.security_group_rule.SecurityGroupRule.get',
-            self.proxy.get_security_group_rule)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_security_group_rule,
+                         method_args=["resource_or_id"],
+                         expected_args=[security_group_rule.SecurityGroupRule,
+                                        "resource_or_id"])
 
     def test_security_group_rule_list(self):
         self.verify_list(
@@ -612,8 +641,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_subnet)
 
     def test_subnet_get(self):
-        self.verify_get('openstack.network.v2.subnet.Subnet.get',
-                        self.proxy.get_subnet)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_subnet,
+                         method_args=["resource_or_id"],
+                         expected_args=[subnet.Subnet, "resource_or_id"])
 
     def test_subnet_list(self):
         self.verify_list('openstack.network.v2.subnet.Subnet.list',
