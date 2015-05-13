@@ -23,6 +23,7 @@ import mock
 from novaclient import exceptions as nova_exc
 
 from shade import OpenStackCloud
+from shade import exc as shade_exc
 from shade.tests import fakes
 from shade.tests.unit import base
 
@@ -79,3 +80,31 @@ class TestDeleteServer(base.TestCase):
         nova_mock.servers.delete.side_effect = _delete_wily
         self.cloud.delete_server('wily', wait=True)
         nova_mock.servers.delete.assert_called_with(server=server.id)
+
+    @mock.patch('shade.OpenStackCloud.nova_client')
+    def test_delete_server_fails(self, nova_mock):
+        """
+        Test that delete_server wraps novaclient exceptions
+        """
+        nova_mock.servers.list.return_value = [fakes.FakeServer('1212',
+                                                                'speedy',
+                                                                'ACTIVE')]
+        for fail in (nova_exc.BadRequest,
+                     nova_exc.Unauthorized,
+                     nova_exc.Forbidden,
+                     nova_exc.MethodNotAllowed,
+                     nova_exc.Conflict,
+                     nova_exc.OverLimit,
+                     nova_exc.RateLimit,
+                     nova_exc.HTTPNotImplemented):
+
+            def _raise_fail(server):
+                raise fail(code=fail.http_status)
+
+            nova_mock.servers.delete.side_effect = _raise_fail
+            exc = self.assertRaises(shade_exc.OpenStackCloudException,
+                                    self.cloud.delete_server, 'speedy',
+                                    wait=False)
+            # Note that message is deprecated from Exception, but not in
+            # the novaclient exceptions.
+            self.assertIn(fail.message, str(exc))

@@ -1747,7 +1747,14 @@ class OpenStackCloud(object):
     def delete_server(self, name, wait=False, timeout=180):
         server = self.get_server(name)
         if server:
-            self.manager.submitTask(_tasks.ServerDelete(server=server.id))
+            try:
+                self.manager.submitTask(_tasks.ServerDelete(server=server.id))
+            except nova_exceptions.NotFound:
+                return
+            except Exception as e:
+                self.log.debug("nova delete server failed", exc_info=True)
+                raise OpenStackCloudException(
+                    "Error in deleting server: {0}".format(e))
         else:
             return
         if not wait:
