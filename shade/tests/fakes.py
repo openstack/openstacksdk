@@ -37,6 +37,15 @@ class FakeFlavor(object):
         self.name = name
 
 
+class FakeFloatingIP(object):
+    def __init__(self, id, pool, ip, fixed_ip, instance_id):
+        self.id = id
+        self.pool = pool
+        self.ip = ip
+        self.fixed_ip = fixed_ip
+        self.instance_id = instance_id
+
+
 class FakeFloatingIPPool(object):
     def __init__(self, id, name):
         self.id = id
