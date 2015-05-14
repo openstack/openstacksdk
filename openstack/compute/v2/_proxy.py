@@ -234,7 +234,7 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(keypair.Keypair, value, **attrs)
 
-    def limits(self):
+    def get_limits(self):
         """Retrieve limits that are applied to the project's account
 
         :returns: A Limits object, including both
@@ -242,7 +242,7 @@ class Proxy(proxy.BaseProxy):
                   :class:`~openstack.compute.v2.limits.RateLimits`
         :rtype: :class:`~openstack.compute.v2.limits.Limits`
         """
-        return limits.Limits().get(self.session)
+        return self._get(limits.Limits)
 
     def create_server(self, **attrs):
         """Create a new server from attributes
