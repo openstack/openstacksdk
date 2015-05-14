@@ -52,8 +52,17 @@ class Proxy(proxy.BaseProxy):
     def find_alarm(self, name_or_id):
         return alarm.Alarm.find(self.session, name_or_id)
 
-    def get_alarm(self, **data):
-        return alarm.Alarm(data).get(self.session)
+    def get_alarm(self, value):
+        """Get a single alarm
+
+        :param value: The value can be the ID of an alarm or a
+                      :class:`~openstack.telemetry.v2.alarm.Alarm` instance.
+
+        :returns: One :class:`~openstack.telemetry.v2.alarm.Alarm`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(alarm.Alarm, value)
 
     def list_alarms(self):
         return alarm.Alarm.list(self.session)
@@ -92,8 +101,18 @@ class Proxy(proxy.BaseProxy):
     def find_resource(self, name_or_id):
         return resource.Resource.find(self.session, name_or_id)
 
-    def get_resource(self, **data):
-        return resource.Resource(data).get(self.session)
+    def get_resource(self, value):
+        """Get a single resource
+
+        :param value: The value can be the ID of a resource or a
+                      :class:`~openstack.telemetry.v2.resource.Resource`
+                      instance.
+
+        :returns: One :class:`~openstack.telemetry.v2.resource.Resource`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(resource.Resource, value)
 
     def list_resources(self):
         return resource.Resource.list(self.session)

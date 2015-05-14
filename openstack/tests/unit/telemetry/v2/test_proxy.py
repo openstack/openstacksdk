@@ -12,6 +12,7 @@
 
 from openstack.telemetry.v2 import _proxy
 from openstack.telemetry.v2 import alarm
+from openstack.telemetry.v2 import resource
 from openstack.telemetry.v2 import sample
 from openstack.tests.unit import test_proxy_base
 
@@ -50,8 +51,10 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_alarm)
 
     def test_alarm_get(self):
-        self.verify_get('openstack.telemetry.v2.alarm.Alarm.get',
-                        self.proxy.get_alarm)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_alarm,
+                         method_args=["resource_or_id"],
+                         expected_args=[alarm.Alarm, "resource_or_id"])
 
     def test_alarm_list(self):
         self.verify_list('openstack.telemetry.v2.alarm.Alarm.list',
@@ -87,8 +90,10 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_resource)
 
     def test_resource_get(self):
-        self.verify_get('openstack.telemetry.v2.resource.Resource.get',
-                        self.proxy.get_resource)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_resource,
+                         method_args=["resource_or_id"],
+                         expected_args=[resource.Resource, "resource_or_id"])
 
     def test_resource_list(self):
         self.verify_list('openstack.telemetry.v2.resource.Resource.list',
