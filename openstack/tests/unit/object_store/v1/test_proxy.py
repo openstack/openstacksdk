@@ -62,6 +62,12 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
                             expected_args=[obj.Object],
                             expected_kwargs=kwargs)
 
+    def test_object_get(self):
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_object,
+                         method_args=["resource_or_id"],
+                         expected_args=[obj.Object, "resource_or_id"])
+
 
 class Test_account_metadata(TestObjectStoreProxy):
 
@@ -307,22 +313,9 @@ class Test_objects(TestObjectStoreProxy, base.TestTransportBase):
                       httpretty.last_request().path)
 
 
-class Test_get_object_data(TestObjectStoreProxy):
-
-    def test_get(self):
-        the_data = "here's some data"
-        ob = mock.MagicMock()
-        ob.get.return_value = the_data
-
-        result = self.proxy.get_object_data(ob)
-
-        self.assertEqual(the_data, result)
-        ob.get.assert_called_once_with(self.session)
-
-
 class Test_save_object(TestObjectStoreProxy):
 
-    @mock.patch("openstack.object_store.v1._proxy.Proxy.get_object_data")
+    @mock.patch("openstack.object_store.v1._proxy.Proxy.get_object")
     def test_save(self, mock_get):
         the_data = "here's some data"
         mock_get.return_value = the_data

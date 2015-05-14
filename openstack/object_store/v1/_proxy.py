@@ -141,13 +141,18 @@ class Proxy(proxy.BaseProxy):
             ob.container = container.name
             yield ob
 
-    def get_object_data(self, obj):
-        """Retreive the data contained inside an object.
+    def get_object(self, value):
+        """Get a single object
 
-        :param obj: The object to retreive.
-        :type obj: :class:`~openstack.object_store.v1.obj.Object`
+        :param value: The value can be the ID of an object or a
+                      :class:`~openstack.object_store.v1.obj.Object` instance.
+
+        :returns: One :class:`~openstack.object_store.v1.obj.Object`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
         """
-        return obj.get(self.session)
+        # TODO(brian): s/_obj/obj once other changes propogate
+        return self._get(_obj.Object, value)
 
     def save_object(self, obj, path):
         """Save the data contained inside an object to disk.
@@ -157,7 +162,7 @@ class Proxy(proxy.BaseProxy):
         :param path str: Location to write the object contents.
         """
         with open(path, "w") as out:
-            out.write(self.get_object_data(obj))
+            out.write(self.get_object(obj))
 
     def create_object(self, **attrs):
         """Create a new object from attributes
