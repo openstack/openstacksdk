@@ -70,8 +70,18 @@ class Proxy(proxy.BaseProxy):
     def find_ip(self, name_or_id):
         return floating_ip.FloatingIP.find(self.session, name_or_id)
 
-    def get_ip(self, **data):
-        return floating_ip.FloatingIP(**data).get(self.session)
+    def get_ip(self, value):
+        """Get a single floating ip
+
+        :param value: The value can be the ID of a floating ip or a
+                      :class:`~openstack.network.v2.floating_ip.FloatingIP`
+                      instance.
+
+        :returns: One :class:`~openstack.network.v2.floating_ip.FloatingIP`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(floating_ip.FloatingIP, value)
 
     def list_ips(self, **params):
         return floating_ip.FloatingIP.list(self.session, **params)
@@ -121,8 +131,19 @@ class Proxy(proxy.BaseProxy):
     def find_health_monitor(self, name_or_id):
         return health_monitor.HealthMonitor.find(self.session, name_or_id)
 
-    def get_health_monitor(self, **data):
-        return health_monitor.HealthMonitor(data).get(self.session)
+    def get_health_monitor(self, value):
+        """Get a single health monitor
+
+        :param value: The value can be the ID of a health monitor or a
+               :class:`~openstack.network.v2.health_monitor.HealthMonitor`
+               instance.
+
+        :returns: One
+                  :class:`~openstack.network.v2.health_monitor.HealthMonitor`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(health_monitor.HealthMonitor, value)
 
     def list_health_monitors(self):
         return health_monitor.HealthMonitor.list(self.session)
@@ -171,8 +192,18 @@ class Proxy(proxy.BaseProxy):
     def find_listener(self, name_or_id):
         return listener.Listener.find(self.session, name_or_id)
 
-    def get_listener(self, **data):
-        return listener.Listener(data).get(self.session)
+    def get_listener(self, value):
+        """Get a single listener
+
+        :param value: The value can be the ID of a listener or a
+               :class:`~openstack.network.v2.listener.Listener`
+               instance.
+
+        :returns: One :class:`~openstack.network.v2.listener.Listener`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(listener.Listener, value)
 
     def list_listeners(self):
         return listener.Listener.list(self.session)
@@ -222,8 +253,18 @@ class Proxy(proxy.BaseProxy):
     def find_load_balancer(self, name_or_id):
         return load_balancer.LoadBalancer.find(self.session, name_or_id)
 
-    def get_load_balancer(self, **data):
-        return load_balancer.LoadBalancer(data).get(self.session)
+    def get_load_balancer(self, value):
+        """Get a single load balancer
+
+        :param value: The value can be the ID of a load balancer or a
+               :class:`~openstack.network.v2.load_balancer.LoadBalancer`
+               instance.
+
+        :returns: One :class:`~openstack.network.v2.load_balancer.LoadBalancer`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(load_balancer.LoadBalancer, value)
 
     def list_load_balancers(self):
         return load_balancer.LoadBalancer.list(self.session)
@@ -273,8 +314,19 @@ class Proxy(proxy.BaseProxy):
     def find_metering_label(self, name_or_id):
         return metering_label.MeteringLabel.find(self.session, name_or_id)
 
-    def get_metering_label(self, **data):
-        return metering_label.MeteringLabel(data).get(self.session)
+    def get_metering_label(self, value):
+        """Get a single metering label
+
+        :param value: The value can be the ID of a metering label or a
+               :class:`~openstack.network.v2.metering_label.MeteringLabel`
+               instance.
+
+        :returns: One
+                  :class:`~openstack.network.v2.metering_label.MeteringLabel`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(metering_label.MeteringLabel, value)
 
     def list_metering_labels(self):
         return metering_label.MeteringLabel.list(self.session)
@@ -328,8 +380,19 @@ class Proxy(proxy.BaseProxy):
         return metering_label_rule.MeteringLabelRule.find(self.session,
                                                           name_or_id)
 
-    def get_metering_label_rule(self, **data):
-        return metering_label_rule.MeteringLabelRule(data).get(self.session)
+    def get_metering_label_rule(self, value):
+        """Get a single metering label rule
+
+        :param value: The value can be the ID of a metering label rule or a
+        :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
+        instance.
+
+        :returns: One
+        :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(metering_label_rule.MeteringLabelRule, value)
 
     def list_metering_label_rules(self):
         return metering_label_rule.MeteringLabelRule.list(self.session)
@@ -381,8 +444,17 @@ class Proxy(proxy.BaseProxy):
     def find_network(self, name_or_id):
         return network.Network.find(self.session, name_or_id)
 
-    def get_network(self, **data):
-        return network.Network(data).get(self.session)
+    def get_network(self, value):
+        """Get a single network
+
+        :param value: The value can be the ID of a network or a
+                      :class:`~openstack.network.v2.network.Network` instance.
+
+        :returns: One :class:`~openstack.network.v2.network.Network`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(network.Network, value)
 
     def list_networks(self, **params):
         return network.Network.list(self.session, **params)
@@ -431,8 +503,17 @@ class Proxy(proxy.BaseProxy):
     def find_pool(self, name_or_id):
         return pool.Pool.find(self.session, name_or_id)
 
-    def get_pool(self, **data):
-        return pool.Pool(data).get(self.session)
+    def get_pool(self, value):
+        """Get a single pool
+
+        :param value: The value can be the ID of a pool or a
+                      :class:`~openstack.network.v2.pool.Pool` instance.
+
+        :returns: One :class:`~openstack.network.v2.pool.Pool`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(pool.Pool, value)
 
     def list_pools(self):
         return pool.Pool.list(self.session)
@@ -482,8 +563,18 @@ class Proxy(proxy.BaseProxy):
     def find_pool_member(self, name_or_id):
         return pool_member.PoolMember.find(self.session, name_or_id)
 
-    def get_pool_member(self, **data):
-        return pool_member.PoolMember(data).get(self.session)
+    def get_pool_member(self, value):
+        """Get a single pool member
+
+        :param value: The value can be the ID of a pool member or a
+                      :class:`~openstack.network.v2.pool_member.PoolMember`
+                      instance.
+
+        :returns: One :class:`~openstack.network.v2.pool_member.PoolMember`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(pool_member.PoolMember, value)
 
     def list_pool_members(self):
         return pool_member.PoolMember.list(self.session)
@@ -533,8 +624,17 @@ class Proxy(proxy.BaseProxy):
     def find_port(self, name_or_id):
         return port.Port.find(self.session, name_or_id)
 
-    def get_port(self, **data):
-        return port.Port(data).get(self.session)
+    def get_port(self, value):
+        """Get a single port
+
+        :param value: The value can be the ID of a port or a
+                      :class:`~openstack.network.v2.port.Port` instance.
+
+        :returns: One :class:`~openstack.network.v2.port.Port`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(port.Port, value)
 
     def list_ports(self, **params):
         return port.Port.list(self.session, **params)
@@ -603,8 +703,17 @@ class Proxy(proxy.BaseProxy):
     def find_router(self, name_or_id):
         return router.Router.find(self.session, name_or_id)
 
-    def get_router(self, **data):
-        return router.Router(**data).get(self.session)
+    def get_router(self, value):
+        """Get a single router
+
+        :param value: The value can be the ID of a router or a
+                      :class:`~openstack.network.v2.router.Router` instance.
+
+        :returns: One :class:`~openstack.network.v2.router.Router`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(router.Router, value)
 
     def list_routers(self, **params):
         return router.Router.list(self.session, **params)
@@ -660,8 +769,19 @@ class Proxy(proxy.BaseProxy):
     def find_security_group(self, name_or_id):
         return security_group.SecurityGroup.find(self.session, name_or_id)
 
-    def get_security_group(self, **data):
-        return security_group.SecurityGroup(**data).get(self.session)
+    def get_security_group(self, value):
+        """Get a single security group
+
+        :param value: The value can be the ID of a security group or a
+               :class:`~openstack.network.v2.security_group.SecurityGroup`
+               instance.
+
+        :returns: One
+                  :class:`~openstack.network.v2.security_group.SecurityGroup`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(security_group.SecurityGroup, value)
 
     def list_security_groups(self, **params):
         return security_group.SecurityGroup.list(self.session, **params)
@@ -740,9 +860,19 @@ class Proxy(proxy.BaseProxy):
         return security_group_rule.SecurityGroupRule.find(self.session,
                                                           name_or_id)
 
-    def get_security_group_rule(self, **data):
-        obj = security_group_rule.SecurityGroupRule(**data)
-        return obj.get(self.session)
+    def get_security_group_rule(self, value):
+        """Get a single security group rule
+
+        :param value: The value can be the ID of a security group rule or a
+        :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
+        instance.
+
+        :returns: One
+        :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(security_group_rule.SecurityGroupRule, value)
 
     def list_security_group_rules(self, **params):
         return security_group_rule.SecurityGroupRule.list(self.session,
@@ -795,8 +925,17 @@ class Proxy(proxy.BaseProxy):
     def find_subnet(self, name_or_id):
         return subnet.Subnet.find(self.session, name_or_id)
 
-    def get_subnet(self, **data):
-        return subnet.Subnet(**data).get(self.session)
+    def get_subnet(self, value):
+        """Get a single subnet
+
+        :param value: The value can be the ID of a subnet or a
+                      :class:`~openstack.network.v2.subnet.Subnet` instance.
+
+        :returns: One :class:`~openstack.network.v2.subnet.Subnet`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(subnet.Subnet, value)
 
     def list_subnets(self, **params):
         return subnet.Subnet.list(self.session, **params)
