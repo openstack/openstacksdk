@@ -13,9 +13,11 @@
 # under the License.
 
 import argparse
+import copy
 import os
 
 import fixtures
+import yaml
 
 from os_client_config import cloud_config
 from os_client_config import config
@@ -102,6 +104,41 @@ class TestConfig(base.TestCase):
                 self.useFixture(fixtures.EnvironmentVariable(k))
         c.get_one_cloud(cloud='defaults')
         self.assertEqual(['defaults'], sorted(c.get_cloud_names()))
+
+    def test_set_one_cloud_creates_file(self):
+        config_dir = fixtures.TempDir()
+        self.useFixture(config_dir)
+        config_path = os.path.join(config_dir.path, 'clouds.yaml')
+        config.OpenStackConfig.set_one_cloud(config_path, '_test_cloud_')
+        self.assertTrue(os.path.isfile(config_path))
+        with open(config_path) as fh:
+            self.assertEqual({'clouds': {'_test_cloud_': {}}},
+                             yaml.safe_load(fh))
+
+    def test_set_one_cloud_updates_cloud(self):
+        new_config = {
+            'cloud': 'new_cloud',
+            'auth': {
+                'password': 'newpass'
+            }
+        }
+
+        resulting_cloud_config = {
+            'auth': {
+                'password': 'newpass',
+                'username': 'testuser'
+            },
+            'cloud': 'new_cloud',
+            'profile': '_test_cloud_in_our_cloud',
+            'region_name': 'test-region'
+        }
+        resulting_config = copy.deepcopy(base.USER_CONF)
+        resulting_config['clouds']['_test-cloud_'] = resulting_cloud_config
+        config.OpenStackConfig.set_one_cloud(self.cloud_yaml, '_test-cloud_',
+                                             new_config)
+        with open(self.cloud_yaml) as fh:
+            written_config = yaml.safe_load(fh)
+            self.assertEqual(written_config, resulting_config)
 
 
 class TestConfigArgparse(base.TestCase):
