@@ -45,6 +45,12 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                             expected_args=[image.Image, "resource_or_id"],
                             expected_kwargs=kwargs)
 
+    def test_image_get(self):
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_image,
+                         method_args=["resource_or_id"],
+                         expected_args=[image.Image, "resource_or_id"])
+
     def test_member_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
         self.verify_create2('openstack.proxy.BaseProxy._create',
@@ -67,6 +73,12 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                             method_kwargs=kwargs,
                             expected_args=[member.Member, "resource_or_id"],
                             expected_kwargs=kwargs)
+
+    def test_member_get(self):
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_member,
+                         method_args=["resource_or_id"],
+                         expected_args=[member.Member, "resource_or_id"])
 
     def test_tag_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}

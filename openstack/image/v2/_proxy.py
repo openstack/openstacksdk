@@ -48,8 +48,17 @@ class Proxy(proxy.BaseProxy):
     def find_image(self, name_or_id):
         return image.Image.find(self.session, name_or_id)
 
-    def get_image(self, **data):
-        return image.Image(data).get(self.session)
+    def get_image(self, value):
+        """Get a single image
+
+        :param value: The value can be the ID of a image or a
+                      :class:`~openstack.image.v2.image.Image` instance.
+
+        :returns: One :class:`~openstack.image.v2.image.Image`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(image.Image, value)
 
     def list_images(self, **params):
         return image.Image.list(self.session, **params)
@@ -97,8 +106,17 @@ class Proxy(proxy.BaseProxy):
     def find_member(self, name_or_id):
         return member.Member.find(self.session, name_or_id)
 
-    def get_member(self, **data):
-        return member.Member(data).get(self.session)
+    def get_member(self, value):
+        """Get a single member
+
+        :param value: The value can be the ID of a member or a
+                      :class:`~openstack.image.v2.member.Member` instance.
+
+        :returns: One :class:`~openstack.image.v2.member.Member`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(member.Member, value)
 
     def list_members(self, **params):
         return member.Member.list(self.session, **params)
