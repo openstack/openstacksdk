@@ -26,7 +26,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.volume.v2.snapshot.Snapshot`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(snapshot.Snapshot, value)
 
@@ -65,7 +65,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.volume.v2.type.Type`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(type.Type, value)
 
@@ -104,7 +104,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.volume.v2.volume.Volume`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(volume.Volume, value)
 

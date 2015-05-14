@@ -57,7 +57,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.keystore.v1.container.Container`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(container.Container, value)
 
@@ -117,7 +117,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.keystore.v1.order.Order`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(order.Order, value)
 
@@ -176,7 +176,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.keystore.v1.secret.Secret`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(secret.Secret, value)
 

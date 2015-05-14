@@ -43,7 +43,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.orchestration.v1.stack.Stack`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(stack.Stack, value)
 

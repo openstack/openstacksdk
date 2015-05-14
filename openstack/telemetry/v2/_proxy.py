@@ -60,7 +60,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.telemetry.v2.alarm.Alarm`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(alarm.Alarm, value)
 
@@ -110,7 +110,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.telemetry.v2.resource.Resource`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(resource.Resource, value)
 

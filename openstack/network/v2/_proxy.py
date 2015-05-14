@@ -79,7 +79,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.network.v2.floating_ip.FloatingIP`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(floating_ip.FloatingIP, value)
 
@@ -141,7 +141,7 @@ class Proxy(proxy.BaseProxy):
         :returns: One
                   :class:`~openstack.network.v2.health_monitor.HealthMonitor`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(health_monitor.HealthMonitor, value)
 
@@ -201,7 +201,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.network.v2.listener.Listener`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(listener.Listener, value)
 
@@ -262,7 +262,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.network.v2.load_balancer.LoadBalancer`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(load_balancer.LoadBalancer, value)
 
@@ -324,7 +324,7 @@ class Proxy(proxy.BaseProxy):
         :returns: One
                   :class:`~openstack.network.v2.metering_label.MeteringLabel`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(metering_label.MeteringLabel, value)
 
@@ -390,7 +390,7 @@ class Proxy(proxy.BaseProxy):
         :returns: One
         :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(metering_label_rule.MeteringLabelRule, value)
 
@@ -452,7 +452,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.network.v2.network.Network`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(network.Network, value)
 
@@ -511,7 +511,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.network.v2.pool.Pool`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(pool.Pool, value)
 
@@ -572,7 +572,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.network.v2.pool_member.PoolMember`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(pool_member.PoolMember, value)
 
@@ -632,7 +632,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.network.v2.port.Port`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(port.Port, value)
 
@@ -711,7 +711,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.network.v2.router.Router`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(router.Router, value)
 
@@ -779,7 +779,7 @@ class Proxy(proxy.BaseProxy):
         :returns: One
                   :class:`~openstack.network.v2.security_group.SecurityGroup`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(security_group.SecurityGroup, value)
 
@@ -870,7 +870,7 @@ class Proxy(proxy.BaseProxy):
         :returns: One
         :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(security_group_rule.SecurityGroupRule, value)
 
@@ -933,7 +933,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.network.v2.subnet.Subnet`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(subnet.Subnet, value)
 

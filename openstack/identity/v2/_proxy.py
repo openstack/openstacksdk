@@ -56,7 +56,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.identity.v2.role.Role`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(role.Role, value)
 
@@ -114,7 +114,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.identity.v2.tenant.Tenant`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(tenant.Tenant, value)
 
@@ -172,7 +172,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.identity.v2.user.User`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(user.User, value)
 

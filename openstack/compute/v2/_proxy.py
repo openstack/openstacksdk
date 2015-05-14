@@ -68,7 +68,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.compute.v2.flavor.Flavor`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(flavor.Flavor, value)
 
@@ -124,7 +124,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.compute.v2.image.Image`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(image.Image, value)
 
@@ -176,7 +176,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.compute.v2.keypair.Keypair`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(keypair.Keypair, value)
 
@@ -247,7 +247,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.compute.v2.server.Server`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(server.Server, value)
 
@@ -370,7 +370,7 @@ class Proxy(proxy.BaseProxy):
         :returns: One
             :class:`~openstack.compute.v2.server_interface.ServerInterface`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._get(server_interface.ServerInterface, value)
 

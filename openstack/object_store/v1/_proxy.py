@@ -64,7 +64,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.object_store.v1.container.Container`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         return self._head(_container.Container, value)
 
@@ -141,7 +141,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.object_store.v1.obj.Object`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         # TODO(brian): s/_obj/obj once other changes propogate
         return self._get(_obj.Object, value)
@@ -199,7 +199,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: One :class:`~openstack.object_store.v1.obj.Object`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found for this name or id.
+                 when no resource can be found.
         """
         # TODO(brian): Currently this requires that you pass in only an
         # Object instance, not a name like other places. We should explore
