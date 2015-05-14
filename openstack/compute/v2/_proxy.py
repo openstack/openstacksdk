@@ -27,8 +27,13 @@ class Proxy(proxy.BaseProxy):
     def find_extension(self, name_or_id):
         return extension.Extension.find(self.session, name_or_id)
 
-    def list_extensions(self):
-        return extension.Extension.list(self.session)
+    def extensions(self):
+        """Retrieve a generator of extensions
+
+        :returns: A generator of extension instances.
+        :rtype: :class:`~openstack.compute.v2.extension.Extension`
+        """
+        return self._list(extension.Extension, paginated=False)
 
     def find_flavor(self, name_or_id):
         return flavor.Flavor.find(self.session, name_or_id)
@@ -72,18 +77,20 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(flavor.Flavor, value)
 
-    def list_flavors(self, details=True, **params):
+    def flavors(self, details=True, **query):
         """Return a generator of flavors
 
         :param bool details: When ``True``, returns
             :class:`~openstack.compute.v2.flavor.FlavorDetail` objects,
             otherwise :class:`~openstack.compute.v2.flavor.Flavor`.
             *Default: ``True``*
+        :param kwargs **query: Optional query parameters to be sent to limit
+                               the flavors being returned.
 
         :returns: A generator of flavor objects
         """
         flv = flavor.FlavorDetail if details else flavor.Flavor
-        return flv.list(self.session, **params)
+        return self._list(flv, paginated=True, **query)
 
     def update_flavor(self, value, **attrs):
         """Update a flavor
@@ -128,18 +135,20 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(image.Image, value)
 
-    def list_images(self, details=True):
+    def images(self, details=True, **query):
         """Return a generator of images
 
         :param bool details: When ``True``, returns
             :class:`~openstack.compute.v2.image.ImageDetail` objects,
             otherwise :class:`~openstack.compute.v2.image.Image`.
             *Default: ``True``*
+        :param kwargs **query: Optional query parameters to be sent to limit
+                               the flavors being returned.
 
         :returns: A generator of image objects
         """
         img = image.ImageDetail if details else image.Image
-        return img.list(self.session, paginated=True)
+        return self._list(img, paginated=True, **query)
 
     def create_keypair(self, **attrs):
         """Create a new keypair from attributes
@@ -183,8 +192,13 @@ class Proxy(proxy.BaseProxy):
     def find_keypair(self, name_or_id):
         return keypair.Keypair.find(self.session, name_or_id)
 
-    def list_keypairs(self, **params):
-        return keypair.Keypair.list(self.session, **params)
+    def keypairs(self):
+        """Return a generator of keypairs
+
+        :returns: A generator of keypair objects
+        :rtype: :class:`~openstack.compute.v2.keypair.Keypair`
+        """
+        return self._list(keypair.Keypair, paginated=False)
 
     def update_keypair(self, value, **attrs):
         """Update a keypair
@@ -374,8 +388,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(server_interface.ServerInterface, value)
 
-    def list_server_interfaces(self):
-        return server_interface.ServerInterface.list(self.session)
+    def server_interfaces(self):
+        """Return a generator of server interfaces
+
+        :returns: A generator of ServerInterface objects
+        :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
+        """
+        return self._list(server_interface.ServerInterface, paginated=False)
 
     def update_server_interface(self, value, **attrs):
         """Update a server interface
@@ -395,5 +414,10 @@ class Proxy(proxy.BaseProxy):
     def find_server_ip(self, name_or_id):
         return server_ip.ServerIP.find(self.session, name_or_id)
 
-    def list_server_ips(self):
-        return server_ip.ServerIP.list(self.session)
+    def server_ips(self):
+        """Return a generator of server IPs
+
+        :returns: A generator of ServerIP objects
+        :rtype: :class:`~openstack.compute.v2.server_ip.ServerIP`
+        """
+        return self._list(server_ip.ServerIP, paginated=False)
