@@ -18,12 +18,12 @@ from openstack import proxy
 class Proxy(proxy.BaseProxy):
 
     def get_account_metadata(self):
-        """Get metatdata for this account.
+        """Get metatdata for this account
 
         :rtype:
             :class:`~openstack.object_store.v1.container.Container`
         """
-        return _container.Container().head(self.session)
+        return self._head(_container.Container)
 
     def set_account_metadata(self, container):
         """Set metatdata for this account.
@@ -55,26 +55,18 @@ class Proxy(proxy.BaseProxy):
         return _container.Container.list(self.session, limit=limit,
                                          marker=marker, **kwargs)
 
-    def get_container_metadata(self, container):
-        """Get metatdata for a container.
+    def get_container_metadata(self, value):
+        """Get metatdata for a container
 
-        :param container: The container to retreive metadata for. You can
-            pass a container object or the name of a container to
-            retrieve metadata for.
-        :type container:
-            :class:`~openstack.object_store.v1.container.Container`
+        :param value: The value can be the name of a container or a
+               :class:`~openstack.object_store.v1.container.Container`
+               instance.
 
-        :rtype:
-            :class:`~openstack.object_store.v1.container.Container`
-        :raises: :exc:`ValueError` when an unnamed container object was
-            specified, as this would instead retrieve account metadata.
+        :returns: One :class:`~openstack.object_store.v1.container.Container`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
         """
-        container = _container.Container.from_id(container)
-        if getattr(container, "name") is None:
-            msg = "A named container or a name itself must be passed"
-            raise ValueError(msg)
-
-        return container.head(self.session)
+        return self._head(_container.Container, value)
 
     def set_container_metadata(self, container):
         """Set metatdata for a container.
@@ -198,16 +190,21 @@ class Proxy(proxy.BaseProxy):
         # TODO(brian): s/_obj/obj once other changes propogate
         self._delete(_obj.Object, value, ignore_missing)
 
-    def get_object_metadata(self, obj):
-        """Get metatdata for an object.
+    def get_object_metadata(self, value):
+        """Get metatdata for an object
 
-        :param obj: The object to retreive metadata from.
-        :type obj: :class:`~openstack.object_store.v1.obj.Object`
+        :param value: The value is an
+               :class:`~openstack.object_store.v1.obj.Object`
+               instance.
 
-        :return: A :class:`~openstack.object_store.v1.obj.Object`
-            populated with the server's response.
+        :returns: One :class:`~openstack.object_store.v1.obj.Object`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
         """
-        return obj.head(self.session)
+        # TODO(brian): Currently this requires that you pass in only an
+        # Object instance, not a name like other places. We should explore
+        # expanding this to support taking container and name.
+        self._head(_obj.Object, value)
 
     def set_object_metadata(self, obj):
         """Set metatdata for an object.

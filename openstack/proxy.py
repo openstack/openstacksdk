@@ -161,3 +161,23 @@ class BaseProxy(object):
         """
         query = resource_type._convert_ids(query)
         return resource_type.list(self.session, paginated=paginated, **query)
+
+    def _head(self, resource_type, value=None):
+        """Retrieve a resource's header
+
+        :param resource_type: The type of resource to retrieve.
+        :type resource_type: :class:`~openstack.resource.Resource`
+        :param value: The value of a specific resource to retreive headers
+                      for. Can be either the ID of a resource,
+                      a :class:`~openstack.resource.Resource` subclass,
+                      or ``None``.
+
+        :returns: The result of the ``head`` call
+        :rtype: :class:`~openstack.resource.Resource`
+        """
+        if value is not None:
+            res = resource_type.existing(id=resource.Resource.get_id(value))
+        else:
+            res = resource_type()
+
+        return res.head(self.session)

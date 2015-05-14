@@ -38,6 +38,10 @@ class ListableResource(resource.Resource):
     allow_list = True
 
 
+class HeadableResource(resource.Resource):
+    allow_head = True
+
+
 class Test_check_resource(testtools.TestCase):
 
     def setUp(self):
@@ -268,3 +272,45 @@ class TestProxyList(testtools.TestCase):
 
     def test_list_non_paginated(self):
         self._test_list(False, **self.fake_query)
+
+
+class TestProxyHead(testtools.TestCase):
+
+    def setUp(self):
+        super(TestProxyHead, self).setUp()
+
+        self.session = mock.Mock()
+
+        self.fake_id = 1
+        self.fake_name = "fake_name"
+        self.fake_result = "fake_result"
+        self.res = mock.Mock(spec=HeadableResource)
+        self.res.id = self.fake_id
+        self.res.head = mock.Mock(return_value=self.fake_result)
+
+        self.sot = proxy.BaseProxy(self.session)
+        HeadableResource.existing = mock.Mock(return_value=self.res)
+
+    def test_head_resource(self):
+        rv = self.sot._head(HeadableResource, self.res)
+
+        HeadableResource.existing.assert_called_with(id=self.res.id)
+        self.res.head.assert_called_with(self.session)
+        self.assertEqual(rv, self.fake_result)
+
+    def test_head_id(self):
+        rv = self.sot._head(HeadableResource, self.fake_id)
+
+        HeadableResource.existing.assert_called_with(id=self.fake_id)
+        self.res.head.assert_called_with(self.session)
+        self.assertEqual(rv, self.fake_result)
+
+    def test_head_no_value(self):
+        MockHeadResource = mock.Mock(spec=HeadableResource)
+        instance = mock.Mock()
+        MockHeadResource.return_value = instance
+
+        self.sot._head(MockHeadResource)
+
+        MockHeadResource.assert_called_with()
+        instance.head.assert_called_with(self.session)

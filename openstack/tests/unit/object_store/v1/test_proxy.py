@@ -29,6 +29,13 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         super(TestObjectStoreProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
+    def test_account_metadata_get(self):
+        self.verify_head(container.Container, self.proxy.get_account_metadata)
+
+    def test_container_metadata_get(self):
+        self.verify_head(container.Container,
+                         self.proxy.get_container_metadata, value="container")
+
     def test_container_delete(self):
         self.verify_delete2(container.Container, self.proxy.delete_container,
                             False)
@@ -44,6 +51,10 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
                             method_kwargs=kwargs,
                             expected_args=[container.Container],
                             expected_kwargs=kwargs)
+
+    def test_object_metadata_get(self):
+        self.verify_head(obj.Object, self.proxy.get_object_metadata,
+                         value="object")
 
     def test_object_delete(self):
         self.verify_delete2(obj.Object, self.proxy.delete_object, False)
@@ -64,38 +75,6 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
                          self.proxy.get_object,
                          method_args=["resource_or_id"],
                          expected_args=[obj.Object, "resource_or_id"])
-
-
-class Test_account_metadata(TestObjectStoreProxy):
-
-    @mock.patch("openstack.resource.Resource.head")
-    def test_get_account_metadata(self, mock_head):
-        cont = container.Container()
-        mock_head.return_value = cont
-
-        result = self.proxy.get_account_metadata()
-
-        self.assertEqual(cont, result)
-
-    def test_set_account_metadata(self):
-        container = mock.MagicMock()
-        container.update.return_value = container
-
-        result = self.proxy.set_account_metadata(container)
-
-        self.assertIsNone(result)
-
-        container.update.assert_called_once_with(self.session)
-
-    @mock.patch("openstack.object_store.v1._proxy._container.Container")
-    def test_get_account_metadata_no_arg(self, mock_container):
-        created_container = mock.MagicMock()
-        mock_container.return_value = created_container
-
-        self.proxy.get_account_metadata()
-
-        mock_container.assert_called_once_with()
-        created_container.head.assert_called_once_with(self.session)
 
 
 class Test_containers(TestObjectStoreProxy, base.TestTransportBase):
@@ -177,42 +156,6 @@ class Test_containers(TestObjectStoreProxy, base.TestTransportBase):
 #        # the marker in this last request.
 #        self.assertIn(self.containers_body[-1]["name"],
 #                      httpretty.last_request().path)
-
-
-class Test_container_metadata(TestObjectStoreProxy):
-
-    @mock.patch("openstack.resource.Resource.from_id")
-    def test_get_container_metadata_object(self, mock_fi):
-        container = mock.MagicMock()
-        container.name = "test"
-        container.head.return_value = container
-        mock_fi.return_value = container
-
-        result = self.proxy.get_container_metadata(container)
-
-        self.assertIs(result, container)
-        container.head.assert_called_once_with(self.session)
-
-    @mock.patch("openstack.resource.Resource.from_id")
-    def test_get_container_metadata_name(self, mock_fi):
-        name = six.text_type("my_container")
-        created_container = mock.MagicMock()
-        created_container.name = name
-        created_container.head.return_value = created_container
-        mock_fi.return_value = created_container
-
-        result = self.proxy.get_container_metadata(name)
-
-        self.assertEqual(name, result.name)
-        created_container.head.assert_called_once_with(self.session)
-
-    def test_set_container_metadata_object(self):
-        container = mock.MagicMock()
-
-        result = self.proxy.set_container_metadata(container)
-
-        self.assertIsNone(result)
-        container.create.assert_called_once_with(self.session)
 
 
 class Test_objects(TestObjectStoreProxy, base.TestTransportBase):
@@ -327,28 +270,6 @@ class Test_save_object(TestObjectStoreProxy):
         fake_open.assert_called_once_with(file_path, "w")
         fake_handle = fake_open()
         fake_handle.write.assert_called_once_with(the_data)
-
-
-class Test_object_metadata(TestObjectStoreProxy):
-
-    @mock.patch("openstack.resource.Resource.from_id")
-    def test_get_object_metadata(self, mock_fi):
-        ob = mock.MagicMock()
-        ob.head.return_value = ob
-        mock_fi.return_value = ob
-
-        result = self.proxy.get_object_metadata(ob)
-
-        self.assertIs(ob, result)
-        ob.head.assert_called_once_with(self.session)
-
-    def test_set_object_metadata(self):
-        ob = mock.MagicMock()
-
-        result = self.proxy.set_object_metadata(ob)
-
-        self.assertIsNone(result)
-        ob.create.assert_called_once_with(self.session)
 
 
 class Test_copy_object(TestObjectStoreProxy):

@@ -95,6 +95,13 @@ class TestProxyBase(base.TestCase):
         self._verify2(mock_method, test_method, expected_result="result",
                       **kwargs)
 
+    def verify_head(self, resource, method, value=None):
+        the_value = [value] if value is not None else []
+        self._verify2("openstack.proxy.BaseProxy._head",
+                      method,
+                      method_args=the_value,
+                      expected_args=[resource] + the_value)
+
     def verify_find(self, mock_method, test_method, **kwargs):
         self._verify(mock_method, test_method, method_args=["name_or_id"],
                      expected_args=["name_or_id"], expected_result="result",
