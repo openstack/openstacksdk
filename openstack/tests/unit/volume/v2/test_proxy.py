@@ -22,6 +22,12 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         super(TestVolumeProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
+    def test_snapshot_get(self):
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_snapshot,
+                         method_args=["resource_or_id"],
+                         expected_args=[snapshot.Snapshot, "resource_or_id"])
+
     def test_snapshot_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
         self.verify_create2('openstack.proxy.BaseProxy._create',
@@ -38,6 +44,12 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         self.verify_delete2(snapshot.Snapshot, self.proxy.delete_snapshot,
                             True)
 
+    def test_type_get(self):
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_type,
+                         method_args=["resource_or_id"],
+                         expected_args=[type.Type, "resource_or_id"])
+
     def test_type_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
         self.verify_create2('openstack.proxy.BaseProxy._create',
@@ -52,6 +64,12 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def test_type_delete_ignore(self):
         self.verify_delete2(type.Type, self.proxy.delete_type, True)
 
+    def test_volume_get(self):
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_volume,
+                         method_args=["resource_or_id"],
+                         expected_args=[volume.Volume, "resource_or_id"])
+
     def test_volume_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
         self.verify_create2('openstack.proxy.BaseProxy._create',
@@ -65,7 +83,3 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
 
     def test_volume_delete_ignore(self):
         self.verify_delete2(volume.Volume, self.proxy.delete_volume, True)
-
-    def test_volume_get(self):
-        self.verify_get('openstack.volume.v2.volume.Volume.get',
-                        self.proxy.get_volume)
