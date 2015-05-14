@@ -18,8 +18,17 @@ from openstack.volume.v2 import volume
 
 class Proxy(proxy.BaseProxy):
 
-    def get_volume(self, **data):
-        return volume.Volume(data).get(self.session)
+    def get_snapshot(self, value):
+        """Get a single snapshot
+
+        :param value: The value can be the ID of a snapshot or a
+                      :class:`~openstack.volume.v2.snapshot.Snapshot` instance.
+
+        :returns: One :class:`~openstack.volume.v2.snapshot.Snapshot`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(snapshot.Snapshot, value)
 
     def create_snapshot(self, **attrs):
         """Create a new snapshot from attributes
@@ -48,6 +57,18 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(snapshot.Snapshot, value, ignore_missing)
 
+    def get_type(self, value):
+        """Get a single type
+
+        :param value: The value can be the ID of a type or a
+                      :class:`~openstack.volume.v2.type.Type` instance.
+
+        :returns: One :class:`~openstack.volume.v2.type.Type`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(type.Type, value)
+
     def create_type(self, **attrs):
         """Create a new type from attributes
 
@@ -74,6 +95,18 @@ class Proxy(proxy.BaseProxy):
         :returns: ``None``
         """
         self._delete(type.Type, value, ignore_missing)
+
+    def get_volume(self, value):
+        """Get a single volume
+
+        :param value: The value can be the ID of a volume or a
+                      :class:`~openstack.volume.v2.volume.Volume` instance.
+
+        :returns: One :class:`~openstack.volume.v2.volume.Volume`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(volume.Volume, value)
 
     def create_volume(self, **attrs):
         """Create a new volume from attributes
