@@ -32,7 +32,7 @@ class TestIdentityDomains(base.TestCase):
 
     def setUp(self):
         super(TestIdentityDomains, self).setUp()
-        self.cloud = shade.operator_cloud()
+        self.cloud = shade.operator_cloud(validate=False)
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_list_identity_domains(self, mock_keystone):

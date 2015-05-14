@@ -32,7 +32,8 @@ class TestCreateServer(base.TestCase):
     def setUp(self):
         super(TestCreateServer, self).setUp()
         config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(cloud_config=config.get_one_cloud())
+        self.client = OpenStackCloud(
+            cloud_config=config.get_one_cloud(validate=False))
 
     def test_create_server_with_create_exception(self):
         """

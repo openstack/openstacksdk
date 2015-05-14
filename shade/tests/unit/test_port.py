@@ -145,7 +145,8 @@ class TestPort(base.TestCase):
     def setUp(self):
         super(TestPort, self).setUp()
         config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(cloud_config=config.get_one_cloud())
+        self.client = OpenStackCloud(
+            cloud_config=config.get_one_cloud(validate=False))
 
     @patch.object(OpenStackCloud, 'neutron_client')
     def test_create_port(self, mock_neutron_client):

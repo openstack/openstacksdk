@@ -42,7 +42,8 @@ class TestDeleteServer(base.TestCase):
     def setUp(self):
         super(TestDeleteServer, self).setUp()
         config = os_client_config.OpenStackConfig()
-        self.cloud = OpenStackCloud(cloud_config=config.get_one_cloud())
+        self.cloud = OpenStackCloud(
+            cloud_config=config.get_one_cloud(validate=False))
 
     @mock.patch('shade.OpenStackCloud.nova_client')
     def test_delete_server(self, nova_mock):

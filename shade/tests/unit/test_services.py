@@ -42,7 +42,8 @@ class CloudServices(base.TestCase):
     def setUp(self):
         super(CloudServices, self).setUp()
         config = os_client_config.OpenStackConfig()
-        self.client = OperatorCloud(cloud_config=config.get_one_cloud())
+        self.client = OperatorCloud(cloud_config=config.get_one_cloud(
+            validate=False))
         self.mock_ks_services = [FakeService(**kwa) for kwa in
                                  self.mock_services]
 

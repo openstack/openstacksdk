@@ -17,7 +17,6 @@ import hashlib
 import inspect
 import logging
 import operator
-import os
 
 from cinderclient.v1 import client as cinder_client
 from designateclient.v1 import Client as designate_client
@@ -28,12 +27,13 @@ import glanceclient.exc
 from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
 import jsonpatch
-from keystoneclient import auth as ksc_auth
-from keystoneclient.auth import token_endpoint
+import keystoneauth1.exceptions
+from keystoneauth1 import loading
+from keystoneauth1 import plugin as ksc_plugin
+from keystoneauth1 import session as ksc_session
 from keystoneclient.v2_0 import client as k2_client
 from keystoneclient.v3 import client as k3_client
 from keystoneclient import exceptions as keystone_exceptions
-from keystoneclient import session as ksc_session
 from novaclient import client as nova_client
 from novaclient import exceptions as nova_exceptions
 from neutronclient.common import exceptions as neutron_exceptions
@@ -229,6 +229,9 @@ class OpenStackCloud(object):
         self.auth = cloud_config.get_auth_args()
         self.region_name = cloud_config.region_name
         self.auth_type = cloud_config.config['auth_type']
+        # provide backwards compat to the old name of this plugin
+        if self.auth_type == 'token_endpoint':
+            self.auth_type = 'admin_token'
         self.default_interface = cloud_config.get_interface()
         self.private = cloud_config.config.get('private', False)
         self.api_timeout = cloud_config.config['api_timeout']
@@ -344,18 +347,6 @@ class OpenStackCloud(object):
                 'compute', nova_client.Client)
         return self._nova_client
 
-    def _get_auth_plugin_class(self):
-        try:
-            if self.auth_type == 'token_endpoint':
-                return token_endpoint.Token
-            else:
-                return ksc_auth.get_plugin_class(self.auth_type)
-        except Exception as e:
-            self.log.debug("keystone auth plugin failure", exc_info=True)
-            raise OpenStackCloudException(
-                "Could not find auth plugin: {plugin} {error}".format(
-                    plugin=self.auth_type, error=str(e)))
-
     def _get_identity_client_class(self):
         if self.cloud_config.get_api_version('identity') == '3':
             return k3_client.Client
@@ -369,9 +360,18 @@ class OpenStackCloud(object):
     def keystone_session(self):
         if self._keystone_session is None:
 
-            auth_plugin = self._get_auth_plugin_class()
             try:
-                keystone_auth = auth_plugin(**self.auth)
+                loader = loading.get_plugin_loader(self.auth_type)
+            except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin:
+                self.log.debug(
+                    "keystoneauth could not find auth plugin {plugin}".format(
+                        plugin=self.auth_type), exc_info=True)
+                raise OpenStackCloudException(
+                    "No auth plugin named {plugin}".format(
+                        plugin=self.auth_type))
+
+            try:
+                keystone_auth = loader.plugin_class(**self.auth)
             except Exception as e:
                 self.log.debug(
                     "keystone couldn't construct plugin", exc_info=True)
@@ -401,7 +401,7 @@ class OpenStackCloud(object):
     @property
     def service_catalog(self):
         return self.keystone_session.auth.get_access(
-            self.keystone_session).service_catalog.get_data()
+            self.keystone_session).service_catalog.catalog
 
     @property
     def auth_token(self):
@@ -732,7 +732,7 @@ class OpenStackCloud(object):
             # keystone is a special case in keystone, because what?
             if service_key == 'identity':
                 endpoint = self.keystone_session.get_endpoint(
-                    interface=ksc_auth.AUTH_INTERFACE)
+                    interface=ksc_plugin.AUTH_INTERFACE)
             else:
                 endpoint = self.keystone_session.get_endpoint(
                     service_type=self.cloud_config.get_service_type(
@@ -1382,12 +1382,8 @@ class OpenStackCloud(object):
                 image_kwargs[k] = str(v)
         image = self.manager.submitTask(_tasks.ImageCreate(
             name=name, **image_kwargs))
-        curr = image_data.tell()
-        image_data.seek(0, os.SEEK_END)
-        data_size = image_data.tell()
-        image_data.seek(curr)
         self.manager.submitTask(_tasks.ImageUpload(
-            image_id=image.id, image_data=image_data, image_size=data_size))
+            image_id=image.id, image_data=image_data))
         return image
 
     def _upload_image_put_v1(self, name, image_data, **image_kwargs):

@@ -26,7 +26,7 @@ class TestDomainParams(base.TestCase):
 
     def setUp(self):
         super(TestDomainParams, self).setUp()
-        self.cloud = shade.openstack_cloud()
+        self.cloud = shade.openstack_cloud(validate=False)
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_get_project')

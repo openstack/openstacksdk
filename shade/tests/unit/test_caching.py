@@ -15,9 +15,11 @@ import tempfile
 
 import mock
 import os_client_config as occ
+import testtools
 import yaml
 
 import shade
+from shade import exc
 from shade import meta
 from shade.tests import fakes
 from shade.tests.unit import base
@@ -299,7 +301,7 @@ class TestMemoryCache(base.TestCase):
                 'owner_specified.shade.sha256': mock.ANY}
         glance_mock.images.create.assert_called_with(**args)
         glance_mock.images.upload.assert_called_with(
-            image_data=mock.ANY, image_id=fake_image.id, image_size=1)
+            image_data=mock.ANY, image_id=fake_image.id)
         fake_image_dict = meta.obj_to_dict(fake_image)
         self.assertEqual([fake_image_dict], self.cloud.list_images())
 
@@ -399,3 +401,8 @@ class TestMemoryCache(base.TestCase):
         self.cloud.list_images.invalidate(self.cloud)
         self.assertEqual(
             [fi, fi2], [dict(x) for x in self.cloud.list_images()])
+
+    def test_get_auth_bogus(self):
+        self.cloud.auth_type = 'bogus'
+        with testtools.ExpectedException(exc.OpenStackCloudException):
+            self.cloud.keystone_session

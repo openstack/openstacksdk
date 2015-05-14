@@ -57,7 +57,7 @@ class TestSecurityGroups(base.TestCase):
 
     def setUp(self):
         super(TestSecurityGroups, self).setUp()
-        self.cloud = shade.openstack_cloud()
+        self.cloud = shade.openstack_cloud(validate=False)
 
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')

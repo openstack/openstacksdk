@@ -71,7 +71,8 @@ class TestFloatingIP(base.TestCase):
     def setUp(self):
         super(TestFloatingIP, self).setUp()
         config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(cloud_config=config.get_one_cloud())
+        self.client = OpenStackCloud(
+            cloud_config=config.get_one_cloud(validate=False))
 
     @patch.object(OpenStackCloud, 'nova_client')
     @patch.object(OpenStackCloud, 'has_service')

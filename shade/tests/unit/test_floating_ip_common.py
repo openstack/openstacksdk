@@ -31,7 +31,8 @@ class TestFloatingIP(base.TestCase):
     def setUp(self):
         super(TestFloatingIP, self).setUp()
         config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(cloud_config=config.get_one_cloud())
+        self.client = OpenStackCloud(
+            cloud_config=config.get_one_cloud(validate=False))
 
     @patch.object(OpenStackCloud, 'get_floating_ip')
     @patch.object(OpenStackCloud, 'attach_ip_to_server')

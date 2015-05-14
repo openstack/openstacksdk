@@ -24,7 +24,7 @@ class TestFlavors(base.TestCase):
 
     def setUp(self):
         super(TestFlavors, self).setUp()
-        self.op_cloud = shade.operator_cloud()
+        self.op_cloud = shade.operator_cloud(validate=False)
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_flavor(self, mock_nova):

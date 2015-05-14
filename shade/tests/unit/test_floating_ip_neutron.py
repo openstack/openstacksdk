@@ -123,7 +123,8 @@ class TestFloatingIP(base.TestCase):
         super(TestFloatingIP, self).setUp()
         # floating_ip_source='neutron' is default for OpenStackCloud()
         config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(cloud_config=config.get_one_cloud())
+        self.client = OpenStackCloud(
+            cloud_config=config.get_one_cloud(validate=False))
 
     @patch.object(OpenStackCloud, 'neutron_client')
     @patch.object(OpenStackCloud, 'has_service')

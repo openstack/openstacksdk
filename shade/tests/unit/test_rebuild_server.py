@@ -32,7 +32,8 @@ class TestRebuildServer(base.TestCase):
     def setUp(self):
         super(TestRebuildServer, self).setUp()
         config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(cloud_config=config.get_one_cloud())
+        self.client = OpenStackCloud(
+            cloud_config=config.get_one_cloud(validate=False))
 
     def test_rebuild_server_rebuild_exception(self):
         """

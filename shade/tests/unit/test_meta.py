@@ -105,7 +105,7 @@ class TestMeta(testtools.TestCase):
 
     def test_get_server_ip(self):
         srv = meta.obj_to_dict(FakeServer())
-        cloud = shade.openstack_cloud()
+        cloud = shade.openstack_cloud(validate=False)
         self.assertEqual(PRIVATE_V4, meta.get_server_private_ip(srv))
         self.assertEqual(PUBLIC_V4, meta.get_server_external_ipv4(cloud, srv))
 
@@ -124,7 +124,7 @@ class TestMeta(testtools.TestCase):
 
         srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE'))
-        cloud = shade.openstack_cloud()
+        cloud = shade.openstack_cloud(validate=False)
 
         self.assertEqual(PRIVATE_V4, meta.get_server_private_ip(srv, cloud))
         mock_has_service.assert_called_once_with('network')
@@ -154,7 +154,7 @@ class TestMeta(testtools.TestCase):
         srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE'))
         ip = meta.get_server_external_ipv4(
-            cloud=shade.openstack_cloud(), server=srv)
+            cloud=shade.openstack_cloud(validate=False), server=srv)
 
         self.assertEqual(PUBLIC_V4, ip)
         self.assertFalse(mock_get_server_ip.called)
@@ -164,7 +164,7 @@ class TestMeta(testtools.TestCase):
             id='test-id', name='test-name', status='ACTIVE',
             accessIPv4=PUBLIC_V4))
         ip = meta.get_server_external_ipv4(
-            cloud=shade.openstack_cloud(), server=srv)
+            cloud=shade.openstack_cloud(validate=False), server=srv)
 
         self.assertEqual(PUBLIC_V4, ip)
 
@@ -189,7 +189,7 @@ class TestMeta(testtools.TestCase):
         srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE'))
         ip = meta.get_server_external_ipv4(
-            cloud=shade.openstack_cloud(), server=srv)
+            cloud=shade.openstack_cloud(validate=False), server=srv)
 
         self.assertEqual(PUBLIC_V4, ip)
         self.assertTrue(mock_get_server_ip.called)
@@ -209,7 +209,7 @@ class TestMeta(testtools.TestCase):
             id='test-id', name='test-name', status='ACTIVE',
             addresses={'test-net': [{'addr': PUBLIC_V4}]}))
         ip = meta.get_server_external_ipv4(
-            cloud=shade.openstack_cloud(), server=srv)
+            cloud=shade.openstack_cloud(validate=False), server=srv)
 
         self.assertEqual(PUBLIC_V4, ip)
         self.assertTrue(mock_get_server_ip.called)
@@ -230,7 +230,7 @@ class TestMeta(testtools.TestCase):
             id='test-id', name='test-name', status='ACTIVE',
             addresses={'test-net': [{'addr': PRIVATE_V4}]}))
         ip = meta.get_server_external_ipv4(
-            cloud=shade.openstack_cloud(), server=srv)
+            cloud=shade.openstack_cloud(validate=False), server=srv)
 
         self.assertIsNone(ip)
         self.assertTrue(mock_get_server_ip.called)

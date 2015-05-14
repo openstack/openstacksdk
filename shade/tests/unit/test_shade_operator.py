@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystoneclient import auth as ksc_auth
+from keystoneauth1 import plugin as ksc_plugin
 
 import mock
 import testtools
@@ -29,7 +29,7 @@ class TestShadeOperator(base.TestCase):
 
     def setUp(self):
         super(TestShadeOperator, self).setUp()
-        self.cloud = shade.operator_cloud()
+        self.cloud = shade.operator_cloud(validate=False)
 
     def test_operator_cloud(self):
         self.assertIsInstance(self.cloud, shade.OperatorCloud)
@@ -768,7 +768,7 @@ class TestShadeOperator(base.TestCase):
     def test_get_session_endpoint_identity(self, session_mock):
         self.cloud.get_session_endpoint('identity')
         session_mock.get_endpoint.assert_called_with(
-            interface=ksc_auth.AUTH_INTERFACE)
+            interface=ksc_plugin.AUTH_INTERFACE)
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
     def test_has_service_no(self, session_mock):

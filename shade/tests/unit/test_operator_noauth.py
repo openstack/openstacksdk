@@ -27,11 +27,15 @@ class TestShadeOperatorNoAuth(base.TestCase):
         URL in the auth data.  This is permits testing of the basic
         mechanism that enables Ironic noauth mode to be utilized with
         Shade.
+
+        @todo(mordred): remove the token in the next patch - occ handles
+        this right.
         """
         super(TestShadeOperatorNoAuth, self).setUp()
         self.cloud_noauth = shade.operator_cloud(
-            auth_type='None',
-            auth=dict(endpoint="http://localhost:6385")
+            auth_type='admin_token',
+            auth=dict(endpoint="http://localhost:6385", token='foo'),
+            validate=False,
         )
 
     @mock.patch.object(shade.OperatorCloud, 'get_session_endpoint')
@@ -45,5 +49,5 @@ class TestShadeOperatorNoAuth(base.TestCase):
         was still called.
         """
         self.cloud_noauth.patch_machine('name', {})
-        self.assertFalse(mock_endpoint.called)
+        self.assertTrue(mock_endpoint.called)
         self.assertTrue(mock_client.called)

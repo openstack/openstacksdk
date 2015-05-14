@@ -30,7 +30,8 @@ class TestObject(base.TestCase):
     def setUp(self):
         super(TestObject, self).setUp()
         config = os_client_config.OpenStackConfig()
-        self.cloud = OpenStackCloud(cloud_config=config.get_one_cloud())
+        self.cloud = OpenStackCloud(
+            cloud_config=config.get_one_cloud(validate=False))
 
     @mock.patch.object(swift_client, 'Connection')
     @mock.patch.object(shade.OpenStackCloud, 'auth_token',
