@@ -104,6 +104,11 @@ class TestProxyBase(base.TestCase):
         self._verify(mock_method, test_method, expected_result=["result"],
                      **kwargs)
 
+    def verify_list2(self, method, **kwargs):
+        self._verify2("openstack.proxy.BaseProxy._list",
+                      method, expected_result=["result"],
+                      **kwargs)
+
     def verify_update(self, mock_method, test_method, **kwargs):
         self._verify(mock_method, test_method, expected_result="result",
                      **kwargs)

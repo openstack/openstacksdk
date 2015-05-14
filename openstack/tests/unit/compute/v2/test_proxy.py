@@ -220,10 +220,21 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[server.Server, "resource_or_id"])
 
-    def test_server_list(self):
-        self.verify_list('openstack.compute.v2.server.Server.list',
-                         self.proxy.list_servers,
-                         expected_kwargs={"paginated": True})
+    def test_servers_detailed(self):
+        self.verify_list2(self.proxy.servers,
+                          method_args=[True],
+                          method_kwargs={"changes_since": 1, "image": 2},
+                          expected_args=[server.ServerDetail],
+                          expected_kwargs={"paginated": True,
+                                           "changes-since": 1, "image": 2})
+
+    def test_servers_not_detailed(self):
+        self.verify_list2(self.proxy.servers,
+                          method_args=[False],
+                          method_kwargs={"changes_since": 1, "image": 2},
+                          expected_args=[server.Server],
+                          expected_kwargs={"paginated": True,
+                                           "changes-since": 1, "image": 2})
 
     def test_server_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
