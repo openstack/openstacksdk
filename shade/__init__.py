@@ -353,8 +353,8 @@ class OpenStackCloud(object):
                 self.log.debug(
                     "keystone couldn't construct plugin", exc_info=True)
                 raise OpenStackCloudException(
-                    "Error constructing auth plugin: {plugin}".format(
-                        plugin=self.auth_type))
+                    "Error constructing auth plugin: {plugin} {error}".format(
+                        plugin=self.auth_type, error=str(e)))
 
             try:
                 self._keystone_session = ksc_session.Session(
