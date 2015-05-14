@@ -17,8 +17,17 @@ from openstack import resource
 
 class Proxy(proxy.BaseProxy):
 
-    def create_stack(self, **data):
-        return stack.Stack(data).create(self.session)
+    def create_stack(self, **attrs):
+        """Create a new stack from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.orchestration.v1.stack.Stack`,
+                           comprised of the properties on the Stack class.
+
+        :returns: The results of stack creation
+        :rtype: :class:`~openstack.orchestration.v1.stack.Stack`
+        """
+        return self._create(stack.Stack, **attrs)
 
     def find_stack(self, name_or_id):
         return stack.Stack.find(self.session, name_or_id)
@@ -26,8 +35,17 @@ class Proxy(proxy.BaseProxy):
     def list_stacks(self):
         return stack.Stack.list(self.session)
 
-    def get_stack(self, **data):
-        return stack.Stack(data).get(self.session)
+    def get_stack(self, value):
+        """Get a single stack
+
+        :param value: The value can be the ID of a stack or a
+               :class:`~openstack.orchestration.v1.stack.Stack` instance.
+
+        :returns: One :class:`~openstack.orchestration.v1.stack.Stack`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found for this name or id.
+        """
+        return self._get(stack.Stack, value)
 
     def delete_stack(self, value, ignore_missing=True):
         """Delete a stack

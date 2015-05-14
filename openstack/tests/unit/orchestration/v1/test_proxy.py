@@ -20,9 +20,13 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         super(TestOrchestrationProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
-    def test_stack_create(self):
-        self.verify_create('openstack.orchestration.v1.stack.Stack.create',
-                           self.proxy.create_stack)
+    def test_stack_create_attrs(self):
+        kwargs = {"x": 1, "y": 2, "z": 3}
+        self.verify_create2('openstack.proxy.BaseProxy._create',
+                            self.proxy.create_stack,
+                            method_kwargs=kwargs,
+                            expected_args=[stack.Stack],
+                            expected_kwargs=kwargs)
 
     def test_stack_find(self):
         self.verify_find('openstack.orchestration.v1.stack.Stack.find',
@@ -33,8 +37,10 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
                          self.proxy.list_stacks)
 
     def test_stack_get(self):
-        self.verify_get('openstack.orchestration.v1.stack.Stack.get',
-                        self.proxy.get_stack)
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_stack,
+                         method_args=["resource_or_id"],
+                         expected_args=[stack.Stack, "resource_or_id"])
 
     def test_stack_delete(self):
         self.verify_delete2(stack.Stack, self.proxy.delete_stack, False)
