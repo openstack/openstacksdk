@@ -11,11 +11,13 @@
 # under the License.
 
 from openstack.compute.v2 import _proxy
+from openstack.compute.v2 import extension
 from openstack.compute.v2 import flavor
 from openstack.compute.v2 import image
 from openstack.compute.v2 import keypair
 from openstack.compute.v2 import server
 from openstack.compute.v2 import server_interface
+from openstack.compute.v2 import server_ip
 from openstack.tests.unit import test_proxy_base
 
 
@@ -28,9 +30,10 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_find('openstack.compute.v2.extension.Extension.find',
                          self.proxy.find_extension)
 
-    def test_extension_list(self):
-        self.verify_list('openstack.compute.v2.extension.Extension.list',
-                         self.proxy.list_extensions)
+    def test_extensions(self):
+        self.verify_list2(self.proxy.extensions,
+                          expected_args=[extension.Extension],
+                          expected_kwargs={"paginated": False})
 
     def test_flavor_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -56,15 +59,17 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[flavor.Flavor, "resource_or_id"])
 
-    def test_flavor_list_basic(self):
-        self.verify_list('openstack.compute.v2.flavor.Flavor.list',
-                         self.proxy.list_flavors,
-                         method_kwargs={"details": False})
+    def test_flavors_detailed(self):
+        self.verify_list2(self.proxy.flavors,
+                          method_kwargs={"details": True, "query": 1},
+                          expected_args=[flavor.FlavorDetail],
+                          expected_kwargs={"paginated": True, "query": 1})
 
-    def test_flavor_list_detail(self):
-        self.verify_list('openstack.compute.v2.flavor.FlavorDetail.list',
-                         self.proxy.list_flavors,
-                         method_kwargs={"details": True})
+    def test_flavors_not_detailed(self):
+        self.verify_list2(self.proxy.flavors,
+                          method_kwargs={"details": False, "query": 1},
+                          expected_args=[flavor.Flavor],
+                          expected_kwargs={"paginated": True, "query": 1})
 
     def test_flavor_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -91,17 +96,17 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[image.Image, "resource_or_id"])
 
-    def test_image_list_basic(self):
-        self.verify_list('openstack.compute.v2.image.Image.list',
-                         self.proxy.list_images,
-                         method_kwargs={"details": False},
-                         expected_kwargs={"paginated": True})
+    def test_images_detailed(self):
+        self.verify_list2(self.proxy.images,
+                          method_kwargs={"details": True, "query": 1},
+                          expected_args=[image.ImageDetail],
+                          expected_kwargs={"paginated": True, "query": 1})
 
-    def test_image_list_detail(self):
-        self.verify_list('openstack.compute.v2.image.ImageDetail.list',
-                         self.proxy.list_images,
-                         method_kwargs={"details": True},
-                         expected_kwargs={"paginated": True})
+    def test_images_not_detailed(self):
+        self.verify_list2(self.proxy.images,
+                          method_kwargs={"details": False, "query": 1},
+                          expected_args=[image.Image],
+                          expected_kwargs={"paginated": True, "query": 1})
 
     def test_keypair_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -127,9 +132,10 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[keypair.Keypair, "resource_or_id"])
 
-    def test_keypair_list(self):
-        self.verify_list('openstack.compute.v2.keypair.Keypair.list',
-                         self.proxy.list_keypairs)
+    def test_keypairs(self):
+        self.verify_list2(self.proxy.keypairs,
+                          expected_args=[keypair.Keypair],
+                          expected_kwargs={"paginated": False})
 
     def test_keypair_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -173,10 +179,10 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          expected_args=[server_interface.ServerInterface,
                                         "resource_or_id"])
 
-    def test_server_interface_list(self):
-        self.verify_list(
-            'openstack.compute.v2.server_interface.ServerInterface.list',
-            self.proxy.list_server_interfaces)
+    def test_server_interfaces(self):
+        self.verify_list2(self.proxy.server_interfaces,
+                          expected_args=[server_interface.ServerInterface],
+                          expected_kwargs={"paginated": False})
 
     def test_server_interface_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -192,9 +198,10 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_find('openstack.compute.v2.server_ip.ServerIP.find',
                          self.proxy.find_server_ip)
 
-    def test_server_ip_list(self):
-        self.verify_list('openstack.compute.v2.server_ip.ServerIP.list',
-                         self.proxy.list_server_ips)
+    def test_server_ips(self):
+        self.verify_list2(self.proxy.server_ips,
+                          expected_args=[server_ip.ServerIP],
+                          expected_kwargs={"paginated": False})
 
     def test_server_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
