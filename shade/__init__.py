@@ -868,6 +868,10 @@ class OpenStackCloud(object):
         images = self.list_images()
         return self._filter_list(images, name_or_id, filters)
 
+    def search_floating_ip_pools(self, name=None, filters=None):
+        pools = self.list_floating_ip_pools()
+        return self._filter_list(pools, name, filters)
+
     def list_networks(self):
         return self.manager.submitTask(_tasks.NetworkList())['networks']
 
@@ -953,6 +957,23 @@ class OpenStackCloud(object):
             elif image.status != 'DELETED':
                 images.append(image)
         return images
+
+    def list_floating_ip_pools(self):
+        if not self._has_nova_extension('os-floating-ip-pools'):
+            raise OpenStackCloudUnavailableExtension(
+                'Floating IP pools extension is not available on target cloud')
+
+        try:
+            return meta.obj_list_to_dict(
+                self.manager.submitTask(_tasks.FloatingIPPoolList())
+            )
+        except Exception as e:
+            self.log.debug(
+                "nova could not list floating IP pools: {msg}".format(
+                    msg=str(e)), exc_info=True)
+            raise OpenStackCloudException(
+                "error fetching floating IP pool list: {msg}".format(
+                    msg=str(e)))
 
     def get_network(self, name_or_id, filters=None):
         return self._get_entity(self.search_networks, name_or_id, filters)
