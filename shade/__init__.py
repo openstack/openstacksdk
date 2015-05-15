@@ -1875,6 +1875,54 @@ class OpenStackCloud(object):
                 "unable to create floating IP in pool {pool}: {msg}".format(
                     pool=pool, msg=str(e)))
 
+    def delete_floating_ip(self, floating_ip_id):
+        """Deallocate a floating IP from a tenant.
+
+        :param floating_ip_id: a floating IP address id.
+
+        :returns: True if the IP address has been deleted, False if the IP
+                  address was not found.
+
+        :raises: ``OpenStackCloudException``, on operation error.
+        """
+        if self.has_service('network'):
+            try:
+                return self._neutron_delete_floating_ip(floating_ip_id)
+            except OpenStackCloudURINotFound as e:
+                self.log.debug(
+                    "Something went wrong talking to neutron API: "
+                    "'{msg}'. Trying with Nova.".format(msg=str(e)))
+                # Fall-through, trying with Nova
+
+        # Else, we are using Nova network
+        return self._nova_delete_floating_ip(floating_ip_id)
+
+    def _neutron_delete_floating_ip(self, floating_ip_id):
+        try:
+            with self._neutron_exceptions("unable to delete floating IP"):
+                self.manager.submitTask(
+                    _tasks.NeutronFloatingIPDelete(floatingip=floating_ip_id))
+        except OpenStackCloudResourceNotFound:
+            return False
+
+        return True
+
+    def _nova_delete_floating_ip(self, floating_ip_id):
+        try:
+            self.manager.submitTask(
+                _tasks.NovaFloatingIPDelete(floating_ip=floating_ip_id))
+        except nova_exceptions.NotFound:
+            return False
+        except Exception as e:
+            self.log.debug(
+                "nova floating IP delete failed: {msg}".format(
+                    msg=str(e)), exc_info=True)
+            raise OpenStackCloudException(
+                "unable to delete floating IP id {fip_id}: {msg}".format(
+                    fip_id=floating_ip_id, msg=str(e)))
+
+        return True
+
     def add_ip_from_pool(self, server, pools):
 
         # empty dict and list
@@ -1936,8 +1984,7 @@ class OpenStackCloud(object):
         except OpenStackCloudException:
             # Clean up - we auto-created this ip, and it's not attached
             # to the server, so the cloud will not know what to do with it
-            self.manager.submitTask(
-                _tasks.FloatingIPDelete(floating_ip=new_ip['id']))
+            self.delete_floating_ip(floating_ip_id=new_ip['id'])
             raise
 
     def add_ips_to_server(self, server, auto_ip=True, ips=None, ip_pool=None):

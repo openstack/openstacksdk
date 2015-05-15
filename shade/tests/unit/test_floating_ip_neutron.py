@@ -20,6 +20,9 @@ Tests Floating IP resource methods for Neutron
 """
 
 from mock import patch
+
+from neutronclient.common import exceptions as n_exc
+
 from shade import OpenStackCloud
 from shade.tests.unit import base
 
@@ -199,3 +202,31 @@ class TestFloatingIP(base.TestCase):
         self.assertEqual(
             self.mock_floating_ip_new_rep['floatingip']['floating_ip_address'],
             ip['floating_ip_address'])
+
+    @patch.object(OpenStackCloud, 'neutron_client')
+    @patch.object(OpenStackCloud, 'has_service')
+    def test_delete_floating_ip_existing(
+            self, mock_has_service, mock_neutron_client):
+        mock_has_service.return_value = True
+        mock_neutron_client.delete_floatingip.return_value = None
+
+        ret = self.client.delete_floating_ip(
+            floating_ip_id='2f245a7b-796b-4f26-9cf9-9e82d248fda7')
+
+        mock_neutron_client.delete_floatingip.assert_called_with(
+            floatingip='2f245a7b-796b-4f26-9cf9-9e82d248fda7'
+        )
+        self.assertTrue(ret)
+
+    @patch.object(OpenStackCloud, 'neutron_client')
+    @patch.object(OpenStackCloud, 'has_service')
+    def test_delete_floating_ip_not_found(
+            self, mock_has_service, mock_neutron_client):
+        mock_has_service.return_value = True
+        mock_neutron_client.delete_floatingip.side_effect = \
+            n_exc.NotFound()
+
+        ret = self.client.delete_floating_ip(
+            floating_ip_id='a-wild-id-appears')
+
+        self.assertFalse(ret)

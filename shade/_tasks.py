@@ -272,7 +272,12 @@ class NovaFloatingIPCreate(task_manager.Task):
         return client.nova_client.floating_ips.create(**self.args)
 
 
-class FloatingIPDelete(task_manager.Task):
+class NeutronFloatingIPDelete(task_manager.Task):
+    def main(self, client):
+        return client.neutron_client.delete_floatingip(**self.args)
+
+
+class NovaFloatingIPDelete(task_manager.Task):
     def main(self, client):
         return client.nova_client.floating_ips.delete(**self.args)
 

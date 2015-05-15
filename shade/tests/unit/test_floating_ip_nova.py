@@ -20,6 +20,9 @@ Tests Floating IP resource methods for nova-network
 """
 
 from mock import patch
+
+from novaclient import exceptions as n_exc
+
 from shade import OpenStackCloud
 from shade.tests.fakes import FakeFloatingIP
 from shade.tests.unit import base
@@ -167,3 +170,30 @@ class TestFloatingIP(base.TestCase):
 
         self.assertEqual(self.mock_floating_ip_list_rep[0]['ip'],
                          ip['floating_ip_address'])
+
+    @patch.object(OpenStackCloud, 'nova_client')
+    @patch.object(OpenStackCloud, 'has_service')
+    def test_delete_floating_ip_existing(
+            self, mock_has_service, mock_nova_client):
+        mock_has_service.side_effect = has_service_side_effect
+        mock_nova_client.floating_ips.delete.return_value = None
+
+        ret = self.client.delete_floating_ip(
+            floating_ip_id='a-wild-id-appears')
+
+        mock_nova_client.floating_ips.delete.assert_called_with(
+            floating_ip='a-wild-id-appears')
+        self.assertTrue(ret)
+
+    @patch.object(OpenStackCloud, 'nova_client')
+    @patch.object(OpenStackCloud, 'has_service')
+    def test_delete_floating_ip_not_found(
+            self, mock_has_service, mock_nova_client):
+        mock_has_service.side_effect = has_service_side_effect
+        mock_nova_client.floating_ips.delete.side_effect = n_exc.NotFound(
+            code=404)
+
+        ret = self.client.delete_floating_ip(
+            floating_ip_id='a-wild-id-appears')
+
+        self.assertFalse(ret)
