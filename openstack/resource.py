@@ -433,14 +433,28 @@ class Resource(collections.MutableMapping):
         :params kwargs: Named arguments to be set on this instance.
                         When a key corresponds to a resource.prop,
                         it will be set via resource.prop.__set__.
+        :params bool ignore_none: When set to ``True``, ``None`` values
+                                  are left untouched so they don't override
+                                  any existing value for an attribute.
+                                  When ``False``, any value sent in will
+                                  be set on an attribute, including ``None``.
+                                  *Default: ``False``*
 
         :rtype: None
         """
+        ignore_none = kwargs.pop("ignore_none", False)
+
         # ensure setters are called for type coercion
         for key, value in itertools.chain(dict(*args).items(), kwargs.items()):
             if key != "id":  # id property is read only
-                setattr(self, key, value)
-                self[key] = value
+
+                # Don't allow None values to override a key unless we've
+                # explicitly specified they can. Proxy methods have default
+                # None arguments that we don't want to override any values
+                # that may have been passed in on Resource instances.
+                if not all([ignore_none, value is None]):
+                    setattr(self, key, value)
+                    self[key] = value
 
     def get_headers(self):
         if HEADERS in self._attrs:

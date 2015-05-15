@@ -43,8 +43,28 @@ class BaseProxy(object):
     def __init__(self, session):
         self.session = session
 
+    def _get_resource(self, resource_type, value, path_args=None):
+        if value is None:
+            # Create a bare resource
+            res = resource_type()
+        elif not isinstance(value, resource_type):
+            # Create from an ID
+            args = {resource_type.id_attribute:
+                    resource.Resource.get_id(value)}
+            res = resource_type.existing(**args)
+        else:
+            # An existing resource instance
+            res = value
+
+        # Set any intermediate path arguments, but don't overwrite Nones.
+        if path_args is not None:
+            res.update_attrs(ignore_none=True, **path_args)
+
+        return res
+
     @_check_resource(strict=False)
-    def _delete(self, resource_type, value, ignore_missing=True):
+    def _delete(self, resource_type, value, path_args=None,
+                ignore_missing=True):
         """Delete a resource
 
         :param resource_type: The type of resource to delete. This should
@@ -68,8 +88,7 @@ class BaseProxy(object):
                  is attempted to be deleted.
 
         """
-        args = {resource_type.id_attribute: resource.Resource.get_id(value)}
-        res = resource_type.existing(**args)
+        res = self._get_resource(resource_type, value, path_args)
 
         try:
             rv = res.delete(self.session)
@@ -100,8 +119,7 @@ class BaseProxy(object):
         :returns: The result of the ``update``
         :rtype: :class:`~openstack.resource.Resource`
         """
-        args = {resource_type.id_attribute: resource.Resource.get_id(value)}
-        res = resource_type.existing(**args)
+        res = self._get_resource(resource_type, value)
         res.update_attrs(attrs)
         return res.update(self.session)
 
@@ -121,7 +139,7 @@ class BaseProxy(object):
         return res.create(self.session)
 
     @_check_resource(strict=False)
-    def _get(self, resource_type, value):
+    def _get(self, resource_type, value=None, path_args=None):
         """Get a resource
 
         :param resource_type: The type of resource to get.
@@ -133,9 +151,8 @@ class BaseProxy(object):
         :returns: The result of the ``get``
         :rtype: :class:`~openstack.resource.Resource`
         """
+        res = self._get_resource(resource_type, value, path_args)
 
-        args = {resource_type.id_attribute: resource.Resource.get_id(value)}
-        res = resource_type.existing(**args)
         try:
             return res.get(self.session)
         except exceptions.NotFoundException as exc:
@@ -143,7 +160,8 @@ class BaseProxy(object):
                 "No %s found for %s" % (resource_type.__name__, value),
                 details=exc.details, status_code=exc.status_code)
 
-    def _list(self, resource_type, paginated=False, **query):
+    def _list(self, resource_type, value=None, paginated=False,
+              path_args=None, **query):
         """List a resource
 
         :param resource_type: The type of resource to delete. This should
@@ -162,10 +180,12 @@ class BaseProxy(object):
                  :class:`~openstack.resource.Resource` that doesn't match
                  the ``resource_type``.
         """
-        query = resource_type._convert_ids(query)
-        return resource_type.list(self.session, paginated=paginated, **query)
+        res = self._get_resource(resource_type, value, path_args)
 
-    def _head(self, resource_type, value=None):
+        query = res._convert_ids(query)
+        return res.list(self.session, paginated=paginated, **query)
+
+    def _head(self, resource_type, value=None, path_args=None):
         """Retrieve a resource's header
 
         :param resource_type: The type of resource to retrieve.
@@ -178,11 +198,6 @@ class BaseProxy(object):
         :returns: The result of the ``head`` call
         :rtype: :class:`~openstack.resource.Resource`
         """
-        if value is not None:
-            args = {
-                resource_type.id_attribute: resource.Resource.get_id(value)}
-            res = resource_type.existing(**args)
-        else:
-            res = resource_type()
+        res = self._get_resource(resource_type, value, path_args)
 
         return res.head(self.session)

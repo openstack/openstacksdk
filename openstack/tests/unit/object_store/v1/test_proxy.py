@@ -37,12 +37,12 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
                          self.proxy.get_container_metadata, value="container")
 
     def test_container_delete(self):
-        self.verify_delete2(container.Container, self.proxy.delete_container,
-                            False)
+        self.verify_delete3(container.Container, self.proxy.delete_container,
+                            ignore_missing=False)
 
     def test_container_delete_ignore(self):
-        self.verify_delete2(container.Container, self.proxy.delete_container,
-                            True)
+        self.verify_delete3(container.Container, self.proxy.delete_container,
+                            ignore_missing=True)
 
     def test_container_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -54,13 +54,16 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
 
     def test_object_metadata_get(self):
         self.verify_head(obj.Object, self.proxy.get_object_metadata,
-                         value="object")
+                         value="object", container="container")
 
     def test_object_delete(self):
-        self.verify_delete2(obj.Object, self.proxy.delete_object, False)
+        self.verify_delete3(obj.Object, self.proxy.delete_object,
+                            ignore_missing=False,
+                            container="container")
 
     def test_object_delete_ignore(self):
-        self.verify_delete2(obj.Object, self.proxy.delete_object, True)
+        self.verify_delete3(obj.Object, self.proxy.delete_object,
+                            ignore_missing=True, container="container")
 
     def test_object_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -71,10 +74,8 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_object_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_object,
-                         method_args=["resource_or_id"],
-                         expected_args=[obj.Object, "resource_or_id"])
+        self.verify_get3(obj.Object, self.proxy.get_object,
+                         value="object", container="container")
 
 
 class Test_containers(TestObjectStoreProxy, base.TestTransportBase):

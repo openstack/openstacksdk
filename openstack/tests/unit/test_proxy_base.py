@@ -87,6 +87,21 @@ class TestProxyBase(base.TestCase):
                       method_kwargs={"ignore_missing": ignore},
                       expected_args=[resource, "resource_or_id", ignore])
 
+    def verify_delete3(self, resource, method, **kwargs):
+        print(kwargs)
+        method_kwargs = kwargs.copy()
+
+        ignore = kwargs.pop("ignore_missing")
+        expected_kwargs = {"path_args": kwargs} if kwargs else {}
+        expected_kwargs["ignore_missing"] = ignore
+
+        self._verify2('openstack.proxy.BaseProxy._delete',
+                      method,
+                      method_args=["resource"],
+                      method_kwargs=method_kwargs,
+                      expected_args=[resource, "resource"],
+                      expected_kwargs=expected_kwargs)
+
     def verify_get(self, mock_method, test_method, **kwargs):
         self._verify(mock_method, test_method, expected_result="result",
                      **kwargs)
@@ -95,12 +110,25 @@ class TestProxyBase(base.TestCase):
         self._verify2(mock_method, test_method, expected_result="result",
                       **kwargs)
 
-    def verify_head(self, resource, method, value=None):
+    def verify_get3(self, resource, method, value=None, **kwargs):
         the_value = [value] if value is not None else []
+        expected_kwargs = {"path_args": kwargs} if kwargs else {}
+        self._verify2("openstack.proxy.BaseProxy._get",
+                      method,
+                      method_args=the_value,
+                      method_kwargs=kwargs,
+                      expected_args=[resource] + the_value,
+                      expected_kwargs=expected_kwargs)
+
+    def verify_head(self, resource, method, value=None, **kwargs):
+        the_value = [value] if value is not None else []
+        expected_kwargs = {"path_args": kwargs} if kwargs else {}
         self._verify2("openstack.proxy.BaseProxy._head",
                       method,
                       method_args=the_value,
-                      expected_args=[resource] + the_value)
+                      method_kwargs=kwargs,
+                      expected_args=[resource] + the_value,
+                      expected_kwargs=expected_kwargs)
 
     def verify_find(self, mock_method, test_method, **kwargs):
         self._verify(mock_method, test_method, method_args=["name_or_id"],

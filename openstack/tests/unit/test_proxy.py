@@ -103,7 +103,6 @@ class TestProxyDelete(testtools.TestCase):
 
     def test_delete(self):
         self.sot._delete(DeleteableResource, self.res)
-        DeleteableResource.existing.assert_called_with(id=self.res.id)
         self.res.delete.assert_called_with(self.session)
 
         self.sot._delete(DeleteableResource, self.fake_id)
@@ -220,7 +219,6 @@ class TestProxyGet(testtools.TestCase):
     def test_get_resource(self):
         rv = self.sot._get(RetrieveableResource, self.res)
 
-        RetrieveableResource.existing.assert_called_with(id=self.res.id)
         self.res.get.assert_called_with(self.session)
         self.assertEqual(rv, self.fake_result)
 
@@ -294,7 +292,6 @@ class TestProxyHead(testtools.TestCase):
     def test_head_resource(self):
         rv = self.sot._head(HeadableResource, self.res)
 
-        HeadableResource.existing.assert_called_with(id=self.res.id)
         self.res.head.assert_called_with(self.session)
         self.assertEqual(rv, self.fake_result)
 

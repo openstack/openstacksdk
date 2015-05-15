@@ -107,7 +107,8 @@ class Proxy(proxy.BaseProxy):
         :returns: ``None``
         """
         # TODO(brian): s/_container/container once other changes propogate
-        self._delete(_container.Container, value, ignore_missing)
+        self._delete(_container.Container, value,
+                     ignore_missing=ignore_missing)
 
     def objects(self, container, limit=None, marker=None, **kwargs):
         """Return a generator that yields the Container's objects.
@@ -133,7 +134,7 @@ class Proxy(proxy.BaseProxy):
             ob.container = container.name
             yield ob
 
-    def get_object(self, value):
+    def get_object(self, value, container=None):
         """Get the data associated with an object
 
         :param value: The value can be the ID of an object or a
@@ -146,7 +147,8 @@ class Proxy(proxy.BaseProxy):
                  when no resource can be found.
         """
         # TODO(brian): s/_obj/obj once other changes propogate
-        return self._get(_obj.Object, value)
+        return self._get(_obj.Object, value,
+                         path_args={"container": container})
 
     def save_object(self, obj, path):
         """Save the data contained inside an object to disk.
@@ -175,7 +177,7 @@ class Proxy(proxy.BaseProxy):
         """Copy an object."""
         raise NotImplementedError
 
-    def delete_object(self, value, ignore_missing=True):
+    def delete_object(self, value, ignore_missing=True, container=None):
         """Delete an object
 
         :param value: The value can be either the name of an object or a
@@ -190,9 +192,10 @@ class Proxy(proxy.BaseProxy):
         :returns: ``None``
         """
         # TODO(brian): s/_obj/obj once other changes propogate
-        self._delete(_obj.Object, value, ignore_missing)
+        self._delete(_obj.Object, value, ignore_missing=ignore_missing,
+                     path_args={"container": container})
 
-    def get_object_metadata(self, value):
+    def get_object_metadata(self, value, container=None):
         """Get metatdata for an object
 
         :param value: The value is an
@@ -203,10 +206,8 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        # TODO(brian): Currently this requires that you pass in only an
-        # Object instance, not a name like other places. We should explore
-        # expanding this to support taking container and name.
-        self._head(_obj.Object, value)
+        return self._head(_obj.Object, value,
+                          path_args={"container": container})
 
     def set_object_metadata(self, obj):
         """Set metatdata for an object.
