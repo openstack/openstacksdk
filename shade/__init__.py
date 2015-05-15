@@ -1699,6 +1699,182 @@ class OpenStackCloud(object):
     def get_openstack_vars(self, server):
         return meta.get_hostvars_from_server(self, server)
 
+    def available_floating_ip(self, network=None):
+        """Get a floating IP from a network or a pool.
+
+        Return the first available floating IP or allocate a new one.
+
+        :param network: Nova pool name or Neutron network name or id.
+
+        :returns: a (normalized) structure with a floating IP address
+                  description.
+        """
+        if self.has_service('network'):
+            try:
+                f_ips = _utils.normalize_neutron_floating_ips(
+                    self._neutron_available_floating_ips(
+                        network=network))
+                return f_ips[0]
+            except OpenStackCloudURINotFound as e:
+                self.log.debug(
+                    "Something went wrong talking to neutron API: "
+                    "'{msg}'. Trying with Nova.".format(msg=str(e)))
+                # Fall-through, trying with Nova
+
+        f_ips = _utils.normalize_nova_floating_ips(
+            self._nova_available_floating_ips(pool=network)
+        )
+        return f_ips[0]
+
+    def _neutron_available_floating_ips(self, network=None):
+        """Get a floating IP from a Neutron network.
+
+        Return a list of available floating IPs or allocate a new one and
+        return it in a list of 1 element.
+
+        :param network: Nova pool name or Neutron network name or id.
+
+        :returns: a list of floating IP addresses.
+
+        :raises: ``OpenStackCloudResourceNotFound``, if an external network
+                 that meets the specified criteria cannot be found.
+        """
+        with self._neutron_exceptions("unable to get available floating IPs"):
+            networks = self.search_networks(
+                name_or_id=network,
+                filters={'router:external': True})
+            if not networks:
+                raise OpenStackCloudResourceNotFound(
+                    "unable to find an external network")
+
+            filters = {
+                'port_id': None,
+                'floating_network_id': networks[0]['id']
+            }
+            floating_ips = self._neutron_list_floating_ips()
+            available_ips = _utils._filter_list(
+                floating_ips, name_or_id=None, filters=filters)
+            if available_ips:
+                return available_ips
+
+            # No available IP found, allocate a new Floating IP
+            f_ip = self._neutron_create_floating_ip(
+                network_name_or_id=networks[0]['id'])
+
+            return [f_ip]
+
+    def _nova_available_floating_ips(self, pool=None):
+        """Get available floating IPs from a floating IP pool.
+
+        Return a list of available floating IPs or allocate a new one and
+        return it in a list of 1 element.
+
+        :param pool: Nova floating IP pool name.
+
+        :returns: a list of floating IP addresses.
+
+        :raises: ``OpenStackCloudResourceNotFound``, if a floating IP pool
+                 is not specified and cannot be found.
+        """
+
+        try:
+            if pool is None:
+                pools = self.list_floating_ip_pools()
+                if not pools:
+                    raise OpenStackCloudResourceNotFound(
+                        "unable to find a floating ip pool")
+                pool = pools[0]['name']
+
+            filters = {
+                'instance_id': None,
+                'pool': pool
+            }
+
+            floating_ips = self._nova_list_floating_ips()
+            available_ips = _utils._filter_list(
+                floating_ips, name_or_id=None, filters=filters)
+            if available_ips:
+                return available_ips
+
+            # No available IP found, allocate a new Floating IP
+            pools = self.search_floating_ip_pools(name=pool)
+            f_ip = self._nova_create_floating_ip(pool=pools[0]['name'])
+
+            return [meta.obj_to_dict(f_ip)]
+
+        except Exception as e:
+            self.log.debug(
+                "nova floating IP create failed: {msg}".format(
+                    msg=str(e)), exc_info=True)
+            raise OpenStackCloudException(
+                "unable to create floating IP in pool {pool}: {msg}".format(
+                    pool=pool, msg=str(e)))
+
+    def create_floating_ip(self, network=None):
+        """Allocate a new floating IP from a network or a pool.
+
+        :param network: Nova pool name or Neutron network name or id.
+
+        :returns: a floating IP address
+
+        :raises: ``OpenStackCloudException``, on operation error.
+        """
+        if self.has_service('network'):
+            try:
+                f_ips = _utils.normalize_neutron_floating_ips(
+                    [self._neutron_create_floating_ip(
+                        network_name_or_id=network)]
+                )
+                return f_ips[0]
+            except OpenStackCloudURINotFound as e:
+                self.log.debug(
+                    "Something went wrong talking to neutron API: "
+                    "'{msg}'. Trying with Nova.".format(msg=str(e)))
+                # Fall-through, trying with Nova
+
+        # Else, we are using Nova network
+        f_ips = _utils.normalize_nova_floating_ips(
+            [self._nova_create_floating_ip(pool=network)])
+        return f_ips[0]
+
+    def _neutron_create_floating_ip(self, network_name_or_id=None):
+        with self._neutron_exceptions(
+                "unable to create floating IP for net "
+                "{0}".format(network_name_or_id)):
+            networks = self.search_networks(
+                name_or_id=network_name_or_id,
+                filters={'router:external': True})
+            if not networks:
+                raise OpenStackCloudResourceNotFound(
+                    "unable to find an external network with id "
+                    "{0}".format(network_name_or_id or "(no id specified)"))
+            kwargs = {
+                'floating_network_id': networks[0]['id'],
+            }
+            return self.manager.submitTask(_tasks.NeutronFloatingIPCreate(
+                body={'floatingip': kwargs}))['floatingip']
+
+    def _nova_create_floating_ip(self, pool=None):
+        try:
+            if pool is None:
+                pools = self.list_floating_ip_pools()
+                if not pools:
+                    raise OpenStackCloudResourceNotFound(
+                        "unable to find a floating ip pool")
+                pool = pools[0]['name']
+
+            pool_ip = self.manager.submitTask(
+                _tasks.NovaFloatingIPCreate(pool=pool))
+            return meta.obj_to_dict(pool_ip)
+
+        except Exception as e:
+            self.log.debug(
+                "nova floating IP create failed: {msg}".format(
+                    msg=str(e)), exc_info=True)
+            raise OpenStackCloudException(
+                "unable to create floating IP in pool {pool}: {msg}".format(
+                    pool=pool, msg=str(e)))
+
     def add_ip_from_pool(self, server, pools):
 
         # empty dict and list
@@ -1725,14 +1901,7 @@ class OpenStackCloud(object):
 
             # if the list is empty, add for this pool
             if not pool_ips:
-                try:
-                    new_ip = self.manager.submitTask(
-                        _tasks.FloatingIPCreate(pool=pool))
-                except Exception:
-                    self.log.debug(
-                        "nova floating ip create failed", exc_info=True)
-                    raise OpenStackCloudException(
-                        "Unable to create floating ip in pool %s" % pool)
+                new_ip = self.create_floating_ip(network=pool)
                 pool_ips.append(new_ip['floating_ip_address'])
             # Add to the main list
             usable_floating_ips[pool] = pool_ips
@@ -1760,20 +1929,15 @@ class OpenStackCloud(object):
                         ip=ip, id=server['id'], msg=str(e)))
 
     def add_auto_ip(self, server):
+        new_ip = self.create_floating_ip()
+
         try:
-            new_ip = self.manager.submitTask(_tasks.FloatingIPCreate())
-        except Exception as e:
-            self.log.debug(
-                "nova floating ip create failed", exc_info=True)
-            raise OpenStackCloudException(
-                "Unable to create floating ip: %s" % (str(e)))
-        try:
-            self.add_ip_list(server, [new_ip])
+            self.add_ip_list(server, [new_ip['floating_ip_address']])
         except OpenStackCloudException:
             # Clean up - we auto-created this ip, and it's not attached
             # to the server, so the cloud will not know what to do with it
             self.manager.submitTask(
-                _tasks.FloatingIPDelete(floating_ip=new_ip))
+                _tasks.FloatingIPDelete(floating_ip=new_ip['id']))
             raise
 
     def add_ips_to_server(self, server, auto_ip=True, ips=None, ip_pool=None):

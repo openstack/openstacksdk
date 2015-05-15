@@ -262,7 +262,12 @@ class NovaFloatingIPList(task_manager.Task):
         return client.nova_client.floating_ips.list()
 
 
-class FloatingIPCreate(task_manager.Task):
+class NeutronFloatingIPCreate(task_manager.Task):
+    def main(self, client):
+        return client.neutron_client.create_floatingip(**self.args)
+
+
+class NovaFloatingIPCreate(task_manager.Task):
     def main(self, client):
         return client.nova_client.floating_ips.create(**self.args)
 
