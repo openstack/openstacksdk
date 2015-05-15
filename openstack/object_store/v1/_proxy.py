@@ -134,12 +134,14 @@ class Proxy(proxy.BaseProxy):
             yield ob
 
     def get_object(self, value):
-        """Get a single object
+        """Get the data associated with an object
 
         :param value: The value can be the ID of an object or a
                       :class:`~openstack.object_store.v1.obj.Object` instance.
 
-        :returns: One :class:`~openstack.object_store.v1.obj.Object`
+        :returns: The contents of the object.  Use the
+                  :func:`~get_object_metadata`
+                  method if you want an object resource.
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
