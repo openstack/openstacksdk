@@ -873,13 +873,28 @@ class OpenStackCloud(object):
         return self._filter_list(pools, name, filters)
 
     def list_networks(self):
-        return self.manager.submitTask(_tasks.NetworkList())['networks']
+        try:
+            return self.manager.submitTask(_tasks.NetworkList())['networks']
+        except Exception as e:
+            self.log.debug("network list failed: %s" % e, exc_info=True)
+            raise OpenStackCloudException(
+                "Error fetching network list: %s" % e)
 
     def list_routers(self):
-        return self.manager.submitTask(_tasks.RouterList())['routers']
+        try:
+            return self.manager.submitTask(_tasks.RouterList())['routers']
+        except Exception as e:
+            self.log.debug("router list failed: %s" % e, exc_info=True)
+            raise OpenStackCloudException(
+                "Error fetching router list: %s" % e)
 
     def list_subnets(self):
-        return self.manager.submitTask(_tasks.SubnetList())['subnets']
+        try:
+            return self.manager.submitTask(_tasks.SubnetList())['subnets']
+        except Exception as e:
+            self.log.debug("subnet list failed: %s" % e, exc_info=True)
+            raise OpenStackCloudException(
+                "Error fetching subnet list: %s" % e)
 
     @_cache_on_arguments(should_cache_fn=_no_pending_volumes)
     def list_volumes(self, cache=True):
@@ -891,22 +906,31 @@ class OpenStackCloud(object):
                 self.manager.submitTask(_tasks.VolumeList())
             )
         except Exception as e:
-            self.log.debug(
-                "cinder could not list volumes: {message}".format(
-                    message=str(e)),
-                exc_info=True)
-            raise OpenStackCloudException("Error fetching volume list")
+            self.log.debug("volume list failed: %s" % e, exc_info=True)
+            raise OpenStackCloudException(
+                "Error fetching volume list: %s" % e)
 
     @_cache_on_arguments()
     def list_flavors(self):
-        return meta.obj_list_to_dict(
-            self.manager.submitTask(_tasks.FlavorList())
-        )
+        try:
+            return meta.obj_list_to_dict(
+                self.manager.submitTask(_tasks.FlavorList())
+            )
+        except Exception as e:
+            self.log.debug("flavor list failed: %s" % e, exc_info=True)
+            raise OpenStackCloudException(
+                "Error fetching flavor list: %s" % e)
 
     def list_security_groups(self):
-        return meta.obj_list_to_dict(
-            self.manager.submitTask(_tasks.SecurityGroupList())
-        )
+        try:
+            return meta.obj_list_to_dict(
+                self.manager.submitTask(_tasks.SecurityGroupList())
+            )
+        except Exception as e:
+            self.log.debug(
+                "security group list failed: %s" % e, exc_info=True)
+            raise OpenStackCloudException(
+                "Error fetching security group list: %s" % e)
 
     def list_servers(self):
         try:
@@ -941,13 +965,23 @@ class OpenStackCloud(object):
                 else:
                     # glanceclient returns a normal object if you use v1
                     image_list = meta.obj_list_to_dict(image_list)
-        except (OpenStackCloudException,
-                glanceclient.exc.HTTPInternalServerError):
+
+        except glanceclient.exc.HTTPInternalServerError:
             # We didn't have glance, let's try nova
             # If this doesn't work - we just let the exception propagate
-            image_list = meta.obj_list_to_dict(
-                self.manager.submitTask(_tasks.NovaImageList())
-            )
+            try:
+                image_list = meta.obj_list_to_dict(
+                    self.manager.submitTask(_tasks.NovaImageList())
+                )
+            except Exception as e:
+                self.log.debug("nova image list failed: %s" % e, exc_info=True)
+                raise OpenStackCloudException(
+                    "Error fetching image list: %s" % e)
+
+        except Exception as e:
+            self.log.debug("glance image list failed: %s" % e, exc_info=True)
+            raise OpenStackCloudException(
+                "Error fetching image list: %s" % e)
 
         for image in image_list:
             # The cloud might return DELETED for invalid images.
