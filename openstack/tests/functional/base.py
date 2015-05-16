@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
 import unittest
 
 import os_client_config
@@ -22,8 +23,8 @@ from openstack import utils
 class BaseFunctionalTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        test_cloud = os_client_config.OpenStackConfig().get_one_cloud(
-            'test_cloud')
+        name = os.getenv('OS_CLOUD', 'test_cloud')
+        test_cloud = os_client_config.OpenStackConfig().get_one_cloud(name)
 
         pref = user_preference.UserPreference()
         pref.set_region(pref.ALL, test_cloud.region)
