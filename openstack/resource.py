@@ -504,6 +504,7 @@ class Resource(collections.MutableMapping):
 
         # Convert attributes from Resource types into their ids.
         attrs = cls._convert_ids(attrs)
+        headers = attrs.pop(HEADERS, None)
 
         if cls.resource_key:
             body = {cls.resource_key: attrs}
@@ -514,12 +515,14 @@ class Resource(collections.MutableMapping):
             url = cls.base_path % path_args
         else:
             url = cls.base_path
+        args = {'json': body}
+        if headers:
+            args[HEADERS] = headers
         if resource_id:
             url = utils.urljoin(url, resource_id)
-            resp = session.put(url, service=cls.service, json=body).body
+            resp = session.put(url, service=cls.service, **args).body
         else:
-            resp = session.post(url, service=cls.service,
-                                json=body).body
+            resp = session.post(url, service=cls.service, **args).body
 
         if cls.resource_key:
             resp = resp[cls.resource_key]
@@ -709,6 +712,7 @@ class Resource(collections.MutableMapping):
         attrs = cls._convert_ids(attrs)
         if attrs and cls.id_attribute in attrs:
             del attrs[cls.id_attribute]
+        headers = attrs.pop(HEADERS, None)
 
         if cls.resource_key:
             body = {cls.resource_key: attrs}
@@ -720,10 +724,13 @@ class Resource(collections.MutableMapping):
         else:
             url = cls.base_path
         url = utils.urljoin(url, resource_id)
+        args = {'json': body}
+        if headers:
+            args[HEADERS] = headers
         if cls.put_update:
-            resp = session.put(url, service=cls.service, json=body).body
+            resp = session.put(url, service=cls.service, **args).body
         else:
-            resp = session.patch(url, service=cls.service, json=body).body
+            resp = session.patch(url, service=cls.service, **args).body
 
         if cls.resource_key:
             resp = resp[cls.resource_key]
