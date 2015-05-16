@@ -34,8 +34,13 @@ class Proxy(proxy.BaseProxy):
     def find_extension(self, name_or_id):
         return extension.Extension.find(self.session, name_or_id)
 
-    def list_extensions(self):
-        return extension.Extension.list(self.session)
+    def extensions(self):
+        """Return a generator of extensions
+
+        :returns: A generator of extension objects
+        :rtype: :class:`~openstack.network.v2.extension.Extension`
+        """
+        return self._list(extension.Extension)
 
     def create_ip(self, **attrs):
         """Create a new floating ip from attributes
@@ -83,8 +88,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(floating_ip.FloatingIP, value)
 
-    def list_ips(self, **params):
-        return floating_ip.FloatingIP.list(self.session, **params)
+    def ips(self):
+        """Return a generator of ips
+
+        :returns: A generator of floating IP objects
+        :rtype: :class:`~openstack.network.v2.floating_ip.FloatingIP`
+        """
+        return self._list(floating_ip.FloatingIP)
 
     def update_ip(self, value, **attrs):
         """Update a ip
@@ -145,8 +155,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(health_monitor.HealthMonitor, value)
 
-    def list_health_monitors(self):
-        return health_monitor.HealthMonitor.list(self.session)
+    def health_monitors(self):
+        """Return a generator of health monitors
+
+        :returns: A generator of health monitor objects
+        :rtype: :class:`~openstack.network.v2.health_monitor.HealthMonitor`
+        """
+        return self._list(health_monitor.HealthMonitor)
 
     def update_health_monitor(self, value, **attrs):
         """Update a health monitor
@@ -205,8 +220,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(listener.Listener, value)
 
-    def list_listeners(self):
-        return listener.Listener.list(self.session)
+    def listeners(self):
+        """Return a generator of listeners
+
+        :returns: A generator of listener objects
+        :rtype: :class:`~openstack.network.v2.listener.Listener`
+        """
+        return self._list(listener.Listener)
 
     def update_listener(self, value, **attrs):
         """Update a listener
@@ -266,8 +286,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(load_balancer.LoadBalancer, value)
 
-    def list_load_balancers(self):
-        return load_balancer.LoadBalancer.list(self.session)
+    def load_balancers(self):
+        """Return a generator of load balancers
+
+        :returns: A generator of load balancer objects
+        :rtype: :class:`~openstack.network.v2.load_balancer.LoadBalancer`
+        """
+        return self._list(load_balancer.LoadBalancer)
 
     def update_load_balancer(self, value, **attrs):
         """Update a load balancer
@@ -328,8 +353,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(metering_label.MeteringLabel, value)
 
-    def list_metering_labels(self):
-        return metering_label.MeteringLabel.list(self.session)
+    def metering_labels(self):
+        """Return a generator of metering labels
+
+        :returns: A generator of metering label objects
+        :rtype: :class:`~openstack.network.v2.metering_label.MeteringLabel`
+        """
+        return self._list(metering_label.MeteringLabel)
 
     def update_metering_label(self, value, **attrs):
         """Update a metering label
@@ -394,8 +424,14 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(metering_label_rule.MeteringLabelRule, value)
 
-    def list_metering_label_rules(self):
-        return metering_label_rule.MeteringLabelRule.list(self.session)
+    def metering_label_rules(self):
+        """Return a generator of metering label rules
+
+        :returns: A generator of metering label rule objects
+        :rtype: :class:`~openstack.network.v2.metering_label_rule.
+                MeteringLabelRule`
+        """
+        return self._list(metering_label_rule.MeteringLabelRule)
 
     def update_metering_label_rule(self, value, **attrs):
         """Update a metering label rule
@@ -456,8 +492,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(network.Network, value)
 
-    def list_networks(self, **params):
-        return network.Network.list(self.session, **params)
+    def networks(self):
+        """Return a generator of networks
+
+        :returns: A generator of network objects
+        :rtype: :class:`~openstack.network.v2.network.Network`
+        """
+        return self._list(network.Network)
 
     def update_network(self, value, **attrs):
         """Update a network
@@ -515,8 +556,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(pool.Pool, value)
 
-    def list_pools(self):
-        return pool.Pool.list(self.session)
+    def pools(self):
+        """Return a generator of pools
+
+        :returns: A generator of pool objects
+        :rtype: :class:`~openstack.network.v2.pool.Pool`
+        """
+        return self._list(pool.Pool)
 
     def update_pool(self, value, **attrs):
         """Update a pool
@@ -576,8 +622,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(pool_member.PoolMember, value)
 
-    def list_pool_members(self):
-        return pool_member.PoolMember.list(self.session)
+    def pool_members(self):
+        """Return a generator of pool members
+
+        :returns: A generator of pool member objects
+        :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
+        """
+        return self._list(pool_member.PoolMember)
 
     def update_pool_member(self, value, **attrs):
         """Update a pool member
@@ -636,8 +687,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(port.Port, value)
 
-    def list_ports(self, **params):
-        return port.Port.list(self.session, **params)
+    def ports(self):
+        """Return a generator of ports
+
+        :returns: A generator of port objects
+        :rtype: :class:`~openstack.network.v2.port.Port`
+        """
+        return self._list(port.Port)
 
     def update_port(self, value, **attrs):
         """Update a port
@@ -662,15 +718,20 @@ class Proxy(proxy.BaseProxy):
 
     def get_subnet_ports(self, subnet_id):
         result = []
-        ports = self.list_ports()
+        ports = self.ports()
         for puerta in ports:
             for fixed_ip in puerta.fixed_ips:
                 if fixed_ip['subnet_id'] == subnet_id:
                     result.append(puerta)
         return result
 
-    def list_quotas(self):
-        return quota.Quota.list(self.session)
+    def quotas(self):
+        """Return a generator of quotas
+
+        :returns: A generator of quota objects
+        :rtype: :class:`~openstack.network.v2.quota.Quota`
+        """
+        return self._list(quota.Quota)
 
     def create_router(self, **attrs):
         """Create a new router from attributes
@@ -715,8 +776,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(router.Router, value)
 
-    def list_routers(self, **params):
-        return router.Router.list(self.session, **params)
+    def routers(self):
+        """Return a generator of routers
+
+        :returns: A generator of router objects
+        :rtype: :class:`~openstack.network.v2.router.Router`
+        """
+        return self._list(router.Router)
 
     def update_router(self, value, **attrs):
         """Update a router
@@ -783,8 +849,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(security_group.SecurityGroup, value)
 
-    def list_security_groups(self, **params):
-        return security_group.SecurityGroup.list(self.session, **params)
+    def security_groups(self):
+        """Return a generator of security groups
+
+        :returns: A generator of security group objects
+        :rtype: :class:`~openstack.network.v2.security_group.SecurityGroup`
+        """
+        return self._list(security_group.SecurityGroup)
 
     def update_security_group(self, value, **attrs):
         """Update a security group
@@ -874,9 +945,14 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(security_group_rule.SecurityGroupRule, value)
 
-    def list_security_group_rules(self, **params):
-        return security_group_rule.SecurityGroupRule.list(self.session,
-                                                          **params)
+    def security_group_rules(self):
+        """Return a generator of security group rules
+
+        :returns: A generator of security group rule objects
+        :rtype: :class:`~openstack.network.v2.security_group_rule.
+                SecurityGroupRule`
+        """
+        return self._list(security_group_rule.SecurityGroupRule)
 
     def update_security_group_rule(self, value, **attrs):
         """Update a security group rule
@@ -937,8 +1013,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(subnet.Subnet, value)
 
-    def list_subnets(self, **params):
-        return subnet.Subnet.list(self.session, **params)
+    def subnets(self):
+        """Return a generator of subnets
+
+        :returns: A generator of subnet objects
+        :rtype: :class:`~openstack.network.v2.subnet.Subnet`
+        """
+        return self._list(subnet.Subnet)
 
     def update_subnet(self, value, **attrs):
         """Update a subnet
