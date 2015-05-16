@@ -16,5 +16,10 @@ from openstack import proxy
 
 class Proxy(proxy.BaseProxy):
 
-    def list_capabilities(self):
-        return capabilities.Capabilities.list(self.session)
+    def capabilities(self):
+        """Return a generator of capabilities
+
+        :returns: A generator of capability objects
+        :rtype: :class:`~openstack.metric.v1.capabilities.Capabilities`
+        """
+        return self._list(capabilities.Capabilities)
