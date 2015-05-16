@@ -44,9 +44,10 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[image.Image, "resource_or_id"])
 
-    def test_image_list(self):
-        self.verify_list('openstack.image.v1.image.Image.list',
-                         self.proxy.list_images)
+    def test_images(self):
+        self.verify_list2(self.proxy.images,
+                          expected_args=[image.Image],
+                          expected_kwargs={})
 
     def test_image_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}

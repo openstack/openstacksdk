@@ -60,8 +60,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(image.Image, value)
 
-    def list_images(self, **params):
-        return image.Image.list(self.session, **params)
+    def images(self):
+        """Return a generator of images
+
+        :returns: A generator of image objects
+        :rtype: :class:`~openstack.image.v2.image.Image`
+        """
+        return self._list(image.Image)
 
     def update_image(self, value, **attrs):
         """Update a image
@@ -118,8 +123,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(member.Member, value)
 
-    def list_members(self, **params):
-        return member.Member.list(self.session, **params)
+    def members(self, **params):
+        """Return a generator of members
+
+        :returns: A generator of member objects
+        :rtype: :class:`~openstack.image.v2.member.Member`
+        """
+        return self._list(member.Member)
 
     def update_member(self, value, **attrs):
         """Update a member
