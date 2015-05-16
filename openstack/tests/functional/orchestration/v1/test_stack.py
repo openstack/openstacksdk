@@ -10,21 +10,39 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.orchestration.v1 import stack
 from openstack.tests.functional import base
 
 
 class TestStack(base.BaseFunctionalTest):
 
-    def test_create_stack(self):
-        stack = self.conn.orchestration.create_stack(
-            name='test_stack',
-            parameters={'key_name': 'heat_key',
-                        'image_id': 'fedora-20.x86_64'},
-            template_url='http://git.openstack.org/cgit/openstack/' +
-                         'heat-templates/plain/hot/F20/WordPress_Native.yaml'
+    NAME = 'test_stack'
+    ID = None
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestStack, cls).setUpClass()
+        if cls.conn.compute.find_keypair(cls.NAME) is None:
+            cls.conn.compute.create_keypair(name=cls.NAME)
+        template_url = ('http://git.openstack.org/cgit/openstack/' +
+                        'heat-templates/plain/hot/F20/WordPress_Native.yaml')
+        sot = cls.conn.orchestration.create_stack(
+            name=cls.NAME,
+            parameters={'key_name': cls.NAME, 'image_id': 'fedora-20.x86_64'},
+            template_url=template_url,
         )
+        assert isinstance(sot, stack.Stack)
+        cls.assertIs(True, (sot.id is not None))
+        cls.ID = sot.id
+        cls.assertIs(cls.NAME, sot.name)
+        cls.conn.orchestration.wait_for_stack(sot)
 
-        self.conn.orchestration.wait_for_stack(stack)
+    @classmethod
+    def tearDownClass(cls):
+        super(TestStack, cls).tearDownClass()
+        cls.conn.orchestration.delete_stack(cls.ID)
+        cls.conn.compute.delete_keypair(cls.NAME)
 
-        self.assertIsNotNone(stack.id)
-        self.assertEqual('test_stack', stack.name)
+    def test_list(self):
+        names = [o.name for o in self.conn.orchestration.list_stacks()]
+        self.assertIn(self.NAME, names)
