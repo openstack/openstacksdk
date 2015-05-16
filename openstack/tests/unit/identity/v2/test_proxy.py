@@ -46,9 +46,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[role.Role, "resource_or_id"])
 
-    def test_role_list(self):
-        self.verify_list('openstack.identity.v2.role.Role.list',
-                         self.proxy.list_roles)
+    def test_roles(self):
+        self.verify_list2(self.proxy.roles,
+                          expected_args=[role.Role],
+                          expected_kwargs={})
 
     def test_role_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -83,9 +84,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[tenant.Tenant, "resource_or_id"])
 
-    def test_tenant_list(self):
-        self.verify_list('openstack.identity.v2.tenant.Tenant.list',
-                         self.proxy.list_tenants)
+    def test_tenants(self):
+        self.verify_list2(self.proxy.tenants,
+                          expected_args=[tenant.Tenant],
+                          expected_kwargs={})
 
     def test_tenant_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -120,9 +122,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[user.User, "resource_or_id"])
 
-    def test_user_list(self):
-        self.verify_list('openstack.identity.v2.user.User.list',
-                         self.proxy.list_users)
+    def test_users(self):
+        self.verify_list2(self.proxy.users,
+                          expected_args=[user.User],
+                          expected_kwargs={})
 
     def test_user_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}

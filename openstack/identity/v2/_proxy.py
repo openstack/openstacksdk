@@ -60,8 +60,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(role.Role, value)
 
-    def list_roles(self):
-        return role.Role.list(self.session)
+    def roles(self):
+        """Retrieve a generator of roles
+
+        :returns: A generator of role instances.
+        :rtype: :class:`~openstack.identity.v2.role.Role`
+        """
+        return self._list(role.Role)
 
     def update_role(self, value, **attrs):
         """Update a role
@@ -118,8 +123,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(tenant.Tenant, value)
 
-    def list_tenants(self):
-        return tenant.Tenant.list(self.session)
+    def tenants(self):
+        """Retrieve a generator of tenants
+
+        :returns: A generator of tenant instances.
+        :rtype: :class:`~openstack.identity.v2.tenant.Tenant`
+        """
+        return self._list(tenant.Tenant)
 
     def update_tenant(self, value, **attrs):
         """Update a tenant
@@ -176,8 +186,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(user.User, value)
 
-    def list_users(self):
-        return user.User.list(self.session)
+    def users(self):
+        """Retrieve a generator of users
+
+        :returns: A generator of user instances.
+        :rtype: :class:`~openstack.identity.v2.user.User`
+        """
+        return self._list(user.User)
 
     def update_user(self, value, **attrs):
         """Update a user

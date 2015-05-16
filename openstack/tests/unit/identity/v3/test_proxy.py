@@ -55,9 +55,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          expected_args=[credential.Credential,
                                         "resource_or_id"])
 
-    def test_credential_list(self):
-        self.verify_list('openstack.identity.v3.credential.Credential.list',
-                         self.proxy.list_credentials)
+    def test_credentials(self):
+        self.verify_list2(self.proxy.credentials,
+                          expected_args=[credential.Credential],
+                          expected_kwargs={})
 
     def test_credential_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -93,9 +94,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[domain.Domain, "resource_or_id"])
 
-    def test_domain_list(self):
-        self.verify_list('openstack.identity.v3.domain.Domain.list',
-                         self.proxy.list_domains)
+    def test_domains(self):
+        self.verify_list2(self.proxy.domains,
+                          expected_args=[domain.Domain],
+                          expected_kwargs={})
 
     def test_domain_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -132,9 +134,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[endpoint.Endpoint, "resource_or_id"])
 
-    def test_endpoint_list(self):
-        self.verify_list('openstack.identity.v3.endpoint.Endpoint.list',
-                         self.proxy.list_endpoints)
+    def test_endpoints(self):
+        self.verify_list2(self.proxy.endpoints,
+                          expected_args=[endpoint.Endpoint],
+                          expected_kwargs={})
 
     def test_endpoint_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -170,9 +173,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[group.Group, "resource_or_id"])
 
-    def test_group_list(self):
-        self.verify_list('openstack.identity.v3.group.Group.list',
-                         self.proxy.list_groups)
+    def test_groups(self):
+        self.verify_list2(self.proxy.groups,
+                          expected_args=[group.Group],
+                          expected_kwargs={})
 
     def test_group_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -207,9 +211,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[policy.Policy, "resource_or_id"])
 
-    def test_policy_list(self):
-        self.verify_list('openstack.identity.v3.policy.Policy.list',
-                         self.proxy.list_policys)
+    def test_policies(self):
+        self.verify_list2(self.proxy.policies,
+                          expected_args=[policy.Policy],
+                          expected_kwargs={})
 
     def test_policy_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -244,9 +249,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[project.Project, "resource_or_id"])
 
-    def test_project_list(self):
-        self.verify_list('openstack.identity.v3.project.Project.list',
-                         self.proxy.list_projects)
+    def test_projects(self):
+        self.verify_list2(self.proxy.projects,
+                          expected_args=[project.Project],
+                          expected_kwargs={})
 
     def test_project_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -281,9 +287,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[service.Service, "resource_or_id"])
 
-    def test_service_list(self):
-        self.verify_list('openstack.identity.v3.service.Service.list',
-                         self.proxy.list_services)
+    def test_services(self):
+        self.verify_list2(self.proxy.services,
+                          expected_args=[service.Service],
+                          expected_kwargs={})
 
     def test_service_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -318,9 +325,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[user.User, "resource_or_id"])
 
-    def test_user_list(self):
-        self.verify_list('openstack.identity.v3.user.User.list',
-                         self.proxy.list_users)
+    def test_users(self):
+        self.verify_list2(self.proxy.users,
+                          expected_args=[user.User],
+                          expected_kwargs={})
 
     def test_user_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -355,9 +363,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[trust.Trust, "resource_or_id"])
 
-    def test_trust_list(self):
-        self.verify_list('openstack.identity.v3.trust.Trust.list',
-                         self.proxy.list_trusts)
+    def test_trusts(self):
+        self.verify_list2(self.proxy.trusts,
+                          expected_args=[trust.Trust],
+                          expected_kwargs={})
 
     def test_trust_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}

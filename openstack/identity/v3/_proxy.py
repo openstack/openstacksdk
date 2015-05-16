@@ -67,8 +67,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(credential.Credential, value)
 
-    def list_credentials(self):
-        return credential.Credential.list(self.session)
+    def credentials(self):
+        """Retrieve a generator of credentials
+
+        :returns: A generator of credentials instances.
+        :rtype: :class:`~openstack.identity.v3.credential.Credential`
+        """
+        return self._list(credential.Credential)
 
     def update_credential(self, value, **attrs):
         """Update a credential
@@ -126,8 +131,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(domain.Domain, value)
 
-    def list_domains(self):
-        return domain.Domain.list(self.session)
+    def domains(self):
+        """Retrieve a generator of domains
+
+        :returns: A generator of domain instances.
+        :rtype: :class:`~openstack.identity.v3.domain.Domain`
+        """
+        return self._list(domain.Domain)
 
     def update_domain(self, value, **attrs):
         """Update a domain
@@ -185,8 +195,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(endpoint.Endpoint, value)
 
-    def list_endpoints(self):
-        return endpoint.Endpoint.list(self.session)
+    def endpoints(self):
+        """Retrieve a generator of endpoints
+
+        :returns: A generator of endpoint instances.
+        :rtype: :class:`~openstack.identity.v3.endpoint.Endpoint`
+        """
+        return self._list(endpoint.Endpoint)
 
     def update_endpoint(self, value, **attrs):
         """Update a endpoint
@@ -245,8 +260,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(group.Group, value)
 
-    def list_groups(self):
-        return group.Group.list(self.session)
+    def groups(self):
+        """Retrieve a generator of groups
+
+        :returns: A generator of group instances.
+        :rtype: :class:`~openstack.identity.v3.group.Group`
+        """
+        return self._list(group.Group)
 
     def update_group(self, value, **attrs):
         """Update a group
@@ -303,8 +323,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(policy.Policy, value)
 
-    def list_policys(self):
-        return policy.Policy.list(self.session)
+    def policies(self):
+        """Retrieve a generator of policies
+
+        :returns: A generator of policy instances.
+        :rtype: :class:`~openstack.identity.v3.policy.Policy`
+        """
+        return self._list(policy.Policy)
 
     def update_policy(self, value, **attrs):
         """Update a policy
@@ -361,8 +386,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(project.Project, value)
 
-    def list_projects(self):
-        return project.Project.list(self.session)
+    def projects(self):
+        """Retrieve a generator of projects
+
+        :returns: A generator of project instances.
+        :rtype: :class:`~openstack.identity.v3.project.Project`
+        """
+        return self._list(project.Project)
 
     def update_project(self, value, **attrs):
         """Update a project
@@ -419,8 +449,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(service.Service, value)
 
-    def list_services(self):
-        return service.Service.list(self.session)
+    def services(self):
+        """Retrieve a generator of services
+
+        :returns: A generator of service instances.
+        :rtype: :class:`~openstack.identity.v3.service.Service`
+        """
+        return self._list(service.Service)
 
     def update_service(self, value, **attrs):
         """Update a service
@@ -477,8 +512,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(user.User, value)
 
-    def list_users(self):
-        return user.User.list(self.session)
+    def users(self):
+        """Retrieve a generator of users
+
+        :returns: A generator of user instances.
+        :rtype: :class:`~openstack.identity.v3.user.User`
+        """
+        return self._list(user.User)
 
     def update_user(self, value, **attrs):
         """Update a user
@@ -523,8 +563,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(trust.Trust, value)
 
-    def list_trusts(self):
-        return trust.Trust.list(self.session)
+    def trusts(self):
+        """Retrieve a generator of trusts
+
+        :returns: A generator of trust instances.
+        :rtype: :class:`~openstack.identity.v3.trust.Trust`
+        """
+        return self._list(trust.Trust)
 
     def update_trust(self, value, **attrs):
         """Update a trust
