@@ -48,9 +48,10 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[container.Container, "resource_or_id"])
 
-    def test_container_list(self):
-        self.verify_list('openstack.keystore.v1.container.Container.list',
-                         self.proxy.list_container)
+    def test_containers(self):
+        self.verify_list2(self.proxy.containers,
+                          expected_args=[container.Container],
+                          expected_kwargs={})
 
     def test_container_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -86,9 +87,10 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[order.Order, "resource_or_id"])
 
-    def test_order_list(self):
-        self.verify_list('openstack.keystore.v1.order.Order.list',
-                         self.proxy.list_order)
+    def test_orders(self):
+        self.verify_list2(self.proxy.orders,
+                          expected_args=[order.Order],
+                          expected_kwargs={})
 
     def test_order_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -123,9 +125,10 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[secret.Secret, "resource_or_id"])
 
-    def test_secret_list(self):
-        self.verify_list('openstack.keystore.v1.secret.Secret.list',
-                         self.proxy.list_secret)
+    def test_secrets(self):
+        self.verify_list2(self.proxy.secrets,
+                          expected_args=[secret.Secret],
+                          expected_kwargs={})
 
     def test_secret_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
