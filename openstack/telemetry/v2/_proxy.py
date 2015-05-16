@@ -76,12 +76,12 @@ class Proxy(proxy.BaseProxy):
         """Update a alarm
 
         :param value: Either the id of a alarm or a
-                      :class:`~openstack.compute.v2.alarm.Alarm` instance.
+                      :class:`~openstack.telemetry.v2.alarm.Alarm` instance.
         :attrs kwargs: The attributes to update on the alarm represented
                        by ``value``.
 
         :returns: The updated alarm
-        :rtype: :class:`~openstack.compute.v2.alarm.Alarm`
+        :rtype: :class:`~openstack.telemetry.v2.alarm.Alarm`
         """
         return self._update(alarm.Alarm, value, **attrs)
 
