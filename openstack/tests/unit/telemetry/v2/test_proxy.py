@@ -12,8 +12,12 @@
 
 from openstack.telemetry.v2 import _proxy
 from openstack.telemetry.v2 import alarm
+from openstack.telemetry.v2 import alarm_change
+from openstack.telemetry.v2 import capability
+from openstack.telemetry.v2 import meter
 from openstack.telemetry.v2 import resource
 from openstack.telemetry.v2 import sample
+from openstack.telemetry.v2 import statistics
 from openstack.tests.unit import test_proxy_base
 
 
@@ -27,10 +31,10 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
             'openstack.telemetry.v2.alarm_change.AlarmChange.find',
             self.proxy.find_alarm_change)
 
-    def test_alarm_change_list(self):
-        self.verify_list(
-            'openstack.telemetry.v2.alarm_change.AlarmChange.list',
-            self.proxy.list_alarm_changes)
+    def test_alarm_changes(self):
+        self.verify_list2(self.proxy.alarm_changes,
+                          expected_args=[alarm_change.AlarmChange],
+                          expected_kwargs={})
 
     def test_alarm_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -56,9 +60,10 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[alarm.Alarm, "resource_or_id"])
 
-    def test_alarm_list(self):
-        self.verify_list('openstack.telemetry.v2.alarm.Alarm.list',
-                         self.proxy.list_alarms)
+    def test_alarms(self):
+        self.verify_list2(self.proxy.alarms,
+                          expected_args=[alarm.Alarm],
+                          expected_kwargs={})
 
     def test_alarm_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -73,17 +78,19 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
         self.verify_find('openstack.telemetry.v2.capability.Capability.find',
                          self.proxy.find_capability)
 
-    def test_capability_list(self):
-        self.verify_list('openstack.telemetry.v2.capability.Capability.list',
-                         self.proxy.list_capabilitys)
+    def test_capabilities(self):
+        self.verify_list2(self.proxy.capabilities,
+                          expected_args=[capability.Capability],
+                          expected_kwargs={})
 
     def test_meter_find(self):
         self.verify_find('openstack.telemetry.v2.meter.Meter.find',
                          self.proxy.find_meter)
 
-    def test_meter_list(self):
-        self.verify_list('openstack.telemetry.v2.meter.Meter.list',
-                         self.proxy.list_meters)
+    def test_meters(self):
+        self.verify_list2(self.proxy.meters,
+                          expected_args=[meter.Meter],
+                          expected_kwargs={})
 
     def test_resource_find(self):
         self.verify_find('openstack.telemetry.v2.resource.Resource.find',
@@ -95,9 +102,10 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[resource.Resource, "resource_or_id"])
 
-    def test_resource_list(self):
-        self.verify_list('openstack.telemetry.v2.resource.Resource.list',
-                         self.proxy.list_resources)
+    def test_resources(self):
+        self.verify_list2(self.proxy.resources,
+                          expected_args=[resource.Resource],
+                          expected_kwargs={})
 
     def test_sample_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -111,14 +119,16 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
         self.verify_find('openstack.telemetry.v2.sample.Sample.find',
                          self.proxy.find_sample)
 
-    def test_sample_list(self):
-        self.verify_list('openstack.telemetry.v2.sample.Sample.list',
-                         self.proxy.list_samples)
+    def test_samples(self):
+        self.verify_list2(self.proxy.samples,
+                          expected_args=[sample.Sample],
+                          expected_kwargs={})
 
     def test_statistics_find(self):
         self.verify_find('openstack.telemetry.v2.statistics.Statistics.find',
                          self.proxy.find_statistics)
 
-    def test_statistics_list(self):
-        self.verify_list('openstack.telemetry.v2.statistics.Statistics.list',
-                         self.proxy.list_statistics)
+    def test_statistics(self):
+        self.verify_list2(self.proxy.statistics,
+                          expected_args=[statistics.Statistics],
+                          expected_kwargs={})

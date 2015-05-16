@@ -64,8 +64,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(alarm.Alarm, value)
 
-    def list_alarms(self):
-        return alarm.Alarm.list(self.session)
+    def alarms(self):
+        """Return a generator of alarms
+
+        :returns: A generator of alarm objects
+        :rtype: :class:`~openstack.telemetry.v2.alarm.Alarm`
+        """
+        return self._list(alarm.Alarm)
 
     def update_alarm(self, value, **attrs):
         """Update a alarm
@@ -83,20 +88,35 @@ class Proxy(proxy.BaseProxy):
     def find_alarm_change(self, name_or_id):
         return alarm_change.AlarmChange.find(self.session, name_or_id)
 
-    def list_alarm_changes(self):
-        return alarm_change.AlarmChange.list(self.session)
+    def alarm_changes(self):
+        """Return a generator of alarm changes
+
+        :returns: A generator of alarm change objects
+        :rtype: :class:`~openstack.telemetry.v2.alarm_change.AlarmChange`
+        """
+        return self._list(alarm_change.AlarmChange)
 
     def find_capability(self, name_or_id):
         return capability.Capability.find(self.session, name_or_id)
 
-    def list_capabilitys(self):
-        return capability.Capability.list(self.session)
+    def capabilities(self):
+        """Return a generator of capabilities
+
+        :returns: A generator of capability objects
+        :rtype: :class:`~openstack.telemetry.v2.capability.Capability`
+        """
+        return self._list(capability.Capability)
 
     def find_meter(self, name_or_id):
         return meter.Meter.find(self.session, name_or_id)
 
-    def list_meters(self):
-        return meter.Meter.list(self.session)
+    def meters(self):
+        """Return a generator of meters
+
+        :returns: A generator of meter objects
+        :rtype: :class:`~openstack.telemetry.v2.meter.Meter`
+        """
+        return self._list(meter.Meter)
 
     def find_resource(self, name_or_id):
         return resource.Resource.find(self.session, name_or_id)
@@ -114,8 +134,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(resource.Resource, value)
 
-    def list_resources(self):
-        return resource.Resource.list(self.session)
+    def resources(self):
+        """Return a generator of resources
+
+        :returns: A generator of resource objects
+        :rtype: :class:`~openstack.telemetry.v2.resource.Resource`
+        """
+        return self._list(resource.Resource)
 
     def create_sample(self, **attrs):
         """Create a new sample from attributes
@@ -132,11 +157,21 @@ class Proxy(proxy.BaseProxy):
     def find_sample(self, name_or_id):
         return sample.Sample.find(self.session, name_or_id)
 
-    def list_samples(self):
-        return sample.Sample.list(self.session)
+    def samples(self):
+        """Return a generator of samples
+
+        :returns: A generator of sample objects
+        :rtype: :class:`~openstack.telemetry.v2.sample.Sample`
+        """
+        return self._list(sample.Sample)
 
     def find_statistics(self, name_or_id):
         return statistics.Statistics.find(self.session, name_or_id)
 
-    def list_statistics(self):
-        return statistics.Statistics.list(self.session)
+    def statistics(self):
+        """Return a generator of statistics
+
+        :returns: A generator of statistics objects
+        :rtype: :class:`~openstack.telemetry.v2.statistics.Statistics`
+        """
+        return self._list(statistics.Statistics)
