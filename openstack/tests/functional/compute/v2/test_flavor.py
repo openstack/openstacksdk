@@ -18,7 +18,7 @@ from openstack.tests.functional import base
 class TestFlavor(base.BaseFunctionalTest):
 
     def test_flavors(self):
-        flavors = list(self.conn.compute.list_flavors())
+        flavors = list(self.conn.compute.flavors())
         self.assertGreater(len(flavors), 0)
 
         for flavor in flavors:
