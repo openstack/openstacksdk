@@ -32,6 +32,8 @@ class BaseFunctionalTest(unittest.TestCase):
             utils.enable_logging(True)
 
         auth = test_cloud.config['auth']
+        if 'insecure' in test_cloud.config:
+            auth['verify'] = test_cloud.config['insecure']
         cls.conn = connection.Connection(preference=pref, **auth)
 
     @classmethod

@@ -31,6 +31,8 @@ def make_connection(opts):
     occ = os_client_config.OpenStackConfig()
     cloud = occ.get_one_cloud(opts.cloud, opts)
     auth = cloud.config['auth']
+    if 'insecure' in cloud.config:
+        auth['verify'] = cloud.config['insecure']
     conn = connection.Connection(preference=opts.user_preferences, **auth)
     return conn
 
