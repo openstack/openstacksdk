@@ -61,8 +61,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(container.Container, value)
 
-    def list_container(self):
-        return container.Container.list(self.session)
+    def containers(self):
+        """Return a generator of containers
+
+        :returns: A generator of container objects
+        :rtype: :class:`~openstack.keystore.v1.container.Container`
+        """
+        return self._list(container.Container)
 
     def update_container(self, value, **attrs):
         """Update a container
@@ -121,8 +126,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(order.Order, value)
 
-    def list_order(self):
-        return order.Order.list(self.session)
+    def orders(self):
+        """Return a generator of orders
+
+        :returns: A generator of order objects
+        :rtype: :class:`~openstack.keystore.v1.order.Order`
+        """
+        return self._list(order.Order)
 
     def update_order(self, value, **attrs):
         """Update a order
@@ -180,8 +190,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(secret.Secret, value)
 
-    def list_secret(self):
-        return secret.Secret.list(self.session)
+    def secrets(self):
+        """Return a generator of secrets
+
+        :returns: A generator of secret objects
+        :rtype: :class:`~openstack.keystore.v1.secret.Secret`
+        """
+        return self._list(secret.Secret)
 
     def update_secret(self, value, **attrs):
         """Update a secret
