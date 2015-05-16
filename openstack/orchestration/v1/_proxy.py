@@ -32,8 +32,13 @@ class Proxy(proxy.BaseProxy):
     def find_stack(self, name_or_id):
         return stack.Stack.find(self.session, name_or_id)
 
-    def list_stacks(self):
-        return stack.Stack.list(self.session)
+    def stacks(self):
+        """Return a generator of stacks
+
+        :returns: A generator of stack objects
+        :rtype: :class:`~openstack.orchestration.v1.stack.Stack`
+        """
+        return self._list(stack.Stack)
 
     def get_stack(self, value):
         """Get a single stack
