@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.metric.v1 import _proxy
+from openstack.metric.v1 import capabilities
 from openstack.tests.unit import test_proxy_base
 
 
@@ -19,6 +20,7 @@ class TestMetricProxy(test_proxy_base.TestProxyBase):
         super(TestMetricProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
-    def test_capabilities_list(self):
-        self.verify_list('openstack.metric.v1.capabilities.Capabilities.list',
-                         self.proxy.list_capabilities)
+    def test_capabilities(self):
+        self.verify_list2(self.proxy.capabilities,
+                          expected_args=[capabilities.Capabilities],
+                          expected_kwargs={})
