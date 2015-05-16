@@ -43,9 +43,10 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
         self.verify_find('openstack.database.v1.database.Database.find',
                          self.proxy.find_database)
 
-    def test_database_list(self):
-        self.verify_list('openstack.database.v1.database.Database.list',
-                         self.proxy.list_database)
+    def test_databases(self):
+        self.verify_list2(self.proxy.databases,
+                          expected_args=[database.Database],
+                          expected_kwargs={})
 
     def test_database_get(self):
         self.verify_get2('openstack.proxy.BaseProxy._get',
@@ -63,9 +64,10 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[flavor.Flavor, "resource_or_id"])
 
-    def test_flavor_list(self):
-        self.verify_list('openstack.database.v1.flavor.Flavor.list',
-                         self.proxy.list_flavor)
+    def test_flavors(self):
+        self.verify_list2(self.proxy.flavors,
+                          expected_args=[flavor.Flavor],
+                          expected_kwargs={})
 
     def test_instance_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -93,9 +95,10 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                          method_args=["resource_or_id"],
                          expected_args=[instance.Instance, "resource_or_id"])
 
-    def test_instance_list(self):
-        self.verify_list('openstack.database.v1.instance.Instance.list',
-                         self.proxy.list_instance)
+    def test_instances(self):
+        self.verify_list2(self.proxy.instances,
+                          expected_args=[instance.Instance],
+                          expected_kwargs={})
 
     def test_instance_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -125,9 +128,10 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
         self.verify_find('openstack.database.v1.user.User.find',
                          self.proxy.find_user)
 
-    def test_user_list(self):
-        self.verify_list('openstack.database.v1.user.User.list',
-                         self.proxy.list_user)
+    def test_users(self):
+        self.verify_list2(self.proxy.users,
+                          expected_args=[user.User],
+                          expected_kwargs={})
 
     def test_user_get(self):
         self.verify_get2('openstack.proxy.BaseProxy._get',
