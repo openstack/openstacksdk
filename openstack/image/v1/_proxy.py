@@ -64,7 +64,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of image objects
         :rtype: :class:`~openstack.image.v1.image.Image`
         """
-        return self._list(image.Image)
+        return self._list(image.Image, paginated=True)
 
     def update_image(self, value, **attrs):
         """Update a image

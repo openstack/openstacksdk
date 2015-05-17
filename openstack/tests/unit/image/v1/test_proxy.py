@@ -47,7 +47,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
     def test_images(self):
         self.verify_list2(self.proxy.images,
                           expected_args=[image.Image],
-                          expected_kwargs={})
+                          expected_kwargs={'paginated': True})
 
     def test_image_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
