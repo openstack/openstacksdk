@@ -30,6 +30,11 @@ class Proxy(proxy.BaseProxy):
         return self._create(stack.Stack, **attrs)
 
     def find_stack(self, name_or_id):
+        """Find a single stack
+
+        :param name_or_id: The name or ID of a stack.
+        :returns: One :class:`~openstack.compute.v2.stack.Stack` or None
+        """
         return stack.Stack.find(self.session, name_or_id)
 
     def stacks(self):
