@@ -57,7 +57,7 @@ with OpenStack services.
    :maxdepth: 1
 
    connection
-   user_preference
+   profile
 
 Once you have a *Connection* instance, the following services may be exposed
 to you. Your user preferences determine the full set of exposed services,

@@ -8,11 +8,11 @@ Usage
 To use python-openstacksdk in a project::
 
     from openstack import connection
-    from openstack import user_preference
+    from openstack import profile
 
     # First, specify your preferences
-    pref = user_preference.UserPreference()
-    pref.set_region('network', 'zion')
+    prof = profile.Profile()
+    prof.set_region('network', 'zion')
 
     # Second, create your authorization arguments
     auth_args = {
@@ -23,7 +23,7 @@ To use python-openstacksdk in a project::
     }
 
     # Third, create a connection
-    conn = connection.Connection(preference=pref, **auth_args)
+    conn = connection.Connection(preference=prof, **auth_args)
 
     # Finally, access your desired services
     network = conn.network.find_network("matrix")

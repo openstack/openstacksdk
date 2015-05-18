@@ -16,10 +16,10 @@ from openstack.auth.identity import v2
 from openstack.auth import service_filter
 from openstack import connection
 from openstack import exceptions
+from openstack import profile
 from openstack import resource
 from openstack.tests.unit import base
 from openstack import transport
-from openstack import user_preference
 
 
 class TestConnection(base.TestCase):
@@ -27,7 +27,7 @@ class TestConnection(base.TestCase):
         super(TestConnection, self).setUp()
         self.xport = transport.Transport()
         self.auth = v2.Token(auth_url='http://127.0.0.1/v2', token='b')
-        self.pref = user_preference.UserPreference()
+        self.prof = profile.Profile()
         self.conn = connection.Connection(authenticator=mock.MagicMock(),
                                           transport=mock.MagicMock())
         self.conn.session = mock.MagicMock()
@@ -100,12 +100,12 @@ class TestConnection(base.TestCase):
         args = {
             'transport': self.xport,
             'authenticator': self.auth,
-            'preference': self.pref,
+            'profile': self.prof,
         }
         conn = connection.Connection(**args)
         self.assertEqual(self.xport, conn.session.transport)
         self.assertEqual(self.auth, conn.session.authenticator)
-        self.assertEqual(self.pref, conn.session.preference)
+        self.assertEqual(self.prof, conn.session.profile)
         self.assertEqual('openstack.compute.v2._proxy',
                          conn.compute.__class__.__module__)
         self.assertEqual('openstack.database.v1._proxy',

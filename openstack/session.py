@@ -59,7 +59,7 @@ Creating a new object::
 
 import logging
 
-from openstack import user_preference
+from openstack import profile as _profile
 from openstack import utils
 
 
@@ -68,7 +68,7 @@ _logger = logging.getLogger(__name__)
 
 class Session(object):
 
-    def __init__(self, transport, authenticator, preference=None):
+    def __init__(self, transport, authenticator, profile=None):
         """Create a new object with a transport and authenticator.
 
         Session layer which uses the transport for communication.  The
@@ -80,11 +80,11 @@ class Session(object):
         :param authenticator: An authenticator that provides get_token and
             get_endpoint methods for the session.
         :type authenticator: :class:`~openstack.auth.base.BaseAuthPlugin`
-        :param preference: If the user has any special preferences such as the
+        :param profile: If the user has any special profiles such as the
             service name, region, version or visibility, they may be provided
-            in the preference object.  If no preferences are provided, the
+            in the profile object.  If no profiles are provided, the
             services that appear first in the service catalog will be used.
-        :type preference: :class:`~openstack.user_preference.UserPreference`
+        :type profile: :class:`~openstack.profile.Profile`
 
         All the other methods of the session accept the following parameters:
 
@@ -99,7 +99,7 @@ class Session(object):
         """
         self.transport = transport
         self.authenticator = authenticator
-        self.preference = preference or user_preference.UserPreference()
+        self.profile = profile or _profile.Profile()
 
     def _request(self, path, method, service=None, authenticate=True,
                  **kwargs):
@@ -124,9 +124,9 @@ class Session(object):
             if token:
                 headers['X-Auth-Token'] = token
         if service:
-            preference = self.preference.get_preference(service.service_type)
-            if preference:
-                service = preference.join(service)
+            profile = self.profile.get_preference(service.service_type)
+            if profile:
+                service = profile.join(service)
 
         endpoint = self.authenticator.get_endpoint(self.transport, service)
         url = utils.urljoin(endpoint, path)
@@ -158,5 +158,5 @@ class Session(object):
         return self._request(path, 'PATCH', **kwargs)
 
     def get_services(self):
-        """Get list of services from preferences."""
-        return self.preference.get_services()
+        """Get list of services from profiles."""
+        return self.profile.get_services()

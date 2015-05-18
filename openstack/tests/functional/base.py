@@ -16,7 +16,7 @@ import unittest
 import os_client_config
 
 from openstack import connection
-from openstack import user_preference
+from openstack import profile
 from openstack import utils
 
 
@@ -26,15 +26,15 @@ class BaseFunctionalTest(unittest.TestCase):
         name = os.getenv('OS_CLOUD', 'test_cloud')
         test_cloud = os_client_config.OpenStackConfig().get_one_cloud(name)
 
-        pref = user_preference.UserPreference()
-        pref.set_region(pref.ALL, test_cloud.region)
+        prof = profile.Profile()
+        prof.set_region(prof.ALL, test_cloud.region)
         if test_cloud.debug:
             utils.enable_logging(True)
 
         auth = test_cloud.config['auth']
         if 'insecure' in test_cloud.config:
             auth['verify'] = test_cloud.config['insecure']
-        cls.conn = connection.Connection(preference=pref, **auth)
+        cls.conn = connection.Connection(profile=prof, **auth)
 
     @classmethod
     def assertIs(cls, expected, actual):

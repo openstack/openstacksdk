@@ -34,7 +34,7 @@ def make_connection(opts):
     auth = cloud.config['auth']
     if 'insecure' in cloud.config:
         auth['verify'] = cloud.config['insecure']
-    conn = connection.Connection(preference=opts.user_preferences, **auth)
+    conn = connection.Connection(profile=opts.preferences, **auth)
     return conn
 
 

@@ -40,7 +40,7 @@ import sys
 import traceback
 import uuid
 
-from openstack import user_preference
+from openstack import profile
 from openstack import utils
 
 _logger = logging.getLogger(__name__)
@@ -100,12 +100,12 @@ def get_open_fds():
     return [d.replace('\000', '|') for d in procs_list]
 
 
-class UserPreferenceAction(argparse.Action):
-    """A custom action to parse user preferences as key=value pairs
+class ProfileAction(argparse.Action):
+    """A custom action to parse user proferences as key=value pairs
 
-    Stores results in users preferences object.
+    Stores results in users proferences object.
     """
-    pref = user_preference.UserPreference()
+    prof = profile.Profile()
 
     @classmethod
     def env(cls, *vars):
@@ -114,8 +114,8 @@ class UserPreferenceAction(argparse.Action):
             if values is None:
                 continue
             cls.set_option(v, values)
-            return cls.pref
-        return cls.pref
+            return cls.prof
+        return cls.prof
 
     @classmethod
     def set_option(cls, var, values):
@@ -128,20 +128,20 @@ class UserPreferenceAction(argparse.Action):
             if '=' in kvp:
                 service, value = kvp.split('=')
             else:
-                service = cls.pref.ALL
+                service = cls.prof.ALL
                 value = kvp
             if var == 'name':
-                cls.pref.set_name(service, value)
+                cls.prof.set_name(service, value)
             elif var == 'region':
-                cls.pref.set_region(service, value)
+                cls.prof.set_region(service, value)
             elif var == 'version':
-                cls.pref.set_version(service, value)
+                cls.prof.set_version(service, value)
             elif var == 'visibility':
-                cls.pref.set_visibility(service, value)
+                cls.prof.set_visibility(service, value)
 
     def __call__(self, parser, namespace, values, option_string=None):
         if getattr(namespace, self.dest, None) is None:
-            setattr(namespace, self.dest, UserPreferenceAction.pref)
+            setattr(namespace, self.dest, ProfileAction.prof)
         self.set_option(option_string, values)
 
 
@@ -248,34 +248,34 @@ def option_parser():
     )
     parser.add_argument(
         '--os-api-name',
-        dest='user_preferences',
+        dest='preferences',
         metavar='<service>=<name>',
-        action=UserPreferenceAction,
-        default=UserPreferenceAction.env('OS_API_NAME'),
+        action=ProfileAction,
+        default=ProfileAction.env('OS_API_NAME'),
         help='Desired API names defaults to env[OS_API_NAME]',
     )
     parser.add_argument(
         '--os-api-region',
-        dest='user_preferences',
+        dest='preferences',
         metavar='<service>=<region>',
-        action=UserPreferenceAction,
-        default=UserPreferenceAction.env('OS_API_REGION', 'OS_REGION_NAME'),
+        action=ProfileAction,
+        default=ProfileAction.env('OS_API_REGION', 'OS_REGION_NAME'),
         help='Desired API region defaults to env[OS_API_REGION]',
     )
     parser.add_argument(
         '--os-api-version',
-        dest='user_preferences',
+        dest='preferences',
         metavar='<service>=<version>',
-        action=UserPreferenceAction,
-        default=UserPreferenceAction.env('OS_API_VERSION'),
+        action=ProfileAction,
+        default=ProfileAction.env('OS_API_VERSION'),
         help='Desired API versions defaults to env[OS_API_VERSION]',
     )
     parser.add_argument(
         '--os-api-visibility',
-        dest='user_preferences',
+        dest='preferences',
         metavar='<service>=<visibility>',
-        action=UserPreferenceAction,
-        default=UserPreferenceAction.env('OS_API_VISIBILITY'),
+        action=ProfileAction,
+        default=ProfileAction.env('OS_API_VISIBILITY'),
         help='Desired API visibility defaults to env[OS_API_VISIBILITY]',
     )
     verify_group = parser.add_mutually_exclusive_group()

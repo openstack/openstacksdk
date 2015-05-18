@@ -11,33 +11,33 @@
 # under the License.
 
 """
-:class:`~openstack.user_preference.UserPreference` is the class that is used to
+:class:`~openstack.profile.Profile` is the class that is used to
 define the various preferences for different services.  The preferences that
 are currently supported are service name, region, version and visibility.
-The :class:`~openstack.user_preference.UserPreference` and the
+The :class:`~openstack.profile.Profile` and the
 :class:`~openstack.connection.Connection` classes are the most important
 user facing classes.
 
 Examples
 --------
 
-The :class:`~openstack.user_preference.UserPreference` class is constructed
+The :class:`~openstack.profile.Profile` class is constructed
 with no arguments.
 
 Set Methods
 ~~~~~~~~~~~
 
-The user preferences are set based on the service type.  Service type would
+A user's preferences are set based on the service type.  Service type would
 normally be something like 'compute', 'identity', 'object-store', etc.::
 
-    from openstack import user_preference
-    pref = user_preference.UserPreference()
-    pref.set_name('compute', 'matrix')
-    pref.set_region(pref.ALL, 'zion')
-    pref.set_version('identity', 'v3')
-    pref.set_visibility('object-store', 'internal')
-    for service in pref.get_services():
-        print str(pref.get_preference(service.service_type))
+    from openstack import profile
+    prof = profile.Profile()
+    prof.set_name('compute', 'matrix')
+    prof.set_region(prof.ALL, 'zion')
+    prof.set_version('identity', 'v3')
+    prof.set_visibility('object-store', 'internal')
+    for service in prof.get_services():
+        print str(prof.get_preference(service.service_type))
 
 The resulting preference print out would look something like::
 
@@ -67,15 +67,15 @@ from openstack.telemetry import telemetry_service
 from openstack.volume import volume_service
 
 
-class UserPreference(object):
+class Profile(object):
 
     ALL = "*"
     """Wildcard service identifier representing all services."""
 
     def __init__(self):
-        """User preference for each service.
+        """Preferences for each service.
 
-        Create a new :class:`~openstack.user_preference.UserPreference`
+        Create a new :class:`~openstack.profile.Profile`
         object with no preferences defined, but knowledge of the services.
         Services are identified by their service type, e.g.: 'identity',
         'compute', etc.

@@ -14,7 +14,7 @@
 The :class:`~openstack.connection.Connection` class is the primary interface
 to the Python SDK it maintains a context for a connection to a cloud provider.
 The connection has an attribute to access each supported service.  The service
-attributes are created dynamically based on user preferences and the service
+attributes are created dynamically based on user profiles and the service
 catalog.
 
 Examples
@@ -70,7 +70,7 @@ _logger = logging.getLogger(__name__)
 
 class Connection(object):
 
-    def __init__(self, transport=None, authenticator=None, preference=None,
+    def __init__(self, transport=None, authenticator=None, profile=None,
                  verify=True, user_agent=None,
                  auth_plugin=None, **auth_args):
         """Create a context for a connection to a cloud provider.
@@ -94,11 +94,11 @@ class Connection(object):
             If this parameter is not passed in, the connection will create an
             authenticator.
         :type authenticator: :class:`~openstack.auth.base.BaseAuthPlugin`
-        :param preference: If the user has any special preferences such as the
+        :param profile: If the user has any special profiles such as the
             service name, region, version or visibility, they may be provided
-            in the preference object.  If no preferences are provided, the
+            in the profile object.  If no profiles are provided, the
             services that appear first in the service catalog will be used.
-        :type preference: :class:`~openstack.user_preference.UserPreference`
+        :type profile: :class:`~openstack.profile.Profile`
         :param bool verify: If a transport is not provided to the connection,
             this parameter will be used to create a transport.  If ``verify``
             is set to true, which is the default, the SSL cert will be
@@ -123,7 +123,7 @@ class Connection(object):
                                                         auth_plugin,
                                                         **auth_args)
         self.session = session.Session(self.transport, self.authenticator,
-                                       preference)
+                                       profile)
         self._open()
 
     def _create_transport(self, transport, verify, user_agent):
