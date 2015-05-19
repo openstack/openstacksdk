@@ -9,6 +9,7 @@ DIR=$(cd $(dirname "$0") && pwd)
 echo "Running SDK functional test suite"
 sudo -H -u stack -i <<!
 source ~stack/devstack/accrc/admin/admin
+export OS_CLOUD=envvars
 echo 'Running tests with:'
 env | grep OS_
 cd ${DIR}
