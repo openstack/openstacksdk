@@ -1161,7 +1161,7 @@ class ResourceMapping(base.TestCase):
         self._test_resource_serialization("patch", "update_by_id")
 
 
-class FakeResponse:
+class FakeResponse(object):
     def __init__(self, response):
         self.body = response
 
