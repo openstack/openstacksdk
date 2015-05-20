@@ -30,6 +30,7 @@ from openstack import connection
 def make_connection(opts):
     occ = os_client_config.OpenStackConfig()
     cloud = occ.get_one_cloud(opts.cloud, opts)
+    opts.user_preferences.set_region(opts.user_preferences.ALL, cloud.region)
     auth = cloud.config['auth']
     if 'insecure' in cloud.config:
         auth['verify'] = cloud.config['insecure']
