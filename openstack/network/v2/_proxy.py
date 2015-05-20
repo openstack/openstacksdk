@@ -32,6 +32,12 @@ from openstack import proxy
 class Proxy(proxy.BaseProxy):
 
     def find_extension(self, name_or_id):
+        """Find a single extension
+
+        :param name_or_id: The name or ID of a extension.
+        :returns: One :class:`~openstack.compute.v2.extension.Extension`
+                  or None
+        """
         return extension.Extension.find(self.session, name_or_id)
 
     def extensions(self):
@@ -70,9 +76,20 @@ class Proxy(proxy.BaseProxy):
         self._delete(floating_ip.FloatingIP, value, ignore_missing)
 
     def find_available_ip(self):
+        """Find an available IP
+
+        :returns: One :class:`~openstack.compute.v2.floating_ip.FloatingIP`
+                  or None
+        """
         return floating_ip.FloatingIP.find_available(self.session)
 
     def find_ip(self, name_or_id):
+        """Find a single IP
+
+        :param name_or_id: The name or ID of an IP.
+        :returns: One :class:`~openstack.compute.v2.floating_ip.FloatingIP`
+                  or None
+        """
         return floating_ip.FloatingIP.find(self.session, name_or_id)
 
     def get_ip(self, value):
@@ -139,6 +156,12 @@ class Proxy(proxy.BaseProxy):
         self._delete(health_monitor.HealthMonitor, value, ignore_missing)
 
     def find_health_monitor(self, name_or_id):
+        """Find a single health monitor
+
+        :param name_or_id: The name or ID of a health monitor.
+        :returns: One :class:`~openstack.compute.v2.health_monitor.
+                  HealthMonitor` or None
+        """
         return health_monitor.HealthMonitor.find(self.session, name_or_id)
 
     def get_health_monitor(self, value):
@@ -205,6 +228,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(listener.Listener, value, ignore_missing)
 
     def find_listener(self, name_or_id):
+        """Find a single listener
+
+        :param name_or_id: The name or ID of a listener.
+        :returns: One :class:`~openstack.compute.v2.listener.Listener` or None
+        """
         return listener.Listener.find(self.session, name_or_id)
 
     def get_listener(self, value):
@@ -271,6 +299,12 @@ class Proxy(proxy.BaseProxy):
         self._delete(load_balancer.LoadBalancer, value, ignore_missing)
 
     def find_load_balancer(self, name_or_id):
+        """Find a single load balancer
+
+        :param name_or_id: The name or ID of a load balancer.
+        :returns: One :class:`~openstack.compute.v2.load_balancer.LoadBalancer`
+                  or None
+        """
         return load_balancer.LoadBalancer.find(self.session, name_or_id)
 
     def get_load_balancer(self, value):
@@ -337,6 +371,12 @@ class Proxy(proxy.BaseProxy):
         self._delete(metering_label.MeteringLabel, value, ignore_missing)
 
     def find_metering_label(self, name_or_id):
+        """Find a single metering label
+
+        :param name_or_id: The name or ID of a metering label.
+        :returns: One :class:`~openstack.compute.v2.metering_label.
+                  MeteringLabel` or None
+        """
         return metering_label.MeteringLabel.find(self.session, name_or_id)
 
     def get_metering_label(self, value):
@@ -407,6 +447,12 @@ class Proxy(proxy.BaseProxy):
                      value, ignore_missing)
 
     def find_metering_label_rule(self, name_or_id):
+        """Find a single metering label rule
+
+        :param name_or_id: The name or ID of a metering label rule.
+        :returns: One :class:`~openstack.compute.v2.metering_label_rule.
+                  MeteringLabelRule` or None
+        """
         return metering_label_rule.MeteringLabelRule.find(self.session,
                                                           name_or_id)
 
@@ -478,6 +524,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(network.Network, value, ignore_missing)
 
     def find_network(self, name_or_id):
+        """Find a single network
+
+        :param name_or_id: The name or ID of a network.
+        :returns: One :class:`~openstack.compute.v2.network.Network` or None
+        """
         return network.Network.find(self.session, name_or_id)
 
     def get_network(self, value):
@@ -542,6 +593,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(pool.Pool, value, ignore_missing)
 
     def find_pool(self, name_or_id):
+        """Find a single pool
+
+        :param name_or_id: The name or ID of a pool.
+        :returns: One :class:`~openstack.compute.v2.pool.Pool` or None
+        """
         return pool.Pool.find(self.session, name_or_id)
 
     def get_pool(self, value):
@@ -607,6 +663,12 @@ class Proxy(proxy.BaseProxy):
         self._delete(pool_member.PoolMember, value, ignore_missing)
 
     def find_pool_member(self, name_or_id):
+        """Find a single pool member
+
+        :param name_or_id: The name or ID of a pool member.
+        :returns: One :class:`~openstack.compute.v2.pool_member.PoolMember`
+                  or None
+        """
         return pool_member.PoolMember.find(self.session, name_or_id)
 
     def get_pool_member(self, value):
@@ -673,6 +735,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(port.Port, value, ignore_missing)
 
     def find_port(self, name_or_id):
+        """Find a single port
+
+        :param name_or_id: The name or ID of a port.
+        :returns: One :class:`~openstack.compute.v2.port.Port` or None
+        """
         return port.Port.find(self.session, name_or_id)
 
     def get_port(self, value):
@@ -762,6 +829,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(router.Router, value, ignore_missing)
 
     def find_router(self, name_or_id):
+        """Find a single router
+
+        :param name_or_id: The name or ID of a router.
+        :returns: One :class:`~openstack.compute.v2.router.Router` or None
+        """
         return router.Router.find(self.session, name_or_id)
 
     def get_router(self, value):
@@ -833,6 +905,12 @@ class Proxy(proxy.BaseProxy):
         self._delete(security_group.SecurityGroup, value, ignore_missing)
 
     def find_security_group(self, name_or_id):
+        """Find a single security group
+
+        :param name_or_id: The name or ID of a security group.
+        :returns: One :class:`~openstack.compute.v2.security_group.
+                  SecurityGroup` or None
+        """
         return security_group.SecurityGroup.find(self.session, name_or_id)
 
     def get_security_group(self, value):
@@ -928,6 +1006,12 @@ class Proxy(proxy.BaseProxy):
                      value, ignore_missing)
 
     def find_security_group_rule(self, name_or_id):
+        """Find a single security group rule
+
+        :param name_or_id: The name or ID of a security group rule.
+        :returns: One :class:`~openstack.compute.v2.security_group_rule.
+                  SecurityGroupRule` or None
+        """
         return security_group_rule.SecurityGroupRule.find(self.session,
                                                           name_or_id)
 
@@ -999,6 +1083,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(subnet.Subnet, value, ignore_missing)
 
     def find_subnet(self, name_or_id):
+        """Find a single subnet
+
+        :param name_or_id: The name or ID of a subnet.
+        :returns: One :class:`~openstack.compute.v2.subnet.Subnet` or None
+        """
         return subnet.Subnet.find(self.session, name_or_id)
 
     def get_subnet(self, value):
