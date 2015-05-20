@@ -50,6 +50,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(alarm.Alarm, value, ignore_missing)
 
     def find_alarm(self, name_or_id):
+        """Find a single alarm
+
+        :param name_or_id: The name or ID of a alarm.
+        :returns: One :class:`~openstack.compute.v2.alarm.Alarm` or None
+        """
         return alarm.Alarm.find(self.session, name_or_id)
 
     def get_alarm(self, value):
@@ -86,6 +91,12 @@ class Proxy(proxy.BaseProxy):
         return self._update(alarm.Alarm, value, **attrs)
 
     def find_alarm_change(self, name_or_id):
+        """Find a single alarm change
+
+        :param name_or_id: The name or ID of a alarm change.
+        :returns: One :class:`~openstack.compute.v2.alarm_change.AlarmChange`
+                  or None
+        """
         return alarm_change.AlarmChange.find(self.session, name_or_id)
 
     def alarm_changes(self):
@@ -97,6 +108,12 @@ class Proxy(proxy.BaseProxy):
         return self._list(alarm_change.AlarmChange)
 
     def find_capability(self, name_or_id):
+        """Find a single capability
+
+        :param name_or_id: The name or ID of a capability.
+        :returns: One :class:`~openstack.compute.v2.capability.Capability`
+                  or None
+        """
         return capability.Capability.find(self.session, name_or_id)
 
     def capabilities(self):
@@ -108,6 +125,11 @@ class Proxy(proxy.BaseProxy):
         return self._list(capability.Capability)
 
     def find_meter(self, name_or_id):
+        """Find a single meter
+
+        :param name_or_id: The name or ID of a meter.
+        :returns: One :class:`~openstack.compute.v2.meter.Meter` or None
+        """
         return meter.Meter.find(self.session, name_or_id)
 
     def meters(self):
@@ -119,6 +141,11 @@ class Proxy(proxy.BaseProxy):
         return self._list(meter.Meter)
 
     def find_resource(self, name_or_id):
+        """Find a single resource
+
+        :param name_or_id: The name or ID of a resource.
+        :returns: One :class:`~openstack.compute.v2.resource.Resource` or None
+        """
         return resource.Resource.find(self.session, name_or_id)
 
     def get_resource(self, value):
@@ -155,6 +182,11 @@ class Proxy(proxy.BaseProxy):
         return self._create(sample.Sample, **attrs)
 
     def find_sample(self, name_or_id):
+        """Find a single sample
+
+        :param name_or_id: The name or ID of a sample.
+        :returns: One :class:`~openstack.compute.v2.sample.Sample` or None
+        """
         return sample.Sample.find(self.session, name_or_id)
 
     def samples(self):
@@ -166,6 +198,12 @@ class Proxy(proxy.BaseProxy):
         return self._list(sample.Sample)
 
     def find_statistics(self, name_or_id):
+        """Find a single statistics
+
+        :param name_or_id: The name or ID of a statistics.
+        :returns: One :class:`~openstack.compute.v2.statistics.Statistics`
+                  or None
+        """
         return statistics.Statistics.find(self.session, name_or_id)
 
     def statistics(self):
