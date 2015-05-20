@@ -46,6 +46,12 @@ class Proxy(proxy.BaseProxy):
         self._delete(container.Container, value, ignore_missing)
 
     def find_container(self, name_or_id):
+        """Find a single container
+
+        :param name_or_id: The name or ID of a container.
+        :returns: One :class:`~openstack.compute.v2.container.Container` or
+                  None
+        """
         return container.Container.find(self.session, name_or_id)
 
     def get_container(self, value):
@@ -111,6 +117,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(order.Order, value, ignore_missing)
 
     def find_order(self, name_or_id):
+        """Find a single order
+
+        :param name_or_id: The name or ID of a order.
+        :returns: One :class:`~openstack.compute.v2.order.Order` or None
+        """
         return order.Order.find(self.session, name_or_id)
 
     def get_order(self, value):
@@ -175,6 +186,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(secret.Secret, value, ignore_missing)
 
     def find_secret(self, name_or_id):
+        """Find a single secret
+
+        :param name_or_id: The name or ID of a secret.
+        :returns: One :class:`~openstack.compute.v2.secret.Secret` or None
+        """
         return secret.Secret.find(self.session, name_or_id)
 
     def get_secret(self, value):
