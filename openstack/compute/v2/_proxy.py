@@ -25,6 +25,12 @@ from openstack import resource
 class Proxy(proxy.BaseProxy):
 
     def find_extension(self, name_or_id):
+        """Find a single extension
+
+        :param name_or_id: The name or ID of an extension.
+        :returns: One :class:`~openstack.compute.v2.extension.Extension` or
+                  None
+        """
         return extension.Extension.find(self.session, name_or_id)
 
     def extensions(self):
@@ -36,6 +42,11 @@ class Proxy(proxy.BaseProxy):
         return self._list(extension.Extension, paginated=False)
 
     def find_flavor(self, name_or_id):
+        """Find a single flavor
+
+        :param name_or_id: The name or ID of a flavor.
+        :returns: One :class:`~openstack.compute.v2.flavor.Flavor` or None
+        """
         return flavor.Flavor.find(self.session, name_or_id)
 
     def create_flavor(self, **attrs):
@@ -45,7 +56,7 @@ class Proxy(proxy.BaseProxy):
                            a :class:`~openstack.compute.v2.flavor.Flavor`,
                            comprised of the properties on the Flavor class.
 
-        :returns: The results of server creation
+        :returns: The results of flavor creation
         :rtype: :class:`~openstack.compute.v2.flavor.Flavor`
         """
         return self._create(flavor.Flavor, **attrs)
@@ -59,7 +70,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the flavor does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent flavor.
 
         :returns: ``None``
         """
@@ -114,13 +125,18 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the image does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent image.
 
         :returns: ``None``
         """
         self._delete(image.Image, value, ignore_missing)
 
     def find_image(self, name_or_id):
+        """Find a single image
+
+        :param name_or_id: The name or ID of a image.
+        :returns: One :class:`~openstack.compute.v2.image.Image` or None
+        """
         return image.Image.find(self.session, name_or_id)
 
     def get_image(self, value):
@@ -157,7 +173,7 @@ class Proxy(proxy.BaseProxy):
                            a :class:`~openstack.compute.v2.keypair.Keypair`,
                            comprised of the properties on the Keypair class.
 
-        :returns: The results of server creation
+        :returns: The results of keypair creation
         :rtype: :class:`~openstack.compute.v2.keypair.Keypair`
         """
         return self._create(keypair.Keypair, **attrs)
@@ -171,7 +187,7 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the keypair does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent keypair.
 
         :returns: ``None``
         """
@@ -190,6 +206,11 @@ class Proxy(proxy.BaseProxy):
         return self._get(keypair.Keypair, value)
 
     def find_keypair(self, name_or_id):
+        """Find a single keypair
+
+        :param name_or_id: The name or ID of a keypair.
+        :returns: One :class:`~openstack.compute.v2.keypair.Keypair` or None
+        """
         return keypair.Keypair.find(self.session, name_or_id)
 
     def keypairs(self):
@@ -251,6 +272,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(server.Server, value, ignore_missing)
 
     def find_server(self, name_or_id):
+        """Find a single server
+
+        :param name_or_id: The name or ID of a server.
+        :returns: One :class:`~openstack.compute.v2.server.Server` or None
+        """
         return server.Server.find(self.session, name_or_id)
 
     def get_server(self, value):
@@ -350,7 +376,7 @@ class Proxy(proxy.BaseProxy):
             a :class:`~openstack.compute.v2.server_interface.ServerInterface`,
             comprised of the properties on the ServerInterface class.
 
-        :returns: The results of server creation
+        :returns: The results of server interface creation
         :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
         """
         return self._create(server_interface.ServerInterface, **attrs)
@@ -365,13 +391,19 @@ class Proxy(proxy.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the server interface does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent server interface.
 
         :returns: ``None``
         """
         self._delete(server_interface.ServerInterface, value, ignore_missing)
 
     def find_server_interface(self, name_or_id):
+        """Find a single server interface
+
+        :param name_or_id: The name or ID of a server interface.
+        :returns: One :class:`~openstack.compute.v2.server_interface.
+                  ServerInterface` or None
+        """
         return server_interface.ServerInterface.find(self.session, name_or_id)
 
     def get_server_interface(self, value):
@@ -412,6 +444,11 @@ class Proxy(proxy.BaseProxy):
         return self._update(server_interface.ServerInterface, value, **attrs)
 
     def find_server_ip(self, name_or_id):
+        """Find a single server IP
+
+        :param name_or_id: The name or ID of a server IP.
+        :returns: One :class:`~openstack.compute.v2.server_ip.ServerIP` or None
+        """
         return server_ip.ServerIP.find(self.session, name_or_id)
 
     def server_ips(self):
