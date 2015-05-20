@@ -46,6 +46,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(role.Role, value, ignore_missing)
 
     def find_role(self, name_or_id):
+        """Find a single role
+
+        :param name_or_id: The name or ID of a role.
+        :returns: One :class:`~openstack.compute.v2.role.Role` or None
+        """
         return role.Role.find(self.session, name_or_id)
 
     def get_role(self, value):
@@ -109,6 +114,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(tenant.Tenant, value, ignore_missing)
 
     def find_tenant(self, name_or_id):
+        """Find a single tenant
+
+        :param name_or_id: The name or ID of a tenant.
+        :returns: One :class:`~openstack.compute.v2.tenant.Tenant` or None
+        """
         return tenant.Tenant.find(self.session, name_or_id)
 
     def get_tenant(self, value):
@@ -172,6 +182,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(user.User, value, ignore_missing)
 
     def find_user(self, name_or_id):
+        """Find a single user
+
+        :param name_or_id: The name or ID of a user.
+        :returns: One :class:`~openstack.compute.v2.user.User` or None
+        """
         return user.User.find(self.session, name_or_id)
 
     def get_user(self, value):
