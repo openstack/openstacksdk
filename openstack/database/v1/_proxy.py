@@ -47,6 +47,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(database.Database, value, ignore_missing)
 
     def find_database(self, name_or_id):
+        """Find a single database
+
+        :param name_or_id: The name or ID of a database.
+        :returns: One :class:`~openstack.compute.v2.database.Database` or None
+        """
         return database.Database.find(self.session, name_or_id)
 
     def databases(self):
@@ -71,6 +76,11 @@ class Proxy(proxy.BaseProxy):
         return self._get(database.Database, value)
 
     def find_flavor(self, name_or_id):
+        """Find a single flavor
+
+        :param name_or_id: The name or ID of a flavor.
+        :returns: One :class:`~openstack.compute.v2.flavor.Flavor` or None
+        """
         return flavor.Flavor.find(self.session, name_or_id)
 
     def get_flavor(self, value):
@@ -121,6 +131,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(instance.Instance, value, ignore_missing)
 
     def find_instance(self, name_or_id):
+        """Find a single instance
+
+        :param name_or_id: The name or ID of a instance.
+        :returns: One :class:`~openstack.compute.v2.instance.Instance` or None
+        """
         return instance.Instance.find(self.session, name_or_id)
 
     def get_instance(self, value):
@@ -186,6 +201,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(user.User, value, ignore_missing)
 
     def find_user(self, name_or_id):
+        """Find a single user
+
+        :param name_or_id: The name or ID of a user.
+        :returns: One :class:`~openstack.compute.v2.user.User` or None
+        """
         return user.User.find(self.session, name_or_id)
 
     def users(self):
