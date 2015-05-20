@@ -46,6 +46,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(image.Image, value, ignore_missing)
 
     def find_image(self, name_or_id):
+        """Find a single image
+
+        :param name_or_id: The name or ID of a image.
+        :returns: One :class:`~openstack.compute.v2.image.Image` or None
+        """
         return image.Image.find(self.session, name_or_id)
 
     def get_image(self, value):
@@ -109,6 +114,11 @@ class Proxy(proxy.BaseProxy):
         self._delete(member.Member, value, ignore_missing)
 
     def find_member(self, name_or_id):
+        """Find a single member
+
+        :param name_or_id: The name or ID of a member.
+        :returns: One :class:`~openstack.compute.v2.member.Member` or None
+        """
         return member.Member.find(self.session, name_or_id)
 
     def get_member(self, value):
