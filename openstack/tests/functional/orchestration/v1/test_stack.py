@@ -24,11 +24,16 @@ class TestStack(base.BaseFunctionalTest):
         super(TestStack, cls).setUpClass()
         if cls.conn.compute.find_keypair(cls.NAME) is None:
             cls.conn.compute.create_keypair(name=cls.NAME)
+        image = cls.conn.image.find_image('fedora-20.x86_64')
+        if image is None:
+            image = cls.conn.image.find_image('cirros-0.3.4-x86_64-uec')
+        if image is None:
+            image = cls.conn.image.images().next()
         template_url = ('http://git.openstack.org/cgit/openstack/' +
                         'heat-templates/plain/hot/F20/WordPress_Native.yaml')
         sot = cls.conn.orchestration.create_stack(
             name=cls.NAME,
-            parameters={'key_name': cls.NAME, 'image_id': 'fedora-20.x86_64'},
+            parameters={'key_name': cls.NAME, 'image_id': image.id},
             template_url=template_url,
         )
         assert isinstance(sot, stack.Stack)
@@ -44,5 +49,5 @@ class TestStack(base.BaseFunctionalTest):
         cls.conn.compute.delete_keypair(cls.NAME)
 
     def test_list(self):
-        names = [o.name for o in self.conn.orchestration.list_stacks()]
+        names = [o.name for o in self.conn.orchestration.stacks()]
         self.assertIn(self.NAME, names)

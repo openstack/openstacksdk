@@ -9,9 +9,11 @@ DIR=$(cd $(dirname "$0") && pwd)
 echo "Running SDK functional test suite"
 sudo -H -u stack -i <<!
 source ~stack/devstack/accrc/admin/admin
-export OS_CLOUD=envvars
+export OS_CLOUD=test_cloud
 echo 'Running tests with:'
 env | grep OS_
+${DIR}/create_yaml.sh
+
 cd ${DIR}
 tox -e functional
 !
