@@ -1,9 +1,9 @@
-Using the OpenStack Object Store API
-====================================
+Using OpenStack Object Store
+============================
 
 The Object Store API operates on two things: containers and objects.
 
-Before working with the ``object_store`` API, you'll need to obtain a
+Before working with ``object_store``, you'll need to obtain a
 :class:`~openstack.connection.Connection` object like so.
 
 .. literalinclude:: /code/connection.py
