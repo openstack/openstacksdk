@@ -40,7 +40,7 @@ class TestStack(base.BaseFunctionalTest):
     @classmethod
     def tearDownClass(cls):
         super(TestStack, cls).tearDownClass()
-        cls.conn.orchestration.delete_stack(cls.ID)
+        cls.conn.orchestration.delete_stack(cls.ID, ignore_missing=False)
         cls.conn.compute.delete_keypair(cls.NAME)
 
     def test_list(self):
