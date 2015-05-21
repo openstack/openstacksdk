@@ -52,8 +52,8 @@ class Proxy(proxy.BaseProxy):
         """Create a new floating ip from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-               a :class:`~openstack.network.v2.floating_ip.FloatingIP`,
-               comprised of the properties on the FloatingIP class.
+            a :class:`~openstack.network.v2.floating_ip.FloatingIP`,
+            comprised of the properties on the FloatingIP class.
 
         :returns: The results of floating ip creation
         :rtype: :class:`~openstack.network.v2.floating_ip.FloatingIP`
@@ -131,8 +131,8 @@ class Proxy(proxy.BaseProxy):
         """Create a new health monitor from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-               a :class:`~openstack.network.v2.health_monitor.HealthMonitor`,
-               comprised of the properties on the HealthMonitor class.
+            a :class:`~openstack.network.v2.health_monitor.HealthMonitor`,
+            comprised of the properties on the HealthMonitor class.
 
         :returns: The results of health monitor creation
         :rtype: :class:`~openstack.network.v2.health_monitor.HealthMonitor`
@@ -274,8 +274,8 @@ class Proxy(proxy.BaseProxy):
         """Create a new load balancer from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-               a :class:`~openstack.network.v2.load_balancer.LoadBalancer`,
-               comprised of the properties on the LoadBalancer class.
+            a :class:`~openstack.network.v2.load_balancer.LoadBalancer`,
+            comprised of the properties on the LoadBalancer class.
 
         :returns: The results of load balancer creation
         :rtype: :class:`~openstack.network.v2.load_balancer.LoadBalancer`
@@ -346,8 +346,8 @@ class Proxy(proxy.BaseProxy):
         """Create a new metering label from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-               a :class:`~openstack.network.v2.metering_label.MeteringLabel`,
-               comprised of the properties on the MeteringLabel class.
+            a :class:`~openstack.network.v2.metering_label.MeteringLabel`,
+            comprised of the properties on the MeteringLabel class.
 
         :returns: The results of metering label creation
         :rtype: :class:`~openstack.network.v2.metering_label.MeteringLabel`
@@ -418,13 +418,14 @@ class Proxy(proxy.BaseProxy):
     def create_metering_label_rule(self, **attrs):
         """Create a new metering label rule from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
-        a :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`,
-        comprised of the properties on the MeteringLabelRule class.
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.metering_label_rule.\
+            MeteringLabelRule`, comprised of the properties on
+            the MeteringLabelRule class.
 
         :returns: The results of metering label rule creation
-        :rtype:
-        :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
+        :rtype: :class:`~openstack.network.v2.metering_label_rule.\
+                MeteringLabelRule`
         """
         return self._create(metering_label_rule.MeteringLabelRule, **attrs)
 
@@ -432,14 +433,13 @@ class Proxy(proxy.BaseProxy):
         """Delete a metering label rule
 
         :param value: The value can be either the ID of a metering label rule
-        or a
-        :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
-        instance.
+            or a :class:`~openstack.network.v2.metering_label_rule.\
+            MeteringLabelRule` instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the metering label rule does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent metering label rule.
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the metering label rule does not exist.  When set to ``True``,
+            no exception will be set when attempting to delete a nonexistent
+            metering label rule.
 
         :returns: ``None``
         """
@@ -460,11 +460,12 @@ class Proxy(proxy.BaseProxy):
         """Get a single metering label rule
 
         :param value: The value can be the ID of a metering label rule or a
-        :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
-        instance.
+            :class:`~openstack.network.v2.metering_label_rule.\
+            MeteringLabelRule` instance.
 
         :returns: One
-        :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
+            :class:`~openstack.network.v2.metering_label_rule.\
+            MeteringLabelRule`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
@@ -503,8 +504,7 @@ class Proxy(proxy.BaseProxy):
                            comprised of the properties on the Network class.
 
         :returns: The results of network creation
-        :rtype:
-        :class:`~openstack.network.v2.network.Network`
+        :rtype: :class:`~openstack.network.v2.network.Network`
         """
         return self._create(network.Network, **attrs)
 
@@ -572,8 +572,7 @@ class Proxy(proxy.BaseProxy):
                            comprised of the properties on the Pool class.
 
         :returns: The results of pool creation
-        :rtype:
-        :class:`~openstack.network.v2.pool.Pool`
+        :rtype: :class:`~openstack.network.v2.pool.Pool`
         """
         return self._create(pool.Pool, **attrs)
 
@@ -637,12 +636,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new pool member from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-               a :class:`~openstack.network.v2.pool_member.PoolMember`,
-               comprised of the properties on the PoolMember class.
+            a :class:`~openstack.network.v2.pool_member.PoolMember`,
+            comprised of the properties on the PoolMember class.
 
         :returns: The results of pool member creation
-        :rtype:
-        :class:`~openstack.network.v2.pool_member.PoolMember`
+        :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
         return self._create(pool_member.PoolMember, **attrs)
 
@@ -714,8 +712,7 @@ class Proxy(proxy.BaseProxy):
                            comprised of the properties on the Port class.
 
         :returns: The results of port creation
-        :rtype:
-        :class:`~openstack.network.v2.port.Port`
+        :rtype: :class:`~openstack.network.v2.port.Port`
         """
         return self._create(port.Port, **attrs)
 
@@ -808,8 +805,7 @@ class Proxy(proxy.BaseProxy):
                            comprised of the properties on the Router class.
 
         :returns: The results of router creation
-        :rtype:
-        :class:`~openstack.network.v2.router.Router`
+        :rtype: :class:`~openstack.network.v2.router.Router`
         """
         return self._create(router.Router, **attrs)
 
@@ -879,12 +875,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new security group from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-               a :class:`~openstack.network.v2.security_group.SecurityGroup`,
-               comprised of the properties on the SecurityGroup class.
+            a :class:`~openstack.network.v2.security_group.SecurityGroup`,
+            comprised of the properties on the SecurityGroup class.
 
         :returns: The results of security group creation
-        :rtype:
-        :class:`~openstack.network.v2.security_group.SecurityGroup`
+        :rtype: :class:`~openstack.network.v2.security_group.SecurityGroup`
         """
         return self._create(security_group.SecurityGroup, **attrs)
 
@@ -939,9 +934,8 @@ class Proxy(proxy.BaseProxy):
         """Update a security group
 
         :param value: Either the id of a security group or a
-                      :class:`~openstack.network.v2.security_group.
-                              SecurityGroup`
-                      instance.
+            :class:`~openstack.network.v2.security_group.SecurityGroup`
+            instance.
         :attrs kwargs: The attributes to update on the security group
                        represented by ``value``.
 
@@ -977,13 +971,14 @@ class Proxy(proxy.BaseProxy):
     def create_security_group_rule(self, **attrs):
         """Create a new security group rule from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
-        a :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`,
-        comprised of the properties on the SecurityGroupRule class.
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.security_group_rule.
+            SecurityGroupRule`, comprised of the properties on the
+            SecurityGroupRule class.
 
         :returns: The results of security group rule creation
-        :rtype:
-        :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
+        :rtype: :class:`~openstack.network.v2.security_group_rule.\
+            SecurityGroupRule`
         """
         return self._create(security_group_rule.SecurityGroupRule, **attrs)
 
@@ -991,9 +986,8 @@ class Proxy(proxy.BaseProxy):
         """Delete a security group rule
 
         :param value: The value can be either the ID of a security group rule
-        or a
-        :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
-        instance.
+            or a :class:`~openstack.network.v2.security_group_rule.
+            SecurityGroupRule` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the security group rule does not exist.
@@ -1019,11 +1013,11 @@ class Proxy(proxy.BaseProxy):
         """Get a single security group rule
 
         :param value: The value can be the ID of a security group rule or a
-        :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
-        instance.
+            :class:`~openstack.network.v2.security_group_rule.\
+            SecurityGroupRule` instance.
 
-        :returns: One
-        :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
+        :returns: :class:`~openstack.network.v2.security_group_rule.\
+            SecurityGroupRule`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
@@ -1062,8 +1056,7 @@ class Proxy(proxy.BaseProxy):
                            comprised of the properties on the Subnet class.
 
         :returns: The results of subnet creation
-        :rtype:
-        :class:`~openstack.network.v2.subnet.Subnet`
+        :rtype: :class:`~openstack.network.v2.subnet.Subnet`
         """
         return self._create(subnet.Subnet, **attrs)
 
