@@ -9,7 +9,7 @@ Session
 -------
 
 The :class:`openstack.session.Session` manages an authenticator,
-transport, and user preferences. It exposes methods corresponding to
+transport, and user profile. It exposes methods corresponding to
 HTTP verbs, and injects your authentication token into a request,
 determines any service preferences callers may have set, gets the endpoint
 from the authenticator, and sends the request out through the transport.
