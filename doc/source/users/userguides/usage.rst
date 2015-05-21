@@ -10,7 +10,7 @@ To use python-openstacksdk in a project::
     from openstack import connection
     from openstack import profile
 
-    # First, specify your preferences
+    # First, specify your profile
     prof = profile.Profile()
     prof.set_region('network', 'zion')
 
@@ -23,7 +23,7 @@ To use python-openstacksdk in a project::
     }
 
     # Third, create a connection
-    conn = connection.Connection(preference=prof, **auth_args)
+    conn = connection.Connection(profile=prof, **auth_args)
 
     # Finally, access your desired services
     network = conn.network.find_network("matrix")

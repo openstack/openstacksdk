@@ -50,7 +50,7 @@ Connection Interface
 ********************
 
 A *Connection* instance maintains your session, authentication, transport,
-and preferences, providing you with a set of higher-level interfaces to work
+and profile, providing you with a set of higher-level interfaces to work
 with OpenStack services.
 
 .. toctree::
@@ -60,7 +60,7 @@ with OpenStack services.
    profile
 
 Once you have a *Connection* instance, the following services may be exposed
-to you. Your user preferences determine the full set of exposed services,
+to you. Your user profile determine the full set of exposed services,
 but listed below are the ones provided by this SDK by default.
 
 .. toctree::
