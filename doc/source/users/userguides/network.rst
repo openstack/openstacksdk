@@ -1,5 +1,5 @@
 Using OpenStack Network
-===================
+=======================
 
 Before working with ``network``, you'll need to obtain a
 :class:`~openstack.connection.Connection` object like so.
