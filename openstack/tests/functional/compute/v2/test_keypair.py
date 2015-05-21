@@ -38,11 +38,11 @@ class TestKeypair(base.BaseFunctionalTest):
         sot = self.conn.compute.find_keypair(self.NAME)
         self.assertEqual(self.ID, sot.id)
 
-#    def test_get(self):
-#        sot = self.conn.compute.get_keypair(self.NAME)
-#        self.assertEqual(self.NAME, sot.name)
-#        self.assertEqual(self.ID, sot.id)
-#
+    def test_get(self):
+        sot = self.conn.compute.get_keypair(self.NAME)
+        self.assertEqual(self.NAME, sot.name)
+        self.assertEqual(self.ID, sot.id)
+
     def test_list(self):
         names = [o.name for o in self.conn.compute.keypairs()]
         self.assertIn(self.NAME, names)

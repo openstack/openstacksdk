@@ -68,7 +68,8 @@ class BaseProxy(object):
                  is attempted to be deleted.
 
         """
-        res = resource_type.existing(id=resource.Resource.get_id(value))
+        args = {resource_type.id_attribute: resource.Resource.get_id(value)}
+        res = resource_type.existing(**args)
 
         try:
             rv = res.delete(self.session)
@@ -99,7 +100,8 @@ class BaseProxy(object):
         :returns: The result of the ``update``
         :rtype: :class:`~openstack.resource.Resource`
         """
-        res = resource_type.existing(id=resource.Resource.get_id(value))
+        args = {resource_type.id_attribute: resource.Resource.get_id(value)}
+        res = resource_type.existing(**args)
         res.update_attrs(attrs)
         return res.update(self.session)
 
@@ -132,7 +134,8 @@ class BaseProxy(object):
         :rtype: :class:`~openstack.resource.Resource`
         """
 
-        res = resource_type.existing(id=resource.Resource.get_id(value))
+        args = {resource_type.id_attribute: resource.Resource.get_id(value)}
+        res = resource_type.existing(**args)
         try:
             return res.get(self.session)
         except exceptions.NotFoundException as exc:
@@ -176,7 +179,9 @@ class BaseProxy(object):
         :rtype: :class:`~openstack.resource.Resource`
         """
         if value is not None:
-            res = resource_type.existing(id=resource.Resource.get_id(value))
+            args = {
+                resource_type.id_attribute: resource.Resource.get_id(value)}
+            res = resource_type.existing(**args)
         else:
             res = resource_type()
 
