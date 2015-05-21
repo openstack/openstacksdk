@@ -17,7 +17,7 @@ from openstack import resource
 class HealthMonitor(resource.Resource):
     resource_key = 'healthmonitor'
     resources_key = 'healthmonitors'
-    base_path = '/healthmonitors'
+    base_path = '/lbaas/healthmonitors'
     service = network_service.NetworkService()
 
     # capabilities

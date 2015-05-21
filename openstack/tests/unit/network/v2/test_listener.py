@@ -34,7 +34,7 @@ class TestListener(testtools.TestCase):
         sot = listener.Listener()
         self.assertEqual('listener', sot.resource_key)
         self.assertEqual('listeners', sot.resources_key)
-        self.assertEqual('/listeners', sot.base_path)
+        self.assertEqual('/lbaas/listeners', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)

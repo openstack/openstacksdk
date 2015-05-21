@@ -17,7 +17,7 @@ from openstack import resource
 class Listener(resource.Resource):
     resource_key = 'listener'
     resources_key = 'listeners'
-    base_path = '/listeners'
+    base_path = '/lbaas/listeners'
     service = network_service.NetworkService()
 
     # capabilities

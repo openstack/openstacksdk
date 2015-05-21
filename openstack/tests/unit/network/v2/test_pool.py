@@ -36,7 +36,7 @@ class TestPool(testtools.TestCase):
         sot = pool.Pool()
         self.assertEqual('pool', sot.resource_key)
         self.assertEqual('pools', sot.resources_key)
-        self.assertEqual('/pools', sot.base_path)
+        self.assertEqual('/lbaas/pools', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)
