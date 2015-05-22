@@ -33,6 +33,7 @@ CLOUD_DEFAULTS = dict(
         image_api_use_tasks=True,
         image_format='vhd',
         floating_ip_source=None,
+        secgroup_source=None,
     ),
     dreamhost=dict(
         auth=dict(

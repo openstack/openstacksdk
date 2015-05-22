@@ -24,6 +24,7 @@ region-b.geo-1 US East
 * Image API Version is 1
 * Images must be in `qcow2` format
 * Floating IPs are provided by Neutron
+* Security groups are provided by Neutron
 
 Rackspace
 ---------
@@ -46,6 +47,7 @@ HKG            Hong Kong
 * Images must be in `vhd` format
 * Images must be uploaded using the Glance Task Interface
 * Floating IPs are not needed
+* Security groups are not supported
 
 Dreamhost
 ---------
@@ -61,6 +63,7 @@ RegionOne      Region One
 * Image API Version is 2
 * Images must be in `raw` format
 * Floating IPs are provided by Neutron
+* Security groups are provided by Neutron
 
 Vexxhost
 --------
@@ -76,6 +79,7 @@ ca-ymq-1       Montreal
 * Image API Version is 2
 * Images must be in `qcow2` format
 * Floating IPs are not needed
+* Security groups are provided by Neutron
 
 RunAbove
 --------
@@ -92,6 +96,7 @@ BHS-1          Beauharnois, QC
 * Image API Version is 2
 * Images must be in `qcow2` format
 * Floating IPs are not needed
+* Security groups are provided by Neutron
 
 UnitedStack
 -----------
@@ -109,3 +114,4 @@ gd1            Guangdong
 * Image API Version is 2
 * Images must be in `raw` format
 * Floating IPs are not needed
+* Security groups are provided by Neutron
