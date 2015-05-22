@@ -98,6 +98,7 @@ The following services have exposed *Resource* classes.
    Database <resources/database/index>
    Network <resources/network/index>
    Object Store <resources/object_store/index>
+   Telemetry <resources/telemetry/index>
    Volume <resources/volume/index>
 
 Low-Level Classes
