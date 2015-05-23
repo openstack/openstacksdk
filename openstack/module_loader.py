@@ -11,7 +11,7 @@
 # under the License.
 
 """
-Load various modules for authorization and services.
+Load various modules for authorization and eventually services.
 """
 from stevedore import extension
 
@@ -21,12 +21,14 @@ from openstack import exceptions
 class ModuleLoader(object):
 
     def __init__(self):
+        """Create a module loader."""
         self.auth_mgr = extension.ExtensionManager(
             namespace="openstack.auth.plugin",
             invoke_on_load=False,
         )
 
     def get_auth_plugin(self, plugin_name):
+        """Get an authentication plugin by name."""
         if not plugin_name:
             plugin_name = 'identity'
         try:
@@ -36,4 +38,5 @@ class ModuleLoader(object):
             raise exceptions.NoMatchingPlugin(msg)
 
     def list_auth_plugins(self):
+        """Get a list of all the authentication plugins."""
         return self.auth_mgr.names()

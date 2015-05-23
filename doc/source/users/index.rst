@@ -117,6 +117,7 @@ can be customized.
    identity_base
    identity_v2
    identity_v3
+   module_loader
    resource
    service_filter
    utils
