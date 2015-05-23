@@ -96,6 +96,7 @@ The following services have exposed *Resource* classes.
 
    Compute <resources/compute/index>
    Database <resources/database/index>
+   Identity <resources/identity/index>
    Network <resources/network/index>
    Object Store <resources/object_store/index>
    Volume <resources/volume/index>
