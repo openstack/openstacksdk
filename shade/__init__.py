@@ -556,25 +556,29 @@ class OpenStackCloud(object):
 
     @property
     def glance_client(self):
-        if self._glance_client is None:
-            token = self.auth_token
-            endpoint = self.get_session_endpoint('image')
-            glance_api_version = self._get_glance_api_version()
-            kwargs = dict()
-            if self.api_timeout is not None:
-                kwargs['timeout'] = self.api_timeout
-            try:
-                self._glance_client = glanceclient.Client(
-                    glance_api_version, endpoint, token=token,
-                    session=self.keystone_session,
-                    **kwargs)
-            except Exception as e:
-                self.log.debug("glance unknown issue", exc_info=True)
-                raise OpenStackCloudException(
-                    "Error in connecting to glance: %s" % str(e))
+        # Note that glanceclient doesn't use keystoneclient sessions
+        # which means that it won't make a new token if the old one has
+        # expired. Work around that by always making a new glanceclient here
+        # which may create a new token if the current one is close to
+        # expiration.
+        token = self.auth_token
+        endpoint = self.get_session_endpoint('image')
+        glance_api_version = self._get_glance_api_version()
+        kwargs = dict()
+        if self.api_timeout is not None:
+            kwargs['timeout'] = self.api_timeout
+        try:
+            self._glance_client = glanceclient.Client(
+                glance_api_version, endpoint, token=token,
+                session=self.keystone_session,
+                **kwargs)
+        except Exception as e:
+            self.log.debug("glance unknown issue", exc_info=True)
+            raise OpenStackCloudException(
+                "Error in connecting to glance: %s" % str(e))
 
-            if not self._glance_client:
-                raise OpenStackCloudException("Error connecting to glance")
+        if not self._glance_client:
+            raise OpenStackCloudException("Error connecting to glance")
         return self._glance_client
 
     @property
