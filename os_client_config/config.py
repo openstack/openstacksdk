@@ -404,8 +404,12 @@ class OpenStackConfig(object):
             if hasattr(value, 'format'):
                 config[key] = value.format(**config)
 
+        if cloud is None:
+            cloud_name = ''
+        else:
+            cloud_name = str(cloud)
         return cloud_config.CloudConfig(
-            name=cloud, region=config['region_name'], config=config)
+            name=cloud_name, region=config['region_name'], config=config)
 
 if __name__ == '__main__':
     config = OpenStackConfig().get_all_clouds()

@@ -29,7 +29,9 @@ class TestConfig(base.TestCase):
     def test_get_one_cloud(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
-        self.assertIsInstance(c.get_one_cloud(), cloud_config.CloudConfig)
+        cloud = c.get_one_cloud()
+        self.assertIsInstance(cloud, cloud_config.CloudConfig)
+        self.assertEqual(cloud.name, '')
 
     def test_get_one_cloud_auth_defaults(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml])
