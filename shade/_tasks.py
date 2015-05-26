@@ -124,7 +124,7 @@ class RouterDelete(task_manager.Task):
 
 class GlanceImageList(task_manager.Task):
     def main(self, client):
-        return client.glance_client.images.list()
+        return [image for image in self.args['image_gen']]
 
 
 class NovaImageList(task_manager.Task):

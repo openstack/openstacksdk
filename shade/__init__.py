@@ -953,11 +953,14 @@ class OpenStackCloud(object):
         # First, try to actually get images from glance, it's more efficient
         images = []
         try:
-            # If the cloud does not expose the glance API publically
-            image_gen = self.manager.submitTask(_tasks.GlanceImageList())
 
+            # Creates a generator - does not actually talk to the cloud API
+            # hardcoding page size for now. We'll have to get MUCH smarter
+            # if we want to deal with page size per unit of rate limiting
+            image_gen = self.glance_client.images.list(page_size=1000)
             # Deal with the generator to make a list
-            image_list = [image for image in image_gen]
+            image_list = self.manager.submitTask(
+                _tasks.GlanceImageList(image_gen=image_gen))
 
             if image_list:
                 if getattr(image_list[0], 'validate', None):
