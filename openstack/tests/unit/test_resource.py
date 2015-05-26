@@ -1190,13 +1190,14 @@ class FakeResponse(object):
 class TestFind(base.TestCase):
     NAME = 'matrix'
     ID = 'Fishburne'
+    PROP = 'attribute2'
 
     def setUp(self):
         super(TestFind, self).setUp()
         self.mock_session = mock.Mock()
         self.mock_get = mock.Mock()
         self.mock_session.get = self.mock_get
-        self.matrix = {'id': self.ID}
+        self.matrix = {'id': self.ID, 'prop': self.PROP}
 
     def test_name(self):
         self.mock_get.side_effect = [
@@ -1208,7 +1209,9 @@ class TestFind(base.TestCase):
                                    path_args=fake_arguments)
 
         self.assertEqual(self.ID, result.id)
-        p = {'fields': 'id', 'name': self.NAME}
+        self.assertEqual(self.PROP, result.prop)
+
+        p = {'name': self.NAME}
         path = fake_path + "?limit=2"
         self.mock_get.assert_any_call(path, params=p, service=None)
 
@@ -1221,7 +1224,9 @@ class TestFind(base.TestCase):
                                    path_args=fake_arguments)
 
         self.assertEqual(self.ID, result.id)
-        p = {'fields': 'id', 'id': self.ID}
+        self.assertEqual(self.PROP, result.prop)
+
+        p = {'id': self.ID}
         path = fake_path + "?limit=2"
         self.mock_get.assert_any_call(path, params=p, service=None)
 
@@ -1234,10 +1239,10 @@ class TestFind(base.TestCase):
 
         result = FakeResource.find(self.mock_session, self.NAME,
                                    path_args=fake_arguments)
-
         FakeResource.name_attribute = 'name'
         self.assertEqual(self.ID, result.id)
-        p = {'fields': 'id', 'nameo': self.NAME}
+
+        p = {'nameo': self.NAME}
         path = fake_path + "?limit=2"
         self.mock_get.assert_any_call(path, params=p, service=None)
 
@@ -1250,7 +1255,7 @@ class TestFind(base.TestCase):
                           self.mock_session, self.NAME)
 
     def test_id_attribute_find(self):
-        floater = {'ip_address': "127.0.0.1"}
+        floater = {'ip_address': "127.0.0.1", 'prop': self.PROP}
         self.mock_get.side_effect = [
             FakeResponse({FakeResource.resources_key: [floater]})
         ]
@@ -1259,9 +1264,11 @@ class TestFind(base.TestCase):
         result = FakeResource.find(self.mock_session, "127.0.0.1",
                                    path_args=fake_arguments)
         self.assertEqual("127.0.0.1", result.id)
+        self.assertEqual(self.PROP, result.prop)
+
         FakeResource.id_attribute = 'id'
 
-        p = {'fields': 'ip_address', 'ip_address': "127.0.0.1"}
+        p = {'ip_address': "127.0.0.1"}
         path = fake_path + "?limit=2"
         self.mock_get.assert_any_call(path, params=p, service=None)
 

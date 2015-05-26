@@ -937,7 +937,6 @@ class Resource(collections.MutableMapping):
         try:
             args = {
                 cls.id_attribute: name_or_id,
-                'fields': cls.id_attribute,
                 'path_args': path_args,
             }
             info = cls.page(session, limit=2, **args)
@@ -947,8 +946,7 @@ class Resource(collections.MutableMapping):
             pass
 
         if cls.name_attribute:
-            params = {cls.name_attribute: name_or_id,
-                      'fields': cls.id_attribute}
+            params = {cls.name_attribute: name_or_id}
             info = cls.page(session, limit=2, path_args=path_args, **params)
             if len(info) == 1:
                 return cls.existing(**info[0])
