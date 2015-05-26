@@ -263,7 +263,6 @@ class OpenStackCloud(object):
         self._file_hash_cache = dict()
 
         self._keystone_session = None
-        self._auth_token = None
 
         self._cinder_client = None
         self._glance_client = None
@@ -390,9 +389,9 @@ class OpenStackCloud(object):
 
     @property
     def auth_token(self):
-        if not self._auth_token:
-            self._auth_token = self.keystone_session.get_token()
-        return self._auth_token
+        # Keystone's session will reuse a token if it is still valid.
+        # We don't need to track validity here, just get_token() each time.
+        return self.keystone_session.get_token()
 
     @property
     def project_cache(self):
@@ -2249,10 +2248,13 @@ class OperatorCloud(OpenStackCloud):
     @property
     def auth_token(self):
         if self.auth_type in (None, "None", ''):
-            return self._auth_token
-        if not self._auth_token:
-            self._auth_token = self.keystone_session.get_token()
-        return self._auth_token
+            # Ironic can operate in no keystone mode. Signify this with a
+            # token of None.
+            return None
+        else:
+            # Keystone's session will reuse a token if it is still valid.
+            # We don't need to track validity here, just get_token() each time.
+            return self.keystone_session.get_token()
 
     @property
     def ironic_client(self):
