@@ -361,3 +361,24 @@ class TestMemoryCache(base.TestCase):
         glance_mock.images.update.assert_called_with(**args)
         fake_image_dict = meta.obj_to_dict(fake_image)
         self.assertEqual([fake_image_dict], self.cloud.list_images())
+
+    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
+    def test_cache_no_cloud_name(self, glance_mock):
+        class FakeImage(dict):
+            id = 1
+            status = 'active'
+            name = 'None Test Image'
+        fi = FakeImage(id=FakeImage.id, status=FakeImage.status,
+                       name=FakeImage.name)
+        glance_mock.images.list.return_value = [fi]
+        self.cloud.name = None
+        self.assertEqual([fi], [dict(x) for x in self.cloud.list_images()])
+        # Now test that the list was cached
+        fi2 = FakeImage(id=2, status=FakeImage.status, name=FakeImage.name)
+        fi2.id = 2
+        glance_mock.images.list.return_value = [fi, fi2]
+        self.assertEqual([fi], [dict(x) for x in self.cloud.list_images()])
+        # Invalidation too
+        self.cloud.list_images.invalidate(self.cloud)
+        self.assertEqual(
+            [fi, fi2], [dict(x) for x in self.cloud.list_images()])

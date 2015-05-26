@@ -295,7 +295,7 @@ class OpenStackCloud(object):
             kwargs_key = ','.join(
                 ['%s:%s' % (k, kwargs[k]) for k in kw_keys if k != 'cache'])
             ans = "_".join(
-                [name_key, fname, arg_key, kwargs_key])
+                [str(name_key), fname, arg_key, kwargs_key])
             return ans
         return generate_key
 
