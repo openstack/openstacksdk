@@ -10,7 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
+import six
+
+from openstack import exceptions
 from openstack.orchestration.v1 import _proxy
+from openstack.orchestration.v1 import resource
 from openstack.orchestration.v1 import stack
 from openstack.tests.unit import test_proxy_base
 
@@ -50,3 +55,48 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
             method_args=[value],
             expected_args=[value, 'CREATE_COMPLETE', ['CREATE_FAILED'],
                            2, 120])
+
+    @mock.patch.object(stack.Stack, 'from_id')
+    @mock.patch.object(stack.Stack, 'find')
+    def test_resources_with_stack_object(self, mock_find, mock_from):
+        stack_id = '1234'
+        stack_name = 'test_stack'
+        stack_identity = {'id': stack_id, 'name': stack_name}
+        stk = stack.Stack(attrs=stack_identity)
+        mock_from.return_value = stk
+
+        path_args = {'stack_id': stk.id, 'stack_name': stk.name}
+        self.verify_list(self.proxy.resources, resource.Resource,
+                         paginated=False,
+                         method_args=[stk],
+                         expected_kwargs={'path_args': path_args})
+
+        self.assertEqual(0, mock_find.call_count)
+
+    @mock.patch.object(stack.Stack, 'find')
+    def test_resources_with_stack_name(self, mock_find):
+        stack_name = 'test_stack'
+        stack_id = '1234'
+        stack_identity = {'id': stack_id, 'stack_name': stack_name}
+
+        stk = stack.Stack(attrs=stack_identity)
+        mock_find.return_value = stk
+
+        path_args = {'stack_id': stack_id, 'stack_name': stack_name}
+        self.verify_list(self.proxy.resources, resource.Resource,
+                         paginated=False,
+                         method_args=[stack_name],
+                         expected_kwargs={'path_args': path_args})
+        mock_find.assert_called_once_with(mock.ANY, stack_name)
+
+    @mock.patch.object(stack.Stack, 'find')
+    @mock.patch.object(resource.Resource, 'list')
+    def test_resources_stack_not_found(self, mock_list, mock_find):
+        stack_name = 'test_stack'
+        mock_find.side_effect = exceptions.ResourceNotFound(
+            'No stack found for test_stack')
+
+        ex = self.assertRaises(exceptions.ResourceNotFound,
+                               self.proxy.resources, stack_name)
+        self.assertEqual('ResourceNotFound: No stack found for test_stack',
+                         six.text_type(ex))
