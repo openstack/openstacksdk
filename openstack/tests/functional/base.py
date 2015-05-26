@@ -15,9 +15,41 @@ import unittest
 
 import os_client_config
 
+from openstack.auth import service_filter
 from openstack import connection
+from openstack import exceptions
 from openstack import profile
 from openstack import utils
+
+
+def requires_service(**kwargs):
+    """Check whether a service is available for this test
+
+    When the service exists, the test will be run as normal.
+    When the service does not exist, the test will be skipped.
+
+    Usage:
+    @requires_service(service_type="identity", version="v3")
+    def test_v3_auth(self):
+        ...
+
+    :param kwargs: The kwargs needed to create a
+                   :class:`~openstack.auth.service_filter.ServiceFilter`.
+
+    :returns: The test result if the test is executed.
+    :raises: SkipTest, which is handled by the test runner.
+    """
+    def wrap(method):
+        def check(self):
+            try:
+                self.conn.authenticator.get_endpoint(
+                    self.conn.transport,
+                    service_filter.ServiceFilter(**kwargs))
+                return method(self)
+            except exceptions.EndpointNotFound as exc:
+                self.skip(exc.message)
+        return check
+    return wrap
 
 
 class BaseFunctionalTest(unittest.TestCase):
