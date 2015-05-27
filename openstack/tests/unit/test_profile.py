@@ -24,6 +24,7 @@ class TestProfile(base.TestCase):
             'identity',
             'image',
             'keystore',
+            'messaging',
             'metering',
             'metric',
             'network',
