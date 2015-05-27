@@ -1970,6 +1970,11 @@ class OpenStackCloud(object):
         if not filename:
             filename = name
 
+        if not md5 or not sha256:
+            (md5, sha256) = self._get_file_hashes(filename)
+        headers[OBJECT_MD5_KEY] = md5
+        headers[OBJECT_SHA256_KEY] = sha256
+
         # On some clouds this is not necessary. On others it is. I'm confused.
         self.create_container(container)
 
@@ -1979,13 +1984,8 @@ class OpenStackCloud(object):
                     "swift uploading {filename} to {container}/{name}".format(
                         filename=filename, container=container, name=name))
                 self.manager.submitTask(_tasks.ObjectCreate(
-                    container=container, obj=name, contents=fileobj))
-
-        (md5, sha256) = self._get_file_hashes(filename)
-        headers[OBJECT_MD5_KEY] = md5
-        headers[OBJECT_SHA256_KEY] = sha256
-        self.manager.submitTask(_tasks.ObjectUpdate(
-            container=container, obj=name, headers=headers))
+                    container=container, obj=name, contents=fileobj,
+                    headers=headers))
 
     def delete_object(self, container, name):
         if not self.get_object_metadata(container, name):

@@ -347,11 +347,7 @@ class TestMemoryCache(base.TestCase):
                             'x-object-meta-x-shade-sha256': mock.ANY},
                 'obj': '99 name',
                 'container': 'image_upload_v2_test_container'}
-        swift_mock.post_object.assert_called_with(**args)
-        swift_mock.put_object.assert_called_with(
-            contents=mock.ANY,
-            obj='99 name',
-            container='image_upload_v2_test_container')
+        swift_mock.put_object.assert_called_with(contents=mock.ANY, **args)
         glance_mock.tasks.create.assert_called_with(type='import', input={
             'import_from': 'image_upload_v2_test_container/99 name',
             'image_properties': {'name': '99 name'}})
