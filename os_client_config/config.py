@@ -185,7 +185,7 @@ class OpenStackConfig(object):
     def _get_region(self, cloud=None):
         return self._get_regions(cloud).split(',')[0]
 
-    def _get_cloud_sections(self):
+    def get_cloud_names(self):
         return self.cloud_config['clouds'].keys()
 
     def _get_base_cloud_config(self, name):
@@ -267,7 +267,7 @@ class OpenStackConfig(object):
 
         clouds = []
 
-        for cloud in self._get_cloud_sections():
+        for cloud in self.get_cloud_names():
             for region in self._get_regions(cloud).split(','):
                 clouds.append(self.get_one_cloud(cloud, region_name=region))
         return clouds
@@ -370,7 +370,7 @@ class OpenStackConfig(object):
         :param kwargs: Additional configuration options
         """
 
-        if cloud is None and self.envvar_key in self._get_cloud_sections():
+        if cloud is None and self.envvar_key in self.get_cloud_names():
             cloud = self.envvar_key
 
         args = self._fix_args(kwargs, argparse=argparse)
