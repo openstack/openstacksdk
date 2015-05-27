@@ -414,7 +414,8 @@ class AccessInfoV3(AccessInfo):
     def __init__(self, token, **kwargs):
         super(AccessInfoV3, self).__init__(**kwargs)
         self._info.update(version='v3')
-        self.service_catalog = catalog.ServiceCatalog(self._info['catalog'])
+        self.service_catalog = catalog.ServiceCatalog(
+            self._info.get('catalog'))
         if token:
             self._info.update(auth_token=token)
 
