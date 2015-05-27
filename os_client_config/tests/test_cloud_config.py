@@ -42,3 +42,20 @@ class TestCloudConfig(base.TestCase):
         cc = cloud_config.CloudConfig("test1", "region-al", fake_config_dict)
         self.assertTrue('a' in cc)
         self.assertFalse('x' in cc)
+
+    def test_equality(self):
+        cc1 = cloud_config.CloudConfig("test1", "region-al", fake_config_dict)
+        cc2 = cloud_config.CloudConfig("test1", "region-al", fake_config_dict)
+        self.assertEqual(cc1, cc2)
+
+    def test_inequality(self):
+        cc1 = cloud_config.CloudConfig("test1", "region-al", fake_config_dict)
+
+        cc2 = cloud_config.CloudConfig("test2", "region-al", fake_config_dict)
+        self.assertNotEqual(cc1, cc2)
+
+        cc2 = cloud_config.CloudConfig("test1", "region-xx", fake_config_dict)
+        self.assertNotEqual(cc1, cc2)
+
+        cc2 = cloud_config.CloudConfig("test1", "region-al", {})
+        self.assertNotEqual(cc1, cc2)
