@@ -54,7 +54,7 @@ USER_CONF = {
                 'password': 'testpass',
                 'project_name': 'testproject',
             },
-            'region_name': 'test-region',
+            'region-name': 'test-region',
         },
     },
     'cache': {'max_age': 1},

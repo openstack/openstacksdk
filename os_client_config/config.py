@@ -161,7 +161,17 @@ class OpenStackConfig(object):
         for path in filelist:
             if os.path.exists(path):
                 with open(path, 'r') as f:
-                    return yaml.safe_load(f)
+                    return self._normalize_keys(yaml.safe_load(f))
+
+    def _normalize_keys(self, config):
+        new_config = {}
+        for key, value in config.items():
+            key = key.replace('-', '_')
+            if isinstance(value, dict):
+                new_config[key] = self._normalize_keys(value)
+            else:
+                new_config[key] = value
+        return new_config
 
     def get_cache_max_age(self):
         return self._cache_max_age
@@ -207,8 +217,8 @@ class OpenStackConfig(object):
         profile_name = our_cloud.get('profile', our_cloud.get('cloud', None))
         if profile_name:
             vendor_file = self._load_vendor_file()
-            if vendor_file and profile_name in vendor_file['public-clouds']:
-                _auth_update(cloud, vendor_file['public-clouds'][profile_name])
+            if vendor_file and profile_name in vendor_file['public_clouds']:
+                _auth_update(cloud, vendor_file['public_clouds'][profile_name])
             else:
                 try:
                     _auth_update(cloud, vendors.CLOUD_DEFAULTS[profile_name])
