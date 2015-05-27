@@ -40,7 +40,7 @@ VENDOR_CONF = {
 USER_CONF = {
     'clouds': {
         '_test_cloud_': {
-            'cloud': '_test_cloud_in_our_cloud',
+            'profile': '_test_cloud_in_our_cloud',
             'auth': {
                 'username': 'testuser',
                 'password': 'testpass',
@@ -48,7 +48,7 @@ USER_CONF = {
             'region_name': 'test-region',
         },
         '_test_cloud_no_vendor': {
-            'cloud': '_test_non_existant_cloud',
+            'profile': '_test_non_existant_cloud',
             'auth': {
                 'username': 'testuser',
                 'password': 'testpass',

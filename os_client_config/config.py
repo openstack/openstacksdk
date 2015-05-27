@@ -202,15 +202,16 @@ class OpenStackConfig(object):
         # Get the defaults
         cloud.update(self.defaults)
 
-        # yes, I know the next line looks silly
-        if 'cloud' in our_cloud:
-            cloud_name = our_cloud['cloud']
+        # Expand a profile if it exists. 'cloud' is an old confusing name
+        # for this.
+        profile_name = our_cloud.get('profile', our_cloud.get('cloud', None))
+        if profile_name:
             vendor_file = self._load_vendor_file()
-            if vendor_file and cloud_name in vendor_file['public-clouds']:
-                _auth_update(cloud, vendor_file['public-clouds'][cloud_name])
+            if vendor_file and profile_name in vendor_file['public-clouds']:
+                _auth_update(cloud, vendor_file['public-clouds'][profile_name])
             else:
                 try:
-                    _auth_update(cloud, vendors.CLOUD_DEFAULTS[cloud_name])
+                    _auth_update(cloud, vendors.CLOUD_DEFAULTS[profile_name])
                 except KeyError:
                     # Can't find the requested vendor config, go about business
                     pass

@@ -82,7 +82,7 @@ An example config file is probably helpful:
 
   clouds:
     mordred:
-      cloud: hp
+      profile: hp
       auth:
         username: mordred@inaugust.com
         password: XXXXXXXXX
@@ -99,7 +99,7 @@ An example config file is probably helpful:
       region_name: region-b.geo-1
       dns_service_type: hpext:dns
     infra:
-      cloud: rackspace
+      profile: rackspace
       auth:
         username: openstackci
         password: XXXXXXXX
@@ -107,11 +107,11 @@ An example config file is probably helpful:
       region_name: DFW,ORD,IAD
 
 You may note a few things. First, since auth_url settings are silly
-and embarrasingly ugly, known cloud vendors are included and may be referrenced
-by name. One of the benefits of that is that auth_url isn't the only thing
-the vendor defaults contain. For instance, since Rackspace lists
-`rax:database` as the service type for trove, os-client-config knows that
-so that you don't have to.
+and embarrasingly ugly, known cloud vendor profile information is included and
+may be referrenced by name. One of the benefits of that is that auth_url
+isn't the only thing the vendor defaults contain. For instance, since
+Rackspace lists `rax:database` as the service type for trove, os-client-config
+knows that so that you don't have to.
 
 Also, region_name can be a list of regions. When you call get_all_clouds,
 you'll get a cloud config object for each cloud/region combo.
@@ -159,7 +159,7 @@ are connecting to OpenStack can share a cache should you desire.
         - 127.0.0.1
   clouds:
     mordred:
-      cloud: hp
+      profile: hp
       auth:
         username: mordred@inaugust.com
         password: XXXXXXXXX
