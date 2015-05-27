@@ -36,3 +36,6 @@ class CloudConfig(object):
     def __eq__(self, other):
         return (self.name == other.name and self.region == other.region
                 and self.config == other.config)
+
+    def __ne__(self, other):
+        return not self == other
