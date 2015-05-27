@@ -91,6 +91,18 @@ class TestConfig(base.TestCase):
         self.assertEqual('user', cc.auth['username'])
         self.assertEqual('testpass', cc.auth['password'])
 
+    def test_get_cloud_names(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml])
+        self.assertEqual(['_test-cloud_', '_test_cloud_no_vendor'],
+                         sorted(c.get_cloud_names()))
+        c = config.OpenStackConfig(config_files=[self.no_yaml],
+                                   vendor_files=[self.no_yaml])
+        for k in os.environ.keys():
+            if k.startswith('OS_'):
+                self.useFixture(fixtures.EnvironmentVariable(k))
+        c.get_one_cloud(cloud='defaults')
+        self.assertEqual(['defaults'], sorted(c.get_cloud_names()))
+
 
 class TestConfigArgparse(base.TestCase):
 
