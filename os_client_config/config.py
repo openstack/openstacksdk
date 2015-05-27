@@ -108,7 +108,7 @@ class OpenStackConfig(object):
             self.defaults.update(override_defaults)
 
         # First, use a config file if it exists where expected
-        self.cloud_config = self._load_config_file()
+        self.config_filename, self.cloud_config = self._load_config_file()
 
         if not self.cloud_config:
             self.cloud_config = {'clouds': {}}
@@ -161,7 +161,8 @@ class OpenStackConfig(object):
         for path in filelist:
             if os.path.exists(path):
                 with open(path, 'r') as f:
-                    return self._normalize_keys(yaml.safe_load(f))
+                    return path, self._normalize_keys(yaml.safe_load(f))
+        return (None, None)
 
     def _normalize_keys(self, config):
         new_config = {}
@@ -216,7 +217,7 @@ class OpenStackConfig(object):
         # for this.
         profile_name = our_cloud.get('profile', our_cloud.get('cloud', None))
         if profile_name:
-            vendor_file = self._load_vendor_file()
+            vendor_filename, vendor_file = self._load_vendor_file()
             if vendor_file and profile_name in vendor_file['public_clouds']:
                 _auth_update(cloud, vendor_file['public_clouds'][profile_name])
             else:
