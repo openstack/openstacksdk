@@ -15,8 +15,6 @@ Load various modules for authorization and eventually services.
 """
 from stevedore import extension
 
-from openstack import exceptions
-
 
 def load_service_plugins(namespace):
     service_plugins = extension.ExtensionManager(
@@ -26,30 +24,6 @@ def load_service_plugins(namespace):
     services = {}
     for service in service_plugins:
         service = service.obj
-        service.set_interface(None)
+        service.interface = None
         services[service.service_type] = service
     return services
-
-
-class ModuleLoader(object):
-
-    def __init__(self):
-        """Create a module loader."""
-        self.auth_mgr = extension.ExtensionManager(
-            namespace="openstack.auth.plugin",
-            invoke_on_load=False,
-        )
-
-    def get_auth_plugin(self, plugin_name):
-        """Get an authentication plugin by name."""
-        if not plugin_name:
-            plugin_name = 'password'
-        try:
-            return self.auth_mgr[plugin_name].plugin
-        except KeyError:
-            msg = ('Could not find authorization plugin <%s>' % plugin_name)
-            raise exceptions.NoMatchingPlugin(msg)
-
-    def list_auth_plugins(self):
-        """Get a list of all the authentication plugins."""
-        return self.auth_mgr.names()

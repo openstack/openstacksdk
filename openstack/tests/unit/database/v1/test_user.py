@@ -65,5 +65,5 @@ class TestUser(testtools.TestCase):
         payload = {'users': [CREATING]}
 
         user.User.create_by_id(sess, CREATING, path_args=path_args)
-        sess.post.assert_called_with(url, service=user.User.service,
+        sess.post.assert_called_with(url, endpoint_filter=user.User.service,
                                      json=payload)

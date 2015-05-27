@@ -73,8 +73,8 @@ class Cluster(resource.Resource):
 
     def action(self, session, body):
         url = utils.urljoin(self.base_path, self.id, 'action')
-        resp = session.put(url, service=self.service, json=body).body
-        return resp
+        resp = session.put(url, endpoint_filter=self.service, json=body)
+        return resp.json()
 
     def add_nodes(self, session, nodes):
         body = {

@@ -40,6 +40,7 @@ def enable_logging(debug=False, path=None, stream=None):
         raise ValueError("path and/or stream must be set")
 
     logger = logging.getLogger('openstack')
+    ksalog = logging.getLogger('keystoneauth')
     formatter = logging.Formatter(
         '%(asctime)s %(levelname)s: %(name)s %(message)s')
 
@@ -47,13 +48,16 @@ def enable_logging(debug=False, path=None, stream=None):
         console = logging.StreamHandler(stream)
         console.setFormatter(formatter)
         logger.addHandler(console)
+        ksalog.addHandler(console)
 
     if path is not None:
         file_handler = logging.FileHandler(path)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
+        ksalog.addHandler(file_handler)
 
     logger.setLevel(logging.DEBUG if debug else logging.WARNING)
+    ksalog.setLevel(logging.DEBUG if debug else logging.WARNING)
 
 
 def urljoin(*args):

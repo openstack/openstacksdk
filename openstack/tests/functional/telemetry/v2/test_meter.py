@@ -26,4 +26,4 @@ class TestMeter(base.BaseFunctionalTest):
         self.conn.object_store.delete_container(tainer)
 
         names = set([o.name for o in self.conn.telemetry.meters()])
-        self.assertIn('storage.objects', names)
+        self.assertIn('storage.objects.incoming.bytes', names)

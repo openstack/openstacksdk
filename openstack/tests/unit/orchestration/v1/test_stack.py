@@ -84,7 +84,7 @@ class TestStack(testtools.TestCase):
 
     def test_create(self):
         resp = mock.MagicMock()
-        resp.body = FAKE_CREATE_RESPONSE
+        resp.json = mock.Mock(return_value=FAKE_CREATE_RESPONSE)
         sess = mock.Mock()
         sess.post = mock.MagicMock()
         sess.post.return_value = resp
@@ -96,7 +96,8 @@ class TestStack(testtools.TestCase):
         body = sot._attrs.copy()
         body.pop('id', None)
         body.pop('name', None)
-        sess.post.assert_called_with(url, service=sot.service, json=body)
+        sess.post.assert_called_with(url, endpoint_filter=sot.service,
+                                     json=body)
         self.assertEqual(FAKE_ID, sot.id)
         self.assertEqual(FAKE_NAME, sot.name)
 
@@ -105,10 +106,11 @@ class TestStack(testtools.TestCase):
         resp_update = mock.Mock()
         resp_update.status_code = 202
         sess = mock.Mock()
-        sess.put = mock.Mock(return_value=resp_update)
+        sess.patch = mock.Mock(return_value=resp_update)
 
         resp_get = mock.Mock()
         resp_get.body = {'stack': FAKE_CREATE_RESPONSE}
+        resp_get.json = mock.Mock(return_value=resp_get.body)
         sess.get = mock.Mock(return_value=resp_get)
 
         # create a stack for update
@@ -122,9 +124,9 @@ class TestStack(testtools.TestCase):
 
         url = 'stacks/%s' % sot.id
         new_body['timeout_mins'] = 119
-        sess.put.assert_called_once_with(url, service=sot.service,
+        sess.put.assert_called_once_with(url, endpoint_filter=sot.service,
                                          json=new_body)
-        sess.get.assert_called_once_with(url, service=sot.service)
+        sess.get.assert_called_once_with(url, endpoint_filter=sot.service)
         self.assertEqual(sot, resp)
 
     def test_check(self):

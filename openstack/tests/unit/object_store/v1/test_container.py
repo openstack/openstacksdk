@@ -59,6 +59,7 @@ class TestContainer(testtools.TestCase):
         super(TestContainer, self).setUp()
         self.resp = mock.Mock()
         self.resp.body = {}
+        self.resp.json = mock.Mock(return_value=self.resp.body)
         self.resp.headers = {"X-Trans-Id": "abcdef"}
         self.sess = mock.Mock()
         self.sess.put = mock.MagicMock()
@@ -136,12 +137,13 @@ class TestContainer(testtools.TestCase):
         headers = {
             "x-container-read": "some ACL",
             "x-container-write": "another ACL",
-            "x-detect-content-type": True
+            "x-detect-content-type": True,
+            "Accept": "",
         }
         sot_call(self.sess)
 
         url = "/%s" % CONTAINER_NAME
-        sess_method.assert_called_with(url, service=sot.service, accept=None,
+        sess_method.assert_called_with(url, endpoint_filter=sot.service,
                                        headers=headers)
 
     def test_create(self):
@@ -156,8 +158,9 @@ class TestContainer(testtools.TestCase):
         sot = container.Container.new(name=CONTAINER_NAME)
         sot.create(self.sess)
         url = "/%s" % CONTAINER_NAME
-        self.sess.put.assert_called_with(url, service=sot.service,
-                                         accept=None, headers=dict())
+        headers = {'Accept': ''}
+        self.sess.put.assert_called_with(url, endpoint_filter=sot.service,
+                                         headers=headers)
 
     def test_create_no_headers(self):
         sot = container.Container.new(name=CONTAINER_NAME)

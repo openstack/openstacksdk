@@ -52,8 +52,8 @@ class Router(resource.Resource):
         """
         body = {'subnet_id': subnet_id}
         url = utils.urljoin(self.base_path, self.id, 'add_router_interface')
-        resp = session.put(url, service=self.service, json=body).body
-        return resp
+        resp = session.put(url, endpoint_filter=self.service, json=body)
+        return resp.json()
 
     def remove_interface(self, session, subnet_id):
         """Remove an internal interface from a logical router.
@@ -66,5 +66,5 @@ class Router(resource.Resource):
         """
         body = {'subnet_id': subnet_id}
         url = utils.urljoin(self.base_path, self.id, 'remove_router_interface')
-        resp = session.put(url, service=self.service, json=body).body
-        return resp
+        resp = session.put(url, endpoint_filter=self.service, json=body)
+        return resp.json()

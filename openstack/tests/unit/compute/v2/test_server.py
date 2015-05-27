@@ -45,7 +45,8 @@ class TestServer(testtools.TestCase):
     def setUp(self):
         super(TestServer, self).setUp()
         self.resp = mock.Mock()
-        self.resp = ''
+        self.resp.body = ''
+        self.resp.json = mock.Mock(return_value=self.resp.body)
         self.sess = mock.Mock()
         self.sess.post = mock.MagicMock()
         self.sess.post.return_value = self.resp
@@ -105,28 +106,30 @@ class TestServer(testtools.TestCase):
     def test_change_passowrd(self):
         sot = server.Server(EXAMPLE)
 
-        self.assertEqual(self.resp, sot.change_password(self.sess, 'a'))
+        self.assertEqual(self.resp.body, sot.change_password(self.sess, 'a'))
 
         url = 'servers/IDENTIFIER/action'
         body = {"changePassword": {"adminPass": "a"}}
+        headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, service=sot.service, json=body, accept=None)
+            url, endpoint_filter=sot.service, json=body, headers=headers)
 
     def test_reboot(self):
         sot = server.Server(EXAMPLE)
 
-        self.assertEqual(self.resp, sot.reboot(self.sess, 'HARD'))
+        self.assertEqual(self.resp.body, sot.reboot(self.sess, 'HARD'))
 
         url = 'servers/IDENTIFIER/action'
         body = {"reboot": {"type": "HARD"}}
+        headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, service=sot.service, json=body, accept=None)
+            url, endpoint_filter=sot.service, json=body, headers=headers)
 
     def test_rebuild(self):
         sot = server.Server(EXAMPLE)
 
         self.assertEqual(
-            self.resp,
+            self.resp.body,
             sot.rebuild(
                 self.sess,
                 name='noo',
@@ -151,14 +154,15 @@ class TestServer(testtools.TestCase):
                 "personality": [{"path": "/etc/motd", "contents": "foo"}],
             }
         }
+        headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, service=sot.service, json=body, accept=None)
+            url, endpoint_filter=sot.service, json=body, headers=headers)
 
     def test_rebuild_minimal(self):
         sot = server.Server(EXAMPLE)
 
         self.assertEqual(
-            self.resp,
+            self.resp.body,
             sot.rebuild(
                 self.sess,
                 name='nootoo',
@@ -175,38 +179,42 @@ class TestServer(testtools.TestCase):
                 "adminPass": "seekr3two",
             }
         }
+        headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, service=sot.service, json=body, accept=None)
+            url, endpoint_filter=sot.service, json=body, headers=headers)
 
     def test_resize(self):
         sot = server.Server(EXAMPLE)
 
-        self.assertEqual(self.resp, sot.resize(self.sess, '2'))
+        self.assertEqual(self.resp.body, sot.resize(self.sess, '2'))
 
         url = 'servers/IDENTIFIER/action'
         body = {"resize": {"flavorRef": "2"}}
+        headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, service=sot.service, json=body, accept=None)
+            url, endpoint_filter=sot.service, json=body, headers=headers)
 
     def test_confirm_resize(self):
         sot = server.Server(EXAMPLE)
 
-        self.assertEqual(self.resp, sot.confirm_resize(self.sess))
+        self.assertEqual(self.resp.body, sot.confirm_resize(self.sess))
 
         url = 'servers/IDENTIFIER/action'
         body = {"confirmResize": None}
+        headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, service=sot.service, json=body, accept=None)
+            url, endpoint_filter=sot.service, json=body, headers=headers)
 
     def test_revert_resize(self):
         sot = server.Server(EXAMPLE)
 
-        self.assertEqual(self.resp, sot.revert_resize(self.sess))
+        self.assertEqual(self.resp.body, sot.revert_resize(self.sess))
 
         url = 'servers/IDENTIFIER/action'
         body = {"revertResize": None}
+        headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, service=sot.service, json=body, accept=None)
+            url, endpoint_filter=sot.service, json=body, headers=headers)
 
     def test_create_image(self):
         sot = server.Server(EXAMPLE)
@@ -214,28 +222,30 @@ class TestServer(testtools.TestCase):
         metadata = {'nu': 'image', 'created': 'today'}
 
         self.assertEqual(
-            self.resp,
+            self.resp.body,
             sot.create_image(self.sess, name, metadata)
         )
 
         url = 'servers/IDENTIFIER/action'
         body = {"createImage": {'name': name, 'metadata': metadata}}
+        headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, service=sot.service, json=body, accept=None)
+            url, endpoint_filter=sot.service, json=body, headers=headers)
 
     def test_create_image_minimal(self):
         sot = server.Server(EXAMPLE)
         name = 'noo'
 
         self.assertEqual(
-            self.resp,
+            self.resp.body,
             sot.create_image(self.sess, name)
         )
 
         url = 'servers/IDENTIFIER/action'
         body = {"createImage": {'name': name}}
+        headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, service=sot.service, json=body, accept=None)
+            url, endpoint_filter=dict(sot.service), json=body, headers=headers)
 
     def test_get_ips(self):
         name = "jenkins"

@@ -69,11 +69,12 @@ class Message(resource.Resource):
         url = cls._get_url({'queue_name': messages[0].queue})
         headers = {'Client-ID': messages[0].client}
 
-        resp = session.post(url, service=cls.service, headers=headers,
+        resp = session.post(url, endpoint_filter=cls.service, headers=headers,
                             data=json.dumps(messages, cls=MessageEncoder))
+        resp = resp.json()
 
         messages_created = []
-        hrefs = resp.body['resources']
+        hrefs = resp['resources']
 
         for i, href in enumerate(hrefs):
             message = Message.existing(**messages[i])
@@ -94,10 +95,11 @@ class Message(resource.Resource):
     @classmethod
     def delete_by_id(cls, session, message, path_args=None):
         url = cls._strip_version(message.href)
-        headers = {'Client-ID': message.client}
-
-        session.delete(url, service=cls.service,
-                       headers=headers, accept=None)
+        headers = {
+            'Client-ID': message.client,
+            'Accept': '',
+        }
+        session.delete(url, endpoint_filter=cls.service, headers=headers)
 
 
 class MessageEncoder(json.JSONEncoder):

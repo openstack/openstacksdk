@@ -57,25 +57,30 @@ class TestFloatingIP(testtools.TestCase):
         mock_session = mock.Mock()
         mock_get = mock.Mock()
         mock_session.get = mock_get
+        mock_session.get_filter = mock.Mock(return_value={})
         data = {'id': 'one', 'floating_ip_address': '10.0.0.1'}
         fake_response = mock.Mock()
-        fake_response.body = {floating_ip.FloatingIP.resources_key: [data]}
+        body = {floating_ip.FloatingIP.resources_key: [data]}
+        fake_response.json = mock.Mock(return_value=body)
         mock_get.return_value = fake_response
 
         result = floating_ip.FloatingIP.find_available(mock_session)
 
         self.assertEqual('one', result.id)
         p = {'fields': 'id', 'port_id': ''}
-        mock_get.assert_called_with(floating_ip.FloatingIP.base_path,
-                                    params=p,
-                                    service=floating_ip.FloatingIP.service)
+        mock_get.assert_called_with(
+            floating_ip.FloatingIP.base_path,
+            endpoint_filter=floating_ip.FloatingIP.service,
+            headers={'Accept': 'application/json'},
+            params=p)
 
     def test_find_available_nada(self):
         mock_session = mock.Mock()
         mock_get = mock.Mock()
         mock_session.get = mock_get
         fake_response = mock.Mock()
-        fake_response.body = {floating_ip.FloatingIP.resources_key: []}
+        body = {floating_ip.FloatingIP.resources_key: []}
+        fake_response.json = mock.Mock(return_value=body)
         mock_get.return_value = fake_response
 
         self.assertEqual(None,

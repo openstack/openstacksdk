@@ -83,6 +83,6 @@ class Image(resource.Resource):
 
         headers = self.get_headers()
         headers['Content-Type'] = 'application/octet-stream'
-
-        session.put(url, service=self.service, data=self.data, accept=None,
+        headers['Accept'] = ''
+        session.put(url, endpoint_filter=self.service, data=self.data,
                     headers=headers)

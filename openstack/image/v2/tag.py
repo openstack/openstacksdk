@@ -37,7 +37,8 @@ class Tag(resource.Resource):
         :return: ``None``
         """
         url = self._get_url({"image": self.image.id}, tag)
-        session.put(url, service=self.service, accept=None)
+        headers = {'Accept': ''}
+        session.put(url, endpoint_filter=self.service, headers=headers)
 
     def delete(self, session, tag):
         """Delete a tag on the image
@@ -49,4 +50,5 @@ class Tag(resource.Resource):
         :return: ``None``
         """
         url = self._get_url({"image": self.image.id}, tag)
-        session.delete(url, service=self.service, accept=None)
+        headers = {'Accept': ''}
+        session.delete(url, endpoint_filter=self.service, headers=headers)

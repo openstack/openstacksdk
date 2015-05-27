@@ -49,6 +49,7 @@ class TestServerMetadata(testtools.TestCase):
     def test_create(self):
         resp = mock.Mock()
         resp.body = FAKE_RESPONSE
+        resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
         sess.put = mock.MagicMock()
         sess.put.return_value = resp
@@ -58,13 +59,15 @@ class TestServerMetadata(testtools.TestCase):
 
         url = '/servers/' + FAKE_SERVER_ID + '/metadata'
         body = {"metadata": {FAKE_KEY: FAKE_VALUE}}
-        sess.put.assert_called_with(url, service=sot.service, json=body)
+        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+                                    json=body)
         self.assertEqual(FAKE_SERVER_ID, sot.server_id)
         self.assertEqual(FAKE_VALUE, sot[FAKE_KEY])
 
     def test_get(self):
         resp = mock.Mock()
         resp.body = FAKE_RESPONSE
+        resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
         sess.get = mock.MagicMock()
         sess.get.return_value = resp
@@ -73,7 +76,7 @@ class TestServerMetadata(testtools.TestCase):
         sot.get(sess)
 
         url = '/servers/' + FAKE_SERVER_ID + '/metadata'
-        sess.get.assert_called_with(url, service=sot.service)
+        sess.get.assert_called_with(url, endpoint_filter=sot.service)
         self.assertEqual(FAKE_SERVER_ID, sot.server_id)
         self.assertEqual(FAKE_VALUE, sot[FAKE_KEY])
         self.assertEqual(FAKE_VALUE2, sot[FAKE_KEY2])
@@ -81,6 +84,7 @@ class TestServerMetadata(testtools.TestCase):
     def test_update(self):
         resp = mock.Mock()
         resp.body = FAKE_RESPONSE
+        resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
         sess.put = mock.MagicMock()
         sess.put.return_value = resp
@@ -90,6 +94,7 @@ class TestServerMetadata(testtools.TestCase):
 
         url = '/servers/' + FAKE_SERVER_ID + '/metadata'
         body = {"metadata": {FAKE_KEY: FAKE_VALUE}}
-        sess.put.assert_called_with(url, service=sot.service, json=body)
+        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+                                    json=body)
         self.assertEqual(FAKE_SERVER_ID, sot.server_id)
         self.assertEqual(FAKE_VALUE, sot[FAKE_KEY])

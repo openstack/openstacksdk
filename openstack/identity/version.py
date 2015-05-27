@@ -32,6 +32,8 @@ class Version(resource.Resource):
 
     @classmethod
     def list(cls, session, **params):
-        resp = session.get(cls.base_path, service=cls.service, params=params)
-        for data in resp.body[cls.resources_key]['values']:
+        resp = session.get(cls.base_path, endpoint_filter=cls.service,
+                           params=params)
+        resp = resp.json()
+        for data in resp[cls.resources_key]['values']:
             yield cls.existing(**data)

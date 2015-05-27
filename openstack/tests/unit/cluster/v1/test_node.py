@@ -87,12 +87,14 @@ class TestNode(testtools.TestCase):
 
         resp = mock.Mock()
         resp.body = {'action': '1234-5678-abcd'}
+        resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
         sess.put = mock.MagicMock(return_value=resp)
         self.assertEqual(resp.body, sot.join(sess, 'cluster-b'))
         url = 'nodes/%s/action' % sot.id
         body = {'join': {'cluster_id': 'cluster-b'}}
-        sess.put.assert_called_once_with(url, service=sot.service, json=body)
+        sess.put.assert_called_once_with(url, endpoint_filter=sot.service,
+                                         json=body)
 
     def test_leave(self):
         sot = node.Node(FAKE)
@@ -100,9 +102,11 @@ class TestNode(testtools.TestCase):
 
         resp = mock.Mock()
         resp.body = {'action': '2345-6789-bbbb'}
+        resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
         sess.put = mock.MagicMock(return_value=resp)
         self.assertEqual(resp.body, sot.leave(sess))
         url = 'nodes/%s/action' % sot.id
         body = {'leave': {}}
-        sess.put.assert_called_once_with(url, service=sot.service, json=body)
+        sess.put.assert_called_once_with(url, endpoint_filter=sot.service,
+                                         json=body)

@@ -50,6 +50,7 @@ class TestServerMeta(testtools.TestCase):
     def test_create(self):
         resp = mock.Mock()
         resp.body = FAKE_RESPONSE
+        resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
         sess.put = mock.MagicMock()
         sess.put.return_value = resp
@@ -59,7 +60,8 @@ class TestServerMeta(testtools.TestCase):
 
         url = 'servers/' + FAKE_SERVER_ID + '/metadata/' + FAKE_KEY
         body = {"meta": {FAKE_KEY: FAKE_VALUE}}
-        sess.put.assert_called_with(url, service=sot.service, json=body)
+        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+                                    json=body)
         self.assertEqual(FAKE_VALUE, sot.value)
         self.assertEqual(FAKE_KEY, sot.key)
         self.assertEqual(FAKE_SERVER_ID, sot.server_id)
@@ -67,6 +69,7 @@ class TestServerMeta(testtools.TestCase):
     def test_get(self):
         resp = mock.Mock()
         resp.body = FAKE_RESPONSES
+        resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
         sess.get = mock.MagicMock()
         sess.get.return_value = resp
@@ -76,7 +79,8 @@ class TestServerMeta(testtools.TestCase):
         resp = sot.list(sess, path_args=path_args)
 
         url = '/servers/' + FAKE_SERVER_ID + '/metadata'
-        sess.get.assert_called_with(url, service=sot.service, params={})
+        sess.get.assert_called_with(url, endpoint_filter=sot.service,
+                                    params={})
         self.assertEqual(1, len(resp))
         self.assertEqual(FAKE_SERVER_ID, resp[0].server_id)
         self.assertEqual(FAKE_KEY, resp[0].key)
@@ -85,6 +89,7 @@ class TestServerMeta(testtools.TestCase):
     def test_update(self):
         resp = mock.Mock()
         resp.body = FAKE_RESPONSE
+        resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
         sess.put = mock.MagicMock()
         sess.put.return_value = resp
@@ -94,7 +99,8 @@ class TestServerMeta(testtools.TestCase):
 
         url = 'servers/' + FAKE_SERVER_ID + '/metadata/' + FAKE_KEY
         body = {"meta": {FAKE_KEY: FAKE_VALUE}}
-        sess.put.assert_called_with(url, service=sot.service, json=body)
+        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+                                    json=body)
         self.assertEqual(FAKE_VALUE, sot.value)
         self.assertEqual(FAKE_KEY, sot.key)
         self.assertEqual(FAKE_SERVER_ID, sot.server_id)
@@ -102,6 +108,7 @@ class TestServerMeta(testtools.TestCase):
     def test_delete(self):
         resp = mock.Mock()
         resp.body = FAKE_RESPONSES
+        resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
         sess.delete = mock.MagicMock()
         sess.delete.return_value = resp
@@ -110,11 +117,14 @@ class TestServerMeta(testtools.TestCase):
         sot.delete(sess)
 
         url = 'servers/' + FAKE_SERVER_ID + '/metadata/' + FAKE_KEY
-        sess.delete.assert_called_with(url, service=sot.service, accept=None)
+        headers = {'Accept': ''}
+        sess.delete.assert_called_with(url, endpoint_filter=sot.service,
+                                       headers=headers)
 
     def test_list(self):
         resp = mock.Mock()
         resp.body = FAKE_RESPONSES
+        resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
         sess.get = mock.MagicMock()
         sess.get.return_value = resp
@@ -124,7 +134,8 @@ class TestServerMeta(testtools.TestCase):
         resp = sot.list(sess, path_args=path_args)
 
         url = '/servers/' + FAKE_SERVER_ID + '/metadata'
-        sess.get.assert_called_with(url, service=sot.service, params={})
+        sess.get.assert_called_with(url, endpoint_filter=sot.service,
+                                    params={})
         self.assertEqual(1, len(resp))
         self.assertEqual(FAKE_SERVER_ID, resp[0].server_id)
         self.assertEqual(FAKE_KEY, resp[0].key)

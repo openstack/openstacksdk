@@ -52,8 +52,8 @@ class Instance(resource.Resource):
             the login credentials.
         """
         url = utils.urljoin(self.base_path, self.id, 'root')
-        resp = session.post(url, service=self.service).body
-        return resp['user']
+        resp = session.post(url, endpoint_filter=self.service)
+        return resp.json()['user']
 
     def is_root_enabled(self, session):
         """Determine if root is enabled on an instance.
@@ -66,8 +66,8 @@ class Instance(resource.Resource):
             instance or ``False`` otherwise.
         """
         url = utils.urljoin(self.base_path, self.id, 'root')
-        resp = session.get(url, service=self.service).body
-        return resp['rootEnabled']
+        resp = session.get(url, endpoint_filter=self.service)
+        return resp.json()['rootEnabled']
 
     def restart(self, session):
         """Restart the database instance
@@ -76,7 +76,7 @@ class Instance(resource.Resource):
         """
         body = {'restart': {}}
         url = utils.urljoin(self.base_path, self.id, 'action')
-        session.post(url, service=self.service, json=body)
+        session.post(url, endpoint_filter=self.service, json=body)
 
     def resize(self, session, flavor_reference):
         """Resize the database instance
@@ -85,7 +85,7 @@ class Instance(resource.Resource):
         """
         body = {'resize': {'flavorRef': flavor_reference}}
         url = utils.urljoin(self.base_path, self.id, 'action')
-        session.post(url, service=self.service, json=body)
+        session.post(url, endpoint_filter=self.service, json=body)
 
     def resize_volume(self, session, volume_size):
         """Resize the volume attached to the instance
@@ -94,4 +94,4 @@ class Instance(resource.Resource):
         """
         body = {'resize': {'volume': volume_size}}
         url = utils.urljoin(self.base_path, self.id, 'action')
-        session.post(url, service=self.service, json=body)
+        session.post(url, endpoint_filter=self.service, json=body)

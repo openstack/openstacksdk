@@ -25,7 +25,7 @@ class Test_enable_logging(testtools.TestCase):
 
         utils.enable_logging(debug=debug, stream=stream)
 
-        self.assertEqual(the_logger.addHandler.call_count, 1)
+        self.assertEqual(the_logger.addHandler.call_count, 2)
         the_logger.setLevel.assert_called_with(level)
 
     def _file_tests(self, fake_logging, level, debug):
@@ -36,7 +36,7 @@ class Test_enable_logging(testtools.TestCase):
         utils.enable_logging(debug=debug, path=fake_path)
 
         fake_logging.FileHandler.assert_called_with(fake_path)
-        self.assertEqual(the_logger.addHandler.call_count, 1)
+        self.assertEqual(the_logger.addHandler.call_count, 2)
         the_logger.setLevel.assert_called_with(level)
 
     def test_none(self):

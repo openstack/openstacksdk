@@ -114,21 +114,22 @@ class TestObject(testtools.TestCase):
         #     "x-newest": True,
         #     "if-match": {"who": "what"}
         # }
-        self.sess.get.assert_called_with(url, service=sot.service,
-                                         accept="bytes")
+        headers = {'Accept': 'bytes'}
+        self.sess.get.assert_called_with(url, endpoint_filter=sot.service,
+                                         headers=headers)
         self.assertEqual(self.resp.content, rv)
 
     def _test_create(self, method, data, accept):
         sot = obj.Object.new(container=CONTAINER_NAME, name=OBJECT_NAME,
                              data=data)
         sot.newest = True
-        headers = {"x-newest": True}
+        headers = {"x-newest": True, "Accept": ""}
 
         rv = sot.create(self.sess)
 
         url = "%s/%s" % (CONTAINER_NAME, OBJECT_NAME)
-        method.assert_called_with(url, service=sot.service, data=data,
-                                  accept=accept, headers=headers)
+        method.assert_called_with(url, endpoint_filter=sot.service, data=data,
+                                  headers=headers)
         self.assertEqual(self.resp.headers, rv.get_headers())
 
     def test_create_data(self):

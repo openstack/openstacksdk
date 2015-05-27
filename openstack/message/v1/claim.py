@@ -60,10 +60,11 @@ class Claim(resource.Resource):
         body = []
 
         try:
-            resp = session.post(url, service=cls.service, headers=headers,
+            resp = session.post(url, endpoint_filter=cls.service,
+                                headers=headers,
                                 data=json.dumps(claim, cls=ClaimEncoder),
                                 params=params)
-            body = resp.body
+            body = resp.json()
         except exceptions.InvalidResponse as e:
             # The Message Service will respond with a 204 and no content in
             # the body when there are no messages to claim. The transport

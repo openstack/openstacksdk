@@ -17,10 +17,7 @@ from openstack.object_store.v1 import _proxy
 from openstack.object_store.v1 import account
 from openstack.object_store.v1 import container
 from openstack.object_store.v1 import obj
-from openstack import session
-from openstack.tests.unit import fakes
 from openstack.tests.unit import test_proxy_base
-from openstack import transport
 
 
 class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
@@ -95,10 +92,6 @@ class Test_containers(TestObjectStoreProxy):
 
     def setUp(self):
         super(Test_containers, self).setUp()
-        self.transport = transport.Transport(accept=transport.JSON)
-        self.auth = fakes.FakeAuthenticator()
-        self.session = session.Session(self.transport, self.auth)
-
         self.proxy = _proxy.Proxy(self.session)
 
         self.containers_body = []
@@ -174,10 +167,6 @@ class Test_objects(TestObjectStoreProxy):
 
     def setUp(self):
         super(Test_objects, self).setUp()
-        self.transport = transport.Transport(accept=transport.JSON)
-        self.auth = fakes.FakeAuthenticator()
-        self.session = session.Session(self.transport, self.auth)
-
         self.proxy = _proxy.Proxy(self.session)
 
         self.container_name = six.text_type("my_container")

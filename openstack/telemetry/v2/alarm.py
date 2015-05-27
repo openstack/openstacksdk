@@ -71,8 +71,8 @@ class Alarm(resource.Resource):
            The next_state may be one of: 'ok' 'insufficient data' 'alarm'
         """
         url = utils.urljoin(self.base_path, self.id, 'state')
-        resp = session.put(url, service=self.service, json=next_state).body
-        return resp
+        resp = session.put(url, endpoint_filter=self.service, json=next_state)
+        return resp.json()
 
     def check_state(self, session):
         """Retrieve the current state of an alarm from the service.
@@ -80,6 +80,7 @@ class Alarm(resource.Resource):
            The properties of the alarm are not modified.
         """
         url = utils.urljoin(self.base_path, self.id, 'state')
-        resp = session.get(url, service=self.service).body
+        resp = session.get(url, endpoint_filter=self.service)
+        resp = resp.json()
         current_state = resp.replace('\"', '')
         return current_state

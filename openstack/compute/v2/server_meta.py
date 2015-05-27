@@ -41,7 +41,8 @@ class ServerMeta(resource.Resource):
     def create_by_id(cls, session, attrs, resource_id=None, path_args=None):
         url = cls._get_url(path_args, resource_id)
         body = {cls.resource_key: {attrs['key']: attrs['value']}}
-        resp = session.put(url, service=cls.service, json=body).body
+        resp = session.put(url, endpoint_filter=cls.service, json=body)
+        resp = resp.json()
         return {'key': resource_id,
                 'value': resp[cls.resource_key][resource_id]}
 
@@ -49,7 +50,8 @@ class ServerMeta(resource.Resource):
     def get_data_by_id(cls, session, resource_id, path_args=None,
                        include_headers=False):
         url = cls._get_url(path_args, resource_id)
-        resp = session.get(url, service=cls.service).body
+        resp = session.get(url, endpoint_filter=cls.service)
+        resp = resp.json()
         return {'key': resource_id,
                 'value': resp[cls.resource_key][resource_id]}
 
@@ -60,12 +62,14 @@ class ServerMeta(resource.Resource):
     @classmethod
     def delete_by_id(cls, session, resource_id, path_args=None):
         url = cls._get_url(path_args, resource_id)
-        session.delete(url, service=cls.service, accept=None)
+        headers = {'Accept': ''}
+        session.delete(url, endpoint_filter=cls.service, headers=headers)
 
     @classmethod
     def list(cls, session, path_args=None, **params):
         url = '/servers/%(server_id)s/metadata' % path_args
-        resp = session.get(url, service=cls.service, params=params).body
+        resp = session.get(url, endpoint_filter=cls.service, params=params)
+        resp = resp.json()
         resp = resp['metadata']
         return [cls.existing(server_id=path_args['server_id'], key=key,
                              value=value)

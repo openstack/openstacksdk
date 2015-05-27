@@ -42,5 +42,5 @@ class User(resource.Resource):
         url = cls._get_url(path_args)
         # Create expects an array of users
         body = {'users': [attrs]}
-        resp = session.post(url, service=cls.service, json=body).body
-        return resp
+        resp = session.post(url, endpoint_filter=cls.service, json=body)
+        return resp.json()

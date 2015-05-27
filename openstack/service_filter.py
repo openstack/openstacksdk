@@ -51,8 +51,6 @@ The resulting output from the code::
     matches=True
 """
 
-from openstack import exceptions
-
 
 class ValidVersion(object):
 
@@ -66,16 +64,14 @@ class ValidVersion(object):
         self.path = path or module
 
 
-class ServiceFilter(object):
+class ServiceFilter(dict):
     UNVERSIONED = ''
-    ANY = 'any'
     PUBLIC = 'public'
     INTERNAL = 'internal'
     ADMIN = 'admin'
-    INTERFACE = [PUBLIC, INTERNAL, ADMIN]
     valid_versions = []
 
-    def __init__(self, service_type=ANY, interface=PUBLIC, region=None,
+    def __init__(self, service_type, interface=PUBLIC, region=None,
                  service_name=None, version=None):
         """Create a service identifier.
 
@@ -86,95 +82,72 @@ class ServiceFilter(object):
         :param string service_name: Name of the service
         :param string version: Version of service to use.
         """
-        self.service_type = service_type.lower()
-        self.set_interface(interface)
-        self.region = region
-        self.service_name = service_name
-        self.version = version
+        self['service_type'] = service_type.lower()
+        self['interface'] = interface
+        self['region_name'] = region
+        self['service_name'] = service_name
+        self['version'] = version
 
-    def __repr__(self):
-        ret = "service_type=%s" % self.service_type
-        if self.interface is not None:
-            ret += ",interface=%s" % self.interface
-        if self.region is not None:
-            ret += ",region=%s" % self.region
-        if self.service_name:
-            ret += ",service_name=%s" % self.service_name
-        if self.version:
-            ret += ",version=%s" % self.version
-        return ret
+    @property
+    def service_type(self):
+        return self['service_type']
 
-    def join(self, default):
-        """Create a new service filter by joining filters.
+    @property
+    def interface(self):
+        return self['interface']
 
-        Create a new service filter by joining this service preference with
-        the default service identifier.
+    @interface.setter
+    def interface(self, value):
+        self['interface'] = value
 
-        :param default: Default service identifier from the resource.
-        :type default: :class:`~openstack.service_filter.ServiceFilter`
-        """
-        if default.version == self.UNVERSIONED:
-            version = default.version
-        else:
-            version = self.version
-        response = ServiceFilter()
-        response.service_type = default.service_type
-        response.service_name = self.service_name
-        response.valid_versions = default.valid_versions
-        response.interface = default.interface
-        if self.interface:
-            response.interface = self.interface
-        if self.region:
-            response.region = self.region
-        response.version = version
-        return response
+    @property
+    def region(self):
+        return self['region_name']
 
-    def match_service_type(self, service_type):
-        """Service types are equavilent."""
-        if self.service_type == self.ANY:
-            return True
-        return self.service_type == service_type
+    @region.setter
+    def region(self, value):
+        self['region_name'] = value
 
-    def match_service_name(self, service_name):
-        """Service names are equavilent."""
-        if not self.service_name:
-            return True
-        if self.service_name == service_name:
-            return True
-        return False
+    @property
+    def service_name(self):
+        return self['service_name']
 
-    def match_region(self, region):
-        """Service regions are equavilent."""
-        if not self.region:
-            return True
-        if self.region == region:
-            return True
-        return False
+    @service_name.setter
+    def service_name(self, value):
+        self['service_name'] = value
 
-    def match_interface(self, interface):
-        """Service interfaces are equavilent."""
-        if not self.interface:
-            return True
-        return self.interface == interface
+    @property
+    def version(self):
+        return self['version']
 
-    def set_interface(self, interface):
-        """Set the interface of the service filter."""
-        if not interface:
-            self.interface = None
-            return
-        interface = interface.replace('URL', '')
-        interface = interface.lower()
-        if interface not in self.INTERFACE:
-            msg = "Interface <%s> not in %s" % (interface, self.INTERFACE)
-            raise exceptions.SDKException(msg)
-        self.interface = interface
+    @version.setter
+    def version(self, value):
+        self['version'] = value
+
+    @property
+    def path(self):
+        return self['path']
+
+    @path.setter
+    def path(self, value):
+        self['path'] = value
+
+    def get_path(self, version=None):
+        if not self.version:
+            self.version = version
+        return self.get('path', self._get_valid_version().path)
+
+    def get_filter(self):
+        filter = dict(self)
+        del filter['version']
+        return filter
 
     def _get_valid_version(self):
         if self.valid_versions:
             if self.version:
                 for valid in self.valid_versions:
                     # NOTE(thowe): should support fuzzy match e.g: v2.1==v2
-                    if self.version == valid.module:
+                    if self.version.startswith(valid.module):
                         return valid
             return self.valid_versions[0]
         return ValidVersion('')
@@ -194,17 +167,3 @@ class ServiceFilter(object):
         is `object_store`.
         """
         return self.__class__.__module__.split('.')[1]
-
-    def get_version_path(self, version):
-        """Get the desired version path.
-
-        If the service does not have a version, use the suggested version.
-        """
-        if self.version is not None:
-            return self.version
-        valid = self._get_valid_version()
-        if valid.path:
-            return valid.path
-        if version:
-            return version
-        return ''

@@ -10,74 +10,26 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import service_filter
+import testtools
+
+from openstack.image import image_service
 from openstack import session
-from openstack.tests.unit import base
-from openstack.tests.unit import fakes
 
 
-class TestSession(base.TestCase):
+class TestSession(testtools.TestCase):
 
-    TEST_PATH = '/test/path'
-
-    def setUp(self):
-        super(TestSession, self).setUp()
-        self.xport = fakes.FakeTransport()
-        self.auth = fakes.FakeAuthenticator()
-        self.serv = service_filter.ServiceFilter(service_type='identity')
-        self.sess = session.Session(self.xport, self.auth)
-        self.expected = {'headers': {'X-Auth-Token': self.auth.TOKEN}}
-
-    def test_head(self):
-        resp = self.sess.head(self.TEST_PATH, service=self.serv)
-
-        self.assertEqual(self.xport.RESPONSE, resp)
-        self.auth.get_token.assert_called_with(self.xport)
-        self.auth.get_endpoint.assert_called_with(self.xport, self.serv)
-        url = self.auth.ENDPOINT + self.TEST_PATH
-        self.xport.request.assert_called_with('HEAD', url, **self.expected)
-
-    def test_get(self):
-        resp = self.sess.get(self.TEST_PATH, service=self.serv)
-
-        self.assertEqual(self.xport.RESPONSE, resp)
-        self.auth.get_token.assert_called_with(self.xport)
-        self.auth.get_endpoint.assert_called_with(self.xport, self.serv)
-        url = self.auth.ENDPOINT + self.TEST_PATH
-        self.xport.request.assert_called_with('GET', url, **self.expected)
-
-    def test_post(self):
-        resp = self.sess.post(self.TEST_PATH, service=self.serv)
-
-        self.assertEqual(self.xport.RESPONSE, resp)
-        self.auth.get_token.assert_called_with(self.xport)
-        self.auth.get_endpoint.assert_called_with(self.xport, self.serv)
-        url = self.auth.ENDPOINT + self.TEST_PATH
-        self.xport.request.assert_called_with('POST', url, **self.expected)
-
-    def test_put(self):
-        resp = self.sess.put(self.TEST_PATH, service=self.serv)
-
-        self.assertEqual(self.xport.RESPONSE, resp)
-        self.auth.get_token.assert_called_with(self.xport)
-        self.auth.get_endpoint.assert_called_with(self.xport, self.serv)
-        url = self.auth.ENDPOINT + self.TEST_PATH
-        self.xport.request.assert_called_with('PUT', url, **self.expected)
-
-    def test_delete(self):
-        resp = self.sess.delete(self.TEST_PATH, service=self.serv)
-
-        self.assertEqual(self.xport.RESPONSE, resp)
-        self.auth.get_token.assert_called_with(self.xport)
-        self.auth.get_endpoint.assert_called_with(self.xport, self.serv)
-        url = self.auth.ENDPOINT + self.TEST_PATH
-        self.xport.request.assert_called_with('DELETE', url, **self.expected)
-
-    def test_patch(self):
-        resp = self.sess.patch(self.TEST_PATH, service=self.serv)
-
-        self.assertEqual(self.xport.RESPONSE, resp)
-        self.auth.get_token.assert_called_with(self.xport)
-        self.auth.get_endpoint.assert_called_with(self.xport, self.serv)
-        url = self.auth.ENDPOINT + self.TEST_PATH
-        self.xport.request.assert_called_with('PATCH', url, **self.expected)
+    def test_parse_url(self):
+        filt = image_service.ImageService()
+        self.assertEqual(
+            "http://127.0.0.1:9292/v1",
+            session.parse_url(filt, "http://127.0.0.1:9292"))
+        self.assertEqual(
+            "http://127.0.0.1:9292/v2",
+            session.parse_url(filt, "http://127.0.0.1:9292/v2.0"))
+        filt.version = 'v1'
+        self.assertEqual(
+            "http://127.0.0.1:9292/v1/mytenant",
+            session.parse_url(filt, "http://127.0.0.1:9292/v2.0/mytenant/"))
+        self.assertEqual(
+            "http://127.0.0.1:9292/wot/v1/mytenant",
+            session.parse_url(filt, "http://127.0.0.1:9292/wot/v2.0/mytenant"))

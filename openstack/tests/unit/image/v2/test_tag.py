@@ -53,8 +53,9 @@ class TestTag(testtools.TestCase):
         url = 'images/%(image)s/tags/%(tag)s' % {
             "image": self.img.get_id(self.img), "tag": test_tag}
         self.assertIsNone(rv)
-        session_method.assert_called_with(url, service=sot.service,
-                                          accept=None)
+        headers = {'Accept': ''}
+        session_method.assert_called_with(url, endpoint_filter=sot.service,
+                                          headers=headers)
 
     def test_create(self):
         self._test_action("create", self.session.put)

@@ -149,7 +149,9 @@ class Object(resource.Resource):
     def get(self, session):
         url = self._get_url(self, self.id)
         # TODO(thowe): Add filter header support bug #1488269
-        resp = session.get(url, service=self.service, accept="bytes").content
+        headers = {'Accept': 'bytes'}
+        resp = session.get(url, endpoint_filter=self.service, headers=headers)
+        resp = resp.content
         return resp
 
     def create(self, session):
@@ -157,11 +159,13 @@ class Object(resource.Resource):
         url = self._get_url(self, self.id)
 
         headers = self.get_headers()
+        headers['Accept'] = ''
         if self.data is not None:
-            resp = session.put(url, service=self.service, data=self.data,
-                               accept="bytes", headers=headers).headers
+            resp = session.put(url, endpoint_filter=self.service,
+                               data=self.data,
+                               headers=headers).headers
         else:
-            resp = session.post(url, service=self.service, data=None,
-                                accept=None, headers=headers).headers
+            resp = session.post(url, endpoint_filter=self.service, data=None,
+                                headers=headers).headers
         self.set_headers(resp)
         return self

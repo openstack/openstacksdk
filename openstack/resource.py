@@ -35,6 +35,7 @@ import copy
 import itertools
 import time
 
+from keystoneauth1 import exceptions as ksa_exceptions
 import six
 
 from openstack import exceptions
@@ -540,9 +541,10 @@ class Resource(collections.MutableMapping):
         if headers:
             args[HEADERS] = headers
         if resource_id:
-            resp = session.put(url, service=cls.service, **args).body
+            resp = session.put(url, endpoint_filter=cls.service, **args)
         else:
-            resp = session.post(url, service=cls.service, **args).body
+            resp = session.post(url, endpoint_filter=cls.service, **args)
+        resp = resp.json()
 
         if cls.resource_key:
             resp = resp[cls.resource_key]
@@ -588,8 +590,8 @@ class Resource(collections.MutableMapping):
             raise exceptions.MethodNotSupported(cls, 'retrieve')
 
         url = cls._get_url(path_args, resource_id)
-        response = session.get(url, service=cls.service)
-        body = response.body
+        response = session.get(url, endpoint_filter=cls.service)
+        body = response.json()
 
         if cls.resource_key:
             body = body[cls.resource_key]
@@ -664,9 +666,10 @@ class Resource(collections.MutableMapping):
 
         url = cls._get_url(path_args, resource_id)
 
-        data = session.head(url, service=cls.service, accept=None).headers
+        headers = {'Accept': ''}
+        resp = session.head(url, endpoint_filter=cls.service, headers=headers)
 
-        return {HEADERS: data}
+        return {HEADERS: resp.headers}
 
     @classmethod
     def head_by_id(cls, session, resource_id, path_args=None):
@@ -739,9 +742,10 @@ class Resource(collections.MutableMapping):
         if headers:
             args[HEADERS] = headers
         if cls.patch_update:
-            resp = session.patch(url, service=cls.service, **args).body
+            resp = session.patch(url, endpoint_filter=cls.service, **args)
         else:
-            resp = session.put(url, service=cls.service, **args).body
+            resp = session.put(url, endpoint_filter=cls.service, **args)
+        resp = resp.json()
 
         if cls.resource_key and cls.resource_key in resp.keys():
             resp = resp[cls.resource_key]
@@ -794,7 +798,8 @@ class Resource(collections.MutableMapping):
             raise exceptions.MethodNotSupported(cls, 'delete')
 
         url = cls._get_url(path_args, resource_id)
-        session.delete(url, service=cls.service, accept=None)
+        headers = {'Accept': ''}
+        session.delete(url, endpoint_filter=cls.service, headers=headers)
 
     def delete(self, session):
         """Delete the remote resource associated with this instance.
@@ -841,8 +846,11 @@ class Resource(collections.MutableMapping):
         more_data = True
         params = {} if params is None else params
         url = cls._get_url(path_args)
+        headers = {'Accept': 'application/json'}
         while more_data:
-            resp = session.get(url, service=cls.service, params=params).body
+            resp = session.get(url, endpoint_filter=cls.service,
+                               headers=headers, params=params)
+            resp = resp.json()
             if cls.resources_key:
                 resp = resp[cls.resources_key]
 
@@ -919,7 +927,7 @@ class Resource(collections.MutableMapping):
         try:
             if cls.allow_retrieve:
                 return cls.get_by_id(session, name_or_id, path_args=path_args)
-        except exceptions.HttpException:
+        except ksa_exceptions.http.NotFound:
             pass
 
         data = cls.list(session, path_args=path_args)
@@ -995,7 +1003,7 @@ def wait_for_delete(session, resource, interval, wait):
     while total_sleep < wait:
         try:
             resource.get(session)
-        except exceptions.NotFoundException:
+        except ksa_exceptions.http.NotFound:
             return resource
         time.sleep(interval)
         total_sleep += interval

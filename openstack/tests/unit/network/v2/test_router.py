@@ -54,6 +54,7 @@ class TestRouter(testtools.TestCase):
         sot = router.Router(EXAMPLE)
         response = mock.Mock()
         response.body = {"subnet_id": "3", "port_id": "2"}
+        response.json = mock.Mock(return_value=response.body)
         sess = mock.Mock()
         sess.put = mock.MagicMock()
         sess.put.return_value = response
@@ -62,12 +63,14 @@ class TestRouter(testtools.TestCase):
 
         url = 'routers/IDENTIFIER/add_router_interface'
         body = {"subnet_id": "3"}
-        sess.put.assert_called_with(url, service=sot.service, json=body)
+        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+                                    json=body)
 
     def test_remove_interface(self):
         sot = router.Router(EXAMPLE)
         response = mock.Mock()
         response.body = {"subnet_id": "3", "port_id": "2"}
+        response.json = mock.Mock(return_value=response.body)
         sess = mock.Mock()
         sess.put = mock.MagicMock()
         sess.put.return_value = response
@@ -76,4 +79,5 @@ class TestRouter(testtools.TestCase):
 
         url = 'routers/IDENTIFIER/remove_router_interface'
         body = {"subnet_id": "3"}
-        sess.put.assert_called_with(url, service=sot.service, json=body)
+        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+                                    json=body)

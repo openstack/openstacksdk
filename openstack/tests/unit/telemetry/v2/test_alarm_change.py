@@ -57,7 +57,7 @@ class TestAlarmChange(testtools.TestCase):
     def test_list(self):
         sess = mock.Mock()
         resp = mock.Mock()
-        resp.body = [EXAMPLE, EXAMPLE]
+        resp.json = mock.Mock(return_value=[EXAMPLE, EXAMPLE])
         sess.get = mock.Mock(return_value=resp)
         path_args = {'alarm_id': IDENTIFIER}
 

@@ -52,7 +52,8 @@ class Sample(resource.Resource):
     def list(cls, session, limit=None, marker=None, path_args=None,
              paginated=False, **params):
         url = cls._get_url(path_args)
-        for item in session.get(url, service=cls.service, params=params).body:
+        resp = session.get(url, endpoint_filter=cls.service, params=params)
+        for item in resp.json():
             yield cls.existing(**item)
 
     def create(self, session):
@@ -60,7 +61,9 @@ class Sample(resource.Resource):
         # telemetry expects a list of samples
         attrs = self._attrs.copy()
         attrs.pop('meter', None)
-        resp = session.post(url, service=self.service, json=[attrs])
-        self.update_attrs(**resp.body.pop())
+        resp = session.post(url, endpoint_filter=self.service,
+                            json=[attrs])
+        resp = resp.json()
+        self.update_attrs(**resp.pop())
         self._reset_dirty()
         return self

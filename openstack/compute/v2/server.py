@@ -90,11 +90,12 @@ class Server(resource.Resource):
         """Preform server actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'action')
         if has_response:
-            resp = session.post(url, service=self.service, json=body)
+            resp = session.post(url, endpoint_filter=self.service, json=body)
         else:
+            headers = {'Accept': ''}
             resp = session.post(
-                url, service=self.service, json=body, accept=None)
-        return resp
+                url, endpoint_filter=self.service, json=body, headers=headers)
+        return resp.json()
 
     def change_password(self, session, new_password):
         """Change the administrator password to the given password."""

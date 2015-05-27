@@ -77,8 +77,11 @@ class TestImage(testtools.TestCase):
         sot = image.Image(EXAMPLE)
         sot.upload_image(self.sess)
 
-        headers = {'Content-Type': 'application/octet-stream'}
+        headers = {
+            'Content-Type': 'application/octet-stream',
+            'Accept': '',
+        }
 
         self.sess.put.assert_called_with(
-            'images/IDENTIFIER/file', service=sot.service,
-            data=EXAMPLE['data'], accept=None, headers=headers)
+            'images/IDENTIFIER/file', endpoint_filter=sot.service,
+            data=EXAMPLE['data'], headers=headers)

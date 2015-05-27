@@ -59,7 +59,7 @@ class TestMessage(testtools.TestCase):
 
         url = '/queues/%s/messages' % QUEUE
         sess.post.assert_called_with(
-            url, service=sot.service,
+            url, endpoint_filter=sot.service,
             headers={'Client-ID': CLIENT},
             data=mock.ANY)
 
@@ -78,5 +78,5 @@ class TestMessage(testtools.TestCase):
 
         url = '/queues/%s/messages/1234' % QUEUE
         sess.delete.assert_called_with(
-            url, service=sot.service, accept=None,
-            headers={'Client-ID': CLIENT})
+            url, endpoint_filter=sot.service,
+            headers={'Client-ID': CLIENT, 'Accept': ''})

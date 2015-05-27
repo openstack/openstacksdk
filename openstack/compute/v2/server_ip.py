@@ -39,9 +39,10 @@ class ServerIP(resource.Resource):
     @classmethod
     def list(cls, session, path_args=None, **params):
         url = cls._get_url(path_args)
-        resp = session.get(url, service=cls.service, params=params)
+        resp = session.get(url, endpoint_filter=cls.service, params=params)
+        resp = resp.json()
         ray = []
-        for network_label, addresses in six.iteritems(resp.body['addresses']):
+        for network_label, addresses in six.iteritems(resp['addresses']):
             for address in addresses:
                 record = {
                     'server_id': path_args['server_id'],

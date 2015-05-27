@@ -35,7 +35,8 @@ class ServerMetadata(resource.Resource):
         no_id.pop('server_id')
         body = {"metadata": no_id}
         url = cls._get_url(path_args)
-        resp = session.put(url, service=cls.service, json=body).body
+        resp = session.put(url, endpoint_filter=cls.service, json=body)
+        resp = resp.json()
         attrs = resp["metadata"].copy()
         attrs['server_id'] = resource_id
         return attrs
@@ -44,8 +45,8 @@ class ServerMetadata(resource.Resource):
     def get_data_by_id(cls, session, resource_id, path_args=None,
                        include_headers=False):
         url = cls._get_url(path_args)
-        resp = session.get(url, service=cls.service).body
-        return resp[cls.resource_key]
+        resp = session.get(url, endpoint_filter=cls.service)
+        return resp.json()[cls.resource_key]
 
     @classmethod
     def update_by_id(cls, session, resource_id, attrs, path_args=None):

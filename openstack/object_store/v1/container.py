@@ -95,7 +95,8 @@ class Container(_base.BaseResource):
         """
         url = cls._get_url(None, resource_id)
         headers = attrs.get(resource.HEADERS, dict())
-        return session.put(url, service=cls.service, accept=None,
+        headers['Accept'] = ''
+        return session.put(url, endpoint_filter=cls.service,
                            headers=headers).headers
 
     def create(self, session):

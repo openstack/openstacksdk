@@ -25,7 +25,7 @@ class TestObject(base.BaseFunctionalTest):
     def setUpClass(cls):
         super(TestObject, cls).setUpClass()
         cls.conn.object_store.create_container(name=cls.FOLDER)
-        cls.sot = cls.conn.object_store.create_object(
+        cls.sot = cls.conn.object_store.upload_object(
             container=cls.FOLDER, name=cls.FILE, data=cls.DATA)
 
     @classmethod

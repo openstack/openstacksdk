@@ -95,7 +95,7 @@ class TestSample(testtools.TestCase):
     def test_list(self):
         sess = mock.Mock()
         resp = mock.Mock()
-        resp.body = [SAMPLE, OLD_SAMPLE]
+        resp.json = mock.Mock(return_value=[SAMPLE, OLD_SAMPLE])
         sess.get = mock.Mock(return_value=resp)
         path_args = {'counter_name': 'name_of_meter'}
 
@@ -120,7 +120,7 @@ class TestSample(testtools.TestCase):
     def test_create(self):
         sess = mock.Mock()
         resp = mock.Mock()
-        resp.body = [SAMPLE]
+        resp.json = mock.Mock(return_value=[SAMPLE])
         sess.post = mock.Mock(return_value=resp)
 
         data = {'id': None,
@@ -134,6 +134,6 @@ class TestSample(testtools.TestCase):
 
         new_sample.create(sess)
         url = '/meters/temperature'
-        sess.post.assert_called_with(url, service=new_sample.service,
+        sess.post.assert_called_with(url, endpoint_filter=new_sample.service,
                                      json=[data])
         self.assertIsNone(new_sample.id)

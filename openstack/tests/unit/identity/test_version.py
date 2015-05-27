@@ -55,6 +55,7 @@ class TestVersion(testtools.TestCase):
                 ]
             }
         }
+        resp.json = mock.Mock(return_value=resp.body)
         session = mock.MagicMock()
         session.get = mock.MagicMock()
         session.get.return_value = resp

@@ -76,8 +76,8 @@ class Node(resource.Resource):
         :param body: The body of action to be sent.
         """
         url = utils.urljoin(self.base_path, self.id, 'action')
-        resp = session.put(url, service=self.service, json=body).body
-        return resp
+        resp = session.put(url, endpoint_filter=self.service, json=body)
+        return resp.json()
 
     def join(self, session, cluster_id):
         """An action procedure for the node to join a cluster.

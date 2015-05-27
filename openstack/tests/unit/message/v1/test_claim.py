@@ -58,7 +58,7 @@ class TestClaim(testtools.TestCase):
 
         url = '/queues/%s/claims' % QUEUE
         sess.post.assert_called_with(
-            url, service=sot.service,
+            url, endpoint_filter=sot.service,
             headers={'Client-ID': CLIENT}, params=None,
             data=json.dumps(FAKE, cls=claim.ClaimEncoder))
 

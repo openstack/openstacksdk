@@ -68,8 +68,8 @@ class Stack(resource.Resource):
     def _action(self, session, body):
         """Perform stack actions"""
         url = utils.urljoin(self.base_path, self.id, 'actions')
-        resp = session.post(url, service=self.service, json=body).body
-        return resp
+        resp = session.post(url, endpoint_filter=self.service, json=body)
+        return resp.json()
 
     def check(self, session):
         return self._action(session, {'check': ''})
@@ -80,7 +80,8 @@ class Stack(resource.Resource):
         body.pop('id', None)
         body.pop('name', None)
         url = cls.base_path
-        resp = session.post(url, service=cls.service, json=body).body
+        resp = session.post(url, endpoint_filter=cls.service, json=body)
+        resp = resp.json()
         return resp[cls.resource_key]
 
     @classmethod
@@ -91,5 +92,5 @@ class Stack(resource.Resource):
         body.pop('id', None)
         body.pop('name', None)
         url = cls._get_url(path_args, resource_id)
-        session.put(url, service=cls.service, json=body)
+        session.put(url, endpoint_filter=cls.service, json=body)
         return cls.get_by_id(session, resource_id)

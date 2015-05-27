@@ -68,7 +68,7 @@ class TestStatistics(testtools.TestCase):
     def test_list(self):
         sess = mock.Mock()
         resp = mock.Mock()
-        resp.body = [EXAMPLE]
+        resp.json = mock.Mock(return_value=[EXAMPLE])
         sess.get = mock.Mock(return_value=resp)
 
         args = {'meter_name': 'example'}
@@ -76,6 +76,7 @@ class TestStatistics(testtools.TestCase):
 
         url = '/meters/example/statistics'
         stat = next(reply)
-        sess.get.assert_called_with(url, service=stat.service, params={})
+        sess.get.assert_called_with(url, endpoint_filter=stat.service,
+                                    params={})
         self.assertEqual(EXAMPLE, stat)
         self.assertRaises(StopIteration, next, reply)

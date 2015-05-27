@@ -50,6 +50,7 @@ class TestAlarm(testtools.TestCase):
         super(TestAlarm, self).setUp()
         self.resp = mock.Mock()
         self.resp.body = ''
+        self.resp.json = mock.Mock(return_value=self.resp.body)
         self.sess = mock.Mock()
         self.sess.put = mock.MagicMock()
         self.sess.put.return_value = self.resp
@@ -94,12 +95,12 @@ class TestAlarm(testtools.TestCase):
         sot.check_state(self.sess)
 
         url = 'alarms/IDENTIFIER/state'
-        self.sess.get.assert_called_with(url, service=sot.service)
+        self.sess.get.assert_called_with(url, endpoint_filter=sot.service)
 
     def test_change_status(self):
         sot = alarm.Alarm(EXAMPLE)
         self.assertEqual(self.resp.body, sot.change_state(self.sess, 'alarm'))
 
         url = 'alarms/IDENTIFIER/state'
-        self.sess.put.assert_called_with(url, service=sot.service,
+        self.sess.put.assert_called_with(url, endpoint_filter=sot.service,
                                          json='alarm')

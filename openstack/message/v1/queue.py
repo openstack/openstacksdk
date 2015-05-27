@@ -29,5 +29,6 @@ class Queue(resource.Resource):
     @classmethod
     def create_by_id(cls, session, attrs, resource_id=None, path_args=None):
         url = cls._get_url(path_args, resource_id)
-        session.put(url, service=cls.service, accept=None)
+        headers = {'Accept': ''}
+        session.put(url, endpoint_filter=cls.service, headers=headers)
         return {cls.id_attribute: resource_id}

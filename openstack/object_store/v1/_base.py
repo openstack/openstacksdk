@@ -35,5 +35,6 @@ class BaseResource(resource.Resource):
         """
         url = cls._get_url(None, resource_id)
         headers = attrs.get(resource.HEADERS, dict())
-        return session.post(url, service=cls.service, accept=None,
+        headers['Accept'] = ''
+        return session.post(url, endpoint_filter=cls.service,
                             headers=headers).headers

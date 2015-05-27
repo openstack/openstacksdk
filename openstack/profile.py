@@ -37,7 +37,7 @@ normally be something like 'compute', 'identity', 'object-store', etc.::
     prof.set_version('identity', 'v3')
     prof.set_interface('object-store', 'internal')
     for service in prof.get_services():
-        print str(prof.get_preference(service.service_type))
+        print(prof.get_filter(service.service_type)
 
 The resulting preference print out would look something like::
 
@@ -51,6 +51,7 @@ The resulting preference print out would look something like::
     service_type=identity,region=zion,version=v3
 """
 
+import copy
 import logging
 import six
 
@@ -88,7 +89,6 @@ class Profile(object):
         Services are identified by their service type, e.g.: 'identity',
         'compute', etc.
         """
-        self._preferences = {}
         self._services = {}
         self._add_service(cluster_service.ClusterService())
         self._add_service(compute_service.ComputeService())
@@ -107,13 +107,13 @@ class Profile(object):
         if plugins:
             for plugin in plugins:
                 self._load_plugin(plugin)
-        self.service_names = sorted(self._services.keys())
+        self.service_keys = sorted(self._services.keys())
 
     def __repr__(self):
-        return repr(self._preferences)
+        return repr(self._services)
 
     def _add_service(self, serv):
-        serv.set_interface(None)
+        serv.interface = None
         self._services[serv.service_type] = serv
 
     def _load_plugin(self, namespace):
@@ -128,12 +128,24 @@ class Profile(object):
                               services[service_type])
             self._add_service(services[service_type])
 
-    def get_preference(self, service):
+    def get_filter(self, service):
         """Get a service preference.
 
         :param str service: Desired service type.
         """
-        return self._preferences.get(service, None)
+        return copy.copy(self._get_filter(service))
+
+    def _get_filter(self, service):
+        """Get a service preference.
+
+        :param str service: Desired service type.
+        """
+        serv = self._services.get(service, None)
+        if serv is not None:
+            return serv
+        msg = ("Service %s not in list of valid services: %s" %
+               (service, self.service_keys))
+        raise exceptions.SDKException(msg)
 
     def get_services(self):
         """Get a list of all the known services."""
@@ -142,16 +154,6 @@ class Profile(object):
             services.append(service)
         return services
 
-    def _get_service(self, service):
-        """Get a valid service filter."""
-        serv = self._services.get(service, None)
-        if serv is not None:
-            self._preferences[service] = serv
-            return serv
-        msg = ("Service %s not in list of valid services: %s" %
-               (service, self.service_names))
-        raise exceptions.SDKException(msg)
-
     def set_name(self, service, name):
         """Set the desired name for the specified service.
 
@@ -159,11 +161,11 @@ class Profile(object):
         :param str name: Desired service name.
         """
         if service == self.ALL:
-            services = self.service_names
+            services = self.service_keys
         else:
             services = [service]
         for service in services:
-            self._get_service(service).service_name = name
+            self._get_filter(service).service_name = name
 
     def set_region(self, service, region):
         """Set the desired region for the specified service.
@@ -172,11 +174,11 @@ class Profile(object):
         :param str region: Desired service region.
         """
         if service == self.ALL:
-            services = self.service_names
+            services = self.service_keys
         else:
             services = [service]
         for service in services:
-            self._get_service(service).region = region
+            self._get_filter(service).region = region
 
     def set_version(self, service, version):
         """Set the desired version for the specified service.
@@ -184,7 +186,7 @@ class Profile(object):
         :param str service: Service type.
         :param str version: Desired service version.
         """
-        self._get_service(service).version = version
+        self._get_filter(service).version = version
 
     def set_interface(self, service, interface):
         """Set the desired interface for the specified service.
@@ -193,8 +195,8 @@ class Profile(object):
         :param str interface: Desired service interface.
         """
         if service == self.ALL:
-            services = self.service_names
+            services = self.service_keys
         else:
             services = [service]
         for service in services:
-            self._get_service(service).set_interface(interface)
+            self._get_filter(service).interface = interface

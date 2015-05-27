@@ -51,7 +51,7 @@ class TestCapability(testtools.TestCase):
     def test_list(self):
         sess = mock.Mock()
         resp = mock.Mock()
-        resp.body = BODY
+        resp.json = mock.Mock(return_value=BODY)
         sess.get = mock.Mock(return_value=resp)
 
         caps = capability.Capability.list(sess)

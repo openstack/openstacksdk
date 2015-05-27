@@ -16,11 +16,9 @@ import tempfile
 import mock
 import os_client_config
 
-from openstack.auth.identity import v2
 from openstack import connection
 from openstack import profile
 from openstack.tests.unit import base
-from openstack import transport
 
 
 CONFIG_AUTH_URL = "http://127.0.0.1:5000/v2.0"
@@ -42,47 +40,53 @@ clouds:
 
 
 class TestConnection(base.TestCase):
-    def setUp(self):
-        super(TestConnection, self).setUp()
-        self.xport = transport.Transport()
-        self.auth = v2.Token(auth_url='http://127.0.0.1/v2', token='b')
-        self.prof = profile.Profile()
-        self.conn = connection.Connection(authenticator=mock.MagicMock(),
-                                          transport=mock.MagicMock())
-        self.conn.session = mock.MagicMock()
+    @mock.patch("openstack.session.Session")
+    def test_other_parameters(self, mock_session_init):
+        mock_session_init.return_value = mock_session_init
+        mock_profile = mock.Mock()
+        mock_profile.get_services = mock.Mock(return_value=[])
+        conn = connection.Connection(profile=mock_profile, authenticator='2',
+                                     verify=True, user_agent='1')
+        args = {'auth': '2', 'user_agent': '1', 'verify': True}
+        mock_session_init.assert_called_with(mock_profile, **args)
+        self.assertEqual(mock_session_init, conn.session)
 
-    def test_create_transport(self):
-        conn = connection.Connection(authenticator='2', verify=True,
-                                     user_agent='1')
-        self.assertTrue(conn.transport.verify)
-        self.assertIn('1', conn.transport._user_agent)
-
-    def test_create_authenticator(self):
+    @mock.patch("keystoneauth1.loading.base.get_plugin_loader")
+    def test_create_authenticator(self, mock_get_plugin):
+        mock_plugin = mock.Mock()
+        mock_loader = mock.Mock()
+        mock_options = [
+            mock.Mock(dest="auth_url"),
+            mock.Mock(dest="password"),
+            mock.Mock(dest="username"),
+        ]
+        mock_loader.get_options = mock.Mock(return_value=mock_options)
+        mock_loader.load_from_options = mock.Mock(return_value=mock_plugin)
+        mock_get_plugin.return_value = mock_loader
         auth_args = {
             'auth_url': '0',
             'username': '1',
             'password': '2',
         }
-        conn = connection.Connection(transport='0', auth_plugin='password',
-                                     **auth_args)
-        self.assertEqual('0', conn.authenticator.auth_url)
-        self.assertEqual(
-            '1',
-            conn.authenticator.auth_plugin.auth_methods[0].username)
-        self.assertEqual(
-            '2',
-            conn.authenticator.auth_plugin.auth_methods[0].password)
+        conn = connection.Connection(auth_plugin='v2password', **auth_args)
+        mock_get_plugin.assert_called_with('v2password')
+        mock_loader.load_from_options.assert_called_with(**auth_args)
+        self.assertEqual(mock_plugin, conn.authenticator)
+
+    @mock.patch("keystoneauth1.loading.base.get_plugin_loader")
+    def test_pass_authenticator(self, mock_get_plugin):
+        mock_plugin = mock.Mock()
+        mock_get_plugin.return_value = None
+        conn = connection.Connection(authenticator=mock_plugin)
+        self.assertFalse(mock_get_plugin.called)
+        self.assertEqual(mock_plugin, conn.authenticator)
 
     def test_create_session(self):
-        args = {
-            'transport': self.xport,
-            'authenticator': self.auth,
-            'profile': self.prof,
-        }
-        conn = connection.Connection(**args)
-        self.assertEqual(self.xport, conn.session.transport)
-        self.assertEqual(self.auth, conn.session.authenticator)
-        self.assertEqual(self.prof, conn.session.profile)
+        auth = mock.Mock()
+        prof = profile.Profile()
+        conn = connection.Connection(authenticator=auth, profile=prof)
+        self.assertEqual(auth, conn.authenticator)
+        self.assertEqual(prof, conn.profile)
         self.assertEqual('openstack.cluster.v1._proxy',
                          conn.cluster.__class__.__module__)
         self.assertEqual('openstack.compute.v2._proxy',
@@ -101,12 +105,6 @@ class TestConnection(base.TestCase):
                          conn.orchestration.__class__.__module__)
         self.assertEqual('openstack.telemetry.v2._proxy',
                          conn.telemetry.__class__.__module__)
-
-    def test_custom_user_agent(self):
-        user_agent = "MyProgram/1.0"
-        conn = connection.Connection(authenticator=self.auth,
-                                     user_agent=user_agent)
-        self.assertTrue(conn.transport._user_agent.startswith(user_agent))
 
     def _prepare_test_config(self):
         # Create a temporary directory where our test config will live
@@ -130,13 +128,13 @@ class TestConnection(base.TestCase):
         sot = connection.from_config(cloud_config=data)
 
         self.assertEqual(CONFIG_USERNAME,
-                         sot.authenticator.auth_plugin.username)
+                         sot.authenticator._username)
         self.assertEqual(CONFIG_PASSWORD,
-                         sot.authenticator.auth_plugin.password)
+                         sot.authenticator._password)
         self.assertEqual(CONFIG_AUTH_URL,
-                         sot.authenticator.auth_plugin.auth_url)
+                         sot.authenticator.auth_url)
         self.assertEqual(CONFIG_PROJECT,
-                         sot.authenticator.auth_plugin.tenant_name)
+                         sot.authenticator._project_name)
 
     def test_from_config_given_name(self):
         self._prepare_test_config()
@@ -144,13 +142,13 @@ class TestConnection(base.TestCase):
         sot = connection.from_config(cloud_name="sample")
 
         self.assertEqual(CONFIG_USERNAME,
-                         sot.authenticator.auth_plugin.username)
+                         sot.authenticator._username)
         self.assertEqual(CONFIG_PASSWORD,
-                         sot.authenticator.auth_plugin.password)
+                         sot.authenticator._password)
         self.assertEqual(CONFIG_AUTH_URL,
-                         sot.authenticator.auth_plugin.auth_url)
+                         sot.authenticator.auth_url)
         self.assertEqual(CONFIG_PROJECT,
-                         sot.authenticator.auth_plugin.tenant_name)
+                         sot.authenticator._project_name)
 
     def test_from_config_given_options(self):
         self._prepare_test_config()
@@ -162,7 +160,7 @@ class TestConnection(base.TestCase):
 
         sot = connection.from_config(cloud_name="sample", options=Opts)
 
-        pref = sot.session.profile.get_preference("compute")
+        pref = sot.session.profile.get_filter("compute")
 
         # NOTE: Along the way, the `v` prefix gets added so we can build
         # up URLs with it.

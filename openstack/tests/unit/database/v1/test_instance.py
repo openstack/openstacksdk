@@ -53,6 +53,7 @@ class TestInstance(testtools.TestCase):
         sot = instance.Instance(EXAMPLE)
         response = mock.Mock()
         response.body = {'user': {'name': 'root', 'password': 'foo'}}
+        response.json = mock.Mock(return_value=response.body)
         sess = mock.Mock()
         sess.post = mock.MagicMock()
         sess.post.return_value = response
@@ -60,12 +61,13 @@ class TestInstance(testtools.TestCase):
         self.assertEqual(response.body['user'], sot.enable_root_user(sess))
 
         url = ("instances/%s/root" % IDENTIFIER)
-        sess.post.assert_called_with(url, service=sot.service)
+        sess.post.assert_called_with(url, endpoint_filter=sot.service)
 
     def test_is_root_enabled(self):
         sot = instance.Instance(EXAMPLE)
         response = mock.Mock()
         response.body = {'rootEnabled': True}
+        response.json = mock.Mock(return_value=response.body)
         sess = mock.Mock()
         sess.get = mock.MagicMock()
         sess.get.return_value = response
@@ -73,12 +75,12 @@ class TestInstance(testtools.TestCase):
         self.assertEqual(True, sot.is_root_enabled(sess))
 
         url = ("instances/%s/root" % IDENTIFIER)
-        sess.get.assert_called_with(url, service=sot.service)
+        sess.get.assert_called_with(url, endpoint_filter=sot.service)
 
     def test_action_restart(self):
         sot = instance.Instance(EXAMPLE)
         response = mock.Mock()
-        response.body = ''
+        response.json = mock.Mock(return_value='')
         sess = mock.Mock()
         sess.post = mock.MagicMock()
         sess.post.return_value = response
@@ -87,12 +89,13 @@ class TestInstance(testtools.TestCase):
 
         url = ("instances/%s/action" % IDENTIFIER)
         body = {'restart': {}}
-        sess.post.assert_called_with(url, service=sot.service, json=body)
+        sess.post.assert_called_with(url, endpoint_filter=sot.service,
+                                     json=body)
 
     def test_action_resize(self):
         sot = instance.Instance(EXAMPLE)
         response = mock.Mock()
-        response.body = ''
+        response.json = mock.Mock(return_value='')
         sess = mock.Mock()
         sess.post = mock.MagicMock()
         sess.post.return_value = response
@@ -102,12 +105,13 @@ class TestInstance(testtools.TestCase):
 
         url = ("instances/%s/action" % IDENTIFIER)
         body = {'resize': {'flavorRef': flavor}}
-        sess.post.assert_called_with(url, service=sot.service, json=body)
+        sess.post.assert_called_with(url, endpoint_filter=sot.service,
+                                     json=body)
 
     def test_action_resize_volume(self):
         sot = instance.Instance(EXAMPLE)
         response = mock.Mock()
-        response.body = ''
+        response.json = mock.Mock(return_value='')
         sess = mock.Mock()
         sess.post = mock.MagicMock()
         sess.post.return_value = response
@@ -117,4 +121,5 @@ class TestInstance(testtools.TestCase):
 
         url = ("instances/%s/action" % IDENTIFIER)
         body = {'resize': {'volume': size}}
-        sess.post.assert_called_with(url, service=sot.service, json=body)
+        sess.post.assert_called_with(url, endpoint_filter=sot.service,
+                                     json=body)

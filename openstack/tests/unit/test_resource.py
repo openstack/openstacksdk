@@ -14,6 +14,8 @@ import copy
 import json
 import os
 
+from keystoneauth1 import exceptions as ksa_exceptions
+from keystoneauth1 import session
 import mock
 import requests
 from testtools import matchers
@@ -21,7 +23,6 @@ from testtools import matchers
 from openstack import exceptions
 from openstack import format
 from openstack import resource
-from openstack import session
 from openstack.tests.unit import base
 from openstack import utils
 
@@ -249,7 +250,8 @@ class HeaderTests(base.TestCase):
         sot.ho = "johnny"
         sot.letsgo = "deedee"
         response = mock.MagicMock()
-        response.body = {'id': 1}
+        response_body = {'id': 1}
+        response.json = mock.Mock(return_value=response_body)
         sess = mock.MagicMock()
         sess.post = mock.MagicMock(return_value=response)
         sess.put = mock.MagicMock(return_value=response)
@@ -257,7 +259,7 @@ class HeaderTests(base.TestCase):
         sot.create(sess)
         headers = {'guitar': 'johnny', 'bass': 'deedee'}
         sess.post.assert_called_with(HeaderTests.Test.base_path,
-                                     service=HeaderTests.Test.service,
+                                     endpoint_filter=HeaderTests.Test.service,
                                      headers=headers,
                                      json={})
 
@@ -266,7 +268,7 @@ class HeaderTests(base.TestCase):
         headers = {'guitar': 'johnny', 'bass': 'cj'}
         sot.update(sess)
         sess.put.assert_called_with('ramones/1',
-                                    service=HeaderTests.Test.service,
+                                    endpoint_filter=HeaderTests.Test.service,
                                     headers=headers,
                                     json={})
 
@@ -276,6 +278,7 @@ class ResourceTests(base.TestCase):
     def setUp(self):
         super(ResourceTests, self).setUp()
         self.session = mock.Mock(spec=session.Session)
+        self.session.get_filter = mock.Mock(return_value={})
 
     def assertCalledURL(self, method, url):
         # call_args gives a tuple of *args and tuple of **kwargs.
@@ -283,7 +286,9 @@ class ResourceTests(base.TestCase):
         self.assertEqual(method.call_args[0][0], url)
 
     def test_empty_id(self):
-        self.session.get.return_value = mock.Mock(body=fake_body)
+        resp = mock.Mock()
+        resp.json = mock.Mock(return_value=fake_body)
+        self.session.get.return_value = resp
 
         obj = FakeResource.new(**fake_arguments)
         self.assertEqual(obj, obj.get(self.session))
@@ -344,7 +349,7 @@ class ResourceTests(base.TestCase):
             service = "my_service"
 
         response = mock.MagicMock()
-        response.body = response_body
+        response.json = mock.Mock(return_value=response_body)
 
         sess = mock.MagicMock()
         sess.put = mock.MagicMock(return_value=response)
@@ -353,7 +358,7 @@ class ResourceTests(base.TestCase):
         resp = FakeResource2.create_by_id(sess, attrs)
         self.assertEqual(response_value, resp)
         sess.post.assert_called_with(FakeResource2.base_path,
-                                     service=FakeResource2.service,
+                                     endpoint_filter=FakeResource2.service,
                                      json=json_body)
 
         r_id = "my_id"
@@ -361,14 +366,14 @@ class ResourceTests(base.TestCase):
         self.assertEqual(response_value, resp)
         sess.put.assert_called_with(
             utils.urljoin(FakeResource2.base_path, r_id),
-            service=FakeResource2.service,
+            endpoint_filter=FakeResource2.service,
             json=json_body)
 
         path_args = {"parent_name": "my_name"}
         resp = FakeResource2.create_by_id(sess, attrs, path_args=path_args)
         self.assertEqual(response_value, resp)
         sess.post.assert_called_with(FakeResource2.base_path % path_args,
-                                     service=FakeResource2.service,
+                                     endpoint_filter=FakeResource2.service,
                                      json=json_body)
 
         resp = FakeResource2.create_by_id(sess, attrs, resource_id=r_id,
@@ -376,7 +381,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(response_value, resp)
         sess.put.assert_called_with(
             utils.urljoin(FakeResource2.base_path % path_args, r_id),
-            service=FakeResource2.service,
+            endpoint_filter=FakeResource2.service,
             json=json_body)
 
     def test_create_without_resource_key(self):
@@ -403,7 +408,7 @@ class ResourceTests(base.TestCase):
             service = "my_service"
 
         response = mock.MagicMock()
-        response.body = response_body
+        response.json = mock.Mock(return_value=response_body)
 
         sess = mock.MagicMock()
         sess.get = mock.MagicMock(return_value=response)
@@ -413,7 +418,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(response_value, resp)
         sess.get.assert_called_with(
             utils.urljoin(FakeResource2.base_path, r_id),
-            service=FakeResource2.service)
+            endpoint_filter=FakeResource2.service)
 
         path_args = {"parent_name": "my_name"}
         resp = FakeResource2.get_data_by_id(sess, resource_id=r_id,
@@ -421,7 +426,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(response_value, resp)
         sess.get.assert_called_with(
             utils.urljoin(FakeResource2.base_path % path_args, r_id),
-            service=FakeResource2.service)
+            endpoint_filter=FakeResource2.service)
 
     def test_get_data_without_resource_key(self):
         key = None
@@ -449,19 +454,21 @@ class ResourceTests(base.TestCase):
         r_id = "my_id"
         resp = FakeResource2.head_data_by_id(sess, resource_id=r_id)
         self.assertEqual({'headers': response_value}, resp)
+        headers = {'Accept': ''}
         sess.head.assert_called_with(
             utils.urljoin(FakeResource2.base_path, r_id),
-            service=FakeResource2.service,
-            accept=None)
+            endpoint_filter=FakeResource2.service,
+            headers=headers)
 
         path_args = {"parent_name": "my_name"}
         resp = FakeResource2.head_data_by_id(sess, resource_id=r_id,
                                              path_args=path_args)
         self.assertEqual({'headers': response_value}, resp)
+        headers = {'Accept': ''}
         sess.head.assert_called_with(
             utils.urljoin(FakeResource2.base_path % path_args, r_id),
-            service=FakeResource2.service,
-            accept=None)
+            endpoint_filter=FakeResource2.service,
+            headers=headers)
 
     def test_head_data_without_resource_key(self):
         key = None
@@ -482,7 +489,7 @@ class ResourceTests(base.TestCase):
             service = "my_service"
 
         response = mock.MagicMock()
-        response.body = response_body
+        response.json = mock.Mock(return_value=response_body)
 
         sess = mock.MagicMock()
         sess.patch = mock.MagicMock(return_value=response)
@@ -492,7 +499,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(response_value, resp)
         sess.patch.assert_called_with(
             utils.urljoin(FakeResource2.base_path, r_id),
-            service=FakeResource2.service,
+            endpoint_filter=FakeResource2.service,
             json=json_body)
 
         path_args = {"parent_name": "my_name"}
@@ -501,7 +508,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(response_value, resp)
         sess.patch.assert_called_with(
             utils.urljoin(FakeResource2.base_path % path_args, r_id),
-            service=FakeResource2.service,
+            endpoint_filter=FakeResource2.service,
             json=json_body)
 
     def test_update_without_resource_key(self):
@@ -532,21 +539,24 @@ class ResourceTests(base.TestCase):
         r_id = "my_id"
         resp = FakeResource2.delete_by_id(sess, r_id)
         self.assertIsNone(resp)
+        headers = {'Accept': ''}
         sess.delete.assert_called_with(
             utils.urljoin(FakeResource2.base_path, r_id),
-            service=FakeResource2.service,
-            accept=None)
+            endpoint_filter=FakeResource2.service,
+            headers=headers)
 
         path_args = {"parent_name": "my_name"}
         resp = FakeResource2.delete_by_id(sess, r_id, path_args=path_args)
         self.assertIsNone(resp)
+        headers = {'Accept': ''}
         sess.delete.assert_called_with(
             utils.urljoin(FakeResource2.base_path % path_args, r_id),
-            service=FakeResource2.service,
-            accept=None)
+            endpoint_filter=FakeResource2.service,
+            headers=headers)
 
     def test_create(self):
-        resp = mock.Mock(body=fake_body)
+        resp = mock.Mock()
+        resp.json = mock.Mock(return_value=fake_body)
         self.session.post = mock.Mock(return_value=resp)
 
         obj = FakeResource.new(parent_name=fake_parent,
@@ -580,7 +590,8 @@ class ResourceTests(base.TestCase):
         self.assertEqual(fake_attr2, obj.second)
 
     def test_get(self):
-        resp = mock.Mock(body=fake_body)
+        resp = mock.Mock()
+        resp.json = mock.Mock(return_value=fake_body)
         self.session.get = mock.Mock(return_value=resp)
 
         obj = FakeResource.get_by_id(self.session, fake_id,
@@ -606,7 +617,8 @@ class ResourceTests(base.TestCase):
         headers = {"header1": header1,
                    "header2": header2}
 
-        resp = mock.Mock(body=fake_body, headers=headers)
+        resp = mock.Mock(headers=headers)
+        resp.json = mock.Mock(return_value=fake_body)
         self.session.get = mock.Mock(return_value=resp)
 
         class FakeResource2(FakeResource):
@@ -659,7 +671,8 @@ class ResourceTests(base.TestCase):
         class FakeResourcePatch(FakeResource):
             patch_update = True
 
-        resp = mock.Mock(body=fake_body)
+        resp = mock.Mock()
+        resp.json = mock.Mock(return_value=fake_body)
         self.session.patch = mock.Mock(return_value=resp)
 
         obj = FakeResourcePatch.new(id=fake_id, parent_name=fake_parent,
@@ -693,7 +706,8 @@ class ResourceTests(base.TestCase):
             # This is False by default, but explicit for this test.
             patch_update = False
 
-        resp = mock.Mock(body=fake_body)
+        resp = mock.Mock()
+        resp.json = mock.Mock(return_value=fake_body)
         self.session.put = mock.Mock(return_value=resp)
 
         obj = FakeResourcePut.new(id=fake_id, parent_name=fake_parent,
@@ -756,8 +770,11 @@ class ResourceTests(base.TestCase):
         else:
             body = self._get_expected_results()
             sentinel = []
-        self.session.get.side_effect = [mock.Mock(body=body),
-                                        mock.Mock(body=sentinel)]
+        resp1 = mock.Mock()
+        resp1.json = mock.Mock(return_value=body)
+        resp2 = mock.Mock()
+        resp2.json = mock.Mock(return_value=sentinel)
+        self.session.get.side_effect = [resp1, resp2]
 
         objs = list(resource_class.list(self.session, path_args=fake_arguments,
                                         paginated=True))
@@ -786,8 +803,9 @@ class ResourceTests(base.TestCase):
     def _test_list_call_count(self, paginated):
         # Test that we've only made one call to receive all data
         results = [fake_data.copy(), fake_data.copy(), fake_data.copy()]
-        body = mock.Mock(body={fake_resources: results})
-        attrs = {"get.return_value": body}
+        resp = mock.Mock()
+        resp.json = mock.Mock(return_value={fake_resources: results})
+        attrs = {"get.return_value": resp}
         session = mock.Mock(**attrs)
 
         list(FakeResource.list(session, params={'limit': len(results) + 1},
@@ -812,9 +830,11 @@ class ResourceTests(base.TestCase):
         session = mock.MagicMock()
         session.get = mock.MagicMock()
         full_response = mock.MagicMock()
-        full_response.body = {FakeResource.resources_key: full_page}
+        response_body = {FakeResource.resources_key: full_page}
+        full_response.json = mock.Mock(return_value=response_body)
         last_response = mock.MagicMock()
-        last_response.body = {FakeResource.resources_key: last_page}
+        response_body = {FakeResource.resources_key: last_page}
+        last_response.json = mock.Mock(return_value=response_body)
         pages = [full_response, full_response, last_response]
         session.get.side_effect = pages
 
@@ -832,7 +852,8 @@ class ResourceTests(base.TestCase):
         session = mock.Mock()
         session.get = mock.Mock()
         full_response = mock.Mock()
-        full_response.body = {FakeResource.resources_key: page}
+        response_body = {FakeResource.resources_key: page}
+        full_response.json = mock.Mock(return_value=response_body)
         pages = [full_response]
         session.get.side_effect = pages
 
@@ -1152,7 +1173,9 @@ class ResourceMapping(base.TestCase):
                 json.dumps(attrs)
             except TypeError as e:
                 self.fail("Unable to serialize _attrs: %s" % e)
-            return mock.Mock(body=attrs)
+            resp = mock.Mock()
+            resp.json = mock.Mock(return_value=attrs)
+            return resp
 
         session = mock.Mock()
         setattr(session, session_method, mock.Mock(side_effect=fake_call))
@@ -1173,6 +1196,9 @@ class FakeResponse(object):
     def __init__(self, response):
         self.body = response
 
+    def json(self):
+        return self.body
+
 
 class TestFind(base.TestCase):
     NAME = 'matrix'
@@ -1188,7 +1214,7 @@ class TestFind(base.TestCase):
 
     def test_name(self):
         self.mock_get.side_effect = [
-            exceptions.HttpException(404, 'not found'),
+            ksa_exceptions.http.NotFound(),
             FakeResponse({FakeResource.resources_key: [self.matrix]})
         ]
 
@@ -1210,7 +1236,7 @@ class TestFind(base.TestCase):
         self.assertEqual(self.PROP, result.prop)
 
         path = "fakes/" + fake_parent + "/data/" + self.ID
-        self.mock_get.assert_any_call(path, service=None)
+        self.mock_get.assert_any_call(path, endpoint_filter=None)
 
     def test_id_no_retrieve(self):
         self.mock_get.side_effect = [
@@ -1231,7 +1257,7 @@ class TestFind(base.TestCase):
         dupe['id'] = 'different'
         self.mock_get.side_effect = [
             # Raise a 404 first so we get out of the ID search and into name.
-            exceptions.HttpException(404, 'not found'),
+            ksa_exceptions.http.NotFound(),
             FakeResponse({FakeResource.resources_key: [self.matrix, dupe]})
         ]
 
@@ -1255,11 +1281,11 @@ class TestFind(base.TestCase):
 
         p = {'ip_address': "127.0.0.1"}
         path = fake_path + "?limit=2"
-        self.mock_get.called_once_with(path, params=p, service=None)
+        self.mock_get.called_once_with(path, params=p, endpoint_filter=None)
 
     def test_nada(self):
         self.mock_get.side_effect = [
-            exceptions.HttpException(404, 'not found'),
+            ksa_exceptions.http.NotFound(),
             FakeResponse({FakeResource.resources_key: []})
         ]
 
@@ -1267,7 +1293,7 @@ class TestFind(base.TestCase):
 
     def test_no_name(self):
         self.mock_get.side_effect = [
-            exceptions.HttpException(404, 'not found'),
+            ksa_exceptions.http.NotFound(),
             FakeResponse({FakeResource.resources_key: [self.matrix]})
         ]
         FakeResource.name_attribute = None
@@ -1276,7 +1302,7 @@ class TestFind(base.TestCase):
 
     def test_nada_not_ignored(self):
         self.mock_get.side_effect = [
-            exceptions.HttpException(404, 'not found'),
+            ksa_exceptions.http.NotFound(),
             FakeResponse({FakeResource.resources_key: []})
         ]
 
@@ -1350,7 +1376,9 @@ class TestWaitForDelete(base.TestCase):
         sess = mock.Mock()
         sot = FakeResource.new(**fake_data)
         sot.get = mock.MagicMock()
-        sot.get.side_effect = [sot, exceptions.NotFoundException(mock.Mock())]
+        sot.get.side_effect = [
+            sot,
+            ksa_exceptions.http.NotFound()]
 
         self.assertEqual(sot, resource.wait_for_delete(sess, sot, 1, 2))
 

@@ -60,13 +60,12 @@ try to find it and if that fails, you would create it::
 import logging
 import sys
 
+from keystoneauth1.loading import base as ksa_loader
 import os_client_config
 
-from openstack import module_loader
-from openstack import profile
+from openstack import profile as _profile
 from openstack import proxy
-from openstack import session
-from openstack import transport as xport
+from openstack import session as _session
 from openstack import utils
 
 _logger = logging.getLogger(__name__)
@@ -95,7 +94,7 @@ def from_config(cloud_name=None, cloud_config=None, options=None):
     """
     # TODO(thowe): I proposed that service name defaults to None in OCC
     defaults = {}
-    prof = profile.Profile()
+    prof = _profile.Profile()
     services = [service.service_type for service in prof.get_services()]
     for service in services:
         defaults[service + '_service_name'] = None
@@ -119,16 +118,25 @@ def from_config(cloud_name=None, cloud_config=None, options=None):
                 version = str(version)
                 if not version.startswith("v"):
                     version = "v" + version
-            prof.set_version(service, version)
-            prof.set_name(service, cloud_config.get_service_name(service))
-            prof.set_interface(
-                service, cloud_config.get_interface(service))
-            prof.set_region(service, cloud_config.get_region_name(service))
+                prof.set_version(service, version)
+            name = cloud_config.get_service_name(service)
+            if name:
+                prof.set_name(service, name)
+            interface = cloud_config.get_interface(service)
+            if interface:
+                prof.set_interface(service, interface)
+
+    region = cloud_config.get_region_name(service)
+    if region:
+        for service in services:
+            prof.set_region(service, region)
 
     # Auth
     auth = cloud_config.config['auth']
     # TODO(thowe) We should be using auth_type
     auth['auth_plugin'] = cloud_config.config['auth_type']
+    if 'cacert' in auth:
+        auth['verify'] = auth.pop('cacert')
     if 'cacert' in cloud_config.config:
         auth['verify'] = cloud_config.config['cacert']
     if 'insecure' in cloud_config.config:
@@ -139,22 +147,20 @@ def from_config(cloud_name=None, cloud_config=None, options=None):
 
 class Connection(object):
 
-    def __init__(self, transport=None, authenticator=None, profile=None,
-                 verify=True, user_agent=None,
-                 auth_plugin=None, **auth_args):
+    def __init__(self, session=None, authenticator=None, profile=None,
+                 verify=True, user_agent=None, auth_plugin=None, **auth_args):
         """Create a context for a connection to a cloud provider.
 
         A connection needs a transport and an authenticator.  The user may pass
         in a transport and authenticator they want to use or they may pass in
         the parameters to create a transport and authenticator.  The connection
         creates a
-        :class:`~openstack.session.Session` which uses the transport
+        :class:`~openstack.session.Session` which uses the profile
         and authenticator to perform HTTP requests.
 
-        :param transport: A transport object such as that was previously
-            created.  If this parameter is not passed in, the connection will
-            create a transport.
-        :type transport: :class:`~openstack.transport.Transport`
+        :param session: A session object compatible with
+            :class:`~openstack.session.Session`.
+        :type session: :class:`~openstack.session.Session`
         :param authenticator: An authenticator derived from the base
             authenticator plugin that was previously created.  Two common
             authentication identity plugins are
@@ -187,33 +193,33 @@ class Connection(object):
             authentication arguments that are used by the authentication
             plugin.
         """
-        self.transport = self._create_transport(transport, verify, user_agent)
         self.authenticator = self._create_authenticator(authenticator,
                                                         auth_plugin,
                                                         **auth_args)
-        self.session = session.Session(self.transport, self.authenticator,
-                                       profile)
+        self.profile = profile if profile else _profile.Profile()
+        self.session = session if session else _session.Session(
+            self.profile, auth=self.authenticator, verify=verify,
+            user_agent=user_agent)
         self._open()
 
-    def _create_transport(self, transport, verify, user_agent):
-        if transport:
-            return transport
-        return xport.Transport(verify=verify, user_agent=user_agent)
-
-    def _create_authenticator(self, authenticator, auth_plugin, **auth_args):
+    def _create_authenticator(self, authenticator, auth_plugin, **args):
         if authenticator:
             return authenticator
-        plugin = module_loader.ModuleLoader().get_auth_plugin(auth_plugin)
-        valid_list = plugin.valid_options
-        args = dict((n, auth_args[n]) for n in valid_list if n in auth_args)
-        return plugin(**args)
+        # TODO(thowe): Jamie was suggesting we should support other
+        #              ways of loading the plugin
+        loader = ksa_loader.get_plugin_loader(auth_plugin)
+        load_args = {}
+        for opt in loader.get_options():
+            if args.get(opt.dest):
+                load_args[opt.dest] = args[opt.dest]
+        return loader.load_from_options(**load_args)
 
     def _open(self):
         """Open the connection.
 
         NOTE(thowe): Have this set up some lazy loader instead.
         """
-        for service in self.session.get_services():
+        for service in self.profile.get_services():
             self._load(service)
 
     def _load(self, service):
