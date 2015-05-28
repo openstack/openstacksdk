@@ -39,7 +39,7 @@ VENDOR_CONF = {
 }
 USER_CONF = {
     'clouds': {
-        '_test_cloud_': {
+        '_test-cloud_': {
             'profile': '_test_cloud_in_our_cloud',
             'auth': {
                 'username': 'testuser',

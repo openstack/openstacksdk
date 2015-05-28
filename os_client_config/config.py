@@ -161,7 +161,7 @@ class OpenStackConfig(object):
         for path in filelist:
             if os.path.exists(path):
                 with open(path, 'r') as f:
-                    return path, self._normalize_keys(yaml.safe_load(f))
+                    return path, yaml.safe_load(f)
         return (None, None)
 
     def _normalize_keys(self, config):
@@ -218,8 +218,8 @@ class OpenStackConfig(object):
         profile_name = our_cloud.get('profile', our_cloud.get('cloud', None))
         if profile_name:
             vendor_filename, vendor_file = self._load_vendor_file()
-            if vendor_file and profile_name in vendor_file['public_clouds']:
-                _auth_update(cloud, vendor_file['public_clouds'][profile_name])
+            if vendor_file and profile_name in vendor_file['public-clouds']:
+                _auth_update(cloud, vendor_file['public-clouds'][profile_name])
             else:
                 try:
                     _auth_update(cloud, vendors.CLOUD_DEFAULTS[profile_name])
@@ -421,7 +421,8 @@ class OpenStackConfig(object):
         else:
             cloud_name = str(cloud)
         return cloud_config.CloudConfig(
-            name=cloud_name, region=config['region_name'], config=config)
+            name=cloud_name, region=config['region_name'],
+            config=self._normalize_keys(config))
 
 if __name__ == '__main__':
     config = OpenStackConfig().get_all_clouds()

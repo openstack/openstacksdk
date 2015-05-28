@@ -35,7 +35,7 @@ class TestConfig(base.TestCase):
 
     def test_get_one_cloud_auth_defaults(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml])
-        cc = c.get_one_cloud(cloud='_test_cloud_', auth={'username': 'user'})
+        cc = c.get_one_cloud(cloud='_test-cloud_', auth={'username': 'user'})
         self.assertEqual('user', cc.auth['username'])
         self.assertEqual(
             defaults._defaults['auth_type'],
@@ -50,7 +50,7 @@ class TestConfig(base.TestCase):
         default_options = {'auth_type': 'token'}
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    override_defaults=default_options)
-        cc = c.get_one_cloud(cloud='_test_cloud_', auth={'username': 'user'})
+        cc = c.get_one_cloud(cloud='_test-cloud_', auth={'username': 'user'})
         self.assertEqual('user', cc.auth['username'])
         self.assertEqual('token', cc.auth_type)
         self.assertEqual(
@@ -66,7 +66,7 @@ class TestConfig(base.TestCase):
         self.assertIsInstance(c.cloud_config['cache'], dict)
         self.assertIn('max_age', c.cloud_config['cache'])
         self.assertIn('path', c.cloud_config['cache'])
-        cc = c.get_one_cloud('_test_cloud_')
+        cc = c.get_one_cloud('_test-cloud_')
         self._assert_cloud_details(cc)
         cc = c.get_one_cloud('_test_cloud_no_vendor')
         self._assert_cloud_details(cc)
@@ -87,7 +87,7 @@ class TestConfig(base.TestCase):
 
     def test_get_one_cloud_auth_merge(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml])
-        cc = c.get_one_cloud(cloud='_test_cloud_', auth={'username': 'user'})
+        cc = c.get_one_cloud(cloud='_test-cloud_', auth={'username': 'user'})
         self.assertEqual('user', cc.auth['username'])
         self.assertEqual('testpass', cc.auth['password'])
 
@@ -106,7 +106,7 @@ class TestConfigArgparse(base.TestCase):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
 
-        cc = c.get_one_cloud(cloud='_test_cloud_', argparse=self.options)
+        cc = c.get_one_cloud(cloud='_test-cloud_', argparse=self.options)
         self._assert_cloud_details(cc)
         self.assertEqual(cc.region_name, 'other-test-region')
         self.assertEqual(cc.snack_type, 'cookie')
@@ -125,7 +125,7 @@ class TestConfigArgparse(base.TestCase):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
 
-        cc = c.get_one_cloud(cloud='_test_cloud_', argparse=None)
+        cc = c.get_one_cloud(cloud='_test-cloud_', argparse=None)
         self._assert_cloud_details(cc)
         self.assertEqual(cc.region_name, 'test-region')
         self.assertIsNone(cc.snack_type)
@@ -136,6 +136,6 @@ class TestConfigDefault(base.TestCase):
     def test_set_no_default(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
-        cc = c.get_one_cloud(cloud='_test_cloud_', argparse=None)
+        cc = c.get_one_cloud(cloud='_test-cloud_', argparse=None)
         self._assert_cloud_details(cc)
         self.assertEqual(cc.auth_type, 'password')
