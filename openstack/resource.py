@@ -31,6 +31,7 @@ There are plenty of examples of use of this class in the SDK code.
 
 import abc
 import collections
+import copy
 import itertools
 import time
 
@@ -464,6 +465,12 @@ class Resource(collections.MutableMapping):
     def set_headers(self, values):
         self._attrs[HEADERS] = values
         self._dirty.add(HEADERS)
+
+    def to_dict(self):
+        attrs = copy.deepcopy(self._attrs)
+        headers = attrs.pop(HEADERS, {})
+        attrs.update(headers)
+        return attrs
 
     ##
     # CRUD OPERATIONS

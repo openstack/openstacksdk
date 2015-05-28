@@ -845,11 +845,32 @@ class ResourceTests(base.TestTransportBase):
         path = fake_base_path
         session.get.assert_called_with(path, params={}, service=None)
 
-    def test_attrs(self):
+    def test_attrs_name(self):
         obj = FakeResource()
 
         self.assertIsNone(obj.name)
         del obj.name
+
+    def test_to_dict(self):
+        kwargs = {
+            'enabled': True,
+            'name': 'FOO',
+            'attr1': 'BAR',
+            'attr2': ['ZOO', 'BAZ'],
+            'status': 'Active',
+            'headers': {
+                'key': 'value'
+            }
+        }
+        obj = FakeResource(kwargs)
+        res = obj.to_dict()
+        self.assertIsInstance(res, dict)
+        self.assertTrue(res['enabled'])
+        self.assertEqual('FOO', res['name'])
+        self.assertEqual('BAR', res['attr1'])
+        self.assertEqual(['ZOO', 'BAZ'], res['attr2'])
+        self.assertEqual('Active', res['status'])
+        self.assertNotIn('headers', res)
 
     def test_composite_attr_happy(self):
         obj = FakeResource.existing(**{'attr3': '3'})
