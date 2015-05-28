@@ -31,7 +31,7 @@ class TestNetwork(base.BaseFunctionalTest):
 
     @classmethod
     def tearDownClass(cls):
-        sot = cls.conn.network.delete_network(cls.NAME)
+        sot = cls.conn.network.delete_network(cls.ID, ignore_missing=False)
         cls.assertIs(None, sot)
 
     def test_find(self):

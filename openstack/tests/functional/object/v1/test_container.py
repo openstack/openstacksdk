@@ -31,7 +31,8 @@ class TestContainer(base.BaseFunctionalTest):
     def tearDownClass(cls):
         pass
         # TODO(thowe): uncomment this when bug/1451211 fixed
-        # tainer = cls.conn.object_store.delete_container(cls.NAME)
+        # tainer = cls.conn.object_store.delete_container(cls.NAME,
+        #                                                 ignore_missing=False)
         # cls.assertIs(None, tainer)
 
     def test_list(self):
