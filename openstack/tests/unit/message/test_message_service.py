@@ -12,13 +12,13 @@
 
 import testtools
 
-from openstack.messaging import messaging_service
+from openstack.message import message_service
 
 
-class TestOrchestrationService(testtools.TestCase):
+class TestMessageService(testtools.TestCase):
 
     def test_service(self):
-        sot = messaging_service.MessagingService()
+        sot = message_service.MessageService()
         self.assertEqual('messaging', sot.service_type)
         self.assertEqual('public', sot.visibility)
         self.assertIsNone(sot.region)

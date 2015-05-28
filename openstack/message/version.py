@@ -10,17 +10,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.auth import service_filter
+from openstack.message import message_service
+from openstack import resource
 
 
-class MessagingService(service_filter.ServiceFilter):
-    """The messaging service."""
+class Version(resource.Resource):
+    resource_key = 'version'
+    resources_key = 'versions'
+    base_path = '/'
+    service = message_service.MessageService(
+        version=message_service.MessageService.UNVERSIONED
+    )
 
-    valid_versions = [service_filter.ValidVersion('v1')]
+    # capabilities
+    allow_list = True
 
-    def __init__(self, version=None):
-        """Create an messaging service."""
-        super(MessagingService, self).__init__(
-            service_type='messaging',
-            version=version
-        )
+    # Properties
+    links = resource.prop('links')
+    status = resource.prop('status')

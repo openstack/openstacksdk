@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.messaging.v1 import queue
+from openstack.message.v1 import queue
 from openstack import proxy
 
 
@@ -20,10 +20,10 @@ class Proxy(proxy.BaseProxy):
         """Create a new queue from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.messaging.v1.queue.Queue`,
+                           a :class:`~openstack.message.v1.queue.Queue`,
                            comprised of the properties on the Queue class.
 
         :returns: The results of queue creation
-        :rtype: :class:`~openstack.messaging.v1.queue.Queue`
+        :rtype: :class:`~openstack.message.v1.queue.Queue`
         """
         return self._create(queue.Queue, **attrs)

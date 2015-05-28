@@ -12,7 +12,7 @@
 
 import testtools
 
-from openstack.messaging import version
+from openstack.message import version
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {

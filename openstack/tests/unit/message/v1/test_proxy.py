@@ -10,14 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.messaging.v1 import _proxy
-from openstack.messaging.v1 import queue
+from openstack.message.v1 import _proxy
+from openstack.message.v1 import queue
 from openstack.tests.unit import test_proxy_base
 
 
-class TestMessagingProxy(test_proxy_base.TestProxyBase):
+class TestMessageProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestMessagingProxy, self).setUp()
+        super(TestMessageProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_queue_create_attrs(self):

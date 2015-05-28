@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.messaging import messaging_service
+from openstack.message import message_service
 from openstack import resource
 
 
@@ -18,7 +18,7 @@ class Queue(resource.Resource):
     id_attribute = 'name'
     resources_key = 'queues'
     base_path = '/queues'
-    service = messaging_service.MessagingService()
+    service = message_service.MessageService()
 
     # capabilities
     allow_create = True

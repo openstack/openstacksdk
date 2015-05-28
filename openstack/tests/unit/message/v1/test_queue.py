@@ -13,7 +13,7 @@
 import mock
 import testtools
 
-from openstack.messaging.v1 import queue
+from openstack.message.v1 import queue
 
 
 FAKE_NAME = 'test_queue'
@@ -22,7 +22,7 @@ FAKE = {
 }
 
 
-class TestStack(testtools.TestCase):
+class TestQueue(testtools.TestCase):
 
     def test_basic(self):
         sot = queue.Queue()
