@@ -1855,6 +1855,11 @@ class OpenStackCloud(object):
                     return
             except nova_exceptions.NotFound:
                 return
+            except Exception as e:
+                self.log.debug("nova get server failed when waiting for "
+                               "delete", exc_info=True)
+                raise OpenStackCloudException(
+                    "Error in deleting server: {0}".format(e))
 
     def get_container(self, name, skip_cache=False):
         if skip_cache or name not in self._container_cache:
