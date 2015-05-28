@@ -1,4 +1,4 @@
-pbr>=0.5.21,<1.0
+pbr>=0.11,<2.0
 
 bunch
 jsonpatch
