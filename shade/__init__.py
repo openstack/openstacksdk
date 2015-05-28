@@ -748,118 +748,41 @@ class OpenStackCloud(object):
     def _has_nova_extension(self, extension_name):
         return extension_name in self._nova_extensions()
 
-    def _filter_list(self, data, name_or_id, filters):
-        """Filter a list by name/ID and arbitrary meta data.
-
-        :param list data:
-            The list of dictionary data to filter. It is expected that
-            each dictionary contains an 'id', 'name' (or 'display_name')
-            key if a value for name_or_id is given.
-        :param string name_or_id:
-            The name or ID of the entity being filtered.
-        :param dict filters:
-            A dictionary of meta data to use for further filtering. Elements
-            of this dictionary may, themselves, be dictionaries. Example::
-
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
-        """
-        if name_or_id:
-            identifier_matches = []
-            for e in data:
-                e_id = str(e.get('id', None))
-                e_name = e.get('name', None)
-                # cinder likes to be different and use display_name
-                e_display_name = e.get('display_name', None)
-                if str(name_or_id) in (e_id, e_name, e_display_name):
-                    identifier_matches.append(e)
-            data = identifier_matches
-
-        if not filters:
-            return data
-
-        def _dict_filter(f, d):
-            if not d:
-                return False
-            for key in f.keys():
-                if isinstance(f[key], dict):
-                    if not _dict_filter(f[key], d.get(key, None)):
-                        return False
-                elif d.get(key, None) != f[key]:
-                    return False
-            return True
-
-        filtered = []
-        for e in data:
-            filtered.append(e)
-            for key in filters.keys():
-                if isinstance(filters[key], dict):
-                    if not _dict_filter(filters[key], e.get(key, None)):
-                        filtered.pop()
-                        break
-                elif e.get(key, None) != filters[key]:
-                    filtered.pop()
-                    break
-        return filtered
-
-    def _get_entity(self, func, name_or_id, filters):
-        """Return a single entity from the list returned by a given method.
-
-        :param callable func:
-            A function that takes `name_or_id` and `filters` as parameters
-            and returns a list of entities to filter.
-        :param string name_or_id:
-            The name or ID of the entity being filtered.
-        :param dict filters:
-            A dictionary of meta data to use for further filtering.
-        """
-        entities = func(name_or_id, filters)
-        if not entities:
-            return None
-        if len(entities) > 1:
-            raise OpenStackCloudException(
-                "Multiple matches found for %s" % name_or_id)
-        return entities[0]
-
     def search_networks(self, name_or_id=None, filters=None):
         networks = self.list_networks()
-        return self._filter_list(networks, name_or_id, filters)
+        return _utils._filter_list(networks, name_or_id, filters)
 
     def search_routers(self, name_or_id=None, filters=None):
         routers = self.list_routers()
-        return self._filter_list(routers, name_or_id, filters)
+        return _utils._filter_list(routers, name_or_id, filters)
 
     def search_subnets(self, name_or_id=None, filters=None):
         subnets = self.list_subnets()
-        return self._filter_list(subnets, name_or_id, filters)
+        return _utils._filter_list(subnets, name_or_id, filters)
 
     def search_volumes(self, name_or_id=None, filters=None):
         volumes = self.list_volumes()
-        return self._filter_list(volumes, name_or_id, filters)
+        return _utils._filter_list(volumes, name_or_id, filters)
 
     def search_flavors(self, name_or_id=None, filters=None):
         flavors = self.list_flavors()
-        return self._filter_list(flavors, name_or_id, filters)
+        return _utils._filter_list(flavors, name_or_id, filters)
 
     def search_security_groups(self, name_or_id=None, filters=None):
         groups = self.list_security_groups()
-        return self._filter_list(groups, name_or_id, filters)
+        return _utils._filter_list(groups, name_or_id, filters)
 
     def search_servers(self, name_or_id=None, filters=None):
         servers = self.list_servers()
-        return self._filter_list(servers, name_or_id, filters)
+        return _utils._filter_list(servers, name_or_id, filters)
 
     def search_images(self, name_or_id=None, filters=None):
         images = self.list_images()
-        return self._filter_list(images, name_or_id, filters)
+        return _utils._filter_list(images, name_or_id, filters)
 
     def search_floating_ip_pools(self, name=None, filters=None):
         pools = self.list_floating_ip_pools()
-        return self._filter_list(pools, name, filters)
+        return _utils._filter_list(pools, name, filters)
 
     def list_networks(self):
         try:
@@ -1002,29 +925,29 @@ class OpenStackCloud(object):
                     msg=str(e)))
 
     def get_network(self, name_or_id, filters=None):
-        return self._get_entity(self.search_networks, name_or_id, filters)
+        return _utils._get_entity(self.search_networks, name_or_id, filters)
 
     def get_router(self, name_or_id, filters=None):
-        return self._get_entity(self.search_routers, name_or_id, filters)
+        return _utils._get_entity(self.search_routers, name_or_id, filters)
 
     def get_subnet(self, name_or_id, filters=None):
-        return self._get_entity(self.search_subnets, name_or_id, filters)
+        return _utils._get_entity(self.search_subnets, name_or_id, filters)
 
     def get_volume(self, name_or_id, filters=None):
-        return self._get_entity(self.search_volumes, name_or_id, filters)
+        return _utils._get_entity(self.search_volumes, name_or_id, filters)
 
     def get_flavor(self, name_or_id, filters=None):
-        return self._get_entity(self.search_flavors, name_or_id, filters)
+        return _utils._get_entity(self.search_flavors, name_or_id, filters)
 
     def get_security_group(self, name_or_id, filters=None):
-        return self._get_entity(self.search_security_groups,
-                                name_or_id, filters)
+        return _utils._get_entity(
+            self.search_security_groups, name_or_id, filters)
 
     def get_server(self, name_or_id, filters=None):
-        return self._get_entity(self.search_servers, name_or_id, filters)
+        return _utils._get_entity(self.search_servers, name_or_id, filters)
 
     def get_image(self, name_or_id, filters=None):
-        return self._get_entity(self.search_images, name_or_id, filters)
+        return _utils._get_entity(self.search_images, name_or_id, filters)
 
     # TODO(Shrews): This will eventually need to support tenant ID and
     # provider networks, which are admin-level params.

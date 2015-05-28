@@ -20,6 +20,8 @@ import testtools
 import shade
 from shade import exc
 from shade import meta
+from shade import _utils
+
 from shade.tests.unit import base
 
 
@@ -36,14 +38,14 @@ class TestShade(base.TestCase):
         el1 = dict(id=100, name='donald')
         el2 = dict(id=200, name='pluto')
         data = [el1, el2]
-        ret = self.cloud._filter_list(data, 'donald', None)
+        ret = _utils._filter_list(data, 'donald', None)
         self.assertEquals([el1], ret)
 
     def test__filter_list_filter(self):
         el1 = dict(id=100, name='donald', other='duck')
         el2 = dict(id=200, name='donald', other='trump')
         data = [el1, el2]
-        ret = self.cloud._filter_list(data, 'donald', {'other': 'duck'})
+        ret = _utils._filter_list(data, 'donald', {'other': 'duck'})
         self.assertEquals([el1], ret)
 
     def test__filter_list_dict1(self):
@@ -54,8 +56,8 @@ class TestShade(base.TestCase):
         el3 = dict(id=300, name='donald', last='ronald mac',
                    other=dict(category='clown'))
         data = [el1, el2, el3]
-        ret = self.cloud._filter_list(data, 'donald',
-                                      {'other': {'category': 'clown'}})
+        ret = _utils._filter_list(
+            data, 'donald', {'other': {'category': 'clown'}})
         self.assertEquals([el3], ret)
 
     def test__filter_list_dict2(self):
@@ -66,10 +68,11 @@ class TestShade(base.TestCase):
         el3 = dict(id=300, name='donald', last='ronald mac',
                    other=dict(category='clown', financial=dict(status='rich')))
         data = [el1, el2, el3]
-        ret = self.cloud._filter_list(data, 'donald',
-                                      {'other': {
-                                          'financial': {'status': 'rich'}
-                                      }})
+        ret = _utils._filter_list(
+            data, 'donald',
+            {'other': {
+                'financial': {'status': 'rich'}
+                }})
         self.assertEquals([el2, el3], ret)
 
     @mock.patch.object(shade.OpenStackCloud, 'search_images')

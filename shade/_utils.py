@@ -14,7 +14,7 @@
 
 import time
 
-from shade.exc import OpenStackCloudTimeout
+from shade import exc
 
 
 def _iterate_timeout(timeout, message):
@@ -32,4 +32,83 @@ def _iterate_timeout(timeout, message):
         count += 1
         yield count
         time.sleep(2)
-    raise OpenStackCloudTimeout(message)
+    raise exc.OpenStackCloudTimeout(message)
+
+
+def _filter_list(data, name_or_id, filters):
+    """Filter a list by name/ID and arbitrary meta data.
+
+    :param list data:
+        The list of dictionary data to filter. It is expected that
+        each dictionary contains an 'id', 'name' (or 'display_name')
+        key if a value for name_or_id is given.
+    :param string name_or_id:
+        The name or ID of the entity being filtered.
+    :param dict filters:
+        A dictionary of meta data to use for further filtering. Elements
+        of this dictionary may, themselves, be dictionaries. Example::
+
+            {
+              'last_name': 'Smith',
+              'other': {
+                  'gender': 'Female'
+              }
+            }
+    """
+    if name_or_id:
+        identifier_matches = []
+        for e in data:
+            e_id = str(e.get('id', None))
+            e_name = e.get('name', None)
+            # cinder likes to be different and use display_name
+            e_display_name = e.get('display_name', None)
+            if str(name_or_id) in (e_id, e_name, e_display_name):
+                identifier_matches.append(e)
+        data = identifier_matches
+
+    if not filters:
+        return data
+
+    def _dict_filter(f, d):
+        if not d:
+            return False
+        for key in f.keys():
+            if isinstance(f[key], dict):
+                if not _dict_filter(f[key], d.get(key, None)):
+                    return False
+            elif d.get(key, None) != f[key]:
+                return False
+        return True
+
+    filtered = []
+    for e in data:
+        filtered.append(e)
+        for key in filters.keys():
+            if isinstance(filters[key], dict):
+                if not _dict_filter(filters[key], e.get(key, None)):
+                    filtered.pop()
+                    break
+            elif e.get(key, None) != filters[key]:
+                filtered.pop()
+                break
+    return filtered
+
+
+def _get_entity(func, name_or_id, filters):
+    """Return a single entity from the list returned by a given method.
+
+    :param callable func:
+        A function that takes `name_or_id` and `filters` as parameters
+        and returns a list of entities to filter.
+    :param string name_or_id:
+        The name or ID of the entity being filtered.
+    :param dict filters:
+        A dictionary of meta data to use for further filtering.
+    """
+    entities = func(name_or_id, filters)
+    if not entities:
+        return None
+    if len(entities) > 1:
+        raise exc.OpenStackCloudException(
+            "Multiple matches found for %s" % name_or_id)
+    return entities[0]
