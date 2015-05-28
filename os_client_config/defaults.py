@@ -23,6 +23,7 @@ _defaults = dict(
     image_api_version='1',
     network_api_version='2',
     object_api_version='1',
+    secgroup_source='neutron',
     volume_api_version='1',
 )
 
