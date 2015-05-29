@@ -48,6 +48,9 @@ HKG            Hong Kong
 * Images must be uploaded using the Glance Task Interface
 * Floating IPs are not needed
 * Security groups are not supported
+* Uploaded Images need properties to not use vendor agent
+:vm_mode: hvm
+:xenapi_use_agent: False
 
 Dreamhost
 ---------

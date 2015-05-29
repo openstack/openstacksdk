@@ -25,6 +25,7 @@ _defaults = dict(
     object_api_version='1',
     secgroup_source='neutron',
     volume_api_version='1',
+    disable_vendor_agent={},
 )
 
 

@@ -34,6 +34,10 @@ CLOUD_DEFAULTS = dict(
         image_format='vhd',
         floating_ip_source=None,
         secgroup_source=None,
+        disable_vendor_agent=dict(
+            vm_mode='hvm',
+            xenapi_use_agent=False,
+        )
     ),
     dreamhost=dict(
         auth=dict(
