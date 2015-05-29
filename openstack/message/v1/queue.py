@@ -24,7 +24,7 @@ class Queue(resource.Resource):
     allow_create = True
     allow_list = False
     allow_retrieve = False
-    allow_delete = False
+    allow_delete = True
 
     @classmethod
     def create_by_id(cls, session, attrs, resource_id=None, path_args=None):
