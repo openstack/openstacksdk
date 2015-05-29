@@ -47,7 +47,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(alarm.Alarm, value, ignore_missing)
+        self._delete(alarm.Alarm, value, ignore_missing=ignore_missing)
 
     def find_alarm(self, name_or_id):
         """Find a single alarm

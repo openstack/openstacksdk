@@ -49,7 +49,8 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(credential.Credential, value, ignore_missing)
+        self._delete(credential.Credential, value,
+                     ignore_missing=ignore_missing)
 
     def find_credential(self, name_or_id):
         """Find a single credential
@@ -120,7 +121,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(domain.Domain, value, ignore_missing)
+        self._delete(domain.Domain, value, ignore_missing=ignore_missing)
 
     def find_domain(self, name_or_id):
         """Find a single domain
@@ -188,7 +189,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(endpoint.Endpoint, value, ignore_missing)
+        self._delete(endpoint.Endpoint, value, ignore_missing=ignore_missing)
 
     def find_endpoint(self, name_or_id):
         """Find a single endpoint
@@ -258,7 +259,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(group.Group, value, ignore_missing)
+        self._delete(group.Group, value, ignore_missing=ignore_missing)
 
     def find_group(self, name_or_id):
         """Find a single group
@@ -327,7 +328,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(policy.Policy, value, ignore_missing)
+        self._delete(policy.Policy, value, ignore_missing=ignore_missing)
 
     def find_policy(self, name_or_id):
         """Find a single policy
@@ -395,7 +396,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(project.Project, value, ignore_missing)
+        self._delete(project.Project, value, ignore_missing=ignore_missing)
 
     def find_project(self, name_or_id):
         """Find a single project
@@ -463,7 +464,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(service.Service, value, ignore_missing)
+        self._delete(service.Service, value, ignore_missing=ignore_missing)
 
     def find_service(self, name_or_id):
         """Find a single service
@@ -531,7 +532,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(user.User, value, ignore_missing)
+        self._delete(user.User, value, ignore_missing=ignore_missing)
 
     def find_user(self, name_or_id):
         """Find a single user
@@ -587,7 +588,19 @@ class Proxy(proxy.BaseProxy):
         return self._create(trust.Trust, **attrs)
 
     def delete_trust(self, value, ignore_missing=True):
-        self._delete(trust.Trust, value, ignore_missing)
+        """Delete a trust
+
+        :param value: The value can be either the ID of a trust or a
+               :class:`~openstack.identity.v3.trust.Trust` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the credential does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent credential.
+
+        :returns: ``None``
+        """
+        self._delete(trust.Trust, value, ignore_missing=ignore_missing)
 
     def find_trust(self, name_or_id):
         """Find a single trust

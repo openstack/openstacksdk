@@ -55,7 +55,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(snapshot.Snapshot, value, ignore_missing)
+        self._delete(snapshot.Snapshot, value, ignore_missing=ignore_missing)
 
     def get_type(self, value):
         """Get a single type
@@ -94,7 +94,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(type.Type, value, ignore_missing)
+        self._delete(type.Type, value, ignore_missing=ignore_missing)
 
     def get_volume(self, value):
         """Get a single volume
@@ -133,4 +133,4 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(volume.Volume, value, ignore_missing)
+        self._delete(volume.Volume, value, ignore_missing=ignore_missing)

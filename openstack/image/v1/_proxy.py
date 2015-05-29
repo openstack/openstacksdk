@@ -41,7 +41,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(image.Image, value, ignore_missing)
+        self._delete(image.Image, value, ignore_missing=ignore_missing)
 
     def find_image(self, name_or_id):
         """Find a single image

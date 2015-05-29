@@ -44,7 +44,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(database.Database, value, ignore_missing)
+        self._delete(database.Database, value, ignore_missing=ignore_missing)
 
     def find_database(self, name_or_id):
         """Find a single database
@@ -128,7 +128,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(instance.Instance, value, ignore_missing)
+        self._delete(instance.Instance, value, ignore_missing=ignore_missing)
 
     def find_instance(self, name_or_id):
         """Find a single instance
@@ -198,7 +198,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(user.User, value, ignore_missing)
+        self._delete(user.User, value, ignore_missing=ignore_missing)
 
     def find_user(self, name_or_id):
         """Find a single user

@@ -43,7 +43,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(image.Image, value, ignore_missing)
+        self._delete(image.Image, value, ignore_missing=ignore_missing)
 
     def find_image(self, name_or_id):
         """Find a single image
@@ -111,7 +111,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(member.Member, value, ignore_missing)
+        self._delete(member.Member, value, ignore_missing=ignore_missing)
 
     def find_member(self, name_or_id):
         """Find a single member
@@ -179,4 +179,4 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(tag.Tag, value, ignore_missing)
+        self._delete(tag.Tag, value, ignore_missing=ignore_missing)

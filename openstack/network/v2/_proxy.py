@@ -73,7 +73,8 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(floating_ip.FloatingIP, value, ignore_missing)
+        self._delete(floating_ip.FloatingIP, value,
+                     ignore_missing=ignore_missing)
 
     def find_available_ip(self):
         """Find an available IP
@@ -153,7 +154,8 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(health_monitor.HealthMonitor, value, ignore_missing)
+        self._delete(health_monitor.HealthMonitor, value,
+                     ignore_missing=ignore_missing)
 
     def find_health_monitor(self, name_or_id):
         """Find a single health monitor
@@ -225,7 +227,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(listener.Listener, value, ignore_missing)
+        self._delete(listener.Listener, value, ignore_missing=ignore_missing)
 
     def find_listener(self, name_or_id):
         """Find a single listener
@@ -296,7 +298,8 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(load_balancer.LoadBalancer, value, ignore_missing)
+        self._delete(load_balancer.LoadBalancer, value,
+                     ignore_missing=ignore_missing)
 
     def find_load_balancer(self, name_or_id):
         """Find a single load balancer
@@ -368,7 +371,8 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(metering_label.MeteringLabel, value, ignore_missing)
+        self._delete(metering_label.MeteringLabel, value,
+                     ignore_missing=ignore_missing)
 
     def find_metering_label(self, name_or_id):
         """Find a single metering label
@@ -444,7 +448,7 @@ class Proxy(proxy.BaseProxy):
         :returns: ``None``
         """
         self._delete(metering_label_rule.MeteringLabelRule,
-                     value, ignore_missing)
+                     value, ignore_missing=ignore_missing)
 
     def find_metering_label_rule(self, name_or_id):
         """Find a single metering label rule
@@ -521,7 +525,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(network.Network, value, ignore_missing)
+        self._delete(network.Network, value, ignore_missing=ignore_missing)
 
     def find_network(self, name_or_id):
         """Find a single network
@@ -589,7 +593,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(pool.Pool, value, ignore_missing)
+        self._delete(pool.Pool, value, ignore_missing=ignore_missing)
 
     def find_pool(self, name_or_id):
         """Find a single pool
@@ -658,7 +662,8 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(pool_member.PoolMember, value, ignore_missing)
+        self._delete(pool_member.PoolMember, value,
+                     ignore_missing=ignore_missing)
 
     def find_pool_member(self, name_or_id):
         """Find a single pool member
@@ -729,7 +734,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(port.Port, value, ignore_missing)
+        self._delete(port.Port, value, ignore_missing=ignore_missing)
 
     def find_port(self, name_or_id):
         """Find a single port
@@ -822,7 +827,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(router.Router, value, ignore_missing)
+        self._delete(router.Router, value, ignore_missing=ignore_missing)
 
     def find_router(self, name_or_id):
         """Find a single router
@@ -897,7 +902,8 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(security_group.SecurityGroup, value, ignore_missing)
+        self._delete(security_group.SecurityGroup, value,
+                     ignore_missing=ignore_missing)
 
     def find_security_group(self, name_or_id):
         """Find a single security group
@@ -997,7 +1003,7 @@ class Proxy(proxy.BaseProxy):
         :returns: ``None``
         """
         self._delete(security_group_rule.SecurityGroupRule,
-                     value, ignore_missing)
+                     value, ignore_missing=ignore_missing)
 
     def find_security_group_rule(self, name_or_id):
         """Find a single security group rule
@@ -1073,7 +1079,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(subnet.Subnet, value, ignore_missing)
+        self._delete(subnet.Subnet, value, ignore_missing=ignore_missing)
 
     def find_subnet(self, name_or_id):
         """Find a single subnet

@@ -85,7 +85,8 @@ class TestProxyBase(base.TestCase):
                       method,
                       method_args=["resource_or_id"],
                       method_kwargs={"ignore_missing": ignore},
-                      expected_args=[resource, "resource_or_id", ignore])
+                      expected_args=[resource, "resource_or_id"],
+                      expected_kwargs={'ignore_missing': ignore})
 
     def verify_delete3(self, resource, method, **kwargs):
         print(kwargs)

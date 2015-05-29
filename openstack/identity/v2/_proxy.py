@@ -43,7 +43,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(role.Role, value, ignore_missing)
+        self._delete(role.Role, value, ignore_missing=ignore_missing)
 
     def find_role(self, name_or_id):
         """Find a single role
@@ -111,7 +111,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(tenant.Tenant, value, ignore_missing)
+        self._delete(tenant.Tenant, value, ignore_missing=ignore_missing)
 
     def find_tenant(self, name_or_id):
         """Find a single tenant
@@ -179,7 +179,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(user.User, value, ignore_missing)
+        self._delete(user.User, value, ignore_missing=ignore_missing)
 
     def find_user(self, name_or_id):
         """Find a single user

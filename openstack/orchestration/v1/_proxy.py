@@ -71,7 +71,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(stack.Stack, value, ignore_missing)
+        self._delete(stack.Stack, value, ignore_missing=ignore_missing)
 
     def wait_for_stack(self, value, status='CREATE_COMPLETE',
                        failures=['CREATE_FAILED'], interval=2, wait=120):

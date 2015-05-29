@@ -43,7 +43,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(container.Container, value, ignore_missing)
+        self._delete(container.Container, value, ignore_missing=ignore_missing)
 
     def find_container(self, name_or_id):
         """Find a single container
@@ -114,7 +114,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(order.Order, value, ignore_missing)
+        self._delete(order.Order, value, ignore_missing=ignore_missing)
 
     def find_order(self, name_or_id):
         """Find a single order
@@ -183,7 +183,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(secret.Secret, value, ignore_missing)
+        self._delete(secret.Secret, value, ignore_missing=ignore_missing)
 
     def find_secret(self, name_or_id):
         """Find a single secret
