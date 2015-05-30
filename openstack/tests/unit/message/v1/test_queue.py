@@ -32,7 +32,7 @@ class TestQueue(testtools.TestCase):
         self.assertTrue(sot.allow_create)
         self.assertFalse(sot.allow_retrieve)
         self.assertFalse(sot.allow_update)
-        self.assertFalse(sot.allow_delete)
+        self.assertTrue(sot.allow_delete)
         self.assertFalse(sot.allow_list)
 
     def test_make_it(self):

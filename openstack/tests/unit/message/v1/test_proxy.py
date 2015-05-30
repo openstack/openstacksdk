@@ -27,3 +27,11 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
                             method_kwargs=kwargs,
                             expected_args=[queue.Queue],
                             expected_kwargs=kwargs)
+
+    def test_queue_delete(self):
+        self.verify_delete3(queue.Queue, self.proxy.delete_queue,
+                            ignore_missing=False)
+
+    def test_queue_delete_ignore(self):
+        self.verify_delete3(queue.Queue, self.proxy.delete_queue,
+                            ignore_missing=True)

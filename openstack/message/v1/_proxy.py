@@ -27,3 +27,18 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.message.v1.queue.Queue`
         """
         return self._create(queue.Queue, **attrs)
+
+    def delete_queue(self, value, ignore_missing=True):
+        """Delete a queue
+
+        :param value: The value can be either the name of a queue or a
+                      :class:`~openstack.message.v1.queue.Queue` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the queue does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent queue.
+
+        :returns: ``None``
+        """
+        return self._delete(queue.Queue, value, ignore_missing=ignore_missing)
