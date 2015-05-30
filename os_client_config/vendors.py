@@ -73,4 +73,15 @@ CLOUD_DEFAULTS = dict(
         image_format='raw',
         floating_ip_source=None,
     ),
+    auro=dict(
+        auth=dict(
+            auth_url='https://api.auro.io:5000/v2.0',
+        ),
+        region_name='RegionOne',
+        identity_api_version='2',
+        image_api_version='1',
+        image_format='qcow2',
+        secgroup_source='nova',
+        floating_ip_source='nova',
+    ),
 )

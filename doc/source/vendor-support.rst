@@ -118,3 +118,20 @@ gd1            Guangdong
 * Images must be in `raw` format
 * Floating IPs are not needed
 * Security groups are provided by Neutron
+
+Auro
+----
+
+https://api.auro.io:5000/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+RegionOne      RegionOne
+============== ================
+
+* Identity API Version is 2
+* Image API Version is 1
+* Images must be in `qcow2` format
+* Floating IPs are provided by Nova
+* Security groups are provided by Nova
