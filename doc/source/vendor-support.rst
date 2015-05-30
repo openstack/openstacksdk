@@ -8,8 +8,8 @@ information about various things a user would need to know. The following
 is a text representation of the vendor related defaults `os-client-config`
 knows about.
 
-HP Cloud
---------
+hp
+--
 
 https://region-b.geo-1.identity.hpcloudsvc.com:35357/v2.0
 
@@ -26,7 +26,7 @@ region-b.geo-1 US East
 * Floating IPs are provided by Neutron
 * Security groups are provided by Neutron
 
-Rackspace
+rackspace
 ---------
 
 https://identity.api.rackspacecloud.com/v2.0/
@@ -52,7 +52,7 @@ HKG            Hong Kong
 :vm_mode: hvm
 :xenapi_use_agent: False
 
-Dreamhost
+dreamhost
 ---------
 
 https://keystone.dream.io/v2.0
@@ -68,7 +68,7 @@ RegionOne      Region One
 * Floating IPs are provided by Neutron
 * Security groups are provided by Neutron
 
-Vexxhost
+vexxhost
 --------
 
 http://auth.api.thenebulacloud.com:5000/v2.0/
@@ -84,7 +84,7 @@ ca-ymq-1       Montreal
 * Floating IPs are not needed
 * Security groups are provided by Neutron
 
-RunAbove
+runabove
 --------
 
 https://auth.runabove.io/v2.0
@@ -101,7 +101,7 @@ BHS-1          Beauharnois, QC
 * Floating IPs are not needed
 * Security groups are provided by Neutron
 
-UnitedStack
+unitedstack
 -----------
 
 https://identity.api.ustack.com/v3
@@ -119,7 +119,7 @@ gd1            Guangdong
 * Floating IPs are not needed
 * Security groups are provided by Neutron
 
-Auro
+auro
 ----
 
 https://api.auro.io:5000/v2.0
