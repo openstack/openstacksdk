@@ -303,7 +303,11 @@ class TestMemoryCache(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_create_image_task(self, swift_mock, glance_mock):
+    @mock.patch.object(shade.OpenStackCloud, 'swift_service')
+    def test_create_image_task(self,
+                               swift_service_mock,
+                               swift_mock,
+                               glance_mock):
         self.cloud.api_versions['image'] = '2'
         self.cloud.image_api_use_tasks = True
 
@@ -311,6 +315,11 @@ class TestMemoryCache(base.TestCase):
             name = 'image_upload_v2_test_container'
 
         fake_container = Container()
+        swift_mock.get_capabilities.return_value = {
+            'swift': {
+                'max_file_size': 1000
+            }
+        }
         swift_mock.put_container.return_value = fake_container
         swift_mock.head_object.return_value = {}
         glance_mock.images.list.return_value = []
@@ -345,9 +354,11 @@ class TestMemoryCache(base.TestCase):
                                 container='image_upload_v2_test_container')
         args = {'headers': {'x-object-meta-x-shade-md5': mock.ANY,
                             'x-object-meta-x-shade-sha256': mock.ANY},
-                'obj': '99 name',
-                'container': 'image_upload_v2_test_container'}
-        swift_mock.put_object.assert_called_with(contents=mock.ANY, **args)
+                'segment_size': 1000}
+        swift_service_mock.upload.assert_called_with(
+            container='image_upload_v2_test_container',
+            objects=mock.ANY,
+            options=args)
         glance_mock.tasks.create.assert_called_with(type='import', input={
             'import_from': 'image_upload_v2_test_container/99 name',
             'image_properties': {'name': '99 name'}})

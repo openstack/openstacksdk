@@ -52,6 +52,7 @@ OBJECT_MD5_KEY = 'x-object-meta-x-shade-md5'
 OBJECT_SHA256_KEY = 'x-object-meta-x-shade-sha256'
 IMAGE_MD5_KEY = 'owner_specified.shade.md5'
 IMAGE_SHA256_KEY = 'owner_specified.shade.sha256'
+DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
 
 
 OBJECT_CONTAINER_ACLS = {
@@ -1980,6 +1981,20 @@ class OpenStackCloud(object):
         return (self._file_hash_cache[filename]['md5'],
                 self._file_hash_cache[filename]['sha256'])
 
+    @_cache_on_arguments()
+    def get_object_capabilities(self):
+        return self.manager.submitTask(_tasks.ObjectCapabilities())
+
+    def get_object_segment_size(self, segment_size):
+        '''get a segment size that will work given capabilities'''
+        if segment_size is None:
+            segment_size = DEFAULT_OBJECT_SEGMENT_SIZE
+        caps = self.get_object_capabilities()
+        server_max_file_size = caps.get('swift', {}).get('max_file_size', 0)
+        if segment_size > server_max_file_size:
+            return server_max_file_size
+        return segment_size
+
     def is_object_stale(
         self, container, name, filename, file_md5=None, file_sha256=None):
 
@@ -2011,9 +2026,12 @@ class OpenStackCloud(object):
 
     def create_object(
             self, container, name, filename=None,
-            md5=None, sha256=None, **headers):
+            md5=None, sha256=None, segment_size=None,
+            **headers):
         if not filename:
             filename = name
+
+        segment_size = self.get_object_segment_size(segment_size)
 
         if not md5 or not sha256:
             (md5, sha256) = self._get_file_hashes(filename)
@@ -2024,13 +2042,18 @@ class OpenStackCloud(object):
         self.create_container(container)
 
         if self.is_object_stale(container, name, filename, md5, sha256):
-            with open(filename, 'r') as fileobj:
-                self.log.debug(
-                    "swift uploading {filename} to {container}/{name}".format(
-                        filename=filename, container=container, name=name))
-                self.manager.submitTask(_tasks.ObjectCreate(
-                    container=container, obj=name, contents=fileobj,
-                    headers=headers))
+            self.log.debug(
+                "swift uploading {filename} to {container}/{name}".format(
+                    filename=filename, container=container, name=name))
+            upload = swift_service.SwiftUploadObject(source=filename,
+                                                     object_name=name)
+            for r in self.manager.submitTask(_tasks.ObjectCreate(
+                container=container, objects=[upload],
+                options=dict(headers=headers,
+                             segment_size=segment_size))):
+                if not r['success']:
+                    raise OpenStackCloudException(
+                        'Failed at action ({action}) [{error}]:'.format(**r))
 
     def delete_object(self, container, name):
         if not self.get_object_metadata(container, name):

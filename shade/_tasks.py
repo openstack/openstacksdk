@@ -243,9 +243,19 @@ class ContainerUpdate(task_manager.Task):
         client.swift_client.post_container(**self.args)
 
 
+class ObjectCapabilities(task_manager.Task):
+    def main(self, client):
+        return client.swift_client.get_capabilities(**self.args)
+
+
+class ObjectDelete(task_manager.Task):
+    def main(self, client):
+        return client.swift_client.delete_object(**self.args)
+
+
 class ObjectCreate(task_manager.Task):
     def main(self, client):
-        client.swift_client.put_object(**self.args)
+        return client.swift_service.upload(**self.args)
 
 
 class ObjectUpdate(task_manager.Task):
