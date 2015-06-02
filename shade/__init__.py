@@ -34,6 +34,7 @@ from neutronclient.v2_0 import client as neutron_client
 import os_client_config
 import pbr.version
 import swiftclient.client as swift_client
+import swiftclient.service as swift_service
 import swiftclient.exceptions as swift_exceptions
 import troveclient.client as trove_client
 
@@ -272,6 +273,7 @@ class OpenStackCloud(object):
         self._neutron_client = None
         self._nova_client = None
         self._swift_client = None
+        self._swift_service = None
         self._trove_client = None
 
         self.log = logging.getLogger('shade')
@@ -587,15 +589,43 @@ class OpenStackCloud(object):
     @property
     def swift_client(self):
         if self._swift_client is None:
-            token = self.auth_token
-            endpoint = self.get_session_endpoint(
-                service_key='object-store')
-            self._swift_client = swift_client.Connection(
-                preauthurl=endpoint,
-                preauthtoken=token,
-                os_options=dict(region_name=self.region_name),
-            )
+            try:
+                token = self.auth_token
+                endpoint = self.get_session_endpoint(
+                    service_key='object-store')
+                self._swift_client = swift_client.Connection(
+                    preauthurl=endpoint,
+                    preauthtoken=token,
+                    os_options=dict(region_name=self.region_name),
+                )
+            except OpenStackCloudException:
+                raise
+            except Exception as e:
+                self.log.debug(
+                    "error constructing swift client", exc_info=True)
+                raise OpenStackCloudException(
+                    "Error constructing swift client: %s", str(e))
         return self._swift_client
+
+    @property
+    def swift_service(self):
+        if self._swift_service is None:
+            try:
+                endpoint = self.get_session_endpoint(
+                    service_key='object-store')
+                options = dict(os_auth_token=self.auth_token,
+                               os_storage_url=endpoint,
+                               os_region_name=self.region_name)
+                self._swift_service = swift_service.SwiftService(
+                    options=options)
+            except OpenStackCloudException:
+                raise
+            except Exception as e:
+                self.log.debug(
+                    "error constructing swift client", exc_info=True)
+                raise OpenStackCloudException(
+                    "Error constructing swift client: %s", str(e))
+        return self._swift_service
 
     @property
     def cinder_client(self):
