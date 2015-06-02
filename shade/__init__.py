@@ -1746,7 +1746,8 @@ class OpenStackCloud(object):
         # floating IP, then it needs to be obtained from
         # a recent server object if the above code path exec'd
         try:
-            server = self.manager.submitTask(_tasks.ServerGet(server=server))
+            server = meta.obj_to_dict(
+                self.manager.submitTask(_tasks.ServerGet(server=server)))
         except Exception as e:
             self.log.debug("nova info failed", exc_info=True)
             raise OpenStackCloudException(
