@@ -15,6 +15,7 @@ from openstack.compute.v2 import extension
 from openstack.compute.v2 import flavor
 from openstack.compute.v2 import image
 from openstack.compute.v2 import keypair
+from openstack.compute.v2 import limits
 from openstack.compute.v2 import server
 from openstack.compute.v2 import server_interface
 from openstack.compute.v2 import server_ip
@@ -146,10 +147,10 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                             expected_args=[keypair.Keypair, "resource_or_id"],
                             expected_kwargs=kwargs)
 
-    def test_limits(self):
-        self.verify_get(
-            'openstack.compute.v2.limits.Limits.get',
-            self.proxy.limits)
+    def test_limits_get(self):
+        self.verify_get2('openstack.proxy.BaseProxy._get',
+                         self.proxy.get_limits,
+                         expected_args=[limits.Limits])
 
     def test_server_interface_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
