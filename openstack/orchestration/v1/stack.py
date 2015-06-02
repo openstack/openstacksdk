@@ -30,19 +30,37 @@ class Stack(resource.Resource):
 
     # Properties
     name = resource.prop('stack_name')
+    #: Placeholder for AWS compatible template listing capabilities
+    #: required by the stack.
     capabilities = resource.prop('capabilities')
+    #: Timestamp of the stack creation.
     creation_time = resource.prop('creation_time')
+    #: A text decription of the stack.
     description = resource.prop('description')
+    #: Whether the stack will support a rollback operation on stack
+    #: create/update failures.
     disable_rollback = resource.prop('disable_rollback', type=bool)
+    #: A list of dictionaris containing links relevant to the stack.
     links = resource.prop('links')
+    #: Placeholder for future extensions where stack related events
+    #: can be published.
     notification_topics = resource.prop('notification_topics')
+    #: A dictionary containing output keys and values from the stack, if any.
     outputs = resource.prop('outputs')
+    #: A ditionary containing the parameter names and values for the stack.
     parameters = resource.prop('parameters', type=dict)
+    #: A string representation of the stack status, e.g. ``CREATE_COMPLETED``.
     status = resource.prop('stack_status')
+    #: A text explaining how the stack transits to its current status.
     status_reason = resource.prop('stack_status_reason')
+    #: Stack template description text. Currently contains the same text
+    #: as that of the ``description`` property.
     template_description = resource.prop('template_description')
+    #: A URL (i.e. HTTP or HTTPS) where stack template can be retrieved.
     template_url = resource.prop('template_url')
+    #: Stack operation timeout in minutes.
     timeout_mins = resource.prop('timeout_mins')
+    #: Timestamp of last update on the stack.
     updated_time = resource.prop('updated_time')
 
     @classmethod
