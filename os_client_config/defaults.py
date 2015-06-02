@@ -13,10 +13,12 @@
 # under the License.
 
 _defaults = dict(
+    api_timeout=None,
     auth_type='password',
     baremetal_api_version='1',
     compute_api_version='2',
     database_api_version='1.0',
+    endpoint_type='public',
     floating_ip_source='neutron',
     identity_api_version='2',
     image_api_use_tasks=False,
@@ -26,6 +28,11 @@ _defaults = dict(
     secgroup_source='neutron',
     volume_api_version='1',
     disable_vendor_agent={},
+    # SSL Related args
+    verify=True,
+    cacert=None,
+    cert=None,
+    key=None,
 )
 
 
