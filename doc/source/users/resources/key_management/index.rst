@@ -1,5 +1,5 @@
-Keystore Resources
-==================
+KeyManagement Resources
+=======================
 
 .. toctree::
    :maxdepth: 1

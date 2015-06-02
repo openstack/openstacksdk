@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.keystore import keystore_service
+from openstack.key_management import key_management_service
 from openstack import resource
 
 
@@ -18,7 +18,7 @@ class Container(resource.Resource):
     id_attribute = 'container_ref'
     resources_key = 'containers'
     base_path = '/containers'
-    service = keystore_service.KeystoreService()
+    service = key_management_service.KeyManagementService()
 
     # capabilities
     allow_create = True

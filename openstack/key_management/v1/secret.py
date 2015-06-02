@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.keystore import keystore_service
+from openstack.key_management import key_management_service
 from openstack import resource
 
 
@@ -19,7 +19,7 @@ class Secret(resource.Resource):
     resource_key = 'secret'
     resources_key = 'secrets'
     base_path = '/secrets'
-    service = keystore_service.KeystoreService()
+    service = key_management_service.KeyManagementService()
 
     # capabilities
     allow_create = True

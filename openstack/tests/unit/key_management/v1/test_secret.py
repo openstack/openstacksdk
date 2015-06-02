@@ -12,7 +12,7 @@
 
 import testtools
 
-from openstack.keystore.v1 import secret
+from openstack.key_management.v1 import secret
 
 IDENTIFIER = 'http://localhost:9311/v1/secrets/ID'
 EXAMPLE = {
@@ -35,7 +35,7 @@ class TestSecret(testtools.TestCase):
         self.assertEqual('secret', sot.resource_key)
         self.assertEqual('secrets', sot.resources_key)
         self.assertEqual('/secrets', sot.base_path)
-        self.assertEqual('keystore', sot.service.service_type)
+        self.assertEqual('key-manager', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)
         self.assertTrue(sot.allow_update)

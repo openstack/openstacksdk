@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.keystore.v1 import container
-from openstack.keystore.v1 import order
-from openstack.keystore.v1 import secret
+from openstack.key_management.v1 import container
+from openstack.key_management.v1 import order
+from openstack.key_management.v1 import secret
 from openstack import proxy
 
 
@@ -22,11 +22,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new container from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-               a :class:`~openstack.keystore.v1.container.Container`,
+               a :class:`~openstack.key_management.v1.container.Container`,
                comprised of the properties on the Container class.
 
         :returns: The results of container creation
-        :rtype: :class:`~openstack.keystore.v1.container.Container`
+        :rtype: :class:`~openstack.key_management.v1.container.Container`
         """
         return self._create(container.Container, **attrs)
 
@@ -34,7 +34,8 @@ class Proxy(proxy.BaseProxy):
         """Delete a container
 
         :param value: The value can be either the ID of a container or a
-               :class:`~openstack.keystore.v2.container.Container` instance.
+               :class:`~openstack.key_management.v2.container.Container`
+               instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the container does not exist.
@@ -58,10 +59,10 @@ class Proxy(proxy.BaseProxy):
         """Get a single container
 
         :param value: The value can be the ID of a container or a
-                      :class:`~openstack.keystore.v1.container.Container`
+                      :class:`~openstack.key_management.v1.container.Container`
                       instance.
 
-        :returns: One :class:`~openstack.keystore.v1.container.Container`
+        :returns: One :class:`~openstack.key_management.v1.container.Container`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
@@ -71,7 +72,7 @@ class Proxy(proxy.BaseProxy):
         """Return a generator of containers
 
         :returns: A generator of container objects
-        :rtype: :class:`~openstack.keystore.v1.container.Container`
+        :rtype: :class:`~openstack.key_management.v1.container.Container`
         """
         return self._list(container.Container, paginated=False)
 
@@ -93,11 +94,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new order from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.keystore.v1.order.Order`,
+                           a :class:`~openstack.key_management.v1.order.Order`,
                            comprised of the properties on the Order class.
 
         :returns: The results of order creation
-        :rtype: :class:`~openstack.keystore.v1.order.Order`
+        :rtype: :class:`~openstack.key_management.v1.order.Order`
         """
         return self._create(order.Order, **attrs)
 
@@ -105,7 +106,8 @@ class Proxy(proxy.BaseProxy):
         """Delete an order
 
         :param value: The value can be either the ID of a order or a
-                      :class:`~openstack.keystore.v2.order.Order` instance.
+                      :class:`~openstack.key_management.v2.order.Order`
+                      instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the order does not exist.
@@ -128,10 +130,10 @@ class Proxy(proxy.BaseProxy):
         """Get a single order
 
         :param value: The value can be the ID of an order or a
-                      :class:`~openstack.keystore.v1.order.Order`
+                      :class:`~openstack.key_management.v1.order.Order`
                       instance.
 
-        :returns: One :class:`~openstack.keystore.v1.order.Order`
+        :returns: One :class:`~openstack.key_management.v1.order.Order`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
@@ -141,7 +143,7 @@ class Proxy(proxy.BaseProxy):
         """Return a generator of orders
 
         :returns: A generator of order objects
-        :rtype: :class:`~openstack.keystore.v1.order.Order`
+        :rtype: :class:`~openstack.key_management.v1.order.Order`
         """
         return self._list(order.Order, paginated=False)
 
@@ -161,12 +163,12 @@ class Proxy(proxy.BaseProxy):
     def create_secret(self, **attrs):
         """Create a new secret from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.keystore.v1.secret.Secret`,
+        :param dict attrs: Keyword arguments which will be used to create a
+                           :class:`~openstack.key_management.v1.secret.Secret`,
                            comprised of the properties on the Order class.
 
         :returns: The results of secret creation
-        :rtype: :class:`~openstack.keystore.v1.secret.Secret`
+        :rtype: :class:`~openstack.key_management.v1.secret.Secret`
         """
         return self._create(secret.Secret, **attrs)
 
@@ -174,7 +176,8 @@ class Proxy(proxy.BaseProxy):
         """Delete a secret
 
         :param value: The value can be either the ID of a secret or a
-                      :class:`~openstack.keystore.v2.secret.Secret` instance.
+                      :class:`~openstack.key_management.v2.secret.Secret`
+                      instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the secret does not exist.
@@ -197,10 +200,10 @@ class Proxy(proxy.BaseProxy):
         """Get a single secret
 
         :param value: The value can be the ID of a secret or a
-                      :class:`~openstack.keystore.v1.secret.Secret`
+                      :class:`~openstack.key_management.v1.secret.Secret`
                       instance.
 
-        :returns: One :class:`~openstack.keystore.v1.secret.Secret`
+        :returns: One :class:`~openstack.key_management.v1.secret.Secret`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
@@ -210,7 +213,7 @@ class Proxy(proxy.BaseProxy):
         """Return a generator of secrets
 
         :returns: A generator of secret objects
-        :rtype: :class:`~openstack.keystore.v1.secret.Secret`
+        :rtype: :class:`~openstack.key_management.v1.secret.Secret`
         """
         return self._list(secret.Secret, paginated=False)
 

@@ -60,7 +60,7 @@ from openstack.database import database_service
 from openstack import exceptions
 from openstack.identity import identity_service
 from openstack.image import image_service
-from openstack.keystore import keystore_service
+from openstack.key_management import key_management_service
 from openstack.message import message_service
 from openstack.metric import metric_service
 from openstack.network import network_service
@@ -116,7 +116,7 @@ class Profile(object):
         serv = orchestration_service.OrchestrationService()
         serv.set_visibility(None)
         self._services[serv.service_type] = serv
-        serv = keystore_service.KeystoreService()
+        serv = key_management_service.KeyManagementService()
         serv.set_visibility(None)
         self._services[serv.service_type] = serv
         serv = telemetry_service.TelemetryService()

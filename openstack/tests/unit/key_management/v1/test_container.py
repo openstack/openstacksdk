@@ -12,7 +12,7 @@
 
 import testtools
 
-from openstack.keystore.v1 import container
+from openstack.key_management.v1 import container
 
 IDENTIFIER = 'http://localhost/containers/IDENTIFIER'
 EXAMPLE = {
@@ -33,7 +33,7 @@ class TestContainer(testtools.TestCase):
         self.assertEqual(None, sot.resource_key)
         self.assertEqual('containers', sot.resources_key)
         self.assertEqual('/containers', sot.base_path)
-        self.assertEqual('keystore', sot.service.service_type)
+        self.assertEqual('key-manager', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)
         self.assertTrue(sot.allow_update)

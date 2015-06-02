@@ -10,16 +10,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.keystore.v1 import _proxy
-from openstack.keystore.v1 import container
-from openstack.keystore.v1 import order
-from openstack.keystore.v1 import secret
+from openstack.key_management.v1 import _proxy
+from openstack.key_management.v1 import container
+from openstack.key_management.v1 import order
+from openstack.key_management.v1 import secret
 from openstack.tests.unit import test_proxy_base
 
 
-class TestKeystoreProxy(test_proxy_base.TestProxyBase):
+class TestKeyManagementProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestKeystoreProxy, self).setUp()
+        super(TestKeyManagementProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_server_create_attrs(self):
@@ -34,8 +34,9 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                            container.Container, True)
 
     def test_container_find(self):
-        self.verify_find('openstack.keystore.v1.container.Container.find',
-                         self.proxy.find_container)
+        self.verify_find(
+            'openstack.key_management.v1.container.Container.find',
+            self.proxy.find_container)
 
     def test_container_get(self):
         self.verify_get(self.proxy.get_container, container.Container)
@@ -57,7 +58,7 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_order, order.Order, True)
 
     def test_order_find(self):
-        self.verify_find('openstack.keystore.v1.order.Order.find',
+        self.verify_find('openstack.key_management.v1.order.Order.find',
                          self.proxy.find_order)
 
     def test_order_get(self):
@@ -79,7 +80,7 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_secret, secret.Secret, True)
 
     def test_secret_find(self):
-        self.verify_find('openstack.keystore.v1.secret.Secret.find',
+        self.verify_find('openstack.key_management.v1.secret.Secret.find',
                          self.proxy.find_secret)
 
     def test_secret_get(self):

@@ -12,14 +12,14 @@
 
 import testtools
 
-from openstack.keystore import keystore_service
+from openstack.key_management import key_management_service
 
 
-class TestKeystoreService(testtools.TestCase):
+class TestKeyManagementService(testtools.TestCase):
 
     def test_service(self):
-        sot = keystore_service.KeystoreService()
-        self.assertEqual('keystore', sot.service_type)
+        sot = key_management_service.KeyManagementService()
+        self.assertEqual('key-manager', sot.service_type)
         self.assertEqual('public', sot.visibility)
         self.assertIsNone(sot.region)
         self.assertIsNone(sot.service_name)

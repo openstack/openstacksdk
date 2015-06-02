@@ -10,14 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.keystore import keystore_service
+from openstack.key_management import key_management_service
 from openstack import resource
 
 
 class Order(resource.Resource):
     resources_key = 'orders'
     base_path = '/orders'
-    service = keystore_service.KeystoreService()
+    service = key_management_service.KeyManagementService()
 
     # capabilities
     allow_create = True

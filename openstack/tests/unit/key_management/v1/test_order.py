@@ -12,7 +12,7 @@
 
 import testtools
 
-from openstack.keystore.v1 import order
+from openstack.key_management.v1 import order
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
@@ -33,7 +33,7 @@ class TestOrder(testtools.TestCase):
         self.assertEqual(None, sot.resource_key)
         self.assertEqual('orders', sot.resources_key)
         self.assertEqual('/orders', sot.base_path)
-        self.assertEqual('keystore', sot.service.service_type)
+        self.assertEqual('key-manager', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)
         self.assertTrue(sot.allow_update)
