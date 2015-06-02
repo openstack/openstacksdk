@@ -29,9 +29,23 @@ class LoadBalancer(resource.Resource):
     put_update = True
 
     # Properties
-    # TODO(briancurtin): find documentation for these properties
+    #: The administrative state of the load_balancer, which is up
+    #: ``True`` or down ``False``. *Type: bool*
     admin_state_up = resource.prop('admin_state_up', type=bool)
+    #: Description for the load_balancer.
     description = resource.prop('description')
+    #: List of IDs of listeners associated with this load_balancer.
+    #: *Type: list*
+    listeners = resource.prop('listeners')
+    #: Name of the load_balancer
     name = resource.prop('name')
+    #: Status of load_balancer operating, e.g. ONLINE, OFFLINE.
+    operating_status = resource.prop('operating_status')
+    #: The project this load_balancer is associated with.
     project_id = resource.prop('tenant_id')
-    status = resource.prop('status')
+    #: Status of load_balancer provisioning, e.g. ACTIVE, INACTIVE.
+    provisioning_status = resource.prop('provisioning_status')
+    #: The IP address of the VIP.
+    vip_address = resource.prop('vip_address')
+    #: The ID of the subnet on which to allocate the VIP address.
+    vip_subnet_id = resource.prop('vip_subnet_id')
