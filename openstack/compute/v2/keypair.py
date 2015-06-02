@@ -17,7 +17,6 @@ from openstack import resource
 
 class Keypair(resource.Resource):
     id_attribute = 'name'
-    name_attribute = 'fingerprint'
     resource_key = 'keypair'
     resources_key = 'keypairs'
     base_path = '/os-keypairs'
