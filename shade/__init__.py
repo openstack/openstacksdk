@@ -2354,18 +2354,20 @@ class OperatorCloud(OpenStackCloud):
         If a failure is detected creating the network ports, any ports
         created are deleted, and the node is removed from Ironic.
 
-        :param list nics: An array of MAC addresses that represent the
-                          network interfaces for the node to be created.
+        :param list nics:
+           An array of MAC addresses that represent the
+           network interfaces for the node to be created.
 
-                          Example:
-                          [
-                          {'mac': 'aa:bb:cc:dd:ee:01'},
-                          {'mac': 'aa:bb:cc:dd:ee:02'}
-                          ]
+           Example::
 
-        :param **kwargs: Key value pairs to be passed to the Ironic API,
-                         including uuid, name, chassis_uuid, driver_info,
-                         parameters.
+              [
+                  {'mac': 'aa:bb:cc:dd:ee:01'},
+                  {'mac': 'aa:bb:cc:dd:ee:02'}
+              ]
+
+        :param kwargs: Key value pairs to be passed to the Ironic API,
+                       including uuid, name, chassis_uuid, driver_info,
+                       parameters.
 
         :raises: OpenStackCloudException on operation error.
 
@@ -2414,7 +2416,7 @@ class OperatorCloud(OpenStackCloud):
         from an Ironic API
 
         :param list nics: An array of strings that consist of MAC addresses
-        to be removed.
+                          to be removed.
         :param string uuid: The UUID of the node to be deleted.
 
         :raises: OpenStackCloudException on operation failure.
@@ -2456,27 +2458,28 @@ class OperatorCloud(OpenStackCloud):
         properties to be updated.
 
         :param node_id: The server object to attach to.
-        :param patch: The JSON Patch document is a list of dictonary objects
-                      that comply with RFC 6902 which can be found at
-                      https://tools.ietf.org/html/rfc6902.
+        :param patch:
+           The JSON Patch document is a list of dictonary objects
+           that comply with RFC 6902 which can be found at
+           https://tools.ietf.org/html/rfc6902.
 
-                      Example patch construction:
+           Example patch construction::
 
-                      patch=[]
-                      patch.append({
-                          'op': 'remove',
-                          'path': '/instance_info'
-                      })
-                      patch.append({
-                          'op': 'replace',
-                          'path': '/name',
-                          'value': 'newname'
-                      })
-                      patch.append({
-                          'op': 'add',
-                          'path': '/driver_info/username',
-                          'value': 'administrator'
-                      })
+               patch=[]
+               patch.append({
+                   'op': 'remove',
+                   'path': '/instance_info'
+               })
+               patch.append({
+                   'op': 'replace',
+                   'path': '/name',
+                   'value': 'newname'
+               })
+               patch.append({
+                   'op': 'add',
+                   'path': '/driver_info/username',
+                   'value': 'administrator'
+               })
 
         :raises: OpenStackCloudException on operation error.
 
