@@ -24,7 +24,7 @@ class Proxy(proxy.BaseProxy):
                            comprised of the properties on the Image class.
 
         :returns: The results of image creation
-        :rtype: :class:`~openstack.compute.v2.image.Image`
+        :rtype: :class:`~openstack.image.v1.image.Image`
         """
         return self._create(image.Image, **attrs)
 
@@ -47,7 +47,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single image
 
         :param name_or_id: The name or ID of a image.
-        :returns: One :class:`~openstack.compute.v2.image.Image` or None
+        :returns: One :class:`~openstack.image.v1.image.Image` or None
         """
         return image.Image.find(self.session, name_or_id)
 
@@ -75,11 +75,11 @@ class Proxy(proxy.BaseProxy):
         """Update a image
 
         :param value: Either the id of a image or a
-                      :class:`~openstack.compute.v2.image.Image` instance.
+                      :class:`~openstack.image.v1.image.Image` instance.
         :attrs kwargs: The attributes to update on the image represented
                        by ``value``.
 
         :returns: The updated image
-        :rtype: :class:`~openstack.compute.v2.image.Image`
+        :rtype: :class:`~openstack.image.v1.image.Image`
         """
         return self._update(image.Image, value, **attrs)

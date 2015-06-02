@@ -35,7 +35,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single extension
 
         :param name_or_id: The name or ID of a extension.
-        :returns: One :class:`~openstack.compute.v2.extension.Extension`
+        :returns: One :class:`~openstack.network.v2.extension.Extension`
                   or None
         """
         return extension.Extension.find(self.session, name_or_id)
@@ -79,7 +79,7 @@ class Proxy(proxy.BaseProxy):
     def find_available_ip(self):
         """Find an available IP
 
-        :returns: One :class:`~openstack.compute.v2.floating_ip.FloatingIP`
+        :returns: One :class:`~openstack.network.v2.floating_ip.FloatingIP`
                   or None
         """
         return floating_ip.FloatingIP.find_available(self.session)
@@ -88,7 +88,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single IP
 
         :param name_or_id: The name or ID of an IP.
-        :returns: One :class:`~openstack.compute.v2.floating_ip.FloatingIP`
+        :returns: One :class:`~openstack.network.v2.floating_ip.FloatingIP`
                   or None
         """
         return floating_ip.FloatingIP.find(self.session, name_or_id)
@@ -161,7 +161,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single health monitor
 
         :param name_or_id: The name or ID of a health monitor.
-        :returns: One :class:`~openstack.compute.v2.health_monitor.
+        :returns: One :class:`~openstack.network.v2.health_monitor.
                   HealthMonitor` or None
         """
         return health_monitor.HealthMonitor.find(self.session, name_or_id)
@@ -233,7 +233,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single listener
 
         :param name_or_id: The name or ID of a listener.
-        :returns: One :class:`~openstack.compute.v2.listener.Listener` or None
+        :returns: One :class:`~openstack.network.v2.listener.Listener` or None
         """
         return listener.Listener.find(self.session, name_or_id)
 
@@ -305,7 +305,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single load balancer
 
         :param name_or_id: The name or ID of a load balancer.
-        :returns: One :class:`~openstack.compute.v2.load_balancer.LoadBalancer`
+        :returns: One :class:`~openstack.network.v2.load_balancer.LoadBalancer`
                   or None
         """
         return load_balancer.LoadBalancer.find(self.session, name_or_id)
@@ -378,7 +378,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single metering label
 
         :param name_or_id: The name or ID of a metering label.
-        :returns: One :class:`~openstack.compute.v2.metering_label.
+        :returns: One :class:`~openstack.network.v2.metering_label.
                   MeteringLabel` or None
         """
         return metering_label.MeteringLabel.find(self.session, name_or_id)
@@ -454,7 +454,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single metering label rule
 
         :param name_or_id: The name or ID of a metering label rule.
-        :returns: One :class:`~openstack.compute.v2.metering_label_rule.
+        :returns: One :class:`~openstack.network.v2.metering_label_rule.
                   MeteringLabelRule` or None
         """
         return metering_label_rule.MeteringLabelRule.find(self.session,
@@ -531,7 +531,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single network
 
         :param name_or_id: The name or ID of a network.
-        :returns: One :class:`~openstack.compute.v2.network.Network` or None
+        :returns: One :class:`~openstack.network.v2.network.Network` or None
         """
         return network.Network.find(self.session, name_or_id)
 
@@ -599,7 +599,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single pool
 
         :param name_or_id: The name or ID of a pool.
-        :returns: One :class:`~openstack.compute.v2.pool.Pool` or None
+        :returns: One :class:`~openstack.network.v2.pool.Pool` or None
         """
         return pool.Pool.find(self.session, name_or_id)
 
@@ -669,7 +669,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single pool member
 
         :param name_or_id: The name or ID of a pool member.
-        :returns: One :class:`~openstack.compute.v2.pool_member.PoolMember`
+        :returns: One :class:`~openstack.network.v2.pool_member.PoolMember`
                   or None
         """
         return pool_member.PoolMember.find(self.session, name_or_id)
@@ -740,7 +740,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single port
 
         :param name_or_id: The name or ID of a port.
-        :returns: One :class:`~openstack.compute.v2.port.Port` or None
+        :returns: One :class:`~openstack.network.v2.port.Port` or None
         """
         return port.Port.find(self.session, name_or_id)
 
@@ -833,7 +833,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single router
 
         :param name_or_id: The name or ID of a router.
-        :returns: One :class:`~openstack.compute.v2.router.Router` or None
+        :returns: One :class:`~openstack.network.v2.router.Router` or None
         """
         return router.Router.find(self.session, name_or_id)
 
@@ -909,7 +909,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single security group
 
         :param name_or_id: The name or ID of a security group.
-        :returns: One :class:`~openstack.compute.v2.security_group.
+        :returns: One :class:`~openstack.network.v2.security_group.
                   SecurityGroup` or None
         """
         return security_group.SecurityGroup.find(self.session, name_or_id)
@@ -1009,7 +1009,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single security group rule
 
         :param name_or_id: The name or ID of a security group rule.
-        :returns: One :class:`~openstack.compute.v2.security_group_rule.
+        :returns: One :class:`~openstack.network.v2.security_group_rule.
                   SecurityGroupRule` or None
         """
         return security_group_rule.SecurityGroupRule.find(self.session,
@@ -1085,7 +1085,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single subnet
 
         :param name_or_id: The name or ID of a subnet.
-        :returns: One :class:`~openstack.compute.v2.subnet.Subnet` or None
+        :returns: One :class:`~openstack.network.v2.subnet.Subnet` or None
         """
         return subnet.Subnet.find(self.session, name_or_id)
 

@@ -87,7 +87,7 @@ class Proxy(proxy.BaseProxy):
                comprised of the properties on the Container class.
 
         :returns: The results of container creation
-        :rtype: :class:`~openstack.compute.v2.container.Container`
+        :rtype: :class:`~openstack.object_store.v1.container.Container`
         """
         # TODO(brian): s/_container/container once other changes propogate
         return self._create(_container.Container, **attrs)
@@ -168,7 +168,7 @@ class Proxy(proxy.BaseProxy):
                comprised of the properties on the Object class.
 
         :returns: The results of object creation
-        :rtype: :class:`~openstack.compute.v2.container.Container`
+        :rtype: :class:`~openstack.object_store.v1.container.Container`
         """
         # TODO(brian): s/_container/container once other changes propogate
         return self._create(_obj.Object, **attrs)

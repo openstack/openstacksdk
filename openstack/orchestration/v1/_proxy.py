@@ -33,7 +33,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single stack
 
         :param name_or_id: The name or ID of a stack.
-        :returns: One :class:`~openstack.compute.v2.stack.Stack` or None
+        :returns: One :class:`~openstack.orchestration.v1.stack.Stack` or None
         """
         return stack.Stack.find(self.session, name_or_id)
 

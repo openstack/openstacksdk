@@ -53,7 +53,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single alarm
 
         :param name_or_id: The name or ID of a alarm.
-        :returns: One :class:`~openstack.compute.v2.alarm.Alarm` or None
+        :returns: One :class:`~openstack.telemetry.v2.alarm.Alarm` or None
         """
         return alarm.Alarm.find(self.session, name_or_id)
 
@@ -94,7 +94,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single alarm change
 
         :param name_or_id: The name or ID of a alarm change.
-        :returns: One :class:`~openstack.compute.v2.alarm_change.AlarmChange`
+        :returns: One :class:`~openstack.telemetry.v2.alarm_change.AlarmChange`
                   or None
         """
         return alarm_change.AlarmChange.find(self.session, name_or_id)
@@ -111,7 +111,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single capability
 
         :param name_or_id: The name or ID of a capability.
-        :returns: One :class:`~openstack.compute.v2.capability.Capability`
+        :returns: One :class:`~openstack.telemetry.v2.capability.Capability`
                   or None
         """
         return capability.Capability.find(self.session, name_or_id)
@@ -128,7 +128,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single meter
 
         :param name_or_id: The name or ID of a meter.
-        :returns: One :class:`~openstack.compute.v2.meter.Meter` or None
+        :returns: One :class:`~openstack.telemetry.v2.meter.Meter` or None
         """
         return meter.Meter.find(self.session, name_or_id)
 
@@ -144,7 +144,8 @@ class Proxy(proxy.BaseProxy):
         """Find a single resource
 
         :param name_or_id: The name or ID of a resource.
-        :returns: One :class:`~openstack.compute.v2.resource.Resource` or None
+        :returns: One :class:`~openstack.telemetry.v2.resource.Resource` or
+                  None
         """
         return resource.Resource.find(self.session, name_or_id)
 
@@ -185,7 +186,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single sample
 
         :param name_or_id: The name or ID of a sample.
-        :returns: One :class:`~openstack.compute.v2.sample.Sample` or None
+        :returns: One :class:`~openstack.telemetry.v2.sample.Sample` or None
         """
         return sample.Sample.find(self.session, name_or_id)
 
@@ -201,7 +202,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single statistics
 
         :param name_or_id: The name or ID of a statistics.
-        :returns: One :class:`~openstack.compute.v2.statistics.Statistics`
+        :returns: One :class:`~openstack.telemetry.v2.statistics.Statistics`
                   or None
         """
         return statistics.Statistics.find(self.session, name_or_id)
