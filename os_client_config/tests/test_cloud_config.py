@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 
 from os_client_config import cloud_config
 from os_client_config.tests import base
@@ -59,3 +60,31 @@ class TestCloudConfig(base.TestCase):
 
         cc2 = cloud_config.CloudConfig("test1", "region-al", {})
         self.assertNotEqual(cc1, cc2)
+
+    def test_verify(self):
+        config_dict = copy.deepcopy(fake_config_dict)
+        config_dict['cacert'] = None
+
+        config_dict['verify'] = False
+        cc = cloud_config.CloudConfig("test1", "region-xx", config_dict)
+        (verify, cacert) = cc.get_requests_verify_args()
+        self.assertFalse(verify)
+
+        config_dict['verify'] = True
+        cc = cloud_config.CloudConfig("test1", "region-xx", config_dict)
+        (verify, cacert) = cc.get_requests_verify_args()
+        self.assertTrue(verify)
+
+    def test_verify_cacert(self):
+        config_dict = copy.deepcopy(fake_config_dict)
+        config_dict['cacert'] = "certfile"
+
+        config_dict['verify'] = False
+        cc = cloud_config.CloudConfig("test1", "region-xx", config_dict)
+        (verify, cacert) = cc.get_requests_verify_args()
+        self.assertFalse(verify)
+
+        config_dict['verify'] = True
+        cc = cloud_config.CloudConfig("test1", "region-xx", config_dict)
+        (verify, cacert) = cc.get_requests_verify_args()
+        self.assertEqual("certfile", verify)

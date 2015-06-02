@@ -39,3 +39,16 @@ class CloudConfig(object):
 
     def __ne__(self, other):
         return not self == other
+
+    def get_requests_verify_args(self):
+        """Return the verify and cert values for the requests library."""
+        if self.config['verify'] and self.config['cacert']:
+            verify = self.config['cacert']
+        else:
+            verify = self.config['verify']
+
+        cert = self.config.get('cert', None)
+        if cert:
+            if self.config['key']:
+                cert = (cert, self.config['key'])
+        return (verify, cert)
