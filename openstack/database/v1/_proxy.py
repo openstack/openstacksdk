@@ -23,11 +23,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new database from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.compute.v2.database.Database`,
+                           a :class:`~openstack.database.v1.database.Database`,
                            comprised of the properties on the Database class.
 
         :returns: The results of server creation
-        :rtype: :class:`~openstack.compute.v2.database.Database`
+        :rtype: :class:`~openstack.database.v1.database.Database`
         """
         return self._create(database.Database, **attrs)
 
@@ -50,7 +50,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single database
 
         :param name_or_id: The name or ID of a database.
-        :returns: One :class:`~openstack.compute.v2.database.Database` or None
+        :returns: One :class:`~openstack.database.v1.database.Database` or None
         """
         return database.Database.find(self.session, name_or_id)
 
@@ -79,7 +79,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single flavor
 
         :param name_or_id: The name or ID of a flavor.
-        :returns: One :class:`~openstack.compute.v2.flavor.Flavor` or None
+        :returns: One :class:`~openstack.database.v1.flavor.Flavor` or None
         """
         return flavor.Flavor.find(self.session, name_or_id)
 
@@ -107,11 +107,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new instance from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.compute.v2.instance.Instance`,
+                           a :class:`~openstack.database.v1.instance.Instance`,
                            comprised of the properties on the Instance class.
 
         :returns: The results of server creation
-        :rtype: :class:`~openstack.compute.v2.instance.Instance`
+        :rtype: :class:`~openstack.database.v1.instance.Instance`
         """
         return self._create(instance.Instance, **attrs)
 
@@ -134,7 +134,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single instance
 
         :param name_or_id: The name or ID of a instance.
-        :returns: One :class:`~openstack.compute.v2.instance.Instance` or None
+        :returns: One :class:`~openstack.database.v1.instance.Instance` or None
         """
         return instance.Instance.find(self.session, name_or_id)
 
@@ -163,13 +163,13 @@ class Proxy(proxy.BaseProxy):
         """Update a instance
 
         :param value: Either the id of a instance or a
-                      :class:`~openstack.compute.v2.instance.Instance`
+                      :class:`~openstack.database.v1.instance.Instance`
                       instance.
         :attrs kwargs: The attributes to update on the instance represented
                        by ``value``.
 
         :returns: The updated instance
-        :rtype: :class:`~openstack.compute.v2.instance.Instance`
+        :rtype: :class:`~openstack.database.v1.instance.Instance`
         """
         return self._update(instance.Instance, value, **attrs)
 
@@ -177,11 +177,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new user from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.compute.v2.user.User`,
+                           a :class:`~openstack.database.v1.user.User`,
                            comprised of the properties on the User class.
 
         :returns: The results of server creation
-        :rtype: :class:`~openstack.compute.v2.user.User`
+        :rtype: :class:`~openstack.database.v1.user.User`
         """
         return self._create(user.User, **attrs)
 
@@ -204,7 +204,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single user
 
         :param name_or_id: The name or ID of a user.
-        :returns: One :class:`~openstack.compute.v2.user.User` or None
+        :returns: One :class:`~openstack.database.v1.user.User` or None
         """
         return user.User.find(self.session, name_or_id)
 

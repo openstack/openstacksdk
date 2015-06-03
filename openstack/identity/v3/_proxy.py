@@ -28,11 +28,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new credential from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-            a :class:`~openstack.compute.v2.credential.Credential`,
+            a :class:`~openstack.identity.v3.credential.Credential`,
             comprised of the properties on the Credential class.
 
         :returns: The results of credential creation
-        :rtype: :class:`~openstack.compute.v2.credential.Credential`
+        :rtype: :class:`~openstack.identity.v3.credential.Credential`
         """
         return self._create(credential.Credential, **attrs)
 
@@ -56,7 +56,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single credential
 
         :param name_or_id: The name or ID of a credential.
-        :returns: One :class:`~openstack.compute.v2.credential.Credential`
+        :returns: One :class:`~openstack.identity.v3.credential.Credential`
                   or None
         """
         return credential.Credential.find(self.session, name_or_id)
@@ -86,13 +86,13 @@ class Proxy(proxy.BaseProxy):
         """Update a credential
 
         :param value: Either the id of a credential or a
-                      :class:`~openstack.compute.v2.credential.Credential`
+                      :class:`~openstack.identity.v3.credential.Credential`
                       instance.
         :attrs kwargs: The attributes to update on the credential represented
                        by ``value``.
 
         :returns: The updated credential
-        :rtype: :class:`~openstack.compute.v2.credential.Credential`
+        :rtype: :class:`~openstack.identity.v3.credential.Credential`
         """
         return self._update(credential.Credential, value, **attrs)
 
@@ -100,11 +100,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new domain from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.compute.v2.domain.Domain`,
+                           a :class:`~openstack.identity.v3.domain.Domain`,
                            comprised of the properties on the Domain class.
 
         :returns: The results of domain creation
-        :rtype: :class:`~openstack.compute.v2.domain.Domain`
+        :rtype: :class:`~openstack.identity.v3.domain.Domain`
         """
         return self._create(domain.Domain, **attrs)
 
@@ -127,7 +127,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single domain
 
         :param name_or_id: The name or ID of a domain.
-        :returns: One :class:`~openstack.compute.v2.domain.Domain` or None
+        :returns: One :class:`~openstack.identity.v3.domain.Domain` or None
         """
         return domain.Domain.find(self.session, name_or_id)
 
@@ -155,12 +155,12 @@ class Proxy(proxy.BaseProxy):
         """Update a domain
 
         :param value: Either the id of a domain or a
-                      :class:`~openstack.compute.v2.domain.Domain` instance.
+                      :class:`~openstack.identity.v3.domain.Domain` instance.
         :attrs kwargs: The attributes to update on the domain represented
                        by ``value``.
 
         :returns: The updated domain
-        :rtype: :class:`~openstack.compute.v2.domain.Domain`
+        :rtype: :class:`~openstack.identity.v3.domain.Domain`
         """
         return self._update(domain.Domain, value, **attrs)
 
@@ -168,11 +168,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new endpoint from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.compute.v2.endpoint.Endpoint`,
+                           a :class:`~openstack.identity.v3.endpoint.Endpoint`,
                            comprised of the properties on the Endpoint class.
 
         :returns: The results of endpoint creation
-        :rtype: :class:`~openstack.compute.v2.endpoint.Endpoint`
+        :rtype: :class:`~openstack.identity.v3.endpoint.Endpoint`
         """
         return self._create(endpoint.Endpoint, **attrs)
 
@@ -195,7 +195,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single endpoint
 
         :param name_or_id: The name or ID of a endpoint.
-        :returns: One :class:`~openstack.compute.v2.endpoint.Endpoint` or None
+        :returns: One :class:`~openstack.identity.v3.endpoint.Endpoint` or None
         """
         return endpoint.Endpoint.find(self.session, name_or_id)
 
@@ -224,13 +224,13 @@ class Proxy(proxy.BaseProxy):
         """Update a endpoint
 
         :param value: Either the id of a endpoint or a
-                      :class:`~openstack.compute.v2.endpoint.Endpoint`
+                      :class:`~openstack.identity.v3.endpoint.Endpoint`
                       instance.
         :attrs kwargs: The attributes to update on the endpoint represented
                        by ``value``.
 
         :returns: The updated endpoint
-        :rtype: :class:`~openstack.compute.v2.endpoint.Endpoint`
+        :rtype: :class:`~openstack.identity.v3.endpoint.Endpoint`
         """
         return self._update(endpoint.Endpoint, value, **attrs)
 
@@ -238,11 +238,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new group from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.compute.v2.group.Group`,
+                           a :class:`~openstack.identity.v3.group.Group`,
                            comprised of the properties on the Group class.
 
         :returns: The results of group creation
-        :rtype: :class:`~openstack.compute.v2.group.Group`
+        :rtype: :class:`~openstack.identity.v3.group.Group`
         """
         return self._create(group.Group, **attrs)
 
@@ -265,7 +265,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single group
 
         :param name_or_id: The name or ID of a group.
-        :returns: One :class:`~openstack.compute.v2.group.Group` or None
+        :returns: One :class:`~openstack.identity.v3.group.Group` or None
         """
         return group.Group.find(self.session, name_or_id)
 
@@ -294,12 +294,12 @@ class Proxy(proxy.BaseProxy):
         """Update a group
 
         :param value: Either the id of a group or a
-                      :class:`~openstack.compute.v2.group.Group` instance.
+                      :class:`~openstack.identity.v3.group.Group` instance.
         :attrs kwargs: The attributes to update on the group represented
                        by ``value``.
 
         :returns: The updated group
-        :rtype: :class:`~openstack.compute.v2.group.Group`
+        :rtype: :class:`~openstack.identity.v3.group.Group`
         """
         return self._update(group.Group, value, **attrs)
 
@@ -307,11 +307,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new policy from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.compute.v2.policy.Policy`,
+                           a :class:`~openstack.identity.v3.policy.Policy`,
                            comprised of the properties on the Policy class.
 
         :returns: The results of policy creation
-        :rtype: :class:`~openstack.compute.v2.policy.Policy`
+        :rtype: :class:`~openstack.identity.v3.policy.Policy`
         """
         return self._create(policy.Policy, **attrs)
 
@@ -334,7 +334,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single policy
 
         :param name_or_id: The name or ID of a policy.
-        :returns: One :class:`~openstack.compute.v2.policy.Policy` or None
+        :returns: One :class:`~openstack.identity.v3.policy.Policy` or None
         """
         return policy.Policy.find(self.session, name_or_id)
 
@@ -362,12 +362,12 @@ class Proxy(proxy.BaseProxy):
         """Update a policy
 
         :param value: Either the id of a policy or a
-                      :class:`~openstack.compute.v2.policy.Policy` instance.
+                      :class:`~openstack.identity.v3.policy.Policy` instance.
         :attrs kwargs: The attributes to update on the policy represented
                        by ``value``.
 
         :returns: The updated policy
-        :rtype: :class:`~openstack.compute.v2.policy.Policy`
+        :rtype: :class:`~openstack.identity.v3.policy.Policy`
         """
         return self._update(policy.Policy, value, **attrs)
 
@@ -375,11 +375,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new project from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.compute.v2.project.Project`,
+                           a :class:`~openstack.identity.v3.project.Project`,
                            comprised of the properties on the Project class.
 
         :returns: The results of project creation
-        :rtype: :class:`~openstack.compute.v2.project.Project`
+        :rtype: :class:`~openstack.identity.v3.project.Project`
         """
         return self._create(project.Project, **attrs)
 
@@ -402,7 +402,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single project
 
         :param name_or_id: The name or ID of a project.
-        :returns: One :class:`~openstack.compute.v2.project.Project` or None
+        :returns: One :class:`~openstack.identity.v3.project.Project` or None
         """
         return project.Project.find(self.session, name_or_id)
 
@@ -430,12 +430,12 @@ class Proxy(proxy.BaseProxy):
         """Update a project
 
         :param value: Either the id of a project or a
-                      :class:`~openstack.compute.v2.project.Project` instance.
+                      :class:`~openstack.identity.v3.project.Project` instance.
         :attrs kwargs: The attributes to update on the project represented
                        by ``value``.
 
         :returns: The updated project
-        :rtype: :class:`~openstack.compute.v2.project.Project`
+        :rtype: :class:`~openstack.identity.v3.project.Project`
         """
         return self._update(project.Project, value, **attrs)
 
@@ -443,11 +443,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new service from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.compute.v2.service.Service`,
+                           a :class:`~openstack.identity.v3.service.Service`,
                            comprised of the properties on the Service class.
 
         :returns: The results of service creation
-        :rtype: :class:`~openstack.compute.v2.service.Service`
+        :rtype: :class:`~openstack.identity.v3.service.Service`
         """
         return self._create(service.Service, **attrs)
 
@@ -470,7 +470,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single service
 
         :param name_or_id: The name or ID of a service.
-        :returns: One :class:`~openstack.compute.v2.service.Service` or None
+        :returns: One :class:`~openstack.identity.v3.service.Service` or None
         """
         return service.Service.find(self.session, name_or_id)
 
@@ -498,12 +498,12 @@ class Proxy(proxy.BaseProxy):
         """Update a service
 
         :param value: Either the id of a service or a
-                      :class:`~openstack.compute.v2.service.Service` instance.
+                      :class:`~openstack.identity.v3.service.Service` instance.
         :attrs kwargs: The attributes to update on the service represented
                        by ``value``.
 
         :returns: The updated service
-        :rtype: :class:`~openstack.compute.v2.service.Service`
+        :rtype: :class:`~openstack.identity.v3.service.Service`
         """
         return self._update(service.Service, value, **attrs)
 
@@ -511,11 +511,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new user from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.compute.v2.user.User`,
+                           a :class:`~openstack.identity.v3.user.User`,
                            comprised of the properties on the User class.
 
         :returns: The results of user creation
-        :rtype: :class:`~openstack.compute.v2.user.User`
+        :rtype: :class:`~openstack.identity.v3.user.User`
         """
         return self._create(user.User, **attrs)
 
@@ -538,7 +538,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single user
 
         :param name_or_id: The name or ID of a user.
-        :returns: One :class:`~openstack.compute.v2.user.User` or None
+        :returns: One :class:`~openstack.identity.v3.user.User` or None
         """
         return user.User.find(self.session, name_or_id)
 
@@ -566,12 +566,12 @@ class Proxy(proxy.BaseProxy):
         """Update a user
 
         :param value: Either the id of a user or a
-                      :class:`~openstack.compute.v2.user.User` instance.
+                      :class:`~openstack.identity.v3.user.User` instance.
         :attrs kwargs: The attributes to update on the user represented
                        by ``value``.
 
         :returns: The updated user
-        :rtype: :class:`~openstack.compute.v2.user.User`
+        :rtype: :class:`~openstack.identity.v3.user.User`
         """
         return self._update(user.User, value, **attrs)
 
@@ -579,11 +579,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new trust from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.compute.v2.trust.Trust`,
+                           a :class:`~openstack.identity.v3.trust.Trust`,
                            comprised of the properties on the Trust class.
 
         :returns: The results of trust creation
-        :rtype: :class:`~openstack.compute.v2.trust.Trust`
+        :rtype: :class:`~openstack.identity.v3.trust.Trust`
         """
         return self._create(trust.Trust, **attrs)
 
@@ -606,7 +606,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single trust
 
         :param name_or_id: The name or ID of a trust.
-        :returns: One :class:`~openstack.compute.v2.trust.Trust` or None
+        :returns: One :class:`~openstack.identity.v3.trust.Trust` or None
         """
         return trust.Trust.find(self.session, name_or_id)
 
@@ -634,11 +634,11 @@ class Proxy(proxy.BaseProxy):
         """Update a trust
 
         :param value: Either the id of a trust or a
-                      :class:`~openstack.compute.v2.trust.Trust` instance.
+                      :class:`~openstack.identity.v3.trust.Trust` instance.
         :attrs kwargs: The attributes to update on the trust represented
                        by ``value``.
 
         :returns: The updated trust
-        :rtype: :class:`~openstack.compute.v2.trust.Trust`
+        :rtype: :class:`~openstack.identity.v3.trust.Trust`
         """
         return self._update(trust.Trust, value, **attrs)

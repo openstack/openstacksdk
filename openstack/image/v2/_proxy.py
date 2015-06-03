@@ -26,7 +26,7 @@ class Proxy(proxy.BaseProxy):
                            comprised of the properties on the Image class.
 
         :returns: The results of image creation
-        :rtype: :class:`~openstack.compute.v2.image.Image`
+        :rtype: :class:`~openstack.image.v2.image.Image`
         """
         return self._create(image.Image, **attrs)
 
@@ -49,7 +49,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single image
 
         :param name_or_id: The name or ID of a image.
-        :returns: One :class:`~openstack.compute.v2.image.Image` or None
+        :returns: One :class:`~openstack.image.v2.image.Image` or None
         """
         return image.Image.find(self.session, name_or_id)
 
@@ -77,12 +77,12 @@ class Proxy(proxy.BaseProxy):
         """Update a image
 
         :param value: Either the id of a image or a
-                      :class:`~openstack.compute.v2.image.Image` instance.
+                      :class:`~openstack.image.v2.image.Image` instance.
         :attrs kwargs: The attributes to update on the image represented
                        by ``value``.
 
         :returns: The updated image
-        :rtype: :class:`~openstack.compute.v2.image.Image`
+        :rtype: :class:`~openstack.image.v2.image.Image`
         """
         return self._update(image.Image, value, **attrs)
 
@@ -94,7 +94,7 @@ class Proxy(proxy.BaseProxy):
                            comprised of the properties on the Member class.
 
         :returns: The results of member creation
-        :rtype: :class:`~openstack.compute.v2.member.Member`
+        :rtype: :class:`~openstack.image.v2.member.Member`
         """
         return self._create(member.Member, **attrs)
 
@@ -117,7 +117,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single member
 
         :param name_or_id: The name or ID of a member.
-        :returns: One :class:`~openstack.compute.v2.member.Member` or None
+        :returns: One :class:`~openstack.image.v2.member.Member` or None
         """
         return member.Member.find(self.session, name_or_id)
 
@@ -145,12 +145,12 @@ class Proxy(proxy.BaseProxy):
         """Update a member
 
         :param value: Either the id of a member or a
-                      :class:`~openstack.compute.v2.member.Member` instance.
+                      :class:`~openstack.image.v2.member.Member` instance.
         :attrs kwargs: The attributes to update on the member represented
                        by ``value``.
 
         :returns: The updated member
-        :rtype: :class:`~openstack.compute.v2.member.Member`
+        :rtype: :class:`~openstack.image.v2.member.Member`
         """
         return self._update(member.Member, value, **attrs)
 
@@ -162,7 +162,7 @@ class Proxy(proxy.BaseProxy):
                            comprised of the properties on the Tag class.
 
         :returns: The results of tag creation
-        :rtype: :class:`~openstack.compute.v2.tag.Tag`
+        :rtype: :class:`~openstack.image.v2.tag.Tag`
         """
         return self._create(tag.Tag, **attrs)
 
