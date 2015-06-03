@@ -150,16 +150,6 @@ def operator_cloud(debug=False, **kwargs):
         **cloud_config.config)
 
 
-def _ssl_args(verify, cacert, cert, key):
-    if cacert:
-        verify = cacert
-
-    if cert:
-        if key:
-            cert = (cert, key)
-    return (verify, cert)
-
-
 def _get_service_values(kwargs, service_key):
     # get defauts returns a copy of the defaults dict
     values = os_client_config.defaults.get_defaults()
@@ -279,11 +269,13 @@ class OpenStackCloud(object):
 
         if cloud_config is None:
             config = os_client_config.OpenStackConfig()
+            ssl_args = dict(
+                verify=verify, cacert=cacert, cert=cert, key=key,
+            )
             if cloud in config.get_cloud_names():
-                cloud_config = config.get_one_cloud(cloud)
+                cloud_config = config.get_one_cloud(cloud, **ssl_args)
             else:
-                cloud_config = config.get_one_cloud()
-
+                cloud_config = config.get_one_cloud(**ssl_args)
         self.name = cloud
         self.auth = auth
         self.region_name = region_name
@@ -305,7 +297,7 @@ class OpenStackCloud(object):
 
         self.secgroup_source = kwargs.get('secgroup_source', None)
 
-        (self.verify, self.cert) = _ssl_args(verify, cacert, cert, key)
+        (self.verify, self.cert) = cloud_config.get_requests_verify_args()
 
         self._cache = cache.make_region(
             function_key_generator=self._make_cache_key
