@@ -44,3 +44,11 @@ class PoolMember(resource.Resource):
     #: with a weight of 10 receives five times as much traffic as a member
     #: with weight of 2.
     weight = resource.prop('weight', type=int)
+
+    @classmethod
+    def _get_create_body(cls, attrs):
+        # Exclude pool_id from attrs since it is not expected by LBaaS service
+        if 'pool_id' in attrs:
+            attrs.pop('pool_id')
+
+        return {cls.resource_key: attrs}

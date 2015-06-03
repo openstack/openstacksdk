@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
+
 import testtools
 
 from openstack.network.v2 import pool_member
@@ -49,3 +51,9 @@ class TestPoolMember(testtools.TestCase):
         self.assertEqual(EXAMPLE['protocol_port'], sot.protocol_port)
         self.assertEqual(EXAMPLE['subnet_id'], sot.subnet_id)
         self.assertEqual(EXAMPLE['weight'], sot.weight)
+
+    def test_create_body(self):
+        params = copy.deepcopy(EXAMPLE)
+        params['pool_id'] = {'POOL1_ID'}
+        body = pool_member.PoolMember._get_create_body(params)
+        self.assertEqual(EXAMPLE, body['member'])
