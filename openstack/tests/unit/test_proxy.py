@@ -248,28 +248,32 @@ class TestProxyList(testtools.TestCase):
 
         self.fake_a = 1
         self.fake_b = 2
+        self.fake_c = 3
         self.fake_resource = resource.Resource.new(id=self.fake_a)
         self.fake_response = [resource.Resource()]
         self.fake_query = {"a": self.fake_resource, "b": self.fake_b}
+        self.fake_path_args = {"c": self.fake_c}
 
         self.sot = proxy.BaseProxy(self.session)
         ListableResource.list = mock.Mock()
         ListableResource.list.return_value = self.fake_response
 
-    def _test_list(self, paginated, **query):
-        rv = self.sot._list(ListableResource, paginated=paginated, **query)
+    def _test_list(self, path_args, paginated, **query):
+        rv = self.sot._list(ListableResource, path_args=path_args,
+                            paginated=paginated, **query)
 
         self.assertEqual(self.fake_response, rv)
         ListableResource.list.assert_called_once_with(self.session,
+                                                      path_args=path_args,
                                                       paginated=paginated,
                                                       a=self.fake_a,
                                                       b=self.fake_b)
 
     def test_list_paginated(self):
-        self._test_list(True, **self.fake_query)
+        self._test_list(self.fake_path_args, True, **self.fake_query)
 
     def test_list_non_paginated(self):
-        self._test_list(False, **self.fake_query)
+        self._test_list(self.fake_path_args, False, **self.fake_query)
 
 
 class TestProxyHead(testtools.TestCase):
