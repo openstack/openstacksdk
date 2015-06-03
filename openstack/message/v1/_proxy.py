@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.message.v1 import claim
 from openstack.message.v1 import message
 from openstack.message.v1 import queue
 from openstack import proxy
@@ -44,29 +45,36 @@ class Proxy(proxy.BaseProxy):
         """
         return self._delete(queue.Queue, value, ignore_missing=ignore_missing)
 
-    def create_messages(self, client, value, messages):
+    def create_messages(self, values):
         """Create new messages
 
-        :param uuid client: A UUID for each client instance. The UUID must
-                            be submitted in its canonical form (for
-                            example, 3381af92-2b9e-11e3-b191-71861300734c).
-                            The client generates this UUID once.
-                            The client UUID persists between restarts of the
-                            client so the client should reuse that same
-                            UUID. All message-related operations
-                            require the use of the client UUID in the headers
-                            to ensure that messages are not echoed back
-                            to the client that posted them, unless the
-                            client explicitly requests this.
-        :param value: The value can be either the name of a queue or a
-                      :class:`~openstack.message.v1.queue.Queue` instance.
-        :param list messages: The list of
+        :param list values: The list of
                     :class:`~openstack.message.v1.message.Message`s to create.
 
         :returns: The results of message creation
-        :rtype: list ids: A list of ids that correspond to the messages
-                          created, in order.
+        :rtype: list messages: The list of
+                    :class:`~openstack.message.v1.message.Message`s created.
         """
-        queue_name = queue.Queue.get_id(value)
-        return message.Message.create_from_messages(self.session, client,
-                                                    queue_name, messages)
+        return message.Message.create_messages(self.session, values)
+
+    def claim_messages(self, value):
+        """Claims a set of messages.
+
+        :param value: The value must be a
+                      :class:`~openstack.message.v1.claim.Claim` instance.
+
+        :returns: The results of a claim
+        :rtype: list messages: The list of
+                    :class:`~openstack.message.v1.message.Message`s claimed.
+        """
+        return claim.Claim.claim_messages(self.session, value)
+
+    def delete_message(self, value):
+        """Delete a message
+
+        :param value: The value must be a
+                      :class:`~openstack.message.v1.message.Message` instance.
+
+        :returns: ``None``
+        """
+        message.Message.delete_by_id(self.session, value)

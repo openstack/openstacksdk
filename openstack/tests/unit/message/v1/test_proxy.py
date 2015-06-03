@@ -11,6 +11,8 @@
 # under the License.
 
 from openstack.message.v1 import _proxy
+from openstack.message.v1 import claim
+from openstack.message.v1 import message
 from openstack.message.v1 import queue
 from openstack.tests.unit import test_proxy_base
 
@@ -41,7 +43,21 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
 
     def test_messages_create(self):
         self.verify_create2(
-            'openstack.message.v1.message.Message.create_from_messages',
+            'openstack.message.v1.message.Message.create_messages',
             self.proxy.create_messages,
-            method_args=[CLIENT_ID, QUEUE_NAME, []],
-            expected_args=[self.session, CLIENT_ID, QUEUE_NAME, []])
+            method_args=[[]],
+            expected_args=[self.session, []])
+
+    def test_messages_claim(self):
+        self.verify_create2(
+            'openstack.message.v1.claim.Claim.claim_messages',
+            self.proxy.claim_messages,
+            method_args=[claim.Claim],
+            expected_args=[self.session, claim.Claim])
+
+    def test_message_delete(self):
+        self.verify_delete(
+            'openstack.message.v1.message.Message.delete_by_id',
+            self.proxy.delete_message,
+            method_args=[message.Message],
+            expected_args=[message.Message])

@@ -10,12 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import json
+
+from six.moves.urllib import parse
 
 from openstack.message import message_service
 from openstack import resource
-
-from six.moves.urllib import parse
 
 
 class Message(resource.Resource):
@@ -29,6 +30,21 @@ class Message(resource.Resource):
     allow_retrieve = False
     allow_delete = False
 
+    #: A UUID for each client instance. The UUID must be submitted in its
+    #: canonical form (for example, 3381af92-2b9e-11e3-b191-71861300734c).
+    #: The client generates this UUID once. The client UUID persists between
+    #: restarts of the client so the client should reuse that same UUID.
+    #: All message-related operations require the use of the client UUID in
+    #: the headers to ensure that messages are not echoed back to the client
+    #: that posted them, unless the client explicitly requests this.
+    client = None
+
+    #: The queue this Message belongs to.
+    queue = None
+
+    #: A relative href that references this Message.
+    href = resource.prop("href")
+
     #: An arbitrary JSON document that constitutes the body of the message
     #: being sent.
     body = resource.prop("body")
@@ -40,28 +56,49 @@ class Message(resource.Resource):
     #: Specifies how long the message has been in the queue, in seconds.
     age = resource.prop("age")
 
-    @staticmethod
-    def get_message_id(href):
-        """Get the ID of a message, which is the last component in an href."""
-        path = parse.urlparse(href).path
-        return path[path.rfind('/')+1:]
-
     @classmethod
-    def create_from_messages(cls, session, client_id=None, queue_name=None,
-                             messages=None):
-        """Create a remote resource from this instance."""
-        url = cls._get_url({'queue_name': queue_name})
-        headers = {'Client-ID': client_id}
+    def create_messages(cls, session, messages):
+        if len(messages) == 0:
+            raise ValueError('messages cannot be empty')
+
+        for i, message in enumerate(messages, -1):
+            if message.queue != messages[i].queue:
+                raise ValueError('All queues in messages must be equal')
+            if message.client != messages[i].client:
+                raise ValueError('All clients in messages must be equal')
+
+        url = cls._get_url({'queue_name': messages[0].queue})
+        headers = {'Client-ID': messages[0].client}
 
         resp = session.post(url, service=cls.service, headers=headers,
                             data=json.dumps(messages, cls=MessageEncoder))
 
+        messages_deepcopy = copy.deepcopy(messages)
         hrefs = resp.body['resources']
-        ids = [cls.get_message_id(href) for href in hrefs]
 
-        return ids
+        for i, href in enumerate(hrefs):
+            messages_deepcopy[i].href = href
+
+        return messages_deepcopy
+
+    @classmethod
+    def _strip_version(cls, href):
+        path = parse.urlparse(href).path
+
+        if path.startswith('/v'):
+            return href[href.find('/', 1):]
+        else:
+            return href
+
+    @classmethod
+    def delete_by_id(cls, session, message, path_args=None):
+        url = cls._strip_version(message.href)
+        headers = {'Client-ID': message.client}
+
+        session.delete(url, service=cls.service,
+                       headers=headers, accept=None)
 
 
 class MessageEncoder(json.JSONEncoder):
-    def default(self, obj):
-        return obj._attrs
+    def default(self, message):
+        return {'body': message.body, 'ttl': message.ttl}
