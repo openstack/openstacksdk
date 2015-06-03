@@ -40,6 +40,8 @@ class HealthMonitor(resource.Resource):
     http_method = resource.prop('http_method')
     #: Maximum consecutive health probe tries.
     max_retries = resource.prop('max_retries')
+    #: List of IDs of lbaas pools healthmonitor assocaited with
+    pools = resource.prop('pools')
     #: Owner of the VIP
     project_id = resource.prop('tenant_id')
     #: The status of the health monitor. Indicates whether the health

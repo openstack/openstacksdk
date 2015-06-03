@@ -16,15 +16,16 @@ from openstack.network.v2 import listener
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
-    'connection_limit': '1',
-    'default_pool_id': '2',
-    'description': '3',
+    'admin_state_up': True,
+    'connection_limit': '2',
+    'default_pool_id': '3',
+    'description': '4',
     'id': IDENTIFIER,
-    'load_balancer_id': '5',
-    'name': '6',
-    'tenant_id': '7',
-    'protocol': '8',
-    'protocol_port': '9',
+    'loadbalancers': '6',
+    'name': '7',
+    'tenant_id': '8',
+    'protocol': '9',
+    'protocol_port': '10',
 }
 
 
@@ -44,11 +45,12 @@ class TestListener(testtools.TestCase):
 
     def test_make_it(self):
         sot = listener.Listener(EXAMPLE)
+        self.assertEqual(EXAMPLE['admin_state_up'], sot.admin_state_up)
         self.assertEqual(EXAMPLE['connection_limit'], sot.connection_limit)
         self.assertEqual(EXAMPLE['default_pool_id'], sot.default_pool_id)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['id'], sot.id)
-        self.assertEqual(EXAMPLE['load_balancer_id'], sot.load_balancer_id)
+        self.assertEqual(EXAMPLE['loadbalancers'], sot.loadbalancers)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['protocol'], sot.protocol)

@@ -40,6 +40,8 @@ class Pool(resource.Resource):
     #: and so on. This value, which must be supported, is dependent on the
     #: load-balancer provider. Round-robin must be supported.
     lb_algorithm = resource.prop('lb_algorithm')
+    #: List of IDs of associated listeners. *Type: list*
+    listeners = resource.prop('listeners')
     #: List of members that belong to the pool. *Type: list*
     members = resource.prop('members')
     #: Pool name. Does not have to be unique.

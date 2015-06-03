@@ -21,12 +21,13 @@ EXAMPLE = {
     'healthmonitor_id': '3',
     'id': IDENTIFIER,
     'lb_algorithm': '5',
-    'members': '6',
-    'name': '7',
-    'tenant_id': '8',
-    'protocol': '9',
-    'session_persistence': '10',
-    'status': '11',
+    'listeners': '6',
+    'members': '7',
+    'name': '8',
+    'tenant_id': '9',
+    'protocol': '10',
+    'session_persistence': '11',
+    'status': '12',
 }
 
 
@@ -51,6 +52,7 @@ class TestPool(testtools.TestCase):
         self.assertEqual(EXAMPLE['healthmonitor_id'], sot.healthmonitor_id)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['lb_algorithm'], sot.lb_algorithm)
+        self.assertEqual(EXAMPLE['listeners'], sot.listeners)
         self.assertEqual(EXAMPLE['members'], sot.members)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)

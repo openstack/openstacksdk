@@ -29,12 +29,24 @@ class Listener(resource.Resource):
     put_update = True
 
     # Properties
-    # TODO(briancurtin): find documentation for these properties
+    #: The administrative state of the listener, which is up
+    #: ``True`` or down ``False``. *Type: bool*
+    admin_state_up = resource.prop('admin_state_up', type=bool)
+    #: The maximum number of connections permitted for this load balancer.
+    #: Default is infinite.
     connection_limit = resource.prop('connection_limit')
+    #: ID of default pool. Must have compatible protocol with listener.
     default_pool_id = resource.prop('default_pool_id')
+    #: Description for the listener.
     description = resource.prop('description')
-    load_balancer_id = resource.prop('load_balancer_id')
+    #: List of IDs of load_balancers associate with this listener.
+    #: *Type: list*
+    loadbalancers = resource.prop('loadbalancers')
+    #: Name of the listener
     name = resource.prop('name')
+    #: The project this listener is associated with.
     project_id = resource.prop('tenant_id')
+    #: The protocol of the listener, which is TCP, HTTP, or HTTPS.
     protocol = resource.prop('protocol')
+    #: Port the listener will listen to, e.g. 80.
     protocol_port = resource.prop('protocol_port')
