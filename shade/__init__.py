@@ -331,7 +331,7 @@ class OpenStackCloud(object):
                 self.log.debug("keystone auth plugin failure", exc_info=True)
                 raise OpenStackCloudException(
                     "Could not find auth plugin: {plugin}".format(
-                    plugin=self.auth_type))
+                        plugin=self.auth_type))
             try:
                 keystone_auth = auth_plugin(**self.auth)
             except Exception as e:
@@ -1882,7 +1882,7 @@ class OpenStackCloud(object):
 
         self.log.debug(
             "swift object up to date: {container}/{name}".format(
-            container=container, name=name))
+                container=container, name=name))
         return False
 
     def create_object(
@@ -2336,7 +2336,7 @@ class OperatorCloud(OpenStackCloud):
                     _tasks.MachinePortDelete(
                         port_id=(
                             self.ironic_client.port.get_by_address(nic['mac'])
-                    )))
+                        )))
 
             except Exception as e:
                 self.log.debug(
