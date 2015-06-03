@@ -2314,7 +2314,16 @@ class OperatorCloud(OpenStackCloud):
                 "Error fetching machine port list: %s" % e)
 
     def list_nics_for_machine(self, uuid):
-        return meta.obj_list_to_dict(self.ironic_client.node.list_ports(uuid))
+        try:
+            return meta.obj_list_to_dict(
+                self.manager.submitTask(
+                    _tasks.MachineNodePortList(node_id=uuid))
+            )
+        except Exception as e:
+            self.log.debug("port list for node %s failed: %s" % (uuid, e),
+                           exc_info=True)
+            raise OpenStackCloudException(
+                "Error fetching port list for node %s: %s" % (uuid, e))
 
     def get_nic_by_mac(self, mac):
         try:
