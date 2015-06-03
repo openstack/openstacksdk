@@ -110,6 +110,7 @@ def openstack_clouds(config=None, debug=False):
             cache_interval=config.get_cache_max_age(),
             cache_class=config.get_cache_class(),
             cache_arguments=config.get_cache_arguments(),
+            cloud_config=f,
             **f.config)
         for f in config.get_all_clouds()
     ]
@@ -125,6 +126,7 @@ def openstack_cloud(debug=False, **kwargs):
         cache_interval=config.get_cache_max_age(),
         cache_class=config.get_cache_class(),
         cache_arguments=config.get_cache_arguments(),
+        cloud_config=cloud_config,
         debug=debug, **cloud_config.config)
 
 
@@ -136,6 +138,7 @@ def operator_cloud(debug=False, **kwargs):
         cache_interval=config.get_cache_max_age(),
         cache_class=config.get_cache_class(),
         cache_arguments=config.get_cache_arguments(),
+        cloud_config=cloud_config,
         **cloud_config.config)
 
 
@@ -243,6 +246,10 @@ class OpenStackCloud(object):
                                      use the glance task-create interface for
                                      image upload activities instead of direct
                                      calls. (optional, defaults to False)
+    :param CloudConfig cloud_config: Cloud config object from os-client-config
+                                     In the future, this will be the only way
+                                     to pass in cloud configuration, but is
+                                     being phased in currently.
     """
 
     def __init__(self, cloud, auth,
@@ -257,9 +264,17 @@ class OpenStackCloud(object):
                  cache_arguments=None,
                  manager=None,
                  image_api_use_tasks=False,
+                 cloud_config=None,
                  **kwargs):
 
         self.log = logging.getLogger('shade')
+
+        if cloud_config is None:
+            config = os_client_config.OpenStackConfig()
+            if cloud in config.get_cloud_names():
+                cloud_config = config.get_one_cloud(cloud)
+            else:
+                cloud_config = config.get_one_cloud()
 
         self.name = cloud
         self.auth = auth
