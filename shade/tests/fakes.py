@@ -63,3 +63,10 @@ class FakeVolume(object):
         self.id = id
         self.status = status
         self.display_name = display_name
+
+
+class FakeMachinePort(object):
+    def __init__(self, id, address, node_id):
+        self.id = id
+        self.address = address
+        self.node_id = node_id

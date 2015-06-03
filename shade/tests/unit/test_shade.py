@@ -21,6 +21,7 @@ import shade
 from shade import exc
 from shade import meta
 from shade.tests.unit import base
+from shade.tests import fakes
 
 
 class TestShade(base.TestCase):
@@ -330,6 +331,25 @@ class TestShadeOperator(base.TestCase):
 
     def test_operator_cloud(self):
         self.assertIsInstance(self.cloud, shade.OperatorCloud)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_list_nics(self, mock_client):
+        port1 = fakes.FakeMachinePort(1, "aa:bb:cc:dd", "node1")
+        port2 = fakes.FakeMachinePort(2, "dd:cc:bb:aa", "node2")
+        port_list = [port1, port2]
+        port_dict_list = meta.obj_list_to_dict(port_list)
+
+        mock_client.port.list.return_value = port_list
+        nics = self.cloud.list_nics()
+
+        self.assertTrue(mock_client.port.list.called)
+        self.assertEqual(port_dict_list, nics)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_list_nics_failure(self, mock_client):
+        mock_client.port.list.side_effect = Exception()
+        self.assertRaises(exc.OpenStackCloudException,
+                          self.cloud.list_nics)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_patch_machine(self, mock_client):
