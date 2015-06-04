@@ -20,6 +20,17 @@ Fakes used for testing
 """
 
 
+class FakeEndpoint(object):
+    def __init__(self, id, service_id, region, publicurl, internalurl=None,
+                 adminurl=None):
+        self.id = id
+        self.service_id = service_id
+        self.region = region
+        self.publicurl = publicurl
+        self.internalurl = internalurl
+        self.adminurl = adminurl
+
+
 class FakeFlavor(object):
     def __init__(self, id, name):
         self.id = id
