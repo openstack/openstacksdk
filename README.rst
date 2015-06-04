@@ -135,6 +135,20 @@ as a result of a chosen plugin need to go into the auth dict. For password
 auth, this includes `auth_url`, `username` and `password` as well as anything
 related to domains, projects and trusts.
 
+SSL Settings
+------------
+
+When the access to a cloud is done via a secure connection, `os-client-config`
+will always verify the SSL cert by default. This can be disabled by setting
+`verify` to `False`. In case the cert is signed by an unknown CA, a specific
+cacert can be provided via `cacert`. **WARNING:** `verify` will always have
+precedence over `cacert`, so when setting a CA cert but disabling `verify`, the
+cloud cert will never be validated.
+
+Client certs are also configurable. `cert` will be the client cert file
+location. In case the cert key is not included within the client cert file,
+its file location needs to be set via `key`.
+
 Cache Settings
 --------------
 
