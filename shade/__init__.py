@@ -276,6 +276,7 @@ class OpenStackCloud(object):
                 cloud_config = config.get_one_cloud(cloud, **ssl_args)
             else:
                 cloud_config = config.get_one_cloud(**ssl_args)
+        self._cloud_config = cloud_config
         self.name = cloud
         self.auth = auth
         self.region_name = region_name
@@ -1438,6 +1439,7 @@ class OpenStackCloud(object):
             self, name, filename, container='images',
             md5=None, sha256=None,
             disk_format=None, container_format=None,
+            disable_vendor_agent=True,
             wait=False, timeout=3600, **kwargs):
         if not md5 or not sha256:
             (md5, sha256) = self._get_file_hashes(filename)
@@ -1449,6 +1451,9 @@ class OpenStackCloud(object):
             return current_image
         kwargs[IMAGE_MD5_KEY] = md5
         kwargs[IMAGE_SHA256_KEY] = sha256
+
+        if disable_vendor_agent:
+            kwargs.update(self._cloud_config.config['disable_vendor_agent'])
 
         try:
             # This makes me want to die inside
