@@ -355,6 +355,18 @@ class TestShadeOperator(base.TestCase):
                           self.cloud.list_nics)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_list_nics_for_machine(self, mock_client):
+        mock_client.node.list_ports.return_value = []
+        self.cloud.list_nics_for_machine("123")
+        mock_client.node.list_ports.assert_called_with(node_id="123")
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_list_nics_for_machine_failure(self, mock_client):
+        mock_client.node.list_ports.side_effect = Exception()
+        self.assertRaises(exc.OpenStackCloudException,
+                          self.cloud.list_nics_for_machine, None)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_patch_machine(self, mock_client):
         node_id = 'node01'
         patch = []
