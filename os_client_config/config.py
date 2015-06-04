@@ -120,10 +120,11 @@ class OpenStackConfig(object):
         self.envvar_key = os.environ.pop('OS_CLOUD_NAME', 'envvars')
         if self.envvar_key in self.cloud_config['clouds']:
             raise exceptions.OpenStackConfigException(
-                'clouds.yaml defines a cloud named "{0}", but'
-                ' OS_CLOUD_NAME is also set to "{0}". Please rename'
+                '"{0}" defines a cloud named "{1}", but'
+                ' OS_CLOUD_NAME is also set to "{1}". Please rename'
                 ' either your environment based cloud, or one of your'
-                ' file-based clouds.'.format(self.envvar_key))
+                ' file-based clouds.'.format(self.config_filename,
+                                             self.envvar_key))
 
         envvars = _get_os_environ()
         if envvars:
@@ -220,9 +221,9 @@ class OpenStackConfig(object):
         if profile_name:
             if 'cloud' in our_cloud:
                 warnings.warn(
-                    "clouds.yaml use the keyword 'cloud' to reference a known "
+                    "{0} use the keyword 'cloud' to reference a known "
                     "vendor profile. This has been deprecated in favor of the "
-                    "'profile' keyword.")
+                    "'profile' keyword.".format(self.config_filename))
             vendor_filename, vendor_file = self._load_vendor_file()
             if vendor_file and profile_name in vendor_file['public-clouds']:
                 _auth_update(cloud, vendor_file['public-clouds'][profile_name])
