@@ -2740,3 +2740,103 @@ class OperatorCloud(OpenStackCloud):
             self.log.debug(
                 "Failed to delete instance_info", exc_info=True)
             raise OpenStackCloudException(str(e))
+
+    def create_service(self, name, service_type, description=None):
+        """Create a service.
+
+        :param name: Service name.
+        :param service_type: Service type.
+        :param description: Service description (optional).
+
+        :returns: a dict containing the services description, i.e. the
+            following attributes::
+                - id: <service id>
+                - name: <service name>
+                - service_type: <service type>
+                - description: <service description>
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during the
+            openstack API call.
+
+        """
+        try:
+            service = self.manager.submitTask(_tasks.ServiceCreate(
+                name=name, service_type=service_type,
+                description=description))
+        except Exception as e:
+            self.log.debug(
+                "Failed to create service {name}".format(name=name),
+                exc_info=True)
+            raise OpenStackCloudException(str(e))
+        return meta.obj_to_dict(service)
+
+    def list_services(self):
+        """List all Keystone services.
+
+        :returns: a list of dict containing the services description.
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during the
+            openstack API call.
+        """
+        try:
+            services = self.manager.submitTask(_tasks.ServiceList())
+        except Exception as e:
+            self.log.debug("Failed to list services", exc_info=True)
+            raise OpenStackCloudException(str(e))
+        return meta.obj_list_to_dict(services)
+
+    def search_services(self, name_or_id=None, filters=None):
+        """Search Keystone services.
+
+        :param name_or_id: Name or id of the desired service.
+        :param filters: a dict containing additional filters to use. e.g.
+                        {'service_type': 'network'}.
+
+        :returns: a list of dict containing the services description.
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during the
+            openstack API call.
+        """
+        services = self.list_services()
+        return _utils._filter_list(services, name_or_id, filters)
+
+    def get_service(self, name_or_id, filters=None):
+        """Get exactly one Keystone service.
+
+        :param name_or_id: Name or id of the desired service.
+        :param filters: a dict containing additional filters to use. e.g.
+                {'service_type': 'network'}
+
+        :returns: a dict containing the services description, i.e. the
+            following attributes::
+                - id: <service id>
+                - name: <service name>
+                - service_type: <service type>
+                - description: <service description>
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during the
+            openstack API call or if multiple matches are found.
+        """
+        return _utils._get_entity(self.search_services, name_or_id, filters)
+
+    def delete_service(self, name_or_id):
+        """Delete a Keystone service.
+
+        :param name_or_id: Service name or id.
+
+        :returns: None
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during
+            the openstack API call
+        """
+        service = self.get_service(name_or_id=name_or_id)
+        if service is None:
+            return
+
+        try:
+            self.manager.submitTask(_tasks.ServiceDelete(id=service['id']))
+        except Exception as e:
+            self.log.debug(
+                "Failed to delete service {id}".format(id=service['id']),
+                exc_info=True)
+            raise OpenStackCloudException(str(e))
