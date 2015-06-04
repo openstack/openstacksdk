@@ -60,7 +60,11 @@ class TestMessage(testtools.TestCase):
         sess.post.assert_called_with(
             url, service=sot.service,
             headers={'Client-ID': CLIENT},
-            data=json.dumps([FAKE], cls=message.MessageEncoder))
+            data=mock.ANY)
+
+        args, kwargs = sess.post.call_args
+        self.assertIn("data", kwargs)
+        self.assertDictEqual(json.loads(kwargs["data"])[0], FAKE)
 
     def test_delete(self):
         sess = mock.Mock()
