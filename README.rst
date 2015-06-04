@@ -108,10 +108,12 @@ An example config file is probably helpful:
 
 You may note a few things. First, since auth_url settings are silly
 and embarrasingly ugly, known cloud vendor profile information is included and
-may be referrenced by name. One of the benefits of that is that auth_url
+may be referenced by name. One of the benefits of that is that auth_url
 isn't the only thing the vendor defaults contain. For instance, since
 Rackspace lists `rax:database` as the service type for trove, os-client-config
-knows that so that you don't have to.
+knows that so that you don't have to. In case the cloud vendor profile is not
+available, you can provide one called clouds-public.yaml, following the same
+location rules previously mentioned for the config files.
 
 Also, region_name can be a list of regions. When you call get_all_clouds,
 you'll get a cloud config object for each cloud/region combo.
