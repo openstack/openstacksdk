@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.clustering import clustering_service
+from openstack.cluster import cluster_service
 from openstack import resource
 from openstack import utils
 
@@ -19,7 +19,7 @@ class Cluster(resource.Resource):
     resource_key = 'cluster'
     resources_key = 'clusters'
     base_path = '/clusters'
-    service = clustering_service.ClusteringService()
+    service = cluster_service.ClusterService()
 
     # capabilities
     allow_create = True

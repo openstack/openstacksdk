@@ -13,7 +13,7 @@
 import mock
 import testtools
 
-from openstack.clustering.v1 import cluster
+from openstack.cluster.v1 import cluster
 
 
 FAKE_ID = '092d0955-2645-461a-b8fa-6a44655cdb2c'

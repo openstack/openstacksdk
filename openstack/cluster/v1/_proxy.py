@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.clustering.v1 import cluster
+from openstack.cluster.v1 import cluster
 from openstack import proxy
 
 
@@ -20,11 +20,11 @@ class Proxy(proxy.BaseProxy):
         """Create a new cluster from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.clustering.v1.cluster.Cluster`, it is comprised
+             :class:`~openstack.cluster.v1.cluster.Cluster`, it is comprised
              of the properties on the Cluster class.
 
         :returns: The results of cluster creation.
-        :rtype: :class:`~openstack.clustering.v1.cluster.Cluster`.
+        :rtype: :class:`~openstack.cluster.v1.cluster.Cluster`.
         """
         return self._create(cluster.Cluster, **attrs)
 
@@ -32,7 +32,7 @@ class Proxy(proxy.BaseProxy):
         """Delete a cluster.
 
         :param value: The value can be either the name or ID of a cluster or a
-            :class:`~openstack.clustering.v1.cluster.Cluster` instance.
+            :class:`~openstack.cluster.v1.cluster.Cluster` instance.
         :param bool ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the cluster could not be found. When set to ``True``, no exception
@@ -46,7 +46,7 @@ class Proxy(proxy.BaseProxy):
         """Find a single cluster.
 
         :param name_or_id: The name or ID of a cluster.
-        :returns: One :class:`~openstack.clustering.v1.cluster.Cluster` object
+        :returns: One :class:`~openstack.cluster.v1.cluster.Cluster` object
             or None
         """
         return cluster.Cluster.find(self.session, name_or_id)
@@ -55,9 +55,9 @@ class Proxy(proxy.BaseProxy):
         """Get a single cluster.
 
         :param name_or_id: The value can be the name or ID of a cluster or a
-            :class:`~openstack.clustering.v1.cluster.Cluster` instance.
+            :class:`~openstack.cluster.v1.cluster.Cluster` instance.
 
-        :returns: One :class:`~openstack.clustering.v1.cluster.Cluster`
+        :returns: One :class:`~openstack.cluster.v1.cluster.Cluster`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             cluster matching the criteria could be found.
         """
@@ -91,11 +91,11 @@ class Proxy(proxy.BaseProxy):
         """Update a cluster.
 
         :param value: Either the name or the ID of the cluster, or an instance
-            of :class:`~openstack.clustering.v1.cluster.Cluster`.
+            of :class:`~openstack.cluster.v1.cluster.Cluster`.
         :param attrs: The attributes to update on the cluster represented by
             the ``value`` parameter.
 
         :returns: The updated cluster.
-        :rtype: :class:`~openstack.clustering.v1.cluster.Cluster`
+        :rtype: :class:`~openstack.cluster.v1.cluster.Cluster`
         """
         return self._update(cluster.Cluster, value, **attrs)

@@ -10,14 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.clustering.v1 import _proxy
-from openstack.clustering.v1 import cluster
+from openstack.cluster.v1 import _proxy
+from openstack.cluster.v1 import cluster
 from openstack.tests.unit import test_proxy_base
 
 
-class TestClusteringProxy(test_proxy_base.TestProxyBase):
+class TestClusterProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestClusteringProxy, self).setUp()
+        super(TestClusterProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_cluster_create(self):
@@ -30,7 +30,7 @@ class TestClusteringProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_cluster, cluster.Cluster, True)
 
     def test_cluster_find(self):
-        self.verify_find('openstack.clustering.v1.cluster.Cluster.find',
+        self.verify_find('openstack.cluster.v1.cluster.Cluster.find',
                          self.proxy.find_cluster)
 
     def test_cluster_get(self):

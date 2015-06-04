@@ -106,6 +106,8 @@ class TestConnection(base.TestCase):
         self.assertEqual(self.xport, conn.session.transport)
         self.assertEqual(self.auth, conn.session.authenticator)
         self.assertEqual(self.prof, conn.session.profile)
+        self.assertEqual('openstack.cluster.v1._proxy',
+                         conn.cluster.__class__.__module__)
         self.assertEqual('openstack.compute.v2._proxy',
                          conn.compute.__class__.__module__)
         self.assertEqual('openstack.database.v1._proxy',

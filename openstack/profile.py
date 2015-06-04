@@ -53,6 +53,7 @@ The resulting preference print out would look something like::
 
 import six
 
+from openstack.cluster import cluster_service
 from openstack.compute import compute_service
 from openstack.database import database_service
 from openstack import exceptions
@@ -88,6 +89,9 @@ class Profile(object):
         than brute force create all the services.  Maybe use entry points
         or something, but I'd like to leave that work for another commit.
         """
+        serv = cluster_service.ClusterService()
+        serv.set_visibility(None)
+        self._services[serv.service_type] = serv
         serv = compute_service.ComputeService()
         serv.set_visibility(None)
         self._services[serv.service_type] = serv

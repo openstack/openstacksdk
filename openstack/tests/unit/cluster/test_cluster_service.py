@@ -10,18 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.auth import service_filter
+import testtools
+
+from openstack.cluster import cluster_service
 
 
-class ClusteringService(service_filter.ServiceFilter):
-    """The clustering service."""
+class TestClusterService(testtools.TestCase):
 
-    valid_versions = [service_filter.ValidVersion('v1')]
-    UNVERSIONED = None
-
-    def __init__(self, version=None):
-        """Create a clustering service."""
-        super(ClusteringService, self).__init__(
-            service_type='clustering',
-            version=version
-        )
+    def test_service(self):
+        sot = cluster_service.ClusterService()
+        self.assertEqual('clustering', sot.service_type)
+        self.assertEqual('public', sot.visibility)
+        self.assertIsNone(sot.region)
+        self.assertIsNone(sot.service_name)
+        self.assertEqual(1, len(sot.valid_versions))
+        self.assertEqual('v1', sot.valid_versions[0].module)
+        self.assertEqual('v1', sot.valid_versions[0].path)
