@@ -2327,6 +2327,54 @@ class OpenStackCloud(object):
                 "failed to delete port '{port}': {msg}".format(
                     port=name_or_id, msg=str(e)))
 
+    def delete_security_group(self, name_or_id):
+        """Delete a security group
+
+        :param string name_or_id: The name or unique ID of the security group.
+
+        :raises: OpenStackCloudException on operation error.
+        :raises: OpenStackCloudUnavailableFeature if security groups are
+                 not supported on this cloud.
+        """
+        secgroup = self.get_security_group(name_or_id)
+        if secgroup is None:
+            self.log.debug('security group %s was not found' % name_or_id)
+            return
+
+        if self.secgroup_source == 'neutron':
+            try:
+                self.manager.submitTask(
+                    _tasks.NeutronSecurityGroupDelete(
+                        security_group=secgroup['id']
+                    )
+                )
+            except Exception as e:
+                self.log.debug(
+                    "neutron failed to delete security group '{group}'".format(
+                        group=name_or_id), exc_info=True)
+                raise OpenStackCloudException(
+                    "failed to delete security group '{group}': {msg}".format(
+                        group=name_or_id, msg=str(e)))
+
+        elif self.secgroup_source == 'nova':
+            try:
+                self.manager.submitTask(
+                    _tasks.NovaSecurityGroupDelete(group=secgroup['id'])
+                )
+            except Exception as e:
+                self.log.debug(
+                    "nova failed to delete security group '{group}'".format(
+                        group=name_or_id), exc_info=True)
+                raise OpenStackCloudException(
+                    "failed to delete security group '{group}': {msg}".format(
+                        group=name_or_id, msg=str(e)))
+
+        # Security groups not supported
+        else:
+            raise OpenStackCloudUnavailableFeature(
+                "Unavailable feature: security groups"
+            )
+
 
 class OperatorCloud(OpenStackCloud):
     """Represent a privileged/operator connection to an OpenStack Cloud.

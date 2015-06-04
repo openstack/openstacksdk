@@ -89,3 +89,11 @@ class FakeMachinePort(object):
         self.id = id
         self.address = address
         self.node_id = node_id
+
+
+class FakeSecgroup(object):
+    def __init__(self, id, name, description='', rules=None):
+        self.id = id
+        self.name = name
+        self.description = description
+        self.rules = rules
