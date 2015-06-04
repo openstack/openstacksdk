@@ -31,6 +31,7 @@ from novaclient import client as nova_client
 from novaclient import exceptions as nova_exceptions
 from neutronclient.v2_0 import client as neutron_client
 import os_client_config
+import os_client_config.defaults
 import pbr.version
 import swiftclient.client as swift_client
 import swiftclient.exceptions as swift_exceptions
@@ -108,8 +109,11 @@ def _ssl_args(verify, cacert, cert, key):
 
 
 def _get_service_values(kwargs, service_key):
-    return {k[:-(len(service_key) + 1)]: kwargs[k]
-            for k in kwargs.keys() if k.endswith(service_key)}
+    # get defauts returns a copy of the defaults dict
+    values = os_client_config.defaults.get_defaults()
+    values.update(kwargs)
+    return {k[:-(len(service_key) + 1)]: values[k]
+            for k in values.keys() if k.endswith(service_key)}
 
 
 def _cache_on_arguments(*cache_on_args, **cache_on_kwargs):
