@@ -12,6 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import warnings
+
 
 class CloudConfig(object):
     def __init__(self, name, region, config):
@@ -46,6 +48,11 @@ class CloudConfig(object):
             verify = self.config['cacert']
         else:
             verify = self.config['verify']
+            if self.config['cacert']:
+                warnings.warn(
+                    "You are specifying a cacert for the cloud {0} but "
+                    "also to ignore the host verification. The host SSL cert "
+                    "will not be verified.".format(self.name))
 
         cert = self.config.get('cert', None)
         if cert:
