@@ -238,6 +238,8 @@ class OpenStackCloud(object):
         self.api_versions = _get_service_values(kwargs, 'api_version')
         self.image_api_use_tasks = image_api_use_tasks
 
+        self.secgroup_source = kwargs.get('secgroup_source', None)
+
         (self.verify, self.cert) = _ssl_args(verify, cacert, cert, key)
 
         self._cache = cache.make_region(
@@ -804,15 +806,58 @@ class OpenStackCloud(object):
                 "Error fetching flavor list: %s" % e)
 
     def list_security_groups(self):
-        try:
-            return meta.obj_list_to_dict(
-                self.manager.submitTask(_tasks.SecurityGroupList())
+        # Handle neutron security groups
+        if self.secgroup_source == 'neutron':
+            # Neutron returns dicts, so no need to convert objects here.
+            try:
+                groups = self.manager.submitTask(
+                    _tasks.NeutronSecurityGroupList())['security_groups']
+            except Exception as e:
+                self.log.debug(
+                    "neutron could not list security groups: {message}".format(
+                        message=str(e)),
+                    exc_info=True)
+                raise OpenStackCloudException(
+                    "Error fetching security group list"
+                )
+            return groups
+
+        # Handle nova security groups
+        elif self.secgroup_source == 'nova':
+            try:
+                groups = meta.obj_list_to_dict(
+                    self.manager.submitTask(_tasks.NovaSecurityGroupList())
+                )
+            except Exception as e:
+                self.log.debug(
+                    "nova could not list security groups: {message}".format(
+                        message=str(e)),
+                    exc_info=True)
+                raise OpenStackCloudException(
+                    "Error fetching security group list"
+                )
+            # Make Nova data look like Neutron data. This doesn't make them
+            # look exactly the same, but pretty close.
+            return [{'id': g['id'],
+                     'name': g['name'],
+                     'description': g['description'],
+                     'security_group_rules': [{
+                         'id': r['id'],
+                         'direction': 'ingress',
+                         'ethertype': 'IPv4',
+                         'port_range_min': r['from_port'],
+                         'port_range_max': r['to_port'],
+                         'protocol': r['ip_protocol'],
+                         'remote_ip_prefix': r['ip_range'].get('cidr', None),
+                         'security_group_id': r['parent_group_id'],
+                         } for r in g['rules']]
+                     } for g in groups]
+
+        # Security groups not supported
+        else:
+            raise OpenStackCloudUnavailableFeature(
+                "Unavailable feature: security groups"
             )
-        except Exception as e:
-            self.log.debug(
-                "security group list failed: %s" % e, exc_info=True)
-            raise OpenStackCloudException(
-                "Error fetching security group list: %s" % e)
 
     def list_servers(self):
         try:

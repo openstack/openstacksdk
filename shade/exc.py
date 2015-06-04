@@ -38,3 +38,7 @@ class OpenStackCloudUnavailableService(OpenStackCloudException):
 
 class OpenStackCloudUnavailableExtension(OpenStackCloudException):
     pass
+
+
+class OpenStackCloudUnavailableFeature(OpenStackCloudException):
+    pass
