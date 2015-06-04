@@ -104,7 +104,7 @@ class BaseProxy(object):
         return rv
 
     @_check_resource(strict=False)
-    def _update(self, resource_type, value, **attrs):
+    def _update(self, resource_type, value, path_args=None, **attrs):
         """Update a resource
 
         :param resource_type: The type of resource to update.
@@ -119,11 +119,11 @@ class BaseProxy(object):
         :returns: The result of the ``update``
         :rtype: :class:`~openstack.resource.Resource`
         """
-        res = self._get_resource(resource_type, value)
+        res = self._get_resource(resource_type, value, path_args)
         res.update_attrs(attrs)
         return res.update(self.session)
 
-    def _create(self, resource_type, **attrs):
+    def _create(self, resource_type, path_args=None, **attrs):
         """Create a resource from attributes
 
         :param resource_type: The type of resource to create.
@@ -136,6 +136,7 @@ class BaseProxy(object):
         :rtype: :class:`~openstack.resource.Resource`
         """
         res = resource_type.new(**attrs)
+        res.update_attrs(path_args)
         return res.create(self.session)
 
     @_check_resource(strict=False)
