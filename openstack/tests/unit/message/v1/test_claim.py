@@ -14,27 +14,23 @@ import json
 import mock
 import testtools
 
-from openstack.message.v1 import message
+from openstack.message.v1 import claim
 
 CLIENT = '3381af92-2b9e-11e3-b191-71861300734c'
 QUEUE = 'test_queue'
+LIMIT = 2
 FAKE = {
     'ttl': 300,
-    'body': {'key': 'value'}
-}
-FAKE_HREF = {
-    'href': '/v1/queues/test_queue/messages/1234',
-    'ttl': 300,
-    'body': {'key': 'value'}
+    'grace': 60
 }
 
 
-class TestMessage(testtools.TestCase):
+class TestClaim(testtools.TestCase):
 
     def test_basic(self):
-        sot = message.Message()
-        self.assertEqual('messages', sot.resources_key)
-        self.assertEqual('/queues/%(queue_name)s/messages', sot.base_path)
+        sot = claim.Claim()
+        self.assertEqual('claims', sot.resources_key)
+        self.assertEqual('/queues/%(queue_name)s/claims', sot.base_path)
         self.assertEqual('messaging', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertFalse(sot.allow_retrieve)
@@ -43,35 +39,24 @@ class TestMessage(testtools.TestCase):
         self.assertFalse(sot.allow_list)
 
     def test_make_it(self):
-        sot = message.Message(FAKE)
+        sot = claim.Claim.new(client=CLIENT, queue=QUEUE, limit=LIMIT, **FAKE)
+        self.assertEqual(CLIENT, sot.client)
+        self.assertEqual(QUEUE, sot.queue)
+        self.assertEqual(LIMIT, sot.limit)
         self.assertEqual(FAKE['ttl'], sot.ttl)
-        self.assertEqual(FAKE['body'], sot.body)
+        self.assertEqual(FAKE['grace'], sot.grace)
 
     def test_create(self):
         sess = mock.Mock()
         sess.post = mock.Mock()
         sess.post.return_value = mock.MagicMock()
-        sot = message.Message()
+        sot = claim.Claim()
 
-        sot.create_messages(
-            sess, [message.Message.new(client=CLIENT, queue=QUEUE, **FAKE)])
+        list(sot.claim_messages(
+            sess, claim.Claim.new(client=CLIENT, queue=QUEUE, **FAKE)))
 
-        url = '/queues/%s/messages' % QUEUE
+        url = '/queues/%s/claims' % QUEUE
         sess.post.assert_called_with(
             url, service=sot.service,
-            headers={'Client-ID': CLIENT},
-            data=json.dumps([FAKE], cls=message.MessageEncoder))
-
-    def test_delete(self):
-        sess = mock.Mock()
-        sess.delete = mock.Mock()
-        sess.delete.return_value = mock.Mock()
-        sot = message.Message()
-
-        sot.delete_by_id(
-            sess, message.Message.new(client=CLIENT, queue=QUEUE, **FAKE_HREF))
-
-        url = '/queues/%s/messages/1234' % QUEUE
-        sess.delete.assert_called_with(
-            url, service=sot.service, accept=None,
-            headers={'Client-ID': CLIENT})
+            headers={'Client-ID': CLIENT}, params=None,
+            data=json.dumps(FAKE, cls=claim.ClaimEncoder))
