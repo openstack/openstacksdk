@@ -26,6 +26,7 @@ from openstack.network.v2 import router
 from openstack.network.v2 import security_group
 from openstack.network.v2 import security_group_rule
 from openstack.network.v2 import subnet
+from openstack.network.v2 import vpn_service
 from openstack import proxy
 
 
@@ -1121,3 +1122,79 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.subnet.Subnet`
         """
         return self._update(subnet.Subnet, value, **attrs)
+
+    def create_vpn_service(self, **attrs):
+        """Create a new vpn service from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create a
+                           :class:`~openstack.network.v2.vpn_service.\
+                           VPNService`,
+                           comprised of the properties on the VPNService class.
+
+        :returns: The results of vpn service creation
+        :rtype:
+        :class:`~openstack.network.v2.vpn_service.VPNService`
+        """
+        return self._create(vpn_service.VPNService, **attrs)
+
+    def delete_vpn_service(self, value, ignore_missing=True):
+        """Delete a vpn service
+
+        :param value: The value can be either the ID of a vpn service or a
+                      :class:`~openstack.network.v2.vpn_service.VPNService`
+                      instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the vpn service does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent vpn service.
+
+        :returns: ``None``
+        """
+        self._delete(vpn_service.VPNService, value,
+                     ignore_missing=ignore_missing)
+
+    def find_vpn_service(self, name_or_id):
+        """Find a single vpn service
+
+        :param name_or_id: The name or ID of a vpn service.
+        :returns: One :class:`~openstack.network.v2.vpn_service.VPNService`
+                  or None
+        """
+        return vpn_service.VPNService.find(self.session, name_or_id)
+
+    def get_vpn_service(self, value):
+        """Get a single vpn service
+
+        :param value: The value can be the ID of a vpn service or a
+               :class:`~openstack.network.v2.vpn_service.VPNService`
+               instance.
+
+        :returns: One
+                  :class:`~openstack.network.v2.vpn_service.VPNService`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(vpn_service.VPNService, value)
+
+    def vpn_services(self):
+        """Return a generator of vpn services
+
+        :returns: A generator of vpn service objects
+        :rtype: :class:`~openstack.network.v2.vpn_service.VPNService`
+        """
+        return self._list(vpn_service.VPNService)
+
+    def update_vpn_service(self, value, **attrs):
+        """Update a vpn service
+
+        :param value: Either the id of a vpn service or a
+                      :class:`~openstack.network.v2.vpn_service.VPNService`
+                      instance.
+        :attrs kwargs: The attributes to update on the vpnservice represented
+                       by ``value``.
+
+        :returns: The updated vpnservice
+        :rtype: :class:`~openstack.network.v2.vpn_service.VPNService`
+        """
+        return self._update(vpn_service.VPNService, value, **attrs)
