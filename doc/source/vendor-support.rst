@@ -135,3 +135,20 @@ RegionOne      RegionOne
 * Images must be in `qcow2` format
 * Floating IPs are provided by Nova
 * Security groups are provided by Nova
+
+ovh
+---
+
+https://auth.cloud.ovh.net/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+SBG-1          Strassbourg, FR
+============== ================
+
+* Identity API Version is 2
+* Image API Version is 1
+* Images must be in `raw` format
+* Floating IPs are provided by Neutron
+* Security groups are provided by Neutron
