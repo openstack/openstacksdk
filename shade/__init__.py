@@ -2411,7 +2411,10 @@ class OperatorCloud(OpenStackCloud):
 
     def get_nic_by_mac(self, mac):
         try:
-            return meta.obj_to_dict(self.ironic_client.port.get(mac))
+            return meta.obj_to_dict(
+                self.manager.submitTask(
+                    _tasks.MachineNodePortGet(port_id=mac))
+            )
         except ironic_exceptions.ClientException:
             return None
 
@@ -2436,7 +2439,8 @@ class OperatorCloud(OpenStackCloud):
 
     def get_machine_by_mac(self, mac):
         try:
-            port = self.ironic_client.port.get(mac)
+            port = self.manager.submitTask(
+                _tasks.MachineNodePortGet(port_id=mac))
             return meta.obj_to_dict(
                 self.ironic_client.node.get(port.node_uuid))
         except ironic_exceptions.ClientException:

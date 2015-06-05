@@ -318,6 +318,11 @@ class MachinePatch(task_manager.Task):
         return client.ironic_client.node.update(**self.args)
 
 
+class MachinePortGet(task_manager.Task):
+    def main(self, client):
+        return client.ironic_client.port.get(**self.args)
+
+
 class MachinePortCreate(task_manager.Task):
     def main(self, client):
         return client.ironic_client.port.create(**self.args)
