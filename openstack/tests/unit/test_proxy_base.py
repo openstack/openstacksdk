@@ -145,12 +145,21 @@ class TestProxyBase(base.TestCase):
                       method, expected_result=["result"],
                       **kwargs)
 
-    def verify_update(self, mock_method, test_method, **kwargs):
-        self._verify(mock_method, test_method, expected_result="result",
-                     **kwargs)
+    def verify_update(self, test_method, resource_type,
+                      mock_method="openstack.proxy.BaseProxy._update",
+                      expected_result="result", **kwargs):
+        the_kwargs = {"x": 1, "y": 2, "z": 3}
+        method_args = ["resource_or_id"]
+        method_kwargs = the_kwargs
+        expected_args = [resource_type, "resource_or_id"]
+        expected_kwargs = the_kwargs
 
-    def verify_update2(self, mock_method, test_method, **kwargs):
-        self._verify2(mock_method, test_method, expected_result="result",
+        self._verify2(mock_method, test_method,
+                      expected_result=expected_result,
+                      method_args=method_args,
+                      method_kwargs=method_kwargs,
+                      expected_args=expected_args,
+                      expected_kwargs=expected_kwargs,
                       **kwargs)
 
     def verify_wait_for_status(self, mock_method, test_method, **kwargs):

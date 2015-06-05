@@ -52,13 +52,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_role_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_role,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[role.Role, "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_role, role.Role)
 
     def test_tenant_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -90,13 +84,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_tenant_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_tenant,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[tenant.Tenant, "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_tenant, tenant.Tenant)
 
     def test_user_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -128,10 +116,4 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_user_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_user,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[user.User, "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_user, user.User)

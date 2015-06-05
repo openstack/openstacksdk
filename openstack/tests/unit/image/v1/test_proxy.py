@@ -50,10 +50,4 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={'paginated': True})
 
     def test_image_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_image,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[image.Image, "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_image, image.Image)

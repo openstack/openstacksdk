@@ -101,14 +101,7 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_instance_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_instance,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[instance.Instance,
-                                           "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_instance, instance.Instance)
 
     def test_user_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}

@@ -54,14 +54,7 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_container_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_container,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[container.Container,
-                                           "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_container, container.Container)
 
     def test_order_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -93,13 +86,7 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_order_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_order,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[order.Order, "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_order, order.Order)
 
     def test_secret_create_attrs(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -131,10 +118,4 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_secret_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_secret,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[secret.Secret, "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_secret, secret.Secret)
