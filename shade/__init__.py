@@ -49,6 +49,7 @@ from shade import task_manager
 from shade import _tasks
 from shade import _utils
 
+
 __version__ = pbr.version.VersionInfo('shade').version_string()
 OBJECT_MD5_KEY = 'x-object-meta-x-shade-md5'
 OBJECT_SHA256_KEY = 'x-object-meta-x-shade-sha256'
@@ -86,6 +87,16 @@ def valid_kwargs(*valid_args):
                     "'{arg}'".format(f=inspect.stack()[1][3], arg=k))
         return func(*args, **kwargs)
     return func_wrapper
+
+
+def simple_logging(debug=False):
+    if debug:
+        log_level = logging.DEBUG
+    else:
+        log_level = logging.INFO
+    log = logging.getLogger('shade')
+    log.addHandler(logging.StreamHandler())
+    log.setLevel(log_level)
 
 
 def openstack_clouds(config=None, debug=False):
@@ -213,8 +224,7 @@ class OpenStackCloud(object):
     :param string cert: A path to a client certificate to pass to requests.
                         (optional)
     :param string key: A path to a client key to pass to requests. (optional)
-    :param bool debug: Enable or disable debug logging (optional, defaults to
-                       False)
+    :param bool debug: Deprecated and unused parameter.
     :param int cache_interval: How long to cache items fetched from the cloud.
                                Value will be passed to dogpile.cache. None
                                means do not cache at all.
@@ -246,6 +256,8 @@ class OpenStackCloud(object):
                  manager=None,
                  image_api_use_tasks=False,
                  **kwargs):
+
+        self.log = logging.getLogger('shade')
 
         self.name = cloud
         self.auth = auth
@@ -289,13 +301,6 @@ class OpenStackCloud(object):
         self._nova_client = None
         self._swift_client = None
         self._trove_client = None
-
-        self.log = logging.getLogger('shade')
-        log_level = logging.INFO
-        if debug:
-            log_level = logging.DEBUG
-        self.log.setLevel(log_level)
-        self.log.addHandler(logging.StreamHandler())
 
     def _make_cache_key(self, namespace, fn):
         fname = fn.__name__
@@ -348,11 +353,6 @@ class OpenStackCloud(object):
     @property
     def keystone_session(self):
         if self._keystone_session is None:
-            # keystoneclient does crazy things with logging that are
-            # none of them interesting
-            keystone_logging = logging.getLogger('keystoneclient')
-            keystone_logging.addHandler(logging.NullHandler())
-
             try:
                 auth_plugin = ksc_auth.get_plugin_class(self.auth_type)
             except Exception as e:
@@ -2363,8 +2363,6 @@ class OperatorCloud(OpenStackCloud):
     @property
     def ironic_client(self):
         if self._ironic_client is None:
-            ironic_logging = logging.getLogger('ironicclient')
-            ironic_logging.addHandler(logging.NullHandler())
             token = self.auth_token
             if self.auth_type in (None, "None", ''):
                 # TODO: This needs to be improved logic wise, perhaps a list,
