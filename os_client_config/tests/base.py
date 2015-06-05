@@ -56,6 +56,14 @@ USER_CONF = {
             },
             'region-name': 'test-region',
         },
+        '_test-cloud-int-project_': {
+            'auth': {
+                'username': 'testuser',
+                'password': 'testpass',
+                'project_id': 12345,
+            },
+            'region_name': 'test-region',
+        },
     },
     'cache': {'max_age': 1},
 }
