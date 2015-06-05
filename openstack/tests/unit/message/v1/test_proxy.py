@@ -26,12 +26,7 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_queue_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_queue,
-                            method_kwargs=kwargs,
-                            expected_args=[queue.Queue],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_queue, queue.Queue)
 
     def test_queue_delete(self):
         self.verify_delete3(queue.Queue, self.proxy.delete_queue,
@@ -42,18 +37,18 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
                             ignore_missing=True)
 
     def test_messages_create(self):
-        self.verify_create2(
-            'openstack.message.v1.message.Message.create_messages',
-            self.proxy.create_messages,
-            method_args=[[]],
-            expected_args=[self.session, []])
+        self._verify2("openstack.message.v1.message.Message.create_messages",
+                      self.proxy.create_messages,
+                      expected_result="result",
+                      method_args=[[]],
+                      expected_args=[self.session, []])
 
     def test_messages_claim(self):
-        self.verify_create2(
-            'openstack.message.v1.claim.Claim.claim_messages',
-            self.proxy.claim_messages,
-            method_args=[claim.Claim],
-            expected_args=[self.session, claim.Claim])
+        self._verify2("openstack.message.v1.claim.Claim.claim_messages",
+                      self.proxy.claim_messages,
+                      expected_result="result",
+                      method_args=[claim.Claim],
+                      expected_args=[self.session, claim.Claim])
 
     def test_message_delete(self):
         self.verify_delete(

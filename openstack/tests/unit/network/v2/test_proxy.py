@@ -48,12 +48,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_floating_ip_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_ip,
-                            method_kwargs=kwargs,
-                            expected_args=[floating_ip.FloatingIP],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_ip, floating_ip.FloatingIP)
 
     def test_floating_ip_delete(self):
         self.verify_delete2(floating_ip.FloatingIP, self.proxy.delete_ip,
@@ -90,12 +85,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_health_monitor_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_health_monitor,
-                            method_kwargs=kwargs,
-                            expected_args=[health_monitor.HealthMonitor],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_health_monitor,
+                           health_monitor.HealthMonitor)
 
     def test_health_monitor_delete(self):
         self.verify_delete2(health_monitor.HealthMonitor,
@@ -133,12 +124,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_listener_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_listener,
-                            method_kwargs=kwargs,
-                            expected_args=[listener.Listener],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_listener, listener.Listener)
 
     def test_listener_delete(self):
         self.verify_delete2(listener.Listener,
@@ -174,12 +160,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_load_balancer_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_load_balancer,
-                            method_kwargs=kwargs,
-                            expected_args=[load_balancer.LoadBalancer],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_load_balancer,
+                           load_balancer.LoadBalancer)
 
     def test_load_balancer_delete(self):
         self.verify_delete2(load_balancer.LoadBalancer,
@@ -217,12 +199,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_metering_label_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_metering_label,
-                            method_kwargs=kwargs,
-                            expected_args=[metering_label.MeteringLabel],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_metering_label,
+                           metering_label.MeteringLabel)
 
     def test_metering_label_delete(self):
         self.verify_delete2(metering_label.MeteringLabel,
@@ -260,13 +238,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_metering_label_rule_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_metering_label_rule,
-                            method_kwargs=kwargs,
-                            expected_args=[
-                                metering_label_rule.MeteringLabelRule],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_metering_label_rule,
+                           metering_label_rule.MeteringLabelRule)
 
     def test_metering_label_rule_delete(self):
         self.verify_delete2(metering_label_rule.MeteringLabelRule,
@@ -307,12 +280,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_network_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_network,
-                            method_kwargs=kwargs,
-                            expected_args=[network.Network],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_network, network.Network)
 
     def test_network_delete(self):
         self.verify_delete2(network.Network, self.proxy.delete_network, False)
@@ -345,12 +313,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_pool_member_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_pool_member,
-                            method_kwargs=kwargs,
-                            expected_args=[pool_member.PoolMember],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_pool_member,
+                           pool_member.PoolMember)
 
     def test_pool_member_delete(self):
         self.verify_delete2(pool_member.PoolMember,
@@ -387,12 +351,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_pool_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_pool,
-                            method_kwargs=kwargs,
-                            expected_args=[pool.Pool],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_pool, pool.Pool)
 
     def test_pool_delete(self):
         self.verify_delete2(pool.Pool, self.proxy.delete_pool, False)
@@ -425,12 +384,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_port_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_port,
-                            method_kwargs=kwargs,
-                            expected_args=[port.Port],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_port, port.Port)
 
     def test_port_delete(self):
         self.verify_delete2(port.Port, self.proxy.delete_port, False)
@@ -468,12 +422,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_router_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_router,
-                            method_kwargs=kwargs,
-                            expected_args=[router.Router],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_router, router.Router)
 
     def test_router_delete(self):
         self.verify_delete2(router.Router, self.proxy.delete_router, False)
@@ -506,12 +455,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_security_group_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_security_group,
-                            method_kwargs=kwargs,
-                            expected_args=[security_group.SecurityGroup],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_security_group,
+                           security_group.SecurityGroup)
 
     def test_security_group_delete(self):
         self.verify_delete2(security_group.SecurityGroup,
@@ -590,13 +535,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             mocked.assert_called_with(**expected_args)
 
     def test_security_group_rule_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_security_group_rule,
-                            method_kwargs=kwargs,
-                            expected_args=[
-                                security_group_rule.SecurityGroupRule],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_security_group_rule,
+                           security_group_rule.SecurityGroupRule)
 
     def test_security_group_rule_delete(self):
         self.verify_delete2(security_group_rule.SecurityGroupRule,
@@ -637,12 +577,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_subnet_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_subnet,
-                            method_kwargs=kwargs,
-                            expected_args=[subnet.Subnet],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_subnet, subnet.Subnet)
 
     def test_subnet_delete(self):
         self.verify_delete2(subnet.Subnet, self.proxy.delete_subnet, False)
@@ -675,12 +610,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_vpn_service_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_vpn_service,
-                            method_kwargs=kwargs,
-                            expected_args=[vpn_service.VPNService],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_vpn_service,
+                           vpn_service.VPNService)
 
     def test_vpn_service_delete(self):
         self.verify_delete2(vpn_service.VPNService,

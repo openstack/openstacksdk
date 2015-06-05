@@ -21,12 +21,7 @@ class TestClusteringProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_cluster_create(self):
-        kwargs = {'cluster': {'name': 'test-cluster', 'profile_id': '123'}}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_cluster,
-                            method_kwargs=kwargs,
-                            expected_args=[cluster.Cluster],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_cluster, cluster.Cluster)
 
     def test_cluster_delete(self):
         self.verify_delete2(cluster.Cluster, self.proxy.delete_cluster, False)

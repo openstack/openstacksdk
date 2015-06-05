@@ -21,12 +21,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_stack_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_stack,
-                            method_kwargs=kwargs,
-                            expected_args=[stack.Stack],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_stack, stack.Stack)
 
     def test_stack_find(self):
         self.verify_find('openstack.orchestration.v1.stack.Stack.find',

@@ -23,12 +23,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_role_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_role,
-                            method_kwargs=kwargs,
-                            expected_args=[role.Role],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_role, role.Role)
 
     def test_role_delete(self):
         self.verify_delete2(role.Role, self.proxy.delete_role, False)
@@ -61,12 +56,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_tenant_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_tenant,
-                            method_kwargs=kwargs,
-                            expected_args=[tenant.Tenant],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_tenant, tenant.Tenant)
 
     def test_tenant_delete(self):
         self.verify_delete2(tenant.Tenant, self.proxy.delete_tenant, False)
@@ -99,12 +89,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_user_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_user,
-                            method_kwargs=kwargs,
-                            expected_args=[user.User],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_user, user.User)
 
     def test_user_delete(self):
         self.verify_delete2(user.User, self.proxy.delete_user, False)

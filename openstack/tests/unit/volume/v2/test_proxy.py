@@ -29,12 +29,7 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
                          expected_args=[snapshot.Snapshot, "resource_or_id"])
 
     def test_snapshot_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_snapshot,
-                            method_kwargs=kwargs,
-                            expected_args=[snapshot.Snapshot],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_snapshot, snapshot.Snapshot)
 
     def test_snapshot_delete(self):
         self.verify_delete2(snapshot.Snapshot, self.proxy.delete_snapshot,
@@ -51,12 +46,7 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
                          expected_args=[type.Type, "resource_or_id"])
 
     def test_type_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_type,
-                            method_kwargs=kwargs,
-                            expected_args=[type.Type],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_type, type.Type)
 
     def test_type_delete(self):
         self.verify_delete2(type.Type, self.proxy.delete_type, False)
@@ -71,12 +61,7 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
                          expected_args=[volume.Volume, "resource_or_id"])
 
     def test_volume_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_volume,
-                            method_kwargs=kwargs,
-                            expected_args=[volume.Volume],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_volume, volume.Volume)
 
     def test_volume_delete(self):
         self.verify_delete2(volume.Volume, self.proxy.delete_volume, False)
