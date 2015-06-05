@@ -130,13 +130,14 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     server_vars['image'].pop('links', None)
 
     volumes = []
-    try:
-        for volume in cloud.get_volumes(server):
-            # Make things easier to consume elsewhere
-            volume['device'] = volume['attachments'][0]['device']
-            volumes.append(volume)
-    except exc.OpenStackCloudException:
-        pass
+    if cloud.has_service('volumes'):
+        try:
+            for volume in cloud.get_volumes(server):
+                # Make things easier to consume elsewhere
+                volume['device'] = volume['attachments'][0]['device']
+                volumes.append(volume)
+        except exc.OpenStackCloudException:
+            pass
     server_vars['volumes'] = volumes
     if mounts:
         for mount in mounts:

@@ -27,8 +27,9 @@ from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
 import jsonpatch
 from keystoneclient import auth as ksc_auth
-from keystoneclient import session as ksc_session
 from keystoneclient import client as keystone_client
+from keystoneclient import exceptions as keystone_exceptions
+from keystoneclient import session as ksc_session
 from novaclient import client as nova_client
 from novaclient import exceptions as nova_exceptions
 from neutronclient.v2_0 import client as neutron_client
@@ -721,6 +722,10 @@ class OpenStackCloud(object):
                     service_name=self.get_service_name(service_key),
                     interface=self.endpoint_type,
                     region_name=self.region_name)
+        except keystone_exceptions.EndpointNotFound as e:
+            self.log.debug(
+                "Endpoint not found in %s cloud: %s", self.name, str(e))
+            endpoint = None
         except Exception as e:
             self.log.debug("keystone cannot get endpoint", exc_info=True)
             raise OpenStackCloudException(

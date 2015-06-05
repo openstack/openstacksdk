@@ -16,7 +16,6 @@ import mock
 import testtools
 import warlock
 
-from shade import exc
 from shade import meta
 
 PRIVATE_V4 = '198.51.100.3'
@@ -27,6 +26,7 @@ class FakeCloud(object):
     region_name = 'test-region'
     name = 'test-name'
     private = False
+    service_val = True
     _unused = "useless"
 
     def get_flavor_name(self, id):
@@ -37,6 +37,9 @@ class FakeCloud(object):
 
     def get_volumes(self, server):
         return []
+
+    def has_service(self, service_name):
+        return self.service_val
 
 
 class FakeServer(object):
@@ -160,13 +163,10 @@ class TestMeta(testtools.TestCase):
         self.assertEquals('/dev/sda0', hostvars['volumes'][0]['device'])
 
     def test_has_no_volume_service(self):
-        mock_cloud = mock.MagicMock()
-
-        def side_effect(*args):
-            raise exc.OpenStackCloudException("No Volumes")
-        mock_cloud.get_volumes.side_effect = side_effect
+        fake_cloud = FakeCloud()
+        fake_cloud.service_val = False
         hostvars = meta.get_hostvars_from_server(
-            mock_cloud, meta.obj_to_dict(FakeServer()))
+            fake_cloud, meta.obj_to_dict(FakeServer()))
         self.assertEquals([], hostvars['volumes'])
 
     def test_unknown_volume_exception(self):
