@@ -2327,6 +2327,53 @@ class OpenStackCloud(object):
                 "failed to delete port '{port}': {msg}".format(
                     port=name_or_id, msg=str(e)))
 
+    def create_security_group(self, name, description):
+        """Create a new security group
+
+        :param string name: A name for the security group.
+        :param string description: Describes the security group.
+
+        :raises: OpenStackCloudException on operation error.
+        :raises: OpenStackCloudUnavailableFeature if security groups are
+                 not supported on this cloud.
+        """
+        if self.secgroup_source == 'neutron':
+            try:
+                self.manager.submitTask(
+                    _tasks.NeutronSecurityGroupCreate(
+                        body=dict(security_group=dict(name=name,
+                                                      description=description))
+                    )
+                )
+            except Exception as e:
+                self.log.debug(
+                    "neutron failed to create security group '{name}'".format(
+                        name=name), exc_info=True)
+                raise OpenStackCloudException(
+                    "failed to create security group '{name}': {msg}".format(
+                        name=name, msg=str(e)))
+
+        elif self.secgroup_source == 'nova':
+            try:
+                self.manager.submitTask(
+                    _tasks.NovaSecurityGroupCreate(
+                        name=name, description=description
+                    )
+                )
+            except Exception as e:
+                self.log.debug(
+                    "nova failed to create security group '{name}'".format(
+                        name=name), exc_info=True)
+                raise OpenStackCloudException(
+                    "failed to create security group '{name}': {msg}".format(
+                        name=name, msg=str(e)))
+
+        # Security groups not supported
+        else:
+            raise OpenStackCloudUnavailableFeature(
+                "Unavailable feature: security groups"
+            )
+
     def delete_security_group(self, name_or_id):
         """Delete a security group
 

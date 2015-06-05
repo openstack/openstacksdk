@@ -125,3 +125,34 @@ class TestSecurityGroups(base.TestCase):
                           'doesNotExist')
         self.assertFalse(mock_neutron.delete_security_group.called)
         self.assertFalse(mock_nova.security_groups.delete.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_create_security_group_neutron(self, mock_neutron):
+        self.cloud.secgroup_source = 'neutron'
+        group_name = self.getUniqueString()
+        group_desc = 'security group from test_create_security_group_neutron'
+        self.cloud.create_security_group(group_name, group_desc)
+        mock_neutron.create_security_group.assert_called_once_with(
+            body=dict(security_group=dict(name=group_name,
+                                          description=group_desc))
+        )
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_create_security_group_nova(self, mock_nova):
+        self.cloud.secgroup_source = 'nova'
+        group_name = self.getUniqueString()
+        group_desc = 'security group from test_create_security_group_neutron'
+        self.cloud.create_security_group(group_name, group_desc)
+        mock_nova.security_groups.create.assert_called_once_with(
+            name=group_name, description=group_desc
+        )
+
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_create_security_group_none(self, mock_nova, mock_neutron):
+        self.cloud.secgroup_source = None
+        self.assertRaises(shade.OpenStackCloudUnavailableFeature,
+                          self.cloud.create_security_group,
+                          '', '')
+        self.assertFalse(mock_neutron.create_security_group.called)
+        self.assertFalse(mock_nova.security_groups.create.called)

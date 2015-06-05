@@ -197,6 +197,11 @@ class NeutronSecurityGroupList(task_manager.Task):
         return client.neutron_client.list_security_groups()
 
 
+class NeutronSecurityGroupCreate(task_manager.Task):
+    def main(self, client):
+        return client.neutron_client.create_security_group(**self.args)
+
+
 class NeutronSecurityGroupDelete(task_manager.Task):
     def main(self, client):
         return client.neutron_client.delete_security_group(**self.args)
@@ -205,6 +210,11 @@ class NeutronSecurityGroupDelete(task_manager.Task):
 class NovaSecurityGroupList(task_manager.Task):
     def main(self, client):
         return client.nova_client.security_groups.list()
+
+
+class NovaSecurityGroupCreate(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.security_groups.create(**self.args)
 
 
 class NovaSecurityGroupDelete(task_manager.Task):
