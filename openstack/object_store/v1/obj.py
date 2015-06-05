@@ -28,6 +28,9 @@ class Object(resource.Resource):
     allow_list = True
     allow_head = True
 
+    # Data to be passed during a POST call to create an object on the server.
+    data = None
+
     # URL parameters
     #: The unique name for the container.
     container = resource.prop("container")
@@ -158,13 +161,13 @@ class Object(resource.Resource):
 
         return resp
 
-    def create(self, session, data=None):
+    def create(self, session):
         """Create a remote resource from this instance."""
         url = utils.urljoin("", self.base_path % self, self.id)
 
         headers = self.get_headers()
-        if data is not None:
-            resp = session.put(url, service=self.service, data=data,
+        if self.data is not None:
+            resp = session.put(url, service=self.service, data=self.data,
                                accept="bytes", headers=headers).headers
         else:
             resp = session.post(url, service=self.service, data=None,

@@ -118,11 +118,12 @@ class TestObject(testtools.TestCase):
         self.assertEqual(self.resp.content, rv)
 
     def _test_create(self, method, data, accept):
-        sot = obj.Object.new(container=CONTAINER_NAME, name=OBJECT_NAME)
+        sot = obj.Object.new(container=CONTAINER_NAME, name=OBJECT_NAME,
+                             data=data)
         sot.newest = True
         headers = {"x-newest": True}
 
-        rv = sot.create(self.sess, data=data)
+        rv = sot.create(self.sess)
 
         url = "/%s/%s" % (CONTAINER_NAME, OBJECT_NAME)
         method.assert_called_with(url, service=sot.service, data=data,
