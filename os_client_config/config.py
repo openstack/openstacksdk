@@ -258,10 +258,10 @@ class OpenStackConfig(object):
             target = None
             for key in possible_values:
                 if key in cloud:
-                    target = cloud[key]
+                    target = str(cloud[key])
                     del cloud[key]
                 if key in cloud['auth']:
-                    target = cloud['auth'][key]
+                    target = str(cloud['auth'][key])
                     del cloud['auth'][key]
             if target:
                 cloud['auth'][target_key] = target
