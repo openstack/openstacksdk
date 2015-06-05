@@ -77,31 +77,13 @@ class TestProxyBase(base.TestCase):
         self._verify2(mock_method, test_method, expected_result="result",
                       **kwargs)
 
-    def verify_delete(self, mock_method, test_method, **kwargs):
-        self._verify(mock_method, test_method, **kwargs)
-
-    def verify_delete2(self, resource, method, ignore):
-        self._verify2('openstack.proxy.BaseProxy._delete',
-                      method,
+    def verify_delete(self, test_method, resource_type, ignore,
+                      mock_method="openstack.proxy.BaseProxy._delete"):
+        self._verify2(mock_method, test_method,
                       method_args=["resource_or_id"],
                       method_kwargs={"ignore_missing": ignore},
-                      expected_args=[resource, "resource_or_id"],
-                      expected_kwargs={'ignore_missing': ignore})
-
-    def verify_delete3(self, resource, method, **kwargs):
-        print(kwargs)
-        method_kwargs = kwargs.copy()
-
-        ignore = kwargs.pop("ignore_missing")
-        expected_kwargs = {"path_args": kwargs} if kwargs else {}
-        expected_kwargs["ignore_missing"] = ignore
-
-        self._verify2('openstack.proxy.BaseProxy._delete',
-                      method,
-                      method_args=["resource"],
-                      method_kwargs=method_kwargs,
-                      expected_args=[resource, "resource"],
-                      expected_kwargs=expected_kwargs)
+                      expected_args=[resource_type, "resource_or_id"],
+                      expected_kwargs={"ignore_missing": ignore})
 
     def verify_get(self, mock_method, test_method, **kwargs):
         self._verify(mock_method, test_method, expected_result="result",

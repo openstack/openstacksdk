@@ -29,10 +29,10 @@ class TestClusteringProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_cluster_delete(self):
-        self.verify_delete2(cluster.Cluster, self.proxy.delete_cluster, False)
+        self.verify_delete(self.proxy.delete_cluster, cluster.Cluster, False)
 
     def test_cluster_delete_ignore(self):
-        self.verify_delete2(cluster.Cluster, self.proxy.delete_cluster, True)
+        self.verify_delete(self.proxy.delete_cluster, cluster.Cluster, True)
 
     def test_cluster_find(self):
         self.verify_find('openstack.clustering.v1.cluster.Cluster.find',

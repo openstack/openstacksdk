@@ -32,12 +32,12 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_database_delete(self):
-        self.verify_delete2(database.Database, self.proxy.delete_database,
-                            False)
+        self.verify_delete(self.proxy.delete_database,
+                           database.Database, False)
 
     def test_database_delete_ignore(self):
-        self.verify_delete2(database.Database, self.proxy.delete_database,
-                            True)
+        self.verify_delete(self.proxy.delete_database,
+                           database.Database, True)
 
     def test_database_find(self):
         self.verify_find('openstack.database.v1.database.Database.find',
@@ -78,12 +78,12 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_instance_delete(self):
-        self.verify_delete2(instance.Instance, self.proxy.delete_instance,
-                            False)
+        self.verify_delete(self.proxy.delete_instance,
+                           instance.Instance, False)
 
     def test_instance_delete_ignore(self):
-        self.verify_delete2(instance.Instance, self.proxy.delete_instance,
-                            True)
+        self.verify_delete(self.proxy.delete_instance,
+                           instance.Instance, True)
 
     def test_instance_find(self):
         self.verify_find('openstack.database.v1.instance.Instance.find',
@@ -119,10 +119,10 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_user_delete(self):
-        self.verify_delete2(user.User, self.proxy.delete_user, False)
+        self.verify_delete(self.proxy.delete_user, user.User, False)
 
     def test_user_delete_ignore(self):
-        self.verify_delete2(user.User, self.proxy.delete_user, True)
+        self.verify_delete(self.proxy.delete_user, user.User, True)
 
     def test_user_find(self):
         self.verify_find('openstack.database.v1.user.User.find',

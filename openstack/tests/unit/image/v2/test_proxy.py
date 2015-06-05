@@ -31,10 +31,10 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_image_delete(self):
-        self.verify_delete2(image.Image, self.proxy.delete_image, False)
+        self.verify_delete(self.proxy.delete_image, image.Image, False)
 
     def test_image_delete_ignore(self):
-        self.verify_delete2(image.Image, self.proxy.delete_image, True)
+        self.verify_delete(self.proxy.delete_image, image.Image, True)
 
     def test_image_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -65,10 +65,10 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_member_delete(self):
-        self.verify_delete2(member.Member, self.proxy.delete_member, False)
+        self.verify_delete(self.proxy.delete_member, member.Member, False)
 
     def test_member_delete_ignore(self):
-        self.verify_delete2(member.Member, self.proxy.delete_member, True)
+        self.verify_delete(self.proxy.delete_member, member.Member, True)
 
     def test_member_update(self):
         kwargs = {"x": 1, "y": 2, "z": 3}
@@ -99,7 +99,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_tag_delete(self):
-        self.verify_delete2(tag.Tag, self.proxy.delete_tag, False)
+        self.verify_delete(self.proxy.delete_tag, tag.Tag, False)
 
     def test_tag_delete_ignore(self):
-        self.verify_delete2(tag.Tag, self.proxy.delete_tag, True)
+        self.verify_delete(self.proxy.delete_tag, tag.Tag, True)

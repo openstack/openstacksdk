@@ -37,12 +37,12 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_snapshot_delete(self):
-        self.verify_delete2(snapshot.Snapshot, self.proxy.delete_snapshot,
-                            False)
+        self.verify_delete(self.proxy.delete_snapshot,
+                           snapshot.Snapshot, False)
 
     def test_snapshot_delete_ignore(self):
-        self.verify_delete2(snapshot.Snapshot, self.proxy.delete_snapshot,
-                            True)
+        self.verify_delete(self.proxy.delete_snapshot,
+                           snapshot.Snapshot, True)
 
     def test_type_get(self):
         self.verify_get2('openstack.proxy.BaseProxy._get',
@@ -59,10 +59,10 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_type_delete(self):
-        self.verify_delete2(type.Type, self.proxy.delete_type, False)
+        self.verify_delete(self.proxy.delete_type, type.Type, False)
 
     def test_type_delete_ignore(self):
-        self.verify_delete2(type.Type, self.proxy.delete_type, True)
+        self.verify_delete(self.proxy.delete_type, type.Type, True)
 
     def test_volume_get(self):
         self.verify_get2('openstack.proxy.BaseProxy._get',
@@ -79,7 +79,7 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_volume_delete(self):
-        self.verify_delete2(volume.Volume, self.proxy.delete_volume, False)
+        self.verify_delete(self.proxy.delete_volume, volume.Volume, False)
 
     def test_volume_delete_ignore(self):
-        self.verify_delete2(volume.Volume, self.proxy.delete_volume, True)
+        self.verify_delete(self.proxy.delete_volume, volume.Volume, True)

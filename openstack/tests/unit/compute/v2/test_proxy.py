@@ -45,10 +45,10 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_flavor_delete(self):
-        self.verify_delete2(flavor.Flavor, self.proxy.delete_flavor, False)
+        self.verify_delete(self.proxy.delete_flavor, flavor.Flavor, False)
 
     def test_flavor_delete_ignore(self):
-        self.verify_delete2(flavor.Flavor, self.proxy.delete_flavor, True)
+        self.verify_delete(self.proxy.delete_flavor, flavor.Flavor, True)
 
     def test_flavor_find(self):
         self.verify_find('openstack.compute.v2.flavor.Flavor.find',
@@ -82,10 +82,10 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_image_delete(self):
-        self.verify_delete2(image.Image, self.proxy.delete_image, False)
+        self.verify_delete(self.proxy.delete_image, image.Image, False)
 
     def test_image_delete_ignore(self):
-        self.verify_delete2(image.Image, self.proxy.delete_image, True)
+        self.verify_delete(self.proxy.delete_image, image.Image, True)
 
     def test_image_find(self):
         self.verify_find('openstack.compute.v2.image.Image.find',
@@ -118,10 +118,10 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_keypair_delete(self):
-        self.verify_delete2(keypair.Keypair, self.proxy.delete_keypair, False)
+        self.verify_delete(self.proxy.delete_keypair, keypair.Keypair, False)
 
     def test_keypair_delete_ignore(self):
-        self.verify_delete2(keypair.Keypair, self.proxy.delete_keypair, True)
+        self.verify_delete(self.proxy.delete_keypair, keypair.Keypair, True)
 
     def test_keypair_find(self):
         self.verify_find('openstack.compute.v2.keypair.Keypair.find',
@@ -161,12 +161,12 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_server_interface_delete(self):
-        self.verify_delete2(server_interface.ServerInterface,
-                            self.proxy.delete_server_interface, False)
+        self.verify_delete(self.proxy.delete_server_interface,
+                           server_interface.ServerInterface, False)
 
     def test_server_interface_delete_ignore(self):
-        self.verify_delete2(server_interface.ServerInterface,
-                            self.proxy.delete_server_interface, True)
+        self.verify_delete(self.proxy.delete_server_interface,
+                           server_interface.ServerInterface, True)
 
     def test_server_interface_find(self):
         self.verify_find(
@@ -213,10 +213,10 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_server_delete(self):
-        self.verify_delete2(server.Server, self.proxy.delete_server, False)
+        self.verify_delete(self.proxy.delete_server, server.Server, False)
 
     def test_server_delete_ignore(self):
-        self.verify_delete2(server.Server, self.proxy.delete_server, True)
+        self.verify_delete(self.proxy.delete_server, server.Server, True)
 
     def test_server_find(self):
         self.verify_find('openstack.compute.v2.server.Server.find',

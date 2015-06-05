@@ -34,12 +34,10 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_queue_delete(self):
-        self.verify_delete3(queue.Queue, self.proxy.delete_queue,
-                            ignore_missing=False)
+        self.verify_delete(self.proxy.delete_queue, queue.Queue, False)
 
     def test_queue_delete_ignore(self):
-        self.verify_delete3(queue.Queue, self.proxy.delete_queue,
-                            ignore_missing=True)
+        self.verify_delete(self.proxy.delete_queue, queue.Queue, True)
 
     def test_messages_create(self):
         self.verify_create2(
@@ -56,8 +54,7 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
             expected_args=[self.session, claim.Claim])
 
     def test_message_delete(self):
-        self.verify_delete(
-            'openstack.message.v1.message.Message.delete_by_id',
-            self.proxy.delete_message,
-            method_args=[message.Message],
-            expected_args=[message.Message])
+        self._verify2("openstack.message.v1.message.Message.delete_by_id",
+                      self.proxy.delete_message,
+                      method_args=[message.Message],
+                      expected_args=[self.session, message.Message])

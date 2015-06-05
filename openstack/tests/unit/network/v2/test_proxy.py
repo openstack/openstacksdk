@@ -56,12 +56,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_floating_ip_delete(self):
-        self.verify_delete2(floating_ip.FloatingIP, self.proxy.delete_ip,
-                            False)
+        self.verify_delete(self.proxy.delete_ip, floating_ip.FloatingIP,
+                           False)
 
     def test_floating_ip_delete_ignore(self):
-        self.verify_delete2(floating_ip.FloatingIP, self.proxy.delete_ip,
-                            True)
+        self.verify_delete(self.proxy.delete_ip, floating_ip.FloatingIP,
+                           True)
 
     def test_floating_ip_find(self):
         self.verify_find('openstack.network.v2.floating_ip.FloatingIP.find',
@@ -98,12 +98,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_health_monitor_delete(self):
-        self.verify_delete2(health_monitor.HealthMonitor,
-                            self.proxy.delete_health_monitor, False)
+        self.verify_delete(self.proxy.delete_health_monitor,
+                           health_monitor.HealthMonitor, False)
 
     def test_health_monitor_delete_ignore(self):
-        self.verify_delete2(health_monitor.HealthMonitor,
-                            self.proxy.delete_health_monitor, True)
+        self.verify_delete(self.proxy.delete_health_monitor,
+                           health_monitor.HealthMonitor, True)
 
     def test_health_monitor_find(self):
         self.verify_find(
@@ -141,12 +141,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_listener_delete(self):
-        self.verify_delete2(listener.Listener,
-                            self.proxy.delete_listener, False)
+        self.verify_delete(self.proxy.delete_listener,
+                           listener.Listener, False)
 
     def test_listener_delete_ignore(self):
-        self.verify_delete2(listener.Listener,
-                            self.proxy.delete_listener, True)
+        self.verify_delete(self.proxy.delete_listener,
+                           listener.Listener, True)
 
     def test_listener_find(self):
         self.verify_find('openstack.network.v2.listener.Listener.find',
@@ -182,12 +182,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_load_balancer_delete(self):
-        self.verify_delete2(load_balancer.LoadBalancer,
-                            self.proxy.delete_load_balancer, False)
+        self.verify_delete(self.proxy.delete_load_balancer,
+                           load_balancer.LoadBalancer, False)
 
     def test_load_balancer_delete_ignore(self):
-        self.verify_delete2(load_balancer.LoadBalancer,
-                            self.proxy.delete_load_balancer, True)
+        self.verify_delete(self.proxy.delete_load_balancer,
+                           load_balancer.LoadBalancer, True)
 
     def test_load_balancer_find(self):
         self.verify_find(
@@ -225,12 +225,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_metering_label_delete(self):
-        self.verify_delete2(metering_label.MeteringLabel,
-                            self.proxy.delete_metering_label, False)
+        self.verify_delete(self.proxy.delete_metering_label,
+                           metering_label.MeteringLabel, False)
 
     def test_metering_label_delete_ignore(self):
-        self.verify_delete2(metering_label.MeteringLabel,
-                            self.proxy.delete_metering_label, True)
+        self.verify_delete(self.proxy.delete_metering_label,
+                           metering_label.MeteringLabel, True)
 
     def test_metering_label_find(self):
         self.verify_find(
@@ -269,12 +269,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_metering_label_rule_delete(self):
-        self.verify_delete2(metering_label_rule.MeteringLabelRule,
-                            self.proxy.delete_metering_label_rule, False)
+        self.verify_delete(self.proxy.delete_metering_label_rule,
+                           metering_label_rule.MeteringLabelRule, False)
 
     def test_metering_label_rule_delete_ignore(self):
-        self.verify_delete2(metering_label_rule.MeteringLabelRule,
-                            self.proxy.delete_metering_label_rule, True)
+        self.verify_delete(self.proxy.delete_metering_label_rule,
+                           metering_label_rule.MeteringLabelRule, True)
 
     def test_metering_label_rule_find(self):
         self.verify_find(
@@ -315,10 +315,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_network_delete(self):
-        self.verify_delete2(network.Network, self.proxy.delete_network, False)
+        self.verify_delete(self.proxy.delete_network, network.Network, False)
 
     def test_network_delete_ignore(self):
-        self.verify_delete2(network.Network, self.proxy.delete_network, True)
+        self.verify_delete(self.proxy.delete_network, network.Network, True)
 
     def test_network_find(self):
         self.verify_find('openstack.network.v2.network.Network.find',
@@ -353,12 +353,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_pool_member_delete(self):
-        self.verify_delete2(pool_member.PoolMember,
-                            self.proxy.delete_pool_member, False)
+        self.verify_delete(self.proxy.delete_pool_member,
+                           pool_member.PoolMember, False)
 
     def test_pool_member_delete_ignore(self):
-        self.verify_delete2(pool_member.PoolMember,
-                            self.proxy.delete_pool_member, True)
+        self.verify_delete(self.proxy.delete_pool_member,
+                           pool_member.PoolMember, True)
 
     def test_pool_member_find(self):
         self.verify_find('openstack.network.v2.pool_member.PoolMember.find',
@@ -395,10 +395,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_pool_delete(self):
-        self.verify_delete2(pool.Pool, self.proxy.delete_pool, False)
+        self.verify_delete(self.proxy.delete_pool, pool.Pool, False)
 
     def test_pool_delete_ignore(self):
-        self.verify_delete2(pool.Pool, self.proxy.delete_pool, True)
+        self.verify_delete(self.proxy.delete_pool, pool.Pool, True)
 
     def test_pool_find(self):
         self.verify_find('openstack.network.v2.pool.Pool.find',
@@ -433,10 +433,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_port_delete(self):
-        self.verify_delete2(port.Port, self.proxy.delete_port, False)
+        self.verify_delete(self.proxy.delete_port, port.Port, False)
 
     def test_port_delete_ignore(self):
-        self.verify_delete2(port.Port, self.proxy.delete_port, True)
+        self.verify_delete(self.proxy.delete_port, port.Port, True)
 
     def test_port_find(self):
         self.verify_find('openstack.network.v2.port.Port.find',
@@ -476,10 +476,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_router_delete(self):
-        self.verify_delete2(router.Router, self.proxy.delete_router, False)
+        self.verify_delete(self.proxy.delete_router, router.Router, False)
 
     def test_router_delete_ignore(self):
-        self.verify_delete2(router.Router, self.proxy.delete_router, True)
+        self.verify_delete(self.proxy.delete_router, router.Router, True)
 
     def test_router_find(self):
         self.verify_find('openstack.network.v2.router.Router.find',
@@ -514,12 +514,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_security_group_delete(self):
-        self.verify_delete2(security_group.SecurityGroup,
-                            self.proxy.delete_security_group, False)
+        self.verify_delete(self.proxy.delete_security_group,
+                           security_group.SecurityGroup, False)
 
     def test_security_group_delete_ignore(self):
-        self.verify_delete2(security_group.SecurityGroup,
-                            self.proxy.delete_security_group, True)
+        self.verify_delete(self.proxy.delete_security_group,
+                           security_group.SecurityGroup, True)
 
     def test_security_group_find(self):
         self.verify_find(
@@ -599,12 +599,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_security_group_rule_delete(self):
-        self.verify_delete2(security_group_rule.SecurityGroupRule,
-                            self.proxy.delete_security_group_rule, False)
+        self.verify_delete(self.proxy.delete_security_group_rule,
+                           security_group_rule.SecurityGroupRule, False)
 
     def test_security_group_rule_delete_ignore(self):
-        self.verify_delete2(security_group_rule.SecurityGroupRule,
-                            self.proxy.delete_security_group_rule, True)
+        self.verify_delete(self.proxy.delete_security_group_rule,
+                           security_group_rule.SecurityGroupRule, True)
 
     def test_security_group_rule_find(self):
         self.verify_find(
@@ -645,10 +645,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_subnet_delete(self):
-        self.verify_delete2(subnet.Subnet, self.proxy.delete_subnet, False)
+        self.verify_delete(self.proxy.delete_subnet, subnet.Subnet, False)
 
     def test_subnet_delete_ignore(self):
-        self.verify_delete2(subnet.Subnet, self.proxy.delete_subnet, True)
+        self.verify_delete(self.proxy.delete_subnet, subnet.Subnet, True)
 
     def test_subnet_find(self):
         self.verify_find('openstack.network.v2.subnet.Subnet.find',
@@ -683,12 +683,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_vpn_service_delete(self):
-        self.verify_delete2(vpn_service.VPNService,
-                            self.proxy.delete_vpn_service, False)
+        self.verify_delete(self.proxy.delete_vpn_service,
+                           vpn_service.VPNService, False)
 
     def test_vpn_service_delete_ignore(self):
-        self.verify_delete2(vpn_service.VPNService,
-                            self.proxy.delete_vpn_service, True)
+        self.verify_delete(self.proxy.delete_vpn_service,
+                           vpn_service.VPNService, True)
 
     def test_vpn_service_find(self):
         self.verify_find('openstack.network.v2.vpn_service.VPNService.find',

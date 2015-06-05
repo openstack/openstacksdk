@@ -29,10 +29,10 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_image_delete(self):
-        self.verify_delete2(image.Image, self.proxy.delete_image, False)
+        self.verify_delete(self.proxy.delete_image, image.Image, False)
 
     def test_image_delete_ignore(self):
-        self.verify_delete2(image.Image, self.proxy.delete_image, True)
+        self.verify_delete(self.proxy.delete_image, image.Image, True)
 
     def test_image_find(self):
         self.verify_find('openstack.image.v1.image.Image.find',
