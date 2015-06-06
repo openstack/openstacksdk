@@ -2,7 +2,7 @@
 os-client-config
 ===============================
 
-os-client-config is a library for collecting client configuration for
+`os-client-config` is a library for collecting client configuration for
 using an OpenStack cloud in a consistent and comprehensive manner. It
 will find cloud config for as few as 1 cloud and as many as you want to
 put in a config file. It will read environment variables and config files,
@@ -10,19 +10,19 @@ and it also contains some vendor specific default values so that you don't
 have to know extra info to use OpenStack
 
 * If you have a config file, you will get the clouds listed in it
-* If you have environment variables, you will get a cloud named 'envvars'
-* If you have neither, you will get a cloud named 'defaults' with base defaults
+* If you have environment variables, you will get a cloud named `envvars`
+* If you have neither, you will get a cloud named `defaults` with base defaults
 
 Environment Variables
 ---------------------
 
-os-client-config honors all of the normal `OS_*` variables. It does not
+`os-client-config` honors all of the normal `OS_*` variables. It does not
 provide backwards compatibility to service-specific variables such as
 `NOVA_USERNAME`.
 
-If you have OpenStack environment variables set, os-client-config will produce
-a cloud config object named "envvars" containing your values from the
-environment. If you don't like the name "envvars", that's ok, you can override
+If you have OpenStack environment variables set, `os-client-config` will produce
+a cloud config object named `envvars` containing your values from the
+environment. If you don't like the name `envvars`, that's ok, you can override
 it by setting `OS_CLOUD_NAME`.
 
 Service specific settings, like the nova service type, are set with the
@@ -34,7 +34,7 @@ for trove set::
 Config Files
 ------------
 
-os-client-config will look for a file called clouds.yaml in the following
+`os-client-config` will look for a file called `clouds.yaml` in the following
 locations:
 
 * Current Directory
@@ -49,6 +49,11 @@ and without the OS prefix. So, region name is set with `region_name`.
 Service specific settings, like the nova service type, are set with the
 default service type as a prefix. For instance, to set a special service_type
 for trove (because you're using Rackspace) set:
+
+::
+
+  database_service_type: 'rax:database'
+
 
 Site Specific File Locations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,10 +76,6 @@ look in an OS specific config dir
 * Linux: `/etc/openstack`
 * OSX: `/Library/Application Support/openstack`
 * Windows: `C:\\ProgramData\\OpenStack\\openstack`
-
-::
-
-  database_service_type: 'rax:database'
 
 An example config file is probably helpful:
 
@@ -106,16 +107,16 @@ An example config file is probably helpful:
         project_id: 610275
       region_name: DFW,ORD,IAD
 
-You may note a few things. First, since auth_url settings are silly
+You may note a few things. First, since `auth_url` settings are silly
 and embarrasingly ugly, known cloud vendor profile information is included and
-may be referenced by name. One of the benefits of that is that auth_url
+may be referenced by name. One of the benefits of that is that `auth_url`
 isn't the only thing the vendor defaults contain. For instance, since
-Rackspace lists `rax:database` as the service type for trove, os-client-config
+Rackspace lists `rax:database` as the service type for trove, `os-client-config`
 knows that so that you don't have to. In case the cloud vendor profile is not
-available, you can provide one called clouds-public.yaml, following the same
+available, you can provide one called `clouds-public.yaml`, following the same
 location rules previously mentioned for the config files.
 
-Also, region_name can be a list of regions. When you call get_all_clouds,
+Also, `region_name` can be a list of regions. When you call `get_all_clouds`,
 you'll get a cloud config object for each cloud/region combo.
 
 As seen with `dns_service_type`, any setting that makes sense to be per-service,
@@ -153,7 +154,7 @@ Cache Settings
 --------------
 
 Accessing a cloud is often expensive, so it's quite common to want to do some
-client-side caching of those operations. To facilitate that, os-client-config
+client-side caching of those operations. To facilitate that, `os-client-config`
 understands passing through cache settings to dogpile.cache, with the following
 behaviors:
 
