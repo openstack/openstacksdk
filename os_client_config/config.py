@@ -218,7 +218,7 @@ class OpenStackConfig(object):
         # Expand a profile if it exists. 'cloud' is an old confusing name
         # for this.
         profile_name = our_cloud.get('profile', our_cloud.get('cloud', None))
-        if profile_name:
+        if profile_name and profile_name != self.envvar_key:
             if 'cloud' in our_cloud:
                 warnings.warn(
                     "{0} use the keyword 'cloud' to reference a known "
@@ -228,9 +228,10 @@ class OpenStackConfig(object):
             if vendor_file and profile_name in vendor_file['public-clouds']:
                 _auth_update(cloud, vendor_file['public-clouds'][profile_name])
             else:
-                try:
-                    _auth_update(cloud, vendors.CLOUD_DEFAULTS[profile_name])
-                except KeyError:
+                profile_data = vendors.get_profile(profile_name)
+                if profile_data:
+                    _auth_update(cloud, profile_data)
+                else:
                     # Can't find the requested vendor config, go about business
                     warnings.warn("Couldn't find the vendor profile '{0}', for"
                                   " the cloud '{1}'".format(profile_name,

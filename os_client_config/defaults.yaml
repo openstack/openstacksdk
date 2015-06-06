@@ -1,0 +1,16 @@
+auth_type: password
+baremetal_api_version: '1'
+compute_api_version: '2'
+database_api_version: '1.0'
+disable_vendor_agent: {}
+dns_api_version: '2'
+endpoint_type: public
+floating_ip_source: neutron
+identity_api_version: '2'
+image_api_use_tasks: false
+image_api_version: '1'
+image_format: qcow2
+network_api_version: '2'
+object_api_version: '1'
+secgroup_source: neutron
+volume_api_version: '1'

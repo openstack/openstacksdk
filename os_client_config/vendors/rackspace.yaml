@@ -1,14 +1,15 @@
----
-rackspace:
+name: rackspace
+profile:
   auth:
-    auth_url: https://identity.api.rackspacecloud.com/v2.0
-  database_service_type: 'rax:database'
+    auth_url: https://identity.api.rackspacecloud.com/v2.0/
+  region_name: DFW,ORD,IAD,SYD,HKG
+  database_service_type: rax:database
   compute_service_name: cloudServersOpenStack
-  image_api_version: 2
-  image_api_use_tasks: True
+  image_api_version: '2'
+  image_api_use_tasks: true
   image_format: vhd
   floating_ip_source: None
   secgroup_source: None
   disable_vendor_agent:
     vm_mode: hvm
-    xenapi_use_agent: False
+    xenapi_use_agent: false

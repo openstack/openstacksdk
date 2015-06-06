@@ -1,8 +1,9 @@
----
-unitedstack:
+name: unitedstack
+profile:
   auth:
     auth_url: https://identity.api.ustack.com/v3
-  identity_api_version: 3
-  image_api_version: 2
+  region_name: bj1,gd1
+  identity_api_version: '3'
+  image_api_version: '2'
   image_format: raw
   floating_ip_source: None
