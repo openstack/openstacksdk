@@ -12,12 +12,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
 import os
 
-import yaml
-
-_yaml_path = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), 'defaults.yaml')
+_json_path = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), 'defaults.json')
 _defaults = None
 
 
@@ -34,8 +33,8 @@ def get_defaults():
             cert=None,
             key=None,
         )
-        with open(_yaml_path, 'r') as yaml_file:
-            updates = yaml.load(yaml_file.read())
+        with open(_json_path, 'r') as json_file:
+            updates = json.load(json_file)
             if updates is not None:
                 _defaults.update(updates)
 

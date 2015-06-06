@@ -8,6 +8,7 @@ coverage>=3.6
 extras
 fixtures>=0.3.14
 discover
+jsonschema>=2.0.0,<3.0.0,!=2.5.0
 python-keystoneclient>=1.1.0
 python-subunit>=0.0.18
 sphinx>=1.1.2,!=1.2.0,!=1.3b1,<1.3

@@ -1,0 +1,14 @@
+{
+  "name": "switchengines",
+  "profile": {
+    "auth": {
+      "auth_url": "https://keystone.cloud.switch.ch:5000/v2.0"
+    },
+    "regions": [
+      "LS",
+      "ZH"
+    ],
+    "image_api_use_tasks": true,
+    "image_format": "raw"
+  }
+}

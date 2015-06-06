@@ -1,0 +1,15 @@
+{
+  "name": "unitedstack",
+  "profile": {
+    "auth": {
+      "auth_url": "https://identity.api.ustack.com/v3"
+    },
+    "regions": [
+      "bj1",
+      "gd1"
+    ],
+    "identity_api_version": "3",
+    "image_format": "raw",
+    "floating_ip_source": "None"
+  }
+}

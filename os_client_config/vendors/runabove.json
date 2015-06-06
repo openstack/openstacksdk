@@ -1,0 +1,14 @@
+{
+  "name": "runabove",
+  "profile": {
+    "auth": {
+      "auth_url": "https://auth.runabove.io/v2.0"
+    },
+    "regions": [
+      "BHS-1",
+      "SBG-1"
+    ],
+    "image_format": "qcow2",
+    "floating_ip_source": "None"
+  }
+}

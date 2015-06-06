@@ -1,0 +1,10 @@
+{
+  "name": "vexxhost",
+  "profile": {
+    "auth": {
+      "auth_url": "http://auth.api.thenebulacloud.com:5000/v2.0/"
+    },
+    "region_name": "ca-ymq-1",
+    "floating_ip_source": "None"
+  }
+}

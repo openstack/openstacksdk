@@ -1,0 +1,10 @@
+{
+  "name": "dreamhost",
+  "profile": {
+    "auth": {
+      "auth_url": "https://keystone.dream.io/v2.0"
+    },
+    "region_name": "RegionOne",
+    "image_format": "raw"
+  }
+}

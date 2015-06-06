@@ -1,0 +1,9 @@
+{
+  "name": "ultimum",
+  "profile": {
+    "auth": {
+      "auth_url": "https://console.ultimum-cloud.com:5000/v2.0"
+    },
+    "region-name": "RegionOne"
+  }
+}

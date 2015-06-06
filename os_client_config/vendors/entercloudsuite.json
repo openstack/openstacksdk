@@ -1,0 +1,13 @@
+{
+  "name": "entercloudsuite",
+  "profile": {
+    "auth": {
+      "auth_url": "https://api.entercloudsuite.com/v2.0"
+    },
+    "regions": [
+      "it-mil1",
+      "nl-ams1",
+      "de-fra1"
+    ]
+  }
+}

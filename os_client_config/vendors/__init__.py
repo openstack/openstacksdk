@@ -13,6 +13,7 @@
 # under the License.
 
 import glob
+import json
 import os
 
 import yaml
@@ -27,6 +28,10 @@ def get_profile(profile_name):
         _vendor_defaults = {}
         for vendor in glob.glob(os.path.join(_vendors_path, '*.yaml')):
             with open(vendor, 'r') as f:
-                vendor_data = yaml.load(f)
+                vendor_data = yaml.safe_load(f)
+                _vendor_defaults[vendor_data['name']] = vendor_data['profile']
+        for vendor in glob.glob(os.path.join(_vendors_path, '*.json')):
+            with open(vendor, 'r') as f:
+                vendor_data = json.load(f)
                 _vendor_defaults[vendor_data['name']] = vendor_data['profile']
     return _vendor_defaults.get(profile_name)

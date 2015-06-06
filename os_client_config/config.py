@@ -13,6 +13,7 @@
 # under the License.
 
 
+import json
 import os
 import warnings
 
@@ -44,15 +45,16 @@ CONFIG_SEARCH_PATH = [
     SITE_CONFIG_HOME, UNIX_SITE_CONFIG_HOME
 ]
 YAML_SUFFIXES = ('.yaml', '.yml')
+JSON_SUFFIXES = ('.json',)
 CONFIG_FILES = [
     os.path.join(d, 'clouds' + s)
     for d in CONFIG_SEARCH_PATH
-    for s in YAML_SUFFIXES
+    for s in YAML_SUFFIXES + JSON_SUFFIXES
 ]
 VENDOR_FILES = [
     os.path.join(d, 'clouds-public' + s)
     for d in CONFIG_SEARCH_PATH
-    for s in YAML_SUFFIXES
+    for s in YAML_SUFFIXES + JSON_SUFFIXES
 ]
 
 BOOL_KEYS = ('insecure', 'cache')
@@ -212,16 +214,19 @@ class OpenStackConfig(object):
                 'expiration', self._cache_expiration)
 
     def _load_config_file(self):
-        return self._load_yaml_file(self._config_files)
+        return self._load_yaml_json_file(self._config_files)
 
     def _load_vendor_file(self):
-        return self._load_yaml_file(self._vendor_files)
+        return self._load_yaml_json_file(self._vendor_files)
 
-    def _load_yaml_file(self, filelist):
+    def _load_yaml_json_file(self, filelist):
         for path in filelist:
             if os.path.exists(path):
                 with open(path, 'r') as f:
-                    return path, yaml.safe_load(f)
+                    if path.endswith('json'):
+                        return path, json.load(f)
+                    else:
+                        return path, yaml.safe_load(f)
         return (None, None)
 
     def _normalize_keys(self, config):

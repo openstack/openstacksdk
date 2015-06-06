@@ -1,0 +1,9 @@
+{
+  "name": "auro",
+  "profile": {
+    "auth": {
+      "auth_url": "https://api.van1.auro.io:5000/v2.0"
+    },
+    "region_name": "van1"
+  }
+}
