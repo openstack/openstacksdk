@@ -2626,11 +2626,10 @@ class OperatorCloud(OpenStackCloud):
         # the action if the node is in an Active state as the API would.
         for nic in nics:
             try:
+                port_id = self.manager.submitTask(
+                    _tasks.MachinePortGetByAddress(address=nic['mac']))
                 self.manager.submitTask(
-                    _tasks.MachinePortDelete(
-                        port_id=(
-                            self.ironic_client.port.get_by_address(nic['mac'])
-                        )))
+                    _tasks.MachinePortDelete(port_id=port_id))
 
             except Exception as e:
                 self.log.debug(
