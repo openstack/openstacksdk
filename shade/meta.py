@@ -14,11 +14,18 @@
 
 
 import bunch
+import logging
 import six
 
+from neutronclient.common.exceptions import NeutronClientException
+
 from shade import exc
+from shade import _utils
+
 
 NON_CALLABLES = (six.string_types, bool, dict, int, list, type(None))
+
+log = logging.getLogger(__name__)
 
 
 def find_nova_addresses(addresses, ext_tag=None, key_name=None, version=4):
@@ -50,6 +57,55 @@ def get_server_private_ip(server):
 
 def get_server_public_ip(server):
     return get_server_ip(server, ext_tag='floating', key_name='public')
+
+
+def get_server_external_ipv4(cloud, server):
+    if cloud.has_service('network'):
+        try:
+            # Search a fixed IP attached to an external net. Unfortunately
+            # Neutron ports don't have a 'floating_ips' attribute
+            server_ports = cloud.search_ports(
+                filters={'device_id': server.id})
+            ext_nets = cloud.search_networks(filters={'router:external': True})
+        except NeutronClientException as e:
+            log.debug(
+                "Something went wrong talking to neutron API: "
+                "'{msg}'. Trying with Nova.".format(msg=str(e)))
+            # Fall-through, trying with Nova
+        else:
+            for net in ext_nets:
+                for port in server_ports:
+                    if net['id'] == port['network_id']:
+                        for ip in port['fixed_ips']:
+                            if _utils.is_ipv4(ip['ip_address']):
+                                return ip['ip_address']
+            # The server doesn't have an interface on an external network so it
+            # can either have a floating IP or have no way to be reached from
+            # outside the cloud.
+            # Fall-through, trying with Nova
+
+    # The cloud doesn't support Neutron or Neutron can't be contacted. The
+    # server might have fixed addresses that are reachable from outside the
+    # cloud (e.g. Rax) or have plain ol' floating IPs
+
+    # Try to get an address from a network named 'public'
+    ext_ip = get_server_ip(server, key_name='public')
+    if ext_ip is not None:
+        return ext_ip
+
+    # Try to find a globally routable IP address
+    for interfaces in server.addresses.values():
+        for interface in interfaces:
+            if _utils.is_ipv4(interface['addr']) and \
+                    _utils.is_globally_routable_ipv4(interface['addr']):
+                return interface['addr']
+
+    # Last, try to get a floating IP address
+    ext_ip = get_server_ip(server, ext_tag='floating')
+    if ext_ip is not None:
+        return ext_ip
+
+    return None
 
 
 def get_groups_from_server(cloud, server, server_vars):
