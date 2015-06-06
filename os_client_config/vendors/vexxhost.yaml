@@ -1,0 +1,8 @@
+---
+vexxhost:
+  auth:
+    auth_url: http://auth.api.thenebulacloud.com:5000/v2.0/
+  region_name: ca-ymq-1
+  image_api_version: 2
+  image_format: qcow2
+  floating_ip_source: None

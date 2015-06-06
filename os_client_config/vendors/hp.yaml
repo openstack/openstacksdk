@@ -1,0 +1,8 @@
+---
+hp:
+  auth:
+    auth_url: https://region-b.geo-1.identity.hpcloudsvc.com:35357/v2.0
+  region_name: region-b.geo-1
+  dns_service_type: hpext:dns
+  image_api_version: 1
+  image_format: qcow2
