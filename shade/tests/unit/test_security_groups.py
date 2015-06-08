@@ -139,13 +139,21 @@ class TestSecurityGroups(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_security_group_nova(self, mock_nova):
-        self.cloud.secgroup_source = 'nova'
         group_name = self.getUniqueString()
         group_desc = 'security group from test_create_security_group_neutron'
-        self.cloud.create_security_group(group_name, group_desc)
+        new_group = fakes.FakeSecgroup(id='2',
+                                       name=group_name,
+                                       description=group_desc,
+                                       rules=[])
+
+        mock_nova.security_groups.create.return_value = new_group
+        self.cloud.secgroup_source = 'nova'
+        r = self.cloud.create_security_group(group_name, group_desc)
         mock_nova.security_groups.create.assert_called_once_with(
             name=group_name, description=group_desc
         )
+        self.assertEqual(group_name, r['name'])
+        self.assertEqual(group_desc, r['description'])
 
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
