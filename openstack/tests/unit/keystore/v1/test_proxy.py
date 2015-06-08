@@ -23,12 +23,7 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_server_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_container,
-                            method_kwargs=kwargs,
-                            expected_args=[container.Container],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_container, container.Container)
 
     def test_container_delete(self):
         self.verify_delete2(container.Container,
@@ -64,12 +59,7 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_order_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_order,
-                            method_kwargs=kwargs,
-                            expected_args=[order.Order],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_order, order.Order)
 
     def test_order_delete(self):
         self.verify_delete2(order.Order, self.proxy.delete_order, False)
@@ -102,12 +92,7 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_secret_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_secret,
-                            method_kwargs=kwargs,
-                            expected_args=[secret.Secret],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_secret, secret.Secret)
 
     def test_secret_delete(self):
         self.verify_delete2(secret.Secret, self.proxy.delete_secret, False)

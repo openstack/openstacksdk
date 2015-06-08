@@ -24,12 +24,7 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_database_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_database,
-                            method_kwargs=kwargs,
-                            expected_args=[database.Database],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_database, database.Database)
 
     def test_database_delete(self):
         self.verify_delete2(database.Database, self.proxy.delete_database,
@@ -70,12 +65,7 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_instance_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_instance,
-                            method_kwargs=kwargs,
-                            expected_args=[instance.Instance],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_instance, instance.Instance)
 
     def test_instance_delete(self):
         self.verify_delete2(instance.Instance, self.proxy.delete_instance,
@@ -111,12 +101,7 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                             expected_kwargs=kwargs)
 
     def test_user_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_user,
-                            method_kwargs=kwargs,
-                            expected_args=[user.User],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_user, user.User)
 
     def test_user_delete(self):
         self.verify_delete2(user.User, self.proxy.delete_user, False)

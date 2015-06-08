@@ -36,13 +36,8 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                           expected_args=[extension.Extension],
                           expected_kwargs={"paginated": False})
 
-    def test_flavor_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_flavor,
-                            method_kwargs=kwargs,
-                            expected_args=[flavor.Flavor],
-                            expected_kwargs=kwargs)
+    def test_flavor_create(self):
+        self.verify_create(self.proxy.create_flavor, flavor.Flavor)
 
     def test_flavor_delete(self):
         self.verify_delete2(flavor.Flavor, self.proxy.delete_flavor, False)
@@ -109,13 +104,8 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                           expected_args=[image.Image],
                           expected_kwargs={"paginated": True, "query": 1})
 
-    def test_keypair_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_keypair,
-                            method_kwargs=kwargs,
-                            expected_args=[keypair.Keypair],
-                            expected_kwargs=kwargs)
+    def test_keypair_create(self):
+        self.verify_create(self.proxy.create_keypair, keypair.Keypair)
 
     def test_keypair_delete(self):
         self.verify_delete2(keypair.Keypair, self.proxy.delete_keypair, False)
@@ -152,13 +142,9 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          self.proxy.get_limits,
                          expected_args=[limits.Limits])
 
-    def test_server_interface_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_server_interface,
-                            method_kwargs=kwargs,
-                            expected_args=[server_interface.ServerInterface],
-                            expected_kwargs=kwargs)
+    def test_server_interface_create(self):
+        self.verify_create(self.proxy.create_server_interface,
+                           server_interface.ServerInterface)
 
     def test_server_interface_delete(self):
         self.verify_delete2(server_interface.ServerInterface,
@@ -205,12 +191,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={"paginated": False})
 
     def test_server_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_server,
-                            method_kwargs=kwargs,
-                            expected_args=[server.Server],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_server, server.Server)
 
     def test_server_delete(self):
         self.verify_delete2(server.Server, self.proxy.delete_server, False)

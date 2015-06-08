@@ -69,12 +69,19 @@ class TestProxyBase(base.TestCase):
                 self.assertEqual(expected_result, test_method())
                 mocked.assert_called_with(self.session)
 
-    def verify_create(self, mock_method, test_method, **kwargs):
-        self._verify(mock_method, test_method, expected_result="result",
-                     **kwargs)
+    def verify_create(self, test_method, resource_type,
+                      mock_method="openstack.proxy.BaseProxy._create",
+                      expected_result="result", **kwargs):
+        the_kwargs = {"x": 1, "y": 2, "z": 3}
+        method_kwargs = the_kwargs
+        expected_args = [resource_type]
+        expected_kwargs = the_kwargs
 
-    def verify_create2(self, mock_method, test_method, **kwargs):
-        self._verify2(mock_method, test_method, expected_result="result",
+        self._verify2(mock_method, test_method,
+                      expected_result=expected_result,
+                      method_kwargs=method_kwargs,
+                      expected_args=expected_args,
+                      expected_kwargs=expected_kwargs,
                       **kwargs)
 
     def verify_delete(self, mock_method, test_method, **kwargs):

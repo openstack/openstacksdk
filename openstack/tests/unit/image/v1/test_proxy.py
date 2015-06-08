@@ -21,12 +21,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_image_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_image,
-                            method_kwargs=kwargs,
-                            expected_args=[image.Image],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_image, image.Image)
 
     def test_image_delete(self):
         self.verify_delete2(image.Image, self.proxy.delete_image, False)

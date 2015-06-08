@@ -45,12 +45,7 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
                             ignore_missing=True)
 
     def test_container_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_container,
-                            method_kwargs=kwargs,
-                            expected_args=[container.Container],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_container, container.Container)
 
     def test_object_metadata_get(self):
         self.verify_head(obj.Object, self.proxy.get_object_metadata,
@@ -66,12 +61,7 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
                             ignore_missing=True, container="container")
 
     def test_object_create_attrs(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_create2('openstack.proxy.BaseProxy._create',
-                            self.proxy.create_object,
-                            method_kwargs=kwargs,
-                            expected_args=[obj.Object],
-                            expected_kwargs=kwargs)
+        self.verify_create(self.proxy.create_object, obj.Object)
 
     def test_object_get(self):
         self.verify_get3(obj.Object, self.proxy.get_object,
