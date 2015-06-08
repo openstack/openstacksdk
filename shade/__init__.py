@@ -1642,6 +1642,7 @@ class OpenStackCloud(object):
         return self.get_openstack_vars(server)
 
     def get_server_meta(self, server):
+        # TODO(mordred) remove once ansible has moved to Inventory interface
         server_vars = meta.get_hostvars_from_server(self, server)
         groups = meta.get_groups_from_server(self, server, server_vars)
         return dict(server_vars=server_vars, groups=groups)
