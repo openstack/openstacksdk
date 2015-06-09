@@ -28,6 +28,14 @@ from os_client_config.tests import base
 
 class TestConfig(base.TestCase):
 
+    def test_get_all_clouds(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        clouds = c.get_all_clouds()
+        user_clouds = [cloud for cloud in base.USER_CONF['clouds'].keys()]
+        configured_clouds = [cloud.name for cloud in clouds]
+        self.assertItemsEqual(user_clouds, configured_clouds)
+
     def test_get_one_cloud(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
@@ -188,6 +196,15 @@ class TestConfigArgparse(base.TestCase):
         self._assert_cloud_details(cc)
         self.assertEqual(cc.region_name, 'test-region')
         self.assertIsNone(cc.snack_type)
+
+    def test_fix_env_args(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+
+        env_args = {'os-compute-api-version': 1}
+        fixed_args = c._fix_args(env_args)
+
+        self.assertDictEqual({'compute_api_version': 1}, fixed_args)
 
 
 class TestConfigDefault(base.TestCase):
