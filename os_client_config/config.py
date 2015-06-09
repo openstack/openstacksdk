@@ -232,7 +232,9 @@ class OpenStackConfig(object):
                     _auth_update(cloud, vendors.CLOUD_DEFAULTS[profile_name])
                 except KeyError:
                     # Can't find the requested vendor config, go about business
-                    pass
+                    warnings.warn("Couldn't find the vendor profile '{0}', for"
+                                  " the cloud '{1}'".format(profile_name,
+                                                            name))
 
         if 'auth' not in cloud:
             cloud['auth'] = dict()
