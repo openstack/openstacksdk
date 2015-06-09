@@ -1,0 +1,10 @@
+---
+ovh:
+  auth:
+    auth_url: https://auth.cloud.ovh.net/v2.0
+  region_name: SBG1
+  identity_api_version: 2
+  image_api_version: 1
+  image_format: raw
+  secgroup_source: neutron
+  floating_ip_source: neutron
