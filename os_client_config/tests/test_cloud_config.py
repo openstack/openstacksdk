@@ -67,12 +67,12 @@ class TestCloudConfig(base.TestCase):
 
         config_dict['verify'] = False
         cc = cloud_config.CloudConfig("test1", "region-xx", config_dict)
-        (verify, cacert) = cc.get_requests_verify_args()
+        (verify, cert) = cc.get_requests_verify_args()
         self.assertFalse(verify)
 
         config_dict['verify'] = True
         cc = cloud_config.CloudConfig("test1", "region-xx", config_dict)
-        (verify, cacert) = cc.get_requests_verify_args()
+        (verify, cert) = cc.get_requests_verify_args()
         self.assertTrue(verify)
 
     def test_verify_cacert(self):
@@ -81,10 +81,22 @@ class TestCloudConfig(base.TestCase):
 
         config_dict['verify'] = False
         cc = cloud_config.CloudConfig("test1", "region-xx", config_dict)
-        (verify, cacert) = cc.get_requests_verify_args()
+        (verify, cert) = cc.get_requests_verify_args()
         self.assertFalse(verify)
 
         config_dict['verify'] = True
         cc = cloud_config.CloudConfig("test1", "region-xx", config_dict)
-        (verify, cacert) = cc.get_requests_verify_args()
+        (verify, cert) = cc.get_requests_verify_args()
         self.assertEqual("certfile", verify)
+
+    def test_cert_with_key(self):
+        config_dict = copy.deepcopy(fake_config_dict)
+        config_dict['cacert'] = None
+        config_dict['verify'] = False
+
+        config_dict['cert'] = 'cert'
+        config_dict['key'] = 'key'
+
+        cc = cloud_config.CloudConfig("test1", "region-xx", config_dict)
+        (verify, cert) = cc.get_requests_verify_args()
+        self.assertEqual(("cert", "key"), cert)
