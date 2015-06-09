@@ -99,3 +99,11 @@ class TestStack(testtools.TestCase):
         sess.post.assert_called_with(url, service=sot.service, json=body)
         self.assertEqual(FAKE_ID, sot.id)
         self.assertEqual(FAKE_NAME, sot.name)
+
+    def test_check(self):
+        session_mock = mock.MagicMock()
+        sot = stack.Stack(FAKE)
+        sot._action = mock.MagicMock()
+        body = {'check': ''}
+        sot.check(session_mock)
+        sot._action.assert_called_with(session_mock, body)
