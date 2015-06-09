@@ -13,6 +13,7 @@
 # under the License.
 
 
+import copy
 import mock
 
 import shade
@@ -162,5 +163,40 @@ class TestSecurityGroups(base.TestCase):
         self.assertRaises(shade.OpenStackCloudUnavailableFeature,
                           self.cloud.create_security_group,
                           '', '')
+        self.assertFalse(mock_neutron.create_security_group.called)
+        self.assertFalse(mock_nova.security_groups.create.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_update_security_group_neutron(self, mock_neutron):
+        self.cloud.secgroup_source = 'neutron'
+        neutron_return = dict(security_groups=[neutron_grp_dict])
+        mock_neutron.list_security_groups.return_value = neutron_return
+        self.cloud.update_security_group(neutron_grp_obj.id, name='new_name')
+        mock_neutron.update_security_group.assert_called_once_with(
+            security_group=neutron_grp_dict['id'],
+            body={'security_group': {'name': 'new_name'}}
+        )
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_update_security_group_nova(self, mock_nova):
+        new_name = self.getUniqueString()
+        self.cloud.secgroup_source = 'nova'
+        nova_return = [nova_grp_obj]
+        update_return = copy.deepcopy(nova_grp_obj)
+        update_return.name = new_name
+        mock_nova.security_groups.list.return_value = nova_return
+        mock_nova.security_groups.update.return_value = update_return
+        r = self.cloud.update_security_group(nova_grp_obj.id, name=new_name)
+        mock_nova.security_groups.update.assert_called_once_with(
+            group=nova_grp_obj.id, name=new_name
+        )
+        self.assertEqual(r['name'], new_name)
+
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_update_security_group_bad_kwarg(self, mock_nova, mock_neutron):
+        self.assertRaises(TypeError,
+                          self.cloud.update_security_group,
+                          'doesNotExist', bad_arg='')
         self.assertFalse(mock_neutron.create_security_group.called)
         self.assertFalse(mock_nova.security_groups.create.called)

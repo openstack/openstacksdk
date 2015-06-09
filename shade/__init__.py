@@ -2464,6 +2464,63 @@ class OpenStackCloud(object):
                 "Unavailable feature: security groups"
             )
 
+    @valid_kwargs('name', 'description')
+    def update_security_group(self, name_or_id, **kwargs):
+        """Update a security group
+
+        :param string name_or_id: Name or ID of the security group to update.
+        :param string name: New name for the security group.
+        :param string description: New description for the security group.
+
+        :returns: A dictionary describing the updated security group.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        secgroup = self.get_security_group(name_or_id)
+
+        if secgroup is None:
+            raise OpenStackCloudException(
+                "Security group %s not found." % name_or_id)
+
+        if self.secgroup_source == 'neutron':
+            try:
+                group = self.manager.submitTask(
+                    _tasks.NeutronSecurityGroupUpdate(
+                        security_group=secgroup['id'],
+                        body={'security_group': kwargs})
+                )
+            except Exception as e:
+                self.log.debug(
+                    "neutron failed to update security group '{group}'".format(
+                        group=name_or_id), exc_info=True)
+                raise OpenStackCloudException(
+                    "failed to update security group '{group}': {msg}".format(
+                        group=name_or_id, msg=str(e)))
+            return group['security_group']
+
+        elif self.secgroup_source == 'nova':
+            try:
+                group = meta.obj_to_dict(
+                    self.manager.submitTask(
+                        _tasks.NovaSecurityGroupUpdate(
+                            group=secgroup['id'], **kwargs)
+                    )
+                )
+            except Exception as e:
+                self.log.debug(
+                    "nova failed to update security group '{group}'".format(
+                        group=name_or_id), exc_info=True)
+                raise OpenStackCloudException(
+                    "failed to update security group '{group}': {msg}".format(
+                        group=name_or_id, msg=str(e)))
+            return _utils.normalize_nova_secgroups([group])[0]
+
+        # Security groups not supported
+        else:
+            raise OpenStackCloudUnavailableFeature(
+                "Unavailable feature: security groups"
+            )
+
 
 class OperatorCloud(OpenStackCloud):
     """Represent a privileged/operator connection to an OpenStack Cloud.
