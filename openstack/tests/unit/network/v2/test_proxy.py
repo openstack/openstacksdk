@@ -75,14 +75,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_floating_ip_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_ip,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[floating_ip.FloatingIP,
-                                           "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_ip, floating_ip.FloatingIP)
 
     def test_health_monitor_create_attrs(self):
         self.verify_create(self.proxy.create_health_monitor,
@@ -114,14 +107,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_health_monitor_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_health_monitor,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[health_monitor.HealthMonitor,
-                                           "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_health_monitor,
+                           health_monitor.HealthMonitor)
 
     def test_listener_create_attrs(self):
         self.verify_create(self.proxy.create_listener, listener.Listener)
@@ -150,14 +137,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_listener_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_listener,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[listener.Listener,
-                                           "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_listener, listener.Listener)
 
     def test_load_balancer_create_attrs(self):
         self.verify_create(self.proxy.create_load_balancer,
@@ -189,14 +169,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_load_balancer_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_load_balancer,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[load_balancer.LoadBalancer,
-                                           "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_load_balancer,
+                           load_balancer.LoadBalancer)
 
     def test_metering_label_create_attrs(self):
         self.verify_create(self.proxy.create_metering_label,
@@ -228,14 +202,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_metering_label_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_metering_label,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[metering_label.MeteringLabel,
-                                           "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_metering_label,
+                           metering_label.MeteringLabel)
 
     def test_metering_label_rule_create_attrs(self):
         self.verify_create(self.proxy.create_metering_label_rule,
@@ -268,16 +236,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             expected_kwargs={})
 
     def test_metering_label_rule_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_metering_label_rule,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[
-                                metering_label_rule.MeteringLabelRule,
-                                "resource_or_id"
-                            ],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_metering_label_rule,
+                           metering_label_rule.MeteringLabelRule)
 
     def test_network_create_attrs(self):
         self.verify_create(self.proxy.create_network, network.Network)
@@ -304,13 +264,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_network_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_network,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[network.Network, "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_network, network.Network)
 
     def test_pool_member_create_attrs(self):
         self.verify_create(self.proxy.create_pool_member,
@@ -341,14 +295,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_pool_member_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_pool_member,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[pool_member.PoolMember,
-                                           "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_pool_member,
+                           pool_member.PoolMember)
 
     def test_pool_create_attrs(self):
         self.verify_create(self.proxy.create_pool, pool.Pool)
@@ -375,13 +323,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_pool_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_pool,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[pool.Pool, "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_pool, pool.Pool)
 
     def test_port_create_attrs(self):
         self.verify_create(self.proxy.create_port, port.Port)
@@ -408,13 +350,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_port_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_port,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[port.Port, "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_port, port.Port)
 
     def test_quotas(self):
         self.verify_list2(self.proxy.quotas,
@@ -446,13 +382,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_router_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_router,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[router.Router, "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_router, router.Router)
 
     def test_security_group_create_attrs(self):
         self.verify_create(self.proxy.create_security_group,
@@ -484,14 +414,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_security_group_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_security_group,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[security_group.SecurityGroup,
-                                           "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_security_group,
+                           security_group.SecurityGroup)
 
     def test_security_group_open_port(self):
         mock_class = 'openstack.network.v2._proxy.Proxy'
@@ -565,16 +489,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             expected_kwargs={})
 
     def test_security_group_rule_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_security_group_rule,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[
-                                security_group_rule.SecurityGroupRule,
-                                "resource_or_id"
-                            ],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_security_group_rule,
+                           security_group_rule.SecurityGroupRule)
 
     def test_subnet_create_attrs(self):
         self.verify_create(self.proxy.create_subnet, subnet.Subnet)
@@ -601,13 +517,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_subnet_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_subnet,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[subnet.Subnet, "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_subnet, subnet.Subnet)
 
     def test_vpn_service_create_attrs(self):
         self.verify_create(self.proxy.create_vpn_service,
@@ -638,11 +548,5 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_vpn_service_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_vpn_service,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[vpn_service.VPNService,
-                                           "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_vpn_service,
+                           vpn_service.VPNService)

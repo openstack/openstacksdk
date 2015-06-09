@@ -68,13 +68,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={"paginated": True, "query": 1})
 
     def test_flavor_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_flavor,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[flavor.Flavor, "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_flavor, flavor.Flavor)
 
     def test_image_delete(self):
         self.verify_delete2(image.Image, self.proxy.delete_image, False)
@@ -129,13 +123,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={"paginated": False})
 
     def test_keypair_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_keypair,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[keypair.Keypair, "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_keypair, keypair.Keypair)
 
     def test_limits_get(self):
         self.verify_get2('openstack.proxy.BaseProxy._get',
@@ -172,14 +160,8 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={"paginated": False})
 
     def test_server_interface_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_server_interface,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[server_interface.ServerInterface,
-                                           "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_server_interface,
+                           server_interface.ServerInterface)
 
     def test_server_ip_find(self):
         self.verify_find('openstack.compute.v2.server_ip.ServerIP.find',
@@ -226,13 +208,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                                            "changes-since": 1, "image": 2})
 
     def test_server_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_server,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[server.Server, "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_server, server.Server)
 
     def test_server_wait_for(self):
         value = server.Server(attrs={'id': '1234'})

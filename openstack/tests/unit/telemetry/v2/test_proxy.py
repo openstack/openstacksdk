@@ -61,13 +61,7 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={})
 
     def test_alarm_update(self):
-        kwargs = {"x": 1, "y": 2, "z": 3}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_alarm,
-                            method_args=["resource_or_id"],
-                            method_kwargs=kwargs,
-                            expected_args=[alarm.Alarm, "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_alarm, alarm.Alarm)
 
     def test_capability_find(self):
         self.verify_find('openstack.telemetry.v2.capability.Capability.find',

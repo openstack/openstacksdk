@@ -46,10 +46,4 @@ class TestClusteringProxy(test_proxy_base.TestProxyBase):
                           expected_kwargs={'paginated': True, 'limit': 2})
 
     def test_cluster_update(self):
-        kwargs = {"name": "new-name"}
-        self.verify_update2('openstack.proxy.BaseProxy._update',
-                            self.proxy.update_cluster,
-                            method_args=['resource_or_id'],
-                            method_kwargs=kwargs,
-                            expected_args=[cluster.Cluster, "resource_or_id"],
-                            expected_kwargs=kwargs)
+        self.verify_update(self.proxy.update_cluster, cluster.Cluster)
