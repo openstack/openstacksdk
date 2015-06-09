@@ -913,22 +913,7 @@ class OpenStackCloud(object):
                 raise OpenStackCloudException(
                     "Error fetching security group list"
                 )
-            # Make Nova data look like Neutron data. This doesn't make them
-            # look exactly the same, but pretty close.
-            return [{'id': g['id'],
-                     'name': g['name'],
-                     'description': g['description'],
-                     'security_group_rules': [{
-                         'id': r['id'],
-                         'direction': 'ingress',
-                         'ethertype': 'IPv4',
-                         'port_range_min': r['from_port'],
-                         'port_range_max': r['to_port'],
-                         'protocol': r['ip_protocol'],
-                         'remote_ip_prefix': r['ip_range'].get('cidr', None),
-                         'security_group_id': r['parent_group_id'],
-                         } for r in g['rules']]
-                     } for g in groups]
+            return _utils.normalize_nova_secgroups(groups)
 
         # Security groups not supported
         else:
@@ -2369,13 +2354,15 @@ class OpenStackCloud(object):
         :param string name: A name for the security group.
         :param string description: Describes the security group.
 
+        :returns: A dict representing the new security group.
+
         :raises: OpenStackCloudException on operation error.
         :raises: OpenStackCloudUnavailableFeature if security groups are
                  not supported on this cloud.
         """
         if self.secgroup_source == 'neutron':
             try:
-                self.manager.submitTask(
+                group = self.manager.submitTask(
                     _tasks.NeutronSecurityGroupCreate(
                         body=dict(security_group=dict(name=name,
                                                       description=description))
@@ -2388,12 +2375,15 @@ class OpenStackCloud(object):
                 raise OpenStackCloudException(
                     "failed to create security group '{name}': {msg}".format(
                         name=name, msg=str(e)))
+            return group['security_group']
 
         elif self.secgroup_source == 'nova':
             try:
-                self.manager.submitTask(
-                    _tasks.NovaSecurityGroupCreate(
-                        name=name, description=description
+                group = meta.obj_to_dict(
+                    self.manager.submitTask(
+                        _tasks.NovaSecurityGroupCreate(
+                            name=name, description=description
+                        )
                     )
                 )
             except Exception as e:
@@ -2403,6 +2393,7 @@ class OpenStackCloud(object):
                 raise OpenStackCloudException(
                     "failed to create security group '{name}': {msg}".format(
                         name=name, msg=str(e)))
+            return _utils.normalize_nova_secgroups([group])[0]
 
         # Security groups not supported
         else:

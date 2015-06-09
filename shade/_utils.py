@@ -112,3 +112,30 @@ def _get_entity(func, name_or_id, filters):
         raise exc.OpenStackCloudException(
             "Multiple matches found for %s" % name_or_id)
     return entities[0]
+
+
+def normalize_nova_secgroups(groups):
+    """Normalize the structure of nova security groups
+
+    This makes security group dicts, as returned from nova, look like the
+    security group dicts as returned from neutron. This does not make them
+    look exactly the same, but it's pretty close.
+
+    :param list groups: A list of security group dicts.
+
+    :returns: A list of normalized dicts.
+    """
+    return [{'id': g['id'],
+             'name': g['name'],
+             'description': g['description'],
+             'security_group_rules': [{
+                 'id': r['id'],
+                 'direction': 'ingress',
+                 'ethertype': 'IPv4',
+                 'port_range_min': r['from_port'],
+                 'port_range_max': r['to_port'],
+                 'protocol': r['ip_protocol'],
+                 'remote_ip_prefix': r['ip_range'].get('cidr', None),
+                 'security_group_id': r['parent_group_id'],
+                 } for r in g['rules']]
+             } for g in groups]
