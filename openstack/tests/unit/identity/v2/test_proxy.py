@@ -26,10 +26,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_role, role.Role)
 
     def test_role_delete(self):
-        self.verify_delete2(role.Role, self.proxy.delete_role, False)
+        self.verify_delete(self.proxy.delete_role, role.Role, False)
 
     def test_role_delete_ignore(self):
-        self.verify_delete2(role.Role, self.proxy.delete_role, True)
+        self.verify_delete(self.proxy.delete_role, role.Role, True)
 
     def test_role_find(self):
         self.verify_find('openstack.identity.v2.role.Role.find',
@@ -53,10 +53,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_tenant, tenant.Tenant)
 
     def test_tenant_delete(self):
-        self.verify_delete2(tenant.Tenant, self.proxy.delete_tenant, False)
+        self.verify_delete(self.proxy.delete_tenant, tenant.Tenant, False)
 
     def test_tenant_delete_ignore(self):
-        self.verify_delete2(tenant.Tenant, self.proxy.delete_tenant, True)
+        self.verify_delete(self.proxy.delete_tenant, tenant.Tenant, True)
 
     def test_tenant_find(self):
         self.verify_find('openstack.identity.v2.tenant.Tenant.find',
@@ -80,10 +80,10 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_user, user.User)
 
     def test_user_delete(self):
-        self.verify_delete2(user.User, self.proxy.delete_user, False)
+        self.verify_delete(self.proxy.delete_user, user.User, False)
 
     def test_user_delete_ignore(self):
-        self.verify_delete2(user.User, self.proxy.delete_user, True)
+        self.verify_delete(self.proxy.delete_user, user.User, True)
 
     def test_user_find(self):
         self.verify_find('openstack.identity.v2.user.User.find',

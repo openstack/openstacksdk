@@ -39,10 +39,10 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
                          expected_args=[stack.Stack, "resource_or_id"])
 
     def test_stack_delete(self):
-        self.verify_delete2(stack.Stack, self.proxy.delete_stack, False)
+        self.verify_delete(self.proxy.delete_stack, stack.Stack, False)
 
     def test_stack_delete_ignore(self):
-        self.verify_delete2(stack.Stack, self.proxy.delete_stack, True)
+        self.verify_delete(self.proxy.delete_stack, stack.Stack, True)
 
     def test_stack_wait_for(self):
         value = stack.Stack(attrs={'id': '1234'})

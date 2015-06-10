@@ -26,12 +26,12 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_container, container.Container)
 
     def test_container_delete(self):
-        self.verify_delete2(container.Container,
-                            self.proxy.delete_container, False)
+        self.verify_delete(self.proxy.delete_container,
+                           container.Container, False)
 
     def test_container_delete_ignore(self):
-        self.verify_delete2(container.Container,
-                            self.proxy.delete_container, True)
+        self.verify_delete(self.proxy.delete_container,
+                           container.Container, True)
 
     def test_container_find(self):
         self.verify_find('openstack.keystore.v1.container.Container.find',
@@ -55,10 +55,10 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_order, order.Order)
 
     def test_order_delete(self):
-        self.verify_delete2(order.Order, self.proxy.delete_order, False)
+        self.verify_delete(self.proxy.delete_order, order.Order, False)
 
     def test_order_delete_ignore(self):
-        self.verify_delete2(order.Order, self.proxy.delete_order, True)
+        self.verify_delete(self.proxy.delete_order, order.Order, True)
 
     def test_order_find(self):
         self.verify_find('openstack.keystore.v1.order.Order.find',
@@ -82,10 +82,10 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_secret, secret.Secret)
 
     def test_secret_delete(self):
-        self.verify_delete2(secret.Secret, self.proxy.delete_secret, False)
+        self.verify_delete(self.proxy.delete_secret, secret.Secret, False)
 
     def test_secret_delete_ignore(self):
-        self.verify_delete2(secret.Secret, self.proxy.delete_secret, True)
+        self.verify_delete(self.proxy.delete_secret, secret.Secret, True)
 
     def test_secret_find(self):
         self.verify_find('openstack.keystore.v1.secret.Secret.find',

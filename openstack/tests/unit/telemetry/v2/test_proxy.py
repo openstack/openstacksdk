@@ -40,10 +40,10 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_alarm, alarm.Alarm)
 
     def test_alarm_delete(self):
-        self.verify_delete2(alarm.Alarm, self.proxy.delete_alarm, False)
+        self.verify_delete(self.proxy.delete_alarm, alarm.Alarm, False)
 
     def test_alarm_delete_ignore(self):
-        self.verify_delete2(alarm.Alarm, self.proxy.delete_alarm, True)
+        self.verify_delete(self.proxy.delete_alarm, alarm.Alarm, True)
 
     def test_alarm_find(self):
         self.verify_find('openstack.telemetry.v2.alarm.Alarm.find',

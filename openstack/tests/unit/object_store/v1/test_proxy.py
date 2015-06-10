@@ -37,12 +37,12 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
                          self.proxy.get_container_metadata, value="container")
 
     def test_container_delete(self):
-        self.verify_delete3(container.Container, self.proxy.delete_container,
-                            ignore_missing=False)
+        self.verify_delete(self.proxy.delete_container,
+                           container.Container, False)
 
     def test_container_delete_ignore(self):
-        self.verify_delete3(container.Container, self.proxy.delete_container,
-                            ignore_missing=True)
+        self.verify_delete(self.proxy.delete_container,
+                           container.Container, True)
 
     def test_container_create_attrs(self):
         self.verify_create(self.proxy.create_container, container.Container)
@@ -51,14 +51,23 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         self.verify_head(obj.Object, self.proxy.get_object_metadata,
                          value="object", container="container")
 
+    def _test_object_delete(self, ignore):
+        expected_kwargs = {"path_args": {"container": "name"}}
+        expected_kwargs["ignore_missing"] = ignore
+
+        self._verify2("openstack.proxy.BaseProxy._delete",
+                      self.proxy.delete_object,
+                      method_args=["resource"],
+                      method_kwargs={"container": "name",
+                                     "ignore_missing": ignore},
+                      expected_args=[obj.Object, "resource"],
+                      expected_kwargs=expected_kwargs)
+
     def test_object_delete(self):
-        self.verify_delete3(obj.Object, self.proxy.delete_object,
-                            ignore_missing=False,
-                            container="container")
+        self._test_object_delete(False)
 
     def test_object_delete_ignore(self):
-        self.verify_delete3(obj.Object, self.proxy.delete_object,
-                            ignore_missing=True, container="container")
+        self._test_object_delete(True)
 
     def test_object_create_attrs(self):
         self.verify_create(self.proxy.create_object, obj.Object)

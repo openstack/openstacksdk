@@ -26,10 +26,10 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_image, image.Image)
 
     def test_image_delete(self):
-        self.verify_delete2(image.Image, self.proxy.delete_image, False)
+        self.verify_delete(self.proxy.delete_image, image.Image, False)
 
     def test_image_delete_ignore(self):
-        self.verify_delete2(image.Image, self.proxy.delete_image, True)
+        self.verify_delete(self.proxy.delete_image, image.Image, True)
 
     def test_image_update(self):
         self.verify_update(self.proxy.update_image, image.Image)
@@ -49,10 +49,10 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_member, member.Member)
 
     def test_member_delete(self):
-        self.verify_delete2(member.Member, self.proxy.delete_member, False)
+        self.verify_delete(self.proxy.delete_member, member.Member, False)
 
     def test_member_delete_ignore(self):
-        self.verify_delete2(member.Member, self.proxy.delete_member, True)
+        self.verify_delete(self.proxy.delete_member, member.Member, True)
 
     def test_member_update(self):
         self.verify_update(self.proxy.update_member, member.Member)
@@ -72,7 +72,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_tag, tag.Tag)
 
     def test_tag_delete(self):
-        self.verify_delete2(tag.Tag, self.proxy.delete_tag, False)
+        self.verify_delete(self.proxy.delete_tag, tag.Tag, False)
 
     def test_tag_delete_ignore(self):
-        self.verify_delete2(tag.Tag, self.proxy.delete_tag, True)
+        self.verify_delete(self.proxy.delete_tag, tag.Tag, True)
