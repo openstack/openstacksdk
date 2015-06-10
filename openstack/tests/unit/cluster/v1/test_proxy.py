@@ -34,10 +34,7 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_cluster)
 
     def test_cluster_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_cluster,
-                         method_args=["resource_or_id"],
-                         expected_args=[cluster.Cluster, "resource_or_id"])
+        self.verify_get(self.proxy.get_cluster, cluster.Cluster)
 
     def test_clusters(self):
         self.verify_list(self.proxy.clusters, cluster.Cluster,

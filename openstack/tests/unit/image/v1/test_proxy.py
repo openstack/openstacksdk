@@ -34,10 +34,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_image)
 
     def test_image_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_image,
-                         method_args=["resource_or_id"],
-                         expected_args=[image.Image, "resource_or_id"])
+        self.verify_get(self.proxy.get_image, image.Image)
 
     def test_images(self):
         self.verify_list(self.proxy.images, image.Image, paginated=True)
