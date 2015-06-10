@@ -520,6 +520,60 @@ class OpenStackCloud(object):
                 "Error in deleting project {project}: {message}".format(
                     project=name_or_id, message=str(e)))
 
+    def list_identity_domains(self):
+        """List Keystone domains.
+
+        :returns: a list of dicts containing the domain description.
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        # ToDo: support v3 api (dguerri)
+        try:
+            domains = self.manager.submitTask(_tasks.IdentityDomainList())
+        except Exception as e:
+            self.log.debug("Failed to list domains", exc_info=True)
+            raise OpenStackCloudException(str(e))
+        return meta.obj_list_to_dict(domains)
+
+    def search_indentity_domains(self, name_or_id=None, filters=None):
+        """Seach Keystone domains.
+
+        :param id: domain name or id.
+        :param filters: a dict containing additional filters to use. e.g.
+                {'enabled': False}
+
+        :returns: a list of dict containing the domain description. Each dict
+            contains the following attributes::
+                - id: <domain id>
+                - name: <domain name>
+                - description: <domain description>
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        domains = self.list_identity_domains()
+        return _utils._filter_list(domains, name_or_id, filters)
+
+    def get_identity_domain(self, name_or_id, filters=None):
+        """Get exactly one Keystone domain.
+
+        :param id: domain name or id.
+        :param filters: a dict containing additional filters to use. e.g.
+                {'enabled': True}
+
+        :returns: a list of dict containing the domain description. Each dict
+            contains the following attributes::
+                - id: <domain id>
+                - name: <domain name>
+                - description: <domain description>
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        return _utils._get_entity(
+            self.search_identity_domains, name_or_id, filters)
+
     @property
     def user_cache(self):
         return self.get_user_cache()
@@ -4081,3 +4135,63 @@ class OperatorCloud(OpenStackCloud):
                 exc_info=True)
             raise OpenStackCloudException(str(e))
         return True
+
+    def create_identity_domain(
+            self, name, description=None, enabled=True):
+        """Create a Keystone domain.
+
+        :param name: The name of the domain.
+        :param description: A description of the domain.
+        :param enabled: Is the domain enabled or not (default True).
+
+        :returns: a dict containing the domain description
+
+        :raise OpenStackCloudException: if the domain cannot be created
+        """
+        try:
+            domain = self.manager.submitTask(_tasks.IdentityDomainCreate(
+                name=name,
+                description=description,
+                enabled=enabled))
+        except Exception as e:
+            self.log.debug(
+                "Failed to create domain {name}".format(
+                    name=name, exc_info=True))
+            raise OpenStackCloudException(str(e))
+        return meta.obj_to_dict(domain)
+
+    def update_identity_domain(
+            self, name_or_id, name=None, description=None, enabled=None):
+        try:
+            domain = self.get_identity_domain(name_or_id)
+            return meta.obj_to_dict(
+                self.manager.submitTask(_tasks.IdentityDomainUpdate(
+                    domain=domain.id, description=description,
+                    enabled=enabled)))
+        except Exception as e:
+            self.log.debug("keystone update domain issue", exc_info=True)
+            raise OpenStackCloudException(
+                "Error in updating domain {domain}: {message}".format(
+                    domain=name_or_id, message=str(e)))
+
+    def delete_identity_domain(self, name_or_id):
+        """Delete a Keystone domain.
+
+        :param id: Name or id of the domain to delete.
+
+        :returns: None
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during
+            the openstack API call.
+        """
+        try:
+            # Deleting a domain is expensive, so disabling it first increases
+            # the changes of success
+            domain = self.update_domain(name_or_id, enabled=False)
+            self.manager.submitTask(_tasks.IdentityDomainDelete(
+                domain=domain.id))
+        except Exception as e:
+            self.log.debug(
+                "Failed to delete domain {id}".format(id=domain.id),
+                exc_info=True)
+            raise OpenStackCloudException(str(e))
