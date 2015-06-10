@@ -10,15 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.block_store import block_store_service
 from openstack import resource
-from openstack.volume import volume_service
 
 
 class Snapshot(resource.Resource):
     resource_key = "snapshot"
     resources_key = "snapshots"
     base_path = "/snapshots"
-    service = volume_service.VolumeService()
+    service = block_store_service.BlockStoreService()
 
     # capabilities
     allow_retrieve = True

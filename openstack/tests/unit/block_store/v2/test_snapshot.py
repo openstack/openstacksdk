@@ -12,7 +12,7 @@
 
 import testtools
 
-from openstack.volume.v2 import snapshot
+from openstack.block_store.v2 import snapshot
 
 FAKE_ID = "ffa9bc5e-1172-4021-acaf-cdcd78a9584d"
 
