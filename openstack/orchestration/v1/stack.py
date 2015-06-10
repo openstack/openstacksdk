@@ -12,6 +12,7 @@
 
 from openstack.orchestration import orchestration_service
 from openstack import resource
+from openstack import utils
 
 
 class Stack(resource.Resource):
@@ -62,6 +63,15 @@ class Stack(resource.Resource):
     timeout_mins = resource.prop('timeout_mins')
     #: Timestamp of last update on the stack.
     updated_time = resource.prop('updated_time')
+
+    def _action(self, session, body):
+        """Perform stack actions"""
+        url = utils.urljoin(self.base_path, self.id, 'actions')
+        resp = session.post(url, service=self.service, json=body).body
+        return resp
+
+    def check(self, session):
+        return self._action(session, {'check': ''})
 
     @classmethod
     def create_by_id(cls, session, attrs, resource_id=None, path_args=None):
