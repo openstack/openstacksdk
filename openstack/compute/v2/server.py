@@ -44,7 +44,7 @@ class Server(resource.Resource):
     #: of the IP address. *Type: dict*
     addresses = resource.prop('addresses', type=dict)
     #: Timestamp of when the server was created.
-    created = resource.prop('created')
+    created_at = resource.prop('created')
     #: A dictionary with details on the flavor this server is running.
     #: The dictionary includes a key for the ``id`` of the flavor, as well
     #: as a ``links`` key, which includes a list of relevant links for this

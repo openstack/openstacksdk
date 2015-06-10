@@ -66,7 +66,7 @@ class TestServer(testtools.TestCase):
         self.assertEqual(EXAMPLE['accessIPv4'], sot.access_ipv4)
         self.assertEqual(EXAMPLE['accessIPv6'], sot.access_ipv6)
         self.assertEqual(EXAMPLE['addresses'], sot.addresses)
-        self.assertEqual(EXAMPLE['created'], sot.created)
+        self.assertEqual(EXAMPLE['created'], sot.created_at)
         self.assertEqual(EXAMPLE['flavorRef'], sot.flavor)
         self.assertEqual(type(sot.flavor), flavor.Flavor)
         self.assertEqual(EXAMPLE['hostId'], sot.host_id)
