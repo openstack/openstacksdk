@@ -59,7 +59,6 @@ class TestServer(testtools.TestCase):
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertTrue(sot.put_update)
 
     def test_make_it(self):
         sot = server.Server(EXAMPLE)

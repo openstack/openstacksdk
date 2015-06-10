@@ -245,7 +245,7 @@ class HeaderTests(base.TestCase):
         response.body = {'id': 1}
         sess = mock.MagicMock()
         sess.post = mock.MagicMock(return_value=response)
-        sess.patch = mock.MagicMock(return_value=response)
+        sess.put = mock.MagicMock(return_value=response)
 
         sot.create(sess)
         headers = {'guitar': 'johnny', 'bass': 'deedee'}
@@ -258,10 +258,10 @@ class HeaderTests(base.TestCase):
         sot.letsgo = "cj"
         headers = {'guitar': 'johnny', 'bass': 'cj'}
         sot.update(sess)
-        sess.patch.assert_called_with('ramones/1',
-                                      service=HeaderTests.Test.service,
-                                      headers=headers,
-                                      json={})
+        sess.put.assert_called_with('ramones/1',
+                                    service=HeaderTests.Test.service,
+                                    headers=headers,
+                                    json={})
 
 
 class ResourceTests(base.TestTransportBase):
@@ -472,7 +472,7 @@ class ResourceTests(base.TestTransportBase):
                            attrs, json_body):
 
         class FakeResource2(FakeResource):
-            put_update = False
+            patch_update = True
             resource_key = key
             service = "my_service"
 
@@ -650,7 +650,7 @@ class ResourceTests(base.TestTransportBase):
 
     def test_patch_update(self):
         class FakeResourcePatch(FakeResource):
-            put_update = False
+            patch_update = True
 
         resp = mock.Mock(body=fake_body)
         self.session.patch = mock.Mock(return_value=resp)
@@ -681,7 +681,8 @@ class ResourceTests(base.TestTransportBase):
 
     def test_put_update(self):
         class FakeResourcePut(FakeResource):
-            put_update = True
+            # This is False by default, but explicit for this test.
+            patch_update = False
 
         resp = mock.Mock(body=fake_body)
         self.session.put = mock.Mock(return_value=resp)

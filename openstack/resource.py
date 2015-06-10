@@ -234,7 +234,7 @@ class Resource(collections.MutableMapping):
     #: Allow head operation for this resource.
     allow_head = False
 
-    put_update = False
+    patch_update = False
 
     def __init__(self, attrs=None, loaded=False):
         """Construct a Resource to interact with a service's REST API.
@@ -742,10 +742,10 @@ class Resource(collections.MutableMapping):
         args = {'json': body}
         if headers:
             args[HEADERS] = headers
-        if cls.put_update:
-            resp = session.put(url, service=cls.service, **args).body
-        else:
+        if cls.patch_update:
             resp = session.patch(url, service=cls.service, **args).body
+        else:
+            resp = session.put(url, service=cls.service, **args).body
 
         if cls.resource_key:
             resp = resp[cls.resource_key]

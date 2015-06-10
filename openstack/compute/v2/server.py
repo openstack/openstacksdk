@@ -31,8 +31,6 @@ class Server(resource.Resource):
     allow_delete = True
     allow_list = True
 
-    put_update = True
-
     # Properties
     access_ipv4 = resource.prop('accessIPv4')
     access_ipv6 = resource.prop('accessIPv6')
