@@ -20,10 +20,8 @@ import testtools
 import shade
 from shade import exc
 from shade import meta
-from shade import _utils
-
-from shade.tests.unit import base
 from shade.tests import fakes
+from shade.tests.unit import base
 
 
 class TestShade(base.TestCase):
@@ -34,47 +32,6 @@ class TestShade(base.TestCase):
 
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, shade.OpenStackCloud)
-
-    def test__filter_list_name_or_id(self):
-        el1 = dict(id=100, name='donald')
-        el2 = dict(id=200, name='pluto')
-        data = [el1, el2]
-        ret = _utils._filter_list(data, 'donald', None)
-        self.assertEquals([el1], ret)
-
-    def test__filter_list_filter(self):
-        el1 = dict(id=100, name='donald', other='duck')
-        el2 = dict(id=200, name='donald', other='trump')
-        data = [el1, el2]
-        ret = _utils._filter_list(data, 'donald', {'other': 'duck'})
-        self.assertEquals([el1], ret)
-
-    def test__filter_list_dict1(self):
-        el1 = dict(id=100, name='donald', last='duck',
-                   other=dict(category='duck'))
-        el2 = dict(id=200, name='donald', last='trump',
-                   other=dict(category='human'))
-        el3 = dict(id=300, name='donald', last='ronald mac',
-                   other=dict(category='clown'))
-        data = [el1, el2, el3]
-        ret = _utils._filter_list(
-            data, 'donald', {'other': {'category': 'clown'}})
-        self.assertEquals([el3], ret)
-
-    def test__filter_list_dict2(self):
-        el1 = dict(id=100, name='donald', last='duck',
-                   other=dict(category='duck', financial=dict(status='poor')))
-        el2 = dict(id=200, name='donald', last='trump',
-                   other=dict(category='human', financial=dict(status='rich')))
-        el3 = dict(id=300, name='donald', last='ronald mac',
-                   other=dict(category='clown', financial=dict(status='rich')))
-        data = [el1, el2, el3]
-        ret = _utils._filter_list(
-            data, 'donald',
-            {'other': {
-                'financial': {'status': 'rich'}
-                }})
-        self.assertEquals([el2, el3], ret)
 
     @mock.patch.object(shade.OpenStackCloud, 'search_images')
     def test_get_images(self, mock_search):
