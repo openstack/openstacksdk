@@ -468,13 +468,50 @@ class OpenStackCloud(object):
         return getattr(
             self.keystone_client, 'projects', self.keystone_client.tenants)
 
+    def _get_project_param_dict(self, name_or_id):
+        project_dict = dict()
+        if name_or_id:
+            project_id = self._get_project(name_or_id).id
+            if self.api_versions['identity'] == '3':
+                project_dict['default_project'] = project_id
+            else:
+                project_dict['tenant_id'] = project_id
+        return project_dict
+
+    def _get_domain_param_dict(self, domain):
+        """Get a useable domain."""
+
+        # Keystone v3 requires domains for user and project creation. v2 does
+        # not. However, keystone v2 does not allow user creation by non-admin
+        # users, so we can throw an error to the user that does not need to
+        # mention api versions
+        if self.api_versions['identity'] == '3':
+            if not domain:
+                raise OpenStackCloudException(
+                    "User creation requires an explicit domain argument.")
+            else:
+                return {'domain': self.get_identity_domain(domain).id}
+        else:
+            return {}
+
+    def _get_identity_params(self, domain=None, project=None):
+        """Get the domain and project/tenant parameters if needed.
+
+        keystone v2 and v3 are divergent enough that we need to pass or not
+        pass project or tenant_id or domain or nothing in a sane manner.
+        """
+        ret = {}
+        ret.update(self._get_domain_param_dict(domain))
+        ret.update(self._get_project_param_dict(project))
+        return ret
+
     def _get_project(self, name_or_id):
         """Retrieve a project by name or id."""
 
         # TODO(mordred): This, and other keystone operations, need to have
         #                domain information passed in. When there is no
         #                available domain information, we should default to
-        #                the currently scoped domain which we can requset from
+        #                the currently scoped domain which we can request from
         #                the session.
         for id, project in self.project_cache.items():
             if name_or_id in (id, project.name):
@@ -499,11 +536,14 @@ class OpenStackCloud(object):
                 "Error in updating project {project}: {message}".format(
                     project=name_or_id, message=str(e)))
 
-    def create_project(self, name, description=None, enabled=True):
+    def create_project(
+            self, name, description=None, domain=None, enabled=True):
         """Create a project."""
         try:
+            domain_params = self._get_domain_param_dict(domain)
             self._project_manager.create(
-                project_name=name, description=description, enabled=enabled)
+                project_name=name, description=description, enabled=enabled,
+                **domain_params)
         except Exception as e:
             self.log.debug("keystone create project issue", exc_info=True)
             raise OpenStackCloudException(
@@ -512,7 +552,7 @@ class OpenStackCloud(object):
 
     def delete_project(self, name_or_id):
         try:
-            project = self._get_project(name_or_id)
+            project = self.update_project(name_or_id, enabled=False)
             self._project_manager.delete(project.id)
         except Exception as e:
             self.log.debug("keystone delete project issue", exc_info=True)
@@ -622,17 +662,15 @@ class OpenStackCloud(object):
         return meta.obj_to_dict(user)
 
     def create_user(
-            self, name, password=None, email=None, project=None,
-            enabled=True):
+            self, name, password=None, email=None, default_project=None,
+            enabled=True, domain=None):
         """Create a user."""
         try:
-            if project:
-                project_id = self._get_project(project).id
-            else:
-                project_id = None
+            identity_params = self._get_identity_params(
+                domain, default_project)
             user = self.manager.submitTask(_tasks.UserCreate(
                 user_name=name, password=password, email=email,
-                project=project_id, enabled=enabled))
+                enabled=enabled, **identity_params))
         except Exception as e:
             self.log.debug("keystone create user issue", exc_info=True)
             raise OpenStackCloudException(
