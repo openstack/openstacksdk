@@ -212,6 +212,11 @@ class NeutronSecurityGroupUpdate(task_manager.Task):
         return client.neutron_client.update_security_group(**self.args)
 
 
+class NeutronSecurityGroupRuleCreate(task_manager.Task):
+    def main(self, client):
+        return client.neutron_client.create_security_group_rule(**self.args)
+
+
 class NovaSecurityGroupList(task_manager.Task):
     def main(self, client):
         return client.nova_client.security_groups.list()
@@ -230,6 +235,11 @@ class NovaSecurityGroupDelete(task_manager.Task):
 class NovaSecurityGroupUpdate(task_manager.Task):
     def main(self, client):
         return client.nova_client.security_groups.update(**self.args)
+
+
+class NovaSecurityGroupRuleCreate(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.security_group_rules.create(**self.args)
 
 
 # TODO: Do this with neutron instead of nova if possible

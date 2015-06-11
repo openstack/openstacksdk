@@ -99,3 +99,16 @@ class TestUtils(base.TestCase):
         retval = _utils.normalize_nova_secgroups([nova_secgroup])[0]
         self.assertIsNone(retval['security_group_rules'][0]['port_range_min'])
         self.assertIsNone(retval['security_group_rules'][0]['port_range_max'])
+
+    def test_normalize_nova_secgroup_rules(self):
+        nova_rules = [
+            dict(id='123', from_port=80, to_port=81, ip_protocol='tcp',
+                 ip_range={'cidr': '0.0.0.0/0'}, parent_group_id='xyz123')
+        ]
+        expected = [
+            dict(id='123', direction='ingress', ethertype='IPv4',
+                 port_range_min=80, port_range_max=81, protocol='tcp',
+                 remote_ip_prefix='0.0.0.0/0', security_group_id='xyz123')
+        ]
+        retval = _utils.normalize_nova_secgroup_rules(nova_rules)
+        self.assertEqual(expected, retval)
