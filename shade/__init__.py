@@ -2630,9 +2630,16 @@ class OperatorCloud(OpenStackCloud):
             return None
 
     def get_machine_by_mac(self, mac):
+        """Get machine by port MAC address
+
+        :param mac: Port MAC address to query in order to return a node.
+
+        :returns: Dictonary representing the node found or None
+                  if the node is not found.
+        """
         try:
             port = self.manager.submitTask(
-                _tasks.MachineNodePortGet(port_id=mac))
+                _tasks.MachinePortGetByAddress(address=mac))
             return meta.obj_to_dict(
                 self.ironic_client.node.get(port.node_uuid))
         except ironic_exceptions.ClientException:

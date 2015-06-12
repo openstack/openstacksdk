@@ -336,6 +336,27 @@ class TestShadeOperator(base.TestCase):
         self.assertIsInstance(self.cloud, shade.OperatorCloud)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_get_machine_by_mac(self, mock_client):
+        class port_value:
+            node_uuid = '00000000-0000-0000-0000-000000000000'
+            address = '00:00:00:00:00:00'
+
+        class node_value:
+            uuid = '00000000-0000-0000-0000-000000000000'
+
+        expected_value = dict(
+            uuid='00000000-0000-0000-0000-000000000000')
+
+        mock_client.port.get_by_address.return_value = port_value
+        mock_client.node.get.return_value = node_value
+        machine = self.cloud.get_machine_by_mac('00:00:00:00:00:00')
+        mock_client.port.get_by_address.assert_called_with(
+            address='00:00:00:00:00:00')
+        mock_client.node.get.assert_called_with(
+            '00000000-0000-0000-0000-000000000000')
+        self.assertEqual(machine, expected_value)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_list_nics(self, mock_client):
         port1 = fakes.FakeMachinePort(1, "aa:bb:cc:dd", "node1")
         port2 = fakes.FakeMachinePort(2, "dd:cc:bb:aa", "node2")
