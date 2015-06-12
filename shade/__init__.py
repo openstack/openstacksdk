@@ -2256,8 +2256,16 @@ class OpenStackCloud(object):
         :param admin_state_up: The administrative status of the port,
             which is up (true, default) or down (false). (Optional)
         :param mac_address: The MAC address. (Optional)
-        :param fixed_ips: If you specify only a subnet ID, OpenStack Networking
-            allocates an available IP from that subnet to the port. (Optional)
+        :param fixed_ips: List of ip_addresses and subnet_ids. See subnet_id
+            and ip_address. (Optional)
+            For example::
+
+              [
+                {
+                  "ip_address": "10.29.29.13",
+                  "subnet_id": "a78484c4-c380-4b47-85aa-21c51a2d8cbd"
+                }, ...
+              ]
         :param subnet_id: If you specify only a subnet ID, OpenStack Networking
             allocates an available IP from that subnet to the port. (Optional)
             If you specify both a subnet ID and an IP address, OpenStack
