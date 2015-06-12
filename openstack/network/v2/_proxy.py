@@ -18,7 +18,7 @@ from openstack.network.v2 import load_balancer
 from openstack.network.v2 import metering_label
 from openstack.network.v2 import metering_label_rule
 from openstack.network.v2 import network
-from openstack.network.v2 import pool
+from openstack.network.v2 import pool as _pool
 from openstack.network.v2 import pool_member
 from openstack.network.v2 import port
 from openstack.network.v2 import quota
@@ -580,7 +580,7 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of pool creation
         :rtype: :class:`~openstack.network.v2.pool.Pool`
         """
-        return self._create(pool.Pool, **attrs)
+        return self._create(_pool.Pool, **attrs)
 
     def delete_pool(self, value, ignore_missing=True):
         """Delete a pool
@@ -595,7 +595,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(pool.Pool, value, ignore_missing=ignore_missing)
+        self._delete(_pool.Pool, value, ignore_missing=ignore_missing)
 
     def find_pool(self, name_or_id):
         """Find a single pool
@@ -603,7 +603,7 @@ class Proxy(proxy.BaseProxy):
         :param name_or_id: The name or ID of a pool.
         :returns: One :class:`~openstack.network.v2.pool.Pool` or None
         """
-        return pool.Pool.find(self.session, name_or_id)
+        return _pool.Pool.find(self.session, name_or_id)
 
     def get_pool(self, value):
         """Get a single pool
@@ -615,7 +615,7 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(pool.Pool, value)
+        return self._get(_pool.Pool, value)
 
     def pools(self):
         """Return a generator of pools
@@ -623,7 +623,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of pool objects
         :rtype: :class:`~openstack.network.v2.pool.Pool`
         """
-        return self._list(pool.Pool, paginated=False)
+        return self._list(_pool.Pool, paginated=False)
 
     def update_pool(self, value, **attrs):
         """Update a pool
@@ -636,7 +636,7 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated pool
         :rtype: :class:`~openstack.network.v2.pool.Pool`
         """
-        return self._update(pool.Pool, value, **attrs)
+        return self._update(_pool.Pool, value, **attrs)
 
     def create_pool_member(self, **attrs):
         """Create a new pool member from attributes
@@ -650,12 +650,15 @@ class Proxy(proxy.BaseProxy):
         """
         return self._create(pool_member.PoolMember, **attrs)
 
-    def delete_pool_member(self, value, ignore_missing=True):
+    def delete_pool_member(self, member, pool, ignore_missing=True):
         """Delete a pool member
 
-        :param value: The value can be either the ID of a pool member or a
-                      :class:`~openstack.network.v2.pool_member.PoolMember`
-                      instance.
+        :param member: The member can be either the ID of a pool member or a
+                       :class:`~openstack.network.v2.pool_member.PoolMember`
+                       instance.
+        :param pool: The pool can be either the ID of a pool or a
+                     :class:`~openstack.network.v2.pool.Pool` instance that
+                     the member belongs to.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the pool member does not exist.
@@ -664,52 +667,70 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(pool_member.PoolMember, value,
+        pool = _pool.Pool.from_id(pool)
+        self._delete(pool_member.PoolMember, member,
+                     path_args={'pool_id': pool.id},
                      ignore_missing=ignore_missing)
 
-    def find_pool_member(self, name_or_id):
+    def find_pool_member(self, member, pool):
         """Find a single pool member
 
-        :param name_or_id: The name or ID of a pool member.
+        :param member: The name or ID of a pool member.
+        :param pool: The pool can be either the ID of a pool or a
+                     :class:`~openstack.network.v2.pool.Pool` instance that
+                     the member belongs to.
         :returns: One :class:`~openstack.network.v2.pool_member.PoolMember`
                   or None
         """
-        return pool_member.PoolMember.find(self.session, name_or_id)
+        pool = _pool.Pool.from_id(pool)
+        return pool_member.PoolMember.find(self.session, member,
+                                           path_args={'pool_id': pool.id})
 
-    def get_pool_member(self, value):
+    def get_pool_member(self, member, pool):
         """Get a single pool member
 
-        :param value: The value can be the ID of a pool member or a
-                      :class:`~openstack.network.v2.pool_member.PoolMember`
-                      instance.
+        :param member: The member can be the ID of a pool member or a
+                       :class:`~openstack.network.v2.pool_member.PoolMember`
+                       instance.
+        :param pool: The pool can be either the ID of a pool or a
+                     :class:`~openstack.network.v2.pool.Pool` instance that
+                     the member belongs to.
 
         :returns: One :class:`~openstack.network.v2.pool_member.PoolMember`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(pool_member.PoolMember, value)
+        pool = _pool.Pool.from_id(pool)
+        return self._get(pool_member.PoolMember, member,
+                         path_args={'pool_id': pool.id})
 
-    def pool_members(self):
+    def pool_members(self, pool):
         """Return a generator of pool members
+
+        :param pool: The pool can be either the ID of a pool or a
+                     :class:`~openstack.network.v2.pool.Pool` instance that
+                     the member belongs to.
 
         :returns: A generator of pool member objects
         :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
-        return self._list(pool_member.PoolMember, paginated=False)
+        pool = _pool.Pool.from_id(pool)
+        return self._list(pool_member.PoolMember,
+                          path_args={'pool_id': pool.id}, paginated=False)
 
-    def update_pool_member(self, value, **attrs):
+    def update_pool_member(self, member, **attrs):
         """Update a pool member
 
-        :param value: Either the id of a pool member or a
-                      :class:`~openstack.network.v2.pool_member.PoolMember`
-                      instance.
+        :param member: Either the ID of a pool member or a
+                       :class:`~openstack.network.v2.pool_member.PoolMember`
+                       instance.
         :attrs kwargs: The attributes to update on the pool member represented
                        by ``value``.
 
         :returns: The updated pool member
         :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
-        return self._update(pool_member.PoolMember, value, **attrs)
+        return self._update(pool_member.PoolMember, member, **attrs)
 
     def create_port(self, **attrs):
         """Create a new port from attributes

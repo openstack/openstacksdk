@@ -267,26 +267,31 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_pool_member_delete(self):
         self.verify_delete(self.proxy.delete_pool_member,
-                           pool_member.PoolMember, False)
+                           pool_member.PoolMember, False,
+                           {"pool": "test_id"}, {"pool_id": "test_id"})
 
     def test_pool_member_delete_ignore(self):
         self.verify_delete(self.proxy.delete_pool_member,
-                           pool_member.PoolMember, True)
+                           pool_member.PoolMember, True,
+                           {"pool": "test_id"}, {"pool_id": "test_id"})
 
     def test_pool_member_find(self):
-        self.verify_find('openstack.network.v2.pool_member.PoolMember.find',
-                         self.proxy.find_pool_member)
+        self.verify_find2('openstack.network.v2.pool_member.PoolMember.find',
+                          self.proxy.find_pool_member, {"pool_id": "test_id"})
 
     def test_pool_member_get(self):
         self.verify_get2('openstack.proxy.BaseProxy._get',
                          self.proxy.get_pool_member,
-                         method_args=["resource_or_id"],
+                         method_args=["resource_or_id", "test_id"],
                          expected_args=[pool_member.PoolMember,
-                                        "resource_or_id"])
+                                        "resource_or_id"],
+                         expected_kwargs={"path_args": {"pool_id": "test_id"}})
 
     def test_pool_members(self):
         self.verify_list(self.proxy.pool_members, pool_member.PoolMember,
-                         paginated=False)
+                         paginated=False, method_args=["test_id"],
+                         expected_kwargs={"path_args": {
+                             "pool_id": "test_id"}})
 
     def test_pool_member_update(self):
         self.verify_update(self.proxy.update_pool_member,

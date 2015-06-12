@@ -17,7 +17,7 @@ from openstack import resource
 class PoolMember(resource.Resource):
     resource_key = 'member'
     resources_key = 'members'
-    base_path = '/pools/%(pool_id)s/members'
+    base_path = '/lbaas/pools/%(pool_id)s/members'
     service = network_service.NetworkService()
 
     # capabilities
@@ -28,12 +28,21 @@ class PoolMember(resource.Resource):
     allow_list = True
 
     # Properties
-    # TODO(briancurtin): I can't find where this is documented.
+    #: The IP address of the pool member.
     address = resource.prop('address')
+    #: The administrative state of the pool member, which is up ``True`` or
+    #: down ``False``. *Type: bool*
     admin_state_up = resource.prop('admin_state_up', type=bool)
+    #: The project this pool member is associated with.
     project_id = resource.prop('tenant_id')
+    #: The port on which the application is hosted.
     protocol_port = resource.prop('protocol_port', type=int)
-    pool_id = resource.prop('pool_id')
+    #: The status of the member. Indicates whether the member is operational.
     status = resource.prop('status')
+    #: Subnet in which to access this pool member.
     subnet_id = resource.prop('subnet_id')
+    #: A positive integer value that indicates the relative portion of traffic
+    #: that this member should receive from the pool. For example, a member
+    #: with a weight of 10 receives five times as much traffic as a member
+    #: with weight of 2.
     weight = resource.prop('weight', type=int)

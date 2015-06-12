@@ -85,12 +85,20 @@ class TestProxyBase(base.TestCase):
                       **kwargs)
 
     def verify_delete(self, test_method, resource_type, ignore,
+                      input_path_args=None, expected_path_args=None,
                       mock_method="openstack.proxy.BaseProxy._delete"):
+        method_kwargs = {"ignore_missing": ignore}
+        if isinstance(input_path_args, dict):
+            for key in input_path_args:
+                method_kwargs[key] = input_path_args[key]
+        expected_kwargs = {"ignore_missing": ignore}
+        if expected_path_args:
+            expected_kwargs["path_args"] = expected_path_args
         self._verify2(mock_method, test_method,
                       method_args=["resource_or_id"],
-                      method_kwargs={"ignore_missing": ignore},
+                      method_kwargs=method_kwargs,
                       expected_args=[resource_type, "resource_or_id"],
-                      expected_kwargs={"ignore_missing": ignore})
+                      expected_kwargs=expected_kwargs)
 
     def verify_get(self, mock_method, test_method, **kwargs):
         self._verify(mock_method, test_method, expected_result="result",
@@ -125,11 +133,22 @@ class TestProxyBase(base.TestCase):
                      expected_args=["name_or_id"], expected_result="result",
                      **kwargs)
 
+    def verify_find2(self, mock_method, test_method, path_args, **kwargs):
+        method_args = ["name_or_id"]
+        for key in path_args:
+            method_args.append(path_args[key])
+
+        self._verify(mock_method, test_method,
+                     method_args=method_args,
+                     expected_args=["name_or_id"],
+                     expected_kwargs={"path_args": path_args},
+                     expected_result="result",
+                     **kwargs)
+
     def verify_list(self, test_method, resource_type, paginated=False,
                     **kwargs):
         expected_kwargs = kwargs.pop("expected_kwargs", {})
         expected_kwargs.update({"paginated": paginated})
-
         self._verify2("openstack.proxy.BaseProxy._list",
                       test_method,
                       expected_args=[resource_type],

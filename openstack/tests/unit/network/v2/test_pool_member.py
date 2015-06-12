@@ -33,7 +33,7 @@ class TestPoolMember(testtools.TestCase):
         sot = pool_member.PoolMember()
         self.assertEqual('member', sot.resource_key)
         self.assertEqual('members', sot.resources_key)
-        self.assertEqual('/pools/%(pool_id)s/members', sot.base_path)
+        self.assertEqual('/lbaas/pools/%(pool_id)s/members', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)
