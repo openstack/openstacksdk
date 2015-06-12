@@ -2314,7 +2314,8 @@ class OpenStackCloud(object):
                 "error creating a new port for network "
                 "'{net}': {msg}".format(net=network_id, msg=str(e)))
 
-    @valid_kwargs('name', 'admin_state_up', 'fixed_ips', 'security_groups')
+    @valid_kwargs('name', 'admin_state_up', 'fixed_ips', 'security_groups',
+                  'allowed_address_pairs', 'extra_dhcp_opts', 'device_owner')
     def update_port(self, name_or_id, **kwargs):
         """Update a port
 
@@ -2325,9 +2326,40 @@ class OpenStackCloud(object):
         :param name: A symbolic name for the port. (Optional)
         :param admin_state_up: The administrative status of the port,
             which is up (true) or down (false). (Optional)
-        :param fixed_ips: If you specify only a subnet ID, OpenStack Networking
-            allocates an available IP from that subnet to the port. (Optional)
+        :param fixed_ips: List of ip_addresses and subnet_ids. (Optional)
+            If you specify only a subnet ID, OpenStack Networking allocates
+            an available IP from that subnet to the port.
+            If you specify both a subnet ID and an IP address, OpenStack
+            Networking tries to allocate the specified address to the port.
+            For example::
+
+              [
+                {
+                  "ip_address": "10.29.29.13",
+                  "subnet_id": "a78484c4-c380-4b47-85aa-21c51a2d8cbd"
+                }, ...
+              ]
         :param security_groups: List of security group UUIDs. (Optional)
+        :param allowed_address_pairs: Allowed address pairs list (Optional)
+            For example::
+
+              [
+                {
+                  "ip_address": "23.23.23.1",
+                  "mac_address": "fa:16:3e:c4:cd:3f"
+                }, ...
+              ]
+        :param extra_dhcp_opts: Extra DHCP options. (Optional).
+            For example::
+
+              [
+                {
+                  "opt_name": "opt name1",
+                  "opt_value": "value1"
+                }, ...
+              ]
+        :param device_owner: The ID of the entity that uses this port.
+            For example, a DHCP agent.  (Optional)
 
         :returns: a dictionary describing the updated port.
 
