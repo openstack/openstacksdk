@@ -42,6 +42,26 @@ class UserGet(task_manager.Task):
         return client.keystone_client.users.get(**self.args)
 
 
+class ProjectList(task_manager.Task):
+    def main(self, client):
+        return client._project_manager.list()
+
+
+class ProjectCreate(task_manager.Task):
+    def main(self, client):
+        return client._project_manager.create(**self.args)
+
+
+class ProjectDelete(task_manager.Task):
+    def main(self, client):
+        return client._project_manager.delete(**self.args)
+
+
+class ProjectUpdate(task_manager.Task):
+    def main(self, client):
+        return client._project_manager.update(**self.args)
+
+
 class FlavorList(task_manager.Task):
     def main(self, client):
         return client.nova_client.flavors.list(**self.args)
