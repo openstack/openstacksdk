@@ -25,6 +25,7 @@ from shade.tests import fakes
 
 PRIVATE_V4 = '198.51.100.3'
 PUBLIC_V4 = '192.0.2.99'
+PUBLIC_V6 = '2001:0db8:face:0da0:face::0b00:1c'  # rfc3849
 
 
 class FakeCloud(object):
@@ -77,6 +78,28 @@ class TestMeta(testtools.TestCase):
         self.assertEqual(
             ['198.51.100.2'], meta.find_nova_addresses(addrs, ext_tag='fixed'))
         self.assertEqual([], meta.find_nova_addresses(addrs, ext_tag='foo'))
+
+    def test_find_nova_addresses_key_name_and_ext_tag(self):
+        addrs = {'public': [{'OS-EXT-IPS:type': 'fixed',
+                             'addr': '198.51.100.2',
+                             'version': 4}]}
+        self.assertEqual(
+            ['198.51.100.2'], meta.find_nova_addresses(
+                addrs, key_name='public', ext_tag='fixed'))
+        self.assertEqual([], meta.find_nova_addresses(
+            addrs, key_name='public', ext_tag='foo'))
+        self.assertEqual([], meta.find_nova_addresses(
+            addrs, key_name='bar', ext_tag='fixed'))
+
+    def test_find_nova_addresses_all(self):
+        addrs = {'public': [{'OS-EXT-IPS:type': 'fixed',
+                             'addr': '198.51.100.2',
+                             'version': 4}]}
+        self.assertEqual(
+            ['198.51.100.2'], meta.find_nova_addresses(
+                addrs, key_name='public', ext_tag='fixed', version=4))
+        self.assertEqual([], meta.find_nova_addresses(
+            addrs, key_name='public', ext_tag='fixed', version=6))
 
     def test_get_server_ip(self):
         srv = FakeServer()
@@ -166,6 +189,19 @@ class TestMeta(testtools.TestCase):
         self.assertIsNone(ip)
         self.assertTrue(mock_get_server_ip.called)
         self.assertTrue(mock_is_globally_routable_ipv4.called)
+
+    def test_get_server_external_ipv6(self):
+        srv = fakes.FakeServer(
+            id='test-id', name='test-name', status='ACTIVE',
+            addresses={
+                'test-net': [
+                    {'addr': PUBLIC_V4, 'version': 4},
+                    {'addr': PUBLIC_V6, 'version': 6}
+                ]
+            }
+        )
+        ip = meta.get_server_external_ipv6(srv)
+        self.assertEqual(PUBLIC_V6, ip)
 
     def test_get_groups_from_server(self):
         server_vars = {'flavor': 'test-flavor',
