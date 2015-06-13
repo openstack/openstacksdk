@@ -197,7 +197,10 @@ class TestMeta(testtools.TestCase):
         self.assertEqual(new_list[0]['value'], 0)
         self.assertEqual(new_list[1]['value'], 1)
 
-    def test_basic_hostvars(self):
+    @mock.patch.object(shade.meta, 'get_server_external_ipv4')
+    def test_basic_hostvars(self, mock_get_server_external_ipv4):
+        mock_get_server_external_ipv4.return_value = PUBLIC_V4
+
         hostvars = meta.get_hostvars_from_server(
             FakeCloud(), meta.obj_to_dict(FakeServer()))
         self.assertNotIn('links', hostvars)
@@ -216,21 +219,30 @@ class TestMeta(testtools.TestCase):
         # test volume exception
         self.assertEquals([], hostvars['volumes'])
 
-    def test_private_interface_ip(self):
+    @mock.patch.object(shade.meta, 'get_server_external_ipv4')
+    def test_private_interface_ip(self, mock_get_server_external_ipv4):
+        mock_get_server_external_ipv4.return_value = PUBLIC_V4
+
         cloud = FakeCloud()
         cloud.private = True
         hostvars = meta.get_hostvars_from_server(
             cloud, meta.obj_to_dict(FakeServer()))
         self.assertEqual(PRIVATE_V4, hostvars['interface_ip'])
 
-    def test_image_string(self):
+    @mock.patch.object(shade.meta, 'get_server_external_ipv4')
+    def test_image_string(self, mock_get_server_external_ipv4):
+        mock_get_server_external_ipv4.return_value = PUBLIC_V4
+
         server = FakeServer()
         server.image = 'fake-image-id'
         hostvars = meta.get_hostvars_from_server(
             FakeCloud(), meta.obj_to_dict(server))
         self.assertEquals('fake-image-id', hostvars['image']['id'])
 
-    def test_az(self):
+    @mock.patch.object(shade.meta, 'get_server_external_ipv4')
+    def test_az(self, mock_get_server_external_ipv4):
+        mock_get_server_external_ipv4.return_value = PUBLIC_V4
+
         server = FakeServer()
         server.__dict__['OS-EXT-AZ:availability_zone'] = 'az1'
         hostvars = meta.get_hostvars_from_server(
