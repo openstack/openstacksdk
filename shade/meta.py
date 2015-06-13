@@ -32,15 +32,28 @@ def find_nova_addresses(addresses, ext_tag=None, key_name=None, version=4):
 
     ret = []
     for (k, v) in iter(addresses.items()):
-        if key_name and k == key_name:
-            ret.extend([addrs['addr'] for addrs in v
-                        if addrs['version'] == version])
-        else:
-            for interface_spec in v:
-                if ('OS-EXT-IPS:type' in interface_spec
-                        and interface_spec['OS-EXT-IPS:type'] == ext_tag
-                        and interface_spec['version'] == version):
-                    ret.append(interface_spec['addr'])
+        if key_name is not None and k != key_name:
+            # key_name is specified and it doesn't match the current network.
+            # Continue with the next one
+            continue
+
+        for interface_spec in v:
+            if ext_tag is not None:
+                if 'OS-EXT-IPS:type' not in interface_spec:
+                    # ext_tag is specified, but this interface has no tag
+                    # We could actually return right away as this means that
+                    # this cloud doesn't support OS-EXT-IPS. Nevertheless,
+                    # it would be better to perform an explicit check. e.g.:
+                    #   cloud._has_nova_extension('OS-EXT-IPS')
+                    # But this needs cloud to be passed to this function.
+                    continue
+                elif interface_spec['OS-EXT-IPS:type'] != ext_tag:
+                    # Type doesn't match, continue with next one
+                    continue
+
+            if interface_spec['version'] == version:
+                ret.append(interface_spec['addr'])
+
     return ret
 
 
