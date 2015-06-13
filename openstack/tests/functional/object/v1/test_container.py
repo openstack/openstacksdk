@@ -29,12 +29,16 @@ class TestContainer(base.BaseFunctionalTest):
 
     @classmethod
     def tearDownClass(cls):
-        pass
-        # TODO(thowe): uncomment this when bug/1451211 fixed
-        # tainer = cls.conn.object_store.delete_container(cls.NAME,
-        #                                                 ignore_missing=False)
-        # cls.assertIs(None, tainer)
+        result = cls.conn.object_store.delete_container(cls.NAME,
+                                                        ignore_missing=False)
+        cls.assertIs(None, result)
 
     def test_list(self):
         names = [o.name for o in self.conn.object_store.containers()]
         self.assertIn(self.NAME, names)
+
+    def test_get_metadata(self):
+        tainer = self.conn.object_store.get_container_metadata(self.NAME)
+        self.assertEqual(0, tainer.object_count)
+        self.assertEqual(0, tainer.bytes_used)
+        self.assertEqual(self.NAME, tainer.name)
