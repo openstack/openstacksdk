@@ -8,6 +8,22 @@ information about various things a user would need to know. The following
 is a text representation of the vendor related defaults `os-client-config`
 knows about.
 
+Default Values
+--------------
+
+These are the default behaviors unless a cloud is configured differently.
+
+* Identity uses `password` authentication
+* Identity API Version is 2
+* Image API Version is 1
+* Images must be in `qcow2` format
+* Images are uploaded using PUT interface
+* Public IPv4 is directly routable via DHCP from Neutron
+* IPv6 is not provided
+* Floating IPs are provided by Neutron
+* Security groups are provided by Neutron
+* Vendor specific agents are not used
+
 hp
 --
 
@@ -21,10 +37,6 @@ region-b.geo-1 US East
 ============== ================
 
 * DNS Service Type is `hpext:dns`
-* Image API Version is 1
-* Images must be in `qcow2` format
-* Floating IPs are provided by Neutron
-* Security groups are provided by Neutron
 
 rackspace
 ---------
@@ -47,6 +59,8 @@ HKG            Hong Kong
 * Images must be in `vhd` format
 * Images must be uploaded using the Glance Task Interface
 * Floating IPs are not needed
+* Public IPv4 is directly routable via static config by Nova
+* IPv6 is provided to every server
 * Security groups are not supported
 * Uploaded Images need properties to not use vendor agent
 :vm_mode: hvm
@@ -65,8 +79,8 @@ RegionOne      Region One
 
 * Image API Version is 2
 * Images must be in `raw` format
-* Floating IPs are provided by Neutron
-* Security groups are provided by Neutron
+* Public IPv4 is provided via Floating IP from Neutron
+* IPv6 is provided to every server
 
 vexxhost
 --------
@@ -80,9 +94,6 @@ ca-ymq-1       Montreal
 ============== ================
 
 * Image API Version is 2
-* Images must be in `qcow2` format
-* Floating IPs are not needed
-* Security groups are provided by Neutron
 
 runabove
 --------
@@ -98,8 +109,7 @@ BHS-1          Beauharnois, QC
 
 * Image API Version is 2
 * Images must be in `qcow2` format
-* Floating IPs are not needed
-* Security groups are provided by Neutron
+* Floating IPs are not supported
 
 unitedstack
 -----------
@@ -116,8 +126,6 @@ gd1            Guangdong
 * Identity API Version is 3
 * Image API Version is 2
 * Images must be in `raw` format
-* Floating IPs are not needed
-* Security groups are provided by Neutron
 
 auro
 ----
@@ -131,8 +139,7 @@ RegionOne      RegionOne
 ============== ================
 
 * Identity API Version is 2
-* Image API Version is 1
-* Images must be in `qcow2` format
+* Public IPv4 is provided via Floating IP from Nova
 * Floating IPs are provided by Nova
 * Security groups are provided by Nova
 
@@ -147,8 +154,5 @@ Region Name    Human Name
 SBG-1          Strassbourg, FR
 ============== ================
 
-* Identity API Version is 2
-* Image API Version is 1
 * Images must be in `raw` format
-* Floating IPs are provided by Neutron
-* Security groups are provided by Neutron
+* Floating IPs are not supported

@@ -59,3 +59,40 @@ class CloudConfig(object):
             if self.config['key']:
                 cert = (cert, self.config['key'])
         return (verify, cert)
+
+    def get_services(self):
+        """Return a list of service types we know something about."""
+        services = []
+        for key, val in self.config.items():
+            if (key.endswith('api_version')
+                    or key.endswith('service_type')
+                    or key.endswith('service_name')):
+                services.append("_".join(key.split('_')[:-2]))
+        return list(set(services))
+
+    def get_auth_args(self):
+        return self.config['auth']
+
+    def get_endpoint_type(self, service_type=None):
+        if not service_type:
+            return self.config['endpoint_type']
+        key = '{service_type}_endpoint_type'.format(service_type=service_type)
+        return self.config.get(key, self.config['endpoint_type'])
+
+    def get_region_name(self, service_type=None):
+        if not service_type:
+            return self.region
+        key = '{service_type}_region_name'.format(service_type=service_type)
+        return self.config.get(key, self.region)
+
+    def get_api_version(self, service_type):
+        key = '{service_type}_api_version'.format(service_type=service_type)
+        return self.config.get(key, None)
+
+    def get_service_type(self, service_type):
+        key = '{service_type}_service_type'.format(service_type=service_type)
+        return self.config.get(key, service_type)
+
+    def get_service_name(self, service_type):
+        key = '{service_type}_service_name'.format(service_type=service_type)
+        return self.config.get(key, service_type)
