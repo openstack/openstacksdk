@@ -121,6 +121,9 @@ def normalize_nova_secgroups(groups):
     security group dicts as returned from neutron. This does not make them
     look exactly the same, but it's pretty close.
 
+    Note that nova uses -1 for non-specific port values, but neutron
+    represents these with None.
+
     :param list groups: A list of security group dicts.
 
     :returns: A list of normalized dicts.
@@ -132,8 +135,10 @@ def normalize_nova_secgroups(groups):
                  'id': r['id'],
                  'direction': 'ingress',
                  'ethertype': 'IPv4',
-                 'port_range_min': r['from_port'],
-                 'port_range_max': r['to_port'],
+                 'port_range_min':
+                     None if r['from_port'] == -1 else r['from_port'],
+                 'port_range_max':
+                     None if r['to_port'] == -1 else r['to_port'],
                  'protocol': r['ip_protocol'],
                  'remote_ip_prefix': r['ip_range'].get('cidr', None),
                  'security_group_id': r['parent_group_id'],
