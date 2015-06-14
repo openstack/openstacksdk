@@ -2561,6 +2561,126 @@ class OpenStackCloud(object):
                 "Unavailable feature: security groups"
             )
 
+    def create_security_group_rule(self,
+                                   secgroup_name_or_id,
+                                   port_range_min=None,
+                                   port_range_max=None,
+                                   protocol=None,
+                                   remote_ip_prefix=None,
+                                   remote_group_id=None,
+                                   direction='ingress',
+                                   ethertype='IPv4'):
+        """Create a new security group rule
+
+        :param string secgroup_name_or_id:
+            The security group name or ID to associate with this security
+            group rule. If a non-unique group name is given, an exception
+            is raised.
+        :param int port_range_min:
+            The minimum port number in the range that is matched by the
+            security group rule. If the protocol is TCP or UDP, this value
+            must be less than or equal to the port_range_max attribute value.
+            If nova is used by the cloud provider for security groups, then
+            a value of None will be transformed to -1.
+        :param int port_range_max:
+            The maximum port number in the range that is matched by the
+            security group rule. The port_range_min attribute constrains the
+            port_range_max attribute. If nova is used by the cloud provider
+            for security groups, then a value of None will be transformed
+            to -1.
+        :param string protocol:
+            The protocol that is matched by the security group rule. Valid
+            values are None, tcp, udp, and icmp.
+        :param string remote_ip_prefix:
+            The remote IP prefix to be associated with this security group
+            rule. This attribute matches the specified IP prefix as the
+            source IP address of the IP packet.
+        :param string remote_group_id:
+            The remote group ID to be associated with this security group
+            rule.
+        :param string direction:
+            Ingress or egress: The direction in which the security group
+            rule is applied. For a compute instance, an ingress security
+            group rule is applied to incoming (ingress) traffic for that
+            instance. An egress rule is applied to traffic leaving the
+            instance.
+        :param string ethertype:
+            Must be IPv4 or IPv6, and addresses represented in CIDR must
+            match the ingress or egress rules.
+
+        :returns: A dict representing the new security group rule.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+
+        secgroup = self.get_security_group(secgroup_name_or_id)
+        if not secgroup:
+            raise OpenStackCloudException(
+                "Security group %s not found." % secgroup_name_or_id)
+
+        if self.secgroup_source == 'neutron':
+            # NOTE: Nova accepts -1 port numbers, but Neutron accepts None
+            # as the equivalent value.
+            rule_def = {
+                'security_group_id': secgroup['id'],
+                'port_range_min':
+                    None if port_range_min == -1 else port_range_min,
+                'port_range_max':
+                    None if port_range_max == -1 else port_range_max,
+                'protocol': protocol,
+                'remote_ip_prefix': remote_ip_prefix,
+                'remote_group_id': remote_group_id,
+                'direction': direction,
+                'ethertype': ethertype
+            }
+
+            try:
+                rule = self.manager.submitTask(
+                    _tasks.NeutronSecurityGroupRuleCreate(
+                        body={'security_group_rule': rule_def})
+                )
+            except Exception as e:
+                self.log.debug("neutron failed to create security group rule",
+                               exc_info=True)
+                raise OpenStackCloudException(
+                    "failed to create security group rule: {msg}".format(
+                        msg=str(e)))
+            return rule['security_group_rule']
+
+        elif self.secgroup_source == 'nova':
+            # NOTE: Neutron accepts None for ports, but Nova accepts -1
+            # as the equivalent value.
+            if port_range_min is None:
+                port_range_min = -1
+            if port_range_max is None:
+                port_range_max = -1
+            try:
+                rule = meta.obj_to_dict(
+                    self.manager.submitTask(
+                        _tasks.NovaSecurityGroupRuleCreate(
+                            parent_group_id=secgroup['id'],
+                            ip_protocol=protocol,
+                            from_port=port_range_min,
+                            to_port=port_range_max,
+                            cidr=remote_ip_prefix,
+                            group_id=remote_group_id
+                        )
+                    )
+                )
+            except Exception as e:
+                self.log.debug("nova failed to create security group rule",
+                               exc_info=True)
+                raise OpenStackCloudException(
+                    "failed to create security group rule: {msg}".format(
+                        msg=str(e)))
+            return _utils.normalize_nova_secgroup_rules([rule])[0]
+
+        # Security groups not supported
+        else:
+            raise OpenStackCloudUnavailableFeature(
+                "Unavailable feature: security groups"
+            )
+
 
 class OperatorCloud(OpenStackCloud):
     """Represent a privileged/operator connection to an OpenStack Cloud.
