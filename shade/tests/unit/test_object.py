@@ -67,3 +67,11 @@ class TestShade(base.TestCase):
                               self.cloud.swift_service)
         self.assertIn(
             'Error constructing swift client', str(e))
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_get_object_segment_size(self, swift_mock):
+        swift_mock.get_capabilities.return_value = {'swift':
+                                                    {'max_file_size': 1000}}
+        self.assertEqual(900, self.cloud.get_object_segment_size(900))
+        self.assertEqual(1000, self.cloud.get_object_segment_size(1000))
+        self.assertEqual(1000, self.cloud.get_object_segment_size(1100))
