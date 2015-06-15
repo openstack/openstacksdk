@@ -25,7 +25,6 @@ class Snapshot(resource.Resource):
     allow_create = True
     allow_delete = True
     allow_update = True
-    put_update = True
 
     # Properties
     #: A UUID representing this snapshot.

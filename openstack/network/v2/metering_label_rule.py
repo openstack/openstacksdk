@@ -26,7 +26,6 @@ class MeteringLabelRule(resource.Resource):
     allow_update = True
     allow_delete = True
     allow_list = True
-    put_update = True
 
     # Properties
     #: ingress or egress: The direction in which metering rule is

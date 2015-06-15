@@ -27,7 +27,6 @@ class SecurityGroup(resource.Resource):
     allow_update = True
     allow_delete = True
     allow_list = True
-    put_update = True
 
     # Properties
     #: The security group description.

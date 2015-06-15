@@ -26,6 +26,7 @@ class User(resource.Resource):
     allow_update = True
     allow_delete = True
     allow_list = True
+    patch_update = True
 
     # Properties
     default_project_id = resource.prop('default_project_id')

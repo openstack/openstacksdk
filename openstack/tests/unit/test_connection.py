@@ -194,12 +194,12 @@ class TestConnectionObjectMethods(base.TestCase):
         test = TestResource.existing(**self.args)
         test['name'] = 'newname'
         self.body = {'testable': {'name': 'newname'}}
-        self.conn.session.patch = mock.MagicMock()
-        self.conn.session.patch.and_return = self.response
+        self.conn.session.put = mock.MagicMock()
+        self.conn.session.put.and_return = self.response
         self.assertEqual(test, self.conn.update(test))
         url = 'testables/fie'
-        self.conn.session.patch.assert_called_with(url, json=self.body,
-                                                   service=test.service)
+        self.conn.session.put.assert_called_with(url, json=self.body,
+                                                 service=test.service)
 
     def test_obj_delete(self):
         test = TestResource.existing(**self.args)
