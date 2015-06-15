@@ -16,6 +16,9 @@
 import copy
 import mock
 
+from novaclient import exceptions as nova_exc
+from neutronclient.common import exceptions as neutron_exc
+
 import shade
 from shade import meta
 from shade.tests.unit import base
@@ -255,3 +258,48 @@ class TestSecurityGroups(base.TestCase):
                           '')
         self.assertFalse(mock_neutron.create_security_group.called)
         self.assertFalse(mock_nova.security_groups.create.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_delete_security_group_rule_neutron(self, mock_neutron):
+        self.cloud.secgroup_source = 'neutron'
+        r = self.cloud.delete_security_group_rule('xyz')
+        mock_neutron.delete_security_group_rule.assert_called_once_with(
+            security_group_rule='xyz')
+        self.assertTrue(r)
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_delete_security_group_rule_nova(self, mock_nova):
+        self.cloud.secgroup_source = 'nova'
+        r = self.cloud.delete_security_group_rule('xyz')
+        mock_nova.security_group_rules.delete.assert_called_once_with(
+            rule='xyz')
+        self.assertTrue(r)
+
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_delete_security_group_rule_none(self, mock_nova, mock_neutron):
+        self.cloud.secgroup_source = None
+        self.assertRaises(shade.OpenStackCloudUnavailableFeature,
+                          self.cloud.delete_security_group_rule,
+                          '')
+        self.assertFalse(mock_neutron.create_security_group.called)
+        self.assertFalse(mock_nova.security_groups.create.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_delete_security_group_rule_not_found(self,
+                                                  mock_nova,
+                                                  mock_neutron):
+        self.cloud.secgroup_source = 'neutron'
+        mock_neutron.delete_security_group_rule.side_effect = (
+            neutron_exc.NotFound()
+        )
+        r = self.cloud.delete_security_group('doesNotExist')
+        self.assertFalse(r)
+
+        self.cloud.secgroup_source = 'nova'
+        mock_neutron.security_group_rules.delete.side_effect = (
+            nova_exc.NotFound("uh oh")
+        )
+        r = self.cloud.delete_security_group('doesNotExist')
+        self.assertFalse(r)
