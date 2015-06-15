@@ -308,29 +308,35 @@ class OpenStackCloud(object):
             return ans
         return generate_key
 
+    def _get_client(self, service_key, client_class):
+        try:
+            # trigger exception on lack of service
+            self.get_session_endpoint(service_key)
+            client = client_class(
+                version=self.cloud_config.get_api_version(service_key),
+                session=self.keystone_session,
+                service_name=self.cloud_config.get_service_name(service_key),
+                service_type=self.cloud_config.get_service_type(service_key),
+                endpoint_type=self.cloud_config.get_interface(service_key),
+                region_name=self.region_name,
+                timeout=self.api_timeout)
+        except Exception:
+            self.log.debug(
+                "Couldn't construct {service} object".format(
+                    service=service_key), exc_info=True)
+            raise
+        if client is None:
+            raise OpenStackCloudException(
+                "Failed to instantiate {service} client."
+                " This could mean that your credentials are wrong.".format(
+                    service=service_key))
+        return client
+
     @property
     def nova_client(self):
         if self._nova_client is None:
-
-            # Make the connection
-            try:
-                # trigger exception on lack of compute. (what?)
-                self.get_session_endpoint('compute')
-                self._nova_client = nova_client.Client(
-                    self.cloud_config.get_api_version('compute'),
-                    session=self.keystone_session,
-                    service_name=self.cloud_config.get_service_name('compute'),
-                    region_name=self.region_name,
-                    timeout=self.api_timeout)
-            except Exception:
-                self.log.debug("Couldn't construct nova object", exc_info=True)
-                raise
-
-            if self._nova_client is None:
-                raise OpenStackCloudException(
-                    "Failed to instantiate nova client."
-                    " This could mean that your credentials are wrong.")
-
+            self._nova_client = self._get_client(
+                'compute', nova_client.Client)
         return self._nova_client
 
     def _get_auth_plugin_class(self):
@@ -667,19 +673,8 @@ class OpenStackCloud(object):
     def cinder_client(self):
 
         if self._cinder_client is None:
-            # trigger exception on lack of cinder
-            self.get_session_endpoint('volume')
-            # Make the connection
-            self._cinder_client = cinder_client.Client(
-                session=self.keystone_session,
-                region_name=self.region_name,
-                timeout=self.api_timeout)
-
-            if self._cinder_client is None:
-                raise OpenStackCloudException(
-                    "Failed to instantiate cinder client."
-                    " This could mean that your credentials are wrong.")
-
+            self._cinder_client = self._get_client(
+                'volume', cinder_client.Client)
         return self._cinder_client
 
     @property
@@ -701,6 +696,8 @@ class OpenStackCloud(object):
                     "Failed to instantiate Trove client."
                     " This could mean that your credentials are wrong.")
 
+            self._trove_client = self._get_client(
+                'database', trove_client.Client)
         return self._trove_client
 
     @property
@@ -718,21 +715,8 @@ class OpenStackCloud(object):
     @property
     def designate_client(self):
         if self._designate_client is None:
-            # get dns service type if defined in cloud config
-            dns_service_type = self.cloud_config.get_service_type('dns')
-            # trigger exception on lack of designate
-            self.get_session_endpoint(dns_service_type)
-
-            self._designate_client = designate_client(
-                session=self.keystone_session,
-                region_name=self.region_name,
-                service_type=dns_service_type)
-
-            if self._designate_client is None:
-                raise OpenStackCloudException(
-                    "Failed to instantiate designate client."
-                    " This could mean that your credentials are wrong.")
-
+            self._designate_client = self._get_client(
+                'dns', designate_client.Client)
         return self._designate_client
 
     def get_name(self):
