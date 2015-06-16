@@ -11,6 +11,7 @@
 # under the License.
 
 import os
+import time
 import unittest
 
 import os_client_config
@@ -72,3 +73,19 @@ class BaseFunctionalTest(unittest.TestCase):
     def assertIs(cls, expected, actual):
         if expected != actual:
             raise Exception(expected + ' != ' + actual)
+
+    # TODO(thowe): This should probably be logic moved info the proxy or
+    # or the resource, but for now I just want to get the functional tests
+    # working again.
+    @classmethod
+    def wait_for_delete(cls, proxy_find, name_or_id, interval=2, wait=60):
+        total_sleep = 0
+        while total_sleep < wait:
+            if proxy_find(name_or_id) is None:
+                # Wait a little longer as gone does not always mean gone
+                time.sleep(interval)
+                return True
+            print('waiting for delete ' + name_or_id)
+            time.sleep(interval)
+            total_sleep += interval
+        return False

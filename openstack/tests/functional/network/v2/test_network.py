@@ -16,6 +16,28 @@ from openstack.network.v2 import network
 from openstack.tests.functional import base
 
 
+def create_network(conn, name):
+    try:
+        network = conn.network.create_network(name=name)
+        subnet = conn.network.create_subnet(
+            name=name,
+            ip_version=4,
+            network_id=network.id,
+            cidr="10.99.99.0/16")
+        return (network, subnet)
+    except Exception as e:
+        print(str(e))
+        pass
+    return (None, None)
+
+
+def delete_network(conn, network, subnet):
+    if subnet:
+        conn.network.delete_subnet(subnet)
+    if network:
+        conn.network.delete_network(network)
+
+
 class TestNetwork(base.BaseFunctionalTest):
 
     NAME = uuid.uuid4().hex

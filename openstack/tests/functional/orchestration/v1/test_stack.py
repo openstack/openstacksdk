@@ -12,29 +12,36 @@
 
 from openstack.orchestration.v1 import stack
 from openstack.tests.functional import base
+from openstack.tests.functional.network.v2 import test_network
 
 
 class TestStack(base.BaseFunctionalTest):
 
     NAME = 'test_stack'
     ID = None
+    network = None
+    subnet = None
 
     @classmethod
     def setUpClass(cls):
         super(TestStack, cls).setUpClass()
         if cls.conn.compute.find_keypair(cls.NAME) is None:
             cls.conn.compute.create_keypair(name=cls.NAME)
-        image = cls.conn.image.find_image('fedora-20.x86_64')
-        if image is None:
-            image = cls.conn.image.find_image('cirros-0.3.4-x86_64-uec')
-        if image is None:
-            image = cls.conn.image.images().next()
-        template_url = ('http://git.openstack.org/cgit/openstack/' +
-                        'heat-templates/plain/hot/F20/WordPress_Native.yaml')
+        image = next(cls.conn.image.images())
+        tname = "openstack/tests/functional/orchestration/v1/hello_world.yaml"
+        with open(tname) as f:
+            template = f.read()
+        cls.network, cls.subnet = test_network.create_network(cls.conn,
+                                                              cls.NAME)
+        parameters = {
+            'image': image.id,
+            'key_name': cls.NAME,
+            'network': cls.network.id,
+        }
         sot = cls.conn.orchestration.create_stack(
             name=cls.NAME,
-            parameters={'key_name': cls.NAME, 'image_id': image.id},
-            template_url=template_url,
+            parameters=parameters,
+            template=template,
         )
         assert isinstance(sot, stack.Stack)
         cls.assertIs(True, (sot.id is not None))
@@ -47,6 +54,9 @@ class TestStack(base.BaseFunctionalTest):
         super(TestStack, cls).tearDownClass()
         cls.conn.orchestration.delete_stack(cls.ID, ignore_missing=False)
         cls.conn.compute.delete_keypair(cls.NAME)
+        # Need to wait for the stack to go away before network delete
+        cls.wait_for_delete(cls.conn.orchestration.find_stack, cls.ID)
+        test_network.delete_network(cls.conn, cls.network, cls.subnet)
 
     def test_list(self):
         names = [o.name for o in self.conn.orchestration.stacks()]
