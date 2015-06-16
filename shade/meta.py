@@ -121,6 +121,21 @@ def get_server_external_ipv4(cloud, server):
     return None
 
 
+def get_server_external_ipv6(server):
+    """ Get an IPv6 address reachable from outside the cloud.
+
+    This function assumes that if a server has an IPv6 address, that address
+    is reachable from outside the cloud.
+
+    :param server: the server from which we want to get an IPv6 address
+    :return: a string containing the IPv6 address or None
+    """
+    addresses = find_nova_addresses(addresses=server.addresses, version=6)
+    if addresses:
+        return addresses[0]
+    return None
+
+
 def get_groups_from_server(cloud, server, server_vars):
     groups = []
 
