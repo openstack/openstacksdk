@@ -32,6 +32,7 @@ from keystoneclient import exceptions as keystone_exceptions
 from keystoneclient import session as ksc_session
 from novaclient import client as nova_client
 from novaclient import exceptions as nova_exceptions
+from neutronclient.common import exceptions as neutron_exceptions
 from neutronclient.v2_0 import client as neutron_client
 import os_client_config
 import os_client_config.defaults
@@ -2697,6 +2698,59 @@ class OpenStackCloud(object):
                     "failed to create security group rule: {msg}".format(
                         msg=str(e)))
             return _utils.normalize_nova_secgroup_rules([rule])[0]
+
+        # Security groups not supported
+        else:
+            raise OpenStackCloudUnavailableFeature(
+                "Unavailable feature: security groups"
+            )
+
+    def delete_security_group_rule(self, rule_id):
+        """Delete a security group rule
+
+        :param string rule_id: The unique ID of the security group rule.
+
+        :returns: True if delete succeeded, False otherwise.
+
+        :raises: OpenStackCloudException on operation error.
+        :raises: OpenStackCloudUnavailableFeature if security groups are
+                 not supported on this cloud.
+        """
+
+        if self.secgroup_source == 'neutron':
+            try:
+                self.manager.submitTask(
+                    _tasks.NeutronSecurityGroupRuleDelete(
+                        security_group_rule=rule_id)
+                )
+            except neutron_exceptions.NotFound:
+                return False
+            except Exception as e:
+                self.log.debug(
+                    "neutron failed to delete security group rule {id}".format(
+                        id=rule_id),
+                    exc_info=True)
+                raise OpenStackCloudException(
+                    "failed to delete security group rule {id}: {msg}".format(
+                        id=rule_id, msg=str(e)))
+            return True
+
+        elif self.secgroup_source == 'nova':
+            try:
+                self.manager.submitTask(
+                    _tasks.NovaSecurityGroupRuleDelete(rule=rule_id)
+                )
+            except nova_exceptions.NotFound:
+                return False
+            except Exception as e:
+                self.log.debug(
+                    "nova failed to delete security group rule {id}".format(
+                        id=rule_id),
+                    exc_info=True)
+                raise OpenStackCloudException(
+                    "failed to delete security group rule {id}: {msg}".format(
+                        id=rule_id, msg=str(e)))
+            return True
 
         # Security groups not supported
         else:
