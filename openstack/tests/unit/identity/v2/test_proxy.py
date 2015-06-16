@@ -42,9 +42,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          expected_args=[role.Role, "resource_or_id"])
 
     def test_roles(self):
-        self.verify_list2(self.proxy.roles,
-                          expected_args=[role.Role],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.roles, role.Role, paginated=True)
 
     def test_role_update(self):
         self.verify_update(self.proxy.update_role, role.Role)
@@ -69,9 +67,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          expected_args=[tenant.Tenant, "resource_or_id"])
 
     def test_tenants(self):
-        self.verify_list2(self.proxy.tenants,
-                          expected_args=[tenant.Tenant],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.tenants, tenant.Tenant, paginated=True)
 
     def test_tenant_update(self):
         self.verify_update(self.proxy.update_tenant, tenant.Tenant)
@@ -96,9 +92,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          expected_args=[user.User, "resource_or_id"])
 
     def test_users(self):
-        self.verify_list2(self.proxy.users,
-                          expected_args=[user.User],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.users, user.User, paginated=True)
 
     def test_user_update(self):
         self.verify_update(self.proxy.update_user, user.User)

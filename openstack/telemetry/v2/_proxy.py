@@ -75,7 +75,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of alarm objects
         :rtype: :class:`~openstack.telemetry.v2.alarm.Alarm`
         """
-        return self._list(alarm.Alarm)
+        return self._list(alarm.Alarm, paginated=False)
 
     def update_alarm(self, value, **attrs):
         """Update a alarm
@@ -105,7 +105,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of alarm change objects
         :rtype: :class:`~openstack.telemetry.v2.alarm_change.AlarmChange`
         """
-        return self._list(alarm_change.AlarmChange)
+        return self._list(alarm_change.AlarmChange, paginated=False)
 
     def find_capability(self, name_or_id):
         """Find a single capability
@@ -122,7 +122,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of capability objects
         :rtype: :class:`~openstack.telemetry.v2.capability.Capability`
         """
-        return self._list(capability.Capability)
+        return self._list(capability.Capability, paginated=False)
 
     def find_meter(self, name_or_id):
         """Find a single meter
@@ -138,7 +138,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of meter objects
         :rtype: :class:`~openstack.telemetry.v2.meter.Meter`
         """
-        return self._list(meter.Meter)
+        return self._list(meter.Meter, paginated=False)
 
     def find_resource(self, name_or_id):
         """Find a single resource
@@ -168,7 +168,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of resource objects
         :rtype: :class:`~openstack.telemetry.v2.resource.Resource`
         """
-        return self._list(resource.Resource)
+        return self._list(resource.Resource, paginated=False)
 
     def create_sample(self, **attrs):
         """Create a new sample from attributes
@@ -196,7 +196,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of sample objects
         :rtype: :class:`~openstack.telemetry.v2.sample.Sample`
         """
-        return self._list(sample.Sample)
+        return self._list(sample.Sample, paginated=False)
 
     def find_statistics(self, name_or_id):
         """Find a single statistics
@@ -213,4 +213,4 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of statistics objects
         :rtype: :class:`~openstack.telemetry.v2.statistics.Statistics`
         """
-        return self._list(statistics.Statistics)
+        return self._list(statistics.Statistics, paginated=False)

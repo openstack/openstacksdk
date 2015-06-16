@@ -52,9 +52,8 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                                         "resource_or_id"])
 
     def test_credentials(self):
-        self.verify_list2(self.proxy.credentials,
-                          expected_args=[credential.Credential],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.credentials, credential.Credential,
+                         paginated=False)
 
     def test_credential_update(self):
         self.verify_update(self.proxy.update_credential, credential.Credential)
@@ -79,9 +78,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          expected_args=[domain.Domain, "resource_or_id"])
 
     def test_domains(self):
-        self.verify_list2(self.proxy.domains,
-                          expected_args=[domain.Domain],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.domains, domain.Domain, paginated=False)
 
     def test_domain_update(self):
         self.verify_update(self.proxy.update_domain, domain.Domain)
@@ -108,9 +105,8 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          expected_args=[endpoint.Endpoint, "resource_or_id"])
 
     def test_endpoints(self):
-        self.verify_list2(self.proxy.endpoints,
-                          expected_args=[endpoint.Endpoint],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.endpoints, endpoint.Endpoint,
+                         paginated=False)
 
     def test_endpoint_update(self):
         self.verify_update(self.proxy.update_endpoint, endpoint.Endpoint)
@@ -135,9 +131,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          expected_args=[group.Group, "resource_or_id"])
 
     def test_groups(self):
-        self.verify_list2(self.proxy.groups,
-                          expected_args=[group.Group],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.groups, group.Group, paginated=False)
 
     def test_group_update(self):
         self.verify_update(self.proxy.update_group, group.Group)
@@ -162,9 +156,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          expected_args=[policy.Policy, "resource_or_id"])
 
     def test_policies(self):
-        self.verify_list2(self.proxy.policies,
-                          expected_args=[policy.Policy],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.policies, policy.Policy, paginated=False)
 
     def test_policy_update(self):
         self.verify_update(self.proxy.update_policy, policy.Policy)
@@ -189,9 +181,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          expected_args=[project.Project, "resource_or_id"])
 
     def test_projects(self):
-        self.verify_list2(self.proxy.projects,
-                          expected_args=[project.Project],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.projects, project.Project, paginated=False)
 
     def test_project_update(self):
         self.verify_update(self.proxy.update_project, project.Project)
@@ -216,9 +206,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          expected_args=[service.Service, "resource_or_id"])
 
     def test_services(self):
-        self.verify_list2(self.proxy.services,
-                          expected_args=[service.Service],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.services, service.Service, paginated=False)
 
     def test_service_update(self):
         self.verify_update(self.proxy.update_service, service.Service)
@@ -243,9 +231,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          expected_args=[user.User, "resource_or_id"])
 
     def test_users(self):
-        self.verify_list2(self.proxy.users,
-                          expected_args=[user.User],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.users, user.User, paginated=False)
 
     def test_user_update(self):
         self.verify_update(self.proxy.update_user, user.User)
@@ -270,9 +256,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          expected_args=[trust.Trust, "resource_or_id"])
 
     def test_trusts(self):
-        self.verify_list2(self.proxy.trusts,
-                          expected_args=[trust.Trust],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.trusts, trust.Trust, paginated=False)
 
     def test_trust_update(self):
         self.verify_update(self.proxy.update_trust, trust.Trust)

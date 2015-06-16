@@ -28,9 +28,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_stack)
 
     def test_stacks(self):
-        self.verify_list2(self.proxy.stacks,
-                          expected_args=[stack.Stack],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.stacks, stack.Stack, paginated=False)
 
     def test_stack_get(self):
         self.verify_get2('openstack.proxy.BaseProxy._get',

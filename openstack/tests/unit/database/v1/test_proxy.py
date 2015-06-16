@@ -39,9 +39,8 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_database)
 
     def test_databases(self):
-        self.verify_list2(self.proxy.databases,
-                          expected_args=[database.Database],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.databases, database.Database,
+                         paginated=False)
 
     def test_database_get(self):
         self.verify_get2('openstack.proxy.BaseProxy._get',
@@ -60,9 +59,8 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                          expected_args=[flavor.Flavor, "resource_or_id"])
 
     def test_flavors(self):
-        self.verify_list2(self.proxy.flavors,
-                          expected_args=[flavor.Flavor],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.flavors, flavor.Flavor,
+                         paginated=False)
 
     def test_instance_create_attrs(self):
         self.verify_create(self.proxy.create_instance, instance.Instance)
@@ -86,9 +84,8 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                          expected_args=[instance.Instance, "resource_or_id"])
 
     def test_instances(self):
-        self.verify_list2(self.proxy.instances,
-                          expected_args=[instance.Instance],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.instances, instance.Instance,
+                         paginated=False)
 
     def test_instance_update(self):
         self.verify_update(self.proxy.update_instance, instance.Instance)
@@ -107,9 +104,7 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_user)
 
     def test_users(self):
-        self.verify_list2(self.proxy.users,
-                          expected_args=[user.User],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.users, user.User, paginated=False)
 
     def test_user_get(self):
         self.verify_get2('openstack.proxy.BaseProxy._get',

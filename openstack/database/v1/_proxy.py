@@ -60,7 +60,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of database objects
         :rtype: :class:`~openstack.database.v1.database.Database`
         """
-        return self._list(database.Database)
+        return self._list(database.Database, paginated=False)
 
     def get_database(self, value):
         """Get a single database
@@ -101,7 +101,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of flavor objects
         :rtype: :class:`~openstack.database.v1.flavor.Flavor`
         """
-        return self._list(flavor.Flavor)
+        return self._list(flavor.Flavor, paginated=False)
 
     def create_instance(self, **attrs):
         """Create a new instance from attributes
@@ -157,7 +157,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of instance objects
         :rtype: :class:`~openstack.database.v1.instance.Instance`
         """
-        return self._list(instance.Instance)
+        return self._list(instance.Instance, paginated=False)
 
     def update_instance(self, value, **attrs):
         """Update a instance
@@ -214,7 +214,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of user objects
         :rtype: :class:`~openstack.database.v1.user.User`
         """
-        return self._list(user.User)
+        return self._list(user.User, paginated=False)
 
     def get_user(self, value):
         """Get a single user

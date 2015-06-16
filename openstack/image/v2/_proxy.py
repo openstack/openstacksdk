@@ -139,7 +139,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of member objects
         :rtype: :class:`~openstack.image.v2.member.Member`
         """
-        return self._list(member.Member)
+        return self._list(member.Member, paginated=False)
 
     def update_member(self, value, **attrs):
         """Update a member

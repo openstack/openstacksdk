@@ -22,4 +22,4 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of capability objects
         :rtype: :class:`~openstack.metric.v1.capabilities.Capabilities`
         """
-        return self._list(capabilities.Capabilities)
+        return self._list(capabilities.Capabilities, paginated=False)

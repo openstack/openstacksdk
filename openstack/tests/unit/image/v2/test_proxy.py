@@ -41,9 +41,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                          expected_args=[image.Image, "resource_or_id"])
 
     def test_images(self):
-        self.verify_list2(self.proxy.images,
-                          expected_args=[image.Image],
-                          expected_kwargs={'paginated': True})
+        self.verify_list(self.proxy.images, image.Image, paginated=True)
 
     def test_member_create_attrs(self):
         self.verify_create(self.proxy.create_member, member.Member)
@@ -64,9 +62,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                          expected_args=[member.Member, "resource_or_id"])
 
     def test_members(self):
-        self.verify_list2(self.proxy.members,
-                          expected_args=[member.Member],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.members, member.Member, paginated=False)
 
     def test_tag_create_attrs(self):
         self.verify_create(self.proxy.create_tag, tag.Tag)

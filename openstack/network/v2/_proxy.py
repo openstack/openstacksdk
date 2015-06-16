@@ -47,7 +47,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of extension objects
         :rtype: :class:`~openstack.network.v2.extension.Extension`
         """
-        return self._list(extension.Extension)
+        return self._list(extension.Extension, paginated=False)
 
     def create_ip(self, **attrs):
         """Create a new floating ip from attributes
@@ -113,7 +113,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of floating IP objects
         :rtype: :class:`~openstack.network.v2.floating_ip.FloatingIP`
         """
-        return self._list(floating_ip.FloatingIP)
+        return self._list(floating_ip.FloatingIP, paginated=False)
 
     def update_ip(self, value, **attrs):
         """Update a ip
@@ -187,7 +187,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of health monitor objects
         :rtype: :class:`~openstack.network.v2.health_monitor.HealthMonitor`
         """
-        return self._list(health_monitor.HealthMonitor)
+        return self._list(health_monitor.HealthMonitor, paginated=False)
 
     def update_health_monitor(self, value, **attrs):
         """Update a health monitor
@@ -257,7 +257,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of listener objects
         :rtype: :class:`~openstack.network.v2.listener.Listener`
         """
-        return self._list(listener.Listener)
+        return self._list(listener.Listener, paginated=False)
 
     def update_listener(self, value, **attrs):
         """Update a listener
@@ -330,7 +330,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of load balancer objects
         :rtype: :class:`~openstack.network.v2.load_balancer.LoadBalancer`
         """
-        return self._list(load_balancer.LoadBalancer)
+        return self._list(load_balancer.LoadBalancer, paginated=False)
 
     def update_load_balancer(self, value, **attrs):
         """Update a load balancer
@@ -404,7 +404,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of metering label objects
         :rtype: :class:`~openstack.network.v2.metering_label.MeteringLabel`
         """
-        return self._list(metering_label.MeteringLabel)
+        return self._list(metering_label.MeteringLabel, paginated=False)
 
     def update_metering_label(self, value, **attrs):
         """Update a metering label
@@ -483,7 +483,8 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.metering_label_rule.
                 MeteringLabelRule`
         """
-        return self._list(metering_label_rule.MeteringLabelRule)
+        return self._list(metering_label_rule.MeteringLabelRule,
+                          paginated=False)
 
     def update_metering_label_rule(self, value, **attrs):
         """Update a metering label rule
@@ -554,7 +555,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of network objects
         :rtype: :class:`~openstack.network.v2.network.Network`
         """
-        return self._list(network.Network)
+        return self._list(network.Network, paginated=False)
 
     def update_network(self, value, **attrs):
         """Update a network
@@ -622,7 +623,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of pool objects
         :rtype: :class:`~openstack.network.v2.pool.Pool`
         """
-        return self._list(pool.Pool)
+        return self._list(pool.Pool, paginated=False)
 
     def update_pool(self, value, **attrs):
         """Update a pool
@@ -694,7 +695,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of pool member objects
         :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
-        return self._list(pool_member.PoolMember)
+        return self._list(pool_member.PoolMember, paginated=False)
 
     def update_pool_member(self, value, **attrs):
         """Update a pool member
@@ -763,7 +764,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of port objects
         :rtype: :class:`~openstack.network.v2.port.Port`
         """
-        return self._list(port.Port)
+        return self._list(port.Port, paginated=False)
 
     def update_port(self, value, **attrs):
         """Update a port
@@ -801,7 +802,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of quota objects
         :rtype: :class:`~openstack.network.v2.quota.Quota`
         """
-        return self._list(quota.Quota)
+        return self._list(quota.Quota, paginated=False)
 
     def create_router(self, **attrs):
         """Create a new router from attributes
@@ -856,7 +857,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of router objects
         :rtype: :class:`~openstack.network.v2.router.Router`
         """
-        return self._list(router.Router)
+        return self._list(router.Router, paginated=False)
 
     def update_router(self, value, **attrs):
         """Update a router
@@ -935,7 +936,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of security group objects
         :rtype: :class:`~openstack.network.v2.security_group.SecurityGroup`
         """
-        return self._list(security_group.SecurityGroup)
+        return self._list(security_group.SecurityGroup, paginated=False)
 
     def update_security_group(self, value, **attrs):
         """Update a security group
@@ -1037,7 +1038,8 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.security_group_rule.
                 SecurityGroupRule`
         """
-        return self._list(security_group_rule.SecurityGroupRule)
+        return self._list(security_group_rule.SecurityGroupRule,
+                          paginated=False)
 
     def update_security_group_rule(self, value, **attrs):
         """Update a security group rule
@@ -1108,7 +1110,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of subnet objects
         :rtype: :class:`~openstack.network.v2.subnet.Subnet`
         """
-        return self._list(subnet.Subnet)
+        return self._list(subnet.Subnet, paginated=False)
 
     def update_subnet(self, value, **attrs):
         """Update a subnet
@@ -1183,7 +1185,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of vpn service objects
         :rtype: :class:`~openstack.network.v2.vpn_service.VPNService`
         """
-        return self._list(vpn_service.VPNService)
+        return self._list(vpn_service.VPNService, paginated=False)
 
     def update_vpn_service(self, value, **attrs):
         """Update a vpn service
