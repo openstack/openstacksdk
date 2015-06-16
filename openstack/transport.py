@@ -273,7 +273,7 @@ class Transport(requests.Session):
             except ValueError as e:
                 # this may be simplejson.decode.JSONDecodeError
                 # Re-raise into our own exception
-                raise exceptions.InvalidResponse(response=resp.text)
+                raise exceptions.InvalidResponse(response=resp)
 
         return resp
 
