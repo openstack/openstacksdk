@@ -56,10 +56,11 @@ class FakeProject(object):
 
 
 class FakeServer(object):
-    def __init__(self, id, name, status):
+    def __init__(self, id, name, status, addresses=None):
         self.id = id
         self.name = name
         self.status = status
+        self.addresses = addresses
 
 
 class FakeService(object):
