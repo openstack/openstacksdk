@@ -1639,7 +1639,7 @@ class OpenStackCloud(object):
         return meta.get_server_private_ip(server)
 
     def get_server_public_ip(self, server):
-        return meta.get_server_public_ip(server)
+        return meta.get_server_external_ipv4(self, server)
 
     def get_server_dict(self, name_or_id):
         server = self.get_server(name_or_id)

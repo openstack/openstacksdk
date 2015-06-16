@@ -155,7 +155,7 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     server_vars.pop('links', None)
 
     # Fist, add an IP address
-    server_vars['public_v4'] = get_server_public_ip(server)
+    server_vars['public_v4'] = get_server_external_ipv4(cloud, server)
     server_vars['private_v4'] = get_server_private_ip(server)
     if cloud.private:
         interface_ip = server_vars['private_v4']
