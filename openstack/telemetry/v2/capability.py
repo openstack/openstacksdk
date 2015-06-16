@@ -29,7 +29,8 @@ class Capability(resource.Resource):
     enabled = resource.prop('enabled')
 
     @classmethod
-    def list(cls, session, limit=None, marker=None, **params):
+    def list(cls, session, limit=None, marker=None, path_args=None,
+             paginated=False, **params):
         resp = session.get(cls.base_path, service=cls.service, params=params)
         ray = []
         for key, value in six.iteritems(resp.body['api']):
