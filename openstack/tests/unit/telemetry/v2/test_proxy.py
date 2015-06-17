@@ -32,9 +32,8 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
             self.proxy.find_alarm_change)
 
     def test_alarm_changes(self):
-        self.verify_list2(self.proxy.alarm_changes,
-                          expected_args=[alarm_change.AlarmChange],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.alarm_changes, alarm_change.AlarmChange,
+                         paginated=False)
 
     def test_alarm_create_attrs(self):
         self.verify_create(self.proxy.create_alarm, alarm.Alarm)
@@ -56,9 +55,7 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
                          expected_args=[alarm.Alarm, "resource_or_id"])
 
     def test_alarms(self):
-        self.verify_list2(self.proxy.alarms,
-                          expected_args=[alarm.Alarm],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.alarms, alarm.Alarm, paginated=False)
 
     def test_alarm_update(self):
         self.verify_update(self.proxy.update_alarm, alarm.Alarm)
@@ -68,18 +65,15 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_capability)
 
     def test_capabilities(self):
-        self.verify_list2(self.proxy.capabilities,
-                          expected_args=[capability.Capability],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.capabilities, capability.Capability,
+                         paginated=False)
 
     def test_meter_find(self):
         self.verify_find('openstack.telemetry.v2.meter.Meter.find',
                          self.proxy.find_meter)
 
     def test_meters(self):
-        self.verify_list2(self.proxy.meters,
-                          expected_args=[meter.Meter],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.meters, meter.Meter, paginated=False)
 
     def test_resource_find(self):
         self.verify_find('openstack.telemetry.v2.resource.Resource.find',
@@ -92,9 +86,8 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
                          expected_args=[resource.Resource, "resource_or_id"])
 
     def test_resources(self):
-        self.verify_list2(self.proxy.resources,
-                          expected_args=[resource.Resource],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.resources, resource.Resource,
+                         paginated=False)
 
     def test_sample_create_attrs(self):
         self.verify_create(self.proxy.create_sample, sample.Sample)
@@ -104,15 +97,12 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_sample)
 
     def test_samples(self):
-        self.verify_list2(self.proxy.samples,
-                          expected_args=[sample.Sample],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.samples, sample.Sample, paginated=False)
 
     def test_statistics_find(self):
         self.verify_find('openstack.telemetry.v2.statistics.Statistics.find',
                          self.proxy.find_statistics)
 
     def test_statistics(self):
-        self.verify_list2(self.proxy.statistics,
-                          expected_args=[statistics.Statistics],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.statistics, statistics.Statistics,
+                         paginated=False)

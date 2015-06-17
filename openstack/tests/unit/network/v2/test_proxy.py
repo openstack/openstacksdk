@@ -43,9 +43,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_extension)
 
     def test_extensions(self):
-        self.verify_list2(self.proxy.extensions,
-                          expected_args=[extension.Extension],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.extensions, extension.Extension,
+                         paginated=False)
 
     def test_floating_ip_create_attrs(self):
         self.verify_create(self.proxy.create_ip, floating_ip.FloatingIP)
@@ -70,9 +69,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                                         "resource_or_id"])
 
     def test_ips(self):
-        self.verify_list2(self.proxy.ips,
-                          expected_args=[floating_ip.FloatingIP],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.ips, floating_ip.FloatingIP,
+                         paginated=False)
 
     def test_floating_ip_update(self):
         self.verify_update(self.proxy.update_ip, floating_ip.FloatingIP)
@@ -102,9 +100,9 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                                         "resource_or_id"])
 
     def test_health_monitors(self):
-        self.verify_list2(self.proxy.health_monitors,
-                          expected_args=[health_monitor.HealthMonitor],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.health_monitors,
+                         health_monitor.HealthMonitor,
+                         paginated=False)
 
     def test_health_monitor_update(self):
         self.verify_update(self.proxy.update_health_monitor,
@@ -132,9 +130,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          expected_args=[listener.Listener, "resource_or_id"])
 
     def test_listeners(self):
-        self.verify_list2(self.proxy.listeners,
-                          expected_args=[listener.Listener],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.listeners, listener.Listener,
+                         paginated=False)
 
     def test_listener_update(self):
         self.verify_update(self.proxy.update_listener, listener.Listener)
@@ -164,9 +161,9 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                                         "resource_or_id"])
 
     def test_load_balancers(self):
-        self.verify_list2(self.proxy.load_balancers,
-                          expected_args=[load_balancer.LoadBalancer],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.load_balancers,
+                         load_balancer.LoadBalancer,
+                         paginated=False)
 
     def test_load_balancer_update(self):
         self.verify_update(self.proxy.update_load_balancer,
@@ -197,9 +194,9 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                                         "resource_or_id"])
 
     def test_metering_labels(self):
-        self.verify_list2(self.proxy.metering_labels,
-                          expected_args=[metering_label.MeteringLabel],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.metering_labels,
+                         metering_label.MeteringLabel,
+                         paginated=False)
 
     def test_metering_label_update(self):
         self.verify_update(self.proxy.update_metering_label,
@@ -230,10 +227,9 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                                         "resource_or_id"])
 
     def test_metering_label_rules(self):
-        self.verify_list2(
-            self.proxy.metering_label_rules,
-            expected_args=[metering_label_rule.MeteringLabelRule],
-            expected_kwargs={})
+        self.verify_list(self.proxy.metering_label_rules,
+                         metering_label_rule.MeteringLabelRule,
+                         paginated=False)
 
     def test_metering_label_rule_update(self):
         self.verify_update(self.proxy.update_metering_label_rule,
@@ -259,9 +255,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          expected_args=[network.Network, "resource_or_id"])
 
     def test_networks(self):
-        self.verify_list2(self.proxy.networks,
-                          expected_args=[network.Network],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.networks, network.Network,
+                         paginated=False)
 
     def test_network_update(self):
         self.verify_update(self.proxy.update_network, network.Network)
@@ -290,9 +285,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                                         "resource_or_id"])
 
     def test_pool_members(self):
-        self.verify_list2(self.proxy.pool_members,
-                          expected_args=[pool_member.PoolMember],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.pool_members, pool_member.PoolMember,
+                         paginated=False)
 
     def test_pool_member_update(self):
         self.verify_update(self.proxy.update_pool_member,
@@ -318,9 +312,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          expected_args=[pool.Pool, "resource_or_id"])
 
     def test_pools(self):
-        self.verify_list2(self.proxy.pools,
-                          expected_args=[pool.Pool],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.pools, pool.Pool, paginated=False)
 
     def test_pool_update(self):
         self.verify_update(self.proxy.update_pool, pool.Pool)
@@ -345,17 +337,13 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          expected_args=[port.Port, "resource_or_id"])
 
     def test_ports(self):
-        self.verify_list2(self.proxy.ports,
-                          expected_args=[port.Port],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.ports, port.Port, paginated=False)
 
     def test_port_update(self):
         self.verify_update(self.proxy.update_port, port.Port)
 
     def test_quotas(self):
-        self.verify_list2(self.proxy.quotas,
-                          expected_args=[quota.Quota],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.quotas, quota.Quota, paginated=False)
 
     def test_router_create_attrs(self):
         self.verify_create(self.proxy.create_router, router.Router)
@@ -377,9 +365,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          expected_args=[router.Router, "resource_or_id"])
 
     def test_routers(self):
-        self.verify_list2(self.proxy.routers,
-                          expected_args=[router.Router],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.routers, router.Router, paginated=False)
 
     def test_router_update(self):
         self.verify_update(self.proxy.update_router, router.Router)
@@ -409,9 +395,9 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                                         "resource_or_id"])
 
     def test_security_groups(self):
-        self.verify_list2(self.proxy.security_groups,
-                          expected_args=[security_group.SecurityGroup],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.security_groups,
+                         security_group.SecurityGroup,
+                         paginated=False)
 
     def test_security_group_update(self):
         self.verify_update(self.proxy.update_security_group,
@@ -483,10 +469,9 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                                         "resource_or_id"])
 
     def test_security_group_rules(self):
-        self.verify_list2(
-            self.proxy.security_group_rules,
-            expected_args=[security_group_rule.SecurityGroupRule],
-            expected_kwargs={})
+        self.verify_list(self.proxy.security_group_rules,
+                         security_group_rule.SecurityGroupRule,
+                         paginated=False)
 
     def test_security_group_rule_update(self):
         self.verify_update(self.proxy.update_security_group_rule,
@@ -512,9 +497,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          expected_args=[subnet.Subnet, "resource_or_id"])
 
     def test_subnets(self):
-        self.verify_list2(self.proxy.subnets,
-                          expected_args=[subnet.Subnet],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.subnets, subnet.Subnet, paginated=False)
 
     def test_subnet_update(self):
         self.verify_update(self.proxy.update_subnet, subnet.Subnet)
@@ -543,9 +526,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                                         "resource_or_id"])
 
     def test_vpn_services(self):
-        self.verify_list2(self.proxy.vpn_services,
-                          expected_args=[vpn_service.VPNService],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.vpn_services, vpn_service.VPNService,
+                         paginated=False)
 
     def test_vpn_service_update(self):
         self.verify_update(self.proxy.update_vpn_service,

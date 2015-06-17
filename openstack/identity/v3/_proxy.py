@@ -80,7 +80,8 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of credentials instances.
         :rtype: :class:`~openstack.identity.v3.credential.Credential`
         """
-        return self._list(credential.Credential)
+        # TODO(briancurtin): This is paginated but requires base list changes.
+        return self._list(credential.Credential, paginated=False)
 
     def update_credential(self, value, **attrs):
         """Update a credential
@@ -149,7 +150,8 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of domain instances.
         :rtype: :class:`~openstack.identity.v3.domain.Domain`
         """
-        return self._list(domain.Domain)
+        # TODO(briancurtin): This is paginated but requires base list changes.
+        return self._list(domain.Domain, paginated=False)
 
     def update_domain(self, value, **attrs):
         """Update a domain
@@ -218,7 +220,8 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of endpoint instances.
         :rtype: :class:`~openstack.identity.v3.endpoint.Endpoint`
         """
-        return self._list(endpoint.Endpoint)
+        # TODO(briancurtin): This is paginated but requires base list changes.
+        return self._list(endpoint.Endpoint, paginated=False)
 
     def update_endpoint(self, value, **attrs):
         """Update a endpoint
@@ -288,7 +291,8 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of group instances.
         :rtype: :class:`~openstack.identity.v3.group.Group`
         """
-        return self._list(group.Group)
+        # TODO(briancurtin): This is paginated but requires base list changes.
+        return self._list(group.Group, paginated=False)
 
     def update_group(self, value, **attrs):
         """Update a group
@@ -356,7 +360,8 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of policy instances.
         :rtype: :class:`~openstack.identity.v3.policy.Policy`
         """
-        return self._list(policy.Policy)
+        # TODO(briancurtin): This is paginated but requires base list changes.
+        return self._list(policy.Policy, paginated=False)
 
     def update_policy(self, value, **attrs):
         """Update a policy
@@ -424,7 +429,8 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of project instances.
         :rtype: :class:`~openstack.identity.v3.project.Project`
         """
-        return self._list(project.Project)
+        # TODO(briancurtin): This is paginated but requires base list changes.
+        return self._list(project.Project, paginated=False)
 
     def update_project(self, value, **attrs):
         """Update a project
@@ -492,7 +498,8 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of service instances.
         :rtype: :class:`~openstack.identity.v3.service.Service`
         """
-        return self._list(service.Service)
+        # TODO(briancurtin): This is paginated but requires base list changes.
+        return self._list(service.Service, paginated=False)
 
     def update_service(self, value, **attrs):
         """Update a service
@@ -560,7 +567,8 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of user instances.
         :rtype: :class:`~openstack.identity.v3.user.User`
         """
-        return self._list(user.User)
+        # TODO(briancurtin): This is paginated but requires base list changes.
+        return self._list(user.User, paginated=False)
 
     def update_user(self, value, **attrs):
         """Update a user
@@ -628,7 +636,8 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of trust instances.
         :rtype: :class:`~openstack.identity.v3.trust.Trust`
         """
-        return self._list(trust.Trust)
+        # TODO(briancurtin): This is paginated but requires base list changes.
+        return self._list(trust.Trust, paginated=False)
 
     def update_trust(self, value, **attrs):
         """Update a trust

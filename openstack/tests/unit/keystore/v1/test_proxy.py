@@ -44,9 +44,8 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                          expected_args=[container.Container, "resource_or_id"])
 
     def test_containers(self):
-        self.verify_list2(self.proxy.containers,
-                          expected_args=[container.Container],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.containers, container.Container,
+                         paginated=False)
 
     def test_container_update(self):
         self.verify_update(self.proxy.update_container, container.Container)
@@ -71,9 +70,7 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                          expected_args=[order.Order, "resource_or_id"])
 
     def test_orders(self):
-        self.verify_list2(self.proxy.orders,
-                          expected_args=[order.Order],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.orders, order.Order, paginated=False)
 
     def test_order_update(self):
         self.verify_update(self.proxy.update_order, order.Order)
@@ -98,9 +95,7 @@ class TestKeystoreProxy(test_proxy_base.TestProxyBase):
                          expected_args=[secret.Secret, "resource_or_id"])
 
     def test_secrets(self):
-        self.verify_list2(self.proxy.secrets,
-                          expected_args=[secret.Secret],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.secrets, secret.Secret, paginated=False)
 
     def test_secret_update(self):
         self.verify_update(self.proxy.update_secret, secret.Secret)

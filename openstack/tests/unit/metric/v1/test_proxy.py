@@ -21,6 +21,5 @@ class TestMetricProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_capabilities(self):
-        self.verify_list2(self.proxy.capabilities,
-                          expected_args=[capabilities.Capabilities],
-                          expected_kwargs={})
+        self.verify_list(self.proxy.capabilities, capabilities.Capabilities,
+                         paginated=False)

@@ -32,9 +32,8 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_extension)
 
     def test_extensions(self):
-        self.verify_list2(self.proxy.extensions,
-                          expected_args=[extension.Extension],
-                          expected_kwargs={"paginated": False})
+        self.verify_list(self.proxy.extensions, extension.Extension,
+                         paginated=False)
 
     def test_flavor_create(self):
         self.verify_create(self.proxy.create_flavor, flavor.Flavor)
@@ -56,16 +55,16 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          expected_args=[flavor.Flavor, "resource_or_id"])
 
     def test_flavors_detailed(self):
-        self.verify_list2(self.proxy.flavors,
-                          method_kwargs={"details": True, "query": 1},
-                          expected_args=[flavor.FlavorDetail],
-                          expected_kwargs={"paginated": True, "query": 1})
+        self.verify_list(self.proxy.flavors, flavor.FlavorDetail,
+                         paginated=True,
+                         method_kwargs={"details": True, "query": 1},
+                         expected_kwargs={"query": 1})
 
     def test_flavors_not_detailed(self):
-        self.verify_list2(self.proxy.flavors,
-                          method_kwargs={"details": False, "query": 1},
-                          expected_args=[flavor.Flavor],
-                          expected_kwargs={"paginated": True, "query": 1})
+        self.verify_list(self.proxy.flavors, flavor.Flavor,
+                         paginated=True,
+                         method_kwargs={"details": False, "query": 1},
+                         expected_kwargs={"query": 1})
 
     def test_flavor_update(self):
         self.verify_update(self.proxy.update_flavor, flavor.Flavor)
@@ -87,16 +86,16 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          expected_args=[image.Image, "resource_or_id"])
 
     def test_images_detailed(self):
-        self.verify_list2(self.proxy.images,
-                          method_kwargs={"details": True, "query": 1},
-                          expected_args=[image.ImageDetail],
-                          expected_kwargs={"paginated": True, "query": 1})
+        self.verify_list(self.proxy.images, image.ImageDetail,
+                         paginated=True,
+                         method_kwargs={"details": True, "query": 1},
+                         expected_kwargs={"query": 1})
 
     def test_images_not_detailed(self):
-        self.verify_list2(self.proxy.images,
-                          method_kwargs={"details": False, "query": 1},
-                          expected_args=[image.Image],
-                          expected_kwargs={"paginated": True, "query": 1})
+        self.verify_list(self.proxy.images, image.Image,
+                         paginated=True,
+                         method_kwargs={"details": False, "query": 1},
+                         expected_kwargs={"query": 1})
 
     def test_keypair_create(self):
         self.verify_create(self.proxy.create_keypair, keypair.Keypair)
@@ -118,9 +117,8 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          expected_args=[keypair.Keypair, "resource_or_id"])
 
     def test_keypairs(self):
-        self.verify_list2(self.proxy.keypairs,
-                          expected_args=[keypair.Keypair],
-                          expected_kwargs={"paginated": False})
+        self.verify_list(self.proxy.keypairs, keypair.Keypair,
+                         paginated=False)
 
     def test_keypair_update(self):
         self.verify_update(self.proxy.update_keypair, keypair.Keypair)
@@ -155,9 +153,9 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                                         "resource_or_id"])
 
     def test_server_interfaces(self):
-        self.verify_list2(self.proxy.server_interfaces,
-                          expected_args=[server_interface.ServerInterface],
-                          expected_kwargs={"paginated": False})
+        self.verify_list(self.proxy.server_interfaces,
+                         server_interface.ServerInterface,
+                         paginated=False)
 
     def test_server_interface_update(self):
         self.verify_update(self.proxy.update_server_interface,
@@ -168,9 +166,8 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_server_ip)
 
     def test_server_ips(self):
-        self.verify_list2(self.proxy.server_ips,
-                          expected_args=[server_ip.ServerIP],
-                          expected_kwargs={"paginated": False})
+        self.verify_list(self.proxy.server_ips, server_ip.ServerIP,
+                         paginated=False)
 
     def test_server_create_attrs(self):
         self.verify_create(self.proxy.create_server, server.Server)
@@ -192,20 +189,19 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          expected_args=[server.Server, "resource_or_id"])
 
     def test_servers_detailed(self):
-        self.verify_list2(self.proxy.servers,
-                          method_args=[True],
-                          method_kwargs={"changes_since": 1, "image": 2},
-                          expected_args=[server.ServerDetail],
-                          expected_kwargs={"paginated": True,
-                                           "changes-since": 1, "image": 2})
+        self.verify_list(self.proxy.servers, server.ServerDetail,
+                         paginated=True,
+                         method_kwargs={"details": True,
+                                        "changes_since": 1, "image": 2},
+                         expected_kwargs={"changes-since": 1, "image": 2})
 
     def test_servers_not_detailed(self):
-        self.verify_list2(self.proxy.servers,
-                          method_args=[False],
-                          method_kwargs={"changes_since": 1, "image": 2},
-                          expected_args=[server.Server],
-                          expected_kwargs={"paginated": True,
-                                           "changes-since": 1, "image": 2})
+        self.verify_list(self.proxy.servers, server.Server,
+                         paginated=True,
+                         method_kwargs={"details": False,
+                                        "changes_since": 1, "image": 2},
+                         expected_kwargs={"paginated": True,
+                                          "changes-since": 1, "image": 2})
 
     def test_server_update(self):
         self.verify_update(self.proxy.update_server, server.Server)

@@ -40,10 +40,10 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
                          expected_args=[cluster.Cluster, "resource_or_id"])
 
     def test_clusters(self):
-        self.verify_list2(self.proxy.clusters,
-                          method_kwargs={'limit': 2},
-                          expected_args=[cluster.Cluster],
-                          expected_kwargs={'paginated': True, 'limit': 2})
+        self.verify_list(self.proxy.clusters, cluster.Cluster,
+                         paginated=True,
+                         method_kwargs={'limit': 2},
+                         expected_kwargs={'limit': 2})
 
     def test_cluster_update(self):
         self.verify_update(self.proxy.update_cluster, cluster.Cluster)

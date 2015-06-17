@@ -125,13 +125,16 @@ class TestProxyBase(base.TestCase):
                      expected_args=["name_or_id"], expected_result="result",
                      **kwargs)
 
-    def verify_list(self, mock_method, test_method, **kwargs):
-        self._verify(mock_method, test_method, expected_result=["result"],
-                     **kwargs)
+    def verify_list(self, test_method, resource_type, paginated=False,
+                    **kwargs):
+        expected_kwargs = kwargs.pop("expected_kwargs", {})
+        expected_kwargs.update({"paginated": paginated})
 
-    def verify_list2(self, method, **kwargs):
         self._verify2("openstack.proxy.BaseProxy._list",
-                      method, expected_result=["result"],
+                      test_method,
+                      expected_args=[resource_type],
+                      expected_kwargs=expected_kwargs,
+                      expected_result=["result"],
                       **kwargs)
 
     def verify_update(self, test_method, resource_type,

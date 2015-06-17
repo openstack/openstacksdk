@@ -43,7 +43,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of stack objects
         :rtype: :class:`~openstack.orchestration.v1.stack.Stack`
         """
-        return self._list(stack.Stack)
+        return self._list(stack.Stack, paginated=False)
 
     def get_stack(self, value):
         """Get a single stack
