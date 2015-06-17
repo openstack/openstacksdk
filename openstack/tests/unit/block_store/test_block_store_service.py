@@ -12,13 +12,13 @@
 
 import testtools
 
-from openstack.volume import volume_service
+from openstack.block_store import block_store_service
 
 
-class TestVolumeService(testtools.TestCase):
+class TestBlockStoreService(testtools.TestCase):
 
     def test_service(self):
-        sot = volume_service.VolumeService()
+        sot = block_store_service.BlockStoreService()
         self.assertEqual("volume", sot.service_type)
         self.assertEqual("public", sot.visibility)
         self.assertIsNone(sot.region)

@@ -13,12 +13,12 @@
 from openstack.auth import service_filter
 
 
-class VolumeService(service_filter.ServiceFilter):
-    """The volume service."""
+class BlockStoreService(service_filter.ServiceFilter):
+    """The block store service."""
 
     valid_versions = [service_filter.ValidVersion('v2')]
 
     def __init__(self, version=None):
-        """Create a volume service."""
-        super(VolumeService, self).__init__(service_type='volume',
-                                            version=version)
+        """Create a block store service."""
+        super(BlockStoreService, self).__init__(service_type='volume',
+                                                version=version)

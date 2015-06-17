@@ -53,6 +53,7 @@ The resulting preference print out would look something like::
 
 import six
 
+from openstack.block_store import block_store_service
 from openstack.cluster import cluster_service
 from openstack.compute import compute_service
 from openstack.database import database_service
@@ -66,7 +67,6 @@ from openstack.network import network_service
 from openstack.object_store import object_store_service
 from openstack.orchestration import orchestration_service
 from openstack.telemetry import telemetry_service
-from openstack.volume import volume_service
 
 
 class Profile(object):
@@ -122,7 +122,7 @@ class Profile(object):
         serv = telemetry_service.TelemetryService()
         serv.set_visibility(None)
         self._services[serv.service_type] = serv
-        serv = volume_service.VolumeService()
+        serv = block_store_service.BlockStoreService()
         serv.set_visibility(None)
         self._services[serv.service_type] = serv
         serv = message_service.MessageService()

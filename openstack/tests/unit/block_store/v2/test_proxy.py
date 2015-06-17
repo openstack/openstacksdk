@@ -10,11 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.block_store.v2 import _proxy
+from openstack.block_store.v2 import snapshot
+from openstack.block_store.v2 import type
+from openstack.block_store.v2 import volume
 from openstack.tests.unit import test_proxy_base
-from openstack.volume.v2 import _proxy
-from openstack.volume.v2 import snapshot
-from openstack.volume.v2 import type
-from openstack.volume.v2 import volume
 
 
 class TestVolumeProxy(test_proxy_base.TestProxyBase):
