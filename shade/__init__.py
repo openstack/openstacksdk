@@ -2848,7 +2848,9 @@ class OperatorCloud(OpenStackCloud):
             return None
 
     def list_machines(self):
-        return meta.obj_list_to_dict(self.ironic_client.node.list())
+        return meta.obj_list_to_dict(
+            self.manager.submitTask(_tasks.MachineNodeList())
+        )
 
     def get_machine(self, name_or_id):
         """Get Machine by name or uuid

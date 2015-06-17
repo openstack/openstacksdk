@@ -314,6 +314,14 @@ class TestShadeOperator(base.TestCase):
         self.assertEqual(machine, expected_value)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_list_machines(self, mock_client):
+        m1 = fakes.FakeMachine(1, 'fake_machine1')
+        mock_client.node.list.return_value = [m1]
+        machines = self.cloud.list_machines()
+        self.assertTrue(mock_client.node.list.called)
+        self.assertEqual(meta.obj_to_dict(m1), machines[0])
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_list_nics(self, mock_client):
         port1 = fakes.FakeMachinePort(1, "aa:bb:cc:dd", "node1")
         port2 = fakes.FakeMachinePort(2, "dd:cc:bb:aa", "node2")

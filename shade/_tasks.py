@@ -403,6 +403,11 @@ class MachinePortList(task_manager.Task):
         return client.ironic_client.port.list()
 
 
+class MachineNodeList(task_manager.Task):
+    def main(self, client):
+        return client.ironic_client.node.list(**self.args)
+
+
 class MachineNodePortList(task_manager.Task):
     def main(self, client):
         return client.ironic_client.node.list_ports(**self.args)
