@@ -29,5 +29,7 @@ class Policy(resource.Resource):
     patch_update = True
 
     # Properties
+    #: The policy rule set itself, as a serialized blob. *Type: string*
     blob = resource.prop('blob')
+    #: The MIME Media Type of the serialized policy blob. *Type: string*
     type = resource.prop('type')

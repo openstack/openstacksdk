@@ -29,8 +29,26 @@ class Endpoint(resource.Resource):
     patch_update = True
 
     # Properties
+    #: Setting this value to ``False`` prevents the endpoint from appearing
+    #: in the service catalog. *Type: bool*
     enabled = resource.prop('enabled', type=bool)
+    #: Describes the visibility of the endpoint according to one of the
+    #: following values:
+    #:
+    #: - `public`: intended for consumption by end users, generally on a
+    #: publicly available network interface
+    #:
+    #: - `internal`: not intended for consumption by end users, generally on an
+    #: unmetered internal network interface
+    #:
+    #: - `admin`: intended only for consumption by those needing administrative
+    #: access to the service, generally on a secure network interface
+    #: *Type: string*
     interface = resource.prop('interface')
+    #: Represents the containing region of the service endpoint. *New in v3.2*
+    #: *Type: string*
     region_id = resource.prop('region_id')
+    #: References the service to which the endpoint belongs. *Type: string*
     service_id = resource.prop('service_id')
+    #: Fully qualified URL of the service endpoint. *Type: string*
     url = resource.prop('url')

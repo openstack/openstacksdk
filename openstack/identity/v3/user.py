@@ -29,10 +29,33 @@ class User(resource.Resource):
     patch_update = True
 
     # Properties
+    #: References the user's default project against which to authorize,
+    #: if the API user does not explicitly specify one when creating a token.
+    #: Setting this attribute does not grant any actual authorization on the
+    #: project, and is merely provided for the user's convenience.
+    #: Therefore, the referenced project does not need to exist within the
+    #: user's domain.
+    #:
+    #: *New in version 3.1* If the user does not have authorization to
+    #: their default project, the default project will be ignored at token
+    #: creation. *Type: string*
     default_project_id = resource.prop('default_project_id')
+    #: The description of this user. *Type: string*
     description = resource.prop('description')
+    #: References the domain which owns the user; if a domain is not
+    #: specified by the client, the Identity service implementation will
+    #: default it to the domain to which the client's token is scoped.
+    #: *Type: string*
     domain_id = resource.prop('domain_id')
+    #: The email of this user. *Type: string*
     email = resource.prop('email')
+    #: Setting this value to ``False`` prevents the user from authenticating or
+    #: receiving authorization. Additionally, all pre-existing tokens held by
+    #: the user are immediately invalidated. Re-enabling a user does not
+    #: re-enable pre-existing tokens. *Type: bool*
     enabled = resource.prop('enabled', type=bool)
+    #: Unique user name, within the owning domain. *Type: string*
     name = resource.prop('name')
+    #: The default form of credential used during authentication.
+    #: *Type: string*
     password = resource.prop('password')

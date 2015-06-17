@@ -29,6 +29,15 @@ class Domain(resource.Resource):
     patch_update = True
 
     # Properties
+    #: The description of this domain. *Type: string*
     description = resource.prop('description')
+    #: Setting this attribute to ``False`` prevents users from authorizing
+    #: against this domain or any projects owned by this domain, and prevents
+    #: users owned by this domain from authenticating or receiving any other
+    #: authorization. Additionally, all pre-existing tokens applicable
+    #: to the above entities are immediately invalidated.
+    #: Re-enabling a domain does not re-enable pre-existing tokens.
+    #: *Type: bool*
     enabled = resource.prop('enabled', type=bool)
+    #: The globally unique name of this domain. *Type: string*
     name = resource.prop('name')

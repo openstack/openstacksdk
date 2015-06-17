@@ -29,7 +29,17 @@ class Project(resource.Resource):
     patch_update = True
 
     # Properties
+    #: The description of the project. *Type: string*
     description = resource.prop('description')
+    #: References the domain which owns the project; if a domain is not
+    #: specified by the client, the Identity service implementation will
+    #: default it to the domain to which the client's token is scoped.
+    #: *Type: string*
     domain_id = resource.prop('domain_id')
+    #: Setting this attribute to ``False`` prevents users from authorizing
+    #: against this project. Additionally, all pre-existing tokens authorized
+    #: for the project are immediately invalidated. Re-enabling a project
+    #: does not re-enable pre-existing tokens. *Type: bool*
     enabled = resource.prop('enabled', type=bool)
+    #: Unique project name, within the owning domain. *Type: string*
     name = resource.prop('name')
