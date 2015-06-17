@@ -1,7 +1,7 @@
-Using OpenStack Volume
-======================
+Using OpenStack Block Store
+===========================
 
-Before working with ``volume``, you'll need to obtain a
+Before working with ``block_store``, you'll need to obtain a
 :class:`~openstack.connection.Connection` object like so.
 
 .. literalinclude:: /code/connection.py

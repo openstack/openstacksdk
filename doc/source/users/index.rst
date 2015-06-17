@@ -24,6 +24,7 @@ approach, this is where you'll want to begin.
    :maxdepth: 1
 
    Connecting to an OpenStack Cloud <userguides/usage>
+   Block Store <userguides/block_store>
    CDN <userguides/cdn>
    Compute <userguides/compute>
    Database <userguides/database>
@@ -35,7 +36,6 @@ approach, this is where you'll want to begin.
    Object Store <userguides/object_store>
    Orchestration <userguides/orchestration>
    Telemetry <userguides/telemetry>
-   Volume <userguides/volume>
 
 It may also be useful to try out some working code `examples <examples.html>`_.
 
@@ -68,6 +68,7 @@ but listed below are the ones provided by this SDK by default.
 .. toctree::
    :maxdepth: 1
 
+   Block Store <proxies/block_store>
    CDN <proxies/cdn>
    Compute <proxies/compute>
    Database <proxies/database>
@@ -79,7 +80,6 @@ but listed below are the ones provided by this SDK by default.
    Object Store <proxies/object_store>
    Orchestration <proxies/orchestration>
    Telemetry <proxies/telemetry>
-   Volume <proxies/volume>
 
 Resource Interface
 ******************
@@ -96,6 +96,7 @@ The following services have exposed *Resource* classes.
 .. toctree::
    :maxdepth: 1
 
+   Block Store <resources/block_store/index>
    Compute <resources/compute/index>
    Database <resources/database/index>
    Identity <resources/identity/index>
@@ -106,7 +107,6 @@ The following services have exposed *Resource* classes.
    Orchestration <resources/orchestration/index>
    Object Store <resources/object_store/index>
    Telemetry <resources/telemetry/index>
-   Volume <resources/volume/index>
 
 Low-Level Classes
 *****************
