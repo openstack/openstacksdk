@@ -3163,7 +3163,8 @@ class OperatorCloud(OpenStackCloud):
 
     def validate_node(self, uuid):
         try:
-            ifaces = self.ironic_client.node.validate(uuid)
+            ifaces = self.manager.submitTask(
+                _tasks.MachineNodeValidate(node_uuid=uuid))
         except Exception as e:
             self.log.debug(
                 "ironic node validation call failed", exc_info=True)
