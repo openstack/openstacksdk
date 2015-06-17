@@ -15,5 +15,4 @@
 import pbr.version
 
 
-__version__ = pbr.version.VersionInfo(
-    'python-openstacksdk').version_string()
+__version__ = pbr.version.VersionInfo('openstacksdk').version_string()
