@@ -114,9 +114,8 @@ class TestShade(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     def test_delete_router_not_found(self, mock_client, mock_search):
         mock_search.return_value = []
-        self.assertRaises(exc.OpenStackCloudException,
-                          self.cloud.delete_router,
-                          'goofy')
+        r = self.cloud.delete_router('goofy')
+        self.assertFalse(r)
         self.assertFalse(mock_client.delete_router.called)
 
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
@@ -186,9 +185,8 @@ class TestShade(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     def test_delete_subnet_not_found(self, mock_client, mock_search):
         mock_search.return_value = []
-        self.assertRaises(exc.OpenStackCloudException,
-                          self.cloud.delete_subnet,
-                          'goofy')
+        r = self.cloud.delete_subnet('goofy')
+        self.assertFalse(r)
         self.assertFalse(mock_client.delete_subnet.called)
 
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
