@@ -1,5 +1,5 @@
-Volume Resources
-================
+Block Store Resources
+=====================
 
 .. toctree::
    :maxdepth: 1
