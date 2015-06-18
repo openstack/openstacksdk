@@ -23,5 +23,5 @@ class TestQuota(base.BaseFunctionalTest):
             self.assertIn('router', qot)
             self.assertIn('port', qot)
             self.assertIn('floatingip', qot)
-            self.assertIn('security_rule_group', qot)
+            self.assertIn('security_group_rule', qot)
             self.assertIn('security_group', qot)
