@@ -413,6 +413,11 @@ class MachineNodePortList(task_manager.Task):
         return client.ironic_client.node.list_ports(**self.args)
 
 
+class MachineNodeValidate(task_manager.Task):
+    def main(self, client):
+        return client.ironic_client.node.validate(**self.args)
+
+
 class MachineSetMaintenance(task_manager.Task):
     def main(self, client):
         return client.ironic_client.node.set_maintenance(**self.args)
