@@ -158,7 +158,7 @@ def _get_service_values(kwargs, service_key):
     # get defauts returns a copy of the defaults dict
     values = os_client_config.defaults.get_defaults()
     values.update(kwargs)
-    return {k[:-(len(service_key) + 1)]: values[k]
+    return {k[:-(len(service_key) + 1)]: str(values[k])
             for k in values.keys() if k.endswith(service_key)}
 
 
