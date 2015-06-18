@@ -2022,6 +2022,7 @@ class OpenStackCloud(object):
             (md5, sha256) = self._get_file_hashes(filename)
         headers[OBJECT_MD5_KEY] = md5
         headers[OBJECT_SHA256_KEY] = sha256
+        header_list = sorted([':'.join([k, v]) for (k, v) in headers.items()])
 
         # On some clouds this is not necessary. On others it is. I'm confused.
         self.create_container(container)
@@ -2034,7 +2035,7 @@ class OpenStackCloud(object):
                                                      object_name=name)
             for r in self.manager.submitTask(_tasks.ObjectCreate(
                 container=container, objects=[upload],
-                options=dict(headers=headers,
+                options=dict(header=header_list,
                              segment_size=segment_size))):
                 if not r['success']:
                     raise OpenStackCloudException(
