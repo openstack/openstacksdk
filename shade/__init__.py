@@ -1085,12 +1085,15 @@ class OpenStackCloud(object):
         """Delete a network.
 
         :param name_or_id: Name or ID of the network being deleted.
+
+        :returns: True if delete succeeded, False otherwise.
+
         :raises: OpenStackCloudException on operation error.
         """
         network = self.get_network(name_or_id)
         if not network:
-            raise OpenStackCloudException(
-                "Network %s not found." % name_or_id)
+            self.log.debug("Network %s not found for deleting" % name_or_id)
+            return False
 
         try:
             self.manager.submitTask(
@@ -1099,6 +1102,7 @@ class OpenStackCloud(object):
             self.log.debug("Network deletion failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error in deleting network %s: %s" % (name_or_id, str(e)))
+        return True
 
     def create_router(self, name=None, admin_state_up=True):
         """Create a logical router.
@@ -1179,12 +1183,15 @@ class OpenStackCloud(object):
         not required to be unique. An error will be raised in this case.
 
         :param name_or_id: Name or ID of the router being deleted.
+
+        :returns: True if delete succeeded, False otherwise.
+
         :raises: OpenStackCloudException on operation error.
         """
         router = self.get_router(name_or_id)
         if not router:
-            raise OpenStackCloudException(
-                "Router %s not found." % name_or_id)
+            self.log.debug("Router %s not found for deleting" % name_or_id)
+            return False
 
         try:
             self.manager.submitTask(
@@ -1193,6 +1200,7 @@ class OpenStackCloud(object):
             self.log.debug("Router delete failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error deleting router %s: %s" % (name_or_id, e))
+        return True
 
     def _reset_image_cache(self):
         self._image_cache = None
@@ -2173,12 +2181,15 @@ class OpenStackCloud(object):
         not required to be unique. An error will be raised in this case.
 
         :param name_or_id: Name or ID of the subnet being deleted.
+
+        :returns: True if delete succeeded, False otherwise.
+
         :raises: OpenStackCloudException on operation error.
         """
         subnet = self.get_subnet(name_or_id)
         if not subnet:
-            raise OpenStackCloudException(
-                "Subnet %s not found." % name_or_id)
+            self.log.debug("Subnet %s not found for deleting" % name_or_id)
+            return False
 
         try:
             self.manager.submitTask(
@@ -2187,6 +2198,7 @@ class OpenStackCloud(object):
             self.log.debug("Subnet delete failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error deleting subnet %s: %s" % (name_or_id, e))
+        return True
 
     def update_subnet(self, name_or_id, subnet_name=None, enable_dhcp=None,
                       gateway_ip=None, allocation_pools=None,
@@ -2414,13 +2426,14 @@ class OpenStackCloud(object):
 
         :param name_or_id: id or name of the port to delete.
 
-        :returns: None.
+        :returns: True if delete succeeded, False otherwise.
 
         :raises: OpenStackCloudException on operation error.
         """
         port = self.get_port(name_or_id=name_or_id)
         if port is None:
-            return
+            self.log.debug("Port %s not found for deleting" % name_or_id)
+            return False
 
         try:
             self.manager.submitTask(_tasks.PortDelete(port=port['id']))
@@ -2430,6 +2443,7 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "failed to delete port '{port}': {msg}".format(
                     port=name_or_id, msg=str(e)))
+        return True
 
     def create_security_group(self, name, description):
         """Create a new security group
@@ -2489,14 +2503,17 @@ class OpenStackCloud(object):
 
         :param string name_or_id: The name or unique ID of the security group.
 
+        :returns: True if delete succeeded, False otherwise.
+
         :raises: OpenStackCloudException on operation error.
         :raises: OpenStackCloudUnavailableFeature if security groups are
                  not supported on this cloud.
         """
         secgroup = self.get_security_group(name_or_id)
         if secgroup is None:
-            self.log.debug('security group %s was not found' % name_or_id)
-            return
+            self.log.debug('Security group %s not found for deleting' %
+                           name_or_id)
+            return False
 
         if self.secgroup_source == 'neutron':
             try:
@@ -2512,6 +2529,7 @@ class OpenStackCloud(object):
                 raise OpenStackCloudException(
                     "failed to delete security group '{group}': {msg}".format(
                         group=name_or_id, msg=str(e)))
+            return True
 
         elif self.secgroup_source == 'nova':
             try:
@@ -2525,6 +2543,7 @@ class OpenStackCloud(object):
                 raise OpenStackCloudException(
                     "failed to delete security group '{group}': {msg}".format(
                         group=name_or_id, msg=str(e)))
+            return True
 
         # Security groups not supported
         else:
@@ -3479,14 +3498,15 @@ class OperatorCloud(OpenStackCloud):
 
         :param name_or_id: Service name or id.
 
-        :returns: None
+        :returns: True if delete succeeded, False otherwise.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the openstack API call
         """
         service = self.get_service(name_or_id=name_or_id)
         if service is None:
-            return
+            self.log.debug("Service %s not found for deleting" % name_or_id)
+            return False
 
         try:
             self.manager.submitTask(_tasks.ServiceDelete(id=service['id']))
@@ -3495,6 +3515,7 @@ class OperatorCloud(OpenStackCloud):
                 "Failed to delete service {id}".format(id=service['id']),
                 exc_info=True)
             raise OpenStackCloudException(str(e))
+        return True
 
     def create_endpoint(self, service_name_or_id, public_url,
                         internal_url=None, admin_url=None, region=None):
@@ -3590,7 +3611,7 @@ class OperatorCloud(OpenStackCloud):
 
         :param id: Id of the endpoint to delete.
 
-        :returns: None
+        :returns: True if delete succeeded, False otherwise.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the openstack API call.
@@ -3598,7 +3619,8 @@ class OperatorCloud(OpenStackCloud):
         # ToDo: support v3 api (dguerri)
         endpoint = self.get_endpoint(id=id)
         if endpoint is None:
-            return
+            self.log.debug("Endpoint %s not found for deleting" % id)
+            return False
 
         try:
             self.manager.submitTask(_tasks.EndpointDelete(id=id))
@@ -3607,3 +3629,4 @@ class OperatorCloud(OpenStackCloud):
                 "Failed to delete endpoint {id}".format(id=id),
                 exc_info=True)
             raise OpenStackCloudException(str(e))
+        return True
