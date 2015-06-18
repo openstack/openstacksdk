@@ -610,7 +610,11 @@ class OpenStackCloud(object):
                 self._swift_client = swift_client.Connection(
                     preauthurl=endpoint,
                     preauthtoken=token,
-                    os_options=dict(region_name=self.region_name),
+                    auth_version=self.api_versions['identity'],
+                    os_options=dict(
+                        auth_token=token,
+                        object_storage_url=endpoint,
+                        region_name=self.region_name),
                 )
             except OpenStackCloudException:
                 raise

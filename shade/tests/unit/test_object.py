@@ -36,9 +36,14 @@ class TestShade(base.TestCase):
         endpoint_mock.return_value = 'danzig'
         auth_mock.return_value = 'yankee'
         self.cloud.swift_client
-        swift_mock.assert_called_with(preauthurl='danzig',
-                                      preauthtoken='yankee',
-                                      os_options=mock.ANY)
+        swift_mock.assert_called_with(
+            preauthurl='danzig',
+            preauthtoken='yankee',
+            auth_version='2',
+            os_options=dict(
+                object_storage_url='danzig',
+                auth_token='yankee',
+                region_name=''))
 
     @mock.patch.object(shade.OpenStackCloud, 'auth_token',
                        new_callable=mock.PropertyMock)
