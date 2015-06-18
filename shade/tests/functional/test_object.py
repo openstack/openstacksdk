@@ -54,6 +54,8 @@ class TestObject(base.TestCase):
                 name = 'test-%d' % size
                 self.cloud.create_object(container, name, sparse_file.name,
                                          segment_size=segment_size)
+                self.assertFalse(self.cloud.is_object_stale(container, name,
+                                                            sparse_file.name))
             self.assertIsNotNone(
                 self.cloud.get_object_metadata(container, name))
             self.cloud.delete_object(container, name)
