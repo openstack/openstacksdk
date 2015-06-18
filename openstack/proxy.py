@@ -136,7 +136,8 @@ class BaseProxy(object):
         :rtype: :class:`~openstack.resource.Resource`
         """
         res = resource_type.new(**attrs)
-        res.update_attrs(path_args)
+        if path_args is not None:
+            res.update_attrs(path_args)
         return res.create(self.session)
 
     @_check_resource(strict=False)
