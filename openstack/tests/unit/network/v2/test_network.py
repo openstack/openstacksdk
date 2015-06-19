@@ -23,7 +23,7 @@ EXAMPLE = {
     'provider:network_type': '5',
     'provider:physical_network': '6',
     'provider:segmentation_id': '7',
-    'router:external': '8',
+    'router:external': True,
     'segments': '9',
     'shared': True,
     'status': '11',
@@ -62,3 +62,29 @@ class TestNetwork(testtools.TestCase):
         self.assertEqual(EXAMPLE['shared'], sot.shared)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['subnets'], sot.subnets)
+
+    def test_external(self):
+        sot = network.Network(EXAMPLE)
+        self.assertEqual(True, sot.is_external())
+
+        example = dict(EXAMPLE)
+        example['router:external'] = False
+        sot = network.Network(example)
+        self.assertEqual(False, sot.is_external())
+
+        example = dict(EXAMPLE)
+        del example['router:external']
+        sot = network.Network(example)
+        self.assertEqual(False, sot.is_external())
+
+        example = dict(EXAMPLE)
+        del example['router:external']
+        example['router_type'] = 'Internal'
+        sot = network.Network(example)
+        self.assertEqual(False, sot.is_external())
+
+        example = dict(EXAMPLE)
+        del example['router:external']
+        example['router_type'] = 'External'
+        sot = network.Network(example)
+        self.assertEqual(True, sot.is_external())

@@ -45,6 +45,8 @@ class Network(resource.Resource):
     provider_segmentation_id = resource.prop('provider:segmentation_id')
     #: Whether or not the router is external. *Type: bool*
     router_external = resource.prop('router:external')
+    #: Whether or not the router is 'External' or 'Internal'.
+    router_type = resource.prop('router_type')
     segments = resource.prop('segments')
     #: Indicates whether this network is shared across all tenants.
     #: By default, only administrative users can change this value.
@@ -54,3 +56,10 @@ class Network(resource.Resource):
     status = resource.prop('status')
     #: The associated subnets.
     subnets = resource.prop('subnets')
+
+    def is_external(self):
+        if self.router_external is not None:
+            return bool(self.router_external)
+        if self.router_type == 'External':
+            return True
+        return False
