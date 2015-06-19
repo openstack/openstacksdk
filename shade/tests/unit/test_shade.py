@@ -17,6 +17,8 @@ from keystoneclient import auth as ksc_auth
 import mock
 import testtools
 
+from neutronclient.common import exceptions as n_exc
+
 import shade
 from shade import exc
 from shade import meta
@@ -24,10 +26,25 @@ from shade.tests import fakes
 from shade.tests.unit import base
 
 
+def mock_me(self):
+    pass
+
+
+def test_exception(self):
+    with self._neutron_exceptions("This is actually a test"):
+        self.mock_me()
+
+
 class TestShade(base.TestCase):
 
     def setUp(self):
         super(TestShade, self).setUp()
+
+        # Inject test_exception and mock_me, used to test
+        # _neutron_exceptions context
+        shade.OpenStackCloud.mock_me = mock_me
+        shade.OpenStackCloud.test_exception = test_exception
+
         self.cloud = shade.openstack_cloud()
 
     def test_openstack_cloud(self):
@@ -825,3 +842,36 @@ class TestShadeOperator(base.TestCase):
     def test_has_service_yes(self, session_mock):
         session_mock.get_endpoint.return_value = 'http://fake.url'
         self.assertTrue(self.cloud.has_service("image"))
+
+    @mock.patch.object(shade.OpenStackCloud, 'mock_me')
+    def test__neutron_exceptions_resource_not_found(
+            self, mock_mock_me):
+        mock_mock_me.side_effect = n_exc.NotFound()
+
+        self.assertRaises(exc.OpenStackCloudResourceNotFound,
+                          self.cloud.test_exception)
+
+    @mock.patch.object(shade.OpenStackCloud, 'mock_me')
+    def test__neutron_exceptions_url_not_found(
+            self, mock_mock_me):
+        mock_mock_me.side_effect = n_exc.NeutronClientException(
+            status_code=404)
+
+        self.assertRaises(exc.OpenStackCloudURINotFound,
+                          self.cloud.test_exception)
+
+    @mock.patch.object(shade.OpenStackCloud, 'mock_me')
+    def test__neutron_exceptions_neutron_client_generic(
+            self, mock_mock_me):
+        mock_mock_me.side_effect = n_exc.NeutronClientException()
+
+        self.assertRaises(exc.OpenStackCloudException,
+                          self.cloud.test_exception)
+
+    @mock.patch.object(shade.OpenStackCloud, 'mock_me')
+    def test__neutron_exceptions_generic(
+            self, mock_mock_me):
+        mock_mock_me.side_effect = Exception()
+
+        self.assertRaises(exc.OpenStackCloudException,
+                          self.cloud.test_exception)

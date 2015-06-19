@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import contextlib
 import hashlib
 import inspect
 import logging
@@ -321,6 +322,30 @@ class OpenStackCloud(object):
         self._swift_client = None
         self._swift_service = None
         self._trove_client = None
+
+    @contextlib.contextmanager
+    def _neutron_exceptions(self, error_message):
+        try:
+            yield
+        except neutron_exceptions.NotFound as e:
+            raise OpenStackCloudResourceNotFound(
+                "{msg}: {exc}".format(msg=error_message, exc=str(e)))
+        except neutron_exceptions.NeutronClientException as e:
+            self.log.debug(
+                "{msg}: {exc}".format(msg=error_message, exc=str(e),
+                                      exc_info=True))
+            if e.status_code == 404:
+                raise OpenStackCloudURINotFound(
+                    "{msg}: {exc}".format(msg=error_message, exc=str(e)))
+            else:
+                raise OpenStackCloudException(
+                    "{msg}: {exc}".format(msg=error_message, exc=str(e)))
+        except Exception as e:
+            self.log.debug(
+                "{msg}: {exc}".format(msg=error_message, exc=str(e),
+                                      exc_info=True))
+            raise OpenStackCloudException(
+                "{msg}: {exc}".format(msg=error_message, exc=str(e)))
 
     def _make_cache_key(self, namespace, fn):
         fname = fn.__name__
@@ -845,38 +870,20 @@ class OpenStackCloud(object):
         return _utils._filter_list(pools, name, filters)
 
     def list_networks(self):
-        try:
+        with self._neutron_exceptions("Error fetching network list"):
             return self.manager.submitTask(_tasks.NetworkList())['networks']
-        except Exception as e:
-            self.log.debug("network list failed: %s" % e, exc_info=True)
-            raise OpenStackCloudException(
-                "Error fetching network list: %s" % e)
 
     def list_routers(self):
-        try:
+        with self._neutron_exceptions("Error fetching router list"):
             return self.manager.submitTask(_tasks.RouterList())['routers']
-        except Exception as e:
-            self.log.debug("router list failed: %s" % e, exc_info=True)
-            raise OpenStackCloudException(
-                "Error fetching router list: %s" % e)
 
     def list_subnets(self):
-        try:
+        with self._neutron_exceptions("Error fetching subnet list"):
             return self.manager.submitTask(_tasks.SubnetList())['subnets']
-        except Exception as e:
-            self.log.debug("subnet list failed: %s" % e, exc_info=True)
-            raise OpenStackCloudException(
-                "Error fetching subnet list: %s" % e)
 
     def list_ports(self):
-        try:
+        with self._neutron_exceptions("Error fetching port list"):
             return self.manager.submitTask(_tasks.PortList())['ports']
-        except Exception as e:
-            self.log.debug(
-                "neutron could not list ports: {msg}".format(
-                    msg=str(e)), exc_info=True)
-            raise OpenStackCloudException(
-                "error fetching port list: {msg}".format(msg=str(e)))
 
     @_cache_on_arguments(should_cache_fn=_no_pending_volumes)
     def list_volumes(self, cache=True):
@@ -907,18 +914,10 @@ class OpenStackCloud(object):
         # Handle neutron security groups
         if self.secgroup_source == 'neutron':
             # Neutron returns dicts, so no need to convert objects here.
-            try:
-                groups = self.manager.submitTask(
+            with self._neutron_exceptions(
+                    "Error fetching security group list"):
+                return self.manager.submitTask(
                     _tasks.NeutronSecurityGroupList())['security_groups']
-            except Exception as e:
-                self.log.debug(
-                    "neutron could not list security groups: {message}".format(
-                        message=str(e)),
-                    exc_info=True)
-                raise OpenStackCloudException(
-                    "Error fetching security group list"
-                )
-            return groups
 
         # Handle nova security groups
         elif self.secgroup_source == 'nova':
@@ -1069,13 +1068,10 @@ class OpenStackCloud(object):
             'admin_state_up': admin_state_up
         }
 
-        try:
+        with self._neutron_exceptions(
+                "Error creating network {0}".format(name)):
             net = self.manager.submitTask(
                 _tasks.NetworkCreate(body=dict({'network': network})))
-        except Exception as e:
-            self.log.debug("Network creation failed", exc_info=True)
-            raise OpenStackCloudException(
-                "Error in creating network %s: %s" % (name, str(e)))
         # Turns out neutron returns an actual dict, so no need for the
         # use of meta.obj_to_dict() here (which would not work against
         # a dict).
@@ -1095,13 +1091,11 @@ class OpenStackCloud(object):
             self.log.debug("Network %s not found for deleting" % name_or_id)
             return False
 
-        try:
+        with self._neutron_exceptions(
+                "Error deleting network {0}".format(name_or_id)):
             self.manager.submitTask(
                 _tasks.NetworkDelete(network=network['id']))
-        except Exception as e:
-            self.log.debug("Network deletion failed", exc_info=True)
-            raise OpenStackCloudException(
-                "Error in deleting network %s: %s" % (name_or_id, str(e)))
+
         return True
 
     def create_router(self, name=None, admin_state_up=True):
@@ -1119,13 +1113,10 @@ class OpenStackCloud(object):
         if name:
             router['name'] = name
 
-        try:
+        with self._neutron_exceptions(
+                "Error creating router {0}".format(name)):
             new_router = self.manager.submitTask(
                 _tasks.RouterCreate(body=dict(router=router)))
-        except Exception as e:
-            self.log.debug("Router create failed", exc_info=True)
-            raise OpenStackCloudException(
-                "Error creating router %s: %s" % (name, e))
         # Turns out neutron returns an actual dict, so no need for the
         # use of meta.obj_to_dict() here (which would not work against
         # a dict).
@@ -1162,14 +1153,12 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Router %s not found." % name_or_id)
 
-        try:
+        with self._neutron_exceptions(
+                "Error updating router {0}".format(name_or_id)):
             new_router = self.manager.submitTask(
                 _tasks.RouterUpdate(
                     router=curr_router['id'], body=dict(router=router)))
-        except Exception as e:
-            self.log.debug("Router update failed", exc_info=True)
-            raise OpenStackCloudException(
-                "Error updating router %s: %s" % (name_or_id, e))
+
         # Turns out neutron returns an actual dict, so no need for the
         # use of meta.obj_to_dict() here (which would not work against
         # a dict).
@@ -1193,13 +1182,11 @@ class OpenStackCloud(object):
             self.log.debug("Router %s not found for deleting" % name_or_id)
             return False
 
-        try:
+        with self._neutron_exceptions(
+                "Error deleting router {0}".format(name_or_id)):
             self.manager.submitTask(
                 _tasks.RouterDelete(router=router['id']))
-        except Exception as e:
-            self.log.debug("Router delete failed", exc_info=True)
-            raise OpenStackCloudException(
-                "Error deleting router %s: %s" % (name_or_id, e))
+
         return True
 
     def _reset_image_cache(self):
@@ -2163,14 +2150,11 @@ class OpenStackCloud(object):
         if ipv6_address_mode:
             subnet['ipv6_address_mode'] = ipv6_address_mode
 
-        try:
+        with self._neutron_exceptions(
+                "Error creating subnet on network "
+                "{0}".format(network_name_or_id)):
             new_subnet = self.manager.submitTask(
                 _tasks.SubnetCreate(body=dict(subnet=subnet)))
-        except Exception as e:
-            self.log.debug("Subnet creation failed", exc_info=True)
-            raise OpenStackCloudException(
-                "Error in creating subnet on network %s: %s"
-                % (network_name_or_id, e))
 
         return new_subnet['subnet']
 
@@ -2192,13 +2176,10 @@ class OpenStackCloud(object):
             self.log.debug("Subnet %s not found for deleting" % name_or_id)
             return False
 
-        try:
+        with self._neutron_exceptions(
+                "Error deleting subnet {0}".format(name_or_id)):
             self.manager.submitTask(
                 _tasks.SubnetDelete(subnet=subnet['id']))
-        except Exception as e:
-            self.log.debug("Subnet delete failed", exc_info=True)
-            raise OpenStackCloudException(
-                "Error deleting subnet %s: %s" % (name_or_id, e))
         return True
 
     def update_subnet(self, name_or_id, subnet_name=None, enable_dhcp=None,
@@ -2272,14 +2253,11 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Subnet %s not found." % name_or_id)
 
-        try:
+        with self._neutron_exceptions(
+                "Error updating subnet {0}".format(name_or_id)):
             new_subnet = self.manager.submitTask(
                 _tasks.SubnetUpdate(
                     subnet=curr_subnet['id'], body=dict(subnet=subnet)))
-        except Exception as e:
-            self.log.debug("Subnet update failed", exc_info=True)
-            raise OpenStackCloudException(
-                "Error updating subnet %s: %s" % (name_or_id, e))
         # Turns out neutron returns an actual dict, so no need for the
         # use of meta.obj_to_dict() here (which would not work against
         # a dict).
@@ -2344,16 +2322,10 @@ class OpenStackCloud(object):
         """
         kwargs['network_id'] = network_id
 
-        try:
+        with self._neutron_exceptions(
+                "Error creating port for network {0}".format(network_id)):
             return self.manager.submitTask(
                 _tasks.PortCreate(body={'port': kwargs}))['port']
-        except Exception as e:
-            self.log.debug("failed to create a new port for network"
-                           "'{net}'".format(net=network_id),
-                           exc_info=True)
-            raise OpenStackCloudException(
-                "error creating a new port for network "
-                "'{net}': {msg}".format(net=network_id, msg=str(e)))
 
     @valid_kwargs('name', 'admin_state_up', 'fixed_ips', 'security_groups',
                   'allowed_address_pairs', 'extra_dhcp_opts', 'device_owner')
@@ -2411,16 +2383,11 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "failed to find port '{port}'".format(port=name_or_id))
 
-        try:
+        with self._neutron_exceptions(
+                "Error updating port {0}".format(name_or_id)):
             return self.manager.submitTask(
                 _tasks.PortUpdate(
                     port=port['id'], body={'port': kwargs}))['port']
-        except Exception as e:
-            self.log.debug("failed to update port '{port}'".format(
-                port=name_or_id), exc_info=True)
-            raise OpenStackCloudException(
-                "failed to update port '{port}': {msg}".format(
-                    port=name_or_id, msg=str(e)))
 
     def delete_port(self, name_or_id):
         """Delete a port
@@ -2436,14 +2403,9 @@ class OpenStackCloud(object):
             self.log.debug("Port %s not found for deleting" % name_or_id)
             return False
 
-        try:
+        with self._neutron_exceptions(
+                "Error deleting port {0}".format(name_or_id)):
             self.manager.submitTask(_tasks.PortDelete(port=port['id']))
-        except Exception as e:
-            self.log.debug("failed to delete port '{port}'".format(
-                port=name_or_id), exc_info=True)
-            raise OpenStackCloudException(
-                "failed to delete port '{port}': {msg}".format(
-                    port=name_or_id, msg=str(e)))
         return True
 
     def create_security_group(self, name, description):
@@ -2459,20 +2421,14 @@ class OpenStackCloud(object):
                  not supported on this cloud.
         """
         if self.secgroup_source == 'neutron':
-            try:
+            with self._neutron_exceptions(
+                    "Error creating security group {0}".format(name)):
                 group = self.manager.submitTask(
                     _tasks.NeutronSecurityGroupCreate(
                         body=dict(security_group=dict(name=name,
                                                       description=description))
                     )
                 )
-            except Exception as e:
-                self.log.debug(
-                    "neutron failed to create security group '{name}'".format(
-                        name=name), exc_info=True)
-                raise OpenStackCloudException(
-                    "failed to create security group '{name}': {msg}".format(
-                        name=name, msg=str(e)))
             return group['security_group']
 
         elif self.secgroup_source == 'nova':
@@ -2517,19 +2473,13 @@ class OpenStackCloud(object):
             return False
 
         if self.secgroup_source == 'neutron':
-            try:
+            with self._neutron_exceptions(
+                    "Error deleting security group {0}".format(name_or_id)):
                 self.manager.submitTask(
                     _tasks.NeutronSecurityGroupDelete(
                         security_group=secgroup['id']
                     )
                 )
-            except Exception as e:
-                self.log.debug(
-                    "neutron failed to delete security group '{group}'".format(
-                        group=name_or_id), exc_info=True)
-                raise OpenStackCloudException(
-                    "failed to delete security group '{group}': {msg}".format(
-                        group=name_or_id, msg=str(e)))
             return True
 
         elif self.secgroup_source == 'nova':
@@ -2571,19 +2521,13 @@ class OpenStackCloud(object):
                 "Security group %s not found." % name_or_id)
 
         if self.secgroup_source == 'neutron':
-            try:
+            with self._neutron_exceptions(
+                    "Error updating security group {0}".format(name_or_id)):
                 group = self.manager.submitTask(
                     _tasks.NeutronSecurityGroupUpdate(
                         security_group=secgroup['id'],
                         body={'security_group': kwargs})
                 )
-            except Exception as e:
-                self.log.debug(
-                    "neutron failed to update security group '{group}'".format(
-                        group=name_or_id), exc_info=True)
-                raise OpenStackCloudException(
-                    "failed to update security group '{group}': {msg}".format(
-                        group=name_or_id, msg=str(e)))
             return group['security_group']
 
         elif self.secgroup_source == 'nova':
@@ -2682,17 +2626,12 @@ class OpenStackCloud(object):
                 'ethertype': ethertype
             }
 
-            try:
+            with self._neutron_exceptions(
+                    "Error creating security group rule"):
                 rule = self.manager.submitTask(
                     _tasks.NeutronSecurityGroupRuleCreate(
                         body={'security_group_rule': rule_def})
                 )
-            except Exception as e:
-                self.log.debug("neutron failed to create security group rule",
-                               exc_info=True)
-                raise OpenStackCloudException(
-                    "failed to create security group rule: {msg}".format(
-                        msg=str(e)))
             return rule['security_group_rule']
 
         elif self.secgroup_source == 'nova':
@@ -2743,20 +2682,15 @@ class OpenStackCloud(object):
 
         if self.secgroup_source == 'neutron':
             try:
-                self.manager.submitTask(
-                    _tasks.NeutronSecurityGroupRuleDelete(
-                        security_group_rule=rule_id)
-                )
-            except neutron_exceptions.NotFound:
+                with self._neutron_exceptions(
+                        "Error deleting security group rule "
+                        "{0}".format(rule_id)):
+                    self.manager.submitTask(
+                        _tasks.NeutronSecurityGroupRuleDelete(
+                            security_group_rule=rule_id)
+                    )
+            except OpenStackCloudResourceNotFound:
                 return False
-            except Exception as e:
-                self.log.debug(
-                    "neutron failed to delete security group rule {id}".format(
-                        id=rule_id),
-                    exc_info=True)
-                raise OpenStackCloudException(
-                    "failed to delete security group rule {id}: {msg}".format(
-                        id=rule_id, msg=str(e)))
             return True
 
         elif self.secgroup_source == 'nova':

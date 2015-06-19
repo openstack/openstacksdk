@@ -42,3 +42,11 @@ class OpenStackCloudUnavailableExtension(OpenStackCloudException):
 
 class OpenStackCloudUnavailableFeature(OpenStackCloudException):
     pass
+
+
+class OpenStackCloudResourceNotFound(OpenStackCloudException):
+    pass
+
+
+class OpenStackCloudURINotFound(OpenStackCloudException):
+    pass
