@@ -17,8 +17,6 @@ import bunch
 import logging
 import six
 
-from neutronclient.common.exceptions import NeutronClientException
-
 from shade import exc
 from shade import _utils
 
@@ -80,7 +78,7 @@ def get_server_external_ipv4(cloud, server):
             server_ports = cloud.search_ports(
                 filters={'device_id': server.id})
             ext_nets = cloud.search_networks(filters={'router:external': True})
-        except NeutronClientException as e:
+        except Exception as e:
             log.debug(
                 "Something went wrong talking to neutron API: "
                 "'{msg}'. Trying with Nova.".format(msg=str(e)))
