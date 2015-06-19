@@ -59,6 +59,8 @@ class FakeServer(object):
                              'version': 4}]}
     flavor = {'id': '101'}
     image = {'id': '471c2475-da2f-47ac-aba5-cb4aa3d546f5'}
+    accessIPv4 = ''
+    accessIPv6 = ''
 
 
 class TestMeta(testtools.TestCase):
@@ -122,13 +124,22 @@ class TestMeta(testtools.TestCase):
         }]
         mock_search_networks.return_value = [{'id': 'test-net-id'}]
 
-        srv = fakes.FakeServer(
-            id='test-id', name='test-name', status='ACTIVE')
+        srv = meta.obj_to_dict(fakes.FakeServer(
+            id='test-id', name='test-name', status='ACTIVE'))
         ip = meta.get_server_external_ipv4(
             cloud=shade.openstack_cloud(), server=srv)
 
         self.assertEqual(PUBLIC_V4, ip)
         self.assertFalse(mock_get_server_ip.called)
+
+    def test_get_server_external_ipv4_neutron_accessIPv4(self):
+        srv = meta.obj_to_dict(fakes.FakeServer(
+            id='test-id', name='test-name', status='ACTIVE',
+            accessIPv4=PUBLIC_V4))
+        ip = meta.get_server_external_ipv4(
+            cloud=shade.openstack_cloud(), server=srv)
+
+        self.assertEqual(PUBLIC_V4, ip)
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
     @mock.patch.object(shade.OpenStackCloud, 'search_ports')
@@ -140,8 +151,8 @@ class TestMeta(testtools.TestCase):
         mock_search_ports.side_effect = neutron_exceptions.NotFound()
         mock_get_server_ip.return_value = PUBLIC_V4
 
-        srv = fakes.FakeServer(
-            id='test-id', name='test-name', status='ACTIVE')
+        srv = meta.obj_to_dict(fakes.FakeServer(
+            id='test-id', name='test-name', status='ACTIVE'))
         ip = meta.get_server_external_ipv4(
             cloud=shade.openstack_cloud(), server=srv)
 
@@ -159,9 +170,9 @@ class TestMeta(testtools.TestCase):
         mock_get_server_ip.return_value = None
         mock_is_globally_routable_ipv4.return_value = True
 
-        srv = fakes.FakeServer(
+        srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
-            addresses={'test-net': [{'addr': PUBLIC_V4}]})
+            addresses={'test-net': [{'addr': PUBLIC_V4}]}))
         ip = meta.get_server_external_ipv4(
             cloud=shade.openstack_cloud(), server=srv)
 
@@ -180,9 +191,9 @@ class TestMeta(testtools.TestCase):
         mock_get_server_ip.return_value = None
         mock_is_globally_routable_ipv4.return_value = False
 
-        srv = fakes.FakeServer(
+        srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
-            addresses={'test-net': [{'addr': PRIVATE_V4}]})
+            addresses={'test-net': [{'addr': PRIVATE_V4}]}))
         ip = meta.get_server_external_ipv4(
             cloud=shade.openstack_cloud(), server=srv)
 
@@ -191,7 +202,7 @@ class TestMeta(testtools.TestCase):
         self.assertTrue(mock_is_globally_routable_ipv4.called)
 
     def test_get_server_external_ipv6(self):
-        srv = fakes.FakeServer(
+        srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             addresses={
                 'test-net': [
@@ -199,7 +210,7 @@ class TestMeta(testtools.TestCase):
                     {'addr': PUBLIC_V6, 'version': 6}
                 ]
             }
-        )
+        ))
         ip = meta.get_server_external_ipv6(srv)
         self.assertEqual(PUBLIC_V6, ip)
 

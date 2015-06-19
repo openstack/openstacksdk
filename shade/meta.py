@@ -71,6 +71,8 @@ def get_server_public_ip(server):
 
 
 def get_server_external_ipv4(cloud, server):
+    if server['accessIPv4']:
+        return server['accessIPv4']
     if cloud.has_service('network'):
         try:
             # Search a fixed IP attached to an external net. Unfortunately
@@ -128,7 +130,9 @@ def get_server_external_ipv6(server):
     :param server: the server from which we want to get an IPv6 address
     :return: a string containing the IPv6 address or None
     """
-    addresses = find_nova_addresses(addresses=server.addresses, version=6)
+    if server['accessIPv6']:
+        return server['accessIPv6']
+    addresses = find_nova_addresses(addresses=server['addresses'], version=6)
     if addresses:
         return addresses[0]
     return None
