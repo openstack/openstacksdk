@@ -252,8 +252,12 @@ class NovaSecurityGroupRuleDelete(task_manager.Task):
         return client.nova_client.security_group_rules.delete(**self.args)
 
 
-# TODO: Do this with neutron instead of nova if possible
-class FloatingIPList(task_manager.Task):
+class NeutronFloatingIPList(task_manager.Task):
+    def main(self, client):
+        return client.neutron_client.list_floatingips(**self.args)
+
+
+class NovaFloatingIPList(task_manager.Task):
     def main(self, client):
         return client.nova_client.floating_ips.list()
 
