@@ -506,6 +506,24 @@ class TestShadeOperator(base.TestCase):
             state='deleted',
             configdrive=None)
 
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_set_node_instance_info(self, mock_client):
+        uuid = 'aaa'
+        patch = [{'op': 'add', 'foo': 'bar'}]
+        self.cloud.set_node_instance_info(uuid, patch)
+        mock_client.node.update.assert_called_with(
+            node_id=uuid, patch=patch
+        )
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_purge_node_instance_info(self, mock_client):
+        uuid = 'aaa'
+        expected_patch = [{'op': 'remove', 'path': '/instance_info'}]
+        self.cloud.purge_node_instance_info(uuid)
+        mock_client.node.update.assert_called_with(
+            node_id=uuid, patch=expected_patch
+        )
+
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_get_image_name(self, glance_mock):
 
