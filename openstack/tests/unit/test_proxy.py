@@ -313,3 +313,35 @@ class TestProxyHead(testtools.TestCase):
 
         MockHeadResource.assert_called_with()
         instance.head.assert_called_with(self.session)
+
+    @mock.patch("openstack.resource.wait_for_status")
+    def test_wait_for(self, mock_wait):
+        mock_resource = mock.Mock()
+        mock_wait.return_value = mock_resource
+        self.sot.wait_for_status(mock_resource, 'ACTIVE')
+        mock_wait.assert_called_once_with(
+            self.session, mock_resource, 'ACTIVE', [], 2, 120)
+
+    @mock.patch("openstack.resource.wait_for_status")
+    def test_wait_for_params(self, mock_wait):
+        mock_resource = mock.Mock()
+        mock_wait.return_value = mock_resource
+        self.sot.wait_for_status(mock_resource, 'ACTIVE', ['ERROR'], 1, 2)
+        mock_wait.assert_called_once_with(
+            self.session, mock_resource, 'ACTIVE', ['ERROR'], 1, 2)
+
+    @mock.patch("openstack.resource.wait_for_delete")
+    def test_wait_for_delete(self, mock_wait):
+        mock_resource = mock.Mock()
+        mock_wait.return_value = mock_resource
+        self.sot.wait_for_delete(mock_resource)
+        mock_wait.assert_called_once_with(
+            self.session, mock_resource, 2, 120)
+
+    @mock.patch("openstack.resource.wait_for_delete")
+    def test_wait_for_delete_params(self, mock_wait):
+        mock_resource = mock.Mock()
+        mock_wait.return_value = mock_resource
+        self.sot.wait_for_delete(mock_resource, 1, 2)
+        mock_wait.assert_called_once_with(
+            self.session, mock_resource, 1, 2)

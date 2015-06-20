@@ -204,3 +204,41 @@ class BaseProxy(object):
         res = self._get_resource(resource_type, value, path_args)
 
         return res.head(self.session)
+
+    def wait_for_status(self, value, status, failures=[], interval=2,
+                        wait=120):
+        """Wait for a resource to be in a particular status.
+
+        :param value: The resource to wait on to reach the status. The
+                      resource must have a status attribute.
+        :type value: :class:`~openstack.resource.Resource`
+        :param status: Desired status of the resource.
+        :param list failures: Statuses that would indicate the transition
+                              failed such as 'ERROR'.
+        :param interval: Number of seconds to wait between checks.
+        :param wait: Maximum number of seconds to wait for the change.
+
+        :return: Method returns resource on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
+                 to status failed to occur in wait seconds.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` resource
+                 transitioned to one of the failure states.
+        :raises: :class:`~AttributeError` if the resource does not have a
+                 status attribute
+        """
+        return resource.wait_for_status(self.session, value, status,
+                                        failures, interval, wait)
+
+    def wait_for_delete(self, value, interval=2, wait=120):
+        """Wait for the resource to be deleted.
+
+        :param value: The resource to wait on to be deleted.
+        :type value: :class:`~openstack.resource.Resource`
+        :param interval: Number of seconds to wait between checks.
+        :param wait: Maximum number of seconds to wait for the delete.
+
+        :return: Method returns resource on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
+                 to delete failed to occur in wait seconds.
+        """
+        return resource.wait_for_delete(self.session, value, interval, wait)

@@ -1316,3 +1316,22 @@ class TestWaitForStatus(base.TestCase):
 
         self.assertRaises(AttributeError, resource.wait_for_status,
                           self.sess, sot, 'ACTIVE', ['ERROR'], 1, 2)
+
+
+class TestWaitForDelete(base.TestCase):
+
+    def test_wait_for_delete(self):
+        sess = mock.Mock()
+        sot = FakeResource.new(**fake_data)
+        sot.get = mock.MagicMock()
+        sot.get.side_effect = [sot, exceptions.NotFoundException(mock.Mock())]
+
+        self.assertEqual(sot, resource.wait_for_delete(sess, sot, 1, 2))
+
+    def test_wait_for_delete_fail(self):
+        sess = mock.Mock()
+        sot = FakeResource.new(**fake_data)
+        sot.get = mock.MagicMock(return_value=sot)
+
+        self.assertRaises(exceptions.ResourceTimeout, resource.wait_for_delete,
+                          sess, sot, 1, 2)

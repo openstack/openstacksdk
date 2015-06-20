@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack.orchestration.v1 import stack
 from openstack.tests.functional import base
 from openstack.tests.functional.network.v2 import test_network
@@ -18,7 +19,7 @@ from openstack.tests.functional.network.v2 import test_network
 class TestStack(base.BaseFunctionalTest):
 
     NAME = 'test_stack'
-    ID = None
+    stack = None
     network = None
     subnet = None
 
@@ -45,17 +46,23 @@ class TestStack(base.BaseFunctionalTest):
         )
         assert isinstance(sot, stack.Stack)
         cls.assertIs(True, (sot.id is not None))
-        cls.ID = sot.id
+        cls.stack = sot
         cls.assertIs(cls.NAME, sot.name)
-        cls.conn.orchestration.wait_for_stack(sot)
+        cls.conn.orchestration.wait_for_status(
+            sot, status='CREATE_COMPLETE', failures=['CREATE_FAILED'])
 
     @classmethod
     def tearDownClass(cls):
         super(TestStack, cls).tearDownClass()
-        cls.conn.orchestration.delete_stack(cls.ID, ignore_missing=False)
+        cls.conn.orchestration.delete_stack(cls.stack, ignore_missing=False)
         cls.conn.compute.delete_keypair(cls.NAME)
         # Need to wait for the stack to go away before network delete
-        cls.wait_for_delete(cls.conn.orchestration.find_stack, cls.ID)
+        try:
+            cls.conn.orchestration.wait_for_status(
+                cls.stack, 'DELETE_COMPLETE')
+        except exceptions.NotFoundException:
+            pass
+        cls.linger_for_delete()
         test_network.delete_network(cls.conn, cls.network, cls.subnet)
 
     def test_list(self):
