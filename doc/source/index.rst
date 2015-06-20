@@ -22,5 +22,13 @@ For Contributors
 
    contributors/index
 
-For a listing of terms used throughout the SDK, including the names of
-projects and services supported by it, see the `Glossary <glossary.html>`_.
+General Information
+-------------------
+
+General information about the SDK including a glossary and release history.
+
+.. toctree::
+   :maxdepth: 1
+
+   Glossary of Terms <glossary>
+   Release History <history>
