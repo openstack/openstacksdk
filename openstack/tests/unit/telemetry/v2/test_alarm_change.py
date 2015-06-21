@@ -62,8 +62,7 @@ class TestAlarmChange(testtools.TestCase):
         path_args = {'alarm_id': IDENTIFIER}
 
         found = alarm_change.AlarmChange.list(sess, path_args=path_args)
-        self.assertEqual(2, len(found))
-        first = found[0]
+        first = next(found)
         self.assertEqual(IDENTIFIER, first.id)
         self.assertEqual(EXAMPLE['alarm_id'], first.alarm_id)
         self.assertEqual(EXAMPLE['detail'], first.detail)

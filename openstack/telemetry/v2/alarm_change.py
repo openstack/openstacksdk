@@ -34,11 +34,8 @@ class AlarmChange(resource.Resource):
     user_id = resource.prop('user_id')
 
     @classmethod
-    def list(cls, session, path_args=None, **params):
+    def list(cls, session, limit=None, marker=None, path_args=None,
+             paginated=False, **params):
         url = cls._get_url(path_args)
-        resp = session.get(url, service=cls.service, params=params)
-
-        changes = []
-        for item in resp.body:
-            changes.append(cls.existing(**item))
-        return changes
+        for item in session.get(url, service=cls.service, params=params).body:
+            yield cls.existing(**item)
