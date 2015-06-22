@@ -38,7 +38,12 @@ approach, this is where you'll want to begin.
    Orchestration <userguides/orchestration>
    Telemetry <userguides/telemetry>
 
-It may also be useful to try out some working code :doc:`examples <examples>`.
+It may also be useful to try out some working code examples:
+
+.. toctree::
+   :maxdepth: 1
+
+   examples
 
 API Documentation
 -----------------
