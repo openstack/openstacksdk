@@ -104,5 +104,8 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_statistics)
 
     def test_statistics(self):
+        met = meter.Meter.existing(name='meterone')
+        expected_kwargs = {'path_args': {'meter_name': 'meterone'}}
         self.verify_list(self.proxy.statistics, statistics.Statistics,
-                         paginated=False)
+                         method_args=[met],
+                         paginated=False, expected_kwargs=expected_kwargs)
