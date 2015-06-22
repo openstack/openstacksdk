@@ -32,7 +32,5 @@ class Capability(resource.Resource):
     def list(cls, session, limit=None, marker=None, path_args=None,
              paginated=False, **params):
         resp = session.get(cls.base_path, service=cls.service, params=params)
-        ray = []
         for key, value in six.iteritems(resp.body['api']):
-            ray.append(cls.existing(id=key, enabled=value))
-        return ray
+            yield cls.existing(id=key, enabled=value)
