@@ -87,6 +87,12 @@ class TestConfig(base.TestCase):
         cc = c.get_one_cloud('_test-cloud-int-project_')
         self.assertEqual('12345', cc.auth['project_name'])
 
+    def test_get_one_cloud_with_hyphenated_project_id(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        cc = c.get_one_cloud('_test_cloud_hyphenated')
+        self.assertEqual('12345', cc.auth['project_name'])
+
     def test_no_environ(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
@@ -112,6 +118,7 @@ class TestConfig(base.TestCase):
         self.assertEqual(
             ['_test-cloud-int-project_',
              '_test-cloud_',
+             '_test_cloud_hyphenated',
              '_test_cloud_no_vendor',
              ],
             sorted(c.get_cloud_names()))

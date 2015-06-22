@@ -64,6 +64,14 @@ USER_CONF = {
             },
             'region_name': 'test-region',
         },
+        '_test_cloud_hyphenated': {
+            'auth': {
+                'username': 'testuser',
+                'password': 'testpass',
+                'project-id': '12345',
+            },
+            'region_name': 'test-region',
+        }
     },
     'cache': {'max_age': 1},
 }
