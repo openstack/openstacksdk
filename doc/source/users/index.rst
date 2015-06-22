@@ -2,7 +2,7 @@ Getting started with the OpenStack SDK
 ======================================
 
 For a listing of terms used throughout the SDK, including the names of
-projects and services supported by it, see the `Glossary <../glossary.html>`_.
+projects and services supported by it, see the :doc:`glossary <../glossary>`.
 
 Installation
 ------------
@@ -38,7 +38,7 @@ approach, this is where you'll want to begin.
    Orchestration <userguides/orchestration>
    Telemetry <userguides/telemetry>
 
-It may also be useful to try out some working code `examples <examples.html>`_.
+It may also be useful to try out some working code :doc:`examples <examples>`.
 
 API Documentation
 -----------------
