@@ -11,11 +11,10 @@
 # under the License.
 
 import logging
-import sys
 
 
-def enable_logging(debug=False, path=None):
-    """Enable logging of messages to sys.stderr
+def enable_logging(debug=False, path=None, stream=None):
+    """Enable logging to a file at path and/or a console stream.
 
     This function is available for debugging purposes. If you wish to
     log this package's message in your application, the standard library
@@ -26,27 +25,35 @@ def enable_logging(debug=False, path=None):
                        which includes HTTP requests and responses,
                        or ``False`` for warning messages.
     :param str path: If a *path* is specified, logging output will
-                     written to that file in addition to sys.stderr.
+                     written to that file   in addition to sys.stderr.
                      The path is passed to logging.FileHandler,
                      which will append messages the file (and create
-                     it if needed). *Default: None*
+                     it if needed).
+    :param stream: One of ``None `` or ``sys.stdout`` or ``sys.stderr``.
+                   If it is ``None``, nothing is logged to a stream.
+                   If it isn't ``None``, console output is logged
+                   to this stream.
 
     :rtype: None
     """
-    root_logger = logging.getLogger('')
+    if path is None and stream is None:
+        raise ValueError("path and/or stream must be set")
+
+    logger = logging.getLogger('openstack')
     formatter = logging.Formatter(
         '%(asctime)s %(levelname)s: %(name)s %(message)s')
 
-    console = logging.StreamHandler(sys.stderr)
-    console.setFormatter(formatter)
-    root_logger.addHandler(console)
+    if stream is not None:
+        console = logging.StreamHandler(stream)
+        console.setFormatter(formatter)
+        logger.addHandler(console)
 
     if path is not None:
         file_handler = logging.FileHandler(path)
         file_handler.setFormatter(formatter)
-        root_logger.addHandler(file_handler)
+        logger.addHandler(file_handler)
 
-    root_logger.setLevel(logging.DEBUG if debug else logging.WARNING)
+    logger.setLevel(logging.DEBUG if debug else logging.WARNING)
 
 
 def urljoin(*args):
