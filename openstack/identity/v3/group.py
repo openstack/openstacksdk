@@ -29,6 +29,12 @@ class Group(resource.Resource):
     patch_update = True
 
     # Properties
+    #: The description of this group. *Type: string*
     description = resource.prop('description')
+    #: References the domain which owns the group; if a domain is not
+    #: specified by the client, the Identity service implementation will
+    #: default it to the domain to which the client's token is scoped.
+    #: *Type: string*
     domain_id = resource.prop('domain_id')
+    #: Unique group name, within the owning domain. *Type: string*
     name = resource.prop('name')

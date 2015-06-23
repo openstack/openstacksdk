@@ -41,7 +41,7 @@ class Trust(resource.Resource):
     #: of tokens that are generated based on the trust will represent
     #: that of the trustor rather than the trustee, thus allowing the trustee
     #: to impersonate the trustor.
-    #: If ``impersonation`` is set to ``false``, then the token's ``user``
+    #: If ``impersonation`` is set to ``False``, then the token's ``user``
     #: attribute will represent that of the trustee. *Type: boolean*
     impersonation = resource.prop('impersonation')
     #: Represents the user who is capable of consuming the trust.
