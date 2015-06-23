@@ -3382,7 +3382,9 @@ class OperatorCloud(OpenStackCloud):
     def set_node_instance_info(self, uuid, patch):
         try:
             return meta.obj_to_dict(
-                self.ironic_client.node.update(uuid, patch))
+                self.manager.submitTask(
+                    _tasks.MachineNodeUpdate(node_id=uuid, patch=patch))
+            )
         except Exception as e:
             self.log.debug(
                 "Failed to update instance_info", exc_info=True)
@@ -3393,7 +3395,9 @@ class OperatorCloud(OpenStackCloud):
         patch.append({'op': 'remove', 'path': '/instance_info'})
         try:
             return meta.obj_to_dict(
-                self.ironic_client.node.update(uuid, patch))
+                self.manager.submitTask(
+                    _tasks.MachineNodeUpdate(node_id=uuid, patch=patch))
+            )
         except Exception as e:
             self.log.debug(
                 "Failed to delete instance_info", exc_info=True)
