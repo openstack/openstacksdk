@@ -43,7 +43,8 @@ class Statistics(resource.Resource):
     unit = resource.prop('unit')
 
     @classmethod
-    def list(cls, session, path_args=None, paginated=False, **params):
+    def list(cls, session, limit=None, marker=None, path_args=None,
+             paginated=False, **params):
         url = cls._get_url(path_args)
         for stat in session.get(url, service=cls.service, params=params).body:
             yield cls.existing(**stat)
