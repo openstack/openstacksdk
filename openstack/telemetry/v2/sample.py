@@ -15,7 +15,7 @@ from openstack.telemetry import telemetry_service
 
 class Sample(resource.Resource):
     id_attribute = 'sample_id'
-    base_path = '/meters/%(meter)s'
+    base_path = '/meters/%(counter_name)s'
     service = telemetry_service.TelemetryService()
 
     # Supported Operations
@@ -26,7 +26,7 @@ class Sample(resource.Resource):
     #: Arbitrary metadata associated with the sample
     metadata = resource.prop('metadata', alias='resource_metadata')
     #: The meter name this sample is for
-    meter = resource.prop('meter', alias='counter_name')
+    counter_name = resource.prop('meter', alias='counter_name')
     #: The project this sample was taken for
     project_id = resource.prop('project_id')
     #: When the sample has been recorded
@@ -49,20 +49,16 @@ class Sample(resource.Resource):
     volume = resource.prop('volume', alias='counter_volume')
 
     @classmethod
-    def list(cls, session, path_args=None, **params):
+    def list(cls, session, limit=None, marker=None, path_args=None,
+             paginated=False, **params):
         url = cls._get_url(path_args)
-        resp = session.get(url, service=cls.service, params=params)
-
-        changes = []
-        for item in resp.body:
-            changes.append(cls.existing(**item))
-        return changes
+        for item in session.get(url, service=cls.service, params=params).body:
+            yield cls.existing(**item)
 
     def create(self, session):
         url = self._get_url(self)
         # telemetry expects a list of samples
         resp = session.post(url, service=self.service, json=[self._attrs])
-
-        sample = self.existing(**resp.body.pop())
-        self._attrs['id'] = sample.id
+        self.update_attrs(**resp.body.pop())
         self._reset_dirty()
+        return self

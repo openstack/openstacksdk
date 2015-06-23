@@ -18,7 +18,7 @@ from openstack.telemetry.v2 import sample
 SAMPLE = {
     'id': None,
     'metadata': {'1': 'one'},
-    'meter': '2',
+    'counter_name': '2',
     'project_id': '3',
     'recorded_at': '4',
     'resource_id': '5',
@@ -52,7 +52,7 @@ class TestSample(testtools.TestCase):
         sot = sample.Sample(SAMPLE)
         self.assertIsNone(sot.resource_key)
         self.assertIsNone(sot.resources_key)
-        self.assertEqual('/meters/%(meter)s', sot.base_path)
+        self.assertEqual('/meters/%(counter_name)s', sot.base_path)
         self.assertEqual('metering', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertFalse(sot.allow_retrieve)
@@ -64,7 +64,7 @@ class TestSample(testtools.TestCase):
         sot = sample.Sample(SAMPLE)
         self.assertIsNone(sot.id)
         self.assertEqual(SAMPLE['metadata'], sot.metadata)
-        self.assertEqual(SAMPLE['meter'], sot.meter)
+        self.assertEqual(SAMPLE['counter_name'], sot.counter_name)
         self.assertEqual(SAMPLE['project_id'], sot.project_id)
         self.assertEqual(SAMPLE['recorded_at'], sot.recorded_at)
         self.assertEqual(SAMPLE['resource_id'], sot.resource_id)
@@ -80,7 +80,7 @@ class TestSample(testtools.TestCase):
         sot = sample.Sample(OLD_SAMPLE)
         self.assertIsNone(sot.id)
         self.assertIsNone(sot.sample_id),
-        self.assertEqual(OLD_SAMPLE['counter_name'], sot.meter)
+        self.assertEqual(OLD_SAMPLE['counter_name'], sot.counter_name)
         self.assertEqual(OLD_SAMPLE['counter_type'], sot.type)
         self.assertEqual(OLD_SAMPLE['counter_unit'], sot.unit)
         self.assertEqual(OLD_SAMPLE['counter_volume'], sot.volume)
@@ -97,15 +97,14 @@ class TestSample(testtools.TestCase):
         resp = mock.Mock()
         resp.body = [SAMPLE, OLD_SAMPLE]
         sess.get = mock.Mock(return_value=resp)
-        path_args = {'meter': 'name_of_meter'}
+        path_args = {'counter_name': 'name_of_meter'}
 
         found = sample.Sample.list(sess, path_args=path_args)
-        self.assertEqual(2, len(found))
-        first = found[0]
+        first = next(found)
         self.assertIsNone(first.id)
         self.assertIsNone(first.sample_id)
         self.assertEqual(SAMPLE['metadata'], first.metadata)
-        self.assertEqual(SAMPLE['meter'], first.meter)
+        self.assertEqual(SAMPLE['counter_name'], first.counter_name)
         self.assertEqual(SAMPLE['project_id'], first.project_id)
         self.assertEqual(SAMPLE['recorded_at'], first.recorded_at)
         self.assertEqual(SAMPLE['resource_id'], first.resource_id)
@@ -115,6 +114,8 @@ class TestSample(testtools.TestCase):
         self.assertEqual(SAMPLE['unit'], first.unit)
         self.assertEqual(SAMPLE['user_id'], first.user_id)
         self.assertEqual(SAMPLE['volume'], first.volume)
+        second = next(found)
+        self.assertEqual(OLD_SAMPLE['counter_name'], second.counter_name)
 
     def test_create(self):
         sess = mock.Mock()
@@ -123,7 +124,7 @@ class TestSample(testtools.TestCase):
         sess.post = mock.Mock(return_value=resp)
 
         data = {'id': None,
-                'meter': 'temperature',
+                'counter_name': 'temperature',
                 'project_id': 'project',
                 'resource_id': 'resource',
                 'type': 'gauge',
@@ -134,5 +135,5 @@ class TestSample(testtools.TestCase):
         new_sample.create(sess)
         url = '/meters/temperature'
         sess.post.assert_called_with(url, service=new_sample.service,
-                                     json=[data])
+                                     json=[SAMPLE])
         self.assertIsNone(new_sample.id)

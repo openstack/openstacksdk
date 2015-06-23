@@ -244,16 +244,19 @@ class Proxy(proxy.BaseProxy):
         return sample.Sample.find(self.session, name_or_id,
                                   ignore_missing=ignore_missing)
 
-    def samples(self, **query):
+    def samples(self, value, **query):
         """Return a generator of samples
 
+        :param value: Meter resource or name for a meter.
         :param kwargs \*\*query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of sample objects
         :rtype: :class:`~openstack.telemetry.v2.sample.Sample`
         """
-        return self._list(sample.Sample, paginated=False, **query)
+        meter_name = meter.Meter.from_name(value).name
+        return self._list(sample.Sample, paginated=False,
+                          path_args={'counter_name': meter_name}, **query)
 
     def find_statistics(self, name_or_id, ignore_missing=True):
         """Find a single statistics
