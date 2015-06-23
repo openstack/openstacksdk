@@ -2866,7 +2866,10 @@ class OperatorCloud(OpenStackCloud):
                   are found.
         """
         try:
-            return meta.obj_to_dict(self.ironic_client.node.get(name_or_id))
+            return meta.obj_to_dict(
+                self.manager.submitTask(
+                    _tasks.MachineNodeGet(node_id=name_or_id))
+            )
         except ironic_exceptions.ClientException:
             return None
 
@@ -2882,7 +2885,9 @@ class OperatorCloud(OpenStackCloud):
             port = self.manager.submitTask(
                 _tasks.MachinePortGetByAddress(address=mac))
             return meta.obj_to_dict(
-                self.ironic_client.node.get(port.node_uuid))
+                self.manager.submitTask(
+                    _tasks.MachineNodeGet(node_id=port.node_uuid))
+            )
         except ironic_exceptions.ClientException:
             return None
 

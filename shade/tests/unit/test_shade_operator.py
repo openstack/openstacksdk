@@ -34,6 +34,15 @@ class TestShadeOperator(base.TestCase):
         self.assertIsInstance(self.cloud, shade.OperatorCloud)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_get_machine(self, mock_client):
+        node = fakes.FakeMachine(id='00000000-0000-0000-0000-000000000000',
+                                 name='bigOlFaker')
+        mock_client.node.get.return_value = node
+        machine = self.cloud.get_machine('bigOlFaker')
+        mock_client.node.get.assert_called_with(node_id='bigOlFaker')
+        self.assertEqual(meta.obj_to_dict(node), machine)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_get_machine_by_mac(self, mock_client):
         class port_value:
             node_uuid = '00000000-0000-0000-0000-000000000000'
@@ -51,7 +60,7 @@ class TestShadeOperator(base.TestCase):
         mock_client.port.get_by_address.assert_called_with(
             address='00:00:00:00:00:00')
         mock_client.node.get.assert_called_with(
-            '00000000-0000-0000-0000-000000000000')
+            node_id='00000000-0000-0000-0000-000000000000')
         self.assertEqual(machine, expected_value)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
