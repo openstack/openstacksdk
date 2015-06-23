@@ -1128,14 +1128,12 @@ class Proxy(proxy.BaseProxy):
     def create_vpn_service(self, **attrs):
         """Create a new vpn service from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
-                           :class:`~openstack.network.v2.vpn_service.\
-                           VPNService`,
-                           comprised of the properties on the VPNService class.
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.network.v2.vpn_service.VPNService`,
+            comprised of the properties on the VPNService class.
 
         :returns: The results of vpn service creation
-        :rtype:
-        :class:`~openstack.network.v2.vpn_service.VPNService`
+        :rtype: :class:`~openstack.network.v2.vpn_service.VPNService`
         """
         return self._create(vpn_service.VPNService, **attrs)
 
