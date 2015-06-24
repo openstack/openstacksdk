@@ -28,6 +28,12 @@ class Tenant(resource.Resource):
     allow_list = True
 
     # Properties
+    #: The description of the tenant. *Type: string*
     description = resource.prop('description')
+    #: Setting this attribute to ``False`` prevents users from authorizing
+    #: against this tenant. Additionally, all pre-existing tokens authorized
+    #: for the tenant are immediately invalidated. Re-enabling a tenant
+    #: does not re-enable pre-existing tokens. *Type: bool*
     enabled = resource.prop('enabled', type=bool)
+    #: Unique tenant name. *Type: string*
     name = resource.prop('name')

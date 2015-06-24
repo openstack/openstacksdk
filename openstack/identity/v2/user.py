@@ -28,6 +28,12 @@ class User(resource.Resource):
     allow_list = True
 
     # Properties
+    #: The email of this user. *Type: string*
     email = resource.prop('email')
+    #: Setting this value to ``False`` prevents the user from authenticating or
+    #: receiving authorization. Additionally, all pre-existing tokens held by
+    #: the user are immediately invalidated. Re-enabling a user does not
+    #: re-enable pre-existing tokens. *Type: bool*
     enabled = resource.prop('enabled', type=bool)
+    #: The name of this user. *Type: string*
     name = resource.prop('name')
