@@ -23,6 +23,7 @@ from mock import patch
 
 from neutronclient.common import exceptions as n_exc
 
+from shade import _utils
 from shade import OpenStackCloud
 from shade.tests.unit import base
 
@@ -81,6 +82,37 @@ class TestFloatingIP(base.TestCase):
         'id': 'my-network-id',
         'provider:segmentation_id': None
     }
+
+    mock_search_ports_rep = [
+        {
+            'status': 'ACTIVE',
+            'binding:host_id': 'devstack',
+            'name': 'first-port',
+            'allowed_address_pairs': [],
+            'admin_state_up': True,
+            'network_id': '70c1db1f-b701-45bd-96e0-a313ee3430b3',
+            'tenant_id': '',
+            'extra_dhcp_opts': [],
+            'binding:vif_details': {
+                'port_filter': True,
+                'ovs_hybrid_plug': True
+            },
+            'binding:vif_type': 'ovs',
+            'device_owner': 'compute:None',
+            'mac_address': 'fa:16:3e:58:42:ed',
+            'binding:profile': {},
+            'binding:vnic_type': 'normal',
+            'fixed_ips': [
+                {
+                    'subnet_id': '008ba151-0b8c-4a67-98b5-0d2b87666062',
+                    'ip_address': '172.24.4.2'
+                }
+            ],
+            'id': 'ce705c24-c1ef-408a-bda3-7bbd946164ac',
+            'security_groups': [],
+            'device_id': 'server_id'
+        }
+    ]
 
     def assertAreInstances(self, elements, elem_type):
         for e in elements:
@@ -230,3 +262,73 @@ class TestFloatingIP(base.TestCase):
             floating_ip_id='a-wild-id-appears')
 
         self.assertFalse(ret)
+
+    @patch.object(OpenStackCloud, '_neutron_list_floating_ips')
+    @patch.object(OpenStackCloud, 'search_ports')
+    @patch.object(OpenStackCloud, 'neutron_client')
+    @patch.object(OpenStackCloud, 'has_service')
+    def test_attach_ip_to_server(
+            self, mock_has_service, mock_neutron_client, mock_search_ports,
+            mock__neutron_list_floating_ips):
+        mock_has_service.return_value = True
+        mock__neutron_list_floating_ips.return_value = \
+            [self.mock_floating_ip_new_rep['floatingip']]
+
+        mock_search_ports.return_value = self.mock_search_ports_rep
+
+        self.client.attach_ip_to_server(
+            server_id='server_id',
+            floating_ip_id='2f245a7b-796b-4f26-9cf9-9e82d248fda8')
+
+        mock_neutron_client.update_floatingip.assert_called_with(
+            floatingip=self.mock_floating_ip_new_rep['floatingip']['id'],
+            body={
+                'floatingip': {
+                    'port_id': self.mock_search_ports_rep[0]['id']
+                }
+            }
+        )
+
+    @patch.object(OpenStackCloud, '_neutron_list_floating_ips')
+    @patch.object(OpenStackCloud, 'neutron_client')
+    @patch.object(OpenStackCloud, 'has_service')
+    def test_detach_ip_from_server(
+            self, mock_has_service, mock_neutron_client,
+            mock__neutron_list_floating_ips):
+        mock_has_service.return_value = True
+        mock__neutron_list_floating_ips.return_value = \
+            self.mock_floating_ip_list_rep['floatingips']
+
+        self.client.detach_ip_from_server(
+            server_id='server-id',
+            floating_ip_id='2f245a7b-796b-4f26-9cf9-9e82d248fda7')
+
+        mock_neutron_client.update_floatingip.assert_called_with(
+            floatingip='2f245a7b-796b-4f26-9cf9-9e82d248fda7',
+            body={
+                'floatingip': {
+                    'port_id': None
+                }
+            }
+        )
+
+    @patch.object(OpenStackCloud, 'attach_ip_to_server')
+    @patch.object(OpenStackCloud, 'available_floating_ip')
+    @patch.object(OpenStackCloud, 'has_service')
+    def test_add_ip_from_pool(
+            self, mock_has_service, mock_available_floating_ip,
+            mock_attach_ip_to_server):
+        mock_has_service.return_value = True
+        mock_available_floating_ip.return_value = \
+            _utils.normalize_neutron_floating_ips([
+                self.mock_floating_ip_new_rep['floatingip']])[0]
+        mock_attach_ip_to_server.return_value = None
+
+        ip = self.client.add_ip_from_pool(
+            server_id='server-id',
+            network='network-name',
+            fixed_address='1.2.3.4')
+
+        self.assertEqual(
+            self.mock_floating_ip_new_rep['floatingip']['floating_ip_address'],
+            ip['floating_ip_address'])

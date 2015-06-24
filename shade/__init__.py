@@ -1922,69 +1922,237 @@ class OpenStackCloud(object):
 
         return True
 
-    def add_ip_from_pool(self, server, pools):
+    def attach_ip_to_server(
+            self, server_id, floating_ip_id, fixed_address=None, wait=False,
+            timeout=60):
+        """Attach a floating IP to a server.
 
-        # empty dict and list
-        usable_floating_ips = {}
+        :param server_id: id of a server.
+        :param floating_ip_id: id of the floating IP to attach.
+        :param fixed_address: (optional) fixed address to which attach the
+                              floating IP to.
+        :param wait: (optional) Wait for the address to appear as assigned
+                     to the server in Nova. Defaults to False.
+        :param timeout: (optional) Seconds to wait, defaults to 60.
+                        See the ``wait`` parameter.
 
-        # get the list of all floating IPs. Mileage may
-        # vary according to Nova Compute configuration
-        # per cloud provider
-        all_floating_ips = self.list_floating_ips()
+        :returns: None
 
-        # iterate through all pools of IP address. Empty
-        # string means all and is the default value
-        for pool in pools:
-            # temporary list per pool
-            pool_ips = []
-            # loop through all floating IPs
-            for f_ip in all_floating_ips:
-                # if not reserved and the correct pool, add
-                if f_ip['fixed_ip_address'] is None and \
-                        (f_ip['network'] == pool):
-                    pool_ips.append(f_ip['floating_ip_address'])
-                    # only need one
+        :raises: OpenStackCloudException, on operation error.
+        """
+        if self.has_service('network'):
+            try:
+                self._neutron_attach_ip_to_server(
+                    server_id=server_id, floating_ip_id=floating_ip_id,
+                    fixed_address=fixed_address)
+            except OpenStackCloudURINotFound as e:
+                self.log.debug(
+                    "Something went wrong talking to neutron API: "
+                    "'{msg}'. Trying with Nova.".format(msg=str(e)))
+                # Fall-through, trying with Nova
+        else:
+            # Nova network
+            self._nova_attach_ip_to_server(
+                server_id=server_id, floating_ip_id=floating_ip_id,
+                fixed_address=fixed_address)
+
+        if wait:
+            # Wait for the address to be assigned to the server
+            f_ip = self.get_floating_ip(id=floating_ip_id)
+            for _ in _utils._iterate_timeout(
+                    timeout,
+                    "Timeout waiting for the floating IP to be attached."):
+                server = self.get_server(name_or_id=server_id)
+                for k, v in server['addresses'].items():
+                    for interface_spec in v:
+                        if interface_spec['addr'] == \
+                                f_ip['floating_ip_address']:
+                            return
+
+    def _neutron_attach_ip_to_server(self, server_id, floating_ip_id,
+                                     fixed_address=None):
+        with self._neutron_exceptions(
+                "unable to bind a floating ip to server "
+                "{0}".format(server_id)):
+            # Find an available port
+            ports = self.search_ports(filters={'device_id': server_id})
+            port = None
+            if ports and fixed_address is None:
+                port = ports[0]
+            elif ports:
+                # unfortunately a port can have more than one fixed IP:
+                # we can't use the search_ports filtering for fixed_address as
+                # they are contained in a list. e.g.
+                #
+                #   "fixed_ips": [
+                #     {
+                #       "subnet_id": "008ba151-0b8c-4a67-98b5-0d2b87666062",
+                #       "ip_address": "172.24.4.2"
+                #     }
+                #   ]
+                #
+                # Search fixed_address
+                for p in ports:
+                    for fixed_ip in p['fixed_ips']:
+                        if fixed_address == fixed_ip['ip_address']:
+                            port = p
+                            break
+                    else:
+                        continue
                     break
 
-            # if the list is empty, add for this pool
-            if not pool_ips:
-                new_ip = self.create_floating_ip(network=pool)
-                pool_ips.append(new_ip['floating_ip_address'])
-            # Add to the main list
-            usable_floating_ips[pool] = pool_ips
+            if not port:
+                raise OpenStackCloudException(
+                    "unable to find a port for server {0}".format(server_id))
 
-        # finally, add ip(s) to instance for each pool
-        for pool in usable_floating_ips:
-            for ip in usable_floating_ips[pool]:
-                self.add_ip_list(server, [ip])
-                # We only need to assign one ip - but there is an inherent
-                # race condition and some other cloud operation may have
-                # stolen an available floating ip
-                break
+            return self.manager.submitTask(_tasks.NeutronFloatingIPUpdate(
+                floatingip=floating_ip_id,
+                body={'floatingip': {'port_id': port['id']}}
+            ))['floatingip']
+
+    def _nova_attach_ip_to_server(self, server_id, floating_ip_id,
+                                  fixed_address=None):
+        try:
+            f_ip = self.get_floating_ip(id=floating_ip_id)
+            return self.manager.submitTask(_tasks.NovaFloatingIPAttach(
+                server=server_id, address=f_ip['floating_ip_address'],
+                fixed_address=fixed_address))
+        except Exception as e:
+            self.log.debug(
+                "nova floating IP attach failed: {msg}".format(msg=str(e)),
+                exc_info=True)
+            raise OpenStackCloudException(
+                "error attaching IP {ip} to instance {id}: {msg}".format(
+                    ip=floating_ip_id, id=server_id, msg=str(e)))
+
+    def detach_ip_from_server(self, server_id, floating_ip_id):
+        """Detach a floating IP from a server.
+
+        :param server_id: id of a server.
+        :param floating_ip_id: Id of the floating IP to detach.
+
+        :returns: True if the IP has been detached, or False if the IP wasn't
+                  attached to any server.
+
+        :raises: ``OpenStackCloudException``, on operation error.
+        """
+        if self.has_service('network'):
+            try:
+                return self._neutron_detach_ip_from_server(
+                    server_id=server_id, floating_ip_id=floating_ip_id)
+            except OpenStackCloudURINotFound as e:
+                self.log.debug(
+                    "Something went wrong talking to neutron API: "
+                    "'{msg}'. Trying with Nova.".format(msg=str(e)))
+                # Fall-through, trying with Nova
+
+        # Nova network
+        self._nova_detach_ip_from_server(
+            server_id=server_id, floating_ip_id=floating_ip_id)
+
+    def _neutron_detach_ip_from_server(self, server_id, floating_ip_id):
+        with self._neutron_exceptions(
+                "unable to detach a floating ip from server "
+                "{0}".format(server_id)):
+            f_ip = self.get_floating_ip(id=floating_ip_id)
+            if f_ip is None or not f_ip['attached']:
+                return False
+            self.manager.submitTask(_tasks.NeutronFloatingIPUpdate(
+                floatingip=floating_ip_id,
+                body={'floatingip': {'port_id': None}}))
+
+            return True
+
+    def _nova_detach_ip_from_server(self, server_id, floating_ip_id):
+        try:
+            f_ip = self.get_floating_ip(id=floating_ip_id)
+            if f_ip is None:
+                raise OpenStackCloudException(
+                    "unable to find floating IP {0}".format(floating_ip_id))
+            self.manager.submitTask(_tasks.NovaFloatingIPDetach(
+                server=server_id, address=f_ip['floating_ip_address']))
+        except nova_exceptions.Conflict as e:
+            self.log.debug(
+                "nova floating IP detach failed: {msg}".format(msg=str(e)),
+                exc_info=True)
+            return False
+        except Exception as e:
+            self.log.debug(
+                "nova floating IP detach failed: {msg}".format(msg=str(e)),
+                exc_info=True)
+            raise OpenStackCloudException(
+                "error detaching IP {ip} from instance {id}: {msg}".format(
+                    ip=floating_ip_id, id=server_id, msg=str(e)))
+
+        return True
+
+    def add_ip_from_pool(self, server_id, network, fixed_address=None):
+        """Add a floating IP to a sever from a given pool
+
+        This method reuses available IPs, when possible, or allocate new IPs
+        to the current tenant.
+        The floating IP is attached to the given fixed address or to the
+        first server port/fixed address
+
+        :param server_id: Id of a server
+        :param network: Nova pool name or Neutron network name or id.
+        :param fixed_address: a fixed address
+
+        :returns: the floating IP assigned
+        """
+        f_ip = self.available_floating_ip(network=network)
+
+        self.attach_ip_to_server(
+            server_id=server_id, floating_ip_id=f_ip['id'],
+            fixed_address=fixed_address)
+
+        return f_ip
 
     def add_ip_list(self, server, ips):
-        # add ip(s) to instance
+        """Attach a list of IPs to a server.
+
+        :param server: a server object
+        :param ips: list of IP addresses (floating IPs)
+
+        :returns: None
+
+        :raises: ``OpenStackCloudException``, on operation error.
+        """
+        # ToDo(dguerri): this makes no sense as we cannot attach multiple
+        # floating IPs to a single fixed_address (this is true for both
+        # neutron and nova). I will leave this here for the moment as we are
+        # refactoring floating IPs methods.
         for ip in ips:
-            try:
-                self.manager.submitTask(
-                    _tasks.FloatingIPAttach(server=server, address=ip))
-            except Exception as e:
-                self.log.debug(
-                    "nova floating ip add failed", exc_info=True)
-                raise OpenStackCloudException(
-                    "Error attaching IP {ip} to instance {id}: {msg} ".format(
-                        ip=ip, id=server['id'], msg=str(e)))
+            f_ip = self.get_floating_ip(
+                id=None, filters={'floating_ip_address': ip})
+            self.attach_ip_to_server(
+                server_id=server['id'], floating_ip_id=f_ip['id'])
 
-    def add_auto_ip(self, server):
-        new_ip = self.create_floating_ip()
+    def add_auto_ip(self, server, wait=False, timeout=60):
+        """Add a floating IP to a server.
 
-        try:
-            self.add_ip_list(server, [new_ip['floating_ip_address']])
-        except OpenStackCloudException:
-            # Clean up - we auto-created this ip, and it's not attached
-            # to the server, so the cloud will not know what to do with it
-            self.delete_floating_ip(floating_ip_id=new_ip['id'])
-            raise
+        This method is intended for basic usage. For advanced network
+        architecture (e.g. multiple external networks or servers with multiple
+        interfaces), use other floating IP methods.
+
+        This method reuses available IPs, when possible, or allocate new IPs
+        to the current tenant.
+
+        :param server: a server dictionary.
+        :param wait: (optional) Wait for the address to appear as assigned
+                     to the server in Nova. Defaults to False.
+        :param timeout: (optional) Seconds to wait, defaults to 60.
+                        See the ``wait`` parameter.
+
+        :returns: Floating IP address attached to server.
+
+        """
+        f_ip = self.available_floating_ip()
+        self.attach_ip_to_server(
+            server_id=server['id'], floating_ip_id=f_ip['id'], wait=wait,
+            timeout=timeout)
+
+        return self.get_floating_ip(id=f_ip['id'])
 
     def add_ips_to_server(self, server, auto_ip=True, ips=None, ip_pool=None):
         if ip_pool:
