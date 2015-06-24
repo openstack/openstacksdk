@@ -56,6 +56,10 @@ class TestFloatingIP(base.TestCase):
         }
     ]
 
+    mock_floating_ip_pools = [
+        {'id': 'pool1_id', 'name': 'nova'},
+        {'id': 'pool2_id', 'name': 'pool2'}]
+
     def assertAreInstances(self, elements, elem_type):
         for e in elements:
             self.assertIsInstance(e, elem_type)
@@ -121,3 +125,45 @@ class TestFloatingIP(base.TestCase):
         floating_ip = self.client.get_floating_ip(id='666')
 
         self.assertIsNone(floating_ip)
+
+    @patch.object(OpenStackCloud, 'nova_client')
+    @patch.object(OpenStackCloud, 'has_service')
+    def test_create_floating_ip(self, mock_has_service, mock_nova_client):
+        mock_has_service.side_effect = has_service_side_effect
+        mock_nova_client.floating_ips.create.return_value = FakeFloatingIP(
+            **self.mock_floating_ip_list_rep[1])
+
+        self.client.create_floating_ip(network='nova')
+
+        mock_nova_client.floating_ips.create.assert_called_with(pool='nova')
+
+    @patch.object(OpenStackCloud, '_nova_list_floating_ips')
+    @patch.object(OpenStackCloud, 'has_service')
+    def test_available_floating_ip_existing(
+            self, mock_has_service, mock__nova_list_floating_ips):
+        mock_has_service.side_effect = has_service_side_effect
+        mock__nova_list_floating_ips.return_value = \
+            self.mock_floating_ip_list_rep[:1]
+
+        ip = self.client.available_floating_ip(network='nova')
+
+        self.assertEqual(self.mock_floating_ip_list_rep[0]['ip'],
+                         ip['floating_ip_address'])
+
+    @patch.object(OpenStackCloud, '_nova_create_floating_ip')
+    @patch.object(OpenStackCloud, 'list_floating_ip_pools')
+    @patch.object(OpenStackCloud, '_nova_list_floating_ips')
+    @patch.object(OpenStackCloud, 'has_service')
+    def test_available_floating_ip_new(
+            self, mock_has_service, mock__nova_list_floating_ips,
+            mock_list_floating_ip_pools, mock__nova_create_floating_ip):
+        mock_has_service.side_effect = has_service_side_effect
+        mock__nova_list_floating_ips.return_value = []
+        mock_list_floating_ip_pools.return_value = self.mock_floating_ip_pools
+        mock__nova_create_floating_ip.return_value = \
+            FakeFloatingIP(**self.mock_floating_ip_list_rep[0])
+
+        ip = self.client.available_floating_ip(network='nova')
+
+        self.assertEqual(self.mock_floating_ip_list_rep[0]['ip'],
+                         ip['floating_ip_address'])
