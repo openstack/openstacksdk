@@ -65,11 +65,15 @@ class FakeProject(object):
 
 
 class FakeServer(object):
-    def __init__(self, id, name, status, addresses=None):
+    def __init__(
+            self, id, name, status, addresses=None,
+            accessIPv4='', accessIPv6=''):
         self.id = id
         self.name = name
         self.status = status
         self.addresses = addresses
+        self.accessIPv4 = accessIPv4
+        self.accessIPv6 = accessIPv6
 
 
 class FakeService(object):
