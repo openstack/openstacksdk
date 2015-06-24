@@ -184,15 +184,24 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     server_vars = server
     server_vars.pop('links', None)
 
-    # Fist, add an IP address
-    server_vars['public_v4'] = get_server_external_ipv4(cloud, server)
-    server_vars['private_v4'] = get_server_private_ip(server)
+    # First, add an IP address. Set it to '' rather than None if it does
+    # not exist to remain consistent with the pre-existing missing values
+    server_vars['public_v4'] = get_server_external_ipv4(cloud, server) or ''
+    server_vars['public_v6'] = get_server_external_ipv6(server) or ''
+    server_vars['private_v4'] = get_server_private_ip(server) or ''
     if cloud.private:
         interface_ip = server_vars['private_v4']
     else:
         interface_ip = server_vars['public_v4']
     if interface_ip:
         server_vars['interface_ip'] = interface_ip
+
+    # Some clouds do not set these, but they're a regular part of the Nova
+    # server record. Since we know them, go ahead and set them. In the case
+    # where they were set previous, we use the values, so this will not break
+    # clouds that provide the information
+    server_vars['accessIPv4'] = server_vars['public_v4']
+    server_vars['accessIPv6'] = server_vars['public_v6']
 
     server_vars['region'] = cloud.region_name
     server_vars['cloud'] = cloud.name

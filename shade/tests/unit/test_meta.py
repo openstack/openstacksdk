@@ -141,6 +141,14 @@ class TestMeta(testtools.TestCase):
 
         self.assertEqual(PUBLIC_V4, ip)
 
+    def test_get_server_external_ipv4_neutron_accessIPv6(self):
+        srv = meta.obj_to_dict(fakes.FakeServer(
+            id='test-id', name='test-name', status='ACTIVE',
+            accessIPv6=PUBLIC_V6))
+        ip = meta.get_server_external_ipv6(server=srv)
+
+        self.assertEqual(PUBLIC_V6, ip)
+
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
     @mock.patch.object(shade.OpenStackCloud, 'search_ports')
     @mock.patch.object(meta, 'get_server_ip')
@@ -244,15 +252,20 @@ class TestMeta(testtools.TestCase):
         self.assertEqual(new_list[0]['value'], 0)
         self.assertEqual(new_list[1]['value'], 1)
 
+    @mock.patch.object(shade.meta, 'get_server_external_ipv6')
     @mock.patch.object(shade.meta, 'get_server_external_ipv4')
-    def test_basic_hostvars(self, mock_get_server_external_ipv4):
+    def test_basic_hostvars(
+            self, mock_get_server_external_ipv4,
+            mock_get_server_external_ipv6):
         mock_get_server_external_ipv4.return_value = PUBLIC_V4
+        mock_get_server_external_ipv6.return_value = PUBLIC_V6
 
         hostvars = meta.get_hostvars_from_server(
             FakeCloud(), meta.obj_to_dict(FakeServer()))
         self.assertNotIn('links', hostvars)
         self.assertEqual(PRIVATE_V4, hostvars['private_v4'])
         self.assertEqual(PUBLIC_V4, hostvars['public_v4'])
+        self.assertEqual(PUBLIC_V6, hostvars['public_v6'])
         self.assertEqual(PUBLIC_V4, hostvars['interface_ip'])
         self.assertEquals(FakeCloud.region_name, hostvars['region'])
         self.assertEquals(FakeCloud.name, hostvars['cloud'])
