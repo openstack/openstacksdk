@@ -71,6 +71,25 @@ def get_server_public_ip(server):
 
 
 def get_server_external_ipv4(cloud, server):
+    """Find an externally routable IP for the server.
+
+    There are 5 different scenarios we have to account for:
+
+    * Cloud has externally routable IP from neutron but neutron APIs don't
+      work (only info available is in nova server record) (rackspace)
+    * Cloud has externally routable IP from neutron (runabove, ovh)
+    * Cloud has externally routable IP from neutron AND supports optional
+      private tenant networks (vexxhost, unitedstack)
+    * Cloud only has private tenant network provided by neutron and requires
+      floating-ip for external routing (dreamhost, hp)
+    * Cloud only has private tenant network provided by nova-network and
+      requires floating-ip for external routing (auro)
+
+    :param cloud: the cloud we're working with
+    :param server: the server dict from which we want to get an IPv4 address
+    :return: a string containing the IPv4 address or None
+    """
+
     if server['accessIPv4']:
         return server['accessIPv4']
     if cloud.has_service('network'):
