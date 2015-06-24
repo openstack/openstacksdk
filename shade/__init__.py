@@ -793,19 +793,9 @@ class OpenStackCloud(object):
         return [self.get_openstack_vars(server)
                 for server in self.list_servers()]
 
-    def list_keypairs(self):
-        return self.manager.submitTask(_tasks.KeypairList())
-
     def list_keypair_dicts(self):
         return [meta.obj_to_dict(keypair)
                 for keypair in self.list_keypairs()]
-
-    def create_keypair(self, name, public_key):
-        return self.manager.submitTask(_tasks.KeypairCreate(
-            name=name, public_key=public_key))
-
-    def delete_keypair(self, name):
-        return self.manager.submitTask(_tasks.KeypairDelete(key=name))
 
     @_cache_on_arguments()
     def _nova_extensions(self):
@@ -828,6 +818,10 @@ class OpenStackCloud(object):
 
     def _has_nova_extension(self, extension_name):
         return extension_name in self._nova_extensions()
+
+    def search_keypairs(self, name_or_id=None, filters=None):
+        keypairs = self.list_keypairs()
+        return _utils._filter_list(keypairs, name_or_id, filters)
 
     def search_networks(self, name_or_id=None, filters=None):
         networks = self.list_networks()
@@ -878,6 +872,16 @@ class OpenStackCloud(object):
     def search_floating_ips(self, id=None, filters=None):
         floating_ips = self.list_floating_ips()
         return _utils._filter_list(floating_ips, id, filters)
+
+    def list_keypairs(self):
+        try:
+            return meta.obj_list_to_dict(
+                self.manager.submitTask(_tasks.KeypairList())
+            )
+        except Exception as e:
+            self.log.debug("keypair list failed: %s" % e, exc_info=True)
+            raise OpenStackCloudException(
+                "Error fetching keypair list: %s" % e)
 
     def list_networks(self):
         with self._neutron_exceptions("Error fetching network list"):
@@ -1061,6 +1065,9 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "error fetching floating IPs list: {msg}".format(msg=str(e)))
 
+    def get_keypair(self, name_or_id, filters=None):
+        return _utils._get_entity(self.search_keypairs, name_or_id, filters)
+
     def get_network(self, name_or_id, filters=None):
         return _utils._get_entity(self.search_networks, name_or_id, filters)
 
@@ -1091,6 +1098,46 @@ class OpenStackCloud(object):
 
     def get_floating_ip(self, id, filters=None):
         return _utils._get_entity(self.search_floating_ips, id, filters)
+
+    def create_keypair(self, name, public_key):
+        """Create a new keypair.
+
+        :param name: Name of the keypair being created.
+        :param public_key: Public key for the new keypair.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        try:
+            return meta.obj_to_dict(
+                self.manager.submitTask(_tasks.KeypairCreate(
+                    name=name, public_key=public_key))
+            )
+        except Exception as e:
+            self.log.debug("Error creating keypair %s" % name, exc_info=True)
+            raise OpenStackCloudException(
+                "Unable to create keypair %s: %s" % (name, e)
+            )
+
+    def delete_keypair(self, name):
+        """Delete a keypair.
+
+        :param name: Name of the keypair to delete.
+
+        :returns: True if delete succeeded, False otherwise.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        try:
+            self.manager.submitTask(_tasks.KeypairDelete(key=name))
+        except nova_exceptions.NotFound:
+            self.log.debug("Keypair %s not found for deleting" % name)
+            return False
+        except Exception as e:
+            self.log.debug("Error deleting keypair %s" % name, exc_info=True)
+            raise OpenStackCloudException(
+                "Unable to delete keypair %s: %s" % (name, e)
+            )
+        return True
 
     # TODO(Shrews): This will eventually need to support tenant ID and
     # provider networks, which are admin-level params.

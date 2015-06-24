@@ -137,3 +137,10 @@ class FakeNovaSecgroupRule(object):
         if cidr:
             self.ip_range = {'cidr': cidr}
         self.parent_group_id = parent_group_id
+
+
+class FakeKeypair(object):
+    def __init__(self, id, name, public_key):
+        self.id = id
+        self.name = name
+        self.public_key = public_key
