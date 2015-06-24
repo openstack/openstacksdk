@@ -23,5 +23,4 @@ class TestExtension(base.BaseFunctionalTest):
 
         for ext in extensions:
             self.assertIsInstance(ext.name, six.string_types)
-            self.assertIsInstance(ext.namespace, six.string_types)
             self.assertIsInstance(ext.alias, six.string_types)
