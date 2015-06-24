@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
+from openstack.orchestration.v1 import resource as stack_resource
 from openstack.orchestration.v1 import stack
 from openstack import proxy
 from openstack import resource
@@ -77,3 +79,38 @@ class Proxy(proxy.BaseProxy):
                        failures=['CREATE_FAILED'], interval=2, wait=120):
         return resource.wait_for_status(self.session, value, status,
                                         failures, interval, wait)
+
+    def resources(self, value):
+        """Return a generator of resources
+
+        :param value: This can be a stack object, or the name of a stack
+                      for which the resources are to be listed.
+        :returns: A generator of resource objects if the stack exists and
+                  there are resources in it. If the stack cannot be found,
+                  an exception is thrown.
+        :rtype: A generator of
+            :class:`~openstack.orchestration.v1.resource.Resource`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when the stack cannot be found.
+        """
+        # first try treat the value as a stack object or an ID
+        try:
+            stk = stack.Stack.from_id(value)
+        except ValueError:
+            raise exceptions.ResourceNotFound(
+                "No stack found for %(v)s" % {'v': value})
+
+        # if stack object doesn't contain a valid name, it means the object
+        # was created on the fly so we need to retrieve its name
+        if not stk.name:
+            stk = self.find_stack(value)
+            if stk is None:
+                raise exceptions.ResourceNotFound(
+                    "No stack found for %(v)s" % {'v': value})
+
+        path_args = {
+            'stack_name': stk.name,
+            'stack_id': stk.id,
+        }
+        return self._list(stack_resource.Resource, paginated=False,
+                          path_args=path_args)
