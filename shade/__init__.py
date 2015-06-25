@@ -793,10 +793,6 @@ class OpenStackCloud(object):
         return [self.get_openstack_vars(server)
                 for server in self.list_servers()]
 
-    def list_keypair_dicts(self):
-        return [meta.obj_to_dict(keypair)
-                for keypair in self.list_keypairs()]
-
     @_cache_on_arguments()
     def _nova_extensions(self):
         extensions = set()
