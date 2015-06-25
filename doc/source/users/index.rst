@@ -24,6 +24,7 @@ approach, this is where you'll want to begin.
    :maxdepth: 1
 
    Connecting to an OpenStack Cloud <userguides/usage>
+   Logging <userguides/logging>
    Block Store <userguides/block_store>
    CDN <userguides/cdn>
    Compute <userguides/compute>
