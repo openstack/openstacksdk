@@ -2961,6 +2961,18 @@ class OperatorCloud(OpenStackCloud):
     def ironic_client(self):
         if self._ironic_client is None:
             token = self.auth_token
+            # Set the ironic API microversion to a known-good
+            # supported/tested with the contents of shade.
+            #
+            # Note(TheJulia): Defaulted to version 1.6 as the ironic
+            # state machine changes which will increment the version
+            # and break an automatic transition of an enrolled node
+            # to an available state. Locking the version is intended
+            # to utilize the original transition until shade supports
+            # calling for node inspection to allow the transition to
+            # take place automatically.
+            ironic_api_microversion = '1.6'
+
             if self.auth_type in (None, "None", ''):
                 # TODO: This needs to be improved logic wise, perhaps a list,
                 # or enhancement of the data stuctures with-in the library
@@ -2975,7 +2987,8 @@ class OperatorCloud(OpenStackCloud):
             try:
                 self._ironic_client = ironic_client.Client(
                     self.api_versions['baremetal'], endpoint, token=token,
-                    timeout=self.api_timeout)
+                    timeout=self.api_timeout,
+                    os_ironic_api_version=ironic_api_microversion)
             except Exception as e:
                 self.log.debug("ironic auth failed", exc_info=True)
                 raise OpenStackCloudException(
