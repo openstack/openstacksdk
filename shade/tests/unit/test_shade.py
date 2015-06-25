@@ -14,6 +14,7 @@
 
 import mock
 
+import glanceclient
 from neutronclient.common import exceptions as n_exc
 
 import shade
@@ -64,6 +65,17 @@ class TestShade(base.TestCase):
         mock_client.servers.list.side_effect = Exception()
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.list_servers)
+
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
+    @mock.patch.object(glanceclient, 'Client')
+    def test_glance_ssl_args(self, mock_client, mock_keystone_session):
+        mock_keystone_session.return_value = None
+        self.cloud.glance_client
+        mock_client.assert_called_with(
+            '1', mock.ANY, token=mock.ANY, session=mock.ANY,
+            insecure=False,
+            cacert=None,
+        )
 
     @mock.patch.object(shade.OpenStackCloud, 'search_subnets')
     def test_get_subnet(self, mock_search):

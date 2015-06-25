@@ -614,8 +614,8 @@ class OpenStackCloud(object):
         try:
             self._glance_client = glanceclient.Client(
                 self.api_versions['image'], endpoint, token=token,
-                session=self.keystone_session,
-                **kwargs)
+                session=self.keystone_session, insecure=not self.verify,
+                cacert=self.cert, **kwargs)
         except Exception as e:
             self.log.debug("glance unknown issue", exc_info=True)
             raise OpenStackCloudException(
