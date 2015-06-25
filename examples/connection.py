@@ -33,7 +33,7 @@ def make_connection(opts):
     opts.preferences.set_region(opts.preferences.ALL, cloud.region)
     auth = cloud.config['auth']
     if 'insecure' in cloud.config:
-        auth['verify'] = cloud.config['insecure']
+        auth['verify'] = not bool(cloud.config['insecure'])
     conn = connection.Connection(profile=opts.preferences, **auth)
     return conn
 

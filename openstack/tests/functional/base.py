@@ -67,7 +67,7 @@ class BaseFunctionalTest(unittest.TestCase):
 
         auth = test_cloud.config['auth']
         if 'insecure' in test_cloud.config:
-            auth['verify'] = test_cloud.config['insecure']
+            auth['verify'] = not bool(test_cloud.config['insecure'])
         cls.conn = connection.Connection(profile=prof, **auth)
 
     @classmethod
