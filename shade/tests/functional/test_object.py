@@ -34,6 +34,8 @@ class TestObject(base.TestCase):
         super(TestObject, self).setUp()
         # Shell should have OS-* envvars from openrc, typically loaded by job
         self.cloud = openstack_cloud()
+        if not self.cloud.has_service('object'):
+            self.skipTest('Object service not supported by cloud')
 
     def test_create_object(self):
         '''Test uploading small and large files.'''
