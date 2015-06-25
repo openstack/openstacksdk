@@ -65,7 +65,8 @@ class TestEndpoints(base.TestCase):
     def _cleanup_services(self):
         exception_list = list()
         for s in self.operator_cloud.list_services():
-            if s['name'].startswith(self.new_item_name):
+            if s['name'] is not None and \
+                    s['name'].startswith(self.new_item_name):
                 try:
                     self.operator_cloud.delete_service(name_or_id=s['id'])
                 except Exception as e:
