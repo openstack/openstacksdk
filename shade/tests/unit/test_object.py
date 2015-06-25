@@ -19,6 +19,7 @@ from swiftclient import service as swift_service
 
 import shade
 from shade import exc
+from shade import OpenStackCloud
 from shade.tests.unit import base
 
 
@@ -26,7 +27,7 @@ class TestShade(base.TestCase):
 
     def setUp(self):
         super(TestShade, self).setUp()
-        self.cloud = shade.openstack_cloud()
+        self.cloud = OpenStackCloud('cloud', {})
 
     @mock.patch.object(swift_client, 'Connection')
     @mock.patch.object(shade.OpenStackCloud, 'auth_token',
