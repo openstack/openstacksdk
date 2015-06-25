@@ -11,6 +11,7 @@
 # under the License.
 
 import os
+import sys
 import time
 import unittest
 
@@ -62,7 +63,7 @@ class BaseFunctionalTest(unittest.TestCase):
         prof = profile.Profile()
         prof.set_region(prof.ALL, test_cloud.region)
         if test_cloud.debug:
-            utils.enable_logging(True)
+            utils.enable_logging(True, stream=sys.stdout)
 
         auth = test_cloud.config['auth']
         if 'insecure' in test_cloud.config:
