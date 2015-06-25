@@ -153,17 +153,15 @@ class TestFloatingIP(base.TestCase):
         self.assertEqual(self.mock_floating_ip_list_rep[0]['ip'],
                          ip['floating_ip_address'])
 
-    @patch.object(OpenStackCloud, '_nova_create_floating_ip')
-    @patch.object(OpenStackCloud, 'list_floating_ip_pools')
+    @patch.object(OpenStackCloud, 'nova_client')
     @patch.object(OpenStackCloud, '_nova_list_floating_ips')
     @patch.object(OpenStackCloud, 'has_service')
     def test_available_floating_ip_new(
             self, mock_has_service, mock__nova_list_floating_ips,
-            mock_list_floating_ip_pools, mock__nova_create_floating_ip):
+            mock_nova_client):
         mock_has_service.side_effect = has_service_side_effect
         mock__nova_list_floating_ips.return_value = []
-        mock_list_floating_ip_pools.return_value = self.mock_floating_ip_pools
-        mock__nova_create_floating_ip.return_value = \
+        mock_nova_client.floating_ips.create.return_value = \
             FakeFloatingIP(**self.mock_floating_ip_list_rep[0])
 
         ip = self.client.available_floating_ip(network='nova')

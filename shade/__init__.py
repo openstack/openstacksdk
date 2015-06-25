@@ -1797,10 +1797,9 @@ class OpenStackCloud(object):
                 return available_ips
 
             # No available IP found, allocate a new Floating IP
-            pools = self.search_floating_ip_pools(name=pool)
-            f_ip = self._nova_create_floating_ip(pool=pools[0]['name'])
+            f_ip = self._nova_create_floating_ip(pool=pool)
 
-            return [meta.obj_to_dict(f_ip)]
+            return [f_ip]
 
         except Exception as e:
             self.log.debug(
