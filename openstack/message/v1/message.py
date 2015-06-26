@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import copy
 import json
 
 from six.moves.urllib import parse
@@ -73,13 +72,15 @@ class Message(resource.Resource):
         resp = session.post(url, service=cls.service, headers=headers,
                             data=json.dumps(messages, cls=MessageEncoder))
 
-        messages_deepcopy = copy.deepcopy(messages)
+        messages_created = []
         hrefs = resp.body['resources']
 
         for i, href in enumerate(hrefs):
-            messages_deepcopy[i].href = href
+            message = Message.existing(**messages[i])
+            message.href = href
+            messages_created.append(message)
 
-        return messages_deepcopy
+        return messages_created
 
     @classmethod
     def _strip_version(cls, href):
