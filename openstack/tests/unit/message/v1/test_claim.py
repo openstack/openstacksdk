@@ -14,6 +14,7 @@ import json
 import mock
 import testtools
 
+from openstack import exceptions
 from openstack.message.v1 import claim
 
 CLIENT = '3381af92-2b9e-11e3-b191-71861300734c'
@@ -60,3 +61,30 @@ class TestClaim(testtools.TestCase):
             url, service=sot.service,
             headers={'Client-ID': CLIENT}, params=None,
             data=json.dumps(FAKE, cls=claim.ClaimEncoder))
+
+    def test_claim_messages_no_invalid_response(self):
+        sess = mock.Mock()
+        resp = mock.Mock()
+        resp.status_code = 204
+        sess.post = mock.Mock(
+            side_effect=exceptions.InvalidResponse(response=resp))
+        sot = claim.Claim()
+
+        messages = list(sot.claim_messages(
+            sess, claim.Claim.new(client=CLIENT, queue=QUEUE, **FAKE)))
+
+        self.assertEqual(0, len(messages))
+
+    def test_claim_messages_invalid_response(self):
+        sess = mock.Mock()
+        resp = mock.Mock()
+        resp.status_code = 400
+        sess.post = mock.Mock(
+            side_effect=exceptions.InvalidResponse(response=resp))
+        sot = claim.Claim()
+
+        try:
+            list(sot.claim_messages(
+                sess, claim.Claim.new(client=CLIENT, queue=QUEUE, **FAKE)))
+        except exceptions.InvalidResponse as e:
+            self.assertEqual(400, e.response.status_code)

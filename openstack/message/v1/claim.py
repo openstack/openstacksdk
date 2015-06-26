@@ -12,6 +12,7 @@
 
 import json
 
+from openstack import exceptions
 from openstack.message import message_service
 from openstack.message.v1 import message
 from openstack import resource
@@ -56,12 +57,24 @@ class Claim(resource.Resource):
         url = cls._get_url({'queue_name': claim.queue})
         headers = {'Client-ID': claim.client}
         params = {'limit': claim.limit} if claim.limit else None
+        body = []
 
-        resp = session.post(url, service=cls.service, headers=headers,
-                            data=json.dumps(claim, cls=ClaimEncoder),
-                            params=params)
+        try:
+            resp = session.post(url, service=cls.service, headers=headers,
+                                data=json.dumps(claim, cls=ClaimEncoder),
+                                params=params)
+            body = resp.body
+        except exceptions.InvalidResponse as e:
+            # The Message Service will respond with a 204 and no content in
+            # the body when there are no messages to claim. The transport
+            # layer doesn't like that and we have to correct for it here.
+            # Ultimately it's a bug in the v1.0 Message Service API.
+            # TODO(etoews): API is fixed in v1.1 so fix this for message.v1_1
+            # https://wiki.openstack.org/wiki/Zaqar/specs/api/v1.1
+            if e.response.status_code != 204:
+                raise e
 
-        for message_attrs in resp.body:
+        for message_attrs in body:
             yield message.Message.new(
                 client=claim.client, queue=claim.queue, **message_attrs)
 
