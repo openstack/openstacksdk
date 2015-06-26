@@ -207,10 +207,13 @@ class Proxy(proxy.BaseProxy):
         """
         return statistics.Statistics.find(self.session, name_or_id)
 
-    def statistics(self):
+    def statistics(self, value):
         """Return a generator of statistics
 
+        :param value: Meter resource or name for a meter.
         :returns: A generator of statistics objects
         :rtype: :class:`~openstack.telemetry.v2.statistics.Statistics`
         """
-        return self._list(statistics.Statistics, paginated=False)
+        meter_name = meter.Meter.from_name(value).name
+        return self._list(statistics.Statistics, paginated=False,
+                          path_args={'meter_name': meter_name})
