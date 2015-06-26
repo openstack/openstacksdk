@@ -195,3 +195,48 @@ class TestFloatingIP(base.TestCase):
             floating_ip_id='a-wild-id-appears')
 
         self.assertFalse(ret)
+
+    @patch.object(OpenStackCloud, 'nova_client')
+    @patch.object(OpenStackCloud, 'has_service')
+    def test_attach_ip_to_server(self, mock_has_service, mock_nova_client):
+        mock_has_service.side_effect = has_service_side_effect
+        mock_nova_client.floating_ips.list.return_value = [
+            FakeFloatingIP(**ip) for ip in self.mock_floating_ip_list_rep
+        ]
+
+        self.client.attach_ip_to_server(
+            server_id='server-id', floating_ip_id=1,
+            fixed_address='192.0.2.129')
+
+        mock_nova_client.servers.add_floating_ip.assert_called_with(
+            server='server-id', address='203.0.113.1',
+            fixed_address='192.0.2.129')
+
+    @patch.object(OpenStackCloud, 'nova_client')
+    @patch.object(OpenStackCloud, 'has_service')
+    def test_detach_ip_from_server(self, mock_has_service, mock_nova_client):
+        mock_has_service.side_effect = has_service_side_effect
+        mock_nova_client.floating_ips.list.return_value = [
+            FakeFloatingIP(**ip) for ip in self.mock_floating_ip_list_rep
+        ]
+
+        self.client.detach_ip_from_server(
+            server_id='server-id', floating_ip_id=1)
+
+        mock_nova_client.servers.remove_floating_ip.assert_called_with(
+            server='server-id', address='203.0.113.1')
+
+    @patch.object(OpenStackCloud, 'nova_client')
+    @patch.object(OpenStackCloud, 'has_service')
+    def test_add_ip_from_pool(self, mock_has_service, mock_nova_client):
+        mock_has_service.side_effect = has_service_side_effect
+        mock_nova_client.floating_ips.list.return_value = [
+            FakeFloatingIP(**ip) for ip in self.mock_floating_ip_list_rep
+        ]
+
+        ip = self.client.add_ip_from_pool(
+            server_id='server-id',
+            network='nova',
+            fixed_address='192.0.2.129')
+
+        self.assertEqual('203.0.113.1', ip['floating_ip_address'])
