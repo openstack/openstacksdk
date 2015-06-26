@@ -32,8 +32,11 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
             self.proxy.find_alarm_change)
 
     def test_alarm_changes(self):
+        larm = alarm.Alarm.existing(alarm_id='larm')
+        expected_kwargs = {'path_args': {'alarm_id': 'larm'}}
         self.verify_list(self.proxy.alarm_changes, alarm_change.AlarmChange,
-                         paginated=False)
+                         method_args=[larm], paginated=False,
+                         expected_kwargs=expected_kwargs)
 
     def test_alarm_create_attrs(self):
         self.verify_create(self.proxy.create_alarm, alarm.Alarm)

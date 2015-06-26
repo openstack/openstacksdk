@@ -99,13 +99,16 @@ class Proxy(proxy.BaseProxy):
         """
         return alarm_change.AlarmChange.find(self.session, name_or_id)
 
-    def alarm_changes(self):
+    def alarm_changes(self, value):
         """Return a generator of alarm changes
 
+        :param value: Alarm resource or id for alarm.
         :returns: A generator of alarm change objects
         :rtype: :class:`~openstack.telemetry.v2.alarm_change.AlarmChange`
         """
-        return self._list(alarm_change.AlarmChange, paginated=False)
+        alarm_id = alarm.Alarm.from_id(value).id
+        return self._list(alarm_change.AlarmChange, paginated=False,
+                          path_args={'alarm_id': alarm_id})
 
     def find_capability(self, name_or_id):
         """Find a single capability
