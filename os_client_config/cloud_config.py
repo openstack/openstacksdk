@@ -16,10 +16,11 @@ import warnings
 
 
 class CloudConfig(object):
-    def __init__(self, name, region, config):
+    def __init__(self, name, region, config, prefer_ipv6=False):
         self.name = name
         self.region = region
         self.config = config
+        self._prefer_ipv6 = prefer_ipv6
 
     def __getattr__(self, key):
         """Return arbitrary attributes."""
@@ -96,3 +97,7 @@ class CloudConfig(object):
     def get_service_name(self, service_type):
         key = '{service_type}_service_name'.format(service_type=service_type)
         return self.config.get(key, service_type)
+
+    @property
+    def prefer_ipv6(self):
+        return self._prefer_ipv6

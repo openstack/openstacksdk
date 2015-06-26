@@ -107,6 +107,18 @@ class TestConfig(base.TestCase):
                 self.useFixture(fixtures.EnvironmentVariable(k))
         c.get_one_cloud(cloud='defaults')
 
+    def test_prefer_ipv6_true(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        cc = c.get_one_cloud(cloud='_test-cloud_')
+        self.assertTrue(cc.prefer_ipv6)
+
+    def test_prefer_ipv6_false(self):
+        c = config.OpenStackConfig(config_files=[self.no_yaml],
+                                   vendor_files=[self.no_yaml])
+        cc = c.get_one_cloud(cloud='defaults')
+        self.assertFalse(cc.prefer_ipv6)
+
     def test_get_one_cloud_auth_merge(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml])
         cc = c.get_one_cloud(cloud='_test-cloud_', auth={'username': 'user'})

@@ -38,6 +38,9 @@ VENDOR_CONF = {
     }
 }
 USER_CONF = {
+    'client': {
+        'prefer_ipv6': True,
+    },
     'clouds': {
         '_test-cloud_': {
             'profile': '_test_cloud_in_our_cloud',

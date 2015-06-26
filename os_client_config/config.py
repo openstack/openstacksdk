@@ -68,6 +68,8 @@ def set_default(key, value):
 
 
 def get_boolean(value):
+    if type(value) is bool:
+        return value
     if value.lower() == 'true':
         return True
     return False
@@ -115,6 +117,14 @@ class OpenStackConfig(object):
             self.cloud_config = {'clouds': {}}
         if 'clouds' not in self.cloud_config:
             self.cloud_config['clouds'] = {}
+
+        # Grab ipv6 preference settings from env
+        client_config = self.cloud_config.get('client', {})
+        self.prefer_ipv6 = get_boolean(
+            os.environ.pop(
+                'OS_PREFER_IPV6', client_config.get(
+                    'prefer_ipv6', client_config.get(
+                        'prefer-ipv6', False))))
 
         # Next, process environment variables and add them to the mix
         self.envvar_key = os.environ.pop('OS_CLOUD_NAME', 'envvars')
@@ -427,13 +437,16 @@ class OpenStackConfig(object):
             if hasattr(value, 'format'):
                 config[key] = value.format(**config)
 
+        prefer_ipv6 = config.pop('prefer_ipv6', self.prefer_ipv6)
+
         if cloud is None:
             cloud_name = ''
         else:
             cloud_name = str(cloud)
         return cloud_config.CloudConfig(
             name=cloud_name, region=config['region_name'],
-            config=self._normalize_keys(config))
+            config=self._normalize_keys(config),
+            prefer_ipv6=prefer_ipv6)
 
     @staticmethod
     def set_one_cloud(config_file, cloud, set_config=None):

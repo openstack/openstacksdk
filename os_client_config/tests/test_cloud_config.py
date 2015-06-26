@@ -39,6 +39,9 @@ class TestCloudConfig(base.TestCase):
         # Lookup mystery attribute
         self.assertIsNone(cc.x)
 
+        # Test default ipv6
+        self.assertFalse(cc.prefer_ipv6)
+
     def test_iteration(self):
         cc = cloud_config.CloudConfig("test1", "region-al", fake_config_dict)
         self.assertTrue('a' in cc)
@@ -100,3 +103,8 @@ class TestCloudConfig(base.TestCase):
         cc = cloud_config.CloudConfig("test1", "region-xx", config_dict)
         (verify, cert) = cc.get_requests_verify_args()
         self.assertEqual(("cert", "key"), cert)
+
+    def test_ipv6(self):
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", fake_config_dict, prefer_ipv6=True)
+        self.assertTrue(cc.prefer_ipv6)

@@ -185,6 +185,37 @@ are connecting to OpenStack can share a cache should you desire.
       dns_service_type: hpext:dns
 
 
+IPv6
+----
+
+IPv6 may be a thing you would prefer to use not only if the cloud supports it,
+but also if your local machine support it. A simple boolean flag is settable
+either in an environment variable, `OS_PREFER_IPV6`, or in the client section
+of the clouds.yaml.
+
+::
+  client:
+    prefer_ipv6: true
+  clouds:
+    mordred:
+      profile: hp
+      auth:
+        username: mordred@inaugust.com
+        password: XXXXXXXXX
+        project_name: mordred@inaugust.com
+      region_name: region-b.geo-1
+    monty:
+      profile: rax
+      auth:
+        username: mordred@inaugust.com
+        password: XXXXXXXXX
+        project_name: mordred@inaugust.com
+      region_name: DFW
+
+The above snippet will tell client programs to prefer returning an IPv6
+address. This will result in calls to, for instance, `shade`'s `get_public_ip`
+to return an IPv4 address on HP, and an IPv6 address on Rackspace.
+
 Usage
 -----
 
