@@ -341,7 +341,7 @@ def option_parser():
 
 def setup():
     opts = option_parser().parse_args()
-    utils.enable_logging(opts.debug)
+    utils.enable_logging(opts.debug, stream=sys.stdout)
     return opts
 
 
