@@ -13,6 +13,7 @@
 from openstack.cluster.v1 import _proxy
 from openstack.cluster.v1 import action
 from openstack.cluster.v1 import cluster
+from openstack.cluster.v1 import node
 from openstack.cluster.v1 import policy
 from openstack.tests.unit import test_proxy_base
 
@@ -46,6 +47,31 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_cluster_update(self):
         self.verify_update(self.proxy.update_cluster, cluster.Cluster)
+
+    def test_node_create(self):
+        self.verify_create(self.proxy.create_node, node.Node)
+
+    def test_node_delete(self):
+        self.verify_delete(self.proxy.delete_node, node.Node, False)
+
+    def test_node_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_node, node.Node, True)
+
+    def test_node_find(self):
+        self.verify_find('openstack.cluster.v1.node.Node.find',
+                         self.proxy.find_node)
+
+    def test_node_get(self):
+        self.verify_get(self.proxy.get_node, node.Node)
+
+    def test_nodes(self):
+        self.verify_list(self.proxy.nodes, node.Node,
+                         paginated=True,
+                         method_kwargs={'limit': 2},
+                         expected_kwargs={'limit': 2})
+
+    def test_node_update(self):
+        self.verify_update(self.proxy.update_node, node.Node)
 
     def test_policy_create(self):
         self.verify_create(self.proxy.create_policy, policy.Policy)

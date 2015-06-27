@@ -12,6 +12,7 @@
 
 from openstack.cluster.v1 import action
 from openstack.cluster.v1 import cluster
+from openstack.cluster.v1 import node
 from openstack.cluster.v1 import policy
 from openstack import proxy
 
@@ -83,6 +84,7 @@ class Proxy(proxy.BaseProxy):
                 whether a cluster should be included in the list result.
             * sort_keys: A list of key names for sorting the resulted list.
             * sort_dir: Direction for sorting, and its valid values are 'asc'
+                and 'desc'.
             * limit: Requests a specified size of returned items from the
                 query.  Returns a number of items up to the specified limit
                 value.
@@ -107,6 +109,92 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.cluster.v1.cluster.Cluster`
         """
         return self._update(cluster.Cluster, value, **attrs)
+
+    def create_node(self, **attrs):
+        """Create a new node from attributes.
+
+        :param dict attrs: Keyword arguments that will be used to create a
+             :class:`~openstack.cluster.v1.node.Node`, it is comprised
+             of the properties on the Node class.
+
+        :returns: The results of node creation.
+        :rtype: :class:`~openstack.cluster.v1.node.Node`.
+        """
+        return self._create(node.Node, **attrs)
+
+    def delete_node(self, value, ignore_missing=True):
+        """Delete a node.
+
+        :param value: The value can be either the name or ID of a node or a
+            :class:`~openstack.cluster.v1.node.Node` instance.
+        :param bool ignore_missing: When set to ``False``, an exception
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the node could not be found. When set to ``True``, no exception
+            will be raised when attempting to delete a non-existent node.
+
+        :returns: ``None``
+        """
+        self._delete(node.Node, value, ignore_missing=ignore_missing)
+
+    def find_node(self, value, ignore_missing=True):
+        """Find a single node.
+
+        :param value: The name or ID of a node.
+        :returns: One :class:`~openstack.cluster.v1.node.Node` object or None.
+        """
+        return node.Node.find(self.session, value,
+                              ignore_missing=ignore_missing)
+
+    def get_node(self, value):
+        """Get a single node.
+
+        :param value: The value can be the name or ID of a node or a
+            :class:`~openstack.cluster.v1.node.Node` instance.
+
+        :returns: One :class:`~openstack.cluster.v1.node.Node`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            node matching the name or ID could be found.
+        """
+        return self._get(node.Node, value)
+
+    def nodes(self, **query):
+        """Retrieve a generator of nodes.
+
+        :param kwargs \*\*query: Optional query parameters to be sent to
+            restrict the nodes to be returned. Available parameters include:
+
+            * cluster_id: A string including the name or ID of a cluster to
+                which the resulted node(s) is a member.
+            * show_deleted: A boolean value indicating whether soft-deleted
+                nodes should be returned as well.
+            * filters: A list of key-value pairs for server to determine
+                whether a node should be included in the list result.
+            * sort_keys: A list of key names for sorting the resulted list.
+            * sort_dir: Direction for sorting, and its valid values are 'asc'
+                and 'desc'.
+            * limit: Requests at most the specified number of items be
+                returned from the query.
+            * marker: Specifies the ID of the last-seen node. Use the limit
+                parameter to make an initial limited request and use the ID of
+                the last-seen node from the response as the marker parameter
+                value in a subsequent limited request.
+
+        :returns: A generator of node instances.
+        """
+        return self._list(node.Node, paginated=True, **query)
+
+    def update_node(self, value, **attrs):
+        """Update a node.
+
+        :param value: Either the name or the ID of the node, or an instance
+            of :class:`~openstack.cluster.v1.node.Node`.
+        :param attrs: The attributes to update on the node represented by
+            the ``value`` parameter.
+
+        :returns: The updated node.
+        :rtype: :class:`~openstack.cluster.v1.node.Node`
+        """
+        return self._update(node.Node, value, **attrs)
 
     def create_policy(self, **attrs):
         """Create a new policy from attributes.
