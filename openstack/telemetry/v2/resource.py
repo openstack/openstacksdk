@@ -24,11 +24,19 @@ class Resource(resource.Resource):
     allow_list = True
 
     # Properties
+    #: UTC date & time not later than the first sample known for this resource
     first_sample_at = resource.prop('first_sample_timestamp')
+    #: UTC date & time not earlier than the last sample known for this resource
     last_sample_at = resource.prop('last_sample_timestamp')
+    #: A list containing a self link and associated meter links
     links = resource.prop('links')
+    #: Arbitrary metadata associated with the resource
     metadata = resource.prop('metadata')
+    #: The ID of the owning project or tenant
     project_id = resource.prop('project_id')
+    #: The unique identifier for the resource
     resource_id = resource.prop('resource_id')
+    #: The source where the resource comes from
     source = resource.prop('source')
+    #: The ID of the user who created the resource or updated it last
     user_id = resource.prop('user_id')

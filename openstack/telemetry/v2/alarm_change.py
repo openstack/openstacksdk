@@ -24,13 +24,21 @@ class AlarmChange(resource.Resource):
     allow_list = True
 
     # Properties
+    #: The UUID of the alarm
     alarm_id = resource.prop('alarm_id')
+    #: Data describing the change
     detail = resource.prop('detail')
+    #: The UUID of the change event
     event_id = resource.prop('event_id')
+    #: The tenant on behalf of which the change is being made
     on_behalf_of = resource.prop('on_behalf_of')
+    #: The project ID of the initiating identity
     project_id = resource.prop('project_id')
+    #: The time/date of the alarm change
     triggered_at = resource.prop('timestamp')
+    #: The type of change
     type = resource.prop('type')
+    #: The user ID of the initiating identity
     user_id = resource.prop('user_id')
 
     @classmethod
