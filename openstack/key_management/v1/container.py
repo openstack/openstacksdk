@@ -28,10 +28,17 @@ class Container(resource.Resource):
     allow_list = True
 
     # Properties
+    #: A URI for this container
     container_ref = resource.prop('container_ref')
+    #: The timestamp when this container was created
     created = resource.prop('created')
+    #: The name of this container
     name = resource.prop('name')
+    #: A list of references to secrets in this container
     secret_refs = resource.prop('secret_refs')
+    #: The status of this container
     status = resource.prop('status')
+    #: The type of this container
     type = resource.prop('type')
+    #: The timestamp when this container was updated
     updated = resource.prop('updated')

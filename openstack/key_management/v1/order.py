@@ -27,10 +27,18 @@ class Order(resource.Resource):
     allow_list = True
 
     # Properties
+    # TODO(briancurtin): not documented
     error_reason = resource.prop('error_reason')
+    # TODO(briancurtin): not documented
     error_status_code = resource.prop('error_status_code')
+    #: a dictionary containing key-value parameters which specify the
+    #: details of an order request
     meta = resource.prop('meta')
+    #: A URI for this order
     order_ref = resource.prop('order_ref')
+    #: TODO(briancurtin): not documented
     secret_ref = resource.prop('secret_ref')
+    # The status of this order
     status = resource.prop('status')
+    # The type of order
     type = resource.prop('type')

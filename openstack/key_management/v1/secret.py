@@ -29,12 +29,22 @@ class Secret(resource.Resource):
     allow_list = True
 
     # Properties
+    #: Metadata provided by a user or system for informational purposes
     algorithm = resource.prop('algorithm')
+    #: Metadata provided by a user or system for informational purposes.
+    #: Value must be greater than zero.
     bit_length = resource.prop('bit_length')
+    #: A list of content types
     content_types = resource.prop('content_types')
+    #: Once this timestamp has past, the secret will no longer be available.
     expiration = resource.prop('expiration')
+    #: The type/mode of the algorithm associated with the secret information.
     mode = resource.prop('mode')
+    #: The name of the secret set by the user
     name = resource.prop('name')
+    #: A URI to the sercret
     secret_ref = resource.prop('secret_ref')
+    #: The status of this secret
     status = resource.prop('status')
+    #: A timestamp when this secret was updated
     updated = resource.prop('updated')
