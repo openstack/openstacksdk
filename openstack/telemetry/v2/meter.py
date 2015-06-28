@@ -24,11 +24,19 @@ class Meter(resource.Resource):
     allow_list = True
 
     # Properties
+    #: The unique identifier for the meter
     meter_id = resource.prop('meter_id')
+    #: The unique name for the meter
     name = resource.prop('name')
+    #: The ID of the project or tenant that owns the resource
     project_id = resource.prop('project_id')
+    #: The ID of the resource for which the measurements are taken
     resource_id = resource.prop('resource_id')
+    #: The ID of the source that identifies where the meter comes from
     source = resource.prop('source')
+    #: The meter type
     type = resource.prop('type')
+    #: The unit of measure
     unit = resource.prop('unit')
+    #: The ID of the user who last triggered an update to the resource
     user_id = resource.prop('user_id')

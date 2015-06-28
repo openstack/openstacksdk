@@ -27,19 +27,33 @@ class Statistics(resource.Resource):
     meter_name = resource.prop('meter_name')
 
     # Properties
+    #: The selectable aggregate value(s)
     aggregate = resource.prop('aggregate')
+    #: The average of all of the volume values seen in the data
     avg = resource.prop('avg')
+    #: The number of samples seen
     count = resource.prop('count')
+    #: The difference, in seconds, between the oldest and newest timestamp
     duration = resource.prop('duration')
+    #: UTC date and time of the oldest timestamp, or the query end time
     duration_end = resource.prop('duration_end')
+    #: UTC date and time of the earliest timestamp, or the query start time
     duration_start = resource.prop('duration_start')
+    #: Dictionary of field names for group, if groupby statistics are requested
     group_by = resource.prop('groupby')
+    #: The maximum volume seen in the data
     max = resource.prop('max')
+    #: The minimum volume seen in the data
     min = resource.prop('min')
+    #: The difference, in seconds, between the period start and end
     period = resource.prop('period')
+    #: UTC date and time of the period end
     period_end = resource.prop('period_end')
+    #: UTC date and time of the period start
     period_start = resource.prop('period_start')
+    #: The total of all of the volume values seen in the data
     sum = resource.prop('sum')
+    #: The unit type of the data set
     unit = resource.prop('unit')
 
     @classmethod
