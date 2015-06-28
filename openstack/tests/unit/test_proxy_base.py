@@ -100,22 +100,14 @@ class TestProxyBase(base.TestCase):
                       expected_args=[resource_type, "resource_or_id"],
                       expected_kwargs=expected_kwargs)
 
-    def verify_get(self, mock_method, test_method, **kwargs):
-        self._verify(mock_method, test_method, expected_result="result",
-                     **kwargs)
-
-    def verify_get2(self, mock_method, test_method, **kwargs):
-        self._verify2(mock_method, test_method, expected_result="result",
-                      **kwargs)
-
-    def verify_get3(self, resource, method, value=None, **kwargs):
-        the_value = [value] if value is not None else []
+    def verify_get(self, test_method, resource_type, value=None, **kwargs):
+        the_value = value if value is not None else ["value"]
         expected_kwargs = {"path_args": kwargs} if kwargs else {}
         self._verify2("openstack.proxy.BaseProxy._get",
-                      method,
+                      test_method,
                       method_args=the_value,
                       method_kwargs=kwargs,
-                      expected_args=[resource] + the_value,
+                      expected_args=[resource_type] + the_value,
                       expected_kwargs=expected_kwargs)
 
     def verify_head(self, resource, method, value=None, **kwargs):

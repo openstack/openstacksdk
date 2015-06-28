@@ -36,10 +36,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_role)
 
     def test_role_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_role,
-                         method_args=["resource_or_id"],
-                         expected_args=[role.Role, "resource_or_id"])
+        self.verify_get(self.proxy.get_role, role.Role)
 
     def test_roles(self):
         self.verify_list(self.proxy.roles, role.Role, paginated=True)
@@ -61,10 +58,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_tenant)
 
     def test_tenant_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_tenant,
-                         method_args=["resource_or_id"],
-                         expected_args=[tenant.Tenant, "resource_or_id"])
+        self.verify_get(self.proxy.get_tenant, tenant.Tenant)
 
     def test_tenants(self):
         self.verify_list(self.proxy.tenants, tenant.Tenant, paginated=True)
@@ -86,10 +80,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_user)
 
     def test_user_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_user,
-                         method_args=["resource_or_id"],
-                         expected_args=[user.User, "resource_or_id"])
+        self.verify_get(self.proxy.get_user, user.User)
 
     def test_users(self):
         self.verify_list(self.proxy.users, user.User, paginated=True)

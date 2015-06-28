@@ -73,8 +73,8 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_object, obj.Object)
 
     def test_object_get(self):
-        self.verify_get3(obj.Object, self.proxy.get_object,
-                         value="object", container="container")
+        self.verify_get(self.proxy.get_object, obj.Object,
+                        value=["object"], container="container")
 
 
 class Test_containers(TestObjectStoreProxy, base.TestTransportBase):

@@ -23,10 +23,7 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_snapshot_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_snapshot,
-                         method_args=["resource_or_id"],
-                         expected_args=[snapshot.Snapshot, "resource_or_id"])
+        self.verify_get(self.proxy.get_snapshot, snapshot.Snapshot)
 
     def test_snapshot_create_attrs(self):
         self.verify_create(self.proxy.create_snapshot, snapshot.Snapshot)
@@ -40,10 +37,7 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
                            snapshot.Snapshot, True)
 
     def test_type_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_type,
-                         method_args=["resource_or_id"],
-                         expected_args=[type.Type, "resource_or_id"])
+        self.verify_get(self.proxy.get_type, type.Type)
 
     def test_type_create_attrs(self):
         self.verify_create(self.proxy.create_type, type.Type)
@@ -55,10 +49,7 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_type, type.Type, True)
 
     def test_volume_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_volume,
-                         method_args=["resource_or_id"],
-                         expected_args=[volume.Volume, "resource_or_id"])
+        self.verify_get(self.proxy.get_volume, volume.Volume)
 
     def test_volume_create_attrs(self):
         self.verify_create(self.proxy.create_volume, volume.Volume)

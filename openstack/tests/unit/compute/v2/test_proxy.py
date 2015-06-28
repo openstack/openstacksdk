@@ -49,10 +49,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_flavor)
 
     def test_flavor_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_flavor,
-                         method_args=["resource_or_id"],
-                         expected_args=[flavor.Flavor, "resource_or_id"])
+        self.verify_get(self.proxy.get_flavor, flavor.Flavor)
 
     def test_flavors_detailed(self):
         self.verify_list(self.proxy.flavors, flavor.FlavorDetail,
@@ -80,10 +77,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_image)
 
     def test_image_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_image,
-                         method_args=["resource_or_id"],
-                         expected_args=[image.Image, "resource_or_id"])
+        self.verify_get(self.proxy.get_image, image.Image)
 
     def test_images_detailed(self):
         self.verify_list(self.proxy.images, image.ImageDetail,
@@ -111,10 +105,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_keypair)
 
     def test_keypair_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_keypair,
-                         method_args=["resource_or_id"],
-                         expected_args=[keypair.Keypair, "resource_or_id"])
+        self.verify_get(self.proxy.get_keypair, keypair.Keypair)
 
     def test_keypairs(self):
         self.verify_list(self.proxy.keypairs, keypair.Keypair,
@@ -124,9 +115,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_keypair, keypair.Keypair)
 
     def test_limits_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_limits,
-                         expected_args=[limits.Limits])
+        self.verify_get(self.proxy.get_limits, limits.Limits, value=[])
 
     def test_server_interface_create(self):
         self.verify_create(self.proxy.create_server_interface,
@@ -146,11 +135,8 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
             self.proxy.find_server_interface)
 
     def test_server_interface_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_server_interface,
-                         method_args=["resource_or_id"],
-                         expected_args=[server_interface.ServerInterface,
-                                        "resource_or_id"])
+        self.verify_get(self.proxy.get_server_interface,
+                        server_interface.ServerInterface)
 
     def test_server_interfaces(self):
         self.verify_list(self.proxy.server_interfaces,
@@ -183,10 +169,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_server)
 
     def test_server_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_server,
-                         method_args=["resource_or_id"],
-                         expected_args=[server.Server, "resource_or_id"])
+        self.verify_get(self.proxy.get_server, server.Server)
 
     def test_servers_detailed(self):
         self.verify_list(self.proxy.servers, server.ServerDetail,

@@ -43,20 +43,14 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                          paginated=False)
 
     def test_database_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_database,
-                         method_args=["resource_or_id"],
-                         expected_args=[database.Database, "resource_or_id"])
+        self.verify_get(self.proxy.get_database, database.Database)
 
     def test_flavor_find(self):
         self.verify_find('openstack.database.v1.flavor.Flavor.find',
                          self.proxy.find_flavor)
 
     def test_flavor_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_flavor,
-                         method_args=["resource_or_id"],
-                         expected_args=[flavor.Flavor, "resource_or_id"])
+        self.verify_get(self.proxy.get_flavor, flavor.Flavor)
 
     def test_flavors(self):
         self.verify_list(self.proxy.flavors, flavor.Flavor,
@@ -78,10 +72,7 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_instance)
 
     def test_instance_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_instance,
-                         method_args=["resource_or_id"],
-                         expected_args=[instance.Instance, "resource_or_id"])
+        self.verify_get(self.proxy.get_instance, instance.Instance)
 
     def test_instances(self):
         self.verify_list(self.proxy.instances, instance.Instance,
@@ -107,7 +98,4 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.users, user.User, paginated=False)
 
     def test_user_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_user,
-                         method_args=["resource_or_id"],
-                         expected_args=[user.User, "resource_or_id"])
+        self.verify_get(self.proxy.get_user, user.User)

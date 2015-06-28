@@ -36,10 +36,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.stacks, stack.Stack, paginated=False)
 
     def test_stack_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_stack,
-                         method_args=["resource_or_id"],
-                         expected_args=[stack.Stack, "resource_or_id"])
+        self.verify_get(self.proxy.get_stack, stack.Stack)
 
     def test_stack_delete(self):
         self.verify_delete(self.proxy.delete_stack, stack.Stack, False)

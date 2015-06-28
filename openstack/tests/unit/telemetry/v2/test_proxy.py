@@ -52,10 +52,7 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_alarm)
 
     def test_alarm_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_alarm,
-                         method_args=["resource_or_id"],
-                         expected_args=[alarm.Alarm, "resource_or_id"])
+        self.verify_get(self.proxy.get_alarm, alarm.Alarm)
 
     def test_alarms(self):
         self.verify_list(self.proxy.alarms, alarm.Alarm, paginated=False)
@@ -83,10 +80,7 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_resource)
 
     def test_resource_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_resource,
-                         method_args=["resource_or_id"],
-                         expected_args=[resource.Resource, "resource_or_id"])
+        self.verify_get(self.proxy.get_resource, resource.Resource)
 
     def test_resources(self):
         self.verify_list(self.proxy.resources, resource.Resource,

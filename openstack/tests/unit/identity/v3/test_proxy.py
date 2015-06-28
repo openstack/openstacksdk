@@ -45,11 +45,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_credential)
 
     def test_credential_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_credential,
-                         method_args=["resource_or_id"],
-                         expected_args=[credential.Credential,
-                                        "resource_or_id"])
+        self.verify_get(self.proxy.get_credential, credential.Credential)
 
     def test_credentials(self):
         self.verify_list(self.proxy.credentials, credential.Credential,
@@ -72,10 +68,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_domain)
 
     def test_domain_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_domain,
-                         method_args=["resource_or_id"],
-                         expected_args=[domain.Domain, "resource_or_id"])
+        self.verify_get(self.proxy.get_domain, domain.Domain)
 
     def test_domains(self):
         self.verify_list(self.proxy.domains, domain.Domain, paginated=False)
@@ -99,10 +92,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_endpoint)
 
     def test_endpoint_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_endpoint,
-                         method_args=["resource_or_id"],
-                         expected_args=[endpoint.Endpoint, "resource_or_id"])
+        self.verify_get(self.proxy.get_endpoint, endpoint.Endpoint)
 
     def test_endpoints(self):
         self.verify_list(self.proxy.endpoints, endpoint.Endpoint,
@@ -125,10 +115,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_group)
 
     def test_group_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_group,
-                         method_args=["resource_or_id"],
-                         expected_args=[group.Group, "resource_or_id"])
+        self.verify_get(self.proxy.get_group, group.Group)
 
     def test_groups(self):
         self.verify_list(self.proxy.groups, group.Group, paginated=False)
@@ -150,10 +137,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_policy)
 
     def test_policy_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_policy,
-                         method_args=["resource_or_id"],
-                         expected_args=[policy.Policy, "resource_or_id"])
+        self.verify_get(self.proxy.get_policy, policy.Policy)
 
     def test_policies(self):
         self.verify_list(self.proxy.policies, policy.Policy, paginated=False)
@@ -175,10 +159,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_project)
 
     def test_project_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_project,
-                         method_args=["resource_or_id"],
-                         expected_args=[project.Project, "resource_or_id"])
+        self.verify_get(self.proxy.get_project, project.Project)
 
     def test_projects(self):
         self.verify_list(self.proxy.projects, project.Project, paginated=False)
@@ -200,10 +181,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_service)
 
     def test_service_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_service,
-                         method_args=["resource_or_id"],
-                         expected_args=[service.Service, "resource_or_id"])
+        self.verify_get(self.proxy.get_service, service.Service)
 
     def test_services(self):
         self.verify_list(self.proxy.services, service.Service, paginated=False)
@@ -225,10 +203,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_user)
 
     def test_user_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_user,
-                         method_args=["resource_or_id"],
-                         expected_args=[user.User, "resource_or_id"])
+        self.verify_get(self.proxy.get_user, user.User)
 
     def test_users(self):
         self.verify_list(self.proxy.users, user.User, paginated=False)
@@ -250,10 +225,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_trust)
 
     def test_trust_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_trust,
-                         method_args=["resource_or_id"],
-                         expected_args=[trust.Trust, "resource_or_id"])
+        self.verify_get(self.proxy.get_trust, trust.Trust)
 
     def test_trusts(self):
         self.verify_list(self.proxy.trusts, trust.Trust, paginated=False)

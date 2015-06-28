@@ -35,10 +35,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_image, image.Image)
 
     def test_image_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_image,
-                         method_args=["resource_or_id"],
-                         expected_args=[image.Image, "resource_or_id"])
+        self.verify_get(self.proxy.get_image, image.Image)
 
     def test_images(self):
         self.verify_list(self.proxy.images, image.Image, paginated=True)
@@ -56,10 +53,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_member, member.Member)
 
     def test_member_get(self):
-        self.verify_get2('openstack.proxy.BaseProxy._get',
-                         self.proxy.get_member,
-                         method_args=["resource_or_id"],
-                         expected_args=[member.Member, "resource_or_id"])
+        self.verify_get(self.proxy.get_member, member.Member)
 
     def test_members(self):
         self.verify_list(self.proxy.members, member.Member, paginated=False)
