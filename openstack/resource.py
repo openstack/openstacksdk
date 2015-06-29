@@ -933,27 +933,40 @@ class Resource(collections.MutableMapping):
 
         :return: The :class:`Resource` object matching the given name or id
                  or None if nothing matches.
+        :raises: :class:`openstack.exceptions.DuplicateResource` if more
+                 than one resource is found for this request.
         """
+        def get_one_match(data, attr):
+            if len(info) == 1:
+                result = cls.existing(**data[0])
+                value = getattr(result, attr, False)
+                if value == name_or_id:
+                    return result
+            return None
+
         try:
             args = {
                 cls.id_attribute: name_or_id,
                 'path_args': path_args,
             }
             info = cls.page(session, limit=2, **args)
-            if len(info) == 1:
-                return cls.existing(**info[0])
+
+            result = get_one_match(info, cls.id_attribute)
+            if result is not None:
+                return result
         except exceptions.HttpException:
             pass
 
         if cls.name_attribute:
             params = {cls.name_attribute: name_or_id}
             info = cls.page(session, limit=2, path_args=path_args, **params)
-            if len(info) == 1:
-                return cls.existing(**info[0])
+
             if len(info) > 1:
                 msg = "More than one %s exists with the name '%s'."
                 msg = (msg % (cls.get_resource_name(), name_or_id))
                 raise exceptions.DuplicateResource(msg)
+
+            return get_one_match(info, cls.name_attribute)
 
         return None
 
