@@ -1048,18 +1048,6 @@ class ResourceTests(base.TestTransportBase):
             faker.enabled = 'INVALID'
         self.assertRaises(ValueError, set_invalid)
 
-    @mock.patch("openstack.resource.Resource.list")
-    def test_fallthrough(self, mock_list):
-        class FakeResource2(FakeResource):
-            name_attribute = None
-
-            @classmethod
-            def page(cls, session, limit=None, marker=None, path_args=None,
-                     **params):
-                raise exceptions.HttpException("exception")
-
-        self.assertEqual(None, FakeResource2.find("session", "123"))
-
 
 class ResourceMapping(base.TestCase):
 
@@ -1202,7 +1190,7 @@ class TestFind(base.TestCase):
 
     def test_name(self):
         self.mock_get.side_effect = [
-            FakeResponse({FakeResource.resources_key: []}),
+            exceptions.HttpException(404, 'not found'),
             FakeResponse({FakeResource.resources_key: [self.matrix]})
         ]
 
@@ -1218,11 +1206,28 @@ class TestFind(base.TestCase):
 
     def test_id(self):
         self.mock_get.side_effect = [
-            FakeResponse({FakeResource.resources_key: [self.matrix]})
+            FakeResponse({FakeResource.resource_key: self.matrix})
         ]
 
         result = FakeResource.find(self.mock_session, self.ID,
                                    path_args=fake_arguments)
+
+        self.assertEqual(self.ID, result.id)
+        self.assertEqual(self.PROP, result.prop)
+
+        path = "fakes/rey/data/" + self.ID
+        self.mock_get.assert_any_call(path, service=None)
+
+    def test_id_no_retrieve(self):
+        self.mock_get.side_effect = [
+            FakeResponse({FakeResource.resources_key: [self.matrix]})
+        ]
+
+        class NoRetrieveResource(FakeResource):
+            allow_retrieve = False
+
+        result = NoRetrieveResource.find(self.mock_session, self.ID,
+                                         path_args=fake_arguments)
 
         self.assertEqual(self.ID, result.id)
         self.assertEqual(self.PROP, result.prop)
@@ -1233,9 +1238,10 @@ class TestFind(base.TestCase):
 
     def test_dups(self):
         dup = {'id': 'Larry'}
-        resp = FakeResponse(
-            {FakeResource.resources_key: [self.matrix, dup]})
-        self.mock_get.return_value = resp
+        self.mock_get.side_effect = [
+            exceptions.HttpException(404, 'not found'),
+            FakeResponse({FakeResource.resources_key: [self.matrix, dup]})
+        ]
 
         self.assertRaises(exceptions.DuplicateResource, FakeResource.find,
                           self.mock_session, self.NAME)
@@ -1243,9 +1249,10 @@ class TestFind(base.TestCase):
     def test_id_attribute_find(self):
         floater = {'ip_address': "127.0.0.1", 'prop': self.PROP}
         self.mock_get.side_effect = [
-            FakeResponse({FakeResource.resources_key: [floater]})
+            FakeResponse({FakeResource.resource_key: floater})
         ]
 
+        FakeResource.id_attribute = 'ip_address'
         FakeResource.id_attribute = 'ip_address'
         result = FakeResource.find(self.mock_session, "127.0.0.1",
                                    path_args=fake_arguments)
@@ -1256,17 +1263,19 @@ class TestFind(base.TestCase):
 
         p = {'ip_address': "127.0.0.1"}
         path = fake_path + "?limit=2"
-        self.mock_get.assert_any_call(path, params=p, service=None)
+        self.mock_get.called_once_with(path, params=p, service=None)
 
     def test_nada(self):
-        resp = FakeResponse({FakeResource.resources_key: []})
-        self.mock_get.return_value = resp
+        self.mock_get.side_effect = [
+            exceptions.HttpException(404, 'not found'),
+            FakeResponse({FakeResource.resources_key: []})
+        ]
 
         self.assertEqual(None, FakeResource.find(self.mock_session, self.NAME))
 
     def test_no_name(self):
         self.mock_get.side_effect = [
-            FakeResponse({FakeResource.resources_key: []}),
+            exceptions.HttpException(404, 'not found'),
             FakeResponse({FakeResource.resources_key: [self.matrix]})
         ]
         FakeResource.name_attribute = None

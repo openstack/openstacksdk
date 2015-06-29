@@ -937,7 +937,7 @@ class Resource(collections.MutableMapping):
                  than one resource is found for this request.
         """
         def get_one_match(data, attr):
-            if len(info) == 1:
+            if len(data) == 1:
                 result = cls.existing(**data[0])
                 value = getattr(result, attr, False)
                 if value == name_or_id:
@@ -945,12 +945,10 @@ class Resource(collections.MutableMapping):
             return None
 
         try:
-            args = {
-                cls.id_attribute: name_or_id,
-                'path_args': path_args,
-            }
-            info = cls.page(session, limit=2, **args)
-
+            if cls.allow_retrieve:
+                return cls.get_by_id(session, name_or_id, path_args=path_args)
+            args = {cls.id_attribute: name_or_id}
+            info = cls.page(session, limit=2, path_args=path_args, **args)
             result = get_one_match(info, cls.id_attribute)
             if result is not None:
                 return result
