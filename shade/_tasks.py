@@ -535,3 +535,23 @@ class IdentityDomainUpdate(task_manager.Task):
 class IdentityDomainDelete(task_manager.Task):
     def main(self, client):
         return client.keystone_client.domains.delete(**self.args)
+
+
+class DomainList(task_manager.Task):
+    def main(self, client):
+        return client.designate_client.domains.list()
+
+
+class DomainGet(task_manager.Task):
+    def main(self, client):
+        return client.designate_client.domains.get(**self.args)
+
+
+class RecordList(task_manager.Task):
+    def main(self, client):
+        return client.designate_client.records.list(**self.args)
+
+
+class RecordGet(task_manager.Task):
+    def main(self, client):
+        return client.designate_client.records.get(**self.args)

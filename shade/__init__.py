@@ -20,6 +20,7 @@ import operator
 import os
 
 from cinderclient.v1 import client as cinder_client
+from designateclient.v1 import Client as designate_client
 from decorator import decorator
 from dogpile import cache
 import glanceclient
@@ -317,6 +318,7 @@ class OpenStackCloud(object):
         self._keystone_session = None
 
         self._cinder_client = None
+        self._designate_client = None
         self._glance_client = None
         self._glance_endpoint = None
         self._ironic_client = None
@@ -779,6 +781,26 @@ class OpenStackCloud(object):
                 timeout=self.api_timeout)
         return self._neutron_client
 
+    @property
+    def designate_client(self):
+        if self._designate_client is None:
+            # get dns service type if defined in cloud config
+            dns_service_type = self.get_service_type('dns')
+            # trigger exception on lack of designate
+            self.get_session_endpoint(dns_service_type)
+
+            self._designate_client = designate_client(
+                session=self.keystone_session,
+                region_name=self.region_name,
+                service_type=dns_service_type)
+
+            if self._designate_client is None:
+                raise OpenStackCloudException(
+                    "Failed to instantiate designate client."
+                    " This could mean that your credentials are wrong.")
+
+        return self._designate_client
+
     def get_name(self):
         return self.name
 
@@ -925,6 +947,14 @@ class OpenStackCloud(object):
     def search_floating_ips(self, id=None, filters=None):
         floating_ips = self.list_floating_ips()
         return _utils._filter_list(floating_ips, id, filters)
+
+    def search_domains(self, name_or_id=None, filters=None):
+        domains = self.list_domains()
+        return _utils._filter_list(domains, name_or_id, filters)
+
+    def search_records(self, domain_id, name_or_id=None, filters=None):
+        records = self.list_records(domain_id=domain_id)
+        return _utils._filter_list(records, name_or_id, filters)
 
     def list_keypairs(self):
         try:
@@ -1118,6 +1148,22 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "error fetching floating IPs list: {msg}".format(msg=str(e)))
 
+    def list_domains(self):
+        try:
+            return self.manager.submitTask(_tasks.DomainList())
+        except Exception as e:
+            self.log.debug("domain list failed: %s" % e, exc_info=True)
+            raise OpenStackCloudException(
+                "Error fetching domain list: %s" % e)
+
+    def list_records(self, domain_id):
+        try:
+            return self.manager.submitTask(_tasks.RecordList(domain=domain_id))
+        except Exception as e:
+            self.log.debug("record list failed: %s" % e, exc_info=True)
+            raise OpenStackCloudException(
+                "Error fetching record list: %s" % e)
+
     def get_keypair(self, name_or_id, filters=None):
         return _utils._get_entity(self.search_keypairs, name_or_id, filters)
 
@@ -1151,6 +1197,14 @@ class OpenStackCloud(object):
 
     def get_floating_ip(self, id, filters=None):
         return _utils._get_entity(self.search_floating_ips, id, filters)
+
+    def get_domain(self, name_or_id, filters=None):
+        return _utils._get_entity(self.search_domains, name_or_id, filters)
+
+    def get_record(self, domain_id, name_or_id, filters=None):
+        f = lambda name_or_id, filters: self.search_records(
+            domain_id, name_or_id, filters)
+        return _utils._get_entity(f, name_or_id, filters)
 
     def create_keypair(self, name, public_key):
         """Create a new keypair.
