@@ -235,18 +235,39 @@ class TestSecurityGroups(base.TestCase):
         self.cloud.secgroup_source = 'nova'
 
         new_rule = fakes.FakeNovaSecgroupRule(
-            id='xyz', from_port=-1, to_port=2000, ip_protocol='tcp',
+            id='xyz', from_port=1, to_port=2000, ip_protocol='tcp',
             cidr='1.2.3.4/32')
         mock_nova.security_group_rules.create.return_value = new_rule
         mock_get.return_value = {'id': 'abc'}
 
         self.cloud.create_security_group_rule(
-            'abc', port_range_max=2000, protocol='tcp',
+            'abc', port_range_min=1, port_range_max=2000, protocol='tcp',
             remote_ip_prefix='1.2.3.4/32', remote_group_id='123')
 
         mock_nova.security_group_rules.create.assert_called_once_with(
-            parent_group_id='abc', ip_protocol='tcp', from_port=-1,
+            parent_group_id='abc', ip_protocol='tcp', from_port=1,
             to_port=2000, cidr='1.2.3.4/32', group_id='123'
+        )
+
+    @mock.patch.object(shade.OpenStackCloud, 'get_security_group')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_create_security_group_rule_nova_no_ports(self,
+                                                      mock_nova, mock_get):
+        self.cloud.secgroup_source = 'nova'
+
+        new_rule = fakes.FakeNovaSecgroupRule(
+            id='xyz', from_port=1, to_port=65535, ip_protocol='tcp',
+            cidr='1.2.3.4/32')
+        mock_nova.security_group_rules.create.return_value = new_rule
+        mock_get.return_value = {'id': 'abc'}
+
+        self.cloud.create_security_group_rule(
+            'abc', protocol='tcp',
+            remote_ip_prefix='1.2.3.4/32', remote_group_id='123')
+
+        mock_nova.security_group_rules.create.assert_called_once_with(
+            parent_group_id='abc', ip_protocol='tcp', from_port=1,
+            to_port=65535, cidr='1.2.3.4/32', group_id='123'
         )
 
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
