@@ -1198,7 +1198,7 @@ class TestFind(base.TestCase):
         self.mock_session = mock.Mock()
         self.mock_get = mock.Mock()
         self.mock_session.get = self.mock_get
-        self.matrix = {'id': self.ID, 'prop': self.PROP}
+        self.matrix = {'id': self.ID, 'name': self.NAME, 'prop': self.PROP}
 
     def test_name(self):
         self.mock_get.side_effect = [
@@ -1209,7 +1209,7 @@ class TestFind(base.TestCase):
         result = FakeResource.find(self.mock_session, self.NAME,
                                    path_args=fake_arguments)
 
-        self.assertEqual(self.ID, result.id)
+        self.assertEqual(self.NAME, result.name)
         self.assertEqual(self.PROP, result.prop)
 
         p = {'name': self.NAME}
@@ -1231,25 +1231,10 @@ class TestFind(base.TestCase):
         path = fake_path + "?limit=2"
         self.mock_get.assert_any_call(path, params=p, service=None)
 
-    def test_nameo(self):
-        self.mock_get.side_effect = [
-            FakeResponse({FakeResource.resources_key: []}),
-            FakeResponse({FakeResource.resources_key: [self.matrix]})
-        ]
-        FakeResource.name_attribute = 'nameo'
-
-        result = FakeResource.find(self.mock_session, self.NAME,
-                                   path_args=fake_arguments)
-        FakeResource.name_attribute = 'name'
-        self.assertEqual(self.ID, result.id)
-
-        p = {'nameo': self.NAME}
-        path = fake_path + "?limit=2"
-        self.mock_get.assert_any_call(path, params=p, service=None)
-
     def test_dups(self):
         dup = {'id': 'Larry'}
-        resp = FakeResponse({FakeResource.resources_key: [self.matrix, dup]})
+        resp = FakeResponse(
+            {FakeResource.resources_key: [self.matrix, dup]})
         self.mock_get.return_value = resp
 
         self.assertRaises(exceptions.DuplicateResource, FakeResource.find,
