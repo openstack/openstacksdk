@@ -15,11 +15,16 @@ The base identity plugin.  Identity plugins must define the authorize method.
 For examples of this class, see the v2 and v3 authentication plugins.
 """
 
+import logging
+
 import abc
 
 import six
 
 from openstack.auth import base
+
+
+logger = logging.getLogger(__name__)
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -106,6 +111,7 @@ class BaseIdentityPlugin(base.BaseAuthPlugin):
         :returns AccessInfo: Valid AccessInfo
         """
         if self._needs_reauthenticate():
+            logger.debug("Re-authentication required")
             self.access_info = self.authorize(transport)
 
         return self.access_info
