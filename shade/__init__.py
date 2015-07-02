@@ -3100,12 +3100,28 @@ class OpenStackCloud(object):
             return rule['security_group_rule']
 
         elif self.secgroup_source == 'nova':
-            # NOTE: Neutron accepts None for ports, but Nova accepts -1
-            # as the equivalent value.
-            if port_range_min is None:
-                port_range_min = -1
-            if port_range_max is None:
-                port_range_max = -1
+            # NOTE: Neutron accepts None for protocol. Nova does not.
+            if protocol is None:
+                raise OpenStackCloudException('Protocol must be specified')
+
+            # NOTE: Neutron accepts None for ports, but Nova requires -1
+            # as the equivalent value for ICMP.
+            #
+            # For TCP/UDP, if both are None, Neutron allows this and Nova
+            # represents this as all ports (1-65535). Nova does not accept
+            # None values, so to hide this difference, we will automatically
+            # convert to the full port range. If only a single port value is
+            # specified, it will error as normal.
+            if protocol == 'icmp':
+                if port_range_min is None:
+                    port_range_min = -1
+                if port_range_max is None:
+                    port_range_max = -1
+            elif protocol in ['tcp', 'udp']:
+                if port_range_min is None and port_range_max is None:
+                    port_range_min = 1
+                    port_range_max = 65535
+
             try:
                 rule = meta.obj_to_dict(
                     self.manager.submitTask(
