@@ -31,7 +31,13 @@ def make_connection(opts):
     occ = os_client_config.OpenStackConfig()
     cloud = occ.get_one_cloud(opts.cloud, opts)
     opts.preferences.set_region(opts.preferences.ALL, cloud.region)
+    # TODO(thowe): There is a general smell here that this code is
+    # repeated in two places at that we flatten the auth structure.
+    # The connection class should take OCC config and just deal, but
+    # I'd just like to get cacert working for now.
     auth = cloud.config['auth']
+    if 'cacert' in cloud.config:
+        auth['verify'] = cloud.config['cacert']
     if 'insecure' in cloud.config:
         auth['verify'] = not bool(cloud.config['insecure'])
     conn = connection.Connection(profile=opts.preferences, **auth)

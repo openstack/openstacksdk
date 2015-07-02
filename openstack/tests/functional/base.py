@@ -65,7 +65,13 @@ class BaseFunctionalTest(unittest.TestCase):
         if test_cloud.debug:
             utils.enable_logging(True, stream=sys.stdout)
 
+        # TODO(thowe): There is a general smell here that this code is
+        # repeated in two places at that we flatten the auth structure.
+        # The connection class should take OCC config and just deal, but
+        # I'd just like to get cacert working for now.
         auth = test_cloud.config['auth']
+        if 'cacert' in test_cloud.config:
+            auth['verify'] = test_cloud.config['cacert']
         if 'insecure' in test_cloud.config:
             auth['verify'] = not bool(test_cloud.config['insecure'])
         cls.conn = connection.Connection(profile=prof, **auth)
