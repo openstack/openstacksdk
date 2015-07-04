@@ -12,29 +12,29 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-_defaults = dict(
-    api_timeout=None,
-    auth_type='password',
-    baremetal_api_version='1',
-    compute_api_version='2',
-    database_api_version='1.0',
-    endpoint_type='public',
-    floating_ip_source='neutron',
-    identity_api_version='2',
-    image_api_use_tasks=False,
-    image_api_version='1',
-    network_api_version='2',
-    object_api_version='1',
-    secgroup_source='neutron',
-    volume_api_version='1',
-    disable_vendor_agent={},
-    # SSL Related args
-    verify=True,
-    cacert=None,
-    cert=None,
-    key=None,
-)
+import os
+
+import yaml
+
+_yaml_path = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), 'defaults.yaml')
+_defaults = None
 
 
 def get_defaults():
+    global _defaults
+    if not _defaults:
+        # Python language specific defaults
+        # These are defaults related to use of python libraries, they are
+        # not qualities of a cloud.
+        _defaults = dict(
+            api_timeout=None,
+            verify=True,
+            cacert=None,
+            cert=None,
+            key=None,
+        )
+        with open(_yaml_path, 'r') as yaml_file:
+            _defaults.update(yaml.load(yaml_file.read()))
+
     return _defaults.copy()

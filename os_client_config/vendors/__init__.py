@@ -17,9 +17,16 @@ import os
 
 import yaml
 
-vendors_path = os.path.dirname(os.path.realpath(__file__))
+_vendors_path = os.path.dirname(os.path.realpath(__file__))
+_vendor_defaults = None
 
-CLOUD_DEFAULTS = {}
-for vendor in glob.glob(os.path.join(vendors_path, '*.yaml')):
-    with open(vendor, 'r') as f:
-        CLOUD_DEFAULTS.update(yaml.safe_load(f))
+
+def get_profile(profile_name):
+    global _vendor_defaults
+    if _vendor_defaults is None:
+        _vendor_defaults = {}
+        for vendor in glob.glob(os.path.join(_vendors_path, '*.yaml')):
+            with open(vendor, 'r') as f:
+                vendor_data = yaml.load(f)
+                _vendor_defaults[vendor_data['name']] = vendor_data['profile']
+    return _vendor_defaults.get(profile_name)
