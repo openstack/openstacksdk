@@ -84,3 +84,12 @@ class TestEnviron(base.TestCase):
         self._assert_cloud_details(cc)
         cc = c.get_one_cloud('_test_cloud_no_vendor')
         self._assert_cloud_details(cc)
+
+    def test_config_file_override(self):
+        self.useFixture(
+            fixtures.EnvironmentVariable(
+                'OS_CLIENT_CONFIG_FILE', self.cloud_yaml))
+        c = config.OpenStackConfig(config_files=[],
+                                   vendor_files=[self.vendor_yaml])
+        cc = c.get_one_cloud('_test-cloud_')
+        self._assert_cloud_details(cc)
