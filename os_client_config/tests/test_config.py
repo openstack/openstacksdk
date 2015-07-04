@@ -32,7 +32,11 @@ class TestConfig(base.TestCase):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
         clouds = c.get_all_clouds()
-        user_clouds = [cloud for cloud in base.USER_CONF['clouds'].keys()]
+        # We add one by hand because the regions cloud is going to exist
+        # twice since it has two regions in it
+        user_clouds = [
+            cloud for cloud in base.USER_CONF['clouds'].keys()
+        ] + ['_test_cloud_regions']
         configured_clouds = [cloud.name for cloud in clouds]
         self.assertItemsEqual(user_clouds, configured_clouds)
 
@@ -132,6 +136,7 @@ class TestConfig(base.TestCase):
              '_test-cloud_',
              '_test_cloud_hyphenated',
              '_test_cloud_no_vendor',
+             '_test_cloud_regions',
              ],
             sorted(c.get_cloud_names()))
         c = config.OpenStackConfig(config_files=[self.no_yaml],
@@ -214,6 +219,25 @@ class TestConfigArgparse(base.TestCase):
         cc = c.get_one_cloud(cloud='_test-cloud_', argparse=None)
         self._assert_cloud_details(cc)
         self.assertEqual(cc.region_name, 'test-region')
+        self.assertIsNone(cc.snack_type)
+
+    def test_get_one_cloud_no_argparse_regions(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+
+        cc = c.get_one_cloud(cloud='_test_cloud_regions', argparse=None)
+        self._assert_cloud_details(cc)
+        self.assertEqual(cc.region_name, 'region1')
+        self.assertIsNone(cc.snack_type)
+
+    def test_get_one_cloud_no_argparse_region2(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+
+        cc = c.get_one_cloud(
+            cloud='_test_cloud_regions', region_name='region2', argparse=None)
+        self._assert_cloud_details(cc)
+        self.assertEqual(cc.region_name, 'region2')
         self.assertIsNone(cc.snack_type)
 
     def test_fix_env_args(self):

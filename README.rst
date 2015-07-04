@@ -105,7 +105,10 @@ An example config file is probably helpful:
         username: openstackci
         password: XXXXXXXX
         project_id: 610275
-      region_name: DFW,ORD,IAD
+      regions:
+      - DFW
+      - ORD
+      - IAD
 
 You may note a few things. First, since `auth_url` settings are silly
 and embarrasingly ugly, known cloud vendor profile information is included and
@@ -116,7 +119,7 @@ knows that so that you don't have to. In case the cloud vendor profile is not
 available, you can provide one called `clouds-public.yaml`, following the same
 location rules previously mentioned for the config files.
 
-Also, `region_name` can be a list of regions. When you call `get_all_clouds`,
+`regions` can be a list of regions. When you call `get_all_clouds`,
 you'll get a cloud config object for each cloud/region combo.
 
 As seen with `dns_service_type`, any setting that makes sense to be per-service,
