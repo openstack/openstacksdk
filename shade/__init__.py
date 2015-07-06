@@ -3104,6 +3104,12 @@ class OpenStackCloud(object):
             if protocol is None:
                 raise OpenStackCloudException('Protocol must be specified')
 
+            if direction == 'egress':
+                self.log.debug(
+                    'Rule creation failed: Nova does not support egress rules'
+                )
+                raise OpenStackCloudException('No support for egress rules')
+
             # NOTE: Neutron accepts None for ports, but Nova requires -1
             # as the equivalent value for ICMP.
             #

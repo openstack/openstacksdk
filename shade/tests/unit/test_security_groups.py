@@ -324,3 +324,12 @@ class TestSecurityGroups(base.TestCase):
         )
         r = self.cloud.delete_security_group('doesNotExist')
         self.assertFalse(r)
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_nova_egress_security_group_rule(self, mock_nova):
+        self.cloud.secgroup_source = 'nova'
+        mock_nova.security_groups.list.return_value = [nova_grp_obj]
+        self.assertRaises(shade.OpenStackCloudException,
+                          self.cloud.create_security_group_rule,
+                          secgroup_name_or_id='nova-sec-group',
+                          direction='egress')
