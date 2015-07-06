@@ -1769,7 +1769,7 @@ class OpenStackCloud(object):
         )
         return f_ips[0]
 
-    def _neutron_available_floating_ips(self, network=None):
+    def _neutron_available_floating_ips(self, network=None, project_id=None):
         """Get a floating IP from a Neutron network.
 
         Return a list of available floating IPs or allocate a new one and
@@ -1782,6 +1782,11 @@ class OpenStackCloud(object):
         :raises: ``OpenStackCloudResourceNotFound``, if an external network
                  that meets the specified criteria cannot be found.
         """
+        if project_id is None:
+            # Make sure we are only listing floatingIPs allocated the current
+            # tenant. This is the default behaviour of Nova
+            project_id = self.keystone_session.get_project_id()
+
         with self._neutron_exceptions("unable to get available floating IPs"):
             networks = self.search_networks(
                 name_or_id=network,
@@ -1792,7 +1797,9 @@ class OpenStackCloud(object):
 
             filters = {
                 'port_id': None,
-                'floating_network_id': networks[0]['id']
+                'floating_network_id': networks[0]['id'],
+                'tenant_id': project_id
+
             }
             floating_ips = self._neutron_list_floating_ips()
             available_ips = _utils._filter_list(
