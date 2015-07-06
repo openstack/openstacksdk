@@ -25,9 +25,15 @@ class Metric(resource.Resource):
     allow_list = True
 
     # Properties
+    #: The name of the archive policy
     archive_policy_name = resource.prop('archive_policy_name')
+    #: The archive policy
     archive_policy = resource.prop('archive_policy')
+    #: The ID of the user who created this metric
     created_by_user_id = resource.prop('created_by_user_id')
+    #: The ID of the project this metric was created under
     created_by_project_id = resource.prop('created_by_project_id')
+    #: The identifier of this metric
     resource_id = resource.prop('resource_id')
+    #: The name of this metric
     name = resource.prop('name')

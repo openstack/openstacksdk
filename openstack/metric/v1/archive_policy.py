@@ -27,7 +27,11 @@ class ArchivePolicy(resource.Resource):
     id_attribute = "name"
 
     # Properties
+    #: The name of this policy
     name = resource.prop('name')
+    #: The definition of this policy
     definition = resource.prop('definition', type=list)
+    #: The window of time older than the period that archives can be requested
     back_window = resource.prop('back_window')
+    #: A list of the aggregation methods supported
     aggregation_methods = resource.prop("aggregation_methods", type=list)

@@ -26,15 +26,23 @@ class Generic(resource.Resource):
     allow_update = True
 
     # Properties
+    #: The identifier of this resource
     id = resource.prop('id', alias="resource_id")
+    #: The ID of the user who created this resource
     created_by_user_id = resource.prop('created_by_user_id')
+    #: The ID of the project this resource was created under
     created_by_project_id = resource.prop('created_by_project_id')
+    #: The ID of the user
     user_id = resource.prop('user_id')
+    #: The ID of the project
     project_id = resource.prop('project_id')
+    #: Timestamp when this resource was started
     started_at = resource.prop('started_at',
                                type=resource_types.ISO8601Datetime)
+    #: Timestamp when this resource was ended
     ended_at = resource.prop('ended_at',
                              type=resource_types.ISO8601Datetime)
+    #: A dictionary of metrics collected on this resource
     metrics = resource.prop('metrics', type=dict)
 
     def create(self, session):
