@@ -4260,3 +4260,61 @@ class OperatorCloud(OpenStackCloud):
             self.log.debug("Failed to get domain", exc_info=True)
             raise OpenStackCloudException(str(e))
         return meta.obj_to_dict(domain)
+
+    def create_flavor(self, name, ram, vcpus, disk, flavorid="auto",
+                      ephemeral=0, swap=0, rxtx_factor=1.0, is_public=True):
+        """Create a new flavor.
+
+        :param name: Descriptive name of the flavor
+        :param ram: Memory in MB for the flavor
+        :param vcpus: Number of VCPUs for the flavor
+        :param disk: Size of local disk in GB
+        :param flavorid: ID for the flavor (optional)
+        :param ephemeral: Ephemeral space size in GB
+        :param swap: Swap space in MB
+        :param rxtx_factor: RX/TX factor
+        :param is_public: Make flavor accessible to the public
+
+        :returns: A dict describing the new flavor.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        try:
+            flavor = self.manager.submitTask(
+                _tasks.FlavorCreate(name=name, ram=ram, vcpus=vcpus, disk=disk,
+                                    flavorid=flavorid, ephemeral=ephemeral,
+                                    swap=swap, rxtx_factor=rxtx_factor,
+                                    is_public=is_public)
+            )
+        except Exception as e:
+            self.log.debug(
+                "Failed to create flavor {0}".format(name),
+                exc_info=True)
+            raise OpenStackCloudException(str(e))
+        return meta.obj_to_dict(flavor)
+
+    def delete_flavor(self, name_or_id):
+        """Delete a flavor
+
+        :param name_or_id: ID or name of the flavor to delete.
+
+        :returns: True if delete succeeded, False otherwise.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        flavor = self.get_flavor(name_or_id)
+        if flavor is None:
+            self.log.debug(
+                "Flavor {0} not found for deleting".format(name_or_id))
+            return False
+
+        try:
+            self.manager.submitTask(_tasks.FlavorDelete(flavor=flavor['id']))
+        except Exception as e:
+            self.log.debug("Error deleting flavor {0}".format(name_or_id),
+                           exc_info=True)
+            raise OpenStackCloudException(
+                "Unable to delete flavor {0}: {1}".format(name_or_id, e)
+            )
+
+        return True
