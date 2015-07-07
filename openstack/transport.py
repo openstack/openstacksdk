@@ -367,7 +367,7 @@ class Transport(requests.Session):
 
             data = kwargs['data']
             # Only log text strings and byte strings that can be decoded
-            # in ascii. Raw byte strings both mess up the actual
+            # in ascii. Raw byte strings and files both mess up the actual
             # writing of the data to any log stream because we'd be mixing
             # text and bytes, and they are generally overly long strings
             # that would make the logs unreadable anyway.
@@ -379,6 +379,9 @@ class Transport(requests.Session):
                     data = data.decode("ascii")
                 except UnicodeDecodeError:
                     data = "<binary data>"
+            elif getattr(data, 'read', False):
+                data = "<file data>"
+
             string_parts.append("'" + data + "'")
 
         _logger.debug("REQ: %s" % " ".join(string_parts))

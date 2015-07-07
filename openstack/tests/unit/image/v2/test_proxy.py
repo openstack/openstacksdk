@@ -23,7 +23,10 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_image_create_attrs(self):
-        self.verify_create(self.proxy.create_image, image.Image)
+        self.verify_create(self.proxy.upload_image, image.Image,
+                           method_kwargs={'data': 'Image'},
+                           expected_kwargs={},
+                           expected_result=image.Image())
 
     def test_image_delete(self):
         self.verify_delete(self.proxy.delete_image, image.Image, False)

@@ -18,8 +18,8 @@ from openstack import proxy
 
 class Proxy(proxy.BaseProxy):
 
-    def create_image(self, **attrs):
-        """Create a new image from attributes
+    def upload_image(self, **attrs):
+        """Upload a new image from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.image.v2.image.Image`,
@@ -28,7 +28,14 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of image creation
         :rtype: :class:`~openstack.image.v2.image.Image`
         """
-        return self._create(image.Image, **attrs)
+
+        data = attrs.pop('data')
+        img = self._create(image.Image, **attrs)
+
+        img.data = data
+        img.upload_image(self.session)
+
+        return img
 
     def delete_image(self, value, ignore_missing=True):
         """Delete an image

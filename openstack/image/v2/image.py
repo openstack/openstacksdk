@@ -12,6 +12,7 @@
 
 from openstack.image import image_service
 from openstack import resource
+from openstack import utils
 
 
 class Image(resource.Resource):
@@ -27,6 +28,10 @@ class Image(resource.Resource):
     allow_list = True
     patch_update = True
 
+    # The image data (bytes or a file-like object)
+    data = None
+    # URI for the image
+    location = resource.header("location")
     # Properties
     #: Hash of the image data used. The Image service uses this value
     #: for verification.
@@ -54,6 +59,14 @@ class Image(resource.Resource):
     properties = resource.prop('properties')
     #: Defines whether the image can be deleted.
     protected = resource.prop('protected', type=bool)
+    #: The size of the image data, in bytes.
+    size = resource.prop('size', type=int)
+    #: When present, Glance will attempt to store the disk image data in the
+    #: backing store indicated by the value of the header. When not present,
+    #: Glance will store the disk image data in the backing store that is
+    #: marked default. Valid values are: file, s3, rbd, swift, cinder,
+    #: gridfs, sheepdog, or vsphere.
+    store = resource.prop('store')
     #: The image status.
     status = resource.prop('status')
     #: Tags, if any, that are associated with the image.
@@ -64,3 +77,12 @@ class Image(resource.Resource):
     virtual_size = resource.prop('virtual_size')
     #: The image visibility.
     visibility = resource.prop('visibility')
+
+    def upload_image(self, session):
+        url = utils.urljoin(self._get_url(resource_id=self.id), 'file')
+
+        headers = self.get_headers()
+        headers['Content-Type'] = 'application/octet-stream'
+
+        session.put(url, service=self.service, data=self.data, accept=None,
+                    headers=headers)

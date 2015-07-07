@@ -13,6 +13,7 @@
 import six
 
 from openstack.tests.functional import base
+from openstack.tests.functional.image.v2.test_image import TEST_IMAGE_NAME
 
 
 class TestImage(base.BaseFunctionalTest):
@@ -23,15 +24,24 @@ class TestImage(base.BaseFunctionalTest):
         for image in images:
             self.assertIsInstance(image.id, six.string_types)
 
+    def _get_non_test_image(self):
+        images = self.conn.compute.images()
+        image = next(images)
+
+        if image.name == TEST_IMAGE_NAME:
+            image = next(images)
+
+        return image
+
     def test_find_image(self):
-        image = next(self.conn.compute.images())
+        image = self._get_non_test_image()
         self.assertIsNotNone(image)
         sot = self.conn.compute.find_image(image.id)
         self.assertEqual(image.id, sot.id)
         self.assertEqual(image.name, sot.name)
 
     def test_get_image(self):
-        image = next(self.conn.compute.images())
+        image = self._get_non_test_image()
         self.assertIsNotNone(image)
         sot = self.conn.compute.get_image(image.id)
         self.assertEqual(image.id, sot.id)

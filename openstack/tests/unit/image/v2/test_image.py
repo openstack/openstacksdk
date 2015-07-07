@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 import testtools
 
 from openstack.image.v2 import image
@@ -20,6 +21,7 @@ EXAMPLE = {
     'checksum': '1',
     'container_format': '2',
     'created_at': '2014-11-19T10:44:55.123450Z',
+    'data': 'This is not an image',
     'disk_format': '4',
     'min_disk': 5,
     'name': '6',
@@ -64,3 +66,19 @@ class TestImage(testtools.TestCase):
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
         self.assertEqual(EXAMPLE['virtual_size'], sot.virtual_size)
         self.assertEqual(EXAMPLE['visibility'], sot.visibility)
+
+    def test_import(self):
+        self.resp = mock.Mock()
+        self.resp.status_code = 204
+        self.sess = mock.Mock()
+        self.sess.put = mock.Mock()
+        self.sess.put.return_value = self.resp
+
+        sot = image.Image(EXAMPLE)
+        sot.upload_image(self.sess)
+
+        headers = {'Content-Type': 'application/octet-stream'}
+
+        self.sess.put.assert_called_with(
+            'images/IDENTIFIER/file', service=sot.service,
+            data=EXAMPLE['data'], accept=None, headers=headers)
