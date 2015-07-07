@@ -77,10 +77,8 @@ class TestProfile(base.TestCase):
         prof = profile.Profile()
         prof.set_name(prof.ALL, 'fee')
         prof.set_region(prof.ALL, 'fie')
-        prof.set_version(prof.ALL, 'foe')
         prof.set_visibility(prof.ALL, 'public')
         for service in prof.service_names:
             self.assertEqual('fee', prof.get_preference(service).service_name)
             self.assertEqual('fie', prof.get_preference(service).region)
-            self.assertEqual('foe', prof.get_preference(service).version)
             self.assertEqual('public', prof.get_preference(service).visibility)

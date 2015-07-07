@@ -190,12 +190,7 @@ class Profile(object):
         :param str service: Service type.
         :param str version: Desired service version.
         """
-        if service == self.ALL:
-            services = self.service_names
-        else:
-            services = [service]
-        for service in services:
-            self._get_service(service).version = version
+        self._get_service(service).version = version
 
     def set_visibility(self, service, visibility):
         """Set the desired visibility for the specified service.
