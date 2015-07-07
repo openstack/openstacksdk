@@ -28,7 +28,9 @@ from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
 import jsonpatch
 from keystoneclient import auth as ksc_auth
-from keystoneclient import client as keystone_client
+from keystoneclient.auth import token_endpoint
+from keystoneclient.v2_0 import client as k2_client
+from keystoneclient.v3 import client as k3_client
 from keystoneclient import exceptions as keystone_exceptions
 from keystoneclient import session as ksc_session
 from novaclient import client as nova_client
@@ -395,16 +397,32 @@ class OpenStackCloud(object):
 
         return self._nova_client
 
+    def _get_auth_plugin_class(self):
+        try:
+            if self.auth_type == 'token_endpoint':
+                return token_endpoint.Token
+            else:
+                return ksc_auth.get_plugin_class(self.auth_type)
+        except Exception as e:
+            self.log.debug("keystone auth plugin failure", exc_info=True)
+            raise OpenStackCloudException(
+                "Could not find auth plugin: {plugin} {error}".format(
+                    plugin=self.auth_type, error=str(e)))
+
+    def _get_identity_client_class(self):
+        if self.api_versions['identity'] == '3':
+            return k3_client.Client
+        elif self.api_versions['identity'] in ('2', '2.0'):
+            return k2_client.Client
+        raise OpenStackCloudException(
+            "Unknown identity API version: {version}".format(
+                version=self.api_versions['identity']))
+
     @property
     def keystone_session(self):
         if self._keystone_session is None:
-            try:
-                auth_plugin = ksc_auth.get_plugin_class(self.auth_type)
-            except Exception as e:
-                self.log.debug("keystone auth plugin failure", exc_info=True)
-                raise OpenStackCloudException(
-                    "Could not find auth plugin: {plugin}".format(
-                        plugin=self.auth_type))
+
+            auth_plugin = self._get_auth_plugin_class()
             try:
                 keystone_auth = auth_plugin(**self.auth)
             except Exception as e:
@@ -429,9 +447,8 @@ class OpenStackCloud(object):
     def keystone_client(self):
         if self._keystone_client is None:
             try:
-                self._keystone_client = keystone_client.Client(
+                self._keystone_client = self._get_identity_client_class()(
                     session=self.keystone_session,
-                    auth_url=self.get_session_endpoint('identity'),
                     timeout=self.api_timeout)
             except Exception as e:
                 self.log.debug(

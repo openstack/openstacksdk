@@ -15,6 +15,10 @@
 import mock
 
 import glanceclient
+import keystoneclient.auth.identity.generic.password
+import keystoneclient.auth.token_endpoint
+from keystoneclient.v2_0 import client as k2_client
+from keystoneclient.v3 import client as k3_client
 from neutronclient.common import exceptions as n_exc
 
 import shade
@@ -31,6 +35,46 @@ class TestShade(base.TestCase):
 
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, shade.OpenStackCloud)
+
+    def test_get_auth_token_endpoint(self):
+        self.cloud.auth_type = 'token_endpoint'
+        plugin = self.cloud._get_auth_plugin_class()
+
+        self.assertIs(plugin, keystoneclient.auth.token_endpoint.Token)
+
+    def test_get_auth_bogus(self):
+        self.cloud.auth_type = 'bogus'
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.cloud._get_auth_plugin_class)
+
+    def test_get_auth_password(self):
+        plugin = self.cloud._get_auth_plugin_class()
+
+        self.assertIs(
+            plugin,
+            keystoneclient.auth.identity.generic.password.Password)
+
+    def test_get_client_v2(self):
+        self.cloud.api_versions['identity'] = '2'
+
+        self.assertIs(
+            self.cloud._get_identity_client_class(),
+            k2_client.Client)
+
+    def test_get_client_v3(self):
+        self.cloud.api_versions['identity'] = '3'
+
+        self.assertIs(
+            self.cloud._get_identity_client_class(),
+            k3_client.Client)
+
+    def test_get_client_v4(self):
+        self.cloud.api_versions['identity'] = '4'
+
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.cloud._get_identity_client_class)
 
     @mock.patch.object(shade.OpenStackCloud, 'search_images')
     def test_get_images(self, mock_search):
