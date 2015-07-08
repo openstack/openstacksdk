@@ -1,0 +1,12 @@
+---
+- name: Create network
+  os_network:
+     cloud: "{{ cloud }}"
+     name: "{{ network_name }}"
+     state: present
+
+- name: Delete network
+  os_network:
+     cloud: "{{ cloud }}"
+     name: "{{ network_name }}"
+     state: absent
