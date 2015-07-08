@@ -21,63 +21,53 @@ from shade import exc
 from shade.tests.unit import base
 
 
-class TestDomains(base.TestCase):
+class TestDomainParams(base.TestCase):
 
     def setUp(self):
-        super(TestDomains, self).setUp()
+        super(TestDomainParams, self).setUp()
         self.cloud = shade.openstack_cloud()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_identity_domain')
     @mock.patch.object(shade.OpenStackCloud, '_get_project')
-    def test_identity_params_v3(self, mock_get_project, mock_get_domain):
+    def test_identity_params_v3(self, mock_get_project):
         mock_get_project.return_value = bunch.Bunch(id=1234)
-        mock_get_domain.return_value = bunch.Bunch(id=5678)
 
         self.cloud.api_versions = dict(identity='3')
 
-        ret = self.cloud._get_identity_params(domain='foo', project='bar')
+        ret = self.cloud._get_identity_params(domain_id='5678', project='bar')
         self.assertIn('default_project', ret)
         self.assertEqual(ret['default_project'], 1234)
         self.assertIn('domain', ret)
-        self.assertEqual(ret['domain'], 5678)
+        self.assertEqual(ret['domain'], '5678')
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_identity_domain')
     @mock.patch.object(shade.OpenStackCloud, '_get_project')
-    def test_identity_params_v3_no_domain(
-            self, mock_get_project, mock_get_domain):
+    def test_identity_params_v3_no_domain(self, mock_get_project):
         mock_get_project.return_value = bunch.Bunch(id=1234)
-        mock_get_domain.return_value = bunch.Bunch(id=5678)
 
         self.cloud.api_versions = dict(identity='3')
 
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud._get_identity_params,
-            domain=None, project='bar')
+            domain_id=None, project='bar')
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_identity_domain')
     @mock.patch.object(shade.OpenStackCloud, '_get_project')
-    def test_identity_params_v2(self, mock_get_project, mock_get_domain):
+    def test_identity_params_v2(self, mock_get_project):
         mock_get_project.return_value = bunch.Bunch(id=1234)
-        mock_get_domain.return_value = bunch.Bunch(id=5678)
 
         self.cloud.api_versions = dict(identity='2')
 
-        ret = self.cloud._get_identity_params(domain='foo', project='bar')
+        ret = self.cloud._get_identity_params(domain_id='foo', project='bar')
         self.assertIn('tenant_id', ret)
         self.assertEqual(ret['tenant_id'], 1234)
         self.assertNotIn('domain', ret)
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_identity_domain')
     @mock.patch.object(shade.OpenStackCloud, '_get_project')
-    def test_identity_params_v2_no_domain(
-            self, mock_get_project, mock_get_domain):
+    def test_identity_params_v2_no_domain(self, mock_get_project):
         mock_get_project.return_value = bunch.Bunch(id=1234)
-        mock_get_domain.return_value = bunch.Bunch(id=5678)
 
         self.cloud.api_versions = dict(identity='2')
 
-        ret = self.cloud._get_identity_params(domain=None, project='bar')
+        ret = self.cloud._get_identity_params(domain_id=None, project='bar')
         self.assertIn('tenant_id', ret)
         self.assertEqual(ret['tenant_id'], 1234)
         self.assertNotIn('domain', ret)
