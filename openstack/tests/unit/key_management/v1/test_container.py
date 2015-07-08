@@ -43,10 +43,10 @@ class TestContainer(testtools.TestCase):
     def test_make_it(self):
         sot = container.Container(EXAMPLE)
         self.assertEqual(EXAMPLE['container_ref'], sot.container_ref)
-        self.assertEqual(EXAMPLE['created'], sot.created)
+        self.assertEqual(EXAMPLE['created'], sot.created_at)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['secret_refs'], sot.secret_refs)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['type'], sot.type)
-        self.assertEqual(EXAMPLE['updated'], sot.updated)
+        self.assertEqual(EXAMPLE['updated'], sot.updated_at)
         self.assertEqual(EXAMPLE['container_ref'], sot.id)

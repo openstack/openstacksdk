@@ -70,7 +70,7 @@ class TestImage(testtools.TestCase):
 
     def test_make_detail(self):
         sot = image.ImageDetail(DETAIL_EXAMPLE)
-        self.assertEqual(DETAIL_EXAMPLE['created'], sot.created)
+        self.assertEqual(DETAIL_EXAMPLE['created'], sot.created_at)
         self.assertEqual(DETAIL_EXAMPLE['id'], sot.id)
         self.assertEqual(DETAIL_EXAMPLE['links'], sot.links)
         self.assertEqual(DETAIL_EXAMPLE['metadata'], sot.metadata)
@@ -79,5 +79,5 @@ class TestImage(testtools.TestCase):
         self.assertEqual(DETAIL_EXAMPLE['name'], sot.name)
         self.assertEqual(DETAIL_EXAMPLE['progress'], sot.progress)
         self.assertEqual(DETAIL_EXAMPLE['status'], sot.status)
-        self.assertEqual(DETAIL_EXAMPLE['updated'], sot.updated)
+        self.assertEqual(DETAIL_EXAMPLE['updated'], sot.updated_at)
         self.assertEqual(DETAIL_EXAMPLE['OS-EXT-IMG-SIZE:size'], sot.size)
