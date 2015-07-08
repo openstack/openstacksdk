@@ -194,6 +194,7 @@ either in an environment variable, `OS_PREFER_IPV6`, or in the client section
 of the clouds.yaml.
 
 ::
+
   client:
     prefer_ipv6: true
   clouds:
