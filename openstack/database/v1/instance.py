@@ -29,33 +29,63 @@ class Instance(resource.Resource):
     allow_list = True
 
     # Properties
+    #: The flavor of the instance
     flavor = resource.prop('flavor')
+    #: Links associated with the instance
     links = resource.prop('links')
+    #: The name of the instance
     name = resource.prop('name')
+    #: The status of the instance
     status = resource.prop('status')
+    #: The size of the volume
     volume = resource.prop('volume')
 
     def enable_root_user(self, session):
+        """Enable login for the root user
+
+        This operation enables login from any host for the root user
+        and provides the user with a generated root password.
+
+        :returns: A dictionary with keys ``name`` and ``password`` specifying
+        the login credentials.
+        """
         url = utils.urljoin(self.base_path, self.id, 'root')
         resp = session.post(url, service=self.service).body
         return resp['user']
 
     def is_root_enabled(self, session):
+        """Determine if root is enabled on an instance
+
+        :returns: ``True`` if root user is enabled for a specified database
+        instance or ``False`` otherwise.
+        """
         url = utils.urljoin(self.base_path, self.id, 'root')
         resp = session.get(url, service=self.service).body
         return resp['rootEnabled']
 
     def restart(self, session):
+        """Restart the database instance
+
+        :returns: ``None``
+        """
         body = {'restart': {}}
         url = utils.urljoin(self.base_path, self.id, 'action')
         session.post(url, service=self.service, json=body)
 
     def resize(self, session, flavor_reference):
+        """Resize the database instance
+
+        :returns: ``None``
+        """
         body = {'resize': {'flavorRef': flavor_reference}}
         url = utils.urljoin(self.base_path, self.id, 'action')
         session.post(url, service=self.service, json=body)
 
     def resize_volume(self, session, volume_size):
+        """Resize the volume attached to the instance
+
+        :returns: ``None``
+        """
         body = {'resize': {'volume': volume_size}}
         url = utils.urljoin(self.base_path, self.id, 'action')
         session.post(url, service=self.service, json=body)

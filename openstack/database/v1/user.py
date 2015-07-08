@@ -30,8 +30,11 @@ class User(resource.Resource):
     instance_id = resource.prop('instance_id')
 
     # Properties
+    #: Databases the user has access to
     databases = resource.prop('databases')
+    #: The name of the user
     name = resource.prop('name')
+    #: The password of the user
     password = resource.prop('password')
 
     @classmethod
