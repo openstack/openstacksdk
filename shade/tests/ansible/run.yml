@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: true
+
+  roles:
+    - { role: keypair, tags: keypair }
+    - { role: security_group, tags: security_group }

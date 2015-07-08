@@ -1,0 +1,38 @@
+---
+- name: Create keypair (non-existing)
+  os_keypair:
+     cloud: "{{ cloud }}"
+     name: "{{ keypair_name }}"
+     state: present
+
+- name: Delete keypair (non-existing)
+  os_keypair:
+      cloud: "{{ cloud }}"
+      name: "{{ keypair_name }}"
+      state: absent
+
+- name: Create keypair (file)
+  os_keypair:
+      cloud: "{{ cloud }}"
+      name: "{{ keypair_name }}"
+      state: present
+      public_key_file: "{{ ansible_env.HOME }}/.ssh/id_rsa.pub"
+
+- name: Delete keypair (file)
+  os_keypair:
+      cloud: "{{ cloud }}"
+      name: "{{ keypair_name }}"
+      state: absent
+
+- name: Create keypair (key)
+  os_keypair:
+      cloud: "{{ cloud }}"
+      name: "{{ keypair_name }}"
+      state: present
+      public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: Delete keypair (key)
+  os_keypair:
+      cloud: "{{ cloud }}"
+      name: "{{ keypair_name }}"
+      state: absent
