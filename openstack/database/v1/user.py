@@ -32,19 +32,7 @@ class User(resource.Resource):
     # Properties
     databases = resource.prop('databases')
     name = resource.prop('name')
-    _password = resource.prop('password')
-
-    @property
-    def password(self):
-        try:
-            val = self._password
-        except AttributeError:
-            val = None
-        return val
-
-    @password.setter
-    def password(self, val):
-        self._password = val
+    password = resource.prop('password')
 
     @classmethod
     def create_by_id(cls, session, attrs, r_id=None, path_args=None):
