@@ -7,3 +7,4 @@
     - { role: keypair, tags: keypair }
     - { role: security_group, tags: security_group }
     - { role: network, tags: network }
+    - { role: subnet, tags: subnet}
