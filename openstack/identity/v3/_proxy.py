@@ -52,14 +52,20 @@ class Proxy(proxy.BaseProxy):
         self._delete(credential.Credential, value,
                      ignore_missing=ignore_missing)
 
-    def find_credential(self, name_or_id):
+    def find_credential(self, name_or_id, ignore_missing=True):
         """Find a single credential
 
         :param name_or_id: The name or ID of a credential.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.credential.Credential`
                   or None
         """
-        return credential.Credential.find(self.session, name_or_id)
+        return credential.Credential.find(self.session, name_or_id,
+                                          ignore_missing=ignore_missing)
 
     def get_credential(self, value):
         """Get a single credential
@@ -124,13 +130,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(domain.Domain, value, ignore_missing=ignore_missing)
 
-    def find_domain(self, name_or_id):
+    def find_domain(self, name_or_id, ignore_missing=True):
         """Find a single domain
 
         :param name_or_id: The name or ID of a domain.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.domain.Domain` or None
         """
-        return domain.Domain.find(self.session, name_or_id)
+        return domain.Domain.find(self.session, name_or_id,
+                                  ignore_missing=ignore_missing)
 
     def get_domain(self, value):
         """Get a single domain
@@ -193,13 +205,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(endpoint.Endpoint, value, ignore_missing=ignore_missing)
 
-    def find_endpoint(self, name_or_id):
+    def find_endpoint(self, name_or_id, ignore_missing=True):
         """Find a single endpoint
 
         :param name_or_id: The name or ID of a endpoint.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.endpoint.Endpoint` or None
         """
-        return endpoint.Endpoint.find(self.session, name_or_id)
+        return endpoint.Endpoint.find(self.session, name_or_id,
+                                      ignore_missing=ignore_missing)
 
     def get_endpoint(self, value):
         """Get a single endpoint
@@ -264,13 +282,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(group.Group, value, ignore_missing=ignore_missing)
 
-    def find_group(self, name_or_id):
+    def find_group(self, name_or_id, ignore_missing=True):
         """Find a single group
 
         :param name_or_id: The name or ID of a group.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.group.Group` or None
         """
-        return group.Group.find(self.session, name_or_id)
+        return group.Group.find(self.session, name_or_id,
+                                ignore_missing=ignore_missing)
 
     def get_group(self, value):
         """Get a single group
@@ -334,13 +358,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(policy.Policy, value, ignore_missing=ignore_missing)
 
-    def find_policy(self, name_or_id):
+    def find_policy(self, name_or_id, ignore_missing=True):
         """Find a single policy
 
         :param name_or_id: The name or ID of a policy.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.policy.Policy` or None
         """
-        return policy.Policy.find(self.session, name_or_id)
+        return policy.Policy.find(self.session, name_or_id,
+                                  ignore_missing=ignore_missing)
 
     def get_policy(self, value):
         """Get a single policy
@@ -403,13 +433,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(project.Project, value, ignore_missing=ignore_missing)
 
-    def find_project(self, name_or_id):
+    def find_project(self, name_or_id, ignore_missing=True):
         """Find a single project
 
         :param name_or_id: The name or ID of a project.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.project.Project` or None
         """
-        return project.Project.find(self.session, name_or_id)
+        return project.Project.find(self.session, name_or_id,
+                                    ignore_missing=ignore_missing)
 
     def get_project(self, value):
         """Get a single project
@@ -472,13 +508,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(service.Service, value, ignore_missing=ignore_missing)
 
-    def find_service(self, name_or_id):
+    def find_service(self, name_or_id, ignore_missing=True):
         """Find a single service
 
         :param name_or_id: The name or ID of a service.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.service.Service` or None
         """
-        return service.Service.find(self.session, name_or_id)
+        return service.Service.find(self.session, name_or_id,
+                                    ignore_missing=ignore_missing)
 
     def get_service(self, value):
         """Get a single service
@@ -541,13 +583,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(user.User, value, ignore_missing=ignore_missing)
 
-    def find_user(self, name_or_id):
+    def find_user(self, name_or_id, ignore_missing=True):
         """Find a single user
 
         :param name_or_id: The name or ID of a user.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.user.User` or None
         """
-        return user.User.find(self.session, name_or_id)
+        return user.User.find(self.session, name_or_id,
+                              ignore_missing=ignore_missing)
 
     def get_user(self, value):
         """Get a single user
@@ -610,13 +658,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(trust.Trust, value, ignore_missing=ignore_missing)
 
-    def find_trust(self, name_or_id):
+    def find_trust(self, name_or_id, ignore_missing=True):
         """Find a single trust
 
         :param name_or_id: The name or ID of a trust.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.trust.Trust` or None
         """
-        return trust.Trust.find(self.session, name_or_id)
+        return trust.Trust.find(self.session, name_or_id,
+                                ignore_missing=ignore_missing)
 
     def get_trust(self, value):
         """Get a single trust

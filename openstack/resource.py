@@ -920,7 +920,7 @@ class Resource(collections.MutableMapping):
         return resp
 
     @classmethod
-    def find(cls, session, name_or_id, path_args=None):
+    def find(cls, session, name_or_id, path_args=None, ignore_missing=True):
         """Find a resource by its name or id.
 
         :param session: The session to use for making this request.
@@ -930,11 +930,18 @@ class Resource(collections.MutableMapping):
         :param dict path_args: A dictionary of arguments to construct
                                a compound URL.
                                See `How path_args are used`_ for details.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
 
         :return: The :class:`Resource` object matching the given name or id
                  or None if nothing matches.
         :raises: :class:`openstack.exceptions.DuplicateResource` if more
                  than one resource is found for this request.
+        :raises: :class:`openstack.exceptions.ResourceNotFound` if nothing
+                 is found and ignore_missing is ``False``.
         """
         def get_one_match(data, attr):
             if len(data) == 1:
@@ -964,9 +971,14 @@ class Resource(collections.MutableMapping):
                 msg = (msg % (cls.get_resource_name(), name_or_id))
                 raise exceptions.DuplicateResource(msg)
 
-            return get_one_match(info, cls.name_attribute)
+            result = get_one_match(info, cls.name_attribute)
+            if result is not None:
+                return result
 
-        return None
+        if ignore_missing:
+            return None
+        raise exceptions.ResourceNotFound(
+            "No %s found for %s" % (cls.__name__, name_or_id))
 
 
 def wait_for_status(session, resource, status=None, failures=None,

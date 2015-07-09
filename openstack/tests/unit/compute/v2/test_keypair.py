@@ -10,11 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
 import testtools
 
 from openstack.compute.v2 import keypair
-from openstack import exceptions
 
 EXAMPLE = {
     'keypair': {
@@ -44,24 +42,3 @@ class TestKeypair(testtools.TestCase):
         self.assertEqual(EXAMPLE['keypair']['fingerprint'], sot.fingerprint)
         self.assertEqual(EXAMPLE['keypair']['name'], sot.name)
         self.assertEqual(EXAMPLE['keypair']['public_key'], sot.public_key)
-
-    def test_find(self):
-        resp = mock.Mock()
-        resp.body = EXAMPLE
-        sess = mock.Mock()
-        sess.get = mock.MagicMock()
-        sess.get.return_value = resp
-        sot = keypair.Keypair()
-        result = sot.find(sess, "kato")
-        url = 'os-keypairs/kato'
-        sess.get.assert_called_with(url, service=sot.service)
-        self.assertEqual(EXAMPLE['keypair']['fingerprint'], result.fingerprint)
-        self.assertEqual(EXAMPLE['keypair']['name'], result.name)
-        self.assertEqual(EXAMPLE['keypair']['public_key'], result.public_key)
-
-    def test_find_not_found(self):
-        sess = mock.Mock()
-        sess.get = mock.MagicMock()
-        sess.get.side_effect = exceptions.HttpException("404")
-        sot = keypair.Keypair()
-        self.assertEqual(None, sot.find(sess, "kato"))

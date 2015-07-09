@@ -1282,6 +1282,15 @@ class TestFind(base.TestCase):
 
         self.assertEqual(None, FakeResource.find(self.mock_session, self.NAME))
 
+    def test_nada_not_ignored(self):
+        self.mock_get.side_effect = [
+            exceptions.HttpException(404, 'not found'),
+            FakeResponse({FakeResource.resources_key: []})
+        ]
+
+        self.assertRaises(exceptions.ResourceNotFound, FakeResource.find,
+                          self.mock_session, self.NAME, ignore_missing=False)
+
 
 class TestWaitForStatus(base.TestCase):
 

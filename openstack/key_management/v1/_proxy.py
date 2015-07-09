@@ -46,14 +46,20 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(container.Container, value, ignore_missing=ignore_missing)
 
-    def find_container(self, name_or_id):
+    def find_container(self, name_or_id, ignore_missing=True):
         """Find a single container
 
         :param name_or_id: The name or ID of a container.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.container.Container` or
                   None
         """
-        return container.Container.find(self.session, name_or_id)
+        return container.Container.find(self.session, name_or_id,
+                                        ignore_missing=ignore_missing)
 
     def get_container(self, value):
         """Get a single container
@@ -118,13 +124,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(order.Order, value, ignore_missing=ignore_missing)
 
-    def find_order(self, name_or_id):
+    def find_order(self, name_or_id, ignore_missing=True):
         """Find a single order
 
         :param name_or_id: The name or ID of a order.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.order.Order` or None
         """
-        return order.Order.find(self.session, name_or_id)
+        return order.Order.find(self.session, name_or_id,
+                                ignore_missing=ignore_missing)
 
     def get_order(self, value):
         """Get a single order
@@ -188,13 +200,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(secret.Secret, value, ignore_missing=ignore_missing)
 
-    def find_secret(self, name_or_id):
+    def find_secret(self, name_or_id, ignore_missing=True):
         """Find a single secret
 
         :param name_or_id: The name or ID of a secret.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.secret.Secret` or None
         """
-        return secret.Secret.find(self.session, name_or_id)
+        return secret.Secret.find(self.session, name_or_id,
+                                  ignore_missing=ignore_missing)
 
     def get_secret(self, value):
         """Get a single secret

@@ -49,13 +49,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(alarm.Alarm, value, ignore_missing=ignore_missing)
 
-    def find_alarm(self, name_or_id):
+    def find_alarm(self, name_or_id, ignore_missing=True):
         """Find a single alarm
 
         :param name_or_id: The name or ID of a alarm.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.telemetry.v2.alarm.Alarm` or None
         """
-        return alarm.Alarm.find(self.session, name_or_id)
+        return alarm.Alarm.find(self.session, name_or_id,
+                                ignore_missing=ignore_missing)
 
     def get_alarm(self, value):
         """Get a single alarm
@@ -90,14 +96,20 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(alarm.Alarm, value, **attrs)
 
-    def find_alarm_change(self, name_or_id):
+    def find_alarm_change(self, name_or_id, ignore_missing=True):
         """Find a single alarm change
 
         :param name_or_id: The name or ID of a alarm change.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.telemetry.v2.alarm_change.AlarmChange`
                   or None
         """
-        return alarm_change.AlarmChange.find(self.session, name_or_id)
+        return alarm_change.AlarmChange.find(self.session, name_or_id,
+                                             ignore_missing=ignore_missing)
 
     def alarm_changes(self, value):
         """Return a generator of alarm changes
@@ -110,14 +122,20 @@ class Proxy(proxy.BaseProxy):
         return self._list(alarm_change.AlarmChange, paginated=False,
                           path_args={'alarm_id': alarm_id})
 
-    def find_capability(self, name_or_id):
+    def find_capability(self, name_or_id, ignore_missing=True):
         """Find a single capability
 
         :param name_or_id: The name or ID of a capability.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.telemetry.v2.capability.Capability`
                   or None
         """
-        return capability.Capability.find(self.session, name_or_id)
+        return capability.Capability.find(self.session, name_or_id,
+                                          ignore_missing=ignore_missing)
 
     def capabilities(self):
         """Return a generator of capabilities
@@ -127,13 +145,19 @@ class Proxy(proxy.BaseProxy):
         """
         return self._list(capability.Capability, paginated=False)
 
-    def find_meter(self, name_or_id):
+    def find_meter(self, name_or_id, ignore_missing=True):
         """Find a single meter
 
         :param name_or_id: The name or ID of a meter.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.telemetry.v2.meter.Meter` or None
         """
-        return meter.Meter.find(self.session, name_or_id)
+        return meter.Meter.find(self.session, name_or_id,
+                                ignore_missing=ignore_missing)
 
     def meters(self):
         """Return a generator of meters
@@ -143,14 +167,20 @@ class Proxy(proxy.BaseProxy):
         """
         return self._list(meter.Meter, paginated=False)
 
-    def find_resource(self, name_or_id):
+    def find_resource(self, name_or_id, ignore_missing=True):
         """Find a single resource
 
         :param name_or_id: The name or ID of a resource.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.telemetry.v2.resource.Resource` or
                   None
         """
-        return resource.Resource.find(self.session, name_or_id)
+        return resource.Resource.find(self.session, name_or_id,
+                                      ignore_missing=ignore_missing)
 
     def get_resource(self, value):
         """Get a single resource
@@ -185,13 +215,19 @@ class Proxy(proxy.BaseProxy):
         """
         return self._create(sample.Sample, **attrs)
 
-    def find_sample(self, name_or_id):
+    def find_sample(self, name_or_id, ignore_missing=True):
         """Find a single sample
 
         :param name_or_id: The name or ID of a sample.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.telemetry.v2.sample.Sample` or None
         """
-        return sample.Sample.find(self.session, name_or_id)
+        return sample.Sample.find(self.session, name_or_id,
+                                  ignore_missing=ignore_missing)
 
     def samples(self):
         """Return a generator of samples
@@ -201,14 +237,20 @@ class Proxy(proxy.BaseProxy):
         """
         return self._list(sample.Sample, paginated=False)
 
-    def find_statistics(self, name_or_id):
+    def find_statistics(self, name_or_id, ignore_missing=True):
         """Find a single statistics
 
         :param name_or_id: The name or ID of a statistics.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.telemetry.v2.statistics.Statistics`
                   or None
         """
-        return statistics.Statistics.find(self.session, name_or_id)
+        return statistics.Statistics.find(self.session, name_or_id,
+                                          ignore_missing=ignore_missing)
 
     def statistics(self, value):
         """Return a generator of statistics

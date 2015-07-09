@@ -45,13 +45,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(image.Image, value, ignore_missing=ignore_missing)
 
-    def find_image(self, name_or_id):
+    def find_image(self, name_or_id, ignore_missing=True):
         """Find a single image
 
         :param name_or_id: The name or ID of a image.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.image.v2.image.Image` or None
         """
-        return image.Image.find(self.session, name_or_id)
+        return image.Image.find(self.session, name_or_id,
+                                ignore_missing=ignore_missing)
 
     def get_image(self, value):
         """Get a single image
@@ -113,13 +119,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(member.Member, value, ignore_missing=ignore_missing)
 
-    def find_member(self, name_or_id):
+    def find_member(self, name_or_id, ignore_missing=True):
         """Find a single member
 
         :param name_or_id: The name or ID of a member.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.image.v2.member.Member` or None
         """
-        return member.Member.find(self.session, name_or_id)
+        return member.Member.find(self.session, name_or_id,
+                                  ignore_missing=ignore_missing)
 
     def get_member(self, value):
         """Get a single member

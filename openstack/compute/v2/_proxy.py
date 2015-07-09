@@ -24,14 +24,20 @@ from openstack import resource
 
 class Proxy(proxy.BaseProxy):
 
-    def find_extension(self, name_or_id):
+    def find_extension(self, name_or_id, ignore_missing=True):
         """Find a single extension
 
         :param name_or_id: The name or ID of an extension.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.extension.Extension` or
                   None
         """
-        return extension.Extension.find(self.session, name_or_id)
+        return extension.Extension.find(self.session, name_or_id,
+                                        ignore_missing=ignore_missing)
 
     def extensions(self):
         """Retrieve a generator of extensions
@@ -41,13 +47,19 @@ class Proxy(proxy.BaseProxy):
         """
         return self._list(extension.Extension, paginated=False)
 
-    def find_flavor(self, name_or_id):
+    def find_flavor(self, name_or_id, ignore_missing=True):
         """Find a single flavor
 
         :param name_or_id: The name or ID of a flavor.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.flavor.Flavor` or None
         """
-        return flavor.Flavor.find(self.session, name_or_id)
+        return flavor.Flavor.find(self.session, name_or_id,
+                                  ignore_missing=ignore_missing)
 
     def create_flavor(self, **attrs):
         """Create a new flavor from attributes
@@ -131,13 +143,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(image.Image, value, ignore_missing=ignore_missing)
 
-    def find_image(self, name_or_id):
+    def find_image(self, name_or_id, ignore_missing=True):
         """Find a single image
 
         :param name_or_id: The name or ID of a image.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.image.Image` or None
         """
-        return image.Image.find(self.session, name_or_id)
+        return image.Image.find(self.session, name_or_id,
+                                ignore_missing=ignore_missing)
 
     def get_image(self, value):
         """Get a single image
@@ -205,13 +223,19 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(keypair.Keypair, value)
 
-    def find_keypair(self, name_or_id):
+    def find_keypair(self, name_or_id, ignore_missing=True):
         """Find a single keypair
 
         :param name_or_id: The name or ID of a keypair.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.keypair.Keypair` or None
         """
-        return keypair.Keypair.find(self.session, name_or_id)
+        return keypair.Keypair.find(self.session, name_or_id,
+                                    ignore_missing=ignore_missing)
 
     def keypairs(self):
         """Return a generator of keypairs
@@ -271,13 +295,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(server.Server, value, ignore_missing=ignore_missing)
 
-    def find_server(self, name_or_id):
+    def find_server(self, name_or_id, ignore_missing=True):
         """Find a single server
 
         :param name_or_id: The name or ID of a server.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.server.Server` or None
         """
-        return server.Server.find(self.session, name_or_id)
+        return server.Server.find(self.session, name_or_id,
+                                  ignore_missing=ignore_missing)
 
     def get_server(self, value):
         """Get a single server
@@ -385,14 +415,20 @@ class Proxy(proxy.BaseProxy):
         self._delete(server_interface.ServerInterface, value,
                      ignore_missing=ignore_missing)
 
-    def find_server_interface(self, name_or_id):
+    def find_server_interface(self, name_or_id, ignore_missing=True):
         """Find a single server interface
 
         :param name_or_id: The name or ID of a server interface.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.server_interface.
                   ServerInterface` or None
         """
-        return server_interface.ServerInterface.find(self.session, name_or_id)
+        return server_interface.ServerInterface.find(
+            self.session, name_or_id, ignore_missing=ignore_missing)
 
     def get_server_interface(self, value):
         """Get a single server interface
@@ -431,13 +467,19 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(server_interface.ServerInterface, value, **attrs)
 
-    def find_server_ip(self, name_or_id):
+    def find_server_ip(self, name_or_id, ignore_missing=True):
         """Find a single server IP
 
         :param name_or_id: The name or ID of a server IP.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.server_ip.ServerIP` or None
         """
-        return server_ip.ServerIP.find(self.session, name_or_id)
+        return server_ip.ServerIP.find(self.session, name_or_id,
+                                       ignore_missing=ignore_missing)
 
     def server_ips(self):
         """Return a generator of server IPs

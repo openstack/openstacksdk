@@ -69,21 +69,9 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
 
         self.assertEqual(0, mock_find.call_count)
 
-    @mock.patch.object(stack.Stack, 'find')
-    def test_resources_with_stack_name(self, mock_find):
-        stack_name = 'test_stack'
-        stack_id = '1234'
-        stack_identity = {'id': stack_id, 'stack_name': stack_name}
-
-        stk = stack.Stack(attrs=stack_identity)
-        mock_find.return_value = stk
-
-        path_args = {'stack_id': stack_id, 'stack_name': stack_name}
-        self.verify_list(self.proxy.resources, resource.Resource,
-                         paginated=False,
-                         method_args=[stack_name],
-                         expected_kwargs={'path_args': path_args})
-        mock_find.assert_called_once_with(mock.ANY, stack_name)
+    def test_resources_with_stack_name(self):
+        self.verify_find('openstack.orchestration.v1.stack.Stack.find',
+                         self.proxy.find_stack)
 
     @mock.patch.object(stack.Stack, 'find')
     @mock.patch.object(resource.Resource, 'list')

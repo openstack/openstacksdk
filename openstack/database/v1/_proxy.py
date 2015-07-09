@@ -46,13 +46,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(database.Database, value, ignore_missing=ignore_missing)
 
-    def find_database(self, name_or_id):
+    def find_database(self, name_or_id, ignore_missing=True):
         """Find a single database
 
         :param name_or_id: The name or ID of a database.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.database.v1.database.Database` or None
         """
-        return database.Database.find(self.session, name_or_id)
+        return database.Database.find(self.session, name_or_id,
+                                      ignore_missing=ignore_missing)
 
     def databases(self):
         """Return a generator of databases
@@ -75,13 +81,19 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(database.Database, value)
 
-    def find_flavor(self, name_or_id):
+    def find_flavor(self, name_or_id, ignore_missing=True):
         """Find a single flavor
 
         :param name_or_id: The name or ID of a flavor.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.database.v1.flavor.Flavor` or None
         """
-        return flavor.Flavor.find(self.session, name_or_id)
+        return flavor.Flavor.find(self.session, name_or_id,
+                                  ignore_missing=ignore_missing)
 
     def get_flavor(self, value):
         """Get a single flavor
@@ -130,13 +142,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(instance.Instance, value, ignore_missing=ignore_missing)
 
-    def find_instance(self, name_or_id):
+    def find_instance(self, name_or_id, ignore_missing=True):
         """Find a single instance
 
         :param name_or_id: The name or ID of a instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.database.v1.instance.Instance` or None
         """
-        return instance.Instance.find(self.session, name_or_id)
+        return instance.Instance.find(self.session, name_or_id,
+                                      ignore_missing=ignore_missing)
 
     def get_instance(self, value):
         """Get a single instance
@@ -200,13 +218,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(user.User, value, ignore_missing=ignore_missing)
 
-    def find_user(self, name_or_id):
+    def find_user(self, name_or_id, ignore_missing=True):
         """Find a single user
 
         :param name_or_id: The name or ID of a user.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.database.v1.user.User` or None
         """
-        return user.User.find(self.session, name_or_id)
+        return user.User.find(self.session, name_or_id,
+                              ignore_missing=ignore_missing)
 
     def users(self):
         """Return a generator of users

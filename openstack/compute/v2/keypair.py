@@ -11,12 +11,12 @@
 # under the License.
 
 from openstack.compute import compute_service
-from openstack import exceptions
 from openstack import resource
 
 
 class Keypair(resource.Resource):
     id_attribute = 'name'
+    name_attribute = None
     resource_key = 'keypair'
     resources_key = 'keypairs'
     base_path = '/os-keypairs'
@@ -56,12 +56,3 @@ class Keypair(resource.Resource):
         self._attrs = resp
         self._reset_dirty()
         return self
-
-    @classmethod
-    def find(cls, session, name_or_id, path_args=None):
-        """Find a keypair by name because list filtering does not work."""
-        try:
-            return cls.get_by_id(session, name_or_id)
-        except exceptions.HttpException:
-            pass
-        return None

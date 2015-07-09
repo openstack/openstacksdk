@@ -123,8 +123,14 @@ class TestProxyBase(base.TestCase):
 
     def verify_find(self, mock_method, test_method, **kwargs):
         self._verify(mock_method, test_method, method_args=["name_or_id"],
-                     expected_args=["name_or_id"], expected_result="result",
-                     **kwargs)
+                     expected_args=["name_or_id"],
+                     expected_kwargs={'ignore_missing': True},
+                     expected_result="result", **kwargs)
+        self._verify(mock_method, test_method,
+                     method_args=["name_or_id", False],
+                     expected_args=["name_or_id"],
+                     expected_kwargs={'ignore_missing': False},
+                     expected_result="result", **kwargs)
 
     def verify_find2(self, mock_method, test_method, path_args, **kwargs):
         method_args = ["name_or_id"]

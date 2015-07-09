@@ -42,14 +42,20 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(cluster.Cluster, value, ignore_missing=ignore_missing)
 
-    def find_cluster(self, name_or_id):
+    def find_cluster(self, name_or_id, ignore_missing=True):
         """Find a single cluster.
 
         :param name_or_id: The name or ID of a cluster.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.cluster.v1.cluster.Cluster` object
             or None
         """
-        return cluster.Cluster.find(self.session, name_or_id)
+        return cluster.Cluster.find(self.session, name_or_id,
+                                    ignore_missing=ignore_missing)
 
     def get_cluster(self, name_or_id):
         """Get a single cluster.

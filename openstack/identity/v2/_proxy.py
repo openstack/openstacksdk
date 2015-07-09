@@ -45,13 +45,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(role.Role, value, ignore_missing=ignore_missing)
 
-    def find_role(self, name_or_id):
+    def find_role(self, name_or_id, ignore_missing=True):
         """Find a single role
 
         :param name_or_id: The name or ID of a role.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v2.role.Role` or None
         """
-        return role.Role.find(self.session, name_or_id)
+        return role.Role.find(self.session, name_or_id,
+                              ignore_missing=ignore_missing)
 
     def get_role(self, value):
         """Get a single role
@@ -113,13 +119,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(tenant.Tenant, value, ignore_missing=ignore_missing)
 
-    def find_tenant(self, name_or_id):
+    def find_tenant(self, name_or_id, ignore_missing=True):
         """Find a single tenant
 
         :param name_or_id: The name or ID of a tenant.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v2.tenant.Tenant` or None
         """
-        return tenant.Tenant.find(self.session, name_or_id)
+        return tenant.Tenant.find(self.session, name_or_id,
+                                  ignore_missing=ignore_missing)
 
     def get_tenant(self, value):
         """Get a single tenant
@@ -181,13 +193,19 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(user.User, value, ignore_missing=ignore_missing)
 
-    def find_user(self, name_or_id):
+    def find_user(self, name_or_id, ignore_missing=True):
         """Find a single user
 
         :param name_or_id: The name or ID of a user.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v2.user.User` or None
         """
-        return user.User.find(self.session, name_or_id)
+        return user.User.find(self.session, name_or_id,
+                              ignore_missing=ignore_missing)
 
     def get_user(self, value):
         """Get a single user
