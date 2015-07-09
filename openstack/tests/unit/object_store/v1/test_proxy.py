@@ -30,11 +30,11 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_account_metadata_get(self):
-        self.verify_head(container.Container, self.proxy.get_account_metadata)
+        self.verify_head(self.proxy.get_account_metadata, container.Container)
 
     def test_container_metadata_get(self):
-        self.verify_head(container.Container,
-                         self.proxy.get_container_metadata, value="container")
+        self.verify_head(self.proxy.get_container_metadata,
+                         container.Container, value="container")
 
     def test_container_delete(self):
         self.verify_delete(self.proxy.delete_container,
@@ -48,7 +48,7 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_container, container.Container)
 
     def test_object_metadata_get(self):
-        self.verify_head(obj.Object, self.proxy.get_object_metadata,
+        self.verify_head(self.proxy.get_object_metadata, obj.Object,
                          value="object", container="container")
 
     def _test_object_delete(self, ignore):
