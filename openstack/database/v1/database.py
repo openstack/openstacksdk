@@ -27,7 +27,12 @@ class Database(resource.Resource):
     allow_list = True
 
     # Properties
+    #: Set of symbols and encodings. The default character set is ``utf8``.
     character_set = resource.prop('character_set')
+    #: Set of rules for comparing characters in a character set.
+    #: The default value for collate is ``utf8_general_ci``.
     collate = resource.prop('collate')
+    #: The ID of the instance
     instance_id = resource.prop('instance_id')
+    #: The name of the database
     name = resource.prop('name')

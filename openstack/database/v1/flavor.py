@@ -25,6 +25,9 @@ class Flavor(resource.Resource):
     allow_retrieve = True
 
     # Properties
+    #: Links associated with the flavor
     links = resource.prop('links')
+    #: The name of the flavor
     name = resource.prop('name')
+    #: The size in MB of RAM the flavor has
     ram = resource.prop('ram')
