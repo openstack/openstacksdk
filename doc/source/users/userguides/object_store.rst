@@ -20,9 +20,12 @@ To list existing containers, use the
     >>> for cont in conn.object_store.containers():
     ...     print cont
     ...
-    Container: {u'count': 5, u'bytes': 500, u'name': u'my container'}
-    Container: {u'count': 0, u'bytes': 0, u'name': u'empty container'}
-    Container: {u'count': 100, u'bytes': 1000000, u'name': u'another container'}
+    openstack.object_store.v1.container.Container: {u'count': 5,
+    u'bytes': 500, u'name': u'my container'}
+    openstack.object_store.v1.container.Container: {u'count': 0,
+    u'bytes': 0, u'name': u'empty container'}
+    openstack.object_store.v1.container.Container: {u'count': 100,
+    u'bytes': 1000000, u'name': u'another container'}
 
 The ``containers`` method returns a generator which yields
 :class:`~openstack.object_store.v1.container.Container` objects. It handles
@@ -45,22 +48,9 @@ Creating Containers
 To create a container, use the
 :meth:`~openstack.object_store.v1._proxy.Proxy.create_container` method. ::
 
-    >>> cont = conn.object_store.create_container("new container".decode("utf8"))
+    >>> cont = conn.object_store.create_container(name="new container")
     >>> cont
-    Container: {'name': u'new container'}
-
-You can also create containers by passing in a
-:class:`~openstack.object_store.v1.container.Container` resource. This is
-helpful if you wanted to create another container which uses the same metadata
-settings that another container has. ::
-
-    >>> from copy import copy
-    >>> print cont.name, cont.read_ACL
-    MyContainer .r:mysite.com
-    >>> new_cont = copy(cont)
-    >>> new_cont.name = "copied container"
-    >>> conn.object_store.create_container(new_cont)
-    Container: {u'name': 'copied container', 'x-container-read': '.r:mysite.com'}
+    openstack.object_store.v1.container.Container: {'name': u'new container'}
 
 Working with Container Metadata
 *******************************
@@ -71,9 +61,10 @@ This method either takes the name of a container, or a
 :class:`~openstack.object_store.v1.container.Container` object, and it returns
 a `Container` object with all of its metadata attributes set. ::
 
-    >>> cont = conn.object_store.get_container_metadata("new container".decode("utf8"))
-    Container: {'content-length': '0', 'x-container-object-count': '0',
-    'name': u'new container', 'accept-ranges': 'bytes',
+    >>> cont = conn.object_store.get_container_metadata("new container")
+    openstack.object_store.v1.container.Container: {'content-length': '0',
+    'x-container-object-count': '0', 'name': u'new container',
+    'accept-ranges': 'bytes',
     'x-trans-id': 'tx22c5de63466e4c05bb104-0054740c39',
     'date': 'Tue, 25 Nov 2014 04:57:29 GMT',
     'x-timestamp': '1416889793.23520', 'x-container-read': '.r:mysite.com',
@@ -89,7 +80,8 @@ resource and pass it to `set_container_metadata`. ::
 
     >>> cont.write_ACL = "big_project:another_user"
     >>> conn.object_store.set_container_metadata(cont)
-    Container: {'content-length': '0', 'x-container-object-count': '0',
+    openstack.object_store.v1.container.Container: {'content-length': '0',
+    'x-container-object-count': '0',
     'name': u'my new container', 'accept-ranges': 'bytes',
     'x-trans-id': 'txc3ee751f971d41de9e9f4-0054740ec1',
     'date': 'Tue, 25 Nov 2014 05:08:17 GMT',
@@ -118,7 +110,8 @@ object, you can pass it to ``objects``. ::
     >>> for obj in conn.object_store.objects(cont):
     ...     print obj
     ...
-    Object: {u'hash': u'0522d4ccdf9956badcb15c4087a0c4cb',
+    openstack.object_store.v1.container.Object:
+    {u'hash': u'0522d4ccdf9956badcb15c4087a0c4cb',
     u'name': u'pictures/selfie.jpg', u'bytes': 15744,
     'last-modified': u'2014-10-31T06:33:36.618640',
     u'last_modified': u'2014-10-31T06:33:36.618640',
@@ -169,30 +162,20 @@ Creating Objects
 
 Once you have data you'd like to store in the Object Store service, you use
 the :meth:`~openstack.object_store.v1._proxy.Proxy.create_object` method.
-This method takes the ``data`` to be stored, along with an ``obj`` and
-``container``. The ``obj`` can either be the name of an object or an
-:class:`~openstack.object_store.v1.obj.Object` instance, and ``container``
-can either be the name of a container or an
-:class:`~openstack.object_store.v1.container.Container` instance. ::
+This method takes the ``data`` to be stored, along with at least an object
+``name`` and the ``container`` it is to be stored in. ::
 
-    >>> hello = conn.object_store.create_object("Hello, world!",
-                                                "helloworld.txt".decode("utf8"),
-                                                "My Container".decode("utf8"))
+    >>> hello = conn.object_store.create_object(container="messages",
+                                                name="helloworld.txt",
+                                                data="Hello, world!")
     >>> print hello
-    Object: {'content-length': '0', 'container': u'My Container',
-    'name': u'helloworld.txt',
+    openstack.object_store.v1.container.Object: {'content-length': '0',
+    'container': u'messages', 'name': u'helloworld.txt',
     'last-modified': 'Tue, 25 Nov 2014 17:39:29 GMT',
     'etag': '5eb63bbbe01eeed093cb22bb8f5acdc3',
     'x-trans-id': 'tx3035d41b03334aeaaf3dd-005474bed0',
     'date': 'Tue, 25 Nov 2014 17:39:28 GMT',
     'content-type': 'text/html; charset=UTF-8'}
-
-If you have an existing object and want to update its data, you can easily
-do that by passing new ``data`` along with existing
-:class:`~openstack.object_store.v1.obj.Object` and
-:class:`~openstack.object_store.v1.container.Container` instances. ::
-
-    >>> conn.object_store.create_object("Hola, mundo!", hello, cont)
 
 Working with Object Metadata
 ****************************
@@ -215,7 +198,8 @@ header value, which you can see is returned when we retreive the updated
 metadata. ::
 
     >>> conn.object_store.get_object_metadata(ob)
-    Object: {'content-length': '11', 'container': u'Secret Container',
+    openstack.object_store.v1.container.Object: {'content-length': '11',
+    'container': u'Secret Container',
     'name': u'selfdestruct.txt', 'x-delete-after': 300,
     'accept-ranges': 'bytes', 'last-modified': 'Tue, 25 Nov 2014 17:50:45 GMT',
     'etag': '5eb63bbbe01eeed093cb22bb8f5acdc3',
