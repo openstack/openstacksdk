@@ -2147,9 +2147,13 @@ class OpenStackCloud(object):
                 raise OpenStackCloudException(
                     "unable to find a port for server {0}".format(server_id))
 
+            floating_ip = {'port_id': port['id']}
+            if fixed_address is not None:
+                floating_ip['fixed_ip_address'] = fixed_address
+
             return self.manager.submitTask(_tasks.NeutronFloatingIPUpdate(
                 floatingip=floating_ip_id,
-                body={'floatingip': {'port_id': port['id']}}
+                body={'floatingip': floating_ip}
             ))['floatingip']
 
     def _nova_attach_ip_to_server(self, server_id, floating_ip_id,
