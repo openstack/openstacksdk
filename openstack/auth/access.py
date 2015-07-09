@@ -15,11 +15,14 @@
 # limitations under the License.
 
 import datetime
+import logging
 
 from oslo_utils import timeutils
 
 from openstack.auth import service_catalog as catalog
 
+
+logger = logging.getLogger(__name__)
 
 # Do not use token before expiration
 BEST_BEFORE_SECONDS = 30
@@ -70,7 +73,12 @@ class AccessInfo(object):
         """
         norm_expires = timeutils.normalize_time(self.expires)
         soon = (timeutils.utcnow() + datetime.timedelta(seconds=best_before))
-        return norm_expires < soon
+        expiring = norm_expires < soon
+
+        if expiring:
+            logger.debug("Token expiring at %s", norm_expires)
+
+        return expiring
 
     @classmethod
     def is_valid(cls, body, **kwargs):
