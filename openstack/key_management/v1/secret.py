@@ -37,7 +37,7 @@ class Secret(resource.Resource):
     #: A list of content types
     content_types = resource.prop('content_types')
     #: Once this timestamp has past, the secret will no longer be available.
-    expiration = resource.prop('expiration')
+    expires_at = resource.prop('expiration')
     #: The type/mode of the algorithm associated with the secret information.
     mode = resource.prop('mode')
     #: The name of the secret set by the user
@@ -47,4 +47,4 @@ class Secret(resource.Resource):
     #: The status of this secret
     status = resource.prop('status')
     #: A timestamp when this secret was updated
-    updated = resource.prop('updated')
+    updated_at = resource.prop('updated')

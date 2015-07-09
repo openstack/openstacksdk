@@ -35,7 +35,7 @@ class Stack(resource.Resource):
     #: required by the stack.
     capabilities = resource.prop('capabilities')
     #: Timestamp of the stack creation.
-    creation_time = resource.prop('creation_time')
+    created_at = resource.prop('creation_time')
     #: A text decription of the stack.
     description = resource.prop('description')
     #: Whether the stack will support a rollback operation on stack
@@ -62,7 +62,7 @@ class Stack(resource.Resource):
     #: Stack operation timeout in minutes.
     timeout_mins = resource.prop('timeout_mins')
     #: Timestamp of last update on the stack.
-    updated_time = resource.prop('updated_time')
+    updated_at = resource.prop('updated_time')
 
     def _action(self, session, body):
         """Perform stack actions"""

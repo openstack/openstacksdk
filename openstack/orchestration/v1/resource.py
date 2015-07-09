@@ -49,4 +49,4 @@ class Resource(resource.Resource):
     #: A string that explains why the resource is in its current status.
     status_reason = resource.prop('resource_status_reason')
     #: Timestamp of the last update made to the resource.
-    updated_time = resource.prop('updated_time')
+    updated_at = resource.prop('updated_time')

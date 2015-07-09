@@ -62,4 +62,4 @@ class TestResource(testtools.TestCase):
         self.assertEqual(FAKE['resource_type'], sot.resource_type)
         self.assertEqual(FAKE['status'], sot.status)
         self.assertEqual(FAKE['status_reason'], sot.status_reason)
-        self.assertEqual(FAKE['updated_time'], sot.updated_time)
+        self.assertEqual(FAKE['updated_time'], sot.updated_at)

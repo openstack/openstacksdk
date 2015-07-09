@@ -32,7 +32,7 @@ class Image(resource.Resource):
     #: The name of this image.
     name = resource.prop('name')
     #: Timestamp when the image was created.
-    created = resource.prop('created')
+    created_at = resource.prop('created')
     #: Metadata pertaining to this image. *Type: dict*
     metadata = resource.prop('metadata', type=dict)
     #: The mimimum disk size. *Type: int*
@@ -45,7 +45,7 @@ class Image(resource.Resource):
     #: The status of this image.
     status = resource.prop('status')
     #: Timestamp when the image was updated.
-    updated = resource.prop('updated')
+    updated_at = resource.prop('updated')
     #: Size of the image in bytes. *Type: int*
     size = resource.prop('OS-EXT-IMG-SIZE:size', type=int)
 

@@ -62,7 +62,7 @@ class TestStack(testtools.TestCase):
     def test_make_it(self):
         sot = stack.Stack(FAKE)
         self.assertEqual(FAKE['capabilities'], sot.capabilities)
-        self.assertEqual(FAKE['creation_time'], sot.creation_time)
+        self.assertEqual(FAKE['creation_time'], sot.created_at)
         self.assertEqual(FAKE['description'], sot.description)
         self.assertEqual(FAKE['disable_rollback'], sot.disable_rollback)
         self.assertEqual(FAKE['id'], sot.id)
@@ -80,7 +80,7 @@ class TestStack(testtools.TestCase):
         self.assertEqual(FAKE['template_url'],
                          sot.template_url)
         self.assertEqual(FAKE['timeout_mins'], sot.timeout_mins)
-        self.assertEqual(FAKE['updated_time'], sot.updated_time)
+        self.assertEqual(FAKE['updated_time'], sot.updated_at)
 
     def test_create(self):
         resp = mock.MagicMock()
