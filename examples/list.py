@@ -22,7 +22,7 @@ def run_list(opts):
     path_args = None
     if opts.data:
         path_args = common.get_data_option(opts)
-    for obj in cls.list(sess, path_args=path_args):
+    for obj in cls.list(sess, path_args=path_args, paginated=True):
         print(str(obj))
     return
 

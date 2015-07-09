@@ -737,7 +737,6 @@ class ResourceTests(base.TestTransportBase):
         results = [fake_data.copy(), fake_data.copy(), fake_data.copy()]
         for i in range(len(results)):
             results[i]['id'] = fake_id + i
-
         if resource_class.resources_key is not None:
             body = {resource_class.resources_key:
                     self._get_expected_results()}
@@ -745,19 +744,15 @@ class ResourceTests(base.TestTransportBase):
         else:
             body = self._get_expected_results()
             sentinel = []
-
-        marker = "marker=%d" % results[-1]['id']
-
         self.session.get.side_effect = [mock.Mock(body=body),
                                         mock.Mock(body=sentinel)]
 
-        objs = resource_class.list(self.session, limit=1,
-                                   path_args=fake_arguments,
-                                   paginated=True)
-        objs = list(objs)
-        self.assertIn(marker, self.session.get.call_args[0][0])
-        self.assertEqual(3, len(objs))
+        objs = list(resource_class.list(self.session, path_args=fake_arguments,
+                                        paginated=True))
 
+        params = {'limit': 3, 'marker': results[-1]['id']}
+        self.assertEqual(params, self.session.get.call_args[1]['params'])
+        self.assertEqual(3, len(objs))
         for obj in objs:
             self.assertIn(obj.id, range(fake_id, fake_id + 3))
             self.assertEqual(fake_name, obj['name'])
@@ -783,7 +778,7 @@ class ResourceTests(base.TestTransportBase):
         attrs = {"get.return_value": body}
         session = mock.Mock(**attrs)
 
-        list(FakeResource.list(session, limit=len(results) + 1,
+        list(FakeResource.list(session, params={'limit': len(results) + 1},
                                path_args=fake_arguments,
                                paginated=paginated))
 
@@ -798,53 +793,26 @@ class ResourceTests(base.TestTransportBase):
         # When we call with paginated=False, make sure we made one call
         self._test_list_call_count(False)
 
-    @mock.patch("openstack.resource.Resource.page")
-    def test_determine_limit(self, fake_page):
+    def test_determine_limit(self):
         full_page = [fake_data.copy(), fake_data.copy(), fake_data.copy()]
         last_page = [fake_data.copy()]
 
         session = mock.MagicMock()
-        pages = [full_page, full_page, last_page]
-        fake_page.side_effect = pages
+        session.get = mock.MagicMock()
+        full_response = mock.MagicMock()
+        full_response.body = {FakeResource.resources_key: full_page}
+        last_response = mock.MagicMock()
+        last_response.body = {FakeResource.resources_key: last_page}
+        pages = [full_response, full_response, last_response]
+        session.get.side_effect = pages
 
         # Don't specify a limit. Resource.list will determine the limit
         # is 3 based on the first `full_page`.
         results = list(FakeResource.list(session, path_args=fake_arguments,
                        paginated=True))
 
-        self.assertEqual(fake_page.call_count, len(pages))
-        self.assertEqual(len(results), sum([len(page) for page in pages]))
-
-    def test_page(self):
-        session = mock.Mock()
-        session.get = mock.Mock()
-        records = [{'id': 'squid'}]
-        response = FakeResponse({FakeResource.resources_key: records})
-        session.get.return_value = response
-
-        objs = FakeResource.page(session, 1, None, path_args=fake_arguments)
-
-        self.assertEqual(records, objs)
-        path = fake_path + '?limit=1'
-        session.get.assert_called_with(path, params={}, service=None)
-
-        objs = FakeResource.page(session, None, 'a', path_args=fake_arguments)
-
-        self.assertEqual(records, objs)
-        path = fake_path + '?marker=a'
-        session.get.assert_called_with(path, params={}, service=None)
-
-        objs = FakeResource.page(session, None, None, path_args=fake_arguments)
-
-        self.assertEqual(records, objs)
-        path = fake_path
-        session.get.assert_called_with(path, params={}, service=None)
-
-        objs = FakeResource.page(session)
-
-        self.assertEqual(records, objs)
-        path = fake_base_path
-        session.get.assert_called_with(path, params={}, service=None)
+        self.assertEqual(session.get.call_count, len(pages))
+        self.assertEqual(len(full_page + full_page + last_page), len(results))
 
     def test_attrs_name(self):
         obj = FakeResource()
@@ -1200,9 +1168,8 @@ class TestFind(base.TestCase):
         self.assertEqual(self.NAME, result.name)
         self.assertEqual(self.PROP, result.prop)
 
-        p = {'name': self.NAME}
-        path = fake_path + "?limit=2"
-        self.mock_get.assert_any_call(path, params=p, service=None)
+        p = {'limit': 2, 'name': self.NAME}
+        self.assertEqual(p, self.mock_get.call_args[1]['params'])
 
     def test_id(self):
         self.mock_get.side_effect = [
@@ -1232,9 +1199,8 @@ class TestFind(base.TestCase):
         self.assertEqual(self.ID, result.id)
         self.assertEqual(self.PROP, result.prop)
 
-        p = {'id': self.ID}
-        path = fake_path + "?limit=2"
-        self.mock_get.assert_any_call(path, params=p, service=None)
+        p = {'id': self.ID, 'limit': 2}
+        self.assertEqual(p, self.mock_get.call_args[1]['params'])
 
     def test_dups(self):
         dup = {'id': 'Larry'}

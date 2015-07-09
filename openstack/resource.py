@@ -36,7 +36,6 @@ import itertools
 import time
 
 import six
-from six.moves.urllib import parse as url_parse
 
 from openstack import exceptions
 from openstack import utils
@@ -813,29 +812,14 @@ class Resource(collections.MutableMapping):
         self.delete_by_id(session, self.id, path_args=self)
 
     @classmethod
-    def list(cls, session, limit=None, marker=None, path_args=None,
-             paginated=False, **params):
-        """Get a response that is a list of objects.
+    def list(cls, session, path_args=None, paginated=False, params=None):
+        """This method is a generator which yields resource objects.
 
-        This method starts at ``limit`` and ``marker`` (both defaulting to
-        None), advances the marker to the last item received in each response,
-        and continues making requests for more resources until no results
-        are returned.
-
-        When no ``limit`` is provided, the server will return its maximum
-        amount of items per page. After that response, the limit will be
-        determined and sent in subsequent requests to the server. That limit
-        will be used to calculate when all items have been received.
+        This resource object list generator handles pagination and takes query
+        params for response filtering.
 
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
-        :param limit: The maximum amount of results to retrieve.
-                      The default is ``None``, which means no limit will be
-                      set, and the underlying API will return its default
-                      amount of responses.
-        :param marker: The position in the list to begin requests from.
-                       The type of value to use for ``marker`` depends on
-                       the API being called.
         :param dict path_args: A dictionary of arguments to construct
                                a compound URL.
                                See `How path_args are used`_ for details.
@@ -845,8 +829,10 @@ class Resource(collections.MutableMapping):
                                **When paginated is False only one
                                page of data will be returned regardless
                                of the API's support of pagination.**
-        :param dict params: Parameters to be passed into the underlying
+        :param dict params: Query parameters to be passed into the underlying
                             :meth:`~openstack.session.Session.get` method.
+                            Values that the server may support include `limit`
+                            and `marker`.
 
         :return: A generator of :class:`Resource` objects.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -856,9 +842,12 @@ class Resource(collections.MutableMapping):
             raise exceptions.MethodNotSupported(cls, 'list')
 
         more_data = True
-
+        params = {} if params is None else params
+        url = cls._get_url(path_args)
         while more_data:
-            resp = cls.page(session, limit, marker, path_args, **params)
+            resp = session.get(url, service=cls.service, params=params).body
+            if cls.resources_key:
+                resp = resp[cls.resources_key]
 
             if not resp:
                 more_data = False
@@ -869,55 +858,16 @@ class Resource(collections.MutableMapping):
             yielded = 0
             for data in resp:
                 value = cls.existing(**data)
-                marker = value.id
+                new_marker = value.id
                 yielded += 1
                 yield value
 
-            if not paginated or limit and yielded < limit:
-                more_data = False
-
-            limit = yielded
-
-    @classmethod
-    def page(cls, session, limit=None, marker=None, path_args=None, **params):
-        """Get a one page response.
-
-        This method gets starting at ``marker`` with a maximum of ``limit``
-        records.
-
-        :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
-        :param limit: The maximum amount of results to retrieve. The default
-                      is to retrieve as many results as the service allows.
-        :param marker: The position in the list to begin requests from.
-                       The type of value to use for ``marker`` depends on
-                       the API being called.
-        :param dict path_args: A dictionary of arguments to construct
-                               a compound URL.
-                               See `How path_args are used`_ for details.
-        :param dict params: Parameters to be passed into the underlying
-                            :meth:`~openstack.session.Session.get` method.
-
-        :return: A list of dictionaries returned in the response body.
-        """
-
-        filters = {}
-
-        if limit:
-            filters['limit'] = limit
-        if marker:
-            filters['marker'] = marker
-
-        url = cls._get_url(path_args)
-        if filters:
-            url = '%s?%s' % (url, url_parse.urlencode(filters))
-
-        resp = session.get(url, service=cls.service, params=params).body
-
-        if cls.resources_key:
-            resp = resp[cls.resources_key]
-
-        return resp
+            if not paginated:
+                return
+            if 'limit' in params and yielded < params['limit']:
+                return
+            params['limit'] = yielded
+            params['marker'] = new_marker
 
     @classmethod
     def find(cls, session, name_or_id, path_args=None, ignore_missing=True):
@@ -943,35 +893,40 @@ class Resource(collections.MutableMapping):
         :raises: :class:`openstack.exceptions.ResourceNotFound` if nothing
                  is found and ignore_missing is ``False``.
         """
-        def get_one_match(data, attr):
-            if len(data) == 1:
-                result = cls.existing(**data[0])
-                value = getattr(result, attr, False)
-                if value == name_or_id:
-                    return result
+        def get_one_match(generator, attr, raise_exception):
+            try:
+                first = next(generator)
+                if any(generator):
+                    if raise_exception:
+                        msg = "More than one %s exists with the name '%s'."
+                        msg = (msg % (cls.get_resource_name(), name_or_id))
+                        raise exceptions.DuplicateResource(msg)
+                    return None
+            except StopIteration:
+                return None
+            result = cls.existing(**first)
+            value = getattr(result, attr, False)
+            if value == name_or_id:
+                return result
             return None
 
         try:
             if cls.allow_retrieve:
                 return cls.get_by_id(session, name_or_id, path_args=path_args)
-            args = {cls.id_attribute: name_or_id}
-            info = cls.page(session, limit=2, path_args=path_args, **args)
-            result = get_one_match(info, cls.id_attribute)
+            params = {'limit': 2}
+            params[cls.id_attribute] = name_or_id
+            info = cls.list(session, path_args=path_args, params=params)
+            result = get_one_match(info, cls.id_attribute, False)
             if result is not None:
                 return result
         except exceptions.HttpException:
             pass
 
         if cls.name_attribute:
-            params = {cls.name_attribute: name_or_id}
-            info = cls.page(session, limit=2, path_args=path_args, **params)
-
-            if len(info) > 1:
-                msg = "More than one %s exists with the name '%s'."
-                msg = (msg % (cls.get_resource_name(), name_or_id))
-                raise exceptions.DuplicateResource(msg)
-
-            result = get_one_match(info, cls.name_attribute)
+            params = {'limit': 2}
+            params[cls.name_attribute] = name_or_id
+            info = cls.list(session, path_args=path_args, params=params)
+            result = get_one_match(info, cls.name_attribute, True)
             if result is not None:
                 return result
 
