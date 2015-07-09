@@ -100,24 +100,25 @@ class TestProxyBase(base.TestCase):
                       expected_args=[resource_type, "resource_or_id"],
                       expected_kwargs=expected_kwargs)
 
-    def verify_get(self, test_method, resource_type, value=None, **kwargs):
+    def verify_get(self, test_method, resource_type, value=None,
+                   mock_method="openstack.proxy.BaseProxy._get", **kwargs):
         the_value = value if value is not None else ["value"]
         expected_kwargs = {"path_args": kwargs} if kwargs else {}
-        self._verify2("openstack.proxy.BaseProxy._get",
-                      test_method,
+        self._verify2(mock_method, test_method,
                       method_args=the_value,
                       method_kwargs=kwargs,
                       expected_args=[resource_type] + the_value,
                       expected_kwargs=expected_kwargs)
 
-    def verify_head(self, resource, method, value=None, **kwargs):
+    def verify_head(self, test_method, resource_type,
+                    mock_method="openstack.proxy.BaseProxy._head",
+                    value=None, **kwargs):
         the_value = [value] if value is not None else []
         expected_kwargs = {"path_args": kwargs} if kwargs else {}
-        self._verify2("openstack.proxy.BaseProxy._head",
-                      method,
+        self._verify2(mock_method, test_method,
                       method_args=the_value,
                       method_kwargs=kwargs,
-                      expected_args=[resource] + the_value,
+                      expected_args=[resource_type] + the_value,
                       expected_kwargs=expected_kwargs)
 
     def verify_find(self, mock_method, test_method, **kwargs):
@@ -138,11 +139,11 @@ class TestProxyBase(base.TestCase):
                      **kwargs)
 
     def verify_list(self, test_method, resource_type, paginated=False,
+                    mock_method="openstack.proxy.BaseProxy._list",
                     **kwargs):
         expected_kwargs = kwargs.pop("expected_kwargs", {})
         expected_kwargs.update({"paginated": paginated})
-        self._verify2("openstack.proxy.BaseProxy._list",
-                      test_method,
+        self._verify2(mock_method, test_method,
                       expected_args=[resource_type],
                       expected_kwargs=expected_kwargs,
                       expected_result=["result"],
@@ -165,5 +166,7 @@ class TestProxyBase(base.TestCase):
                       expected_kwargs=expected_kwargs,
                       **kwargs)
 
-    def verify_wait_for_status(self, mock_method, test_method, **kwargs):
+    def verify_wait_for_status(
+            self, test_method,
+            mock_method="openstack.resource.wait_for_status", **kwargs):
         self._verify(mock_method, test_method, **kwargs)

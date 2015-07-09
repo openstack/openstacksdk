@@ -47,7 +47,6 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
     def test_stack_wait_for(self):
         value = stack.Stack(attrs={'id': '1234'})
         self.verify_wait_for_status(
-            'openstack.resource.wait_for_status',
             self.proxy.wait_for_stack,
             method_args=[value],
             expected_args=[value, 'CREATE_COMPLETE', ['CREATE_FAILED'],
