@@ -144,3 +144,11 @@ class FakeKeypair(object):
         self.id = id
         self.name = name
         self.public_key = public_key
+
+
+class FakeIdentityDomain(object):
+    def __init__(self, id, name, description, enabled):
+        self.id = id
+        self.name = name
+        self.description = description
+        self.enabled = enabled

@@ -510,6 +510,12 @@ class IdentityDomainList(task_manager.Task):
 
 
 # IdentityDomain and not Domain because Domain is a DNS concept
+class IdentityDomainGet(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.domains.get(**self.args)
+
+
+# IdentityDomain and not Domain because Domain is a DNS concept
 class IdentityDomainUpdate(task_manager.Task):
     def main(self, client):
         return client.keystone_client.domains.update(**self.args)
