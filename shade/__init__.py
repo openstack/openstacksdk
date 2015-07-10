@@ -4159,12 +4159,12 @@ class OperatorCloud(OpenStackCloud):
             self.log.debug("keystone update domain issue", exc_info=True)
             raise OpenStackCloudException(
                 "Error in updating domain {domain}: {message}".format(
-                    domain=name_or_id, message=str(e)))
+                    domain=domain_id, message=str(e)))
 
-    def delete_identity_domain(self, name_or_id):
+    def delete_identity_domain(self, domain_id):
         """Delete a Keystone domain.
 
-        :param id: Name or id of the domain to delete.
+        :param domain_id: ID of the domain to delete.
 
         :returns: None
 
@@ -4174,12 +4174,12 @@ class OperatorCloud(OpenStackCloud):
         try:
             # Deleting a domain is expensive, so disabling it first increases
             # the changes of success
-            domain = self.update_domain(name_or_id, enabled=False)
+            domain = self.update_identity_domain(domain_id, enabled=False)
             self.manager.submitTask(_tasks.IdentityDomainDelete(
-                domain=domain.id))
+                domain=domain['id']))
         except Exception as e:
             self.log.debug(
-                "Failed to delete domain {id}".format(id=domain.id),
+                "Failed to delete domain {id}".format(id=domain_id),
                 exc_info=True)
             raise OpenStackCloudException(str(e))
 
