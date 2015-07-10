@@ -1,6 +1,4 @@
 ---
-- include_vars: roles/network/vars/main.yml
-
 - name: Create network {{ network_name }}
   os_network:
     cloud: "{{ cloud }}"
