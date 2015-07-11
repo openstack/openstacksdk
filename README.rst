@@ -43,6 +43,10 @@ locations:
 
 The first file found wins.
 
+You can also set the environment variable `OS_CLIENT_CONFIG_FILE` to an
+absolute path of a file to look for and that location will be inserted at the
+front of the file search list.
+
 The keys are all of the keys you'd expect from `OS_*` - except lower case
 and without the OS prefix. So, region name is set with `region_name`.
 

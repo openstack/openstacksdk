@@ -106,6 +106,10 @@ class OpenStackConfig(object):
         self._config_files = config_files or CONFIG_FILES
         self._vendor_files = vendor_files or VENDOR_FILES
 
+        config_file_override = os.environ.pop('OS_CLIENT_CONFIG_FILE', None)
+        if config_file_override:
+            self._config_files.insert(0, config_file_override)
+
         self.defaults = defaults.get_defaults()
         if override_defaults:
             self.defaults.update(override_defaults)
