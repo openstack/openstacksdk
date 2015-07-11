@@ -2,5 +2,7 @@ name: hp
 profile:
   auth:
     auth_url: https://region-b.geo-1.identity.hpcloudsvc.com:35357/v2.0
-  region_name: region-a.geo-1,region-b.geo-1
+  regions:
+  - region-a.geo-1
+  - region-b.geo-1
   dns_service_type: hpext:dns

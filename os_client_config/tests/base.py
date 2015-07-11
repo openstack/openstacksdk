@@ -67,6 +67,17 @@ USER_CONF = {
             },
             'region_name': 'test-region',
         },
+        '_test_cloud_regions': {
+            'auth': {
+                'username': 'testuser',
+                'password': 'testpass',
+                'project-id': 'testproject',
+            },
+            'regions': [
+                'region1',
+                'region2',
+            ],
+        },
         '_test_cloud_hyphenated': {
             'auth': {
                 'username': 'testuser',

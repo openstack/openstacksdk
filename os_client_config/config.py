@@ -199,14 +199,24 @@ class OpenStackConfig(object):
         return self._cache_arguments
 
     def _get_regions(self, cloud):
-        try:
-            return self.cloud_config['clouds'][cloud]['region_name']
-        except KeyError:
-            # No region configured
-            return ''
+        if cloud not in self.cloud_config['clouds']:
+            return ['']
+        config = self._normalize_keys(self.cloud_config['clouds'][cloud])
+        if 'regions' in config:
+            return config['regions']
+        elif 'region_name' in config:
+            regions = config['region_name'].split(',')
+            if len(regions) > 1:
+                warnings.warn(
+                    "Comma separated lists in region_name are deprecated."
+                    " Please use a yaml list in the regions"
+                    " parameter in {0} instead.".format(self.config_filename))
+            return regions
+        else:
+            return ['']
 
     def _get_region(self, cloud=None):
-        return self._get_regions(cloud).split(',')[0]
+        return self._get_regions(cloud)[0]
 
     def get_cloud_names(self):
         return self.cloud_config['clouds'].keys()
@@ -301,7 +311,7 @@ class OpenStackConfig(object):
         clouds = []
 
         for cloud in self.get_cloud_names():
-            for region in self._get_regions(cloud).split(','):
+            for region in self._get_regions(cloud):
                 clouds.append(self.get_one_cloud(cloud, region_name=region))
         return clouds
 

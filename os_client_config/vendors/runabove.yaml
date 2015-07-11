@@ -2,7 +2,9 @@ name: runabove
 profile:
   auth:
     auth_url: https://auth.runabove.io/v2.0
-  region_name: SBG-1,BHS-1
+  regions:
+  - BHS-1
+  - SBG-1
   image_api_version: '2'
   image_format: qcow2
   floating_ip_source: None
