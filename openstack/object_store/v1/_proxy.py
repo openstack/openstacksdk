@@ -38,7 +38,7 @@ class Proxy(proxy.BaseProxy):
         """
         container.update(self.session)
 
-    def containers(self, limit=None, marker=None, **kwargs):
+    def containers(self, **kwargs):
         """Obtain Container objects for this account.
 
         :param int limit: Set the limit of how many containers to retrieve
@@ -52,8 +52,7 @@ class Proxy(proxy.BaseProxy):
         :rtype: A generator of
             :class:`~openstack.object_store.v1.container.Container` objects.
         """
-        return _container.Container.list(self.session, limit=limit,
-                                         marker=marker, **kwargs)
+        return _container.Container.list(self.session, **kwargs)
 
     def get_container_metadata(self, value):
         """Get metatdata for a container
@@ -110,7 +109,7 @@ class Proxy(proxy.BaseProxy):
         self._delete(_container.Container, value,
                      ignore_missing=ignore_missing)
 
-    def objects(self, container, limit=None, marker=None, **kwargs):
+    def objects(self, container, **kwargs):
         """Return a generator that yields the Container's objects.
 
         :param container: A container object or the name of a container
@@ -123,7 +122,7 @@ class Proxy(proxy.BaseProxy):
         """
         container = _container.Container.from_id(container)
 
-        objs = _obj.Object.list(self.session, limit=limit, marker=marker,
+        objs = _obj.Object.list(self.session,
                                 path_args={"container": container.name},
                                 **kwargs)
         # TODO(briancurtin): Objects have to know their container at this
