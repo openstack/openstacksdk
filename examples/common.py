@@ -43,7 +43,7 @@ import uuid
 from openstack import profile
 from openstack import utils
 
-_logger = logging.getLogger(__name__)
+_logger = logging.getLogger('openstack.example')
 
 
 def find_resource_cls(opts):
