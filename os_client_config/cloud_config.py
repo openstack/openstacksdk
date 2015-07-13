@@ -96,7 +96,7 @@ class CloudConfig(object):
 
     def get_service_name(self, service_type):
         key = '{service_type}_service_name'.format(service_type=service_type)
-        return self.config.get(key, service_type)
+        return self.config.get(key, None)
 
     @property
     def prefer_ipv6(self):
