@@ -149,7 +149,11 @@ class TestProxyBase(base.TestCase):
                     **kwargs):
         expected_kwargs = kwargs.pop("expected_kwargs", {})
         expected_kwargs.update({"paginated": paginated})
+        expected_kwargs['limit'] = 2
+        method_kwargs = kwargs.pop("method_kwargs", {})
+        method_kwargs['limit'] = 2
         self._verify2(mock_method, test_method,
+                      method_kwargs=method_kwargs,
                       expected_args=[resource_type],
                       expected_kwargs=expected_kwargs,
                       expected_result=["result"],

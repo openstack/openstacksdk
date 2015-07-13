@@ -74,13 +74,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(container.Container, value)
 
-    def containers(self):
+    def containers(self, **query):
         """Return a generator of containers
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of container objects
         :rtype: :class:`~openstack.key_management.v1.container.Container`
         """
-        return self._list(container.Container, paginated=False)
+        return self._list(container.Container, paginated=False, **query)
 
     def update_container(self, value, **attrs):
         """Update a container
@@ -151,13 +154,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(order.Order, value)
 
-    def orders(self):
+    def orders(self, **query):
         """Return a generator of orders
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of order objects
         :rtype: :class:`~openstack.key_management.v1.order.Order`
         """
-        return self._list(order.Order, paginated=False)
+        return self._list(order.Order, paginated=False, **query)
 
     def update_order(self, value, **attrs):
         """Update a order
@@ -227,13 +233,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(secret.Secret, value)
 
-    def secrets(self):
+    def secrets(self, **query):
         """Return a generator of secrets
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of secret objects
         :rtype: :class:`~openstack.key_management.v1.secret.Secret`
         """
-        return self._list(secret.Secret, paginated=False)
+        return self._list(secret.Secret, paginated=False, **query)
 
     def update_secret(self, value, **attrs):
         """Update a secret

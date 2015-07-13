@@ -39,13 +39,16 @@ class Proxy(proxy.BaseProxy):
         return extension.Extension.find(self.session, name_or_id,
                                         ignore_missing=ignore_missing)
 
-    def extensions(self):
+    def extensions(self, **query):
         """Retrieve a generator of extensions
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of extension instances.
         :rtype: :class:`~openstack.compute.v2.extension.Extension`
         """
-        return self._list(extension.Extension, paginated=False)
+        return self._list(extension.Extension, paginated=False, **query)
 
     def find_flavor(self, name_or_id, ignore_missing=True):
         """Find a single flavor
@@ -177,7 +180,7 @@ class Proxy(proxy.BaseProxy):
             otherwise :class:`~openstack.compute.v2.image.Image`.
             *Default: ``True``*
         :param kwargs \*\*query: Optional query parameters to be sent to limit
-                                 the flavors being returned.
+                                 the resources being returned.
 
         :returns: A generator of image objects
         """
@@ -237,13 +240,16 @@ class Proxy(proxy.BaseProxy):
         return keypair.Keypair.find(self.session, name_or_id,
                                     ignore_missing=ignore_missing)
 
-    def keypairs(self):
+    def keypairs(self, **query):
         """Return a generator of keypairs
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of keypair objects
         :rtype: :class:`~openstack.compute.v2.keypair.Keypair`
         """
-        return self._list(keypair.Keypair, paginated=False)
+        return self._list(keypair.Keypair, paginated=False, **query)
 
     def update_keypair(self, value, **attrs):
         """Update a keypair
@@ -363,8 +369,7 @@ class Proxy(proxy.BaseProxy):
         # Server expects changes-since, but we use an underscore
         # so it can be a proper Python name.
         if "changes_since" in query:
-            val = query.pop("changes_since")
-            query["changes-since"] = val
+            query["changes-since"] = query.pop("changes_since")
 
         return self._list(srv, paginated=True, **query)
 
@@ -444,13 +449,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(server_interface.ServerInterface, value)
 
-    def server_interfaces(self):
+    def server_interfaces(self, **query):
         """Return a generator of server interfaces
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of ServerInterface objects
         :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
         """
-        return self._list(server_interface.ServerInterface, paginated=False)
+        return self._list(server_interface.ServerInterface, paginated=False,
+                          **query)
 
     def update_server_interface(self, value, **attrs):
         """Update a server interface
@@ -481,10 +490,13 @@ class Proxy(proxy.BaseProxy):
         return server_ip.ServerIP.find(self.session, name_or_id,
                                        ignore_missing=ignore_missing)
 
-    def server_ips(self):
+    def server_ips(self, **query):
         """Return a generator of server IPs
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of ServerIP objects
         :rtype: :class:`~openstack.compute.v2.server_ip.ServerIP`
         """
-        return self._list(server_ip.ServerIP, paginated=False)
+        return self._list(server_ip.ServerIP, paginated=False, **query)

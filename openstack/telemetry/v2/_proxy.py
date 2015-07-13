@@ -75,13 +75,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(alarm.Alarm, value)
 
-    def alarms(self):
+    def alarms(self, **query):
         """Return a generator of alarms
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of alarm objects
         :rtype: :class:`~openstack.telemetry.v2.alarm.Alarm`
         """
-        return self._list(alarm.Alarm, paginated=False)
+        return self._list(alarm.Alarm, paginated=False, **query)
 
     def update_alarm(self, value, **attrs):
         """Update a alarm
@@ -111,16 +114,19 @@ class Proxy(proxy.BaseProxy):
         return alarm_change.AlarmChange.find(self.session, name_or_id,
                                              ignore_missing=ignore_missing)
 
-    def alarm_changes(self, value):
+    def alarm_changes(self, value, **query):
         """Return a generator of alarm changes
 
         :param value: Alarm resource or id for alarm.
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
+
         :returns: A generator of alarm change objects
         :rtype: :class:`~openstack.telemetry.v2.alarm_change.AlarmChange`
         """
         alarm_id = alarm.Alarm.from_id(value).id
         return self._list(alarm_change.AlarmChange, paginated=False,
-                          path_args={'alarm_id': alarm_id})
+                          path_args={'alarm_id': alarm_id}, **query)
 
     def find_capability(self, name_or_id, ignore_missing=True):
         """Find a single capability
@@ -137,13 +143,16 @@ class Proxy(proxy.BaseProxy):
         return capability.Capability.find(self.session, name_or_id,
                                           ignore_missing=ignore_missing)
 
-    def capabilities(self):
+    def capabilities(self, **query):
         """Return a generator of capabilities
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of capability objects
         :rtype: :class:`~openstack.telemetry.v2.capability.Capability`
         """
-        return self._list(capability.Capability, paginated=False)
+        return self._list(capability.Capability, paginated=False, **query)
 
     def find_meter(self, name_or_id, ignore_missing=True):
         """Find a single meter
@@ -159,13 +168,16 @@ class Proxy(proxy.BaseProxy):
         return meter.Meter.find(self.session, name_or_id,
                                 ignore_missing=ignore_missing)
 
-    def meters(self):
+    def meters(self, **query):
         """Return a generator of meters
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of meter objects
         :rtype: :class:`~openstack.telemetry.v2.meter.Meter`
         """
-        return self._list(meter.Meter, paginated=False)
+        return self._list(meter.Meter, paginated=False, **query)
 
     def find_resource(self, name_or_id, ignore_missing=True):
         """Find a single resource
@@ -195,13 +207,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(resource.Resource, value)
 
-    def resources(self):
+    def resources(self, **query):
         """Return a generator of resources
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of resource objects
         :rtype: :class:`~openstack.telemetry.v2.resource.Resource`
         """
-        return self._list(resource.Resource, paginated=False)
+        return self._list(resource.Resource, paginated=False, **query)
 
     def create_sample(self, **attrs):
         """Create a new sample from attributes
@@ -229,13 +244,16 @@ class Proxy(proxy.BaseProxy):
         return sample.Sample.find(self.session, name_or_id,
                                   ignore_missing=ignore_missing)
 
-    def samples(self):
+    def samples(self, **query):
         """Return a generator of samples
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of sample objects
         :rtype: :class:`~openstack.telemetry.v2.sample.Sample`
         """
-        return self._list(sample.Sample, paginated=False)
+        return self._list(sample.Sample, paginated=False, **query)
 
     def find_statistics(self, name_or_id, ignore_missing=True):
         """Find a single statistics
@@ -252,13 +270,16 @@ class Proxy(proxy.BaseProxy):
         return statistics.Statistics.find(self.session, name_or_id,
                                           ignore_missing=ignore_missing)
 
-    def statistics(self, value):
+    def statistics(self, value, **query):
         """Return a generator of statistics
 
         :param value: Meter resource or name for a meter.
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
+
         :returns: A generator of statistics objects
         :rtype: :class:`~openstack.telemetry.v2.statistics.Statistics`
         """
         meter_name = meter.Meter.from_name(value).name
         return self._list(statistics.Statistics, paginated=False,
-                          path_args={'meter_name': meter_name})
+                          path_args={'meter_name': meter_name}, **query)

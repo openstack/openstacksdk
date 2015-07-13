@@ -45,13 +45,16 @@ class Proxy(proxy.BaseProxy):
         return stack.Stack.find(self.session, name_or_id,
                                 ignore_missing=ignore_missing)
 
-    def stacks(self):
+    def stacks(self, **query):
         """Return a generator of stacks
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of stack objects
         :rtype: :class:`~openstack.orchestration.v1.stack.Stack`
         """
-        return self._list(stack.Stack, paginated=False)
+        return self._list(stack.Stack, paginated=False, **query)
 
     def get_stack(self, value):
         """Get a single stack
@@ -86,11 +89,14 @@ class Proxy(proxy.BaseProxy):
         return resource.wait_for_status(self.session, value, status,
                                         failures, interval, wait)
 
-    def resources(self, value):
+    def resources(self, value, **query):
         """Return a generator of resources
 
         :param value: This can be a stack object, or the name of a stack
                       for which the resources are to be listed.
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
+
         :returns: A generator of resource objects if the stack exists and
                   there are resources in it. If the stack cannot be found,
                   an exception is thrown.
@@ -119,4 +125,4 @@ class Proxy(proxy.BaseProxy):
             'stack_id': stk.id,
         }
         return self._list(stack_resource.Resource, paginated=False,
-                          path_args=path_args)
+                          path_args=path_args, **query)

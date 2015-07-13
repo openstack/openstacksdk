@@ -71,13 +71,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(role.Role, value)
 
-    def roles(self):
+    def roles(self, **query):
         """Retrieve a generator of roles
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of role instances.
         :rtype: :class:`~openstack.identity.v2.role.Role`
         """
-        return self._list(role.Role, paginated=True)
+        return self._list(role.Role, paginated=True, **query)
 
     def update_role(self, value, **attrs):
         """Update a role
@@ -145,13 +148,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(tenant.Tenant, value)
 
-    def tenants(self):
+    def tenants(self, **query):
         """Retrieve a generator of tenants
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of tenant instances.
         :rtype: :class:`~openstack.identity.v2.tenant.Tenant`
         """
-        return self._list(tenant.Tenant, paginated=True)
+        return self._list(tenant.Tenant, paginated=True, **query)
 
     def update_tenant(self, value, **attrs):
         """Update a tenant
@@ -219,13 +225,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(user.User, value)
 
-    def users(self):
+    def users(self, **query):
         """Retrieve a generator of users
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of user instances.
         :rtype: :class:`~openstack.identity.v2.user.User`
         """
-        return self._list(user.User, paginated=True)
+        return self._list(user.User, paginated=True, **query)
 
     def update_user(self, value, **attrs):
         """Update a user

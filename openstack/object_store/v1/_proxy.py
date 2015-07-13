@@ -38,21 +38,16 @@ class Proxy(proxy.BaseProxy):
         """
         container.update(self.session)
 
-    def containers(self, **kwargs):
+    def containers(self, **query):
         """Obtain Container objects for this account.
 
-        :param int limit: Set the limit of how many containers to retrieve
-            in each request to the server. By default, the value is ``None``,
-            retrieving the maximum amount of containers per request that
-            your server allows.
-        :param str marker: The name of the container to begin iterating from.
-            By default, the value is ``None``, returning all available
-            containers.
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :rtype: A generator of
             :class:`~openstack.object_store.v1.container.Container` objects.
         """
-        return _container.Container.list(self.session, **kwargs)
+        return _container.Container.list(self.session, **query)
 
     def get_container_metadata(self, value):
         """Get metatdata for a container
@@ -109,13 +104,15 @@ class Proxy(proxy.BaseProxy):
         self._delete(_container.Container, value,
                      ignore_missing=ignore_missing)
 
-    def objects(self, container, **kwargs):
+    def objects(self, container, **query):
         """Return a generator that yields the Container's objects.
 
         :param container: A container object or the name of a container
             that you want to retrieve objects from.
         :type container:
             :class:`~openstack.object_store.v1.container.Container`
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :rtype: A generator of
             :class:`~openstack.object_store.v1.obj.Object` objects.
@@ -124,7 +121,7 @@ class Proxy(proxy.BaseProxy):
 
         objs = _obj.Object.list(self.session,
                                 path_args={"container": container.name},
-                                **kwargs)
+                                **query)
         # TODO(briancurtin): Objects have to know their container at this
         # point, otherwise further operations like getting their metadata
         # or downloading them is a hassle because the end-user would have

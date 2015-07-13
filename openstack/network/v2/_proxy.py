@@ -47,13 +47,16 @@ class Proxy(proxy.BaseProxy):
         return extension.Extension.find(self.session, name_or_id,
                                         ignore_missing=ignore_missing)
 
-    def extensions(self):
+    def extensions(self, **query):
         """Return a generator of extensions
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of extension objects
         :rtype: :class:`~openstack.network.v2.extension.Extension`
         """
-        return self._list(extension.Extension, paginated=False)
+        return self._list(extension.Extension, paginated=False, **query)
 
     def create_ip(self, **attrs):
         """Create a new floating ip from attributes
@@ -119,13 +122,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(floating_ip.FloatingIP, value)
 
-    def ips(self):
+    def ips(self, **query):
         """Return a generator of ips
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of floating IP objects
         :rtype: :class:`~openstack.network.v2.floating_ip.FloatingIP`
         """
-        return self._list(floating_ip.FloatingIP, paginated=False)
+        return self._list(floating_ip.FloatingIP, paginated=False, **query)
 
     def update_ip(self, value, **attrs):
         """Update a ip
@@ -199,13 +205,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(health_monitor.HealthMonitor, value)
 
-    def health_monitors(self):
+    def health_monitors(self, **query):
         """Return a generator of health monitors
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of health monitor objects
         :rtype: :class:`~openstack.network.v2.health_monitor.HealthMonitor`
         """
-        return self._list(health_monitor.HealthMonitor, paginated=False)
+        return self._list(health_monitor.HealthMonitor, paginated=False,
+                          **query)
 
     def update_health_monitor(self, value, **attrs):
         """Update a health monitor
@@ -275,13 +285,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(listener.Listener, value)
 
-    def listeners(self):
+    def listeners(self, **query):
         """Return a generator of listeners
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of listener objects
         :rtype: :class:`~openstack.network.v2.listener.Listener`
         """
-        return self._list(listener.Listener, paginated=False)
+        return self._list(listener.Listener, paginated=False, **query)
 
     def update_listener(self, value, **attrs):
         """Update a listener
@@ -354,13 +367,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(load_balancer.LoadBalancer, value)
 
-    def load_balancers(self):
+    def load_balancers(self, **query):
         """Return a generator of load balancers
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of load balancer objects
         :rtype: :class:`~openstack.network.v2.load_balancer.LoadBalancer`
         """
-        return self._list(load_balancer.LoadBalancer, paginated=False)
+        return self._list(load_balancer.LoadBalancer, paginated=False, **query)
 
     def update_load_balancer(self, value, **attrs):
         """Update a load balancer
@@ -434,13 +450,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(metering_label.MeteringLabel, value)
 
-    def metering_labels(self):
+    def metering_labels(self, **query):
         """Return a generator of metering labels
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of metering label objects
         :rtype: :class:`~openstack.network.v2.metering_label.MeteringLabel`
         """
-        return self._list(metering_label.MeteringLabel, paginated=False)
+        return self._list(metering_label.MeteringLabel, paginated=False,
+                          **query)
 
     def update_metering_label(self, value, **attrs):
         """Update a metering label
@@ -517,15 +537,18 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(metering_label_rule.MeteringLabelRule, value)
 
-    def metering_label_rules(self):
+    def metering_label_rules(self, **query):
         """Return a generator of metering label rules
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of metering label rule objects
         :rtype: :class:`~openstack.network.v2.metering_label_rule.
                 MeteringLabelRule`
         """
         return self._list(metering_label_rule.MeteringLabelRule,
-                          paginated=False)
+                          paginated=False, **query)
 
     def update_metering_label_rule(self, value, **attrs):
         """Update a metering label rule
@@ -596,13 +619,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(network.Network, value)
 
-    def networks(self):
+    def networks(self, **query):
         """Return a generator of networks
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of network objects
         :rtype: :class:`~openstack.network.v2.network.Network`
         """
-        return self._list(network.Network, paginated=False)
+        return self._list(network.Network, paginated=False, **query)
 
     def update_network(self, value, **attrs):
         """Update a network
@@ -670,13 +696,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(_pool.Pool, value)
 
-    def pools(self):
+    def pools(self, **query):
         """Return a generator of pools
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of pool objects
         :rtype: :class:`~openstack.network.v2.pool.Pool`
         """
-        return self._list(_pool.Pool, paginated=False)
+        return self._list(_pool.Pool, paginated=False, **query)
 
     def update_pool(self, value, **attrs):
         """Update a pool
@@ -757,19 +786,22 @@ class Proxy(proxy.BaseProxy):
         return self._get(pool_member.PoolMember, member,
                          path_args={'pool_id': pool.id})
 
-    def pool_members(self, pool):
+    def pool_members(self, pool, **query):
         """Return a generator of pool members
 
         :param pool: The pool can be either the ID of a pool or a
                      :class:`~openstack.network.v2.pool.Pool` instance that
                      the member belongs to.
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of pool member objects
         :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
         pool = _pool.Pool.from_id(pool)
         return self._list(pool_member.PoolMember,
-                          path_args={'pool_id': pool.id}, paginated=False)
+                          path_args={'pool_id': pool.id}, paginated=False,
+                          **query)
 
     def update_pool_member(self, member, **attrs):
         """Update a pool member
@@ -838,13 +870,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(port.Port, value)
 
-    def ports(self):
+    def ports(self, **query):
         """Return a generator of ports
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of port objects
         :rtype: :class:`~openstack.network.v2.port.Port`
         """
-        return self._list(port.Port, paginated=False)
+        return self._list(port.Port, paginated=False, **query)
 
     def update_port(self, value, **attrs):
         """Update a port
@@ -876,13 +911,16 @@ class Proxy(proxy.BaseProxy):
                     result.append(puerta)
         return result
 
-    def quotas(self):
+    def quotas(self, **query):
         """Return a generator of quotas
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of quota objects
         :rtype: :class:`~openstack.network.v2.quota.Quota`
         """
-        return self._list(quota.Quota, paginated=False)
+        return self._list(quota.Quota, paginated=False, **query)
 
     def create_router(self, **attrs):
         """Create a new router from attributes
@@ -937,13 +975,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(router.Router, value)
 
-    def routers(self):
+    def routers(self, **query):
         """Return a generator of routers
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of router objects
         :rtype: :class:`~openstack.network.v2.router.Router`
         """
-        return self._list(router.Router, paginated=False)
+        return self._list(router.Router, paginated=False, **query)
 
     def update_router(self, value, **attrs):
         """Update a router
@@ -1022,13 +1063,17 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(security_group.SecurityGroup, value)
 
-    def security_groups(self):
+    def security_groups(self, **query):
         """Return a generator of security groups
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of security group objects
         :rtype: :class:`~openstack.network.v2.security_group.SecurityGroup`
         """
-        return self._list(security_group.SecurityGroup, paginated=False)
+        return self._list(security_group.SecurityGroup, paginated=False,
+                          **query)
 
     def update_security_group(self, value, **attrs):
         """Update a security group
@@ -1128,15 +1173,18 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(security_group_rule.SecurityGroupRule, value)
 
-    def security_group_rules(self):
+    def security_group_rules(self, **query):
         """Return a generator of security group rules
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of security group rule objects
         :rtype: :class:`~openstack.network.v2.security_group_rule.
                 SecurityGroupRule`
         """
         return self._list(security_group_rule.SecurityGroupRule,
-                          paginated=False)
+                          paginated=False, **query)
 
     def update_security_group_rule(self, value, **attrs):
         """Update a security group rule
@@ -1207,13 +1255,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(subnet.Subnet, value)
 
-    def subnets(self):
+    def subnets(self, **query):
         """Return a generator of subnets
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of subnet objects
         :rtype: :class:`~openstack.network.v2.subnet.Subnet`
         """
-        return self._list(subnet.Subnet, paginated=False)
+        return self._list(subnet.Subnet, paginated=False, **query)
 
     def update_subnet(self, value, **attrs):
         """Update a subnet
@@ -1286,13 +1337,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(vpn_service.VPNService, value)
 
-    def vpn_services(self):
+    def vpn_services(self, **query):
         """Return a generator of vpn services
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of vpn service objects
         :rtype: :class:`~openstack.network.v2.vpn_service.VPNService`
         """
-        return self._list(vpn_service.VPNService, paginated=False)
+        return self._list(vpn_service.VPNService, paginated=False, **query)
 
     def update_vpn_service(self, value, **attrs):
         """Update a vpn service
