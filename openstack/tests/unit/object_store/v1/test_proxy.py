@@ -14,6 +14,7 @@ import mock
 import six
 
 from openstack.object_store.v1 import _proxy
+from openstack.object_store.v1 import account
 from openstack.object_store.v1 import container
 from openstack.object_store.v1 import obj
 from openstack import session
@@ -30,7 +31,7 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_account_metadata_get(self):
-        self.verify_head(self.proxy.get_account_metadata, container.Container)
+        self.verify_head(self.proxy.get_account_metadata, account.Account)
 
     def test_container_metadata_get(self):
         self.verify_head(self.proxy.get_container_metadata,
