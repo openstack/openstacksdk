@@ -263,11 +263,9 @@ class TestProxyList(testtools.TestCase):
                             paginated=paginated, **query)
 
         self.assertEqual(self.fake_response, rv)
-        ListableResource.list.assert_called_once_with(self.session,
-                                                      path_args=path_args,
-                                                      paginated=paginated,
-                                                      a=self.fake_a,
-                                                      b=self.fake_b)
+        ListableResource.list.assert_called_once_with(
+            self.session, path_args=path_args, paginated=paginated,
+            params={'a': self.fake_a, 'b': self.fake_b})
 
     def test_list_paginated(self):
         self._test_list(self.fake_path_args, True, **self.fake_query)

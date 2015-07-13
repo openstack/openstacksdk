@@ -16,10 +16,13 @@ from openstack import proxy
 
 class Proxy(proxy.BaseProxy):
 
-    def capabilities(self):
+    def capabilities(self, **query):
         """Return a generator of capabilities
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of capability objects
         :rtype: :class:`~openstack.metric.v1.capabilities.Capabilities`
         """
-        return self._list(capabilities.Capabilities, paginated=False)
+        return self._list(capabilities.Capabilities, paginated=False, **query)

@@ -71,13 +71,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(image.Image, value)
 
-    def images(self):
+    def images(self, **query):
         """Return a generator of images
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of image objects
         :rtype: :class:`~openstack.image.v2.image.Image`
         """
-        return self._list(image.Image, paginated=True)
+        return self._list(image.Image, paginated=True, **query)
 
     def update_image(self, value, **attrs):
         """Update a image
@@ -145,13 +148,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(member.Member, value)
 
-    def members(self, **params):
+    def members(self, **query):
         """Return a generator of members
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of member objects
         :rtype: :class:`~openstack.image.v2.member.Member`
         """
-        return self._list(member.Member, paginated=False)
+        return self._list(member.Member, paginated=False, **query)
 
     def update_member(self, value, **attrs):
         """Update a member

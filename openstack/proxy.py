@@ -186,7 +186,7 @@ class BaseProxy(object):
 
         query = res._convert_ids(query)
         return res.list(self.session, path_args=path_args, paginated=paginated,
-                        **query)
+                        params=query)
 
     def _head(self, resource_type, value=None, path_args=None):
         """Retrieve a resource's header

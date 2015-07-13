@@ -60,13 +60,16 @@ class Proxy(proxy.BaseProxy):
         return database.Database.find(self.session, name_or_id,
                                       ignore_missing=ignore_missing)
 
-    def databases(self):
+    def databases(self, **query):
         """Return a generator of databases
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of database objects
         :rtype: :class:`~openstack.database.v1.database.Database`
         """
-        return self._list(database.Database, paginated=False)
+        return self._list(database.Database, paginated=False, **query)
 
     def get_database(self, value):
         """Get a single database
@@ -107,13 +110,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(flavor.Flavor, value)
 
-    def flavors(self):
+    def flavors(self, **query):
         """Return a generator of flavors
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of flavor objects
         :rtype: :class:`~openstack.database.v1.flavor.Flavor`
         """
-        return self._list(flavor.Flavor, paginated=False)
+        return self._list(flavor.Flavor, paginated=False, **query)
 
     def create_instance(self, **attrs):
         """Create a new instance from attributes
@@ -169,13 +175,16 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(instance.Instance, value)
 
-    def instances(self):
+    def instances(self, **query):
         """Return a generator of instances
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of instance objects
         :rtype: :class:`~openstack.database.v1.instance.Instance`
         """
-        return self._list(instance.Instance, paginated=False)
+        return self._list(instance.Instance, paginated=False, **query)
 
     def update_instance(self, value, **attrs):
         """Update a instance
@@ -232,13 +241,16 @@ class Proxy(proxy.BaseProxy):
         return user.User.find(self.session, name_or_id,
                               ignore_missing=ignore_missing)
 
-    def users(self):
+    def users(self, **query):
         """Return a generator of users
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
 
         :returns: A generator of user objects
         :rtype: :class:`~openstack.database.v1.user.User`
         """
-        return self._list(user.User, paginated=False)
+        return self._list(user.User, paginated=False, **query)
 
     def get_user(self, value):
         """Get a single user
