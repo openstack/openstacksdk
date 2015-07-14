@@ -252,9 +252,26 @@ class TestConfigArgparse(base.TestCase):
 
 class TestConfigDefault(base.TestCase):
 
+    def setUp(self):
+        super(TestConfigDefault, self).setUp()
+
+        # Reset defaults after each test so that other tests are
+        # not affected by any changes.
+        self.addCleanup(self._reset_defaults)
+
+    def _reset_defaults(self):
+        defaults._defaults = None
+
     def test_set_no_default(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
         cc = c.get_one_cloud(cloud='_test-cloud_', argparse=None)
         self._assert_cloud_details(cc)
-        self.assertEqual(cc.auth_type, 'password')
+        self.assertEqual('password', cc.auth_type)
+
+    def test_set_default_before_init(self):
+        config.set_default('auth_type', 'token')
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        cc = c.get_one_cloud(cloud='_test-cloud_', argparse=None)
+        self.assertEqual('token', cc.auth_type)

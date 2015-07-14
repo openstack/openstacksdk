@@ -64,6 +64,11 @@ BOOL_KEYS = ('insecure', 'cache')
 #                Remove this sometime in June 2015 once OSC is comfortably
 #                changed-over and global-defaults is updated.
 def set_default(key, value):
+    warnings.warn(
+        "Use of set_default() is deprecated. Defaults should be set with the "
+        "`override_defaults` parameter of OpenStackConfig."
+    )
+    defaults.get_defaults()  # make sure the dict is initialized
     defaults._defaults[key] = value
 
 
