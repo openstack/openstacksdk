@@ -60,12 +60,71 @@ try to find it and if that fails, you would create it::
 import logging
 import sys
 
+import os_client_config
+
 from openstack import module_loader
+from openstack import profile
 from openstack import proxy
 from openstack import session
 from openstack import transport as xport
+from openstack import utils
 
 _logger = logging.getLogger(__name__)
+
+
+def from_config(opts):
+    """Create a connection from a configuration.
+
+    Create a :class:`~openstack.connection.Connection` from a configuration
+    similar to a os-client-config CloudConfig.
+
+    :param opts: Options class like the argparse Namespace object.
+    """
+
+    # TODO(thowe): I proposed that service name defaults to None in OCC
+    defaults = {}
+    prof = profile.Profile()
+    services = [service.service_type for service in prof.get_services()]
+    for service in services:
+        defaults[service + '_service_name'] = None
+    # TODO(thowe): default is 2 which turns into v2 which doesn't work
+    # this stuff needs to be fixed where we keep version and path separated.
+    defaults['network_api_version'] = 'v2.0'
+
+    # Get the cloud_config
+    occ = os_client_config.OpenStackConfig(override_defaults=defaults)
+    cloud_config = occ.get_one_cloud(opts.cloud, opts)
+
+    if cloud_config.debug:
+        utils.enable_logging(True, stream=sys.stdout)
+
+    # TODO(mordred) we need to add service_type setting to openstacksdk.
+    # Some clouds have type overridden as well as name.
+    prof = profile.Profile()
+    services = [service.service_type for service in prof.get_services()]
+    for service in cloud_config.get_services():
+        if service in services:
+            version = cloud_config.get_api_version(service)
+            if version:
+                version = str(version)
+                if not version.startswith("v"):
+                    version = "v" + version
+            prof.set_version(service, version)
+            prof.set_name(service, cloud_config.get_service_name(service))
+            prof.set_visibility(
+                service, cloud_config.get_endpoint_type(service))
+            prof.set_region(service, cloud_config.get_region_name(service))
+
+    # Auth
+    auth = cloud_config.config['auth']
+    # TODO(thowe) We should be using auth_type
+    auth['auth_plugin'] = cloud_config.config['auth_type']
+    if 'cacert' in cloud_config.config:
+        auth['verify'] = cloud_config.config['cacert']
+    if 'insecure' in cloud_config.config:
+        auth['verify'] = not bool(cloud_config.config['insecure'])
+
+    return Connection(profile=prof, **auth)
 
 
 class Connection(object):

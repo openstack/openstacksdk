@@ -11,17 +11,12 @@
 # under the License.
 
 import os
-import sys
 import time
 import unittest
-
-import os_client_config
 
 from openstack.auth import service_filter
 from openstack import connection
 from openstack import exceptions
-from openstack import profile
-from openstack import utils
 
 
 def requires_service(**kwargs):
@@ -55,26 +50,14 @@ def requires_service(**kwargs):
 
 
 class BaseFunctionalTest(unittest.TestCase):
+    class Opts(object):
+        def __init__(self):
+            self.cloud = os.getenv('OS_CLOUD', 'test_cloud')
+
     @classmethod
     def setUpClass(cls):
-        name = os.getenv('OS_CLOUD', 'test_cloud')
-        test_cloud = os_client_config.OpenStackConfig().get_one_cloud(name)
-
-        prof = profile.Profile()
-        prof.set_region(prof.ALL, test_cloud.region)
-        if test_cloud.debug:
-            utils.enable_logging(True, stream=sys.stdout)
-
-        # TODO(thowe): There is a general smell here that this code is
-        # repeated in two places at that we flatten the auth structure.
-        # The connection class should take OCC config and just deal, but
-        # I'd just like to get cacert working for now.
-        auth = test_cloud.config['auth']
-        if 'cacert' in test_cloud.config:
-            auth['verify'] = test_cloud.config['cacert']
-        if 'insecure' in test_cloud.config:
-            auth['verify'] = not bool(test_cloud.config['insecure'])
-        cls.conn = connection.Connection(profile=prof, **auth)
+        opts = cls.Opts()
+        cls.conn = connection.from_config(opts)
 
     @classmethod
     def assertIs(cls, expected, actual):
