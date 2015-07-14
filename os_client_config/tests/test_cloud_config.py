@@ -20,9 +20,9 @@ fake_config_dict = {'a': 1, 'os_b': 2, 'c': 3, 'os_c': 4}
 fake_services_dict = {
     'compute_api_version': 2,
     'compute_region_name': 'region-bl',
-    'endpoint_type': 'public',
+    'interface': 'public',
     'image_service_type': 'mage',
-    'identity_endpoint_type': 'admin',
+    'identity_interface': 'admin',
     'identity_service_name': 'locks',
     'auth': {'password': 'hunter2', 'username': 'AzureDiamond'},
 }
@@ -125,9 +125,9 @@ class TestCloudConfig(base.TestCase):
                          sorted(cc.get_services()))
         self.assertEqual({'password': 'hunter2', 'username': 'AzureDiamond'},
                          cc.get_auth_args())
-        self.assertEqual('public', cc.get_endpoint_type())
-        self.assertEqual('public', cc.get_endpoint_type('image'))
-        self.assertEqual('admin', cc.get_endpoint_type('identity'))
+        self.assertEqual('public', cc.get_interface())
+        self.assertEqual('public', cc.get_interface('compute'))
+        self.assertEqual('admin', cc.get_interface('identity'))
         self.assertEqual('region-al', cc.get_region_name())
         self.assertEqual('region-al', cc.get_region_name('image'))
         self.assertEqual('region-bl', cc.get_region_name('compute'))

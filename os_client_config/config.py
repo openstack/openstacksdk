@@ -278,6 +278,7 @@ class OpenStackConfig(object):
     def _fix_backwards_madness(self, cloud):
         cloud = self._fix_backwards_project(cloud)
         cloud = self._fix_backwards_auth_plugin(cloud)
+        cloud = self._fix_backwards_interface(cloud)
         return cloud
 
     def _fix_backwards_project(self, cloud):
@@ -313,6 +314,13 @@ class OpenStackConfig(object):
                     target = cloud[key]
                     del cloud[key]
             cloud[target_key] = target
+        return cloud
+
+    def _fix_backwards_interface(self, cloud):
+        for key in cloud.keys():
+            if key.endswith('endpoint_type'):
+                target_key = key.replace('endpoint_type', 'interface')
+                cloud[target_key] = cloud.pop(key)
         return cloud
 
     def get_all_clouds(self):

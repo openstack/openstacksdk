@@ -4,7 +4,7 @@ compute_api_version: '2'
 database_api_version: '1.0'
 disable_vendor_agent: {}
 dns_api_version: '2'
-endpoint_type: public
+interface: public
 floating_ip_source: neutron
 identity_api_version: '2'
 image_api_use_tasks: false
