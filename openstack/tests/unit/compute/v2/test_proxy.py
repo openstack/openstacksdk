@@ -20,6 +20,7 @@ from openstack.compute.v2 import image
 from openstack.compute.v2 import keypair
 from openstack.compute.v2 import limits
 from openstack.compute.v2 import server
+from openstack.compute.v2 import server_group
 from openstack.compute.v2 import server_interface
 from openstack.compute.v2 import server_ip
 from openstack.tests.unit import test_proxy_base
@@ -336,3 +337,27 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                       expected_result=None,
                       method_args=["value", "key"],
                       expected_args=[self.session, "key"])
+
+    def test_server_group_create(self):
+        self.verify_create(self.proxy.create_server_group,
+                           server_group.ServerGroup)
+
+    def test_server_group_delete(self):
+        self.verify_delete(self.proxy.delete_server_group,
+                           server_group.ServerGroup, False)
+
+    def test_server_group_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_server_group,
+                           server_group.ServerGroup, True)
+
+    def test_server_group_find(self):
+        self.verify_find(self.proxy.find_server_group,
+                         server_group.ServerGroup)
+
+    def test_server_group_get(self):
+        self.verify_get(self.proxy.get_server_group,
+                        server_group.ServerGroup)
+
+    def test_server_groups(self):
+        self.verify_list(self.proxy.server_groups, server_group.ServerGroup,
+                         paginated=False)

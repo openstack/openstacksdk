@@ -17,6 +17,7 @@ from openstack.compute.v2 import image as _image
 from openstack.compute.v2 import keypair as _keypair
 from openstack.compute.v2 import limits
 from openstack.compute.v2 import server as _server
+from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import server_ip
 from openstack import proxy
@@ -766,3 +767,73 @@ class Proxy(proxy.BaseProxy):
         """
         res = self._get_base_resource(server, _server.Server)
         return res.delete_metadata(self.session, key)
+
+    def create_server_group(self, **attrs):
+        """Create a new server group from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.compute.v2.server_group.ServerGroup`,
+            comprised of the properties on the ServerGroup class.
+
+        :returns: The results of server group creation
+        :rtype: :class:`~openstack.compute.v2.server_group.ServerGroup`
+        """
+        return self._create(_server_group.ServerGroup, **attrs)
+
+    def delete_server_group(self, server_group, ignore_missing=True):
+        """Delete a server group
+
+        :param server_group: The value can be either the ID of a server group
+               or a :class:`~openstack.compute.v2.server_group.ServerGroup`
+               instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the server group does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent server group.
+
+        :returns: ``None``
+        """
+        self._delete(_server_group.ServerGroup, server_group,
+                     ignore_missing=ignore_missing)
+
+    def find_server_group(self, name_or_id, ignore_missing=True):
+        """Find a single server group
+
+        :param name_or_id: The name or ID of a server group.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :returns:
+            One :class:`~openstack.compute.v2.server_group.ServerGroup` object
+            or None
+        """
+        return self._find(_server_group.ServerGroup, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def get_server_group(self, server_group):
+        """Get a single server group
+
+        :param server_group: The value can be the ID of a server group or a
+               :class:`~openstack.compute.v2.server_group.ServerGroup`
+               instance.
+
+        :returns:
+            A :class:`~openstack.compute.v2.server_group.ServerGroup` object.
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_server_group.ServerGroup, server_group)
+
+    def server_groups(self, **query):
+        """Return a generator of server groups
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
+
+        :returns: A generator of ServerGroup objects
+        :rtype: :class:`~openstack.compute.v2.server_group.ServerGroup`
+        """
+        return self._list(_server_group.ServerGroup, paginated=False, **query)
