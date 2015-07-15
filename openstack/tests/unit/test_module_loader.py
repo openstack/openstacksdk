@@ -18,20 +18,20 @@ from openstack.tests.unit import base
 class TestModuleLoader(base.TestCase):
     def test_load_identity_v2(self):
         loader = module_loader.ModuleLoader()
-        plugin = loader.get_auth_plugin('identity_v2_password')
+        plugin = loader.get_auth_plugin('v2password')
         self.assertEqual('openstack.auth.identity.v2', str(plugin.__module__))
-        plugin = loader.get_auth_plugin('identity_v2_token')
+        plugin = loader.get_auth_plugin('v2token')
         self.assertEqual('openstack.auth.identity.v2', str(plugin.__module__))
 
     def test_load_identity_v3(self):
         loader = module_loader.ModuleLoader()
-        plugin = loader.get_auth_plugin('identity_v3_password')
+        plugin = loader.get_auth_plugin('v3password')
         self.assertEqual('openstack.auth.identity.v3', str(plugin.__module__))
-        plugin = loader.get_auth_plugin('identity_v3_token')
+        plugin = loader.get_auth_plugin('v3token')
         self.assertEqual('openstack.auth.identity.v3', str(plugin.__module__))
 
     def test_load_identity_discoverable(self):
-        plugin = module_loader.ModuleLoader().get_auth_plugin('identity')
+        plugin = module_loader.ModuleLoader().get_auth_plugin('password')
         self.assertEqual('openstack.auth.identity.discoverable',
                          str(plugin.__module__))
 
@@ -51,6 +51,6 @@ class TestModuleLoader(base.TestCase):
 
     def test_list_auth_plugins(self):
         plugins = sorted(module_loader.ModuleLoader().list_auth_plugins())
-        expected = ['identity', 'identity_v2_password', 'identity_v2_token',
-                    'identity_v3_password', 'identity_v3_token']
+        expected = ['password', 'token', 'v2password', 'v2token',
+                    'v3password', 'v3token']
         self.assertEqual(expected, plugins)

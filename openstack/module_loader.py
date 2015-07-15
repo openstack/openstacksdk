@@ -30,7 +30,7 @@ class ModuleLoader(object):
     def get_auth_plugin(self, plugin_name):
         """Get an authentication plugin by name."""
         if not plugin_name:
-            plugin_name = 'identity'
+            plugin_name = 'password'
         try:
             return self.auth_mgr[plugin_name].plugin
         except KeyError:

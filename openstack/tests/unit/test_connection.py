@@ -45,7 +45,7 @@ class TestConnection(base.TestCase):
             'password': '2',
         }
         conn = connection.Connection(transport='0',
-                                     auth_plugin='identity_v2_password',
+                                     auth_plugin='v2password',
                                      **auth_args)
         self.assertEqual('0', conn.authenticator.auth_url)
         self.assertEqual('1', conn.authenticator.username)
@@ -58,7 +58,7 @@ class TestConnection(base.TestCase):
             'password': '2',
         }
         conn = connection.Connection(transport='0',
-                                     auth_plugin='identity_v3_password',
+                                     auth_plugin='v3password',
                                      **auth_args)
         self.assertEqual('0', conn.authenticator.auth_url)
         self.assertEqual('1', conn.authenticator.auth_methods[0].username)
@@ -70,7 +70,7 @@ class TestConnection(base.TestCase):
             'username': '1',
             'password': '2',
         }
-        conn = connection.Connection(transport='0', auth_plugin='identity',
+        conn = connection.Connection(transport='0', auth_plugin='password',
                                      **auth_args)
         self.assertEqual('0', conn.authenticator.auth_url)
         self.assertEqual(
