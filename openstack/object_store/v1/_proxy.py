@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.object_store.v1 import account as _account
 from openstack.object_store.v1 import container as _container
 from openstack.object_store.v1 import obj as _obj
 from openstack import proxy
@@ -21,22 +22,22 @@ class Proxy(proxy.BaseProxy):
         """Get metatdata for this account
 
         :rtype:
-            :class:`~openstack.object_store.v1.container.Container`
+            :class:`~openstack.object_store.v1.account.Account`
         """
-        return self._head(_container.Container)
+        return self._head(_account.Account)
 
-    def set_account_metadata(self, container):
+    def set_account_metadata(self, account):
         """Set metatdata for this account.
 
-        :param container: Account metadata specified on a
-            :class:`~openstack.object_store.v1.container.Container` object
+        :param account: Account metadata specified on a
+            :class:`~openstack.object_store.v1.account.Account` object
             to be sent to the server.
-        :type container:
-            :class:`~openstack.object_store.v1.container.Container`
+        :type account:
+            :class:`~openstack.object_store.v1.account.Account`
 
         :rtype: ``None``
         """
-        container.update(self.session)
+        account.update(self.session)
 
     def containers(self, **query):
         """Obtain Container objects for this account.

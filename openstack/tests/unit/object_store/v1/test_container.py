@@ -18,17 +18,6 @@ from openstack.object_store.v1 import container
 
 CONTAINER_NAME = "mycontainer"
 
-ACCOUNT_EXAMPLE = {
-    'content-length': '0',
-    'accept-ranges': 'bytes',
-    'id': 'tx4272aa0d6e1e4f8f971f8-0053b84f54',
-    'date': 'Sat, 05 Jul 2014 19:17:40 GMT',
-    'x-account-bytes-used': '12345',
-    'x-account-container-count': '678',
-    'content-type': 'text/plain; charset=utf-8',
-    'x-account-object-count': '98765'
-}
-
 CONT_EXAMPLE = {
     "count": 999,
     "bytes": 12345,
@@ -62,19 +51,6 @@ LIST_EXAMPLE = [
         "name": "container2"
     }
 ]
-
-
-class TestAccount(testtools.TestCase):
-
-    def test_make_it(self):
-        sot = container.Container.new(**{'headers': ACCOUNT_EXAMPLE})
-        self.assertIsNone(sot.id)
-        self.assertEqual(int(ACCOUNT_EXAMPLE['x-account-bytes-used']),
-                         sot.account_bytes_used)
-        self.assertEqual(int(ACCOUNT_EXAMPLE['x-account-container-count']),
-                         sot.account_container_count)
-        self.assertEqual(int(ACCOUNT_EXAMPLE['x-account-object-count']),
-                         sot.account_object_count)
 
 
 class TestContainer(testtools.TestCase):
