@@ -36,13 +36,12 @@ class Endpoint(resource.Resource):
     #: following values:
     #:
     #: - `public`: intended for consumption by end users, generally on a
-    #: publicly available network interface
-    #:
+    #:     publicly available network interface
     #: - `internal`: not intended for consumption by end users, generally on an
-    #: unmetered internal network interface
-    #:
+    #:     unmetered internal network interface
     #: - `admin`: intended only for consumption by those needing administrative
-    #: access to the service, generally on a secure network interface
+    #:     access to the service, generally on a secure network interface
+    #:
     #: *Type: string*
     interface = resource.prop('interface')
     #: Represents the containing region of the service endpoint. *New in v3.2*
