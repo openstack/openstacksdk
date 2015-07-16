@@ -28,7 +28,7 @@ Sometimes an example is nice.
 
   # Initialize cloud
   # Cloud configs are read with os-client-config
-  cloud = openstack_cloud('mordred')
+  cloud = openstack_cloud(cloud='mordred')
 
   # OpenStackCloud object has an interface exposing OpenStack services methods
   print cloud.list_servers()
