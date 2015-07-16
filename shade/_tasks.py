@@ -42,6 +42,16 @@ class FlavorList(task_manager.Task):
         return client.nova_client.flavors.list()
 
 
+class FlavorCreate(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.flavors.create(**self.args)
+
+
+class FlavorDelete(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.flavors.delete(**self.args)
+
+
 class ServerList(task_manager.Task):
     def main(self, client):
         return client.nova_client.servers.list(**self.args)
