@@ -336,8 +336,8 @@ class OpenStackCloud(object):
                 "{msg}: {exc}".format(msg=error_message, exc=str(e)))
         except neutron_exceptions.NeutronClientException as e:
             self.log.debug(
-                "{msg}: {exc}".format(msg=error_message, exc=str(e),
-                                      exc_info=True))
+                "{msg}: {exc}".format(msg=error_message, exc=str(e)),
+                exc_info=True)
             if e.status_code == 404:
                 raise OpenStackCloudURINotFound(
                     "{msg}: {exc}".format(msg=error_message, exc=str(e)))
@@ -346,8 +346,8 @@ class OpenStackCloud(object):
                     "{msg}: {exc}".format(msg=error_message, exc=str(e)))
         except Exception as e:
             self.log.debug(
-                "{msg}: {exc}".format(msg=error_message, exc=str(e),
-                                      exc_info=True))
+                "{msg}: {exc}".format(msg=error_message, exc=str(e)),
+                exc_info=True)
             raise OpenStackCloudException(
                 "{msg}: {exc}".format(msg=error_message, exc=str(e)))
 
@@ -4066,7 +4066,7 @@ class OperatorCloud(OpenStackCloud):
         except Exception as e:
             self.log.debug(
                 "Failed to create endpoint for service {service}".format(
-                    service=service['name'], exc_info=True))
+                    service=service['name']), exc_info=True)
             raise OpenStackCloudException(str(e))
         return meta.obj_to_dict(endpoint)
 
@@ -4169,7 +4169,7 @@ class OperatorCloud(OpenStackCloud):
         except Exception as e:
             self.log.debug(
                 "Failed to create domain {name}".format(
-                    name=name, exc_info=True))
+                    name=name), exc_info=True)
             raise OpenStackCloudException(str(e))
         return meta.obj_to_dict(domain)
 
