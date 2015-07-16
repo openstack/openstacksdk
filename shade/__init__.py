@@ -61,6 +61,8 @@ OBJECT_MD5_KEY = 'x-object-meta-x-shade-md5'
 OBJECT_SHA256_KEY = 'x-object-meta-x-shade-sha256'
 IMAGE_MD5_KEY = 'owner_specified.shade.md5'
 IMAGE_SHA256_KEY = 'owner_specified.shade.sha256'
+# Rackspace returns this for intermittent import errors
+IMAGE_ERROR_396 = "Image cannot be imported. Error code: '396'"
 DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
 
 
@@ -1461,11 +1463,13 @@ class OpenStackCloud(object):
         # using glance properties to not delete then upload but instead make a
         # new "good" image and then mark the old one as "bad"
         # self.glance_client.images.delete(current_image)
-        glance_task = self.manager.submitTask(_tasks.ImageTaskCreate(
+        task_args = dict(
             type='import', input=dict(
                 import_from='{container}/{name}'.format(
                     container=container, name=name),
-                image_properties=dict(name=name))))
+                image_properties=dict(name=name)))
+        glance_task = self.manager.submitTask(
+            _tasks.ImageTaskCreate(**task_args))
         if wait:
             image_id = None
             for count in _utils._iterate_timeout(
@@ -1496,10 +1500,14 @@ class OpenStackCloud(object):
                     self.list_images.invalidate(self)
                     return self.get_image(status.result['image_id'])
                 if status.status == 'failure':
-                    raise OpenStackCloudException(
-                        "Image creation failed: {message}".format(
-                            message=status.message),
-                        extra_data=status)
+                    if status.message == IMAGE_ERROR_396:
+                        glance_task = self.manager.submitTask(
+                            _tasks.ImageTaskCreate(**task_args))
+                    else:
+                        raise OpenStackCloudException(
+                            "Image creation failed: {message}".format(
+                                message=status.message),
+                            extra_data=status)
         else:
             return meta.warlock_to_dict(glance_task)
 
