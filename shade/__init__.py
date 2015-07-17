@@ -1403,20 +1403,29 @@ class OpenStackCloud(object):
             return current_image
         kwargs[IMAGE_MD5_KEY] = md5
         kwargs[IMAGE_SHA256_KEY] = sha256
-        # This makes me want to die inside
-        if self.image_api_use_tasks:
-            return self._upload_image_task(
-                name, filename, container,
-                current_image=current_image,
-                wait=wait, timeout=timeout, **kwargs)
-        else:
-            image_kwargs = dict(properties=kwargs)
-            if disk_format:
-                image_kwargs['disk_format'] = disk_format
-            if container_format:
-                image_kwargs['container_format'] = container_format
 
-            return self._upload_image_put(name, filename, **image_kwargs)
+        try:
+            # This makes me want to die inside
+            if self.image_api_use_tasks:
+                return self._upload_image_task(
+                    name, filename, container,
+                    current_image=current_image,
+                    wait=wait, timeout=timeout, **kwargs)
+            else:
+                image_kwargs = dict(properties=kwargs)
+                if disk_format:
+                    image_kwargs['disk_format'] = disk_format
+                if container_format:
+                    image_kwargs['container_format'] = container_format
+
+                return self._upload_image_put(name, filename, **image_kwargs)
+        except OpenStackCloudException:
+            self.log.debug("Image creation failed", exc_info=True)
+            raise
+        except Exception as e:
+            self.log.debug("Image creation failed", exc_info=True)
+            raise OpenStackCloudException(
+                "Image creation failed: {message}".format(message=str(e)))
 
     def _upload_image_put_v2(self, name, image_data, **image_kwargs):
         if 'properties' in image_kwargs:
