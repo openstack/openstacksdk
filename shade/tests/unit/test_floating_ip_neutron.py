@@ -290,7 +290,9 @@ class TestFloatingIP(base.TestCase):
             floatingip=self.mock_floating_ip_new_rep['floatingip']['id'],
             body={
                 'floatingip': {
-                    'port_id': self.mock_search_ports_rep[0]['id']
+                    'port_id': self.mock_search_ports_rep[0]['id'],
+                    'fixed_ip_address': self.mock_search_ports_rep[0][
+                        'fixed_ips'][0]['ip_address']
                 }
             }
         )
