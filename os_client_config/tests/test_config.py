@@ -275,3 +275,24 @@ class TestConfigDefault(base.TestCase):
                                    vendor_files=[self.vendor_yaml])
         cc = c.get_one_cloud(cloud='_test-cloud_', argparse=None)
         self.assertEqual('token', cc.auth_type)
+
+
+class TestBackwardsCompatibility(base.TestCase):
+
+    def test_set_no_default(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        cloud = {
+            'identity_endpoint_type': 'admin',
+            'compute_endpoint_type': 'private',
+            'endpoint_type': 'public',
+            'auth_type': 'v3password',
+        }
+        result = c._fix_backwards_interface(cloud)
+        expected = {
+            'identity_interface': 'admin',
+            'compute_interface': 'private',
+            'interface': 'public',
+            'auth_type': 'v3password',
+        }
+        self.assertEqual(expected, result)

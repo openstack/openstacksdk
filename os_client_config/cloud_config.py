@@ -74,11 +74,12 @@ class CloudConfig(object):
     def get_auth_args(self):
         return self.config['auth']
 
-    def get_endpoint_type(self, service_type=None):
+    def get_interface(self, service_type=None):
+        interface = self.config.get('interface')
         if not service_type:
-            return self.config['endpoint_type']
-        key = '{service_type}_endpoint_type'.format(service_type=service_type)
-        return self.config.get(key, self.config['endpoint_type'])
+            return interface
+        key = '{service_type}_interface'.format(service_type=service_type)
+        return self.config.get(key, interface)
 
     def get_region_name(self, service_type=None):
         if not service_type:
