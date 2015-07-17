@@ -47,8 +47,8 @@ def make_connection(opts):
 def run_connection(opts):
     conn = make_connection(opts)
     print("Connection: %s" % conn)
-    for flavor in conn.compute.flavors():
-        print(flavor.id + " " + flavor.name)
+    for resource in conn.compute.flavors():
+        print(resource)
     return
 
 
