@@ -77,7 +77,7 @@ class BaseProxy(object):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the resource does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent resource.
 
         :returns: The result of the ``delete``
         :raises: ``ValueError`` if ``value`` is a
