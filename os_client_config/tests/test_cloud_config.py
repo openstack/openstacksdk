@@ -17,6 +17,15 @@ from os_client_config.tests import base
 
 
 fake_config_dict = {'a': 1, 'os_b': 2, 'c': 3, 'os_c': 4}
+fake_services_dict = {
+    'compute_api_version': 2,
+    'compute_region_name': 'region-bl',
+    'endpoint_type': 'public',
+    'image_service_type': 'mage',
+    'identity_endpoint_type': 'admin',
+    'identity_service_name': 'locks',
+    'auth': {'password': 'hunter2', 'username': 'AzureDiamond'},
+}
 
 
 class TestCloudConfig(base.TestCase):
@@ -108,3 +117,23 @@ class TestCloudConfig(base.TestCase):
         cc = cloud_config.CloudConfig(
             "test1", "region-al", fake_config_dict, prefer_ipv6=True)
         self.assertTrue(cc.prefer_ipv6)
+
+    def test_getters(self):
+        cc = cloud_config.CloudConfig("test1", "region-al", fake_services_dict)
+
+        self.assertEqual(['compute', 'identity', 'image'],
+                         sorted(cc.get_services()))
+        self.assertEqual({'password': 'hunter2', 'username': 'AzureDiamond'},
+                         cc.get_auth_args())
+        self.assertEqual('public', cc.get_endpoint_type())
+        self.assertEqual('public', cc.get_endpoint_type('image'))
+        self.assertEqual('admin', cc.get_endpoint_type('identity'))
+        self.assertEqual('region-al', cc.get_region_name())
+        self.assertEqual('region-al', cc.get_region_name('image'))
+        self.assertEqual('region-bl', cc.get_region_name('compute'))
+        self.assertEqual(None, cc.get_api_version('image'))
+        self.assertEqual(2, cc.get_api_version('compute'))
+        self.assertEqual('mage', cc.get_service_type('image'))
+        self.assertEqual('compute', cc.get_service_type('compute'))
+        self.assertEqual(None, cc.get_service_name('compute'))
+        self.assertEqual('locks', cc.get_service_name('identity'))
