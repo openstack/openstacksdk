@@ -44,6 +44,18 @@ class BaseProxy(object):
         self.session = session
 
     def _get_resource(self, resource_type, value, path_args=None):
+        """Get a resource object to work on
+
+        :param resource_type: The type of resource to operate on. This should
+                              be a subclass of
+                              :class:`~openstack.resource.Resource` with a
+                              ``from_id`` method.
+        :param value: The ID of a resource or an object of ``resource_type``
+                      class if using an existing instance, or None to create a
+                      new instance.
+        :param path_args: A dict containing arguments for forming the request
+                          URL, if needed.
+        """
         if value is None:
             # Create a bare resource
             res = resource_type()
@@ -73,6 +85,8 @@ class BaseProxy(object):
         :param value: The value to delete. Can be either the ID of a
                       resource or a :class:`~openstack.resource.Resource`
                       subclass.
+        :param path_args: A dict containing arguments for forming the request
+                          URL, if needed.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the resource does not exist.
@@ -112,6 +126,8 @@ class BaseProxy(object):
         :param value: The resource to update. This must either be a
                       :class:`~openstack.resource.Resource` or an id
                       that corresponds to a resource.
+        :param path_args: A dict containing arguments for forming the request
+                          URL, if needed.
         :param **attrs: Attributes to update on a Resource object.
                         These attributes will be used in conjunction with
                         ``resource_type``.
@@ -128,6 +144,8 @@ class BaseProxy(object):
 
         :param resource_type: The type of resource to create.
         :type resource_type: :class:`~openstack.resource.Resource`
+        :param path_args: A dict containing arguments for forming the request
+                          URL, if needed.
         :param **attrs: Attributes from which to create a Resource object.
                         These attributes will be used in conjunction with
                         ``resource_type``.
@@ -149,7 +167,8 @@ class BaseProxy(object):
         :param value: The value to get. Can be either the ID of a
                       resource or a :class:`~openstack.resource.Resource`
                       subclass.
-
+        :param path_args: A dict containing arguments for forming the request
+                          URL, if needed.
         :returns: The result of the ``get``
         :rtype: :class:`~openstack.resource.Resource`
         """
@@ -169,10 +188,15 @@ class BaseProxy(object):
         :param resource_type: The type of resource to delete. This should
                               be a :class:`~openstack.resource.Resource`
                               subclass with a ``from_id`` method.
+        :param value: The resource to list. It can be the ID of a resource, or
+                      a :class:`~openstack.resource.Resource` object. When set
+                      to None, a new bare resource is created.
         :param bool paginated: When set to ``False``, expect all of the data
                                to be returned in one response. When set to
                                ``True``, the resource supports data being
                                returned across multiple pages.
+        :param path_args: A dictionary containing arguments for use when
+                          forming the request URL for resource retrieval.
         :param kwargs **query: Keyword arguments that are sent to the list
                                method, which are then attached as query
                                parameters on the request URL.
@@ -197,6 +221,8 @@ class BaseProxy(object):
                       for. Can be either the ID of a resource,
                       a :class:`~openstack.resource.Resource` subclass,
                       or ``None``.
+        :param path_args: A dict containing arguments for forming the request
+                          URL, if needed.
 
         :returns: The result of the ``head`` call
         :rtype: :class:`~openstack.resource.Resource`
