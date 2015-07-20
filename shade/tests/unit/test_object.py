@@ -24,10 +24,10 @@ from shade import OpenStackCloud
 from shade.tests.unit import base
 
 
-class TestShade(base.TestCase):
+class TestObject(base.TestCase):
 
     def setUp(self):
-        super(TestShade, self).setUp()
+        super(TestObject, self).setUp()
         self.cloud = OpenStackCloud('cloud', {})
 
     @mock.patch.object(swift_client, 'Connection')
