@@ -64,6 +64,8 @@ IMAGE_SHA256_KEY = 'owner_specified.shade.sha256'
 # Rackspace returns this for intermittent import errors
 IMAGE_ERROR_396 = "Image cannot be imported. Error code: '396'"
 DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
+# This halves the current default for Swift
+DEFAULT_MAX_FILE_SIZE = (5 * 1024 * 1024 * 1024 + 2) / 2
 
 
 OBJECT_CONTAINER_ACLS = {
@@ -2500,8 +2502,23 @@ class OpenStackCloud(object):
         '''get a segment size that will work given capabilities'''
         if segment_size is None:
             segment_size = DEFAULT_OBJECT_SEGMENT_SIZE
-        caps = self.get_object_capabilities()
-        server_max_file_size = caps.get('swift', {}).get('max_file_size', 0)
+        try:
+            caps = self.get_object_capabilities()
+        except swift_exceptions.ClientException as e:
+            if e.http_status == 412:
+                server_max_file_size = DEFAULT_MAX_FILE_SIZE
+                self.log.info(
+                    "Swift capabilities not supported. "
+                    "Using default max file size.")
+            else:
+                self.log.debug(
+                    "Failed to query swift capabilities", exc_info=True)
+                raise OpenStackCloudException(
+                    "Could not determine capabilities")
+        else:
+            server_max_file_size = caps.get('swift', {}).get('max_file_size',
+                                                             0)
+
         if segment_size > server_max_file_size:
             return server_max_file_size
         return segment_size
