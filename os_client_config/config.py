@@ -440,6 +440,10 @@ class OpenStackConfig(object):
 
         config = self._get_base_cloud_config(cloud)
 
+        # Regions is a list that we can use to create a list of cloud/region
+        # objects. It does not belong in the single-cloud dict
+        config.pop('regions', None)
+
         # Can't just do update, because None values take over
         for (key, val) in iter(args.items()):
             if val is not None:
