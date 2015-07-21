@@ -361,3 +361,19 @@ class TestShade(base.TestCase):
                 side_effect=Exception()):
             self.assertRaises(exc.OpenStackCloudException,
                               self.cloud.list_networks)
+
+    @mock.patch.object(shade.OpenStackCloud, 'list_domains')
+    def test_get_domain(self, mock_search):
+        domain1 = dict(id='123', name='mickey')
+        mock_search.return_value = [domain1]
+        r = self.cloud.get_domain('mickey')
+        self.assertIsNotNone(r)
+        self.assertDictEqual(domain1, r)
+
+    @mock.patch.object(shade.OpenStackCloud, 'list_records')
+    def test_get_record(self, mock_search):
+        record1 = dict(id='123', name='mickey', domain_id='mickey.domain')
+        mock_search.return_value = [record1]
+        r = self.cloud.get_record('mickey.domain', 'mickey')
+        self.assertIsNotNone(r)
+        self.assertDictEqual(record1, r)
