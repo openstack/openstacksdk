@@ -2101,6 +2101,15 @@ class OpenStackCloud(object):
             port = None
             if ports and fixed_address is None:
                 port = ports[0]
+                # Select the first available IPv4 address
+                for address in port.get('fixed_ips', list()):
+                    if _utils.is_ipv4(address['ip_address']):
+                        fixed_address = address['ip_address']
+                        break
+                if fixed_address is None:
+                    raise OpenStackCloudException(
+                        "unable to find a suitable IPv4 address for server "
+                        "{0}".format(server_id))
             elif ports:
                 # unfortunately a port can have more than one fixed IP:
                 # we can't use the search_ports filtering for fixed_address as
