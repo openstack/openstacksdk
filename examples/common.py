@@ -119,6 +119,9 @@ class ProfileAction(argparse.Action):
 
     @classmethod
     def set_option(cls, var, values):
+        if var == '--os-extensions':
+            cls.prof.load_extension(values)
+            return
         if var == 'OS_REGION_NAME':
             var = 'region'
         var = var.replace('--os-api-', '')
@@ -245,6 +248,15 @@ def option_parser():
         metavar='<access-info>',
         default=env('OS_ACCESS_INFO'),
         help='Access info (Env: OS_ACCESS_INFO)',
+    )
+    parser.add_argument(
+        '--os-extensions',
+        dest='user_preferences',
+        metavar='<namespace>',
+        action=ProfileAction,
+        default=ProfileAction.env('OS_EXTENSIONS'),
+        help='Entry point for namespace for service extensions'
+             ' env[OS_EXTENSIONS]',
     )
     parser.add_argument(
         '--os-api-name',

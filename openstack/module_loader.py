@@ -18,6 +18,19 @@ from stevedore import extension
 from openstack import exceptions
 
 
+def load_service_extensions(namespace):
+    service_extensions = extension.ExtensionManager(
+        namespace=namespace,
+        invoke_on_load=True,
+    )
+    services = {}
+    for service in service_extensions:
+        service = service.obj
+        service.set_visibility(None)
+        services[service.service_type] = service
+    return services
+
+
 class ModuleLoader(object):
 
     def __init__(self):
