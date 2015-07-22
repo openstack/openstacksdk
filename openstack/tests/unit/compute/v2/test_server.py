@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
+
 import mock
 import testtools
 
@@ -92,6 +94,13 @@ class TestServer(testtools.TestCase):
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
+
+    def test_create_body(self):
+        params = copy.deepcopy(EXAMPLE)
+        params['scheduler_hints'] = {'group': 'GROUP1_ID'}
+        body = server.Server._get_create_body(params)
+        self.assertNotIn('scheduler_hints', body)
+        self.assertEqual({'group': 'GROUP1_ID'}, body['os:scheduler_hints'])
 
     def test_change_passowrd(self):
         sot = server.Server(EXAMPLE)
