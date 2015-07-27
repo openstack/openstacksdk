@@ -19,6 +19,7 @@ from os_client_config.tests import base
 fake_config_dict = {'a': 1, 'os_b': 2, 'c': 3, 'os_c': 4}
 fake_services_dict = {
     'compute_api_version': 2,
+    'compute_endpoint': 'http://compute.example.com',
     'compute_region_name': 'region-bl',
     'interface': 'public',
     'image_service_type': 'mage',
@@ -135,5 +136,9 @@ class TestCloudConfig(base.TestCase):
         self.assertEqual(2, cc.get_api_version('compute'))
         self.assertEqual('mage', cc.get_service_type('image'))
         self.assertEqual('compute', cc.get_service_type('compute'))
+        self.assertEqual('http://compute.example.com',
+                         cc.get_endpoint('compute'))
+        self.assertEqual(None,
+                         cc.get_endpoint('image'))
         self.assertEqual(None, cc.get_service_name('compute'))
         self.assertEqual('locks', cc.get_service_name('identity'))
