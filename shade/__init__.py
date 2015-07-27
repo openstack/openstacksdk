@@ -126,38 +126,28 @@ def openstack_clouds(config=None, debug=False):
     ]
 
 
-def openstack_cloud(debug=False, **kwargs):
-    config = kwargs.get('config')
-    if config is None:
+def openstack_cloud(config=None, **kwargs):
+    if not config:
         config = os_client_config.OpenStackConfig()
     cloud_config = config.get_one_cloud(**kwargs)
     return OpenStackCloud(
-        cloud=cloud_config.name,
         cache_interval=config.get_cache_max_age(),
         cache_class=config.get_cache_class(),
         cache_arguments=config.get_cache_arguments(),
-        cloud_config=cloud_config,
-        debug=debug, **cloud_config.config)
+        cloud_config=cloud_config)
 
 
-def operator_cloud(debug=False, **kwargs):
-    config = os_client_config.OpenStackConfig()
+def operator_cloud(config=None, **kwargs):
+    if 'interface' not in kwargs:
+        kwargs['interface'] = 'admin'
+    if not config:
+        config = os_client_config.OpenStackConfig()
     cloud_config = config.get_one_cloud(**kwargs)
     return OperatorCloud(
-        cloud_config.name, debug=debug,
         cache_interval=config.get_cache_max_age(),
         cache_class=config.get_cache_class(),
         cache_arguments=config.get_cache_arguments(),
-        cloud_config=cloud_config,
-        **cloud_config.config)
-
-
-def _get_service_values(kwargs, service_key):
-    # get defauts returns a copy of the defaults dict
-    values = os_client_config.defaults.get_defaults()
-    values.update(kwargs)
-    return {k[:-(len(service_key) + 1)]: str(values[k])
-            for k in values.keys() if k.endswith(service_key)}
+        cloud_config=cloud_config)
 
 
 def _cache_on_arguments(*cache_on_args, **cache_on_kwargs):
@@ -204,32 +194,6 @@ class OpenStackCloud(object):
     and that Floating IP will be actualized either via neutron or via nova
     depending on how this particular cloud has decided to arrange itself.
 
-    :param string name: The name of the cloud
-    :param dict auth: Dictionary containing authentication information.
-                      Depending on the value of auth_type, the contents
-                      of this dict can vary wildly.
-    :param string region_name: The region of the cloud that all operations
-                               should be performed against.
-                               (optional, default '')
-    :param string auth_type: The name of the keystone auth_type to be used
-    :param string endpoint_type: The type of endpoint to get for services
-                                 from the service catalog. Valid types are
-                                 `public` ,`internal` or `admin`. (optional,
-                                 defaults to `public`)
-    :param bool private: Whether to return or use private IPs by default for
-                         servers. (optional, defaults to False)
-    :param float api_timeout: A timeout to pass to REST client constructors
-                              indicating network-level timeouts. (optional)
-    :param bool verify: The verification arguments to pass to requests. True
-                        tells requests to verify SSL requests, False to not
-                        verify. (optional, defaults to True)
-    :param string cacert: A path to a CA Cert bundle that can be used as part
-                          of verifying SSL requests. If this is set, verify
-                          is set to True. (optional)
-    :param string cert: A path to a client certificate to pass to requests.
-                        (optional)
-    :param string key: A path to a client key to pass to requests. (optional)
-    :param bool debug: Deprecated and unused parameter.
     :param int cache_interval: How long to cache items fetched from the cloud.
                                Value will be passed to dogpile.cache. None
                                means do not cache at all.
@@ -242,63 +206,40 @@ class OpenStackCloud(object):
                                 OpenStack API tasks. Unless you're doing
                                 rate limiting client side, you almost
                                 certainly don't need this. (optional)
-    :param bool image_api_use_tasks: Whether or not this cloud needs to
-                                     use the glance task-create interface for
-                                     image upload activities instead of direct
-                                     calls. (optional, defaults to False)
     :param CloudConfig cloud_config: Cloud config object from os-client-config
                                      In the future, this will be the only way
                                      to pass in cloud configuration, but is
                                      being phased in currently.
     """
 
-    def __init__(self, cloud, auth,
-                 region_name='',
-                 auth_type='password',
-                 endpoint_type='public',
-                 private=False,
-                 verify=True, cacert=None, cert=None, key=None,
-                 api_timeout=None,
-                 debug=False, cache_interval=None,
-                 cache_class='dogpile.cache.null',
-                 cache_arguments=None,
-                 manager=None,
-                 image_api_use_tasks=False,
-                 cloud_config=None,
-                 **kwargs):
+    def __init__(
+            self,
+            cloud_config=None,
+            cache_interval=None,
+            cache_class='dogpile.cache.null',
+            cache_arguments=None,
+            manager=None, **kwargs):
 
         self.log = logging.getLogger('shade')
-
-        if cloud_config is None:
+        if not cloud_config:
             config = os_client_config.OpenStackConfig()
-            ssl_args = dict(
-                verify=verify, cacert=cacert, cert=cert, key=key,
-            )
-            if cloud in config.get_cloud_names():
-                cloud_config = config.get_one_cloud(cloud, **ssl_args)
-            else:
-                cloud_config = config.get_one_cloud(**ssl_args)
-        self._cloud_config = cloud_config
-        self.name = cloud
-        self.auth = auth
-        self.region_name = region_name
-        self.auth_type = auth_type
-        self.endpoint_type = endpoint_type
-        self.private = private
-        self.api_timeout = api_timeout
+            cloud_config = config.get_one_cloud(**kwargs)
+
+        self.name = cloud_config.name
+        self.auth = cloud_config.get_auth_args()
+        self.region_name = cloud_config.region_name
+        self.auth_type = cloud_config.config['auth_type']
+        self.default_interface = cloud_config.get_interface()
+        self.private = cloud_config.config.get('private', False)
+        self.api_timeout = cloud_config.config['api_timeout']
+        self.image_api_use_tasks = cloud_config.config['image_api_use_tasks']
+        self.secgroup_source = cloud_config.config['secgroup_source']
+
         if manager is not None:
             self.manager = manager
         else:
             self.manager = task_manager.TaskManager(
                 name=self.name, client=self)
-
-        self.service_types = _get_service_values(kwargs, 'service_type')
-        self.service_names = _get_service_values(kwargs, 'service_name')
-        self.endpoints = _get_service_values(kwargs, 'endpoint')
-        self.api_versions = _get_service_values(kwargs, 'api_version')
-        self.image_api_use_tasks = image_api_use_tasks
-
-        self.secgroup_source = kwargs.get('secgroup_source', None)
 
         (self.verify, self.cert) = cloud_config.get_requests_verify_args()
 
@@ -323,6 +264,8 @@ class OpenStackCloud(object):
         self._swift_client = None
         self._swift_service = None
         self._trove_client = None
+
+        self.cloud_config = cloud_config
 
     @contextlib.contextmanager
     def _neutron_exceptions(self, error_message):
@@ -365,12 +308,6 @@ class OpenStackCloud(object):
             return ans
         return generate_key
 
-    def get_service_type(self, service):
-        return self.service_types.get(service, service)
-
-    def get_service_name(self, service):
-        return self.service_names.get(service, None)
-
     @property
     def nova_client(self):
         if self._nova_client is None:
@@ -380,9 +317,9 @@ class OpenStackCloud(object):
                 # trigger exception on lack of compute. (what?)
                 self.get_session_endpoint('compute')
                 self._nova_client = nova_client.Client(
-                    self.api_versions['compute'],
+                    self.cloud_config.get_api_version('compute'),
                     session=self.keystone_session,
-                    service_name=self.get_service_name('compute'),
+                    service_name=self.cloud_config.get_service_name('compute'),
                     region_name=self.region_name,
                     timeout=self.api_timeout)
             except Exception:
@@ -409,13 +346,13 @@ class OpenStackCloud(object):
                     plugin=self.auth_type, error=str(e)))
 
     def _get_identity_client_class(self):
-        if self.api_versions['identity'] == '3':
+        if self.cloud_config.get_api_version('identity') == '3':
             return k3_client.Client
-        elif self.api_versions['identity'] in ('2', '2.0'):
+        elif self.cloud_config.get_api_version('identity') in ('2', '2.0'):
             return k2_client.Client
         raise OpenStackCloudException(
             "Unknown identity API version: {version}".format(
-                version=self.api_versions['identity']))
+                version=self.cloud_config.get_api_version('identity')))
 
     @property
     def keystone_session(self):
@@ -488,7 +425,7 @@ class OpenStackCloud(object):
         project_dict = dict()
         if name_or_id:
             project_id = self._get_project(name_or_id).id
-            if self.api_versions['identity'] == '3':
+            if self.cloud_config.get_api_version('identity') == '3':
                 project_dict['default_project'] = project_id
             else:
                 project_dict['tenant_id'] = project_id
@@ -501,7 +438,7 @@ class OpenStackCloud(object):
         # not. However, keystone v2 does not allow user creation by non-admin
         # users, so we can throw an error to the user that does not need to
         # mention api versions
-        if self.api_versions['identity'] == '3':
+        if self.cloud_config.get_api_version('identity') == '3':
             if not domain_id:
                 raise OpenStackCloudException(
                     "User creation requires an explicit domain_id argument.")
@@ -667,7 +604,8 @@ class OpenStackCloud(object):
             kwargs['timeout'] = self.api_timeout
         try:
             self._glance_client = glanceclient.Client(
-                self.api_versions['image'], endpoint, token=token,
+                self.cloud_config.get_api_version('image'),
+                endpoint, token=token,
                 session=self.keystone_session, insecure=not self.verify,
                 cacert=self.cert, **kwargs)
         except Exception as e:
@@ -689,7 +627,7 @@ class OpenStackCloud(object):
                 self._swift_client = swift_client.Connection(
                     preauthurl=endpoint,
                     preauthtoken=token,
-                    auth_version=self.api_versions['identity'],
+                    auth_version=self.cloud_config.get_api_version('identity'),
                     os_options=dict(
                         auth_token=token,
                         object_storage_url=endpoint,
@@ -750,10 +688,10 @@ class OpenStackCloud(object):
             # Make the connection - can't use keystone session until there
             # is one
             self._trove_client = trove_client.Client(
-                self.api_versions['database'],
+                self.cloud_config.get_api_version('database'),
                 session=self.keystone_session,
                 region_name=self.region_name,
-                service_type=self.get_service_type('database'),
+                service_type=self.cloud_config.get_service_type('database'),
                 timeout=self.api_timeout,
             )
 
@@ -780,7 +718,7 @@ class OpenStackCloud(object):
     def designate_client(self):
         if self._designate_client is None:
             # get dns service type if defined in cloud config
-            dns_service_type = self.get_service_type('dns')
+            dns_service_type = self.cloud_config.get_service_type('dns')
             # trigger exception on lack of designate
             self.get_session_endpoint(dns_service_type)
 
@@ -829,8 +767,9 @@ class OpenStackCloud(object):
                 ram=ram, include=include))
 
     def get_session_endpoint(self, service_key):
-        if service_key in self.endpoints:
-            return self.endpoints[service_key]
+        override_endpoint = self.cloud_config.get_endpoint(service_key)
+        if override_endpoint:
+            return override_endpoint
         try:
             # keystone is a special case in keystone, because what?
             if service_key == 'identity':
@@ -838,9 +777,11 @@ class OpenStackCloud(object):
                     interface=ksc_auth.AUTH_INTERFACE)
             else:
                 endpoint = self.keystone_session.get_endpoint(
-                    service_type=self.get_service_type(service_key),
-                    service_name=self.get_service_name(service_key),
-                    interface=self.endpoint_type,
+                    service_type=self.cloud_config.get_service_type(
+                        service_key),
+                    service_name=self.cloud_config.get_service_name(
+                        service_key),
+                    interface=self.cloud_config.get_interface(service_key),
                     region_name=self.region_name)
         except keystone_exceptions.EndpointNotFound as e:
             self.log.debug(
@@ -1417,7 +1358,7 @@ class OpenStackCloud(object):
         try:
             # Note that in v1, the param name is image, but in v2,
             # it's image_id
-            glance_api_version = self.api_versions['image']
+            glance_api_version = self.cloud_config.get_api_version('image')
             if glance_api_version == '2':
                 self.manager.submitTask(
                     _tasks.ImageDelete(image_id=image.id))
@@ -1455,7 +1396,7 @@ class OpenStackCloud(object):
         kwargs[IMAGE_SHA256_KEY] = sha256
 
         if disable_vendor_agent:
-            kwargs.update(self._cloud_config.config['disable_vendor_agent'])
+            kwargs.update(self.cloud_config.config['disable_vendor_agent'])
 
         try:
             # This makes me want to die inside
@@ -1505,7 +1446,7 @@ class OpenStackCloud(object):
     def _upload_image_put(self, name, filename, **image_kwargs):
         image_data = open(filename, 'rb')
         # Because reasons and crying bunnies
-        if self.api_versions['image'] == '2':
+        if self.cloud_config.get_api_version('image') == '2':
             image = self._upload_image_put_v2(name, image_data, **image_kwargs)
         else:
             image = self._upload_image_put_v1(name, image_data, **image_kwargs)
@@ -1586,7 +1527,7 @@ class OpenStackCloud(object):
             img_props[k] = v
 
         # This makes me want to die inside
-        if self.api_versions['image'] == '2':
+        if self.cloud_config.get_api_version('image') == '2':
             return self._update_image_properties_v2(image, img_props)
         else:
             return self._update_image_properties_v1(image, img_props)
@@ -3371,19 +3312,7 @@ class OperatorCloud(OpenStackCloud):
     of which OpenStack service those operations are for.
 
     See the :class:`OpenStackCloud` class for a description of most options.
-    `OperatorCloud` overrides the default value of `endpoint_type` from
-    `public` to `admin`.
-
-    :param string endpoint_type: The type of endpoint to get for services
-                                 from the service catalog. Valid types are
-                                 `public` ,`internal` or `admin`. (optional,
-                                 defaults to `admin`)
     """
-
-    def __init__(self, *args, **kwargs):
-        super(OperatorCloud, self).__init__(*args, **kwargs)
-        if 'endpoint_type' not in kwargs:
-            self.endpoint_type = 'admin'
 
     @property
     def auth_token(self):
@@ -3425,7 +3354,8 @@ class OperatorCloud(OpenStackCloud):
                 endpoint = self.get_session_endpoint(service_key='baremetal')
             try:
                 self._ironic_client = ironic_client.Client(
-                    self.api_versions['baremetal'], endpoint, token=token,
+                    self.cloud_config.get_api_version('baremetal'),
+                    endpoint, token=token,
                     timeout=self.api_timeout,
                     os_ironic_api_version=ironic_api_microversion)
             except Exception as e:

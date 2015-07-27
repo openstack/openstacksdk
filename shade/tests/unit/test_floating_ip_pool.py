@@ -20,6 +20,7 @@ Test floating IP pool resource (managed by nova)
 """
 
 from mock import patch
+import os_client_config
 from shade import OpenStackCloud
 from shade import OpenStackCloudException
 from shade.tests.unit import base
@@ -33,7 +34,8 @@ class TestFloatingIPPool(base.TestCase):
 
     def setUp(self):
         super(TestFloatingIPPool, self).setUp()
-        self.client = OpenStackCloud('cloud', {})
+        config = os_client_config.OpenStackConfig()
+        self.client = OpenStackCloud(cloud_config=config.get_one_cloud())
 
     @patch.object(OpenStackCloud, '_has_nova_extension')
     @patch.object(OpenStackCloud, 'nova_client')

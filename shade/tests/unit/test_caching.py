@@ -261,9 +261,10 @@ class TestMemoryCache(base.TestCase):
         self.cloud.create_image(
             name, imagefile.name, container=container, wait=True)
 
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
-    def test_create_image_put_v1(self, glance_mock):
-        self.cloud.api_versions['image'] = '1'
+    def test_create_image_put_v1(self, glance_mock, mock_api_version):
+        mock_api_version.return_value = '1'
         glance_mock.images.list.return_value = []
         self.assertEqual([], self.cloud.list_images())
 
@@ -280,9 +281,10 @@ class TestMemoryCache(base.TestCase):
         fake_image_dict = meta.obj_to_dict(fake_image)
         self.assertEqual([fake_image_dict], self.cloud.list_images())
 
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
-    def test_create_image_put_v2(self, glance_mock):
-        self.cloud.api_versions['image'] = '2'
+    def test_create_image_put_v2(self, glance_mock, mock_api_version):
+        mock_api_version.return_value = '2'
         self.cloud.image_api_use_tasks = False
 
         glance_mock.images.list.return_value = []
@@ -301,6 +303,7 @@ class TestMemoryCache(base.TestCase):
         fake_image_dict = meta.obj_to_dict(fake_image)
         self.assertEqual([fake_image_dict], self.cloud.list_images())
 
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_get_file_hashes')
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     @mock.patch.object(shade.OpenStackCloud, 'swift_client')
@@ -309,8 +312,9 @@ class TestMemoryCache(base.TestCase):
                                swift_service_mock,
                                swift_mock,
                                glance_mock,
-                               get_file_hashes):
-        self.cloud.api_versions['image'] = '2'
+                               get_file_hashes,
+                               mock_api_version):
+        mock_api_version.return_value = '2'
         self.cloud.image_api_use_tasks = True
 
         class Container(object):

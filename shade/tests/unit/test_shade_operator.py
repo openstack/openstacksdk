@@ -17,6 +17,7 @@ from keystoneclient import auth as ksc_auth
 import mock
 import testtools
 
+import os_client_config.cloud_config
 import shade
 from shade import exc
 from shade import meta
@@ -548,8 +549,10 @@ class TestShadeOperator(base.TestCase):
         self.assertEqual('22', self.cloud.get_image_id('22'))
         self.assertEqual('22', self.cloud.get_image_id('22 name'))
 
-    def test_get_session_endpoint_provided(self):
-        self.cloud.endpoints['image'] = 'http://fake.url'
+    @mock.patch.object(
+        os_client_config.cloud_config.CloudConfig, 'get_endpoint')
+    def test_get_session_endpoint_provided(self, fake_get_endpoint):
+        fake_get_endpoint.return_value = 'http://fake.url'
         self.assertEqual(
             'http://fake.url', self.cloud.get_session_endpoint('image'))
 

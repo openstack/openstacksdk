@@ -21,6 +21,7 @@ Tests for the `delete_server` command.
 
 import mock
 from novaclient import exceptions as nova_exc
+import os_client_config
 
 from shade import OpenStackCloud
 from shade import exc as shade_exc
@@ -40,7 +41,8 @@ class TestDeleteServer(base.TestCase):
 
     def setUp(self):
         super(TestDeleteServer, self).setUp()
-        self.cloud = OpenStackCloud("cloud", {})
+        config = os_client_config.OpenStackConfig()
+        self.cloud = OpenStackCloud(cloud_config=config.get_one_cloud())
 
     @mock.patch('shade.OpenStackCloud.nova_client')
     def test_delete_server(self, nova_mock):

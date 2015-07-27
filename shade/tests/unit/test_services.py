@@ -20,6 +20,7 @@ Tests Keystone services commands.
 """
 
 from mock import patch
+import os_client_config
 from shade import OpenStackCloudException
 from shade import OperatorCloud
 from shade.tests.fakes import FakeService
@@ -40,7 +41,8 @@ class CloudServices(base.TestCase):
 
     def setUp(self):
         super(CloudServices, self).setUp()
-        self.client = OperatorCloud("op_cloud", {})
+        config = os_client_config.OpenStackConfig()
+        self.client = OperatorCloud(cloud_config=config.get_one_cloud())
         self.mock_ks_services = [FakeService(**kwa) for kwa in
                                  self.mock_services]
 

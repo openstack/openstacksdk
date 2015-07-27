@@ -20,6 +20,7 @@ Tests Floating IP resource methods for Neutron
 """
 
 from mock import patch
+import os_client_config
 
 from neutronclient.common import exceptions as n_exc
 
@@ -121,7 +122,8 @@ class TestFloatingIP(base.TestCase):
     def setUp(self):
         super(TestFloatingIP, self).setUp()
         # floating_ip_source='neutron' is default for OpenStackCloud()
-        self.client = OpenStackCloud("cloud", {})
+        config = os_client_config.OpenStackConfig()
+        self.client = OpenStackCloud(cloud_config=config.get_one_cloud())
 
     @patch.object(OpenStackCloud, 'neutron_client')
     @patch.object(OpenStackCloud, 'has_service')

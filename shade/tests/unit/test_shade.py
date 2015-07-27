@@ -21,6 +21,7 @@ from keystoneclient.v2_0 import client as k2_client
 from keystoneclient.v3 import client as k3_client
 from neutronclient.common import exceptions as n_exc
 
+import os_client_config.cloud_config
 import shade
 from shade import exc
 from shade import meta
@@ -55,22 +56,28 @@ class TestShade(base.TestCase):
             plugin,
             keystoneclient.auth.identity.generic.password.Password)
 
-    def test_get_client_v2(self):
-        self.cloud.api_versions['identity'] = '2'
+    @mock.patch.object(
+        os_client_config.cloud_config.CloudConfig, 'get_api_version')
+    def test_get_client_v2(self, mock_api_version):
+        mock_api_version.return_value = '2'
 
         self.assertIs(
             self.cloud._get_identity_client_class(),
             k2_client.Client)
 
-    def test_get_client_v3(self):
-        self.cloud.api_versions['identity'] = '3'
+    @mock.patch.object(
+        os_client_config.cloud_config.CloudConfig, 'get_api_version')
+    def test_get_client_v3(self, mock_api_version):
+        mock_api_version.return_value = '3'
 
         self.assertIs(
             self.cloud._get_identity_client_class(),
             k3_client.Client)
 
-    def test_get_client_v4(self):
-        self.cloud.api_versions['identity'] = '4'
+    @mock.patch.object(
+        os_client_config.cloud_config.CloudConfig, 'get_api_version')
+    def test_get_client_v4(self, mock_api_version):
+        mock_api_version.return_value = '4'
 
         self.assertRaises(
             exc.OpenStackCloudException,
