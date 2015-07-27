@@ -37,6 +37,7 @@ region-b.geo-1 US East
 ============== ================
 
 * DNS Service Type is `hpext:dns`
+* Public IPv4 is provided via NAT with Neutron Floating IP
 
 rackspace
 ---------
@@ -79,7 +80,7 @@ RegionOne      Region One
 
 * Image API Version is 2
 * Images must be in `raw` format
-* Public IPv4 is provided via Floating IP from Neutron
+* Public IPv4 is provided via NAT with Neutron Floating IP
 * IPv6 is provided to every server
 
 vexxhost
@@ -139,7 +140,7 @@ RegionOne      RegionOne
 ============== ================
 
 * Identity API Version is 2
-* Public IPv4 is provided via Floating IP from Nova
+* Public IPv4 is provided via NAT with Nova Floating IP
 * Floating IPs are provided by Nova
 * Security groups are provided by Nova
 
