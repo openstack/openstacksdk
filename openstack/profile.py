@@ -90,60 +90,33 @@ class Profile(object):
         """
         self._preferences = {}
         self._services = {}
-        """
-        NOTE(thowe): We should probably do something more clever here rather
-        than brute force create all the services.  Maybe use entry points
-        or something, but I'd like to leave that work for another commit.
-        """
-        serv = cluster_service.ClusterService()
-        serv.set_visibility(None)
-        self._services[serv.service_type] = serv
-        serv = compute_service.ComputeService()
-        serv.set_visibility(None)
-        self._services[serv.service_type] = serv
-        serv = database_service.DatabaseService()
-        serv.set_visibility(None)
-        self._services[serv.service_type] = serv
-        serv = identity_service.IdentityService()
-        serv.set_visibility(None)
-        self._services[serv.service_type] = serv
-        serv = image_service.ImageService()
-        serv.set_visibility(None)
-        self._services[serv.service_type] = serv
-        serv = metric_service.MetricService()
-        serv.set_visibility(None)
-        self._services[serv.service_type] = serv
-        serv = network_service.NetworkService()
-        serv.set_visibility(None)
-        self._services[serv.service_type] = serv
-        serv = object_store_service.ObjectStoreService()
-        serv.set_visibility(None)
-        self._services[serv.service_type] = serv
-        serv = orchestration_service.OrchestrationService()
-        serv.set_visibility(None)
-        self._services[serv.service_type] = serv
-        serv = key_management_service.KeyManagementService()
-        serv.set_visibility(None)
-        self._services[serv.service_type] = serv
-        serv = telemetry_service.TelemetryService()
-        serv.set_visibility(None)
-        self._services[serv.service_type] = serv
-        serv = block_store_service.BlockStoreService()
-        serv.set_visibility(None)
-        self._services[serv.service_type] = serv
-        serv = message_service.MessageService()
-        serv.set_visibility(None)
-        self._services[serv.service_type] = serv
+        self._add_service(cluster_service.ClusterService())
+        self._add_service(compute_service.ComputeService())
+        self._add_service(database_service.DatabaseService())
+        self._add_service(identity_service.IdentityService())
+        self._add_service(image_service.ImageService())
+        self._add_service(metric_service.MetricService())
+        self._add_service(network_service.NetworkService())
+        self._add_service(object_store_service.ObjectStoreService())
+        self._add_service(orchestration_service.OrchestrationService())
+        self._add_service(key_management_service.KeyManagementService())
+        self._add_service(telemetry_service.TelemetryService())
+        self._add_service(block_store_service.BlockStoreService())
+        self._add_service(message_service.MessageService())
 
         if extensions:
             for extension in extensions:
-                self.load_extension(extension)
+                self._load_extension(extension)
         self.service_names = sorted(self._services.keys())
 
     def __repr__(self):
         return repr(self._preferences)
 
-    def load_extension(self, namespace):
+    def _add_service(self, serv):
+        serv.set_visibility(None)
+        self._services[serv.service_type] = serv
+
+    def _load_extension(self, namespace):
         """Load a service extension.
 
         :param str namespace: Entry point namespace
@@ -153,8 +126,7 @@ class Profile(object):
             if service_type in self._services:
                 _logger.debug("Overriding %s with %s", service_type,
                               services[service_type])
-            self._services[service_type] = services[service_type]
-        self.service_names = sorted(self._services.keys())
+            self._add_service(services[service_type])
 
     def get_preference(self, service):
         """Get a service preference.
