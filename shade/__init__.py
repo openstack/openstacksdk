@@ -863,10 +863,6 @@ class OpenStackCloud(object):
         except OpenStackCloudException:
             return False
 
-    def list_server_dicts(self):
-        return [self.get_openstack_vars(server)
-                for server in self.list_servers()]
-
     @_cache_on_arguments()
     def _nova_extensions(self):
         extensions = set()
@@ -1851,12 +1847,6 @@ class OpenStackCloud(object):
 
     def get_server_public_ip(self, server):
         return meta.get_server_external_ipv4(self, server)
-
-    def get_server_dict(self, name_or_id):
-        server = self.get_server(name_or_id)
-        if not server:
-            return server
-        return self.get_openstack_vars(server)
 
     def get_server_meta(self, server):
         # TODO(mordred) remove once ansible has moved to Inventory interface
