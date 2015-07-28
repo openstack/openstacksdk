@@ -20,6 +20,16 @@
     allocation_pool_start: 192.168.0.2
     allocation_pool_end: 192.168.0.254
 
+- name: Update subnet
+  os_subnet:
+    cloud: "{{ cloud }}"
+    network_name: "{{ network_name }}"
+    name: "{{ subnet_name }}"
+    state: present
+    dns_nameservers:
+      - 8.8.8.7
+    cidr: 192.168.0.0/24
+
 - name: Delete subnet {{ subnet_name }}
   os_subnet:
     cloud: "{{ cloud }}"
