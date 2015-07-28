@@ -2344,7 +2344,7 @@ class OpenStackCloud(object):
 
     def add_ips_to_server(self, server, auto_ip=True, ips=None, ip_pool=None):
         if ip_pool:
-            self.add_ip_from_pool(server, ip_pool)
+            self.add_ip_from_pool(server['id'], ip_pool)
         elif ips:
             self.add_ip_list(server, ips)
         elif auto_ip:
