@@ -2625,6 +2625,26 @@ class OpenStackCloud(object):
             self, container, name, filename=None,
             md5=None, sha256=None, segment_size=None,
             **headers):
+        """Create a file object
+
+        :param container: The name of the container to store the file in.
+            This container will be created if it does not exist already.
+        :param name: Name for the object within the container.
+        :param filename: The path to the local file whose contents will be
+            uploaded.
+        :param md5: A hexadecimal md5 of the file. (Optional), if it is known
+            and can be passed here, it will save repeating the expensive md5
+            process. It is assumed to be accurate.
+        :param sha256: A hexadecimal sha256 of the file. (Optional) See md5.
+        :param segment_size: Break the uploaded object into segments of this
+            many bytes. (Optional) Shade will attempt to discover the maximum
+            value for this from the server if it is not specified, or will use
+            a reasonable default.
+        :param headers: These will be passed through to the object creation
+            API as HTTP Headers.
+
+        :raises: ``OpenStackCloudException`` on operation error.
+        """
         if not filename:
             filename = name
 
