@@ -66,10 +66,6 @@ def get_server_private_ip(server):
     return get_server_ip(server, ext_tag='fixed', key_name='private')
 
 
-def get_server_public_ip(server):
-    return get_server_ip(server, ext_tag='floating', key_name='public')
-
-
 def get_server_external_ipv4(cloud, server):
     """Find an externally routable IP for the server.
 
