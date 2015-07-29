@@ -34,7 +34,7 @@ class Proxy(proxy.BaseProxy):
         """Delete a container
 
         :param value: The value can be either the ID of a container or a
-               :class:`~openstack.key_management.v2.container.Container`
+               :class:`~openstack.key_management.v1.container.Container`
                instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
@@ -55,8 +55,8 @@ class Proxy(proxy.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
-        :returns: One :class:`~openstack.compute.v2.container.Container` or
-                  None
+        :returns: One :class:`~openstack.key_management.v1.container.Container`
+                  or None
         """
         return container.Container.find(self.session, name_or_id,
                                         ignore_missing=ignore_missing)
@@ -89,13 +89,13 @@ class Proxy(proxy.BaseProxy):
         """Update a container
 
         :param value: Either the id of a container or a
-                      :class:`~openstack.compute.v2.container.Container`
+                      :class:`~openstack.key_management.v1.container.Container`
                       instance.
         :attrs kwargs: The attributes to update on the container represented
                        by ``value``.
 
         :returns: The updated container
-        :rtype: :class:`~openstack.compute.v2.container.Container`
+        :rtype: :class:`~openstack.key_management.v1.container.Container`
         """
         return self._update(container.Container, value, **attrs)
 
@@ -115,7 +115,7 @@ class Proxy(proxy.BaseProxy):
         """Delete an order
 
         :param value: The value can be either the ID of a order or a
-                      :class:`~openstack.key_management.v2.order.Order`
+                      :class:`~openstack.key_management.v1.order.Order`
                       instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
@@ -136,7 +136,7 @@ class Proxy(proxy.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
-        :returns: One :class:`~openstack.compute.v2.order.Order` or None
+        :returns: One :class:`~openstack.key_management.v1.order.Order` or None
         """
         return order.Order.find(self.session, name_or_id,
                                 ignore_missing=ignore_missing)
@@ -169,12 +169,13 @@ class Proxy(proxy.BaseProxy):
         """Update a order
 
         :param value: Either the id of a order or a
-                      :class:`~openstack.compute.v2.order.Order` instance.
+                      :class:`~openstack.key_management.v1.order.Order`
+                      instance.
         :attrs kwargs: The attributes to update on the order represented
                        by ``value``.
 
         :returns: The updated order
-        :rtype: :class:`~openstack.compute.v2.order.Order`
+        :rtype: :class:`~openstack.key_management.v1.order.Order`
         """
         return self._update(order.Order, value, **attrs)
 
@@ -194,7 +195,7 @@ class Proxy(proxy.BaseProxy):
         """Delete a secret
 
         :param value: The value can be either the ID of a secret or a
-                      :class:`~openstack.key_management.v2.secret.Secret`
+                      :class:`~openstack.key_management.v1.secret.Secret`
                       instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
@@ -215,7 +216,8 @@ class Proxy(proxy.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
-        :returns: One :class:`~openstack.compute.v2.secret.Secret` or None
+        :returns: One :class:`~openstack.key_management.v1.secret.Secret` or
+                  None
         """
         return secret.Secret.find(self.session, name_or_id,
                                   ignore_missing=ignore_missing)
@@ -248,11 +250,12 @@ class Proxy(proxy.BaseProxy):
         """Update a secret
 
         :param value: Either the id of a secret or a
-                      :class:`~openstack.compute.v2.secret.Secret` instance.
+                      :class:`~openstack.key_management.v1.secret.Secret`
+                      instance.
         :attrs kwargs: The attributes to update on the secret represented
                        by ``value``.
 
         :returns: The updated secret
-        :rtype: :class:`~openstack.compute.v2.secret.Secret`
+        :rtype: :class:`~openstack.key_management.v1.secret.Secret`
         """
         return self._update(secret.Secret, value, **attrs)
