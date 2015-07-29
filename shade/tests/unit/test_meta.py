@@ -105,11 +105,35 @@ class TestMeta(testtools.TestCase):
 
     def test_get_server_ip(self):
         srv = meta.obj_to_dict(FakeServer())
+        cloud = shade.openstack_cloud()
         self.assertEqual(PRIVATE_V4, meta.get_server_private_ip(srv))
-        self.assertEqual(PUBLIC_V4,
-                         meta.get_server_external_ipv4(shade.openstack_cloud(),
-                                                       srv)
-                         )
+        self.assertEqual(PUBLIC_V4, meta.get_server_external_ipv4(cloud, srv))
+
+    @mock.patch.object(shade.OpenStackCloud, 'has_service')
+    @mock.patch.object(shade.OpenStackCloud, 'search_ports')
+    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
+    def test_get_server_private_ip(self, mock_search_networks,
+                                   mock_search_ports, mock_has_service):
+        mock_has_service.return_value = True
+        mock_search_ports.return_value = [{
+            'network_id': 'test-net-id',
+            'fixed_ips': [{'ip_address': PRIVATE_V4}],
+            'device_id': 'test-id'
+        }]
+        mock_search_networks.return_value = [{'id': 'test-net-id'}]
+
+        srv = meta.obj_to_dict(fakes.FakeServer(
+            id='test-id', name='test-name', status='ACTIVE'))
+        cloud = shade.openstack_cloud()
+
+        self.assertEqual(PRIVATE_V4, meta.get_server_private_ip(srv, cloud))
+        mock_has_service.assert_called_once_with('network')
+        mock_search_ports.assert_called_once_with(
+            filters={'device_id': 'test-id'}
+        )
+        mock_search_networks.assert_called_once_with(
+            filters={'router:external': False, 'shared': False}
+        )
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
     @mock.patch.object(shade.OpenStackCloud, 'search_ports')
