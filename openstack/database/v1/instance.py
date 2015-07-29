@@ -41,23 +41,29 @@ class Instance(resource.Resource):
     volume = resource.prop('volume')
 
     def enable_root_user(self, session):
-        """Enable login for the root user
+        """Enable login for the root user.
 
         This operation enables login from any host for the root user
         and provides the user with a generated root password.
 
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
         :returns: A dictionary with keys ``name`` and ``password`` specifying
-        the login credentials.
+            the login credentials.
         """
         url = utils.urljoin(self.base_path, self.id, 'root')
         resp = session.post(url, service=self.service).body
         return resp['user']
 
     def is_root_enabled(self, session):
-        """Determine if root is enabled on an instance
+        """Determine if root is enabled on an instance.
 
+        Determine if root is enabled on this particular instance.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
         :returns: ``True`` if root user is enabled for a specified database
-        instance or ``False`` otherwise.
+            instance or ``False`` otherwise.
         """
         url = utils.urljoin(self.base_path, self.id, 'root')
         resp = session.get(url, service=self.service).body
