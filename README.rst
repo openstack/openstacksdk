@@ -188,7 +188,7 @@ instance, if the user says "please upload this  image", shade should figure
 out which sequence of actions need to be performed and should get the job done.
 
 If the resource isn't present on some clouds, but the overall concept the
-resouce represents is, a different resource should present the concept. For
+resource represents is, a different resource should present the concept. For
 instance, while some clouds do not have floating ips, if what the user wants
 is "a server with an IP" - then the fact that one needs to request a floating
 ip on some clouds is a detail, and the right thing for that to be is a quality
@@ -206,7 +206,7 @@ Functional Interface
 --------------------
 
 shade should also provide a functional mapping to the object interface that
-does not expse the object interface at all. For instance, fora  resource type
+does not expose the object interface at all. For instance, fora  resource type
 `server`, one could expect the following.
 
 ::
