@@ -814,6 +814,22 @@ class ResourceTests(base.TestTransportBase):
         self.assertEqual(session.get.call_count, len(pages))
         self.assertEqual(len(full_page + full_page + last_page), len(results))
 
+    def test_empty_list(self):
+        page = []
+
+        session = mock.Mock()
+        session.get = mock.Mock()
+        full_response = mock.Mock()
+        full_response.body = {FakeResource.resources_key: page}
+        pages = [full_response]
+        session.get.side_effect = pages
+
+        results = list(FakeResource.list(session, path_args=fake_arguments,
+                       paginated=True))
+
+        self.assertEqual(session.get.call_count, len(pages))
+        self.assertEqual(len(page), len(results))
+
     def test_attrs_name(self):
         obj = FakeResource()
 
