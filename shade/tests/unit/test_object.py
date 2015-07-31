@@ -42,6 +42,7 @@ class TestObject(base.TestCase):
             preauthurl='danzig',
             preauthtoken='yankee',
             auth_version='2',
+            timeout=None,
             os_options=dict(
                 object_storage_url='danzig',
                 auth_token='yankee',
