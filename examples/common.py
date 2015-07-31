@@ -139,8 +139,8 @@ class ProfileAction(argparse.Action):
                 cls.prof.set_region(service, value)
             elif var == 'version':
                 cls.prof.set_version(service, value)
-            elif var == 'visibility':
-                cls.prof.set_visibility(service, value)
+            elif var == 'interface':
+                cls.prof.set_interface(service, value)
 
     def __call__(self, parser, namespace, values, option_string=None):
         if getattr(namespace, self.dest, None) is None:
@@ -283,12 +283,12 @@ def option_parser():
         help='Desired API versions defaults to env[OS_API_VERSION]',
     )
     parser.add_argument(
-        '--os-api-visibility',
+        '--os-api-interface',
         dest='preferences',
-        metavar='<service>=<visibility>',
+        metavar='<service>=<interface>',
         action=ProfileAction,
-        default=ProfileAction.env('OS_API_VISIBILITY'),
-        help='Desired API visibility defaults to env[OS_API_VISIBILITY]',
+        default=ProfileAction.env('OS_INTERFACE'),
+        help='Desired API interface defaults to env[OS_INTERFACE]',
     )
     verify_group = parser.add_mutually_exclusive_group()
     verify_group.add_argument(

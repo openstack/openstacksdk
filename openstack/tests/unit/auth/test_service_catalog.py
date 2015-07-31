@@ -69,19 +69,19 @@ class TestServiceCatalog(testtools.TestCase):
         self.assertEqual(["http://compute.region1.public/v2.0"],
                          sot.get_urls(sf))
 
-    def get_urls_visibility(self, sot):
+    def get_urls_interface(self, sot):
         sf = service_filter.ServiceFilter(service_type='identity',
-                                          visibility='admin')
+                                          interface='admin')
         self.assertEqual(["http://identity.region1.admin/v1.1/123123"],
                          sot.get_urls(sf))
         sf = service_filter.ServiceFilter(service_type='identity',
-                                          visibility='internal')
+                                          interface='internal')
         self.assertEqual(
             ["http://identity.region1.internal/v1.1/123123"],
             sot.get_urls(sf)
         )
         sf = service_filter.ServiceFilter(service_type='identity',
-                                          visibility='public')
+                                          interface='public')
         self.assertEqual(["http://identity.region1.public/v1.1/123123"],
                          sot.get_urls(sf))
 
@@ -107,9 +107,9 @@ class TestServiceCatalogV2(TestServiceCatalog):
         sot = catalog.ServiceCatalogV2(common.TEST_SERVICE_CATALOG_V2)
         self.get_urls_region(sot)
 
-    def test_get_urls_visibility(self):
+    def test_get_urls_interface(self):
         sot = catalog.ServiceCatalogV2(common.TEST_SERVICE_CATALOG_V2)
-        self.get_urls_visibility(sot)
+        self.get_urls_interface(sot)
 
 
 class TestServiceCatalogV3(TestServiceCatalog):
@@ -133,9 +133,9 @@ class TestServiceCatalogV3(TestServiceCatalog):
         sot = catalog.ServiceCatalog(common.TEST_SERVICE_CATALOG_V3)
         self.get_urls_region(sot)
 
-    def test_get_urls_visibility(self):
+    def test_get_urls_interface(self):
         sot = catalog.ServiceCatalog(common.TEST_SERVICE_CATALOG_V3)
-        self.get_urls_visibility(sot)
+        self.get_urls_interface(sot)
 
     def test_get_versions(self):
         sot = catalog.ServiceCatalog(common.TEST_SERVICE_CATALOG_V3)

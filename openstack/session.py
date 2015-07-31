@@ -81,7 +81,7 @@ class Session(object):
             get_endpoint methods for the session.
         :type authenticator: :class:`~openstack.auth.base.BaseAuthPlugin`
         :param profile: If the user has any special profiles such as the
-            service name, region, version or visibility, they may be provided
+            service name, region, version or interface, they may be provided
             in the profile object.  If no profiles are provided, the
             services that appear first in the service catalog will be used.
         :type profile: :class:`~openstack.profile.Profile`

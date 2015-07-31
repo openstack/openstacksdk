@@ -66,7 +66,7 @@ class ServiceCatalog(object):
 
         Returns a tuple containting the url and version for the specified
         service (or all) containing the specified type, name, region and
-        visibility.
+        interface.
         """
         eps = []
         for service in self.catalog:
@@ -77,7 +77,7 @@ class ServiceCatalog(object):
             for endpoint in service.get('endpoints', []):
                 if not filtration.match_region(endpoint.get('region', None)):
                     continue
-                if not filtration.match_visibility(endpoint.get('interface')):
+                if not filtration.match_interface(endpoint.get('interface')):
                     continue
                 url = endpoint.get('url', None)
                 if not url:
@@ -91,7 +91,7 @@ class ServiceCatalog(object):
 
         Returns a list of urls based on the service filter.  If not endpoints
         are found that match the service filter, an empty list is returned.
-        The filter may specify type, name, region, version and visibility.
+        The filter may specify type, name, region, version and interface.
         """
         urls = []
         for url, version in self._get_endpoints(filtration):
@@ -107,7 +107,7 @@ class ServiceCatalog(object):
         no endpoint matching the filter, None will be returned.  An empty
         list of versions means the service is supported, but no version is
         specified in the service catalog.  The filter may specify type, name,
-        region, version and visibility.
+        region, version and interface.
         """
         vers = None
         for url, version in self._get_endpoints(filtration):

@@ -20,7 +20,7 @@ class TestDatabaseService(testtools.TestCase):
     def test_service(self):
         sot = database_service.DatabaseService()
         self.assertEqual('database', sot.service_type)
-        self.assertEqual('public', sot.visibility)
+        self.assertEqual('public', sot.interface)
         self.assertIsNone(sot.region)
         self.assertIsNone(sot.service_name)
         self.assertEqual(1, len(sot.valid_versions))

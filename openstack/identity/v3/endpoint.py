@@ -32,7 +32,7 @@ class Endpoint(resource.Resource):
     #: Setting this value to ``False`` prevents the endpoint from appearing
     #: in the service catalog. *Type: bool*
     enabled = resource.prop('enabled', type=bool)
-    #: Describes the visibility of the endpoint according to one of the
+    #: Describes the interface of the endpoint according to one of the
     #: following values:
     #:
     #: - `public`: intended for consumption by end users, generally on a
