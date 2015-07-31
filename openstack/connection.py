@@ -112,7 +112,7 @@ def from_config(opts):
             prof.set_version(service, version)
             prof.set_name(service, cloud_config.get_service_name(service))
             prof.set_visibility(
-                service, cloud_config.get_endpoint_type(service))
+                service, cloud_config.get_interface(service))
             prof.set_region(service, cloud_config.get_region_name(service))
 
     # Auth
