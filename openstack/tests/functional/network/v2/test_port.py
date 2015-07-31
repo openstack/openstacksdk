@@ -73,7 +73,7 @@ class TestPort(base.BaseFunctionalTest):
         ids = [o.id for o in self.conn.network.ports()]
         self.assertIn(self.PORT_ID, ids)
 
-    def test_updta(self):
+    def test_update(self):
         sot = self.conn.network.update_port(self.PORT_ID,
                                             name=self.UPDATE_NAME)
         self.assertEqual(self.UPDATE_NAME, sot.name)
