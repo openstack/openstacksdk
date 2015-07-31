@@ -20,6 +20,7 @@ Tests Floating IP resource methods for nova-network
 """
 
 from mock import patch
+import os_client_config
 
 from novaclient import exceptions as n_exc
 
@@ -69,7 +70,8 @@ class TestFloatingIP(base.TestCase):
 
     def setUp(self):
         super(TestFloatingIP, self).setUp()
-        self.client = OpenStackCloud("cloud", {})
+        config = os_client_config.OpenStackConfig()
+        self.client = OpenStackCloud(cloud_config=config.get_one_cloud())
 
     @patch.object(OpenStackCloud, 'nova_client')
     @patch.object(OpenStackCloud, 'has_service')

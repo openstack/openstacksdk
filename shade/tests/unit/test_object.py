@@ -14,6 +14,7 @@
 # under the License.
 
 import mock
+import os_client_config
 from swiftclient import client as swift_client
 from swiftclient import service as swift_service
 from swiftclient import exceptions as swift_exc
@@ -28,7 +29,8 @@ class TestObject(base.TestCase):
 
     def setUp(self):
         super(TestObject, self).setUp()
-        self.cloud = OpenStackCloud('cloud', {})
+        config = os_client_config.OpenStackConfig()
+        self.cloud = OpenStackCloud(cloud_config=config.get_one_cloud())
 
     @mock.patch.object(swift_client, 'Connection')
     @mock.patch.object(shade.OpenStackCloud, 'auth_token',

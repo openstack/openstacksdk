@@ -20,6 +20,7 @@ Tests for the `create_server` command.
 """
 
 from mock import patch, Mock
+import os_client_config
 from shade import meta
 from shade import OpenStackCloud
 from shade.exc import (OpenStackCloudException, OpenStackCloudTimeout)
@@ -30,7 +31,8 @@ class TestCreateServer(base.TestCase):
 
     def setUp(self):
         super(TestCreateServer, self).setUp()
-        self.client = OpenStackCloud("cloud", {})
+        config = os_client_config.OpenStackConfig()
+        self.client = OpenStackCloud(cloud_config=config.get_one_cloud())
 
     def test_create_server_with_create_exception(self):
         """

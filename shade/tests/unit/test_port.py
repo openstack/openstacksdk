@@ -20,6 +20,7 @@ Test port resource (managed by neutron)
 """
 
 from mock import patch
+import os_client_config
 from shade import OpenStackCloud
 from shade.exc import OpenStackCloudException
 from shade.tests.unit import base
@@ -143,7 +144,8 @@ class TestPort(base.TestCase):
 
     def setUp(self):
         super(TestPort, self).setUp()
-        self.client = OpenStackCloud('cloud', {})
+        config = os_client_config.OpenStackConfig()
+        self.client = OpenStackCloud(cloud_config=config.get_one_cloud())
 
     @patch.object(OpenStackCloud, 'neutron_client')
     def test_create_port(self, mock_neutron_client):

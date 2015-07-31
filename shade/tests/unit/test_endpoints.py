@@ -20,6 +20,7 @@ Tests Keystone endpoints commands.
 """
 
 from mock import patch
+import os_client_config
 from shade import OperatorCloud
 from shade.tests.fakes import FakeEndpoint
 from shade.tests.unit import base
@@ -38,7 +39,8 @@ class TestCloudEndpoints(base.TestCase):
 
     def setUp(self):
         super(TestCloudEndpoints, self).setUp()
-        self.client = OperatorCloud("op_cloud", {})
+        config = os_client_config.OpenStackConfig()
+        self.client = OperatorCloud(cloud_config=config.get_one_cloud())
         self.mock_ks_endpoints = \
             [FakeEndpoint(**kwa) for kwa in self.mock_endpoints]
 

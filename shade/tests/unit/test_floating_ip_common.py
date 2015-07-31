@@ -20,6 +20,7 @@ Tests floating IP resource methods for Neutron and Nova-network.
 """
 
 from mock import patch
+import os_client_config
 from shade import meta
 from shade import OpenStackCloud
 from shade.tests.fakes import FakeServer
@@ -29,7 +30,8 @@ from shade.tests.unit import base
 class TestFloatingIP(base.TestCase):
     def setUp(self):
         super(TestFloatingIP, self).setUp()
-        self.client = OpenStackCloud("cloud", {})
+        config = os_client_config.OpenStackConfig()
+        self.client = OpenStackCloud(cloud_config=config.get_one_cloud())
 
     @patch.object(OpenStackCloud, 'get_floating_ip')
     @patch.object(OpenStackCloud, 'attach_ip_to_server')

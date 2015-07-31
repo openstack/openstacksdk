@@ -20,6 +20,7 @@ Tests for the `rebuild_server` command.
 """
 
 from mock import patch, Mock
+import os_client_config
 from shade import meta
 from shade import OpenStackCloud
 from shade.exc import (OpenStackCloudException, OpenStackCloudTimeout)
@@ -30,7 +31,8 @@ class TestRebuildServer(base.TestCase):
 
     def setUp(self):
         super(TestRebuildServer, self).setUp()
-        self.client = OpenStackCloud("cloud", {})
+        config = os_client_config.OpenStackConfig()
+        self.client = OpenStackCloud(cloud_config=config.get_one_cloud())
 
     def test_rebuild_server_rebuild_exception(self):
         """

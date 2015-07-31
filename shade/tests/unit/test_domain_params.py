@@ -13,6 +13,7 @@
 # under the License.
 
 import mock
+import os_client_config as occ
 
 import bunch
 
@@ -27,11 +28,11 @@ class TestDomainParams(base.TestCase):
         super(TestDomainParams, self).setUp()
         self.cloud = shade.openstack_cloud()
 
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_get_project')
-    def test_identity_params_v3(self, mock_get_project):
+    def test_identity_params_v3(self, mock_get_project, mock_api_version):
         mock_get_project.return_value = bunch.Bunch(id=1234)
-
-        self.cloud.api_versions = dict(identity='3')
+        mock_api_version.return_value = '3'
 
         ret = self.cloud._get_identity_params(domain_id='5678', project='bar')
         self.assertIn('default_project', ret)
@@ -39,22 +40,23 @@ class TestDomainParams(base.TestCase):
         self.assertIn('domain', ret)
         self.assertEqual(ret['domain'], '5678')
 
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_get_project')
-    def test_identity_params_v3_no_domain(self, mock_get_project):
+    def test_identity_params_v3_no_domain(
+            self, mock_get_project, mock_api_version):
         mock_get_project.return_value = bunch.Bunch(id=1234)
-
-        self.cloud.api_versions = dict(identity='3')
+        mock_api_version.return_value = '3'
 
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud._get_identity_params,
             domain_id=None, project='bar')
 
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_get_project')
-    def test_identity_params_v2(self, mock_get_project):
+    def test_identity_params_v2(self, mock_get_project, mock_api_version):
         mock_get_project.return_value = bunch.Bunch(id=1234)
-
-        self.cloud.api_versions = dict(identity='2')
+        mock_api_version.return_value = '2'
 
         ret = self.cloud._get_identity_params(domain_id='foo', project='bar')
         self.assertIn('tenant_id', ret)
