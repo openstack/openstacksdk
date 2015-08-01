@@ -104,9 +104,12 @@ class TestMeta(testtools.TestCase):
             addrs, key_name='public', ext_tag='fixed', version=6))
 
     def test_get_server_ip(self):
-        srv = FakeServer()
+        srv = meta.obj_to_dict(FakeServer())
         self.assertEqual(PRIVATE_V4, meta.get_server_private_ip(srv))
-        self.assertEqual(PUBLIC_V4, meta.get_server_public_ip(srv))
+        self.assertEqual(PUBLIC_V4,
+                         meta.get_server_external_ipv4(shade.openstack_cloud(),
+                                                       srv)
+                         )
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
     @mock.patch.object(shade.OpenStackCloud, 'search_ports')
