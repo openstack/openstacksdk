@@ -314,6 +314,12 @@ class OpenStackConfig(object):
                     target = cloud[key]
                     del cloud[key]
             cloud[target_key] = target
+        # Because we force alignment to v3 nouns, we want to force
+        # use of the auth plugin that can do auto-selection and dealing
+        # with that based on auth parameters. v2password is basically
+        # completely broken
+        if cloud['auth_type'] == 'v2password':
+            cloud['auth_type'] = 'password'
         return cloud
 
     def _fix_backwards_interface(self, cloud):
