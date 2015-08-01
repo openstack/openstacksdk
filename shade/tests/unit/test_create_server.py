@@ -127,7 +127,8 @@ class TestCreateServer(base.TestCase):
         its status changes to "ACTIVE".
         """
         with patch("shade.OpenStackCloud"):
-            fake_server = fakes.FakeServer('', '', 'ACTIVE')
+            fake_server = fakes.FakeServer(
+                '', '', 'ACTIVE', addresses=dict(public='1.1.1.1'))
             config = {
                 "servers.create.return_value": fakes.FakeServer('', '',
                                                                 'ACTIVE'),
@@ -140,3 +141,23 @@ class TestCreateServer(base.TestCase):
                 self.assertEqual(
                     self.client.create_server(wait=True),
                     fake_server)
+
+    def test_create_server_no_addresses(self):
+        """
+        Test that create_server with a wait throws an exception if the
+        server doesn't have addresses.
+        """
+        with patch("shade.OpenStackCloud"):
+            fake_server = fakes.FakeServer('', '', 'ACTIVE')
+            config = {
+                "servers.create.return_value": fakes.FakeServer('', '',
+                                                                'ACTIVE'),
+                "servers.get.side_effect": [
+                    Mock(status="BUILD"), fake_server]
+            }
+            OpenStackCloud.nova_client = Mock(**config)
+            with patch.object(OpenStackCloud, "add_ips_to_server",
+                              return_value=fake_server):
+                self.assertRaises(
+                    OpenStackCloudException, self.client.create_server,
+                    wait=True)

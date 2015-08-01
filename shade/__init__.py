@@ -2339,6 +2339,25 @@ class OpenStackCloud(object):
                     continue
 
                 if server['status'] == 'ACTIVE':
+                    if not server['addresses']:
+                        try:
+                            self._delete_server(
+                                server=server, wait=wait, timeout=timeout)
+                        except Exception as e:
+                            self.log.debug(
+                                "Failed deleting server {server} that booted"
+                                " without an IP address. Manual cleanup is"
+                                " required.".format(server=server['id']),
+                                exc_info=True)
+                            raise OpenStackCloudException(
+                                "Server reached ACTIVE state without being"
+                                " allocated an IP address AND then could not"
+                                " be deleted: {0}".format(e),
+                                extra_data=dict(server=server))
+                        raise OpenStackCloudException(
+                            'Server reached ACTIVE state without being'
+                            ' allocated an IP address.',
+                            extra_data=dict(server=server))
                     return self.add_ips_to_server(
                         server, auto_ip, ips, ip_pool)
 
@@ -2378,8 +2397,11 @@ class OpenStackCloud(object):
                         extra_data=dict(server=server))
         return meta.obj_to_dict(server)
 
-    def delete_server(self, name, wait=False, timeout=180):
-        server = self.get_server(name)
+    def delete_server(self, name_or_id, wait=False, timeout=180):
+        server = self.get_server(name_or_id)
+        return self._delete_server(server, wait=wait, timeout=timeout)
+
+    def _delete_server(self, server, wait=False, timeout=180):
         if server:
             try:
                 self.manager.submitTask(_tasks.ServerDelete(server=server.id))
