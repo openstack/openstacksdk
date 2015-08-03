@@ -746,7 +746,7 @@ class Resource(collections.MutableMapping):
         else:
             resp = session.put(url, service=cls.service, **args).body
 
-        if cls.resource_key:
+        if cls.resource_key and cls.resource_key in resp.keys():
             resp = resp[cls.resource_key]
 
         return resp
