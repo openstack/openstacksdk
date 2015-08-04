@@ -62,8 +62,45 @@ def get_server_ip(server, **kwargs):
     return addrs[0]
 
 
-def get_server_private_ip(server):
-    return get_server_ip(server, ext_tag='fixed', key_name='private')
+def get_server_private_ip(server, cloud=None):
+    """Find the private IP address
+
+    If Neutron is available, search for a port on a network where
+    `router:external` is False and `shared` is False. This combination
+    indicates a private network with private IP addresses. This port should
+    have the private IP.
+
+    If Neutron is not available, or something goes wrong communicating with it,
+    as a fallback, try the list of addresses associated with the server dict,
+    looking for an IP type tagged as 'fixed' in the network named 'private'.
+
+    Last resort, ignore the IP type and just look for an IP on the 'private'
+    network (e.g., Rackspace).
+    """
+    if cloud and cloud.has_service('network'):
+        try:
+            server_ports = cloud.search_ports(
+                filters={'device_id': server['id']})
+            nets = cloud.search_networks(
+                filters={'router:external': False, 'shared': False})
+        except Exception as e:
+            log.debug(
+                "Something went wrong talking to neutron API: "
+                "'{msg}'. Trying with Nova.".format(msg=str(e)))
+        else:
+            for net in nets:
+                for port in server_ports:
+                    if net['id'] == port['network_id']:
+                        for ip in port['fixed_ips']:
+                            if _utils.is_ipv4(ip['ip_address']):
+                                return ip['ip_address']
+
+    ip = get_server_ip(server, ext_tag='fixed', key_name='private')
+    if ip:
+        return ip
+
+    # Last resort, and Rackspace
+    return get_server_ip(server, key_name='private')
 
 
 def get_server_external_ipv4(cloud, server):
@@ -93,7 +130,7 @@ def get_server_external_ipv4(cloud, server):
             # Search a fixed IP attached to an external net. Unfortunately
             # Neutron ports don't have a 'floating_ips' attribute
             server_ports = cloud.search_ports(
-                filters={'device_id': server.id})
+                filters={'device_id': server['id']})
             ext_nets = cloud.search_networks(filters={'router:external': True})
         except Exception as e:
             log.debug(
@@ -203,7 +240,7 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     # not exist to remain consistent with the pre-existing missing values
     server_vars['public_v4'] = get_server_external_ipv4(cloud, server) or ''
     server_vars['public_v6'] = get_server_external_ipv6(server) or ''
-    server_vars['private_v4'] = get_server_private_ip(server) or ''
+    server_vars['private_v4'] = get_server_private_ip(server, cloud) or ''
     if cloud.private:
         interface_ip = server_vars['private_v4']
     else:
