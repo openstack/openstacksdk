@@ -3969,10 +3969,10 @@ class OperatorCloud(OpenStackCloud):
 
         :returns: a dict containing the services description, i.e. the
             following attributes::
-                - id: <service id>
-                - name: <service name>
-                - service_type: <service type>
-                - description: <service description>
+            - id: <service id>
+            - name: <service name>
+            - service_type: <service type>
+            - description: <service description>
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call.
@@ -4028,10 +4028,10 @@ class OperatorCloud(OpenStackCloud):
 
         :returns: a dict containing the services description, i.e. the
             following attributes::
-                - id: <service id>
-                - name: <service name>
-                - service_type: <service type>
-                - description: <service description>
+            - id: <service id>
+            - name: <service name>
+            - service_type: <service type>
+            - description: <service description>
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call or if multiple matches are found.
@@ -4074,7 +4074,7 @@ class OperatorCloud(OpenStackCloud):
 
         :returns: a dict containing the endpoint description.
 
-        :raise OpenStackCloudException: if the service cannot be found or if
+        :raises: OpenStackCloudException if the service cannot be found or if
             something goes wrong during the openstack API call.
         """
         # ToDo: support v3 api (dguerri)
@@ -4122,11 +4122,11 @@ class OperatorCloud(OpenStackCloud):
 
         :returns: a list of dict containing the endpoint description. Each dict
             contains the following attributes::
-                - id: <endpoint id>
-                - region: <endpoint region>
-                - public_url: <endpoint public url>
-                - internal_url: <endpoint internal url> (optional)
-                - admin_url: <endpoint admin url> (optional)
+            - id: <endpoint id>
+            - region: <endpoint region>
+            - public_url: <endpoint public url>
+            - internal_url: <endpoint internal url> (optional)
+            - admin_url: <endpoint admin url> (optional)
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
@@ -4143,11 +4143,11 @@ class OperatorCloud(OpenStackCloud):
 
         :returns: a dict containing the endpoint description. i.e. a dict
             containing the following attributes::
-                - id: <endpoint id>
-                - region: <endpoint region>
-                - public_url: <endpoint public url>
-                - internal_url: <endpoint internal url> (optional)
-                - admin_url: <endpoint admin url> (optional)
+            - id: <endpoint id>
+            - region: <endpoint region>
+            - public_url: <endpoint public url>
+            - internal_url: <endpoint internal url> (optional)
+            - admin_url: <endpoint admin url> (optional)
         """
         return _utils._get_entity(self.search_endpoints, id, filters)
 
@@ -4258,9 +4258,9 @@ class OperatorCloud(OpenStackCloud):
 
         :returns: a list of dicts containing the domain description. Each dict
             contains the following attributes::
-                - id: <domain id>
-                - name: <domain name>
-                - description: <domain description>
+            - id: <domain id>
+            - name: <domain name>
+            - description: <domain description>
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
@@ -4280,10 +4280,9 @@ class OperatorCloud(OpenStackCloud):
 
         :returns: a dict containing the domain description, or None if not
             found. Each dict contains the following attributes::
-                - id: <domain id>
-                - name: <domain name>
-                - description: <domain description>
-
+            - id: <domain id>
+            - name: <domain name>
+            - description: <domain description>
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
