@@ -20,7 +20,7 @@ class TestClusterService(testtools.TestCase):
     def test_service(self):
         sot = cluster_service.ClusterService()
         self.assertEqual('clustering', sot.service_type)
-        self.assertEqual('public', sot.visibility)
+        self.assertEqual('public', sot.interface)
         self.assertIsNone(sot.region)
         self.assertIsNone(sot.service_name)
         self.assertEqual(1, len(sot.valid_versions))

@@ -21,41 +21,41 @@ from openstack.identity import identity_service
 class TestServiceFilter(testtools.TestCase):
     def test_minimum(self):
         sot = filt.ServiceFilter()
-        self.assertEqual("service_type=any,visibility=public",
+        self.assertEqual("service_type=any,interface=public",
                          six.text_type(sot))
 
     def test_maximum(self):
-        sot = filt.ServiceFilter(service_type='compute', visibility='admin',
+        sot = filt.ServiceFilter(service_type='compute', interface='admin',
                                  region='b', service_name='c')
-        exp = "service_type=compute,visibility=admin,region=b,service_name=c"
+        exp = "service_type=compute,interface=admin,region=b,service_name=c"
         self.assertEqual(exp, six.text_type(sot))
 
-    def test_visibility(self):
-        sot = filt.ServiceFilter(service_type='identity', visibility='public')
-        self.assertEqual("service_type=identity,visibility=public",
+    def test_interface(self):
+        sot = filt.ServiceFilter(service_type='identity', interface='public')
+        self.assertEqual("service_type=identity,interface=public",
                          six.text_type(sot))
         sot = filt.ServiceFilter(service_type='identity',
-                                 visibility='internal')
-        self.assertEqual("service_type=identity,visibility=internal",
+                                 interface='internal')
+        self.assertEqual("service_type=identity,interface=internal",
                          six.text_type(sot))
-        sot = filt.ServiceFilter(service_type='identity', visibility='admin')
-        self.assertEqual("service_type=identity,visibility=admin",
-                         six.text_type(sot))
-        sot = filt.ServiceFilter(service_type='identity',
-                                 visibility='publicURL')
-        self.assertEqual("service_type=identity,visibility=public",
+        sot = filt.ServiceFilter(service_type='identity', interface='admin')
+        self.assertEqual("service_type=identity,interface=admin",
                          six.text_type(sot))
         sot = filt.ServiceFilter(service_type='identity',
-                                 visibility='internalURL')
-        self.assertEqual("service_type=identity,visibility=internal",
+                                 interface='publicURL')
+        self.assertEqual("service_type=identity,interface=public",
                          six.text_type(sot))
         sot = filt.ServiceFilter(service_type='identity',
-                                 visibility='adminURL')
-        self.assertEqual("service_type=identity,visibility=admin",
+                                 interface='internalURL')
+        self.assertEqual("service_type=identity,interface=internal",
+                         six.text_type(sot))
+        sot = filt.ServiceFilter(service_type='identity',
+                                 interface='adminURL')
+        self.assertEqual("service_type=identity,interface=admin",
                          six.text_type(sot))
         self.assertRaises(exceptions.SDKException, filt.ServiceFilter,
-                          service_type='identity', visibility='b')
-        sot = filt.ServiceFilter(service_type='identity', visibility=None)
+                          service_type='identity', interface='b')
+        sot = filt.ServiceFilter(service_type='identity', interface=None)
         self.assertEqual("service_type=identity", six.text_type(sot))
 
     def test_match_service_type(self):
@@ -89,33 +89,33 @@ class TestServiceFilter(testtools.TestCase):
         self.assertFalse(sot.match_region('West'))
         self.assertFalse(sot.match_region(None))
 
-    def test_match_visibility(self):
+    def test_match_interface(self):
         sot = filt.ServiceFilter(service_type='identity',
-                                 visibility='internal')
-        self.assertFalse(sot.match_visibility('admin'))
-        self.assertTrue(sot.match_visibility('internal'))
-        self.assertFalse(sot.match_visibility('public'))
+                                 interface='internal')
+        self.assertFalse(sot.match_interface('admin'))
+        self.assertTrue(sot.match_interface('internal'))
+        self.assertFalse(sot.match_interface('public'))
 
     def test_join(self):
         a = filt.ServiceFilter(region='east')
         b = filt.ServiceFilter(service_type='identity')
         result = a.join(b)
-        self.assertEqual("service_type=identity,visibility=public,region=east",
+        self.assertEqual("service_type=identity,interface=public,region=east",
                          six.text_type(result))
-        self.assertEqual("service_type=any,visibility=public,region=east",
+        self.assertEqual("service_type=any,interface=public,region=east",
                          six.text_type(a))
-        self.assertEqual("service_type=identity,visibility=public",
+        self.assertEqual("service_type=identity,interface=public",
                          six.text_type(b))
 
-    def test_join_visibility(self):
-        user_preference = filt.ServiceFilter(visibility='public')
-        service_default = filt.ServiceFilter(visibility='admin')
+    def test_join_interface(self):
+        user_preference = filt.ServiceFilter(interface='public')
+        service_default = filt.ServiceFilter(interface='admin')
         result = user_preference.join(service_default)
-        self.assertEqual("public", result.visibility)
-        user_preference = filt.ServiceFilter(visibility=None)
-        service_default = filt.ServiceFilter(visibility='admin')
+        self.assertEqual("public", result.interface)
+        user_preference = filt.ServiceFilter(interface=None)
+        service_default = filt.ServiceFilter(interface='admin')
         result = user_preference.join(service_default)
-        self.assertEqual("admin", result.visibility)
+        self.assertEqual("admin", result.interface)
 
     def test_join_version(self):
         user_preference = filt.ServiceFilter(version='v2')
@@ -126,14 +126,14 @@ class TestServiceFilter(testtools.TestCase):
         )
         self.assertEqual('', user_preference.join(service_default).version)
 
-    def test_set_visibility(self):
+    def test_set_interface(self):
         sot = filt.ServiceFilter()
-        sot.set_visibility("PUBLICURL")
-        self.assertEqual('public', sot.visibility)
-        sot.set_visibility("INTERNALURL")
-        self.assertEqual('internal', sot.visibility)
-        sot.set_visibility("ADMINURL")
-        self.assertEqual('admin', sot.visibility)
+        sot.set_interface("PUBLICURL")
+        self.assertEqual('public', sot.interface)
+        sot.set_interface("INTERNALURL")
+        self.assertEqual('internal', sot.interface)
+        sot.set_interface("ADMINURL")
+        self.assertEqual('admin', sot.interface)
 
     def test_get_module(self):
         sot = identity_service.IdentityService()

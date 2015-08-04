@@ -25,7 +25,7 @@ Examples
 --------
 
 The :class:`~openstack.auth.service_filter.ServiceFilter` class can be built
-with a service type, visibility, region, name, and version.
+with a service type, interface, region, name, and version.
 
 Create a service filter
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -41,13 +41,13 @@ and match::
     matches = (result.match_service_type('compute') and
                result.match_service_name('Hal9000') and
                result.match_region('DiscoveryOne') and
-               result.match_visibility('public'))
+               result.match_interface('public'))
     print(str(result))
     print("matches=" + str(matches))
 
 The resulting output from the code::
 
-    service_type=compute,visibility=public,version=v2
+    service_type=compute,interface=public,version=v2
     matches=True
 """
 
@@ -72,30 +72,30 @@ class ServiceFilter(object):
     PUBLIC = 'public'
     INTERNAL = 'internal'
     ADMIN = 'admin'
-    VISIBILITY = [PUBLIC, INTERNAL, ADMIN]
+    INTERFACE = [PUBLIC, INTERNAL, ADMIN]
     valid_versions = []
 
-    def __init__(self, service_type=ANY, visibility=PUBLIC, region=None,
+    def __init__(self, service_type=ANY, interface=PUBLIC, region=None,
                  service_name=None, version=None):
         """Create a service identifier.
 
         :param string service_type: The desired type of service.
-        :param string visibility: The exposure of the endpoint. Should be
+        :param string interface: The exposure of the endpoint. Should be
                                   `public` (default), `internal` or `admin`.
         :param string region: The desired region (optional).
         :param string service_name: Name of the service
         :param string version: Version of service to use.
         """
         self.service_type = service_type.lower()
-        self.set_visibility(visibility)
+        self.set_interface(interface)
         self.region = region
         self.service_name = service_name
         self.version = version
 
     def __repr__(self):
         ret = "service_type=%s" % self.service_type
-        if self.visibility is not None:
-            ret += ",visibility=%s" % self.visibility
+        if self.interface is not None:
+            ret += ",interface=%s" % self.interface
         if self.region is not None:
             ret += ",region=%s" % self.region
         if self.service_name:
@@ -121,9 +121,9 @@ class ServiceFilter(object):
         response.service_type = default.service_type
         response.service_name = self.service_name
         response.valid_versions = default.valid_versions
-        response.visibility = default.visibility
-        if self.visibility:
-            response.visibility = self.visibility
+        response.interface = default.interface
+        if self.interface:
+            response.interface = self.interface
         if self.region:
             response.region = self.region
         response.version = version
@@ -151,23 +151,23 @@ class ServiceFilter(object):
             return True
         return False
 
-    def match_visibility(self, visibility):
-        """Service visibilities are equavilent."""
-        if not self.visibility:
+    def match_interface(self, interface):
+        """Service interfaces are equavilent."""
+        if not self.interface:
             return True
-        return self.visibility == visibility
+        return self.interface == interface
 
-    def set_visibility(self, visibility):
-        """Set the visibility of the service filter."""
-        if not visibility:
-            self.visibility = None
+    def set_interface(self, interface):
+        """Set the interface of the service filter."""
+        if not interface:
+            self.interface = None
             return
-        visibility = visibility.replace('URL', '')
-        visibility = visibility.lower()
-        if visibility not in self.VISIBILITY:
-            msg = "Visibility <%s> not in %s" % (visibility, self.VISIBILITY)
+        interface = interface.replace('URL', '')
+        interface = interface.lower()
+        if interface not in self.INTERFACE:
+            msg = "Interface <%s> not in %s" % (interface, self.INTERFACE)
             raise exceptions.SDKException(msg)
-        self.visibility = visibility
+        self.interface = interface
 
     def _get_valid_version(self):
         if self.valid_versions:

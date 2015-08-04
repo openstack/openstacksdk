@@ -111,7 +111,7 @@ def from_config(opts):
                     version = "v" + version
             prof.set_version(service, version)
             prof.set_name(service, cloud_config.get_service_name(service))
-            prof.set_visibility(
+            prof.set_interface(
                 service, cloud_config.get_interface(service))
             prof.set_region(service, cloud_config.get_region_name(service))
 
@@ -154,7 +154,7 @@ class Connection(object):
             authenticator.
         :type authenticator: :class:`~openstack.auth.base.BaseAuthPlugin`
         :param profile: If the user has any special profiles such as the
-            service name, region, version or visibility, they may be provided
+            service name, region, version or interface, they may be provided
             in the profile object.  If no profiles are provided, the
             services that appear first in the service catalog will be used.
         :type profile: :class:`~openstack.profile.Profile`

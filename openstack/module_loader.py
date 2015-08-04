@@ -26,7 +26,7 @@ def load_service_extensions(namespace):
     services = {}
     for service in service_extensions:
         service = service.obj
-        service.set_visibility(None)
+        service.set_interface(None)
         services[service.service_type] = service
     return services
 

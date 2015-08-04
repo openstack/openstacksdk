@@ -20,7 +20,7 @@ class TestIdentityService(testtools.TestCase):
     def test_regular_service(self):
         sot = identity_service.IdentityService()
         self.assertEqual('identity', sot.service_type)
-        self.assertEqual('public', sot.visibility)
+        self.assertEqual('public', sot.interface)
         self.assertIsNone(sot.region)
         self.assertIsNone(sot.service_name)
         self.assertEqual(2, len(sot.valid_versions))
@@ -32,6 +32,6 @@ class TestIdentityService(testtools.TestCase):
     def test_admin_service(self):
         sot = identity_service.AdminService()
         self.assertEqual('identity', sot.service_type)
-        self.assertEqual('admin', sot.visibility)
+        self.assertEqual('admin', sot.interface)
         self.assertIsNone(sot.region)
         self.assertIsNone(sot.service_name)

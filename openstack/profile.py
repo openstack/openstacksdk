@@ -13,7 +13,7 @@
 """
 :class:`~openstack.profile.Profile` is the class that is used to
 define the various preferences for different services.  The preferences that
-are currently supported are service name, region, version and visibility.
+are currently supported are service name, region, version and interface.
 The :class:`~openstack.profile.Profile` and the
 :class:`~openstack.connection.Connection` classes are the most important
 user facing classes.
@@ -35,7 +35,7 @@ normally be something like 'compute', 'identity', 'object-store', etc.::
     prof.set_name('compute', 'matrix')
     prof.set_region(prof.ALL, 'zion')
     prof.set_version('identity', 'v3')
-    prof.set_visibility('object-store', 'internal')
+    prof.set_interface('object-store', 'internal')
     for service in prof.get_services():
         print str(prof.get_preference(service.service_type))
 
@@ -47,7 +47,7 @@ The resulting preference print out would look something like::
     service_type=image,region=zion
     service_type=metering,region=zion
     service_type=orchestration,region=zion
-    service_type=object-store,visibility=internal,region=zion
+    service_type=object-store,interface=internal,region=zion
     service_type=identity,region=zion,version=v3
 """
 
@@ -113,7 +113,7 @@ class Profile(object):
         return repr(self._preferences)
 
     def _add_service(self, serv):
-        serv.set_visibility(None)
+        serv.set_interface(None)
         self._services[serv.service_type] = serv
 
     def _load_extension(self, namespace):
@@ -186,15 +186,15 @@ class Profile(object):
         """
         self._get_service(service).version = version
 
-    def set_visibility(self, service, visibility):
-        """Set the desired visibility for the specified service.
+    def set_interface(self, service, interface):
+        """Set the desired interface for the specified service.
 
         :param str service: Service type.
-        :param str visibility: Desired service visibility.
+        :param str interface: Desired service interface.
         """
         if service == self.ALL:
             services = self.service_names
         else:
             services = [service]
         for service in services:
-            self._get_service(service).set_visibility(visibility)
+            self._get_service(service).set_interface(interface)
