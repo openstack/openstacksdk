@@ -1628,7 +1628,7 @@ class OpenStackCloud(object):
         volumes = []
         for volume in self.list_volumes(cache=cache):
             for attach in volume['attachments']:
-                if attach['server_id'] == server.id:
+                if attach['server_id'] == server['id']:
                     volumes.append(volume)
         return volumes
 
@@ -1647,7 +1647,7 @@ class OpenStackCloud(object):
         This can also be used to verify if a volume is attached to
         a particular server.
 
-        :param volume: Volume object
+        :param volume: Volume dict
         :param server_id: ID of server to check
 
         :returns: Device name if attached, None if volume is not attached.
@@ -1660,30 +1660,30 @@ class OpenStackCloud(object):
     def detach_volume(self, server, volume, wait=True, timeout=None):
         """Detach a volume from a server.
 
-        :param server: The server object to detach from.
-        :param volume: The volume object to detach.
+        :param server: The server dict to detach from.
+        :param volume: The volume dict to detach.
         :param wait: If true, waits for volume to be detached.
         :param timeout: Seconds to wait for volume detachment. None is forever.
 
         :raises: OpenStackCloudTimeout if wait time exceeded.
         :raises: OpenStackCloudException on operation error.
         """
-        dev = self.get_volume_attach_device(volume, server.id)
+        dev = self.get_volume_attach_device(volume, server['id'])
         if not dev:
             raise OpenStackCloudException(
                 "Volume %s is not attached to server %s"
-                % (volume['id'], server.id)
+                % (volume['id'], server['id'])
             )
 
         try:
             self.manager.submitTask(
                 _tasks.VolumeDetach(attachment_id=volume['id'],
-                                    server_id=server.id))
+                                    server_id=server['id']))
         except Exception as e:
             self.log.debug("nova volume detach failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error detaching volume %s from server %s: %s" %
-                (volume['id'], server.id, e)
+                (volume['id'], server['id'], e)
             )
 
         if wait:
@@ -1711,16 +1711,16 @@ class OpenStackCloud(object):
         """Attach a volume to a server.
 
         This will attach a volume, described by the passed in volume
-        object (as returned by get_volume()), to the server described by
-        the passed in server object (as returned by get_server()) on the
+        dict (as returned by get_volume()), to the server described by
+        the passed in server dict (as returned by get_server()) on the
         named device on the server.
 
         If the volume is already attached to the server, or generally not
         available, then an exception is raised. To re-attach to a server,
         but under a different device, the user must detach it first.
 
-        :param server: The server object to attach to.
-        :param volume: The volume object to attach.
+        :param server: The server dict to attach to.
+        :param volume: The volume dict to attach.
         :param device: The device name where the volume will attach.
         :param wait: If true, waits for volume to be attached.
         :param timeout: Seconds to wait for volume attachment. None is forever.
@@ -1728,11 +1728,11 @@ class OpenStackCloud(object):
         :raises: OpenStackCloudTimeout if wait time exceeded.
         :raises: OpenStackCloudException on operation error.
         """
-        dev = self.get_volume_attach_device(volume, server.id)
+        dev = self.get_volume_attach_device(volume, server['id'])
         if dev:
             raise OpenStackCloudException(
                 "Volume %s already attached to server %s on device %s"
-                % (volume['id'], server.id, dev)
+                % (volume['id'], server['id'], dev)
             )
 
         if volume['status'] != 'available':
@@ -1744,7 +1744,7 @@ class OpenStackCloud(object):
         try:
             self.manager.submitTask(
                 _tasks.VolumeAttach(volume_id=volume['id'],
-                                    server_id=server.id,
+                                    server_id=server['id'],
                                     device=device))
         except Exception as e:
             self.log.debug(
@@ -1752,7 +1752,7 @@ class OpenStackCloud(object):
                 exc_info=True)
             raise OpenStackCloudException(
                 "Error attaching volume %s to server %s: %s" %
-                (volume['id'], server.id, e)
+                (volume['id'], server['id'], e)
             )
 
         if wait:
@@ -1767,7 +1767,7 @@ class OpenStackCloud(object):
                         exc_info=True)
                     continue
 
-                if self.get_volume_attach_device(vol, server.id):
+                if self.get_volume_attach_device(vol, server['id']):
                     return
 
                 # TODO(Shrews) check to see if a volume can be in error status
@@ -1781,7 +1781,7 @@ class OpenStackCloud(object):
     def get_server_id(self, name_or_id):
         server = self.get_server(name_or_id)
         if server:
-            return server.id
+            return server['id']
         return None
 
     def get_server_private_ip(self, server):
@@ -2404,7 +2404,8 @@ class OpenStackCloud(object):
     def _delete_server(self, server, wait=False, timeout=180):
         if server:
             try:
-                self.manager.submitTask(_tasks.ServerDelete(server=server.id))
+                self.manager.submitTask(
+                    _tasks.ServerDelete(server=server['id']))
             except nova_exceptions.NotFound:
                 return
             except Exception as e:
@@ -2420,9 +2421,10 @@ class OpenStackCloud(object):
                 "Timed out waiting for server to get deleted."):
             try:
                 server = self.manager.submitTask(
-                    _tasks.ServerGet(server=server.id))
+                    _tasks.ServerGet(server=server['id']))
                 if not server:
                     return
+                server = meta.obj_to_dict(server)
             except nova_exceptions.NotFound:
                 return
             except Exception as e:

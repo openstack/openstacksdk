@@ -56,7 +56,7 @@ def find_nova_addresses(addresses, ext_tag=None, key_name=None, version=4):
 
 
 def get_server_ip(server, **kwargs):
-    addrs = find_nova_addresses(server.addresses, **kwargs)
+    addrs = find_nova_addresses(server['addresses'], **kwargs)
     if not addrs:
         return None
     return addrs[0]
@@ -159,7 +159,7 @@ def get_server_external_ipv4(cloud, server):
         return ext_ip
 
     # Try to find a globally routable IP address
-    for interfaces in server.addresses.values():
+    for interfaces in server['addresses'].values():
         for interface in interfaces:
             if _utils.is_ipv4(interface['addr']) and \
                     _utils.is_globally_routable_ipv4(interface['addr']):
@@ -206,21 +206,21 @@ def get_groups_from_server(cloud, server, server_vars):
     groups.append("%s_%s" % (cloud_name, region))
 
     # Check if group metadata key in servers' metadata
-    group = server.metadata.get('group')
+    group = server['metadata'].get('group')
     if group:
         groups.append(group)
 
-    for extra_group in server.metadata.get('groups', '').split(','):
+    for extra_group in server['metadata'].get('groups', '').split(','):
         if extra_group:
             groups.append(extra_group)
 
-    groups.append('instance-%s' % server.id)
+    groups.append('instance-%s' % server['id'])
 
     for key in ('flavor', 'image'):
         if 'name' in server_vars[key]:
             groups.append('%s-%s' % (key, server_vars[key]['name']))
 
-    for key, value in iter(server.metadata.items()):
+    for key, value in iter(server['metadata'].items()):
         groups.append('meta-%s_%s' % (key, value))
 
     az = server_vars.get('az', None)
@@ -258,18 +258,18 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     server_vars['region'] = cloud.region_name
     server_vars['cloud'] = cloud.name
 
-    flavor_id = server.flavor['id']
+    flavor_id = server['flavor']['id']
     flavor_name = cloud.get_flavor_name(flavor_id)
     if flavor_name:
         server_vars['flavor']['name'] = flavor_name
     server_vars['flavor'].pop('links', None)
 
     # OpenStack can return image as a string when you've booted from volume
-    if str(server.image) == server.image:
-        image_id = server.image
+    if str(server['image']) == server['image']:
+        image_id = server['image']
         server_vars['image'] = dict(id=image_id)
     else:
-        image_id = server.image.get('id', None)
+        image_id = server['image'].get('id', None)
     if image_id:
         image_name = cloud.get_image_name(image_id)
         if image_name:

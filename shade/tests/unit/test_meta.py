@@ -264,7 +264,7 @@ class TestMeta(testtools.TestCase):
              'test-region_test-az',
              'test-name_test-region_test-az'],
             meta.get_groups_from_server(
-                FakeCloud(), FakeServer(), server_vars))
+                FakeCloud(), meta.obj_to_dict(FakeServer()), server_vars))
 
     def test_obj_list_to_dict(self):
         """Test conversion of a list of objects to a list of dictonaries"""
