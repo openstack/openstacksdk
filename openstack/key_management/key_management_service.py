@@ -14,11 +14,11 @@ from openstack.auth import service_filter
 
 
 class KeyManagementService(service_filter.ServiceFilter):
-    """The image service."""
+    """The key management service."""
 
     valid_versions = [service_filter.ValidVersion('v1')]
 
     def __init__(self, version=None):
-        """Create an image service."""
+        """Create a key management service."""
         super(KeyManagementService, self).__init__(service_type='key-manager',
                                                    version=version)
