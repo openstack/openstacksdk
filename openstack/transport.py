@@ -199,18 +199,17 @@ class Transport(requests.Session):
                                          requests.Session handles redirection
                                          if True. (optional)
 
-        The following additional kw args are supported:
+        The following additional keyword arguments are supported:
 
         :param object json: Request body to be encoded as JSON
                             Overwrites ``data`` argument if present
-        :param string accept: Set the ``Accept`` header; overwrites
-                                  any value that may be in the headers dict.
-                                  Header is omitted if ``None``.
+        :param string accept: Set the ``Accept`` header; overwrites any value
+                              that may be in the headers dict. Header is
+                              omitted if ``None``.
         :param string user_agent: Prepend an additional value to the existing
                                   ``User-Agent`` header.
 
-        Remaining kw args from requests.Session.request() supported
-
+        Remaining keyword arguments from requests.Session.request() supported
         """
 
         headers = kwargs.setdefault('headers', {})

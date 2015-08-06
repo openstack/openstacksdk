@@ -433,12 +433,6 @@ class Resource(collections.MutableMapping):
         :params kwargs: Named arguments to be set on this instance.
                         When a key corresponds to a resource.prop,
                         it will be set via resource.prop.__set__.
-        :params bool ignore_none: When set to ``True``, ``None`` values
-                                  are left untouched so they don't override
-                                  any existing value for an attribute.
-                                  When ``False``, any value sent in will
-                                  be set on an attribute, including ``None``.
-                                  *Default: ``False``*
 
         :rtype: None
         """
@@ -635,6 +629,9 @@ class Resource(collections.MutableMapping):
 
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
+        :param bool include_headers: ``True`` if header data should be
+                                     included in the response body,
+                                     ``False`` if not.
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -876,8 +873,8 @@ class Resource(collections.MutableMapping):
 
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
-        :param resource_id: This resource's identifier, if needed by
-                            the request. The default is ``None``.
+        :param name_or_id: This resource's identifier, if needed by
+                           the request. The default is ``None``.
         :param dict path_args: A dictionary of arguments to construct
                                a compound URL.
                                See `How path_args are used`_ for details.
