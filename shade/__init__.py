@@ -2340,6 +2340,11 @@ class OpenStackCloud(object):
 
                 if server['status'] == 'ACTIVE':
                     if not server['addresses']:
+                        self.log.debug(
+                            'Server {server} reached ACTIVE state without'
+                            ' being allocated an IP address.'
+                            ' Deleting server.'.format(
+                                server=server['id']))
                         try:
                             self._delete_server(
                                 server=server, wait=wait, timeout=timeout)
