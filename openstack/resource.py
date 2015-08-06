@@ -856,6 +856,7 @@ class Resource(collections.MutableMapping):
             # less than our limit, we don't need to do an extra request
             # to get back an empty data set, which acts as a sentinel.
             yielded = 0
+            new_marker = None
             for data in resp:
                 value = cls.existing(**data)
                 new_marker = value.id
