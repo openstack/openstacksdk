@@ -15,6 +15,7 @@ from openstack.cluster.v1 import action
 from openstack.cluster.v1 import cluster
 from openstack.cluster.v1 import node
 from openstack.cluster.v1 import policy
+from openstack.cluster.v1 import profile
 from openstack.tests.unit import test_proxy_base
 
 
@@ -22,6 +23,31 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super(TestClusterProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
+
+    def test_profile_create(self):
+        self.verify_create(self.proxy.create_profile, profile.Profile)
+
+    def test_profile_delete(self):
+        self.verify_delete(self.proxy.delete_profile, profile.Profile, False)
+
+    def test_profile_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_profile, profile.Profile, True)
+
+    def test_profile_find(self):
+        self.verify_find('openstack.cluster.v1.profile.Profile.find',
+                         self.proxy.find_profile)
+
+    def test_profile_get(self):
+        self.verify_get(self.proxy.get_profile, profile.Profile)
+
+    def test_profiles(self):
+        self.verify_list(self.proxy.profiles, profile.Profile,
+                         paginated=True,
+                         method_kwargs={'limit': 2},
+                         expected_kwargs={'limit': 2})
+
+    def test_profile_update(self):
+        self.verify_update(self.proxy.update_profile, profile.Profile)
 
     def test_cluster_create(self):
         self.verify_create(self.proxy.create_cluster, cluster.Cluster)
