@@ -64,3 +64,21 @@ class TestFlavors(base.TestCase):
     def test_list_flavors(self, mock_nova):
         self.op_cloud.list_flavors()
         mock_nova.flavors.list.assert_called_once_with(is_public=None)
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_set_flavor_specs(self, mock_nova):
+        flavor = mock.Mock(id=1, name='orange')
+        mock_nova.flavors.get.return_value = flavor
+        extra_specs = dict(key1='value1')
+        self.op_cloud.set_flavor_specs(1, extra_specs)
+        mock_nova.flavors.get.assert_called_once_with(flavor=1)
+        flavor.set_keys.assert_called_once_with(extra_specs)
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_unset_flavor_specs(self, mock_nova):
+        flavor = mock.Mock(id=1, name='orange')
+        mock_nova.flavors.get.return_value = flavor
+        keys = ['key1', 'key2']
+        self.op_cloud.unset_flavor_specs(1, keys)
+        mock_nova.flavors.get.assert_called_once_with(flavor=1)
+        flavor.unset_keys.assert_called_once_with(keys)

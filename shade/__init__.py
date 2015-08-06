@@ -4352,3 +4352,68 @@ class OperatorCloud(OpenStackCloud):
             )
 
         return True
+
+    def _mod_flavor_specs(self, action, flavor_id, specs):
+        """Common method for modifying flavor extra specs.
+
+        Nova (very sadly) doesn't expose this with a public API, so we
+        must get the actual flavor object and make a method call on it.
+
+        Two separate try-except blocks are used because Nova can raise
+        a NotFound exception if FlavorGet() is given an invalid flavor ID,
+        or if the unset_keys() method of the flavor object is given an
+        invalid spec key. We need to be able to differentiate between these
+        actions, thus the separate blocks.
+        """
+        try:
+            flavor = self.manager.submitTask(
+                _tasks.FlavorGet(flavor=flavor_id)
+            )
+        except nova_exceptions.NotFound:
+            self.log.debug(
+                "Flavor ID {0} not found. "
+                "Cannot {1} extra specs.".format(flavor_id, action)
+            )
+            raise OpenStackCloudResourceNotFound(
+                "Flavor ID {0} not found".format(flavor_id)
+            )
+        except Exception as e:
+            self.log.debug("Error getting flavor ID {0}".format(flavor_id),
+                           exc_info=True)
+            raise OpenStackCloudException(
+                "Error getting flavor ID {0}: {1}".format(flavor_id, e)
+            )
+
+        try:
+            if action == 'set':
+                flavor.set_keys(specs)
+            elif action == 'unset':
+                flavor.unset_keys(specs)
+        except Exception as e:
+            self.log.debug("Error during {0} of flavor specs".format(action),
+                           exc_info=True)
+            raise OpenStackCloudException(
+                "Unable to {0} flavor specs: {1}".format(action, e)
+            )
+
+    def set_flavor_specs(self, flavor_id, extra_specs):
+        """Add extra specs to a flavor
+
+        :param string flavor_id: ID of the flavor to update.
+        :param dict extra_specs: Dictionary of key-value pairs.
+
+        :raises: OpenStackCloudException on operation error.
+        :raises: OpenStackCloudResourceNotFound if flavor ID is not found.
+        """
+        self._mod_flavor_specs('set', flavor_id, extra_specs)
+
+    def unset_flavor_specs(self, flavor_id, keys):
+        """Delete extra specs from a flavor
+
+        :param string flavor_id: ID of the flavor to update.
+        :param list keys: List of spec keys to delete.
+
+        :raises: OpenStackCloudException on operation error.
+        :raises: OpenStackCloudResourceNotFound if flavor ID is not found.
+        """
+        self._mod_flavor_specs('unset', flavor_id, keys)
