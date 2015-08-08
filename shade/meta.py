@@ -21,7 +21,7 @@ from shade import exc
 from shade import _utils
 
 
-NON_CALLABLES = (six.string_types, bool, dict, int, list, type(None))
+NON_CALLABLES = (six.string_types, bool, dict, int, float, list, type(None))
 
 log = logging.getLogger(__name__)
 
