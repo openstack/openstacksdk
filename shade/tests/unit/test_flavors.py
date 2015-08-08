@@ -59,3 +59,8 @@ class TestFlavors(base.TestCase):
         mock_nova.flavors.delete.side_effect = Exception()
         self.assertRaises(shade.OpenStackCloudException,
                           self.op_cloud.delete_flavor, '')
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_list_flavors(self, mock_nova):
+        self.op_cloud.list_flavors()
+        mock_nova.flavors.list.assert_called_once_with(is_public=None)

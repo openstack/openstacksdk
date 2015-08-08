@@ -933,7 +933,7 @@ class OpenStackCloud(object):
     def list_flavors(self):
         try:
             return meta.obj_list_to_dict(
-                self.manager.submitTask(_tasks.FlavorList())
+                self.manager.submitTask(_tasks.FlavorList(is_public=None))
             )
         except Exception as e:
             self.log.debug("flavor list failed: %s" % e, exc_info=True)

@@ -39,7 +39,7 @@ class UserUpdate(task_manager.Task):
 
 class FlavorList(task_manager.Task):
     def main(self, client):
-        return client.nova_client.flavors.list()
+        return client.nova_client.flavors.list(**self.args)
 
 
 class FlavorCreate(task_manager.Task):
