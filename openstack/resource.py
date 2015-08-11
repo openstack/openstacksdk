@@ -934,15 +934,14 @@ class Resource(collections.MutableMapping):
             "No %s found for %s" % (cls.__name__, name_or_id))
 
 
-def wait_for_status(session, resource, status=None, failures=None,
-                    interval=5, wait=120):
+def wait_for_status(session, resource, status, failures, interval, wait):
     """Wait for the resource to be in a particular status.
 
+    :param session: The session to use for making this request.
+    :type session: :class:`~openstack.session.Session`
     :param resource: The resource to wait on to reach the status. The resource
                      must have a status attribute.
     :type resource: :class:`~openstack.resource.Resource`
-    :param session: The session to use for making this request.
-    :type session: :class:`~openstack.session.Session`
     :param status: Desired status of the resource.
     :param list failures: Statuses that would indicate the transition
                           failed such as 'ERROR'.
@@ -975,4 +974,30 @@ def wait_for_status(session, resource, status=None, failures=None,
         time.sleep(interval)
         total_sleep += interval
     msg = "Timeout waiting for %s to transition to %s" % (resource.id, status)
+    raise exceptions.ResourceTimeout(msg)
+
+
+def wait_for_delete(session, resource, interval, wait):
+    """Wait for the resource to be deleted.
+
+    :param session: The session to use for making this request.
+    :type session: :class:`~openstack.session.Session`
+    :param resource: The resource to wait on to be deleted.
+    :type resource: :class:`~openstack.resource.Resource`
+    :param interval: Number of seconds to wait between checks.
+    :param wait: Maximum number of seconds to wait for the delete.
+
+    :return: Method returns self on success.
+    :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
+             to status failed to occur in wait seconds.
+    """
+    total_sleep = 0
+    while total_sleep < wait:
+        try:
+            resource.get(session)
+        except exceptions.NotFoundException:
+            return resource
+        time.sleep(interval)
+        total_sleep += interval
+    msg = "Timeout waiting for %s delete" % (resource.id)
     raise exceptions.ResourceTimeout(msg)

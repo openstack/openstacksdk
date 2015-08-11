@@ -44,14 +44,6 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
     def test_stack_delete_ignore(self):
         self.verify_delete(self.proxy.delete_stack, stack.Stack, True)
 
-    def test_stack_wait_for(self):
-        value = stack.Stack(attrs={'id': '1234'})
-        self.verify_wait_for_status(
-            self.proxy.wait_for_stack,
-            method_args=[value],
-            expected_args=[value, 'CREATE_COMPLETE', ['CREATE_FAILED'],
-                           2, 120])
-
     @mock.patch.object(stack.Stack, 'from_id')
     @mock.patch.object(stack.Stack, 'find')
     def test_resources_with_stack_object(self, mock_find, mock_from):

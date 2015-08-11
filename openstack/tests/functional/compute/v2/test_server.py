@@ -20,7 +20,7 @@ from openstack.tests.functional.network.v2 import test_network
 class TestServer(base.BaseFunctionalTest):
 
     NAME = uuid.uuid4().hex
-    ID = None
+    server = None
     network = None
     subnet = None
 
@@ -40,24 +40,25 @@ class TestServer(base.BaseFunctionalTest):
             name=cls.NAME, flavor=flavor, image=image.id, **args)
         assert isinstance(sot, server.Server)
         cls.assertIs(cls.NAME, sot.name)
-        cls.ID = sot.id
+        cls.server = sot
 
     @classmethod
     def tearDownClass(cls):
-        sot = cls.conn.compute.delete_server(cls.ID)
+        sot = cls.conn.compute.delete_server(cls.server.id)
         cls.assertIs(None, sot)
         # Need to wait for the stack to go away before network delete
-        cls.wait_for_delete(cls.conn.compute.find_server, cls.ID)
+        cls.conn.compute.wait_for_delete(cls.server)
+        cls.linger_for_delete()
         test_network.delete_network(cls.conn, cls.network, cls.subnet)
 
     def test_find(self):
         sot = self.conn.compute.find_server(self.NAME)
-        self.assertEqual(self.ID, sot.id)
+        self.assertEqual(self.server.id, sot.id)
 
     def test_get(self):
-        sot = self.conn.compute.get_server(self.ID)
+        sot = self.conn.compute.get_server(self.server.id)
         self.assertEqual(self.NAME, sot.name)
-        self.assertEqual(self.ID, sot.id)
+        self.assertEqual(self.server.id, sot.id)
 
     def test_list(self):
         names = [o.name for o in self.conn.compute.servers()]

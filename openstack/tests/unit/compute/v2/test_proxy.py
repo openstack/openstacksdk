@@ -188,10 +188,3 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
 
     def test_server_update(self):
         self.verify_update(self.proxy.update_server, server.Server)
-
-    def test_server_wait_for(self):
-        value = server.Server(attrs={'id': '1234'})
-        self.verify_wait_for_status(
-            self.proxy.wait_for_server,
-            method_args=[value],
-            expected_args=[value, 'ACTIVE', ['ERROR'], 2, 120])
