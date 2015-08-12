@@ -93,7 +93,7 @@ def from_config(opts):
 
     # Get the cloud_config
     occ = os_client_config.OpenStackConfig(override_defaults=defaults)
-    cloud_config = occ.get_one_cloud(opts.cloud, opts)
+    cloud_config = occ.get_one_cloud(opts.cloud, argparse=opts)
 
     if cloud_config.debug:
         utils.enable_logging(True, stream=sys.stdout)
