@@ -82,7 +82,11 @@ def get_boolean(value):
 
 def _get_os_environ():
     ret = defaults.get_defaults()
-    environkeys = [k for k in os.environ.keys() if k.startswith('OS_')]
+    environkeys = [k for k in os.environ.keys()
+                   if k.startswith('OS_')
+                   and not k.startswith('OS_TEST')  # infra CI var
+                   and not k.startswith('OS_STD')   # infra CI var
+                   ]
     if not environkeys:
         return None
     for k in environkeys:
