@@ -33,8 +33,7 @@ class TestPort(base.TestCase):
 
     def setUp(self):
         super(TestPort, self).setUp()
-        # Shell should have OS-* envvars from openrc, typically loaded by job
-        self.cloud = openstack_cloud()
+        self.cloud = openstack_cloud(cloud='devstack-admin')
         # Skip Neutron tests if neutron is not present
         if not self.cloud.has_service('network'):
             self.skipTest('Network service not supported by cloud')

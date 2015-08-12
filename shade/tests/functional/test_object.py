@@ -32,8 +32,7 @@ class TestObject(base.TestCase):
 
     def setUp(self):
         super(TestObject, self).setUp()
-        # Shell should have OS-* envvars from openrc, typically loaded by job
-        self.cloud = openstack_cloud()
+        self.cloud = openstack_cloud(cloud='devstack')
         if not self.cloud.has_service('object'):
             self.skipTest('Object service not supported by cloud')
 

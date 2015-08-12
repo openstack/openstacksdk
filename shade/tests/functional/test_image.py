@@ -30,8 +30,7 @@ from shade.tests.functional.util import pick_image
 class TestImage(base.TestCase):
     def setUp(self):
         super(TestImage, self).setUp()
-        # Shell should have OS-* envvars from openrc, typically loaded by job
-        self.cloud = openstack_cloud()
+        self.cloud = openstack_cloud(cloud='devstack')
         self.image = pick_image(self.cloud.nova_client.images.list())
 
     def test_create_image(self):

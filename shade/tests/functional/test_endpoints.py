@@ -36,8 +36,7 @@ class TestEndpoints(base.TestCase):
 
     def setUp(self):
         super(TestEndpoints, self).setUp()
-        # Shell should have OS-* envvars from openrc, typically loaded by job
-        self.operator_cloud = operator_cloud()
+        self.operator_cloud = operator_cloud(cloud='devstack-admin')
 
         # Generate a random name for services and regions in this test
         self.new_item_name = 'test_' + ''.join(
