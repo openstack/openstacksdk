@@ -379,12 +379,8 @@ class OpenStackConfig(object):
 
     def _validate_auth(self, config):
         # May throw a keystoneclient.exceptions.NoMatchingPlugin
-        if config['auth_type'] == 'token_endpoint':
-            auth_plugin = ksc_auth.token_endpoint.Token
-        else:
-            auth_plugin = ksc_auth.get_plugin_class(config['auth_type'])
-
-        plugin_options = auth_plugin.get_options()
+        plugin_options = ksc_auth.get_plugin_class(
+            config['auth_type']).get_options()
 
         for p_opt in plugin_options:
             # if it's in config.auth, win, kill it from config dict
