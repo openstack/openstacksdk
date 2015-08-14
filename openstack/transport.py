@@ -364,8 +364,26 @@ class Transport(requests.Session):
 
         if 'data' in kwargs and kwargs['data'] is not None:
             string_parts.append("--data '")
-            string_parts.append(kwargs['data'])
+
+            data = kwargs['data']
+            # Only log text strings and byte strings that can be decoded
+            # in ascii. Raw byte strings both mess up the actual
+            # writing of the data to any log stream because we'd be mixing
+            # text and bytes, and they are generally overly long strings
+            # that would make the logs unreadable anyway.
+            if isinstance(data, six.binary_type):
+                # Some data, such as auth creds, is generally decodable
+                # to ascii. If it works, log it, otherwise put in a
+                # placeholder to specify that it's a blob of binary data.
+                try:
+                    string_parts.append(data.decode("ascii"))
+                except UnicodeDecodeError:
+                    string_parts.append("<binary data>")
+            else:
+                string_parts.append(data)
+
             string_parts.append("'")
+
         _logger.debug("REQ: %s" % " ".join(string_parts))
 
     def _log_response(self, response):
