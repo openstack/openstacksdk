@@ -3336,14 +3336,9 @@ class OperatorCloud(OpenStackCloud):
             # Set the ironic API microversion to a known-good
             # supported/tested with the contents of shade.
             #
-            # Note(TheJulia): Defaulted to version 1.6 as the ironic
-            # state machine changes which will increment the version
-            # and break an automatic transition of an enrolled node
-            # to an available state. Locking the version is intended
-            # to utilize the original transition until shade supports
-            # calling for node inspection to allow the transition to
-            # take place automatically.
-            ironic_api_microversion = '1.6'
+            # Note(TheJulia): Defaulted to version 1.11 as node enrollment
+            # steps are navigated by the register_machine method.
+            ironic_api_microversion = '1.11'
 
             if self.auth_type in (None, "None", ''):
                 # TODO: This needs to be improved logic wise, perhaps a list,
