@@ -309,18 +309,21 @@ class OpenStackCloud(object):
         return generate_key
 
     def _get_client(
-            self, service_key, client_class, interface_key='endpoint_type'):
+            self, service_key, client_class, interface_key='endpoint_type',
+            pass_version_arg=True):
         try:
             interface = self.cloud_config.get_interface(service_key)
             # trigger exception on lack of service
             self.get_session_endpoint(service_key)
             constructor_args = dict(
-                version=self.cloud_config.get_api_version(service_key),
                 session=self.keystone_session,
                 service_name=self.cloud_config.get_service_name(service_key),
                 service_type=self.cloud_config.get_service_type(service_key),
                 region_name=self.region_name)
             constructor_args[interface_key] = interface
+            if pass_version_arg:
+                version = self.cloud_config.get_api_version(service_key)
+                constructor_args['version'] = version
             client = client_class(**constructor_args)
         except Exception:
             self.log.debug(
@@ -684,12 +687,8 @@ class OpenStackCloud(object):
     @property
     def neutron_client(self):
         if self._neutron_client is None:
-            # trigger exception on lack of neutron
-            self.get_session_endpoint('network')
-            self._neutron_client = neutron_client.Client(
-                token=self.auth_token,
-                session=self.keystone_session,
-                region_name=self.region_name)
+            self._neutron_client = self._get_client(
+                'network', neutron_client.Client, pass_version_arg=False)
         return self._neutron_client
 
     @property
