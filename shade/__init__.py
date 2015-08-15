@@ -394,14 +394,8 @@ class OpenStackCloud(object):
     @property
     def keystone_client(self):
         if self._keystone_client is None:
-            try:
-                self._keystone_client = self._get_identity_client_class()(
-                    session=self.keystone_session)
-            except Exception as e:
-                self.log.debug(
-                    "Couldn't construct keystone object", exc_info=True)
-                raise OpenStackCloudException(
-                    "Error constructing keystone client: %s" % str(e))
+            self._keystone_client = self._get_client(
+                'identity', self._get_identity_client_class())
         return self._keystone_client
 
     @property
