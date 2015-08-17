@@ -78,7 +78,9 @@ def from_config(opts):
     Create a :class:`~openstack.connection.Connection` from a configuration
     similar to a os-client-config CloudConfig.
 
-    :param opts: Options class like the argparse Namespace object.
+    :param opts: An options class like the :class:`~argparse.Namespace` class.
+
+    :rtype: :class:`~openstack.connection.Connection`
     """
 
     # TODO(thowe): I proposed that service name defaults to None in OCC
