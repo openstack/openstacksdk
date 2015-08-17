@@ -3545,7 +3545,7 @@ class OperatorCloud(OpenStackCloud):
                 % str(e))
         return meta.obj_to_dict(machine)
 
-    def unregister_machine(self, nics, uuid):
+    def unregister_machine(self, nics, uuid, wait=False, timeout=600):
         """Unregister Baremetal from Ironic
 
         Removes entries for Network Interfaces and baremetal nodes
@@ -3554,6 +3554,13 @@ class OperatorCloud(OpenStackCloud):
         :param list nics: An array of strings that consist of MAC addresses
                           to be removed.
         :param string uuid: The UUID of the node to be deleted.
+
+        :param wait: Boolean value, defaults to false, if to block the method
+                     upon the final step of unregistering the machine.
+
+        :param timeout: Integer value, representing seconds with a default
+                        value of 600, which controls the maximum amount of
+                        time to block the method's completion on.
 
         :raises: OpenStackCloudException on operation failure.
         """
@@ -3566,7 +3573,6 @@ class OperatorCloud(OpenStackCloud):
                     _tasks.MachinePortGetByAddress(address=nic['mac']))
                 self.manager.submitTask(
                     _tasks.MachinePortDelete(port_id=port_id))
-
             except Exception as e:
                 self.log.debug(
                     "baremetal NIC unregistration failed", exc_info=True)
@@ -3576,6 +3582,12 @@ class OperatorCloud(OpenStackCloud):
         try:
             self.manager.submitTask(
                 _tasks.MachineDelete(node_id=uuid))
+            if wait:
+                for count in _utils._iterate_timeout(
+                        timeout,
+                        "Timeout waiting for machine to be deleted"):
+                    if not self.get_machine(uuid):
+                        break
 
         except Exception as e:
             self.log.debug(
