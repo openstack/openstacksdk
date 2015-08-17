@@ -91,7 +91,7 @@ class Session(object):
         :param str path: Path relative to service base url.
         :param service: a service filter for the authenticator to determine
             the correct endpoint to use.
-        :type service: :class:`~openstack.auth.service_filter.ServiceFilter`
+        :type service: :class:`~openstack.service_filter.ServiceFilter`
         :param bool authenticate: A flag that indicates if a token should be
             attached to the request.  This parameter defaults to true.
         :param kwargs: The remaining arguments are passed to the transport
@@ -110,7 +110,7 @@ class Session(object):
         :param string path: Path relative to authentictor base url.
         :param string method: The http method to use. (eg. 'GET', 'POST').
         :param service: Object that filters service to the authenticator.
-        :type service: :class:`~openstack.auth.service_filter.ServiceFilter`
+        :type service: :class:`~openstack.service_filter.ServiceFilter`
         :param bool authenticate: True if a token should be attached
         :param kwargs: any other parameter that can be passed to transport
                        and authenticator.

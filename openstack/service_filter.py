@@ -11,7 +11,7 @@
 # under the License.
 
 """
-The :class:`~openstack.auth.service_filter.ServiceFilter` is the base class
+The :class:`~openstack.service_filter.ServiceFilter` is the base class
 for service identifiers and user service preferences.  Each
 :class:`~openstack.resource.Resource` has a service identifier to
 associate the resource with a service.  An example of a service identifier
@@ -24,7 +24,7 @@ filter to match a service.
 Examples
 --------
 
-The :class:`~openstack.auth.service_filter.ServiceFilter` class can be built
+The :class:`~openstack.service_filter.ServiceFilter` class can be built
 with a service type, interface, region, name, and version.
 
 Create a service filter
@@ -33,7 +33,7 @@ Create a service filter
 Create a compute service and service preference. Join the services
 and match::
 
-    from openstack.auth import service_filter
+    from openstack import service_filter
     from openstack.compute import compute_service
     default = compute_service.ComputeService()
     preference = service_filter.ServiceFilter('compute', version='v2')
@@ -111,7 +111,7 @@ class ServiceFilter(object):
         the default service identifier.
 
         :param default: Default service identifier from the resource.
-        :type default: :class:`~openstack.auth.service_filter.ServiceFilter`
+        :type default: :class:`~openstack.service_filter.ServiceFilter`
         """
         if default.version == self.UNVERSIONED:
             version = default.version

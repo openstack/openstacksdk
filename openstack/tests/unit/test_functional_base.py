@@ -39,12 +39,12 @@ class Test_requires_service(unittest.TestCase):
         decorated = base.requires_service(**kwargs)(self.sot.test_method)
         return decorated(self.sot)
 
-    @mock.patch("openstack.auth.service_filter.ServiceFilter")
+    @mock.patch("openstack.service_filter.ServiceFilter")
     def test_service_exists(self, mock_filter):
         self.assertEqual(self.return_value, self._test(**self.kwargs))
         mock_filter.assert_called_with(**self.kwargs)
 
-    @mock.patch("openstack.auth.service_filter.ServiceFilter")
+    @mock.patch("openstack.service_filter.ServiceFilter")
     def test_service_doesnt_exist(self, mock_filter):
         exc = exceptions.EndpointNotFound
         self.sot.conn.authenticator.get_endpoint.side_effect = exc

@@ -141,7 +141,7 @@ class BaseIdentityPlugin(base.BaseAuthPlugin):
         :param transport: A transport object for the authenticator.
         :type transport: :class:`~openstack.transport.Transport`
         :param service: The filter to identify the desired service.
-        :type service: :class:`~openstack.auth.service_filter.ServiceFilter`
+        :type service: :class:`~openstack.service_filter.ServiceFilter`
 
         :raises HttpError: An error from an invalid HTTP response.
 
@@ -156,7 +156,7 @@ class BaseIdentityPlugin(base.BaseAuthPlugin):
         :param Transport transport: Authenticator may need to make HTTP calls.
         :type transport: :class:`~openstack.transport.Transport`
         :param ServiceFilter service: Filter to identify the desired service.
-        :type service: :class:`~openstack.auth.service_filter.ServiceFilter`
+        :type service: :class:`~openstack.service_filter.ServiceFilter`
 
         :returns list: Returns list of versions that match the filter.
         """

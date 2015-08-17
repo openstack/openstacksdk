@@ -13,13 +13,13 @@
 import testtools
 
 from openstack.auth import service_catalog as catalog
-from openstack.auth import service_filter
 from openstack.compute import compute_service
 from openstack import exceptions as exc
 from openstack.identity import identity_service
 from openstack.image import image_service
 from openstack.network import network_service
 from openstack.object_store import object_store_service
+from openstack import service_filter
 from openstack.tests.unit.auth import common
 
 

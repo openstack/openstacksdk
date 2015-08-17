@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.auth import service_filter
+from openstack import service_filter
 from openstack import session
 from openstack.tests.unit import base
 from openstack.tests.unit import fakes
