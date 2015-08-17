@@ -41,18 +41,18 @@ def delete(conn, name):
                 pass
         for port in conn.network.get_subnet_ports(subnet.id):
             print(str(port))
-            conn.delete(port)
+            conn.network.delete_port(port)
 
     if router is not None:
-        conn.delete(router)
+        conn.network.delete_router(router)
 
     if subnet:
-        conn.delete(subnet)
+        conn.network.delete_subnet(subnet)
 
     network = conn.network.find_network(name)
     if network is not None:
         print(str(network))
-        conn.delete(network)
+        conn.network.delete_network(network)
 
 
 def run_network(opts):

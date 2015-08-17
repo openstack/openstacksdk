@@ -13,11 +13,9 @@
 import mock
 
 from openstack.auth.identity import v2
-from openstack.auth import service_filter
 from openstack import connection
 from openstack import exceptions
 from openstack import profile
-from openstack import resource
 from openstack.tests.unit import base
 from openstack import transport
 
@@ -130,82 +128,3 @@ class TestConnection(base.TestCase):
         conn = connection.Connection(authenticator=self.auth,
                                      user_agent=user_agent)
         self.assertTrue(conn.transport._user_agent.startswith(user_agent))
-
-
-class TestService(service_filter.ServiceFilter):
-    valid_versions = [service_filter.ValidVersion('v2')]
-
-    def __init__(self):
-        super(TestService, self).__init__(service_type='test')
-
-
-class TestResource(resource.Resource):
-    resource_key = "testable"
-    resources_key = "testables"
-    base_path = "/testables"
-    service = TestService()
-    allow_create = True
-    allow_retrieve = True
-    allow_update = True
-    allow_delete = True
-    allow_list = True
-    allow_head = True
-    name = resource.prop('name')
-
-
-class TestConnectionObjectMethods(base.TestCase):
-    def setUp(self):
-        super(TestConnectionObjectMethods, self).setUp()
-        self.conn = connection.Connection(authenticator=mock.MagicMock(),
-                                          transport=mock.MagicMock())
-        self.conn.session = mock.MagicMock()
-        self.args = {'name': 'fee', 'id': 'fie'}
-        self.body = {'testable': self.args}
-        self.response = mock.Mock
-        self.response.body = self.body
-
-    def test_obj_create(self):
-        test = TestResource.existing(**self.args)
-        self.conn.session.put = mock.MagicMock()
-        self.conn.session.put.and_return = self.response
-        self.assertEqual(test, self.conn.create(test))
-        url = 'testables/fie'
-        self.conn.session.put.assert_called_with(url, json=self.body,
-                                                 service=test.service)
-
-    def test_obj_get(self):
-        test = TestResource.existing(**self.args)
-        self.conn.session.get = mock.MagicMock()
-        self.conn.session.get.and_return = self.response
-        self.assertEqual(test, self.conn.get(test))
-        url = 'testables/fie'
-        self.conn.session.get.assert_called_with(url, service=test.service)
-
-    def test_obj_head(self):
-        test = TestResource.existing(**self.args)
-        self.conn.session.head = mock.MagicMock()
-        self.conn.session.head.and_return = self.response
-        self.assertEqual(test, self.conn.head(test))
-        url = 'testables/fie'
-        self.conn.session.head.assert_called_with(url, service=test.service,
-                                                  accept=None)
-
-    def test_obj_update(self):
-        test = TestResource.existing(**self.args)
-        test['name'] = 'newname'
-        self.body = {'testable': {'name': 'newname'}}
-        self.conn.session.put = mock.MagicMock()
-        self.conn.session.put.and_return = self.response
-        self.assertEqual(test, self.conn.update(test))
-        url = 'testables/fie'
-        self.conn.session.put.assert_called_with(url, json=self.body,
-                                                 service=test.service)
-
-    def test_obj_delete(self):
-        test = TestResource.existing(**self.args)
-        self.conn.session.delete = mock.MagicMock()
-        self.conn.session.delete.and_return = self.response
-        self.assertEqual(None, self.conn.delete(test))
-        url = 'testables/fie'
-        self.conn.session.delete.assert_called_with(url, service=test.service,
-                                                    accept=None)

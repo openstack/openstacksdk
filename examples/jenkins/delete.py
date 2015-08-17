@@ -37,8 +37,8 @@ def delete_jenkins(conn, name, opts):
             print(str(ip))
             ip = conn.network.find_ip(ip)
             conn.network.remove_ip_from_port(ip)
-            conn.delete(ip)
-        conn.delete(server)
+            conn.network.delete_ip(ip)
+        conn.compute.delete_server(server)
 
     keypair.delete(conn, name)
     network.delete(conn, name)
