@@ -132,4 +132,8 @@ class TestCase(base.BaseTestCase):
         self.assertIsNone(cc.cloud)
         self.assertIn('username', cc.auth)
         self.assertEqual('testuser', cc.auth['username'])
-        self.assertEqual('testproject', cc.auth['project_name'])
+        self.assertTrue('project_name' in cc.auth or 'project_id' in cc.auth)
+        if 'project_name' in cc.auth:
+            self.assertEqual('testproject', cc.auth['project_name'])
+        elif 'project_id' in cc.auth:
+            self.assertEqual('testproject', cc.auth['project_id'])

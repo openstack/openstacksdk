@@ -288,9 +288,9 @@ class OpenStackConfig(object):
     def _fix_backwards_project(self, cloud):
         # Do the lists backwards so that project_name is the ultimate winner
         mappings = {
-            'project_name': ('tenant_id', 'tenant-id',
-                             'project_id', 'project-id',
-                             'tenant_name', 'tenant-name',
+            'project_id': ('tenant_id', 'tenant-id',
+                           'project_id', 'project-id'),
+            'project_name': ('tenant_name', 'tenant-name',
                              'project_name', 'project-name'),
         }
         for target_key, possible_values in mappings.items():
