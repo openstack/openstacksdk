@@ -18,13 +18,13 @@ from stevedore import extension
 from openstack import exceptions
 
 
-def load_service_extensions(namespace):
-    service_extensions = extension.ExtensionManager(
+def load_service_plugins(namespace):
+    service_plugins = extension.ExtensionManager(
         namespace=namespace,
         invoke_on_load=True,
     )
     services = {}
-    for service in service_extensions:
+    for service in service_plugins:
         service = service.obj
         service.set_interface(None)
         services[service.service_type] = service

@@ -78,10 +78,10 @@ class Profile(object):
     ALL = "*"
     """Wildcard service identifier representing all services."""
 
-    def __init__(self, extensions=None):
+    def __init__(self, plugins=None):
         """User preference for each service.
 
-        :param list extensions: List of entry point namespace to load.
+        :param list plugins: List of entry point namespaces to load.
 
         Create a new :class:`~openstack.profile.Profile`
         object with no preferences defined, but knowledge of the services.
@@ -104,9 +104,9 @@ class Profile(object):
         self._add_service(block_store_service.BlockStoreService())
         self._add_service(message_service.MessageService())
 
-        if extensions:
-            for extension in extensions:
-                self._load_extension(extension)
+        if plugins:
+            for plugin in plugins:
+                self._load_plugin(plugin)
         self.service_names = sorted(self._services.keys())
 
     def __repr__(self):
@@ -116,12 +116,12 @@ class Profile(object):
         serv.set_interface(None)
         self._services[serv.service_type] = serv
 
-    def _load_extension(self, namespace):
-        """Load a service extension.
+    def _load_plugin(self, namespace):
+        """Load a service plugin.
 
         :param str namespace: Entry point namespace
         """
-        services = module_loader.load_service_extensions(namespace)
+        services = module_loader.load_service_plugins(namespace)
         for service_type in services:
             if service_type in self._services:
                 _logger.debug("Overriding %s with %s", service_type,
