@@ -23,7 +23,6 @@ from openstack import format
 from openstack import resource
 from openstack import session
 from openstack.tests.unit import base
-from openstack.tests.unit import fakes
 from openstack import utils
 
 
@@ -264,9 +263,7 @@ class HeaderTests(base.TestCase):
                                     json={})
 
 
-class ResourceTests(base.TestTransportBase):
-
-    TEST_URL = fakes.FakeAuthenticator.ENDPOINT
+class ResourceTests(base.TestCase):
 
     def setUp(self):
         super(ResourceTests, self).setUp()

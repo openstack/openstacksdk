@@ -18,7 +18,6 @@ from openstack.object_store.v1 import account
 from openstack.object_store.v1 import container
 from openstack.object_store.v1 import obj
 from openstack import session
-from openstack.tests.unit import base
 from openstack.tests.unit import fakes
 from openstack.tests.unit import test_proxy_base
 from openstack import transport
@@ -78,9 +77,7 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
                         value=["object"], container="container")
 
 
-class Test_containers(TestObjectStoreProxy, base.TestTransportBase):
-
-    TEST_URL = fakes.FakeAuthenticator.ENDPOINT
+class Test_containers(TestObjectStoreProxy):
 
     def setUp(self):
         super(Test_containers, self).setUp()
@@ -159,9 +156,7 @@ class Test_containers(TestObjectStoreProxy, base.TestTransportBase):
 #                      httpretty.last_request().path)
 
 
-class Test_objects(TestObjectStoreProxy, base.TestTransportBase):
-
-    TEST_URL = fakes.FakeAuthenticator.ENDPOINT
+class Test_objects(TestObjectStoreProxy):
 
     def setUp(self):
         super(Test_objects, self).setUp()

@@ -42,7 +42,30 @@ fake_record2 = {
 }
 
 
-class TestTransport(base.TestTransportBase):
+class TestTransportBase(base.TestCase):
+
+    TEST_URL = 'http://www.root.url'
+
+    def assertRequestHeaderEqual(self, mocked_req, name, val):
+        """Verify that the last request made contains a header and its value
+
+        """
+        headers = mocked_req.last_request.headers
+        self.assertEqual(val, headers.get(name))
+
+    def assertResponseOK(self, resp, status=200, body=None):
+        """Verify the Response object contains expected values
+
+        Tests our defaults for a successful request.
+        """
+
+        self.assertTrue(resp.ok)
+        self.assertEqual(status, resp.status_code)
+        if body:
+            self.assertEqual(body, resp.text)
+
+
+class TestTransport(TestTransportBase):
 
     def setUp(self):
         super(TestTransport, self).setUp()
@@ -320,7 +343,7 @@ class TestTransport(base.TestTransportBase):
         self.assertEqual(status, exc.status_code)
 
 
-class TestTransportDebug(base.TestTransportBase):
+class TestTransportDebug(TestTransportBase):
 
     def setUp(self):
         super(TestTransportDebug, self).setUp()
@@ -374,7 +397,7 @@ class TestTransportDebug(base.TestTransportBase):
             self.assertIn(v, self.log_fixture.output)
 
 
-class TestTransportRedirects(base.TestTransportBase):
+class TestTransportRedirects(TestTransportBase):
 
     REDIRECT_CHAIN = [
         'http://myhost:3445/',

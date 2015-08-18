@@ -51,26 +51,3 @@ class TestCase(testtools.TestCase):
             self.useFixture(fixtures.MonkeyPatch('sys.stderr', stderr))
 
         self.log_fixture = self.useFixture(fixtures.FakeLogger())
-
-
-class TestTransportBase(TestCase):
-
-    TEST_URL = 'http://www.root.url'
-
-    def assertRequestHeaderEqual(self, mocked_req, name, val):
-        """Verify that the last request made contains a header and its value
-
-        """
-        headers = mocked_req.last_request.headers
-        self.assertEqual(val, headers.get(name))
-
-    def assertResponseOK(self, resp, status=200, body=None):
-        """Verify the Response object contains expected values
-
-        Tests our defaults for a successful request.
-        """
-
-        self.assertTrue(resp.ok)
-        self.assertEqual(status, resp.status_code)
-        if body:
-            self.assertEqual(body, resp.text)
