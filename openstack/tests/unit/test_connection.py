@@ -15,7 +15,6 @@ import mock
 from openstack.auth.identity import v2
 from openstack.auth import service_filter
 from openstack import connection
-from openstack import exceptions
 from openstack import profile
 from openstack import resource
 from openstack.tests.unit import base
@@ -38,33 +37,7 @@ class TestConnection(base.TestCase):
         self.assertTrue(conn.transport.verify)
         self.assertIn('1', conn.transport._user_agent)
 
-    def test_create_authenticator_v2(self):
-        auth_args = {
-            'auth_url': '0',
-            'username': '1',
-            'password': '2',
-        }
-        conn = connection.Connection(transport='0',
-                                     auth_plugin='v2password',
-                                     **auth_args)
-        self.assertEqual('0', conn.authenticator.auth_url)
-        self.assertEqual('1', conn.authenticator.username)
-        self.assertEqual('2', conn.authenticator.password)
-
-    def test_create_authenticator_v3(self):
-        auth_args = {
-            'auth_url': '0',
-            'username': '1',
-            'password': '2',
-        }
-        conn = connection.Connection(transport='0',
-                                     auth_plugin='v3password',
-                                     **auth_args)
-        self.assertEqual('0', conn.authenticator.auth_url)
-        self.assertEqual('1', conn.authenticator.auth_methods[0].username)
-        self.assertEqual('2', conn.authenticator.auth_methods[0].password)
-
-    def test_create_authenticator_discoverable(self):
+    def test_create_authenticator(self):
         auth_args = {
             'auth_url': '0',
             'username': '1',
@@ -79,22 +52,6 @@ class TestConnection(base.TestCase):
         self.assertEqual(
             '2',
             conn.authenticator.auth_plugin.auth_methods[0].password)
-
-    def test_create_authenticator_no_name(self):
-        auth_args = {
-            'auth_url': 'http://localhost/v2',
-            'username': '1',
-            'password': '2',
-        }
-        conn = connection.Connection(transport='0', **auth_args)
-        self.assertEqual('openstack.auth.identity.discoverable',
-                         conn.authenticator.__class__.__module__)
-
-    def test_create_authenticator_no_nothing(self):
-        self.assertRaises(
-            exceptions.AuthorizationFailure,
-            connection.Connection,
-        )
 
     def test_create_session(self):
         args = {
