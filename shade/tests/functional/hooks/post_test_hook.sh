@@ -14,9 +14,11 @@
 
 export SHADE_DIR="$BASE/new/shade"
 
-cd $BASE/new/devstack
-source openrc admin admin
-unset OS_CACERT
+# The jenkins user needs access to the clouds.yaml file
+# for the functional tests.
+sudo mkdir -p ~jenkins/.config/openstack
+sudo cp $BASE/new/.config/openstack/clouds.yaml ~jenkins/.config/openstack
+sudo chown -R jenkins:stack ~jenkins/.config
 
 cd $SHADE_DIR
 sudo chown -R jenkins:stack $SHADE_DIR

@@ -33,8 +33,7 @@ class TestFlavor(base.TestCase):
 
     def setUp(self):
         super(TestFlavor, self).setUp()
-        # Shell should have OS-* envvars from openrc, typically loaded by job
-        self.operator_cloud = shade.operator_cloud()
+        self.operator_cloud = shade.operator_cloud(cloud='devstack-admin')
 
         # Generate a random name for flavors in this test
         self.new_item_name = 'flavor_' + ''.join(

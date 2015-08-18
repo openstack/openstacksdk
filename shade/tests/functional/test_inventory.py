@@ -29,8 +29,9 @@ from shade.tests.functional.util import pick_flavor, pick_image
 class TestInventory(base.TestCase):
     def setUp(self):
         super(TestInventory, self).setUp()
-        # Shell should have OS-* envvars from openrc, typically loaded by job
-        self.cloud = openstack_cloud()
+        # This needs to use an admin account, otherwise a public IP
+        # is not allocated from devstack.
+        self.cloud = openstack_cloud(cloud='devstack-admin')
         self.inventory = inventory.OpenStackInventory()
         self.server_name = 'test_inventory_server'
         self.nova = self.cloud.nova_client

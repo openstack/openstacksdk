@@ -27,8 +27,7 @@ from shade.tests.functional.util import pick_flavor, pick_image
 class TestCompute(base.TestCase):
     def setUp(self):
         super(TestCompute, self).setUp()
-        # Shell should have OS-* envvars from openrc, typically loaded by job
-        self.cloud = openstack_cloud()
+        self.cloud = openstack_cloud(cloud='devstack')
         self.nova = self.cloud.nova_client
         self.flavor = pick_flavor(self.nova.flavors.list())
         if self.flavor is None:

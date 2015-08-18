@@ -35,8 +35,7 @@ class TestServices(base.TestCase):
 
     def setUp(self):
         super(TestServices, self).setUp()
-        # Shell should have OS-* envvars from openrc, typically loaded by job
-        self.operator_cloud = operator_cloud()
+        self.operator_cloud = operator_cloud(cloud='devstack-admin')
 
         # Generate a random name for services in this test
         self.new_service_name = 'test_' + ''.join(

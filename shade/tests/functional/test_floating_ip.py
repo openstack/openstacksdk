@@ -52,8 +52,7 @@ class TestFloatingIP(base.TestCase):
 
     def setUp(self):
         super(TestFloatingIP, self).setUp()
-        # Shell should have OS-* envvars from openrc, typically loaded by job
-        self.cloud = openstack_cloud()
+        self.cloud = openstack_cloud(cloud='devstack')
         self.nova = self.cloud.nova_client
         if self.cloud.has_service('network'):
             self.neutron = self.cloud.neutron_client
