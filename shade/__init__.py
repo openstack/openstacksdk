@@ -3624,8 +3624,13 @@ class OperatorCloud(OpenStackCloud):
         :raises: OpenStackCloudException on operation failure.
         """
 
-        # TODO(TheJulia): Change to lookup the MAC addresses and/or block any
-        # the action if the node is in an Active state as the API would.
+        machine = self.get_machine(uuid)
+        invalid_states = ['active', 'cleaning', 'clean wait', 'clean failed']
+        if machine['provision_state'] in invalid_states:
+            raise OpenStackCloudException(
+                "Error unregistering node '%s' due to current provision "
+                "state '%s'" % (uuid, machine['provision_state']))
+
         for nic in nics:
             try:
                 port_id = self.manager.submitTask(

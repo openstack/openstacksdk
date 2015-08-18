@@ -527,6 +527,10 @@ class TestShadeOperator(base.TestCase):
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_unregister_machine(self, mock_client):
+        class fake_node:
+            provision_state = 'available'
+
+        mock_client.node.get.return_value = fake_node
         nics = [{'mac': '00:00:00:00:00:00'}]
         uuid = "00000000-0000-0000-0000-000000000000"
         self.cloud.unregister_machine(nics, uuid)
@@ -535,7 +539,33 @@ class TestShadeOperator(base.TestCase):
         self.assertTrue(mock_client.port.get_by_address.called)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_unregister_machine_unavailable(self, mock_client):
+        invalid_states = ['active', 'cleaning', 'clean wait', 'clean failed']
+        nics = [{'mac': '00:00:00:00:00:00'}]
+        uuid = "00000000-0000-0000-0000-000000000000"
+        for state in invalid_states:
+            class fake_node:
+                provision_state = state
+
+            mock_client.node.get.return_value = fake_node
+            self.assertRaises(
+                exc.OpenStackCloudException,
+                self.cloud.unregister_machine,
+                nics,
+                uuid)
+            self.assertFalse(mock_client.node.delete.called)
+            self.assertFalse(mock_client.port.delete.called)
+            self.assertFalse(mock_client.port.get_by_address.called)
+            self.assertTrue(mock_client.node.get.called)
+            mock_client.node.reset_mock()
+            mock_client.node.reset_mock()
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_unregister_machine_timeout(self, mock_client):
+        class fake_node:
+            provision_state = 'available'
+
+        mock_client.node.get.return_value = fake_node
         nics = [{'mac': '00:00:00:00:00:00'}]
         uuid = "00000000-0000-0000-0000-000000000000"
         self.assertRaises(
