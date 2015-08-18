@@ -363,7 +363,7 @@ class Transport(requests.Session):
             string_parts.append(header)
 
         if 'data' in kwargs and kwargs['data'] is not None:
-            string_parts.append("--data '")
+            string_parts.append("--data")
 
             data = kwargs['data']
             # Only log text strings and byte strings that can be decoded
@@ -376,13 +376,10 @@ class Transport(requests.Session):
                 # to ascii. If it works, log it, otherwise put in a
                 # placeholder to specify that it's a blob of binary data.
                 try:
-                    string_parts.append(data.decode("ascii"))
+                    data = data.decode("ascii")
                 except UnicodeDecodeError:
-                    string_parts.append("<binary data>")
-            else:
-                string_parts.append(data)
-
-            string_parts.append("'")
+                    data = "<binary data>"
+            string_parts.append("'" + data + "'")
 
         _logger.debug("REQ: %s" % " ".join(string_parts))
 
