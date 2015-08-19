@@ -19,8 +19,10 @@ class Extension(resource.Resource):
     resources_key = 'extensions'
     base_path = '/extensions'
     service = network_service.NetworkService()
+    id_attribute = "alias"
 
     # capabilities
+    allow_retrieve = True
     allow_list = True
 
     # Properties
