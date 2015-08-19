@@ -10,11 +10,20 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import uuid
+
 from openstack.tests.functional import base
 
 
 class TestMeter(base.BaseFunctionalTest):
 
     def test_list(self):
+        # TODO(thowe): Remove this in favor of create_meter call.
+        # Since we do not have a create meter method at the moment
+        # make sure there is some data in there
+        name = uuid.uuid4().hex
+        tainer = self.conn.object_store.create_container(name=name)
+        self.conn.object_store.delete_container(tainer)
+
         names = set([o.name for o in self.conn.telemetry.meters()])
         self.assertIn('storage.objects', names)
