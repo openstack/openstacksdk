@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -573,3 +574,30 @@ class TestTransportRedirects(TestTransportBase):
         self.assertEqual("Wot?", xport._parse_error_response(resp))
         resp.json.return_value = {"QuantumError": "Network error"}
         self.assertEqual("Network error", xport._parse_error_response(resp))
+
+
+class TestLogging(base.TestCase):
+    METHOD = 'PUT'
+    URL = 'http://example.com/'
+
+    def setUp(self):
+        super(TestLogging, self).setUp()
+        self.xport = transport.Transport()
+        mock_logger = mock.Mock()
+        mock_logger.isEnabledFor = mock.Mock()
+        mock_logger.isEnabledFor.return_value = True
+        self.mock_debug = mock.Mock()
+        mock_logger.debug = self.mock_debug
+        transport._logger = mock_logger
+        self.expected = (u"REQ: curl -i -X '%s' '%s'" %
+                         (self.METHOD, self.URL))
+
+    def test_data(self):
+        self.xport._log_request(self.METHOD, self.URL, data="payload",
+                                headers={})
+        self.mock_debug.assert_called_with(self.expected + " --data 'payload'")
+
+    def test_unicode(self):
+        self.xport._log_request(self.METHOD, self.URL, data=u'拱心石',
+                                headers={})
+        self.mock_debug.assert_called_with(self.expected + u" --data '拱心石'")
