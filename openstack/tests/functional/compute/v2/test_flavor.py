@@ -12,10 +12,17 @@
 
 import six
 
+from openstack import exceptions
 from openstack.tests.functional import base
 
 
 class TestFlavor(base.BaseFunctionalTest):
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestFlavor, cls).setUpClass()
+
+        cls.one_flavor = list(cls.conn.compute.flavors())[0]
 
     def test_flavors(self):
         flavors = list(self.conn.compute.flavors())
@@ -27,3 +34,21 @@ class TestFlavor(base.BaseFunctionalTest):
             self.assertIsInstance(flavor.disk, int)
             self.assertIsInstance(flavor.ram, int)
             self.assertIsInstance(flavor.vcpus, int)
+
+    def test_find_flavors_by_id(self):
+        rslt = self.conn.compute.find_flavor(self.one_flavor.id)
+        self.assertEqual(rslt.id, self.one_flavor.id)
+
+    def test_find_flavors_by_name(self):
+        rslt = self.conn.compute.find_flavor(self.one_flavor.name)
+        self.assertEqual(rslt.name, self.one_flavor.name)
+
+    def test_find_flavors_no_match_ignore_true(self):
+        rslt = self.conn.compute.find_flavor("not a flavor",
+                                             ignore_missing=True)
+        self.assertIsNone(rslt)
+
+    def test_find_flavors_no_match_ignore_false(self):
+        self.assertRaises(exceptions.ResourceNotFound,
+                          self.conn.compute.find_flavor,
+                          "not a flavor", ignore_missing=False)
