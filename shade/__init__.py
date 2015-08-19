@@ -4446,3 +4446,48 @@ class OperatorCloud(OpenStackCloud):
         :raises: OpenStackCloudResourceNotFound if flavor ID is not found.
         """
         self._mod_flavor_specs('unset', flavor_id, keys)
+
+    def _mod_flavor_access(self, action, flavor_id, project_id):
+        """Common method for adding and removing flavor access
+        """
+        try:
+            if action == 'add':
+                self.manager.submitTask(
+                    _tasks.FlavorAddAccess(flavor=flavor_id,
+                                           tenant=project_id)
+                )
+            elif action == 'remove':
+                self.manager.submitTask(
+                    _tasks.FlavorRemoveAccess(flavor=flavor_id,
+                                              tenant=project_id)
+                )
+        except Exception as e:
+            self.log.debug(
+                "Error trying to {0} access to flavor ID {1}".format(
+                    action, flavor_id),
+                exc_info=True
+            )
+            raise OpenStackCloudException(
+                "Error trying to {0} access from flavor ID {1}: {2}".format(
+                    action, flavor_id, e)
+            )
+
+    def add_flavor_access(self, flavor_id, project_id):
+        """Grant access to a private flavor for a project/tenant.
+
+        :param string flavor_id: ID of the private flavor.
+        :param string project_id: ID of the project/tenant.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        self._mod_flavor_access('add', flavor_id, project_id)
+
+    def remove_flavor_access(self, flavor_id, project_id):
+        """Revoke access from a private flavor for a project/tenant.
+
+        :param string flavor_id: ID of the private flavor.
+        :param string project_id: ID of the project/tenant.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        self._mod_flavor_access('remove', flavor_id, project_id)

@@ -57,6 +57,20 @@ class FlavorGet(task_manager.Task):
         return client.nova_client.flavors.get(**self.args)
 
 
+class FlavorAddAccess(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.flavor_access.add_tenant_access(
+            **self.args
+        )
+
+
+class FlavorRemoveAccess(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.flavor_access.remove_tenant_access(
+            **self.args
+        )
+
+
 class ServerList(task_manager.Task):
     def main(self, client):
         return client.nova_client.servers.list(**self.args)

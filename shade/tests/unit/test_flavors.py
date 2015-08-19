@@ -82,3 +82,17 @@ class TestFlavors(base.TestCase):
         self.op_cloud.unset_flavor_specs(1, keys)
         mock_nova.flavors.get.assert_called_once_with(flavor=1)
         flavor.unset_keys.assert_called_once_with(keys)
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_add_flavor_access(self, mock_nova):
+        self.op_cloud.add_flavor_access('flavor_id', 'tenant_id')
+        mock_nova.flavor_access.add_tenant_access.assert_called_once_with(
+            flavor='flavor_id', tenant='tenant_id'
+        )
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_remove_flavor_access(self, mock_nova):
+        self.op_cloud.remove_flavor_access('flavor_id', 'tenant_id')
+        mock_nova.flavor_access.remove_tenant_access.assert_called_once_with(
+            flavor='flavor_id', tenant='tenant_id'
+        )

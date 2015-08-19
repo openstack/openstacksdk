@@ -33,6 +33,7 @@ class TestFlavor(base.TestCase):
 
     def setUp(self):
         super(TestFlavor, self).setUp()
+        self.demo_cloud = shade.openstack_cloud(cloud='devstack')
         self.operator_cloud = shade.operator_cloud(cloud='devstack-admin')
 
         # Generate a random name for flavors in this test
@@ -78,7 +79,7 @@ class TestFlavor(base.TestCase):
             name=pub_flavor_name, ram=1024, vcpus=2, disk=10, is_public=True
         )
         private_kwargs = dict(
-            name=priv_flavor_name, ram=1024, vcpus=2, disk=10, is_public=True
+            name=priv_flavor_name, ram=1024, vcpus=2, disk=10, is_public=False
         )
 
         # Create a public and private flavor. We expect both to be listed
@@ -95,3 +96,31 @@ class TestFlavor(base.TestCase):
             if f['name'] in (pub_flavor_name, priv_flavor_name):
                 found.append(f)
         self.assertEqual(2, len(found))
+
+    def test_flavor_access(self):
+        priv_flavor_name = self.new_item_name + '_private'
+        private_kwargs = dict(
+            name=priv_flavor_name, ram=1024, vcpus=2, disk=10, is_public=False
+        )
+        new_flavor = self.operator_cloud.create_flavor(**private_kwargs)
+
+        # Validate the 'demo' user cannot see the new flavor
+        flavors = self.demo_cloud.search_flavors(priv_flavor_name)
+        self.assertEqual(0, len(flavors))
+
+        # We need the tenant ID for the 'demo' user
+        project = self.operator_cloud.get_project('demo')
+
+        # Now give 'demo' access
+        self.operator_cloud.add_flavor_access(new_flavor['id'], project['id'])
+
+        # Now see if the 'demo' user has access to it
+        flavors = self.demo_cloud.search_flavors(priv_flavor_name)
+        self.assertEqual(1, len(flavors))
+        self.assertEqual(priv_flavor_name, flavors[0]['name'])
+
+        # Now revoke the access and make sure we can't find it
+        self.operator_cloud.remove_flavor_access(new_flavor['id'],
+                                                 project['id'])
+        flavors = self.demo_cloud.search_flavors(priv_flavor_name)
+        self.assertEqual(0, len(flavors))
