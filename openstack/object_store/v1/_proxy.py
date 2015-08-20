@@ -131,6 +131,16 @@ class Proxy(proxy.BaseProxy):
             ob.container = container.name
             yield ob
 
+    def _get_container_name(self, value, container):
+        if isinstance(value, _obj.Object):
+            if value.container is not None:
+                return value.container
+        if container is not None:
+            container = _container.Container.from_id(container)
+            return container.name
+
+        raise ValueError("container must be specified")
+
     def get_object(self, value, container=None):
         """Get the data associated with an object
 
@@ -146,11 +156,11 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        container = _container.Container.from_id(container)
+        container_name = self._get_container_name(value, container)
 
         # TODO(brian): s/_obj/obj once other changes propogate
         return self._get(_obj.Object, value,
-                         path_args={"container": container.name})
+                         path_args={"container": container_name})
 
     def save_object(self, obj, path):
         """Save the data contained inside an object to disk.
@@ -177,13 +187,11 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.object_store.v1.container.Container`
         """
         container = attrs.pop("container", None)
-        if container is None:
-            raise ValueError("container must be specified")
-        container = _container.Container.from_id(container)
+        container_name = self._get_container_name(None, container)
 
         # TODO(brian): s/_container/container once other changes propogate
         return self._create(_obj.Object,
-                            path_args={"container": container.name}, **attrs)
+                            path_args={"container": container_name}, **attrs)
 
     def copy_object(self):
         """Copy an object."""
@@ -206,11 +214,11 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        container = _container.Container.from_id(container)
+        container_name = self._get_container_name(value, container)
 
         # TODO(brian): s/_obj/obj once other changes propogate
         self._delete(_obj.Object, value, ignore_missing=ignore_missing,
-                     path_args={"container": container.name})
+                     path_args={"container": container_name})
 
     def get_object_metadata(self, value, container=None):
         """Get metatdata for an object
@@ -226,10 +234,10 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        container = _container.Container.from_id(container)
+        container_name = self._get_container_name(value, container)
 
         return self._head(_obj.Object, value,
-                          path_args={"container": container.name})
+                          path_args={"container": container_name})
 
     def set_object_metadata(self, obj):
         """Set metatdata for an object.
