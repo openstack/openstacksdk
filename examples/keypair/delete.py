@@ -29,7 +29,7 @@ def delete(conn, name):
     kp = conn.compute.find_keypair(name)
     if kp is not None:
         print(str(kp))
-        conn.delete(kp)
+        conn.compute.delete_keypair(kp)
 
 
 def run_keypair(opts):
