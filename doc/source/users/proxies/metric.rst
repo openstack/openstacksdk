@@ -1,7 +1,7 @@
 Metric API
 ==========
 
-For details on how to use metric, see :doc:`/users/userguides/metric`
+For details on how to use metric, see :doc:`/users/guides/metric`
 
 .. automodule:: openstack.metric.v1._proxy
 

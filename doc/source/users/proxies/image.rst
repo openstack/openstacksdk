@@ -1,7 +1,7 @@
 Image API v1
 ============
 
-For details on how to use image, see :doc:`/users/userguides/image`
+For details on how to use image, see :doc:`/users/guides/image`
 
 .. automodule:: openstack.image.v1._proxy
 
@@ -18,7 +18,7 @@ only be added if the service is detected.
 Image API v2
 ============
 
-For details on how to use image, see :doc:`/users/userguides/image`
+For details on how to use image, see :doc:`/users/guides/image`
 
 .. automodule:: openstack.image.v2._proxy
 

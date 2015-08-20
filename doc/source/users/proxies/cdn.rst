@@ -1,7 +1,7 @@
 CDN API
 =======
 
-For details on how to use CDN, see :doc:`/users/userguides/cdn`
+For details on how to use CDN, see :doc:`/users/guides/cdn`
 
 .. automodule:: openstack.cdn.v1._proxy
 

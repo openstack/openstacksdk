@@ -1,7 +1,7 @@
 Identity API v2
 ===============
 
-For details on how to use identity, see :doc:`/users/userguides/identity`
+For details on how to use identity, see :doc:`/users/guides/identity`
 
 .. automodule:: openstack.identity.v2._proxy
 
@@ -18,7 +18,7 @@ member of a :class:`~openstack.connection.Connection` object.  The
 Identity API v3
 ===============
 
-For details on how to use identity, see :doc:`/users/userguides/identity`
+For details on how to use identity, see :doc:`/users/guides/identity`
 
 .. automodule:: openstack.identity.v3._proxy
 

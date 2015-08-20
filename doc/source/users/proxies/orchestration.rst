@@ -1,7 +1,7 @@
 Orchestration API
 =================
 
-For details on how to use orchestration, see :doc:`/users/userguides/orchestration`
+For details on how to use orchestration, see :doc:`/users/guides/orchestration`
 
 .. automodule:: openstack.orchestration.v1._proxy
 

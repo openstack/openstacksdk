@@ -1,7 +1,7 @@
 Compute API
 ===========
 
-For details on how to use compute, see :doc:`/users/userguides/compute`
+For details on how to use compute, see :doc:`/users/guides/compute`
 
 .. automodule:: openstack.compute.v2._proxy
 

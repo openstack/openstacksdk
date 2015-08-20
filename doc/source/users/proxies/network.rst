@@ -1,7 +1,7 @@
 Network API
 ===========
 
-For details on how to use network, see :doc:`/users/userguides/network`
+For details on how to use network, see :doc:`/users/guides/network`
 
 .. automodule:: openstack.network.v2._proxy
 

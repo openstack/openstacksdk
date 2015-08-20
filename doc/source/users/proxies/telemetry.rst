@@ -1,7 +1,7 @@
 Telemetry API
 =============
 
-For details on how to use telemetry, see :doc:`/users/userguides/telemetry`
+For details on how to use telemetry, see :doc:`/users/guides/telemetry`
 
 .. automodule:: openstack.telemetry.v2._proxy
 

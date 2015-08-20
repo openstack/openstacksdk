@@ -1,7 +1,7 @@
 Database API
 ============
 
-For details on how to use database, see :doc:`/users/userguides/database`
+For details on how to use database, see :doc:`/users/guides/database`
 
 .. automodule:: openstack.database.v1._proxy
 

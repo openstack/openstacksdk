@@ -2,7 +2,7 @@ KeyManagement API
 =================
 
 For details on how to use key_management, see
-:doc:`/users/userguides/key_management`
+:doc:`/users/guides/key_management`
 
 .. automodule:: openstack.key_management.v1._proxy
 

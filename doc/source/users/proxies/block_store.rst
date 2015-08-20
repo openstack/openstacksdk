@@ -1,7 +1,7 @@
 Block Store API
 ===============
 
-For details on how to use block_store, see :doc:`/users/userguides/block_store`
+For details on how to use block_store, see :doc:`/users/guides/block_store`
 
 .. automodule:: openstack.block_store.v2._proxy
 

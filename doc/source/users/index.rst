@@ -23,20 +23,20 @@ approach, this is where you'll want to begin.
 .. toctree::
    :maxdepth: 1
 
-   Connecting to an OpenStack Cloud <userguides/usage>
-   Logging <userguides/logging>
-   Block Store <userguides/block_store>
-   CDN <userguides/cdn>
-   Compute <userguides/compute>
-   Database <userguides/database>
-   Identity <userguides/identity>
-   Image <userguides/image>
-   Key Management <userguides/key_management>
-   Metric <userguides/metric>
-   Network <userguides/network>
-   Object Store <userguides/object_store>
-   Orchestration <userguides/orchestration>
-   Telemetry <userguides/telemetry>
+   Connecting to an OpenStack Cloud <guides/usage>
+   Logging <guides/logging>
+   Block Store <guides/block_store>
+   CDN <guides/cdn>
+   Compute <guides/compute>
+   Database <guides/database>
+   Identity <guides/identity>
+   Image <guides/image>
+   Key Management <guides/key_management>
+   Metric <guides/metric>
+   Network <guides/network>
+   Object Store <guides/object_store>
+   Orchestration <guides/orchestration>
+   Telemetry <guides/telemetry>
 
 It may also be useful to try out some working code examples:
 
