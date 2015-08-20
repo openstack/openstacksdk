@@ -136,6 +136,9 @@ class Proxy(proxy.BaseProxy):
 
         :param value: The value can be the ID of an object or a
                       :class:`~openstack.object_store.v1.obj.Object` instance.
+        :param container: The value can be the ID of a container or a
+               :class:`~openstack.object_store.v1.container.Container`
+               instance.
 
         :returns: The contents of the object.  Use the
                   :func:`~get_object_metadata`
@@ -143,9 +146,11 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
+        container = _container.Container.from_id(container)
+
         # TODO(brian): s/_obj/obj once other changes propogate
         return self._get(_obj.Object, value,
-                         path_args={"container": container})
+                         path_args={"container": container.name})
 
     def save_object(self, obj, path):
         """Save the data contained inside an object to disk.
@@ -163,12 +168,22 @@ class Proxy(proxy.BaseProxy):
         :param dict attrs: Keyword arguments which will be used to create
                a :class:`~openstack.object_store.v1.obj.Object`,
                comprised of the properties on the Object class.
+               **Required**: A `container` argument must be specified,
+               which is either the ID of a container or a
+               :class:`~openstack.object_store.v1.container.Container`
+               instance.
 
         :returns: The results of object creation
         :rtype: :class:`~openstack.object_store.v1.container.Container`
         """
+        container = attrs.pop("container", None)
+        if container is None:
+            raise ValueError("container must be specified")
+        container = _container.Container.from_id(container)
+
         # TODO(brian): s/_container/container once other changes propogate
-        return self._create(_obj.Object, **attrs)
+        return self._create(_obj.Object,
+                            path_args={"container": container.name}, **attrs)
 
     def copy_object(self):
         """Copy an object."""
@@ -180,6 +195,9 @@ class Proxy(proxy.BaseProxy):
         :param value: The value can be either the name of an object or a
                       :class:`~openstack.object_store.v1.container.Container`
                       instance.
+        :param container: The value can be the ID of a container or a
+               :class:`~openstack.object_store.v1.container.Container`
+               instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the object does not exist.
@@ -188,9 +206,11 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
+        container = _container.Container.from_id(container)
+
         # TODO(brian): s/_obj/obj once other changes propogate
         self._delete(_obj.Object, value, ignore_missing=ignore_missing,
-                     path_args={"container": container})
+                     path_args={"container": container.name})
 
     def get_object_metadata(self, value, container=None):
         """Get metatdata for an object
@@ -198,13 +218,18 @@ class Proxy(proxy.BaseProxy):
         :param value: The value is an
                :class:`~openstack.object_store.v1.obj.Object`
                instance.
+        :param container: The value can be the ID of a container or a
+               :class:`~openstack.object_store.v1.container.Container`
+               instance.
 
         :returns: One :class:`~openstack.object_store.v1.obj.Object`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
+        container = _container.Container.from_id(container)
+
         return self._head(_obj.Object, value,
-                          path_args={"container": container})
+                          path_args={"container": container.name})
 
     def set_object_metadata(self, obj):
         """Set metatdata for an object.

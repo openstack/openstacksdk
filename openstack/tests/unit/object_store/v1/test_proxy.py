@@ -70,7 +70,21 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         self._test_object_delete(True)
 
     def test_object_create_attrs(self):
-        self.verify_create(self.proxy.create_object, obj.Object)
+        path_args = {"path_args": {"container": "name"}}
+        method_kwargs = {"name": "test", "data": "data", "container": "name"}
+
+        expected_kwargs = path_args.copy()
+        expected_kwargs.update(method_kwargs)
+        expected_kwargs.pop("container")
+
+        self._verify2("openstack.proxy.BaseProxy._create",
+                      self.proxy.create_object,
+                      method_kwargs=method_kwargs,
+                      expected_args=[obj.Object],
+                      expected_kwargs=expected_kwargs)
+
+    def test_object_create_no_container(self):
+        self.assertRaises(ValueError, self.proxy.create_object)
 
     def test_object_get(self):
         self.verify_get(self.proxy.get_object, obj.Object,
