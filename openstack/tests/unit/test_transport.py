@@ -12,13 +12,10 @@
 # under the License.
 
 import json
-import logging
 
-import fixtures
 import mock
 import requests
 import requests_mock
-import six
 
 from openstack import exceptions
 from openstack.tests.unit import base
@@ -342,60 +339,6 @@ class TestTransport(TestTransportBase):
         exc = self.assertRaises(exceptions.HttpException, xport.get,
                                 self.TEST_URL)
         self.assertEqual(status, exc.status_code)
-
-
-class TestTransportDebug(TestTransportBase):
-
-    def setUp(self):
-        super(TestTransportDebug, self).setUp()
-
-        self.log_fixture = self.useFixture(
-            fixtures.FakeLogger(level=logging.DEBUG),
-        )
-
-    @requests_mock.Mocker()
-    def test_debug_post(self, mock_req):
-        mock_req.post(self.TEST_URL, text=fake_response)
-
-        xport = transport.Transport()
-        headers = {
-            'User-Agent': 'fake-curl',
-            'X-Random-Header': 'x-random-value',
-        }
-        params = {
-            'detailed-arg-name': 'qaz11 wsx22+edc33',
-            'ssh_config_dir': '~/myusername/.ssh',
-        }
-        resp = xport.post(
-            self.TEST_URL,
-            headers=headers,
-            params=params,
-            json=fake_record2,
-            accept=None,
-        )
-        self.assertEqual("POST", mock_req.last_request.method)
-        self.assertEqual(
-            json.dumps(fake_record2),
-            mock_req.last_request.body,
-        )
-        self.assertResponseOK(resp, body=fake_response)
-
-        self.assertIn('curl', self.log_fixture.output)
-        self.assertIn('POST', self.log_fixture.output)
-        self.assertIn(
-            'detailed-arg-name=qaz11+wsx22%2Bedc33',
-            self.log_fixture.output,
-        )
-        self.assertIn(
-            'ssh_config_dir=%7E%2Fmyusername%2F.ssh',
-            self.log_fixture.output,
-        )
-        self.assertIn(json.dumps(fake_record2), self.log_fixture.output)
-        self.assertIn(fake_response, self.log_fixture.output)
-
-        for k, v in six.iteritems(headers):
-            self.assertIn(k, self.log_fixture.output)
-            self.assertIn(v, self.log_fixture.output)
 
 
 class TestTransportRedirects(TestTransportBase):
