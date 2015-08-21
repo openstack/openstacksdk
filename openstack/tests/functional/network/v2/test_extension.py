@@ -17,10 +17,14 @@ from openstack.tests.functional import base
 
 class TestExtension(base.BaseFunctionalTest):
 
-    def test_list_and_find(self):
+    def test_list(self):
         extensions = list(self.conn.network.extensions())
         self.assertGreater(len(extensions), 0)
 
         for ext in extensions:
             self.assertIsInstance(ext.name, six.string_types)
             self.assertIsInstance(ext.alias, six.string_types)
+
+    def test_find(self):
+        extension = self.conn.network.find_extension('external-net')
+        self.assertEqual('Neutron external network', extension.name)
