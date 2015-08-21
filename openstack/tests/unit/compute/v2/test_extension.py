@@ -34,13 +34,14 @@ class TestExtension(testtools.TestCase):
         self.assertEqual('/extensions', sot.base_path)
         self.assertEqual('compute', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_retrieve)
+        self.assertTrue(sot.allow_retrieve)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
         sot = extension.Extension(EXAMPLE)
+        self.assertEqual(EXAMPLE['alias'], sot.id)
         self.assertEqual(EXAMPLE['alias'], sot.alias)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['links'], sot.links)
