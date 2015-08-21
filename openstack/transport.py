@@ -129,7 +129,7 @@ from openstack import exceptions
 #: Default value for the HTTP User-Agent header. The default includes the
 #: version information of the SDK as well as ``requests``, Python,
 #: and the operating system.
-USER_AGENT = "python-openstacksdk/%s %s" % (
+USER_AGENT = "openstacksdk/%s %s" % (
     openstack.__version__, requests.utils.default_user_agent())
 
 _logger = logging.getLogger(__name__)

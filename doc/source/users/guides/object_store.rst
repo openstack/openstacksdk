@@ -1,12 +1,15 @@
 Using OpenStack Object Store
 ============================
 
-The Object Store API operates on two things: containers and objects.
+Before working with the Object Store service, you'll need to create a
+connection to your OpenStack cloud by following the :doc:`connect` user
+guide. This will provide you with the ``conn`` variable used in the examples
+below.
 
-Before working with ``object_store``, you'll need to obtain a
-:class:`~openstack.connection.Connection` object like so.
+.. contents:: Table of Contents
+   :local:
 
-.. literalinclude:: /code/connection.py
+The primary resources of the Object Store service are containers and objects.
 
 Working with Containers
 -----------------------
