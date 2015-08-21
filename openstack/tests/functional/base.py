@@ -14,9 +14,9 @@ import os
 import time
 import unittest
 
-from openstack.auth import service_filter
 from openstack import connection
 from openstack import exceptions
+from openstack import service_filter
 
 
 def requires_service(**kwargs):
@@ -31,7 +31,7 @@ def requires_service(**kwargs):
         ...
 
     :param kwargs: The kwargs needed to create a
-                   :class:`~openstack.auth.service_filter.ServiceFilter`.
+                   :class:`~openstack.service_filter.ServiceFilter`.
 
     :returns: The test result if the test is executed.
     :raises: SkipTest, which is handled by the test runner.

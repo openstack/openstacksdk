@@ -13,9 +13,9 @@
 import six
 import testtools
 
-from openstack.auth import service_filter as filt
 from openstack import exceptions
 from openstack.identity import identity_service
+from openstack import service_filter as filt
 
 
 class TestServiceFilter(testtools.TestCase):

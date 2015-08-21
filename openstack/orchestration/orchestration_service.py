@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.auth import service_filter
+from openstack import service_filter
 
 
 class OrchestrationService(service_filter.ServiceFilter):

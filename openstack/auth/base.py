@@ -71,7 +71,7 @@ class BaseAuthPlugin(object):
         :param transport: Authenticator may need to make HTTP calls.
         :type transport: :class:`~openstack.transport.Transport`
         :param service: Filter to identify the desired service.
-        :type service: :class:`~openstack.auth.service_filter.ServiceFilter`
+        :type service: :class:`~openstack.service_filter.ServiceFilter`
 
         :returns string: The base URL that will be used to talk to the
                          required service or None if not available.
@@ -84,7 +84,7 @@ class BaseAuthPlugin(object):
         :param transport: Authenticator may need to make HTTP calls.
         :type transport: :class:`~openstack.transport.Transport`
         :param service: Filter to identify the desired service.
-        :type service: :class:`~openstack.auth.service_filter.ServiceFilter`
+        :type service: :class:`~openstack.service_filter.ServiceFilter`
 
         :returns list: Returns list of versions that match the filter.
         """

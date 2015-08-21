@@ -1,6 +1,6 @@
 # Apache 2 header omitted for brevity
 
-from openstack.auth import service_filter
+from openstack import service_filter
 
 
 class FakeService(service_filter.ServiceFilter):
