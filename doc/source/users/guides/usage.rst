@@ -5,7 +5,7 @@
 Usage
 =====
 
-To use python-openstacksdk in a project::
+To use openstacksdk in a project::
 
     from openstack import connection
     from openstack import profile
@@ -14,16 +14,12 @@ To use python-openstacksdk in a project::
     prof = profile.Profile()
     prof.set_region('network', 'zion')
 
-    # Second, create your authorization arguments
-    auth_args = {
-        'auth_url': 'http://172.20.1.108:5000/v3',
-        'project_name': 'hacker',
-        'username': 'neo',
-        'password': 'bluepill',
-    }
-
-    # Third, create a connection
-    conn = connection.Connection(profile=prof, **auth_args)
+    # Second, create a connection
+    conn = connection.Connection(profile=prof,
+                                 auth_url='http://172.20.1.108:5000/v3',
+                                 project_name='hacker',
+                                 username='neo',
+                                 password='bluepill')
 
     # Finally, access your desired services
     network = conn.network.find_network("matrix")
