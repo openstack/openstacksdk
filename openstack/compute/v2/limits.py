@@ -85,7 +85,7 @@ class Limits(resource.Resource):
         :returns: A Limits instance
         :rtype: :class:`~openstack.compute.v2.limits.Limits`
         """
-        body = self.get_data_by_id(session, self.id, path_args=self,
+        body = self.get_data_by_id(session, self.id,
                                    include_headers=include_headers)
 
         # Split the rates away from absolute limits. We can create
