@@ -3741,7 +3741,12 @@ class OperatorCloud(OpenStackCloud):
                 "ironic node %s failed to validate. "
                 "(deploy: %s, power: %s)" % (ifaces.deploy, ifaces.power))
 
-    def node_set_provision_state(self, name_or_id, state, configdrive=None):
+    def node_set_provision_state(self,
+                                 name_or_id,
+                                 state,
+                                 configdrive=None,
+                                 wait=False,
+                                 timeout=3600):
         """Set Node Provision State
 
         Enables a user to provision a Machine and optionally define a
@@ -3758,19 +3763,39 @@ class OperatorCloud(OpenStackCloud):
                                    configuration drive file and post the
                                    file contents to the API for
                                    deployment.
+        :param boolean wait: A boolean value, defaulted to false, to control
+                             if the method will wait for the desire end state
+                             to be reached before returning.
+        :param integer timeout: Integer value, defaulting to 3600 seconds,
+                                representing the amount of time to wait for
+                                the desire end state to be reached.
 
         :raises: OpenStackCloudException on operation error.
 
-        :returns: Per the API, no value should be returned with a successful
-                  operation.
+        :returns: Dictonary representing the current state of the machine
+                  upon exit of the method.
         """
         try:
-            return meta.obj_to_dict(
-                self.manager.submitTask(
-                    _tasks.MachineSetProvision(node_uuid=name_or_id,
-                                               state=state,
-                                               configdrive=configdrive))
-                )
+            machine = self.manager.submitTask(
+                _tasks.MachineSetProvision(node_uuid=name_or_id,
+                                           state=state,
+                                           configdrive=configdrive))
+
+            if wait:
+                for count in _utils._iterate_timeout(
+                        timeout,
+                        "Timeout waiting for node transition to "
+                        "target state of '%s'" % state):
+                    machine = self.get_machine(name_or_id)
+                    if state in machine['provision_state']:
+                        break
+                    if ("available" in machine['provision_state'] and
+                            "provide" in state):
+                        break
+            else:
+                machine = self.get_machine(name_or_id)
+            return machine
+
         except Exception as e:
             raise OpenStackCloudException(
                 "Baremetal machine node failed change provision"
