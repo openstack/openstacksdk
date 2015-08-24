@@ -152,13 +152,8 @@ class Object(resource.Resource):
         # leading slash gets dropped off here. Putting an empty leading value
         # in front of it causes it to get joined and replaced.
         url = utils.urljoin("", self.base_path % self, self.id)
-
-        # Only send actual headers, not potentially set body values and
-        # query parameters.
-        headers = self.get_headers()
-        resp = session.get(url, service=self.service, accept="bytes",
-                           headers=headers).content
-
+        # TODO(thowe): Add filter header support bug #1488269
+        resp = session.get(url, service=self.service, accept="bytes").content
         return resp
 
     def create(self, session):
