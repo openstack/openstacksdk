@@ -16,7 +16,7 @@ import testtools
 from openstack.telemetry.v2 import sample
 
 SAMPLE = {
-    'id': None,
+    'sample_id': '0',
     'metadata': {'1': 'one'},
     'counter_name': '2',
     'project_id': '3',
@@ -35,7 +35,7 @@ OLD_SAMPLE = {
     'counter_type': '2',
     'counter_unit': '3',
     'counter_volume': '4',
-    'message_id': None,
+    'message_id': '0',
     'project_id': '5',
     'recorded_at': '6',
     'resource_id': '7',
@@ -62,13 +62,12 @@ class TestSample(testtools.TestCase):
 
     def test_make_new(self):
         sot = sample.Sample(SAMPLE)
-        self.assertIsNone(sot.id)
+        self.assertEqual(SAMPLE['sample_id'], sot.id)
         self.assertEqual(SAMPLE['metadata'], sot.metadata)
         self.assertEqual(SAMPLE['counter_name'], sot.counter_name)
         self.assertEqual(SAMPLE['project_id'], sot.project_id)
         self.assertEqual(SAMPLE['recorded_at'], sot.recorded_at)
         self.assertEqual(SAMPLE['resource_id'], sot.resource_id)
-        self.assertIsNone(sot.sample_id)
         self.assertEqual(SAMPLE['source'], sot.source)
         self.assertEqual(SAMPLE['timestamp'], sot.generated_at)
         self.assertEqual(SAMPLE['type'], sot.type)
@@ -79,7 +78,6 @@ class TestSample(testtools.TestCase):
     def test_make_old(self):
         sot = sample.Sample(OLD_SAMPLE)
         self.assertIsNone(sot.id)
-        self.assertIsNone(sot.sample_id),
         self.assertEqual(OLD_SAMPLE['counter_name'], sot.counter_name)
         self.assertEqual(OLD_SAMPLE['counter_type'], sot.type)
         self.assertEqual(OLD_SAMPLE['counter_unit'], sot.unit)
@@ -101,8 +99,7 @@ class TestSample(testtools.TestCase):
 
         found = sample.Sample.list(sess, path_args=path_args)
         first = next(found)
-        self.assertIsNone(first.id)
-        self.assertIsNone(first.sample_id)
+        self.assertEqual(SAMPLE['sample_id'], first.id)
         self.assertEqual(SAMPLE['metadata'], first.metadata)
         self.assertEqual(SAMPLE['counter_name'], first.counter_name)
         self.assertEqual(SAMPLE['project_id'], first.project_id)
@@ -123,7 +120,7 @@ class TestSample(testtools.TestCase):
         resp.json = mock.Mock(return_value=[SAMPLE])
         sess.post = mock.Mock(return_value=resp)
 
-        data = {'id': None,
+        data = {'sample_id': None,
                 'counter_name': 'temperature',
                 'project_id': 'project',
                 'resource_id': 'resource',

@@ -34,8 +34,6 @@ class Sample(resource.Resource):
     recorded_at = resource.prop('recorded_at')
     #: The Resource this sample was taken for
     resource_id = resource.prop('resource_id')
-    #: The unique identifier for the sample
-    sample_id = resource.prop('id', alias='message_id')
     #: The source that identifies where the sample comes from
     source = resource.prop('source')
     #: When the sample has been generated

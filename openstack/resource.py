@@ -451,14 +451,15 @@ class Resource(collections.MutableMapping):
 
         # ensure setters are called for type coercion
         for key, value in itertools.chain(dict(*args).items(), kwargs.items()):
-            if key != "id":  # id property is read only
+            if key != self.id_attribute:  # id property is read only
 
                 # Don't allow None values to override a key unless we've
                 # explicitly specified they can. Proxy methods have default
                 # None arguments that we don't want to override any values
                 # that may have been passed in on Resource instances.
                 if not all([ignore_none, value is None]):
-                    setattr(self, key, value)
+                    if key != "id":
+                        setattr(self, key, value)
                     self[key] = value
 
     def get_headers(self):

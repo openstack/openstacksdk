@@ -20,7 +20,6 @@ FAKE = {
     'cluster_name': 'test_cluster',
     'data': {'purpose': 'unknown'},
     'enabled': True,
-    'id': 'c378e474-d091-43a3-b083-e19719291358',
     'policy_id': 'ac5415bd-f522-4160-8be0-f8853e4bc332',
     'policy_name': 'dp01',
     'policy_type': 'senlin.poicy.deletion-1.0',
