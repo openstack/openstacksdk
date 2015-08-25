@@ -46,7 +46,7 @@ class Generic(resource.Resource):
     metrics = resource.prop('metrics', type=dict)
 
     def create(self, session):
-        resp = self.create_by_id(session, self._attrs, None, path_args=self)
+        resp = self.create_by_id(session, self._attrs)
         self._attrs[self.id_attribute] = resp[self.id_attribute]
         self._reset_dirty()
         return self

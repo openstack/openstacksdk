@@ -52,7 +52,7 @@ class Keypair(resource.Resource):
         This is needed because the name is the id, but we can't create one
         with a PUT.  That and we need the private_key out of the response.
         """
-        resp = self.create_by_id(session, self._attrs, None, path_args=self)
+        resp = self.create_by_id(session, self._attrs)
         self._attrs = resp
         self._reset_dirty()
         return self
