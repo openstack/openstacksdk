@@ -129,7 +129,7 @@ class prop(object):
                 value != self.default):
             if issubclass(self.type, Resource):
                 if isinstance(value, six.string_types):
-                    value = self.type({"id": value})
+                    value = self.type({self.type.id_attribute: value})
                 else:
                     value = self.type(value)
             else:
