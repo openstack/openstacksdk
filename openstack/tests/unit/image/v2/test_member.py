@@ -29,7 +29,7 @@ class TestMember(testtools.TestCase):
         sot = member.Member()
         self.assertIsNone(sot.resource_key)
         self.assertEqual('members', sot.resources_key)
-        self.assertEqual('/images/%(image_id)/members', sot.base_path)
+        self.assertEqual('/images/%(image_id)s/members', sot.base_path)
         self.assertEqual('image', sot.service.service_type)
         self.assertEqual('member_id', sot.id_attribute)
         self.assertTrue(sot.allow_create)

@@ -17,7 +17,7 @@ from openstack import resource
 class Member(resource.Resource):
     id_attribute = 'member_id'
     resources_key = 'members'
-    base_path = '/images/%(image_id)/members'
+    base_path = '/images/%(image_id)s/members'
     service = image_service.ImageService()
 
     # capabilities
