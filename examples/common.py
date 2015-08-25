@@ -35,12 +35,10 @@ Typical environment variables to set and export for authentication include:
 import argparse
 import logging
 import os
-import subprocess
 import sys
 import traceback
 import uuid
 
-from openstack import profile
 from openstack import utils
 
 _logger = logging.getLogger('openstack.example')
@@ -82,72 +80,6 @@ def get_data_option(opts):
         return eval(data)
 
 
-def get_open_fds():
-    '''Return the open file descriptors for current process
-
-    .. warning: will only work on UNIX-like os-es.
-    '''
-    pid = os.getpid()
-    procs = subprocess.check_output(
-        ["lsof", '-w', '-Fftn0', "-p", str(pid)]
-    )
-    print('procs: %s' % procs)
-    print('netstat: %s' % subprocess.check_output(['netstat', '-nlt']))
-    procs_list = filter(
-        lambda s: s and s[0] == 'f' and s[1].isdigit(),
-        procs.split('\n')
-    )
-    return [d.replace('\000', '|') for d in procs_list]
-
-
-class ProfileAction(argparse.Action):
-    """A custom action to parse user proferences as key=value pairs
-
-    Stores results in users proferences object.
-    """
-    prof = profile.Profile()
-
-    @classmethod
-    def env(cls, *vars):
-        for v in vars:
-            values = os.environ.get(v, None)
-            if values is None:
-                continue
-            cls.set_option(v, values)
-            return cls.prof
-        return cls.prof
-
-    @classmethod
-    def set_option(cls, var, values):
-        if var == '--os-extensions':
-            cls.prof.load_extension(values)
-            return
-        if var == 'OS_REGION_NAME':
-            var = 'region'
-        var = var.replace('--os-api-', '')
-        var = var.replace('OS_API_', '')
-        var = var.lower()
-        for kvp in values.split(','):
-            if '=' in kvp:
-                service, value = kvp.split('=')
-            else:
-                service = cls.prof.ALL
-                value = kvp
-            if var == 'name':
-                cls.prof.set_name(service, value)
-            elif var == 'region':
-                cls.prof.set_region(service, value)
-            elif var == 'version':
-                cls.prof.set_version(service, value)
-            elif var == 'interface':
-                cls.prof.set_interface(service, value)
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        if getattr(namespace, self.dest, None) is None:
-            setattr(namespace, self.dest, ProfileAction.prof)
-        self.set_option(option_string, values)
-
-
 def env(*vars, **kwargs):
     """Search for the first defined of possibly many env vars
 
@@ -183,147 +115,6 @@ def option_parser():
               'https://pypi.python.org/pypi/os-client-config (Env: OS_CLOUD)')
     )
     parser.add_argument(
-        '--os-auth-plugin',
-        dest='auth_plugin',
-        metavar='<auth-plugin>',
-        default=env('OS_AUTH_PLUGIN', default=None),
-        help='Authentication plugin (Env: OS_AUTH_PLUGIN)',
-    )
-    parser.add_argument(
-        '--os-auth-url',
-        dest='auth_url',
-        metavar='<auth-url>',
-        default=env('OS_AUTH_URL'),
-        help='Authentication URL (Env: OS_AUTH_URL)',
-    )
-    parser.add_argument(
-        '--os-project-name',
-        dest='project_name',
-        metavar='<auth-project-name>',
-        default=env('OS_PROJECT_NAME', default=env('OS_TENANT_NAME')),
-        help='Project name of the requested project-level'
-             'authorization scope (Env: OS_PROJECT_NAME)',
-    )
-    parser.add_argument(
-        '--os-domain-name',
-        dest='domain_name',
-        metavar='<auth-domain-name>',
-        default=env('OS_DOMAIN_NAME'),
-        help='Domain name for scope of '
-             'authorization (Env: OS_DOMAIN_NAME)',
-    )
-    parser.add_argument(
-        '--os-project-domain-name',
-        dest='project_domain_name',
-        metavar='<auth-project-domain-name>',
-        default=env('OS_PROJECT_DOMAIN_NAME'),
-        help='Project domain name for scope of '
-             'authorization (Env: OS_PROJECT_DOMAIN_NAME)',
-    )
-    parser.add_argument(
-        '--os-user-domain-name',
-        dest='user_domain_name',
-        metavar='<auth-user-domain-name>',
-        default=env('OS_USER_DOMAIN_NAME'),
-        help='User domain name for scope of '
-             'authorization (Env: OS_USER_DOMAIN_NAME)',
-    )
-    parser.add_argument(
-        '--os-username',
-        dest='username',
-        metavar='<auth-username>',
-        default=env('OS_USERNAME'),
-        help='Authentication username (Env: OS_USERNAME)',
-    )
-    parser.add_argument(
-        '--os-password',
-        dest='password',
-        metavar='<auth-password>',
-        default=env('OS_PASSWORD'),
-        help='Authentication password (Env: OS_PASSWORD)',
-    )
-    parser.add_argument(
-        '--os-access-info',
-        dest='access_info',
-        metavar='<access-info>',
-        default=env('OS_ACCESS_INFO'),
-        help='Access info (Env: OS_ACCESS_INFO)',
-    )
-    parser.add_argument(
-        '--os-extensions',
-        dest='user_preferences',
-        metavar='<namespace>',
-        action=ProfileAction,
-        default=ProfileAction.env('OS_EXTENSIONS'),
-        help='Entry point for namespace for service extensions'
-             ' env[OS_EXTENSIONS]',
-    )
-    parser.add_argument(
-        '--os-api-name',
-        dest='preferences',
-        metavar='<service>=<name>',
-        action=ProfileAction,
-        default=ProfileAction.env('OS_API_NAME'),
-        help='Desired API names defaults to env[OS_API_NAME]',
-    )
-    parser.add_argument(
-        '--os-api-region',
-        dest='preferences',
-        metavar='<service>=<region>',
-        action=ProfileAction,
-        default=ProfileAction.env('OS_API_REGION', 'OS_REGION_NAME'),
-        help='Desired API region defaults to env[OS_API_REGION]',
-    )
-    parser.add_argument(
-        '--os-api-version',
-        dest='preferences',
-        metavar='<service>=<version>',
-        action=ProfileAction,
-        default=ProfileAction.env('OS_API_VERSION'),
-        help='Desired API versions defaults to env[OS_API_VERSION]',
-    )
-    parser.add_argument(
-        '--os-api-interface',
-        dest='preferences',
-        metavar='<service>=<interface>',
-        action=ProfileAction,
-        default=ProfileAction.env('OS_INTERFACE'),
-        help='Desired API interface defaults to env[OS_INTERFACE]',
-    )
-    verify_group = parser.add_mutually_exclusive_group()
-    verify_group.add_argument(
-        '--os-cacert',
-        dest='verify',
-        metavar='<ca-bundle-file>',
-        default=env('OS_CACERT', default=True),
-        help='CA certificate bundle file (Env: OS_CACERT)',
-    )
-    verify_group.add_argument(
-        '--verify',
-        action='store_true',
-        help='Verify server certificate (default)',
-    )
-    verify_group.add_argument(
-        '--insecure',
-        dest='verify',
-        action='store_false',
-        help='Disable server certificate verification',
-    )
-    parser.add_argument(
-        '--os-token',
-        dest='token',
-        metavar='<token>',
-        default=env('OS_TOKEN', default=None),
-        help='Defaults to env[OS_TOKEN]',
-    )
-    parser.add_argument(
-        '--os-trust-id',
-        dest='trust_id',
-        metavar='<trust_id>',
-        default=env('OS_TRUST_ID', default=None),
-        help='Defaults to env[OS_TRUST_ID]',
-    )
-    parser.add_argument(
         '--data',
         metavar='<data>',
         default={},
@@ -337,6 +128,7 @@ def option_parser():
         help='Increase verbosity of output. Can be repeated.',
     )
     parser.add_argument(
+
         '--debug',
         default=False,
         action='store_true',
