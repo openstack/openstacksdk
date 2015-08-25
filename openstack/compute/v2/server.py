@@ -13,7 +13,6 @@
 from openstack.compute import compute_service
 from openstack.compute.v2 import flavor
 from openstack.compute.v2 import image
-from openstack.compute.v2 import server_ip
 from openstack import resource
 from openstack import utils
 
@@ -76,11 +75,6 @@ class Server(resource.Resource):
     updated_at = resource.prop('updated')
     #: The user ID associated with this server.
     user_id = resource.prop('user_id')
-
-    def ips(self, session):
-        """Get server IPs."""
-        path_args = {'server_id': self.id}
-        return server_ip.ServerIP.list(session, path_args=path_args)
 
     def action(self, session, body):
         """Preform server actions given the message body."""
