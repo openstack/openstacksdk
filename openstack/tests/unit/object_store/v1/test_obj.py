@@ -108,7 +108,7 @@ class TestObject(testtools.TestCase):
 
         rv = sot.get(self.sess)
 
-        url = "/%s/%s" % (CONTAINER_NAME, OBJECT_NAME)
+        url = "%s/%s" % (CONTAINER_NAME, OBJECT_NAME)
         # TODO(thowe): Should allow filtering bug #1488269
         # headers = {
         #     "x-newest": True,
@@ -126,7 +126,7 @@ class TestObject(testtools.TestCase):
 
         rv = sot.create(self.sess)
 
-        url = "/%s/%s" % (CONTAINER_NAME, OBJECT_NAME)
+        url = "%s/%s" % (CONTAINER_NAME, OBJECT_NAME)
         method.assert_called_with(url, service=sot.service, data=data,
                                   accept=accept, headers=headers)
         self.assertEqual(self.resp.headers, rv.get_headers())

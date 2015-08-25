@@ -13,7 +13,6 @@
 
 from openstack.object_store import object_store_service
 from openstack import resource
-from openstack import utils
 
 
 class Object(resource.Resource):
@@ -148,17 +147,14 @@ class Object(resource.Resource):
     delete_after = resource.header("x-delete-after", type=int)
 
     def get(self, session):
-        # When joining the base_path part and the id part, base_path's
-        # leading slash gets dropped off here. Putting an empty leading value
-        # in front of it causes it to get joined and replaced.
-        url = utils.urljoin("", self.base_path % self, self.id)
+        url = self._get_url(self, self.id)
         # TODO(thowe): Add filter header support bug #1488269
         resp = session.get(url, service=self.service, accept="bytes").content
         return resp
 
     def create(self, session):
         """Create a remote resource from this instance."""
-        url = utils.urljoin("", self.base_path % self, self.id)
+        url = self._get_url(self, self.id)
 
         headers = self.get_headers()
         if self.data is not None:
