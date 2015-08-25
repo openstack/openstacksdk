@@ -891,42 +891,42 @@ class Resource(collections.MutableMapping):
         :raises: :class:`openstack.exceptions.ResourceNotFound` if nothing
                  is found and ignore_missing is ``False``.
         """
-        def get_one_match(generator, attr, raise_exception):
-            try:
-                first = next(generator)
-                if any(generator):
-                    if raise_exception:
+        # Only return one matching resource.
+        def get_one_match(results, the_id, the_name):
+            the_result = None
+            for item in results:
+                maybe_result = cls.existing(**item)
+
+                id_value, name_value = None, None
+                if the_id is not None:
+                    id_value = getattr(maybe_result, the_id, None)
+                if the_name is not None:
+                    name_value = getattr(maybe_result, the_name, None)
+
+                if (id_value == name_or_id) or (name_value == name_or_id):
+                    # Only allow one resource to be found. If we already
+                    # found a match, raise an exception to show it.
+                    if the_result is None:
+                        the_result = maybe_result
+                    else:
                         msg = "More than one %s exists with the name '%s'."
                         msg = (msg % (cls.get_resource_name(), name_or_id))
                         raise exceptions.DuplicateResource(msg)
-                    return None
-            except StopIteration:
-                return None
-            result = cls.existing(**first)
-            value = getattr(result, attr, False)
-            if value == name_or_id:
-                return result
-            return None
 
+            return the_result
+
+        # Try to short-circuit by looking directly for a matching ID.
         try:
             if cls.allow_retrieve:
                 return cls.get_by_id(session, name_or_id, path_args=path_args)
-            params = {'limit': 2}
-            params[cls.id_attribute] = name_or_id
-            info = cls.list(session, path_args=path_args, params=params)
-            result = get_one_match(info, cls.id_attribute, False)
-            if result is not None:
-                return result
         except exceptions.HttpException:
             pass
 
-        if cls.name_attribute:
-            params = {'limit': 2}
-            params[cls.name_attribute] = name_or_id
-            info = cls.list(session, path_args=path_args, params=params)
-            result = get_one_match(info, cls.name_attribute, True)
-            if result is not None:
-                return result
+        data = cls.list(session, path_args=path_args)
+
+        result = get_one_match(data, cls.id_attribute, cls.name_attribute)
+        if result is not None:
+            return result
 
         if ignore_missing:
             return None

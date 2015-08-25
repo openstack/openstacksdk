@@ -1181,9 +1181,6 @@ class TestFind(base.TestCase):
         self.assertEqual(self.NAME, result.name)
         self.assertEqual(self.PROP, result.prop)
 
-        p = {'limit': 2, 'name': self.NAME}
-        self.assertEqual(p, self.mock_get.call_args[1]['params'])
-
     def test_id(self):
         self.mock_get.side_effect = [
             FakeResponse({FakeResource.resource_key: self.matrix})
@@ -1212,14 +1209,13 @@ class TestFind(base.TestCase):
         self.assertEqual(self.ID, result.id)
         self.assertEqual(self.PROP, result.prop)
 
-        p = {'id': self.ID, 'limit': 2}
-        self.assertEqual(p, self.mock_get.call_args[1]['params'])
-
     def test_dups(self):
-        dup = {'id': 'Larry'}
+        dupe = self.matrix.copy()
+        dupe['id'] = 'different'
         self.mock_get.side_effect = [
+            # Raise a 404 first so we get out of the ID search and into name.
             exceptions.HttpException(404, 'not found'),
-            FakeResponse({FakeResource.resources_key: [self.matrix, dup]})
+            FakeResponse({FakeResource.resources_key: [self.matrix, dupe]})
         ]
 
         self.assertRaises(exceptions.DuplicateResource, FakeResource.find,
