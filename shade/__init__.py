@@ -3477,7 +3477,8 @@ class OperatorCloud(OpenStackCloud):
         except ironic_exceptions.ClientException:
             return None
 
-    def register_machine(self, nics, **kwargs):
+    def register_machine(self, nics, wait=False, timeout=3600,
+                         lock_timeout=600, **kwargs):
         """Register Baremetal with Ironic
 
         Allows for the registration of Baremetal nodes with Ironic
@@ -3501,6 +3502,18 @@ class OperatorCloud(OpenStackCloud):
                   {'mac': 'aa:bb:cc:dd:ee:02'}
               ]
 
+        :param wait: Boolean value, defaulting to false, to wait for the
+                     node to reach the available state where the node can be
+                     provisioned. It must be noted, when set to false, the
+                     method will still wait for locks to clear before sending
+                     the next required command.
+
+        :param timeout: Integer value, defautling to 3600 seconds, for the
+                        wait state to reach completion.
+
+        :param lock_timeout: Integer value, defaulting to 600 seconds, for
+                             locks to clear.
+
         :param kwargs: Key value pairs to be passed to the Ironic API,
                        including uuid, name, chassis_uuid, driver_info,
                        parameters.
@@ -3511,8 +3524,9 @@ class OperatorCloud(OpenStackCloud):
                   baremetal node.
         """
         try:
-            machine = self.manager.submitTask(
-                _tasks.MachineCreate(**kwargs))
+            machine = meta.obj_to_dict(
+                self.manager.submitTask(_tasks.MachineCreate(**kwargs)))
+
         except Exception as e:
             self.log.debug("ironic machine registration failed", exc_info=True)
             raise OpenStackCloudException(
@@ -3523,7 +3537,7 @@ class OperatorCloud(OpenStackCloud):
             for row in nics:
                 nic = self.manager.submitTask(
                     _tasks.MachinePortCreate(address=row['mac'],
-                                             node_uuid=machine.uuid))
+                                             node_uuid=machine['uuid']))
                 created_nics.append(nic.uuid)
 
         except Exception as e:
@@ -3539,11 +3553,77 @@ class OperatorCloud(OpenStackCloud):
                         pass
             finally:
                 self.manager.submitTask(
-                    _tasks.MachineDelete(node_id=machine.uuid))
+                    _tasks.MachineDelete(node_id=machine['uuid']))
             raise OpenStackCloudException(
                 "Error registering NICs with the baremetal service: %s"
                 % str(e))
-        return meta.obj_to_dict(machine)
+
+        try:
+            if wait:
+                for count in _utils._iterate_timeout(
+                        timeout,
+                        "Timeout waiting for node transition to "
+                        "available state"):
+
+                    machine = self.get_machine(machine['uuid'])
+
+                    # Note(TheJulia): Per the Ironic state code, a node
+                    # that fails returns to enroll state, which means a failed
+                    # node cannot be determined at this point in time.
+                    if machine['provision_state'] in ['enroll']:
+                        self.node_set_provision_state(
+                            machine['uuid'], 'manage')
+                    elif machine['provision_state'] in ['manageable']:
+                        self.node_set_provision_state(
+                            machine['uuid'], 'provide')
+                    elif machine['last_error'] is not None:
+                        raise OpenStackCloudException(
+                            "Machine encountered a failure: %s"
+                            % machine['last_error'])
+
+                    # Note(TheJulia): Earlier versions of Ironic default to
+                    # None and later versions default to available up until
+                    # the introduction of enroll state.
+                    # Note(TheJulia): The node will transition through
+                    # cleaning if it is enabled, and we will wait for
+                    # completion.
+                    elif machine['provision_state'] in ['available', None]:
+                        break
+
+            else:
+                if machine['provision_state'] in ['enroll']:
+                    self.node_set_provision_state(machine['uuid'], 'manage')
+                    # Note(TheJulia): We need to wait for the lock to clear
+                    # before we attempt to set the machine into provide state
+                    # which allows for the transition to available.
+                    for count in _utils._iterate_timeout(
+                            lock_timeout,
+                            "Timeout waiting for reservation to clear "
+                            "before setting provide state"):
+                        machine = self.get_machine(machine['uuid'])
+                        if (machine['reservation'] is None and
+                           machine['provision_state'] is not 'enroll'):
+
+                            self.node_set_provision_state(
+                                machine['uuid'], 'provide')
+                            machine = self.get_machine(machine['uuid'])
+                            break
+
+                        elif machine['provision_state'] in [
+                                'cleaning',
+                                'available']:
+                            break
+
+                        elif machine['last_error'] is not None:
+                            raise OpenStackCloudException(
+                                "Machine encountered a failure: %s"
+                                % machine['last_error'])
+
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Error transitioning node to available state: %s"
+                % e)
+        return machine
 
     def unregister_machine(self, nics, uuid):
         """Unregister Baremetal from Ironic

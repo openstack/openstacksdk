@@ -367,20 +367,155 @@ class TestShadeOperator(base.TestCase):
     def test_register_machine(self, mock_client):
         class fake_node:
             uuid = "00000000-0000-0000-0000-000000000000"
+            provision_state = "available"
+            reservation = None
+            last_error = None
 
         expected_return_value = dict(
             uuid="00000000-0000-0000-0000-000000000000",
+            provision_state="available",
+            reservation=None,
+            last_error=None
         )
         mock_client.node.create.return_value = fake_node
+        mock_client.node.get.return_value = fake_node
         nics = [{'mac': '00:00:00:00:00:00'}]
         return_value = self.cloud.register_machine(nics)
         self.assertDictEqual(expected_return_value, return_value)
         self.assertTrue(mock_client.node.create.called)
         self.assertTrue(mock_client.port.create.called)
+        self.assertFalse(mock_client.node.get.called)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    @mock.patch.object(shade.OperatorCloud, 'node_set_provision_state')
+    def test_register_machine_enroll(
+            self,
+            mock_set_state,
+            mock_client):
+        machine_uuid = "00000000-0000-0000-0000-000000000000"
+
+        class fake_node_init_state:
+            uuid = machine_uuid
+            provision_state = "enroll"
+            reservation = None
+            last_error = None
+
+        class fake_node_post_manage:
+            uuid = machine_uuid
+            provision_state = "enroll"
+            reservation = "do you have a flag?"
+            last_error = None
+
+        class fake_node_post_manage_done:
+            uuid = machine_uuid
+            provision_state = "manage"
+            reservation = None
+            last_error = None
+
+        class fake_node_post_provide:
+            uuid = machine_uuid
+            provision_state = "available"
+            reservation = None
+            last_error = None
+
+        class fake_node_post_enroll_failure:
+            uuid = machine_uuid
+            provision_state = "enroll"
+            reservation = None
+            last_error = "insufficent lolcats"
+
+        expected_return_value = dict(
+            uuid=machine_uuid,
+            provision_state="available",
+            reservation=None,
+            last_error=None
+        )
+
+        mock_client.node.get.side_effect = iter([
+            fake_node_init_state,
+            fake_node_post_manage,
+            fake_node_post_manage_done,
+            fake_node_post_provide])
+        mock_client.node.create.return_value = fake_node_init_state
+        nics = [{'mac': '00:00:00:00:00:00'}]
+        return_value = self.cloud.register_machine(nics)
+        self.assertDictEqual(expected_return_value, return_value)
+        self.assertTrue(mock_client.node.create.called)
+        self.assertTrue(mock_client.port.create.called)
+        self.assertTrue(mock_client.node.get.called)
+        mock_client.reset_mock()
+        mock_client.node.get.side_effect = iter([
+            fake_node_init_state,
+            fake_node_post_manage,
+            fake_node_post_manage_done,
+            fake_node_post_provide])
+        return_value = self.cloud.register_machine(nics, wait=True)
+        self.assertDictEqual(expected_return_value, return_value)
+        self.assertTrue(mock_client.node.create.called)
+        self.assertTrue(mock_client.port.create.called)
+        self.assertTrue(mock_client.node.get.called)
+        mock_client.reset_mock()
+        mock_client.node.get.side_effect = iter([
+            fake_node_init_state,
+            fake_node_post_manage,
+            fake_node_post_enroll_failure])
+        self.assertRaises(
+            shade.OpenStackCloudException,
+            self.cloud.register_machine,
+            nics)
+        self.assertRaises(
+            shade.OpenStackCloudException,
+            self.cloud.register_machine,
+            nics,
+            wait=True)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    @mock.patch.object(shade.OperatorCloud, 'node_set_provision_state')
+    def test_register_machine_enroll_timeout(
+            self,
+            mock_set_state,
+            mock_client):
+        machine_uuid = "00000000-0000-0000-0000-000000000000"
+
+        class fake_node_init_state:
+            uuid = machine_uuid
+            provision_state = "enroll"
+            reservation = "do you have a flag?"
+            last_error = None
+
+        mock_client.node.get.return_value = fake_node_init_state
+        mock_client.node.create.return_value = fake_node_init_state
+        nics = [{'mac': '00:00:00:00:00:00'}]
+        self.assertRaises(
+            shade.OpenStackCloudException,
+            self.cloud.register_machine,
+            nics,
+            lock_timeout=0.001)
+        self.assertTrue(mock_client.node.create.called)
+        self.assertTrue(mock_client.port.create.called)
+        self.assertTrue(mock_client.node.get.called)
+        mock_client.node.get.reset_mock()
+        mock_client.node.create.reset_mock()
+        self.assertRaises(
+            shade.OpenStackCloudException,
+            self.cloud.register_machine,
+            nics,
+            wait=True,
+            timeout=0.001)
+        self.assertTrue(mock_client.node.create.called)
+        self.assertTrue(mock_client.port.create.called)
+        self.assertTrue(mock_client.node.get.called)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_register_machine_port_create_failed(self, mock_client):
+        class fake_node:
+            uuid = "00000000-0000-0000-0000-000000000000"
+            provision_state = "available"
+            resevation = None
+            last_error = None
+
         nics = [{'mac': '00:00:00:00:00:00'}]
+        mock_client.node.create.return_value = fake_node
         mock_client.port.create.side_effect = (
             exc.OpenStackCloudException("Error"))
         self.assertRaises(exc.OpenStackCloudException,
