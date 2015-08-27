@@ -535,6 +535,22 @@ class TestShadeOperator(base.TestCase):
         self.assertTrue(mock_client.port.get_by_address.called)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_unregister_machine_timeout(self, mock_client):
+        nics = [{'mac': '00:00:00:00:00:00'}]
+        uuid = "00000000-0000-0000-0000-000000000000"
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.cloud.unregister_machine,
+            nics,
+            uuid,
+            wait=True,
+            timeout=0.001)
+        self.assertTrue(mock_client.node.delete.called)
+        self.assertTrue(mock_client.port.delete.called)
+        self.assertTrue(mock_client.port.get_by_address.called)
+        self.assertTrue(mock_client.node.get.called)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_set_machine_maintenace_state(self, mock_client):
         mock_client.node.set_maintenance.return_value = None
         node_id = 'node01'
