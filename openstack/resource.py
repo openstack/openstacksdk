@@ -496,6 +496,13 @@ class Resource(collections.MutableMapping):
         return converted
 
     @classmethod
+    def _get_create_body(cls, attrs):
+        if cls.resource_key:
+            return {cls.resource_key: attrs}
+        else:
+            return attrs
+
+    @classmethod
     def _get_url(cls, path_args=None, resource_id=None):
         if path_args:
             url = cls.base_path % path_args
@@ -530,10 +537,7 @@ class Resource(collections.MutableMapping):
         attrs = cls._convert_ids(attrs)
         headers = attrs.pop(HEADERS, None)
 
-        if cls.resource_key:
-            body = {cls.resource_key: attrs}
-        else:
-            body = attrs
+        body = cls._get_create_body(attrs)
 
         url = cls._get_url(path_args, resource_id)
         args = {'json': body}

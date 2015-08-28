@@ -76,6 +76,16 @@ class Server(resource.Resource):
     #: The user ID associated with this server.
     user_id = resource.prop('user_id')
 
+    @classmethod
+    def _get_create_body(cls, attrs):
+        body = {}
+        if 'scheduler_hints' in attrs:
+            hints = attrs.pop('scheduler_hints')
+            body['os:scheduler_hints'] = hints
+        body[cls.resource_key] = attrs
+
+        return body
+
     def action(self, session, body):
         """Preform server actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'action')
