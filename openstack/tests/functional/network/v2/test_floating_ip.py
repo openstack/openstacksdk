@@ -123,7 +123,8 @@ class TestFloatingIP(base.BaseFunctionalTest):
 
     def test_find_available_ip(self):
         sot = self.conn.network.find_available_ip()
-        self.assertEqual(self.FIP_ID, sot.id)
+        self.assertIsNotNone(sot.id)
+        self.assertIsNone(sot.port_id)
 
     def test_get(self):
         sot = self.conn.network.get_ip(self.FIP_ID)
