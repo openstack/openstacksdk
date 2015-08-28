@@ -94,7 +94,11 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
                          self.proxy.find_sample)
 
     def test_samples(self):
-        self.verify_list(self.proxy.samples, sample.Sample, paginated=False)
+        met = meter.Meter.existing(name='meterone')
+        expected_kwargs = {'path_args': {'counter_name': 'meterone'}}
+        self.verify_list(self.proxy.samples, sample.Sample,
+                         method_args=[met],
+                         paginated=False, expected_kwargs=expected_kwargs)
 
     def test_statistics_find(self):
         self.verify_find('openstack.telemetry.v2.statistics.Statistics.find',
