@@ -73,9 +73,9 @@ class TestProxyBase(base.TestCase):
                       mock_method="openstack.proxy.BaseProxy._create",
                       expected_result="result", **kwargs):
         the_kwargs = {"x": 1, "y": 2, "z": 3}
-        method_kwargs = the_kwargs
+        method_kwargs = kwargs.pop("method_kwargs", the_kwargs)
         expected_args = [resource_type]
-        expected_kwargs = the_kwargs
+        expected_kwargs = kwargs.pop("expected_kwargs", the_kwargs)
 
         self._verify2(mock_method, test_method,
                       expected_result=expected_result,
