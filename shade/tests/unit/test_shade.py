@@ -119,13 +119,13 @@ class TestShade(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
     @mock.patch.object(glanceclient, 'Client')
-    def test_glance_ssl_args(self, mock_client, mock_keystone_session):
+    def test_glance_args(self, mock_client, mock_keystone_session):
         mock_keystone_session.return_value = None
         self.cloud.glance_client
         mock_client.assert_called_with(
-            '1', mock.ANY, token=mock.ANY, session=mock.ANY,
-            insecure=False,
-            cacert=None,
+            version='1', region_name='', service_name=None,
+            interface='public',
+            service_type='image', session=mock.ANY,
         )
 
     @mock.patch.object(shade.OpenStackCloud, 'search_subnets')

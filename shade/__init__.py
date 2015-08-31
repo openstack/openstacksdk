@@ -598,29 +598,27 @@ class OpenStackCloud(object):
 
     @property
     def glance_client(self):
-        # Note that glanceclient doesn't use keystoneclient sessions
-        # which means that it won't make a new token if the old one has
-        # expired. Work around that by always making a new glanceclient here
-        # which may create a new token if the current one is close to
-        # expiration.
-        token = self.auth_token
-        endpoint = self.get_session_endpoint('image')
-        kwargs = dict()
-        if self.api_timeout is not None:
-            kwargs['timeout'] = self.api_timeout
+        service_key = 'image'
         try:
+            # trigger exception on lack of service
+            self.get_session_endpoint(service_key)
             self._glance_client = glanceclient.Client(
-                self.cloud_config.get_api_version('image'),
-                endpoint, token=token,
-                session=self.keystone_session, insecure=not self.verify,
-                cacert=self.cert, **kwargs)
-        except Exception as e:
-            self.log.debug("glance unknown issue", exc_info=True)
+                version=self.cloud_config.get_api_version(service_key),
+                session=self.keystone_session,
+                service_name=self.cloud_config.get_service_name(service_key),
+                service_type=self.cloud_config.get_service_type(service_key),
+                interface=self.cloud_config.get_interface(service_key),
+                region_name=self.region_name)
+        except Exception:
+            self.log.debug(
+                "Couldn't construct {service} object".format(
+                    service=service_key), exc_info=True)
+            raise
+        if self._glance_client is None:
             raise OpenStackCloudException(
-                "Error in connecting to glance: %s" % str(e))
-
-        if not self._glance_client:
-            raise OpenStackCloudException("Error connecting to glance")
+                "Failed to instantiate {service} client."
+                " This could mean that your credentials are wrong.".format(
+                    service=service_key))
         return self._glance_client
 
     @property
