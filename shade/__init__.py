@@ -318,8 +318,7 @@ class OpenStackCloud(object):
                 service_name=self.cloud_config.get_service_name(service_key),
                 service_type=self.cloud_config.get_service_type(service_key),
                 endpoint_type=self.cloud_config.get_interface(service_key),
-                region_name=self.region_name,
-                timeout=self.api_timeout)
+                region_name=self.region_name)
         except Exception:
             self.log.debug(
                 "Couldn't construct {service} object".format(
@@ -378,7 +377,8 @@ class OpenStackCloud(object):
                 self._keystone_session = ksc_session.Session(
                     auth=keystone_auth,
                     verify=self.verify,
-                    cert=self.cert)
+                    cert=self.cert,
+                    timeout=self.api_timeout)
             except Exception as e:
                 self.log.debug("keystone unknown issue", exc_info=True)
                 raise OpenStackCloudException(
@@ -390,8 +390,7 @@ class OpenStackCloud(object):
         if self._keystone_client is None:
             try:
                 self._keystone_client = self._get_identity_client_class()(
-                    session=self.keystone_session,
-                    timeout=self.api_timeout)
+                    session=self.keystone_session)
             except Exception as e:
                 self.log.debug(
                     "Couldn't construct keystone object", exc_info=True)
@@ -686,7 +685,6 @@ class OpenStackCloud(object):
                 session=self.keystone_session,
                 region_name=self.region_name,
                 service_type=self.cloud_config.get_service_type('database'),
-                timeout=self.api_timeout,
             )
 
             if self._trove_client is None:
@@ -706,8 +704,7 @@ class OpenStackCloud(object):
             self._neutron_client = neutron_client.Client(
                 token=self.auth_token,
                 session=self.keystone_session,
-                region_name=self.region_name,
-                timeout=self.api_timeout)
+                region_name=self.region_name)
         return self._neutron_client
 
     @property
