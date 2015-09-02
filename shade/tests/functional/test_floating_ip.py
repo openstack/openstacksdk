@@ -139,15 +139,20 @@ class TestFloatingIP(base.TestCase):
             # wrong
             raise OpenStackCloudException('\n'.join(exception_list))
 
-    def _cleanup_ips(self, ips):
+    def _cleanup_ips(self, server):
+
         exception_list = list()
 
-        for ip in ips:
-            try:
-                self.cloud.delete_floating_ip(ip)
-            except Exception as e:
-                exception_list.append(e)
-                continue
+        fixed_ip = meta.get_server_private_ip(server)
+
+        for ip in self.cloud.list_floating_ips():
+            if (ip.get('fixed_ip', None) == fixed_ip
+                    or ip.get('fixed_ip_address', None) == fixed_ip):
+                try:
+                    self.cloud.delete_floating_ip(ip['id'])
+                except Exception as e:
+                    exception_list.append(e)
+                    continue
 
         if exception_list:
             # Raise an error: we must make users aware that something went
@@ -205,7 +210,7 @@ class TestFloatingIP(base.TestCase):
                 break
             new_server = self.cloud.get_server(new_server.id)
 
-        self.addCleanup(self._cleanup_ips, [ip])
+        self.addCleanup(self._cleanup_ips, new_server)
 
     def test_detach_ip_from_server(self):
         self._setup_networks()
@@ -225,7 +230,7 @@ class TestFloatingIP(base.TestCase):
                 break
             new_server = self.cloud.get_server(new_server.id)
 
-        self.addCleanup(self._cleanup_ips, [ip])
+        self.addCleanup(self._cleanup_ips, new_server)
 
         f_ip = self.cloud.get_floating_ip(
             id=None, filters={'floating_ip_address': ip})
