@@ -54,7 +54,7 @@ class TestEndpoints(base.TestCase):
                     self.operator_cloud.delete_endpoint(id=e['id'])
                 except Exception as e:
                     # We were unable to delete a service, let's try with next
-                    exception_list.append(e)
+                    exception_list.append(str(e))
                     continue
         if exception_list:
             # Raise an error: we must make users aware that something went
@@ -70,7 +70,7 @@ class TestEndpoints(base.TestCase):
                     self.operator_cloud.delete_service(name_or_id=s['id'])
                 except Exception as e:
                     # We were unable to delete a service, let's try with next
-                    exception_list.append(e)
+                    exception_list.append(str(e))
                     continue
         if exception_list:
             # Raise an error: we must make users aware that something went

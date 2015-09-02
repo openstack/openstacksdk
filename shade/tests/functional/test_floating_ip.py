@@ -93,7 +93,7 @@ class TestFloatingIP(base.TestCase):
                                     pass
                         self.cloud.delete_router(name_or_id=r['id'])
                 except Exception as e:
-                    exception_list.append(e)
+                    exception_list.append(str(e))
                     continue
             # Delete subnets
             for s in self.cloud.list_subnets():
@@ -101,7 +101,7 @@ class TestFloatingIP(base.TestCase):
                     try:
                         self.cloud.delete_subnet(name_or_id=s['id'])
                     except Exception as e:
-                        exception_list.append(e)
+                        exception_list.append(str(e))
                         continue
             # Delete networks
             for n in self.cloud.list_networks():
@@ -109,7 +109,7 @@ class TestFloatingIP(base.TestCase):
                     try:
                         self.cloud.delete_network(name_or_id=n['id'])
                     except Exception as e:
-                        exception_list.append(e)
+                        exception_list.append(str(e))
                         continue
 
         if exception_list:
@@ -131,7 +131,7 @@ class TestFloatingIP(base.TestCase):
                     except nova_exc.NotFound:
                         break
                     except Exception as e:
-                        exception_list.append(e)
+                        exception_list.append(str(e))
                         continue
 
         if exception_list:
@@ -151,7 +151,7 @@ class TestFloatingIP(base.TestCase):
                 try:
                     self.cloud.delete_floating_ip(ip['id'])
                 except Exception as e:
-                    exception_list.append(e)
+                    exception_list.append(str(e))
                     continue
 
         if exception_list:
