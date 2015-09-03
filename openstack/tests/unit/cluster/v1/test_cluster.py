@@ -78,7 +78,7 @@ class TestCluster(testtools.TestCase):
 
     def test_instantiate(self):
         sot = cluster.Cluster(FAKE)
-        self.assertEqual(FAKE['id'], sot.id)
+        self.assertIsNone(sot.id)
         self.assertEqual(FAKE['name'], sot.name)
 
         self.assertEqual(FAKE['profile_id'], sot.profile_id)

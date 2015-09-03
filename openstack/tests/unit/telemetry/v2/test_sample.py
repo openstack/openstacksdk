@@ -135,5 +135,5 @@ class TestSample(testtools.TestCase):
         new_sample.create(sess)
         url = '/meters/temperature'
         sess.post.assert_called_with(url, service=new_sample.service,
-                                     json=[SAMPLE])
+                                     json=[data])
         self.assertIsNone(new_sample.id)

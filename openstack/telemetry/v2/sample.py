@@ -58,7 +58,9 @@ class Sample(resource.Resource):
     def create(self, session):
         url = self._get_url(self)
         # telemetry expects a list of samples
-        resp = session.post(url, service=self.service, json=[self._attrs])
+        attrs = self._attrs.copy()
+        attrs.pop('meter', None)
+        resp = session.post(url, service=self.service, json=[attrs])
         self.update_attrs(**resp.body.pop())
         self._reset_dirty()
         return self

@@ -93,9 +93,9 @@ class TestStack(testtools.TestCase):
         sot.create(sess)
 
         url = '/stacks'
-        body = FAKE.copy()
-        body.pop('id')
-        body.pop('name')
+        body = sot._attrs.copy()
+        body.pop('id', None)
+        body.pop('name', None)
         sess.post.assert_called_with(url, service=sot.service, json=body)
         self.assertEqual(FAKE_ID, sot.id)
         self.assertEqual(FAKE_NAME, sot.name)

@@ -248,14 +248,10 @@ class Resource(collections.MutableMapping):
         :param bool loaded: ``True`` if this Resource exists on
                             the server, ``False`` if it does not.
         """
-        if attrs is None:
-            attrs = {}
-
-        self._dirty = set() if loaded else set(attrs.keys())
+        self._attrs = {} if attrs is None else attrs.copy()
+        self._dirty = set() if loaded else set(self._attrs.keys())
+        self.update_attrs(self._attrs)
         self._loaded = loaded
-
-        self._attrs = attrs
-        self.update_attrs(attrs)
 
     def __repr__(self):
         return "%s.%s(attrs=%s, loaded=%s)" % (self.__module__,
