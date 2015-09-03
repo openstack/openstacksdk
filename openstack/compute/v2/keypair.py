@@ -44,7 +44,7 @@ class Keypair(resource.Resource):
         if attrs is not None:
             if 'keypair' in attrs:
                 attrs = attrs['keypair']
-        super(Keypair, self).__init__(attrs, loaded)
+        super(Keypair, self).__init__(attrs, loaded=loaded)
 
     def create(self, session):
         """Create a new keypair from this instance.
