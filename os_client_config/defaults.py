@@ -35,6 +35,8 @@ def get_defaults():
             key=None,
         )
         with open(_yaml_path, 'r') as yaml_file:
-            _defaults.update(yaml.load(yaml_file.read()))
+            updates = yaml.load(yaml_file.read())
+            if updates is not None:
+                _defaults.update(updates)
 
     return _defaults.copy()
