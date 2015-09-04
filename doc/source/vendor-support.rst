@@ -153,6 +153,7 @@ https://auth.cloud.ovh.net/v2.0
 Region Name    Human Name
 ============== ================
 SBG-1          Strassbourg, FR
+GRA-1          Gravelines, FR
 ============== ================
 
 * Images must be in `raw` format
