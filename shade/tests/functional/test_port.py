@@ -53,7 +53,7 @@ class TestPort(base.TestCase):
                     self.cloud.delete_port(name_or_id=p['id'])
                 except Exception as e:
                     # We were unable to delete this port, let's try with next
-                    exception_list.append(e)
+                    exception_list.append(str(e))
                     continue
 
         if exception_list:
