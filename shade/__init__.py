@@ -308,17 +308,20 @@ class OpenStackCloud(object):
             return ans
         return generate_key
 
-    def _get_client(self, service_key, client_class):
+    def _get_client(
+            self, service_key, client_class, interface_key='endpoint_type'):
         try:
+            interface = self.cloud_config.get_interface(service_key)
             # trigger exception on lack of service
             self.get_session_endpoint(service_key)
-            client = client_class(
+            constructor_args = dict(
                 version=self.cloud_config.get_api_version(service_key),
                 session=self.keystone_session,
                 service_name=self.cloud_config.get_service_name(service_key),
                 service_type=self.cloud_config.get_service_type(service_key),
-                endpoint_type=self.cloud_config.get_interface(service_key),
                 region_name=self.region_name)
+            constructor_args[interface_key] = interface
+            client = client_class(**constructor_args)
         except Exception:
             self.log.debug(
                 "Couldn't construct {service} object".format(
@@ -597,27 +600,9 @@ class OpenStackCloud(object):
 
     @property
     def glance_client(self):
-        service_key = 'image'
-        try:
-            # trigger exception on lack of service
-            self.get_session_endpoint(service_key)
-            self._glance_client = glanceclient.Client(
-                version=self.cloud_config.get_api_version(service_key),
-                session=self.keystone_session,
-                service_name=self.cloud_config.get_service_name(service_key),
-                service_type=self.cloud_config.get_service_type(service_key),
-                interface=self.cloud_config.get_interface(service_key),
-                region_name=self.region_name)
-        except Exception:
-            self.log.debug(
-                "Couldn't construct {service} object".format(
-                    service=service_key), exc_info=True)
-            raise
         if self._glance_client is None:
-            raise OpenStackCloudException(
-                "Failed to instantiate {service} client."
-                " This could mean that your credentials are wrong.".format(
-                    service=service_key))
+            self._glance_client = self._get_client(
+                'image', glanceclient.Client, interface_key='interface')
         return self._glance_client
 
     @property
