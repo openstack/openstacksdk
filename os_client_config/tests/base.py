@@ -31,6 +31,7 @@ VENDOR_CONF = {
     'public-clouds': {
         '_test_cloud_in_our_cloud': {
             'auth': {
+                'auth_url': 'http://example.com/v2',
                 'username': 'testotheruser',
                 'project_name': 'testproject',
             },
@@ -45,6 +46,7 @@ USER_CONF = {
         '_test-cloud_': {
             'profile': '_test_cloud_in_our_cloud',
             'auth': {
+                'auth_url': 'http://example.com/v2',
                 'username': 'testuser',
                 'password': 'testpass',
             },
@@ -53,6 +55,7 @@ USER_CONF = {
         '_test_cloud_no_vendor': {
             'profile': '_test_non_existant_cloud',
             'auth': {
+                'auth_url': 'http://example.com/v2',
                 'username': 'testuser',
                 'password': 'testpass',
                 'project_name': 'testproject',
@@ -64,6 +67,7 @@ USER_CONF = {
                 'username': 'testuser',
                 'password': 'testpass',
                 'project_id': 12345,
+                'auth_url': 'http://example.com/v2',
             },
             'region_name': 'test-region',
         },
@@ -72,6 +76,7 @@ USER_CONF = {
                 'username': 'testuser',
                 'password': 'testpass',
                 'project-id': 'testproject',
+                'auth_url': 'http://example.com/v2',
             },
             'regions': [
                 'region1',
@@ -83,6 +88,7 @@ USER_CONF = {
                 'username': 'testuser',
                 'password': 'testpass',
                 'project-id': '12345',
+                'auth_url': 'http://example.com/v2',
             },
             'region_name': 'test-region',
         }

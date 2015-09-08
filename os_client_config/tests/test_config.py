@@ -43,7 +43,7 @@ class TestConfig(base.TestCase):
     def test_get_one_cloud(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
-        cloud = c.get_one_cloud()
+        cloud = c.get_one_cloud(validate=False)
         self.assertIsInstance(cloud, cloud_config.CloudConfig)
         self.assertEqual(cloud.name, '')
 
@@ -61,12 +61,12 @@ class TestConfig(base.TestCase):
         )
 
     def test_get_one_cloud_auth_override_defaults(self):
-        default_options = {'auth_type': 'token'}
+        default_options = {'compute_api_version': '4'}
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    override_defaults=default_options)
         cc = c.get_one_cloud(cloud='_test-cloud_', auth={'username': 'user'})
         self.assertEqual('user', cc.auth['username'])
-        self.assertEqual('token', cc.auth_type)
+        self.assertEqual('4', cc.compute_api_version)
         self.assertEqual(
             defaults._defaults['identity_api_version'],
             cc.identity_api_version,
@@ -109,7 +109,7 @@ class TestConfig(base.TestCase):
         for k in os.environ.keys():
             if k.startswith('OS_'):
                 self.useFixture(fixtures.EnvironmentVariable(k))
-        c.get_one_cloud(cloud='defaults')
+        c.get_one_cloud(cloud='defaults', validate=False)
 
     def test_prefer_ipv6_true(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
@@ -120,7 +120,7 @@ class TestConfig(base.TestCase):
     def test_prefer_ipv6_false(self):
         c = config.OpenStackConfig(config_files=[self.no_yaml],
                                    vendor_files=[self.no_yaml])
-        cc = c.get_one_cloud(cloud='defaults')
+        cc = c.get_one_cloud(cloud='defaults', validate=False)
         self.assertFalse(cc.prefer_ipv6)
 
     def test_get_one_cloud_auth_merge(self):
@@ -144,7 +144,7 @@ class TestConfig(base.TestCase):
         for k in os.environ.keys():
             if k.startswith('OS_'):
                 self.useFixture(fixtures.EnvironmentVariable(k))
-        c.get_one_cloud(cloud='defaults')
+        c.get_one_cloud(cloud='defaults', validate=False)
         self.assertEqual(['defaults'], sorted(c.get_cloud_names()))
 
     def test_set_one_cloud_creates_file(self):
@@ -168,7 +168,8 @@ class TestConfig(base.TestCase):
         resulting_cloud_config = {
             'auth': {
                 'password': 'newpass',
-                'username': 'testuser'
+                'username': 'testuser',
+                'auth_url': 'http://example.com/v2',
             },
             'cloud': 'new_cloud',
             'profile': '_test_cloud_in_our_cloud',
@@ -189,6 +190,10 @@ class TestConfigArgparse(base.TestCase):
         super(TestConfigArgparse, self).setUp()
 
         self.options = argparse.Namespace(
+            auth_url='http://example.com/v2',
+            username='user',
+            password='password',
+            project_name='project',
             region_name='other-test-region',
             snack_type='cookie',
         )
@@ -208,7 +213,6 @@ class TestConfigArgparse(base.TestCase):
 
         cc = c.get_one_cloud(cloud='', argparse=self.options)
         self.assertIsNone(cc.cloud)
-        self.assertNotIn('username', cc.auth)
         self.assertEqual(cc.region_name, 'other-test-region')
         self.assertEqual(cc.snack_type, 'cookie')
 
@@ -270,11 +274,11 @@ class TestConfigDefault(base.TestCase):
         self.assertEqual('password', cc.auth_type)
 
     def test_set_default_before_init(self):
-        config.set_default('auth_type', 'token')
+        config.set_default('identity_api_version', '4')
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
         cc = c.get_one_cloud(cloud='_test-cloud_', argparse=None)
-        self.assertEqual('token', cc.auth_type)
+        self.assertEqual('4', cc.identity_api_version)
 
 
 class TestBackwardsCompatibility(base.TestCase):

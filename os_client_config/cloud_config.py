@@ -14,15 +14,15 @@
 
 import warnings
 
-from keystoneauth1 import loading
-
 
 class CloudConfig(object):
-    def __init__(self, name, region, config, prefer_ipv6=False):
+    def __init__(self, name, region, config,
+                 prefer_ipv6=False, auth_plugin=None):
         self.name = name
         self.region = region
         self.config = config
         self._prefer_ipv6 = prefer_ipv6
+        self._auth = auth_plugin
 
     def __getattr__(self, key):
         """Return arbitrary attributes."""
@@ -111,14 +111,4 @@ class CloudConfig(object):
 
     def get_auth(self):
         """Return a keystoneauth plugin from the auth credentials."""
-        # Re-use the admin_token plugin for the "None" plugin
-        # since it does not look up endpoints or tokens but rather
-        # does a passthrough. This is useful for things like Ironic
-        # that have a keystoneless operational mode, but means we're
-        # still dealing with a keystoneauth Session object, so all the
-        # _other_ things (SSL arg handling, timeout) all work consistently
-        if self.config['auth_type'] in (None, "None", ''):
-            self.config['auth_type'] = 'admin_token'
-            self.config['auth']['token'] = None
-        loader = loading.get_plugin_loader(self.config['auth_type'])
-        return loader.load_from_options(**self.config['auth'])
+        return self._auth

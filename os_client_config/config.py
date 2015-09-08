@@ -17,12 +17,8 @@ import os
 import warnings
 
 import appdirs
+from keystoneauth1 import loading
 import yaml
-
-try:
-    import keystoneclient.auth as ksc_auth
-except ImportError:
-    ksc_auth = None
 
 from os_client_config import cloud_config
 from os_client_config import defaults
@@ -376,19 +372,27 @@ class OpenStackConfig(object):
         if opt_name in config:
             return config[opt_name]
         else:
-            for d_opt in opt.deprecated_opts:
+            for d_opt in opt.deprecated:
                 d_opt_name = d_opt.name.replace('-', '_')
                 if d_opt_name in config:
                     return config[d_opt_name]
 
-    def _validate_auth(self, config):
-        # May throw a keystoneclient.exceptions.NoMatchingPlugin
-        if config['auth_type'] == 'admin_endpoint':
-            auth_plugin = ksc_auth.token_endpoint.Token
-        else:
-            auth_plugin = ksc_auth.get_plugin_class(config['auth_type'])
+    def _get_auth_loader(self, config):
+        # Re-use the admin_token plugin for the "None" plugin
+        # since it does not look up endpoints or tokens but rather
+        # does a passthrough. This is useful for things like Ironic
+        # that have a keystoneless operational mode, but means we're
+        # still dealing with a keystoneauth Session object, so all the
+        # _other_ things (SSL arg handling, timeout) all work consistently
+        if config['auth_type'] in (None, "None", ''):
+            config['auth_type'] = 'admin_token'
+            config['auth']['token'] = None
+        return loading.get_plugin_loader(config['auth_type'])
 
-        plugin_options = auth_plugin.get_options()
+    def _validate_auth(self, config, loader):
+        # May throw a keystoneclient.exceptions.NoMatchingPlugin
+
+        plugin_options = loader.get_options()
 
         for p_opt in plugin_options:
             # if it's in config.auth, win, kill it from config dict
@@ -400,19 +404,8 @@ class OpenStackConfig(object):
             if not winning_value:
                 winning_value = self._find_winning_auth_value(p_opt, config)
 
-            # if the plugin tells us that this value is required
-            # then error if it's doesn't exist now
-            if not winning_value and p_opt.required:
-                raise exceptions.OpenStackConfigException(
-                    'Unable to find auth information for cloud'
-                    ' {cloud} in config files {files}'
-                    ' or environment variables. Missing value {auth_key}'
-                    ' required for auth plugin {plugin}'.format(
-                        cloud=cloud, files=','.join(self._config_files),
-                        auth_key=p_opt.name, plugin=config.get('auth_type')))
-
             # Clean up after ourselves
-            for opt in [p_opt.name] + [o.name for o in p_opt.deprecated_opts]:
+            for opt in [p_opt.name] + [o.name for o in p_opt.deprecated]:
                 opt = opt.replace('-', '_')
                 config.pop(opt, None)
                 config['auth'].pop(opt, None)
@@ -435,13 +428,16 @@ class OpenStackConfig(object):
         :param string cloud:
             The name of the configuration to load from clouds.yaml
         :param boolean validate:
-            Validate that required arguments are present and certain
-            argument combinations are valid
+            Validate the config. Setting this to False causes no auth plugin
+            to be created. It's really only useful for testing.
         :param Namespace argparse:
             An argparse Namespace object; allows direct passing in of
             argparse options to be added to the cloud config.  Values
             of None and '' will be removed.
         :param kwargs: Additional configuration options
+
+        :raises: keystoneauth1.exceptions.MissingRequiredOptions
+            on missing required auth parameters
         """
 
         if cloud is None and self.envvar_key in self.get_cloud_names():
@@ -471,12 +467,12 @@ class OpenStackConfig(object):
                 if type(config[key]) is not bool:
                     config[key] = get_boolean(config[key])
 
-        if 'auth_type' in config:
-            if config['auth_type'] in ('', 'None', None):
-                validate = False
-
-        if validate and ksc_auth:
-            config = self._validate_auth(config)
+        loader = self._get_auth_loader(config)
+        if validate:
+            config = self._validate_auth(config, loader)
+            auth_plugin = loader.load_from_options(**config['auth'])
+        else:
+            auth_plugin = None
 
         # If any of the defaults reference other values, we need to expand
         for (key, value) in config.items():
@@ -492,7 +488,8 @@ class OpenStackConfig(object):
         return cloud_config.CloudConfig(
             name=cloud_name, region=config['region_name'],
             config=self._normalize_keys(config),
-            prefer_ipv6=prefer_ipv6)
+            prefer_ipv6=prefer_ipv6,
+            auth_plugin=auth_plugin)
 
     @staticmethod
     def set_one_cloud(config_file, cloud, set_config=None):
