@@ -27,27 +27,33 @@ class TestShadeOperatorNoAuth(base.TestCase):
         URL in the auth data.  This is permits testing of the basic
         mechanism that enables Ironic noauth mode to be utilized with
         Shade.
-
-        @todo(mordred): remove the token in the next patch - occ handles
-        this right.
         """
         super(TestShadeOperatorNoAuth, self).setUp()
         self.cloud_noauth = shade.operator_cloud(
             auth_type='admin_token',
-            auth=dict(endpoint="http://localhost:6385", token='foo'),
+            auth=dict(endpoint="http://localhost:6385"),
             validate=False,
         )
 
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_session',
+                       new_callable=mock.PropertyMock)
     @mock.patch.object(shade.OperatorCloud, 'get_session_endpoint')
     @mock.patch.object(ironicclient.client, 'Client')
     def test_ironic_noauth_selection_using_a_task(
-            self, mock_client, mock_endpoint):
+            self, mock_client, mock_endpoint, session_mock):
         """Test noauth selection for Ironic in OperatorCloud
 
         Utilize a task to trigger the client connection attempt
         and evaluate if get_session_endpoint was called while the client
         was still called.
+
+        We want session_endpoint to be called because we're storing the
+        endpoint in a noauth token Session object now.
         """
+        session = mock.MagicMock()
+        session.get_token = mock.MagicMock()
+        session.get_token.return_value = 'yankee'
+        session_mock.return_value = session
         self.cloud_noauth.patch_machine('name', {})
         self.assertTrue(mock_endpoint.called)
         self.assertTrue(mock_client.called)

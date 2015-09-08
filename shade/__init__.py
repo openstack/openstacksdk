@@ -27,10 +27,8 @@ import glanceclient.exc
 from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
 import jsonpatch
-import keystoneauth1.exceptions
-from keystoneauth1 import loading
-from keystoneauth1 import plugin as ksc_plugin
-from keystoneauth1 import session as ksc_session
+from keystoneauth1 import plugin as ksa_plugin
+from keystoneauth1 import session as ksa_session
 from keystoneclient.v2_0 import client as k2_client
 from keystoneclient.v3 import client as k3_client
 from keystoneclient import exceptions as keystone_exceptions
@@ -228,10 +226,6 @@ class OpenStackCloud(object):
         self.name = cloud_config.name
         self.auth = cloud_config.get_auth_args()
         self.region_name = cloud_config.region_name
-        self.auth_type = cloud_config.config['auth_type']
-        # provide backwards compat to the old name of this plugin
-        if self.auth_type == 'token_endpoint':
-            self.auth_type = 'admin_token'
         self.default_interface = cloud_config.get_interface()
         self.private = cloud_config.config.get('private', False)
         self.api_timeout = cloud_config.config['api_timeout']
@@ -307,7 +301,7 @@ class OpenStackCloud(object):
 
     def _get_client(
             self, service_key, client_class, interface_key='endpoint_type',
-            pass_version_arg=True):
+            pass_version_arg=True, **kwargs):
         try:
             interface = self.cloud_config.get_interface(service_key)
             # trigger exception on lack of service
@@ -317,6 +311,7 @@ class OpenStackCloud(object):
                 service_name=self.cloud_config.get_service_name(service_key),
                 service_type=self.cloud_config.get_service_type(service_key),
                 region_name=self.region_name)
+            constructor_args.update(kwargs)
             constructor_args[interface_key] = interface
             if pass_version_arg:
                 version = self.cloud_config.get_api_version(service_key)
@@ -355,28 +350,18 @@ class OpenStackCloud(object):
         if self._keystone_session is None:
 
             try:
-                loader = loading.get_plugin_loader(self.auth_type)
-            except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin:
-                raise OpenStackCloudException(
-                    "No auth plugin named {plugin}".format(
-                        plugin=self.auth_type))
-
-            try:
-                keystone_auth = loader.plugin_class(**self.auth)
-            except Exception as e:
-                raise OpenStackCloudException(
-                    "Error constructing auth plugin: {plugin} {error}".format(
-                        plugin=self.auth_type, error=str(e)))
-
-            try:
-                self._keystone_session = ksc_session.Session(
+                keystone_auth = self.cloud_config.get_auth()
+                if not keystone_auth:
+                    raise OpenStackCloudException(
+                        "Problem with auth parameters")
+                self._keystone_session = ksa_session.Session(
                     auth=keystone_auth,
                     verify=self.verify,
                     cert=self.cert,
                     timeout=self.api_timeout)
             except Exception as e:
                 raise OpenStackCloudException(
-                    "Error authenticating to the keystone: %s " % str(e))
+                    "Error authenticating to keystone: %s " % str(e))
         return self._keystone_session
 
     @property
@@ -588,7 +573,7 @@ class OpenStackCloud(object):
     def swift_client(self):
         if self._swift_client is None:
             try:
-                token = self.auth_token
+                token = self.keystone_session.get_token()
                 endpoint = self.get_session_endpoint(
                     service_key='object-store')
                 self._swift_client = swift_client.Connection(
@@ -710,7 +695,7 @@ class OpenStackCloud(object):
             # keystone is a special case in keystone, because what?
             if service_key == 'identity':
                 endpoint = self.keystone_session.get_endpoint(
-                    interface=ksc_plugin.AUTH_INTERFACE)
+                    interface=ksa_plugin.AUTH_INTERFACE)
             else:
                 endpoint = self.keystone_session.get_endpoint(
                     service_type=self.cloud_config.get_service_type(
@@ -3210,48 +3195,24 @@ class OperatorCloud(OpenStackCloud):
     See the :class:`OpenStackCloud` class for a description of most options.
     """
 
-    @property
-    def auth_token(self):
-        if self.auth_type in (None, "None", ''):
-            # Ironic can operate in no keystone mode. Signify this with a
-            # token of None.
-            return None
-        else:
-            # Keystone's session will reuse a token if it is still valid.
-            # We don't need to track validity here, just get_token() each time.
-            return self.keystone_session.get_token()
+    # Set the ironic API microversion to a known-good
+    # supported/tested with the contents of shade.
+    #
+    # Note(TheJulia): Defaulted to version 1.6 as the ironic
+    # state machine changes which will increment the version
+    # and break an automatic transition of an enrolled node
+    # to an available state. Locking the version is intended
+    # to utilize the original transition until shade supports
+    # calling for node inspection to allow the transition to
+    # take place automatically.
+    ironic_api_microversion = '1.6'
 
     @property
     def ironic_client(self):
         if self._ironic_client is None:
-            token = self.auth_token
-            # Set the ironic API microversion to a known-good
-            # supported/tested with the contents of shade.
-            #
-            # Note(TheJulia): Defaulted to version 1.11 as node enrollment
-            # steps are navigated by the register_machine method.
-            ironic_api_microversion = '1.11'
-
-            if self.auth_type in (None, "None", ''):
-                # TODO: This needs to be improved logic wise, perhaps a list,
-                # or enhancement of the data stuctures with-in the library
-                # to allow for things aside password authentication, or no
-                # authentication if so desired by the user.
-                #
-                # Attempt to utilize a pre-stored endpoint in the auth
-                # dict as the endpoint.
-                endpoint = self.auth['endpoint']
-            else:
-                endpoint = self.get_session_endpoint(service_key='baremetal')
-            try:
-                self._ironic_client = ironic_client.Client(
-                    self.cloud_config.get_api_version('baremetal'),
-                    endpoint, token=token,
-                    timeout=self.api_timeout,
-                    os_ironic_api_version=ironic_api_microversion)
-            except Exception as e:
-                raise OpenStackCloudException(
-                    "Error in connecting to ironic: %s" % str(e))
+            self._ironic_client = self._get_client(
+                'baremetal', ironic_client.Client,
+                os_ironic_api_version=self.ironic_api_microversion)
         return self._ironic_client
 
     def list_nics(self):

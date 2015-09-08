@@ -34,12 +34,15 @@ class TestObject(base.TestCase):
             cloud_config=config.get_one_cloud(validate=False))
 
     @mock.patch.object(swift_client, 'Connection')
-    @mock.patch.object(shade.OpenStackCloud, 'auth_token',
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_session',
                        new_callable=mock.PropertyMock)
     @mock.patch.object(shade.OpenStackCloud, 'get_session_endpoint')
-    def test_swift_client(self, endpoint_mock, auth_mock, swift_mock):
+    def test_swift_client(self, endpoint_mock, session_mock, swift_mock):
         endpoint_mock.return_value = 'danzig'
-        auth_mock.return_value = 'yankee'
+        session = mock.MagicMock()
+        session.get_token = mock.MagicMock()
+        session.get_token.return_value = 'yankee'
+        session_mock.return_value = session
         self.cloud.swift_client
         swift_mock.assert_called_with(
             preauthurl='danzig',
@@ -51,12 +54,11 @@ class TestObject(base.TestCase):
                 auth_token='yankee',
                 region_name=''))
 
-    @mock.patch.object(shade.OpenStackCloud, 'auth_token',
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_session',
                        new_callable=mock.PropertyMock)
     @mock.patch.object(shade.OpenStackCloud, 'get_session_endpoint')
-    def test_swift_client_no_endpoint(self, endpoint_mock, auth_mock):
+    def test_swift_client_no_endpoint(self, endpoint_mock, session_mock):
         endpoint_mock.side_effect = KeyError
-        auth_mock.return_value = 'quebec'
         e = self.assertRaises(
             exc.OpenStackCloudException, lambda: self.cloud.swift_client)
         self.assertIn(

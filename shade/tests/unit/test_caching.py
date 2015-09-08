@@ -13,13 +13,13 @@
 # under the License.
 import tempfile
 
+import keystoneauth1
 import mock
 import os_client_config as occ
 import testtools
 import yaml
 
 import shade
-from shade import exc
 from shade import meta
 from shade.tests import fakes
 from shade.tests.unit import base
@@ -402,7 +402,42 @@ class TestMemoryCache(base.TestCase):
         self.assertEqual(
             [fi, fi2], [dict(x) for x in self.cloud.list_images()])
 
+
+class TestBogusAuth(base.TestCase):
+    CONFIG = {
+        'clouds':
+        {
+            '_bogus_test_':
+            {
+                'auth_type': 'bogus',
+                'auth':
+                {
+                    'auth_url': 'http://198.51.100.1:35357/v2.0',
+                    'username': '_test_user_',
+                    'password': '_test_pass_',
+                    'project_name': '_test_project_',
+                },
+                'region_name': '_test_region_',
+            },
+        },
+    }
+
+    def setUp(self):
+        super(TestBogusAuth, self).setUp()
+
+        # Isolate os-client-config from test environment
+        config = tempfile.NamedTemporaryFile(delete=False)
+        config.write(bytes(yaml.dump(self.CONFIG).encode('utf-8')))
+        config.close()
+        vendor = tempfile.NamedTemporaryFile(delete=False)
+        vendor.write(b'{}')
+        vendor.close()
+
+        self.cloud_config = occ.OpenStackConfig(config_files=[config.name],
+                                                vendor_files=[vendor.name])
+
     def test_get_auth_bogus(self):
-        self.cloud.auth_type = 'bogus'
-        with testtools.ExpectedException(exc.OpenStackCloudException):
-            self.cloud.keystone_session
+        with testtools.ExpectedException(
+                keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin):
+            shade.openstack_cloud(
+                cloud='_bogus_test_', config=self.cloud_config)
