@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.compute.v2 import availability_zone
 from openstack.compute.v2 import extension
 from openstack.compute.v2 import flavor as _flavor
 from openstack.compute.v2 import image as _image
@@ -569,3 +570,16 @@ class Proxy(proxy.BaseProxy):
         server = _server.Server.from_id(server)
         return server.rebuild(self.session, name, image_ref, admin_password,
                               **attrs)
+
+    def availability_zones(self, **query):
+        """Return a generator of availability zones
+
+        :param kwargs \*\*query: Optional query parameters to be sent
+                                 to limit the resources being returned.
+
+        :returns: A generator of availability zone
+        :rtype: :class:`~openstack.compute.v2.availability_zone.
+        AvailabilityZone`
+        """
+        return self._list(availability_zone.AvailabilityZone,
+                          paginated=False, **query)
