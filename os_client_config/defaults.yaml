@@ -12,5 +12,6 @@ image_api_version: '1'
 image_format: qcow2
 network_api_version: '2'
 object_api_version: '1'
+orchestration_api_version: '1'
 secgroup_source: neutron
 volume_api_version: '1'
