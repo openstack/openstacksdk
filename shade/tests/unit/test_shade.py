@@ -15,6 +15,7 @@
 import mock
 
 import glanceclient
+from heatclient import client as heat_client
 from keystoneclient.v2_0 import client as k2_client
 from keystoneclient.v3 import client as k3_client
 from neutronclient.common import exceptions as n_exc
@@ -109,6 +110,20 @@ class TestShade(base.TestCase):
             version='2', region_name='', service_name=None,
             interface='public',
             service_type='image', session=mock.ANY,
+        )
+
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
+    @mock.patch.object(heat_client, 'Client')
+    def test_heat_args(self, mock_client, mock_keystone_session):
+        mock_keystone_session.return_value = None
+        self.cloud.heat_client
+        mock_client.assert_called_with(
+            endpoint_type='public',
+            region_name='',
+            service_name=None,
+            service_type='orchestration',
+            session=mock.ANY,
+            version='1'
         )
 
     @mock.patch.object(shade.OpenStackCloud, 'search_subnets')

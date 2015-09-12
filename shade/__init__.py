@@ -29,6 +29,8 @@ import glanceclient
 import glanceclient.exc
 from glanceclient.common import utils as glance_utils
 import ipaddress
+from heatclient import client as heat_client
+from heatclient.common import template_utils
 from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
 import jsonpatch
@@ -316,6 +318,7 @@ class OpenStackCloud(object):
         self._designate_client = None
         self._glance_client = None
         self._glance_endpoint = None
+        self._heat_client = None
         self._ironic_client = None
         self._keystone_client = None
         self._neutron_client = None
@@ -694,6 +697,24 @@ class OpenStackCloud(object):
                 'image', glanceclient.Client, interface_key='interface',
                 endpoint=endpoint)
         return self._glance_client
+
+    @property
+    def heat_client(self):
+        if self._heat_client is None:
+            self._heat_client = self._get_client(
+                'orchestration', heat_client.Client)
+        return self._heat_client
+
+    def get_template_contents(
+            self, template_file=None, template_url=None,
+            template_object=None, files=None):
+        try:
+            return template_utils.get_template_contents(
+                template_file=template_file, template_url=template_url,
+                template_object=template_object, files=files)
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Error in processing template files: %s" % str(e))
 
     @property
     def swift_client(self):
