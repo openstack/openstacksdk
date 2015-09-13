@@ -960,7 +960,8 @@ class OpenStackCloud(object):
 
     def search_volumes(self, name_or_id=None, filters=None):
         volumes = self.list_volumes()
-        return _utils._filter_list(volumes, name_or_id, filters)
+        return _utils._filter_list(
+            volumes, name_or_id, filters, name_key='display_name')
 
     def search_flavors(self, name_or_id=None, filters=None):
         flavors = self.list_flavors()

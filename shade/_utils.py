@@ -37,13 +37,14 @@ def _iterate_timeout(timeout, message, wait=2):
     raise exc.OpenStackCloudTimeout(message)
 
 
-def _filter_list(data, name_or_id, filters):
+def _filter_list(data, name_or_id, filters, name_key='name'):
     """Filter a list by name/ID and arbitrary meta data.
 
     :param list data:
         The list of dictionary data to filter. It is expected that
-        each dictionary contains an 'id', 'name' (or 'display_name')
-        key if a value for name_or_id is given.
+        each dictionary contains an 'id' and 'name'
+        key if a value for name_or_id is given. The 'name' key can be
+        overridden with the name_key parameter.
     :param string name_or_id:
         The name or ID of the entity being filtered.
     :param dict filters:
@@ -56,15 +57,16 @@ def _filter_list(data, name_or_id, filters):
                   'gender': 'Female'
               }
             }
+    :param string name_key:
+        The name of the name key. Cinder wants display_name. Heat wants
+        stack_name. Defaults to 'name'
     """
     if name_or_id:
         identifier_matches = []
         for e in data:
             e_id = str(e.get('id', None))
-            e_name = e.get('name', None)
-            # cinder likes to be different and use display_name
-            e_display_name = e.get('display_name', None)
-            if str(name_or_id) in (e_id, e_name, e_display_name):
+            e_name = e.get(name_key, None)
+            if str(name_or_id) in (e_id, e_name):
                 identifier_matches.append(e)
         data = identifier_matches
 
