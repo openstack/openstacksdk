@@ -202,5 +202,18 @@ https://console.ultimum-cloud.com:5000/v2.0
 ============== ================
 Region Name    Human Name
 ============== ================
-RegionOne     Region One
+RegionOne      Region One
 ============== ================
+
+datacentred
+-----------
+
+https://compute.datacentred.io:5000/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+sal01          Manchester, UK
+============== ================
+
+* Image API Version is 1
