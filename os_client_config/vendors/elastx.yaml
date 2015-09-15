@@ -1,0 +1,5 @@
+name: elastx
+profile:
+  auth:
+    auth_url: https://ops.elastx.net:5000/v2.0
+  region_name: regionOne

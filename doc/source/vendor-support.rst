@@ -167,3 +167,16 @@ Kna1           Karlskrona, SE
 
 * Identity API Version is 3
 * Public IPv4 is provided via NAT with Neutron Floating IP
+
+elastx
+------
+
+https://ops.elastx.net:5000/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+regionOne      Region One
+============== ================
+
+* Public IPv4 is provided via NAT with Neutron Floating IP
