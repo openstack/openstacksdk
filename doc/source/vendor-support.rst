@@ -135,10 +135,11 @@ https://api.auro.io:5000/v2.0
 ============== ================
 Region Name    Human Name
 ============== ================
-RegionOne      RegionOne
+van1           Vancouver, BC
 ============== ================
 
 * Public IPv4 is provided via NAT with Nova Floating IP
+* Image API Version is 2
 * Floating IPs are provided by Nova
 * Security groups are provided by Nova
 
