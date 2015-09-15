@@ -180,3 +180,16 @@ regionOne      Region One
 ============== ================
 
 * Public IPv4 is provided via NAT with Neutron Floating IP
+
+entercloudsuite
+---------------
+
+https://api.entercloudsuite.com/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+nl-ams1        Amsterdam, NL
+it-mil1        Milan, IT
+de-fra1        Frankfurt, DE
+============== ================
