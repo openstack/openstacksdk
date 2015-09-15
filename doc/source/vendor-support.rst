@@ -156,3 +156,20 @@ GRA-1          Gravelines, FR
 
 * Images must be in `raw` format
 * Floating IPs are not supported
+
+citycloud
+---------
+
+https://identity1.citycloud.com:5000/v3/
+
+============== ================
+Region Name    Human Name
+============== ================
+Lon1           London, UK
+Sto2           Stockholm, SE
+Kna1           Karlskrona, SE
+============== ================
+
+* Identity API Version is 3
+* Image API Version is 2
+* Public IPv4 is provided via NAT with Neutron Floating IP

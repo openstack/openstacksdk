@@ -1,0 +1,9 @@
+name: citycloud
+profile:
+  auth:
+    auth_url: https://identity1.citycloud.com:5000/v3/
+  regions:
+  - Lon1
+  - Sto2
+  - Kna1
+  identity_api_version: '3'
