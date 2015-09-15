@@ -109,7 +109,6 @@ BHS-1          Beauharnois, QC
 ============== ================
 
 * Image API Version is 2
-* Images must be in `qcow2` format
 * Floating IPs are not supported
 
 unitedstack
@@ -139,7 +138,6 @@ Region Name    Human Name
 RegionOne      RegionOne
 ============== ================
 
-* Identity API Version is 2
 * Public IPv4 is provided via NAT with Nova Floating IP
 * Floating IPs are provided by Nova
 * Security groups are provided by Nova
