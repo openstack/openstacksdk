@@ -8,7 +8,7 @@ interface: public
 floating_ip_source: neutron
 identity_api_version: '2'
 image_api_use_tasks: false
-image_api_version: '1'
+image_api_version: '2'
 image_format: qcow2
 network_api_version: '2'
 object_api_version: '1'

@@ -15,7 +15,7 @@ These are the default behaviors unless a cloud is configured differently.
 
 * Identity uses `password` authentication
 * Identity API Version is 2
-* Image API Version is 1
+* Image API Version is 2
 * Images must be in `qcow2` format
 * Images are uploaded using PUT interface
 * Public IPv4 is directly routable via DHCP from Neutron
@@ -37,6 +37,7 @@ region-b.geo-1 US East
 ============== ================
 
 * DNS Service Type is `hpext:dns`
+* Image API Version is 1
 * Public IPv4 is provided via NAT with Neutron Floating IP
 
 rackspace
@@ -56,7 +57,6 @@ HKG            Hong Kong
 
 * Database Service Type is `rax:database`
 * Compute Service Name is `cloudServersOpenStack`
-* Image API Version is 2
 * Images must be in `vhd` format
 * Images must be uploaded using the Glance Task Interface
 * Floating IPs are not needed
@@ -78,7 +78,6 @@ Region Name    Human Name
 RegionOne      Region One
 ============== ================
 
-* Image API Version is 2
 * Images must be in `raw` format
 * Public IPv4 is provided via NAT with Neutron Floating IP
 * IPv6 is provided to every server
@@ -94,8 +93,6 @@ Region Name    Human Name
 ca-ymq-1       Montreal
 ============== ================
 
-* Image API Version is 2
-
 runabove
 --------
 
@@ -108,7 +105,6 @@ SBG-1          Strassbourg, FR
 BHS-1          Beauharnois, QC
 ============== ================
 
-* Image API Version is 2
 * Floating IPs are not supported
 
 unitedstack
@@ -124,7 +120,6 @@ gd1            Guangdong
 ============== ================
 
 * Identity API Version is 3
-* Image API Version is 2
 * Images must be in `raw` format
 
 auro
@@ -139,7 +134,6 @@ van1           Vancouver, BC
 ============== ================
 
 * Public IPv4 is provided via NAT with Nova Floating IP
-* Image API Version is 2
 * Floating IPs are provided by Nova
 * Security groups are provided by Nova
 
@@ -172,5 +166,4 @@ Kna1           Karlskrona, SE
 ============== ================
 
 * Identity API Version is 3
-* Image API Version is 2
 * Public IPv4 is provided via NAT with Neutron Floating IP

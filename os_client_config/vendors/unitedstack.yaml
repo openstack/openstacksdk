@@ -6,6 +6,5 @@ profile:
   - bj1
   - gd1
   identity_api_version: '3'
-  image_api_version: '2'
   image_format: raw
   floating_ip_source: None

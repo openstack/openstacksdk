@@ -3,5 +3,4 @@ profile:
   auth:
     auth_url: https://keystone.dream.io/v2.0
   region_name: RegionOne
-  image_api_version: '2'
   image_format: raw

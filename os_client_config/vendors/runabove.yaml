@@ -5,6 +5,5 @@ profile:
   regions:
   - BHS-1
   - SBG-1
-  image_api_version: '2'
   image_format: qcow2
   floating_ip_source: None
