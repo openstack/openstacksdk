@@ -193,3 +193,14 @@ nl-ams1        Amsterdam, NL
 it-mil1        Milan, IT
 de-fra1        Frankfurt, DE
 ============== ================
+
+ultimum
+-------
+
+https://console.ultimum-cloud.com:5000/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+RegionOne     Region One
+============== ================
