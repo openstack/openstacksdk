@@ -199,7 +199,7 @@ class TestConfigArgparse(base.TestCase):
     def setUp(self):
         super(TestConfigArgparse, self).setUp()
 
-        self.options = argparse.Namespace(
+        self.args = dict(
             auth_url='http://example.com/v2',
             username='user',
             password='password',
@@ -207,6 +207,7 @@ class TestConfigArgparse(base.TestCase):
             region_name='other-test-region',
             snack_type='cookie',
         )
+        self.options = argparse.Namespace(**self.args)
 
     def test_get_one_cloud_argparse(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
@@ -221,7 +222,33 @@ class TestConfigArgparse(base.TestCase):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
 
-        cc = c.get_one_cloud(cloud='', argparse=self.options)
+        cc = c.get_one_cloud(argparse=self.options)
+        self.assertIsNone(cc.cloud)
+        self.assertEqual(cc.region_name, 'other-test-region')
+        self.assertEqual(cc.snack_type, 'cookie')
+
+    def test_get_one_cloud_just_kwargs(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+
+        cc = c.get_one_cloud(**self.args)
+        self.assertIsNone(cc.cloud)
+        self.assertEqual(cc.region_name, 'other-test-region')
+        self.assertEqual(cc.snack_type, 'cookie')
+
+    def test_get_one_cloud_dash_kwargs(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+
+        args = {
+            'auth-url': 'http://example.com/v2',
+            'username': 'user',
+            'password': 'password',
+            'project_name': 'project',
+            'region_name': 'other-test-region',
+            'snack_type': 'cookie',
+        }
+        cc = c.get_one_cloud(**args)
         self.assertIsNone(cc.cloud)
         self.assertEqual(cc.region_name, 'other-test-region')
         self.assertEqual(cc.snack_type, 'cookie')
