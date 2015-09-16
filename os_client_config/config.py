@@ -383,7 +383,7 @@ class OpenStackConfig(object):
         new_args = dict()
         for (key, val) in iter(args.items()):
             key = key.replace('-', '_')
-            if key.startswith('os'):
+            if key.startswith('os_'):
                 os_args[key[3:]] = val
             else:
                 new_args[key] = val
