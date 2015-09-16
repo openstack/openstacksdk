@@ -71,6 +71,17 @@ USER_CONF = {
             },
             'region_name': 'test-region',
         },
+        '_test-cloud-domain-id_': {
+            'auth': {
+                'username': 'testuser',
+                'password': 'testpass',
+                'project_id': 12345,
+                'auth_url': 'http://example.com/v2',
+                'domain_id': '6789',
+                'project_domain_id': '123456789',
+            },
+            'region_name': 'test-region',
+        },
         '_test_cloud_regions': {
             'auth': {
                 'username': 'testuser',

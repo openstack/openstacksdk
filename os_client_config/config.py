@@ -279,15 +279,38 @@ class OpenStackConfig(object):
         cloud = self._fix_backwards_project(cloud)
         cloud = self._fix_backwards_auth_plugin(cloud)
         cloud = self._fix_backwards_interface(cloud)
+        cloud = self._handle_domain_id(cloud)
+        return cloud
+
+    def _handle_domain_id(self, cloud):
+        # Allow people to just specify domain once if it's the same
+        mappings = {
+            'domain_id': ('user_domain_id', 'project_domain_id'),
+            'domain_name': ('user_domain_name', 'project_domain_name'),
+        }
+        for target_key, possible_values in mappings.items():
+            for key in possible_values:
+                if target_key in cloud['auth'] and key not in cloud['auth']:
+                    cloud['auth'][key] = cloud['auth'][target_key]
+            cloud['auth'].pop(target_key, None)
         return cloud
 
     def _fix_backwards_project(self, cloud):
         # Do the lists backwards so that project_name is the ultimate winner
+        # Also handle moving domain names into auth so that domain mapping
+        # is easier
         mappings = {
             'project_id': ('tenant_id', 'tenant-id',
                            'project_id', 'project-id'),
             'project_name': ('tenant_name', 'tenant-name',
                              'project_name', 'project-name'),
+            'domain_id': ('domain_id', 'domain-id'),
+            'domain_name': ('domain_name', 'domain-name'),
+            'user_domain_id': ('user_domain_id', 'user-domain-id'),
+            'user_domain_name': ('user_domain_name', 'user-domain-name'),
+            'project_domain_id': ('project_domain_id', 'project-domain-id'),
+            'project_domain_name': (
+                'project_domain_name', 'project-domain-name'),
         }
         for target_key, possible_values in mappings.items():
             target = None

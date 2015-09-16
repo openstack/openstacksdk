@@ -91,6 +91,15 @@ class TestConfig(base.TestCase):
         cc = c.get_one_cloud('_test-cloud-int-project_')
         self.assertEqual('12345', cc.auth['project_id'])
 
+    def test_get_one_cloud_with_domain_id(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        cc = c.get_one_cloud('_test-cloud-domain-id_')
+        self.assertEqual('6789', cc.auth['user_domain_id'])
+        self.assertEqual('123456789', cc.auth['project_domain_id'])
+        self.assertNotIn('domain_id', cc.auth)
+        self.assertNotIn('domain-id', cc.auth)
+
     def test_get_one_cloud_with_hyphenated_project_id(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
@@ -132,7 +141,8 @@ class TestConfig(base.TestCase):
     def test_get_cloud_names(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml])
         self.assertEqual(
-            ['_test-cloud-int-project_',
+            ['_test-cloud-domain-id_',
+             '_test-cloud-int-project_',
              '_test-cloud_',
              '_test_cloud_hyphenated',
              '_test_cloud_no_vendor',
