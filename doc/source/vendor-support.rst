@@ -217,3 +217,19 @@ sal01          Manchester, UK
 ============== ================
 
 * Image API Version is 1
+
+internap
+--------
+
+https://identity.api.cloud.iweb.com/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+ams01          Amsterdam, NL
+da01           Dallas, TX
+nyj01          New York, NY
+============== ================
+
+* Image API Version is 1
+* Floating IPs are not supported
