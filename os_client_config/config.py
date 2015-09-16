@@ -390,7 +390,7 @@ class OpenStackConfig(object):
         return loading.get_plugin_loader(config['auth_type'])
 
     def _validate_auth(self, config, loader):
-        # May throw a keystoneclient.exceptions.NoMatchingPlugin
+        # May throw a keystoneauth1.exceptions.NoMatchingPlugin
 
         plugin_options = loader.get_options()
 
