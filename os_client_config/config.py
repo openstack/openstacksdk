@@ -382,6 +382,11 @@ class OpenStackConfig(object):
         os_args = dict()
         new_args = dict()
         for (key, val) in iter(args.items()):
+            if type(args[key]) == dict:
+                # dive into the auth dict
+                new_args[key] = self._fix_args(args[key])
+                continue
+
             key = key.replace('-', '_')
             if key.startswith('os'):
                 os_args[key[3:]] = val
