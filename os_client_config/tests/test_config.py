@@ -106,6 +106,21 @@ class TestConfig(base.TestCase):
         cc = c.get_one_cloud('_test_cloud_hyphenated')
         self.assertEqual('12345', cc.auth['project_id'])
 
+    def test_get_one_cloud_with_hyphenated_kwargs(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        args = {
+            'auth': {
+                'username': 'testuser',
+                'password': 'testpass',
+                'project-id': '12345',
+                'auth-url': 'http://example.com/v2',
+            },
+            'region_name': 'test-region',
+        }
+        cc = c.get_one_cloud(**args)
+        self.assertEqual('http://example.com/v2', cc.auth['auth_url'])
+
     def test_no_environ(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
