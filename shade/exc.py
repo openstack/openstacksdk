@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+
 
 class OpenStackCloudException(Exception):
     def __init__(self, message, extra_data=None):
@@ -20,6 +22,7 @@ class OpenStackCloudException(Exception):
             args.append(extra_data)
         super(OpenStackCloudException, self).__init__(*args)
         self.extra_data = extra_data
+        self.inner_exception = sys.exc_info()
 
     def __str__(self):
         if self.extra_data is not None:
