@@ -495,8 +495,8 @@ class OpenStackConfig(object):
                 if type(config[key]) is not bool:
                     config[key] = get_boolean(config[key])
 
-        loader = self._get_auth_loader(config)
         if validate:
+            loader = self._get_auth_loader(config)
             config = self._validate_auth(config, loader)
             auth_plugin = loader.load_from_options(**config['auth'])
         else:
