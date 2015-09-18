@@ -278,9 +278,6 @@ class OpenStackCloud(object):
             raise OpenStackCloudResourceNotFound(
                 "{msg}: {exc}".format(msg=error_message, exc=str(e)))
         except neutron_exceptions.NeutronClientException as e:
-            self.log.debug(
-                "{msg}: {exc}".format(msg=error_message, exc=str(e)),
-                exc_info=True)
             if e.status_code == 404:
                 raise OpenStackCloudURINotFound(
                     "{msg}: {exc}".format(msg=error_message, exc=str(e)))
@@ -288,9 +285,6 @@ class OpenStackCloud(object):
                 raise OpenStackCloudException(
                     "{msg}: {exc}".format(msg=error_message, exc=str(e)))
         except Exception as e:
-            self.log.debug(
-                "{msg}: {exc}".format(msg=error_message, exc=str(e)),
-                exc_info=True)
             raise OpenStackCloudException(
                 "{msg}: {exc}".format(msg=error_message, exc=str(e)))
 
@@ -363,9 +357,6 @@ class OpenStackCloud(object):
             try:
                 loader = loading.get_plugin_loader(self.auth_type)
             except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin:
-                self.log.debug(
-                    "keystoneauth could not find auth plugin {plugin}".format(
-                        plugin=self.auth_type), exc_info=True)
                 raise OpenStackCloudException(
                     "No auth plugin named {plugin}".format(
                         plugin=self.auth_type))
@@ -373,8 +364,6 @@ class OpenStackCloud(object):
             try:
                 keystone_auth = loader.plugin_class(**self.auth)
             except Exception as e:
-                self.log.debug(
-                    "keystone couldn't construct plugin", exc_info=True)
                 raise OpenStackCloudException(
                     "Error constructing auth plugin: {plugin} {error}".format(
                         plugin=self.auth_type, error=str(e)))
@@ -386,7 +375,6 @@ class OpenStackCloud(object):
                     cert=self.cert,
                     timeout=self.api_timeout)
             except Exception as e:
-                self.log.debug("keystone unknown issue", exc_info=True)
                 raise OpenStackCloudException(
                     "Error authenticating to the keystone: %s " % str(e))
         return self._keystone_session
@@ -489,7 +477,6 @@ class OpenStackCloud(object):
             return meta.obj_to_dict(
                 project.update(description=description, enabled=enabled))
         except Exception as e:
-            self.log.debug("keystone update project issue", exc_info=True)
             raise OpenStackCloudException(
                 "Error in updating project {project}: {message}".format(
                     project=name_or_id, message=str(e)))
@@ -503,7 +490,6 @@ class OpenStackCloud(object):
                 project_name=name, description=description, enabled=enabled,
                 **domain_params)
         except Exception as e:
-            self.log.debug("keystone create project issue", exc_info=True)
             raise OpenStackCloudException(
                 "Error in creating project {project}: {message}".format(
                     project=name, message=str(e)))
@@ -513,7 +499,6 @@ class OpenStackCloud(object):
             project = self.update_project(name_or_id, enabled=False)
             self._project_manager.delete(project.id)
         except Exception as e:
-            self.log.debug("keystone delete project issue", exc_info=True)
             raise OpenStackCloudException(
                 "Error in deleting project {project}: {message}".format(
                     project=name_or_id, message=str(e)))
@@ -558,7 +543,6 @@ class OpenStackCloud(object):
         try:
             user = self.manager.submitTask(_tasks.UserUpdate(**user_args))
         except Exception as e:
-            self.log.debug("keystone update user issue", exc_info=True)
             raise OpenStackCloudException(
                 "Error in updating user {user}: {message}".format(
                     user=name_or_id, message=str(e)))
@@ -576,7 +560,6 @@ class OpenStackCloud(object):
                 user_name=name, password=password, email=email,
                 enabled=enabled, **identity_params))
         except Exception as e:
-            self.log.debug("keystone create user issue", exc_info=True)
             raise OpenStackCloudException(
                 "Error in creating user {user}: {message}".format(
                     user=name, message=str(e)))
@@ -589,7 +572,6 @@ class OpenStackCloud(object):
             user = self._get_user(name_or_id)
             self.manager.submitTask(_tasks.UserDelete(user=user))
         except Exception as e:
-            self.log.debug("keystone delete user issue", exc_info=True)
             raise OpenStackCloudException(
                 "Error in deleting user {user}: {message}".format(
                     user=name_or_id, message=str(e)))
@@ -622,8 +604,6 @@ class OpenStackCloud(object):
             except OpenStackCloudException:
                 raise
             except Exception as e:
-                self.log.debug(
-                    "error constructing swift client", exc_info=True)
                 raise OpenStackCloudException(
                     "Error constructing swift client: %s", str(e))
         return self._swift_client
@@ -642,8 +622,6 @@ class OpenStackCloud(object):
             except OpenStackCloudException:
                 raise
             except Exception as e:
-                self.log.debug(
-                    "error constructing swift client", exc_info=True)
                 raise OpenStackCloudException(
                     "Error constructing swift client: %s", str(e))
         return self._swift_service
@@ -746,7 +724,6 @@ class OpenStackCloud(object):
                 "Endpoint not found in %s cloud: %s", self.name, str(e))
             endpoint = None
         except Exception as e:
-            self.log.debug("keystone cannot get endpoint", exc_info=True)
             raise OpenStackCloudException(
                 "Error getting %s endpoint: %s" % (service_key, str(e)))
         if endpoint is None:
@@ -772,9 +749,6 @@ class OpenStackCloud(object):
             for x in body['extensions']:
                 extensions.add(x['alias'])
         except Exception as e:
-            self.log.debug(
-                "nova could not list extensions: {msg}".format(
-                    msg=str(e)), exc_info=True)
             raise OpenStackCloudException(
                 "error fetching extension list for nova: {msg}".format(
                     msg=str(e)))
@@ -852,7 +826,6 @@ class OpenStackCloud(object):
                 self.manager.submitTask(_tasks.KeypairList())
             )
         except Exception as e:
-            self.log.debug("keypair list failed: %s" % e, exc_info=True)
             raise OpenStackCloudException(
                 "Error fetching keypair list: %s" % e)
 
@@ -882,7 +855,6 @@ class OpenStackCloud(object):
                 self.manager.submitTask(_tasks.VolumeList())
             )
         except Exception as e:
-            self.log.debug("volume list failed: %s" % e, exc_info=True)
             raise OpenStackCloudException(
                 "Error fetching volume list: %s" % e)
 
@@ -893,7 +865,6 @@ class OpenStackCloud(object):
                 self.manager.submitTask(_tasks.FlavorList(is_public=None))
             )
         except Exception as e:
-            self.log.debug("flavor list failed: %s" % e, exc_info=True)
             raise OpenStackCloudException(
                 "Error fetching flavor list: %s" % e)
 
@@ -912,11 +883,7 @@ class OpenStackCloud(object):
                 groups = meta.obj_list_to_dict(
                     self.manager.submitTask(_tasks.NovaSecurityGroupList())
                 )
-            except Exception as e:
-                self.log.debug(
-                    "nova could not list security groups: {message}".format(
-                        message=str(e)),
-                    exc_info=True)
+            except Exception:
                 raise OpenStackCloudException(
                     "Error fetching security group list"
                 )
@@ -934,7 +901,6 @@ class OpenStackCloud(object):
                 self.manager.submitTask(_tasks.ServerList())
             )
         except Exception as e:
-            self.log.debug("server list failed: %s" % e, exc_info=True)
             raise OpenStackCloudException(
                 "Error fetching server list: %s" % e)
 
@@ -973,12 +939,10 @@ class OpenStackCloud(object):
                     self.manager.submitTask(_tasks.NovaImageList())
                 )
             except Exception as e:
-                self.log.debug("nova image list failed: %s" % e, exc_info=True)
                 raise OpenStackCloudException(
                     "Error fetching image list: %s" % e)
 
         except Exception as e:
-            self.log.debug("glance image list failed: %s" % e, exc_info=True)
             raise OpenStackCloudException(
                 "Error fetching image list: %s" % e)
 
@@ -1001,9 +965,6 @@ class OpenStackCloud(object):
                 self.manager.submitTask(_tasks.FloatingIPPoolList())
             )
         except Exception as e:
-            self.log.debug(
-                "nova could not list floating IP pools: {msg}".format(
-                    msg=str(e)), exc_info=True)
             raise OpenStackCloudException(
                 "error fetching floating IP pool list: {msg}".format(
                     msg=str(e)))
@@ -1032,9 +993,6 @@ class OpenStackCloud(object):
             return meta.obj_list_to_dict(
                 self.manager.submitTask(_tasks.NovaFloatingIPList()))
         except Exception as e:
-            self.log.debug(
-                "nova could not list floating IPs: {msg}".format(
-                    msg=str(e)), exc_info=True)
             raise OpenStackCloudException(
                 "error fetching floating IPs list: {msg}".format(msg=str(e)))
 
@@ -1042,7 +1000,6 @@ class OpenStackCloud(object):
         try:
             return self.manager.submitTask(_tasks.DomainList())
         except Exception as e:
-            self.log.debug("domain list failed: %s" % e, exc_info=True)
             raise OpenStackCloudException(
                 "Error fetching domain list: %s" % e)
 
@@ -1050,7 +1007,6 @@ class OpenStackCloud(object):
         try:
             return self.manager.submitTask(_tasks.RecordList(domain=domain_id))
         except Exception as e:
-            self.log.debug("record list failed: %s" % e, exc_info=True)
             raise OpenStackCloudException(
                 "Error fetching record list: %s" % e)
 
@@ -1110,7 +1066,6 @@ class OpenStackCloud(object):
                     name=name, public_key=public_key))
             )
         except Exception as e:
-            self.log.debug("Error creating keypair %s" % name, exc_info=True)
             raise OpenStackCloudException(
                 "Unable to create keypair %s: %s" % (name, e)
             )
@@ -1130,7 +1085,6 @@ class OpenStackCloud(object):
             self.log.debug("Keypair %s not found for deleting" % name)
             return False
         except Exception as e:
-            self.log.debug("Error deleting keypair %s" % name, exc_info=True)
             raise OpenStackCloudException(
                 "Unable to delete keypair %s: %s" % (name, e)
             )
@@ -1320,7 +1274,6 @@ class OpenStackCloud(object):
                 self.manager.submitTask(
                     _tasks.ImageDelete(image=image.id))
         except Exception as e:
-            self.log.debug("Image deletion failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error in deleting image: %s" % str(e))
 
@@ -1371,7 +1324,6 @@ class OpenStackCloud(object):
             self.log.debug("Image creation failed", exc_info=True)
             raise
         except Exception as e:
-            self.log.debug("Image creation failed", exc_info=True)
             raise OpenStackCloudException(
                 "Image creation failed: {message}".format(message=str(e)))
 
@@ -1520,7 +1472,6 @@ class OpenStackCloud(object):
         try:
             volume = self.manager.submitTask(_tasks.VolumeCreate(**kwargs))
         except Exception as e:
-            self.log.debug("Volume creation failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error in creating volume: %s" % str(e))
         self.list_volumes.invalidate(self)
@@ -1565,7 +1516,6 @@ class OpenStackCloud(object):
             self.manager.submitTask(
                 _tasks.VolumeDelete(volume=volume['id']))
         except Exception as e:
-            self.log.debug("Volume deletion failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error in deleting volume: %s" % str(e))
 
@@ -1633,7 +1583,6 @@ class OpenStackCloud(object):
                 _tasks.VolumeDetach(attachment_id=volume['id'],
                                     server_id=server['id']))
         except Exception as e:
-            self.log.debug("nova volume detach failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error detaching volume %s from server %s: %s" %
                 (volume['id'], server['id'], e)
@@ -1700,9 +1649,6 @@ class OpenStackCloud(object):
                                     server_id=server['id'],
                                     device=device))
         except Exception as e:
-            self.log.debug(
-                "nova volume attach of %s failed" % volume['id'],
-                exc_info=True)
             raise OpenStackCloudException(
                 "Error attaching volume %s to server %s: %s" %
                 (volume['id'], server['id'], e)
@@ -1862,9 +1808,6 @@ class OpenStackCloud(object):
             return [f_ip]
 
         except Exception as e:
-            self.log.debug(
-                "nova floating IP create failed: {msg}".format(
-                    msg=str(e)), exc_info=True)
             raise OpenStackCloudException(
                 "unable to create floating IP in pool {pool}: {msg}".format(
                     pool=pool, msg=str(e)))
@@ -1927,9 +1870,6 @@ class OpenStackCloud(object):
             return meta.obj_to_dict(pool_ip)
 
         except Exception as e:
-            self.log.debug(
-                "nova floating IP create failed: {msg}".format(
-                    msg=str(e)), exc_info=True)
             raise OpenStackCloudException(
                 "unable to create floating IP in pool {pool}: {msg}".format(
                     pool=pool, msg=str(e)))
@@ -1973,9 +1913,6 @@ class OpenStackCloud(object):
         except nova_exceptions.NotFound:
             return False
         except Exception as e:
-            self.log.debug(
-                "nova floating IP delete failed: {msg}".format(
-                    msg=str(e)), exc_info=True)
             raise OpenStackCloudException(
                 "unable to delete floating IP id {fip_id}: {msg}".format(
                     fip_id=floating_ip_id, msg=str(e)))
@@ -2091,9 +2028,6 @@ class OpenStackCloud(object):
                 server=server_id, address=f_ip['floating_ip_address'],
                 fixed_address=fixed_address))
         except Exception as e:
-            self.log.debug(
-                "nova floating IP attach failed: {msg}".format(msg=str(e)),
-                exc_info=True)
             raise OpenStackCloudException(
                 "error attaching IP {ip} to instance {id}: {msg}".format(
                     ip=floating_ip_id, id=server_id, msg=str(e)))
@@ -2150,9 +2084,6 @@ class OpenStackCloud(object):
                 exc_info=True)
             return False
         except Exception as e:
-            self.log.debug(
-                "nova floating IP detach failed: {msg}".format(msg=str(e)),
-                exc_info=True)
             raise OpenStackCloudException(
                 "error detaching IP {ip} from instance {id}: {msg}".format(
                     ip=floating_ip_id, id=server_id, msg=str(e)))
@@ -2246,7 +2177,6 @@ class OpenStackCloud(object):
             server = meta.obj_to_dict(
                 self.manager.submitTask(_tasks.ServerGet(server=server)))
         except Exception as e:
-            self.log.debug("nova info failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error in getting info from instance: %s " % str(e))
         return server
@@ -2273,7 +2203,6 @@ class OpenStackCloud(object):
             server = self.manager.submitTask(_tasks.ServerCreate(**bootkwargs))
             server = self.manager.submitTask(_tasks.ServerGet(server=server))
         except Exception as e:
-            self.log.debug("nova instance create failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error in creating instance: {0}".format(e))
         if server.status == 'ERROR':
@@ -2330,7 +2259,6 @@ class OpenStackCloud(object):
             server = self.manager.submitTask(_tasks.ServerRebuild(
                 server=server_id, image=image_id))
         except Exception as e:
-            self.log.debug("nova instance rebuild failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error in rebuilding instance: {0}".format(e))
         if wait:
@@ -2367,7 +2295,6 @@ class OpenStackCloud(object):
             except nova_exceptions.NotFound:
                 return
             except Exception as e:
-                self.log.debug("nova delete server failed", exc_info=True)
                 raise OpenStackCloudException(
                     "Error in deleting server: {0}".format(e))
         else:
@@ -2386,8 +2313,6 @@ class OpenStackCloud(object):
             except nova_exceptions.NotFound:
                 return
             except Exception as e:
-                self.log.debug("nova get server failed when waiting for "
-                               "delete", exc_info=True)
                 raise OpenStackCloudException(
                     "Error in deleting server: {0}".format(e))
 
@@ -2400,7 +2325,6 @@ class OpenStackCloud(object):
             except swift_exceptions.ClientException as e:
                 if e.http_status == 404:
                     return None
-                self.log.debug("swift container fetch failed", exc_info=True)
                 raise OpenStackCloudException(
                     "Container fetch failed: %s (%s/%s)" % (
                         e.http_reason, e.http_host, e.http_path))
@@ -2417,7 +2341,6 @@ class OpenStackCloud(object):
                 self.set_container_access(name, 'public')
             return self.get_container(name, skip_cache=True)
         except swift_exceptions.ClientException as e:
-            self.log.debug("swift container create failed", exc_info=True)
             raise OpenStackCloudException(
                 "Container creation failed: %s (%s/%s)" % (
                     e.http_reason, e.http_host, e.http_path))
@@ -2429,7 +2352,6 @@ class OpenStackCloud(object):
         except swift_exceptions.ClientException as e:
             if e.http_status == 404:
                 return
-            self.log.debug("swift container delete failed", exc_info=True)
             raise OpenStackCloudException(
                 "Container deletion failed: %s (%s/%s)" % (
                     e.http_reason, e.http_host, e.http_path))
@@ -2439,7 +2361,6 @@ class OpenStackCloud(object):
             self.manager.submitTask(
                 _tasks.ContainerUpdate(container=name, headers=headers))
         except swift_exceptions.ClientException as e:
-            self.log.debug("swift container update failed", exc_info=True)
             raise OpenStackCloudException(
                 "Container update failed: %s (%s/%s)" % (
                     e.http_reason, e.http_host, e.http_path))
@@ -2494,8 +2415,6 @@ class OpenStackCloud(object):
                     "Swift capabilities not supported. "
                     "Using default max file size.")
             else:
-                self.log.debug(
-                    "Failed to query swift capabilities", exc_info=True)
                 raise OpenStackCloudException(
                     "Could not determine capabilities")
         else:
@@ -2605,7 +2524,6 @@ class OpenStackCloud(object):
         except swift_exceptions.ClientException as e:
             if e.http_status == 404:
                 return None
-            self.log.debug("swift metadata fetch failed", exc_info=True)
             raise OpenStackCloudException(
                 "Object metadata fetch failed: %s (%s/%s)" % (
                     e.http_reason, e.http_host, e.http_path))
@@ -3000,9 +2918,6 @@ class OpenStackCloud(object):
                     )
                 )
             except Exception as e:
-                self.log.debug(
-                    "nova failed to create security group '{name}'".format(
-                        name=name), exc_info=True)
                 raise OpenStackCloudException(
                     "failed to create security group '{name}': {msg}".format(
                         name=name, msg=str(e)))
@@ -3047,9 +2962,6 @@ class OpenStackCloud(object):
                     _tasks.NovaSecurityGroupDelete(group=secgroup['id'])
                 )
             except Exception as e:
-                self.log.debug(
-                    "nova failed to delete security group '{group}'".format(
-                        group=name_or_id), exc_info=True)
                 raise OpenStackCloudException(
                     "failed to delete security group '{group}': {msg}".format(
                         group=name_or_id, msg=str(e)))
@@ -3098,9 +3010,6 @@ class OpenStackCloud(object):
                     )
                 )
             except Exception as e:
-                self.log.debug(
-                    "nova failed to update security group '{group}'".format(
-                        group=name_or_id), exc_info=True)
                 raise OpenStackCloudException(
                     "failed to update security group '{group}': {msg}".format(
                         group=name_or_id, msg=str(e)))
@@ -3236,8 +3145,6 @@ class OpenStackCloud(object):
                     )
                 )
             except Exception as e:
-                self.log.debug("nova failed to create security group rule",
-                               exc_info=True)
                 raise OpenStackCloudException(
                     "failed to create security group rule: {msg}".format(
                         msg=str(e)))
@@ -3282,10 +3189,6 @@ class OpenStackCloud(object):
             except nova_exceptions.NotFound:
                 return False
             except Exception as e:
-                self.log.debug(
-                    "nova failed to delete security group rule {id}".format(
-                        id=rule_id),
-                    exc_info=True)
                 raise OpenStackCloudException(
                     "failed to delete security group rule {id}: {msg}".format(
                         id=rule_id, msg=str(e)))
@@ -3347,7 +3250,6 @@ class OperatorCloud(OpenStackCloud):
                     timeout=self.api_timeout,
                     os_ironic_api_version=ironic_api_microversion)
             except Exception as e:
-                self.log.debug("ironic auth failed", exc_info=True)
                 raise OpenStackCloudException(
                     "Error in connecting to ironic: %s" % str(e))
         return self._ironic_client
@@ -3358,7 +3260,6 @@ class OperatorCloud(OpenStackCloud):
                 self.manager.submitTask(_tasks.MachinePortList())
             )
         except Exception as e:
-            self.log.debug("machine port list failed: %s" % e, exc_info=True)
             raise OpenStackCloudException(
                 "Error fetching machine port list: %s" % e)
 
@@ -3369,8 +3270,6 @@ class OperatorCloud(OpenStackCloud):
                     _tasks.MachineNodePortList(node_id=uuid))
             )
         except Exception as e:
-            self.log.debug("port list for node %s failed: %s" % (uuid, e),
-                           exc_info=True)
             raise OpenStackCloudException(
                 "Error fetching port list for node %s: %s" % (uuid, e))
 
@@ -3476,7 +3375,6 @@ class OperatorCloud(OpenStackCloud):
                 self.manager.submitTask(_tasks.MachineCreate(**kwargs)))
 
         except Exception as e:
-            self.log.debug("ironic machine registration failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error registering machine with Ironic: %s" % str(e))
 
@@ -3607,8 +3505,6 @@ class OperatorCloud(OpenStackCloud):
                 self.manager.submitTask(
                     _tasks.MachinePortDelete(port_id=port_id))
             except Exception as e:
-                self.log.debug(
-                    "baremetal NIC unregistration failed", exc_info=True)
                 raise OpenStackCloudException(
                     "Error removing NIC '%s' from baremetal API for "
                     "node '%s'. Error: %s" % (nic, uuid, str(e)))
@@ -3623,8 +3519,6 @@ class OperatorCloud(OpenStackCloud):
                         break
 
         except Exception as e:
-            self.log.debug(
-                "baremetal machine unregistration failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error unregistering machine %s from the baremetal API. "
                 "Error: %s" % (uuid, str(e)))
@@ -3673,8 +3567,6 @@ class OperatorCloud(OpenStackCloud):
                                         patch=patch,
                                         http_method='PATCH')))
         except Exception as e:
-            self.log.debug(
-                "Machine patch update failed", exc_info=True)
             raise OpenStackCloudException(
                 "Error updating machine via patch operation. node: %s. "
                 "%s" % (name_or_id, str(e)))
@@ -3756,10 +3648,6 @@ class OperatorCloud(OpenStackCloud):
             self.log.debug(
                 "Unexpected machine response missing key %s [%s]" % (
                     e.args[0], name_or_id))
-            self.log.debug(
-                "Machine update failed - update value preparation failed. "
-                "Potential API failure or change has been encountered",
-                exc_info=True)
             raise OpenStackCloudException(
                 "Machine update failed - machine [%s] missing key %s. "
                 "Potential API issue."
@@ -3768,9 +3656,6 @@ class OperatorCloud(OpenStackCloud):
         try:
             patch = jsonpatch.JsonPatch.from_diff(machine_config, new_config)
         except Exception as e:
-            self.log.debug(
-                "Machine update failed - patch object generation failed",
-                exc_info=True)
             raise OpenStackCloudException(
                 "Machine update failed - Error generating JSON patch object "
                 "for submission to the API. Machine: %s Error: %s"
@@ -3792,9 +3677,6 @@ class OperatorCloud(OpenStackCloud):
                     changes=change_list
                 )
         except Exception as e:
-            self.log.debug(
-                "Machine update failed - patch operation failed",
-                exc_info=True)
             raise OpenStackCloudException(
                 "Machine update failed - patch operation failed Machine: %s "
                 "Error: %s" % (name_or_id, str(e)))
@@ -3804,8 +3686,6 @@ class OperatorCloud(OpenStackCloud):
             ifaces = self.manager.submitTask(
                 _tasks.MachineNodeValidate(node_uuid=uuid))
         except Exception as e:
-            self.log.debug(
-                "ironic node validation call failed", exc_info=True)
             raise OpenStackCloudException(str(e))
 
         if not ifaces.deploy or not ifaces.power:
@@ -4017,8 +3897,6 @@ class OperatorCloud(OpenStackCloud):
                     _tasks.MachineNodeUpdate(node_id=uuid, patch=patch))
             )
         except Exception as e:
-            self.log.debug(
-                "Failed to update instance_info", exc_info=True)
             raise OpenStackCloudException(str(e))
 
     def purge_node_instance_info(self, uuid):
@@ -4030,8 +3908,6 @@ class OperatorCloud(OpenStackCloud):
                     _tasks.MachineNodeUpdate(node_id=uuid, patch=patch))
             )
         except Exception as e:
-            self.log.debug(
-                "Failed to delete instance_info", exc_info=True)
             raise OpenStackCloudException(str(e))
 
     def create_service(self, name, service_type, description=None):
@@ -4074,7 +3950,6 @@ class OperatorCloud(OpenStackCloud):
         try:
             services = self.manager.submitTask(_tasks.ServiceList())
         except Exception as e:
-            self.log.debug("Failed to list services", exc_info=True)
             raise OpenStackCloudException(str(e))
         return meta.obj_list_to_dict(services)
 
@@ -4282,7 +4157,6 @@ class OperatorCloud(OpenStackCloud):
                     domain=domain_id, description=description,
                     enabled=enabled)))
         except Exception as e:
-            self.log.debug("keystone update domain issue", exc_info=True)
             raise OpenStackCloudException(
                 "Error in updating domain {domain}: {message}".format(
                     domain=domain_id, message=str(e)))
@@ -4452,8 +4326,6 @@ class OperatorCloud(OpenStackCloud):
                 "Flavor ID {0} not found".format(flavor_id)
             )
         except Exception as e:
-            self.log.debug("Error getting flavor ID {0}".format(flavor_id),
-                           exc_info=True)
             raise OpenStackCloudException(
                 "Error getting flavor ID {0}: {1}".format(flavor_id, e)
             )
@@ -4464,8 +4336,6 @@ class OperatorCloud(OpenStackCloud):
             elif action == 'unset':
                 flavor.unset_keys(specs)
         except Exception as e:
-            self.log.debug("Error during {0} of flavor specs".format(action),
-                           exc_info=True)
             raise OpenStackCloudException(
                 "Unable to {0} flavor specs: {1}".format(action, e)
             )
@@ -4507,11 +4377,6 @@ class OperatorCloud(OpenStackCloud):
                                               tenant=project_id)
                 )
         except Exception as e:
-            self.log.debug(
-                "Error trying to {0} access to flavor ID {1}".format(
-                    action, flavor_id),
-                exc_info=True
-            )
             raise OpenStackCloudException(
                 "Error trying to {0} access from flavor ID {1}: {2}".format(
                     action, flavor_id, e)
