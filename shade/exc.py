@@ -12,10 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import sys
+
+log = logging.getLogger(__name__)
 
 
 class OpenStackCloudException(Exception):
+
     def __init__(self, message, extra_data=None):
         args = [message]
         if extra_data:
@@ -23,12 +27,19 @@ class OpenStackCloudException(Exception):
         super(OpenStackCloudException, self).__init__(*args)
         self.extra_data = extra_data
         self.inner_exception = sys.exc_info()
+        if self.inner_exception and self.inner_exception[1]:
+            log.error(message, exc_info=self.inner_exception)
 
     def __str__(self):
+        message = Exception.__str__(self)
         if self.extra_data is not None:
-            return "%s (Extra: %s)" % (
-                Exception.__str__(self), self.extra_data)
-        return Exception.__str__(self)
+            message = "%s (Extra: %s)" % (message, self.extra_data)
+        if (self.inner_exception and self.inner_exception[1]
+                and hasattr(self.inner_exception[1], 'message')):
+            message = "%s (Inner Exception: %s)" % (
+                message,
+                self.inner_exception[1].message)
+        return message
 
 
 class OpenStackCloudTimeout(OpenStackCloudException):
