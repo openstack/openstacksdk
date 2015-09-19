@@ -813,7 +813,7 @@ class OpenStackCloud(object):
             )
         except Exception as e:
             raise OpenStackCloudException(
-                "Error fetching keypair list: %s" % e)
+                "Error fetching keypair list: %s" % str(e))
 
     def list_networks(self):
         with self._neutron_exceptions("Error fetching network list"):
@@ -3755,11 +3755,10 @@ class OperatorCloud(OpenStackCloud):
                                                configdrive=configdrive))
                 )
         except Exception as e:
-            self.log.debug(
-                "Baremetal machine node failed change provision state to %s"
-                % state,
-                exc_info=True)
-            raise OpenStackCloudException(str(e))
+            raise OpenStackCloudException(
+                "Baremetal machine node failed change provision"
+                " state to {state}: {msg}".format(state=state,
+                                                  msg=str(e)))
 
     def set_machine_maintenance_state(
             self,
@@ -3795,21 +3794,15 @@ class OperatorCloud(OpenStackCloud):
                     _tasks.MachineSetMaintenance(node_id=name_or_id,
                                                  state='false'))
             if result is not None:
-                self.log.debug(
-                    "Failed setting machine maintenance state on node %s. "
-                    "User requested '%s'.' Received: %s" % (
-                        name_or_id, state, result))
                 raise OpenStackCloudException(
-                    "Failed setting machine maintenance state on node %s. "
-                    "Received: %s" % (name_or_id, result))
+                    "Failed setting machine maintenance state to %s "
+                    "on node %s. Received: %s" % (
+                        state, name_or_id, result))
             return None
         except Exception as e:
-            self.log.debug(
-                "failed setting maintenance state on node %s" % name_or_id,
-                exc_info=True)
             raise OpenStackCloudException(
-                "Error setting machine maintenance on node %s. "
-                "state: %s" % (name_or_id, str(e)))
+                "Error setting machine maintenance state to %s "
+                "on node %s: %s" % (state, name_or_id, str(e)))
 
     def remove_machine_from_maintenance(self, name_or_id):
         """Remove Baremetal Machine from Maintenance State
@@ -3851,22 +3844,14 @@ class OperatorCloud(OpenStackCloud):
                 _tasks.MachineSetPower(node_id=name_or_id,
                                        state=state))
             if power is not None:
-                self.log.debug(
-                    "Failed setting machine power state on node %s. User "
-                    "requested '%s'.' Received: %s" % (
-                        name_or_id, state, power))
                 raise OpenStackCloudException(
-                    "Failed setting machine power state on node %s. "
-                    "Received: %s" % (name_or_id, power))
+                    "Failed setting machine power state %s on node %s. "
+                    "Received: %s" % (state, name_or_id, power))
             return None
         except Exception as e:
-            self.log.debug(
-                "Error setting machine power state on node %s. User "
-                "requested '%s'.'" % (name_or_id, state),
-                exc_info=True)
             raise OpenStackCloudException(
-                "Error setting machine power state on node %s. "
-                "Error: %s" % (name_or_id, str(e)))
+                "Error setting machine power state %s on node %s. "
+                "Error: %s" % (state, name_or_id, str(e)))
 
     def set_machine_power_on(self, name_or_id):
         """Activate baremetal machine power
@@ -3964,10 +3949,9 @@ class OperatorCloud(OpenStackCloud):
                 name=name, service_type=service_type,
                 description=description))
         except Exception as e:
-            self.log.debug(
-                "Failed to create service {name}".format(name=name),
-                exc_info=True)
-            raise OpenStackCloudException(str(e))
+            raise OpenStackCloudException(
+                "Failed to create service {name}: {msg}".format(
+                    name=name, msg=str(e)))
         return meta.obj_to_dict(service)
 
     def list_services(self):
@@ -4036,10 +4020,10 @@ class OperatorCloud(OpenStackCloud):
         try:
             self.manager.submitTask(_tasks.ServiceDelete(id=service['id']))
         except Exception as e:
-            self.log.debug(
-                "Failed to delete service {id}".format(id=service['id']),
-                exc_info=True)
-            raise OpenStackCloudException(str(e))
+            raise OpenStackCloudException(
+                "Failed to delete service {id}: {msg}".format(
+                    id=service['id'],
+                    msg=str(e)))
         return True
 
     def create_endpoint(self, service_name_or_id, public_url,
@@ -4071,10 +4055,10 @@ class OperatorCloud(OpenStackCloud):
                 adminurl=admin_url
             ))
         except Exception as e:
-            self.log.debug(
-                "Failed to create endpoint for service {service}".format(
-                    service=service['name']), exc_info=True)
-            raise OpenStackCloudException(str(e))
+            raise OpenStackCloudException(
+                "Failed to create endpoint for service {service}: "
+                "{msg}".format(service=service['name'],
+                               msg=str(e)))
         return meta.obj_to_dict(endpoint)
 
     def list_endpoints(self):
@@ -4089,8 +4073,8 @@ class OperatorCloud(OpenStackCloud):
         try:
             endpoints = self.manager.submitTask(_tasks.EndpointList())
         except Exception as e:
-            self.log.debug("Failed to list endpoints", exc_info=True)
-            raise OpenStackCloudException(str(e))
+            raise OpenStackCloudException("Failed to list endpoints: {msg}"
+                                          .format(msg=str(e)))
         return meta.obj_list_to_dict(endpoints)
 
     def search_endpoints(self, id=None, filters=None):
@@ -4150,10 +4134,10 @@ class OperatorCloud(OpenStackCloud):
         try:
             self.manager.submitTask(_tasks.EndpointDelete(id=id))
         except Exception as e:
-            self.log.debug(
-                "Failed to delete endpoint {id}".format(id=id),
-                exc_info=True)
-            raise OpenStackCloudException(str(e))
+            raise OpenStackCloudException(
+                "Failed to delete endpoint {id}: {msg}".format(
+                    id=id,
+                    msg=str(e)))
         return True
 
     def create_identity_domain(
@@ -4174,10 +4158,9 @@ class OperatorCloud(OpenStackCloud):
                 description=description,
                 enabled=enabled))
         except Exception as e:
-            self.log.debug(
-                "Failed to create domain {name}".format(
-                    name=name), exc_info=True)
-            raise OpenStackCloudException(str(e))
+            raise OpenStackCloudException(
+                "Failed to create domain {name}".format(name=name,
+                                                        msg=str(e)))
         return meta.obj_to_dict(domain)
 
     def update_identity_domain(
@@ -4209,10 +4192,9 @@ class OperatorCloud(OpenStackCloud):
             self.manager.submitTask(_tasks.IdentityDomainDelete(
                 domain=domain['id']))
         except Exception as e:
-            self.log.debug(
-                "Failed to delete domain {id}".format(id=domain_id),
-                exc_info=True)
-            raise OpenStackCloudException(str(e))
+            raise OpenStackCloudException(
+                "Failed to delete domain {id}: {msg}".format(id=domain_id,
+                                                             msg=str(e)))
 
     def list_identity_domains(self):
         """List Keystone domains.
@@ -4225,8 +4207,8 @@ class OperatorCloud(OpenStackCloud):
         try:
             domains = self.manager.submitTask(_tasks.IdentityDomainList())
         except Exception as e:
-            self.log.debug("Failed to list domains", exc_info=True)
-            raise OpenStackCloudException(str(e))
+            raise OpenStackCloudException("Failed to list domains: {msg}"
+                                          .format(msg=str(e)))
         return meta.obj_list_to_dict(domains)
 
     def search_identity_domains(self, **filters):
@@ -4248,8 +4230,8 @@ class OperatorCloud(OpenStackCloud):
             domains = self.manager.submitTask(
                 _tasks.IdentityDomainList(**filters))
         except Exception as e:
-            self.log.debug("Failed to list domains", exc_info=True)
-            raise OpenStackCloudException(str(e))
+            raise OpenStackCloudException("Failed to list domains: {msg}"
+                                          .format(msg=str(e)))
         return meta.obj_list_to_dict(domains)
 
     def get_identity_domain(self, domain_id):
@@ -4270,7 +4252,10 @@ class OperatorCloud(OpenStackCloud):
             domain = self.manager.submitTask(
                 _tasks.IdentityDomainGet(domain=domain_id))
         except Exception as e:
-            self.log.debug("Failed to get domain", exc_info=True)
+            raise OpenStackCloudException(
+                "Failed to get domain {domain_id}: {msg}".format(
+                    domain_id=domain_id,
+                    msg=str(e)))
             raise OpenStackCloudException(str(e))
         return meta.obj_to_dict(domain)
 
@@ -4300,10 +4285,10 @@ class OperatorCloud(OpenStackCloud):
                                     is_public=is_public)
             )
         except Exception as e:
-            self.log.debug(
-                "Failed to create flavor {0}".format(name),
-                exc_info=True)
-            raise OpenStackCloudException(str(e))
+            raise OpenStackCloudException(
+                "Failed to create flavor {name}: {msg}".format(
+                    name=name,
+                    msg=str(e)))
         return meta.obj_to_dict(flavor)
 
     def delete_flavor(self, name_or_id):
@@ -4324,8 +4309,6 @@ class OperatorCloud(OpenStackCloud):
         try:
             self.manager.submitTask(_tasks.FlavorDelete(flavor=flavor['id']))
         except Exception as e:
-            self.log.debug("Error deleting flavor {0}".format(name_or_id),
-                           exc_info=True)
             raise OpenStackCloudException(
                 "Unable to delete flavor {0}: {1}".format(name_or_id, e)
             )
