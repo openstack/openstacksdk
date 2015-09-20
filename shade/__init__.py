@@ -1276,6 +1276,14 @@ class OpenStackCloud(object):
             disk_format=None, container_format=None,
             disable_vendor_agent=True,
             wait=False, timeout=3600, **kwargs):
+
+        if not disk_format:
+            disk_format = self.cloud_config.config['image_format']
+        if not container_format:
+            if disk_format == 'vhd':
+                container_format = 'ovf'
+            else:
+                container_format = 'bare'
         if not md5 or not sha256:
             (md5, sha256) = self._get_file_hashes(filename)
         current_image = self.get_image(name)
