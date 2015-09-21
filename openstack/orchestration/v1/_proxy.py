@@ -67,6 +67,21 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(stack.Stack, value)
 
+    def update_stack(self, value, **attrs):
+        """Update a stack
+
+        :param value: The value can be the ID of a stack or a
+               :class:`~openstack.orchestration.v1.stack.Stack` instance.
+        :param kwargs \*\*attrs: The attributes to update on the stack
+                                 represented by ``value``.
+
+        :returns: The updated stack
+        :rtype: :class:`~openstack.orchestration.v1.stack.Stack`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._update(stack.Stack, value, **attrs)
+
     def delete_stack(self, value, ignore_missing=True):
         """Delete a stack
 

@@ -266,7 +266,9 @@ class Transport(requests.Session):
                            details=self._parse_error_response(resp),
                            status_code=resp.status_code)
 
-        if accept == JSON:
+        if resp.status_code == 202:
+            resp.body = {}
+        elif accept == JSON:
             try:
                 resp.body = resp.json()
             except ValueError as e:

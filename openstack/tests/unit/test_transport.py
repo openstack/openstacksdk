@@ -209,6 +209,16 @@ class TestTransport(TestTransportBase):
         self.assertEqual(fake_record1, resp.json())
 
     @requests_mock.Mocker()
+    def test_request_status_202(self, mock_req):
+        mock_req.put(self.TEST_URL, text='', status_code=202)
+
+        xport = transport.Transport()
+        resp = xport.put(self.TEST_URL, json=fake_record2)
+
+        self.assertEqual(202, resp.status_code)
+        self.assertEqual({}, resp.body)
+
+    @requests_mock.Mocker()
     def test_user_agent_no_arg(self, mock_req):
         mock_req.get(self.TEST_URL, text=fake_response)
 

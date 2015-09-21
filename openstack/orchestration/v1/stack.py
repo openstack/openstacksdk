@@ -27,6 +27,7 @@ class Stack(resource.Resource):
     allow_create = True
     allow_list = True
     allow_retrieve = True
+    allow_update = True
     allow_delete = True
 
     # Properties
@@ -81,3 +82,14 @@ class Stack(resource.Resource):
         url = cls.base_path
         resp = session.post(url, service=cls.service, json=body).body
         return resp[cls.resource_key]
+
+    @classmethod
+    def update_by_id(cls, session, resource_id, attrs, path_args=None):
+        # Heat returns a 202 for update operation, we ignore the non-existent
+        # response.body and do an additional get
+        body = attrs.copy()
+        body.pop('id', None)
+        body.pop('name', None)
+        url = cls._get_url(path_args, resource_id)
+        session.put(url, service=cls.service, json=body)
+        return cls.get_by_id(session, resource_id)
