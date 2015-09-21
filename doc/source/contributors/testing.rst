@@ -82,15 +82,19 @@ Replace ``xxx.xxx.xxx.xxx`` with the IP address or FQDN of your DevStack instanc
 Run
 ***
 
-In order to run the entire functional test suite, simply run the
-``tox -e functional`` command inside of your source checkout. This will
+Functional tests are run against both Python 2 and 3. In order to run the
+entire functional test suite, run the ``tox -e functional`` and
+``tox -e functional3`` command inside of your source checkout. This will
 attempt to run every test command under ``/openstack/tests/functional/``
-in the source tree. The functional tests are run with your system Python
-interpreter. You should run the full functional test suite before submitting
-changes for review in order to avoid unexpected failures in the continuous
-integration system.::
+in the source tree. You should run the full functional test suite before
+submitting changes for review in order to avoid unexpected failures in
+the continuous integration system.::
 
    (sdk3)$ tox -e functional
    ...
    functional: commands succeeded
+   congratulations :)
+   (sdk3)$ tox -e functional3
+   ...
+   functional3: commands succeeded
    congratulations :)
