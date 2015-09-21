@@ -26,19 +26,19 @@ class OpenStackCloudException(Exception):
             args.append(extra_data)
         super(OpenStackCloudException, self).__init__(*args)
         self.extra_data = extra_data
-        self.inner_exception = sys.exc_info()
-        if self.inner_exception and self.inner_exception[1]:
-            log.error(message, exc_info=self.inner_exception)
+        self._inner_exception = sys.exc_info()
+        if self._inner_exception and self._inner_exception[1]:
+            log.error(message, exc_info=self._inner_exception)
 
     def __str__(self):
         message = Exception.__str__(self)
         if self.extra_data is not None:
             message = "%s (Extra: %s)" % (message, self.extra_data)
-        if (self.inner_exception and self.inner_exception[1]
-                and hasattr(self.inner_exception[1], 'message')):
+        if (self._inner_exception and self._inner_exception[1]
+                and hasattr(self._inner_exception[1], 'message')):
             message = "%s (Inner Exception: %s)" % (
                 message,
-                self.inner_exception[1].message)
+                self._inner_exception[1].message)
         return message
 
 
