@@ -404,7 +404,7 @@ class OpenStackConfig(object):
             return config[opt_name]
         else:
             deprecated = getattr(opt, 'deprecated', getattr(
-                opt, 'deprecated_opts'))
+                opt, 'deprecated_opts', []))
             for d_opt in deprecated:
                 d_opt_name = d_opt.name.replace('-', '_')
                 if d_opt_name in config:
