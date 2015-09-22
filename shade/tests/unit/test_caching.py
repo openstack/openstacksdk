@@ -261,7 +261,8 @@ class TestMemoryCache(base.TestCase):
         imagefile.write(b'\0')
         imagefile.close()
         self.cloud.create_image(
-            name, imagefile.name, container=container, wait=True)
+            name, imagefile.name, container=container, wait=True,
+            is_public=False)
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
@@ -277,7 +278,8 @@ class TestMemoryCache(base.TestCase):
         args = {'name': '42 name',
                 'container_format': 'bare', 'disk_format': 'qcow2',
                 'properties': {'owner_specified.shade.md5': mock.ANY,
-                               'owner_specified.shade.sha256': mock.ANY}}
+                               'owner_specified.shade.sha256': mock.ANY,
+                               'is_public': False}}
         glance_mock.images.create.assert_called_with(**args)
         glance_mock.images.update.assert_called_with(data=mock.ANY,
                                                      image=fake_image)
@@ -300,7 +302,8 @@ class TestMemoryCache(base.TestCase):
         args = {'name': '42 name',
                 'container_format': 'bare', 'disk_format': 'qcow2',
                 'owner_specified.shade.md5': mock.ANY,
-                'owner_specified.shade.sha256': mock.ANY}
+                'owner_specified.shade.sha256': mock.ANY,
+                'visibility': 'private'}
         glance_mock.images.create.assert_called_with(**args)
         glance_mock.images.upload.assert_called_with(
             image_data=mock.ANY, image_id=fake_image.id)
@@ -378,7 +381,8 @@ class TestMemoryCache(base.TestCase):
             'image_properties': {'name': '99 name'}})
         args = {'owner_specified.shade.md5': fake_md5,
                 'owner_specified.shade.sha256': fake_sha256,
-                'image_id': '99'}
+                'image_id': '99',
+                'visibility': 'private'}
         glance_mock.images.update.assert_called_with(**args)
         fake_image_dict = meta.obj_to_dict(fake_image)
         self.assertEqual([fake_image_dict], self.cloud.list_images())
