@@ -419,7 +419,9 @@ class OpenStackConfig(object):
         # _other_ things (SSL arg handling, timeout) all work consistently
         if config['auth_type'] in (None, "None", ''):
             config['auth_type'] = 'admin_token'
-            config['auth']['token'] = None
+            # Set to notused rather than None because validate_auth will
+            # strip the value if it's actually python None
+            config['auth']['token'] = 'notused'
         return loading.get_plugin_loader(config['auth_type'])
 
     def _validate_auth_ksc(self, config):
