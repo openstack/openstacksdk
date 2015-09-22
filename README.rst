@@ -1,6 +1,6 @@
-===============================
+================
 os-client-config
-===============================
+================
 
 `os-client-config` is a library for collecting client configuration for
 using an OpenStack cloud in a consistent and comprehensive manner. It
@@ -27,7 +27,9 @@ it by setting `OS_CLOUD_NAME`.
 
 Service specific settings, like the nova service type, are set with the
 default service type as a prefix. For instance, to set a special service_type
-for trove set::
+for trove set
+
+::
 
   export OS_DATABASE_SERVICE_TYPE=rax:database
 
@@ -228,6 +230,7 @@ Usage
 -----
 
 The simplest and least useful thing you can do is:
+
 ::
 
   python -m os_client_config.config
@@ -236,6 +239,7 @@ Which will print out whatever if finds for your config. If you want to use
 it from python, which is much more likely what you want to do, things like:
 
 Get a named cloud.
+
 ::
 
   import os_client_config
@@ -245,7 +249,9 @@ Get a named cloud.
   print(cloud_config.name, cloud_config.region, cloud_config.config)
 
 Or, get all of the clouds.
+
 ::
+
   import os_client_config
 
   cloud_config = os_client_config.OpenStackConfig().get_all_clouds()
