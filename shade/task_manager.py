@@ -17,12 +17,13 @@
 # limitations under the License.
 
 import abc
-import logging
 import sys
 import threading
 import time
 
 import six
+
+from shade import _log
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -78,7 +79,7 @@ class Task(object):
 
 
 class TaskManager(object):
-    log = logging.getLogger("shade.TaskManager")
+    log = _log.setup_logging("shade.TaskManager")
 
     def __init__(self, client, name):
         self.name = name

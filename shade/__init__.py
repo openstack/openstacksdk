@@ -51,6 +51,7 @@ import warnings
 warnings.filterwarnings('ignore', 'Certificate has no `subjectAltName`')
 
 from shade.exc import *  # noqa
+from shade import _log
 from shade import meta
 from shade import task_manager
 from shade import _tasks
@@ -106,7 +107,7 @@ def simple_logging(debug=False):
         log_level = logging.DEBUG
     else:
         log_level = logging.INFO
-    log = logging.getLogger('shade')
+    log = _log.setup_logging('shade')
     log.addHandler(logging.StreamHandler())
     log.setLevel(log_level)
 
@@ -220,7 +221,7 @@ class OpenStackCloud(object):
             cache_arguments=None,
             manager=None, **kwargs):
 
-        self.log = logging.getLogger('shade')
+        self.log = _log.setup_logging('shade')
         if not cloud_config:
             config = os_client_config.OpenStackConfig()
             cloud_config = config.get_one_cloud(**kwargs)

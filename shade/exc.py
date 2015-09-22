@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import sys
 
-log = logging.getLogger(__name__)
+from shade import _log
+
+log = _log.setup_logging(__name__)
 
 
 class OpenStackCloudException(Exception):

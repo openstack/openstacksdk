@@ -14,16 +14,16 @@
 
 
 import bunch
-import logging
 import six
 
 from shade import exc
+from shade import _log
 from shade import _utils
 
 
 NON_CALLABLES = (six.string_types, bool, dict, int, float, list, type(None))
 
-log = logging.getLogger(__name__)
+log = _log.setup_logging(__name__)
 
 
 def find_nova_addresses(addresses, ext_tag=None, key_name=None, version=4):
