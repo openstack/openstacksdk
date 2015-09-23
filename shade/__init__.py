@@ -1200,13 +1200,26 @@ class OpenStackCloud(object):
         return new_router['router']
 
     def update_router(self, name_or_id, name=None, admin_state_up=None,
-                      ext_gateway_net_id=None):
+                      ext_gateway_net_id=None, enable_snat=None,
+                      ext_fixed_ips=None):
         """Update an existing logical router.
 
-        :param name_or_id: The name or UUID of the router to update.
-        :param name: The new router name.
-        :param admin_state_up: The administrative state of the router.
-        :param ext_gateway_net_id: The network ID for the external gateway.
+        :param string name_or_id: The name or UUID of the router to update.
+        :param string name: The new router name.
+        :param bool admin_state_up: The administrative state of the router.
+        :param string ext_gateway_net_id:
+            The network ID for the external gateway.
+        :param bool enable_snat: Enable Source NAT (SNAT) attribute.
+        :param list ext_fixed_ips:
+            List of dictionaries of desired IP and/or subnet on the
+            external network. Example::
+
+              [
+                {
+                  "subnet_id": "8ca37218-28ff-41cb-9b10-039601ea7e6b",
+                  "ip_address": "192.168.10.2"
+                }
+              ]
 
         :returns: The router object.
         :raises: OpenStackCloudException on operation error.
@@ -1214,12 +1227,13 @@ class OpenStackCloud(object):
         router = {}
         if name:
             router['name'] = name
-        if admin_state_up:
+        if admin_state_up is not None:
             router['admin_state_up'] = admin_state_up
-        if ext_gateway_net_id:
-            router['external_gateway_info'] = {
-                'network_id': ext_gateway_net_id
-            }
+        ext_gw_info = self._build_external_gateway_info(
+            ext_gateway_net_id, enable_snat, ext_fixed_ips
+        )
+        if ext_gw_info:
+            router['external_gateway_info'] = ext_gw_info
 
         if not router:
             self.log.debug("No router data to update")

@@ -116,7 +116,7 @@ class TestRouter(base.TestCase):
         self.assertEqual(net1['id'], ext_gw_info['network_id'])
         self.assertTrue(ext_gw_info['enable_snat'])
 
-    def test_create_router_advanced(self):
+    def _create_and_verify_advanced_router(self):
         net1_name = self.network_prefix + '_net1'
         sub1_name = self.subnet_prefix + '_sub1'
         net1 = self.cloud.create_network(name=net1_name, external=True)
@@ -125,7 +125,7 @@ class TestRouter(base.TestCase):
             gateway_ip='10.5.5.1'
         )
 
-        router_name = self.router_prefix + '_create_full'
+        router_name = self.router_prefix + '_create_advanced'
         router = self.cloud.create_router(
             name=router_name,
             admin_state_up=False,
@@ -156,3 +156,88 @@ class TestRouter(base.TestCase):
             '10.5.5.99',
             ext_gw_info['external_fixed_ips'][0]['ip_address']
         )
+
+        return router
+
+    def test_create_router_advanced(self):
+        self._create_and_verify_advanced_router()
+
+    def test_update_router_name(self):
+        router = self._create_and_verify_advanced_router()
+
+        new_name = self.router_prefix + '_update_name'
+        updated = self.cloud.update_router(router['id'], name=new_name)
+        self.assertIsNotNone(updated)
+
+        for field in EXPECTED_TOPLEVEL_FIELDS:
+            self.assertIn(field, updated)
+
+        # Name is the only change we expect
+        self.assertEqual(new_name, updated['name'])
+
+        # Validate nothing else changed
+        self.assertEqual(router['status'], updated['status'])
+        self.assertEqual(router['admin_state_up'], updated['admin_state_up'])
+        self.assertEqual(router['external_gateway_info'],
+                         updated['external_gateway_info'])
+
+    def test_update_router_admin_state(self):
+        router = self._create_and_verify_advanced_router()
+
+        updated = self.cloud.update_router(router['id'],
+                                           admin_state_up=True)
+        self.assertIsNotNone(updated)
+
+        for field in EXPECTED_TOPLEVEL_FIELDS:
+            self.assertIn(field, updated)
+
+        # admin_state_up is the only change we expect
+        self.assertTrue(updated['admin_state_up'])
+        self.assertNotEqual(router['admin_state_up'],
+                            updated['admin_state_up'])
+
+        # Validate nothing else changed
+        self.assertEqual(router['status'], updated['status'])
+        self.assertEqual(router['name'], updated['name'])
+        self.assertEqual(router['external_gateway_info'],
+                         updated['external_gateway_info'])
+
+    def test_update_router_ext_gw_info(self):
+        router = self._create_and_verify_advanced_router()
+
+        # create a new subnet
+        existing_net_id = router['external_gateway_info']['network_id']
+        sub_name = self.subnet_prefix + '_update'
+        sub = self.cloud.create_subnet(
+            existing_net_id, '10.6.6.0/24', subnet_name=sub_name,
+            gateway_ip='10.6.6.1'
+        )
+
+        updated = self.cloud.update_router(
+            router['id'],
+            ext_gateway_net_id=existing_net_id,
+            ext_fixed_ips=[
+                {'subnet_id': sub['id'], 'ip_address': '10.6.6.77'}
+            ]
+        )
+        self.assertIsNotNone(updated)
+
+        for field in EXPECTED_TOPLEVEL_FIELDS:
+            self.assertIn(field, updated)
+
+        # external_gateway_info is the only change we expect
+        ext_gw_info = updated['external_gateway_info']
+        self.assertEqual(1, len(ext_gw_info['external_fixed_ips']))
+        self.assertEqual(
+            sub['id'],
+            ext_gw_info['external_fixed_ips'][0]['subnet_id']
+        )
+        self.assertEqual(
+            '10.6.6.77',
+            ext_gw_info['external_fixed_ips'][0]['ip_address']
+        )
+
+        # Validate nothing else changed
+        self.assertEqual(router['status'], updated['status'])
+        self.assertEqual(router['name'], updated['name'])
+        self.assertEqual(router['admin_state_up'], updated['admin_state_up'])
