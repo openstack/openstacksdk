@@ -233,3 +233,17 @@ nyj01          New York, NY
 
 * Image API Version is 1
 * Floating IPs are not supported
+
+catalyst
+--------
+
+https://api.cloud.catalyst.net.nz:5000/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+nz-por-1       Porirua, NZ
+nz_wlg_1       Wellington, NZ
+
+* Image API Version is 1
+* Images must be in `raw` format
