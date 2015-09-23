@@ -1143,11 +1143,38 @@ class OpenStackCloud(object):
 
         return True
 
-    def create_router(self, name=None, admin_state_up=True):
+    def _build_external_gateway_info(self, ext_gateway_net_id, enable_snat,
+                                     ext_fixed_ips):
+        info = {}
+        if ext_gateway_net_id:
+            info['network_id'] = ext_gateway_net_id
+        if enable_snat is not None:
+            info['enable_snat'] = enable_snat
+        if ext_fixed_ips:
+            info['external_fixed_ips'] = ext_fixed_ips
+        if info:
+            return info
+        return None
+
+    def create_router(self, name=None, admin_state_up=True,
+                      ext_gateway_net_id=None, enable_snat=None,
+                      ext_fixed_ips=None):
         """Create a logical router.
 
-        :param name: The router name.
-        :param admin_state_up: The administrative state of the router.
+        :param string name: The router name.
+        :param bool admin_state_up: The administrative state of the router.
+        :param string ext_gateway_net_id: Network ID for the external gateway.
+        :param bool enable_snat: Enable Source NAT (SNAT) attribute.
+        :param list ext_fixed_ips:
+            List of dictionaries of desired IP and/or subnet on the
+            external network. Example::
+
+              [
+                {
+                  "subnet_id": "8ca37218-28ff-41cb-9b10-039601ea7e6b",
+                  "ip_address": "192.168.10.2"
+                }
+              ]
 
         :returns: The router object.
         :raises: OpenStackCloudException on operation error.
@@ -1157,6 +1184,11 @@ class OpenStackCloud(object):
         }
         if name:
             router['name'] = name
+        ext_gw_info = self._build_external_gateway_info(
+            ext_gateway_net_id, enable_snat, ext_fixed_ips
+        )
+        if ext_gw_info:
+            router['external_gateway_info'] = ext_gw_info
 
         with self._neutron_exceptions(
                 "Error creating router {0}".format(name)):
