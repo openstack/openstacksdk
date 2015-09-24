@@ -1348,6 +1348,18 @@ class OpenStackCloud(object):
         if disable_vendor_agent:
             kwargs.update(self.cloud_config.config['disable_vendor_agent'])
 
+        # We can never have nice things. Glance v1 took "is_public" as a
+        # boolean. Glance v2 takes "visibility". If the user gives us
+        # is_public, we know what they mean. If they give us visibility, they
+        # know that they mean.
+        if self.cloud_config.get_api_version('image') == '2':
+            if 'is_public' in kwargs:
+                is_public = kwargs.pop('is_public')
+                if is_public:
+                    kwargs['visibility'] = 'public'
+                else:
+                    kwargs['visibility'] = 'private'
+
         try:
             # This makes me want to die inside
             if self.image_api_use_tasks:
