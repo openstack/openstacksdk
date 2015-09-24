@@ -27,6 +27,7 @@ import glanceclient.exc
 from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
 import jsonpatch
+import keystoneauth1.exceptions
 from keystoneauth1 import plugin as ksa_plugin
 from keystoneauth1 import session as ksa_session
 from keystoneclient.v2_0 import client as k2_client
@@ -113,22 +114,30 @@ def simple_logging(debug=False):
 def openstack_clouds(config=None, debug=False):
     if not config:
         config = os_client_config.OpenStackConfig()
-    return [
-        OpenStackCloud(
-            cloud=f.name, debug=debug,
-            cache_interval=config.get_cache_max_age(),
-            cache_class=config.get_cache_class(),
-            cache_arguments=config.get_cache_arguments(),
-            cloud_config=f,
-            **f.config)
-        for f in config.get_all_clouds()
-    ]
+    try:
+        return [
+            OpenStackCloud(
+                cloud=f.name, debug=debug,
+                cache_interval=config.get_cache_max_age(),
+                cache_class=config.get_cache_class(),
+                cache_arguments=config.get_cache_arguments(),
+                cloud_config=f,
+                **f.config)
+            for f in config.get_all_clouds()
+        ]
+    except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin as e:
+        raise OpenStackCloudException(
+            "Invalid cloud configuration: {exc}".format(exc=str(e)))
 
 
 def openstack_cloud(config=None, **kwargs):
     if not config:
         config = os_client_config.OpenStackConfig()
-    cloud_config = config.get_one_cloud(**kwargs)
+    try:
+        cloud_config = config.get_one_cloud(**kwargs)
+    except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin as e:
+        raise OpenStackCloudException(
+            "Invalid cloud configuration: {exc}".format(exc=str(e)))
     return OpenStackCloud(
         cache_interval=config.get_cache_max_age(),
         cache_class=config.get_cache_class(),
@@ -141,7 +150,11 @@ def operator_cloud(config=None, **kwargs):
         kwargs['interface'] = 'admin'
     if not config:
         config = os_client_config.OpenStackConfig()
-    cloud_config = config.get_one_cloud(**kwargs)
+    try:
+        cloud_config = config.get_one_cloud(**kwargs)
+    except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin as e:
+        raise OpenStackCloudException(
+            "Invalid cloud configuration: {exc}".format(exc=str(e)))
     return OperatorCloud(
         cache_interval=config.get_cache_max_age(),
         cache_class=config.get_cache_class(),

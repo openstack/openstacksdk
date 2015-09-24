@@ -13,13 +13,13 @@
 # under the License.
 import tempfile
 
-import keystoneauth1
 import mock
 import os_client_config as occ
 import testtools
 import yaml
 
 import shade
+from shade import exc
 from shade import meta
 from shade.tests import fakes
 from shade.tests.unit import base
@@ -443,7 +443,6 @@ class TestBogusAuth(base.TestCase):
                                                 vendor_files=[vendor.name])
 
     def test_get_auth_bogus(self):
-        with testtools.ExpectedException(
-                keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin):
+        with testtools.ExpectedException(exc.OpenStackCloudException):
             shade.openstack_cloud(
                 cloud='_bogus_test_', config=self.cloud_config)
