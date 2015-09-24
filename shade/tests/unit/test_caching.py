@@ -275,6 +275,7 @@ class TestMemoryCache(base.TestCase):
         glance_mock.images.list.return_value = [fake_image]
         self._call_create_image('42 name')
         args = {'name': '42 name',
+                'container_format': 'bare', 'disk_format': 'qcow2',
                 'properties': {'owner_specified.shade.md5': mock.ANY,
                                'owner_specified.shade.sha256': mock.ANY}}
         glance_mock.images.create.assert_called_with(**args)
@@ -297,6 +298,7 @@ class TestMemoryCache(base.TestCase):
         glance_mock.images.list.return_value = [fake_image]
         self._call_create_image('42 name')
         args = {'name': '42 name',
+                'container_format': 'bare', 'disk_format': 'qcow2',
                 'owner_specified.shade.md5': mock.ANY,
                 'owner_specified.shade.sha256': mock.ANY}
         glance_mock.images.create.assert_called_with(**args)
