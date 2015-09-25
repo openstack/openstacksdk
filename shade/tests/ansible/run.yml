@@ -10,3 +10,4 @@
     - { role: network, tags: network }
     - { role: security_group, tags: security_group }
     - { role: subnet, tags: subnet}
+    - { role: router, tags: router}
