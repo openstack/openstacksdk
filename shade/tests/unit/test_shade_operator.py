@@ -530,13 +530,22 @@ class TestShadeOperator(base.TestCase):
         class fake_node:
             provision_state = 'available'
 
+        class fake_port:
+            uuid = '00000000-0000-0000-0000-000000000001'
+
+        mock_client.port.get_by_address.return_value = fake_port
         mock_client.node.get.return_value = fake_node
         nics = [{'mac': '00:00:00:00:00:00'}]
         uuid = "00000000-0000-0000-0000-000000000000"
         self.cloud.unregister_machine(nics, uuid)
         self.assertTrue(mock_client.node.delete.called)
+        self.assertTrue(mock_client.port.get_by_address.called)
         self.assertTrue(mock_client.port.delete.called)
         self.assertTrue(mock_client.port.get_by_address.called)
+        mock_client.port.get_by_address.assert_called_with(
+            address='00:00:00:00:00:00')
+        mock_client.port.delete.assert_called_with(
+            port_id='00000000-0000-0000-0000-000000000001')
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_unregister_machine_unavailable(self, mock_client):

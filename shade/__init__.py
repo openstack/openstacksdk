@@ -3544,10 +3544,10 @@ class OperatorCloud(OpenStackCloud):
 
         for nic in nics:
             try:
-                port_id = self.manager.submitTask(
+                port = self.manager.submitTask(
                     _tasks.MachinePortGetByAddress(address=nic['mac']))
                 self.manager.submitTask(
-                    _tasks.MachinePortDelete(port_id=port_id))
+                    _tasks.MachinePortDelete(port_id=port.uuid))
             except Exception as e:
                 raise OpenStackCloudException(
                     "Error removing NIC '%s' from baremetal API for "
