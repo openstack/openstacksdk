@@ -96,12 +96,16 @@ class TestShade(base.TestCase):
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.list_servers)
 
+    @mock.patch.object(shade.OpenStackCloud, 'get_session_endpoint')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
     @mock.patch.object(glanceclient, 'Client')
-    def test_glance_args(self, mock_client, mock_keystone_session):
+    def test_glance_args(
+            self, mock_client, mock_keystone_session, mock_endpoint):
         mock_keystone_session.return_value = None
+        mock_endpoint.return_value = 'http://example.com/v2'
         self.cloud.glance_client
         mock_client.assert_called_with(
+            endpoint='http://example.com',
             version='2', region_name='', service_name=None,
             interface='public',
             service_type='image', session=mock.ANY,
