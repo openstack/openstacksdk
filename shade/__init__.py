@@ -24,6 +24,7 @@ from decorator import decorator
 from dogpile import cache
 import glanceclient
 import glanceclient.exc
+from glanceclient.common import utils as glance_utils
 from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
 import jsonpatch
@@ -579,8 +580,13 @@ class OpenStackCloud(object):
     @property
     def glance_client(self):
         if self._glance_client is None:
+            endpoint, version = glance_utils.strip_version(
+                self.get_session_endpoint(service_key='image'))
+            # TODO(mordred): Put check detected vs. configured version
+            # and warn if they're different.
             self._glance_client = self._get_client(
-                'image', glanceclient.Client, interface_key='interface')
+                'image', glanceclient.Client, interface_key='interface',
+                endpoint=endpoint)
         return self._glance_client
 
     @property
