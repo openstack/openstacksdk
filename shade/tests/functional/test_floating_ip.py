@@ -19,11 +19,13 @@ test_floating_ip
 Functional tests for floating IP resource.
 """
 
+import pprint
 import random
 import string
 import time
 
 from novaclient import exceptions as nova_exc
+from testtools import content
 
 from shade import openstack_cloud
 from shade import meta
@@ -191,6 +193,18 @@ class TestFloatingIP(base.TestCase):
             # ToDo: remove once we have list/get methods for nova networks
             nets = self.cloud.nova_client.networks.list()
             self.nic = {'net-id': nets[0].id}
+
+    def test_private_ip(self):
+        self._setup_networks()
+
+        new_server = self.cloud.get_openstack_vars(self.cloud.create_server(
+            wait=True, name=self.new_item_name + '_server',
+            image=self.image,
+            flavor=self.flavor, nics=[self.nic]))
+
+        self.addDetail(
+            'server', content.text_content(pprint.pformat(new_server)))
+        self.assertNotEqual(new_server['private_v4'], '')
 
     def test_add_auto_ip(self):
         self._setup_networks()
