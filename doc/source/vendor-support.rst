@@ -247,3 +247,17 @@ nz_wlg_1       Wellington, NZ
 
 * Image API Version is 1
 * Images must be in `raw` format
+
+switchengines
+-------------
+
+https://keystone.cloud.switch.ch:5000/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+LS             Lausanne, CH
+ZH             Zurich, CH
+
+* Images must be in `raw` format
+* Images must be uploaded using the Glance Task Interface
