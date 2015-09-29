@@ -77,6 +77,18 @@ def get_server_private_ip(server, cloud=None):
     Last resort, ignore the IP type and just look for an IP on the 'private'
     network (e.g., Rackspace).
     """
+    if cloud and not cloud.use_internal_network():
+        return None
+
+    # Short circuit the ports/networks search below with a heavily cached
+    # and possibly pre-configured network name
+    if cloud:
+        int_net = cloud.get_internal_network()
+        if int_net:
+            int_ip = get_server_ip(server, key_name=int_net['name'])
+            if int_ip is not None:
+                return int_ip
+
     if cloud and cloud.has_service('network'):
         try:
             server_ports = cloud.search_ports(
@@ -123,8 +135,20 @@ def get_server_external_ipv4(cloud, server):
     :return: a string containing the IPv4 address or None
     """
 
+    if not cloud.use_external_network():
+        return None
+
     if server['accessIPv4']:
         return server['accessIPv4']
+
+    # Short circuit the ports/networks search below with a heavily cached
+    # and possibly pre-configured network name
+    ext_net = cloud.get_external_network()
+    if ext_net:
+        ext_ip = get_server_ip(server, key_name=ext_net['name'])
+        if ext_ip is not None:
+            return ext_ip
+
     if cloud.has_service('network'):
         try:
             # Search a fixed IP attached to an external net. Unfortunately
