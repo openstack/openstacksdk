@@ -16,6 +16,10 @@ from openstack.compute.v2 import server
 from openstack.tests.functional import base
 from openstack.tests.functional.network.v2 import test_network
 
+# TODO(thowe): These values should be able to be set in clouds.yaml
+default_flavor = '2'
+default_image = 'cirros-0.3.4-x86_64-uec'
+
 
 class TestServer(base.BaseFunctionalTest):
 
@@ -27,9 +31,8 @@ class TestServer(base.BaseFunctionalTest):
     @classmethod
     def setUpClass(cls):
         super(TestServer, cls).setUpClass()
-        # TODO(thowe): These values should be able to be set in clouds.yaml
-        flavor = '4'
-        image = next(cls.conn.image.images())
+        flavor = default_flavor
+        image = cls.conn.compute.find_image(default_image)
         cls.network, cls.subnet = test_network.create_network(cls.conn,
                                                               cls.NAME)
         if cls.network:
