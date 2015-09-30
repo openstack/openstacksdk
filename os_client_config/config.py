@@ -86,7 +86,10 @@ def _get_os_environ():
                    and not k.startswith('OS_TEST')  # infra CI var
                    and not k.startswith('OS_STD')   # infra CI var
                    ]
-    if not environkeys:
+    # If the only environ key is region name, don't make a cloud, because
+    # it's being used as a cloud selector
+    if not environkeys or (
+            len(environkeys) == 1 and 'OS_REGION_NAME' in environkeys):
         return None
     for k in environkeys:
         newkey = k[3:].lower()
@@ -147,6 +150,9 @@ class OpenStackConfig(object):
                 ' either your environment based cloud, or one of your'
                 ' file-based clouds.'.format(self.config_filename,
                                              self.envvar_key))
+        # Pull out OS_CLOUD so that if it's the only thing set, do not
+        # make an envvars cloud
+        self.default_cloud = os.environ.pop('OS_CLOUD', None)
 
         envvars = _get_os_environ()
         if envvars:
@@ -522,6 +528,9 @@ class OpenStackConfig(object):
         :raises: keystoneauth1.exceptions.MissingRequiredOptions
             on missing required auth parameters
         """
+
+        if cloud is None and self.default_cloud:
+            cloud = self.default_cloud
 
         if cloud is None and self.envvar_key in self.get_cloud_names():
             cloud = self.envvar_key
