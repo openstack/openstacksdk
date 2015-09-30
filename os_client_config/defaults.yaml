@@ -6,7 +6,7 @@ disable_vendor_agent: {}
 dns_api_version: '2'
 interface: public
 floating_ip_source: neutron
-identity_api_version: '2'
+identity_api_version: '2.0'
 image_api_use_tasks: false
 image_api_version: '2'
 image_format: qcow2
