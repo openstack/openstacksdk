@@ -768,10 +768,8 @@ class TestShadeOperator(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
     def test_get_session_endpoint_unavailable(self, session_mock):
         session_mock.get_endpoint.return_value = None
-        with testtools.ExpectedException(
-                exc.OpenStackCloudUnavailableService,
-                "Cloud.*does not have a image service"):
-            self.cloud.get_session_endpoint("image")
+        image_endpoint = self.cloud.get_session_endpoint("image")
+        self.assertIsNone(image_endpoint)
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
     def test_get_session_endpoint_identity(self, session_mock):

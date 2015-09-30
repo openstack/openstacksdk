@@ -33,7 +33,6 @@ from keystoneauth1 import plugin as ksa_plugin
 from keystoneauth1 import session as ksa_session
 from keystoneclient.v2_0 import client as k2_client
 from keystoneclient.v3 import client as k3_client
-from keystoneclient import exceptions as keystone_exceptions
 from novaclient import client as nova_client
 from novaclient import exceptions as nova_exceptions
 from neutronclient.common import exceptions as neutron_exceptions
@@ -724,24 +723,23 @@ class OpenStackCloud(object):
                         service_key),
                     interface=self.cloud_config.get_interface(service_key),
                     region_name=self.region_name)
-        except keystone_exceptions.EndpointNotFound as e:
+        except keystoneauth1.exceptions.catalog.EndpointNotFound as e:
             self.log.debug(
                 "Endpoint not found in %s cloud: %s", self.name, str(e))
             endpoint = None
         except Exception as e:
             raise OpenStackCloudException(
                 "Error getting %s endpoint: %s" % (service_key, str(e)))
-        if endpoint is None:
-            raise OpenStackCloudUnavailableService(
-                "Cloud {cloud} does not have a {service} service".format(
-                    cloud=self.name, service=service_key))
         return endpoint
 
     def has_service(self, service_key):
         try:
-            self.get_session_endpoint(service_key)
-            return True
+            endpoint = self.get_session_endpoint(service_key)
         except OpenStackCloudException:
+            return False
+        if endpoint:
+            return True
+        else:
             return False
 
     @_cache_on_arguments()
