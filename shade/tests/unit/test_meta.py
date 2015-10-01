@@ -32,8 +32,10 @@ class FakeCloud(object):
     region_name = 'test-region'
     name = 'test-name'
     private = False
+    force_ipv4 = False
     service_val = True
     _unused = "useless"
+    _local_ipv6 = True
 
     def get_flavor_name(self, id):
         return 'test-flavor-name'
@@ -319,7 +321,7 @@ class TestMeta(testtools.TestCase):
         self.assertEqual(PRIVATE_V4, hostvars['private_v4'])
         self.assertEqual(PUBLIC_V4, hostvars['public_v4'])
         self.assertEqual(PUBLIC_V6, hostvars['public_v6'])
-        self.assertEqual(PUBLIC_V4, hostvars['interface_ip'])
+        self.assertEqual(PUBLIC_V6, hostvars['interface_ip'])
         self.assertEquals(FakeCloud.region_name, hostvars['region'])
         self.assertEquals(FakeCloud.name, hostvars['cloud'])
         self.assertEquals("test-image-name", hostvars['image']['name'])
@@ -331,6 +333,20 @@ class TestMeta(testtools.TestCase):
         # test having volumes
         # test volume exception
         self.assertEquals([], hostvars['volumes'])
+
+    @mock.patch.object(shade.meta, 'get_server_external_ipv6')
+    @mock.patch.object(shade.meta, 'get_server_external_ipv4')
+    def test_ipv4_hostvars(
+            self, mock_get_server_external_ipv4,
+            mock_get_server_external_ipv6):
+        mock_get_server_external_ipv4.return_value = PUBLIC_V4
+        mock_get_server_external_ipv6.return_value = PUBLIC_V6
+
+        fake_cloud = FakeCloud()
+        fake_cloud.force_ipv4 = True
+        hostvars = meta.get_hostvars_from_server(
+            fake_cloud, meta.obj_to_dict(FakeServer()))
+        self.assertEqual(PUBLIC_V4, hostvars['interface_ip'])
 
     @mock.patch.object(shade.meta, 'get_server_external_ipv4')
     def test_private_interface_ip(self, mock_get_server_external_ipv4):

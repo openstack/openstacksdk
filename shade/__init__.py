@@ -246,6 +246,7 @@ class OpenStackCloud(object):
         self.api_timeout = cloud_config.config['api_timeout']
         self.image_api_use_tasks = cloud_config.config['image_api_use_tasks']
         self.secgroup_source = cloud_config.config['secgroup_source']
+        self.force_ipv4 = cloud_config.force_ipv4
 
         self._external_network = None
         self._external_network_name_or_id = cloud_config.config.get(
@@ -294,6 +295,8 @@ class OpenStackCloud(object):
         self._swift_client = None
         self._swift_service = None
         self._trove_client = None
+
+        self._local_ipv6 = _utils.localhost_supports_ipv6()
 
         self.cloud_config = cloud_config
 

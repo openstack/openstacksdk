@@ -15,6 +15,7 @@
 import re
 import time
 
+import netifaces
 from socket import inet_aton
 from struct import unpack
 
@@ -273,3 +274,14 @@ def normalize_neutron_floating_ips(ips):
                   ip.get('port_id') != ''),
         status=ip['status']
     ) for ip in ips]
+
+
+def localhost_supports_ipv6():
+    """Determine whether the local host supports IPv6
+
+    We look for a default route that supports the IPv6 address family,
+    and assume that if it is present, this host has globally routable
+    IPv6 connectivity.
+    """
+
+    return netifaces.AF_INET6 in netifaces.gateways()['default']

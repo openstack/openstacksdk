@@ -3,10 +3,11 @@ pbr>=0.11,<2.0
 bunch
 decorator
 jsonpatch
-os-client-config>=1.7.4
+os-client-config>=1.8.0
 six
 
 keystoneauth1>=1.0.0
+netifaces>=0.10.4
 python-novaclient>=2.21.0,!=2.27.0
 python-keystoneclient>=0.11.0
 python-glanceclient>=1.0.0

@@ -265,10 +265,15 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     server_vars['public_v4'] = get_server_external_ipv4(cloud, server) or ''
     server_vars['public_v6'] = get_server_external_ipv6(server) or ''
     server_vars['private_v4'] = get_server_private_ip(server, cloud) or ''
-    if cloud.private:
+    interface_ip = None
+    if cloud.private and server_vars['private_v4']:
         interface_ip = server_vars['private_v4']
     else:
-        interface_ip = server_vars['public_v4']
+        if (server_vars['public_v6'] and cloud._local_ipv6
+            and not cloud.force_ipv4):
+            interface_ip = server_vars['public_v6']
+        else:
+            interface_ip = server_vars['public_v4']
     if interface_ip:
         server_vars['interface_ip'] = interface_ip
 
@@ -276,7 +281,10 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     # server record. Since we know them, go ahead and set them. In the case
     # where they were set previous, we use the values, so this will not break
     # clouds that provide the information
-    server_vars['accessIPv4'] = server_vars['public_v4']
+    if cloud.private and server_vars['private_v4']:
+        server_vars['accessIPv4'] = server_vars['private_v4']
+    else:
+        server_vars['accessIPv4'] = server_vars['public_v4']
     server_vars['accessIPv6'] = server_vars['public_v6']
 
     server_vars['region'] = cloud.region_name
