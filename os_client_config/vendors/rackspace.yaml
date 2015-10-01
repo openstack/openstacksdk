@@ -17,3 +17,4 @@ profile:
   disable_vendor_agent:
     vm_mode: hvm
     xenapi_use_agent: false
+  has_network: false
