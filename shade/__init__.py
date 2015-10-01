@@ -2330,7 +2330,9 @@ class OpenStackCloud(object):
 
         return self.get_floating_ip(id=f_ip['id'])
 
-    def add_ips_to_server(self, server, auto_ip=True, ips=None, ip_pool=None):
+    def add_ips_to_server(
+            self, server, auto_ip=True, ips=None, ip_pool=None,
+            wait=False, timeout=60):
         if ip_pool:
             self.add_ip_from_pool(server['id'], ip_pool)
         elif ips:
@@ -2338,7 +2340,7 @@ class OpenStackCloud(object):
         elif auto_ip:
             if self.get_server_public_ip(server):
                 return server
-            self.add_auto_ip(server)
+            self.add_auto_ip(server, wait=wait, timeout=timeout)
         else:
             return server
 
