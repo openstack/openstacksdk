@@ -113,7 +113,7 @@ def _auth_update(old_dict, new_dict):
 class OpenStackConfig(object):
 
     def __init__(self, config_files=None, vendor_files=None,
-                 override_defaults=None):
+                 override_defaults=None, force_ipv4=None):
         self._config_files = config_files or CONFIG_FILES
         self._vendor_files = vendor_files or VENDOR_FILES
 
@@ -135,11 +135,28 @@ class OpenStackConfig(object):
 
         # Grab ipv6 preference settings from env
         client_config = self.cloud_config.get('client', {})
-        self.prefer_ipv6 = get_boolean(
-            os.environ.pop(
-                'OS_PREFER_IPV6', client_config.get(
-                    'prefer_ipv6', client_config.get(
-                        'prefer-ipv6', False))))
+
+        if force_ipv4 is not None:
+            # If it's passed in to the constructor, honor it.
+            self.force_ipv4 = force_ipv4
+        else:
+            # Get the backwards compat value
+            prefer_ipv6 = get_boolean(
+                os.environ.pop(
+                    'OS_PREFER_IPV6', client_config.get(
+                        'prefer_ipv6', client_config.get(
+                            'prefer-ipv6', True))))
+            force_ipv4 = get_boolean(
+                os.environ.pop(
+                    'OS_FORCE_IPV4', client_config.get(
+                        'force_ipv4', client_config.get(
+                            'broken-ipv6', False))))
+
+            self.force_ipv4 = force_ipv4
+            if not prefer_ipv6:
+                # this will only be false if someone set it explicitly
+                # honor their wishes
+                self.force_ipv4 = True
 
         # Next, process environment variables and add them to the mix
         self.envvar_key = os.environ.pop('OS_CLOUD_NAME', 'envvars')
@@ -586,7 +603,10 @@ class OpenStackConfig(object):
             if hasattr(value, 'format'):
                 config[key] = value.format(**config)
 
-        prefer_ipv6 = config.pop('prefer_ipv6', self.prefer_ipv6)
+        force_ipv4 = config.pop('force_ipv4', self.force_ipv4)
+        prefer_ipv6 = config.pop('prefer_ipv6', True)
+        if not prefer_ipv6:
+            force_ipv4 = True
 
         if cloud is None:
             cloud_name = ''
@@ -595,7 +615,7 @@ class OpenStackConfig(object):
         return cloud_config.CloudConfig(
             name=cloud_name, region=config['region_name'],
             config=self._normalize_keys(config),
-            prefer_ipv6=prefer_ipv6,
+            force_ipv4=force_ipv4,
             auth_plugin=auth_plugin)
 
     @staticmethod

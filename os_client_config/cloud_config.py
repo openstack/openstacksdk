@@ -17,11 +17,11 @@ import warnings
 
 class CloudConfig(object):
     def __init__(self, name, region, config,
-                 prefer_ipv6=False, auth_plugin=None):
+                 force_ipv4=False, auth_plugin=None):
         self.name = name
         self.region = region
         self.config = config
-        self._prefer_ipv6 = prefer_ipv6
+        self._force_ipv4 = force_ipv4
         self._auth = auth_plugin
 
     def __getattr__(self, key):
@@ -107,7 +107,11 @@ class CloudConfig(object):
 
     @property
     def prefer_ipv6(self):
-        return self._prefer_ipv6
+        return not self._force_ipv4
+
+    @property
+    def force_ipv4(self):
+        return self._force_ipv4
 
     def get_auth(self):
         """Return a keystoneauth plugin from the auth credentials."""

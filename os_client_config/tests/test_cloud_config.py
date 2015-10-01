@@ -50,7 +50,7 @@ class TestCloudConfig(base.TestCase):
         self.assertIsNone(cc.x)
 
         # Test default ipv6
-        self.assertFalse(cc.prefer_ipv6)
+        self.assertFalse(cc.force_ipv4)
 
     def test_iteration(self):
         cc = cloud_config.CloudConfig("test1", "region-al", fake_config_dict)
@@ -116,8 +116,8 @@ class TestCloudConfig(base.TestCase):
 
     def test_ipv6(self):
         cc = cloud_config.CloudConfig(
-            "test1", "region-al", fake_config_dict, prefer_ipv6=True)
-        self.assertTrue(cc.prefer_ipv6)
+            "test1", "region-al", fake_config_dict, force_ipv4=True)
+        self.assertTrue(cc.force_ipv4)
 
     def test_getters(self):
         cc = cloud_config.CloudConfig("test1", "region-al", fake_services_dict)

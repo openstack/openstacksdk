@@ -40,7 +40,7 @@ VENDOR_CONF = {
 }
 USER_CONF = {
     'client': {
-        'prefer_ipv6': True,
+        'force_ipv4': True,
     },
     'clouds': {
         '_test-cloud_': {

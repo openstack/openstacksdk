@@ -197,15 +197,18 @@ are connecting to OpenStack can share a cache should you desire.
 IPv6
 ----
 
-IPv6 may be a thing you would prefer to use not only if the cloud supports it,
-but also if your local machine support it. A simple boolean flag is settable
-either in an environment variable, `OS_PREFER_IPV6`, or in the client section
-of the clouds.yaml.
+IPv6 is the future, and you should always use if if your cloud supports it and
+if your local network supports it. Both of those are eaily detectable and all
+friendly software should do the right thing. However, sometimes you might
+exist in a location where you have an IPv6 stack, but something evil has
+caused it to not actually function. In that case, there is a config option
+you can set to unbreak you `force_ipv4`, or `OS_FORCE_IPV4` boolean
+environment variable.
 
 ::
 
   client:
-    prefer_ipv6: true
+    force_ipv4: true
   clouds:
     mordred:
       profile: hp
@@ -222,9 +225,8 @@ of the clouds.yaml.
         project_name: mordred@inaugust.com
       region_name: DFW
 
-The above snippet will tell client programs to prefer returning an IPv6
-address. This will result in calls to, for instance, `shade`'s `get_public_ip`
-to return an IPv4 address on HP, and an IPv6 address on Rackspace.
+The above snippet will tell client programs to prefer returning an IPv4
+address.
 
 Usage
 -----
