@@ -197,8 +197,8 @@ are connecting to OpenStack can share a cache should you desire.
 IPv6
 ----
 
-IPv6 is the future, and you should always use if if your cloud supports it and
-if your local network supports it. Both of those are eaily detectable and all
+IPv6 is the future, and you should always use it if your cloud supports it and
+if your local network supports it. Both of those are easily detectable and all
 friendly software should do the right thing. However, sometimes you might
 exist in a location where you have an IPv6 stack, but something evil has
 caused it to not actually function. In that case, there is a config option
