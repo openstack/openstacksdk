@@ -1406,9 +1406,9 @@ class OpenStackCloud(object):
             return image.id
         return None
 
-    def create_image_snapshot(self, name, **metadata):
+    def create_image_snapshot(self, name, server, **metadata):
         image = self.manager.submitTask(_tasks.ImageSnapshotCreate(
-            name=name, **metadata))
+            image_name=name, server=server, metadata=metadata))
         if image:
             return meta.obj_to_dict(image)
         return None
