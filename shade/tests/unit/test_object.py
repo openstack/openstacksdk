@@ -47,7 +47,7 @@ class TestObject(base.TestCase):
         swift_mock.assert_called_with(
             preauthurl='danzig',
             preauthtoken='yankee',
-            auth_version='2',
+            auth_version=mock.ANY,
             timeout=None,
             os_options=dict(
                 object_storage_url='danzig',
