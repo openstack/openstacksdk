@@ -246,6 +246,24 @@ class OpenStackCloud(object):
         self.image_api_use_tasks = cloud_config.config['image_api_use_tasks']
         self.secgroup_source = cloud_config.config['secgroup_source']
 
+        self._external_network = None
+        self._external_network_name_or_id = cloud_config.config.get(
+            'external_network', None)
+        self._use_external_network = cloud_config.config.get(
+            'use_external_network', True)
+
+        self._internal_network = None
+        self._internal_network_name_or_id = cloud_config.config.get(
+            'internal_network', None)
+        self._use_internal_network = cloud_config.config.get(
+            'use_internal_network', True)
+
+        # Variables to prevent us from going through the network finding
+        # logic again if we've done it once. This is different from just
+        # the cached value, since "None" is a valid value to find.
+        self._external_network_stamp = False
+        self._internal_network_stamp = False
+
         if manager is not None:
             self.manager = manager
         else:
@@ -1012,6 +1030,81 @@ class OpenStackCloud(object):
         except Exception as e:
             raise OpenStackCloudException(
                 "Error fetching record list: %s" % e)
+
+    def use_external_network(self):
+        return self._use_external_network
+
+    def use_internal_network(self):
+        return self._use_internal_network
+
+    def _get_network(
+            self,
+            name_or_id,
+            use_network_func,
+            network_cache,
+            network_stamp,
+            filters):
+        if not use_network_func():
+            return None
+        if network_cache:
+            return network_cache
+        if network_stamp:
+            return None
+        if not self.has_service('network'):
+            return None
+        if name_or_id:
+            ext_net = self.get_network(name_or_id)
+            if not ext_net:
+                raise OpenStackCloudException(
+                    "Network {network} was provided for external"
+                    " access and that network could not be found".format(
+                        network=name_or_id))
+            else:
+                return ext_net
+        try:
+            # TODO(mordred): Rackspace exposes neutron but it does not
+            # work. I think that overriding what the service catalog
+            # reports should be a thing os-client-config should handle
+            # in a vendor profile - but for now it does not. That means
+            # this search_networks can just totally fail. If it does though,
+            # that's fine, clearly the neutron introspection is not going
+            # to work.
+            ext_nets = self.search_networks(filters=filters)
+            if len(ext_nets) == 1:
+                return ext_nets[0]
+        except OpenStackCloudException:
+            pass
+        return None
+
+    def get_external_network(self):
+        """Return the network that is configured to route northbound.
+
+        :returns: A network dict if one is found, None otherwise.
+        """
+        self._external_network = self._get_network(
+            self._external_network_name_or_id,
+            self.use_external_network,
+            self._external_network,
+            self._external_network_stamp,
+            filters={'router:external': True})
+        self._external_network_stamp = True
+
+    def get_internal_network(self):
+        """Return the network that is configured to not route northbound.
+
+        :returns: A network dict if one is found, None otherwise.
+        """
+        self._internal_network = self._get_network(
+            self._internal_network_name_or_id,
+            self.use_internal_network,
+            self._internal_network,
+            self._internal_network_stamp,
+            filters={
+                'router:external': False,
+                'shared': False
+            })
+        self._internal_network_stamp = True
+        return self._internal_network
 
     def get_keypair(self, name_or_id, filters=None):
         return _utils._get_entity(self.search_keypairs, name_or_id, filters)
