@@ -104,4 +104,5 @@ class TestFloatingIP(base.TestCase):
 
         self.client.add_ips_to_server(server_dict)
 
-        mock_add_auto_ip.assert_called_with(server_dict)
+        mock_add_auto_ip.assert_called_with(
+            server_dict, wait=False, timeout=60)
