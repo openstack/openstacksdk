@@ -751,6 +751,11 @@ class OpenStackCloud(object):
         return endpoint
 
     def has_service(self, service_key):
+        if not self.cloud_config.config.get('has_%s' % service_key, True):
+            self.log.debug(
+                "Overriding {service_key} entry in catalog per config".format(
+                    service_key=service_key))
+            return False
         try:
             endpoint = self.get_session_endpoint(service_key)
         except OpenStackCloudException:
