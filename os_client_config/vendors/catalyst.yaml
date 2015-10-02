@@ -5,6 +5,5 @@ profile:
   regions:
   - nz-por-1
   - nz_wlg_1
-  identity_api_version: '2'
   image_api_version: '1'
   image_format: raw
