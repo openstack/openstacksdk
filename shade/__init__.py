@@ -3372,6 +3372,74 @@ class OperatorCloud(OpenStackCloud):
         except ironic_exceptions.ClientException:
             return None
 
+    def inspect_machine(self, name_or_id, wait=False, timeout=3600):
+        """Inspect a Barmetal machine
+
+        Engages the Ironic node inspection behavior in order to collect
+        metadata about the baremetal machine.
+
+        :param name_or_id: String representing machine name or UUID value in
+                           order to identify the machine.
+
+        :param wait: Boolean value controlling if the method is to wait for
+                     the desired state to be reached or a failure to occur.
+
+        :param timeout: Integer value, defautling to 3600 seconds, for the$
+                        wait state to reach completion.
+
+        :returns: Dictonary representing the current state of the machine
+                  upon exit of the method.
+        """
+
+        return_to_available = False
+
+        machine = self.get_machine(name_or_id)
+        if not machine:
+            raise OpenStackCloudException(
+                "Machine inspection failed to find: %s." % name_or_id)
+
+        # NOTE(TheJulia): If in available state, we can do this, however
+        # We need to to move the host back to m
+        if "available" in machine['provision_state']:
+            return_to_available = True
+            # NOTE(TheJulia): Changing available machine to managedable state
+            # and due to state transitions we need to until that transition has
+            # completd.
+            self.node_set_provision_state(machine['uuid'], 'manage',
+                                          wait=True, timeout=timeout)
+        elif ("manage" not in machine['provision_state'] and
+                "inspect failed" not in machine['provision_state']):
+            raise OpenStackCloudException(
+                "Machine must be in 'manage' or 'available' state to "
+                "engage inspection: Machine: %s State: %s"
+                % (machine['uuid'], machine['provision_state']))
+        try:
+            machine = self.node_set_provision_state(machine['uuid'], 'inspect')
+            if wait:
+                for count in _utils._iterate_timeout(
+                        timeout,
+                        "Timeout waiting for node transition to "
+                        "target state of 'inpection'"):
+                    machine = self.get_machine(name_or_id)
+
+                    if "inspect failed" in machine['provision_state']:
+                        raise OpenStackCloudException(
+                            "Inspection of node %s failed, last error: %s"
+                            % (machine['uuid'], machine['last_error']))
+
+                    if "manageable" in machine['provision_state']:
+                        break
+
+            if return_to_available:
+                machine = self.node_set_provision_state(
+                    machine['uuid'], 'provide', wait=wait, timeout=timeout)
+
+            return(machine)
+
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Error inspecting machine: %s" % e)
+
     def register_machine(self, nics, wait=False, timeout=3600,
                          lock_timeout=600, **kwargs):
         """Register Baremetal with Ironic

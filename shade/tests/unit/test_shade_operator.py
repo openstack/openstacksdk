@@ -364,6 +364,180 @@ class TestShadeOperator(base.TestCase):
             expected_patch)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_inspect_machine_fail_active(self, mock_client):
+
+        machine_uuid = '00000000-0000-0000-0000-000000000000'
+
+        class active_machine:
+            uuid = machine_uuid
+            provision_state = "active"
+
+        mock_client.node.get.return_value = active_machine
+        self.assertRaises(
+            shade.OpenStackCloudException,
+            self.cloud.inspect_machine,
+            machine_uuid,
+            wait=True,
+            timeout=0.001)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_inspect_machine_failed(self, mock_client):
+
+        machine_uuid = '00000000-0000-0000-0000-000000000000'
+
+        class inspect_failed_machine:
+            uuid = machine_uuid
+            provision_state = "inspect failed"
+            last_error = "kaboom"
+
+        mock_client.node.get.return_value = inspect_failed_machine
+        self.cloud.inspect_machine(machine_uuid)
+        self.assertTrue(mock_client.node.set_provision_state.called)
+        self.assertEqual(
+            mock_client.node.set_provision_state.call_count, 1)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_inspect_machine_managable(self, mock_client):
+
+        machine_uuid = '00000000-0000-0000-0000-000000000000'
+
+        class manageable_machine:
+            uuid = machine_uuid
+            provision_state = "manageable"
+
+        mock_client.node.get.return_value = manageable_machine
+        self.cloud.inspect_machine(machine_uuid)
+        self.assertEqual(
+            mock_client.node.set_provision_state.call_count, 1)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_inspect_machine_available(self, mock_client):
+
+        machine_uuid = '00000000-0000-0000-0000-000000000000'
+
+        class available_machine:
+            uuid = machine_uuid
+            provision_state = "available"
+
+        class manageable_machine:
+            uuid = machine_uuid
+            provision_state = "manageable"
+
+        class inspecting_machine:
+            uuid = machine_uuid
+            provision_state = "inspecting"
+
+        mock_client.node.get.side_effect = iter([
+            available_machine,
+            available_machine,
+            manageable_machine,
+            manageable_machine,
+            inspecting_machine])
+        self.cloud.inspect_machine(machine_uuid)
+        self.assertTrue(mock_client.node.set_provision_state.called)
+        self.assertEqual(
+            mock_client.node.set_provision_state.call_count, 3)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_inspect_machine_available_wait(self, mock_client):
+
+        machine_uuid = '00000000-0000-0000-0000-000000000000'
+
+        class available_machine:
+            uuid = machine_uuid
+            provision_state = "available"
+
+        class manageable_machine:
+            uuid = machine_uuid
+            provision_state = "manageable"
+
+        class inspecting_machine:
+            uuid = machine_uuid
+            provision_state = "inspecting"
+
+        mock_client.node.get.side_effect = iter([
+            available_machine,
+            available_machine,
+            manageable_machine,
+            inspecting_machine,
+            manageable_machine,
+            available_machine,
+            available_machine])
+        expected_return_value = dict(
+            uuid=machine_uuid,
+            provision_state="available"
+        )
+
+        return_value = self.cloud.inspect_machine(
+            machine_uuid, wait=True, timeout=0.001)
+        self.assertTrue(mock_client.node.set_provision_state.called)
+        self.assertEqual(
+            mock_client.node.set_provision_state.call_count, 3)
+        self.assertDictEqual(expected_return_value, return_value)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_inspect_machine_wait(self, mock_client):
+
+        machine_uuid = '00000000-0000-0000-0000-000000000000'
+
+        class manageable_machine:
+            uuid = machine_uuid
+            provision_state = "manageable"
+
+        class inspecting_machine:
+            uuid = machine_uuid
+            provision_state = "inspecting"
+
+        expected_return_value = dict(
+            uuid=machine_uuid,
+            provision_state="manageable"
+        )
+        mock_client.node.get.side_effect = iter([
+            manageable_machine,
+            inspecting_machine,
+            inspecting_machine,
+            manageable_machine,
+            manageable_machine])
+
+        return_value = self.cloud.inspect_machine(
+            machine_uuid, wait=True, timeout=0.001)
+        self.assertDictEqual(expected_return_value, return_value)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_inspect_machine_inspect_failed(self, mock_client):
+
+        machine_uuid = '00000000-0000-0000-0000-000000000000'
+
+        class manageable_machine:
+            uuid = machine_uuid
+            provision_state = "manageable"
+            last_error = None
+
+        class inspecting_machine:
+            uuid = machine_uuid
+            provision_state = "inspecting"
+            last_error = None
+
+        class inspect_failed_machine:
+            uuid = machine_uuid
+            provision_state = "inspect failed"
+            last_error = "kaboom"
+
+        mock_client.node.get.side_effect = iter([
+            manageable_machine,
+            inspecting_machine,
+            inspect_failed_machine])
+        self.assertRaises(
+            shade.OpenStackCloudException,
+            self.cloud.inspect_machine,
+            machine_uuid,
+            wait=True,
+            timeout=0.001)
+        self.assertEqual(
+            mock_client.node.set_provision_state.call_count, 1)
+        self.assertEqual(mock_client.node.get.call_count, 3)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_register_machine(self, mock_client):
         class fake_node:
             uuid = "00000000-0000-0000-0000-000000000000"
