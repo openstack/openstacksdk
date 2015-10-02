@@ -301,7 +301,7 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     server_vars['image'].pop('links', None)
 
     volumes = []
-    if cloud.has_service('volumes'):
+    if cloud.has_service('volume'):
         try:
             for volume in cloud.get_volumes(server):
                 # Make things easier to consume elsewhere
