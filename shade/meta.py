@@ -14,11 +14,11 @@
 
 
 import bunch
+import ipaddress
 import six
 
 from shade import exc
 from shade import _log
-from shade import _utils
 
 
 NON_CALLABLES = (six.string_types, bool, dict, int, float, list, type(None))
@@ -150,9 +150,16 @@ def get_server_external_ipv4(cloud, server):
     # Nothing else works, try to find a globally routable IP address
     for interfaces in server['addresses'].values():
         for interface in interfaces:
-            if _utils.is_ipv4(interface['addr']) and \
-                    _utils.is_globally_routable_ipv4(interface['addr']):
-                return interface['addr']
+            try:
+                ip = ipaddress.ip_address(interface['addr'])
+            except Exception:
+                # Skip any error, we're looking for a working ip - if the
+                # cloud returns garbage, it wouldn't be the first weird thing
+                # but it still doesn't meet the requirement of "be a working
+                # ip address"
+                continue
+            if ip.version == 4 and not ip.is_private:
+                return str(ip)
 
     return None
 

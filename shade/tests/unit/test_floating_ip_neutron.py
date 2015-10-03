@@ -106,7 +106,7 @@ class TestFloatingIP(base.TestCase):
             'fixed_ips': [
                 {
                     'subnet_id': '008ba151-0b8c-4a67-98b5-0d2b87666062',
-                    'ip_address': '172.24.4.2'
+                    'ip_address': u'172.24.4.2'
                 }
             ],
             'id': 'ce705c24-c1ef-408a-bda3-7bbd946164ac',

@@ -12,12 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import re
 import time
 
 import netifaces
-from socket import inet_aton
-from struct import unpack
 
 from shade import exc
 
@@ -158,42 +155,6 @@ def normalize_nova_secgroup_rules(rules):
              'remote_ip_prefix': r['ip_range'].get('cidr', None),
              'security_group_id': r['parent_group_id']
              } for r in rules]
-
-
-def is_ipv4(ip):
-    return re.match(
-        '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|'
-        '[01]?[0-9][0-9]?)$', ip) is not None
-
-
-def is_globally_routable_ipv4(ip):
-    # Comprehensive list of non-globally routable IPv4 networks
-    ngr_nets = (
-        ["192.168.0.0", "255.255.0.0"],     # rfc1918
-        ["172.16.0.0", "255.240.0.0"],      # rfc1918
-        ["10.0.0.0", "255.0.0.0"],          # rfc1918
-        ["192.0.2.0", "255.255.255.0"],     # rfc5737
-        ["198.51.100.0", "255.255.255.0"],  # rfc5737
-        ["203.0.113.0", "255.255.255.0"],   # rfc5737
-        ["169.254.0.0", "255.255.0.0"],     # rfc3927
-        ["100.64.0.0", "255.192.0.0"],      # rfc6598
-        ["192.0.0.0", "255.255.255.0"],     # rfc5736
-        ["192.88.99.0", "255.255.255.0"],   # rfc3068
-        ["198.18.0.0", "255.254.0.0"],      # rfc2544
-        ["224.0.0.0", "240.0.0.0"],         # rfc5771
-        ["240.0.0.0", "240.0.0.0"],         # rfc6890
-        ["0.0.0.0", "255.0.0.0"],           # rfc1700
-        ["255.255.255.255", "0.0.0.0"],     # rfc6890
-        ["127.0.0.0", "255.0.0.0"],         # rfc3330
-    )
-
-    int_ip = unpack('!I', inet_aton(ip))[0]
-    for net in ngr_nets:
-        mask = unpack('!I', inet_aton(net[1]))[0]
-        if (int_ip & mask) == unpack('!I', inet_aton(net[0]))[0]:
-            return False
-
-    return True
 
 
 def normalize_nova_floating_ips(ips):

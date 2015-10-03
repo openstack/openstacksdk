@@ -25,6 +25,7 @@ from dogpile import cache
 import glanceclient
 import glanceclient.exc
 from glanceclient.common import utils as glance_utils
+import ipaddress
 from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
 import jsonpatch
@@ -2148,7 +2149,11 @@ class OpenStackCloud(object):
                 port = ports[0]
                 # Select the first available IPv4 address
                 for address in port.get('fixed_ips', list()):
-                    if _utils.is_ipv4(address['ip_address']):
+                    try:
+                        ip = ipaddress.ip_address(address['ip_address'])
+                    except Exception:
+                        continue
+                    if ip.version == 4:
                         fixed_address = address['ip_address']
                         break
                 if fixed_address is None:
