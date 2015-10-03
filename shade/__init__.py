@@ -1383,9 +1383,6 @@ class OpenStackCloud(object):
 
         return True
 
-    def _reset_image_cache(self):
-        self._image_cache = None
-
     def get_image_exclude(self, name_or_id, exclude):
         for image in self.search_images(name_or_id):
             if exclude:
@@ -1410,6 +1407,7 @@ class OpenStackCloud(object):
     def create_image_snapshot(self, name, server, **metadata):
         image_id = str(self.manager.submitTask(_tasks.ImageSnapshotCreate(
             image_name=name, server=server, metadata=metadata)))
+        self.list_images.invalidate(self)
         return self.get_image(image_id)
 
     def delete_image(self, name_or_id, wait=False, timeout=3600):
@@ -1424,6 +1422,7 @@ class OpenStackCloud(object):
             elif glance_api_version == '1':
                 self.manager.submitTask(
                     _tasks.ImageDelete(image=image.id))
+            self.list_images.invalidate(self)
         except Exception as e:
             raise OpenStackCloudException(
                 "Error in deleting image: %s" % str(e))
@@ -1546,6 +1545,7 @@ class OpenStackCloud(object):
                 image_properties=dict(name=name)))
         glance_task = self.manager.submitTask(
             _tasks.ImageTaskCreate(**task_args))
+        self.list_images.invalidate(self)
         if wait:
             image_id = None
             for count in _utils._iterate_timeout(
@@ -1561,8 +1561,6 @@ class OpenStackCloud(object):
 
                 if status.status == 'success':
                     image_id = status.result['image_id']
-                    self._reset_image_cache()
-                    self.list_images.invalidate(self)
                     try:
                         image = self.get_image(image_id)
                     except glanceclient.exc.HTTPServiceUnavailable:
@@ -1573,12 +1571,12 @@ class OpenStackCloud(object):
                     self.update_image_properties(
                         image=image,
                         **image_properties)
-                    self.list_images.invalidate(self)
                     return self.get_image(status.result['image_id'])
                 if status.status == 'failure':
                     if status.message == IMAGE_ERROR_396:
                         glance_task = self.manager.submitTask(
                             _tasks.ImageTaskCreate(**task_args))
+                        self.list_images.invalidate(self)
                     else:
                         raise OpenStackCloudException(
                             "Image creation failed: {message}".format(
@@ -1614,6 +1612,7 @@ class OpenStackCloud(object):
             return False
         self.manager.submitTask(_tasks.ImageUpdate(
             image_id=image.id, **img_props))
+        self.list_images.invalidate(self)
         return True
 
     def _update_image_properties_v1(self, image, properties):
@@ -1625,6 +1624,7 @@ class OpenStackCloud(object):
             return False
         self.manager.submitTask(_tasks.ImageUpdate(
             image=image, properties=img_props))
+        self.list_images.invalidate(self)
         return True
 
     def create_volume(self, wait=True, timeout=None, **kwargs):
