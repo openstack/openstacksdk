@@ -83,29 +83,11 @@ def get_server_private_ip(server, cloud=None):
     # Short circuit the ports/networks search below with a heavily cached
     # and possibly pre-configured network name
     if cloud:
-        int_net = cloud.get_internal_network()
-        if int_net:
+        int_nets = cloud.get_internal_networks()
+        for int_net in int_nets:
             int_ip = get_server_ip(server, key_name=int_net['name'])
             if int_ip is not None:
                 return int_ip
-
-    if cloud and cloud.has_service('network'):
-        try:
-            server_ports = cloud.search_ports(
-                filters={'device_id': server['id']})
-            nets = cloud.search_networks(
-                filters={'router:external': False, 'shared': False})
-        except Exception as e:
-            log.debug(
-                "Something went wrong talking to neutron API: "
-                "'{msg}'. Trying with Nova.".format(msg=str(e)))
-        else:
-            for net in nets:
-                for port in server_ports:
-                    if net['id'] == port['network_id']:
-                        for ip in port['fixed_ips']:
-                            if _utils.is_ipv4(ip['ip_address']):
-                                return ip['ip_address']
 
     ip = get_server_ip(server, ext_tag='fixed', key_name='private')
     if ip:
@@ -143,35 +125,18 @@ def get_server_external_ipv4(cloud, server):
 
     # Short circuit the ports/networks search below with a heavily cached
     # and possibly pre-configured network name
-    ext_net = cloud.get_external_network()
-    if ext_net:
+    ext_nets = cloud.get_external_networks()
+    for ext_net in ext_nets:
         ext_ip = get_server_ip(server, key_name=ext_net['name'])
         if ext_ip is not None:
             return ext_ip
 
-    if cloud.has_service('network'):
-        try:
-            # Search a fixed IP attached to an external net. Unfortunately
-            # Neutron ports don't have a 'floating_ips' attribute
-            server_ports = cloud.search_ports(
-                filters={'device_id': server['id']})
-            ext_nets = cloud.search_networks(filters={'router:external': True})
-        except Exception as e:
-            log.debug(
-                "Something went wrong talking to neutron API: "
-                "'{msg}'. Trying with Nova.".format(msg=str(e)))
-            # Fall-through, trying with Nova
-        else:
-            for net in ext_nets:
-                for port in server_ports:
-                    if net['id'] == port['network_id']:
-                        for ip in port['fixed_ips']:
-                            if _utils.is_ipv4(ip['ip_address']):
-                                return ip['ip_address']
-            # The server doesn't have an interface on an external network so it
-            # can either have a floating IP or have no way to be reached from
-            # outside the cloud.
-            # Fall-through, trying with Nova
+    # Try to get a floating IP address
+    # Much as I might find floating IPs annoying, if it has one, that's
+    # almost certainly the one that wants to be used
+    ext_ip = get_server_ip(server, ext_tag='floating')
+    if ext_ip is not None:
+        return ext_ip
 
     # The cloud doesn't support Neutron or Neutron can't be contacted. The
     # server might have fixed addresses that are reachable from outside the
@@ -182,17 +147,12 @@ def get_server_external_ipv4(cloud, server):
     if ext_ip is not None:
         return ext_ip
 
-    # Try to find a globally routable IP address
+    # Nothing else works, try to find a globally routable IP address
     for interfaces in server['addresses'].values():
         for interface in interfaces:
             if _utils.is_ipv4(interface['addr']) and \
                     _utils.is_globally_routable_ipv4(interface['addr']):
                 return interface['addr']
-
-    # Last, try to get a floating IP address
-    ext_ip = get_server_ip(server, ext_tag='floating')
-    if ext_ip is not None:
-        return ext_ip
 
     return None
 

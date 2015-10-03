@@ -189,9 +189,17 @@ class TestFloatingIP(base.TestCase):
 
             # Select the network for creating new servers
             self.nic = {'net-id': self.test_net['id']}
+            self.addDetail(
+                'networks-neutron',
+                content.text_content(pprint.pformat(
+                    self.cloud.list_networks())))
         else:
             # ToDo: remove once we have list/get methods for nova networks
             nets = self.cloud.nova_client.networks.list()
+            self.addDetail(
+                'networks-nova',
+                content.text_content(pprint.pformat(
+                    nets)))
             self.nic = {'net-id': nets[0].id}
 
     def test_private_ip(self):

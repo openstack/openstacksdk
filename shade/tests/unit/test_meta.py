@@ -20,7 +20,6 @@ from neutronclient.common import exceptions as neutron_exceptions
 
 import shade
 from shade import meta
-from shade import _utils
 from shade.tests import fakes
 
 PRIVATE_V4 = '198.51.100.3'
@@ -55,11 +54,11 @@ class FakeCloud(object):
     def use_external_network(self):
         return True
 
-    def get_internal_network(self):
-        return None
+    def get_internal_networks(self):
+        return []
 
-    def get_external_network(self):
-        return None
+    def get_external_networks(self):
+        return []
 
 
 class FakeServer(object):
@@ -124,16 +123,10 @@ class TestMeta(testtools.TestCase):
         self.assertEqual(PUBLIC_V4, meta.get_server_external_ipv4(cloud, srv))
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
-    @mock.patch.object(shade.OpenStackCloud, 'search_ports')
     @mock.patch.object(shade.OpenStackCloud, 'search_networks')
-    def test_get_server_private_ip(self, mock_search_networks,
-                                   mock_search_ports, mock_has_service):
+    def test_get_server_private_ip(
+            self, mock_search_networks, mock_has_service):
         mock_has_service.return_value = True
-        mock_search_ports.return_value = [{
-            'network_id': 'test-net-id',
-            'fixed_ips': [{'ip_address': PRIVATE_V4}],
-            'device_id': 'test-id'
-        }]
         mock_search_networks.return_value = [{
             'id': 'test-net-id',
             'name': 'test-net-name'
@@ -152,36 +145,75 @@ class TestMeta(testtools.TestCase):
 
         self.assertEqual(PRIVATE_V4, meta.get_server_private_ip(srv, cloud))
         mock_has_service.assert_called_with('network')
-        mock_search_ports.assert_called_once_with(
-            filters={'device_id': 'test-id'}
+        mock_search_networks.assert_called_with(
+            filters={'router:external': False, 'shared': False}
         )
+
+    @mock.patch.object(shade.OpenStackCloud, 'get_image_name')
+    @mock.patch.object(shade.OpenStackCloud, 'get_flavor_name')
+    @mock.patch.object(shade.OpenStackCloud, 'has_service')
+    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
+    def test_get_server_private_ip_devstack(
+            self, mock_search_networks, mock_has_service,
+            mock_get_flavor_name, mock_get_image_name):
+        mock_get_image_name.return_value = 'cirros-0.3.4-x86_64-uec'
+        mock_get_flavor_name.return_value = 'm1.tiny'
+        mock_has_service.return_value = True
+        mock_search_networks.return_value = [
+            {
+                'id': 'test_pnztt_net',
+                'name': 'test_pnztt_net'
+            },
+            {
+                'id': 'private',
+                'name': 'private',
+            },
+        ]
+
+        cloud = shade.openstack_cloud(validate=False)
+        srv = cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
+            id='test-id', name='test-name', status='ACTIVE',
+            flavor={u'id': u'1'},
+            image={
+                'name': u'cirros-0.3.4-x86_64-uec',
+                u'id': u'f93d000b-7c29-4489-b375-3641a1758fe1'},
+            addresses={u'test_pnztt_net': [{
+                u'OS-EXT-IPS:type': u'fixed',
+                u'addr': PRIVATE_V4,
+                u'version': 4,
+                u'OS-EXT-IPS-MAC:mac_addr':
+                u'fa:16:3e:ae:7d:42'
+            }]}
+        )))
+
+        self.assertEqual(PRIVATE_V4, srv['private_v4'])
+        mock_has_service.assert_called_with('volume')
         mock_search_networks.assert_called_with(
             filters={'router:external': False, 'shared': False}
         )
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
-    @mock.patch.object(shade.OpenStackCloud, 'search_ports')
     @mock.patch.object(shade.OpenStackCloud, 'search_networks')
-    @mock.patch.object(meta, 'get_server_ip')
     def test_get_server_external_ipv4_neutron(
-            self, mock_get_server_ip, mock_search_networks,
-            mock_search_ports, mock_has_service):
+            self, mock_search_networks,
+            mock_has_service):
         # Testing Clouds with Neutron
         mock_has_service.return_value = True
-        mock_search_ports.return_value = [{
-            'network_id': 'test-net-id',
-            'fixed_ips': [{'ip_address': PUBLIC_V4}],
-            'device_id': 'test-id'
+        mock_search_networks.return_value = [{
+            'id': 'test-net-id',
+            'name': 'test-net'
         }]
-        mock_search_networks.return_value = [{'id': 'test-net-id'}]
 
         srv = meta.obj_to_dict(fakes.FakeServer(
-            id='test-id', name='test-name', status='ACTIVE'))
+            id='test-id', name='test-name', status='ACTIVE',
+            addresses={'test-net': [{
+                'addr': PUBLIC_V4,
+                'version': 4}]},
+        ))
         ip = meta.get_server_external_ipv4(
             cloud=shade.openstack_cloud(validate=False), server=srv)
 
         self.assertEqual(PUBLIC_V4, ip)
-        self.assertFalse(mock_get_server_ip.called)
 
     def test_get_server_external_ipv4_neutron_accessIPv4(self):
         srv = meta.obj_to_dict(fakes.FakeServer(
@@ -223,36 +255,26 @@ class TestMeta(testtools.TestCase):
         self.assertTrue(mock_get_server_ip.called)
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
-    @mock.patch.object(meta, 'get_server_ip')
-    @mock.patch.object(_utils, 'is_globally_routable_ipv4')
     def test_get_server_external_ipv4_nova_public(
-            self, mock_is_globally_routable_ipv4,
-            mock_get_server_ip, mock_has_service):
+            self, mock_has_service):
         # Testing Clouds w/o Neutron and a network named public
         mock_has_service.return_value = False
-        mock_get_server_ip.return_value = None
-        mock_is_globally_routable_ipv4.return_value = True
 
         srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
-            addresses={'test-net': [{'addr': PUBLIC_V4}]}))
+            addresses={'public': [{'addr': PUBLIC_V4, 'version': 4}]}))
         ip = meta.get_server_external_ipv4(
             cloud=shade.openstack_cloud(validate=False), server=srv)
 
         self.assertEqual(PUBLIC_V4, ip)
-        self.assertTrue(mock_get_server_ip.called)
-        self.assertTrue(mock_is_globally_routable_ipv4.called)
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
     @mock.patch.object(meta, 'get_server_ip')
-    @mock.patch.object(_utils, 'is_globally_routable_ipv4')
     def test_get_server_external_ipv4_nova_none(
-            self, mock_is_globally_routable_ipv4,
-            mock_get_server_ip, mock_has_service):
+            self, mock_get_server_ip, mock_has_service):
         # Testing Clouds w/o Neutron and a globally routable IP
         mock_has_service.return_value = False
         mock_get_server_ip.return_value = None
-        mock_is_globally_routable_ipv4.return_value = False
 
         srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
@@ -262,7 +284,6 @@ class TestMeta(testtools.TestCase):
 
         self.assertIsNone(ip)
         self.assertTrue(mock_get_server_ip.called)
-        self.assertTrue(mock_is_globally_routable_ipv4.called)
 
     def test_get_server_external_ipv6(self):
         srv = meta.obj_to_dict(fakes.FakeServer(

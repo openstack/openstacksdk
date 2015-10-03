@@ -247,13 +247,13 @@ class OpenStackCloud(object):
         self.secgroup_source = cloud_config.config['secgroup_source']
         self.force_ipv4 = cloud_config.force_ipv4
 
-        self._external_network = None
+        self._external_networks = []
         self._external_network_name_or_id = cloud_config.config.get(
             'external_network', None)
         self._use_external_network = cloud_config.config.get(
             'use_external_network', True)
 
-        self._internal_network = None
+        self._internal_networks = []
         self._internal_network_name_or_id = cloud_config.config.get(
             'internal_network', None)
         self._use_internal_network = cloud_config.config.get(
@@ -1053,13 +1053,13 @@ class OpenStackCloud(object):
             network_stamp,
             filters):
         if not use_network_func():
-            return None
+            return []
         if network_cache:
             return network_cache
         if network_stamp:
-            return None
+            return []
         if not self.has_service('network'):
-            return None
+            return []
         if name_or_id:
             ext_net = self.get_network(name_or_id)
             if not ext_net:
@@ -1068,7 +1068,7 @@ class OpenStackCloud(object):
                     " access and that network could not be found".format(
                         network=name_or_id))
             else:
-                return ext_net
+                return []
         try:
             # TODO(mordred): Rackspace exposes neutron but it does not
             # work. I think that overriding what the service catalog
@@ -1077,42 +1077,41 @@ class OpenStackCloud(object):
             # this search_networks can just totally fail. If it does though,
             # that's fine, clearly the neutron introspection is not going
             # to work.
-            ext_nets = self.search_networks(filters=filters)
-            if len(ext_nets) == 1:
-                return ext_nets[0]
+            return self.search_networks(filters=filters)
         except OpenStackCloudException:
             pass
-        return None
+        return []
 
-    def get_external_network(self):
-        """Return the network that is configured to route northbound.
+    def get_external_networks(self):
+        """Return the networks that are configured to route northbound.
 
-        :returns: A network dict if one is found, None otherwise.
+        :returns: A list of network dicts if one is found
         """
-        self._external_network = self._get_network(
+        self._external_networks = self._get_network(
             self._external_network_name_or_id,
             self.use_external_network,
-            self._external_network,
+            self._external_networks,
             self._external_network_stamp,
             filters={'router:external': True})
         self._external_network_stamp = True
+        return self._external_networks
 
-    def get_internal_network(self):
-        """Return the network that is configured to not route northbound.
+    def get_internal_networks(self):
+        """Return the networks that are configured to not route northbound.
 
-        :returns: A network dict if one is found, None otherwise.
+        :returns: A list of network dicts if one is found
         """
-        self._internal_network = self._get_network(
+        self._internal_networks = self._get_network(
             self._internal_network_name_or_id,
             self.use_internal_network,
-            self._internal_network,
+            self._internal_networks,
             self._internal_network_stamp,
             filters={
                 'router:external': False,
                 'shared': False
             })
         self._internal_network_stamp = True
-        return self._internal_network
+        return self._internal_networks
 
     def get_keypair(self, name_or_id, filters=None):
         return _utils._get_entity(self.search_keypairs, name_or_id, filters)

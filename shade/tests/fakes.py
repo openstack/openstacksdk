@@ -67,11 +67,13 @@ class FakeProject(object):
 class FakeServer(object):
     def __init__(
             self, id, name, status, addresses=None,
-            accessIPv4='', accessIPv6=''):
+            accessIPv4='', accessIPv6='', flavor=None, image=None):
         self.id = id
         self.name = name
         self.status = status
         self.addresses = addresses
+        self.flavor = flavor
+        self.image = image
         self.accessIPv4 = accessIPv4
         self.accessIPv6 = accessIPv6
 
