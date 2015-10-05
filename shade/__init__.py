@@ -1869,6 +1869,12 @@ class OpenStackCloud(object):
     def get_openstack_vars(self, server):
         return meta.get_hostvars_from_server(self, server)
 
+    def _expand_server_vars(self, server):
+        # Used by nodepool
+        # TODO(mordred) remove after these make it into what we
+        # actually want the API to be.
+        return meta.expand_server_vars(self, server)
+
     def available_floating_ip(self, network=None):
         """Get a floating IP from a network or a pool.
 
