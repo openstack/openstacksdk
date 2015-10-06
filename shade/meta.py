@@ -223,7 +223,8 @@ def get_groups_from_server(cloud, server, server_vars):
     return groups
 
 
-def get_hostvars_from_server(cloud, server, mounts=None):
+def expand_server_vars(cloud, server):
+    """Add clean up the server dict with information that is essential."""
     server_vars = server
     server_vars.pop('links', None)
 
@@ -256,6 +257,16 @@ def get_hostvars_from_server(cloud, server, mounts=None):
 
     server_vars['region'] = cloud.region_name
     server_vars['cloud'] = cloud.name
+
+    az = server_vars.get('OS-EXT-AZ:availability_zone', None)
+    if az:
+        server_vars['az'] = az
+    return server_vars
+
+
+def get_hostvars_from_server(cloud, server, mounts=None):
+    """Expand additional server information useful for ansible inventory."""
+    server_vars = expand_server_vars(cloud, server)
 
     flavor_id = server['flavor']['id']
     flavor_name = cloud.get_flavor_name(flavor_id)
@@ -291,10 +302,6 @@ def get_hostvars_from_server(cloud, server, mounts=None):
                 if vol['display_name'] == mount['display_name']:
                     if 'mount' in mount:
                         vol['mount'] = mount['mount']
-
-    az = server_vars.get('OS-EXT-AZ:availability_zone', None)
-    if az:
-        server_vars['az'] = az
 
     return server_vars
 
