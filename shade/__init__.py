@@ -2466,12 +2466,29 @@ class OpenStackCloud(object):
                         extra_data=dict(server=server))
         return meta.obj_to_dict(server)
 
-    def delete_server(self, name_or_id, wait=False, timeout=180):
+    def delete_server(
+            self, name_or_id, wait=False, timeout=180, delete_ips=False):
         server = self.get_server(name_or_id)
-        return self._delete_server(server, wait=wait, timeout=timeout)
+        return self._delete_server(
+            server, wait=wait, timeout=timeout, delete_ips=delete_ips)
 
-    def _delete_server(self, server, wait=False, timeout=180):
+    def _delete_server(
+            self, server, wait=False, timeout=180, delete_ips=False):
         if server:
+            if delete_ips:
+                floating_ip = meta.get_server_ip(server, ext_tag='floating')
+                if floating_ip:
+                    ips = self.search_floating_ips(filters={
+                        'floating_ip_address': floating_ip})
+                if len(ips) != 1:
+                    raise OpenStackException(
+                        "Tried to delete floating ip {floating_ip}"
+                        " associated with server {id} but there was"
+                        " an error finding it. Something is exceptionally"
+                        " broken.".format(
+                            floating_ip=floating_ip,
+                            id=server['id']))
+                self.delete_floating_ip(ips[0]['id'])
             try:
                 self.manager.submitTask(
                     _tasks.ServerDelete(server=server['id']))
