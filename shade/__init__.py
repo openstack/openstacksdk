@@ -1921,9 +1921,7 @@ class OpenStackCloud(object):
             project_id = self.keystone_session.get_project_id()
 
         with self._neutron_exceptions("unable to get available floating IPs"):
-            networks = self.search_networks(
-                name_or_id=network,
-                filters={'router:external': True})
+            networks = self.get_external_networks()
             if not networks:
                 raise OpenStackCloudResourceNotFound(
                     "unable to find an external network")
@@ -1940,7 +1938,8 @@ class OpenStackCloud(object):
             if available_ips:
                 return available_ips
 
-            # No available IP found, allocate a new Floating IP
+            # No available IP found or we didn't try
+            # allocate a new Floating IP
             f_ip = self._neutron_create_floating_ip(
                 network_name_or_id=networks[0]['id'])
 
@@ -1979,7 +1978,8 @@ class OpenStackCloud(object):
             if available_ips:
                 return available_ips
 
-            # No available IP found, allocate a new Floating IP
+            # No available IP found or we did not try.
+            # Allocate a new Floating IP
             f_ip = self._nova_create_floating_ip(pool=pool)
 
             return [f_ip]
@@ -2271,7 +2271,8 @@ class OpenStackCloud(object):
 
         return True
 
-    def add_ip_from_pool(self, server_id, network, fixed_address=None):
+    def add_ip_from_pool(
+            self, server_id, network, fixed_address=None, reuse=True):
         """Add a floating IP to a sever from a given pool
 
         This method reuses available IPs, when possible, or allocate new IPs
@@ -2282,10 +2283,14 @@ class OpenStackCloud(object):
         :param server_id: Id of a server
         :param network: Nova pool name or Neutron network name or id.
         :param fixed_address: a fixed address
+        :param reuse: Try to reuse existing ips. Defaults to True.
 
         :returns: the floating IP assigned
         """
-        f_ip = self.available_floating_ip(network=network)
+        if reuse:
+            f_ip = self.available_floating_ip(network=network)
+        else:
+            f_ip = self.create_floating_ip(network=network)
 
         self.attach_ip_to_server(
             server_id=server_id, floating_ip_id=f_ip['id'],
@@ -2313,43 +2318,51 @@ class OpenStackCloud(object):
             self.attach_ip_to_server(
                 server_id=server['id'], floating_ip_id=f_ip['id'])
 
-    def add_auto_ip(self, server, wait=False, timeout=60):
+    def add_auto_ip(self, server, wait=False, timeout=60, reuse=True):
         """Add a floating IP to a server.
 
         This method is intended for basic usage. For advanced network
         architecture (e.g. multiple external networks or servers with multiple
         interfaces), use other floating IP methods.
 
-        This method reuses available IPs, when possible, or allocate new IPs
-        to the current tenant.
+        This method can reuse available IPs, or allocate new IPs to the current
+        project.
 
         :param server: a server dictionary.
+        :param reuse: Whether or not to attempt to reuse IPs, defaults
+                      to True.
         :param wait: (optional) Wait for the address to appear as assigned
                      to the server in Nova. Defaults to False.
         :param timeout: (optional) Seconds to wait, defaults to 60.
                         See the ``wait`` parameter.
+        :param reuse: Try to reuse existing ips. Defaults to True.
 
         :returns: Floating IP address attached to server.
 
         """
-        f_ip = self.available_floating_ip()
+        if reuse:
+            f_ip = self.available_floating_ip()
+        else:
+            f_ip = self.create_floating_ip()
+
         self.attach_ip_to_server(
             server_id=server['id'], floating_ip_id=f_ip['id'], wait=wait,
             timeout=timeout)
 
-        return self.get_floating_ip(id=f_ip['id'])
+        return f_ip
 
     def add_ips_to_server(
             self, server, auto_ip=True, ips=None, ip_pool=None,
-            wait=False, timeout=60):
+            wait=False, timeout=60, reuse=True):
         if ip_pool:
-            self.add_ip_from_pool(server['id'], ip_pool)
+            self.add_ip_from_pool(server['id'], ip_pool, reuse=reuse)
         elif ips:
             self.add_ip_list(server, ips)
         elif auto_ip:
             if self.get_server_public_ip(server):
                 return server
-            self.add_auto_ip(server, wait=wait, timeout=timeout)
+            self.add_auto_ip(
+                server, wait=wait, timeout=timeout, reuse=reuse)
         else:
             return server
 
@@ -2366,7 +2379,8 @@ class OpenStackCloud(object):
 
     def create_server(self, auto_ip=True, ips=None, ip_pool=None,
                       root_volume=None, terminate_volume=False,
-                      wait=False, timeout=180, **bootkwargs):
+                      wait=False, timeout=180, reuse_ips=True,
+                      **bootkwargs):
         """Create a virtual server instance.
 
         :returns: A dict representing the created server.
@@ -2429,7 +2443,7 @@ class OpenStackCloud(object):
                             ' allocated an IP address.',
                             extra_data=dict(server=server))
                     return self.add_ips_to_server(
-                        server, auto_ip, ips, ip_pool)
+                        server, auto_ip, ips, ip_pool, reuse=reuse_ips)
 
                 if server['status'] == 'ERROR':
                     raise OpenStackCloudException(
