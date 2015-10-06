@@ -1139,8 +1139,12 @@ class OpenStackCloud(object):
         return _utils._get_entity(
             self.search_security_groups, name_or_id, filters)
 
-    def get_server(self, name_or_id, filters=None):
+    def get_server(self, name_or_id=None, filters=None):
         return _utils._get_entity(self.search_servers, name_or_id, filters)
+
+    def get_server_by_id(self, id):
+        return meta.obj_to_dict(
+            self.manager.submitTask(_tasks.ServerGet(server=id)))
 
     def get_image(self, name_or_id, filters=None):
         return _utils._get_entity(self.search_images, name_or_id, filters)
@@ -2136,7 +2140,7 @@ class OpenStackCloud(object):
             for _ in _utils._iterate_timeout(
                     timeout,
                     "Timeout waiting for the floating IP to be attached."):
-                server = self.get_server(name_or_id=server_id)
+                server = self.get_server_by_id(server_id)
                 for k, v in server['addresses'].items():
                     for interface_spec in v:
                         if interface_spec['addr'] == \
@@ -2370,8 +2374,7 @@ class OpenStackCloud(object):
         # floating IP, then it needs to be obtained from
         # a recent server object if the above code path exec'd
         try:
-            server = meta.obj_to_dict(
-                self.manager.submitTask(_tasks.ServerGet(server=server)))
+            server = self.get_server_by_id(server['id'])
         except Exception as e:
             raise OpenStackCloudException(
                 "Error in getting info from instance: %s " % str(e))
@@ -2398,7 +2401,7 @@ class OpenStackCloud(object):
 
         try:
             server = self.manager.submitTask(_tasks.ServerCreate(**bootkwargs))
-            server = self.manager.submitTask(_tasks.ServerGet(server=server))
+            server = self.get_server_by_id(server.id)
         except Exception as e:
             raise OpenStackCloudException(
                 "Error in creating instance: {0}".format(e))
@@ -2410,10 +2413,7 @@ class OpenStackCloud(object):
                     timeout,
                     "Timeout waiting for the server to come up."):
                 try:
-                    server = meta.obj_to_dict(
-                        self.manager.submitTask(
-                            _tasks.ServerGet(server=server))
-                    )
+                    server = self.get_server_by_id(server.id)
                 except Exception:
                     continue
 
@@ -2464,10 +2464,7 @@ class OpenStackCloud(object):
                     "Timeout waiting for server {0} to "
                     "rebuild.".format(server_id)):
                 try:
-                    server = meta.obj_to_dict(
-                        self.manager.submitTask(
-                            _tasks.ServerGet(server=server))
-                    )
+                    server = self.get_server_by_id(server_id)
                 except Exception:
                     continue
 
@@ -2519,8 +2516,7 @@ class OpenStackCloud(object):
                 timeout,
                 "Timed out waiting for server to get deleted."):
             try:
-                server = self.manager.submitTask(
-                    _tasks.ServerGet(server=server['id']))
+                server = self.get_server_by_id(server['id'])
                 if not server:
                     return
                 server = meta.obj_to_dict(server)

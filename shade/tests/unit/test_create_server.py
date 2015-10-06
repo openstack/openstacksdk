@@ -82,10 +82,13 @@ class TestCreateServer(base.TestCase):
         raises an exception in create_server.
         """
         with patch("shade.OpenStackCloud"):
+            fake_server = fakes.FakeServer('1234', '', 'BUILD')
+            error_server = fakes.FakeServer('1234', '', 'ERROR')
             config = {
-                "servers.create.return_value": Mock(status="BUILD"),
+                "servers.create.return_value": fake_server,
                 "servers.get.side_effect": [
-                    Mock(status="BUILD"), Mock(status="ERROR")]
+                    fake_server, error_server
+                ]
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
@@ -98,9 +101,10 @@ class TestCreateServer(base.TestCase):
         exception in create_server.
         """
         with patch("shade.OpenStackCloud"):
+            fake_server = fakes.FakeServer('1234', '', 'BUILD')
             config = {
-                "servers.create.return_value": Mock(status="BUILD"),
-                "servers.get.return_value": Mock(status="BUILD")
+                "servers.create.return_value": fake_server,
+                "servers.get.return_value": fake_server
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
@@ -113,7 +117,7 @@ class TestCreateServer(base.TestCase):
         novaclient create call returns the server instance.
         """
         with patch("shade.OpenStackCloud"):
-            fake_server = fakes.FakeServer('', '', 'BUILD')
+            fake_server = fakes.FakeServer('1234', '', 'BUILD')
             config = {
                 "servers.create.return_value": fake_server,
                 "servers.get.return_value": fake_server
@@ -128,13 +132,13 @@ class TestCreateServer(base.TestCase):
         its status changes to "ACTIVE".
         """
         with patch("shade.OpenStackCloud"):
+            building_server = fakes.FakeServer(
+                '1234', '', 'ACTIVE', addresses=dict(public='1.1.1.1'))
             fake_server = fakes.FakeServer(
-                '', '', 'ACTIVE', addresses=dict(public='1.1.1.1'))
+                '1234', '', 'ACTIVE', addresses=dict(public='1.1.1.1'))
             config = {
-                "servers.create.return_value": fakes.FakeServer('', '',
-                                                                'ACTIVE'),
-                "servers.get.side_effect": [
-                    Mock(status="BUILD"), fake_server]
+                "servers.create.return_value": building_server,
+                "servers.get.return_value": fake_server,
             }
             OpenStackCloud.nova_client = Mock(**config)
             with patch.object(OpenStackCloud, "add_ips_to_server",
@@ -149,12 +153,11 @@ class TestCreateServer(base.TestCase):
         server doesn't have addresses.
         """
         with patch("shade.OpenStackCloud"):
-            fake_server = fakes.FakeServer('', '', 'ACTIVE')
+            fake_server = fakes.FakeServer('1234', '', 'ACTIVE')
             config = {
-                "servers.create.return_value": fakes.FakeServer('', '',
-                                                                'ACTIVE'),
+                "servers.create.return_value": fake_server,
                 "servers.get.side_effect": [
-                    Mock(status="BUILD"), fake_server]
+                    fakes.FakeServer('1234', '', 'BUILD'), fake_server]
             }
             OpenStackCloud.nova_client = Mock(**config)
             with patch.object(OpenStackCloud, "add_ips_to_server",

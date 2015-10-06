@@ -315,6 +315,9 @@ def obj_to_dict(obj):
     that we can just have a plain dict of all of the values that exist in the
     nova metadata for a server.
     """
+    # If we obj_to_dict twice, don't fail, just return the bunch
+    if type(obj) == bunch.Bunch:
+        return obj
     instance = bunch.Bunch()
     for key in dir(obj):
         value = getattr(obj, key)
