@@ -154,3 +154,9 @@ class FakeIdentityDomain(object):
         self.name = name
         self.description = description
         self.enabled = enabled
+
+
+class FakeRole(object):
+    def __init__(self, id, name):
+        self.id = id
+        self.name = name

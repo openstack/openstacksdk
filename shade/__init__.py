@@ -4404,6 +4404,57 @@ class OperatorCloud(OpenStackCloud):
             raise OpenStackCloudException(str(e))
         return meta.obj_to_dict(domain)
 
+    def list_roles(self):
+        """List Keystone roles.
+
+        :returns: a list of dicts containing the role description.
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        try:
+            roles = self.manager.submitTask(_tasks.RoleList())
+        except Exception as e:
+            raise OpenStackCloudException(str(e))
+        return meta.obj_list_to_dict(roles)
+
+    def search_roles(self, name_or_id=None, filters=None):
+        """Seach Keystone roles.
+
+        :param string name: role name or id.
+        :param dict filters: a dict containing additional filters to use.
+
+        :returns: a list of dict containing the role description. Each dict
+            contains the following attributes::
+
+                - id: <role id>
+                - name: <role name>
+                - description: <role description>
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        roles = self.list_roles()
+        return _utils._filter_list(roles, name_or_id, filters)
+
+    def get_role(self, name_or_id, filters=None):
+        """Get exactly one Keystone role.
+
+        :param id: role name or id.
+        :param filters: a dict containing additional filters to use.
+
+        :returns: a list of dict containing the role description. Each dict
+            contains the following attributes::
+
+                - id: <role id>
+                - name: <role name>
+                - description: <role description>
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        return _utils._get_entity(self.search_roles, name_or_id, filters)
+
     def create_flavor(self, name, ram, vcpus, disk, flavorid="auto",
                       ephemeral=0, swap=0, rxtx_factor=1.0, is_public=True):
         """Create a new flavor.

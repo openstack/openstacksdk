@@ -574,3 +574,8 @@ class RecordList(task_manager.Task):
 class RecordGet(task_manager.Task):
     def main(self, client):
         return client.designate_client.records.get(**self.args)
+
+
+class RoleList(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.roles.list()
