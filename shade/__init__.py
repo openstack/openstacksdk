@@ -4611,3 +4611,45 @@ class OperatorCloud(OpenStackCloud):
         :raises: OpenStackCloudException on operation error.
         """
         self._mod_flavor_access('remove', flavor_id, project_id)
+
+    def create_role(self, name):
+        """Create a Keystone role.
+
+        :param string name: The name of the role.
+
+        :returns: a dict containing the role description
+
+        :raise OpenStackCloudException: if the role cannot be created
+        """
+        try:
+            role = self.manager.submitTask(
+                _tasks.RoleCreate(name=name)
+            )
+        except Exception as e:
+            raise OpenStackCloudException(str(e))
+        return meta.obj_to_dict(role)
+
+    def delete_role(self, name_or_id):
+        """Delete a Keystone role.
+
+        :param string id: Name or id of the role to delete.
+
+        :returns: True if delete succeeded, False otherwise.
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during
+            the openstack API call.
+        """
+        role = self.get_role(name_or_id)
+        if role is None:
+            self.log.debug(
+                "Role {0} not found for deleting".format(name_or_id))
+            return False
+
+        try:
+            self.manager.submitTask(_tasks.RoleDelete(role=role['id']))
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Unable to delete role {0}: {1}".format(name_or_id, e)
+            )
+
+        return True

@@ -579,3 +579,13 @@ class RecordGet(task_manager.Task):
 class RoleList(task_manager.Task):
     def main(self, client):
         return client.keystone_client.roles.list()
+
+
+class RoleCreate(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.roles.create(**self.args)
+
+
+class RoleDelete(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.roles.delete(**self.args)
