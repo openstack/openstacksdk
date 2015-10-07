@@ -524,50 +524,77 @@ class OpenStackCloud(object):
                 "Error in deleting project {project}: {message}".format(
                     project=name_or_id, message=str(e)))
 
-    @property
-    def user_cache(self):
-        return self.get_user_cache()
-
     @_cache_on_arguments()
-    def get_user_cache(self):
-        user_list = self.manager.submitTask(_tasks.UserList())
-        return {user.id: user for user in user_list}
+    def list_users(self):
+        """List Keystone Users.
 
-    def _get_user(self, name_or_id):
-        """Retrieve a user by name or id."""
+        :returns: a list of dicts containing the user description.
 
-        for id, user in self.user_cache.items():
-            if name_or_id in (id, user.name):
-                return user
-        return None
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        try:
+            users = self.manager.submitTask(_tasks.UserList())
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Failed to list users: {0}".format(str(e))
+            )
+        return meta.obj_list_to_dict(users)
 
-    def get_user(self, name_or_id):
-        """Retrieve a user by name or id."""
-        user = self._get_user(name_or_id)
-        if user:
-            return meta.obj_to_dict(user)
-        return None
+    def search_users(self, name_or_id=None, filters=None):
+        """Seach Keystone users.
 
-    def update_user(self, name_or_id, email=None, enabled=None):
-        self.get_user_cache.invalidate(self)
-        user = self._get_user(name_or_id)
-        user_args = {}
-        if email is not None:
-            user_args['email'] = email
-        if enabled is not None:
-            user_args['enabled'] = enabled
-        if not user_args:
-            self.log.debug("No user data to update")
-            return None
-        user_args['user'] = user
+        :param string name: user name or id.
+        :param dict filters: a dict containing additional filters to use.
+
+        :returns: a list of dict containing the role description
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        users = self.list_users()
+        return _utils._filter_list(users, name_or_id, filters)
+
+    def get_user(self, name_or_id, filters=None):
+        """Get exactly one Keystone user.
+
+        :param string id: user name or id.
+        :param dict filters: a dict containing additional filters to use.
+
+        :returns: a single dict containing the user description.
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        return _utils._get_entity(self.search_users, name_or_id, filters)
+
+    # NOTE(Shrews): Keystone v2 supports updating only name, email and enabled.
+    @valid_kwargs('name', 'email', 'enabled', 'domain_id', 'password',
+                  'description', 'default_project')
+    def update_user(self, name_or_id, **kwargs):
+        self.list_users.invalidate(self)
+        user = self.get_user(name_or_id)
+        kwargs['user'] = user
+
+        if self.cloud_config.get_api_version('identity') != '3':
+            # Do not pass v3 args to a v2 keystone.
+            kwargs.pop('domain_id', None)
+            kwargs.pop('password', None)
+            kwargs.pop('description', None)
+            kwargs.pop('default_project', None)
+        elif 'domain_id' in kwargs:
+            # The incoming parameter is domain_id in order to match the
+            # parameter name in create_user(), but UserUpdate() needs it
+            # to be domain.
+            kwargs['domain'] = kwargs.pop('domain_id')
 
         try:
-            user = self.manager.submitTask(_tasks.UserUpdate(**user_args))
+            user = self.manager.submitTask(_tasks.UserUpdate(**kwargs))
         except Exception as e:
             raise OpenStackCloudException(
                 "Error in updating user {user}: {message}".format(
                     user=name_or_id, message=str(e)))
-        self.get_user_cache.invalidate(self)
+        self.list_users.invalidate(self)
         return meta.obj_to_dict(user)
 
     def create_user(
@@ -578,25 +605,31 @@ class OpenStackCloud(object):
             identity_params = self._get_identity_params(
                 domain_id, default_project)
             user = self.manager.submitTask(_tasks.UserCreate(
-                user_name=name, password=password, email=email,
+                name=name, password=password, email=email,
                 enabled=enabled, **identity_params))
         except Exception as e:
             raise OpenStackCloudException(
                 "Error in creating user {user}: {message}".format(
                     user=name, message=str(e)))
-        self.get_user_cache.invalidate(self)
+        self.list_users.invalidate(self)
         return meta.obj_to_dict(user)
 
     def delete_user(self, name_or_id):
-        self.get_user_cache.invalidate(self)
+        self.list_users.invalidate(self)
+        user = self.get_user(name_or_id)
+        if not user:
+            self.log.debug(
+                "User {0} not found for deleting".format(name_or_id))
+            return False
+
         try:
-            user = self._get_user(name_or_id)
             self.manager.submitTask(_tasks.UserDelete(user=user))
         except Exception as e:
             raise OpenStackCloudException(
                 "Error in deleting user {user}: {message}".format(
                     user=name_or_id, message=str(e)))
-        self.get_user_cache.invalidate(self)
+        self.list_users.invalidate(self)
+        return True
 
     @property
     def glance_client(self):
@@ -4443,7 +4476,7 @@ class OperatorCloud(OpenStackCloud):
         :param id: role name or id.
         :param filters: a dict containing additional filters to use.
 
-        :returns: a list of dict containing the role description. Each dict
+        :returns: a single dict containing the role description. Each dict
             contains the following attributes::
 
                 - id: <role id>
