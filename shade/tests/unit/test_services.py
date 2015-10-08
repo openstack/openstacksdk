@@ -51,11 +51,12 @@ class CloudServices(base.TestCase):
     def test_create_service(self, mock_keystone_client):
         kwargs = {
             'name': 'a service',
-            'service_type': 'network',
+            'type': 'network',
             'description': 'This is a test service'
         }
 
         self.client.create_service(**kwargs)
+        kwargs['service_type'] = kwargs.pop('type')
         mock_keystone_client.services.create.assert_called_with(**kwargs)
 
     @patch.object(OperatorCloud, 'keystone_client')

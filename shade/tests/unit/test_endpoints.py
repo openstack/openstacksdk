@@ -59,25 +59,21 @@ class TestCloudEndpoints(base.TestCase):
         mock_keystone_client.endpoints.create.return_value = \
             self.mock_ks_endpoints[0]
 
-        endpoint = self.client.create_endpoint(
+        endpoints = self.client.create_endpoint(
             service_name_or_id='service1',
             region='mock_region',
             public_url='mock_public_url',
-            internal_url='mock_internal_url',
-            admin_url='mock_admin_url'
         )
 
         mock_keystone_client.endpoints.create.assert_called_with(
             service_id='service_id1',
             region='mock_region',
             publicurl='mock_public_url',
-            internalurl='mock_internal_url',
-            adminurl='mock_admin_url'
         )
 
         # test keys and values are correct
         for k, v in self.mock_endpoints[0].items():
-            self.assertEquals(v, endpoint.get(k))
+            self.assertEquals(v, endpoints[0].get(k))
 
     @patch.object(OperatorCloud, 'keystone_client')
     def test_list_endpoints(self, mock_keystone_client):

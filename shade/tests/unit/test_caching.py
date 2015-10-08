@@ -71,11 +71,10 @@ class TestMemoryCache(base.TestCase):
     @mock.patch('shade.OpenStackCloud.keystone_client')
     def test_project_cache(self, keystone_mock):
         project = fakes.FakeProject('project_a')
-        keystone_mock.projects.list.return_value = [project]
+        keystone_mock.tenants.list.return_value = [project]
         self.assertEqual({'project_a': project}, self.cloud.project_cache)
         project_b = fakes.FakeProject('project_b')
-        keystone_mock.projects.list.return_value = [project,
-                                                    project_b]
+        keystone_mock.tenants.list.return_value = [project, project_b]
         self.assertEqual(
             {'project_a': project}, self.cloud.project_cache)
         self.cloud.get_project_cache.invalidate(self.cloud)

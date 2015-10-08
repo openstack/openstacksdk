@@ -22,6 +22,18 @@ sudo chown -R jenkins:stack ~jenkins/.config
 
 cd $SHADE_DIR
 sudo chown -R jenkins:stack $SHADE_DIR
+
+CLOUDS_YAML=~jenkins/.config/openstack/clouds.yaml
+
+# Devstack runs both keystone v2 and v3. An environment variable is set
+# within the shade keystone v2 job that tells us which version we should
+# test against.
+if [ ${SHADE_USE_KEYSTONE_V2:-0} -eq 1 ]
+then
+    sed -ie "s/identity_api_version: '3'/identity_api_version: '2.0'/g" $CLOUDS_YAML
+    sed -ie '/^.*domain_id.*$/d' $CLOUDS_YAML
+fi
+
 echo "Running shade functional test suite"
 set +e
 sudo -E -H -u jenkins tox -efunctional

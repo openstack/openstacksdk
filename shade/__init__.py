@@ -432,8 +432,9 @@ class OpenStackCloud(object):
         # Keystone v2 calls this attribute tenants
         # Keystone v3 calls it projects
         # Yay for usable APIs!
-        return getattr(
-            self.keystone_client, 'projects', self.keystone_client.tenants)
+        if self.cloud_config.get_api_version('identity').startswith('2'):
+            return self.keystone_client.tenants
+        return self.keystone_client.projects
 
     def _get_project_param_dict(self, name_or_id):
         project_dict = dict()
@@ -4071,18 +4072,18 @@ class OperatorCloud(OpenStackCloud):
         except Exception as e:
             raise OpenStackCloudException(str(e))
 
-    def create_service(self, name, service_type, description=None):
+    def create_service(self, name, type, description=None):
         """Create a service.
 
         :param name: Service name.
-        :param service_type: Service type.
+        :param type: Service type.
         :param description: Service description (optional).
 
         :returns: a dict containing the services description, i.e. the
             following attributes::
             - id: <service id>
             - name: <service name>
-            - service_type: <service type>
+            - type: <service type>
             - description: <service description>
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
@@ -4090,9 +4091,13 @@ class OperatorCloud(OpenStackCloud):
 
         """
         try:
+            if self.cloud_config.get_api_version('identity').startswith('2'):
+                service_kwargs = {'service_type': type}
+            else:
+                service_kwargs = {'type': type}
+
             service = self.manager.submitTask(_tasks.ServiceCreate(
-                name=name, service_type=service_type,
-                description=description))
+                name=name, description=description, **service_kwargs))
         except Exception as e:
             raise OpenStackCloudException(
                 "Failed to create service {name}: {msg}".format(
@@ -4118,7 +4123,7 @@ class OperatorCloud(OpenStackCloud):
 
         :param name_or_id: Name or id of the desired service.
         :param filters: a dict containing additional filters to use. e.g.
-                        {'service_type': 'network'}.
+                        {'type': 'network'}.
 
         :returns: a list of dict containing the services description.
 
@@ -4133,13 +4138,13 @@ class OperatorCloud(OpenStackCloud):
 
         :param name_or_id: Name or id of the desired service.
         :param filters: a dict containing additional filters to use. e.g.
-                {'service_type': 'network'}
+                {'type': 'network'}
 
         :returns: a dict containing the services description, i.e. the
             following attributes::
             - id: <service id>
             - name: <service name>
-            - service_type: <service type>
+            - type: <service type>
             - description: <service description>
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
@@ -4162,8 +4167,12 @@ class OperatorCloud(OpenStackCloud):
             self.log.debug("Service %s not found for deleting" % name_or_id)
             return False
 
+        if self.cloud_config.get_api_version('identity').startswith('2'):
+            service_kwargs = {'id': service['id']}
+        else:
+            service_kwargs = {'service': service['id']}
         try:
-            self.manager.submitTask(_tasks.ServiceDelete(id=service['id']))
+            self.manager.submitTask(_tasks.ServiceDelete(**service_kwargs))
         except Exception as e:
             raise OpenStackCloudException(
                 "Failed to delete service {id}: {msg}".format(
@@ -4171,40 +4180,90 @@ class OperatorCloud(OpenStackCloud):
                     msg=str(e)))
         return True
 
-    def create_endpoint(self, service_name_or_id, public_url,
-                        internal_url=None, admin_url=None, region=None):
+    @valid_kwargs('public_url', 'internal_url', 'admin_url')
+    def create_endpoint(self, service_name_or_id, url=None, interface=None,
+                        region=None, enabled=True, **kwargs):
         """Create a Keystone endpoint.
 
         :param service_name_or_id: Service name or id for this endpoint.
+        :param url: URL of the endpoint
+        :param interface: Interface type of the endpoint
         :param public_url: Endpoint public URL.
         :param internal_url: Endpoint internal URL.
         :param admin_url: Endpoint admin URL.
         :param region: Endpoint region.
+        :param enabled: Whether the endpoint is enabled
 
-        :returns: a dict containing the endpoint description.
+        NOTE: Both v2 (public_url, internal_url, admin_url) and v3
+              (url, interface) calling semantics are supported. But
+              you can only use one of them at a time.
+
+        :returns: a list of dicts containing the endpoint description.
 
         :raises: OpenStackCloudException if the service cannot be found or if
             something goes wrong during the openstack API call.
         """
-        # ToDo: support v3 api (dguerri)
+        if url and kwargs:
+            raise OpenStackCloudException(
+                "create_endpoint takes either url and interace OR"
+                " public_url, internal_url, admin_url")
+
         service = self.get_service(name_or_id=service_name_or_id)
         if service is None:
             raise OpenStackCloudException("service {service} not found".format(
                 service=service_name_or_id))
-        try:
-            endpoint = self.manager.submitTask(_tasks.EndpointCreate(
-                service_id=service['id'],
-                region=region,
-                publicurl=public_url,
-                internalurl=internal_url,
-                adminurl=admin_url
-            ))
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Failed to create endpoint for service {service}: "
-                "{msg}".format(service=service['name'],
-                               msg=str(e)))
-        return meta.obj_to_dict(endpoint)
+
+        endpoints = []
+        endpoint_args = []
+        if url:
+            urlkwargs = {}
+            if self.cloud_config.get_api_version('identity').startswith('2'):
+                if interface != 'public':
+                    raise OpenStackCloudException(
+                        "Error adding endpoint for service {service}."
+                        " On a v2 cloud the url/interface API may only be"
+                        " used for public url. Try using the public_url,"
+                        " internal_url, admin_url parameters instead of"
+                        " url and interface".format(
+                            service=service_name_or_id))
+                urlkwargs['%url' % interface] = url
+                urlkwargs['service_id'] = service['id']
+            else:
+                urlkwargs['url'] = url
+                urlkwargs['interface'] = interface
+                urlkwargs['enabled'] = enabled
+                urlkwargs['service'] = service['id']
+            endpoint_args.append(urlkwargs)
+        else:
+            if self.cloud_config.get_api_version(
+                    'identity').startswith('2'):
+                urlkwargs = {}
+                for arg_key, arg_val in kwargs.items():
+                    urlkwargs[arg_key.replace('_', '')] = arg_val
+                urlkwargs['service_id'] = service['id']
+                endpoint_args.append(urlkwargs)
+            else:
+                for arg_key, arg_val in kwargs.items():
+                    urlkwargs = {}
+                    urlkwargs['url'] = arg_val
+                    urlkwargs['interface'] = arg_key.split('_')[0]
+                    urlkwargs['enabled'] = enabled
+                    urlkwargs['service'] = service['id']
+                    endpoint_args.append(urlkwargs)
+
+        for args in endpoint_args:
+            try:
+                endpoint = self.manager.submitTask(_tasks.EndpointCreate(
+                    region=region,
+                    **args
+                ))
+            except Exception as e:
+                raise OpenStackCloudException(
+                    "Failed to create endpoint for service {service}: "
+                    "{msg}".format(service=service['name'],
+                                   msg=str(e)))
+            endpoints.append(endpoint)
+        return meta.obj_list_to_dict(endpoints)
 
     def list_endpoints(self):
         """List Keystone endpoints.
@@ -4276,8 +4335,12 @@ class OperatorCloud(OpenStackCloud):
             self.log.debug("Endpoint %s not found for deleting" % id)
             return False
 
+        if self.cloud_config.get_api_version('identity').startswith('2'):
+            endpoint_kwargs = {'id': endpoint['id']}
+        else:
+            endpoint_kwargs = {'endpoint': endpoint['id']}
         try:
-            self.manager.submitTask(_tasks.EndpointDelete(id=id))
+            self.manager.submitTask(_tasks.EndpointDelete(**endpoint_kwargs))
         except Exception as e:
             raise OpenStackCloudException(
                 "Failed to delete endpoint {id}: {msg}".format(

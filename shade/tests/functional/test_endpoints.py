@@ -81,34 +81,36 @@ class TestEndpoints(base.TestCase):
         service_name = self.new_item_name + '_create'
 
         service = self.operator_cloud.create_service(
-            name=service_name, service_type='test_type',
+            name=service_name, type='test_type',
             description='this is a test description')
 
-        endpoint = self.operator_cloud.create_endpoint(
+        endpoints = self.operator_cloud.create_endpoint(
             service_name_or_id=service['id'],
             public_url='http://public.test/',
             internal_url='http://internal.test/',
             admin_url='http://admin.url/',
             region=service_name)
 
-        self.assertIsNotNone(endpoint.get('id'))
+        self.assertNotEqual([], endpoints)
+        self.assertIsNotNone(endpoints[0].get('id'))
 
         # Test None parameters
-        endpoint = self.operator_cloud.create_endpoint(
+        endpoints = self.operator_cloud.create_endpoint(
             service_name_or_id=service['id'],
             public_url='http://public.test/',
             region=service_name)
 
-        self.assertIsNotNone(endpoint.get('id'))
+        self.assertNotEqual([], endpoints)
+        self.assertIsNotNone(endpoints[0].get('id'))
 
     def test_list_endpoints(self):
         service_name = self.new_item_name + '_list'
 
         service = self.operator_cloud.create_service(
-            name=service_name, service_type='test_type',
+            name=service_name, type='test_type',
             description='this is a test description')
 
-        endpoint = self.operator_cloud.create_endpoint(
+        endpoints = self.operator_cloud.create_endpoint(
             service_name_or_id=service['id'],
             public_url='http://public.test/',
             internal_url='http://internal.test/',
@@ -118,12 +120,21 @@ class TestEndpoints(base.TestCase):
         found = False
         for e in observed_endpoints:
             # Test all attributes are returned
-            if e['id'] == endpoint['id']:
-                found = True
-                self.assertEqual(service['id'], e['service_id'])
-                self.assertEqual('http://public.test/', e['publicurl'])
-                self.assertEqual('http://internal.test/', e['internalurl'])
-                self.assertEqual(service_name, e['region'])
+            for endpoint in endpoints:
+                if e['id'] == endpoint['id']:
+                    found = True
+                    self.assertEqual(service['id'], e['service_id'])
+                    if 'interface' in e:
+                        if 'interface' == 'internal':
+                            self.assertEqual('http://internal.test/', e['url'])
+                        elif 'interface' == 'public':
+                            self.assertEqual('http://public.test/', e['url'])
+                    else:
+                        self.assertEqual('http://public.test/',
+                                         e['publicurl'])
+                        self.assertEqual('http://internal.test/',
+                                         e['internalurl'])
+                    self.assertEqual(service_name, e['region'])
 
         self.assertTrue(found, msg='new endpoint not found in endpoints list!')
 
@@ -131,22 +142,25 @@ class TestEndpoints(base.TestCase):
         service_name = self.new_item_name + '_delete'
 
         service = self.operator_cloud.create_service(
-            name=service_name, service_type='test_type',
+            name=service_name, type='test_type',
             description='this is a test description')
 
-        endpoint = self.operator_cloud.create_endpoint(
+        endpoints = self.operator_cloud.create_endpoint(
             service_name_or_id=service['id'],
             public_url='http://public.test/',
             internal_url='http://internal.test/',
             region=service_name)
 
-        self.operator_cloud.delete_endpoint(endpoint['id'])
+        self.assertNotEqual([], endpoints)
+        for endpoint in endpoints:
+            self.operator_cloud.delete_endpoint(endpoint['id'])
 
         observed_endpoints = self.operator_cloud.list_endpoints()
         found = False
         for e in observed_endpoints:
-            if e['id'] == endpoint['id']:
-                found = True
-                break
+            for endpoint in endpoints:
+                if e['id'] == endpoint['id']:
+                    found = True
+                    break
         self.failUnlessEqual(
             False, found, message='new endpoint was not deleted!')

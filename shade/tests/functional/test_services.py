@@ -61,13 +61,13 @@ class TestServices(base.TestCase):
 
     def test_create_service(self):
         service = self.operator_cloud.create_service(
-            name=self.new_service_name + '_create', service_type='test_type',
+            name=self.new_service_name + '_create', type='test_type',
             description='this is a test description')
         self.assertIsNotNone(service.get('id'))
 
     def test_list_services(self):
         service = self.operator_cloud.create_service(
-            name=self.new_service_name + '_list', service_type='test_type')
+            name=self.new_service_name + '_list', type='test_type')
         observed_services = self.operator_cloud.list_services()
         self.assertIsInstance(observed_services, list)
         found = False
@@ -84,7 +84,7 @@ class TestServices(base.TestCase):
         # Test delete by name
         service = self.operator_cloud.create_service(
             name=self.new_service_name + '_delete_by_name',
-            service_type='test_type')
+            type='test_type')
         self.operator_cloud.delete_service(name_or_id=service['name'])
         observed_services = self.operator_cloud.list_services()
         found = False
@@ -98,7 +98,7 @@ class TestServices(base.TestCase):
         # Test delete by id
         service = self.operator_cloud.create_service(
             name=self.new_service_name + '_delete_by_id',
-            service_type='test_type')
+            type='test_type')
         self.operator_cloud.delete_service(name_or_id=service['id'])
         observed_services = self.operator_cloud.list_services()
         found = False
