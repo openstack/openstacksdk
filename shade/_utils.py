@@ -116,6 +116,30 @@ def _get_entity(func, name_or_id, filters):
     return entities[0]
 
 
+def normalize_keystone_services(services):
+    """Normalize the structure of keystone services
+
+    In keystone v2, there is a field called "service_type". In v3, it's
+    "type". Just make the returned dict have both.
+
+    :param list services: A list of keystone service dicts
+
+    :returns: A list of normalized dicts.
+    """
+    ret = []
+    for service in services:
+        service_type = service.get('type', service.get('service_type'))
+        new_service = {
+            'id': service['id'],
+            'name': service['name'],
+            'description': service.get('description', None),
+            'type': service_type,
+            'service_type': service_type,
+        }
+        ret.append(new_service)
+    return ret
+
+
 def normalize_nova_secgroups(groups):
     """Normalize the structure of nova security groups
 
