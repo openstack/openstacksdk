@@ -218,7 +218,7 @@ class VolumeDetach(task_manager.Task):
 
 class VolumeAttach(task_manager.Task):
     def main(self, client):
-        client.nova_client.volumes.create_server_volume(**self.args)
+        return client.nova_client.volumes.create_server_volume(**self.args)
 
 
 class NeutronSecurityGroupList(task_manager.Task):
