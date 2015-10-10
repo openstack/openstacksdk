@@ -2775,48 +2775,54 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Error in creating the server.")
         if wait:
+            server_id = server['id']
             for count in _utils._iterate_timeout(
                     timeout,
                     "Timeout waiting for the server to come up."):
                 try:
-                    server = self.get_server_by_id(server.id)
+                    server = self.get_server_by_id(server_id)
                 except Exception:
                     continue
 
-                if server['status'] == 'ACTIVE':
-                    if not server['addresses']:
-                        self.log.debug(
-                            'Server {server} reached ACTIVE state without'
-                            ' being allocated an IP address.'
-                            ' Deleting server.'.format(
-                                server=server['id']))
-                        try:
-                            self._delete_server(
-                                server=server, wait=wait, timeout=timeout)
-                        except Exception as e:
-                            self.log.debug(
-                                "Failed deleting server {server} that booted"
-                                " without an IP address. Manual cleanup is"
-                                " required.".format(server=server['id']),
-                                exc_info=True)
-                            raise OpenStackCloudException(
-                                "Server reached ACTIVE state without being"
-                                " allocated an IP address AND then could not"
-                                " be deleted: {0}".format(e),
-                                extra_data=dict(server=server))
-                        raise OpenStackCloudException(
-                            'Server reached ACTIVE state without being'
-                            ' allocated an IP address.',
-                            extra_data=dict(server=server))
-                    return self.add_ips_to_server(
-                        server, auto_ip, ips, ip_pool, wait=wait,
-                        reuse=reuse_ips)
+                server = self.get_active_server(
+                    server=server, reuse=reuse_ips,
+                    auto_ip=auto_ip, ips=ips, ip_pool=ip_pool,
+                    wait=wait, timeout=timeout)
+                if server:
+                    return server
+        return server
 
-                if server['status'] == 'ERROR':
-                    raise OpenStackCloudException(
-                        "Error in creating the server",
-                        extra_data=dict(server=server))
-        return meta.obj_to_dict(server)
+    def get_active_server(
+            self, server, auto_ip=True, ips=None, ip_pool=None,
+            reuse=True, wait=False, timeout=180):
+
+        if server['status'] == 'ERROR':
+            raise OpenStackCloudException(
+                "Error in creating the server", extra_data=dict(server=server))
+
+        if server['status'] == 'ACTIVE':
+            if 'addresses' in server and server['addresses']:
+                return self.add_ips_to_server(
+                    server, auto_ip, ips, ip_pool, reuse=reuse, wait=wait)
+
+            self.log.debug(
+                'Server {server} reached ACTIVE state without'
+                ' being allocated an IP address.'
+                ' Deleting server.'.format(server=server['id']))
+            try:
+                self._delete_server(
+                    server=server, wait=wait, timeout=timeout)
+            except Exception as e:
+                raise OpenStackCloudException(
+                    'Server reached ACTIVE state without being'
+                    ' allocated an IP address AND then could not'
+                    ' be deleted: {0}'.format(e),
+                    extra_data=dict(server=server))
+            raise OpenStackCloudException(
+                'Server reached ACTIVE state without being'
+                ' allocated an IP address.',
+                extra_data=dict(server=server))
+        return None
 
     def rebuild_server(self, server_id, image_id, wait=False, timeout=180):
         try:
