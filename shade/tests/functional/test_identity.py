@@ -19,7 +19,11 @@ test_identity
 Functional tests for `shade` identity methods.
 """
 
+import random
+import string
+
 from shade import operator_cloud
+from shade import OpenStackCloudException
 from shade.tests import base
 
 
@@ -27,6 +31,22 @@ class TestIdentity(base.TestCase):
     def setUp(self):
         super(TestIdentity, self).setUp()
         self.cloud = operator_cloud(cloud='devstack-admin')
+        self.role_prefix = 'test_role' + ''.join(
+            random.choice(string.ascii_lowercase) for _ in range(5))
+        self.addCleanup(self._cleanup_roles)
+
+    def _cleanup_roles(self):
+        exception_list = list()
+        for role in self.cloud.list_roles():
+            if role['name'].startswith(self.role_prefix):
+                try:
+                    self.cloud.delete_role(role['name'])
+                except Exception as e:
+                    exception_list.append(str(e))
+                    continue
+
+        if exception_list:
+            raise OpenStackCloudException('\n'.join(exception_list))
 
     def test_list_roles(self):
         roles = self.cloud.list_roles()
@@ -45,3 +65,17 @@ class TestIdentity(base.TestCase):
         self.assertIsNotNone(roles)
         self.assertEqual(1, len(roles))
         self.assertEqual('admin', roles[0]['name'])
+
+    def test_create_role(self):
+        role_name = self.role_prefix + '_create_role'
+        role = self.cloud.create_role(role_name)
+        self.assertIsNotNone(role)
+        self.assertIn('id', role)
+        self.assertIn('name', role)
+        self.assertEqual(role_name, role['name'])
+
+    def test_delete_role(self):
+        role_name = self.role_prefix + '_delete_role'
+        role = self.cloud.create_role(role_name)
+        self.assertIsNotNone(role)
+        self.assertTrue(self.cloud.delete_role(role_name))
