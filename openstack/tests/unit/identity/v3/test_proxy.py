@@ -17,6 +17,7 @@ from openstack.identity.v3 import endpoint
 from openstack.identity.v3 import group
 from openstack.identity.v3 import policy
 from openstack.identity.v3 import project
+from openstack.identity.v3 import region
 from openstack.identity.v3 import service
 from openstack.identity.v3 import trust
 from openstack.identity.v3 import user
@@ -232,3 +233,25 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
 
     def test_trust_update(self):
         self.verify_update(self.proxy.update_trust, trust.Trust)
+
+    def test_region_create_attrs(self):
+        self.verify_create(self.proxy.create_region, region.Region)
+
+    def test_region_delete(self):
+        self.verify_delete(self.proxy.delete_region, region.Region, False)
+
+    def test_region_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_region, region.Region, True)
+
+    def test_region_find(self):
+        self.verify_find('openstack.identity.v3.region.Region.find',
+                         self.proxy.find_region)
+
+    def test_region_get(self):
+        self.verify_get(self.proxy.get_region, region.Region)
+
+    def test_regions(self):
+        self.verify_list(self.proxy.regions, region.Region, paginated=False)
+
+    def test_region_update(self):
+        self.verify_update(self.proxy.update_region, region.Region)

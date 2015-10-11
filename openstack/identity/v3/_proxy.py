@@ -16,6 +16,7 @@ from openstack.identity.v3 import endpoint
 from openstack.identity.v3 import group
 from openstack.identity.v3 import policy
 from openstack.identity.v3 import project
+from openstack.identity.v3 import region
 from openstack.identity.v3 import service
 from openstack.identity.v3 import trust
 from openstack.identity.v3 import user
@@ -732,3 +733,81 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.identity.v3.trust.Trust`
         """
         return self._update(trust.Trust, value, **attrs)
+
+    def create_region(self, **attrs):
+        """Create a new region from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.identity.v3.region.Region`,
+                           comprised of the properties on the Region class.
+
+        :returns: The results of region creation.
+        :rtype: :class:`~openstack.identity.v3.region.Region`
+        """
+        return self._create(region.Region, **attrs)
+
+    def delete_region(self, value, ignore_missing=True):
+        """Delete a region
+
+        :param value: The value can be either the ID of a region or a
+               :class:`~openstack.identity.v3.region.Region` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the region does not exist.
+                    When set to ``True``, no exception will be thrown when
+                    attempting to delete a nonexistent region.
+
+        :returns: ``None``
+        """
+        self._delete(region.Region, value, ignore_missing=ignore_missing)
+
+    def find_region(self, name_or_id, ignore_missing=True):
+        """Find a single region
+
+        :param name_or_id: The name or ID of a region.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the region does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent region.
+        :returns: One :class:`~openstack.identity.v3.region.Region` or None
+        """
+        return region.Region.find(self.session, name_or_id,
+                                  ignore_missing=ignore_missing)
+
+    def get_region(self, value):
+        """Get a single region
+
+        :param value: The value can be the ID of a region or a
+                      :class:`~openstack.identity.v3.region.Region` instance.
+
+        :returns: One :class:`~openstack.identity.v3.region.Region`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no matching region can be found.
+        """
+        return self._get(region.Region, value)
+
+    def regions(self, **query):
+        """Retrieve a generator of regions
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the regions being returned.
+
+        :returns: A generator of region instances.
+        :rtype: :class:`~openstack.identity.v3.region.Region`
+        """
+        # TODO(briancurtin): This is paginated but requires base list changes.
+        return self._list(region.Region, paginated=False, **query)
+
+    def update_region(self, value, **attrs):
+        """Update a region
+
+        :param value: Either the id of a region or a
+                      :class:`~openstack.identity.v3.region.Region` instance.
+        :attrs kwargs: The attributes to update on the region represented
+                       by ``value``.
+
+        :returns: The updated region.
+        :rtype: :class:`~openstack.identity.v3.region.Region`
+        """
+        return self._update(region.Region, value, **attrs)
