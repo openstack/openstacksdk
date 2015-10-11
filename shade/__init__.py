@@ -1260,6 +1260,62 @@ class OpenStackCloud(object):
             return info
         return None
 
+    def add_router_interface(self, router, subnet_id=None, port_id=None):
+        """Attach a subnet to an internal router interface.
+
+        Either a subnet ID or port ID must be specified for the internal
+        interface. Supplying both will result in an error.
+
+        :param dict router: The dict object of the router being changed
+        :param string subnet_id: The ID of the subnet to use for the interface
+        :param string port_id: The ID of the port to use for the interface
+
+        :returns: A dict with the router id (id), subnet ID (subnet_id),
+            port ID (port_id) and tenant ID (tenant_id).
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        body = {}
+        if subnet_id:
+            body['subnet_id'] = subnet_id
+        if port_id:
+            body['port_id'] = port_id
+
+        with self._neutron_exceptions(
+            "Error attaching interface to router {0}".format(router['id'])
+        ):
+            return self.manager.submitTask(
+                _tasks.RouterAddInterface(router=router['id'], body=body)
+            )
+
+    def remove_router_interface(self, router, subnet_id=None, port_id=None):
+        """Detach a subnet from an internal router interface.
+
+        If you specify both subnet and port ID, the subnet ID must
+        correspond to the subnet ID of the first IP address on the port
+        specified by the port ID. Otherwise an error occurs.
+
+        :param dict router: The dict object of the router being changed
+        :param string subnet_id: The ID of the subnet to use for the interface
+        :param string port_id: The ID of the port to use for the interface
+
+        :returns: None on success
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        body = {}
+        if subnet_id:
+            body['subnet_id'] = subnet_id
+        if port_id:
+            body['port_id'] = port_id
+
+        with self._neutron_exceptions(
+            "Error detaching interface from router {0}".format(router['id'])
+        ):
+            return self.manager.submitTask(
+                _tasks.RouterRemoveInterface(router=router['id'], body=body)
+            )
+
     def create_router(self, name=None, admin_state_up=True,
                       ext_gateway_net_id=None, enable_snat=None,
                       ext_fixed_ips=None):

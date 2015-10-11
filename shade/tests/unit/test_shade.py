@@ -138,6 +138,20 @@ class TestShade(base.TestCase):
         self.cloud.create_router(name='goofy', admin_state_up=True)
         self.assertTrue(mock_client.create_router.called)
 
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_add_router_interface(self, mock_client):
+        self.cloud.add_router_interface({'id': '123'}, subnet_id='abc')
+        mock_client.add_interface_router.assert_called_once_with(
+            router='123', body={'subnet_id': 'abc'}
+        )
+
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_remove_router_interface(self, mock_client):
+        self.cloud.remove_router_interface({'id': '123'}, subnet_id='abc')
+        mock_client.remove_interface_router.assert_called_once_with(
+            router='123', body={'subnet_id': 'abc'}
+        )
+
     @mock.patch.object(shade.OpenStackCloud, 'get_router')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     def test_update_router(self, mock_client, mock_get):
