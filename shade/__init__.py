@@ -17,6 +17,8 @@ import hashlib
 import inspect
 import logging
 import operator
+import threading
+import time
 
 from cinderclient.v1 import client as cinder_client
 from designateclient.v1 import Client as designate_client
@@ -224,6 +226,7 @@ class OpenStackCloud(object):
                                      to pass in cloud configuration, but is
                                      being phased in currently.
     """
+    _SERVER_LIST_AGE = 5  # TODO(mordred) Make this configurable
 
     def __init__(
             self,
@@ -279,6 +282,11 @@ class OpenStackCloud(object):
         ).configure(
             cache_class, expiration_time=cache_interval,
             arguments=cache_arguments)
+
+        self._servers = []
+        self._servers_time = 0
+        self._servers_lock = threading.Lock()
+
         self._container_cache = dict()
         self._file_hash_cache = dict()
 
@@ -1005,6 +1013,24 @@ class OpenStackCloud(object):
         :returns: A list of server dicts.
 
         """
+        if (time.time() - self._servers_time) >= self._SERVER_LIST_AGE:
+            # Since we're using cached data anyway, we don't need to
+            # have more than one thread actually submit the list
+            # servers task.  Let the first one submit it while holding
+            # a lock, and the non-blocking acquire method will cause
+            # subsequent threads to just skip this and use the old
+            # data until it succeeds.
+            # For the first time, when there is no data, make the call
+            # blocking.
+            if self._servers_lock.acquire(len(self._servers) == 0):
+                try:
+                    self._servers = self._list_servers()
+                    self._servers_time = time.time()
+                finally:
+                    self._servers_lock.release()
+        return self._servers
+
+    def _list_servers(self):
         try:
             return meta.obj_list_to_dict(
                 self.manager.submitTask(_tasks.ServerList())
