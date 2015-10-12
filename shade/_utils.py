@@ -19,11 +19,11 @@ import netifaces
 from shade import exc
 
 
-def _iterate_timeout(timeout, message):
+def _iterate_timeout(timeout, message, wait=2):
     """Iterate and raise an exception on timeout.
 
-    This is a generator that will continually yield and sleep for 2
-    seconds, and if the timeout is reached, will raise an exception
+    This is a generator that will continually yield and sleep for
+    wait seconds, and if the timeout is reached, will raise an exception
     with <message>.
 
     """
@@ -33,7 +33,7 @@ def _iterate_timeout(timeout, message):
     while (timeout is None) or (time.time() < start + timeout):
         count += 1
         yield count
-        time.sleep(2)
+        time.sleep(wait)
     raise exc.OpenStackCloudTimeout(message)
 
 

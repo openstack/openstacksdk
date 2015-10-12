@@ -2827,7 +2827,11 @@ class OpenStackCloud(object):
 
         try:
             server = self.manager.submitTask(_tasks.ServerCreate(**bootkwargs))
+            # This is a direct get task call to skip the list_servers
+            # cache which has absolutely no chance of containing the
+            # new server
             server = self.get_server_by_id(server.id)
+            server_id = server['id']
         except Exception as e:
             raise OpenStackCloudException(
                 "Error in creating instance: {0}".format(e))
@@ -2835,13 +2839,18 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Error in creating the server.")
         if wait:
-            server_id = server['id']
+            # There is no point in iterating faster than the list_servers cache
             for count in _utils._iterate_timeout(
                     timeout,
-                    "Timeout waiting for the server to come up."):
+                    "Timeout waiting for the server to come up.",
+                    wait=self._SERVER_LIST_AGE):
                 try:
-                    server = self.get_server_by_id(server_id)
+                    # Use the get_server call so that the list_servers
+                    # cache can be leveraged
+                    server = self.get_server(server_id)
                 except Exception:
+                    continue
+                if not server:
                     continue
 
                 server = self.get_active_server(
