@@ -162,10 +162,11 @@ class TestMemoryCache(base.TestCase):
         self.assertEqual([fake_volb4_dict], self.cloud.list_volumes())
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_get_user_cache(self, keystone_mock):
+    def test_list_users(self, keystone_mock):
         fake_user = fakes.FakeUser('999', '', '')
         keystone_mock.users.list.return_value = [fake_user]
-        self.assertEqual({'999': fake_user}, self.cloud.get_user_cache())
+        self.assertEqual([{'id': '999', 'name': '', 'email': ''}],
+                         self.cloud.list_users())
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_modify_user_invalidates_cache(self, keystone_mock):
@@ -173,7 +174,7 @@ class TestMemoryCache(base.TestCase):
                                    'abc123 name')
         # first cache an empty list
         keystone_mock.users.list.return_value = []
-        self.assertEqual({}, self.cloud.get_user_cache())
+        self.assertEqual([], self.cloud.list_users())
         # now add one
         keystone_mock.users.list.return_value = [fake_user]
         keystone_mock.users.create.return_value = fake_user
@@ -183,20 +184,28 @@ class TestMemoryCache(base.TestCase):
                           'name': 'abc123 name',
                           'email': 'abc123@domain.test'}, created)
         # Cache should have been invalidated
-        self.assertEqual({'abc123': fake_user}, self.cloud.get_user_cache())
+        self.assertEqual([{'id': 'abc123',
+                           'name': 'abc123 name',
+                           'email': 'abc123@domain.test'}],
+                         self.cloud.list_users())
         # Update and check to see if it is updated
-        fake_user2 = fakes.FakeUser('abc123', 'abc123 name',
-                                    'abc123-changed@domain.test')
+        fake_user2 = fakes.FakeUser('abc123',
+                                    'abc123-changed@domain.test',
+                                    'abc123 name')
+        fake_user2_dict = meta.obj_to_dict(fake_user2)
         keystone_mock.users.update.return_value = fake_user2
         keystone_mock.users.list.return_value = [fake_user2]
         self.cloud.update_user('abc123', email='abc123-changed@domain.test')
         keystone_mock.users.update.assert_called_with(
-            user=fake_user2, email='abc123-changed@domain.test')
-        self.assertEqual({'abc123': fake_user2}, self.cloud.get_user_cache())
+            user=fake_user2_dict, email='abc123-changed@domain.test')
+        self.assertEqual([{'id': 'abc123',
+                           'name': 'abc123 name',
+                           'email': 'abc123-changed@domain.test'}],
+                         self.cloud.list_users())
         # Now delete and ensure it disappears
         keystone_mock.users.list.return_value = []
         self.cloud.delete_user('abc123')
-        self.assertEqual({}, self.cloud.get_user_cache())
+        self.assertEqual([], self.cloud.list_users())
         self.assertTrue(keystone_mock.users.delete.was_called)
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
