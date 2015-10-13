@@ -1909,10 +1909,12 @@ class OpenStackCloud(object):
             )
 
         try:
-            self.manager.submitTask(
+            vol = self.manager.submitTask(
                 _tasks.VolumeAttach(volume_id=volume['id'],
                                     server_id=server['id'],
                                     device=device))
+            vol = meta.obj_to_dict(vol)
+
         except Exception as e:
             raise OpenStackCloudException(
                 "Error attaching volume %s to server %s: %s" %
@@ -1932,7 +1934,7 @@ class OpenStackCloud(object):
                     continue
 
                 if self.get_volume_attach_device(vol, server['id']):
-                    return
+                    break
 
                 # TODO(Shrews) check to see if a volume can be in error status
                 #              and also attached. If so, we should move this
@@ -1941,6 +1943,7 @@ class OpenStackCloud(object):
                     raise OpenStackCloudException(
                         "Error in attaching volume %s" % volume['id']
                     )
+        return vol
 
     def get_server_id(self, name_or_id):
         server = self.get_server(name_or_id)
