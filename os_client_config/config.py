@@ -433,6 +433,14 @@ class OpenStackConfig(object):
                 if d_opt_name in config:
                     return config[d_opt_name]
 
+    def auth_config_hook(self, config):
+        """Allow examination of config values before loading auth plugin
+
+        OpenStackClient will override this to perform additional chacks
+        on auth_type.
+        """
+        return config
+
     def _get_auth_loader(self, config):
         # Re-use the admin_token plugin for the "None" plugin
         # since it does not look up endpoints or tokens but rather
@@ -575,6 +583,11 @@ class OpenStackConfig(object):
             if key in config:
                 if type(config[key]) is not bool:
                     config[key] = get_boolean(config[key])
+
+        # NOTE(dtroyer): OSC needs a hook into the auth args before the
+        #                plugin is loaded in order to maintain backward-
+        #                compatible behaviour
+        config = self.auth_config_hook(config)
 
         if loading:
             if validate:
