@@ -79,10 +79,11 @@ class FakeServer(object):
 
 
 class FakeService(object):
-    def __init__(self, id, name, type, description=''):
+    def __init__(self, id, name, type, service_type, description=''):
         self.id = id
         self.name = name
         self.type = type
+        self.service_type = service_type
         self.description = description
 
 

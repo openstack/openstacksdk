@@ -4171,11 +4171,13 @@ class OperatorCloud(OpenStackCloud):
         except Exception as e:
             raise OpenStackCloudException(str(e))
 
-    def create_service(self, name, type, description=None):
+    @valid_kwargs('type', 'service_type', 'description')
+    def create_service(self, name, **kwargs):
         """Create a service.
 
         :param name: Service name.
-        :param type: Service type.
+        :param type: Service type. (type or service_type required.)
+        :param service_type: Service type. (type or service_type required.)
         :param description: Service description (optional).
 
         :returns: a dict containing the services description, i.e. the
@@ -4183,17 +4185,20 @@ class OperatorCloud(OpenStackCloud):
             - id: <service id>
             - name: <service name>
             - type: <service type>
+            - service_type: <service type>
             - description: <service description>
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call.
 
         """
+        service_type = kwargs.get('type', kwargs.get('service_type'))
+        description = kwargs.get('description', None)
         try:
             if self.cloud_config.get_api_version('identity').startswith('2'):
-                service_kwargs = {'service_type': type}
+                service_kwargs = {'service_type': service_type}
             else:
-                service_kwargs = {'type': type}
+                service_kwargs = {'type': service_type}
 
             service = self.manager.submitTask(_tasks.ServiceCreate(
                 name=name, description=description, **service_kwargs))
@@ -4215,7 +4220,8 @@ class OperatorCloud(OpenStackCloud):
             services = self.manager.submitTask(_tasks.ServiceList())
         except Exception as e:
             raise OpenStackCloudException(str(e))
-        return meta.obj_list_to_dict(services)
+        return _utils.normalize_keystone_services(
+            meta.obj_list_to_dict(services))
 
     def search_services(self, name_or_id=None, filters=None):
         """Search Keystone services.
