@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.cluster.v1 import _proxy
+from openstack.cluster.v1 import action
 from openstack.cluster.v1 import cluster
 from openstack.cluster.v1 import policy
 from openstack.tests.unit import test_proxy_base
@@ -70,3 +71,12 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_policy_update(self):
         self.verify_update(self.proxy.update_policy, policy.Policy)
+
+    def test_action_get(self):
+        self.verify_get(self.proxy.get_action, action.Action)
+
+    def test_actions(self):
+        self.verify_list(self.proxy.actions, action.Action,
+                         paginated=True,
+                         method_kwargs={'limit': 2},
+                         expected_kwargs={'limit': 2})
