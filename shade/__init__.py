@@ -1143,7 +1143,6 @@ class OpenStackCloud(object):
             self._internal_network_stamp,
             filters={
                 'router:external': False,
-                'shared': False
             })
         self._internal_network_stamp = True
         return self._internal_networks

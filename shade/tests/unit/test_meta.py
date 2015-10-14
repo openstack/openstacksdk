@@ -146,7 +146,7 @@ class TestMeta(testtools.TestCase):
         self.assertEqual(PRIVATE_V4, meta.get_server_private_ip(srv, cloud))
         mock_has_service.assert_called_with('network')
         mock_search_networks.assert_called_with(
-            filters={'router:external': False, 'shared': False}
+            filters={'router:external': False}
         )
 
     @mock.patch.object(shade.OpenStackCloud, 'get_image_name')
@@ -189,7 +189,7 @@ class TestMeta(testtools.TestCase):
         self.assertEqual(PRIVATE_V4, srv['private_v4'])
         mock_has_service.assert_called_with('volume')
         mock_search_networks.assert_called_with(
-            filters={'router:external': False, 'shared': False}
+            filters={'router:external': False}
         )
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
