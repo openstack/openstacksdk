@@ -885,6 +885,11 @@ class OpenStackCloud(object):
         return _utils._filter_list(records, name_or_id, filters)
 
     def list_keypairs(self):
+        """List all available keypairs.
+
+        :returns: A list of keypair dicts.
+
+        """
         try:
             return meta.obj_list_to_dict(
                 self.manager.submitTask(_tasks.KeypairList())
@@ -894,23 +899,48 @@ class OpenStackCloud(object):
                 "Error fetching keypair list: %s" % str(e))
 
     def list_networks(self):
+        """List all available networks.
+
+        :returns: A list of network dicts.
+
+        """
         with self._neutron_exceptions("Error fetching network list"):
             return self.manager.submitTask(_tasks.NetworkList())['networks']
 
     def list_routers(self):
+        """List all available routers.
+
+        :returns: A list of router dicts.
+
+        """
         with self._neutron_exceptions("Error fetching router list"):
             return self.manager.submitTask(_tasks.RouterList())['routers']
 
     def list_subnets(self):
+        """List all available subnets.
+
+        :returns: A list of subnet dicts.
+
+        """
         with self._neutron_exceptions("Error fetching subnet list"):
             return self.manager.submitTask(_tasks.SubnetList())['subnets']
 
     def list_ports(self):
+        """List all available ports.
+
+        :returns: A list of port dicts.
+
+        """
         with self._neutron_exceptions("Error fetching port list"):
             return self.manager.submitTask(_tasks.PortList())['ports']
 
     @_cache_on_arguments(should_cache_fn=_no_pending_volumes)
     def list_volumes(self, cache=True):
+        """List all available volumes.
+
+        :returns: A list of volume dicts.
+
+        """
         if not cache:
             warnings.warn('cache argument to list_volumes is deprecated. Use '
                           'invalidate instead.')
@@ -924,6 +954,11 @@ class OpenStackCloud(object):
 
     @_cache_on_arguments()
     def list_flavors(self):
+        """List all available flavors.
+
+        :returns: A list of flavor dicts.
+
+        """
         try:
             return meta.obj_list_to_dict(
                 self.manager.submitTask(_tasks.FlavorList(is_public=None))
@@ -933,6 +968,11 @@ class OpenStackCloud(object):
                 "Error fetching flavor list: %s" % e)
 
     def list_security_groups(self):
+        """List all available security groups.
+
+        :returns: A list of security group dicts.
+
+        """
         # Handle neutron security groups
         if self.secgroup_source == 'neutron':
             # Neutron returns dicts, so no need to convert objects here.
@@ -960,6 +1000,11 @@ class OpenStackCloud(object):
             )
 
     def list_servers(self):
+        """List all available servers.
+
+        :returns: A list of server dicts.
+
+        """
         try:
             return meta.obj_list_to_dict(
                 self.manager.submitTask(_tasks.ServerList())
@@ -1020,6 +1065,11 @@ class OpenStackCloud(object):
         return images
 
     def list_floating_ip_pools(self):
+        """List all available floating IP pools.
+
+        :returns: A list of floating IP pool dicts.
+
+        """
         if not self._has_nova_extension('os-floating-ip-pools'):
             raise OpenStackCloudUnavailableExtension(
                 'Floating IP pools extension is not available on target cloud')
@@ -1034,6 +1084,11 @@ class OpenStackCloud(object):
                     msg=str(e)))
 
     def list_floating_ips(self):
+        """List all available floating IPs.
+
+        :returns: A list of floating IP dicts.
+
+        """
         if self.has_service('network'):
             try:
                 return _utils.normalize_neutron_floating_ips(
@@ -1061,6 +1116,11 @@ class OpenStackCloud(object):
                 "error fetching floating IPs list: {msg}".format(msg=str(e)))
 
     def list_domains(self):
+        """List all available DNS domains.
+
+        :returns: A list of domain dicts.
+
+        """
         try:
             return self.manager.submitTask(_tasks.DomainList())
         except Exception as e:
@@ -1148,31 +1208,102 @@ class OpenStackCloud(object):
         return self._internal_networks
 
     def get_keypair(self, name_or_id, filters=None):
+        """Get a keypair by name or ID.
+
+        :param name_or_id: Name or ID of the keypair.
+
+        :returns: A keypair dict or None if no matching keypair is
+        found.
+
+        """
         return _utils._get_entity(self.search_keypairs, name_or_id, filters)
 
     def get_network(self, name_or_id, filters=None):
+        """Get a network by name or ID.
+
+        :param name_or_id: Name or ID of the network.
+
+        :returns: A network dict or None if no matching network is
+        found.
+
+        """
         return _utils._get_entity(self.search_networks, name_or_id, filters)
 
     def get_router(self, name_or_id, filters=None):
+        """Get a router by name or ID.
+
+        :param name_or_id: Name or ID of the router.
+
+        :returns: A router dict or None if no matching router is
+        found.
+
+        """
         return _utils._get_entity(self.search_routers, name_or_id, filters)
 
     def get_subnet(self, name_or_id, filters=None):
+        """Get a subnet by name or ID.
+
+        :param name_or_id: Name or ID of the subnet.
+
+        :returns: A subnet dict or None if no matching subnet is
+        found.
+
+        """
         return _utils._get_entity(self.search_subnets, name_or_id, filters)
 
     def get_port(self, name_or_id, filters=None):
+        """Get a port by name or ID.
+
+        :param name_or_id: Name or ID of the port.
+
+        :returns: A port dict or None if no matching port is found.
+
+        """
         return _utils._get_entity(self.search_ports, name_or_id, filters)
 
     def get_volume(self, name_or_id, filters=None):
+        """Get a volume by name or ID.
+
+        :param name_or_id: Name or ID of the volume.
+
+        :returns: A volume dict or None if no matching volume is
+        found.
+
+        """
         return _utils._get_entity(self.search_volumes, name_or_id, filters)
 
     def get_flavor(self, name_or_id, filters=None):
+        """Get a flavor by name or ID.
+
+        :param name_or_id: Name or ID of the flavor.
+
+        :returns: A flavor dict or None if no matching flavor is
+        found.
+
+        """
         return _utils._get_entity(self.search_flavors, name_or_id, filters)
 
     def get_security_group(self, name_or_id, filters=None):
+        """Get a security group by name or ID.
+
+        :param name_or_id: Name or ID of the security group.
+
+        :returns: A security group dict or None if no matching
+                  security group is found.
+
+        """
         return _utils._get_entity(
             self.search_security_groups, name_or_id, filters)
 
     def get_server(self, name_or_id=None, filters=None):
+        """Get a server by name or ID.
+
+        :param name_or_id: Name or ID of the server.
+
+        :returns: A server dict or None if no matching server is
+        found.
+
+        """
         return _utils._get_entity(self.search_servers, name_or_id, filters)
 
     def get_server_by_id(self, id):
@@ -1180,12 +1311,35 @@ class OpenStackCloud(object):
             self.manager.submitTask(_tasks.ServerGet(server=id)))
 
     def get_image(self, name_or_id, filters=None):
+        """Get an image by name or ID.
+
+        :param name_or_id: Name or ID of the image.
+
+        :returns: An image dict or None if no matching image is found.
+
+        """
         return _utils._get_entity(self.search_images, name_or_id, filters)
 
     def get_floating_ip(self, id, filters=None):
+        """Get a floating IP by ID
+
+        :param id: ID of the floating IP.
+
+        :returns: A floating IP dict or None if no matching floating
+        IP is found.
+
+        """
         return _utils._get_entity(self.search_floating_ips, id, filters)
 
     def get_domain(self, name_or_id, filters=None):
+        """Get a DNS domain by name or ID.
+
+        :param name_or_id: Name or ID of the DNS domain.
+
+        :returns: A domain dict or None if no matching DNS domain is
+        found.
+
+        """
         return _utils._get_entity(self.search_domains, name_or_id, filters)
 
     def get_record(self, domain_id, name_or_id, filters=None):
