@@ -298,6 +298,23 @@ class TestConfigArgparse(base.TestCase):
         self.assertEqual(cc.region_name, 'region1')
         self.assertIsNone(cc.snack_type)
 
+    def test_get_one_cloud_bad_region(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+
+        self.assertRaises(
+            exceptions.OpenStackConfigException,
+            c.get_one_cloud,
+            cloud='_test_cloud_regions', region_name='bad')
+
+    def test_get_one_cloud_bad_region_no_regions(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+
+        cc = c.get_one_cloud(cloud='_test-cloud_', region_name='bad_region')
+        self._assert_cloud_details(cc)
+        self.assertEqual(cc.region_name, 'bad_region')
+
     def test_get_one_cloud_no_argparse_region2(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
