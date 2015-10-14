@@ -221,6 +221,9 @@ class OpenStackConfig(object):
                 new_config[key] = value
         return new_config
 
+    def get_cache_interval(self):
+        return self._cache_max_age
+
     def get_cache_max_age(self):
         return self._cache_max_age
 
@@ -629,7 +632,9 @@ class OpenStackConfig(object):
             name=cloud_name, region=config['region_name'],
             config=self._normalize_keys(config),
             force_ipv4=force_ipv4,
-            auth_plugin=auth_plugin)
+            auth_plugin=auth_plugin,
+            openstack_config=self
+            )
 
     @staticmethod
     def set_one_cloud(config_file, cloud, set_config=None):
