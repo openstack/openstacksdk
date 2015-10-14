@@ -12,6 +12,7 @@
 
 from openstack.cluster.v1 import _proxy
 from openstack.cluster.v1 import cluster
+from openstack.cluster.v1 import policy
 from openstack.tests.unit import test_proxy_base
 
 
@@ -44,3 +45,28 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_cluster_update(self):
         self.verify_update(self.proxy.update_cluster, cluster.Cluster)
+
+    def test_policy_create(self):
+        self.verify_create(self.proxy.create_policy, policy.Policy)
+
+    def test_policy_delete(self):
+        self.verify_delete(self.proxy.delete_policy, policy.Policy, False)
+
+    def test_policy_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_policy, policy.Policy, True)
+
+    def test_policy_find(self):
+        self.verify_find('openstack.cluster.v1.policy.Policy.find',
+                         self.proxy.find_policy)
+
+    def test_policy_get(self):
+        self.verify_get(self.proxy.get_policy, policy.Policy)
+
+    def test_policies(self):
+        self.verify_list(self.proxy.policies, policy.Policy,
+                         paginated=True,
+                         method_kwargs={'limit': 2},
+                         expected_kwargs={'limit': 2})
+
+    def test_policy_update(self):
+        self.verify_update(self.proxy.update_policy, policy.Policy)

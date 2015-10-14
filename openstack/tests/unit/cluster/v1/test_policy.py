@@ -1,0 +1,70 @@
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+import testtools
+
+from openstack.cluster.v1 import policy
+
+
+FAKE_ID = 'ac5415bd-f522-4160-8be0-f8853e4bc332'
+FAKE_NAME = 'test_policy'
+
+FAKE = {
+    'name': FAKE_NAME,
+    'spec': {
+        'type': 'senlin.policy.deletion',
+        'version': '1.0',
+        'properties': {
+            'criteria': 'OLDEST_FIRST',
+            'grace_period': 60,
+            'reduce_desired_capacity': False,
+            'destroy_after_deletion': True,
+        }
+    },
+    'type': 'senlin.policy.deletion-1.0',
+    'cooldown': 120,
+    'level': 50,
+    'created_time': '2015-08-10T09:14:53',
+    'deleted_time': None,
+    'updated_time': None,
+    'data': {},
+}
+
+
+class TestPolicy(testtools.TestCase):
+
+    def setUp(self):
+        super(TestPolicy, self).setUp()
+
+    def test_basic(self):
+        sot = policy.Policy()
+        self.assertEqual('policy', sot.resource_key)
+        self.assertEqual('policies', sot.resources_key)
+        self.assertEqual('/policies', sot.base_path)
+        self.assertEqual('clustering', sot.service.service_type)
+        self.assertTrue(sot.allow_create)
+        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_update)
+        self.assertTrue(sot.allow_delete)
+        self.assertTrue(sot.allow_list)
+
+    def test_instantiate(self):
+        sot = policy.Policy(FAKE)
+        self.assertIsNone(sot.id)
+        self.assertEqual(FAKE['name'], sot.name)
+        self.assertEqual(FAKE['level'], sot.level)
+        self.assertEqual(FAKE['cooldown'], sot.cooldown)
+        self.assertEqual(FAKE['spec'], sot.spec)
+        self.assertEqual(FAKE['data'], sot.data)
+        self.assertEqual(FAKE['created_time'], sot.created_at)
+        self.assertEqual(FAKE['updated_time'], sot.updated_at)
+        self.assertEqual(FAKE['deleted_time'], sot.deleted_at)
