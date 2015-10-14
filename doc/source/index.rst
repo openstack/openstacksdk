@@ -6,6 +6,7 @@
    vendor-support
    contributing
    installation
+   api-reference
 
 Indices and tables
 ==================
