@@ -23,8 +23,10 @@ from mock import patch
 from novaclient import exceptions as n_exc
 import os_client_config
 
+from shade import _utils
+from shade import meta
 from shade import OpenStackCloud
-from shade.tests.fakes import FakeFloatingIP
+from shade.tests import fakes
 from shade.tests.unit import base
 
 
@@ -72,14 +74,28 @@ class TestFloatingIP(base.TestCase):
         config = os_client_config.OpenStackConfig()
         self.client = OpenStackCloud(
             cloud_config=config.get_one_cloud(validate=False))
+        self.floating_ips = [
+            fakes.FakeFloatingIP(**ip) for ip in self.mock_floating_ip_list_rep
+        ]
+
+        self.fake_server = meta.obj_to_dict(
+            fakes.FakeServer(
+                'server-id', '', 'ACTIVE',
+                addresses={u'test_pnztt_net': [{
+                    u'OS-EXT-IPS:type': u'fixed',
+                    u'addr': '192.0.2.129',
+                    u'version': 4,
+                    u'OS-EXT-IPS-MAC:mac_addr':
+                    u'fa:16:3e:ae:7d:42'}]}))
+
+        self.floating_ip = _utils.normalize_nova_floating_ips(
+            meta.obj_list_to_dict(self.floating_ips))[0]
 
     @patch.object(OpenStackCloud, 'nova_client')
     @patch.object(OpenStackCloud, 'has_service')
     def test_list_floating_ips(self, mock_has_service, mock_nova_client):
         mock_has_service.side_effect = has_service_side_effect
-        mock_nova_client.floating_ips.list.return_value = [
-            FakeFloatingIP(**ip) for ip in self.mock_floating_ip_list_rep
-        ]
+        mock_nova_client.floating_ips.list.return_value = self.floating_ips
 
         floating_ips = self.client.list_floating_ips()
 
@@ -92,9 +108,7 @@ class TestFloatingIP(base.TestCase):
     @patch.object(OpenStackCloud, 'has_service')
     def test_search_floating_ips(self, mock_has_service, mock_nova_client):
         mock_has_service.side_effect = has_service_side_effect
-        mock_nova_client.floating_ips.list.return_value = [
-            FakeFloatingIP(**ip) for ip in self.mock_floating_ip_list_rep
-        ]
+        mock_nova_client.floating_ips.list.return_value = self.floating_ips
 
         floating_ips = self.client.search_floating_ips(
             filters={'attached': False})
@@ -108,9 +122,7 @@ class TestFloatingIP(base.TestCase):
     @patch.object(OpenStackCloud, 'has_service')
     def test_get_floating_ip(self, mock_has_service, mock_nova_client):
         mock_has_service.side_effect = has_service_side_effect
-        mock_nova_client.floating_ips.list.return_value = [
-            FakeFloatingIP(**ip) for ip in self.mock_floating_ip_list_rep
-        ]
+        mock_nova_client.floating_ips.list.return_value = self.floating_ips
 
         floating_ip = self.client.get_floating_ip(id='29')
 
@@ -123,9 +135,7 @@ class TestFloatingIP(base.TestCase):
     def test_get_floating_ip_not_found(
             self, mock_has_service, mock_nova_client):
         mock_has_service.side_effect = has_service_side_effect
-        mock_nova_client.floating_ips.list.return_value = [
-            FakeFloatingIP(**ip) for ip in self.mock_floating_ip_list_rep
-        ]
+        mock_nova_client.floating_ips.list.return_value = self.floating_ips
 
         floating_ip = self.client.get_floating_ip(id='666')
 
@@ -135,8 +145,8 @@ class TestFloatingIP(base.TestCase):
     @patch.object(OpenStackCloud, 'has_service')
     def test_create_floating_ip(self, mock_has_service, mock_nova_client):
         mock_has_service.side_effect = has_service_side_effect
-        mock_nova_client.floating_ips.create.return_value = FakeFloatingIP(
-            **self.mock_floating_ip_list_rep[1])
+        mock_nova_client.floating_ips.create.return_value =\
+            fakes.FakeFloatingIP(**self.mock_floating_ip_list_rep[1])
 
         self.client.create_floating_ip(network='nova')
 
@@ -164,7 +174,7 @@ class TestFloatingIP(base.TestCase):
         mock_has_service.side_effect = has_service_side_effect
         mock__nova_list_floating_ips.return_value = []
         mock_nova_client.floating_ips.create.return_value = \
-            FakeFloatingIP(**self.mock_floating_ip_list_rep[0])
+            fakes.FakeFloatingIP(**self.mock_floating_ip_list_rep[0])
 
         ip = self.client.available_floating_ip(network='nova')
 
@@ -202,12 +212,10 @@ class TestFloatingIP(base.TestCase):
     @patch.object(OpenStackCloud, 'has_service')
     def test_attach_ip_to_server(self, mock_has_service, mock_nova_client):
         mock_has_service.side_effect = has_service_side_effect
-        mock_nova_client.floating_ips.list.return_value = [
-            FakeFloatingIP(**ip) for ip in self.mock_floating_ip_list_rep
-        ]
+        mock_nova_client.floating_ips.list.return_value = self.floating_ips
 
         self.client.attach_ip_to_server(
-            server_id='server-id', floating_ip_id=1,
+            server=self.fake_server, floating_ip=self.floating_ip,
             fixed_address='192.0.2.129')
 
         mock_nova_client.servers.add_floating_ip.assert_called_with(
@@ -219,7 +227,7 @@ class TestFloatingIP(base.TestCase):
     def test_detach_ip_from_server(self, mock_has_service, mock_nova_client):
         mock_has_service.side_effect = has_service_side_effect
         mock_nova_client.floating_ips.list.return_value = [
-            FakeFloatingIP(**ip) for ip in self.mock_floating_ip_list_rep
+            fakes.FakeFloatingIP(**ip) for ip in self.mock_floating_ip_list_rep
         ]
 
         self.client.detach_ip_from_server(
@@ -232,12 +240,10 @@ class TestFloatingIP(base.TestCase):
     @patch.object(OpenStackCloud, 'has_service')
     def test_add_ip_from_pool(self, mock_has_service, mock_nova_client):
         mock_has_service.side_effect = has_service_side_effect
-        mock_nova_client.floating_ips.list.return_value = [
-            FakeFloatingIP(**ip) for ip in self.mock_floating_ip_list_rep
-        ]
+        mock_nova_client.floating_ips.list.return_value = self.floating_ips
 
         ip = self.client.add_ip_from_pool(
-            server_id='server-id',
+            server=self.fake_server,
             network='nova',
             fixed_address='192.0.2.129')
 

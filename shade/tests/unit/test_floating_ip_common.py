@@ -44,8 +44,7 @@ class TestFloatingIP(base.TestCase):
             id='server-id', name='test-server', status="ACTIVE", addresses={}
         )
         server_dict = meta.obj_to_dict(server)
-
-        mock_available_floating_ip.return_value = {
+        floating_ip_dict = {
             "id": "this-is-a-floating-ip-id",
             "fixed_ip_address": None,
             "floating_ip_address": "203.0.113.29",
@@ -54,11 +53,13 @@ class TestFloatingIP(base.TestCase):
             "status": "ACTIVE"
         }
 
+        mock_available_floating_ip.return_value = floating_ip_dict
+
         self.client.add_auto_ip(server=server_dict)
 
         mock_attach_ip_to_server.assert_called_with(
-            timeout=60, wait=False, server_id='server-id',
-            floating_ip_id='this-is-a-floating-ip-id')
+            timeout=60, wait=False, server=server_dict,
+            floating_ip=floating_ip_dict, skip_attach=False)
 
     @patch.object(OpenStackCloud, 'nova_client')
     @patch.object(OpenStackCloud, 'add_ip_from_pool')
@@ -74,7 +75,7 @@ class TestFloatingIP(base.TestCase):
 
         self.client.add_ips_to_server(server_dict, ip_pool=pool)
 
-        mock_add_ip_from_pool.assert_called_with('romeo', pool, reuse=True)
+        mock_add_ip_from_pool.assert_called_with(server_dict, pool, reuse=True)
 
     @patch.object(OpenStackCloud, 'nova_client')
     @patch.object(OpenStackCloud, 'add_ip_list')
