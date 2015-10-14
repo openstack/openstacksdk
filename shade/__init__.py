@@ -1211,6 +1211,16 @@ class OpenStackCloud(object):
         """Get a keypair by name or ID.
 
         :param name_or_id: Name or ID of the keypair.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
         :returns: A keypair dict or None if no matching keypair is
         found.
@@ -1222,6 +1232,16 @@ class OpenStackCloud(object):
         """Get a network by name or ID.
 
         :param name_or_id: Name or ID of the network.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
         :returns: A network dict or None if no matching network is
         found.
@@ -1233,6 +1253,16 @@ class OpenStackCloud(object):
         """Get a router by name or ID.
 
         :param name_or_id: Name or ID of the router.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
         :returns: A router dict or None if no matching router is
         found.
@@ -1244,6 +1274,16 @@ class OpenStackCloud(object):
         """Get a subnet by name or ID.
 
         :param name_or_id: Name or ID of the subnet.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
         :returns: A subnet dict or None if no matching subnet is
         found.
@@ -1255,6 +1295,16 @@ class OpenStackCloud(object):
         """Get a port by name or ID.
 
         :param name_or_id: Name or ID of the port.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
         :returns: A port dict or None if no matching port is found.
 
@@ -1265,6 +1315,16 @@ class OpenStackCloud(object):
         """Get a volume by name or ID.
 
         :param name_or_id: Name or ID of the volume.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
         :returns: A volume dict or None if no matching volume is
         found.
@@ -1276,6 +1336,16 @@ class OpenStackCloud(object):
         """Get a flavor by name or ID.
 
         :param name_or_id: Name or ID of the flavor.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
         :returns: A flavor dict or None if no matching flavor is
         found.
@@ -1287,6 +1357,16 @@ class OpenStackCloud(object):
         """Get a security group by name or ID.
 
         :param name_or_id: Name or ID of the security group.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
         :returns: A security group dict or None if no matching
                   security group is found.
@@ -1299,6 +1379,16 @@ class OpenStackCloud(object):
         """Get a server by name or ID.
 
         :param name_or_id: Name or ID of the server.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
         :returns: A server dict or None if no matching server is
         found.
@@ -1314,6 +1404,16 @@ class OpenStackCloud(object):
         """Get an image by name or ID.
 
         :param name_or_id: Name or ID of the image.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
         :returns: An image dict or None if no matching image is found.
 
@@ -1324,6 +1424,16 @@ class OpenStackCloud(object):
         """Get a floating IP by ID
 
         :param id: ID of the floating IP.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
         :returns: A floating IP dict or None if no matching floating
         IP is found.
@@ -1335,6 +1445,16 @@ class OpenStackCloud(object):
         """Get a DNS domain by name or ID.
 
         :param name_or_id: Name or ID of the DNS domain.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
         :returns: A domain dict or None if no matching DNS domain is
         found.
