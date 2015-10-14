@@ -551,6 +551,7 @@ class OpenStackConfig(object):
             An argparse Namespace object; allows direct passing in of
             argparse options to be added to the cloud config.  Values
             of None and '' will be removed.
+        :param region_name: Name of the region of the cloud.
         :param kwargs: Additional configuration options
 
         :raises: keystoneauth1.exceptions.MissingRequiredOptions
