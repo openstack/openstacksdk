@@ -2857,15 +2857,15 @@ class OpenStackCloud(object):
                 if floating_ip:
                     ips = self.search_floating_ips(filters={
                         'floating_ip_address': floating_ip})
-                if len(ips) != 1:
-                    raise OpenStackException(
-                        "Tried to delete floating ip {floating_ip}"
-                        " associated with server {id} but there was"
-                        " an error finding it. Something is exceptionally"
-                        " broken.".format(
-                            floating_ip=floating_ip,
-                            id=server['id']))
-                self.delete_floating_ip(ips[0]['id'])
+                    if len(ips) != 1:
+                        raise OpenStackException(
+                            "Tried to delete floating ip {floating_ip}"
+                            " associated with server {id} but there was"
+                            " an error finding it. Something is exceptionally"
+                            " broken.".format(
+                                floating_ip=floating_ip,
+                                id=server['id']))
+                    self.delete_floating_ip(ips[0]['id'])
             try:
                 self.manager.submitTask(
                     _tasks.ServerDelete(server=server['id']))
