@@ -827,19 +827,63 @@ class OpenStackCloud(object):
         return _utils._filter_list(keypairs, name_or_id, filters)
 
     def search_networks(self, name_or_id=None, filters=None):
-        networks = self.list_networks()
+        """Search OpenStack networks
+
+        :param name_or_id: Name or id of the desired network.
+        :param filters: a dict containing additional filters to use. e.g.
+                        {'router:external': True}
+
+        :returns: a list of dicts containing the network description.
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during the
+            openstack API call.
+        """
+        networks = self.list_networks(filters)
         return _utils._filter_list(networks, name_or_id, filters)
 
     def search_routers(self, name_or_id=None, filters=None):
-        routers = self.list_routers()
+        """Search OpenStack routers
+
+        :param name_or_id: Name or id of the desired router.
+        :param filters: a dict containing additional filters to use. e.g.
+                        {'admin_state_up': True}
+
+        :returns: a list of dicts containing the router description.
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during the
+            openstack API call.
+        """
+        routers = self.list_routers(filters)
         return _utils._filter_list(routers, name_or_id, filters)
 
     def search_subnets(self, name_or_id=None, filters=None):
-        subnets = self.list_subnets()
+        """Search OpenStack subnets
+
+        :param name_or_id: Name or id of the desired subnet.
+        :param filters: a dict containing additional filters to use. e.g.
+                        {'enable_dhcp': True}
+
+        :returns: a list of dicts containing the subnet description.
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during the
+            openstack API call.
+        """
+        subnets = self.list_subnets(filters)
         return _utils._filter_list(subnets, name_or_id, filters)
 
     def search_ports(self, name_or_id=None, filters=None):
-        ports = self.list_ports()
+        """Search OpenStack ports
+
+        :param name_or_id: Name or id of the desired port.
+        :param filters: a dict containing additional filters to use. e.g.
+                        {'device_id': '2711c67a-b4a7-43dd-ace7-6187b791c3f0'}
+
+        :returns: a list of dicts containing the port description.
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during the
+            openstack API call.
+        """
+        ports = self.list_ports(filters)
         return _utils._filter_list(ports, name_or_id, filters)
 
     def search_volumes(self, name_or_id=None, filters=None):
@@ -898,41 +942,60 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Error fetching keypair list: %s" % str(e))
 
-    def list_networks(self):
+    def list_networks(self, filters=None):
         """List all available networks.
 
+        :param filters: (optional) dict of filter conditions to push down
         :returns: A list of network dicts.
 
         """
+        # Translate None from search interface to empty {} for kwargs below
+        if not filters:
+            filters = {}
         with self._neutron_exceptions("Error fetching network list"):
-            return self.manager.submitTask(_tasks.NetworkList())['networks']
+            return self.manager.submitTask(
+                _tasks.NetworkList(**filters))['networks']
 
-    def list_routers(self):
+    def list_routers(self, filters=None):
         """List all available routers.
 
+        :param filters: (optional) dict of filter conditions to push down
         :returns: A list of router dicts.
 
         """
+        # Translate None from search interface to empty {} for kwargs below
+        if not filters:
+            filters = {}
         with self._neutron_exceptions("Error fetching router list"):
-            return self.manager.submitTask(_tasks.RouterList())['routers']
+            return self.manager.submitTask(
+                _tasks.RouterList(**filters))['routers']
 
-    def list_subnets(self):
+    def list_subnets(self, filters=None):
         """List all available subnets.
 
+        :param filters: (optional) dict of filter conditions to push down
         :returns: A list of subnet dicts.
 
         """
+        # Translate None from search interface to empty {} for kwargs below
+        if not filters:
+            filters = {}
         with self._neutron_exceptions("Error fetching subnet list"):
-            return self.manager.submitTask(_tasks.SubnetList())['subnets']
+            return self.manager.submitTask(
+                _tasks.SubnetList(**filters))['subnets']
 
-    def list_ports(self):
+    def list_ports(self, filters=None):
         """List all available ports.
 
+        :param filters: (optional) dict of filter conditions to push down
         :returns: A list of port dicts.
 
         """
+        # Translate None from search interface to empty {} for kwargs below
+        if not filters:
+            filters = {}
         with self._neutron_exceptions("Error fetching port list"):
-            return self.manager.submitTask(_tasks.PortList())['ports']
+            return self.manager.submitTask(_tasks.PortList(**filters))['ports']
 
     @_cache_on_arguments(should_cache_fn=_no_pending_volumes)
     def list_volumes(self, cache=True):
