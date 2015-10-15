@@ -2809,7 +2809,8 @@ class OpenStackCloud(object):
                             ' allocated an IP address.',
                             extra_data=dict(server=server))
                     return self.add_ips_to_server(
-                        server, auto_ip, ips, ip_pool, reuse=reuse_ips)
+                        server, auto_ip, ips, ip_pool, wait=wait,
+                        reuse=reuse_ips)
 
                 if server['status'] == 'ERROR':
                     raise OpenStackCloudException(
