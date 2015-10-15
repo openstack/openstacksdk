@@ -185,6 +185,38 @@ class TestRouter(base.TestCase):
         self.assertEqual(router['id'], iface['id'])
         self.assertEqual(sub['id'], iface['subnet_id'])
 
+    def test_list_router_interfaces(self):
+        router = self._create_and_verify_advanced_router()
+        net_name = self.network_prefix + '_intnet1'
+        sub_name = self.subnet_prefix + '_intsub1'
+        net = self.cloud.create_network(name=net_name)
+        sub = self.cloud.create_subnet(
+            net['id'], '10.4.4.0/24', subnet_name=sub_name,
+            gateway_ip='10.4.4.1'
+        )
+
+        iface = self.cloud.add_router_interface(router, subnet_id=sub['id'])
+        all_ifaces = self.cloud.list_router_interfaces(router)
+        int_ifaces = self.cloud.list_router_interfaces(
+            router, interface_type='internal')
+        ext_ifaces = self.cloud.list_router_interfaces(
+            router, interface_type='external')
+        self.assertIsNone(
+            self.cloud.remove_router_interface(router, subnet_id=sub['id'])
+        )
+
+        # Test return values *after* the interface is detached so the
+        # resources we've created can be cleaned up if these asserts fail.
+        self.assertIsNotNone(iface)
+        self.assertEqual(2, len(all_ifaces))
+        self.assertEqual(1, len(int_ifaces))
+        self.assertEqual(1, len(ext_ifaces))
+
+        ext_fixed_ips = router['external_gateway_info']['external_fixed_ips']
+        self.assertEqual(ext_fixed_ips[0]['subnet_id'],
+                         ext_ifaces[0]['fixed_ips'][0]['subnet_id'])
+        self.assertEqual(sub['id'], int_ifaces[0]['fixed_ips'][0]['subnet_id'])
+
     def test_update_router_name(self):
         router = self._create_and_verify_advanced_router()
 

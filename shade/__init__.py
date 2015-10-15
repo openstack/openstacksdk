@@ -1626,6 +1626,40 @@ class OpenStackCloud(object):
                 _tasks.RouterRemoveInterface(router=router['id'], body=body)
             )
 
+    def list_router_interfaces(self, router, interface_type=None):
+        """List all interfaces for a router.
+
+        :param dict router: A router dict object.
+        :param string interface_type: One of None, "internal", or "external".
+            Controls whether all, internal interfaces or external interfaces
+            are returned.
+
+        :returns: A list of port dict objects.
+        """
+        ports = self.search_ports(filters={'device_id': router['id']})
+
+        if interface_type:
+            filtered_ports = []
+            ext_fixed = router['external_gateway_info']['external_fixed_ips']
+
+            # Compare the subnets (subnet_id, ip_address) on the ports with
+            # the subnets making up the router external gateway. Those ports
+            # that match are the external interfaces, and those that don't
+            # are internal.
+            for port in ports:
+                matched_ext = False
+                for port_subnet in port['fixed_ips']:
+                    for router_external_subnet in ext_fixed:
+                        if port_subnet == router_external_subnet:
+                            matched_ext = True
+                if interface_type == 'internal' and not matched_ext:
+                    filtered_ports.append(port)
+                elif interface_type == 'external' and matched_ext:
+                    filtered_ports.append(port)
+            return filtered_ports
+
+        return ports
+
     def create_router(self, name=None, admin_state_up=True,
                       ext_gateway_net_id=None, enable_snat=None,
                       ext_fixed_ips=None):
