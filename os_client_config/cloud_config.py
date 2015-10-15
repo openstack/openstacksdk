@@ -17,12 +17,14 @@ import warnings
 
 class CloudConfig(object):
     def __init__(self, name, region, config,
-                 force_ipv4=False, auth_plugin=None):
+                 force_ipv4=False, auth_plugin=None,
+                 openstack_config=None):
         self.name = name
         self.region = region
         self.config = config
         self._force_ipv4 = force_ipv4
         self._auth = auth_plugin
+        self._openstack_config = openstack_config
 
     def __getattr__(self, key):
         """Return arbitrary attributes."""
@@ -116,3 +118,19 @@ class CloudConfig(object):
     def get_auth(self):
         """Return a keystoneauth plugin from the auth credentials."""
         return self._auth
+
+    def get_cache_interval(self):
+        if self._openstack_config:
+            return self._openstack_config.get_cache_interval()
+
+    def get_cache_path(self):
+        if self._openstack_config:
+            return self._openstack_config.get_cache_path()
+
+    def get_cache_class(self):
+        if self._openstack_config:
+            return self._openstack_config.get_cache_class()
+
+    def get_cache_arguments(self):
+        if self._openstack_config:
+            return self._openstack_config.get_cache_arguments()
