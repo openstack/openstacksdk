@@ -247,7 +247,7 @@ Get a named cloud.
   import os_client_config
 
   cloud_config = os_client_config.OpenStackConfig().get_one_cloud(
-      'hp', 'region-b.geo-1')
+      'hp', region_name='region-b.geo-1')
   print(cloud_config.name, cloud_config.region, cloud_config.config)
 
 Or, get all of the clouds.
