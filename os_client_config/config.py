@@ -573,7 +573,15 @@ class OpenStackConfig(object):
 
         # Regions is a list that we can use to create a list of cloud/region
         # objects. It does not belong in the single-cloud dict
-        config.pop('regions', None)
+        regions = config.pop('regions', None)
+        if regions and args['region_name'] not in regions:
+            raise exceptions.OpenStackConfigException(
+                'Region {region_name} is not a valid region name for cloud'
+                ' {cloud}. Valid choices are {region_list}. Please note that'
+                ' region names are case sensitive.'.format(
+                    region_name=args['region_name'],
+                    region_list=','.join(regions),
+                    cloud=cloud))
 
         # Can't just do update, because None values take over
         for (key, val) in iter(args.items()):
