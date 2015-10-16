@@ -20,8 +20,6 @@ Functional tests for floating IP resource.
 """
 
 import pprint
-import random
-import string
 import time
 
 from novaclient import exceptions as nova_exc
@@ -48,10 +46,6 @@ def _iterate_timeout(timeout, message):
 class TestFloatingIP(base.TestCase):
     timeout = 60
 
-    # Generate a random name for these tests
-    new_item_name = 'test_' + ''.join(
-        random.choice(string.ascii_lowercase) for _ in range(5))
-
     def setUp(self):
         super(TestFloatingIP, self).setUp()
         self.cloud = openstack_cloud(cloud='devstack')
@@ -64,6 +58,9 @@ class TestFloatingIP(base.TestCase):
         self.image = pick_image(self.nova.images.list())
         if self.image is None:
             self.assertFalse('no sensible image available')
+
+        # Generate a random name for these tests
+        self.new_item_name = self.getUniqueString()
 
         self.addCleanup(self._cleanup_network)
         self.addCleanup(self._cleanup_servers)
@@ -170,7 +167,7 @@ class TestFloatingIP(base.TestCase):
             self.test_subnet = self.cloud.create_subnet(
                 subnet_name=self.new_item_name + '_subnet',
                 network_name_or_id=self.test_net['id'],
-                cidr='172.24.4.0/24',
+                cidr='10.24.4.0/24',
                 enable_dhcp=True
             )
             # Create a router
