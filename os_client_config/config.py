@@ -182,21 +182,34 @@ class OpenStackConfig(object):
             self.cloud_config = dict(
                 clouds=dict(defaults=dict(self.defaults)))
 
-        self._cache_max_age = 0
+        self._cache_expiration_time = 0
         self._cache_path = CACHE_PATH
         self._cache_class = 'dogpile.cache.null'
         self._cache_arguments = {}
+        self._cache_expiration = {}
         if 'cache' in self.cloud_config:
-            self._cache_max_age = self.cloud_config['cache'].get(
-                'max_age', self._cache_max_age)
-            if self._cache_max_age:
+            cache_settings = self._normalize_keys(self.cloud_config['cache'])
+
+            # expiration_time used to be 'max_age' but the dogpile setting
+            # is expiration_time. Support max_age for backwards compat.
+            self._cache_expiration_time = cache_settings.get(
+                'expiration_time', cache_settings.get(
+                    'max_age', self._cache_expiration_time))
+
+            # If cache class is given, use that. If not, but if cache time
+            # is given, default to memory. Otherwise, default to nothing.
+            # to memory.
+            if self._cache_expiration_time:
                 self._cache_class = 'dogpile.cache.memory'
-            self._cache_path = os.path.expanduser(
-                self.cloud_config['cache'].get('path', self._cache_path))
             self._cache_class = self.cloud_config['cache'].get(
                 'class', self._cache_class)
-            self._cache_arguments = self.cloud_config['cache'].get(
+
+            self._cache_path = os.path.expanduser(
+                cache_settings.get('path', self._cache_path))
+            self._cache_arguments = cache_settings.get(
                 'arguments', self._cache_arguments)
+            self._cache_expiration = cache_settings.get(
+                'expiration', self._cache_expiration)
 
     def _load_config_file(self):
         return self._load_yaml_file(self._config_files)
@@ -221,11 +234,14 @@ class OpenStackConfig(object):
                 new_config[key] = value
         return new_config
 
+    def get_cache_expiration_time(self):
+        return self._cache_expiration_time
+
     def get_cache_interval(self):
-        return self._cache_max_age
+        return self._cache_expiration_time
 
     def get_cache_max_age(self):
-        return self._cache_max_age
+        return self._cache_expiration_time
 
     def get_cache_path(self):
         return self._cache_path
@@ -234,7 +250,10 @@ class OpenStackConfig(object):
         return self._cache_class
 
     def get_cache_arguments(self):
-        return self._cache_arguments
+        return self._cache_arguments.copy()
+
+    def get_cache_expiration(self):
+        return self._cache_expiration.copy()
 
     def _get_regions(self, cloud):
         if cloud not in self.cloud_config['clouds']:

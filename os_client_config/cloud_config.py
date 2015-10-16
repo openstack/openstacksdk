@@ -119,9 +119,9 @@ class CloudConfig(object):
         """Return a keystoneauth plugin from the auth credentials."""
         return self._auth
 
-    def get_cache_interval(self):
+    def get_cache_expiration_time(self):
         if self._openstack_config:
-            return self._openstack_config.get_cache_interval()
+            return self._openstack_config.get_cache_expiration_time()
 
     def get_cache_path(self):
         if self._openstack_config:
@@ -134,3 +134,20 @@ class CloudConfig(object):
     def get_cache_arguments(self):
         if self._openstack_config:
             return self._openstack_config.get_cache_arguments()
+
+    def get_cache_expiration(self):
+        if self._openstack_config:
+            return self._openstack_config.get_cache_expiration()
+
+    def get_cache_resource_expiration(self, resource):
+        """Get expiration time for a resource
+
+        :param resource: Name of the resource type
+
+        :returns: Expiration time for the resource type or None
+        """
+        if self._openstack_config:
+            expiration = self._openstack_config.get_cache_expiration()
+            if resource not in expiration:
+                return None
+            return expiration[resource]

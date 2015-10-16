@@ -168,8 +168,14 @@ understands passing through cache settings to dogpile.cache, with the following
 behaviors:
 
 * Listing no config settings means you get a null cache.
-* `cache.max_age` and nothing else gets you memory cache.
+* `cache.expiration_time` and nothing else gets you memory cache.
 * Otherwise, `cache.class` and `cache.arguments` are passed in
+
+Different cloud behaviors are also differently expensive to deal with. If you
+want to get really crazy and tweak stuff, you can specify different expiration
+times on a per-resource basis by passing values, in seconds to an expiration
+mapping keyed on the singular name of the resource. A value of `-1` indicates
+that the resource should never expire.
 
 `os-client-config` does not actually cache anything itself, but it collects
 and presents the cache information so that your various applications that
@@ -179,10 +185,13 @@ are connecting to OpenStack can share a cache should you desire.
 
   cache:
     class: dogpile.cache.pylibmc
-    max_age: 3600
+    expiration_time: 3600
     arguments:
       url:
         - 127.0.0.1
+    expiration:
+      server: 5
+      flavor: -1
   clouds:
     mordred:
       profile: hp
