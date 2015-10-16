@@ -1,9 +1,8 @@
 Using OpenStack Network
 =======================
 
-Before working with ``network``, you'll need to obtain a
-:class:`~openstack.connection.Connection` object like so.
-
-.. literalinclude:: /code/connection.py
+Before working with the Network service, you'll need to create a connection
+to your OpenStack cloud by following the :doc:`connect` user guide. This will
+provide you with the ``conn`` variable used in the examples below.
 
 .. TODO(thowe): Implement this guide

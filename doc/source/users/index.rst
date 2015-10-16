@@ -13,6 +13,8 @@ The OpenStack SDK is available on
 
    $ pip install openstacksdk
 
+.. _user_guides:
+
 User Guides
 -----------
 
@@ -23,7 +25,8 @@ approach, this is where you'll want to begin.
 .. toctree::
    :maxdepth: 1
 
-   Connecting to an OpenStack Cloud <guides/usage>
+   Connect to an OpenStack Cloud <guides/connect>
+   Connect to an OpenStack Cloud Using a Config File <guides/connect_from_config>
    Logging <guides/logging>
    Block Store <guides/block_store>
    CDN <guides/cdn>
@@ -37,13 +40,6 @@ approach, this is where you'll want to begin.
    Object Store <guides/object_store>
    Orchestration <guides/orchestration>
    Telemetry <guides/telemetry>
-
-It may also be useful to try out some working code examples:
-
-.. toctree::
-   :maxdepth: 1
-
-   examples
 
 API Documentation
 -----------------
