@@ -49,10 +49,11 @@ https://identity.api.rackspacecloud.com/v2.0/
 Region Name    Human Name
 ============== ================
 DFW            Dallas
-ORD            Chicago
-IAD            Washington, D.C.
-SYD            Sydney
 HKG            Hong Kong
+IAD            Washington, D.C.
+LON            London
+ORD            Chicago
+SYD            Sydney
 ============== ================
 
 * Database Service Type is `rax:database`
