@@ -19,8 +19,7 @@ test_router
 Functional tests for `shade` router methods.
 """
 
-import random
-import string
+import ipaddress
 
 from shade import openstack_cloud
 from shade.exc import OpenStackCloudException
@@ -42,12 +41,9 @@ class TestRouter(base.TestCase):
         if not self.cloud.has_service('network'):
             self.skipTest('Network service not supported by cloud')
 
-        self.router_prefix = 'test_router' + ''.join(
-            random.choice(string.ascii_lowercase) for _ in range(5))
-        self.network_prefix = 'test_network' + ''.join(
-            random.choice(string.ascii_lowercase) for _ in range(5))
-        self.subnet_prefix = 'test_subnet' + ''.join(
-            random.choice(string.ascii_lowercase) for _ in range(5))
+        self.router_prefix = self.getUniqueString('router')
+        self.network_prefix = self.getUniqueString('network')
+        self.subnet_prefix = self.getUniqueString('subnet')
 
         # NOTE(Shrews): Order matters!
         self.addCleanup(self._cleanup_networks)
@@ -116,14 +112,22 @@ class TestRouter(base.TestCase):
         self.assertEqual(net1['id'], ext_gw_info['network_id'])
         self.assertTrue(ext_gw_info['enable_snat'])
 
-    def _create_and_verify_advanced_router(self):
+    def _create_and_verify_advanced_router(self,
+                                           external_cidr,
+                                           external_gateway_ip=None):
+        # NOTE(Shrews): The arguments are needed because these tests
+        # will run in parallel and we want to make sure that each test
+        # is using different resources to prevent race conditions.
         net1_name = self.network_prefix + '_net1'
         sub1_name = self.subnet_prefix + '_sub1'
         net1 = self.cloud.create_network(name=net1_name, external=True)
         sub1 = self.cloud.create_subnet(
-            net1['id'], '10.5.5.0/24', subnet_name=sub1_name,
-            gateway_ip='10.5.5.1'
+            net1['id'], external_cidr, subnet_name=sub1_name,
+            gateway_ip=external_gateway_ip
         )
+
+        ip_net = ipaddress.IPv4Network(unicode(external_cidr))
+        last_ip = str(list(ip_net.hosts())[-1])
 
         router_name = self.router_prefix + '_create_advanced'
         router = self.cloud.create_router(
@@ -132,7 +136,7 @@ class TestRouter(base.TestCase):
             ext_gateway_net_id=net1['id'],
             enable_snat=False,
             ext_fixed_ips=[
-                {'subnet_id': sub1['id'], 'ip_address': '10.5.5.99'}
+                {'subnet_id': sub1['id'], 'ip_address': last_ip}
             ]
         )
 
@@ -153,17 +157,18 @@ class TestRouter(base.TestCase):
             ext_gw_info['external_fixed_ips'][0]['subnet_id']
         )
         self.assertEqual(
-            '10.5.5.99',
+            last_ip,
             ext_gw_info['external_fixed_ips'][0]['ip_address']
         )
 
         return router
 
     def test_create_router_advanced(self):
-        self._create_and_verify_advanced_router()
+        self._create_and_verify_advanced_router(external_cidr='10.2.2.0/24')
 
     def test_add_remove_router_interface(self):
-        router = self._create_and_verify_advanced_router()
+        router = self._create_and_verify_advanced_router(
+            external_cidr='10.3.3.0/24')
         net_name = self.network_prefix + '_intnet1'
         sub_name = self.subnet_prefix + '_intsub1'
         net = self.cloud.create_network(name=net_name)
@@ -186,13 +191,14 @@ class TestRouter(base.TestCase):
         self.assertEqual(sub['id'], iface['subnet_id'])
 
     def test_list_router_interfaces(self):
-        router = self._create_and_verify_advanced_router()
+        router = self._create_and_verify_advanced_router(
+            external_cidr='10.5.5.0/24')
         net_name = self.network_prefix + '_intnet1'
         sub_name = self.subnet_prefix + '_intsub1'
         net = self.cloud.create_network(name=net_name)
         sub = self.cloud.create_subnet(
-            net['id'], '10.4.4.0/24', subnet_name=sub_name,
-            gateway_ip='10.4.4.1'
+            net['id'], '10.6.6.0/24', subnet_name=sub_name,
+            gateway_ip='10.6.6.1'
         )
 
         iface = self.cloud.add_router_interface(router, subnet_id=sub['id'])
@@ -218,7 +224,8 @@ class TestRouter(base.TestCase):
         self.assertEqual(sub['id'], int_ifaces[0]['fixed_ips'][0]['subnet_id'])
 
     def test_update_router_name(self):
-        router = self._create_and_verify_advanced_router()
+        router = self._create_and_verify_advanced_router(
+            external_cidr='10.7.7.0/24')
 
         new_name = self.router_prefix + '_update_name'
         updated = self.cloud.update_router(router['id'], name=new_name)
@@ -237,7 +244,8 @@ class TestRouter(base.TestCase):
                          updated['external_gateway_info'])
 
     def test_update_router_admin_state(self):
-        router = self._create_and_verify_advanced_router()
+        router = self._create_and_verify_advanced_router(
+            external_cidr='10.8.8.0/24')
 
         updated = self.cloud.update_router(router['id'],
                                            admin_state_up=True)
@@ -258,21 +266,22 @@ class TestRouter(base.TestCase):
                          updated['external_gateway_info'])
 
     def test_update_router_ext_gw_info(self):
-        router = self._create_and_verify_advanced_router()
+        router = self._create_and_verify_advanced_router(
+            external_cidr='10.9.9.0/24')
 
         # create a new subnet
         existing_net_id = router['external_gateway_info']['network_id']
         sub_name = self.subnet_prefix + '_update'
         sub = self.cloud.create_subnet(
-            existing_net_id, '10.6.6.0/24', subnet_name=sub_name,
-            gateway_ip='10.6.6.1'
+            existing_net_id, '10.10.10.0/24', subnet_name=sub_name,
+            gateway_ip='10.10.10.1'
         )
 
         updated = self.cloud.update_router(
             router['id'],
             ext_gateway_net_id=existing_net_id,
             ext_fixed_ips=[
-                {'subnet_id': sub['id'], 'ip_address': '10.6.6.77'}
+                {'subnet_id': sub['id'], 'ip_address': '10.10.10.77'}
             ]
         )
         self.assertIsNotNone(updated)
@@ -288,7 +297,7 @@ class TestRouter(base.TestCase):
             ext_gw_info['external_fixed_ips'][0]['subnet_id']
         )
         self.assertEqual(
-            '10.6.6.77',
+            '10.10.10.77',
             ext_gw_info['external_fixed_ips'][0]['ip_address']
         )
 
