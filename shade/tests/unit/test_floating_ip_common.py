@@ -35,7 +35,7 @@ class TestFloatingIP(base.TestCase):
             cloud_config=config.get_one_cloud(validate=False))
 
     @patch.object(OpenStackCloud, 'get_floating_ip')
-    @patch.object(OpenStackCloud, 'attach_ip_to_server')
+    @patch.object(OpenStackCloud, '_attach_ip_to_server')
     @patch.object(OpenStackCloud, 'available_floating_ip')
     def test_add_auto_ip(
             self, mock_available_floating_ip, mock_attach_ip_to_server,
@@ -62,7 +62,7 @@ class TestFloatingIP(base.TestCase):
             floating_ip=floating_ip_dict, skip_attach=False)
 
     @patch.object(OpenStackCloud, 'nova_client')
-    @patch.object(OpenStackCloud, 'add_ip_from_pool')
+    @patch.object(OpenStackCloud, '_add_ip_from_pool')
     def test_add_ips_to_server_pool(
             self, mock_add_ip_from_pool, mock_nova_client):
         server = FakeServer(

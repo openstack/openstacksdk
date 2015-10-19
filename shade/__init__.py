@@ -2573,7 +2573,7 @@ class OpenStackCloud(object):
 
         return True
 
-    def attach_ip_to_server(
+    def _attach_ip_to_server(
             self, server, floating_ip,
             fixed_address=None, wait=False,
             timeout=60, skip_attach=False):
@@ -2767,7 +2767,7 @@ class OpenStackCloud(object):
 
         return True
 
-    def add_ip_from_pool(
+    def _add_ip_from_pool(
             self, server, network, fixed_address=None, reuse=True):
         """Add a floating IP to a sever from a given pool
 
@@ -2788,7 +2788,7 @@ class OpenStackCloud(object):
         else:
             f_ip = self.create_floating_ip(network=network)
 
-        self.attach_ip_to_server(
+        self._attach_ip_to_server(
             server=server, floating_ip=f_ip, fixed_address=fixed_address)
 
         return f_ip
@@ -2810,7 +2810,7 @@ class OpenStackCloud(object):
         for ip in ips:
             f_ip = self.get_floating_ip(
                 id=None, filters={'floating_ip_address': ip})
-            self.attach_ip_to_server(
+            self._attach_ip_to_server(
                 server=server, floating_ip=f_ip)
 
     def add_auto_ip(self, server, wait=False, timeout=60, reuse=True):
@@ -2845,7 +2845,7 @@ class OpenStackCloud(object):
                 # but is only meaninful for the neutron logic branch
                 skip_attach = True
 
-        self.attach_ip_to_server(
+        self._attach_ip_to_server(
             server=server, floating_ip=f_ip, wait=wait, timeout=timeout,
             skip_attach=skip_attach)
 
@@ -2855,7 +2855,7 @@ class OpenStackCloud(object):
             self, server, auto_ip=True, ips=None, ip_pool=None,
             wait=False, timeout=60, reuse=True):
         if ip_pool:
-            self.add_ip_from_pool(server, ip_pool, reuse=reuse)
+            self._add_ip_from_pool(server, ip_pool, reuse=reuse)
         elif ips:
             self.add_ip_list(server, ips)
         elif auto_ip:
