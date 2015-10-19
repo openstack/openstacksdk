@@ -122,9 +122,6 @@ def openstack_clouds(config=None, debug=False):
         return [
             OpenStackCloud(
                 cloud=f.name, debug=debug,
-                cache_interval=config.get_cache_max_age(),
-                cache_class=config.get_cache_class(),
-                cache_arguments=config.get_cache_arguments(),
                 cloud_config=f,
                 **f.config)
             for f in config.get_all_clouds()
@@ -142,11 +139,7 @@ def openstack_cloud(config=None, **kwargs):
     except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin as e:
         raise OpenStackCloudException(
             "Invalid cloud configuration: {exc}".format(exc=str(e)))
-    return OpenStackCloud(
-        cache_interval=config.get_cache_max_age(),
-        cache_class=config.get_cache_class(),
-        cache_arguments=config.get_cache_arguments(),
-        cloud_config=cloud_config)
+    return OpenStackCloud(cloud_config=cloud_config)
 
 
 def operator_cloud(config=None, **kwargs):
@@ -159,11 +152,7 @@ def operator_cloud(config=None, **kwargs):
     except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin as e:
         raise OpenStackCloudException(
             "Invalid cloud configuration: {exc}".format(exc=str(e)))
-    return OperatorCloud(
-        cache_interval=config.get_cache_max_age(),
-        cache_class=config.get_cache_class(),
-        cache_arguments=config.get_cache_arguments(),
-        cloud_config=cloud_config)
+    return OperatorCloud(cloud_config=cloud_config)
 
 
 _decorated_methods = []
@@ -215,14 +204,6 @@ class OpenStackCloud(object):
     and that Floating IP will be actualized either via neutron or via nova
     depending on how this particular cloud has decided to arrange itself.
 
-    :param int cache_interval: How long to cache items fetched from the cloud.
-                               Value will be passed to dogpile.cache. None
-                               means do not cache at all.
-                               (optional, defaults to None)
-    :param string cache_class: What dogpile.cache cache class to use.
-                               (optional, defaults to "dogpile.cache.null")
-    :param dict cache_arguments: Additional arguments to pass to the cache
-                                 constructor (optional, defaults to None)
     :param TaskManager manager: Optional task manager to use for running
                                 OpenStack API tasks. Unless you're doing
                                 rate limiting client side, you almost
@@ -237,9 +218,6 @@ class OpenStackCloud(object):
     def __init__(
             self,
             cloud_config=None,
-            cache_interval=None,
-            cache_class='dogpile.cache.null',
-            cache_arguments=None,
             manager=None, **kwargs):
 
         self.log = _log.setup_logging('shade')
@@ -287,11 +265,17 @@ class OpenStackCloud(object):
         self._servers_time = 0
         self._servers_lock = threading.Lock()
 
+        cache_expiration_time = cloud_config.get_cache_expiration_time()
+        cache_class = cloud_config.get_cache_class()
+        cache_arguments = cloud_config.get_cache_arguments()
+        cache_expiration = cloud_config.get_cache_expiration()
+
         if cache_class != 'dogpile.cache.null':
             self._cache = cache.make_region(
                 function_key_generator=self._make_cache_key
             ).configure(
-                cache_class, expiration_time=cache_interval,
+                cache_class,
+                expiration_time=cache_expiration_time,
                 arguments=cache_arguments)
         else:
             def _fake_invalidate(unused):
@@ -317,6 +301,11 @@ class OpenStackCloud(object):
                     new_func = functools.partial(meth_obj.func, self)
                     new_func.invalidate = _fake_invalidate
                     setattr(self, method, new_func)
+
+        # If server expiration time is set explicitly, use that. Otherwise
+        # fall back to whatever it was before
+        self._SERVER_LIST_AGE = cache_expiration.get(
+            'server', self._SERVER_LIST_AGE)
 
         self._container_cache = dict()
         self._file_hash_cache = dict()
