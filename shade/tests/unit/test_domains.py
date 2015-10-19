@@ -20,7 +20,7 @@ from shade.tests.unit import base
 from shade.tests import fakes
 
 
-domain_obj = fakes.FakeIdentityDomain(
+domain_obj = fakes.FakeDomain(
     id='1',
     name='a-domain',
     description='A wonderful keystone domain',
@@ -28,21 +28,21 @@ domain_obj = fakes.FakeIdentityDomain(
 )
 
 
-class TestIdentityDomains(base.TestCase):
+class TestDomains(base.TestCase):
 
     def setUp(self):
-        super(TestIdentityDomains, self).setUp()
+        super(TestDomains, self).setUp()
         self.cloud = shade.operator_cloud(validate=False)
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_list_identity_domains(self, mock_keystone):
-        self.cloud.list_identity_domains()
+    def test_list_domains(self, mock_keystone):
+        self.cloud.list_domains()
         self.assertTrue(mock_keystone.domains.list.called)
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_get_identity_domain(self, mock_keystone):
+    def test_get_domain(self, mock_keystone):
         mock_keystone.domains.get.return_value = domain_obj
-        domain = self.cloud.get_identity_domain(domain_id='1234')
+        domain = self.cloud.get_domain(domain_id='1234')
         self.assertFalse(mock_keystone.domains.list.called)
         self.assertTrue(mock_keystone.domains.get.called)
         self.assertEqual(domain['name'], 'a-domain')

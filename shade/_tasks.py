@@ -536,32 +536,27 @@ class EndpointDelete(task_manager.Task):
         return client.keystone_client.endpoints.delete(**self.args)
 
 
-# IdentityDomain and not Domain because Domain is a DNS concept
-class IdentityDomainCreate(task_manager.Task):
+class DomainCreate(task_manager.Task):
     def main(self, client):
         return client.keystone_client.domains.create(**self.args)
 
 
-# IdentityDomain and not Domain because Domain is a DNS concept
-class IdentityDomainList(task_manager.Task):
+class DomainList(task_manager.Task):
     def main(self, client):
         return client.keystone_client.domains.list()
 
 
-# IdentityDomain and not Domain because Domain is a DNS concept
-class IdentityDomainGet(task_manager.Task):
+class DomainGet(task_manager.Task):
     def main(self, client):
         return client.keystone_client.domains.get(**self.args)
 
 
-# IdentityDomain and not Domain because Domain is a DNS concept
-class IdentityDomainUpdate(task_manager.Task):
+class DomainUpdate(task_manager.Task):
     def main(self, client):
         return client.keystone_client.domains.update(**self.args)
 
 
-# IdentityDomain and not Domain because Domain is a DNS concept
-class IdentityDomainDelete(task_manager.Task):
+class DomainDelete(task_manager.Task):
     def main(self, client):
         return client.keystone_client.domains.delete(**self.args)
 

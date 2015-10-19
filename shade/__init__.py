@@ -4900,7 +4900,7 @@ class OperatorCloud(OpenStackCloud):
                     msg=str(e)))
         return True
 
-    def create_identity_domain(
+    def create_domain(
             self, name, description=None, enabled=True):
         """Create a Keystone domain.
 
@@ -4913,7 +4913,7 @@ class OperatorCloud(OpenStackCloud):
         :raise OpenStackCloudException: if the domain cannot be created
         """
         try:
-            domain = self.manager.submitTask(_tasks.IdentityDomainCreate(
+            domain = self.manager.submitTask(_tasks.DomainCreate(
                 name=name,
                 description=description,
                 enabled=enabled))
@@ -4923,11 +4923,11 @@ class OperatorCloud(OpenStackCloud):
                                                         msg=str(e)))
         return meta.obj_to_dict(domain)
 
-    def update_identity_domain(
+    def update_domain(
             self, domain_id, name=None, description=None, enabled=None):
         try:
             return meta.obj_to_dict(
-                self.manager.submitTask(_tasks.IdentityDomainUpdate(
+                self.manager.submitTask(_tasks.DomainUpdate(
                     domain=domain_id, description=description,
                     enabled=enabled)))
         except Exception as e:
@@ -4935,7 +4935,7 @@ class OperatorCloud(OpenStackCloud):
                 "Error in updating domain {domain}: {message}".format(
                     domain=domain_id, message=str(e)))
 
-    def delete_identity_domain(self, domain_id):
+    def delete_domain(self, domain_id):
         """Delete a Keystone domain.
 
         :param domain_id: ID of the domain to delete.
@@ -4948,15 +4948,15 @@ class OperatorCloud(OpenStackCloud):
         try:
             # Deleting a domain is expensive, so disabling it first increases
             # the changes of success
-            domain = self.update_identity_domain(domain_id, enabled=False)
-            self.manager.submitTask(_tasks.IdentityDomainDelete(
+            domain = self.update_domain(domain_id, enabled=False)
+            self.manager.submitTask(_tasks.DomainDelete(
                 domain=domain['id']))
         except Exception as e:
             raise OpenStackCloudException(
                 "Failed to delete domain {id}: {msg}".format(id=domain_id,
                                                              msg=str(e)))
 
-    def list_identity_domains(self):
+    def list_domains(self):
         """List Keystone domains.
 
         :returns: a list of dicts containing the domain description.
@@ -4965,13 +4965,13 @@ class OperatorCloud(OpenStackCloud):
             the openstack API call.
         """
         try:
-            domains = self.manager.submitTask(_tasks.IdentityDomainList())
+            domains = self.manager.submitTask(_tasks.DomainList())
         except Exception as e:
             raise OpenStackCloudException("Failed to list domains: {msg}"
                                           .format(msg=str(e)))
         return meta.obj_list_to_dict(domains)
 
-    def search_identity_domains(self, **filters):
+    def search_domains(self, **filters):
         """Seach Keystone domains.
 
         :param filters: a dict containing additional filters to use.
@@ -4988,13 +4988,13 @@ class OperatorCloud(OpenStackCloud):
         """
         try:
             domains = self.manager.submitTask(
-                _tasks.IdentityDomainList(**filters))
+                _tasks.DomainList(**filters))
         except Exception as e:
             raise OpenStackCloudException("Failed to list domains: {msg}"
                                           .format(msg=str(e)))
         return meta.obj_list_to_dict(domains)
 
-    def get_identity_domain(self, domain_id):
+    def get_domain(self, domain_id):
         """Get exactly one Keystone domain.
 
         :param domain_id: domain id.
@@ -5010,7 +5010,7 @@ class OperatorCloud(OpenStackCloud):
         """
         try:
             domain = self.manager.submitTask(
-                _tasks.IdentityDomainGet(domain=domain_id))
+                _tasks.DomainGet(domain=domain_id))
         except Exception as e:
             raise OpenStackCloudException(
                 "Failed to get domain {domain_id}: {msg}".format(
