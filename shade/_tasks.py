@@ -566,12 +566,12 @@ class IdentityDomainDelete(task_manager.Task):
         return client.keystone_client.domains.delete(**self.args)
 
 
-class DomainList(task_manager.Task):
+class ZoneList(task_manager.Task):
     def main(self, client):
         return client.designate_client.domains.list()
 
 
-class DomainGet(task_manager.Task):
+class ZoneGet(task_manager.Task):
     def main(self, client):
         return client.designate_client.domains.get(**self.args)
 
