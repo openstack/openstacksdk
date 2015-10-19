@@ -275,8 +275,9 @@ class TestShade(base.TestCase):
         self.cloud.update_subnet('123', subnet_name='goofy')
         self.assertTrue(mock_client.update_subnet.called)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_flavors')
-    def test_get_flavor_by_ram(self, mock_list):
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_get_flavor_by_ram(self, mock_nova_client):
+
         class Flavor1(object):
             id = '1'
             name = 'vanilla ice cream'
@@ -289,12 +290,12 @@ class TestShade(base.TestCase):
 
         vanilla = meta.obj_to_dict(Flavor1())
         chocolate = meta.obj_to_dict(Flavor2())
-        mock_list.return_value = [vanilla, chocolate]
+        mock_nova_client.flavors.list.return_value = [vanilla, chocolate]
         flavor = self.cloud.get_flavor_by_ram(ram=150)
         self.assertEquals(chocolate, flavor)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_flavors')
-    def test_get_flavor_by_ram_and_include(self, mock_list):
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_get_flavor_by_ram_and_include(self, mock_nova_client):
         class Flavor1(object):
             id = '1'
             name = 'vanilla ice cream'
@@ -313,26 +314,27 @@ class TestShade(base.TestCase):
         vanilla = meta.obj_to_dict(Flavor1())
         chocolate = meta.obj_to_dict(Flavor2())
         strawberry = meta.obj_to_dict(Flavor3())
-        mock_list.return_value = [vanilla, chocolate, strawberry]
+        mock_nova_client.flavors.list.return_value = [
+            vanilla, chocolate, strawberry]
         flavor = self.cloud.get_flavor_by_ram(ram=150, include='strawberry')
         self.assertEquals(strawberry, flavor)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_flavors')
-    def test_get_flavor_by_ram_not_found(self, mock_list):
-        mock_list.return_value = []
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_get_flavor_by_ram_not_found(self, mock_nova_client):
+        mock_nova_client.flavors.list.return_value = []
         self.assertRaises(shade.OpenStackCloudException,
                           self.cloud.get_flavor_by_ram,
                           ram=100)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_flavors')
-    def test_get_flavor_string_and_int(self, mock_list):
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_get_flavor_string_and_int(self, mock_nova_client):
         class Flavor1(object):
             id = '1'
             name = 'vanilla ice cream'
             ram = 100
 
         vanilla = meta.obj_to_dict(Flavor1())
-        mock_list.return_value = [vanilla]
+        mock_nova_client.flavors.list.return_value = [vanilla]
         flavor1 = self.cloud.get_flavor('1')
         self.assertEquals(vanilla, flavor1)
         flavor2 = self.cloud.get_flavor(1)

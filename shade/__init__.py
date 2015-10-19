@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import contextlib
+import functools
 import hashlib
 import inspect
 import logging
@@ -165,6 +166,9 @@ def operator_cloud(config=None, **kwargs):
         cloud_config=cloud_config)
 
 
+_decorated_methods = []
+
+
 def _cache_on_arguments(*cache_on_args, **cache_on_kwargs):
     def _inner_cache_on_arguments(func):
         def _cache_decorator(obj, *args, **kwargs):
@@ -178,6 +182,8 @@ def _cache_on_arguments(*cache_on_args, **cache_on_kwargs):
                 *args, **kwargs)
 
         _cache_decorator.invalidate = invalidate
+        _cache_decorator.func = func
+        _decorated_methods.append(func.__name__)
 
         return _cache_decorator
     return _inner_cache_on_arguments
@@ -277,15 +283,40 @@ class OpenStackCloud(object):
 
         (self.verify, self.cert) = cloud_config.get_requests_verify_args()
 
-        self._cache = cache.make_region(
-            function_key_generator=self._make_cache_key
-        ).configure(
-            cache_class, expiration_time=cache_interval,
-            arguments=cache_arguments)
-
         self._servers = []
         self._servers_time = 0
         self._servers_lock = threading.Lock()
+
+        if cache_class != 'dogpile.cache.null':
+            self._cache = cache.make_region(
+                function_key_generator=self._make_cache_key
+            ).configure(
+                cache_class, expiration_time=cache_interval,
+                arguments=cache_arguments)
+        else:
+            def _fake_invalidate(unused):
+                pass
+
+            class _FakeCache(object):
+                def invalidate(self):
+                    pass
+
+            # Don't cache list_servers if we're not caching things.
+            # Replace this with a more specific cache configuration
+            # soon.
+            self._SERVER_LIST_AGE = 0
+            self._cache = _FakeCache()
+            # Undecorate cache decorated methods. Otherwise the call stacks
+            # wind up being stupidly long and hard to debug
+            for method in _decorated_methods:
+                meth_obj = getattr(self, method, None)
+                if not meth_obj:
+                    continue
+                if (hasattr(meth_obj, 'invalidate')
+                        and hasattr(meth_obj, 'func')):
+                    new_func = functools.partial(meth_obj.func, self)
+                    new_func.invalidate = _fake_invalidate
+                    setattr(self, method, new_func)
 
         self._container_cache = dict()
         self._file_hash_cache = dict()
