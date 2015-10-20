@@ -376,10 +376,10 @@ class TestShade(base.TestCase):
         self.assertIsNotNone(r)
         self.assertDictEqual(zone1, r)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_records')
+    @mock.patch.object(shade.OpenStackCloud, '_list_records')
     def test_get_record(self, mock_search):
         record1 = dict(id='123', name='mickey', domain_id='mickey.domain')
         mock_search.return_value = [record1]
-        r = self.cloud.get_record('mickey.domain', 'mickey')
+        r = self.cloud._get_record('mickey.domain', 'mickey')
         self.assertIsNotNone(r)
         self.assertDictEqual(record1, r)

@@ -963,8 +963,8 @@ class OpenStackCloud(object):
         zones = self.list_zones()
         return _utils._filter_list(zones, name_or_id, filters)
 
-    def search_records(self, zone_id, name_or_id=None, filters=None):
-        records = self.list_records(zone_id=zone_id)
+    def _search_records(self, zone_id, name_or_id=None, filters=None):
+        records = self._list_records(zone_id=zone_id)
         return _utils._filter_list(records, name_or_id, filters)
 
     def list_keypairs(self):
@@ -1247,7 +1247,7 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Error fetching zone list: %s" % e)
 
-    def list_records(self, zone_id):
+    def _list_records(self, zone_id):
         # TODO(mordred) switch domain= to zone= after the Big Rename
         try:
             return self.manager.submitTask(_tasks.RecordList(domain=zone_id))
@@ -1583,8 +1583,8 @@ class OpenStackCloud(object):
         """
         return _utils._get_entity(self.search_zones, name_or_id, filters)
 
-    def get_record(self, zone_id, name_or_id, filters=None):
-        f = lambda name_or_id, filters: self.search_records(
+    def _get_record(self, zone_id, name_or_id, filters=None):
+        f = lambda name_or_id, filters: self._search_records(
             zone_id, name_or_id, filters)
         return _utils._get_entity(f, name_or_id, filters)
 
