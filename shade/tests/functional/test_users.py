@@ -52,7 +52,7 @@ class TestUsers(base.TestCase):
         domain_id = None
         identity_version = self.cloud.cloud_config.get_api_version('identity')
         if identity_version not in ('2', '2.0'):
-            domain = self.cloud.get_identity_domain('default')
+            domain = self.cloud.get_domain('default')
             domain_id = domain['id']
         return self.cloud.create_user(domain_id=domain_id, **kwargs)
 
