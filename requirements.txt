@@ -1,6 +1,6 @@
 pbr>=0.11,<2.0
 
-bunch
+munch
 decorator
 jsonpatch
 ipaddress

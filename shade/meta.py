@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-import bunch
+import munch
 import ipaddress
 import six
 
@@ -315,10 +315,10 @@ def obj_to_dict(obj):
     that we can just have a plain dict of all of the values that exist in the
     nova metadata for a server.
     """
-    # If we obj_to_dict twice, don't fail, just return the bunch
-    if type(obj) == bunch.Bunch:
+    # If we obj_to_dict twice, don't fail, just return the munch
+    if type(obj) == munch.Munch:
         return obj
-    instance = bunch.Bunch()
+    instance = munch.Munch()
     for key in dir(obj):
         value = getattr(obj, key)
         if isinstance(value, NON_CALLABLES) and not key.startswith('_'):
@@ -343,7 +343,7 @@ def warlock_to_dict(obj):
     # glanceclient v2 uses warlock to construct its objects. Warlock does
     # deep black magic to attribute look up to support validation things that
     # means we cannot use normal obj_to_dict
-    obj_dict = bunch.Bunch()
+    obj_dict = munch.Munch()
     for (key, value) in obj.items():
         if isinstance(value, NON_CALLABLES) and not key.startswith('_'):
             obj_dict[key] = value

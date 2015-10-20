@@ -15,7 +15,7 @@
 import mock
 import os_client_config as occ
 
-import bunch
+import munch
 
 import shade
 from shade import exc
@@ -31,7 +31,7 @@ class TestDomainParams(base.TestCase):
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_get_project')
     def test_identity_params_v3(self, mock_get_project, mock_api_version):
-        mock_get_project.return_value = bunch.Bunch(id=1234)
+        mock_get_project.return_value = munch.Munch(id=1234)
         mock_api_version.return_value = '3'
 
         ret = self.cloud._get_identity_params(domain_id='5678', project='bar')
@@ -44,7 +44,7 @@ class TestDomainParams(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, '_get_project')
     def test_identity_params_v3_no_domain(
             self, mock_get_project, mock_api_version):
-        mock_get_project.return_value = bunch.Bunch(id=1234)
+        mock_get_project.return_value = munch.Munch(id=1234)
         mock_api_version.return_value = '3'
 
         self.assertRaises(
@@ -55,7 +55,7 @@ class TestDomainParams(base.TestCase):
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_get_project')
     def test_identity_params_v2(self, mock_get_project, mock_api_version):
-        mock_get_project.return_value = bunch.Bunch(id=1234)
+        mock_get_project.return_value = munch.Munch(id=1234)
         mock_api_version.return_value = '2'
 
         ret = self.cloud._get_identity_params(domain_id='foo', project='bar')
@@ -65,7 +65,7 @@ class TestDomainParams(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, '_get_project')
     def test_identity_params_v2_no_domain(self, mock_get_project):
-        mock_get_project.return_value = bunch.Bunch(id=1234)
+        mock_get_project.return_value = munch.Munch(id=1234)
 
         self.cloud.api_versions = dict(identity='2')
 
