@@ -25,7 +25,9 @@ import os_client_config
 from neutronclient.common import exceptions as n_exc
 
 from shade import _utils
+from shade import meta
 from shade import OpenStackCloud
+from shade.tests import fakes
 from shade.tests.unit import base
 
 
@@ -125,6 +127,18 @@ class TestFloatingIP(base.TestCase):
         config = os_client_config.OpenStackConfig()
         self.client = OpenStackCloud(
             cloud_config=config.get_one_cloud(validate=False))
+
+        self.fake_server = meta.obj_to_dict(
+            fakes.FakeServer(
+                'server-id', '', 'ACTIVE',
+                addresses={u'test_pnztt_net': [{
+                    u'OS-EXT-IPS:type': u'fixed',
+                    u'addr': '192.0.2.129',
+                    u'version': 4,
+                    u'OS-EXT-IPS-MAC:mac_addr':
+                    u'fa:16:3e:ae:7d:42'}]}))
+        self.floating_ip = _utils.normalize_neutron_floating_ips(
+            self.mock_floating_ip_list_rep['floatingips'])[0]
 
     @patch.object(OpenStackCloud, 'neutron_client')
     @patch.object(OpenStackCloud, 'has_service')
@@ -233,7 +247,7 @@ class TestFloatingIP(base.TestCase):
             mock_nova_client):
         mock_has_service.return_value = True
         mock__neutron_create_floating_ip.return_value = \
-            self.mock_floating_ip_new_rep['floatingip']
+            self.mock_floating_ip_list_rep['floatingips'][0]
         mock_keystone_session.get_project_id.return_value = \
             '4969c491a3c74ee4af974e6d800c62df'
 
@@ -241,10 +255,10 @@ class TestFloatingIP(base.TestCase):
             dict(id='1234'), ip_pool='my-network', reuse=False)
 
         mock__neutron_create_floating_ip.assert_called_once_with(
-            network_name_or_id='my-network')
+            network_name_or_id='my-network', server=None)
         mock_attach_ip_to_server.assert_called_once_with(
-            server_id='1234', fixed_address=None,
-            floating_ip_id=self.mock_floating_ip_new_rep['floatingip']['id'])
+            server={'id': '1234'}, fixed_address=None,
+            floating_ip=self.floating_ip)
 
     @patch.object(OpenStackCloud, 'keystone_session')
     @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
@@ -301,25 +315,24 @@ class TestFloatingIP(base.TestCase):
 
         self.assertFalse(ret)
 
-    @patch.object(OpenStackCloud, '_neutron_list_floating_ips')
     @patch.object(OpenStackCloud, 'search_ports')
     @patch.object(OpenStackCloud, 'neutron_client')
     @patch.object(OpenStackCloud, 'has_service')
     def test_attach_ip_to_server(
-            self, mock_has_service, mock_neutron_client, mock_search_ports,
-            mock__neutron_list_floating_ips):
+            self, mock_has_service, mock_neutron_client, mock_search_ports):
         mock_has_service.return_value = True
-        mock__neutron_list_floating_ips.return_value = \
-            [self.mock_floating_ip_new_rep['floatingip']]
 
         mock_search_ports.return_value = self.mock_search_ports_rep
 
+        mock_neutron_client.list_floatingips.return_value = \
+            self.mock_floating_ip_list_rep
+
         self.client.attach_ip_to_server(
-            server_id='server_id',
-            floating_ip_id='2f245a7b-796b-4f26-9cf9-9e82d248fda8')
+            server=self.fake_server,
+            floating_ip=self.floating_ip)
 
         mock_neutron_client.update_floatingip.assert_called_with(
-            floatingip=self.mock_floating_ip_new_rep['floatingip']['id'],
+            floatingip=self.mock_floating_ip_list_rep['floatingips'][0]['id'],
             body={
                 'floatingip': {
                     'port_id': self.mock_search_ports_rep[0]['id'],
@@ -366,9 +379,9 @@ class TestFloatingIP(base.TestCase):
         mock_attach_ip_to_server.return_value = None
 
         ip = self.client.add_ip_from_pool(
-            server_id='server-id',
+            server=self.fake_server,
             network='network-name',
-            fixed_address='1.2.3.4')
+            fixed_address='192.0.2.129')
 
         self.assertEqual(
             self.mock_floating_ip_new_rep['floatingip']['floating_ip_address'],
