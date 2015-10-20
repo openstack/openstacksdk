@@ -368,13 +368,13 @@ class TestShade(base.TestCase):
             self.assertRaises(exc.OpenStackCloudException,
                               self.cloud.list_networks)
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_domains')
-    def test_get_domain(self, mock_search):
-        domain1 = dict(id='123', name='mickey')
-        mock_search.return_value = [domain1]
-        r = self.cloud.get_domain('mickey')
+    @mock.patch.object(shade.OpenStackCloud, 'list_zones')
+    def test_get_zone(self, mock_search):
+        zone1 = dict(id='123', name='mickey')
+        mock_search.return_value = [zone1]
+        r = self.cloud.get_zone('mickey')
         self.assertIsNotNone(r)
-        self.assertDictEqual(domain1, r)
+        self.assertDictEqual(zone1, r)
 
     @mock.patch.object(shade.OpenStackCloud, 'list_records')
     def test_get_record(self, mock_search):

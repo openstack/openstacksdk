@@ -959,12 +959,12 @@ class OpenStackCloud(object):
         floating_ips = self.list_floating_ips()
         return _utils._filter_list(floating_ips, id, filters)
 
-    def search_domains(self, name_or_id=None, filters=None):
-        domains = self.list_domains()
-        return _utils._filter_list(domains, name_or_id, filters)
+    def search_zones(self, name_or_id=None, filters=None):
+        zones = self.list_zones()
+        return _utils._filter_list(zones, name_or_id, filters)
 
-    def search_records(self, domain_id, name_or_id=None, filters=None):
-        records = self.list_records(domain_id=domain_id)
+    def search_records(self, zone_id, name_or_id=None, filters=None):
+        records = self.list_records(zone_id=zone_id)
         return _utils._filter_list(records, name_or_id, filters)
 
     def list_keypairs(self):
@@ -1235,21 +1235,22 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "error fetching floating IPs list: {msg}".format(msg=str(e)))
 
-    def list_domains(self):
-        """List all available DNS domains.
+    def list_zones(self):
+        """List all available DNS zones.
 
-        :returns: A list of domain dicts.
+        :returns: A list of zone dicts.
 
         """
         try:
-            return self.manager.submitTask(_tasks.DomainList())
+            return self.manager.submitTask(_tasks.ZoneList())
         except Exception as e:
             raise OpenStackCloudException(
-                "Error fetching domain list: %s" % e)
+                "Error fetching zone list: %s" % e)
 
-    def list_records(self, domain_id):
+    def list_records(self, zone_id):
+        # TODO(mordred) switch domain= to zone= after the Big Rename
         try:
-            return self.manager.submitTask(_tasks.RecordList(domain=domain_id))
+            return self.manager.submitTask(_tasks.RecordList(domain=zone_id))
         except Exception as e:
             raise OpenStackCloudException(
                 "Error fetching record list: %s" % e)
@@ -1561,10 +1562,10 @@ class OpenStackCloud(object):
         """
         return _utils._get_entity(self.search_floating_ips, id, filters)
 
-    def get_domain(self, name_or_id, filters=None):
-        """Get a DNS domain by name or ID.
+    def get_zone(self, name_or_id, filters=None):
+        """Get a DNS zone by name or ID.
 
-        :param name_or_id: Name or ID of the DNS domain.
+        :param name_or_id: Name or ID of the DNS zone.
         :param dict filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
@@ -1576,15 +1577,15 @@ class OpenStackCloud(object):
                   }
                 }
 
-        :returns: A domain dict or None if no matching DNS domain is
+        :returns: A zone dict or None if no matching DNS zone is
         found.
 
         """
-        return _utils._get_entity(self.search_domains, name_or_id, filters)
+        return _utils._get_entity(self.search_zones, name_or_id, filters)
 
-    def get_record(self, domain_id, name_or_id, filters=None):
+    def get_record(self, zone_id, name_or_id, filters=None):
         f = lambda name_or_id, filters: self.search_records(
-            domain_id, name_or_id, filters)
+            zone_id, name_or_id, filters)
         return _utils._get_entity(f, name_or_id, filters)
 
     def create_keypair(self, name, public_key):
