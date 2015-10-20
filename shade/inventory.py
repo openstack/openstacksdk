@@ -26,14 +26,10 @@ class OpenStackInventory(object):
             config_files=os_client_config.config.CONFIG_FILES + config_files)
 
         self.clouds = [
-            shade.OpenStackCloud(
-                cloud=f.name,
-                cache_interval=config.get_cache_max_age(),
-                cache_class=config.get_cache_class(),
-                cache_arguments=config.get_cache_arguments(),
-                **f.config)
-            for f in config.get_all_clouds()
-            ]
+            shade.OpenStackCloud(cloud_config=cloud_config)
+            for cloud_config in config.get_all_clouds()
+        ]
+
         if private:
             for cloud in self.clouds:
                 cloud.private = True
