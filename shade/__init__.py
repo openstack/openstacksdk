@@ -579,7 +579,7 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Failed to list users: {0}".format(str(e))
             )
-        return meta.obj_list_to_dict(users)
+        return _utils.normalize_users(meta.obj_list_to_dict(users))
 
     def search_users(self, name_or_id=None, filters=None):
         """Seach Keystone users.
@@ -598,7 +598,7 @@ class OpenStackCloud(object):
     def get_user(self, name_or_id, filters=None):
         """Get exactly one Keystone user.
 
-        :param string id: user name or id.
+        :param string name_or_id: user name or id.
         :param dict filters: a dict containing additional filters to use.
 
         :returns: a single dict containing the user description.
@@ -608,13 +608,34 @@ class OpenStackCloud(object):
         """
         return _utils._get_entity(self.search_users, name_or_id, filters)
 
+    def get_user_by_id(self, user_id, normalize=True):
+        """Get a Keystone user by ID.
+
+        :param string user_id: user ID
+        :param bool normalize: Flag to control dict normalization
+
+        :returns: a single dict containing the user description
+        """
+        try:
+            user = meta.obj_to_dict(
+                self.manager.submitTask(_tasks.UserGet(user=user_id))
+            )
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Error getting user with ID {user_id}: {message}".format(
+                    user_id=user_id, message=str(e)))
+        if user and normalize:
+            return _utils.normalize_users([user])[0]
+        return user
+
     # NOTE(Shrews): Keystone v2 supports updating only name, email and enabled.
     @valid_kwargs('name', 'email', 'enabled', 'domain_id', 'password',
                   'description', 'default_project')
     def update_user(self, name_or_id, **kwargs):
         self.list_users.invalidate(self)
         user = self.get_user(name_or_id)
-        kwargs['user'] = user
+        # normalized dict won't work
+        kwargs['user'] = self.get_user_by_id(user['id'], normalize=False)
 
         if self.cloud_config.get_api_version('identity') != '3':
             # Do not pass v3 args to a v2 keystone.
@@ -635,7 +656,7 @@ class OpenStackCloud(object):
                 "Error in updating user {user}: {message}".format(
                     user=name_or_id, message=str(e)))
         self.list_users.invalidate(self)
-        return meta.obj_to_dict(user)
+        return _utils.normalize_users([meta.obj_to_dict(user)])[0]
 
     def create_user(
             self, name, password=None, email=None, default_project=None,
@@ -652,7 +673,7 @@ class OpenStackCloud(object):
                 "Error in creating user {user}: {message}".format(
                     user=name, message=str(e)))
         self.list_users.invalidate(self)
-        return meta.obj_to_dict(user)
+        return _utils.normalize_users([meta.obj_to_dict(user)])[0]
 
     def delete_user(self, name_or_id):
         self.list_users.invalidate(self)
@@ -662,6 +683,8 @@ class OpenStackCloud(object):
                 "User {0} not found for deleting".format(name_or_id))
             return False
 
+        # normalized dict won't work
+        user = self.get_user_by_id(user['id'], normalize=False)
         try:
             self.manager.submitTask(_tasks.UserDelete(user=user))
         except Exception as e:
