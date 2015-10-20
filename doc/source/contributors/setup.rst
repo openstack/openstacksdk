@@ -89,12 +89,12 @@ Getting the Source Code
           review systems that we use.
 
 The canonical Git repository is hosted on openstack.org at
-http://git.openstack.org/cgit/stackforge/python-openstacksdk/, with a
-mirror on GitHub at https://github.com/stackforge/python-openstacksdk.
+http://git.openstack.org/cgit/openstack/python-openstacksdk/, with a
+mirror on GitHub at https://github.com/openstack/python-openstacksdk.
 Because of how Git works, you can create a local clone from either of those,
 or your own personal fork.::
 
-   (sdk3)$ git clone git@github.com:briancurtin/python-openstacksdk.git
+   (sdk3)$ git clone https://git.openstack.org/openstack/python-openstacksdk.git
    (sdk3)$ cd python-openstacksdk
 
 Installing Dependencies
@@ -126,7 +126,7 @@ Building the Documentation
 --------------------------
 
 Our documentation is written in reStructured Text and is built using
-Sphinx. A ``docs`` command is availble in our ``tox.ini``, allowing you
+Sphinx. A ``docs`` command is available in our ``tox.ini``, allowing you
 to build the documentation like you'd run tests. The ``docs`` command is
 not evaluated by default.::
 
