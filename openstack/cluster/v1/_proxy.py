@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.cluster.v1 import action
 from openstack.cluster.v1 import cluster
 from openstack.cluster.v1 import policy
 from openstack import proxy
@@ -173,16 +174,6 @@ class Proxy(proxy.BaseProxy):
             * cooldown: The default cooldown value of a policy object.
             * show_deleted: A boolean value indicating whether soft-deleted
                 policies should be returned as well.
-            * sort_keys: A list of key names for sorting the resulted list.
-            * sort_dir: Direction for sorting, and its valid values are 'asc'
-            * limit: Requests a specified size of returned items from the
-                query.  Returns a number of items up to the specified limit
-                value.
-            * marker: Specifies the ID of the last-seen item. Use the limit
-                parameter to make an initial limited request and use the ID of
-                the last-seen item from the response as the marker parameter
-                value in a subsequent limited request.
-
         :returns: A generator of policy instances.
         """
         return self._list(policy.Policy, paginated=True, **query)
@@ -199,3 +190,42 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.cluster.v1.policy.Policy`
         """
         return self._update(policy.Policy, value, **attrs)
+
+    def get_action(self, value):
+        """Get a single action.
+
+        :param value: The value can be the name or ID of an action or a
+            :class:`~openstack.cluster.v1.action.Action` instance.
+
+        :returns: an action object.
+        :rtype: :class:`~openstack.cluster.v1.action.Action`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            action matching the criteria could be found.
+        """
+        return self._get(action.Action, value)
+
+    def actions(self, **query):
+        """Retrieve a generator of actions.
+
+        :param kwargs \*\*query: Optional query parameters to be sent to
+            restrict the actions to be returned. Available parameters include:
+
+            * name: name of action for query.
+            * target: ID of the target object for which the actions should be
+                returned.
+            * action: built-in action types for query.
+            * show_deleted: A boolean value indicating whether soft-deleted
+                actions should be returned as well.
+            * sort_keys: A list of key names for sorting the resulted list.
+            * sort_dir: Direction for sorting, and its valid values are 'asc'
+            * limit: Requests a specified size of returned items from the
+                query.  Returns a number of items up to the specified limit
+                value.
+            * marker: Specifies the ID of the last-seen item. Use the limit
+                parameter to make an initial limited request and use the ID of
+                the last-seen item from the response as the marker parameter
+                value in a subsequent limited request.
+
+        :returns: A generator of action instances.
+        """
+        return self._list(action.Action, paginated=True, **query)
