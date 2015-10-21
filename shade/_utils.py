@@ -270,3 +270,18 @@ def localhost_supports_ipv6():
     """
 
     return netifaces.AF_INET6 in netifaces.gateways()['default']
+
+
+def normalize_users(users):
+    return [
+        dict(
+            id=user.get('id'),
+            email=user.get('email'),
+            name=user.get('name'),
+            username=user.get('username'),
+            default_project_id=user.get('default_project_id',
+                                        user.get('tenantId')),
+            domain_id=user.get('domain_id'),
+            enabled=user.get('enabled'),
+        ) for user in users
+    ]
