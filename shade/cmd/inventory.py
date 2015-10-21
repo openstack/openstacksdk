@@ -38,6 +38,8 @@ def parse_args():
     group.add_argument('--list', action='store_true',
                        help='List active servers')
     group.add_argument('--host', help='List details about the specific host')
+    parser.add_argument('--private', action='store_true', default=False,
+                        help='Use private IPs for interface_ip')
     parser.add_argument('--yaml', action='store_true', default=False,
                         help='Output data in nicely readable yaml')
     parser.add_argument('--debug', action='store_true', default=False,
@@ -50,7 +52,7 @@ def main():
     try:
         shade.simple_logging(debug=args.debug)
         inventory = shade.inventory.OpenStackInventory(
-            refresh=args.refresh)
+            refresh=args.refresh, private=args.private)
         if args.list:
             output = inventory.list_hosts()
         elif args.host:

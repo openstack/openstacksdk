@@ -21,7 +21,7 @@ from shade import _utils
 class OpenStackInventory(object):
 
     def __init__(
-            self, config_files=[], refresh=False):
+            self, config_files=[], refresh=False, private=False):
         config = os_client_config.config.OpenStackConfig(
             config_files=os_client_config.config.CONFIG_FILES + config_files)
 
@@ -34,6 +34,9 @@ class OpenStackInventory(object):
                 **f.config)
             for f in config.get_all_clouds()
             ]
+        if private:
+            for cloud in self.clouds:
+                cloud.private = True
 
         # Handle manual invalidation of entire persistent cache
         if refresh:
