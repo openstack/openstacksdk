@@ -31,7 +31,7 @@ to an OpenStack cloud. You will primarily use it to set the
 ``auth_args`` parameter. You can also set the ``user_agent`` to something that
 describes your application (e.g. ``my-web-app/1.3.4``).
 
-Full example at `connect.py <http://git.openstack.org/cgit/stackforge/python-openstacksdk/tree/examples/connect.py>`_
+Full example at `connect.py <http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/connect.py>`_
 
 .. note:: To enable logging, see the :doc:`logging` user guide.
 
