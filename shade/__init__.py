@@ -794,7 +794,6 @@ class OpenStackCloud(object):
             template_file=template_file,
             template_url=template_url,
             template_object=template_object,
-            object_request=object_request,
             files=files)
         params = dict(
             stack_name=name,
