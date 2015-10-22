@@ -1919,7 +1919,9 @@ class OpenStackCloud(object):
 
         if interface_type:
             filtered_ports = []
-            ext_fixed = router['external_gateway_info']['external_fixed_ips']
+            ext_fixed = (router['external_gateway_info']['external_fixed_ips']
+                         if router['external_gateway_info']
+                         else [])
 
             # Compare the subnets (subnet_id, ip_address) on the ports with
             # the subnets making up the router external gateway. Those ports
