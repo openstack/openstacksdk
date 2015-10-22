@@ -15,7 +15,6 @@
 import contextlib
 import functools
 import hashlib
-import inspect
 import logging
 import operator
 import threading
@@ -23,7 +22,6 @@ import time
 
 from cinderclient.v1 import client as cinder_client
 from designateclient.v1 import Client as designate_client
-from decorator import decorator
 from dogpile import cache
 import glanceclient
 import glanceclient.exc
@@ -79,32 +77,6 @@ OBJECT_CONTAINER_ACLS = {
     'public': ".r:*,.rlistings",
     'private': '',
 }
-
-
-def valid_kwargs(*valid_args):
-    # This decorator checks if argument passed as **kwargs to a function are
-    # present in valid_args.
-    #
-    # Typically, valid_kwargs is used when we want to distinguish between
-    # None and omitted arguments and we still want to validate the argument
-    # list.
-    #
-    # Example usage:
-    #
-    # @valid_kwargs('opt_arg1', 'opt_arg2')
-    # def my_func(self, mandatory_arg1, mandatory_arg2, **kwargs):
-    #   ...
-    #
-    @decorator
-    def func_wrapper(func, *args, **kwargs):
-        argspec = inspect.getargspec(func)
-        for k in kwargs:
-            if k not in argspec.args[1:] and k not in valid_args:
-                raise TypeError(
-                    "{f}() got an unexpected keyword argument "
-                    "'{arg}'".format(f=inspect.stack()[1][3], arg=k))
-        return func(*args, **kwargs)
-    return func_wrapper
 
 
 def simple_logging(debug=False):
@@ -630,8 +602,8 @@ class OpenStackCloud(object):
         return user
 
     # NOTE(Shrews): Keystone v2 supports updating only name, email and enabled.
-    @valid_kwargs('name', 'email', 'enabled', 'domain_id', 'password',
-                  'description', 'default_project')
+    @_utils.valid_kwargs('name', 'email', 'enabled', 'domain_id', 'password',
+                         'description', 'default_project')
     def update_user(self, name_or_id, **kwargs):
         self.list_users.invalidate(self)
         user = self.get_user(name_or_id)
@@ -3671,10 +3643,10 @@ class OpenStackCloud(object):
         # a dict).
         return new_subnet['subnet']
 
-    @valid_kwargs('name', 'admin_state_up', 'mac_address', 'fixed_ips',
-                  'subnet_id', 'ip_address', 'security_groups',
-                  'allowed_address_pairs', 'extra_dhcp_opts', 'device_owner',
-                  'device_id')
+    @_utils.valid_kwargs('name', 'admin_state_up', 'mac_address', 'fixed_ips',
+                         'subnet_id', 'ip_address', 'security_groups',
+                         'allowed_address_pairs', 'extra_dhcp_opts',
+                         'device_owner', 'device_id')
     def create_port(self, network_id, **kwargs):
         """Create a port
 
@@ -3735,8 +3707,9 @@ class OpenStackCloud(object):
             return self.manager.submitTask(
                 _tasks.PortCreate(body={'port': kwargs}))['port']
 
-    @valid_kwargs('name', 'admin_state_up', 'fixed_ips', 'security_groups',
-                  'allowed_address_pairs', 'extra_dhcp_opts', 'device_owner')
+    @_utils.valid_kwargs('name', 'admin_state_up', 'fixed_ips',
+                         'security_groups', 'allowed_address_pairs',
+                         'extra_dhcp_opts', 'device_owner')
     def update_port(self, name_or_id, **kwargs):
         """Update a port
 
@@ -3904,7 +3877,7 @@ class OpenStackCloud(object):
                 "Unavailable feature: security groups"
             )
 
-    @valid_kwargs('name', 'description')
+    @_utils.valid_kwargs('name', 'description')
     def update_security_group(self, name_or_id, **kwargs):
         """Update a security group
 
@@ -4802,7 +4775,7 @@ class OperatorCloud(OpenStackCloud):
         except Exception as e:
             raise OpenStackCloudException(str(e))
 
-    @valid_kwargs('type', 'service_type', 'description')
+    @_utils.valid_kwargs('type', 'service_type', 'description')
     def create_service(self, name, **kwargs):
         """Create a service.
 
@@ -4916,7 +4889,7 @@ class OperatorCloud(OpenStackCloud):
                     msg=str(e)))
         return True
 
-    @valid_kwargs('public_url', 'internal_url', 'admin_url')
+    @_utils.valid_kwargs('public_url', 'internal_url', 'admin_url')
     def create_endpoint(self, service_name_or_id, url=None, interface=None,
                         region=None, enabled=True, **kwargs):
         """Create a Keystone endpoint.

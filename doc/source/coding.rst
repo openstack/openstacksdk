@@ -30,7 +30,7 @@ API Methods
   `update_RESOURCE()` API methods (as it makes sense).
 
 - For those methods that should behave differently for omitted or None-valued
-  parameters, use the `valid_kwargs` decorator. Notably: all Neutron
+  parameters, use the `_utils.valid_kwargs` decorator. Notably: all Neutron
   `update_*` functions.
 
 - Deleting a resource should return True if the delete succeeded, or False

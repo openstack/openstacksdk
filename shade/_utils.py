@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from decorator import decorator
+import inspect
 import time
 
 import netifaces
@@ -287,3 +289,29 @@ def normalize_users(users):
             enabled=user.get('enabled'),
         ) for user in users
     ]
+
+
+def valid_kwargs(*valid_args):
+    # This decorator checks if argument passed as **kwargs to a function are
+    # present in valid_args.
+    #
+    # Typically, valid_kwargs is used when we want to distinguish between
+    # None and omitted arguments and we still want to validate the argument
+    # list.
+    #
+    # Example usage:
+    #
+    # @valid_kwargs('opt_arg1', 'opt_arg2')
+    # def my_func(self, mandatory_arg1, mandatory_arg2, **kwargs):
+    #   ...
+    #
+    @decorator
+    def func_wrapper(func, *args, **kwargs):
+        argspec = inspect.getargspec(func)
+        for k in kwargs:
+            if k not in argspec.args[1:] and k not in valid_args:
+                raise TypeError(
+                    "{f}() got an unexpected keyword argument "
+                    "'{arg}'".format(f=inspect.stack()[1][3], arg=k))
+        return func(*args, **kwargs)
+    return func_wrapper
