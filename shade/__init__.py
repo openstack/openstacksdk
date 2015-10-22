@@ -431,15 +431,6 @@ class OpenStackCloud(object):
         return self.keystone_session.get_token()
 
     @property
-    def project_cache(self):
-        return self.get_project_cache()
-
-    @_cache_on_arguments()
-    def get_project_cache(self):
-        return {project.id: project for project in
-                self._project_manager.list()}
-
-    @property
     def _project_manager(self):
         # Keystone v2 calls this attribute tenants
         # Keystone v3 calls it projects
@@ -451,11 +442,13 @@ class OpenStackCloud(object):
     def _get_project_param_dict(self, name_or_id):
         project_dict = dict()
         if name_or_id:
-            project_id = self._get_project(name_or_id).id
+            project = self.get_project(name_or_id)
+            if not project:
+                return project_dict
             if self.cloud_config.get_api_version('identity') == '3':
-                project_dict['default_project'] = project_id
+                project_dict['default_project'] = project['id']
             else:
-                project_dict['tenant_id'] = project_id
+                project_dict['tenant_id'] = project['id']
         return project_dict
 
     def _get_domain_param_dict(self, domain_id):
@@ -485,53 +478,102 @@ class OpenStackCloud(object):
         ret.update(self._get_project_param_dict(project))
         return ret
 
-    def _get_project(self, name_or_id):
-        """Retrieve a project by name or id."""
+    @_cache_on_arguments()
+    def list_projects(self):
+        """List Keystone Projects.
 
-        # TODO(mordred): This, and other keystone operations, need to have
-        #                domain information passed in. When there is no
-        #                available domain information, we should default to
-        #                the currently scoped domain which we can request from
-        #                the session.
-        for id, project in self.project_cache.items():
-            if name_or_id in (id, project.name):
-                return project
-        return None
+        :returns: a list of dicts containing the project description.
 
-    def get_project(self, name_or_id):
-        """Retrieve a project by name or id."""
-        project = self._get_project(name_or_id)
-        if project:
-            return meta.obj_to_dict(project)
-        return None
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        try:
+            projects = self.manager.submitTask(_tasks.ProjectList())
+        except Exception as e:
+            self.log.debug("Failed to list projects", exc_info=True)
+            raise OpenStackCloudException(str(e))
+        return meta.obj_list_to_dict(projects)
+
+    def search_projects(self, name_or_id=None, filters=None):
+        """Seach Keystone projects.
+
+        :param name: project name or id.
+        :param filters: a dict containing additional filters to use.
+
+        :returns: a list of dict containing the role description
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        projects = self.list_projects()
+        return _utils._filter_list(projects, name_or_id, filters)
+
+    def get_project(self, name_or_id, filters=None):
+        """Get exactly one Keystone project.
+
+        :param id: project name or id.
+        :param filters: a dict containing additional filters to use.
+
+        :returns: a list of dicts containing the project description.
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        return _utils._get_entity(self.search_projects, name_or_id, filters)
 
     def update_project(self, name_or_id, description=None, enabled=True):
         try:
-            project = self._get_project(name_or_id)
-            return meta.obj_to_dict(
-                project.update(description=description, enabled=enabled))
+            proj = self.get_project(name_or_id)
+            if not proj:
+                raise OpenStackCloudException(
+                    "Project %s not found." % name_or_id)
+
+            params = {}
+            if self.api_versions['identity'] == '3':
+                params['project'] = proj['id']
+            else:
+                params['tenant_id'] = proj['id']
+
+            project = self.manager.submitTask(_tasks.ProjectUpdate(
+                description=description,
+                enabled=enabled,
+                **params))
         except Exception as e:
             raise OpenStackCloudException(
                 "Error in updating project {project}: {message}".format(
                     project=name_or_id, message=str(e)))
+        self.list_projects.invalidate()
+        return meta.obj_to_dict(project)
 
     def create_project(
             self, name, description=None, domain_id=None, enabled=True):
         """Create a project."""
         try:
-            domain_params = self._get_domain_param_dict(domain_id)
-            self._project_manager.create(
+            params = self._get_domain_param_dict(domain)
+            if self.api_versions['identity'] == '3':
+                params['name'] = name
+            else:
+                params['tenant_name'] = name
+
+            project = self.manager.submitTask(_tasks.ProjectCreate(
                 project_name=name, description=description, enabled=enabled,
-                **domain_params)
+                **params))
         except Exception as e:
             raise OpenStackCloudException(
                 "Error in creating project {project}: {message}".format(
                     project=name, message=str(e)))
+        self.list_projects.invalidate()
+        return meta.obj_to_dict(project)
 
     def delete_project(self, name_or_id):
         try:
             project = self.update_project(name_or_id, enabled=False)
-            self._project_manager.delete(project.id)
+            params = {}
+            if self.api_versions['identity'] == '3':
+                params['project'] = project['id']
+            else:
+                params['tenant'] = project['id']
+            self.manager.submitTask(_tasks.ProjectDelete(**params))
         except Exception as e:
             raise OpenStackCloudException(
                 "Error in deleting project {project}: {message}".format(
