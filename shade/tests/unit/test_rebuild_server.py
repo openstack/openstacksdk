@@ -24,7 +24,7 @@ import os_client_config
 from shade import meta
 from shade import OpenStackCloud
 from shade.exc import (OpenStackCloudException, OpenStackCloudTimeout)
-from shade.tests.unit import base
+from shade.tests import base, fakes
 
 
 class TestRebuildServer(base.TestCase):
@@ -53,10 +53,12 @@ class TestRebuildServer(base.TestCase):
         Test that a server error while waiting for the server to rebuild
         raises an exception in rebuild_server.
         """
+        rebuild_server = fakes.FakeServer('1234', '', 'REBUILD')
+        error_server = fakes.FakeServer('1234', '', 'ERROR')
         with patch("shade.OpenStackCloud"):
             config = {
-                "servers.rebuild.return_value": Mock(status="REBUILD"),
-                "servers.get.return_value": Mock(status="ERROR")
+                "servers.rebuild.return_value": rebuild_server,
+                "servers.get.return_value": error_server,
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
@@ -68,10 +70,11 @@ class TestRebuildServer(base.TestCase):
         Test that a timeout while waiting for the server to rebuild raises an
         exception in rebuild_server.
         """
+        rebuild_server = fakes.FakeServer('1234', '', 'REBUILD')
         with patch("shade.OpenStackCloud"):
             config = {
-                "servers.rebuild.return_value": Mock(status="REBUILD"),
-                "servers.get.return_value": Mock(status="REBUILD")
+                "servers.rebuild.return_value": rebuild_server,
+                "servers.get.return_value": rebuild_server,
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
@@ -84,12 +87,12 @@ class TestRebuildServer(base.TestCase):
         novaclient rebuild call returns the server instance.
         """
         with patch("shade.OpenStackCloud"):
-            mock_server = Mock(status="ACTIVE")
+            rebuild_server = fakes.FakeServer('1234', '', 'REBUILD')
             config = {
-                "servers.rebuild.return_value": mock_server
+                "servers.rebuild.return_value": rebuild_server
             }
             OpenStackCloud.nova_client = Mock(**config)
-            self.assertEqual(meta.obj_to_dict(mock_server),
+            self.assertEqual(meta.obj_to_dict(rebuild_server),
                              self.client.rebuild_server("a", "b"))
 
     def test_rebuild_server_wait(self):
@@ -98,11 +101,12 @@ class TestRebuildServer(base.TestCase):
         its status changes to "ACTIVE".
         """
         with patch("shade.OpenStackCloud"):
-            mock_server = Mock(status="ACTIVE")
+            rebuild_server = fakes.FakeServer('1234', '', 'REBUILD')
+            active_server = fakes.FakeServer('1234', '', 'ACTIVE')
             config = {
-                "servers.rebuild.return_value": Mock(status="REBUILD"),
-                "servers.get.return_value": mock_server
+                "servers.rebuild.return_value": rebuild_server,
+                "servers.get.return_value": active_server
             }
             OpenStackCloud.nova_client = Mock(**config)
-            self.assertEqual(meta.obj_to_dict(mock_server),
+            self.assertEqual(meta.obj_to_dict(active_server),
                              self.client.rebuild_server("a", "b", wait=True))

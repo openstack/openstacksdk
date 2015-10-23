@@ -323,9 +323,18 @@ def obj_to_dict(obj):
     that we can just have a plain dict of all of the values that exist in the
     nova metadata for a server.
     """
-    # If we obj_to_dict twice, don't fail, just return the munch
-    if type(obj) == munch.Munch:
+    if obj is None:
+        return None
+    elif type(obj) == munch.Munch or hasattr(obj, 'mock_add_spec'):
+        # If we obj_to_dict twice, don't fail, just return the munch
+        # Also, don't try to modify Mock objects - that way lies madness
         return obj
+    elif type(obj) == dict:
+        return munch.Munch(obj)
+    elif hasattr(obj, 'schema') and hasattr(obj, 'validate'):
+        # It's a warlock
+        return warlock_to_dict(obj)
+
     instance = munch.Munch()
     for key in dir(obj):
         value = getattr(obj, key)
@@ -356,10 +365,3 @@ def warlock_to_dict(obj):
         if isinstance(value, NON_CALLABLES) and not key.startswith('_'):
             obj_dict[key] = value
     return obj_dict
-
-
-def warlock_list_to_dict(list):
-    new_list = []
-    for obj in list:
-        new_list.append(warlock_to_dict(obj))
-    return new_list

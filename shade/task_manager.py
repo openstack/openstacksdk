@@ -24,6 +24,7 @@ import time
 import six
 
 from shade import _log
+from shade import meta
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -77,7 +78,10 @@ class Task(object):
         if self._exception:
             six.reraise(type(self._exception), self._exception,
                         self._traceback)
-        return self._result
+        if type(self._result) == list:
+            return meta.obj_list_to_dict(self._result)
+        else:
+            return meta.obj_to_dict(self._result)
 
     def run(self, client):
         try:

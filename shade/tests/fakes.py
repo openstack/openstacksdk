@@ -95,10 +95,11 @@ class FakeUser(object):
 
 
 class FakeVolume(object):
-    def __init__(self, id, status, display_name):
+    def __init__(self, id, status, display_name, attachments=[]):
         self.id = id
         self.status = status
         self.display_name = display_name
+        self.attachments = attachments
 
 
 class FakeVolumeSnapshot(object):

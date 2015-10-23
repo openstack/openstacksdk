@@ -423,13 +423,14 @@ class TestMeta(testtools.TestCase):
 
     def test_has_volume(self):
         mock_cloud = mock.MagicMock()
-        mock_volume = mock.MagicMock()
-        mock_volume.id = 'volume1'
-        mock_volume.status = 'available'
-        mock_volume.display_name = 'Volume 1 Display Name'
-        mock_volume.attachments = [{'device': '/dev/sda0'}]
-        mock_volume_dict = meta.obj_to_dict(mock_volume)
-        mock_cloud.get_volumes.return_value = [mock_volume_dict]
+
+        fake_volume = fakes.FakeVolume(
+            id='volume1',
+            status='available',
+            display_name='Volume 1 Display Name',
+            attachments=[{'device': '/dev/sda0'}])
+        fake_volume_dict = meta.obj_to_dict(fake_volume)
+        mock_cloud.get_volumes.return_value = [fake_volume_dict]
         hostvars = meta.get_hostvars_from_server(
             mock_cloud, meta.obj_to_dict(FakeServer()))
         self.assertEquals('volume1', hostvars['volumes'][0]['id'])
