@@ -18,7 +18,10 @@ import time
 
 import netifaces
 
+from shade import _log
 from shade import exc
+
+log = _log.setup_logging(__name__)
 
 
 def _iterate_timeout(timeout, message, wait=2):
@@ -35,6 +38,7 @@ def _iterate_timeout(timeout, message, wait=2):
     while (timeout is None) or (time.time() < start + timeout):
         count += 1
         yield count
+        log.debug('Waiting {wait} seconds'.format(wait=wait))
         time.sleep(wait)
     raise exc.OpenStackCloudTimeout(message)
 
