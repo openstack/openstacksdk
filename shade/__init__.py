@@ -271,7 +271,7 @@ class OpenStackCloud(object):
             # Don't cache list_servers if we're not caching things.
             # Replace this with a more specific cache configuration
             # soon.
-            self._SERVER_LIST_AGE = 0
+            self._SERVER_LIST_AGE = 2
             self._cache = _FakeCache()
             # Undecorate cache decorated methods. Otherwise the call stacks
             # wind up being stupidly long and hard to debug
