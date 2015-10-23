@@ -100,5 +100,6 @@ class TaskManager(object):
         task.run(self._client)
         end = time.time()
         self.log.debug(
-            "Manager %s ran task %s in %ss" % (self.name, task, (end - start)))
+            "Manager %s ran task %s in %ss" % (
+                self.name, type(task).__name__, (end - start)))
         return task.wait()
