@@ -3262,6 +3262,15 @@ class OpenStackCloud(object):
                 raise OpenStackCloudException(
                     "Error in deleting server: {0}".format(e))
 
+    def list_containers(self):
+        try:
+            return meta.obj_to_dict(self.manager.submitTask(
+                _tasks.ContainerList()))
+        except swift_exceptions.ClientException as e:
+            raise OpenStackCloudException(
+                "Container list failed: %s (%s/%s)" % (
+                    e.http_reason, e.http_host, e.http_path))
+
     def get_container(self, name, skip_cache=False):
         if skip_cache or name not in self._container_cache:
             try:
@@ -3451,6 +3460,15 @@ class OpenStackCloud(object):
                 if not r['success']:
                     raise OpenStackCloudException(
                         'Failed at action ({action}) [{error}]:'.format(**r))
+
+    def list_objects(self, container):
+        try:
+            return meta.obj_to_dict(self.manager.submitTask(
+                _tasks.ObjectList(container)))
+        except swift_exceptions.ClientException as e:
+            raise OpenStackCloudException(
+                "Object list failed: %s (%s/%s)" % (
+                    e.http_reason, e.http_host, e.http_path))
 
     def delete_object(self, container, name):
         if not self.get_object_metadata(container, name):

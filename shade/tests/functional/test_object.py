@@ -59,5 +59,8 @@ class TestObject(base.TestCase):
                                                             sparse_file.name))
             self.assertIsNotNone(
                 self.cloud.get_object_metadata(container, name))
+            self.assertEqual([name], self.cloud.list_objects(container))
             self.cloud.delete_object(container, name)
+        self.assertEmpty(self.cloud.list_objects(container))
+        self.assertEqual([container], self.cloud.list_containers())
         self.cloud.delete_container(container)

@@ -386,6 +386,11 @@ class ContainerUpdate(task_manager.Task):
         client.swift_client.post_container(**self.args)
 
 
+class ContainerList(task_manager.Task):
+    def main(self, client):
+        return client.swift_client.list(**self.args)
+
+
 class ObjectCapabilities(task_manager.Task):
     def main(self, client):
         return client.swift_client.get_capabilities(**self.args)
@@ -404,6 +409,11 @@ class ObjectCreate(task_manager.Task):
 class ObjectUpdate(task_manager.Task):
     def main(self, client):
         client.swift_client.post_object(**self.args)
+
+
+class ObjectList(task_manager.Task):
+    def main(self, client):
+        return client.swift_client.list(**self.args)
 
 
 class ObjectMetadata(task_manager.Task):
