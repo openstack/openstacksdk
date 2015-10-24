@@ -264,6 +264,12 @@ def expand_server_vars(cloud, server):
     return server_vars
 
 
+def expand_server_security_groups(cloud, server):
+    groups = cloud.list_server_security_groups(server)
+
+    server['security_groups'] = groups
+
+
 def get_hostvars_from_server(cloud, server, mounts=None):
     """Expand additional server information useful for ansible inventory."""
     server_vars = expand_server_vars(cloud, server)
@@ -273,6 +279,8 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     if flavor_name:
         server_vars['flavor']['name'] = flavor_name
     server_vars['flavor'].pop('links', None)
+
+    expand_server_security_groups(cloud, server)
 
     # OpenStack can return image as a string when you've booted from volume
     if str(server['image']) == server['image']:

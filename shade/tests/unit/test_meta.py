@@ -60,6 +60,9 @@ class FakeCloud(object):
     def get_external_networks(self):
         return []
 
+    def list_server_security_groups(self, server):
+        return []
+
 
 class FakeServer(object):
     id = 'test-id-0'
@@ -149,13 +152,15 @@ class TestMeta(testtools.TestCase):
             filters={'router:external': False}
         )
 
+    @mock.patch.object(shade.OpenStackCloud, 'list_server_security_groups')
     @mock.patch.object(shade.OpenStackCloud, 'get_image_name')
     @mock.patch.object(shade.OpenStackCloud, 'get_flavor_name')
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
     @mock.patch.object(shade.OpenStackCloud, 'search_networks')
     def test_get_server_private_ip_devstack(
             self, mock_search_networks, mock_has_service,
-            mock_get_flavor_name, mock_get_image_name):
+            mock_get_flavor_name, mock_get_image_name,
+            mock_list_server_security_groups):
         mock_get_image_name.return_value = 'cirros-0.3.4-x86_64-uec'
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_has_service.return_value = True
@@ -327,6 +332,23 @@ class TestMeta(testtools.TestCase):
         new_list = meta.obj_list_to_dict(list)
         self.assertEqual(new_list[0]['value'], 0)
         self.assertEqual(new_list[1]['value'], 1)
+
+    @mock.patch.object(FakeCloud, 'list_server_security_groups')
+    def test_get_security_groups(self,
+                                 mock_list_server_security_groups):
+        '''This test verifies that calling get_hostvars_froms_server
+        ultimately calls list_server_security_groups, and that the return
+        value from list_server_security_groups ends up in
+        server['security_groups'].'''
+        mock_list_server_security_groups.return_value = [
+            {'name': 'testgroup', 'id': '1'}]
+
+        server = meta.obj_to_dict(FakeServer())
+        hostvars = meta.get_hostvars_from_server(FakeCloud(), server)
+
+        mock_list_server_security_groups.assert_called_once_with(server)
+        self.assertEqual('testgroup',
+                         hostvars['security_groups'][0]['name'])
 
     @mock.patch.object(shade.meta, 'get_server_external_ipv6')
     @mock.patch.object(shade.meta, 'get_server_external_ipv4')
