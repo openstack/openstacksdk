@@ -1212,6 +1212,18 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(str(e))
         return meta.obj_list_to_dict(stacks)
 
+    def list_server_security_groups(self, server):
+        """List all security groups associated with the given server.
+
+        :returns: A list of security group dicts.
+        """
+
+        groups = meta.obj_list_to_dict(
+            self.manager.submitTask(
+                _tasks.ServerListSecurityGroups(server=server['id'])))
+
+        return _utils.normalize_nova_secgroups(groups)
+
     def list_security_groups(self):
         """List all available security groups.
 

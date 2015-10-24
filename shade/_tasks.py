@@ -101,6 +101,11 @@ class ServerList(task_manager.Task):
         return client.nova_client.servers.list(**self.args)
 
 
+class ServerListSecurityGroups(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.servers.list_security_group(**self.args)
+
+
 class ServerGet(task_manager.Task):
     def main(self, client):
         return client.nova_client.servers.get(**self.args)
