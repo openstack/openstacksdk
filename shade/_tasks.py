@@ -261,6 +261,26 @@ class VolumeAttach(task_manager.Task):
         return client.nova_client.volumes.create_server_volume(**self.args)
 
 
+class VolumeSnapshotCreate(task_manager.Task):
+    def main(self, client):
+        return client.cinder_client.volume_snapshots.create(**self.args)
+
+
+class VolumeSnapshotGet(task_manager.Task):
+    def main(self, client):
+        return client.cinder_client.volume_snapshots.get(**self.args)
+
+
+class VolumeSnapshotList(task_manager.Task):
+    def main(self, client):
+        return client.cinder_client.volume_snapshots.list(**self.args)
+
+
+class VolumeSnapshotDelete(task_manager.Task):
+    def main(self, client):
+        return client.cinder_client.volume_snapshots.delete(**self.args)
+
+
 class NeutronSecurityGroupList(task_manager.Task):
     def main(self, client):
         return client.neutron_client.list_security_groups()

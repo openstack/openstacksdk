@@ -101,6 +101,14 @@ class FakeVolume(object):
         self.display_name = display_name
 
 
+class FakeVolumeSnapshot(object):
+    def __init__(self, id, status, display_name, display_description):
+        self.id = id
+        self.status = status
+        self.display_name = display_name
+        self.display_description = display_description
+
+
 class FakeMachine(object):
     def __init__(self, id, name=None, driver=None, driver_info=None,
                  chassis_uuid=None, instance_info=None, instance_uuid=None,

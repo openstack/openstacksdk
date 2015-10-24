@@ -1041,6 +1041,11 @@ class OpenStackCloud(object):
         return _utils._filter_list(
             volumes, name_or_id, filters, name_key='display_name')
 
+    def search_volume_snapshots(self, name_or_id=None, filters=None):
+        volumesnapshots = self.list_volume_snapshots()
+        return _utils._filter_list(
+            volumesnapshots, name_or_id, filters, name_key='display_name')
+
     def search_flavors(self, name_or_id=None, filters=None):
         flavors = self.list_flavors()
         return _utils._filter_list(flavors, name_or_id, filters)
@@ -2544,6 +2549,160 @@ class OpenStackCloud(object):
                         "Error in attaching volume %s" % volume['id']
                     )
         return vol
+
+    def create_volume_snapshot(self, volume_id, force=False,
+                               display_name=None, display_description=None,
+                               wait=True, timeout=None):
+        """Create a volume.
+
+        :param volume_id: the id of the volume to snapshot.
+        :param force: If set to True the snapshot will be created even if the
+                      volume is attached to an instance, if False it will not
+        :param display_name: name of the snapshot, one will be generated if
+                             one is not provided
+        :param display_description: description of the snapshot, one will be
+                                    one is not provided
+        :param wait: If true, waits for volume snapshot to be created.
+        :param timeout: Seconds to wait for volume snapshot creation. None is
+                        forever.
+
+        :returns: The created volume object.
+
+        :raises: OpenStackCloudTimeout if wait time exceeded.
+        :raises: OpenStackCloudException on operation error.
+        """
+        try:
+            snapshot = self.manager.submitTask(
+                _tasks.VolumeSnapshotCreate(
+                    volume_id=volume_id, force=force,
+                    display_name=display_name,
+                    display_description=display_description)
+                )
+
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Error creating snapshot of volume %s: %s" % (volume_id, e)
+            )
+
+        snapshot = meta.obj_to_dict(snapshot)
+
+        if wait:
+            snapshot_id = snapshot['id']
+            for count in _utils._iterate_timeout(
+                    timeout,
+                    "Timeout waiting for the volume snapshot to be available."
+                    ):
+                snapshot = self.get_volume_snapshot_by_id(snapshot_id)
+
+                if snapshot['status'] == 'available':
+                    break
+
+                if snapshot['status'] == 'error':
+                    raise OpenStackCloudException(
+                        "Error in creating volume, please check logs")
+
+        return snapshot
+
+    def get_volume_snapshot_by_id(self, snapshot_id):
+        """Takes a snapshot_id and gets a dict of the snapshot
+        that maches that id.
+
+        Note: This is more efficient than get_volume_snapshot.
+
+        param: snapshot_id: ID of the volume snapshot.
+
+        """
+        try:
+            snapshot = self.manager.submitTask(
+                _tasks.VolumeSnapshotGet(
+                    snapshot_id=snapshot_id
+                )
+            )
+
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Error getting snapshot %s: %s" % (snapshot_id, e)
+            )
+
+        return meta.obj_to_dict(snapshot)
+
+    def get_volume_snapshot(self, name_or_id, filters=None):
+        """Get a volume by name or ID.
+
+        :param name_or_id: Name or ID of the volume snapshot.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
+
+        :returns: A volume dict or None if no matching volume is
+        found.
+
+        """
+        return _utils._get_entity(self.search_volume_snapshots, name_or_id,
+                                  filters)
+
+    def list_volume_snapshots(self, detailed=True, search_opts=None):
+        """List all volume snapshots.
+
+        :returns: A list of volume snapshots dicts.
+
+        """
+        try:
+            return meta.obj_list_to_dict(
+                self.manager.submitTask(
+                    _tasks.VolumeSnapshotList(detailed=detailed,
+                                              search_opts=search_opts)
+                )
+            )
+
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Error getting a list of snapshots: %s" % e
+            )
+
+    def delete_volume_snapshot(self, name_or_id=None, wait=False,
+                               timeout=None):
+        """Delete a volume snapshot.
+
+        :param name_or_id: Name or unique ID of the volume snapshot.
+        :param wait: If true, waits for volume snapshot to be deleted.
+        :param timeout: Seconds to wait for volume snapshot deletion. None is
+                        forever.
+
+        :raises: OpenStackCloudTimeout if wait time exceeded.
+        :raises: OpenStackCloudException on operation error.
+        """
+
+        volumesnapshot = self.get_volume_snapshot(name_or_id)
+
+        if not volumesnapshot:
+            return False
+
+        try:
+            self.manager.submitTask(
+                _tasks.VolumeSnapshotDelete(
+                    snapshot=volumesnapshot['id']
+                )
+            )
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Error in deleting volume snapshot: %s" % str(e))
+
+        if wait:
+            for count in _utils._iterate_timeout(
+                    timeout,
+                    "Timeout waiting for the volume snapshot to be deleted."):
+                if not self.get_volume_snapshot(volumesnapshot['id']):
+                    break
+
+        return True
 
     def get_server_id(self, name_or_id):
         server = self.get_server(name_or_id)
