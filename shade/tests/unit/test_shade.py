@@ -13,6 +13,7 @@
 # under the License.
 
 import mock
+import munch
 
 import glanceclient
 from heatclient import client as heat_client
@@ -398,3 +399,37 @@ class TestShade(base.TestCase):
         r = self.cloud._get_record('mickey.domain', 'mickey')
         self.assertIsNotNone(r)
         self.assertDictEqual(record1, r)
+
+    @mock.patch.object(shade._tasks.ServerList, 'main')
+    def test_list_servers(self, mock_serverlist):
+        '''This test verifies that calling list_servers results in a call
+        to the ServerList task.'''
+        mock_serverlist.return_value = [
+            munch.Munch({'name': 'testserver',
+                         'id': '1'})
+        ]
+
+        r = self.cloud.list_servers()
+        self.assertEquals(1, len(r))
+        self.assertEquals('testserver', r[0]['name'])
+
+    @mock.patch.object(shade._tasks.ServerList, 'main')
+    @mock.patch('shade.meta.get_hostvars_from_server')
+    def test_list_servers_detailed(self,
+                                   mock_get_hostvars_from_server,
+                                   mock_serverlist):
+        '''This test verifies that when list_servers is called with
+        `detailed=True` that it calls `get_hostvars_from_server` for each
+        server in the list.'''
+        mock_serverlist.return_value = ['server1', 'server2']
+        mock_get_hostvars_from_server.side_effect = [
+            {'name': 'server1', 'id': '1'},
+            {'name': 'server2', 'id': '2'},
+        ]
+
+        r = self.cloud.list_servers(detailed=True)
+
+        self.assertEquals(2, len(r))
+        self.assertEquals(len(r), mock_get_hostvars_from_server.call_count)
+        self.assertEquals('server1', r[0]['name'])
+        self.assertEquals('server2', r[1]['name'])

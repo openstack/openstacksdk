@@ -1049,8 +1049,8 @@ class OpenStackCloud(object):
         groups = self.list_security_groups()
         return _utils._filter_list(groups, name_or_id, filters)
 
-    def search_servers(self, name_or_id=None, filters=None):
-        servers = self.list_servers()
+    def search_servers(self, name_or_id=None, filters=None, detailed=False):
+        servers = self.list_servers(detailed=detailed)
         return _utils._filter_list(servers, name_or_id, filters)
 
     def search_images(self, name_or_id=None, filters=None):
@@ -1256,7 +1256,7 @@ class OpenStackCloud(object):
                 "Unavailable feature: security groups"
             )
 
-    def list_servers(self):
+    def list_servers(self, detailed=False):
         """List all available servers.
 
         :returns: A list of server dicts.
@@ -1273,17 +1273,24 @@ class OpenStackCloud(object):
             # blocking.
             if self._servers_lock.acquire(len(self._servers) == 0):
                 try:
-                    self._servers = self._list_servers()
+                    self._servers = self._list_servers(detailed=detailed)
                     self._servers_time = time.time()
                 finally:
                     self._servers_lock.release()
         return self._servers
 
-    def _list_servers(self):
+    def _list_servers(self, detailed=False):
         try:
-            return meta.obj_list_to_dict(
-                self.manager.submitTask(_tasks.ServerList())
-            )
+            servers = meta.obj_list_to_dict(
+                self.manager.submitTask(_tasks.ServerList()))
+
+            if detailed:
+                return [
+                    meta.get_hostvars_from_server(self, server)
+                    for server in servers
+                ]
+            else:
+                return servers
         except Exception as e:
             raise OpenStackCloudException(
                 "Error fetching server list: %s" % e)
@@ -1651,7 +1658,7 @@ class OpenStackCloud(object):
         return _utils._get_entity(
             self.search_security_groups, name_or_id, filters)
 
-    def get_server(self, name_or_id=None, filters=None):
+    def get_server(self, name_or_id=None, filters=None, detailed=False):
         """Get a server by name or ID.
 
         :param name_or_id: Name or ID of the server.
@@ -1670,7 +1677,9 @@ class OpenStackCloud(object):
         found.
 
         """
-        return _utils._get_entity(self.search_servers, name_or_id, filters)
+        searchfunc = functools.partial(self.search_servers,
+                                       detailed=detailed)
+        return _utils._get_entity(searchfunc, name_or_id, filters)
 
     def get_server_by_id(self, id):
         return meta.obj_to_dict(
