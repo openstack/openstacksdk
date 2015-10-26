@@ -12,7 +12,13 @@
 
 import copy
 
+from keystoneauth1 import plugin as ksa_plugin
+from keystoneauth1 import session as ksa_session
+import mock
+
 from os_client_config import cloud_config
+from os_client_config import defaults
+from os_client_config import exceptions
 from os_client_config.tests import base
 
 
@@ -142,3 +148,132 @@ class TestCloudConfig(base.TestCase):
                          cc.get_endpoint('image'))
         self.assertEqual(None, cc.get_service_name('compute'))
         self.assertEqual('locks', cc.get_service_name('identity'))
+
+    def test_get_session_no_auth(self):
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        cc = cloud_config.CloudConfig("test1", "region-al", config_dict)
+        self.assertRaises(
+            exceptions.OpenStackConfigException,
+            cc.get_session)
+
+    @mock.patch.object(ksa_session, 'Session')
+    def test_get_session(self, mock_session):
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_session()
+        mock_session.assert_called_with(
+            auth=mock.ANY,
+            verify=True, cert=None, timeout=None)
+
+    @mock.patch.object(ksa_session, 'Session')
+    def test_override_session_endpoint(self, mock_session):
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        self.assertEqual(
+            cc.get_session_endpoint('compute'),
+            fake_services_dict['compute_endpoint'])
+
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    def test_session_endpoint_identity(self, mock_get_session):
+        mock_session = mock.Mock()
+        mock_get_session.return_value = mock_session
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_session_endpoint('identity')
+        mock_session.get_endpoint.assert_called_with(
+            interface=ksa_plugin.AUTH_INTERFACE)
+
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    def test_session_endpoint(self, mock_get_session):
+        mock_session = mock.Mock()
+        mock_get_session.return_value = mock_session
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_session_endpoint('orchestration')
+        mock_session.get_endpoint.assert_called_with(
+            interface='public',
+            service_name=None,
+            region_name='region-al',
+            service_type='orchestration')
+
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    def test_legacy_client_object_store(self, mock_get_session_endpoint):
+        mock_client = mock.Mock()
+        mock_get_session_endpoint.return_value = 'http://example.com/v2'
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_legacy_client('object-store', mock_client)
+        mock_client.assert_called_with(
+            preauthtoken=mock.ANY,
+            os_options={
+                'auth_token': mock.ANY,
+                'region_name': 'region-al',
+                'object_storage_url': 'http://example.com/v2'
+            },
+            preauthurl='http://example.com/v2',
+            auth_version='2.0',
+            timeout=None)
+
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    def test_legacy_client_image(self, mock_get_session_endpoint):
+        mock_client = mock.Mock()
+        mock_get_session_endpoint.return_value = 'http://example.com/v2'
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_legacy_client('image', mock_client)
+        mock_client.assert_called_with(
+            version='2',
+            service_name=None,
+            endpoint='http://example.com',
+            region_name='region-al',
+            interface='public',
+            session=mock.ANY,
+            # Not a typo - the config dict above overrides this
+            service_type='mage'
+        )
+
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    def test_legacy_client_network(self, mock_get_session_endpoint):
+        mock_client = mock.Mock()
+        mock_get_session_endpoint.return_value = 'http://example.com/v2'
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_legacy_client('network', mock_client)
+        mock_client.assert_called_with(
+            endpoint_type='public',
+            region_name='region-al',
+            service_type='network',
+            session=mock.ANY,
+            service_name=None)
+
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    def test_legacy_client_compute(self, mock_get_session_endpoint):
+        mock_client = mock.Mock()
+        mock_get_session_endpoint.return_value = 'http://example.com/v2'
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_legacy_client('compute', mock_client)
+        mock_client.assert_called_with(
+            version=2,
+            endpoint_type='public',
+            region_name='region-al',
+            service_type='compute',
+            session=mock.ANY,
+            service_name=None)
