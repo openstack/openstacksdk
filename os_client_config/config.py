@@ -270,7 +270,17 @@ class OpenStackConfig(object):
                     " parameter in {0} instead.".format(self.config_filename))
             return regions
         else:
-            return ['']
+            # crappit. we don't have a region defined.
+            new_cloud = dict()
+            our_cloud = self.cloud_config['clouds'].get(cloud, dict())
+            self._expand_vendor_profile(cloud, new_cloud, our_cloud)
+            if 'regions' in new_cloud and new_cloud['regions']:
+                return new_cloud['regions']
+            elif 'region_name' in new_cloud and new_cloud['region_name']:
+                return [new_cloud['region_name']]
+            else:
+                # Wow. We really tried
+                return ['']
 
     def _get_region(self, cloud=None):
         return self._get_regions(cloud)[0]
@@ -291,7 +301,18 @@ class OpenStackConfig(object):
 
         # Get the defaults
         cloud.update(self.defaults)
+        self._expand_vendor_profile(name, cloud, our_cloud)
 
+        if 'auth' not in cloud:
+            cloud['auth'] = dict()
+
+        _auth_update(cloud, our_cloud)
+        if 'cloud' in cloud:
+            del cloud['cloud']
+
+        return self._fix_backwards_madness(cloud)
+
+    def _expand_vendor_profile(self, name, cloud, our_cloud):
         # Expand a profile if it exists. 'cloud' is an old confusing name
         # for this.
         profile_name = our_cloud.get('profile', our_cloud.get('cloud', None))
@@ -313,15 +334,6 @@ class OpenStackConfig(object):
                     warnings.warn("Couldn't find the vendor profile '{0}', for"
                                   " the cloud '{1}'".format(profile_name,
                                                             name))
-
-        if 'auth' not in cloud:
-            cloud['auth'] = dict()
-
-        _auth_update(cloud, our_cloud)
-        if 'cloud' in cloud:
-            del cloud['cloud']
-
-        return self._fix_backwards_madness(cloud)
 
     def _fix_backwards_madness(self, cloud):
         cloud = self._fix_backwards_project(cloud)
