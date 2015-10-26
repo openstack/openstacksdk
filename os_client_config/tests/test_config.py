@@ -380,4 +380,4 @@ class TestBackwardsCompatibility(base.TestCase):
             'interface': 'public',
             'auth_type': 'v3password',
         }
-        self.assertEqual(expected, result)
+        self.assertDictEqual(expected, result)
