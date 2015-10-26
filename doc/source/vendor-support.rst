@@ -24,6 +24,121 @@ These are the default behaviors unless a cloud is configured differently.
 * Security groups are provided by Neutron
 * Vendor specific agents are not used
 
+auro
+----
+
+https://api.auro.io:5000/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+van1           Vancouver, BC
+============== ================
+
+* Public IPv4 is provided via NAT with Nova Floating IP
+* Floating IPs are provided by Nova
+* Security groups are provided by Nova
+
+catalyst
+--------
+
+https://api.cloud.catalyst.net.nz:5000/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+nz-por-1       Porirua, NZ
+nz_wlg_1       Wellington, NZ
+============== ================
+
+* Image API Version is 1
+* Images must be in `raw` format
+
+citycloud
+---------
+
+https://identity1.citycloud.com:5000/v3/
+
+============== ================
+Region Name    Human Name
+============== ================
+Lon1           London, UK
+Sto2           Stockholm, SE
+Kna1           Karlskrona, SE
+============== ================
+
+* Identity API Version is 3
+* Public IPv4 is provided via NAT with Neutron Floating IP
+
+conoha
+------
+
+https://identity.%(region_name)s.conoha.io/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+tyo1           Tokyo, JP
+sin1           Singapore
+lon1           London, UK
+============== ================
+
+* Images cannot be uploaded
+
+datacentred
+-----------
+
+https://compute.datacentred.io:5000/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+sal01          Manchester, UK
+============== ================
+
+* Image API Version is 1
+
+dreamhost
+---------
+
+https://keystone.dream.io/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+RegionOne      Region One
+============== ================
+
+* Images must be in `raw` format
+* Public IPv4 is provided via NAT with Neutron Floating IP
+* IPv6 is provided to every server
+
+elastx
+------
+
+https://ops.elastx.net:5000/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+regionOne      Region One
+============== ================
+
+* Public IPv4 is provided via NAT with Neutron Floating IP
+
+entercloudsuite
+---------------
+
+https://api.entercloudsuite.com/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+nl-ams1        Amsterdam, NL
+it-mil1        Milan, IT
+de-fra1        Frankfurt, DE
+============== ================
+
 hp
 --
 
@@ -39,6 +154,37 @@ region-b.geo-1 US East
 * DNS Service Type is `hpext:dns`
 * Image API Version is 1
 * Public IPv4 is provided via NAT with Neutron Floating IP
+
+internap
+--------
+
+https://identity.api.cloud.iweb.com/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+ams01          Amsterdam, NL
+da01           Dallas, TX
+nyj01          New York, NY
+============== ================
+
+* Image API Version is 1
+* Floating IPs are not supported
+
+ovh
+---
+
+https://auth.cloud.ovh.net/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+SBG1           Strassbourg, FR
+GRA1           Gravelines, FR
+============== ================
+
+* Images must be in `raw` format
+* Floating IPs are not supported
 
 rackspace
 ---------
@@ -68,32 +214,6 @@ SYD            Sydney
 :vm_mode: hvm
 :xenapi_use_agent: False
 
-dreamhost
----------
-
-https://keystone.dream.io/v2.0
-
-============== ================
-Region Name    Human Name
-============== ================
-RegionOne      Region One
-============== ================
-
-* Images must be in `raw` format
-* Public IPv4 is provided via NAT with Neutron Floating IP
-* IPv6 is provided to every server
-
-vexxhost
---------
-
-http://auth.api.thenebulacloud.com:5000/v2.0/
-
-============== ================
-Region Name    Human Name
-============== ================
-ca-ymq-1       Montreal
-============== ================
-
 runabove
 --------
 
@@ -107,148 +227,6 @@ BHS-1          Beauharnois, QC
 ============== ================
 
 * Floating IPs are not supported
-
-unitedstack
------------
-
-https://identity.api.ustack.com/v3
-
-============== ================
-Region Name    Human Name
-============== ================
-bj1            Beijing
-gd1            Guangdong
-============== ================
-
-* Identity API Version is 3
-* Images must be in `raw` format
-
-auro
-----
-
-https://api.auro.io:5000/v2.0
-
-============== ================
-Region Name    Human Name
-============== ================
-van1           Vancouver, BC
-============== ================
-
-* Public IPv4 is provided via NAT with Nova Floating IP
-* Floating IPs are provided by Nova
-* Security groups are provided by Nova
-
-ovh
----
-
-https://auth.cloud.ovh.net/v2.0
-
-============== ================
-Region Name    Human Name
-============== ================
-SBG1           Strassbourg, FR
-GRA1           Gravelines, FR
-============== ================
-
-* Images must be in `raw` format
-* Floating IPs are not supported
-
-citycloud
----------
-
-https://identity1.citycloud.com:5000/v3/
-
-============== ================
-Region Name    Human Name
-============== ================
-Lon1           London, UK
-Sto2           Stockholm, SE
-Kna1           Karlskrona, SE
-============== ================
-
-* Identity API Version is 3
-* Public IPv4 is provided via NAT with Neutron Floating IP
-
-elastx
-------
-
-https://ops.elastx.net:5000/v2.0
-
-============== ================
-Region Name    Human Name
-============== ================
-regionOne      Region One
-============== ================
-
-* Public IPv4 is provided via NAT with Neutron Floating IP
-
-entercloudsuite
----------------
-
-https://api.entercloudsuite.com/v2.0
-
-============== ================
-Region Name    Human Name
-============== ================
-nl-ams1        Amsterdam, NL
-it-mil1        Milan, IT
-de-fra1        Frankfurt, DE
-============== ================
-
-ultimum
--------
-
-https://console.ultimum-cloud.com:5000/v2.0
-
-============== ================
-Region Name    Human Name
-============== ================
-RegionOne      Region One
-============== ================
-
-datacentred
------------
-
-https://compute.datacentred.io:5000/v2.0
-
-============== ================
-Region Name    Human Name
-============== ================
-sal01          Manchester, UK
-============== ================
-
-* Image API Version is 1
-
-internap
---------
-
-https://identity.api.cloud.iweb.com/v2.0
-
-============== ================
-Region Name    Human Name
-============== ================
-ams01          Amsterdam, NL
-da01           Dallas, TX
-nyj01          New York, NY
-============== ================
-
-* Image API Version is 1
-* Floating IPs are not supported
-
-catalyst
---------
-
-https://api.cloud.catalyst.net.nz:5000/v2.0
-
-============== ================
-Region Name    Human Name
-============== ================
-nz-por-1       Porirua, NZ
-nz_wlg_1       Wellington, NZ
-============== ================
-
-* Image API Version is 1
-* Images must be in `raw` format
 
 switchengines
 -------------
@@ -265,17 +243,39 @@ ZH             Zurich, CH
 * Images must be in `raw` format
 * Images must be uploaded using the Glance Task Interface
 
-conoha
-------
+ultimum
+-------
 
-https://identity.%(region_name)s.conoha.io/v2.0
+https://console.ultimum-cloud.com:5000/v2.0
 
 ============== ================
 Region Name    Human Name
 ============== ================
-tyo1           Tokyo, JP
-sin1           Singapore
-lon1           London, UK
+RegionOne      Region One
 ============== ================
 
-* Images cannot be uploaded
+unitedstack
+-----------
+
+https://identity.api.ustack.com/v3
+
+============== ================
+Region Name    Human Name
+============== ================
+bj1            Beijing
+gd1            Guangdong
+============== ================
+
+* Identity API Version is 3
+* Images must be in `raw` format
+
+vexxhost
+--------
+
+http://auth.api.thenebulacloud.com:5000/v2.0/
+
+============== ================
+Region Name    Human Name
+============== ================
+ca-ymq-1       Montreal
+============== ================
