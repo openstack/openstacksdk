@@ -96,6 +96,8 @@ def simple_logging(debug=False):
     log = _log.setup_logging('shade')
     log.addHandler(logging.StreamHandler())
     log.setLevel(log_level)
+    # Suppress warning about keystoneauth loggers
+    log = _log.setup_logging('keystoneauth.identity.base')
 
 
 def openstack_clouds(config=None, debug=False):
