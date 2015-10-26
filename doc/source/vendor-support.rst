@@ -264,3 +264,18 @@ ZH             Zurich, CH
 
 * Images must be in `raw` format
 * Images must be uploaded using the Glance Task Interface
+
+conoha
+------
+
+https://identity.%(region_name)s.conoha.io/v2.0
+
+============== ================
+Region Name    Human Name
+============== ================
+tyo1           Tokyo, JP
+sin1           Singapore
+lon1           London, UK
+============== ================
+
+* Images cannot be uploaded
