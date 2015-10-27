@@ -51,7 +51,16 @@ import troveclient.client as trove_client
 
 # Disable the Rackspace warnings about deprecated certificates. We are aware
 import warnings
-warnings.filterwarnings('ignore', 'Certificate has no `subjectAltName`')
+try:
+    from requests.packages.urllib3.exceptions import SubjectAltNameWarning
+except ImportError:
+    try:
+        from urllib3.exceptions import SubjectAltNameWarning
+    except ImportError:
+        SubjectAltNameWarning = None
+
+if SubjectAltNameWarning:
+    warnings.filterwarnings('ignore', category=SubjectAltNameWarning)
 
 from shade.exc import *  # noqa
 from shade import _log
