@@ -126,6 +126,11 @@ class ServerRebuild(task_manager.Task):
         return client.nova_client.servers.rebuild(**self.args)
 
 
+class HypervisorList(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.hypervisors.list(**self.args)
+
+
 class KeypairList(task_manager.Task):
     def main(self, client):
         return client.nova_client.keypairs.list()
