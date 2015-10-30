@@ -19,13 +19,12 @@ Default Location
 ****************
 
 To create a connection from a file you need a YAML file to contain the
-configuration and the :py:func:`~openstack.connection.from_config`
-function.
+configuration.
 
 .. literalinclude:: ../../contributors/clouds.yaml
    :language: yaml
 
-To look for a configuration file called ``clouds.yaml`` in the default
+To use a configuration file called ``clouds.yaml`` in one of the default
 locations:
 
 * Current Directory
@@ -36,15 +35,17 @@ call :py:func:`~openstack.connection.from_config` with an object that has
 the name of the cloud configuration to use.
 
 .. literalinclude:: ../examples/connect.py
-   :language: python
-   :lines: 23-30
+   :pyobject: Opts
+
+.. literalinclude:: ../examples/connect.py
+   :pyobject: create_connection_from_config
 
 .. note:: To enable logging, set ``debug=True`` in the ``Opts`` object.
 
 User Defined Location
 *********************
 
-To look for a configuration file in a user defined location set the
+To use a configuration file in a user defined location set the
 environment variable ``OS_CLIENT_CONFIG_FILE`` to the
 absolute path of a file.::
 
@@ -54,8 +55,10 @@ and call :py:func:`~openstack.connection.from_config` with an object that has
 the name of the cloud configuration to use.
 
 .. literalinclude:: ../examples/connect.py
-   :language: python
-   :lines: 23-30
+   :pyobject: Opts
+
+.. literalinclude:: ../examples/connect.py
+   :pyobject: create_connection_from_config
 
 .. note:: To enable logging, set ``debug=True`` in the ``Opts`` object.
 

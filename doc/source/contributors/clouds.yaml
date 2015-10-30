@@ -6,13 +6,10 @@ clouds:
       username: demo
       password: secrete
       project_name: demo
-  hp:
-    cloud: hp
-    auth:
-      username: joe
-      password: joes-password
-      project_name: joe-tenant1
-    region_name: region-b.geo-1
+    example:
+      image_name: fedora-20.x86_64
+      flavor_name: m1.small
+      network_name: private
   rackspace:
     cloud: rackspace
     auth:

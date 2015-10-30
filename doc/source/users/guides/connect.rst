@@ -18,8 +18,7 @@ To create a connection you need a :class:`~openstack.profile.Profile` and a
 :class:`~openstack.connection.Connection`.
 
 .. literalinclude:: ../examples/connect.py
-   :language: python
-   :lines: 32-44
+   :pyobject: create_connection
 
 The :class:`~openstack.profile.Profile` sets your preferences for each
 service. You will pass it the region of the OpenStack cloud that this
@@ -27,9 +26,9 @@ connection will use.
 
 The :class:`~openstack.connection.Connection` is a context for a connection
 to an OpenStack cloud. You will primarily use it to set the
-:class:`~openstack.profile.Profile` and authentication information with the
-``auth_args`` parameter. You can also set the ``user_agent`` to something that
-describes your application (e.g. ``my-web-app/1.3.4``).
+:class:`~openstack.profile.Profile` and authentication information. You can
+also set the ``user_agent`` to something that describes your application
+(e.g. ``my-web-app/1.3.4``).
 
 Full example at `connect.py <http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/connect.py>`_
 

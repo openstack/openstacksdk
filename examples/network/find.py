@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import examples.connect
+
 """
 Find a resource from the Network service.
 
@@ -20,7 +22,7 @@ For a full guide see TODO(etoews):link to docs on developer.openstack.org
 def find_network(conn):
     print("Find Network:")
 
-    network = conn.network.find_network("public")
+    network = conn.network.find_network(examples.connect.NETWORK_NAME)
 
     print(network)
 

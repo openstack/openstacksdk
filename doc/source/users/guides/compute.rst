@@ -56,8 +56,12 @@ Create Server
 -------------
 
 At minimum, a server requires a name, an image, a flavor, and a network on
-creation. Once you've discovered these attributes by listing them as above,
-you can create a server.
+creation. You can discover the names and IDs of these attributes by listing
+them as above and then using the find methods to get the appropriate
+resources.
+
+Ideally you'll also create a server using a public/private keypair so you can
+login to that server with the private key.
 
 Servers take time to boot so we call ``wait_for_server`` to wait
 for it to become active.

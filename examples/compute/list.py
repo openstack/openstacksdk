@@ -36,3 +36,10 @@ def list_flavors(conn):
 
     for flavor in conn.compute.flavors():
         print(flavor)
+
+
+def list_keypairs(conn):
+    print("List Keypairs:")
+
+    for keypair in conn.compute.keypairs():
+        print(keypair)

@@ -13,8 +13,8 @@
 import unittest
 
 from examples.compute import create
-from examples.compute import find
-from examples.compute import list
+from examples.compute import find as compute_find
+from examples.compute import list as compute_list
 from examples import connect
 from examples.network import find as network_find
 from examples.network import list as network_list
@@ -32,13 +32,15 @@ class TestCompute(unittest.TestCase):
         cls.conn = connect.create_connection_from_config()
 
     def test_compute(self):
-        list.list_servers(self.conn)
-        list.list_images(self.conn)
-        list.list_flavors(self.conn)
+        compute_list.list_servers(self.conn)
+        compute_list.list_images(self.conn)
+        compute_list.list_flavors(self.conn)
+        compute_list.list_keypairs(self.conn)
         network_list.list_networks(self.conn)
 
-        image = find.find_image(self.conn)
-        flavor = find.find_flavor(self.conn)
-        network = network_find.find_network(self.conn)
+        compute_find.find_image(self.conn)
+        compute_find.find_flavor(self.conn)
+        compute_find.find_keypair(self.conn)
+        network_find.find_network(self.conn)
 
-        create.create_server(self.conn, 'example', image, flavor, network)
+        create.create_server(self.conn)
