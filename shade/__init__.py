@@ -2382,11 +2382,13 @@ class OpenStackCloud(object):
                     continue
 
                 if volume['status'] == 'available':
-                    return volume
+                    break
 
                 if volume['status'] == 'error':
                     raise OpenStackCloudException(
                         "Error in creating volume, please check logs")
+
+        return volume
 
     def delete_volume(self, name_or_id=None, wait=True, timeout=None):
         """Delete a volume.
@@ -2402,6 +2404,13 @@ class OpenStackCloud(object):
         self.list_volumes.invalidate(self)
         volume = self.get_volume(name_or_id)
 
+        if not volume:
+            self.log.debug(
+                "Volume {name_or_id} does not exist".format(
+                    name_or_id=name_or_id),
+                exc_info=True)
+            return False
+
         try:
             self.manager.submitTask(
                 _tasks.VolumeDelete(volume=volume['id']))
@@ -2414,8 +2423,11 @@ class OpenStackCloud(object):
             for count in _utils._iterate_timeout(
                     timeout,
                     "Timeout waiting for the volume to be deleted."):
-                if not self.volume_exists(volume['id']):
-                    return
+
+                if not self.get_volume(volume['id']):
+                    break
+
+        return True
 
     def get_volumes(self, server, cache=True):
         volumes = []
