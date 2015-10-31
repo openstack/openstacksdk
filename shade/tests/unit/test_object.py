@@ -20,6 +20,7 @@ from swiftclient import service as swift_service
 from swiftclient import exceptions as swift_exc
 
 import shade
+import shade.openstackcloud
 from shade import exc
 from shade import OpenStackCloud
 from shade.tests.unit import base
@@ -93,5 +94,5 @@ class TestObject(base.TestCase):
     def test_get_object_segment_size_http_412(self, swift_mock):
         swift_mock.get_capabilities.side_effect = swift_exc.ClientException(
             "Precondition failed", http_status=412)
-        self.assertEqual(shade.DEFAULT_OBJECT_SEGMENT_SIZE,
+        self.assertEqual(shade.openstackcloud.DEFAULT_OBJECT_SEGMENT_SIZE,
                          self.cloud.get_object_segment_size(None))

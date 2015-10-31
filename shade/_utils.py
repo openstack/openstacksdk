@@ -24,6 +24,9 @@ from shade import exc
 log = _log.setup_logging(__name__)
 
 
+_decorated_methods = []
+
+
 def _iterate_timeout(timeout, message, wait=2):
     """Iterate and raise an exception on timeout.
 
@@ -319,3 +322,23 @@ def valid_kwargs(*valid_args):
                     "'{arg}'".format(f=inspect.stack()[1][3], arg=k))
         return func(*args, **kwargs)
     return func_wrapper
+
+
+def cache_on_arguments(*cache_on_args, **cache_on_kwargs):
+    def _inner_cache_on_arguments(func):
+        def _cache_decorator(obj, *args, **kwargs):
+            the_method = obj._cache.cache_on_arguments(
+                *cache_on_args, **cache_on_kwargs)(
+                    func.__get__(obj, type(obj)))
+            return the_method(*args, **kwargs)
+
+        def invalidate(obj, *args, **kwargs):
+            return obj._cache.cache_on_arguments()(func).invalidate(
+                *args, **kwargs)
+
+        _cache_decorator.invalidate = invalidate
+        _cache_decorator.func = func
+        _decorated_methods.append(func.__name__)
+
+        return _cache_decorator
+    return _inner_cache_on_arguments

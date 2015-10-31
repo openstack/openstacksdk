@@ -19,6 +19,7 @@ import testtools
 import yaml
 
 import shade
+import shade.openstackcloud
 from shade import exc
 from shade import meta
 from shade.tests import fakes
@@ -386,8 +387,8 @@ class TestMemoryCache(base.TestCase):
         fake_image.update({
             'id': '99',
             'name': '99 name',
-            shade.IMAGE_MD5_KEY: fake_md5,
-            shade.IMAGE_SHA256_KEY: fake_sha256,
+            shade.openstackcloud.IMAGE_MD5_KEY: fake_md5,
+            shade.openstackcloud.IMAGE_SHA256_KEY: fake_sha256,
         })
         glance_mock.images.list.return_value = [fake_image]
 

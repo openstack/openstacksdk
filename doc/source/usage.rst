@@ -13,5 +13,8 @@ To use shade in a project::
   compatibility, but attribute access is deprecated. New code should
   assume a normal dictionary and access values via key.
 
-.. automodule:: shade
+.. autoclass:: shade.OpenStackCloud
+   :members:
+
+.. autoclass:: shade.OperatorCloud
    :members:
