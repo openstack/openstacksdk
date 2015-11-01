@@ -83,7 +83,7 @@ sin1           Singapore
 lon1           London, UK
 ============== ================
 
-* Images cannot be uploaded
+* Image upload is not supported
 
 datacentred
 -----------
@@ -206,13 +206,13 @@ SYD            Sydney
 * Compute Service Name is `cloudServersOpenStack`
 * Images must be in `vhd` format
 * Images must be uploaded using the Glance Task Interface
-* Floating IPs are not needed
+* Floating IPs are not supported
 * Public IPv4 is directly routable via static config by Nova
 * IPv6 is provided to every server
 * Security groups are not supported
-* Uploaded Images need properties to not use vendor agent
-:vm_mode: hvm
-:xenapi_use_agent: False
+* Uploaded Images need properties to not use vendor agent::
+  :vm_mode: hvm
+  :xenapi_use_agent: False
 
 runabove
 --------
