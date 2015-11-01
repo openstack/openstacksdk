@@ -302,6 +302,8 @@ class OpenStackCloud(object):
                     verify=self.verify,
                     cert=self.cert,
                     timeout=self.api_timeout)
+            except OpenStackCloudException:
+                raise
             except Exception as e:
                 raise OpenStackCloudException(
                     "Error authenticating to keystone: %s " % str(e))
@@ -828,6 +830,8 @@ class OpenStackCloud(object):
             self.log.debug(
                 "Endpoint not found in %s cloud: %s", self.name, str(e))
             endpoint = None
+        except OpenStackCloudException:
+            raise
         except Exception as e:
             raise OpenStackCloudException(
                 "Error getting %s endpoint: %s" % (service_key, str(e)))
@@ -3278,6 +3282,8 @@ class OpenStackCloud(object):
             # new server
             server = self.get_server_by_id(server.id)
             server_id = server['id']
+        except OpenStackCloudException:
+            raise
         except Exception as e:
             raise OpenStackCloudException(
                 "Error in creating instance: {0}".format(e))
