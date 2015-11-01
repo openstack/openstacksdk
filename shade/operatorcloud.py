@@ -17,7 +17,6 @@ from ironicclient import exceptions as ironic_exceptions
 from novaclient import exceptions as nova_exceptions
 
 from shade.exc import *  # noqa
-from shade import meta
 from shade import openstackcloud
 from shade import _tasks
 from shade import _utils
@@ -58,9 +57,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
     def list_nics(self):
         try:
-            return meta.obj_list_to_dict(
-                self.manager.submitTask(_tasks.MachinePortList())
-            )
+            return self.manager.submitTask(_tasks.MachinePortList())
         except OpenStackCloudException:
             raise
         except Exception as e:
@@ -69,10 +66,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
     def list_nics_for_machine(self, uuid):
         try:
-            return meta.obj_list_to_dict(
-                self.manager.submitTask(
-                    _tasks.MachineNodePortList(node_id=uuid))
-            )
+            return self.manager.submitTask(
+                _tasks.MachineNodePortList(node_id=uuid))
         except OpenStackCloudException:
             raise
         except Exception as e:
@@ -81,17 +76,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
     def get_nic_by_mac(self, mac):
         try:
-            return meta.obj_to_dict(
-                self.manager.submitTask(
-                    _tasks.MachineNodePortGet(port_id=mac))
-            )
+            return self.manager.submitTask(
+                _tasks.MachineNodePortGet(port_id=mac))
         except ironic_exceptions.ClientException:
             return None
 
     def list_machines(self):
-        return meta.obj_list_to_dict(
-            self.manager.submitTask(_tasks.MachineNodeList())
-        )
+        return self.manager.submitTask(_tasks.MachineNodeList())
 
     def get_machine(self, name_or_id):
         """Get Machine by name or uuid
@@ -105,10 +96,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                   are found.
         """
         try:
-            return meta.obj_to_dict(
-                self.manager.submitTask(
-                    _tasks.MachineNodeGet(node_id=name_or_id))
-            )
+            return self.manager.submitTask(
+                _tasks.MachineNodeGet(node_id=name_or_id))
         except ironic_exceptions.ClientException:
             return None
 
@@ -123,10 +112,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         try:
             port = self.manager.submitTask(
                 _tasks.MachinePortGetByAddress(address=mac))
-            return meta.obj_to_dict(
-                self.manager.submitTask(
-                    _tasks.MachineNodeGet(node_id=port.node_uuid))
-            )
+            return self.manager.submitTask(
+                _tasks.MachineNodeGet(node_id=port.node_uuid))
         except ironic_exceptions.ClientException:
             return None
 
@@ -247,8 +234,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                   baremetal node.
         """
         try:
-            machine = meta.obj_to_dict(
-                self.manager.submitTask(_tasks.MachineCreate(**kwargs)))
+            machine = self.manager.submitTask(_tasks.MachineCreate(**kwargs))
 
         except OpenStackCloudException:
             raise
@@ -445,11 +431,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
 
         try:
-            return meta.obj_to_dict(
-                self.manager.submitTask(
-                    _tasks.MachinePatch(node_id=name_or_id,
-                                        patch=patch,
-                                        http_method='PATCH')))
+            return self.manager.submitTask(
+                _tasks.MachinePatch(node_id=name_or_id,
+                                    patch=patch,
+                                    http_method='PATCH'))
         except OpenStackCloudException:
             raise
         except Exception as e:
@@ -798,10 +783,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
     def set_node_instance_info(self, uuid, patch):
         try:
-            return meta.obj_to_dict(
-                self.manager.submitTask(
-                    _tasks.MachineNodeUpdate(node_id=uuid, patch=patch))
-            )
+            return self.manager.submitTask(
+                _tasks.MachineNodeUpdate(node_id=uuid, patch=patch))
         except OpenStackCloudException:
             raise
         except Exception as e:
@@ -811,10 +794,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         patch = []
         patch.append({'op': 'remove', 'path': '/instance_info'})
         try:
-            return meta.obj_to_dict(
-                self.manager.submitTask(
-                    _tasks.MachineNodeUpdate(node_id=uuid, patch=patch))
-            )
+            return self.manager.submitTask(
+                _tasks.MachineNodeUpdate(node_id=uuid, patch=patch))
         except OpenStackCloudException:
             raise
         except Exception as e:
@@ -857,7 +838,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise OpenStackCloudException(
                 "Failed to create service {name}: {msg}".format(
                     name=name, msg=str(e)))
-        return meta.obj_to_dict(service)
+        return service
 
     def list_services(self):
         """List all Keystone services.
@@ -873,8 +854,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise
         except Exception as e:
             raise OpenStackCloudException(str(e))
-        return _utils.normalize_keystone_services(
-            meta.obj_list_to_dict(services))
+        return _utils.normalize_keystone_services(services)
 
     def search_services(self, name_or_id=None, filters=None):
         """Search Keystone services.
@@ -1025,7 +1005,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                     "{msg}".format(service=service['name'],
                                    msg=str(e)))
             endpoints.append(endpoint)
-        return meta.obj_list_to_dict(endpoints)
+        return endpoints
 
     def list_endpoints(self):
         """List Keystone endpoints.
@@ -1043,7 +1023,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         except Exception as e:
             raise OpenStackCloudException("Failed to list endpoints: {msg}"
                                           .format(msg=str(e)))
-        return meta.obj_list_to_dict(endpoints)
+        return endpoints
 
     def search_endpoints(self, id=None, filters=None):
         """List Keystone endpoints.
@@ -1137,15 +1117,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise OpenStackCloudException(
                 "Failed to create domain {name}".format(name=name,
                                                         msg=str(e)))
-        return meta.obj_to_dict(domain)
+        return domain
 
     def update_domain(
             self, domain_id, name=None, description=None, enabled=None):
         try:
-            return meta.obj_to_dict(
-                self.manager.submitTask(_tasks.DomainUpdate(
-                    domain=domain_id, description=description,
-                    enabled=enabled)))
+            return self.manager.submitTask(_tasks.DomainUpdate(
+                domain=domain_id, description=description, enabled=enabled))
         except OpenStackCloudException:
             raise
         except Exception as e:
@@ -1191,7 +1169,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         except Exception as e:
             raise OpenStackCloudException("Failed to list domains: {msg}"
                                           .format(msg=str(e)))
-        return meta.obj_list_to_dict(domains)
+        return domains
 
     def search_domains(self, **filters):
         """Seach Keystone domains.
@@ -1216,7 +1194,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         except Exception as e:
             raise OpenStackCloudException("Failed to list domains: {msg}"
                                           .format(msg=str(e)))
-        return meta.obj_list_to_dict(domains)
+        return domains
 
     def get_domain(self, domain_id):
         """Get exactly one Keystone domain.
@@ -1243,7 +1221,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                     domain_id=domain_id,
                     msg=str(e)))
             raise OpenStackCloudException(str(e))
-        return meta.obj_to_dict(domain)
+        return domain
 
     def list_roles(self):
         """List Keystone roles.
@@ -1259,7 +1237,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise
         except Exception as e:
             raise OpenStackCloudException(str(e))
-        return meta.obj_list_to_dict(roles)
+        return roles
 
     def search_roles(self, name_or_id=None, filters=None):
         """Seach Keystone roles.
@@ -1330,7 +1308,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "Failed to create flavor {name}: {msg}".format(
                     name=name,
                     msg=str(e)))
-        return meta.obj_to_dict(flavor)
+        return flavor
 
     def delete_flavor(self, name_or_id):
         """Delete a flavor
@@ -1480,7 +1458,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise
         except Exception as e:
             raise OpenStackCloudException(str(e))
-        return meta.obj_to_dict(role)
+        return role
 
     def delete_role(self, name_or_id):
         """Delete a Keystone role.

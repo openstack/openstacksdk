@@ -387,7 +387,7 @@ class OpenStackCloud(object):
         except Exception as e:
             self.log.debug("Failed to list projects", exc_info=True)
             raise OpenStackCloudException(str(e))
-        return meta.obj_list_to_dict(projects)
+        return projects
 
     def search_projects(self, name_or_id=None, filters=None):
         """Seach Keystone projects.
@@ -438,7 +438,7 @@ class OpenStackCloud(object):
                 "Error in updating project {project}: {message}".format(
                     project=name_or_id, message=str(e)))
         self.list_projects.invalidate()
-        return meta.obj_to_dict(project)
+        return project
 
     def create_project(
             self, name, description=None, domain_id=None, enabled=True):
@@ -458,7 +458,7 @@ class OpenStackCloud(object):
                 "Error in creating project {project}: {message}".format(
                     project=name, message=str(e)))
         self.list_projects.invalidate()
-        return meta.obj_to_dict(project)
+        return project
 
     def delete_project(self, name_or_id):
         try:
@@ -489,7 +489,7 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Failed to list users: {0}".format(str(e))
             )
-        return _utils.normalize_users(meta.obj_list_to_dict(users))
+        return _utils.normalize_users(users)
 
     def search_users(self, name_or_id=None, filters=None):
         """Seach Keystone users.
@@ -527,9 +527,7 @@ class OpenStackCloud(object):
         :returns: a single dict containing the user description
         """
         try:
-            user = meta.obj_to_dict(
-                self.manager.submitTask(_tasks.UserGet(user=user_id))
-            )
+            user = self.manager.submitTask(_tasks.UserGet(user=user_id))
         except Exception as e:
             raise OpenStackCloudException(
                 "Error getting user with ID {user_id}: {message}".format(
@@ -566,7 +564,7 @@ class OpenStackCloud(object):
                 "Error in updating user {user}: {message}".format(
                     user=name_or_id, message=str(e)))
         self.list_users.invalidate(self)
-        return _utils.normalize_users([meta.obj_to_dict(user)])[0]
+        return _utils.normalize_users([user])[0]
 
     def create_user(
             self, name, password=None, email=None, default_project=None,
@@ -583,7 +581,7 @@ class OpenStackCloud(object):
                 "Error in creating user {user}: {message}".format(
                     user=name, message=str(e)))
         self.list_users.invalidate(self)
-        return _utils.normalize_users([meta.obj_to_dict(user)])[0]
+        return _utils.normalize_users([user])[0]
 
     def delete_user(self, name_or_id):
         self.list_users.invalidate(self)
@@ -1002,9 +1000,7 @@ class OpenStackCloud(object):
 
         """
         try:
-            return meta.obj_list_to_dict(
-                self.manager.submitTask(_tasks.KeypairList())
-            )
+            return self.manager.submitTask(_tasks.KeypairList())
         except Exception as e:
             raise OpenStackCloudException(
                 "Error fetching keypair list: %s" % str(e))
@@ -1075,9 +1071,7 @@ class OpenStackCloud(object):
             warnings.warn('cache argument to list_volumes is deprecated. Use '
                           'invalidate instead.')
         try:
-            return meta.obj_list_to_dict(
-                self.manager.submitTask(_tasks.VolumeList())
-            )
+            return self.manager.submitTask(_tasks.VolumeList())
         except Exception as e:
             raise OpenStackCloudException(
                 "Error fetching volume list: %s" % e)
@@ -1090,9 +1084,7 @@ class OpenStackCloud(object):
 
         """
         try:
-            return meta.obj_list_to_dict(
-                self.manager.submitTask(_tasks.FlavorList(is_public=None))
-            )
+            return self.manager.submitTask(_tasks.FlavorList(is_public=None))
         except Exception as e:
             raise OpenStackCloudException(
                 "Error fetching flavor list: %s" % e)
@@ -1110,7 +1102,7 @@ class OpenStackCloud(object):
             stacks = self.manager.submitTask(_tasks.StackList())
         except Exception as e:
             raise OpenStackCloudException(str(e))
-        return meta.obj_list_to_dict(stacks)
+        return stacks
 
     def list_server_security_groups(self, server):
         """List all security groups associated with the given server.
@@ -1118,9 +1110,8 @@ class OpenStackCloud(object):
         :returns: A list of security group dicts.
         """
 
-        groups = meta.obj_list_to_dict(
-            self.manager.submitTask(
-                _tasks.ServerListSecurityGroups(server=server['id'])))
+        groups = self.manager.submitTask(
+            _tasks.ServerListSecurityGroups(server=server['id']))
 
         return _utils.normalize_nova_secgroups(groups)
 
@@ -1141,9 +1132,8 @@ class OpenStackCloud(object):
         # Handle nova security groups
         elif self.secgroup_source == 'nova':
             try:
-                groups = meta.obj_list_to_dict(
-                    self.manager.submitTask(_tasks.NovaSecurityGroupList())
-                )
+                groups = self.manager.submitTask(
+                    _tasks.NovaSecurityGroupList())
             except Exception:
                 raise OpenStackCloudException(
                     "Error fetching security group list"
@@ -1181,8 +1171,7 @@ class OpenStackCloud(object):
 
     def _list_servers(self, detailed=False):
         try:
-            servers = meta.obj_list_to_dict(
-                self.manager.submitTask(_tasks.ServerList()))
+            servers = self.manager.submitTask(_tasks.ServerList())
 
             if detailed:
                 return [
@@ -1214,21 +1203,11 @@ class OpenStackCloud(object):
             image_list = self.manager.submitTask(
                 _tasks.GlanceImageList(image_gen=image_gen))
 
-            if image_list:
-                if getattr(image_list[0], 'validate', None):
-                    # glanceclient returns a "warlock" object if you use v2
-                    image_list = meta.warlock_list_to_dict(image_list)
-                else:
-                    # glanceclient returns a normal object if you use v1
-                    image_list = meta.obj_list_to_dict(image_list)
-
         except glanceclient.exc.HTTPInternalServerError:
             # We didn't have glance, let's try nova
             # If this doesn't work - we just let the exception propagate
             try:
-                image_list = meta.obj_list_to_dict(
-                    self.manager.submitTask(_tasks.NovaImageList())
-                )
+                image_list = self.manager.submitTask(_tasks.NovaImageList())
             except Exception as e:
                 raise OpenStackCloudException(
                     "Error fetching image list: %s" % e)
@@ -1257,9 +1236,7 @@ class OpenStackCloud(object):
                 'Floating IP pools extension is not available on target cloud')
 
         try:
-            return meta.obj_list_to_dict(
-                self.manager.submitTask(_tasks.FloatingIPPoolList())
-            )
+            return self.manager.submitTask(_tasks.FloatingIPPoolList())
         except Exception as e:
             raise OpenStackCloudException(
                 "error fetching floating IP pool list: {msg}".format(
@@ -1291,8 +1268,7 @@ class OpenStackCloud(object):
 
     def _nova_list_floating_ips(self):
         try:
-            return meta.obj_list_to_dict(
-                self.manager.submitTask(_tasks.NovaFloatingIPList()))
+            return self.manager.submitTask(_tasks.NovaFloatingIPList())
         except Exception as e:
             raise OpenStackCloudException(
                 "error fetching floating IPs list: {msg}".format(msg=str(e)))
@@ -1582,8 +1558,7 @@ class OpenStackCloud(object):
         return _utils._get_entity(searchfunc, name_or_id, filters)
 
     def get_server_by_id(self, id):
-        return meta.obj_to_dict(
-            self.manager.submitTask(_tasks.ServerGet(server=id)))
+        return self.manager.submitTask(_tasks.ServerGet(server=id))
 
     def get_image(self, name_or_id, filters=None):
         """Get an image by name or ID.
@@ -1676,10 +1651,8 @@ class OpenStackCloud(object):
         :raises: OpenStackCloudException on operation error.
         """
         try:
-            return meta.obj_to_dict(
-                self.manager.submitTask(_tasks.KeypairCreate(
-                    name=name, public_key=public_key))
-            )
+            return self.manager.submitTask(_tasks.KeypairCreate(
+                name=name, public_key=public_key))
         except Exception as e:
             raise OpenStackCloudException(
                 "Unable to create keypair %s: %s" % (name, e)
@@ -1731,9 +1704,6 @@ class OpenStackCloud(object):
                 "Error creating network {0}".format(name)):
             net = self.manager.submitTask(
                 _tasks.NetworkCreate(body=dict({'network': network})))
-        # Turns out neutron returns an actual dict, so no need for the
-        # use of meta.obj_to_dict() here (which would not work against
-        # a dict).
         return net['network']
 
     def delete_network(self, name_or_id):
@@ -1900,9 +1870,6 @@ class OpenStackCloud(object):
                 "Error creating router {0}".format(name)):
             new_router = self.manager.submitTask(
                 _tasks.RouterCreate(body=dict(router=router)))
-        # Turns out neutron returns an actual dict, so no need for the
-        # use of meta.obj_to_dict() here (which would not work against
-        # a dict).
         return new_router['router']
 
     def update_router(self, name_or_id, name=None, admin_state_up=None,
@@ -1956,9 +1923,6 @@ class OpenStackCloud(object):
                 _tasks.RouterUpdate(
                     router=curr_router['id'], body=dict(router=router)))
 
-        # Turns out neutron returns an actual dict, so no need for the
-        # use of meta.obj_to_dict() here (which would not work against
-        # a dict).
         return new_router['router']
 
     def delete_router(self, name_or_id):
@@ -2186,7 +2150,7 @@ class OpenStackCloud(object):
                                 message=status.message),
                             extra_data=status)
         else:
-            return meta.warlock_to_dict(glance_task)
+            return glance_task
 
     def update_image_properties(
             self, image=None, name_or_id=None, **properties):
@@ -2249,8 +2213,6 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Error in creating volume: %s" % str(e))
         self.list_volumes.invalidate(self)
-
-        volume = meta.obj_to_dict(volume)
 
         if volume['status'] == 'error':
             raise OpenStackCloudException("Error in creating volume")
@@ -2434,8 +2396,6 @@ class OpenStackCloud(object):
                 _tasks.VolumeAttach(volume_id=volume['id'],
                                     server_id=server['id'],
                                     device=device))
-            vol = meta.obj_to_dict(vol)
-
         except Exception as e:
             raise OpenStackCloudException(
                 "Error attaching volume %s to server %s: %s" %
@@ -2500,8 +2460,6 @@ class OpenStackCloud(object):
                 "Error creating snapshot of volume %s: %s" % (volume_id, e)
             )
 
-        snapshot = meta.obj_to_dict(snapshot)
-
         if wait:
             snapshot_id = snapshot['id']
             for count in _utils._iterate_timeout(
@@ -2540,7 +2498,7 @@ class OpenStackCloud(object):
                 "Error getting snapshot %s: %s" % (snapshot_id, e)
             )
 
-        return meta.obj_to_dict(snapshot)
+        return snapshot
 
     def get_volume_snapshot(self, name_or_id, filters=None):
         """Get a volume by name or ID.
@@ -2571,11 +2529,9 @@ class OpenStackCloud(object):
 
         """
         try:
-            return meta.obj_list_to_dict(
-                self.manager.submitTask(
-                    _tasks.VolumeSnapshotList(detailed=detailed,
-                                              search_opts=search_opts)
-                )
+            return self.manager.submitTask(
+                _tasks.VolumeSnapshotList(detailed=detailed,
+                                          search_opts=search_opts)
             )
 
         except Exception as e:
@@ -2832,7 +2788,7 @@ class OpenStackCloud(object):
 
             pool_ip = self.manager.submitTask(
                 _tasks.NovaFloatingIPCreate(pool=pool))
-            return meta.obj_to_dict(pool_ip)
+            return pool_ip
 
         except Exception as e:
             raise OpenStackCloudException(
@@ -3363,7 +3319,7 @@ class OpenStackCloud(object):
                     raise OpenStackCloudException(
                         "Error in rebuilding the server",
                         extra_data=dict(server=server))
-        return meta.obj_to_dict(server)
+        return server
 
     def delete_server(
             self, name_or_id, wait=False, timeout=180, delete_ips=False):
@@ -3407,7 +3363,6 @@ class OpenStackCloud(object):
                 server = self.get_server_by_id(server['id'])
                 if not server:
                     return
-                server = meta.obj_to_dict(server)
             except nova_exceptions.NotFound:
                 return
             except Exception as e:
@@ -3416,8 +3371,7 @@ class OpenStackCloud(object):
 
     def list_containers(self):
         try:
-            return meta.obj_to_dict(self.manager.submitTask(
-                _tasks.ContainerList()))
+            return manager.submitTask(_tasks.ContainerList())
         except swift_exceptions.ClientException as e:
             raise OpenStackCloudException(
                 "Container list failed: %s (%s/%s)" % (
@@ -3615,8 +3569,7 @@ class OpenStackCloud(object):
 
     def list_objects(self, container):
         try:
-            return meta.obj_to_dict(self.manager.submitTask(
-                _tasks.ObjectList(container)))
+            return self.manager.submitTask(_tasks.ObjectList(container))
         except swift_exceptions.ClientException as e:
             raise OpenStackCloudException(
                 "Object list failed: %s (%s/%s)" % (
@@ -3851,9 +3804,6 @@ class OpenStackCloud(object):
             new_subnet = self.manager.submitTask(
                 _tasks.SubnetUpdate(
                     subnet=curr_subnet['id'], body=dict(subnet=subnet)))
-        # Turns out neutron returns an actual dict, so no need for the
-        # use of meta.obj_to_dict() here (which would not work against
-        # a dict).
         return new_subnet['subnet']
 
     @_utils.valid_kwargs('name', 'admin_state_up', 'mac_address', 'fixed_ips',
@@ -4027,11 +3977,9 @@ class OpenStackCloud(object):
 
         elif self.secgroup_source == 'nova':
             try:
-                group = meta.obj_to_dict(
-                    self.manager.submitTask(
-                        _tasks.NovaSecurityGroupCreate(
-                            name=name, description=description
-                        )
+                group = self.manager.submitTask(
+                    _tasks.NovaSecurityGroupCreate(
+                        name=name, description=description
                     )
                 )
             except Exception as e:
@@ -4120,11 +4068,9 @@ class OpenStackCloud(object):
 
         elif self.secgroup_source == 'nova':
             try:
-                group = meta.obj_to_dict(
-                    self.manager.submitTask(
-                        _tasks.NovaSecurityGroupUpdate(
-                            group=secgroup['id'], **kwargs)
-                    )
+                group = self.manager.submitTask(
+                    _tasks.NovaSecurityGroupUpdate(
+                        group=secgroup['id'], **kwargs)
                 )
             except Exception as e:
                 raise OpenStackCloudException(
@@ -4249,16 +4195,14 @@ class OpenStackCloud(object):
                     port_range_max = 65535
 
             try:
-                rule = meta.obj_to_dict(
-                    self.manager.submitTask(
-                        _tasks.NovaSecurityGroupRuleCreate(
-                            parent_group_id=secgroup['id'],
-                            ip_protocol=protocol,
-                            from_port=port_range_min,
-                            to_port=port_range_max,
-                            cidr=remote_ip_prefix,
-                            group_id=remote_group_id
-                        )
+                rule = self.manager.submitTask(
+                    _tasks.NovaSecurityGroupRuleCreate(
+                        parent_group_id=secgroup['id'],
+                        ip_protocol=protocol,
+                        from_port=port_range_min,
+                        to_port=port_range_max,
+                        cidr=remote_ip_prefix,
+                        group_id=remote_group_id
                     )
                 )
             except Exception as e:

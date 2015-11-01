@@ -482,7 +482,7 @@ class TestMeta(testtools.TestCase):
         test_obj = test_model(
             id='471c2475-da2f-47ac-aba5-cb4aa3d546f5',
             name='test-image')
-        test_dict = meta.warlock_to_dict(test_obj)
+        test_dict = meta.obj_to_dict(test_obj)
         self.assertNotIn('_unused', test_dict)
         self.assertEqual('test-image', test_dict['name'])
         self.assertTrue(hasattr(test_dict, 'name'))
