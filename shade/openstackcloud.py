@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import contextlib
 import functools
 import hashlib
 import ipaddress
@@ -34,7 +33,6 @@ from keystoneauth1 import plugin as ksa_plugin
 from keystoneauth1 import session as ksa_session
 from keystoneclient.v2_0 import client as k2_client
 from keystoneclient.v3 import client as k3_client
-from neutronclient.common import exceptions as neutron_exceptions
 from neutronclient.v2_0 import client as neutron_client
 from novaclient import client as nova_client
 from novaclient import exceptions as nova_exceptions
@@ -227,24 +225,6 @@ class OpenStackCloud(object):
         self._local_ipv6 = _utils.localhost_supports_ipv6()
 
         self.cloud_config = cloud_config
-
-    @contextlib.contextmanager
-    def _neutron_exceptions(self, error_message):
-        try:
-            yield
-        except neutron_exceptions.NotFound as e:
-            raise OpenStackCloudResourceNotFound(
-                "{msg}: {exc}".format(msg=error_message, exc=str(e)))
-        except neutron_exceptions.NeutronClientException as e:
-            if e.status_code == 404:
-                raise OpenStackCloudURINotFound(
-                    "{msg}: {exc}".format(msg=error_message, exc=str(e)))
-            else:
-                raise OpenStackCloudException(
-                    "{msg}: {exc}".format(msg=error_message, exc=str(e)))
-        except Exception as e:
-            raise OpenStackCloudException(
-                "{msg}: {exc}".format(msg=error_message, exc=str(e)))
 
     def _make_cache_key(self, namespace, fn):
         fname = fn.__name__
@@ -1040,7 +1020,7 @@ class OpenStackCloud(object):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        with self._neutron_exceptions("Error fetching network list"):
+        with _utils.neutron_exceptions("Error fetching network list"):
             return self.manager.submitTask(
                 _tasks.NetworkList(**filters))['networks']
 
@@ -1054,7 +1034,7 @@ class OpenStackCloud(object):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        with self._neutron_exceptions("Error fetching router list"):
+        with _utils.neutron_exceptions("Error fetching router list"):
             return self.manager.submitTask(
                 _tasks.RouterList(**filters))['routers']
 
@@ -1068,7 +1048,7 @@ class OpenStackCloud(object):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        with self._neutron_exceptions("Error fetching subnet list"):
+        with _utils.neutron_exceptions("Error fetching subnet list"):
             return self.manager.submitTask(
                 _tasks.SubnetList(**filters))['subnets']
 
@@ -1082,7 +1062,7 @@ class OpenStackCloud(object):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        with self._neutron_exceptions("Error fetching port list"):
+        with _utils.neutron_exceptions("Error fetching port list"):
             return self.manager.submitTask(_tasks.PortList(**filters))['ports']
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_volumes)
@@ -1154,7 +1134,7 @@ class OpenStackCloud(object):
         # Handle neutron security groups
         if self.secgroup_source == 'neutron':
             # Neutron returns dicts, so no need to convert objects here.
-            with self._neutron_exceptions(
+            with _utils.neutron_exceptions(
                     "Error fetching security group list"):
                 return self.manager.submitTask(
                     _tasks.NeutronSecurityGroupList())['security_groups']
@@ -1306,7 +1286,7 @@ class OpenStackCloud(object):
         return _utils.normalize_nova_floating_ips(floating_ips)
 
     def _neutron_list_floating_ips(self):
-        with self._neutron_exceptions("error fetching floating IPs list"):
+        with _utils.neutron_exceptions("error fetching floating IPs list"):
             return self.manager.submitTask(
                 _tasks.NeutronFloatingIPList())['floatingips']
 
@@ -1748,7 +1728,7 @@ class OpenStackCloud(object):
             'router:external': external
         }
 
-        with self._neutron_exceptions(
+        with _utils.neutron_exceptions(
                 "Error creating network {0}".format(name)):
             net = self.manager.submitTask(
                 _tasks.NetworkCreate(body=dict({'network': network})))
@@ -1771,7 +1751,7 @@ class OpenStackCloud(object):
             self.log.debug("Network %s not found for deleting" % name_or_id)
             return False
 
-        with self._neutron_exceptions(
+        with _utils.neutron_exceptions(
                 "Error deleting network {0}".format(name_or_id)):
             self.manager.submitTask(
                 _tasks.NetworkDelete(network=network['id']))
@@ -1812,7 +1792,7 @@ class OpenStackCloud(object):
         if port_id:
             body['port_id'] = port_id
 
-        with self._neutron_exceptions(
+        with _utils.neutron_exceptions(
             "Error attaching interface to router {0}".format(router['id'])
         ):
             return self.manager.submitTask(
@@ -1840,7 +1820,7 @@ class OpenStackCloud(object):
         if port_id:
             body['port_id'] = port_id
 
-        with self._neutron_exceptions(
+        with _utils.neutron_exceptions(
             "Error detaching interface from router {0}".format(router['id'])
         ):
             return self.manager.submitTask(
@@ -1917,7 +1897,7 @@ class OpenStackCloud(object):
         if ext_gw_info:
             router['external_gateway_info'] = ext_gw_info
 
-        with self._neutron_exceptions(
+        with _utils.neutron_exceptions(
                 "Error creating router {0}".format(name)):
             new_router = self.manager.submitTask(
                 _tasks.RouterCreate(body=dict(router=router)))
@@ -1971,7 +1951,7 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Router %s not found." % name_or_id)
 
-        with self._neutron_exceptions(
+        with _utils.neutron_exceptions(
                 "Error updating router {0}".format(name_or_id)):
             new_router = self.manager.submitTask(
                 _tasks.RouterUpdate(
@@ -2000,7 +1980,7 @@ class OpenStackCloud(object):
             self.log.debug("Router %s not found for deleting" % name_or_id)
             return False
 
-        with self._neutron_exceptions(
+        with _utils.neutron_exceptions(
                 "Error deleting router {0}".format(name_or_id)):
             self.manager.submitTask(
                 _tasks.RouterDelete(router=router['id']))
@@ -2716,7 +2696,7 @@ class OpenStackCloud(object):
             # tenant. This is the default behaviour of Nova
             project_id = self.keystone_session.get_project_id()
 
-        with self._neutron_exceptions("unable to get available floating IPs"):
+        with _utils.neutron_exceptions("unable to get available floating IPs"):
             networks = self.get_external_networks()
             if not networks:
                 raise OpenStackCloudResourceNotFound(
@@ -2816,7 +2796,7 @@ class OpenStackCloud(object):
 
     def _neutron_create_floating_ip(
             self, network_name_or_id=None, server=None):
-        with self._neutron_exceptions(
+        with _utils.neutron_exceptions(
                 "unable to create floating IP for net "
                 "{0}".format(network_name_or_id)):
             if network_name_or_id:
@@ -2884,7 +2864,7 @@ class OpenStackCloud(object):
 
     def _neutron_delete_floating_ip(self, floating_ip_id):
         try:
-            with self._neutron_exceptions("unable to delete floating IP"):
+            with _utils.neutron_exceptions("unable to delete floating IP"):
                 self.manager.submitTask(
                     _tasks.NeutronFloatingIPDelete(floatingip=floating_ip_id))
         except OpenStackCloudResourceNotFound:
@@ -3008,7 +2988,7 @@ class OpenStackCloud(object):
 
     def _neutron_attach_ip_to_server(
             self, server, floating_ip, fixed_address=None):
-        with self._neutron_exceptions(
+        with _utils.neutron_exceptions(
                 "unable to bind a floating ip to server "
                 "{0}".format(server['id'])):
 
@@ -3067,7 +3047,7 @@ class OpenStackCloud(object):
             server_id=server_id, floating_ip_id=floating_ip_id)
 
     def _neutron_detach_ip_from_server(self, server_id, floating_ip_id):
-        with self._neutron_exceptions(
+        with _utils.neutron_exceptions(
                 "unable to detach a floating ip from server "
                 "{0}".format(server_id)):
             f_ip = self.get_floating_ip(id=floating_ip_id)
@@ -3699,7 +3679,7 @@ class OpenStackCloud(object):
         if ipv6_address_mode:
             subnet['ipv6_address_mode'] = ipv6_address_mode
 
-        with self._neutron_exceptions(
+        with _utils.neutron_exceptions(
                 "Error creating subnet on network "
                 "{0}".format(network_name_or_id)):
             new_subnet = self.manager.submitTask(
@@ -3725,7 +3705,7 @@ class OpenStackCloud(object):
             self.log.debug("Subnet %s not found for deleting" % name_or_id)
             return False
 
-        with self._neutron_exceptions(
+        with _utils.neutron_exceptions(
                 "Error deleting subnet {0}".format(name_or_id)):
             self.manager.submitTask(
                 _tasks.SubnetDelete(subnet=subnet['id']))
@@ -3802,7 +3782,7 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Subnet %s not found." % name_or_id)
 
-        with self._neutron_exceptions(
+        with _utils.neutron_exceptions(
                 "Error updating subnet {0}".format(name_or_id)):
             new_subnet = self.manager.submitTask(
                 _tasks.SubnetUpdate(
@@ -3871,7 +3851,7 @@ class OpenStackCloud(object):
         """
         kwargs['network_id'] = network_id
 
-        with self._neutron_exceptions(
+        with _utils.neutron_exceptions(
                 "Error creating port for network {0}".format(network_id)):
             return self.manager.submitTask(
                 _tasks.PortCreate(body={'port': kwargs}))['port']
@@ -3933,7 +3913,7 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "failed to find port '{port}'".format(port=name_or_id))
 
-        with self._neutron_exceptions(
+        with _utils.neutron_exceptions(
                 "Error updating port {0}".format(name_or_id)):
             return self.manager.submitTask(
                 _tasks.PortUpdate(
@@ -3953,7 +3933,7 @@ class OpenStackCloud(object):
             self.log.debug("Port %s not found for deleting" % name_or_id)
             return False
 
-        with self._neutron_exceptions(
+        with _utils.neutron_exceptions(
                 "Error deleting port {0}".format(name_or_id)):
             self.manager.submitTask(_tasks.PortDelete(port=port['id']))
         return True
@@ -3971,7 +3951,7 @@ class OpenStackCloud(object):
                  not supported on this cloud.
         """
         if self.secgroup_source == 'neutron':
-            with self._neutron_exceptions(
+            with _utils.neutron_exceptions(
                     "Error creating security group {0}".format(name)):
                 group = self.manager.submitTask(
                     _tasks.NeutronSecurityGroupCreate(
@@ -4020,7 +4000,7 @@ class OpenStackCloud(object):
             return False
 
         if self.secgroup_source == 'neutron':
-            with self._neutron_exceptions(
+            with _utils.neutron_exceptions(
                     "Error deleting security group {0}".format(name_or_id)):
                 self.manager.submitTask(
                     _tasks.NeutronSecurityGroupDelete(
@@ -4065,7 +4045,7 @@ class OpenStackCloud(object):
                 "Security group %s not found." % name_or_id)
 
         if self.secgroup_source == 'neutron':
-            with self._neutron_exceptions(
+            with _utils.neutron_exceptions(
                     "Error updating security group {0}".format(name_or_id)):
                 group = self.manager.submitTask(
                     _tasks.NeutronSecurityGroupUpdate(
@@ -4167,7 +4147,7 @@ class OpenStackCloud(object):
                 'ethertype': ethertype
             }
 
-            with self._neutron_exceptions(
+            with _utils.neutron_exceptions(
                     "Error creating security group rule"):
                 rule = self.manager.submitTask(
                     _tasks.NeutronSecurityGroupRuleCreate(
@@ -4243,7 +4223,7 @@ class OpenStackCloud(object):
 
         if self.secgroup_source == 'neutron':
             try:
-                with self._neutron_exceptions(
+                with _utils.neutron_exceptions(
                         "Error deleting security group rule "
                         "{0}".format(rule_id)):
                     self.manager.submitTask(
