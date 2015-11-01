@@ -169,7 +169,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 for count in _utils._iterate_timeout(
                         timeout,
                         "Timeout waiting for node transition to "
-                        "target state of 'inpection'"):
+                        "target state of 'inspect'"):
                     machine = self.get_machine(name_or_id)
 
                     if "inspect failed" in machine['provision_state']:
