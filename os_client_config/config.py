@@ -627,6 +627,13 @@ class OpenStackConfig(object):
                 if type(config[key]) is not bool:
                     config[key] = get_boolean(config[key])
 
+        # TODO(mordred): Special casing auth_url here. We should
+        #                come back to this betterer later so that it's
+        #                more generalized
+        if 'auth' in config and 'auth_url' in config['auth']:
+            config['auth']['auth_url'] = config['auth']['auth_url'].format(
+                **config)
+
         # NOTE(dtroyer): OSC needs a hook into the auth args before the
         #                plugin is loaded in order to maintain backward-
         #                compatible behaviour
