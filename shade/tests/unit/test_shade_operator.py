@@ -378,7 +378,7 @@ class TestShadeOperator(base.TestCase):
             self.cloud.inspect_machine,
             machine_uuid,
             wait=True,
-            timeout=0.001)
+            timeout=1)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_inspect_machine_failed(self, mock_client):
@@ -469,7 +469,7 @@ class TestShadeOperator(base.TestCase):
         )
 
         return_value = self.cloud.inspect_machine(
-            machine_uuid, wait=True, timeout=0.001)
+            machine_uuid, wait=True, timeout=1)
         self.assertTrue(mock_client.node.set_provision_state.called)
         self.assertEqual(
             mock_client.node.set_provision_state.call_count, 3)
@@ -500,7 +500,7 @@ class TestShadeOperator(base.TestCase):
             manageable_machine])
 
         return_value = self.cloud.inspect_machine(
-            machine_uuid, wait=True, timeout=0.001)
+            machine_uuid, wait=True, timeout=1)
         self.assertDictEqual(expected_return_value, return_value)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
@@ -532,7 +532,7 @@ class TestShadeOperator(base.TestCase):
             self.cloud.inspect_machine,
             machine_uuid,
             wait=True,
-            timeout=0.001)
+            timeout=1)
         self.assertEqual(
             mock_client.node.set_provision_state.call_count, 1)
         self.assertEqual(mock_client.node.get.call_count, 3)
