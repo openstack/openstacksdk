@@ -3207,12 +3207,76 @@ class OpenStackCloud(object):
                 "Error in getting info from instance: %s " % str(e))
         return server
 
-    def create_server(self, auto_ip=True, ips=None, ip_pool=None,
-                      root_volume=None, terminate_volume=False,
-                      wait=False, timeout=180, reuse_ips=True,
-                      **bootkwargs):
+    @_utils.valid_kwargs(
+        'meta', 'files', 'userdata',
+        'reservation_id', 'return_raw', 'min_count',
+        'max_count', 'security_groups', 'key_name',
+        'availability_zone', 'block_device_mapping',
+        'block_device_mapping_v2', 'nics', 'scheduler_hints',
+        'config_drive', 'admin_pass', 'disk_config')
+    def create_server(
+            self, name, image, flavor,
+            auto_ip=True, ips=None, ip_pool=None,
+            root_volume=None, terminate_volume=False,
+            wait=False, timeout=180, reuse_ips=True,
+            **kwargs):
         """Create a virtual server instance.
 
+        :param name: Something to name the server.
+        :param image: Image dict or id to boot with.
+        :param flavor: Flavor dict or id to boot onto.
+        :param auto_ip: Whether to take actions to find a routable IP for
+                        the server. (defaults to True)
+        :param ips: List of IPs to attach to the server (defaults to None)
+        :param ip_pool: Name of the network or floating IP pool to get an
+                        address from. (defaults to None)
+        :param root_volume: Name or id of a volume to boot from
+                            (defaults to None)
+        :param terminate_volume: If booting from a volume, whether it should
+                                 be deleted when the server is destroyed.
+                                 (defaults to False)
+        :param meta: (optional) A dict of arbitrary key/value metadata to
+                     store for this server. Both keys and values must be
+                     <=255 characters.
+        :param files: (optional, deprecated) A dict of files to overwrite
+                      on the server upon boot. Keys are file names (i.e.
+                      ``/etc/passwd``) and values
+                      are the file contents (either as a string or as a
+                      file-like object). A maximum of five entries is allowed,
+                      and each file must be 10k or less.
+        :param reservation_id: a UUID for the set of servers being requested.
+        :param min_count: (optional extension) The minimum number of
+                          servers to launch.
+        :param max_count: (optional extension) The maximum number of
+                          servers to launch.
+        :param security_groups: A list of security group names
+        :param userdata: user data to pass to be exposed by the metadata
+                      server this can be a file type object as well or a
+                      string.
+        :param key_name: (optional extension) name of previously created
+                      keypair to inject into the instance.
+        :param availability_zone: Name of the availability zone for instance
+                                  placement.
+        :param block_device_mapping: (optional) A dict of block
+                      device mappings for this server.
+        :param block_device_mapping_v2: (optional) A dict of block
+                      device mappings for this server.
+        :param nics:  (optional extension) an ordered list of nics to be
+                      added to this server, with information about
+                      connected networks, fixed IPs, port etc.
+        :param scheduler_hints: (optional extension) arbitrary key-value pairs
+                            specified by the client to help boot an instance
+        :param config_drive: (optional extension) value for config drive
+                            either boolean, or volume-id
+        :param disk_config: (optional extension) control how the disk is
+                            partitioned when the server is created.  possible
+                            values are 'AUTO' or 'MANUAL'.
+        :param admin_pass: (optional extension) add a user supplied admin
+                           password.
+        :param wait: (optional) Wait for the address to appear as assigned
+                     to the server in Nova. Defaults to False.
+        :param timeout: (optional) Seconds to wait, defaults to 60.
+                        See the ``wait`` parameter.
         :returns: A dict representing the created server.
         :raises: OpenStackCloudException on operation error.
         """
@@ -3222,12 +3286,13 @@ class OpenStackCloud(object):
             else:
                 suffix = ':::0'
             volume_id = self.get_volume_id(root_volume) + suffix
-            if 'block_device_mapping' not in bootkwargs:
-                bootkwargs['block_device_mapping'] = dict()
-            bootkwargs['block_device_mapping']['vda'] = volume_id
+            if 'block_device_mapping' not in kwargs:
+                kwargs['block_device_mapping'] = dict()
+            kwargs['block_device_mapping']['vda'] = volume_id
 
         try:
-            server = self.manager.submitTask(_tasks.ServerCreate(**bootkwargs))
+            server = self.manager.submitTask(_tasks.ServerCreate(
+                name=name, image=image, flavor=flavor, **kwargs))
             # This is a direct get task call to skip the list_servers
             # cache which has absolutely no chance of containing the
             # new server
