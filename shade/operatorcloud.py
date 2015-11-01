@@ -32,6 +32,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
     See the :class:`OpenStackCloud` class for a description of most options.
     """
 
+    def __init__(self, *args, **kwargs):
+        super(OperatorCloud, self).__init__(*args, **kwargs)
+        self._ironic_client = None
+
     # Set the ironic API microversion to a known-good
     # supported/tested with the contents of shade.
     #

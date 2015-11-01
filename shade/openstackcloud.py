@@ -216,7 +216,6 @@ class OpenStackCloud(object):
         self._glance_client = None
         self._glance_endpoint = None
         self._heat_client = None
-        self._ironic_client = None
         self._keystone_client = None
         self._neutron_client = None
         self._nova_client = None
