@@ -258,7 +258,7 @@ class TestFloatingIP(base.TestCase):
             network_name_or_id='my-network', server=None)
         mock_attach_ip_to_server.assert_called_once_with(
             server={'id': '1234'}, fixed_address=None,
-            floating_ip=self.floating_ip)
+            floating_ip=self.floating_ip, wait=False, timeout=60)
 
     @patch.object(OpenStackCloud, 'keystone_session')
     @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
@@ -376,13 +376,11 @@ class TestFloatingIP(base.TestCase):
         mock_available_floating_ip.return_value = \
             _utils.normalize_neutron_floating_ips([
                 self.mock_floating_ip_new_rep['floatingip']])[0]
-        mock_attach_ip_to_server.return_value = None
+        mock_attach_ip_to_server.return_value = self.fake_server
 
-        ip = self.client._add_ip_from_pool(
+        server = self.client._add_ip_from_pool(
             server=self.fake_server,
             network='network-name',
             fixed_address='192.0.2.129')
 
-        self.assertEqual(
-            self.mock_floating_ip_new_rep['floatingip']['floating_ip_address'],
-            ip['floating_ip_address'])
+        self.assertEqual(server, self.fake_server)

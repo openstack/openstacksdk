@@ -242,9 +242,9 @@ class TestFloatingIP(base.TestCase):
         mock_has_service.side_effect = has_service_side_effect
         mock_nova_client.floating_ips.list.return_value = self.floating_ips
 
-        ip = self.client._add_ip_from_pool(
+        server = self.client._add_ip_from_pool(
             server=self.fake_server,
             network='nova',
             fixed_address='192.0.2.129')
 
-        self.assertEqual('203.0.113.1', ip['floating_ip_address'])
+        self.assertEqual(server, self.fake_server)

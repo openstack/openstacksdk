@@ -75,7 +75,8 @@ class TestFloatingIP(base.TestCase):
 
         self.client.add_ips_to_server(server_dict, ip_pool=pool)
 
-        mock_add_ip_from_pool.assert_called_with(server_dict, pool, reuse=True)
+        mock_add_ip_from_pool.assert_called_with(
+            server_dict, pool, reuse=True, wait=False, timeout=60)
 
     @patch.object(OpenStackCloud, 'nova_client')
     @patch.object(OpenStackCloud, 'add_ip_list')
@@ -90,10 +91,11 @@ class TestFloatingIP(base.TestCase):
 
         self.client.add_ips_to_server(server_dict, ips=ips)
 
-        mock_add_ip_list.assert_called_with(server_dict, ips)
+        mock_add_ip_list.assert_called_with(
+            server_dict, ips, wait=False, timeout=60)
 
     @patch.object(OpenStackCloud, 'nova_client')
-    @patch.object(OpenStackCloud, 'add_auto_ip')
+    @patch.object(OpenStackCloud, '_add_auto_ip')
     def test_add_ips_to_server_auto_ip(
             self, mock_add_auto_ip, mock_nova_client):
         server = FakeServer(

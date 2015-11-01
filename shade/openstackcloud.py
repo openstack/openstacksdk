@@ -2901,7 +2901,7 @@ class OpenStackCloud(object):
         :param skip_attach: (optional) Skip the actual attach and just do
                             the wait. Defaults to False.
 
-        :returns: None
+        :returns: The server dict
 
         :raises: OpenStackCloudException, on operation error.
         """
@@ -2909,7 +2909,7 @@ class OpenStackCloud(object):
         # attached
         ext_ip = meta.get_server_ip(server, ext_tag='floating')
         if ext_ip == floating_ip['floating_ip_address']:
-            return
+            return server
 
         if self.has_service('network'):
             if not skip_attach:
@@ -2937,7 +2937,8 @@ class OpenStackCloud(object):
                 server = self.get_server_by_id(server_id)
                 ext_ip = meta.get_server_ip(server, ext_tag='floating')
                 if ext_ip == floating_ip['floating_ip_address']:
-                    return
+                    return server
+        return server
 
     def _get_free_fixed_port(self, server, fixed_address=None):
         ports = self.search_ports(filters={'device_id': server['id']})
@@ -3079,7 +3080,8 @@ class OpenStackCloud(object):
         return True
 
     def _add_ip_from_pool(
-            self, server, network, fixed_address=None, reuse=True):
+            self, server, network, fixed_address=None, reuse=True,
+            wait=False, timeout=60):
         """Add a floating IP to a sever from a given pool
 
         This method reuses available IPs, when possible, or allocate new IPs
@@ -3091,38 +3093,44 @@ class OpenStackCloud(object):
         :param network: Nova pool name or Neutron network name or id.
         :param fixed_address: a fixed address
         :param reuse: Try to reuse existing ips. Defaults to True.
+        :param wait: (optional) Wait for the address to appear as assigned
+                     to the server in Nova. Defaults to False.
+        :param timeout: (optional) Seconds to wait, defaults to 60.
+                        See the ``wait`` parameter.
 
-        :returns: the floating IP assigned
+        :returns: the update server dict
         """
         if reuse:
             f_ip = self.available_floating_ip(network=network)
         else:
             f_ip = self.create_floating_ip(network=network)
 
-        self._attach_ip_to_server(
-            server=server, floating_ip=f_ip, fixed_address=fixed_address)
+        return self._attach_ip_to_server(
+            server=server, floating_ip=f_ip, fixed_address=fixed_address,
+            wait=wait, timeout=timeout)
 
-        return f_ip
-
-    def add_ip_list(self, server, ips):
+    def add_ip_list(self, server, ips, wait=False, timeout=60):
         """Attach a list of IPs to a server.
 
         :param server: a server object
-        :param ips: list of IP addresses (floating IPs)
+        :param ips: list of floating IP addresses or a single address
+        :param wait: (optional) Wait for the address to appear as assigned
+                     to the server in Nova. Defaults to False.
+        :param timeout: (optional) Seconds to wait, defaults to 60.
+                        See the ``wait`` parameter.
 
-        :returns: None
+        :returns: The updated server dict
 
         :raises: ``OpenStackCloudException``, on operation error.
         """
-        # ToDo(dguerri): this makes no sense as we cannot attach multiple
-        # floating IPs to a single fixed_address (this is true for both
-        # neutron and nova). I will leave this here for the moment as we are
-        # refactoring floating IPs methods.
-        for ip in ips:
-            f_ip = self.get_floating_ip(
-                id=None, filters={'floating_ip_address': ip})
-            self._attach_ip_to_server(
-                server=server, floating_ip=f_ip)
+        if type(ips) == list:
+            ip = ips[0]
+        else:
+            ip = ips
+        f_ip = self.get_floating_ip(
+            id=None, filters={'floating_ip_address': ip})
+        return self._attach_ip_to_server(
+            server=server, floating_ip=f_ip, wait=wait, timeout=timeout)
 
     def add_auto_ip(self, server, wait=False, timeout=60, reuse=True):
         """Add a floating IP to a server.
@@ -3146,6 +3154,11 @@ class OpenStackCloud(object):
         :returns: Floating IP address attached to server.
 
         """
+        server = self._add_auto_ip(
+            server, wait=wait, timeout=timeout, reuse=reuse)
+        return self.get_server_public_ip(server)
+
+    def _add_auto_ip(self, server, wait=False, timeout=60, reuse=True):
         skip_attach = False
         if reuse:
             f_ip = self.available_floating_ip()
@@ -3156,35 +3169,22 @@ class OpenStackCloud(object):
                 # but is only meaninful for the neutron logic branch
                 skip_attach = True
 
-        self._attach_ip_to_server(
+        return self._attach_ip_to_server(
             server=server, floating_ip=f_ip, wait=wait, timeout=timeout,
             skip_attach=skip_attach)
-
-        return f_ip
 
     def add_ips_to_server(
             self, server, auto_ip=True, ips=None, ip_pool=None,
             wait=False, timeout=60, reuse=True):
         if ip_pool:
-            self._add_ip_from_pool(server, ip_pool, reuse=reuse)
+            server = self._add_ip_from_pool(
+                server, ip_pool, reuse=reuse, wait=wait, timeout=timeout)
         elif ips:
-            self.add_ip_list(server, ips)
+            server = self.add_ip_list(server, ips, wait=wait, timeout=timeout)
         elif auto_ip:
-            if self.get_server_public_ip(server):
-                return server
-            self.add_auto_ip(
-                server, wait=wait, timeout=timeout, reuse=reuse)
-        else:
-            return server
-
-        # this may look redundant, but if there is now a
-        # floating IP, then it needs to be obtained from
-        # a recent server object if the above code path exec'd
-        try:
-            server = self.get_server_by_id(server['id'])
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error in getting info from instance: %s " % str(e))
+            if not self.get_server_public_ip(server):
+                server = self._add_auto_ip(
+                    server, wait=wait, timeout=timeout, reuse=reuse)
         return server
 
     @_utils.valid_kwargs(
