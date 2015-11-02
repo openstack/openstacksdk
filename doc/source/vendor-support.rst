@@ -48,7 +48,7 @@ https://api.cloud.catalyst.net.nz:5000/v2.0
 Region Name    Human Name
 ============== ================
 nz-por-1       Porirua, NZ
-nz_wlg_1       Wellington, NZ
+nz_wlg_2       Wellington, NZ
 ============== ================
 
 * Image API Version is 1
