@@ -3277,19 +3277,25 @@ class OpenStackCloud(object):
         try:
             server = self.manager.submitTask(_tasks.ServerCreate(
                 name=name, image=image, flavor=flavor, **kwargs))
-            # This is a direct get task call to skip the list_servers
-            # cache which has absolutely no chance of containing the
-            # new server
-            server = self.get_server_by_id(server.id)
-            server_id = server['id']
+            server_id = server.id
+            if not wait:
+                # This is a direct get task call to skip the list_servers
+                # cache which has absolutely no chance of containing the
+                # new server
+                # Only do this if we're not going to wait for the server
+                # to complete booting, because the only reason we do it
+                # is to get a server record that is the return value from
+                # get/list rather than the return value of create. If we're
+                # going to do the wait loop below, this is a waste of a call
+                server = self.get_server_by_id(server.id)
+                if server.status == 'ERROR':
+                    raise OpenStackCloudException(
+                        "Error in creating the server.")
         except OpenStackCloudException:
             raise
         except Exception as e:
             raise OpenStackCloudException(
                 "Error in creating instance: {0}".format(e))
-        if server.status == 'ERROR':
-            raise OpenStackCloudException(
-                "Error in creating the server.")
         if wait:
             # There is no point in iterating faster than the list_servers cache
             for count in _utils._iterate_timeout(
