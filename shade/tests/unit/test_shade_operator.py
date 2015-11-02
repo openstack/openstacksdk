@@ -12,12 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystoneauth1 import plugin as ksc_plugin
+from keystoneauth1 import plugin as ksa_plugin
 
 import mock
 import testtools
 
-import os_client_config.cloud_config
+from os_client_config import cloud_config
 import shade
 import munch
 from shade import exc
@@ -992,27 +992,30 @@ class TestShadeOperator(base.TestCase):
         self.assertEqual('22', self.cloud.get_image_id('22'))
         self.assertEqual('22', self.cloud.get_image_id('22 name'))
 
-    @mock.patch.object(
-        os_client_config.cloud_config.CloudConfig, 'get_endpoint')
+    @mock.patch.object(cloud_config.CloudConfig, 'get_endpoint')
     def test_get_session_endpoint_provided(self, fake_get_endpoint):
         fake_get_endpoint.return_value = 'http://fake.url'
         self.assertEqual(
             'http://fake.url', self.cloud.get_session_endpoint('image'))
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
-    def test_get_session_endpoint_session(self, session_mock):
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    def test_get_session_endpoint_session(self, get_session_mock):
+        session_mock = mock.Mock()
         session_mock.get_endpoint.return_value = 'http://fake.url'
+        get_session_mock.return_value = session_mock
         self.assertEqual(
             'http://fake.url', self.cloud.get_session_endpoint('image'))
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
-    def test_get_session_endpoint_exception(self, session_mock):
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    def test_get_session_endpoint_exception(self, get_session_mock):
         class FakeException(Exception):
             pass
 
         def side_effect(*args, **kwargs):
             raise FakeException("No service")
+        session_mock = mock.Mock()
         session_mock.get_endpoint.side_effect = side_effect
+        get_session_mock.return_value = session_mock
         self.cloud.name = 'testcloud'
         self.cloud.region_name = 'testregion'
         with testtools.ExpectedException(
@@ -1021,26 +1024,34 @@ class TestShadeOperator(base.TestCase):
                 " No service"):
             self.cloud.get_session_endpoint("image")
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
-    def test_get_session_endpoint_unavailable(self, session_mock):
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    def test_get_session_endpoint_unavailable(self, get_session_mock):
+        session_mock = mock.Mock()
         session_mock.get_endpoint.return_value = None
+        get_session_mock.return_value = session_mock
         image_endpoint = self.cloud.get_session_endpoint("image")
         self.assertIsNone(image_endpoint)
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
-    def test_get_session_endpoint_identity(self, session_mock):
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    def test_get_session_endpoint_identity(self, get_session_mock):
+        session_mock = mock.Mock()
+        get_session_mock.return_value = session_mock
         self.cloud.get_session_endpoint('identity')
         session_mock.get_endpoint.assert_called_with(
-            interface=ksc_plugin.AUTH_INTERFACE)
+            interface=ksa_plugin.AUTH_INTERFACE)
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
-    def test_has_service_no(self, session_mock):
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    def test_has_service_no(self, get_session_mock):
+        session_mock = mock.Mock()
         session_mock.get_endpoint.return_value = None
+        get_session_mock.return_value = session_mock
         self.assertFalse(self.cloud.has_service("image"))
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
-    def test_has_service_yes(self, session_mock):
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    def test_has_service_yes(self, get_session_mock):
+        session_mock = mock.Mock()
         session_mock.get_endpoint.return_value = 'http://fake.url'
+        get_session_mock.return_value = session_mock
         self.assertTrue(self.cloud.has_service("image"))
 
     @mock.patch.object(shade._tasks.HypervisorList, 'main')

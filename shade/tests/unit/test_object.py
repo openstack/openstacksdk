@@ -15,6 +15,7 @@
 
 import mock
 import os_client_config
+from os_client_config import cloud_config
 from swiftclient import client as swift_client
 from swiftclient import service as swift_service
 from swiftclient import exceptions as swift_exc
@@ -35,15 +36,13 @@ class TestObject(base.TestCase):
             cloud_config=config.get_one_cloud(validate=False))
 
     @mock.patch.object(swift_client, 'Connection')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_session',
-                       new_callable=mock.PropertyMock)
-    @mock.patch.object(shade.OpenStackCloud, 'get_session_endpoint')
-    def test_swift_client(self, endpoint_mock, session_mock, swift_mock):
-        endpoint_mock.return_value = 'danzig'
-        session = mock.MagicMock()
-        session.get_token = mock.MagicMock()
-        session.get_token.return_value = 'yankee'
-        session_mock.return_value = session
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    def test_swift_client(self, get_session_mock, swift_mock):
+        session_mock = mock.Mock()
+        session_mock.get_endpoint.return_value = 'danzig'
+        session_mock.get_token.return_value = 'yankee'
+        get_session_mock.return_value = session_mock
+
         self.cloud.swift_client
         swift_mock.assert_called_with(
             preauthurl='danzig',
@@ -55,15 +54,15 @@ class TestObject(base.TestCase):
                 auth_token='yankee',
                 region_name=''))
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_session',
-                       new_callable=mock.PropertyMock)
-    @mock.patch.object(shade.OpenStackCloud, 'get_session_endpoint')
-    def test_swift_client_no_endpoint(self, endpoint_mock, session_mock):
-        endpoint_mock.side_effect = KeyError
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    def test_swift_client_no_endpoint(self, get_session_mock):
+        session_mock = mock.Mock()
+        session_mock.get_endpoint.return_value = None
+        get_session_mock.return_value = session_mock
         e = self.assertRaises(
             exc.OpenStackCloudException, lambda: self.cloud.swift_client)
         self.assertIn(
-            'Error constructing swift client', str(e))
+            'Failed to instantiate object-store client.', str(e))
 
     @mock.patch.object(shade.OpenStackCloud, 'auth_token')
     @mock.patch.object(shade.OpenStackCloud, 'get_session_endpoint')

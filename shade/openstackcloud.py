@@ -26,15 +26,11 @@ import requestsexceptions
 from cinderclient.v1 import client as cinder_client
 import glanceclient
 import glanceclient.exc
-from glanceclient.common import utils as glance_utils
 from heatclient import client as heat_client
 from heatclient.common import template_utils
 import keystoneauth1.exceptions
-from keystoneauth1 import plugin as ksa_plugin
-from keystoneauth1 import session as ksa_session
-from keystoneclient.v2_0 import client as k2_client
-from keystoneclient.v3 import client as k3_client
-from neutronclient.v2_0 import client as neutron_client
+from keystoneclient import client as keystone_client
+from neutronclient.neutron import client as neutron_client
 from novaclient import client as nova_client
 from novaclient import exceptions as nova_exceptions
 import swiftclient.client as swift_client
@@ -209,8 +205,10 @@ class OpenStackCloud(object):
 
         # If server expiration time is set explicitly, use that. Otherwise
         # fall back to whatever it was before
-        self._SERVER_LIST_AGE = cache_expiration.get(
-            'server', self._SERVER_LIST_AGE)
+        # TODO(mordred) replace with get_cache_resource_expiration once
+        # it has a release with default value
+        self._SERVER_LIST_AGE = int(cache_expiration.get(
+            'server', self._SERVER_LIST_AGE))
 
         self._container_cache = dict()
         self._file_hash_cache = dict()
@@ -250,23 +248,13 @@ class OpenStackCloud(object):
         return generate_key
 
     def _get_client(
-            self, service_key, client_class, interface_key='endpoint_type',
+            self, service_key, client_class, interface_key=None,
             pass_version_arg=True, **kwargs):
         try:
-            interface = self.cloud_config.get_interface(service_key)
-            # trigger exception on lack of service
-            self.get_session_endpoint(service_key)
-            constructor_args = dict(
-                session=self.keystone_session,
-                service_name=self.cloud_config.get_service_name(service_key),
-                service_type=self.cloud_config.get_service_type(service_key),
-                region_name=self.region_name)
-            constructor_args.update(kwargs)
-            constructor_args[interface_key] = interface
-            if pass_version_arg:
-                version = self.cloud_config.get_api_version(service_key)
-                constructor_args['version'] = version
-            client = client_class(**constructor_args)
+            client = self.cloud_config.get_legacy_client(
+                service_key=service_key, client_class=client_class,
+                interface_key=interface_key, pass_version_arg=pass_version_arg,
+                **kwargs)
         except Exception:
             self.log.debug(
                 "Couldn't construct {service} object".format(
@@ -286,31 +274,11 @@ class OpenStackCloud(object):
                 'compute', nova_client.Client)
         return self._nova_client
 
-    def _get_identity_client_class(self):
-        if self.cloud_config.get_api_version('identity') == '3':
-            return k3_client.Client
-        elif self.cloud_config.get_api_version('identity') in ('2', '2.0'):
-            return k2_client.Client
-        raise OpenStackCloudException(
-            "Unknown identity API version: {version}".format(
-                version=self.cloud_config.get_api_version('identity')))
-
     @property
     def keystone_session(self):
         if self._keystone_session is None:
-
             try:
-                keystone_auth = self.cloud_config.get_auth()
-                if not keystone_auth:
-                    raise OpenStackCloudException(
-                        "Problem with auth parameters")
-                self._keystone_session = ksa_session.Session(
-                    auth=keystone_auth,
-                    verify=self.verify,
-                    cert=self.cert,
-                    timeout=self.api_timeout)
-            except OpenStackCloudException:
-                raise
+                self._keystone_session = self.cloud_config.get_session()
             except Exception as e:
                 raise OpenStackCloudException(
                     "Error authenticating to keystone: %s " % str(e))
@@ -320,7 +288,7 @@ class OpenStackCloud(object):
     def keystone_client(self):
         if self._keystone_client is None:
             self._keystone_client = self._get_client(
-                'identity', self._get_identity_client_class())
+                'identity', keystone_client.Client)
         return self._keystone_client
 
     @property
@@ -614,13 +582,8 @@ class OpenStackCloud(object):
     @property
     def glance_client(self):
         if self._glance_client is None:
-            endpoint, version = glance_utils.strip_version(
-                self.get_session_endpoint(service_key='image'))
-            # TODO(mordred): Put check detected vs. configured version
-            # and warn if they're different.
             self._glance_client = self._get_client(
-                'image', glanceclient.Client, interface_key='interface',
-                endpoint=endpoint)
+                'image', glanceclient.Client)
         return self._glance_client
 
     @property
@@ -644,25 +607,8 @@ class OpenStackCloud(object):
     @property
     def swift_client(self):
         if self._swift_client is None:
-            try:
-                token = self.keystone_session.get_token()
-                endpoint = self.get_session_endpoint(
-                    service_key='object-store')
-                self._swift_client = swift_client.Connection(
-                    preauthurl=endpoint,
-                    preauthtoken=token,
-                    auth_version=self.cloud_config.get_api_version('identity'),
-                    os_options=dict(
-                        auth_token=token,
-                        object_storage_url=endpoint,
-                        region_name=self.region_name),
-                    timeout=self.api_timeout,
-                )
-            except OpenStackCloudException:
-                raise
-            except Exception as e:
-                raise OpenStackCloudException(
-                    "Error constructing swift client: %s", str(e))
+            self._swift_client = self._get_client(
+                'object-store', swift_client.Connection)
         return self._swift_client
 
     @property
@@ -694,21 +640,6 @@ class OpenStackCloud(object):
     @property
     def trove_client(self):
         if self._trove_client is None:
-            self.get_session_endpoint(service_key='database')
-            # Make the connection - can't use keystone session until there
-            # is one
-            self._trove_client = trove_client.Client(
-                self.cloud_config.get_api_version('database'),
-                session=self.keystone_session,
-                region_name=self.region_name,
-                service_type=self.cloud_config.get_service_type('database'),
-            )
-
-            if self._trove_client is None:
-                raise OpenStackCloudException(
-                    "Failed to instantiate Trove client."
-                    " This could mean that your credentials are wrong.")
-
             self._trove_client = self._get_client(
                 'database', trove_client.Client)
         return self._trove_client
@@ -717,7 +648,7 @@ class OpenStackCloud(object):
     def neutron_client(self):
         if self._neutron_client is None:
             self._neutron_client = self._get_client(
-                'network', neutron_client.Client, pass_version_arg=False)
+                'network', neutron_client.Client)
         return self._neutron_client
 
     def create_stack(
@@ -808,22 +739,8 @@ class OpenStackCloud(object):
                 ram=ram, include=include))
 
     def get_session_endpoint(self, service_key):
-        override_endpoint = self.cloud_config.get_endpoint(service_key)
-        if override_endpoint:
-            return override_endpoint
         try:
-            # keystone is a special case in keystone, because what?
-            if service_key == 'identity':
-                endpoint = self.keystone_session.get_endpoint(
-                    interface=ksa_plugin.AUTH_INTERFACE)
-            else:
-                endpoint = self.keystone_session.get_endpoint(
-                    service_type=self.cloud_config.get_service_type(
-                        service_key),
-                    service_name=self.cloud_config.get_service_name(
-                        service_key),
-                    interface=self.cloud_config.get_interface(service_key),
-                    region_name=self.region_name)
+            return self.cloud_config.get_session_endpoint(service_key)
         except keystoneauth1.exceptions.catalog.EndpointNotFound as e:
             self.log.debug(
                 "Endpoint not found in %s cloud: %s", self.name, str(e))
@@ -843,7 +760,7 @@ class OpenStackCloud(object):
     def has_service(self, service_key):
         if not self.cloud_config.config.get('has_%s' % service_key, True):
             self.log.debug(
-                "Overriding {service_key} entry in catalog per config".format(
+                "Disabling {service_key} entry in catalog per config".format(
                     service_key=service_key))
             return False
         try:
