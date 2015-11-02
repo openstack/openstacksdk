@@ -35,9 +35,7 @@ Region Name    Human Name
 van1           Vancouver, BC
 ============== ================
 
-* Public IPv4 is provided via NAT with Nova Floating IP
-* Floating IPs are provided by Nova
-* Security groups are provided by Nova
+* Public IPv4 is provided via NAT with Neutron Floating IP
 
 catalyst
 --------
