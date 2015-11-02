@@ -143,6 +143,7 @@ class KeypairDelete(task_manager.Task):
 
 class NovaUrlGet(task_manager.Task):
     def main(self, client):
+        self.requests = True
         return client.nova_client.client.get(**self.args)
 
 

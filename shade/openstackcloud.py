@@ -853,7 +853,7 @@ class OpenStackCloud(object):
         extensions = set()
 
         try:
-            resp, body = self.manager.submitTask(
+            body = self.manager.submitTask(
                 _tasks.NovaUrlGet(url='/extensions'))
             for x in body['extensions']:
                 extensions.add(x['alias'])

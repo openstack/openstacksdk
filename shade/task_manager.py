@@ -48,15 +48,20 @@ class Task(object):
         self._exception = None
         self._traceback = None
         self._result = None
+        self._response = None
         self._finished = threading.Event()
         self.args = kw
+        self.requests = False
 
     @abc.abstractmethod
     def main(self, client):
         """ Override this method with the actual workload to be performed """
 
     def done(self, result):
-        self._result = result
+        if self.requests:
+            self._response, self._result = result
+        else:
+            self._result = result
         self._finished.set()
 
     def exception(self, e, tb):
@@ -66,6 +71,9 @@ class Task(object):
 
     def wait(self):
         self._finished.wait()
+        # TODO(mordred): We store the raw requests response if there is
+        # one now. So we should probably do an error handler to throw
+        # some exceptions if it's not 200
         if self._exception:
             six.reraise(type(self._exception), self._exception,
                         self._traceback)
