@@ -78,7 +78,7 @@ Region Name    Human Name
 ============== ================
 tyo1           Tokyo, JP
 sin1           Singapore
-lon1           London, UK
+sjc1           San Jose, CA
 ============== ================
 
 * Image upload is not supported
