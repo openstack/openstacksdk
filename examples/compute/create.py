@@ -10,6 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
+
+from examples.connect import FLAVOR_NAME
+from examples.connect import IMAGE_NAME
+from examples.connect import KEYPAIR_NAME
+from examples.connect import NETWORK_NAME
+from examples.connect import PRIVATE_KEYPAIR_FILE
+
 """
 Create resources with the Compute service.
 
@@ -17,12 +25,27 @@ For a full guide see TODO(etoews):link to docs on developer.openstack.org
 """
 
 
-def create_server(conn, name, image, flavor, network):
+def create_server(conn):
     print("Create Server:")
 
-    server = conn.compute.create_server(name=name, image=image,
-                                        flavor=flavor,
-                                        networks=[{"uuid": network.id}])
-    conn.compute.wait_for_server(server)
+    image = conn.compute.find_image(IMAGE_NAME)
+    flavor = conn.compute.find_flavor(FLAVOR_NAME)
+    network = conn.network.find_network(NETWORK_NAME)
 
-    print(server)
+    if not conn.compute.find_keypair(KEYPAIR_NAME):
+        keypair = conn.compute.create_keypair(name=KEYPAIR_NAME)
+
+        with open(PRIVATE_KEYPAIR_FILE, 'w') as f:
+            f.write("%s" % keypair.private_key)
+
+        os.chmod(PRIVATE_KEYPAIR_FILE, 0o400)
+
+    server = conn.compute.create_server(
+        name='openstacksdk-example', image=image, flavor=flavor,
+        networks=[{"uuid": network.id}], key_name=KEYPAIR_NAME)
+
+    server = conn.compute.wait_for_server(server)
+
+    print("ssh -i {key} root@{ip}".format(
+        key=PRIVATE_KEYPAIR_FILE,
+        ip=server.access_ipv4))

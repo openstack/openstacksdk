@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import examples.connect
+
 """
 Find a resource from the Compute service.
 
@@ -20,7 +22,7 @@ For a full guide see TODO(etoews):link to docs on developer.openstack.org
 def find_image(conn):
     print("Find Image:")
 
-    image = conn.compute.find_image("fedora-20.x86_64")
+    image = conn.compute.find_image(examples.connect.IMAGE_NAME)
 
     print(image)
 
@@ -30,8 +32,18 @@ def find_image(conn):
 def find_flavor(conn):
     print("Find Flavor:")
 
-    flavor = conn.compute.find_flavor("m1.small")
+    flavor = conn.compute.find_flavor(examples.connect.FLAVOR_NAME)
 
     print(flavor)
 
     return flavor
+
+
+def find_keypair(conn):
+    print("Find Keypair:")
+
+    keypair = conn.compute.find_keypair(examples.connect.KEYPAIR_NAME)
+
+    print(keypair)
+
+    return keypair
