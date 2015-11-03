@@ -18,15 +18,15 @@ TEST_IMAGE_NAME = 'Test Image'
 
 class TestImage(base.BaseFunctionalTest):
 
-    class ImageOpts(base.BaseFunctionalTest.Opts):
+    class ImageOpts(object):
         def __init__(self):
-            super(TestImage.ImageOpts, self).__init__()
             self.image_api_version = '2'
 
     @classmethod
     def setUpClass(cls):
         opts = cls.ImageOpts()
-        cls.conn = connection.from_config(opts)
+        cls.conn = connection.from_config(cloud_name=base.CLOUD_NAME,
+                                          options=opts)
 
         cls.img = cls.conn.image.upload_image(
             name=TEST_IMAGE_NAME,

@@ -35,8 +35,8 @@ TEST_CLOUD = os.getenv('OS_TEST_CLOUD', 'test_cloud')
 
 
 class Opts(object):
-    def __init__(self, test_cloud='test_cloud', debug=False):
-        self.cloud = test_cloud
+    def __init__(self, cloud_name='test_cloud', debug=False):
+        self.cloud = cloud_name
         self.debug = debug
 
 
@@ -46,7 +46,7 @@ def _get_resource_value(resource_key, default):
     except KeyError:
         return default
 
-opts = Opts(test_cloud=TEST_CLOUD)
+opts = Opts(cloud_name=TEST_CLOUD)
 occ = os_client_config.OpenStackConfig()
 cloud = occ.get_one_cloud(opts.cloud, argparse=opts)
 
@@ -62,7 +62,7 @@ PRIVATE_KEYPAIR_FILE = _get_resource_value('private_keypair_file',
 
 
 def create_connection_from_config():
-    return connection.from_config(opts)
+    return connection.from_config(cloud_config=cloud, options=opts)
 
 
 def create_connection(auth_url, region, project_name, username, password):
