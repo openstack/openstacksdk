@@ -55,7 +55,7 @@ class TestStack(testtools.TestCase):
         self.assertEqual('orchestration', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)
-        self.assertFalse(sot.allow_update)
+        self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
@@ -99,6 +99,33 @@ class TestStack(testtools.TestCase):
         sess.post.assert_called_with(url, service=sot.service, json=body)
         self.assertEqual(FAKE_ID, sot.id)
         self.assertEqual(FAKE_NAME, sot.name)
+
+    def test_update(self):
+        # heat responds to update request with an 202 status code
+        resp_update = mock.Mock()
+        resp_update.status_code = 202
+        sess = mock.Mock()
+        sess.put = mock.Mock(return_value=resp_update)
+
+        resp_get = mock.Mock()
+        resp_get.body = {'stack': FAKE_CREATE_RESPONSE}
+        sess.get = mock.Mock(return_value=resp_get)
+
+        # create a stack for update
+        sot = stack.Stack(FAKE)
+        new_body = sot._attrs.copy()
+        del new_body['id']
+        del new_body['name']
+
+        sot.timeout_mins = 119
+        resp = sot.update(sess)
+
+        url = 'stacks/%s' % sot.id
+        new_body['timeout_mins'] = 119
+        sess.put.assert_called_once_with(url, service=sot.service,
+                                         json=new_body)
+        sess.get.assert_called_once_with(url, service=sot.service)
+        self.assertEqual(sot, resp)
 
     def test_check(self):
         session_mock = mock.MagicMock()

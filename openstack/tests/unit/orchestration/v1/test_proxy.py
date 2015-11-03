@@ -38,6 +38,9 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
     def test_stack_get(self):
         self.verify_get(self.proxy.get_stack, stack.Stack)
 
+    def test_stack_update(self):
+        self.verify_update(self.proxy.update_stack, stack.Stack)
+
     def test_stack_delete(self):
         self.verify_delete(self.proxy.delete_stack, stack.Stack, False)
 
