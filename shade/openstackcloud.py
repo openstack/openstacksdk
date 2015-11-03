@@ -18,6 +18,7 @@ import os_client_config
 import os_client_config.defaults
 import threading
 import time
+import warnings
 
 from dogpile import cache
 
@@ -48,6 +49,14 @@ from shade import task_manager
 from shade import _tasks
 from shade import _utils
 
+# Importing these for later but not disabling for now
+try:
+    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+except ImportError:
+    try:
+        from urllib3.exceptions import InsecureRequestWarning
+    except ImportError:
+        InsecureRequestWarning = None
 
 OBJECT_MD5_KEY = 'x-object-meta-x-shade-md5'
 OBJECT_SHA256_KEY = 'x-object-meta-x-shade-sha256'
@@ -157,6 +166,13 @@ class OpenStackCloud(object):
                 name=self.name, client=self)
 
         (self.verify, self.cert) = cloud_config.get_requests_verify_args()
+        # Turn off urllib3 warnings about insecure certs if we have
+        # explicitly configured requests to tell it we do not want
+        # cert verification
+        if not self.verify:
+            self.log.debug(
+                "Turning off Insecure SSL warnings since verify=False")
+            warnings.filterwarnings('ignore', category=InsecureRequestWarning)
 
         self._servers = []
         self._servers_time = 0
