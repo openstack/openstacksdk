@@ -50,6 +50,7 @@ def simple_logging(debug=False):
     log.setLevel(log_level)
     # Suppress warning about keystoneauth loggers
     log = _log.setup_logging('keystoneauth.identity.base')
+    log = _log.setup_logging('keystoneauth.identity.generic.base')
 
 
 def openstack_clouds(config=None, debug=False):

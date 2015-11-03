@@ -828,7 +828,12 @@ class OpenStackCloud(object):
             endpoint = None
         except Exception as e:
             raise OpenStackCloudException(
-                "Error getting %s endpoint: %s" % (service_key, str(e)))
+                "Error getting {service} endpoint on {cloud}:{region}:"
+                " {error}".format(
+                    service=service_key,
+                    cloud=self.name,
+                    region=self.region_name,
+                    error=str(e)))
         return endpoint
 
     def has_service(self, service_key):
@@ -1182,7 +1187,11 @@ class OpenStackCloud(object):
                 return servers
         except Exception as e:
             raise OpenStackCloudException(
-                "Error fetching server list: %s" % e)
+                "Error fetching server list on {cloud}:{region}:"
+                " {error}".format(
+                    cloud=self.name,
+                    region=self.region_name,
+                    error=str(e)))
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_images)
     def list_images(self, filter_deleted=True):

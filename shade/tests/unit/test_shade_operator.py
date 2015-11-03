@@ -1012,9 +1012,12 @@ class TestShadeOperator(base.TestCase):
         def side_effect(*args, **kwargs):
             raise FakeException("No service")
         session_mock.get_endpoint.side_effect = side_effect
+        self.cloud.name = 'testcloud'
+        self.cloud.region_name = 'testregion'
         with testtools.ExpectedException(
                 exc.OpenStackCloudException,
-                "Error getting image endpoint: No service"):
+                "Error getting image endpoint on testcloud:testregion:"
+                " No service"):
             self.cloud.get_session_endpoint("image")
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
