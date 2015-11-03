@@ -17,6 +17,7 @@ import warnings
 from keystoneauth1 import plugin
 from keystoneauth1 import session
 
+from os_client_config import _log
 from os_client_config import exceptions
 
 
@@ -27,6 +28,7 @@ class CloudConfig(object):
         self.name = name
         self.region = region
         self.config = config
+        self.log = _log.setup_logging(__name__)
         self._force_ipv4 = force_ipv4
         self._auth = auth_plugin
         self._openstack_config = openstack_config
