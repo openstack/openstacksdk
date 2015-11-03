@@ -21,6 +21,7 @@ import time
 import warnings
 
 from dogpile import cache
+import requestsexceptions
 
 from cinderclient.v1 import client as cinder_client
 from designateclient.v1 import Client as designate_client
@@ -48,15 +49,6 @@ from shade import meta
 from shade import task_manager
 from shade import _tasks
 from shade import _utils
-
-# Importing these for later but not disabling for now
-try:
-    from requests.packages.urllib3.exceptions import InsecureRequestWarning
-except ImportError:
-    try:
-        from urllib3.exceptions import InsecureRequestWarning
-    except ImportError:
-        InsecureRequestWarning = None
 
 OBJECT_MD5_KEY = 'x-object-meta-x-shade-md5'
 OBJECT_SHA256_KEY = 'x-object-meta-x-shade-sha256'
@@ -172,7 +164,8 @@ class OpenStackCloud(object):
         if not self.verify:
             self.log.debug(
                 "Turning off Insecure SSL warnings since verify=False")
-            warnings.filterwarnings('ignore', category=InsecureRequestWarning)
+            category = requestsexceptions.InsecureRequestWarning
+            warnings.filterwarnings('ignore', category)
 
         self._servers = []
         self._servers_time = 0

@@ -13,31 +13,23 @@
 # limitations under the License.
 
 import logging
+import warnings
 
 import keystoneauth1.exceptions
 import os_client_config
 import pbr.version
-
-# Disable the Rackspace warnings about deprecated certificates. We are aware
-import warnings
-try:
-    from requests.packages.urllib3.exceptions import SubjectAltNameWarning
-except ImportError:
-    try:
-        from urllib3.exceptions import SubjectAltNameWarning
-    except ImportError:
-        SubjectAltNameWarning = None
-
-if SubjectAltNameWarning:
-    warnings.filterwarnings('ignore', category=SubjectAltNameWarning)
+import requestsexceptions
 
 from shade.exc import *  # noqa
 from shade.openstackcloud import OpenStackCloud
 from shade.operatorcloud import OperatorCloud
 from shade import _log
 
-
 __version__ = pbr.version.VersionInfo('shade').version_string()
+
+if requestsexceptions.SubjectAltNameWarning:
+    warnings.filterwarnings(
+        'ignore', category=requestsexceptions.SubjectAltNameWarning)
 
 
 def simple_logging(debug=False):
