@@ -406,11 +406,14 @@ class OpenStackConfig(object):
         return cloud
 
     def _fix_backwards_interface(self, cloud):
+        new_cloud = {}
         for key in cloud.keys():
             if key.endswith('endpoint_type'):
                 target_key = key.replace('endpoint_type', 'interface')
-                cloud[target_key] = cloud.pop(key)
-        return cloud
+            else:
+                target_key = key
+            new_cloud[target_key] = cloud[key]
+        return new_cloud
 
     def get_all_clouds(self):
 
