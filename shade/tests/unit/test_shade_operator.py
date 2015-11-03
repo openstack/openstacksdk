@@ -19,6 +19,7 @@ import testtools
 
 import os_client_config.cloud_config
 import shade
+import munch
 from shade import exc
 from shade import meta
 from shade.tests import fakes
@@ -1041,3 +1042,18 @@ class TestShadeOperator(base.TestCase):
     def test_has_service_yes(self, session_mock):
         session_mock.get_endpoint.return_value = 'http://fake.url'
         self.assertTrue(self.cloud.has_service("image"))
+
+    @mock.patch.object(shade._tasks.HypervisorList, 'main')
+    def test_list_hypervisors(self, mock_hypervisorlist):
+        '''This test verifies that calling list_hypervisors results in a call
+        to the HypervisorList task.'''
+        mock_hypervisorlist.return_value = [
+            munch.Munch({'hypervisor_hostname': 'testserver1',
+                         'id': '1'}),
+            munch.Munch({'hypervisor_hostname': 'testserver2',
+                         'id': '2'})
+        ]
+
+        r = self.cloud.list_hypervisors()
+        self.assertEquals(2, len(r))
+        self.assertEquals('testserver1', r[0]['hypervisor_hostname'])

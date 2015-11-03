@@ -1486,3 +1486,17 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             )
 
         return True
+
+    def list_hypervisors(self):
+        """List all hypervisors
+
+        :returns: A list of hypervisor dicts.
+        """
+
+        try:
+            return self.manager.submitTask(_tasks.HypervisorList())
+        except OpenStackCloudException:
+            raise
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Error fetching hypervisor list: %s" % str(e))
