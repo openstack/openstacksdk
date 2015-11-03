@@ -14,10 +14,102 @@ from openstack.cluster.v1 import action
 from openstack.cluster.v1 import cluster
 from openstack.cluster.v1 import node
 from openstack.cluster.v1 import policy
+from openstack.cluster.v1 import profile
 from openstack import proxy
 
 
 class Proxy(proxy.BaseProxy):
+
+    def create_profile(self, **attrs):
+        """Create a new profile from attributes.
+
+        :param dict attrs: Keyword arguments that will be used to create a
+             :class:`~openstack.cluster.v1.profile.Profile`, it is comprised
+             of the properties on the Profile class.
+
+        :returns: The results of profile creation.
+        :rtype: :class:`~openstack.cluster.v1.profile.Profile`.
+        """
+        return self._create(profile.Profile, **attrs)
+
+    def delete_profile(self, value, ignore_missing=True):
+        """Delete a profile.
+
+        :param value: The value can be either the name or ID of a profile or a
+            :class:`~openstack.cluster.v1.profile.Profile` instance.
+        :param bool ignore_missing: When set to ``False``, an exception
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the profile could not be found. When set to ``True``, no exception
+            will be raised when attempting to delete a non-existent profile.
+
+        :returns: ``None``
+        """
+        self._delete(profile.Profile, value, ignore_missing=ignore_missing)
+
+    def find_profile(self, value, ignore_missing=True):
+        """Find a single profile.
+
+        :param value: The name or ID of a profile.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :returns: One :class:`~openstack.cluster.v1.profile.Profile` object
+            or None
+        """
+        return profile.Profile.find(self.session, value,
+                                    ignore_missing=ignore_missing)
+
+    def get_profile(self, value):
+        """Get a single profile.
+
+        :param value: The value can be the name or ID of a profile or a
+            :class:`~openstack.cluster.v1.profile.Profile` instance.
+
+        :returns: One :class:`~openstack.cluster.v1.profile.Profile`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            profile matching the criteria could be found.
+        """
+        return self._get(profile.Profile, value)
+
+    def profiles(self, **query):
+        """Retrieve a generator of profiles.
+
+        :param kwargs \*\*query: Optional query parameters to be sent to
+            restrict the profiles to be returned. Available parameters include:
+
+            * show_deleted: A boolean value indicating whether soft-deleted
+                profiles should be returned as well.
+            * filters: A list of key-value pairs for Senlin server to determine
+                whether a profile should be included in the list result.
+            * sort_keys: A list of key names for sorting the resulted list.
+            * sort_dir: Direction for sorting, and its valid values are 'asc'
+                and 'desc'.
+            * limit: Requests a specified size of returned items from the
+                query.  Returns a number of items up to the specified limit
+                value.
+            * marker: Specifies the ID of the last-seen item. Use the limit
+                parameter to make an initial limited request and use the ID of
+                the last-seen item from the response as the marker parameter
+                value in a subsequent limited request.
+
+        :returns: A generator of profile instances.
+        """
+        return self._list(profile.Profile, paginated=True, **query)
+
+    def update_profile(self, value, **attrs):
+        """Update a profile.
+
+        :param value: Either the name or the ID of the profile, or an instance
+            of :class:`~openstack.cluster.v1.profile.Profile`.
+        :param attrs: The attributes to update on the profile represented by
+            the ``value`` parameter.
+
+        :returns: The updated profile.
+        :rtype: :class:`~openstack.cluster.v1.profile.Profile`
+        """
+        return self._update(profile.Profile, value, **attrs)
 
     def create_cluster(self, **attrs):
         """Create a new cluster from attributes.
@@ -306,6 +398,7 @@ class Proxy(proxy.BaseProxy):
                 actions should be returned as well.
             * sort_keys: A list of key names for sorting the resulted list.
             * sort_dir: Direction for sorting, and its valid values are 'asc'
+                and 'desc'.
             * limit: Requests a specified size of returned items from the
                 query.  Returns a number of items up to the specified limit
                 value.
