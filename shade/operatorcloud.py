@@ -654,7 +654,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :returns: None
         """
-        try:
+        with _utils.shade_exceptions(
+            "Error setting machine maintenance state to {state} on node "
+            "{node}".format(state=state, node=name_or_id)
+        ):
             if state:
                 result = self.manager.submitTask(
                     _tasks.MachineSetMaintenance(node_id=name_or_id,
@@ -670,12 +673,6 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                     "on node %s. Received: %s" % (
                         state, name_or_id, result))
             return None
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error setting machine maintenance state to %s "
-                "on node %s: %s" % (state, name_or_id, str(e)))
 
     def remove_machine_from_maintenance(self, name_or_id):
         """Remove Baremetal Machine from Maintenance State
@@ -712,7 +709,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :returns: None
         """
-        try:
+        with _utils.shade_exceptions(
+            "Error setting machine power state to {state} on node "
+            "{node}".format(state=state, node=name_or_id)
+        ):
             power = self.manager.submitTask(
                 _tasks.MachineSetPower(node_id=name_or_id,
                                        state=state))
@@ -721,12 +721,6 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                     "Failed setting machine power state %s on node %s. "
                     "Received: %s" % (state, name_or_id, power))
             return None
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error setting machine power state %s on node %s. "
-                "Error: %s" % (state, name_or_id, str(e)))
 
     def set_machine_power_on(self, name_or_id):
         """Activate baremetal machine power
@@ -782,13 +776,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         self.node_set_provision_state(uuid, 'deleted')
 
     def set_node_instance_info(self, uuid, patch):
-        try:
+        with _utils.shade_exceptions():
             return self.manager.submitTask(
                 _tasks.MachineNodeUpdate(node_id=uuid, patch=patch))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(str(e))
 
     def purge_node_instance_info(self, uuid):
         patch = []
