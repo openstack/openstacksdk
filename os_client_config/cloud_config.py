@@ -16,18 +16,10 @@ import warnings
 
 from keystoneauth1 import plugin
 from keystoneauth1 import session
+import requestsexceptions
 
 from os_client_config import _log
 from os_client_config import exceptions
-
-# Importing these for later but not disabling for now
-try:
-    from requests.packages.urllib3 import exceptions as urllib_exc
-except ImportError:
-    try:
-        from urllib3 import exceptions as urllib_exc
-    except ImportError:
-        urllib_exc = None
 
 
 class CloudConfig(object):
@@ -146,13 +138,12 @@ class CloudConfig(object):
             # Turn off urllib3 warnings about insecure certs if we have
             # explicitly configured requests to tell it we do not want
             # cert verification
-            if not verify and urllib_exc is not None:
+            if not verify:
                 self.log.debug(
                     "Turning off SSL warnings for {cloud}:{region}"
                     " since verify=False".format(
                         cloud=self.name, region=self.region))
-                warnings.filterwarnings(
-                    'ignore', category=urllib_exc.InsecureRequestWarning)
+            requestsexceptions.squelch_warnings(insecure_requests=not verify)
             self._keystone_session = session.Session(
                 auth=self._auth,
                 verify=verify,
