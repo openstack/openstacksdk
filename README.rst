@@ -296,3 +296,26 @@ Or, get all of the clouds.
   cloud_config = os_client_config.OpenStackConfig().get_all_clouds()
   for cloud in cloud_config:
       print(cloud.name, cloud.region, cloud.config)
+
+argparse
+--------
+
+If you're using os-client-config from a program that wants to process
+command line options, there is a registration function to register the
+arguments that both os-client-config and keystoneauth know how to deal
+with - as well as a consumption argument.
+
+::
+
+  import argparse
+  import sys
+
+  import os_client_config
+
+  cloud_config = os_client_config.OpenStackConfig()
+  parser = argparse.ArgumentParser()
+  cloud_config.register_argparse_arguments(parser, sys.argv)
+
+  options = parser.parse_args()
+
+  cloud = cloud_config.get_one_cloud(argparse=options)

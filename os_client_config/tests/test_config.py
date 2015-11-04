@@ -17,6 +17,7 @@ import copy
 import os
 
 import fixtures
+import testtools
 import yaml
 
 from os_client_config import cloud_config
@@ -340,6 +341,120 @@ class TestConfigArgparse(base.TestCase):
         fixed_args = c._fix_args(env_args)
 
         self.assertDictEqual({'compute_api_version': 1}, fixed_args)
+
+    def test_register_argparse_cloud(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        parser = argparse.ArgumentParser()
+        c.register_argparse_arguments(parser, [])
+        opts, _remain = parser.parse_known_args(['--os-cloud', 'foo'])
+        self.assertEqual(opts.os_cloud, 'foo')
+
+    def test_register_argparse_bad_plugin(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        parser = argparse.ArgumentParser()
+        self.assertRaises(
+            exceptions.OpenStackConfigException,
+            c.register_argparse_arguments,
+            parser, ['--os-auth-type', 'foo'])
+
+    def test_register_argparse_not_password(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        parser = argparse.ArgumentParser()
+        args = [
+            '--os-auth-type', 'v3token',
+            '--os-token', 'some-secret',
+        ]
+        c.register_argparse_arguments(parser, args)
+        opts, _remain = parser.parse_known_args(args)
+        self.assertEqual(opts.os_token, 'some-secret')
+
+    def test_register_argparse_password(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        parser = argparse.ArgumentParser()
+        args = [
+            '--os-password', 'some-secret',
+        ]
+        c.register_argparse_arguments(parser, args)
+        opts, _remain = parser.parse_known_args(args)
+        self.assertEqual(opts.os_password, 'some-secret')
+        with testtools.ExpectedException(AttributeError):
+            opts.os_token
+
+    def test_register_argparse_service_type(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        parser = argparse.ArgumentParser()
+        args = [
+            '--os-service-type', 'network',
+            '--os-endpoint-type', 'admin',
+            '--http-timeout', '20',
+        ]
+        c.register_argparse_arguments(parser, args)
+        opts, _remain = parser.parse_known_args(args)
+        self.assertEqual(opts.os_service_type, 'network')
+        self.assertEqual(opts.os_endpoint_type, 'admin')
+        self.assertEqual(opts.http_timeout, '20')
+        with testtools.ExpectedException(AttributeError):
+            opts.os_network_service_type
+        cloud = c.get_one_cloud(argparse=opts, verify=False)
+        self.assertEqual(cloud.config['service_type'], 'network')
+        self.assertEqual(cloud.config['interface'], 'admin')
+        self.assertEqual(cloud.config['api_timeout'], '20')
+        self.assertNotIn('http_timeout', cloud.config)
+
+    def test_register_argparse_network_service_type(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        parser = argparse.ArgumentParser()
+        args = [
+            '--os-endpoint-type', 'admin',
+            '--network-api-version', '4',
+        ]
+        c.register_argparse_arguments(parser, args, ['network'])
+        opts, _remain = parser.parse_known_args(args)
+        self.assertEqual(opts.os_service_type, 'network')
+        self.assertEqual(opts.os_endpoint_type, 'admin')
+        self.assertEqual(opts.os_network_service_type, None)
+        self.assertEqual(opts.os_network_api_version, None)
+        self.assertEqual(opts.network_api_version, '4')
+        cloud = c.get_one_cloud(argparse=opts, verify=False)
+        self.assertEqual(cloud.config['service_type'], 'network')
+        self.assertEqual(cloud.config['interface'], 'admin')
+        self.assertEqual(cloud.config['network_api_version'], '4')
+        self.assertNotIn('http_timeout', cloud.config)
+
+    def test_register_argparse_network_service_types(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        parser = argparse.ArgumentParser()
+        args = [
+            '--os-compute-service-name', 'cloudServers',
+            '--os-network-service-type', 'badtype',
+            '--os-endpoint-type', 'admin',
+            '--network-api-version', '4',
+        ]
+        c.register_argparse_arguments(
+            parser, args, ['compute', 'network', 'volume'])
+        opts, _remain = parser.parse_known_args(args)
+        self.assertEqual(opts.os_network_service_type, 'badtype')
+        self.assertEqual(opts.os_compute_service_type, None)
+        self.assertEqual(opts.os_volume_service_type, None)
+        self.assertEqual(opts.os_service_type, 'compute')
+        self.assertEqual(opts.os_compute_service_name, 'cloudServers')
+        self.assertEqual(opts.os_endpoint_type, 'admin')
+        self.assertEqual(opts.os_network_api_version, None)
+        self.assertEqual(opts.network_api_version, '4')
+        cloud = c.get_one_cloud(argparse=opts, verify=False)
+        self.assertEqual(cloud.config['service_type'], 'compute')
+        self.assertEqual(cloud.config['network_service_type'], 'badtype')
+        self.assertEqual(cloud.config['interface'], 'admin')
+        self.assertEqual(cloud.config['network_api_version'], '4')
+        self.assertNotIn('volume_service_type', cloud.config)
+        self.assertNotIn('http_timeout', cloud.config)
 
 
 class TestConfigDefault(base.TestCase):

@@ -13,11 +13,14 @@
 # under the License.
 
 
+# alias because we already had an option named argparse
+import argparse as argparse_mod
 import json
 import os
 import warnings
 
 import appdirs
+from keystoneauth1 import adapter
 from keystoneauth1 import loading
 import yaml
 
@@ -245,6 +248,9 @@ class OpenStackConfig(object):
             self._cache_expiration = cache_settings.get(
                 'expiration', self._cache_expiration)
 
+        # Flag location to hold the peeked value of an argparse timeout value
+        self._argv_timeout = False
+
     def _load_config_file(self):
         return self._load_yaml_json_file(self._config_files)
 
@@ -451,6 +457,94 @@ class OpenStackConfig(object):
             cloud['auth_type'] = 'password'
         return cloud
 
+    def register_argparse_arguments(self, parser, argv, service_keys=[]):
+        """Register all of the common argparse options needed.
+
+        Given an argparse parser, register the keystoneauth Session arguments,
+        the keystoneauth Auth Plugin Options and os-cloud. Also, peek in the
+        argv to see if all of the auth plugin options should be registered
+        or merely the ones already configured.
+        :param argparse.ArgumentParser: parser to attach argparse options to
+        :param list argv: the arguments provided to the application
+        :param string service_keys: Service or list of services this argparse
+                                    should be specialized for, if known.
+                                    The first item in the list will be used
+                                    as the default value for service_type
+                                    (optional)
+
+        :raises exceptions.OpenStackConfigException if an invalid auth-type
+                                                    is requested
+        """
+
+        local_parser = argparse_mod.ArgumentParser(add_help=False)
+
+        for p in (parser, local_parser):
+            p.add_argument(
+                '--os-cloud',
+                metavar='<name>',
+                default=os.environ.get('OS_CLOUD', None),
+                help='Named cloud to connect to')
+
+        # we need to peek to see if timeout was actually passed, since
+        # the keystoneauth declaration of it has a default, which means
+        # we have no clue if the value we get is from the ksa default
+        # for from the user passing it explicitly. We'll stash it for later
+        local_parser.add_argument('--timeout', metavar='<timeout>')
+
+        # Peek into the future and see if we have an auth-type set in
+        # config AND a cloud set, so that we know which command line
+        # arguments to register and show to the user (the user may want
+        # to say something like:
+        #   openstack --os-cloud=foo --os-oidctoken=bar
+        # although I think that user is the cause of my personal pain
+        options, _args = local_parser.parse_known_args(argv)
+        if options.timeout:
+            self._argv_timeout = True
+
+        # validate = False because we're not _actually_ loading here
+        # we're only peeking, so it's the wrong time to assert that
+        # the rest of the arguments given are invalid for the plugin
+        # chosen (for instance, --help may be requested, so that the
+        # user can see what options he may want to give
+        cloud = self.get_one_cloud(argparse=options, validate=False)
+        default_auth_type = cloud.config['auth_type']
+
+        try:
+            loading.register_auth_argparse_arguments(
+                parser, argv, default=default_auth_type)
+        except Exception:
+            # Hidiing the keystoneauth exception because we're not actually
+            # loading the auth plugin at this point, so the error message
+            # from it doesn't actually make sense to os-client-config users
+            options, _args = parser.parse_known_args(argv)
+            plugin_names = loading.get_available_plugin_names()
+            raise exceptions.OpenStackConfigException(
+                "An invalid auth-type was specified: {auth_type}."
+                " Valid choices are: {plugin_names}.".format(
+                    auth_type=options.os_auth_type,
+                    plugin_names=",".join(plugin_names)))
+
+        if service_keys:
+            primary_service = service_keys[0]
+        else:
+            primary_service = None
+        loading.register_session_argparse_arguments(parser)
+        adapter.register_adapter_argparse_arguments(
+            parser, service_type=primary_service)
+        for service_key in service_keys:
+            # legacy clients have un-prefixed api-version options
+            parser.add_argument(
+                '--{service_key}-api-version'.format(
+                    service_key=service_key.replace('_', '-'),
+                    help=argparse_mod.SUPPRESS))
+            adapter.register_service_adapter_argparse_arguments(
+                parser, service_type=service_key)
+
+        # Backwards compat options for legacy clients
+        parser.add_argument('--http-timeout', help=argparse_mod.SUPPRESS)
+        parser.add_argument('--os-endpoint-type', help=argparse_mod.SUPPRESS)
+        parser.add_argument('--endpoint-type', help=argparse_mod.SUPPRESS)
+
     def _fix_backwards_interface(self, cloud):
         new_cloud = {}
         for key in cloud.keys():
@@ -459,6 +553,30 @@ class OpenStackConfig(object):
             else:
                 target_key = key
             new_cloud[target_key] = cloud[key]
+        return new_cloud
+
+    def _fix_backwards_api_timeout(self, cloud):
+        new_cloud = {}
+        # requests can only have one timeout, which means that in a single
+        # cloud there is no point in different timeout values. However,
+        # for some reason many of the legacy clients decided to shove their
+        # service name in to the arg name for reasons surpassin sanity. If
+        # we find any values that are not api_timeout, overwrite api_timeout
+        # with the value
+        service_timeout = None
+        for key in cloud.keys():
+            if key.endswith('timeout') and not (
+                    key == 'timeout' or key == 'api_timeout'):
+                service_timeout = cloud[key]
+            else:
+                new_cloud[key] = cloud[key]
+        if service_timeout is not None:
+            new_cloud['api_timeout'] = service_timeout
+        # The common argparse arg from keystoneauth is called timeout, but
+        # os-client-config expects it to be called api_timeout
+        if self._argv_timeout:
+            if 'timeout' in new_cloud and new_cloud['timeout']:
+                new_cloud['api_timeout'] = new_cloud.pop('timeout')
         return new_cloud
 
     def get_all_clouds(self):
@@ -670,6 +788,12 @@ class OpenStackConfig(object):
                     config[key] = _auth_update(config[key], val)
                 else:
                     config[key] = val
+
+        # These backwards compat values are only set via argparse. If it's
+        # there, it's because it was passed in explicitly, and should win
+        config = self._fix_backwards_api_timeout(config)
+        if 'endpoint_type' in config:
+            config['interface'] = config.pop('endpoint_type')
 
         for key in BOOL_KEYS:
             if key in config:
