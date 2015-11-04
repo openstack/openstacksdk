@@ -1107,12 +1107,12 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise OpenStackCloudException(
                 "Failed to create domain {name}".format(name=name,
                                                         msg=str(e)))
-        return domain
+        return _utils.normalize_domains([domain])[0]
 
     def update_domain(
             self, domain_id, name=None, description=None, enabled=None):
         try:
-            return self.manager.submitTask(_tasks.DomainUpdate(
+            domain = self.manager.submitTask(_tasks.DomainUpdate(
                 domain=domain_id, description=description, enabled=enabled))
         except OpenStackCloudException:
             raise
@@ -1120,6 +1120,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise OpenStackCloudException(
                 "Error in updating domain {domain}: {message}".format(
                     domain=domain_id, message=str(e)))
+        return _utils.normalize_domains([domain])[0]
 
     def delete_domain(self, domain_id):
         """Delete a Keystone domain.
@@ -1159,7 +1160,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         except Exception as e:
             raise OpenStackCloudException("Failed to list domains: {msg}"
                                           .format(msg=str(e)))
-        return domains
+        return _utils.normalize_domains(domains)
 
     def search_domains(self, filters=None):
         """Search Keystone domains.
@@ -1184,7 +1185,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         except Exception as e:
             raise OpenStackCloudException("Failed to list domains: {msg}"
                                           .format(msg=str(e)))
-        return domains
+        return _utils.normalize_domains(domains)
 
     def get_domain(self, domain_id):
         """Get exactly one Keystone domain.
@@ -1211,7 +1212,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                     domain_id=domain_id,
                     msg=str(e)))
             raise OpenStackCloudException(str(e))
-        return domain
+        return _utils.normalize_domains([domain])[0]
 
     def list_roles(self):
         """List Keystone roles.
