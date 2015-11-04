@@ -20,6 +20,15 @@ from keystoneauth1 import session
 from os_client_config import _log
 from os_client_config import exceptions
 
+# Importing these for later but not disabling for now
+try:
+    from requests.packages.urllib3 import exceptions as urllib_exc
+except ImportError:
+    try:
+        from urllib3 import exceptions as urllib_exc
+    except ImportError:
+        urllib_exc = None
+
 
 class CloudConfig(object):
     def __init__(self, name, region, config,
@@ -134,6 +143,16 @@ class CloudConfig(object):
                 raise exceptions.OpenStackConfigException(
                     "Problem with auth parameters")
             (verify, cert) = self.get_requests_verify_args()
+            # Turn off urllib3 warnings about insecure certs if we have
+            # explicitly configured requests to tell it we do not want
+            # cert verification
+            if not verify and urllib_exc is not None:
+                self.log.debug(
+                    "Turning off SSL warnings for {cloud}:{region}"
+                    " since verify=False".format(
+                        cloud=self.name, region=self.region))
+                warnings.filterwarnings(
+                    'ignore', category=urllib_exc.InsecureRequestWarning)
             self._keystone_session = session.Session(
                 auth=self._auth,
                 verify=verify,
