@@ -364,3 +364,30 @@ def neutron_exceptions(error_message):
     except Exception as e:
         raise exc.OpenStackCloudException(
             "{msg}: {exc}".format(msg=error_message, exc=str(e)))
+
+
+@contextlib.contextmanager
+def shade_exceptions(error_message=None):
+    """Context manager for dealing with shade exceptions.
+
+    :param string error_message: String to use for the exception message
+        content on non-OpenStackCloudExceptions.
+
+    Useful for avoiding wrapping shade OpenStackCloudException exceptions
+    within themselves. Code called from within the context may throw such
+    exceptions without having to catch and reraise them.
+
+    Non-OpenStackCloudException exceptions thrown within the context will
+    be wrapped and the exception message will be appended to the given error
+    message.
+    """
+    try:
+        yield
+    except exc.OpenStackCloudException:
+        raise
+    except Exception as e:
+        if error_message is not None:
+            message = "{msg}: {exc}".format(msg=error_message, exc=str(e))
+        else:
+            message = str(e)
+        raise exc.OpenStackCloudException(message)
