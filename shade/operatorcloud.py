@@ -56,13 +56,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         return self._ironic_client
 
     def list_nics(self):
-        try:
+        with _utils.shade_exceptions("Error fetching machine port list"):
             return self.manager.submitTask(_tasks.MachinePortList())
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error fetching machine port list: %s" % e)
 
     def list_nics_for_machine(self, uuid):
         try:
@@ -158,7 +153,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "Machine must be in 'manage' or 'available' state to "
                 "engage inspection: Machine: %s State: %s"
                 % (machine['uuid'], machine['provision_state']))
-        try:
+        with _utils.shade_exceptions("Error inspecting machine"):
             machine = self.node_set_provision_state(machine['uuid'], 'inspect')
             if wait:
                 for count in _utils._iterate_timeout(
@@ -180,12 +175,6 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                     machine['uuid'], 'provide', wait=wait, timeout=timeout)
 
             return(machine)
-
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error inspecting machine: %s" % e)
 
     def register_machine(self, nics, wait=False, timeout=3600,
                          lock_timeout=600, **kwargs):
@@ -233,14 +222,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :returns: Returns a dictonary representing the new
                   baremetal node.
         """
-        try:
+        with _utils.shade_exceptions("Error registering machine with Ironic"):
             machine = self.manager.submitTask(_tasks.MachineCreate(**kwargs))
-
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error registering machine with Ironic: %s" % str(e))
 
         created_nics = []
         try:
@@ -268,7 +251,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "Error registering NICs with the baremetal service: %s"
                 % str(e))
 
-        try:
+        with _utils.shade_exceptions(
+                "Error transitioning node to available state"):
             if wait:
                 for count in _utils._iterate_timeout(
                         timeout,
@@ -329,12 +313,6 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                                 "Machine encountered a failure: %s"
                                 % machine['last_error'])
 
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error transitioning node to available state: %s"
-                % e)
         return machine
 
     def unregister_machine(self, nics, uuid, wait=False, timeout=600):
@@ -430,17 +408,14 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :returns: Dictonary representing the newly updated node.
         """
 
-        try:
+        with _utils.shade_exceptions(
+            "Error updating machine via patch operation on node "
+            "{node}".format(node=name_or_id)
+        ):
             return self.manager.submitTask(
                 _tasks.MachinePatch(node_id=name_or_id,
                                     patch=patch,
                                     http_method='PATCH'))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error updating machine via patch operation. node: %s. "
-                "%s" % (name_or_id, str(e)))
 
     def update_machine(self, name_or_id, chassis_uuid=None, driver=None,
                        driver_info=None, name=None, instance_info=None,
@@ -532,7 +507,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "for submission to the API. Machine: %s Error: %s"
                 % (name_or_id, str(e)))
 
-        try:
+        with _utils.shade_exceptions(
+            "Machine update failed - patch operation failed on Machine "
+            "{node}".format(node=name_or_id)
+        ):
             if not patch:
                 return dict(
                     node=machine,
@@ -547,21 +525,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                     node=machine,
                     changes=change_list
                 )
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Machine update failed - patch operation failed Machine: %s "
-                "Error: %s" % (name_or_id, str(e)))
 
     def validate_node(self, uuid):
-        try:
+        with _utils.shade_exceptions():
             ifaces = self.manager.submitTask(
                 _tasks.MachineNodeValidate(node_uuid=uuid))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(str(e))
 
         if not ifaces.deploy or not ifaces.power:
             raise OpenStackCloudException(
@@ -602,7 +570,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :returns: Dictonary representing the current state of the machine
                   upon exit of the method.
         """
-        try:
+        with _utils.shade_exceptions(
+            "Baremetal machine node failed change provision state to "
+            "{state}".format(state=state)
+        ):
             machine = self.manager.submitTask(
                 _tasks.MachineSetProvision(node_uuid=name_or_id,
                                            state=state,
@@ -622,14 +593,6 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             else:
                 machine = self.get_machine(name_or_id)
             return machine
-
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Baremetal machine node failed change provision"
-                " state to {state}: {msg}".format(state=state,
-                                                  msg=str(e)))
 
     def set_machine_maintenance_state(
             self,
@@ -783,13 +746,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
     def purge_node_instance_info(self, uuid):
         patch = []
         patch.append({'op': 'remove', 'path': '/instance_info'})
-        try:
+        with _utils.shade_exceptions():
             return self.manager.submitTask(
                 _tasks.MachineNodeUpdate(node_id=uuid, patch=patch))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(str(e))
 
     @_utils.valid_kwargs('type', 'service_type', 'description')
     def create_service(self, name, **kwargs):
@@ -814,7 +773,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
         service_type = kwargs.get('type', kwargs.get('service_type'))
         description = kwargs.get('description', None)
-        try:
+        with _utils.shade_exceptions("Failed to create service {name}".format(
+                name=name)):
             if self.cloud_config.get_api_version('identity').startswith('2'):
                 service_kwargs = {'service_type': service_type}
             else:
@@ -822,12 +782,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
             service = self.manager.submitTask(_tasks.ServiceCreate(
                 name=name, description=description, **service_kwargs))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Failed to create service {name}: {msg}".format(
-                    name=name, msg=str(e)))
+
         return service
 
     def list_services(self):
@@ -838,12 +793,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call.
         """
-        try:
+        with _utils.shade_exceptions():
             services = self.manager.submitTask(_tasks.ServiceList())
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(str(e))
         return _utils.normalize_keystone_services(services)
 
     def search_services(self, name_or_id=None, filters=None):
@@ -899,15 +850,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             service_kwargs = {'id': service['id']}
         else:
             service_kwargs = {'service': service['id']}
-        try:
+        with _utils.shade_exceptions("Failed to delete service {id}".format(
+                id=service['id'])):
             self.manager.submitTask(_tasks.ServiceDelete(**service_kwargs))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Failed to delete service {id}: {msg}".format(
-                    id=service['id'],
-                    msg=str(e)))
+
         return True
 
     @_utils.valid_kwargs('public_url', 'internal_url', 'admin_url')
@@ -981,21 +927,17 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                     urlkwargs['service'] = service['id']
                     endpoint_args.append(urlkwargs)
 
-        for args in endpoint_args:
-            try:
+        with _utils.shade_exceptions(
+            "Failed to create endpoint for service "
+            "{service}".format(service=service['name'])
+        ):
+            for args in endpoint_args:
                 endpoint = self.manager.submitTask(_tasks.EndpointCreate(
                     region=region,
                     **args
                 ))
-            except OpenStackCloudException:
-                raise
-            except Exception as e:
-                raise OpenStackCloudException(
-                    "Failed to create endpoint for service {service}: "
-                    "{msg}".format(service=service['name'],
-                                   msg=str(e)))
-            endpoints.append(endpoint)
-        return endpoints
+                endpoints.append(endpoint)
+            return endpoints
 
     def list_endpoints(self):
         """List Keystone endpoints.
@@ -1006,13 +948,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             the openstack API call.
         """
         # ToDo: support v3 api (dguerri)
-        try:
+        with _utils.shade_exceptions("Failed to list endpoints"):
             endpoints = self.manager.submitTask(_tasks.EndpointList())
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException("Failed to list endpoints: {msg}"
-                                          .format(msg=str(e)))
+
         return endpoints
 
     def search_endpoints(self, id=None, filters=None):
@@ -1073,15 +1011,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             endpoint_kwargs = {'id': endpoint['id']}
         else:
             endpoint_kwargs = {'endpoint': endpoint['id']}
-        try:
+        with _utils.shade_exceptions("Failed to delete endpoint {id}".format(
+                id=id)):
             self.manager.submitTask(_tasks.EndpointDelete(**endpoint_kwargs))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Failed to delete endpoint {id}: {msg}".format(
-                    id=id,
-                    msg=str(e)))
+
         return True
 
     def create_domain(
@@ -1096,30 +1029,20 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :raise OpenStackCloudException: if the domain cannot be created
         """
-        try:
+        with _utils.shade_exceptions("Failed to create domain {name}".format(
+                name=name)):
             domain = self.manager.submitTask(_tasks.DomainCreate(
                 name=name,
                 description=description,
                 enabled=enabled))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Failed to create domain {name}".format(name=name,
-                                                        msg=str(e)))
         return _utils.normalize_domains([domain])[0]
 
     def update_domain(
             self, domain_id, name=None, description=None, enabled=None):
-        try:
+        with _utils.shade_exceptions(
+                "Error in updating domain {domain}".format(domain=domain_id)):
             domain = self.manager.submitTask(_tasks.DomainUpdate(
                 domain=domain_id, description=description, enabled=enabled))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error in updating domain {domain}: {message}".format(
-                    domain=domain_id, message=str(e)))
         return _utils.normalize_domains([domain])[0]
 
     def delete_domain(self, domain_id):
@@ -1132,18 +1055,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the openstack API call.
         """
-        try:
+        with _utils.shade_exceptions("Failed to delete domain {id}".format(
+                id=domain_id)):
             # Deleting a domain is expensive, so disabling it first increases
             # the changes of success
             domain = self.update_domain(domain_id, enabled=False)
             self.manager.submitTask(_tasks.DomainDelete(
                 domain=domain['id']))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Failed to delete domain {id}: {msg}".format(id=domain_id,
-                                                             msg=str(e)))
 
     def list_domains(self):
         """List Keystone domains.
@@ -1153,13 +1071,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        try:
+        with _utils.shade_exceptions("Failed to list domains"):
             domains = self.manager.submitTask(_tasks.DomainList())
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException("Failed to list domains: {msg}"
-                                          .format(msg=str(e)))
         return _utils.normalize_domains(domains)
 
     def search_domains(self, filters=None):
@@ -1177,14 +1090,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        try:
+        with _utils.shade_exceptions("Failed to list domains"):
             domains = self.manager.submitTask(
                 _tasks.DomainList(**filters))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException("Failed to list domains: {msg}"
-                                          .format(msg=str(e)))
         return _utils.normalize_domains(domains)
 
     def get_domain(self, domain_id):
@@ -1201,17 +1109,12 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        try:
+        with _utils.shade_exceptions(
+            "Failed to get domain "
+            "{domain_id}".format(domain_id=domain_id)
+        ):
             domain = self.manager.submitTask(
                 _tasks.DomainGet(domain=domain_id))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Failed to get domain {domain_id}: {msg}".format(
-                    domain_id=domain_id,
-                    msg=str(e)))
-            raise OpenStackCloudException(str(e))
         return _utils.normalize_domains([domain])[0]
 
     def list_roles(self):
@@ -1222,12 +1125,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        try:
+        with _utils.shade_exceptions():
             roles = self.manager.submitTask(_tasks.RoleList())
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(str(e))
+
         return roles
 
     def search_roles(self, name_or_id=None, filters=None):
@@ -1285,20 +1185,15 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :raises: OpenStackCloudException on operation error.
         """
-        try:
+        with _utils.shade_exceptions("Failed to create flavor {name}".format(
+                name=name)):
             flavor = self.manager.submitTask(
                 _tasks.FlavorCreate(name=name, ram=ram, vcpus=vcpus, disk=disk,
                                     flavorid=flavorid, ephemeral=ephemeral,
                                     swap=swap, rxtx_factor=rxtx_factor,
                                     is_public=is_public)
             )
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Failed to create flavor {name}: {msg}".format(
-                    name=name,
-                    msg=str(e)))
+
         return flavor
 
     def delete_flavor(self, name_or_id):
@@ -1316,14 +1211,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "Flavor {0} not found for deleting".format(name_or_id))
             return False
 
-        try:
+        with _utils.shade_exceptions("Unable to delete flavor {name}".format(
+                name=name_or_id)):
             self.manager.submitTask(_tasks.FlavorDelete(flavor=flavor['id']))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Unable to delete flavor {0}: {1}".format(name_or_id, e)
-            )
 
         return True
 
@@ -1441,14 +1331,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :raise OpenStackCloudException: if the role cannot be created
         """
-        try:
+        with _utils.shade_exceptions():
             role = self.manager.submitTask(
                 _tasks.RoleCreate(name=name)
             )
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(str(e))
         return role
 
     def delete_role(self, name_or_id):
