@@ -171,7 +171,7 @@ class OpenStackCloud(object):
         self._servers_time = 0
         self._servers_lock = threading.Lock()
 
-        cache_expiration_time = cloud_config.get_cache_expiration_time()
+        cache_expiration_time = int(cloud_config.get_cache_expiration_time())
         cache_class = cloud_config.get_cache_class()
         cache_arguments = cloud_config.get_cache_arguments()
         cache_expiration = cloud_config.get_cache_expiration()
