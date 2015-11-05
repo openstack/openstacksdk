@@ -239,6 +239,8 @@ class OpenStackConfig(object):
                 new_config[key] = value
             elif isinstance(value, int):
                 new_config[key] = str(value)
+            elif isinstance(value, float):
+                new_config[key] = str(value)
             else:
                 new_config[key] = value
         return new_config
