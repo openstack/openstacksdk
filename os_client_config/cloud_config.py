@@ -238,10 +238,8 @@ class CloudConfig(object):
                 interface_key = 'interface'
             else:
                 interface_key = 'endpoint_type'
-        if service_key == 'network':
-            pass_version_arg = False
 
-        constructor_args = dict(
+        constructor_kwargs = dict(
             session=self.get_session(),
             service_name=self.get_service_name(service_key),
             service_type=self.get_service_type(service_key),
@@ -254,13 +252,15 @@ class CloudConfig(object):
             # they necessarily have glanceclient installed
             from glanceclient.common import utils as glance_utils
             endpoint, version = glance_utils.strip_version(endpoint)
-            constructor_args['endpoint'] = endpoint
-        constructor_args.update(kwargs)
-        constructor_args[interface_key] = interface
+            constructor_kwargs['endpoint'] = endpoint
+        constructor_kwargs.update(kwargs)
+        constructor_kwargs[interface_key] = interface
+        constructor_args = []
         if pass_version_arg:
             version = self.get_api_version(service_key)
-            constructor_args['version'] = version
-        return client_class(**constructor_args)
+            constructor_args.append(version)
+
+        return client_class(*constructor_args, **constructor_kwargs)
 
     def _get_swift_client(self, client_class, **kwargs):
         session = self.get_session()

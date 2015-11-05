@@ -24,7 +24,7 @@ from os_client_config.tests import base
 
 fake_config_dict = {'a': 1, 'os_b': 2, 'c': 3, 'os_c': 4}
 fake_services_dict = {
-    'compute_api_version': 2,
+    'compute_api_version': '2',
     'compute_endpoint': 'http://compute.example.com',
     'compute_region_name': 'region-bl',
     'interface': 'public',
@@ -139,7 +139,7 @@ class TestCloudConfig(base.TestCase):
         self.assertEqual('region-al', cc.get_region_name('image'))
         self.assertEqual('region-bl', cc.get_region_name('compute'))
         self.assertEqual(None, cc.get_api_version('image'))
-        self.assertEqual(2, cc.get_api_version('compute'))
+        self.assertEqual('2', cc.get_api_version('compute'))
         self.assertEqual('mage', cc.get_service_type('image'))
         self.assertEqual('compute', cc.get_service_type('compute'))
         self.assertEqual('http://compute.example.com',
@@ -235,7 +235,7 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('image', mock_client)
         mock_client.assert_called_with(
-            version='2',
+            '2',
             service_name=None,
             endpoint='http://example.com',
             region_name='region-al',
@@ -255,6 +255,7 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('network', mock_client)
         mock_client.assert_called_with(
+            '2.0',
             endpoint_type='public',
             region_name='region-al',
             service_type='network',
@@ -271,7 +272,7 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('compute', mock_client)
         mock_client.assert_called_with(
-            version=2,
+            '2',
             endpoint_type='public',
             region_name='region-al',
             service_type='compute',
