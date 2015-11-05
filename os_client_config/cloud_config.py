@@ -14,6 +14,7 @@
 
 import warnings
 
+from keystoneauth1 import adapter
 from keystoneauth1 import plugin
 from keystoneauth1 import session
 
@@ -159,6 +160,28 @@ class CloudConfig(object):
                 cert=cert,
                 timeout=self.config['api_timeout'])
         return self._keystone_session
+
+    def get_session_client(self, service_key):
+        """Return a prepped requests adapter for a given service.
+
+        This is useful for making direct requests calls against a
+        'mounted' endpoint. That is, if you do:
+
+          client = get_session_client('compute')
+
+        then you can do:
+
+          client.get('/flavors')
+
+        and it will work like you think.
+        """
+
+        return adapter.Adapter(
+            session=self.get_session(),
+            service_type=self.get_service_type(service_key),
+            service_name=self.get_service_name(service_key),
+            interface=self.get_interface(service_key),
+            region_name=self.region)
 
     def get_session_endpoint(self, service_key):
         """Return the endpoint from config or the catalog.
