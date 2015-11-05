@@ -22,6 +22,7 @@ from neutronclient.common import exceptions as neutron_exc
 
 from shade import _log
 from shade import exc
+from shade import meta
 
 
 log = _log.setup_logging(__name__)
@@ -151,7 +152,7 @@ def normalize_keystone_services(services):
             'service_type': service_type,
         }
         ret.append(new_service)
-    return ret
+    return meta.obj_list_to_dict(ret)
 
 
 def normalize_nova_secgroups(groups):
@@ -165,11 +166,12 @@ def normalize_nova_secgroups(groups):
 
     :returns: A list of normalized dicts.
     """
-    return [{'id': g['id'],
-             'name': g['name'],
-             'description': g['description'],
-             'security_group_rules': normalize_nova_secgroup_rules(g['rules'])
-             } for g in groups]
+    ret = [{'id': g['id'],
+            'name': g['name'],
+            'description': g['description'],
+            'security_group_rules': normalize_nova_secgroup_rules(g['rules'])
+            } for g in groups]
+    return meta.obj_list_to_dict(ret)
 
 
 def normalize_nova_secgroup_rules(rules):
@@ -182,17 +184,18 @@ def normalize_nova_secgroup_rules(rules):
 
     :returns: A list of normalized dicts.
     """
-    return [{'id': r['id'],
-             'direction': 'ingress',
-             'ethertype': 'IPv4',
-             'port_range_min':
-                 None if r['from_port'] == -1 else r['from_port'],
-             'port_range_max':
-                 None if r['to_port'] == -1 else r['to_port'],
-             'protocol': r['ip_protocol'],
-             'remote_ip_prefix': r['ip_range'].get('cidr', None),
-             'security_group_id': r['parent_group_id']
-             } for r in rules]
+    ret = [{'id': r['id'],
+            'direction': 'ingress',
+            'ethertype': 'IPv4',
+            'port_range_min':
+                None if r['from_port'] == -1 else r['from_port'],
+            'port_range_max':
+                None if r['to_port'] == -1 else r['to_port'],
+            'protocol': r['ip_protocol'],
+            'remote_ip_prefix': r['ip_range'].get('cidr', None),
+            'security_group_id': r['parent_group_id']
+            } for r in rules]
+    return meta.obj_list_to_dict(ret)
 
 
 def normalize_nova_floating_ips(ips):
@@ -223,7 +226,7 @@ def normalize_nova_floating_ips(ips):
         ]
 
     """
-    return [dict(
+    ret = [dict(
         id=ip['id'],
         fixed_ip_address=ip.get('fixed_ip'),
         floating_ip_address=ip['ip'],
@@ -233,6 +236,7 @@ def normalize_nova_floating_ips(ips):
         status='ACTIVE'  # In neutrons terms, Nova floating IPs are always
                          # ACTIVE
     ) for ip in ips]
+    return meta.obj_list_to_dict(ret)
 
 
 def normalize_neutron_floating_ips(ips):
@@ -264,7 +268,7 @@ def normalize_neutron_floating_ips(ips):
         ]
 
     """
-    return [dict(
+    ret = [dict(
         id=ip['id'],
         fixed_ip_address=ip.get('fixed_ip_address'),
         floating_ip_address=ip['floating_ip_address'],
@@ -273,6 +277,7 @@ def normalize_neutron_floating_ips(ips):
                   ip.get('port_id') != ''),
         status=ip['status']
     ) for ip in ips]
+    return meta.obj_list_to_dict(ret)
 
 
 def localhost_supports_ipv6():
@@ -287,7 +292,7 @@ def localhost_supports_ipv6():
 
 
 def normalize_users(users):
-    return [
+    ret = [
         dict(
             id=user.get('id'),
             email=user.get('email'),
@@ -299,6 +304,7 @@ def normalize_users(users):
             enabled=user.get('enabled'),
         ) for user in users
     ]
+    return meta.obj_list_to_dict(ret)
 
 
 def valid_kwargs(*valid_args):
