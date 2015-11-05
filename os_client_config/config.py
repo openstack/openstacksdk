@@ -235,6 +235,8 @@ class OpenStackConfig(object):
             key = key.replace('-', '_')
             if isinstance(value, dict):
                 new_config[key] = self._normalize_keys(value)
+            elif isinstance(value, bool):
+                new_config[key] = value
             elif isinstance(value, int):
                 new_config[key] = str(value)
             else:

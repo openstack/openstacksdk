@@ -149,6 +149,7 @@ class TestCase(base.BaseTestCase):
         self.assertIsNone(cc.cloud)
         self.assertIn('username', cc.auth)
         self.assertEqual('testuser', cc.auth['username'])
+        self.assertFalse(cc.config['image_api_use_tasks'])
         self.assertTrue('project_name' in cc.auth or 'project_id' in cc.auth)
         if 'project_name' in cc.auth:
             self.assertEqual('testproject', cc.auth['project_name'])
