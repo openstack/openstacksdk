@@ -15,7 +15,7 @@ from openstack.compute.v2 import flavor
 from openstack.compute.v2 import image
 from openstack.compute.v2 import keypair
 from openstack.compute.v2 import limits
-from openstack.compute.v2 import server
+from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import server_interface
 from openstack.compute.v2 import server_ip
 from openstack import proxy
@@ -284,7 +284,7 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of server creation
         :rtype: :class:`~openstack.compute.v2.server.Server`
         """
-        return self._create(server.Server, **attrs)
+        return self._create(_server.Server, **attrs)
 
     def delete_server(self, value, ignore_missing=True):
         """Delete a server
@@ -299,7 +299,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(server.Server, value, ignore_missing=ignore_missing)
+        self._delete(_server.Server, value, ignore_missing=ignore_missing)
 
     def find_server(self, name_or_id, ignore_missing=True):
         """Find a single server
@@ -312,7 +312,7 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.server.Server` or None
         """
-        return self._find(server.Server, name_or_id,
+        return self._find(_server.Server, name_or_id,
                           ignore_missing=ignore_missing)
 
     def get_server(self, value):
@@ -325,7 +325,7 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(server.Server, value)
+        return self._get(_server.Server, value)
 
     def servers(self, details=True, **query):
         """Retrieve a generator of servers
@@ -364,7 +364,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: A generator of server instances.
         """
-        srv = server.ServerDetail if details else server.Server
+        srv = _server.ServerDetail if details else _server.Server
 
         # Server expects changes-since, but we use an underscore
         # so it can be a proper Python name.
@@ -384,16 +384,19 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated server
         :rtype: :class:`~openstack.compute.v2.server.Server`
         """
-        return self._update(server.Server, value, **attrs)
+        return self._update(_server.Server, value, **attrs)
 
     def wait_for_server(self, value, status='ACTIVE', failures=['ERROR'],
                         interval=2, wait=120):
         return resource.wait_for_status(self.session, value, status,
                                         failures, interval, wait)
 
-    def create_server_interface(self, **attrs):
+    def create_server_interface(self, server, **attrs):
         """Create a new server interface from attributes
 
+        :param server: The server can be either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance
+                       that the interface belongs to.
         :param dict attrs: Keyword arguments which will be used to create
             a :class:`~openstack.compute.v2.server_interface.ServerInterface`,
             comprised of the properties on the ServerInterface class.
@@ -401,14 +404,20 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of server interface creation
         :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
         """
-        return self._create(server_interface.ServerInterface, **attrs)
+        server_id = resource.Resource.get_id(server)
+        return self._create(server_interface.ServerInterface,
+                            path_args={'server_id': server_id}, **attrs)
 
-    def delete_server_interface(self, value, ignore_missing=True):
+    def delete_server_interface(self, value, server=None, ignore_missing=True):
         """Delete a server interface
 
-        :param value: The value can be either the ID of a server or a
+        :param value: The value can be either the ID of a server interface or a
                :class:`~openstack.compute.v2.server_interface.ServerInterface`
                instance.
+        :param server: This parameter need to be specified when ServerInterface
+                       ID is given as value. It can be either the ID of a
+                       server or a :class:`~openstack.compute.v2.server.Server`
+                       instance that the interface belongs to.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the server interface does not exist.
@@ -417,64 +426,54 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
+        if isinstance(value, server_interface.ServerInterface):
+            server_id = value.server_id
+        else:
+            server_id = resource.Resource.get_id(server)
+
         self._delete(server_interface.ServerInterface, value,
+                     path_args={'server_id': server_id},
                      ignore_missing=ignore_missing)
 
-    def find_server_interface(self, name_or_id, ignore_missing=True):
-        """Find a single server interface
-
-        :param name_or_id: The name or ID of a server interface.
-        :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
-        :returns: One :class:`~openstack.compute.v2.server_interface.
-                  ServerInterface` or None
-        """
-        return self._find(server_interface.ServerInterface,
-                          name_or_id, ignore_missing=ignore_missing)
-
-    def get_server_interface(self, value):
+    def get_server_interface(self, value, server=None):
         """Get a single server interface
 
         :param value: The value can be the ID of a server interface or a
                :class:`~openstack.compute.v2.server_interface.ServerInterface`
                instance.
+        :param server: This parameter need to be specified when ServerInterface
+                       ID is given as value. It can be either the ID of a
+                       server or a :class:`~openstack.compute.v2.server.Server`
+                       instance that the interface belongs to.
 
         :returns: One
             :class:`~openstack.compute.v2.server_interface.ServerInterface`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(server_interface.ServerInterface, value)
+        if isinstance(value, server_interface.ServerInterface):
+            server_id = value.server_id
+        else:
+            server_id = resource.Resource.get_id(server)
 
-    def server_interfaces(self, **query):
+        return self._get(server_interface.ServerInterface, value,
+                         path_args={'server_id': server_id})
+
+    def server_interfaces(self, server, **query):
         """Return a generator of server interfaces
 
+        :param server: The server can be either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server`.
         :param kwargs \*\*query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of ServerInterface objects
         :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
         """
+        server_id = resource.Resource.get_id(server)
         return self._list(server_interface.ServerInterface, paginated=False,
+                          path_args={'server_id': server_id},
                           **query)
-
-    def update_server_interface(self, value, **attrs):
-        """Update a server interface
-
-        :param value: Either the id of a server interface or a
-                      :class:
-                      `~openstack.compute.v2.server_interface.ServerInterface`
-                      instance.
-        :attrs kwargs: The attributes to update on the server interface
-                       represented by ``value``.
-
-        :returns: The updated server interface
-        :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
-        """
-        return self._update(server_interface.ServerInterface, value, **attrs)
 
     def find_server_ip(self, name_or_id, ignore_missing=True):
         """Find a single server IP

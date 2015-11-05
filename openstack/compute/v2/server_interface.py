@@ -15,7 +15,7 @@ from openstack import resource
 
 
 class ServerInterface(resource.Resource):
-    id_attribute = 'mac_addr'
+    id_attribute = 'port_id'
     resource_key = 'interfaceAttachment'
     resources_key = 'interfaceAttachments'
     base_path = '/servers/%(server_id)s/os-interface'

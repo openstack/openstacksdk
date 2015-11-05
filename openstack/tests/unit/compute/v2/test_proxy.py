@@ -115,32 +115,70 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
 
     def test_server_interface_create(self):
         self.verify_create(self.proxy.create_server_interface,
-                           server_interface.ServerInterface)
+                           server_interface.ServerInterface,
+                           method_kwargs={"server": "test_id"},
+                           expected_kwargs={"path_args": {
+                               "server_id": "test_id"}})
 
     def test_server_interface_delete(self):
-        self.verify_delete(self.proxy.delete_server_interface,
-                           server_interface.ServerInterface, False)
+        test_interface = server_interface.ServerInterface.from_id(
+            "test_interface_id")
+        test_interface.server_id = "test_server_id"
+
+        # Case1: ServerInterface instance is provided as value
+        self._verify2("openstack.proxy.BaseProxy._delete",
+                      self.proxy.delete_server_interface,
+                      method_args=[test_interface, "test_server_id"],
+                      expected_args=[server_interface.ServerInterface,
+                                     test_interface],
+                      expected_kwargs={"path_args": {
+                          "server_id": "test_server_id"},
+                          "ignore_missing": True})
+
+        # Case2: ServerInterface ID is provided as value
+        self._verify2("openstack.proxy.BaseProxy._delete",
+                      self.proxy.delete_server_interface,
+                      method_args=["test_interface_id", "test_server_id"],
+                      expected_args=[server_interface.ServerInterface,
+                                     "test_interface_id"],
+                      expected_kwargs={"path_args": {
+                          "server_id": "test_server_id"},
+                          "ignore_missing": True})
 
     def test_server_interface_delete_ignore(self):
         self.verify_delete(self.proxy.delete_server_interface,
-                           server_interface.ServerInterface, True)
-
-    def test_server_interface_find(self):
-        self.verify_find(self.proxy.find_server_interface,
-                         server_interface.ServerInterface)
+                           server_interface.ServerInterface, True,
+                           {"server": "test_id"}, {"server_id": "test_id"})
 
     def test_server_interface_get(self):
-        self.verify_get(self.proxy.get_server_interface,
-                        server_interface.ServerInterface)
+        test_interface = server_interface.ServerInterface.from_id(
+            "test_interface_id")
+        test_interface.server_id = "test_server_id"
+
+        # Case1: ServerInterface instance is provided as value
+        self._verify2('openstack.proxy.BaseProxy._get',
+                      self.proxy.get_server_interface,
+                      method_args=[test_interface, "test_id"],
+                      expected_args=[server_interface.ServerInterface,
+                                     test_interface],
+                      expected_kwargs={"path_args": {
+                          "server_id": "test_server_id"}})
+
+        # Case2: ServerInterface ID is provided as value
+        self._verify2('openstack.proxy.BaseProxy._get',
+                      self.proxy.get_server_interface,
+                      method_args=["test_interface_id", "test_server_id"],
+                      expected_args=[server_interface.ServerInterface,
+                                     "test_interface_id"],
+                      expected_kwargs={"path_args": {
+                          "server_id": "test_server_id"}})
 
     def test_server_interfaces(self):
         self.verify_list(self.proxy.server_interfaces,
                          server_interface.ServerInterface,
-                         paginated=False)
-
-    def test_server_interface_update(self):
-        self.verify_update(self.proxy.update_server_interface,
-                           server_interface.ServerInterface)
+                         paginated=False, method_args=["test_id"],
+                         expected_kwargs={"path_args": {
+                             "server_id": "test_id"}})
 
     def test_server_ip_find(self):
         self.verify_find(self.proxy.find_server_ip, server_ip.ServerIP)

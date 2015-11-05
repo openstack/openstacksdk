@@ -47,7 +47,7 @@ class TestServerInterface(testtools.TestCase):
     def test_make_it(self):
         sot = server_interface.ServerInterface(EXAMPLE)
         self.assertEqual(EXAMPLE['fixed_ips'], sot.fixed_ips)
-        self.assertEqual(EXAMPLE['mac_addr'], sot.id)
+        self.assertEqual(EXAMPLE['port_id'], sot.id)
         self.assertEqual(EXAMPLE['mac_addr'], sot.mac_addr)
         self.assertEqual(EXAMPLE['net_id'], sot.net_id)
         self.assertEqual(EXAMPLE['port_id'], sot.port_id)
