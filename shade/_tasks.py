@@ -647,26 +647,6 @@ class GroupUpdate(task_manager.Task):
         return client.keystone_client.groups.update(**self.args)
 
 
-class ZoneList(task_manager.Task):
-    def main(self, client):
-        return client.designate_client.domains.list()
-
-
-class ZoneGet(task_manager.Task):
-    def main(self, client):
-        return client.designate_client.domains.get(**self.args)
-
-
-class RecordList(task_manager.Task):
-    def main(self, client):
-        return client.designate_client.records.list(**self.args)
-
-
-class RecordGet(task_manager.Task):
-    def main(self, client):
-        return client.designate_client.records.get(**self.args)
-
-
 class RoleList(task_manager.Task):
     def main(self, client):
         return client.keystone_client.roles.list()

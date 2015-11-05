@@ -24,7 +24,6 @@ from dogpile import cache
 import requestsexceptions
 
 from cinderclient.v1 import client as cinder_client
-from designateclient.v1 import Client as designate_client
 import glanceclient
 import glanceclient.exc
 from glanceclient.common import utils as glance_utils
@@ -219,7 +218,6 @@ class OpenStackCloud(object):
         self._keystone_session = None
 
         self._cinder_client = None
-        self._designate_client = None
         self._glance_client = None
         self._glance_endpoint = None
         self._heat_client = None
@@ -722,13 +720,6 @@ class OpenStackCloud(object):
                 'network', neutron_client.Client, pass_version_arg=False)
         return self._neutron_client
 
-    @property
-    def designate_client(self):
-        if self._designate_client is None:
-            self._designate_client = self._get_client(
-                'dns', designate_client.Client)
-        return self._designate_client
-
     def create_stack(
             self, name,
             template_file=None, template_url=None,
@@ -986,14 +977,6 @@ class OpenStackCloud(object):
     def search_floating_ips(self, id=None, filters=None):
         floating_ips = self.list_floating_ips()
         return _utils._filter_list(floating_ips, id, filters)
-
-    def search_zones(self, name_or_id=None, filters=None):
-        zones = self.list_zones()
-        return _utils._filter_list(zones, name_or_id, filters)
-
-    def _search_records(self, zone_id, name_or_id=None, filters=None):
-        records = self._list_records(zone_id=zone_id)
-        return _utils._filter_list(records, name_or_id, filters)
 
     def search_stacks(self, name_or_id=None, filters=None):
         """Search Heat stacks.
@@ -1294,26 +1277,6 @@ class OpenStackCloud(object):
         except Exception as e:
             raise OpenStackCloudException(
                 "error fetching floating IPs list: {msg}".format(msg=str(e)))
-
-    def list_zones(self):
-        """List all available DNS zones.
-
-        :returns: A list of zone dicts.
-
-        """
-        try:
-            return self.manager.submitTask(_tasks.ZoneList())
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error fetching zone list: %s" % e)
-
-    def _list_records(self, zone_id):
-        # TODO(mordred) switch domain= to zone= after the Big Rename
-        try:
-            return self.manager.submitTask(_tasks.RecordList(domain=zone_id))
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error fetching record list: %s" % e)
 
     def use_external_network(self):
         return self._use_external_network
@@ -1622,32 +1585,6 @@ class OpenStackCloud(object):
 
         """
         return _utils._get_entity(self.search_floating_ips, id, filters)
-
-    def get_zone(self, name_or_id, filters=None):
-        """Get a DNS zone by name or ID.
-
-        :param name_or_id: Name or ID of the DNS zone.
-        :param dict filters:
-            A dictionary of meta data to use for further filtering. Elements
-            of this dictionary may, themselves, be dictionaries. Example::
-
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
-
-        :returns: A zone dict or None if no matching DNS zone is
-        found.
-
-        """
-        return _utils._get_entity(self.search_zones, name_or_id, filters)
-
-    def _get_record(self, zone_id, name_or_id, filters=None):
-        f = lambda name_or_id, filters: self._search_records(
-            zone_id, name_or_id, filters)
-        return _utils._get_entity(f, name_or_id, filters)
 
     def get_stack(self, name_or_id, filters=None):
         """Get exactly one Heat stack.
