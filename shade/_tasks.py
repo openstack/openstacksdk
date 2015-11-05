@@ -609,7 +609,7 @@ class DomainCreate(task_manager.Task):
 
 class DomainList(task_manager.Task):
     def main(self, client):
-        return client.keystone_client.domains.list()
+        return client.keystone_client.domains.list(**self.args)
 
 
 class DomainGet(task_manager.Task):

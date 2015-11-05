@@ -1161,11 +1161,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                                           .format(msg=str(e)))
         return domains
 
-    def search_domains(self, **filters):
-        """Seach Keystone domains.
+    def search_domains(self, filters=None):
+        """Search Keystone domains.
 
-        :param filters: a dict containing additional filters to use.
-                keys to search on are id, name, enabled and description.
+        :param dict filters: A dict containing additional filters to use.
+             Keys to search on are id, name, enabled and description.
 
         :returns: a list of dicts containing the domain description. Each dict
             contains the following attributes::
