@@ -299,15 +299,17 @@ class CloudConfig(object):
         if self._openstack_config:
             return self._openstack_config.get_cache_expiration()
 
-    def get_cache_resource_expiration(self, resource):
+    def get_cache_resource_expiration(self, resource, default=None):
         """Get expiration time for a resource
 
         :param resource: Name of the resource type
+        :param default: Default value to return if not found (optional,
+                        defaults to None)
 
-        :returns: Expiration time for the resource type or None
+        :returns: Expiration time for the resource type as float or default
         """
         if self._openstack_config:
             expiration = self._openstack_config.get_cache_expiration()
             if resource not in expiration:
-                return None
-            return expiration[resource]
+                return default
+            return float(expiration[resource])

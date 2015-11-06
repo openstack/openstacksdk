@@ -39,6 +39,13 @@ VENDOR_CONF = {
     }
 }
 USER_CONF = {
+    'cache': {
+        'max_age': '1',
+        'expiration': {
+            'server': 5,
+            'image': '7',
+        },
+    },
     'client': {
         'force_ipv4': True,
     },
@@ -104,7 +111,6 @@ USER_CONF = {
             'region_name': 'test-region',
         }
     },
-    'cache': {'max_age': 1},
 }
 NO_CONF = {
     'cache': {'max_age': 1},
@@ -155,3 +161,6 @@ class TestCase(base.BaseTestCase):
             self.assertEqual('testproject', cc.auth['project_name'])
         elif 'project_id' in cc.auth:
             self.assertEqual('testproject', cc.auth['project_id'])
+        self.assertEqual(cc.get_cache_expiration_time(), 1)
+        self.assertEqual(cc.get_cache_resource_expiration('server'), 5.0)
+        self.assertEqual(cc.get_cache_resource_expiration('image'), 7.0)

@@ -246,13 +246,13 @@ class OpenStackConfig(object):
         return new_config
 
     def get_cache_expiration_time(self):
-        return self._cache_expiration_time
+        return int(self._cache_expiration_time)
 
     def get_cache_interval(self):
-        return self._cache_expiration_time
+        return self.get_cache_expiration_time()
 
     def get_cache_max_age(self):
-        return self._cache_expiration_time
+        return self.get_cache_expiration_time()
 
     def get_cache_path(self):
         return self._cache_path
