@@ -455,7 +455,7 @@ class OpenStackCloud(object):
             self, name, description=None, domain_id=None, enabled=True):
         """Create a project."""
         try:
-            params = self._get_domain_param_dict(domain)
+            params = self._get_domain_param_dict(domain_id)
             if self.api_versions['identity'] == '3':
                 params['name'] = name
             else:
