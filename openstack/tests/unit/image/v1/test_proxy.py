@@ -20,8 +20,8 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         super(TestImageProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
-    def test_image_create_attrs(self):
-        self.verify_create(self.proxy.create_image, image.Image)
+    def test_image_upload_attrs(self):
+        self.verify_create(self.proxy.upload_image, image.Image)
 
     def test_image_delete(self):
         self.verify_delete(self.proxy.delete_image, image.Image, False)

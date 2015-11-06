@@ -16,8 +16,8 @@ from openstack import proxy
 
 class Proxy(proxy.BaseProxy):
 
-    def create_image(self, **attrs):
-        """Create a new image from attributes
+    def upload_image(self, **attrs):
+        """Upload a new image from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.image.v1.image.Image`,
