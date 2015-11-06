@@ -319,6 +319,19 @@ def normalize_domains(domains):
     return meta.obj_list_to_dict(ret)
 
 
+def normalize_groups(domains):
+    """Normalize Identity groups."""
+    ret = [
+        dict(
+            id=domain.get('id'),
+            name=domain.get('name'),
+            description=domain.get('description'),
+            domain_id=domain.get('domain_id'),
+        ) for domain in domains
+    ]
+    return meta.obj_list_to_dict(ret)
+
+
 def valid_kwargs(*valid_args):
     # This decorator checks if argument passed as **kwargs to a function are
     # present in valid_args.

@@ -1117,6 +1117,128 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 _tasks.DomainGet(domain=domain_id))
         return _utils.normalize_domains([domain])[0]
 
+    @_utils.cache_on_arguments()
+    def list_groups(self):
+        """List Keystone Groups.
+
+        :returns: A list of dicts containing the group description.
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        with _utils.shade_exceptions("Failed to list groups"):
+            groups = self.manager.submitTask(_tasks.GroupList())
+        return _utils.normalize_groups(groups)
+
+    def search_groups(self, name_or_id=None, filters=None):
+        """Search Keystone groups.
+
+        :param name: Group name or id.
+        :param filters: A dict containing additional filters to use.
+
+        :returns: A list of dict containing the group description.
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        groups = self.list_groups()
+        return _utils._filter_list(groups, name_or_id, filters)
+
+    def get_group(self, name_or_id, filters=None):
+        """Get exactly one Keystone group.
+
+        :param id: Group name or id.
+        :param filters: A dict containing additional filters to use.
+
+        :returns: A dict containing the group description.
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        return _utils._get_entity(self.search_groups, name_or_id, filters)
+
+    def create_group(self, name, description, domain=None):
+        """Create a group.
+
+        :param string name: Group name.
+        :param string description: Group description.
+        :param string domain: Domain name or ID for the group.
+
+        :returns: A dict containing the group description.
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        with _utils.shade_exceptions(
+            "Error creating group {group}".format(group=name)
+        ):
+            domain_id = None
+            if domain:
+                dom = self.get_domain(domain)
+                if not dom:
+                    raise OpenStackCloudException(
+                        "Creating group {group} failed: Invalid domain "
+                        "{domain}".format(group=name, domain=domain)
+                    )
+                domain_id = dom['id']
+
+            group = self.manager.submitTask(_tasks.GroupCreate(
+                name=name, description=description, domain=domain_id)
+            )
+        self.list_groups.invalidate(self)
+        return _utils.normalize_groups([group])[0]
+
+    def update_group(self, name_or_id, name=None, description=None):
+        """Update an existing group
+
+        :param string name: New group name.
+        :param string description: New group description.
+
+        :returns: A dict containing the group description.
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        self.list_groups.invalidate(self)
+        group = self.get_group(name_or_id)
+        if group is None:
+            raise OpenStackCloudException(
+                "Group {0} not found for updating".format(name_or_id)
+            )
+
+        with _utils.shade_exceptions(
+            "Unable to update group {name}".format(name=name_or_id)
+        ):
+            group = self.manager.submitTask(_tasks.GroupUpdate(
+                group=group['id'], name=name, description=description))
+
+        self.list_groups.invalidate(self)
+        return _utils.normalize_groups([group])[0]
+
+    def delete_group(self, name_or_id):
+        """Delete a group
+
+        :param name_or_id: ID or name of the group to delete.
+
+        :returns: True if delete succeeded, False otherwise.
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        group = self.get_group(name_or_id)
+        if group is None:
+            self.log.debug(
+                "Group {0} not found for deleting".format(name_or_id))
+            return False
+
+        with _utils.shade_exceptions(
+            "Unable to delete group {name}".format(name=name_or_id)
+        ):
+            self.manager.submitTask(_tasks.GroupDelete(group=group['id']))
+
+        self.list_groups.invalidate(self)
+        return True
+
     def list_roles(self):
         """List Keystone roles.
 
