@@ -278,3 +278,40 @@ class TestCloudConfig(base.TestCase):
             service_type='compute',
             session=mock.ANY,
             service_name=None)
+
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    def test_legacy_client_identity(self, mock_get_session_endpoint):
+        mock_client = mock.Mock()
+        mock_get_session_endpoint.return_value = 'http://example.com/v2'
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_legacy_client('identity', mock_client)
+        mock_client.assert_called_with(
+            version=('2', '0'),
+            endpoint='http://example.com/v2',
+            endpoint_type='admin',
+            region_name='region-al',
+            service_type='identity',
+            session=mock.ANY,
+            service_name='locks')
+
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    def test_legacy_client_identity_v3(self, mock_get_session_endpoint):
+        mock_client = mock.Mock()
+        mock_get_session_endpoint.return_value = 'http://example.com'
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        config_dict['identity_api_version'] = '3'
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_legacy_client('identity', mock_client)
+        mock_client.assert_called_with(
+            version=('3', '0'),
+            endpoint='http://example.com',
+            endpoint_type='admin',
+            region_name='region-al',
+            service_type='identity',
+            session=mock.ANY,
+            service_name='locks')
