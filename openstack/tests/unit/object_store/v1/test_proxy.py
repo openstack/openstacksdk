@@ -78,13 +78,13 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         expected_kwargs.pop("container")
 
         self._verify2("openstack.proxy.BaseProxy._create",
-                      self.proxy.create_object,
+                      self.proxy.upload_object,
                       method_kwargs=method_kwargs,
                       expected_args=[obj.Object],
                       expected_kwargs=expected_kwargs)
 
     def test_object_create_no_container(self):
-        self.assertRaises(ValueError, self.proxy.create_object)
+        self.assertRaises(ValueError, self.proxy.upload_object)
 
     def test_object_get(self):
         self.verify_get(self.proxy.get_object, obj.Object,
@@ -275,7 +275,7 @@ class Test_save_object(TestObjectStoreProxy):
         file_path = "blarga/somefile"
         with mock.patch("openstack.object_store.v1._proxy.open",
                         fake_open, create=True):
-            self.proxy.save_object(ob, file_path)
+            self.proxy.download_object(ob, file_path)
 
         fake_open.assert_called_once_with(file_path, "w")
         fake_handle = fake_open()

@@ -154,21 +154,21 @@ the data stored inside of it with the
     Hello, world!
 
 Additionally, if you want to save the object to disk, the
-:meth:`~openstack.object_store.v1._proxy.Proxy.save_object` convenience
+:meth:`~openstack.object_store.v1._proxy.Proxy.download_object` convenience
 method takes an :class:`~openstack.object_store.v1.obj.Object` and a
 ``path`` to write the contents to. ::
 
-    >>> conn.object_store.save_object(ob, "the_message.txt")
+    >>> conn.object_store.download_object(ob, "the_message.txt")
 
-Creating Objects
-****************
+Uploading Objects
+*****************
 
 Once you have data you'd like to store in the Object Store service, you use
-the :meth:`~openstack.object_store.v1._proxy.Proxy.create_object` method.
+the :meth:`~openstack.object_store.v1._proxy.Proxy.upload_object` method.
 This method takes the ``data`` to be stored, along with at least an object
 ``name`` and the ``container`` it is to be stored in. ::
 
-    >>> hello = conn.object_store.create_object(container="messages",
+    >>> hello = conn.object_store.upload_object(container="messages",
                                                 name="helloworld.txt",
                                                 data="Hello, world!")
     >>> print hello
