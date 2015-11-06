@@ -60,9 +60,12 @@ try to find it and if that fails, you would create it::
 import logging
 import sys
 
+from keystoneauth1 import exceptions as ksa_exc
 from keystoneauth1.loading import base as ksa_loader
 import os_client_config
+import six
 
+from openstack import exceptions
 from openstack import profile as _profile
 from openstack import proxy
 from openstack import session as _session
@@ -232,3 +235,34 @@ class Connection(object):
             setattr(self, attr_name, proxy_class(self.session))
         except Exception as e:
             _logger.warn("Unable to load %s: %s" % (module, e))
+
+    def authorize(self):
+        """Authorize this Connection
+
+        **NOTE**: This method is optional. When an application makes a call
+                  to any OpenStack service, this method allows you to request
+                  a token manually before attempting to do anything else.
+
+        :returns: A string token.
+
+        :raises:`~openstack.exceptions.HttpException` if the authorization
+                fails due to reasons like the credentials provided are unable
+                to be authorized or the `auth_plugin` argument is missing,
+                etc.
+        """
+        try:
+            headers = self.session.get_auth_headers()
+        except ksa_exc.AuthorizationFailure as ex:
+            raise exceptions.HttpException("Authentication Failure",
+                                           six.text_type(ex),
+                                           status_code=401)
+        except ksa_exc.MissingAuthPlugin as ex:
+            raise exceptions.HttpException("Bad Request",
+                                           six.text_type(ex),
+                                           status_code=400)
+        except Exception as ex:
+            raise exceptions.HttpException("Unknown exception",
+                                           six.text_type(ex),
+                                           status_code=500)
+
+        return headers.get('X-Auth-Token') if headers else None
