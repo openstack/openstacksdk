@@ -13,11 +13,12 @@
 from openstack.compute import compute_service
 from openstack.compute.v2 import flavor
 from openstack.compute.v2 import image
+from openstack.compute.v2 import metadata
 from openstack import resource
 from openstack import utils
 
 
-class Server(resource.Resource):
+class Server(resource.Resource, metadata.MetadataMixin):
     resource_key = 'server'
     resources_key = 'servers'
     base_path = '/servers'

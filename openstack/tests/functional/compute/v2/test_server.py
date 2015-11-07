@@ -41,6 +41,7 @@ class TestServer(base.BaseFunctionalTest):
             args = {}
         sot = cls.conn.compute.create_server(
             name=cls.NAME, flavor=flavor, image=image.id, **args)
+        cls.conn.compute.wait_for_server(sot)
         assert isinstance(sot, server.Server)
         cls.assertIs(cls.NAME, sot.name)
         cls.server = sot
@@ -66,3 +67,42 @@ class TestServer(base.BaseFunctionalTest):
     def test_list(self):
         names = [o.name for o in self.conn.compute.servers()]
         self.assertIn(self.NAME, names)
+
+    def test_server_metadata(self):
+        sot = self.conn.compute.get_server(self.server.id)
+
+        # Start by clearing out any other metadata.
+        self.assertDictEqual(self.conn.compute.replace_server_metadata(sot),
+                             {})
+
+        # Insert first and last name metadata
+        meta = {"first": "Matthew", "last": "Dellavedova"}
+        self.assertDictEqual(
+            self.conn.compute.create_server_metadata(sot, **meta), meta)
+
+        # Update only the first name
+        short = {"first": "Matt", "last": "Dellavedova"}
+        self.assertDictEqual(
+            self.conn.compute.update_server_metadata(sot,
+                                                     first=short["first"]),
+            short)
+
+        # Get all metadata and then only the last name
+        self.assertDictEqual(self.conn.compute.get_server_metadata(sot),
+                             short)
+        self.assertDictEqual(
+            self.conn.compute.get_server_metadata(sot, "last"),
+            {"last": short["last"]})
+
+        # Replace everything with just a nickname
+        nick = {"nickname": "Delly"}
+        self.assertDictEqual(
+            self.conn.compute.replace_server_metadata(sot, **nick),
+            nick)
+        self.assertDictEqual(self.conn.compute.get_server_metadata(sot),
+                             nick)
+
+        # Delete the only remaining key, make sure we're empty
+        self.assertIsNone(
+            self.conn.compute.delete_server_metadata(sot, "nickname"))
+        self.assertDictEqual(self.conn.compute.get_server_metadata(sot), {})
