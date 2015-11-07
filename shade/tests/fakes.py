@@ -170,3 +170,11 @@ class FakeRole(object):
     def __init__(self, id, name):
         self.id = id
         self.name = name
+
+
+class FakeGroup(object):
+    def __init__(self, id, name, description, domain=None):
+        self.id = id
+        self.name = name
+        self.description = description
+        self.domain = domain

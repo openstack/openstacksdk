@@ -627,6 +627,26 @@ class DomainDelete(task_manager.Task):
         return client.keystone_client.domains.delete(**self.args)
 
 
+class GroupList(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.groups.list()
+
+
+class GroupCreate(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.groups.create(**self.args)
+
+
+class GroupDelete(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.groups.delete(**self.args)
+
+
+class GroupUpdate(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.groups.update(**self.args)
+
+
 class ZoneList(task_manager.Task):
     def main(self, client):
         return client.designate_client.domains.list()
