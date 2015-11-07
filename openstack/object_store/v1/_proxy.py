@@ -162,8 +162,8 @@ class Proxy(proxy.BaseProxy):
         return self._get(_obj.Object, value,
                          path_args={"container": container_name})
 
-    def save_object(self, obj, path):
-        """Save the data contained inside an object to disk.
+    def download_object(self, obj, path):
+        """Download the data contained inside an object to disk.
 
         :param obj: The object to save to disk.
         :type obj: :class:`~openstack.object_store.v1.obj.Object`
@@ -172,8 +172,8 @@ class Proxy(proxy.BaseProxy):
         with open(path, "w") as out:
             out.write(self.get_object(obj))
 
-    def create_object(self, **attrs):
-        """Create a new object from attributes
+    def upload_object(self, **attrs):
+        """Upload a new object from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
                a :class:`~openstack.object_store.v1.obj.Object`,
