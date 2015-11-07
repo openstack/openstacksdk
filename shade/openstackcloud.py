@@ -435,7 +435,7 @@ class OpenStackCloud(object):
                     "Project %s not found." % name_or_id)
 
             params = {}
-            if self.api_versions['identity'] == '3':
+            if self.cloud_config.get_api_version('identity') == '3':
                 params['project'] = proj['id']
             else:
                 params['tenant_id'] = proj['id']
@@ -448,7 +448,7 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Error in updating project {project}: {message}".format(
                     project=name_or_id, message=str(e)))
-        self.list_projects.invalidate()
+        self.list_projects.invalidate(self)
         return project
 
     def create_project(
@@ -456,7 +456,7 @@ class OpenStackCloud(object):
         """Create a project."""
         try:
             params = self._get_domain_param_dict(domain_id)
-            if self.api_versions['identity'] == '3':
+            if self.cloud_config.get_api_version('identity') == '3':
                 params['name'] = name
             else:
                 params['tenant_name'] = name
@@ -468,14 +468,14 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Error in creating project {project}: {message}".format(
                     project=name, message=str(e)))
-        self.list_projects.invalidate()
+        self.list_projects.invalidate(self)
         return project
 
     def delete_project(self, name_or_id):
         try:
             project = self.update_project(name_or_id, enabled=False)
             params = {}
-            if self.api_versions['identity'] == '3':
+            if self.cloud_config.get_api_version('identity') == '3':
                 params['project'] = project['id']
             else:
                 params['tenant'] = project['id']
