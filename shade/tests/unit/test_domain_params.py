@@ -63,13 +63,16 @@ class TestDomainParams(base.TestCase):
         self.assertEqual(ret['tenant_id'], 1234)
         self.assertNotIn('domain', ret)
 
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'get_project')
-    def test_identity_params_v2_no_domain(self, mock_get_project):
+    def test_identity_params_v2_no_domain(self, mock_get_project,
+                                          mock_api_version):
         mock_get_project.return_value = munch.Munch(id=1234)
-
-        self.cloud.api_versions = dict(identity='2')
+        mock_api_version.return_value = '2'
 
         ret = self.cloud._get_identity_params(domain_id=None, project='bar')
+        api_calls = [mock.call('identity'), mock.call('identity')]
+        mock_api_version.assert_has_calls(api_calls)
         self.assertIn('tenant_id', ret)
         self.assertEqual(ret['tenant_id'], 1234)
         self.assertNotIn('domain', ret)
