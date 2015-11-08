@@ -289,7 +289,7 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('identity', mock_client)
         mock_client.assert_called_with(
-            version=('2', '0'),
+            '2.0',
             endpoint='http://example.com/v2',
             endpoint_type='admin',
             region_name='region-al',
@@ -308,7 +308,7 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('identity', mock_client)
         mock_client.assert_called_with(
-            version=('3', '0'),
+            '3',
             endpoint='http://example.com',
             endpoint_type='admin',
             region_name='region-al',
