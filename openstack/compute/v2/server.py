@@ -86,10 +86,14 @@ class Server(resource.Resource):
 
         return body
 
-    def action(self, session, body):
+    def action(self, session, body, has_response=False):
         """Preform server actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'action')
-        resp = session.put(url, service=self.service, json=body).body
+        if has_response:
+            resp = session.post(url, service=self.service, json=body)
+        else:
+            resp = session.post(
+                url, service=self.service, json=body, accept=None)
         return resp
 
     def change_password(self, session, new_password):
