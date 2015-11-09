@@ -3024,7 +3024,9 @@ class OpenStackCloud(object):
             server=server, floating_ip=f_ip, fixed_address=fixed_address,
             wait=wait, timeout=timeout)
 
-    def add_ip_list(self, server, ips, wait=False, timeout=60):
+    def add_ip_list(
+            self, server, ips, wait=False, timeout=60,
+            fixed_address=None):
         """Attach a list of IPs to a server.
 
         :param server: a server object
@@ -3033,6 +3035,8 @@ class OpenStackCloud(object):
                      to the server in Nova. Defaults to False.
         :param timeout: (optional) Seconds to wait, defaults to 60.
                         See the ``wait`` parameter.
+        :param fixed_address: (optional) Fixed address of the server to
+                                         attach the IP to
 
         :returns: The updated server dict
 
@@ -3045,7 +3049,8 @@ class OpenStackCloud(object):
         f_ip = self.get_floating_ip(
             id=None, filters={'floating_ip_address': ip})
         return self._attach_ip_to_server(
-            server=server, floating_ip=f_ip, wait=wait, timeout=timeout)
+            server=server, floating_ip=f_ip, wait=wait, timeout=timeout,
+            fixed_address=fixed_address)
 
     def add_auto_ip(self, server, wait=False, timeout=60, reuse=True):
         """Add a floating IP to a server.
@@ -3090,12 +3095,15 @@ class OpenStackCloud(object):
 
     def add_ips_to_server(
             self, server, auto_ip=True, ips=None, ip_pool=None,
-            wait=False, timeout=60, reuse=True):
+            wait=False, timeout=60, reuse=True, fixed_address=None):
         if ip_pool:
             server = self._add_ip_from_pool(
-                server, ip_pool, reuse=reuse, wait=wait, timeout=timeout)
+                server, ip_pool, reuse=reuse, wait=wait, timeout=timeout,
+                fixed_address=fixed_address)
         elif ips:
-            server = self.add_ip_list(server, ips, wait=wait, timeout=timeout)
+            server = self.add_ip_list(
+                server, ips, wait=wait, timeout=timeout,
+                fixed_address=fixed_address)
         elif auto_ip:
             if not self.get_server_public_ip(server):
                 server = self._add_auto_ip(
