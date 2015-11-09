@@ -237,7 +237,7 @@ class OpenStackConfig(object):
                 new_config[key] = self._normalize_keys(value)
             elif isinstance(value, bool):
                 new_config[key] = value
-            elif isinstance(value, int):
+            elif isinstance(value, int) and key != 'verbose_level':
                 new_config[key] = str(value)
             elif isinstance(value, float):
                 new_config[key] = str(value)
