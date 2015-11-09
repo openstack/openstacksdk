@@ -258,6 +258,10 @@ class CloudConfig(object):
         constructor_args = []
         if pass_version_arg:
             version = self.get_api_version(service_key)
+            # Temporary workaround while we wait for python-openstackclient
+            # to be able to handle 2.0 which is what neutronclient expects
+            if service_key == 'network' and version == '2':
+                version = '2.0'
             if service_key == 'identity':
                 # keystoneclient takes version as a tuple.
                 version = tuple(str(float(version)).split('.'))
