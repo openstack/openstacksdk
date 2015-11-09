@@ -169,7 +169,6 @@ class OpenStackCloud(object):
         cache_expiration_time = int(cloud_config.get_cache_expiration_time())
         cache_class = cloud_config.get_cache_class()
         cache_arguments = cloud_config.get_cache_arguments()
-        cache_expiration = cloud_config.get_cache_expiration()
 
         if cache_class != 'dogpile.cache.null':
             self._cache = cache.make_region(
@@ -205,10 +204,8 @@ class OpenStackCloud(object):
 
         # If server expiration time is set explicitly, use that. Otherwise
         # fall back to whatever it was before
-        # TODO(mordred) replace with get_cache_resource_expiration once
-        # it has a release with default value
-        self._SERVER_LIST_AGE = int(cache_expiration.get(
-            'server', self._SERVER_LIST_AGE))
+        self._SERVER_LIST_AGE = cloud_config.get_cache_resource_expiration(
+            'server', self._SERVER_LIST_AGE)
 
         self._container_cache = dict()
         self._file_hash_cache = dict()

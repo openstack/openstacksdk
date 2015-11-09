@@ -33,6 +33,9 @@ class TestMemoryCache(base.TestCase):
         {
             'max_age': 90,
             'class': 'dogpile.cache.memory',
+            'expiration': {
+                'server': 1,
+            },
         },
         'clouds':
         {
