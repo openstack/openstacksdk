@@ -754,19 +754,25 @@ class Proxy(proxy.BaseProxy):
                      path_args={'pool_id': pool.id},
                      ignore_missing=ignore_missing)
 
-    def find_pool_member(self, member, pool):
+    def find_pool_member(self, member, pool, ignore_missing=True):
         """Find a single pool member
 
         :param member: The name or ID of a pool member.
         :param pool: The pool can be either the ID of a pool or a
                      :class:`~openstack.network.v2.pool.Pool` instance that
                      the member belongs to.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.network.v2.pool_member.PoolMember`
                   or None
         """
         pool = _pool.Pool.from_id(pool)
         return pool_member.PoolMember.find(self.session, member,
-                                           path_args={'pool_id': pool.id})
+                                           path_args={'pool_id': pool.id},
+                                           ignore_missing=ignore_missing)
 
     def get_pool_member(self, member, pool):
         """Get a single pool member

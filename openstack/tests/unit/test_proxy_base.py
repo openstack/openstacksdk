@@ -140,7 +140,8 @@ class TestProxyBase(base.TestCase):
         self._verify(mock_method, test_method,
                      method_args=method_args,
                      expected_args=["name_or_id"],
-                     expected_kwargs={"path_args": path_args},
+                     expected_kwargs={"path_args": path_args,
+                                      "ignore_missing": True},
                      expected_result="result",
                      **kwargs)
 
