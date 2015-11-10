@@ -61,87 +61,87 @@
           "enum": [ "neutron", "nova", "None" ],
           "default": "neutron"
         },
-        "compute_api_service_name": {
+        "compute_service_name": {
           "name": "Compute API Service Name",
           "description": "Compute API Service Name",
           "type": "string"
         },
-        "database_api_service_name": {
+        "database_service_name": {
           "name": "Database API Service Name",
           "description": "Database API Service Name",
           "type": "string"
         },
-        "dns_api_service_name": {
+        "dns_service_name": {
           "name": "DNS API Service Name",
           "description": "DNS API Service Name",
           "type": "string"
         },
-        "identity_api_service_name": {
+        "identity_service_name": {
           "name": "Identity API Service Name",
           "description": "Identity API Service Name",
           "type": "string"
         },
-        "image_api_service_name": {
+        "image_service_name": {
           "name": "Image API Service Name",
           "description": "Image API Service Name",
           "type": "string"
         },
-        "volume_api_service_name": {
+        "volume_service_name": {
           "name": "Volume API Service Name",
           "description": "Volume API Service Name",
           "type": "string"
         },
-        "network_api_service_name": {
+        "network_service_name": {
           "name": "Network API Service Name",
           "description": "Network API Service Name",
           "type": "string"
         },
-        "object_api_service_name": {
+        "object_service_name": {
           "name": "Object Storage API Service Name",
           "description": "Object Storage API Service Name",
           "type": "string"
         },
-        "baremetal_api_service_name": {
+        "baremetal_service_name": {
           "name": "Baremetal API Service Name",
           "description": "Baremetal API Service Name",
           "type": "string"
         },
-        "compute_api_service_type": {
+        "compute_service_type": {
           "name": "Compute API Service Type",
           "description": "Compute API Service Type",
           "type": "string"
         },
-        "database_api_service_type": {
+        "database_service_type": {
           "name": "Database API Service Type",
           "description": "Database API Service Type",
           "type": "string"
         },
-        "dns_api_service_type": {
+        "dns_service_type": {
           "name": "DNS API Service Type",
           "description": "DNS API Service Type",
           "type": "string"
         },
-        "identity_api_service_type": {
+        "identity_service_type": {
           "name": "Identity API Service Type",
           "description": "Identity API Service Type",
           "type": "string"
         },
-        "image_api_service_type": {
+        "image_service_type": {
           "name": "Image API Service Type",
           "description": "Image API Service Type",
           "type": "string"
         },
-        "volume_api_service_type": {
+        "volume_service_type": {
           "name": "Volume API Service Type",
           "description": "Volume API Service Type",
           "type": "string"
         },
-        "network_api_service_type": {
+        "network_service_type": {
           "name": "Network API Service Type",
           "description": "Network API Service Type",
           "type": "string"
         },
-        "object_api_service_type": {
+        "object_service_type": {
           "name": "Object Storage API Service Type",
           "description": "Object Storage API Service Type",
           "type": "string"
