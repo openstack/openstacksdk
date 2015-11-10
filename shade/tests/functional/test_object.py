@@ -33,15 +33,17 @@ class TestObject(base.TestCase):
     def setUp(self):
         super(TestObject, self).setUp()
         self.cloud = openstack_cloud(cloud='devstack')
-        if not self.cloud.has_service('object'):
+        if not self.cloud.has_service('object-store'):
             self.skipTest('Object service not supported by cloud')
 
     def test_create_object(self):
         '''Test uploading small and large files.'''
-        container = str(uuid.uuid4())
-        self.addDetail('container', content.text_content(container))
-        self.addCleanup(self.cloud.delete_container, container)
-        self.cloud.create_container(container)
+        container_name = str(uuid.uuid4())
+        self.addDetail('container', content.text_content(container_name))
+        self.addCleanup(self.cloud.delete_container, container_name)
+        self.cloud.create_container(container_name)
+        self.assertEqual(container_name,
+                         self.cloud.list_containers()[0]['name'])
         sizes = (
             (64 * 1024, 1),      # 64K, one segment
             (50 * 1024 ** 2, 5)  # 50MB, 5 segments
@@ -53,14 +55,21 @@ class TestObject(base.TestCase):
                 sparse_file.write("\0")
                 sparse_file.flush()
                 name = 'test-%d' % size
-                self.cloud.create_object(container, name, sparse_file.name,
+                self.cloud.create_object(container_name, name,
+                                         sparse_file.name,
                                          segment_size=segment_size)
-                self.assertFalse(self.cloud.is_object_stale(container, name,
-                                                            sparse_file.name))
+                self.assertFalse(self.cloud.is_object_stale(
+                    container_name, name,
+                    sparse_file.name
+                    )
+                )
             self.assertIsNotNone(
-                self.cloud.get_object_metadata(container, name))
-            self.assertEqual([name], self.cloud.list_objects(container))
-            self.cloud.delete_object(container, name)
-        self.assertEmpty(self.cloud.list_objects(container))
-        self.assertEqual([container], self.cloud.list_containers())
-        self.cloud.delete_container(container)
+                self.cloud.get_object_metadata(container_name, name))
+            self.assertEqual(
+                name,
+                self.cloud.list_objects(container_name)[0]['name'])
+            self.cloud.delete_object(container_name, name)
+        self.assertEqual([], self.cloud.list_objects(container_name))
+        self.assertEqual(container_name,
+                         self.cloud.list_containers()[0]['name'])
+        self.cloud.delete_container(container_name)

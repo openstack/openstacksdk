@@ -419,7 +419,7 @@ class ContainerUpdate(task_manager.Task):
 
 class ContainerList(task_manager.Task):
     def main(self, client):
-        return client.swift_client.list(**self.args)
+        return client.swift_client.get_account(**self.args)[1]
 
 
 class ObjectCapabilities(task_manager.Task):
@@ -444,7 +444,7 @@ class ObjectUpdate(task_manager.Task):
 
 class ObjectList(task_manager.Task):
     def main(self, client):
-        return client.swift_client.list(**self.args)
+        return client.swift_client.get_container(**self.args)[1]
 
 
 class ObjectMetadata(task_manager.Task):
