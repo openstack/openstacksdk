@@ -17,11 +17,9 @@ import munch
 
 import glanceclient
 from heatclient import client as heat_client
-from keystoneclient.v2_0 import client as k2_client
-from keystoneclient.v3 import client as k3_client
 from neutronclient.common import exceptions as n_exc
 
-import os_client_config.cloud_config
+from os_client_config import cloud_config
 import shade
 from shade import exc
 from shade import meta
@@ -36,33 +34,6 @@ class TestShade(base.TestCase):
 
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, shade.OpenStackCloud)
-
-    @mock.patch.object(
-        os_client_config.cloud_config.CloudConfig, 'get_api_version')
-    def test_get_client_v2(self, mock_api_version):
-        mock_api_version.return_value = '2'
-
-        self.assertIs(
-            self.cloud._get_identity_client_class(),
-            k2_client.Client)
-
-    @mock.patch.object(
-        os_client_config.cloud_config.CloudConfig, 'get_api_version')
-    def test_get_client_v3(self, mock_api_version):
-        mock_api_version.return_value = '3'
-
-        self.assertIs(
-            self.cloud._get_identity_client_class(),
-            k3_client.Client)
-
-    @mock.patch.object(
-        os_client_config.cloud_config.CloudConfig, 'get_api_version')
-    def test_get_client_v4(self, mock_api_version):
-        mock_api_version.return_value = '4'
-
-        self.assertRaises(
-            exc.OpenStackCloudException,
-            self.cloud._get_identity_client_class)
 
     @mock.patch.object(shade.OpenStackCloud, 'search_images')
     def test_get_images(self, mock_search):
@@ -98,33 +69,35 @@ class TestShade(base.TestCase):
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.list_servers)
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_session_endpoint')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
     @mock.patch.object(glanceclient, 'Client')
     def test_glance_args(
-            self, mock_client, mock_keystone_session, mock_endpoint):
-        mock_keystone_session.return_value = None
-        mock_endpoint.return_value = 'http://example.com/v2'
+            self, mock_client, get_session_mock):
+        session_mock = mock.Mock()
+        session_mock.get_endpoint.return_value = 'http://example.com/v2'
+        get_session_mock.return_value = session_mock
         self.cloud.glance_client
         mock_client.assert_called_with(
+            '2',
             endpoint='http://example.com',
-            version='2', region_name='', service_name=None,
+            region_name='', service_name=None,
             interface='public',
             service_type='image', session=mock.ANY,
         )
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_session')
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
     @mock.patch.object(heat_client, 'Client')
-    def test_heat_args(self, mock_client, mock_keystone_session):
-        mock_keystone_session.return_value = None
+    def test_heat_args(self, mock_client, get_session_mock):
+        session_mock = mock.Mock()
+        get_session_mock.return_value = session_mock
         self.cloud.heat_client
         mock_client.assert_called_with(
+            '1',
             endpoint_type='public',
             region_name='',
             service_name=None,
             service_type='orchestration',
             session=mock.ANY,
-            version='1'
         )
 
     @mock.patch.object(shade.OpenStackCloud, 'search_subnets')
