@@ -17,7 +17,6 @@ export SHADE_DIR="$BASE/new/shade"
 cd $SHADE_DIR
 sudo chown -R jenkins:stack $SHADE_DIR
 
-sudo rm -f ~jenkins/.config/openstack/clouds.yaml
 CLOUDS_YAML=/etc/openstack/clouds.yaml
 
 # Devstack runs both keystone v2 and v3. An environment variable is set
