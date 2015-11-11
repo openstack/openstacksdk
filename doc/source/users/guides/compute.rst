@@ -52,6 +52,18 @@ A **network** provides connectivity to servers.
 
 Full example: `network resource list`_
 
+Create Key Pair
+---------------
+
+A **key pair** is the public key and private key of
+`public–key cryptography`_. They are used to encrypt and decrypt login
+information when connecting to your server.
+
+.. literalinclude:: ../examples/compute/create.py
+   :pyobject: create_keypair
+
+Full example: `compute resource create`_
+
 Create Server
 -------------
 
@@ -60,8 +72,8 @@ creation. You can discover the names and IDs of these attributes by listing
 them as above and then using the find methods to get the appropriate
 resources.
 
-Ideally you'll also create a server using a public/private keypair so you can
-login to that server with the private key.
+Ideally you'll also create a server using a keypair so you can login to that
+server with the private key.
 
 Servers take time to boot so we call ``wait_for_server`` to wait
 for it to become active.
@@ -74,3 +86,4 @@ Full example: `compute resource create`_
 .. _compute resource list: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/compute/list.py
 .. _network resource list: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/network/list.py
 .. _compute resource create: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/compute/create.py
+.. _public–key cryptography: https://en.wikipedia.org/wiki/Public-key_cryptography

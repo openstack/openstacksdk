@@ -25,24 +25,35 @@ For a full guide see TODO(etoews):link to docs on developer.openstack.org
 """
 
 
-def create_server(conn):
-    print("Create Server:")
+def create_keypair(conn):
+    keypair = conn.compute.find_keypair(KEYPAIR_NAME)
 
-    image = conn.compute.find_image(IMAGE_NAME)
-    flavor = conn.compute.find_flavor(FLAVOR_NAME)
-    network = conn.network.find_network(NETWORK_NAME)
+    if not keypair:
+        print("Create Key Pair:")
 
-    if not conn.compute.find_keypair(KEYPAIR_NAME):
         keypair = conn.compute.create_keypair(name=KEYPAIR_NAME)
+
+        print(keypair)
 
         with open(PRIVATE_KEYPAIR_FILE, 'w') as f:
             f.write("%s" % keypair.private_key)
 
         os.chmod(PRIVATE_KEYPAIR_FILE, 0o400)
 
+    return keypair
+
+
+def create_server(conn):
+    print("Create Server:")
+
+    image = conn.compute.find_image(IMAGE_NAME)
+    flavor = conn.compute.find_flavor(FLAVOR_NAME)
+    network = conn.network.find_network(NETWORK_NAME)
+    keypair = create_keypair(conn)
+
     server = conn.compute.create_server(
         name='openstacksdk-example', image=image, flavor=flavor,
-        networks=[{"uuid": network.id}], key_name=KEYPAIR_NAME)
+        networks=[{"uuid": network.id}], key_name=keypair.name)
 
     server = conn.compute.wait_for_server(server)
 
