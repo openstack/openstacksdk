@@ -263,15 +263,11 @@ class CloudConfig(object):
             if service_key == 'network' and version == '2':
                 version = '2.0'
             if service_key == 'identity':
-                # keystoneclient takes version as a tuple.
-                version = tuple(str(float(version)).split('.'))
-                constructor_kwargs['version'] = version
                 # Workaround for bug#1513839
                 if 'endpoint' not in constructor_kwargs:
                     endpoint = self.get_session_endpoint('identity')
                     constructor_kwargs['endpoint'] = endpoint
-            else:
-                constructor_args.append(version)
+            constructor_args.append(version)
 
         return client_class(*constructor_args, **constructor_kwargs)
 
