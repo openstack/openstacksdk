@@ -13,3 +13,20 @@
 # under the License.
 
 from os_client_config.config import OpenStackConfig  # noqa
+
+
+def simple_client(service_key, cloud=None, region_name=None):
+    """Simple wrapper function. It has almost no features.
+
+    This will get you a raw requests Session Adapter that is mounted
+    on the given service from the keystone service catalog. If you leave
+    off cloud and region_name, it will assume that you've got env vars
+    set, but if you give them, it'll use clouds.yaml as you'd expect.
+
+    This function is deliberately simple. It has no flexibility. If you
+    want flexibility, you can make a cloud config object and call
+    get_session_client on it. This function is to make it easy to poke
+    at OpenStack REST APIs with a properly configured keystone session.
+    """
+    return OpenStackConfig().get_one_cloud(
+        cloud=cloud, region_name=region_name).get_session_client('compute')
