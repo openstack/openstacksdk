@@ -60,14 +60,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             return self.manager.submitTask(_tasks.MachinePortList())
 
     def list_nics_for_machine(self, uuid):
-        try:
+        with _utils.shade_exceptions(
+                "Error fetching port list for node {node_id}".format(
+                node_id=uuid)):
             return self.manager.submitTask(
                 _tasks.MachineNodePortList(node_id=uuid))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error fetching port list for node %s: %s" % (uuid, e))
 
     def get_nic_by_mac(self, mac):
         try:
@@ -343,18 +340,16 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "state '%s'" % (uuid, machine['provision_state']))
 
         for nic in nics:
-            try:
+            with _utils.shade_exceptions(
+                    "Error removing NIC {nic} from baremetal API for node "
+                    "{uuid}".format(nic=nic, uuid=uuid)):
                 port = self.manager.submitTask(
                     _tasks.MachinePortGetByAddress(address=nic['mac']))
                 self.manager.submitTask(
                     _tasks.MachinePortDelete(port_id=port.uuid))
-            except OpenStackCloudException:
-                raise
-            except Exception as e:
-                raise OpenStackCloudException(
-                    "Error removing NIC '%s' from baremetal API for "
-                    "node '%s'. Error: %s" % (nic, uuid, str(e)))
-        try:
+        with _utils.shade_exceptions(
+                "Error unregistering machine {node_id} from the baremetal "
+                "API".format(node_id=uuid)):
             self.manager.submitTask(
                 _tasks.MachineDelete(node_id=uuid))
             if wait:
@@ -363,13 +358,6 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                         "Timeout waiting for machine to be deleted"):
                     if not self.get_machine(uuid):
                         break
-
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error unregistering machine %s from the baremetal API. "
-                "Error: %s" % (uuid, str(e)))
 
     def patch_machine(self, name_or_id, patch):
         """Patch Machine Information
@@ -1405,7 +1393,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
     def _mod_flavor_access(self, action, flavor_id, project_id):
         """Common method for adding and removing flavor access
         """
-        try:
+        with _utils.shade_exceptions("Error trying to {action} access from "
+                                     "flavor ID {flavor}".format(
+                                         action=action, flavor=flavor_id)):
             if action == 'add':
                 self.manager.submitTask(
                     _tasks.FlavorAddAccess(flavor=flavor_id,
@@ -1416,13 +1406,6 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                     _tasks.FlavorRemoveAccess(flavor=flavor_id,
                                               tenant=project_id)
                 )
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error trying to {0} access from flavor ID {1}: {2}".format(
-                    action, flavor_id, e)
-            )
 
     def add_flavor_access(self, flavor_id, project_id):
         """Grant access to a private flavor for a project/tenant.
@@ -1475,14 +1458,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "Role {0} not found for deleting".format(name_or_id))
             return False
 
-        try:
+        with _utils.shade_exceptions("Unable to delete role {name}".format(
+                name=name_or_id)):
             self.manager.submitTask(_tasks.RoleDelete(role=role['id']))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Unable to delete role {0}: {1}".format(name_or_id, e)
-            )
 
         return True
 
@@ -1492,10 +1470,5 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :returns: A list of hypervisor dicts.
         """
 
-        try:
+        with _utils.shade_exceptions("Error fetching hypervisor list"):
             return self.manager.submitTask(_tasks.HypervisorList())
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error fetching hypervisor list: %s" % str(e))
