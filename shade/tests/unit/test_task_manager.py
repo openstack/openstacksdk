@@ -13,6 +13,10 @@
 # limitations under the License.
 
 
+import mock
+import types
+
+import shade
 from shade import task_manager
 from shade.tests.unit import base
 
@@ -24,6 +28,11 @@ class TestException(Exception):
 class TestTask(task_manager.Task):
     def main(self, client):
         raise TestException("This is a test exception")
+
+
+class TestTaskGenerator(task_manager.Task):
+    def main(self, client):
+        yield 1
 
 
 class TestTaskManager(base.TestCase):
@@ -40,3 +49,11 @@ class TestTaskManager(base.TestCase):
         configured interpreters (e.g. py27, p34, pypy, ...)
         """
         self.assertRaises(TestException, self.manager.submitTask, TestTask())
+
+    @mock.patch.object(shade.meta, 'obj_to_dict')
+    @mock.patch.object(shade.meta, 'obj_list_to_dict')
+    def test_dont_munchify_generators(self, mock_ol2d, mock_o2d):
+        ret = self.manager.submitTask(TestTaskGenerator())
+        self.assertEqual(types.GeneratorType, type(ret))
+        self.assertFalse(mock_o2d.called)
+        self.assertFalse(mock_ol2d.called)
