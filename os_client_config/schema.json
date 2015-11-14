@@ -87,7 +87,7 @@
       "default": "2",
       "type": "string"
     },
-    "object_api_version": {
+    "object_store_api_version": {
       "name": "Object Storage API Version",
       "description": "Object Storage API Version",
       "default": "1",
@@ -114,7 +114,7 @@
     "image_format",
     "interface",
     "network_api_version",
-    "object_api_version",
+    "object_store_api_version",
     "secgroup_source",
     "volume_api_version"
   ]
