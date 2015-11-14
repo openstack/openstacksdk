@@ -23,6 +23,14 @@ from os_client_config import _log
 from os_client_config import exceptions
 
 
+def _make_key(key, service_type):
+    if not service_type:
+        return key
+    else:
+        service_type = service_type.lower().replace('-', '_')
+        return "_".join([service_type, key])
+
+
 class CloudConfig(object):
     def __init__(self, name, region, config,
                  force_ipv4=False, auth_plugin=None,
@@ -89,32 +97,30 @@ class CloudConfig(object):
         return self.config['auth']
 
     def get_interface(self, service_type=None):
+        key = _make_key('interface', service_type)
         interface = self.config.get('interface')
-        if not service_type:
-            return interface
-        key = '{service_type}_interface'.format(service_type=service_type)
         return self.config.get(key, interface)
 
     def get_region_name(self, service_type=None):
         if not service_type:
             return self.region
-        key = '{service_type}_region_name'.format(service_type=service_type)
+        key = _make_key('region_name', service_type)
         return self.config.get(key, self.region)
 
     def get_api_version(self, service_type):
-        key = '{service_type}_api_version'.format(service_type=service_type)
+        key = _make_key('api_version', service_type)
         return self.config.get(key, None)
 
     def get_service_type(self, service_type):
-        key = '{service_type}_service_type'.format(service_type=service_type)
+        key = _make_key('service_type', service_type)
         return self.config.get(key, service_type)
 
     def get_service_name(self, service_type):
-        key = '{service_type}_service_name'.format(service_type=service_type)
+        key = _make_key('service_name', service_type)
         return self.config.get(key, None)
 
     def get_endpoint(self, service_type):
-        key = '{service_type}_endpoint'.format(service_type=service_type)
+        key = _make_key('endpoint', service_type)
         return self.config.get(key, None)
 
     @property

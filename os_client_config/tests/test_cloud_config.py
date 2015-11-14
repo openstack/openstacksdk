@@ -225,6 +225,25 @@ class TestCloudConfig(base.TestCase):
             auth_version='2.0',
             timeout=None)
 
+    def test_legacy_client_object_store_endpoint(self):
+        mock_client = mock.Mock()
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        config_dict['object_store_endpoint'] = 'http://example.com/v2'
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_legacy_client('object-store', mock_client)
+        mock_client.assert_called_with(
+            preauthtoken=mock.ANY,
+            os_options={
+                'auth_token': mock.ANY,
+                'region_name': 'region-al',
+                'object_storage_url': 'http://example.com/v2'
+            },
+            preauthurl='http://example.com/v2',
+            auth_version='2.0',
+            timeout=None)
+
     @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
     def test_legacy_client_image(self, mock_get_session_endpoint):
         mock_client = mock.Mock()
