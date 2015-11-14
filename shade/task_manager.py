@@ -20,6 +20,7 @@ import abc
 import sys
 import threading
 import time
+import types
 
 import six
 
@@ -80,8 +81,10 @@ class Task(object):
                         self._traceback)
         if type(self._result) == list:
             return meta.obj_list_to_dict(self._result)
-        else:
+        elif not isinstance(self._result, types.GeneratorType):
             return meta.obj_to_dict(self._result)
+        else:
+            return self._result
 
     def run(self, client):
         try:
