@@ -150,7 +150,7 @@ class OpenStackCloud(object):
             self.manager = manager
         else:
             self.manager = task_manager.TaskManager(
-                name=self.name, client=self)
+                name=':'.join([self.name, self.region_name]), client=self)
 
         (self.verify, self.cert) = cloud_config.get_requests_verify_args()
         # Turn off urllib3 warnings about insecure certs if we have
@@ -978,8 +978,13 @@ class OpenStackCloud(object):
         :returns: A list of security group dicts.
         """
 
-        groups = self.manager.submitTask(
-            _tasks.ServerListSecurityGroups(server=server['id']))
+        # Don't even try if we're a cloud that doesn't have them
+        if self.secgroup_source not in ('nova', 'neutron'):
+            return []
+
+        with _utils.shade_exceptions():
+            groups = self.manager.submitTask(
+                _tasks.ServerListSecurityGroups(server=server['id']))
 
         return _utils.normalize_nova_secgroups(groups)
 
@@ -2999,6 +3004,14 @@ class OpenStackCloud(object):
         :returns: A dict representing the created server.
         :raises: OpenStackCloudException on operation error.
         """
+        if 'nics' in kwargs and not isinstance(kwargs['nics'], list):
+            if isinstance(kwargs['nics'], dict):
+                # Be nice and help the user out
+                kwargs['nics'] = [kwargs['nics']]
+            else:
+                raise OpenStackCloudException(
+                    'nics parameter to create_server takes a list of dicts.'
+                    ' Got: {nics}'.format(nics=kwargs['nics']))
         if root_volume:
             if terminate_volume:
                 suffix = ':::1'
@@ -3054,6 +3067,12 @@ class OpenStackCloud(object):
             reuse=True, wait=False, timeout=180):
 
         if server['status'] == 'ERROR':
+            if 'fault' in server and 'message' in server['fault']:
+                raise OpenStackCloudException(
+                    "Error in creating the server: {reason}".format(
+                        reason=server['fault']['message']),
+                    extra_data=dict(server=server))
+
             raise OpenStackCloudException(
                 "Error in creating the server", extra_data=dict(server=server))
 

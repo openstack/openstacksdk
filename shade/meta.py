@@ -265,8 +265,10 @@ def expand_server_vars(cloud, server):
 
 
 def expand_server_security_groups(cloud, server):
-    groups = cloud.list_server_security_groups(server)
-
+    try:
+        groups = cloud.list_server_security_groups(server)
+    except exc.OpenStackCloudException:
+        groups = []
     server['security_groups'] = groups
 
 
