@@ -31,6 +31,7 @@ fake_services_dict = {
     'image_service_type': 'mage',
     'identity_interface': 'admin',
     'identity_service_name': 'locks',
+    'volume_api_version': '1',
     'auth': {'password': 'hunter2', 'username': 'AzureDiamond'},
 }
 
@@ -128,7 +129,7 @@ class TestCloudConfig(base.TestCase):
     def test_getters(self):
         cc = cloud_config.CloudConfig("test1", "region-al", fake_services_dict)
 
-        self.assertEqual(['compute', 'identity', 'image'],
+        self.assertEqual(['compute', 'identity', 'image', 'volume'],
                          sorted(cc.get_services()))
         self.assertEqual({'password': 'hunter2', 'username': 'AzureDiamond'},
                          cc.get_auth_args())
@@ -142,12 +143,19 @@ class TestCloudConfig(base.TestCase):
         self.assertEqual('2', cc.get_api_version('compute'))
         self.assertEqual('mage', cc.get_service_type('image'))
         self.assertEqual('compute', cc.get_service_type('compute'))
+        self.assertEqual('1', cc.get_api_version('volume'))
+        self.assertEqual('volume', cc.get_service_type('volume'))
         self.assertEqual('http://compute.example.com',
                          cc.get_endpoint('compute'))
         self.assertEqual(None,
                          cc.get_endpoint('image'))
         self.assertEqual(None, cc.get_service_name('compute'))
         self.assertEqual('locks', cc.get_service_name('identity'))
+
+    def test_volume_override(self):
+        cc = cloud_config.CloudConfig("test1", "region-al", fake_services_dict)
+        cc.config['volume_api_version'] = '2'
+        self.assertEqual('volumev2', cc.get_service_type('volume'))
 
     def test_get_session_no_auth(self):
         config_dict = defaults.get_defaults()

@@ -113,6 +113,14 @@ class CloudConfig(object):
 
     def get_service_type(self, service_type):
         key = _make_key('service_type', service_type)
+        # Cinder did an evil thing where they defined a second service
+        # type in the catalog. Of course, that's insane, so let's hide this
+        # atrocity from the as-yet-unsullied eyes of our users.
+        # Of course, if the user requests a volumev2, that structure should
+        # still work.
+        if (service_type == 'volume' and
+                self.get_api_version(service_type).startswith('2')):
+            service_type = 'volumev2'
         return self.config.get(key, service_type)
 
     def get_service_name(self, service_type):
