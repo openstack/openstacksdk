@@ -3175,9 +3175,10 @@ class OpenStackCloud(object):
                 raise OpenStackCloudException(
                     "Error in deleting server: {0}".format(e))
 
-    def list_containers(self):
+    def list_containers(self, full_listing=True):
         try:
-            return manager.submitTask(_tasks.ContainerList())
+            return self.manager.submitTask(_tasks.ContainerList(
+                full_listing=full_listing))
         except swift_exceptions.ClientException as e:
             raise OpenStackCloudException(
                 "Container list failed: %s (%s/%s)" % (
@@ -3373,9 +3374,10 @@ class OpenStackCloud(object):
                     raise OpenStackCloudException(
                         'Failed at action ({action}) [{error}]:'.format(**r))
 
-    def list_objects(self, container):
+    def list_objects(self, container, full_listing=True):
         try:
-            return self.manager.submitTask(_tasks.ObjectList(container))
+            return self.manager.submitTask(_tasks.ObjectList(
+                container=container, full_listing=full_listing))
         except swift_exceptions.ClientException as e:
             raise OpenStackCloudException(
                 "Object list failed: %s (%s/%s)" % (
