@@ -12,3 +12,4 @@
     - { role: subnet, tags: subnet}
     - { role: router, tags: router}
     - { role: object, tags: object}
+    - { role: nova_flavor, tags: nova_flavor}
