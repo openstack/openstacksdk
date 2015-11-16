@@ -20,7 +20,6 @@ Functional tests for `shade` image methods.
 """
 
 import tempfile
-import uuid
 
 from shade import openstack_cloud
 from shade.tests import base
@@ -37,7 +36,7 @@ class TestImage(base.TestCase):
         test_image = tempfile.NamedTemporaryFile(delete=False)
         test_image.write('\0' * 1024 * 1024)
         test_image.close()
-        image_name = 'test-image-%s' % uuid.uuid4()
+        image_name = self.getUniqueString('image')
         try:
             self.cloud.create_image(name=image_name,
                                     filename=test_image.name,

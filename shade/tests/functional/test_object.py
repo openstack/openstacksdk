@@ -20,7 +20,6 @@ Functional tests for `shade` object methods.
 """
 
 import tempfile
-import uuid
 
 from testtools import content
 
@@ -38,7 +37,7 @@ class TestObject(base.TestCase):
 
     def test_create_object(self):
         '''Test uploading small and large files.'''
-        container_name = str(uuid.uuid4())
+        container_name = self.getUniqueString('container')
         self.addDetail('container', content.text_content(container_name))
         self.addCleanup(self.cloud.delete_container, container_name)
         self.cloud.create_container(container_name)
