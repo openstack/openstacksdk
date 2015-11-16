@@ -8,8 +8,9 @@
     - { role: client_config, tags: client_config }
     - { role: keypair, tags: keypair }
     - { role: network, tags: network }
+    - { role: nova_flavor, tags: nova_flavor }
+    - { role: object, tags: object }
+    - { role: router, tags: router }
     - { role: security_group, tags: security_group }
-    - { role: subnet, tags: subnet}
-    - { role: router, tags: router}
-    - { role: object, tags: object}
-    - { role: nova_flavor, tags: nova_flavor}
+    - { role: subnet, tags: subnet }
+    - { role: user, tags: user }
