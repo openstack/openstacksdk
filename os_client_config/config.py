@@ -253,6 +253,19 @@ class OpenStackConfig(object):
         # Flag location to hold the peeked value of an argparse timeout value
         self._argv_timeout = False
 
+    def get_extra_config(self, key, defaults=None):
+        """Fetch an arbitrary extra chunk of config, laying in defaults.
+
+        :param string key: name of the config section to fetch
+        :param dict defaults: (optional) default values to merge under the
+                                         found config
+        """
+        if not defaults:
+            defaults = {}
+        return _merge_clouds(
+            self._normalize_keys(defaults),
+            self._normalize_keys(self.cloud_config.get(key, {})))
+
     def _load_config_file(self):
         return self._load_yaml_json_file(self._config_files)
 

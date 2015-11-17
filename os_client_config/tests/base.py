@@ -121,6 +121,10 @@ USER_CONF = {
             'region_name': 'test-region',
         }
     },
+    'ansible': {
+        'expand-hostvars': False,
+        'use_hostnames': True,
+    },
 }
 SECURE_CONF = {
     'clouds': {
