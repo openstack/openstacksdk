@@ -3011,6 +3011,73 @@ class OpenStackCloud(object):
                     server, wait=wait, timeout=timeout, reuse=reuse)
         return server
 
+    def _get_boot_from_volume_kwargs(
+            self, image, boot_from_volume, boot_volume, volume_size,
+            terminate_volume, volumes, kwargs):
+        if boot_volume or boot_from_volume or volumes:
+            kwargs.setdefault('block_device_mapping_v2', [])
+        else:
+            return kwargs
+
+        # If we have boot_from_volume but no root volume, then we're
+        # booting an image from volume
+        if boot_volume:
+            volume = self.get_volume(boot_volume)
+            if not volume:
+                raise OpenStackCloudException(
+                    'Volume {boot_volume} is not a valid volume'
+                    ' in {cloud}:{region}'.format(
+                        boot_volume=boot_volume,
+                        cloud=self.name, region=self.region_name))
+            block_mapping = {
+                'boot_index': '0',
+                'delete_on_termination': terminate_volume,
+                'destination_type': 'volume',
+                'uuid': volume['id'],
+                'source_type': 'volume',
+            }
+            kwargs['block_device_mapping'].append(block_mapping)
+        elif boot_from_volume:
+
+            if not hasattr(image, 'id'):
+                image_obj = self.get_image(image)
+            if not image_obj:
+                raise OpenStackCloudException(
+                    'Image {image} is not a valid image in'
+                    ' {cloud}:{region}'.format(
+                        image=image,
+                        cloud=self.name, region=self.region_name))
+            else:
+                image = image_obj
+
+            block_mapping = {
+                'boot_index': '0',
+                'delete_on_termination': terminate_volume,
+                'destination_type': 'volume',
+                'uuid': image['id'],
+                'source_type': 'image',
+                'volume_size': volume_size,
+            }
+            del kwargs['image']
+            kwargs['block_device_mapping_v2'].append(block_mapping)
+        for volume in volumes:
+            volume_obj = self.get_volume(volume)
+            if not volume_obj:
+                raise OpenStackCloudException(
+                    'Volume {volume} is not a valid volume'
+                    ' in {cloud}:{region}'.format(
+                        volume=volume,
+                        cloud=self.name, region=self.region_name))
+            block_mapping = {
+                'boot_index': None,
+                'delete_on_termination': False,
+                'destination_type': 'volume',
+                'uuid': volume['id'],
+                'source_type': 'volume',
+            }
+            kwargs['block_device_mapping_v2'].append(block_mapping)
+        return kwargs
+
     @_utils.valid_kwargs(
         'meta', 'files', 'userdata',
         'reservation_id', 'return_raw', 'min_count',
@@ -3023,6 +3090,8 @@ class OpenStackCloud(object):
             auto_ip=True, ips=None, ip_pool=None,
             root_volume=None, terminate_volume=False,
             wait=False, timeout=180, reuse_ips=True,
+            network=None, boot_from_volume=False, volume_size='50',
+            boot_volume=None, volumes=[],
             **kwargs):
         """Create a virtual server instance.
 
@@ -3035,10 +3104,13 @@ class OpenStackCloud(object):
         :param ip_pool: Name of the network or floating IP pool to get an
                         address from. (defaults to None)
         :param root_volume: Name or id of a volume to boot from
+                            (defaults to None - deprecated, use boot_volume)
+        :param boot_volume: Name or id of a volume to boot from
                             (defaults to None)
         :param terminate_volume: If booting from a volume, whether it should
                                  be deleted when the server is destroyed.
                                  (defaults to False)
+        :param volumes: (optional) A list of volumes to attach to the server
         :param meta: (optional) A dict of arbitrary key/value metadata to
                      store for this server. Both keys and values must be
                      <=255 characters.
@@ -3081,9 +3153,24 @@ class OpenStackCloud(object):
                      to the server in Nova. Defaults to False.
         :param timeout: (optional) Seconds to wait, defaults to 60.
                         See the ``wait`` parameter.
+        :param reuse_ips: (optional) Whether to attempt to reuse pre-existing
+                                     floating ips should a floating IP be
+                                     needed (defaults to True)
+        :param network: (optional) Network name or id to attach the server to.
+                        Mutually exclusive with the nics parameter.
+        :param boot_from_volume: Whether to boot from volume. 'boot_volume'
+                                 implies True, but boot_from_volume=True with
+                                 no boot_volume is valid and will create a
+                                 volume from the image and use that.
+        :param volume_size: When booting an image from volume, how big should
+                            the created volume be? Defaults to 50.
         :returns: A dict representing the created server.
         :raises: OpenStackCloudException on operation error.
         """
+        # nova cli calls this boot_volume. Let's be the same
+        if root_volume and not boot_volume:
+            boot_volume = root_volume
+
         if 'nics' in kwargs and not isinstance(kwargs['nics'], list):
             if isinstance(kwargs['nics'], dict):
                 # Be nice and help the user out
@@ -3092,19 +3179,28 @@ class OpenStackCloud(object):
                 raise OpenStackCloudException(
                     'nics parameter to create_server takes a list of dicts.'
                     ' Got: {nics}'.format(nics=kwargs['nics']))
-        if root_volume:
-            if terminate_volume:
-                suffix = ':::1'
-            else:
-                suffix = ':::0'
-            volume_id = self.get_volume_id(root_volume) + suffix
-            if 'block_device_mapping' not in kwargs:
-                kwargs['block_device_mapping'] = dict()
-            kwargs['block_device_mapping']['vda'] = volume_id
+        if network and 'nics' not in kwargs:
+            network_obj = self.get_network(name_or_id=network)
+            if not network_obj:
+                raise OpenStackCloudException(
+                    'Network {network} is not a valid network in'
+                    ' {cloud}:{region}'.format(
+                        network=network,
+                        cloud=self.name, region=self.region_name))
+
+            kwargs['nics'] = [{'net-id': network_obj['id']}]
+
+        kwargs['image'] = image
+
+        kwargs = self._get_boot_from_volume_kwargs(
+            image=image, boot_from_volume=boot_from_volume,
+            boot_volume=boot_volume, volume_size=str(volume_size),
+            terminate_volume=terminate_volume,
+            volumes=volumes, kwargs=kwargs)
 
         with _utils.shade_exceptions("Error in creating instance"):
             server = self.manager.submitTask(_tasks.ServerCreate(
-                name=name, image=image, flavor=flavor, **kwargs))
+                name=name, flavor=flavor, **kwargs))
             server_id = server.id
             if not wait:
                 # This is a direct get task call to skip the list_servers
