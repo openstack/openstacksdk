@@ -13,10 +13,8 @@
 # limitations under the License.
 
 
-import mock
 import types
 
-import shade
 from shade import task_manager
 from shade.tests.unit import base
 
@@ -35,6 +33,31 @@ class TestTaskGenerator(task_manager.Task):
         yield 1
 
 
+class TestTaskInt(task_manager.Task):
+    def main(self, client):
+        return int(1)
+
+
+class TestTaskFloat(task_manager.Task):
+    def main(self, client):
+        return float(2.0)
+
+
+class TestTaskStr(task_manager.Task):
+    def main(self, client):
+        return "test"
+
+
+class TestTaskBool(task_manager.Task):
+    def main(self, client):
+        return True
+
+
+class TestTaskSet(task_manager.Task):
+    def main(self, client):
+        return set([1, 2])
+
+
 class TestTaskManager(base.TestCase):
 
     def setUp(self):
@@ -50,10 +73,26 @@ class TestTaskManager(base.TestCase):
         """
         self.assertRaises(TestException, self.manager.submitTask, TestTask())
 
-    @mock.patch.object(shade.meta, 'obj_to_dict')
-    @mock.patch.object(shade.meta, 'obj_list_to_dict')
-    def test_dont_munchify_generators(self, mock_ol2d, mock_o2d):
+    def test_dont_munchify_generators(self):
         ret = self.manager.submitTask(TestTaskGenerator())
-        self.assertEqual(types.GeneratorType, type(ret))
-        self.assertFalse(mock_o2d.called)
-        self.assertFalse(mock_ol2d.called)
+        self.assertIsInstance(ret, types.GeneratorType)
+
+    def test_dont_munchify_int(self):
+        ret = self.manager.submitTask(TestTaskInt())
+        self.assertIsInstance(ret, int)
+
+    def test_dont_munchify_float(self):
+        ret = self.manager.submitTask(TestTaskFloat())
+        self.assertIsInstance(ret, float)
+
+    def test_dont_munchify_str(self):
+        ret = self.manager.submitTask(TestTaskStr())
+        self.assertIsInstance(ret, str)
+
+    def test_dont_munchify_bool(self):
+        ret = self.manager.submitTask(TestTaskBool())
+        self.assertIsInstance(ret, bool)
+
+    def test_dont_munchify_set(self):
+        ret = self.manager.submitTask(TestTaskSet())
+        self.assertIsInstance(ret, set)

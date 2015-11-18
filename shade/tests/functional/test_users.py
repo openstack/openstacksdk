@@ -19,9 +19,6 @@ test_users
 Functional tests for `shade` user methods.
 """
 
-import random
-import string
-
 from shade import operator_cloud
 from shade import OpenStackCloudException
 from shade.tests import base
@@ -31,8 +28,7 @@ class TestUsers(base.TestCase):
     def setUp(self):
         super(TestUsers, self).setUp()
         self.cloud = operator_cloud(cloud='devstack-admin')
-        self.user_prefix = 'test_user' + ''.join(
-            random.choice(string.ascii_lowercase) for _ in range(5))
+        self.user_prefix = self.getUniqueString('user')
         self.addCleanup(self._cleanup_users)
 
     def _cleanup_users(self):
@@ -111,3 +107,28 @@ class TestUsers(base.TestCase):
         self.assertEqual(user_name + '2', new_user['name'])
         self.assertEqual('somebody@nowhere.com', new_user['email'])
         self.assertFalse(new_user['enabled'])
+
+    def test_users_and_groups(self):
+        if self.cloud.cloud_config.get_api_version('identity') in ('2', '2.0'):
+            self.skipTest('Identity service does not support groups')
+
+        group_name = self.getUniqueString('group')
+        self.addCleanup(self.cloud.delete_group, group_name)
+
+        # Create a group
+        group = self.cloud.create_group(group_name, 'test group')
+        self.assertIsNotNone(group)
+
+        # Create a user
+        user_name = self.user_prefix + '_ug'
+        user_email = 'nobody@nowhere.com'
+        user = self._create_user(name=user_name, email=user_email)
+        self.assertIsNotNone(user)
+
+        # Add the user to the group
+        self.cloud.add_user_to_group(user_name, group_name)
+        self.assertTrue(self.cloud.is_user_in_group(user_name, group_name))
+
+        # Remove them from the group
+        self.cloud.remove_user_from_group(user_name, group_name)
+        self.assertFalse(self.cloud.is_user_in_group(user_name, group_name))

@@ -554,6 +554,86 @@ class OpenStackCloud(object):
         self.list_users.invalidate(self)
         return True
 
+    def _get_user_and_group(self, user_name_or_id, group_name_or_id):
+        user = self.get_user(user_name_or_id)
+        if not user:
+            raise OpenStackCloudException(
+                'User {user} not found'.format(user=user_name_or_id))
+
+        group = self.get_group(group_name_or_id)
+        if not group:
+            raise OpenStackCloudException(
+                'Group {user} not found'.format(user=group_name_or_id))
+
+        return (user, group)
+
+    def add_user_to_group(self, name_or_id, group_name_or_id):
+        """Add a user to a group.
+
+        :param string name_or_id: User name or ID
+        :param string group_name_or_id: Group name or ID
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during
+            the openstack API call
+        """
+        user, group = self._get_user_and_group(name_or_id, group_name_or_id)
+
+        with _utils.shade_exceptions(
+            "Error adding user {user} to group {group}".format(
+                user=name_or_id, group=group_name_or_id)
+        ):
+            self.manager.submitTask(
+                _tasks.UserAddToGroup(user=user['id'], group=group['id'])
+            )
+
+    def is_user_in_group(self, name_or_id, group_name_or_id):
+        """Check to see if a user is in a group.
+
+        :param string name_or_id: User name or ID
+        :param string group_name_or_id: Group name or ID
+
+        :returns: True if user is in the group, False otherwise
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during
+            the openstack API call
+        """
+        user, group = self._get_user_and_group(name_or_id, group_name_or_id)
+
+        try:
+            return self.manager.submitTask(
+                _tasks.UserCheckInGroup(user=user['id'], group=group['id'])
+            )
+        except keystoneauth1.exceptions.http.NotFound:
+            # Because the keystone API returns either True or raises an
+            # exception, which is awesome.
+            return False
+        except OpenStackCloudException:
+            raise
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Error adding user {user} to group {group}: {err}".format(
+                    user=name_or_id, group=group_name_or_id, err=str(e))
+            )
+
+    def remove_user_from_group(self, name_or_id, group_name_or_id):
+        """Remove a user from a group.
+
+        :param string name_or_id: User name or ID
+        :param string group_name_or_id: Group name or ID
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during
+            the openstack API call
+        """
+        user, group = self._get_user_and_group(name_or_id, group_name_or_id)
+
+        with _utils.shade_exceptions(
+            "Error removing user {user} from group {group}".format(
+                user=name_or_id, group=group_name_or_id)
+        ):
+            self.manager.submitTask(
+                _tasks.UserRemoveFromGroup(user=user['id'], group=group['id'])
+            )
+
     @property
     def glance_client(self):
         if self._glance_client is None:

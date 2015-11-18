@@ -42,6 +42,21 @@ class UserGet(task_manager.Task):
         return client.keystone_client.users.get(**self.args)
 
 
+class UserAddToGroup(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.users.add_to_group(**self.args)
+
+
+class UserCheckInGroup(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.users.check_in_group(**self.args)
+
+
+class UserRemoveFromGroup(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.users.remove_from_group(**self.args)
+
+
 class ProjectList(task_manager.Task):
     def main(self, client):
         return client._project_manager.list()
