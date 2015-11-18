@@ -14,3 +14,4 @@
     - { role: security_group, tags: security_group }
     - { role: subnet, tags: subnet }
     - { role: user, tags: user }
+    - { role: user_group, tags: user_group }
