@@ -169,6 +169,18 @@ class TestCloudConfig(base.TestCase):
             verify=True, cert=None, timeout=None)
 
     @mock.patch.object(ksa_session, 'Session')
+    def test_get_session_with_timeout(self, mock_session):
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        config_dict['api_timeout'] = 9
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_session()
+        mock_session.assert_called_with(
+            auth=mock.ANY,
+            verify=True, cert=None, timeout=9)
+
+    @mock.patch.object(ksa_session, 'Session')
     def test_override_session_endpoint(self, mock_session):
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
@@ -222,8 +234,29 @@ class TestCloudConfig(base.TestCase):
                 'object_storage_url': 'http://example.com/v2'
             },
             preauthurl='http://example.com/v2',
+            auth_version='2.0')
+
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    def test_legacy_client_object_store_timeout(
+            self, mock_get_session_endpoint):
+        mock_client = mock.Mock()
+        mock_get_session_endpoint.return_value = 'http://example.com/v2'
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        config_dict['api_timeout'] = 9
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_legacy_client('object-store', mock_client)
+        mock_client.assert_called_with(
+            preauthtoken=mock.ANY,
+            os_options={
+                'auth_token': mock.ANY,
+                'region_name': 'region-al',
+                'object_storage_url': 'http://example.com/v2'
+            },
+            preauthurl='http://example.com/v2',
             auth_version='2.0',
-            timeout=None)
+            timeout=9.0)
 
     def test_legacy_client_object_store_endpoint(self):
         mock_client = mock.Mock()
@@ -241,8 +274,7 @@ class TestCloudConfig(base.TestCase):
                 'object_storage_url': 'http://example.com/v2'
             },
             preauthurl='http://example.com/v2',
-            auth_version='2.0',
-            timeout=None)
+            auth_version='2.0')
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
     def test_legacy_client_image(self, mock_get_session_endpoint):

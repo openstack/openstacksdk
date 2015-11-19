@@ -297,7 +297,7 @@ class CloudConfig(object):
         endpoint = self.get_session_endpoint(service_key='object-store')
         if not endpoint:
             return None
-        return client_class(
+        swift_kwargs = dict(
             preauthurl=endpoint,
             preauthtoken=token,
             auth_version=self.get_api_version('identity'),
@@ -305,8 +305,10 @@ class CloudConfig(object):
                 auth_token=token,
                 object_storage_url=endpoint,
                 region_name=self.get_region_name()),
-            timeout=self.api_timeout,
         )
+        if self.config['api_timeout'] is not None:
+            swift_kwargs['timeout'] = float(self.config['api_timeout'])
+        return client_class(**swift_kwargs)
 
     def get_cache_expiration_time(self):
         if self._openstack_config:
