@@ -1982,8 +1982,8 @@ class OpenStackCloud(object):
         return self.get_image(image.id)
 
     def _upload_image_task(
-            self, name, filename, container, current_image=None,
-            wait=True, timeout=None, **image_properties):
+            self, name, filename, container, current_image,
+            wait, timeout, **image_properties):
         self.create_object(
             container, name, filename,
             md5=image_properties.get('md5', None),
