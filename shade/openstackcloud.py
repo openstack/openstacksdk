@@ -1589,8 +1589,13 @@ class OpenStackCloud(object):
             'name': name,
             'shared': shared,
             'admin_state_up': admin_state_up,
-            'router:external': external
         }
+
+        # Do not send 'router:external' unless it is explicitly
+        # set since sending it *might* cause "Forbidden" errors in
+        # some situations. It defaults to False in the client, anyway.
+        if external:
+            network['router:external'] = True
 
         with _utils.neutron_exceptions(
                 "Error creating network {0}".format(name)):
