@@ -18,9 +18,11 @@ import munch
 import glanceclient
 from heatclient import client as heat_client
 from neutronclient.common import exceptions as n_exc
+import testtools
 
 from os_client_config import cloud_config
 import shade
+from shade import _utils
 from shade import exc
 from shade import meta
 from shade.tests.unit import base
@@ -390,3 +392,37 @@ class TestShade(base.TestCase):
         self.assertEquals(len(r), mock_get_hostvars_from_server.call_count)
         self.assertEquals('server1', r[0]['name'])
         self.assertEquals('server2', r[1]['name'])
+
+    def test_iterate_timeout_bad_wait(self):
+        with testtools.ExpectedException(
+                exc.OpenStackCloudException,
+                "Wait value must be an int or float value."):
+            for count in _utils._iterate_timeout(
+                    1, "test_iterate_timeout_bad_wait", wait="timeishard"):
+                pass
+
+    @mock.patch('time.sleep')
+    def test_iterate_timeout_str_wait(self, mock_sleep):
+        iter = _utils._iterate_timeout(
+            10, "test_iterate_timeout_str_wait", wait="1.6")
+        next(iter)
+        next(iter)
+        mock_sleep.assert_called_with(1.6)
+
+    @mock.patch('time.sleep')
+    def test_iterate_timeout_int_wait(self, mock_sleep):
+        iter = _utils._iterate_timeout(
+            10, "test_iterate_timeout_int_wait", wait=1)
+        next(iter)
+        next(iter)
+        mock_sleep.assert_called_with(1.0)
+
+    @mock.patch('time.sleep')
+    def test_iterate_timeout_timeout(self, mock_sleep):
+        message = "timeout test"
+        with testtools.ExpectedException(
+                exc.OpenStackCloudTimeout,
+                message):
+            for count in _utils._iterate_timeout(0.1, message, wait=1):
+                pass
+        mock_sleep.assert_called_with(1.0)

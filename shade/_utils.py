@@ -40,6 +40,13 @@ def _iterate_timeout(timeout, message, wait=2):
 
     """
 
+    try:
+        wait = float(wait)
+    except ValueError:
+        raise exc.OpenStackCloudException(
+            "Wait value must be an int or float value. {wait} given"
+            " instead".format(wait=wait))
+
     start = time.time()
     count = 0
     while (timeout is None) or (time.time() < start + timeout):

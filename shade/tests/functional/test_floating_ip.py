@@ -20,27 +20,16 @@ Functional tests for floating IP resource.
 """
 
 import pprint
-import time
 
 from novaclient import exceptions as nova_exc
 from testtools import content
 
+from shade import _utils
 from shade import openstack_cloud
 from shade import meta
 from shade.exc import OpenStackCloudException
-from shade.exc import OpenStackCloudTimeout
 from shade.tests import base
 from shade.tests.functional.util import pick_flavor, pick_image
-
-
-def _iterate_timeout(timeout, message):
-    start = time.time()
-    count = 0
-    while (timeout is None) or (time.time() < start + timeout):
-        count += 1
-        yield count
-        time.sleep(2)
-    raise OpenStackCloudTimeout(message)
 
 
 class TestFloatingIP(base.TestCase):
@@ -123,7 +112,7 @@ class TestFloatingIP(base.TestCase):
         for i in self.nova.servers.list():
             if i.name.startswith(self.new_item_name):
                 self.nova.servers.delete(i)
-                for _ in _iterate_timeout(
+                for _ in _utils._iterate_timeout(
                         self.timeout, "Timeout deleting servers"):
                     try:
                         self.nova.servers.get(server=i)
@@ -222,7 +211,7 @@ class TestFloatingIP(base.TestCase):
         # ToDo: remove the following iteration when create_server waits for
         # the IP to be attached
         ip = None
-        for _ in _iterate_timeout(
+        for _ in _utils._iterate_timeout(
                 self.timeout, "Timeout waiting for IP address to be attached"):
             ip = meta.get_server_external_ipv4(self.cloud, new_server)
             if ip is not None:
@@ -242,7 +231,7 @@ class TestFloatingIP(base.TestCase):
         # ToDo: remove the following iteration when create_server waits for
         # the IP to be attached
         ip = None
-        for _ in _iterate_timeout(
+        for _ in _utils._iterate_timeout(
                 self.timeout, "Timeout waiting for IP address to be attached"):
             ip = meta.get_server_external_ipv4(self.cloud, new_server)
             if ip is not None:
