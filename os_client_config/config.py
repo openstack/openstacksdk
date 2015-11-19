@@ -81,21 +81,24 @@ def get_boolean(value):
     return False
 
 
-def _get_os_environ():
+def _get_os_environ(envvar_prefix=None):
     ret = defaults.get_defaults()
+    if not envvar_prefix:
+        # This makes the or below be OS_ or OS_ which is a no-op
+        envvar_prefix = 'OS_'
     environkeys = [k for k in os.environ.keys()
-                   if k.startswith('OS_')
+                   if k.startswith('OS_') or k.startswith(envvar_prefix)
                    and not k.startswith('OS_TEST')  # infra CI var
                    and not k.startswith('OS_STD')   # infra CI var
                    ]
+    for k in environkeys:
+        newkey = k.split('_', 1)[-1].lower()
+        ret[newkey] = os.environ[k]
     # If the only environ key is region name, don't make a cloud, because
     # it's being used as a cloud selector
     if not environkeys or (
-            len(environkeys) == 1 and 'OS_REGION_NAME' in environkeys):
+            len(environkeys) == 1 and 'region_name' in ret):
         return None
-    for k in environkeys:
-        newkey = k[3:].lower()
-        ret[newkey] = os.environ[k]
     return ret
 
 
@@ -115,7 +118,8 @@ def _auth_update(old_dict, new_dict):
 class OpenStackConfig(object):
 
     def __init__(self, config_files=None, vendor_files=None,
-                 override_defaults=None, force_ipv4=None):
+                 override_defaults=None, force_ipv4=None,
+                 envvar_prefix=None):
         self._config_files = config_files or CONFIG_FILES
         self._vendor_files = vendor_files or VENDOR_FILES
 
@@ -173,7 +177,7 @@ class OpenStackConfig(object):
         # make an envvars cloud
         self.default_cloud = os.environ.pop('OS_CLOUD', None)
 
-        envvars = _get_os_environ()
+        envvars = _get_os_environ(envvar_prefix=envvar_prefix)
         if envvars:
             self.cloud_config['clouds'][self.envvar_key] = envvars
 
