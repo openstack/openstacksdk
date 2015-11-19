@@ -58,8 +58,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.cluster.v1.profile.Profile` object
             or None
         """
-        return profile.Profile.find(self.session, value,
-                                    ignore_missing=ignore_missing)
+        return self._find(profile.Profile, value,
+                          ignore_missing=ignore_missing)
 
     def get_profile(self, value):
         """Get a single profile.
@@ -149,8 +149,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.cluster.v1.cluster.Cluster` object
             or None
         """
-        return cluster.Cluster.find(self.session, value,
-                                    ignore_missing=ignore_missing)
+        return self._find(cluster.Cluster, value,
+                          ignore_missing=ignore_missing)
 
     def get_cluster(self, value):
         """Get a single cluster.
@@ -234,8 +234,7 @@ class Proxy(proxy.BaseProxy):
         :param value: The name or ID of a node.
         :returns: One :class:`~openstack.cluster.v1.node.Node` object or None.
         """
-        return node.Node.find(self.session, value,
-                              ignore_missing=ignore_missing)
+        return self._find(node.Node, value, ignore_missing=ignore_missing)
 
     def get_node(self, value):
         """Get a single node.
@@ -326,8 +325,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A policy object or None.
         :rtype: :class:`~openstack.cluster.v1.policy.Policy`
         """
-        return policy.Policy.find(self.session, value,
-                                  ignore_missing=ignore_missing)
+        return self._find(policy.Policy, value, ignore_missing=ignore_missing)
 
     def get_policy(self, value):
         """Get a single policy.

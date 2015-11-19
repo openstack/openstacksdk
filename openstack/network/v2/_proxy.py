@@ -44,8 +44,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.extension.Extension`
                   or None
         """
-        return extension.Extension.find(self.session, name_or_id,
-                                        ignore_missing=ignore_missing)
+        return self._find(extension.Extension, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def extensions(self, **query):
         """Return a generator of extensions
@@ -106,8 +106,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.floating_ip.FloatingIP`
                   or None
         """
-        return floating_ip.FloatingIP.find(self.session, name_or_id,
-                                           ignore_missing=ignore_missing)
+        return self._find(floating_ip.FloatingIP, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_ip(self, value):
         """Get a single floating ip
@@ -188,8 +188,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.health_monitor.
                   HealthMonitor` or None
         """
-        return health_monitor.HealthMonitor.find(
-            self.session, name_or_id, ignore_missing=ignore_missing)
+        return self._find(health_monitor.HealthMonitor,
+                          name_or_id, ignore_missing=ignore_missing)
 
     def get_health_monitor(self, value):
         """Get a single health monitor
@@ -269,8 +269,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.network.v2.listener.Listener` or None
         """
-        return listener.Listener.find(self.session, name_or_id,
-                                      ignore_missing=ignore_missing)
+        return self._find(listener.Listener, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_listener(self, value):
         """Get a single listener
@@ -351,8 +351,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.load_balancer.LoadBalancer`
                   or None
         """
-        return load_balancer.LoadBalancer.find(
-            self.session, name_or_id, ignore_missing=ignore_missing)
+        return self._find(load_balancer.LoadBalancer, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_load_balancer(self, value):
         """Get a single load balancer
@@ -433,8 +433,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.metering_label.
                   MeteringLabel` or None
         """
-        return metering_label.MeteringLabel.find(
-            self.session, name_or_id, ignore_missing=ignore_missing)
+        return self._find(metering_label.MeteringLabel, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_metering_label(self, value):
         """Get a single metering label
@@ -519,8 +519,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.metering_label_rule.
                   MeteringLabelRule` or None
         """
-        return metering_label_rule.MeteringLabelRule.find(
-            self.session, name_or_id, ignore_missing=ignore_missing)
+        return self._find(metering_label_rule.MeteringLabelRule, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_metering_label_rule(self, value):
         """Get a single metering label rule
@@ -604,8 +604,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.network.v2.network.Network` or None
         """
-        return network.Network.find(self.session, name_or_id,
-                                    ignore_missing=ignore_missing)
+        return self._find(network.Network, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_network(self, value):
         """Get a single network
@@ -681,8 +681,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.network.v2.pool.Pool` or None
         """
-        return _pool.Pool.find(self.session, name_or_id,
-                               ignore_missing=ignore_missing)
+        return self._find(_pool.Pool, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_pool(self, value):
         """Get a single pool
@@ -770,9 +770,9 @@ class Proxy(proxy.BaseProxy):
                   or None
         """
         pool = _pool.Pool.from_id(pool)
-        return pool_member.PoolMember.find(self.session, member,
-                                           path_args={'pool_id': pool.id},
-                                           ignore_missing=ignore_missing)
+        return self._find(pool_member.PoolMember, member,
+                          path_args={'pool_id': pool.id},
+                          ignore_missing=ignore_missing)
 
     def get_pool_member(self, member, pool):
         """Get a single pool member
@@ -861,8 +861,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.network.v2.port.Port` or None
         """
-        return port.Port.find(self.session, name_or_id,
-                              ignore_missing=ignore_missing)
+        return self._find(port.Port, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_port(self, value):
         """Get a single port
@@ -966,8 +966,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.network.v2.router.Router` or None
         """
-        return router.Router.find(self.session, name_or_id,
-                                  ignore_missing=ignore_missing)
+        return self._find(router.Router, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_router(self, value):
         """Get a single router
@@ -1052,8 +1052,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.security_group.
                   SecurityGroup` or None
         """
-        return security_group.SecurityGroup.find(self.session, name_or_id,
-                                                 ignore_missing=ignore_missing)
+        return self._find(security_group.SecurityGroup, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_security_group(self, value):
         """Get a single security group
@@ -1162,8 +1162,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.security_group_rule.
                   SecurityGroupRule` or None
         """
-        return security_group_rule.SecurityGroupRule.find(
-            self.session, name_or_id, ignore_missing=ignore_missing)
+        return self._find(security_group_rule.SecurityGroupRule,
+                          name_or_id, ignore_missing=ignore_missing)
 
     def get_security_group_rule(self, value):
         """Get a single security group rule
@@ -1230,8 +1230,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.network.v2.subnet.Subnet` or None
         """
-        return subnet.Subnet.find(self.session, name_or_id,
-                                  ignore_missing=ignore_missing)
+        return self._find(subnet.Subnet, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_subnet(self, value):
         """Get a single subnet
@@ -1310,8 +1310,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.vpn_service.VPNService`
                   or None
         """
-        return vpn_service.VPNService.find(self.session, name_or_id,
-                                           ignore_missing=ignore_missing)
+        return self._find(vpn_service.VPNService, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_vpn_service(self, value):
         """Get a single vpn service

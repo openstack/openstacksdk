@@ -39,8 +39,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_extension_find(self):
-        self.verify_find('openstack.network.v2.extension.Extension.find',
-                         self.proxy.find_extension)
+        self.verify_find(self.proxy.find_extension, extension.Extension)
 
     def test_extensions(self):
         self.verify_list(self.proxy.extensions, extension.Extension,
@@ -58,8 +57,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            True)
 
     def test_floating_ip_find(self):
-        self.verify_find('openstack.network.v2.floating_ip.FloatingIP.find',
-                         self.proxy.find_ip)
+        self.verify_find(self.proxy.find_ip, floating_ip.FloatingIP)
 
     def test_floating_ip_get(self):
         self.verify_get(self.proxy.get_ip, floating_ip.FloatingIP)
@@ -84,9 +82,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            health_monitor.HealthMonitor, True)
 
     def test_health_monitor_find(self):
-        self.verify_find(
-            'openstack.network.v2.health_monitor.HealthMonitor.find',
-            self.proxy.find_health_monitor)
+        self.verify_find(self.proxy.find_health_monitor,
+                         health_monitor.HealthMonitor)
 
     def test_health_monitor_get(self):
         self.verify_get(self.proxy.get_health_monitor,
@@ -113,8 +110,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            listener.Listener, True)
 
     def test_listener_find(self):
-        self.verify_find('openstack.network.v2.listener.Listener.find',
-                         self.proxy.find_listener)
+        self.verify_find(self.proxy.find_listener, listener.Listener)
 
     def test_listener_get(self):
         self.verify_get(self.proxy.get_listener, listener.Listener)
@@ -139,9 +135,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            load_balancer.LoadBalancer, True)
 
     def test_load_balancer_find(self):
-        self.verify_find(
-            'openstack.network.v2.load_balancer.LoadBalancer.find',
-            self.proxy.find_load_balancer)
+        self.verify_find(self.proxy.find_load_balancer,
+                         load_balancer.LoadBalancer)
 
     def test_load_balancer_get(self):
         self.verify_get(self.proxy.get_load_balancer,
@@ -169,9 +164,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            metering_label.MeteringLabel, True)
 
     def test_metering_label_find(self):
-        self.verify_find(
-            'openstack.network.v2.metering_label.MeteringLabel.find',
-            self.proxy.find_metering_label)
+        self.verify_find(self.proxy.find_metering_label,
+                         metering_label.MeteringLabel)
 
     def test_metering_label_get(self):
         self.verify_get(self.proxy.get_metering_label,
@@ -199,9 +193,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            metering_label_rule.MeteringLabelRule, True)
 
     def test_metering_label_rule_find(self):
-        self.verify_find(
-            'openstack.network.v2.metering_label_rule.MeteringLabelRule.find',
-            self.proxy.find_metering_label_rule)
+        self.verify_find(self.proxy.find_metering_label_rule,
+                         metering_label_rule.MeteringLabelRule)
 
     def test_metering_label_rule_get(self):
         self.verify_get(self.proxy.get_metering_label_rule,
@@ -226,8 +219,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_network, network.Network, True)
 
     def test_network_find(self):
-        self.verify_find('openstack.network.v2.network.Network.find',
-                         self.proxy.find_network)
+        self.verify_find(self.proxy.find_network, network.Network)
 
     def test_network_get(self):
         self.verify_get(self.proxy.get_network, network.Network)
@@ -254,8 +246,9 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            {"pool": "test_id"}, {"pool_id": "test_id"})
 
     def test_pool_member_find(self):
-        self.verify_find2('openstack.network.v2.pool_member.PoolMember.find',
-                          self.proxy.find_pool_member, {"pool_id": "test_id"})
+        self.verify_find(self.proxy.find_pool_member,
+                         pool_member.PoolMember,
+                         path_args={"pool_id": "test_id"})
 
     def test_pool_member_get(self):
         self._verify2('openstack.proxy.BaseProxy._get',
@@ -285,8 +278,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_pool, pool.Pool, True)
 
     def test_pool_find(self):
-        self.verify_find('openstack.network.v2.pool.Pool.find',
-                         self.proxy.find_pool)
+        self.verify_find(self.proxy.find_pool, pool.Pool)
 
     def test_pool_get(self):
         self.verify_get(self.proxy.get_pool, pool.Pool)
@@ -307,8 +299,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_port, port.Port, True)
 
     def test_port_find(self):
-        self.verify_find('openstack.network.v2.port.Port.find',
-                         self.proxy.find_port)
+        self.verify_find(self.proxy.find_port, port.Port)
 
     def test_port_get(self):
         self.verify_get(self.proxy.get_port, port.Port)
@@ -332,8 +323,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_router, router.Router, True)
 
     def test_router_find(self):
-        self.verify_find('openstack.network.v2.router.Router.find',
-                         self.proxy.find_router)
+        self.verify_find(self.proxy.find_router, router.Router)
 
     def test_router_get(self):
         self.verify_get(self.proxy.get_router, router.Router)
@@ -357,9 +347,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            security_group.SecurityGroup, True)
 
     def test_security_group_find(self):
-        self.verify_find(
-            'openstack.network.v2.security_group.SecurityGroup.find',
-            self.proxy.find_security_group)
+        self.verify_find(self.proxy.find_security_group,
+                         security_group.SecurityGroup)
 
     def test_security_group_get(self):
         self.verify_get(self.proxy.get_security_group,
@@ -428,9 +417,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            security_group_rule.SecurityGroupRule, True)
 
     def test_security_group_rule_find(self):
-        self.verify_find(
-            'openstack.network.v2.security_group_rule.SecurityGroupRule.find',
-            self.proxy.find_security_group_rule)
+        self.verify_find(self.proxy.find_security_group_rule,
+                         security_group_rule.SecurityGroupRule)
 
     def test_security_group_rule_get(self):
         self.verify_get(self.proxy.get_security_group_rule,
@@ -451,8 +439,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_subnet, subnet.Subnet, True)
 
     def test_subnet_find(self):
-        self.verify_find('openstack.network.v2.subnet.Subnet.find',
-                         self.proxy.find_subnet)
+        self.verify_find(self.proxy.find_subnet, subnet.Subnet)
 
     def test_subnet_get(self):
         self.verify_get(self.proxy.get_subnet, subnet.Subnet)
@@ -476,8 +463,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            vpn_service.VPNService, True)
 
     def test_vpn_service_find(self):
-        self.verify_find('openstack.network.v2.vpn_service.VPNService.find',
-                         self.proxy.find_vpn_service)
+        self.verify_find(self.proxy.find_vpn_service,
+                         vpn_service.VPNService)
 
     def test_vpn_service_get(self):
         self.verify_get(self.proxy.get_vpn_service, vpn_service.VPNService)

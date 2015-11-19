@@ -65,8 +65,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.identity.v3.credential.Credential`
                   or None
         """
-        return credential.Credential.find(self.session, name_or_id,
-                                          ignore_missing=ignore_missing)
+        return self._find(credential.Credential, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_credential(self, value):
         """Get a single credential
@@ -145,8 +145,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.domain.Domain` or None
         """
-        return domain.Domain.find(self.session, name_or_id,
-                                  ignore_missing=ignore_missing)
+        return self._find(domain.Domain, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_domain(self, value):
         """Get a single domain
@@ -223,8 +223,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.endpoint.Endpoint` or None
         """
-        return endpoint.Endpoint.find(self.session, name_or_id,
-                                      ignore_missing=ignore_missing)
+        return self._find(endpoint.Endpoint, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_endpoint(self, value):
         """Get a single endpoint
@@ -303,8 +303,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.group.Group` or None
         """
-        return group.Group.find(self.session, name_or_id,
-                                ignore_missing=ignore_missing)
+        return self._find(group.Group, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_group(self, value):
         """Get a single group
@@ -382,8 +382,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.policy.Policy` or None
         """
-        return policy.Policy.find(self.session, name_or_id,
-                                  ignore_missing=ignore_missing)
+        return self._find(policy.Policy, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_policy(self, value):
         """Get a single policy
@@ -460,8 +460,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.project.Project` or None
         """
-        return project.Project.find(self.session, name_or_id,
-                                    ignore_missing=ignore_missing)
+        return self._find(project.Project, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_project(self, value):
         """Get a single project
@@ -538,8 +538,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.service.Service` or None
         """
-        return service.Service.find(self.session, name_or_id,
-                                    ignore_missing=ignore_missing)
+        return self._find(service.Service, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_service(self, value):
         """Get a single service
@@ -616,8 +616,7 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.user.User` or None
         """
-        return user.User.find(self.session, name_or_id,
-                              ignore_missing=ignore_missing)
+        return self._find(user.User, name_or_id, ignore_missing=ignore_missing)
 
     def get_user(self, value):
         """Get a single user
@@ -694,8 +693,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.trust.Trust` or None
         """
-        return trust.Trust.find(self.session, name_or_id,
-                                ignore_missing=ignore_missing)
+        return self._find(trust.Trust, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_trust(self, value):
         """Get a single trust
@@ -772,8 +771,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent region.
         :returns: One :class:`~openstack.identity.v3.region.Region` or None
         """
-        return region.Region.find(self.session, name_or_id,
-                                  ignore_missing=ignore_missing)
+        return self._find(region.Region, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_region(self, value):
         """Get a single region

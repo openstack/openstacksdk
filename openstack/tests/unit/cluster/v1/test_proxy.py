@@ -34,8 +34,7 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_profile, profile.Profile, True)
 
     def test_profile_find(self):
-        self.verify_find('openstack.cluster.v1.profile.Profile.find',
-                         self.proxy.find_profile)
+        self.verify_find(self.proxy.find_profile, profile.Profile)
 
     def test_profile_get(self):
         self.verify_get(self.proxy.get_profile, profile.Profile)
@@ -59,8 +58,7 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_cluster, cluster.Cluster, True)
 
     def test_cluster_find(self):
-        self.verify_find('openstack.cluster.v1.cluster.Cluster.find',
-                         self.proxy.find_cluster)
+        self.verify_find(self.proxy.find_cluster, cluster.Cluster)
 
     def test_cluster_get(self):
         self.verify_get(self.proxy.get_cluster, cluster.Cluster)
@@ -84,8 +82,7 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_node, node.Node, True)
 
     def test_node_find(self):
-        self.verify_find('openstack.cluster.v1.node.Node.find',
-                         self.proxy.find_node)
+        self.verify_find(self.proxy.find_node, node.Node)
 
     def test_node_get(self):
         self.verify_get(self.proxy.get_node, node.Node)
@@ -109,8 +106,7 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_policy, policy.Policy, True)
 
     def test_policy_find(self):
-        self.verify_find('openstack.cluster.v1.policy.Policy.find',
-                         self.proxy.find_policy)
+        self.verify_find(self.proxy.find_policy, policy.Policy)
 
     def test_policy_get(self):
         self.verify_get(self.proxy.get_policy, policy.Policy)

@@ -74,6 +74,23 @@ class BaseProxy(object):
 
         return res
 
+    def _find(self, resource_type, name_or_id, path_args=None,
+              ignore_missing=True):
+        """Find a resource
+
+        :param name_or_id: The name or ID of a resource to find.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+
+        :returns: An instance of ``resource_type`` or None
+        """
+        return resource_type.find(self.session, name_or_id,
+                                  path_args=path_args,
+                                  ignore_missing=ignore_missing)
+
     @_check_resource(strict=False)
     def _delete(self, resource_type, value, path_args=None,
                 ignore_missing=True):

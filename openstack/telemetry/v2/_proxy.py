@@ -60,8 +60,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.telemetry.v2.alarm.Alarm` or None
         """
-        return alarm.Alarm.find(self.session, name_or_id,
-                                ignore_missing=ignore_missing)
+        return self._find(alarm.Alarm, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_alarm(self, value):
         """Get a single alarm
@@ -111,8 +111,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.telemetry.v2.alarm_change.AlarmChange`
                   or None
         """
-        return alarm_change.AlarmChange.find(self.session, name_or_id,
-                                             ignore_missing=ignore_missing)
+        return self._find(alarm_change.AlarmChange, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def alarm_changes(self, value, **query):
         """Return a generator of alarm changes
@@ -140,8 +140,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.telemetry.v2.capability.Capability`
                   or None
         """
-        return capability.Capability.find(self.session, name_or_id,
-                                          ignore_missing=ignore_missing)
+        return self._find(capability.Capability, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def capabilities(self, **query):
         """Return a generator of capabilities
@@ -165,8 +165,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.telemetry.v2.meter.Meter` or None
         """
-        return meter.Meter.find(self.session, name_or_id,
-                                ignore_missing=ignore_missing)
+        return self._find(meter.Meter, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def meters(self, **query):
         """Return a generator of meters
@@ -191,8 +191,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.telemetry.v2.resource.Resource` or
                   None
         """
-        return resource.Resource.find(self.session, name_or_id,
-                                      ignore_missing=ignore_missing)
+        return self._find(resource.Resource, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_resource(self, value):
         """Get a single resource
@@ -241,8 +241,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.telemetry.v2.sample.Sample` or None
         """
-        return sample.Sample.find(self.session, name_or_id,
-                                  ignore_missing=ignore_missing)
+        return self._find(sample.Sample, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def samples(self, value, **query):
         """Return a generator of samples
@@ -270,8 +270,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.telemetry.v2.statistics.Statistics`
                   or None
         """
-        return statistics.Statistics.find(self.session, name_or_id,
-                                          ignore_missing=ignore_missing)
+        return self._find(statistics.Statistics, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def statistics(self, value, **query):
         """Return a generator of statistics

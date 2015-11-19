@@ -34,9 +34,7 @@ class TestKeyManagementProxy(test_proxy_base.TestProxyBase):
                            container.Container, True)
 
     def test_container_find(self):
-        self.verify_find(
-            'openstack.key_management.v1.container.Container.find',
-            self.proxy.find_container)
+        self.verify_find(self.proxy.find_container, container.Container)
 
     def test_container_get(self):
         self.verify_get(self.proxy.get_container, container.Container)
@@ -58,8 +56,7 @@ class TestKeyManagementProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_order, order.Order, True)
 
     def test_order_find(self):
-        self.verify_find('openstack.key_management.v1.order.Order.find',
-                         self.proxy.find_order)
+        self.verify_find(self.proxy.find_order, order.Order)
 
     def test_order_get(self):
         self.verify_get(self.proxy.get_order, order.Order)
@@ -80,8 +77,7 @@ class TestKeyManagementProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_secret, secret.Secret, True)
 
     def test_secret_find(self):
-        self.verify_find('openstack.key_management.v1.secret.Secret.find',
-                         self.proxy.find_secret)
+        self.verify_find(self.proxy.find_secret, secret.Secret)
 
     def test_secret_get(self):
         self.verify_get(self.proxy.get_secret, secret.Secret)

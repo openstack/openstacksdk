@@ -58,8 +58,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.key_management.v1.container.Container`
                   or None
         """
-        return container.Container.find(self.session, name_or_id,
-                                        ignore_missing=ignore_missing)
+        return self._find(container.Container, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_container(self, value):
         """Get a single container
@@ -138,8 +138,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.key_management.v1.order.Order` or None
         """
-        return order.Order.find(self.session, name_or_id,
-                                ignore_missing=ignore_missing)
+        return self._find(order.Order, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_order(self, value):
         """Get a single order
@@ -219,8 +219,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.key_management.v1.secret.Secret` or
                   None
         """
-        return secret.Secret.find(self.session, name_or_id,
-                                  ignore_missing=ignore_missing)
+        return self._find(secret.Secret, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_secret(self, value):
         """Get a single secret

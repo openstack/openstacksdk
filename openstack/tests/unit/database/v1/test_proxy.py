@@ -35,8 +35,7 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                            database.Database, True)
 
     def test_database_find(self):
-        self.verify_find('openstack.database.v1.database.Database.find',
-                         self.proxy.find_database)
+        self.verify_find(self.proxy.find_database, database.Database)
 
     def test_databases(self):
         self.verify_list(self.proxy.databases, database.Database,
@@ -46,8 +45,7 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_database, database.Database)
 
     def test_flavor_find(self):
-        self.verify_find('openstack.database.v1.flavor.Flavor.find',
-                         self.proxy.find_flavor)
+        self.verify_find(self.proxy.find_flavor, flavor.Flavor)
 
     def test_flavor_get(self):
         self.verify_get(self.proxy.get_flavor, flavor.Flavor)
@@ -68,8 +66,7 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                            instance.Instance, True)
 
     def test_instance_find(self):
-        self.verify_find('openstack.database.v1.instance.Instance.find',
-                         self.proxy.find_instance)
+        self.verify_find(self.proxy.find_instance, instance.Instance)
 
     def test_instance_get(self):
         self.verify_get(self.proxy.get_instance, instance.Instance)
@@ -91,8 +88,7 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_user, user.User, True)
 
     def test_user_find(self):
-        self.verify_find('openstack.database.v1.user.User.find',
-                         self.proxy.find_user)
+        self.verify_find(self.proxy.find_user, user.User)
 
     def test_users(self):
         self.verify_list(self.proxy.users, user.User, paginated=False)

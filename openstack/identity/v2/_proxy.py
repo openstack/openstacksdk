@@ -56,8 +56,7 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v2.role.Role` or None
         """
-        return role.Role.find(self.session, name_or_id,
-                              ignore_missing=ignore_missing)
+        return self._find(role.Role, name_or_id, ignore_missing=ignore_missing)
 
     def get_role(self, value):
         """Get a single role
@@ -133,8 +132,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v2.tenant.Tenant` or None
         """
-        return tenant.Tenant.find(self.session, name_or_id,
-                                  ignore_missing=ignore_missing)
+        return self._find(tenant.Tenant, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_tenant(self, value):
         """Get a single tenant
@@ -210,8 +209,7 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v2.user.User` or None
         """
-        return user.User.find(self.session, name_or_id,
-                              ignore_missing=ignore_missing)
+        return self._find(user.User, name_or_id, ignore_missing=ignore_missing)
 
     def get_user(self, value):
         """Get a single user

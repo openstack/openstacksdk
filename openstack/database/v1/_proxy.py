@@ -57,8 +57,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.database.v1.database.Database` or None
         """
-        return database.Database.find(self.session, name_or_id,
-                                      ignore_missing=ignore_missing)
+        return self._find(database.Database, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def databases(self, **query):
         """Return a generator of databases
@@ -95,8 +95,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.database.v1.flavor.Flavor` or None
         """
-        return flavor.Flavor.find(self.session, name_or_id,
-                                  ignore_missing=ignore_missing)
+        return self._find(flavor.Flavor, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_flavor(self, value):
         """Get a single flavor
@@ -159,8 +159,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.database.v1.instance.Instance` or None
         """
-        return instance.Instance.find(self.session, name_or_id,
-                                      ignore_missing=ignore_missing)
+        return self._find(instance.Instance, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_instance(self, value):
         """Get a single instance
@@ -238,8 +238,7 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.database.v1.user.User` or None
         """
-        return user.User.find(self.session, name_or_id,
-                              ignore_missing=ignore_missing)
+        return self._find(user.User, name_or_id, ignore_missing=ignore_missing)
 
     def users(self, **query):
         """Return a generator of users

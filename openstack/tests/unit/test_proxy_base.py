@@ -121,29 +121,33 @@ class TestProxyBase(base.TestCase):
                       expected_args=[resource_type] + the_value,
                       expected_kwargs=expected_kwargs)
 
-    def verify_find(self, mock_method, test_method, **kwargs):
-        self._verify(mock_method, test_method, method_args=["name_or_id"],
-                     expected_args=["name_or_id"],
-                     expected_kwargs={'ignore_missing': True},
-                     expected_result="result", **kwargs)
-        self._verify(mock_method, test_method,
-                     method_args=["name_or_id", False],
-                     expected_args=["name_or_id"],
-                     expected_kwargs={'ignore_missing': False},
-                     expected_result="result", **kwargs)
-
-    def verify_find2(self, mock_method, test_method, path_args, **kwargs):
+    def verify_find(self, test_method, resource_type, path_args=None,
+                    mock_method="openstack.proxy.BaseProxy._find", **kwargs):
         method_args = ["name_or_id"]
-        for key in path_args:
-            method_args.append(path_args[key])
+        expected_kwargs = {}
 
-        self._verify(mock_method, test_method,
-                     method_args=method_args,
-                     expected_args=["name_or_id"],
-                     expected_kwargs={"path_args": path_args,
-                                      "ignore_missing": True},
-                     expected_result="result",
-                     **kwargs)
+        if path_args is not None:
+            for key in path_args:
+                method_args.append(path_args[key])
+            expected_kwargs = {"path_args": path_args}
+
+        # TODO(briancurtin): if sub-tests worked in this mess of
+        # test dependencies, the following would be a lot easier to work with.
+        expected_kwargs["ignore_missing"] = False
+        self._verify2(mock_method, test_method,
+                      method_args=method_args + [False],
+                      expected_args=[resource_type, "name_or_id"],
+                      expected_kwargs=expected_kwargs,
+                      expected_result="result",
+                      **kwargs)
+
+        expected_kwargs["ignore_missing"] = True
+        self._verify2(mock_method, test_method,
+                      method_args=method_args + [True],
+                      expected_args=[resource_type, "name_or_id"],
+                      expected_kwargs=expected_kwargs,
+                      expected_result="result",
+                      **kwargs)
 
     def verify_list(self, test_method, resource_type, paginated=False,
                     mock_method="openstack.proxy.BaseProxy._list",

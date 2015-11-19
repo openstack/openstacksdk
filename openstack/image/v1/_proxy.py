@@ -54,8 +54,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.image.v1.image.Image` or None
         """
-        return image.Image.find(self.session, name_or_id,
-                                ignore_missing=ignore_missing)
+        return self._find(image.Image, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_image(self, value):
         """Get a single image

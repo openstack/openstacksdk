@@ -28,8 +28,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_extension_find(self):
-        self.verify_find('openstack.compute.v2.extension.Extension.find',
-                         self.proxy.find_extension)
+        self.verify_find(self.proxy.find_extension, extension.Extension)
 
     def test_extensions(self):
         self.verify_list(self.proxy.extensions, extension.Extension,
@@ -45,8 +44,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_flavor, flavor.Flavor, True)
 
     def test_flavor_find(self):
-        self.verify_find('openstack.compute.v2.flavor.Flavor.find',
-                         self.proxy.find_flavor)
+        self.verify_find(self.proxy.find_flavor, flavor.Flavor)
 
     def test_flavor_get(self):
         self.verify_get(self.proxy.get_flavor, flavor.Flavor)
@@ -73,8 +71,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_image, image.Image, True)
 
     def test_image_find(self):
-        self.verify_find('openstack.compute.v2.image.Image.find',
-                         self.proxy.find_image)
+        self.verify_find(self.proxy.find_image, image.Image)
 
     def test_image_get(self):
         self.verify_get(self.proxy.get_image, image.Image)
@@ -101,8 +98,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_keypair, keypair.Keypair, True)
 
     def test_keypair_find(self):
-        self.verify_find('openstack.compute.v2.keypair.Keypair.find',
-                         self.proxy.find_keypair)
+        self.verify_find(self.proxy.find_keypair, keypair.Keypair)
 
     def test_keypair_get(self):
         self.verify_get(self.proxy.get_keypair, keypair.Keypair)
@@ -130,9 +126,8 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                            server_interface.ServerInterface, True)
 
     def test_server_interface_find(self):
-        self.verify_find(
-            'openstack.compute.v2.server_interface.ServerInterface.find',
-            self.proxy.find_server_interface)
+        self.verify_find(self.proxy.find_server_interface,
+                         server_interface.ServerInterface)
 
     def test_server_interface_get(self):
         self.verify_get(self.proxy.get_server_interface,
@@ -148,8 +143,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                            server_interface.ServerInterface)
 
     def test_server_ip_find(self):
-        self.verify_find('openstack.compute.v2.server_ip.ServerIP.find',
-                         self.proxy.find_server_ip)
+        self.verify_find(self.proxy.find_server_ip, server_ip.ServerIP)
 
     def test_server_ips(self):
         self.verify_list(self.proxy.server_ips, server_ip.ServerIP,
@@ -165,8 +159,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_server, server.Server, True)
 
     def test_server_find(self):
-        self.verify_find('openstack.compute.v2.server.Server.find',
-                         self.proxy.find_server)
+        self.verify_find(self.proxy.find_server, server.Server)
 
     def test_server_get(self):
         self.verify_get(self.proxy.get_server, server.Server)

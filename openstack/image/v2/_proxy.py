@@ -63,8 +63,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.image.v2.image.Image` or None
         """
-        return image.Image.find(self.session, name_or_id,
-                                ignore_missing=ignore_missing)
+        return self._find(image.Image, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_image(self, value):
         """Get a single image
@@ -140,8 +140,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.image.v2.member.Member` or None
         """
-        return member.Member.find(self.session, name_or_id,
-                                  ignore_missing=ignore_missing)
+        return self._find(member.Member, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_member(self, value):
         """Get a single member

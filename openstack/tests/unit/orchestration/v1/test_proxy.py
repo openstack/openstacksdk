@@ -29,8 +29,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_stack, stack.Stack)
 
     def test_stack_find(self):
-        self.verify_find('openstack.orchestration.v1.stack.Stack.find',
-                         self.proxy.find_stack)
+        self.verify_find(self.proxy.find_stack, stack.Stack)
 
     def test_stacks(self):
         self.verify_list(self.proxy.stacks, stack.Stack, paginated=False)
@@ -65,8 +64,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         self.assertEqual(0, mock_find.call_count)
 
     def test_resources_with_stack_name(self):
-        self.verify_find('openstack.orchestration.v1.stack.Stack.find',
-                         self.proxy.find_stack)
+        self.verify_find(self.proxy.find_stack, stack.Stack)
 
     @mock.patch.object(stack.Stack, 'find')
     @mock.patch.object(resource.Resource, 'list')

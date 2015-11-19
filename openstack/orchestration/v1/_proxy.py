@@ -41,8 +41,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.orchestration.v1.stack.Stack` or None
         """
-        return stack.Stack.find(self.session, name_or_id,
-                                ignore_missing=ignore_missing)
+        return self._find(stack.Stack, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def stacks(self, **query):
         """Return a generator of stacks

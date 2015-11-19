@@ -36,8 +36,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.compute.v2.extension.Extension` or
                   None
         """
-        return extension.Extension.find(self.session, name_or_id,
-                                        ignore_missing=ignore_missing)
+        return self._find(extension.Extension, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def extensions(self, **query):
         """Retrieve a generator of extensions
@@ -61,8 +61,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.flavor.Flavor` or None
         """
-        return flavor.Flavor.find(self.session, name_or_id,
-                                  ignore_missing=ignore_missing)
+        return self._find(flavor.Flavor, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def create_flavor(self, **attrs):
         """Create a new flavor from attributes
@@ -157,8 +157,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.image.Image` or None
         """
-        return image.Image.find(self.session, name_or_id,
-                                ignore_missing=ignore_missing)
+        return self._find(image.Image, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_image(self, value):
         """Get a single image
@@ -237,8 +237,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.keypair.Keypair` or None
         """
-        return keypair.Keypair.find(self.session, name_or_id,
-                                    ignore_missing=ignore_missing)
+        return self._find(keypair.Keypair, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def keypairs(self, **query):
         """Return a generator of keypairs
@@ -312,8 +312,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.server.Server` or None
         """
-        return server.Server.find(self.session, name_or_id,
-                                  ignore_missing=ignore_missing)
+        return self._find(server.Server, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_server(self, value):
         """Get a single server
@@ -432,8 +432,8 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.compute.v2.server_interface.
                   ServerInterface` or None
         """
-        return server_interface.ServerInterface.find(
-            self.session, name_or_id, ignore_missing=ignore_missing)
+        return self._find(server_interface.ServerInterface,
+                          name_or_id, ignore_missing=ignore_missing)
 
     def get_server_interface(self, value):
         """Get a single server interface
@@ -487,8 +487,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.server_ip.ServerIP` or None
         """
-        return server_ip.ServerIP.find(self.session, name_or_id,
-                                       ignore_missing=ignore_missing)
+        return self._find(server_ip.ServerIP, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def server_ips(self, **query):
         """Return a generator of server IPs

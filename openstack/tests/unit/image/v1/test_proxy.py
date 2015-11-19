@@ -30,8 +30,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_image, image.Image, True)
 
     def test_image_find(self):
-        self.verify_find('openstack.image.v1.image.Image.find',
-                         self.proxy.find_image)
+        self.verify_find(self.proxy.find_image, image.Image)
 
     def test_image_get(self):
         self.verify_get(self.proxy.get_image, image.Image)

@@ -42,8 +42,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                            credential.Credential, True)
 
     def test_credential_find(self):
-        self.verify_find('openstack.identity.v3.credential.Credential.find',
-                         self.proxy.find_credential)
+        self.verify_find(self.proxy.find_credential, credential.Credential)
 
     def test_credential_get(self):
         self.verify_get(self.proxy.get_credential, credential.Credential)
@@ -65,8 +64,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_domain, domain.Domain, True)
 
     def test_domain_find(self):
-        self.verify_find('openstack.identity.v3.domain.Domain.find',
-                         self.proxy.find_domain)
+        self.verify_find(self.proxy.find_domain, domain.Domain)
 
     def test_domain_get(self):
         self.verify_get(self.proxy.get_domain, domain.Domain)
@@ -89,8 +87,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
                            endpoint.Endpoint, True)
 
     def test_endpoint_find(self):
-        self.verify_find('openstack.identity.v3.endpoint.Endpoint.find',
-                         self.proxy.find_endpoint)
+        self.verify_find(self.proxy.find_endpoint, endpoint.Endpoint)
 
     def test_endpoint_get(self):
         self.verify_get(self.proxy.get_endpoint, endpoint.Endpoint)
@@ -112,8 +109,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_group, group.Group, True)
 
     def test_group_find(self):
-        self.verify_find('openstack.identity.v3.group.Group.find',
-                         self.proxy.find_group)
+        self.verify_find(self.proxy.find_group, group.Group)
 
     def test_group_get(self):
         self.verify_get(self.proxy.get_group, group.Group)
@@ -134,8 +130,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_policy, policy.Policy, True)
 
     def test_policy_find(self):
-        self.verify_find('openstack.identity.v3.policy.Policy.find',
-                         self.proxy.find_policy)
+        self.verify_find(self.proxy.find_policy, policy.Policy)
 
     def test_policy_get(self):
         self.verify_get(self.proxy.get_policy, policy.Policy)
@@ -156,8 +151,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_project, project.Project, True)
 
     def test_project_find(self):
-        self.verify_find('openstack.identity.v3.project.Project.find',
-                         self.proxy.find_project)
+        self.verify_find(self.proxy.find_project, project.Project)
 
     def test_project_get(self):
         self.verify_get(self.proxy.get_project, project.Project)
@@ -178,8 +172,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_service, service.Service, True)
 
     def test_service_find(self):
-        self.verify_find('openstack.identity.v3.service.Service.find',
-                         self.proxy.find_service)
+        self.verify_find(self.proxy.find_service, service.Service)
 
     def test_service_get(self):
         self.verify_get(self.proxy.get_service, service.Service)
@@ -200,8 +193,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_user, user.User, True)
 
     def test_user_find(self):
-        self.verify_find('openstack.identity.v3.user.User.find',
-                         self.proxy.find_user)
+        self.verify_find(self.proxy.find_user, user.User)
 
     def test_user_get(self):
         self.verify_get(self.proxy.get_user, user.User)
@@ -222,8 +214,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_trust, trust.Trust, True)
 
     def test_trust_find(self):
-        self.verify_find('openstack.identity.v3.trust.Trust.find',
-                         self.proxy.find_trust)
+        self.verify_find(self.proxy.find_trust, trust.Trust)
 
     def test_trust_get(self):
         self.verify_get(self.proxy.get_trust, trust.Trust)
@@ -244,8 +235,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_region, region.Region, True)
 
     def test_region_find(self):
-        self.verify_find('openstack.identity.v3.region.Region.find',
-                         self.proxy.find_region)
+        self.verify_find(self.proxy.find_region, region.Region)
 
     def test_region_get(self):
         self.verify_get(self.proxy.get_region, region.Region)
