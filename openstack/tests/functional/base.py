@@ -19,6 +19,9 @@ from openstack import exceptions
 from openstack import service_filter
 
 
+CLOUD_NAME = os.getenv('OS_CLOUD', 'test_cloud')
+
+
 def requires_service(**kwargs):
     """Check whether a service is available for this test
 
@@ -50,14 +53,10 @@ def requires_service(**kwargs):
 
 
 class BaseFunctionalTest(unittest.TestCase):
-    class Opts(object):
-        def __init__(self):
-            self.cloud = os.getenv('OS_CLOUD', 'test_cloud')
 
     @classmethod
     def setUpClass(cls):
-        opts = cls.Opts()
-        cls.conn = connection.from_config(opts)
+        cls.conn = connection.from_config(cloud_name=CLOUD_NAME)
 
     @classmethod
     def assertIs(cls, expected, actual):

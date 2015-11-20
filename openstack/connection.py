@@ -72,17 +72,27 @@ from openstack import utils
 _logger = logging.getLogger(__name__)
 
 
-def from_config(opts):
-    """Create a connection from a configuration.
+def from_config(cloud_name=None, cloud_config=None, options=None):
+    """Create a Connection using os-client-config
 
-    Create a :class:`~openstack.connection.Connection` from a configuration
-    similar to a os-client-config CloudConfig.
-
-    :param opts: An options class like the :class:`~argparse.Namespace` class.
+    :param str cloud_name: Use the `cloud_name` configuration details when
+                           creating the Connection instance.
+    :param cloud_config: An instance of
+                         `os_client_config.config.OpenStackConfig`
+                         as returned from the os-client-config library.
+                         If no `config` is provided,
+                         `os_client_config.OpenStackConfig` will be called,
+                         and the provided `cloud_name` will be used in
+                         determining which cloud's configuration details
+                         will be used in creation of the
+                         `Connection` instance.
+    :param options: An argparse Namespace object; allows direct passing
+                    in of argparse options to be added to the cloud config.
+                    This value is passed to the `argparse` argument of
+                    `os_client_config.config.OpenStackConfig.get_one_cloud`.
 
     :rtype: :class:`~openstack.connection.Connection`
     """
-
     # TODO(thowe): I proposed that service name defaults to None in OCC
     defaults = {}
     prof = profile.Profile()
@@ -92,17 +102,15 @@ def from_config(opts):
     # TODO(thowe): default is 2 which turns into v2 which doesn't work
     # this stuff needs to be fixed where we keep version and path separated.
     defaults['network_api_version'] = 'v2.0'
-
-    # Get the cloud_config
-    occ = os_client_config.OpenStackConfig(override_defaults=defaults)
-    cloud_config = occ.get_one_cloud(opts.cloud, argparse=opts)
+    if cloud_config is None:
+        occ = os_client_config.OpenStackConfig(override_defaults=defaults)
+        cloud_config = occ.get_one_cloud(cloud=cloud_name, argparse=options)
 
     if cloud_config.debug:
         utils.enable_logging(True, stream=sys.stdout)
 
     # TODO(mordred) we need to add service_type setting to openstacksdk.
     # Some clouds have type overridden as well as name.
-    prof = profile.Profile()
     services = [service.service_type for service in prof.get_services()]
     for service in cloud_config.get_services():
         if service in services:

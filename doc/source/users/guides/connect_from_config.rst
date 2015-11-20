@@ -31,8 +31,13 @@ locations:
 * ~/.config/openstack
 * /etc/openstack
 
-call :py:func:`~openstack.connection.from_config` with an object that has
-the name of the cloud configuration to use.
+call :py:func:`~openstack.connection.from_config`. The ``from_config``
+function takes three optional arguments, such as **cloud_name**,
+which allows you to specify one set of cloud credentials in your
+``clouds.yaml`` file. Additionally, **cloud_config** and **options**
+allow you to pass in configiration data you may have already received
+from ``os-client-config``, as well as additional options that the
+``os-client-config`` library may need.
 
 .. literalinclude:: ../examples/connect.py
    :pyobject: Opts
@@ -51,16 +56,8 @@ absolute path of a file.::
 
     export OS_CLIENT_CONFIG_FILE=/path/to/my/config/my-clouds.yaml
 
-and call :py:func:`~openstack.connection.from_config` with an object that has
-the name of the cloud configuration to use.
-
-.. literalinclude:: ../examples/connect.py
-   :pyobject: Opts
-
-.. literalinclude:: ../examples/connect.py
-   :pyobject: create_connection_from_config
-
-.. note:: To enable logging, set ``debug=True`` in the ``Opts`` object.
+and call :py:func:`~openstack.connection.from_config` with the **cloud_name**
+of the cloud configuration to use, .
 
 .. Create Connection From Environment Variables
    --------------------------------------------
