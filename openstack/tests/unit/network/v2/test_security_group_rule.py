@@ -39,7 +39,7 @@ class TestSecurityGroupRule(testtools.TestCase):
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)
-        self.assertTrue(sot.allow_update)
+        self.assertFalse(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 

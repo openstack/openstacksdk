@@ -441,10 +441,6 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          security_group_rule.SecurityGroupRule,
                          paginated=False)
 
-    def test_security_group_rule_update(self):
-        self.verify_update(self.proxy.update_security_group_rule,
-                           security_group_rule.SecurityGroupRule)
-
     def test_subnet_create_attrs(self):
         self.verify_create(self.proxy.create_subnet, subnet.Subnet)
 
