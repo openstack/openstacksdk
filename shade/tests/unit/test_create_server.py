@@ -34,6 +34,7 @@ class TestCreateServer(base.TestCase):
         config = os_client_config.OpenStackConfig()
         self.client = OpenStackCloud(
             cloud_config=config.get_one_cloud(validate=False))
+        self.client._SERVER_LIST_AGE = 0
 
     def test_create_server_with_create_exception(self):
         """
@@ -160,7 +161,8 @@ class TestCreateServer(base.TestCase):
                         'server-name', 'image-id', 'flavor-id', wait=True),
                     fake_server)
 
-    def test_create_server_no_addresses(self):
+    @patch('time.sleep')
+    def test_create_server_no_addresses(self, mock_sleep):
         """
         Test that create_server with a wait throws an exception if the
         server doesn't have addresses.
@@ -170,11 +172,13 @@ class TestCreateServer(base.TestCase):
             fake_server = fakes.FakeServer('1234', '', 'ACTIVE')
             config = {
                 "servers.create.return_value": build_server,
-                "servers.get.return_value": build_server,
+                "servers.get.return_value": [build_server, None],
                 "servers.list.side_effect": [
-                    [build_server], [fake_server]]
+                    [build_server], [fake_server]],
+                "servers.delete.return_value": None,
             }
             OpenStackCloud.nova_client = Mock(**config)
+            self.client._SERVER_LIST_AGE = 0
             with patch.object(OpenStackCloud, "add_ips_to_server",
                               return_value=fake_server):
                 self.assertRaises(
