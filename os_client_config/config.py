@@ -87,7 +87,7 @@ def _get_os_environ(envvar_prefix=None):
         # This makes the or below be OS_ or OS_ which is a no-op
         envvar_prefix = 'OS_'
     environkeys = [k for k in os.environ.keys()
-                   if k.startswith('OS_') or k.startswith(envvar_prefix)
+                   if (k.startswith('OS_') or k.startswith(envvar_prefix))
                    and not k.startswith('OS_TEST')  # infra CI var
                    and not k.startswith('OS_STD')   # infra CI var
                    ]
