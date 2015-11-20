@@ -12,7 +12,7 @@
 
 from openstack.compute.v2 import extension
 from openstack.compute.v2 import flavor
-from openstack.compute.v2 import image
+from openstack.compute.v2 import image as _image
 from openstack.compute.v2 import keypair
 from openstack.compute.v2 import limits
 from openstack.compute.v2 import server as _server
@@ -144,7 +144,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(image.Image, value, ignore_missing=ignore_missing)
+        self._delete(_image.Image, value, ignore_missing=ignore_missing)
 
     def find_image(self, name_or_id, ignore_missing=True):
         """Find a single image
@@ -157,7 +157,7 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.image.Image` or None
         """
-        return self._find(image.Image, name_or_id,
+        return self._find(_image.Image, name_or_id,
                           ignore_missing=ignore_missing)
 
     def get_image(self, value):
@@ -170,7 +170,7 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(image.Image, value)
+        return self._get(_image.Image, value)
 
     def images(self, details=True, **query):
         """Return a generator of images
@@ -184,7 +184,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: A generator of image objects
         """
-        img = image.ImageDetail if details else image.Image
+        img = _image.ImageDetail if details else _image.Image
         return self._list(img, paginated=True, **query)
 
     def create_keypair(self, **attrs):
@@ -533,3 +533,33 @@ class Proxy(proxy.BaseProxy):
         """
         server = _server.Server.from_id(value)
         server.revert_resize(self.session)
+
+    def rebuild_server(self, value, image, name=None, admin_password=None,
+                       **attrs):
+        """Rebuild a server
+
+        :param value: Either the ID of a server or a
+                      :class:`~openstack.compute.v2.server.Server` instance.
+        :param image: The ID or name or a
+                      :class:`~openstack.compute.v2.image.Image` or full
+                      URL of the image used to rebuild the server with.
+        :param name: New name for the server.
+        :param admin_password: New admin password for the server.
+        :param kwargs \*\*attrs: The attributes to rebuild the server.
+
+        :returns: The rebuilt server
+        :rtype: :class:`~openstack.compute.v2.server.Server`
+        """
+        if isinstance(image, _image.Image):
+            image_ref = image.id
+        else:
+            image_obj = self.find_image(image)
+            if image_obj:
+                image_ref = image_obj.id
+            else:
+                # the 'image' could be a full url
+                image_ref = image
+
+        server = _server.Server.from_id(value)
+        return server.rebuild(self.session, name, image_ref, admin_password,
+                              **attrs)

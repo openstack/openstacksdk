@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
+
 from openstack.compute.v2 import _proxy
 from openstack.compute.v2 import extension
 from openstack.compute.v2 import flavor
@@ -235,3 +237,38 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self._verify("openstack.compute.v2.server.Server.revert_resize",
                      self.proxy.revert_resize_server,
                      method_args=["value"])
+
+    @mock.patch.object(_proxy.Proxy, 'find_image')
+    def test_server_rebuild(self, mock_find_image):
+        image_obj = image.Image.from_id('test_image_id')
+        mock_find_image.side_effect = [image_obj, None]
+
+        # Case1: image object is provided as image_ref
+        self._verify('openstack.compute.v2.server.Server.rebuild',
+                     self.proxy.rebuild_server,
+                     method_args=["value", image_obj, "test_server",
+                                  "test_pass"],
+                     method_kwargs={"metadata": {"k1": "v1"}},
+                     expected_args=["test_server", "test_image_id",
+                                    "test_pass"],
+                     expected_kwargs={"metadata": {"k1": "v1"}})
+
+        # Case2: image name or id is provided as image_ref
+        self._verify('openstack.compute.v2.server.Server.rebuild',
+                     self.proxy.rebuild_server,
+                     method_args=["value", "test_image_name_or_id",
+                                  "test_server", "test_pass"],
+                     method_kwargs={"metadata": {"k1": "v1"}},
+                     expected_args=["test_server", "test_image_id",
+                                    "test_pass"],
+                     expected_kwargs={"metadata": {"k1": "v1"}})
+
+        # Case3: image URL is provided as image_ref
+        self._verify('openstack.compute.v2.server.Server.rebuild',
+                     self.proxy.rebuild_server,
+                     method_args=["value", "test_image_url", "test_server",
+                                  "test_pass"],
+                     method_kwargs={"metadata": {"k1": "v1"}},
+                     expected_args=["test_server", "test_image_url",
+                                    "test_pass"],
+                     expected_kwargs={"metadata": {"k1": "v1"}})
