@@ -1192,22 +1192,6 @@ class Proxy(proxy.BaseProxy):
         return self._list(security_group_rule.SecurityGroupRule,
                           paginated=False, **query)
 
-    def update_security_group_rule(self, value, **attrs):
-        """Update a security group rule
-
-        :param value: Either the id of a security group rule or a
-                      :class:`~openstack.network.v2.security_group_rule.
-                      SecurityGroupRule` instance.
-        :attrs kwargs: The attributes to update on the security group rule
-                       represented by ``value``.
-
-        :returns: The updated security group rule
-        :rtype: :class:`~openstack.network.v2.security_group_rule.
-                        SecurityGroupRule`
-        """
-        return self._update(security_group_rule.SecurityGroupRule, value,
-                            **attrs)
-
     def create_subnet(self, **attrs):
         """Create a new subnet from attributes
 

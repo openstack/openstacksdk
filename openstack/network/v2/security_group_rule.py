@@ -23,7 +23,7 @@ class SecurityGroupRule(resource.Resource):
     # capabilities
     allow_create = True
     allow_retrieve = True
-    allow_update = True
+    allow_update = False
     allow_delete = True
     allow_list = True
 
