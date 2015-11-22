@@ -226,6 +226,8 @@ class TestConfig(base.TestCase):
                                              new_config)
         with open(self.cloud_yaml) as fh:
             written_config = yaml.safe_load(fh)
+            # We write a cache config for testing
+            written_config['cache'].pop('path', None)
             self.assertEqual(written_config, resulting_config)
 
 
@@ -239,18 +241,26 @@ class TestConfigArgparse(base.TestCase):
             username='user',
             password='password',
             project_name='project',
-            region_name='other-test-region',
+            region_name='region2',
             snack_type='cookie',
         )
         self.options = argparse.Namespace(**self.args)
+
+    def test_get_one_cloud_bad_region_argparse(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+
+        self.assertRaises(
+            exceptions.OpenStackConfigException, c.get_one_cloud,
+            cloud='_test-cloud_', argparse=self.options)
 
     def test_get_one_cloud_argparse(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
 
-        cc = c.get_one_cloud(cloud='_test-cloud_', argparse=self.options)
-        self._assert_cloud_details(cc)
-        self.assertEqual(cc.region_name, 'other-test-region')
+        cc = c.get_one_cloud(
+            cloud='_test_cloud_regions', argparse=self.options)
+        self.assertEqual(cc.region_name, 'region2')
         self.assertEqual(cc.snack_type, 'cookie')
 
     def test_get_one_cloud_just_argparse(self):
@@ -259,7 +269,7 @@ class TestConfigArgparse(base.TestCase):
 
         cc = c.get_one_cloud(argparse=self.options)
         self.assertIsNone(cc.cloud)
-        self.assertEqual(cc.region_name, 'other-test-region')
+        self.assertEqual(cc.region_name, 'region2')
         self.assertEqual(cc.snack_type, 'cookie')
 
     def test_get_one_cloud_just_kwargs(self):
@@ -268,7 +278,7 @@ class TestConfigArgparse(base.TestCase):
 
         cc = c.get_one_cloud(**self.args)
         self.assertIsNone(cc.cloud)
-        self.assertEqual(cc.region_name, 'other-test-region')
+        self.assertEqual(cc.region_name, 'region2')
         self.assertEqual(cc.snack_type, 'cookie')
 
     def test_get_one_cloud_dash_kwargs(self):
@@ -318,10 +328,10 @@ class TestConfigArgparse(base.TestCase):
     def test_get_one_cloud_bad_region_no_regions(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
-
-        cc = c.get_one_cloud(cloud='_test-cloud_', region_name='bad_region')
-        self._assert_cloud_details(cc)
-        self.assertEqual(cc.region_name, 'bad_region')
+        self.assertRaises(
+            exceptions.OpenStackConfigException,
+            c.get_one_cloud,
+            cloud='_test-cloud_', region_name='bad_region')
 
     def test_get_one_cloud_no_argparse_region2(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
@@ -332,6 +342,26 @@ class TestConfigArgparse(base.TestCase):
         self._assert_cloud_details(cc)
         self.assertEqual(cc.region_name, 'region2')
         self.assertIsNone(cc.snack_type)
+
+    def test_get_one_cloud_network(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+
+        cc = c.get_one_cloud(
+            cloud='_test_cloud_regions', region_name='region1', argparse=None)
+        self._assert_cloud_details(cc)
+        self.assertEqual(cc.region_name, 'region1')
+        self.assertEqual('region1-network', cc.config['external_network'])
+
+    def test_get_one_cloud_per_region_network(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+
+        cc = c.get_one_cloud(
+            cloud='_test_cloud_regions', region_name='region2', argparse=None)
+        self._assert_cloud_details(cc)
+        self.assertEqual(cc.region_name, 'region2')
+        self.assertEqual('my-network', cc.config['external_network'])
 
     def test_fix_env_args(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],

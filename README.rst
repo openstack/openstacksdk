@@ -265,6 +265,38 @@ environment variable.
 The above snippet will tell client programs to prefer returning an IPv4
 address.
 
+Per-region settings
+-------------------
+
+Sometimes you have a cloud provider that has config that is common to the
+cloud, but also with some things you might want to express on a per-region
+basis. For instance, Internap provides a public and private network specific
+to the user in each region, and putting the values of those networks into
+config can make consuming programs more efficient.
+
+To support this, the region list can actually be a list of dicts, and any
+setting that can be set at the cloud level can be overridden for that
+region.
+
+::
+
+  clouds:
+    internap:
+      profile: internap
+      auth:
+        password: XXXXXXXXXXXXXXXXX
+        username: api-55f9a00fb2619
+        project_name: inap-17037
+      regions:
+      - name: ams01
+        values:
+          external_network: inap-17037-WAN1654
+          internal_network: inap-17037-LAN4820
+      - name: nyj01
+        values:
+          external_network: inap-17037-WAN7752
+          internal_network: inap-17037-LAN6745
+
 Usage
 -----
 

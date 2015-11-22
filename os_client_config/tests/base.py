@@ -16,6 +16,7 @@
 # under the License.
 
 
+import copy
 import os
 import tempfile
 
@@ -96,8 +97,18 @@ USER_CONF = {
                 'auth_url': 'http://example.com/v2',
             },
             'regions': [
-                'region1',
-                'region2',
+                {
+                    'name': 'region1',
+                    'values': {
+                        'external_network': 'region1-network',
+                    }
+                },
+                {
+                    'name': 'region2',
+                    'values': {
+                        'external_network': 'my-network',
+                    }
+                }
             ],
         },
         '_test_cloud_hyphenated': {
@@ -139,7 +150,7 @@ class TestCase(base.BaseTestCase):
         super(TestCase, self).setUp()
 
         self.useFixture(fixtures.NestedTempfile())
-        conf = dict(USER_CONF)
+        conf = copy.deepcopy(USER_CONF)
         tdir = self.useFixture(fixtures.TempDir())
         conf['cache']['path'] = tdir.path
         self.cloud_yaml = _write_yaml(conf)

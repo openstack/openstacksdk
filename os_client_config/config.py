@@ -15,6 +15,7 @@
 
 # alias because we already had an option named argparse
 import argparse as argparse_mod
+import copy
 import json
 import os
 import warnings
@@ -121,8 +122,9 @@ def _merge_clouds(old_dict, new_dict):
     return ret
 
 
-def _auth_update(old_dict, new_dict):
+def _auth_update(old_dict, new_dict_source):
     """Like dict.update, except handling the nested dict called auth."""
+    new_dict = copy.deepcopy(new_dict_source)
     for (k, v) in new_dict.items():
         if k == 'auth':
             if k in old_dict:
@@ -302,17 +304,29 @@ class OpenStackConfig(object):
         return self._cache_class
 
     def get_cache_arguments(self):
-        return self._cache_arguments.copy()
+        return copy.deepcopy(self._cache_arguments)
 
     def get_cache_expiration(self):
-        return self._cache_expiration.copy()
+        return copy.deepcopy(self._cache_expiration)
+
+    def _expand_region_name(self, region_name):
+        return {'name': region_name, 'values': {}}
+
+    def _expand_regions(self, regions):
+        ret = []
+        for region in regions:
+            if isinstance(region, dict):
+                ret.append(copy.deepcopy(region))
+            else:
+                ret.append(self._expand_region_name(region))
+        return ret
 
     def _get_regions(self, cloud):
         if cloud not in self.cloud_config['clouds']:
-            return ['']
+            return [self._expand_region_name('')]
         config = self._normalize_keys(self.cloud_config['clouds'][cloud])
         if 'regions' in config:
-            return config['regions']
+            return self._expand_regions(config['regions'])
         elif 'region_name' in config:
             regions = config['region_name'].split(',')
             if len(regions) > 1:
@@ -320,22 +334,39 @@ class OpenStackConfig(object):
                     "Comma separated lists in region_name are deprecated."
                     " Please use a yaml list in the regions"
                     " parameter in {0} instead.".format(self.config_filename))
-            return regions
+            return self._expand_regions(regions)
         else:
             # crappit. we don't have a region defined.
             new_cloud = dict()
             our_cloud = self.cloud_config['clouds'].get(cloud, dict())
             self._expand_vendor_profile(cloud, new_cloud, our_cloud)
             if 'regions' in new_cloud and new_cloud['regions']:
-                return new_cloud['regions']
+                return self._expand_regions(new_cloud['regions'])
             elif 'region_name' in new_cloud and new_cloud['region_name']:
-                return [new_cloud['region_name']]
+                return [self._expand_region_name(new_cloud['region_name'])]
             else:
                 # Wow. We really tried
-                return ['']
+                return [self._expand_region_name('')]
 
-    def _get_region(self, cloud=None):
-        return self._get_regions(cloud)[0]
+    def _get_region(self, cloud=None, region_name=''):
+        if not cloud:
+            return self._expand_region_name(region_name)
+
+        regions = self._get_regions(cloud)
+        if not region_name:
+            return regions[0]
+
+        for region in regions:
+            if region['name'] == region_name:
+                return region
+
+        raise exceptions.OpenStackConfigException(
+            'Region {region_name} is not a valid region name for cloud'
+            ' {cloud}. Valid choices are {region_list}. Please note that'
+            ' region names are case sensitive.'.format(
+                region_name=region_name,
+                region_list=','.join([r['name'] for r in regions]),
+                cloud=cloud))
 
     def get_cloud_names(self):
         return self.cloud_config['clouds'].keys()
@@ -585,7 +616,9 @@ class OpenStackConfig(object):
 
         for cloud in self.get_cloud_names():
             for region in self._get_regions(cloud):
-                clouds.append(self.get_one_cloud(cloud, region_name=region))
+                if region:
+                    clouds.append(self.get_one_cloud(
+                        cloud, region_name=region['name']))
         return clouds
 
     def _fix_args(self, args, argparse=None):
@@ -764,30 +797,27 @@ class OpenStackConfig(object):
             else:
                 cloud = self.default_cloud
 
-        if 'region_name' not in args or args['region_name'] is None:
-            args['region_name'] = self._get_region(cloud)
-
         config = self._get_base_cloud_config(cloud)
+
+        # Get region specific settings
+        if 'region_name' not in args:
+            args['region_name'] = ''
+        region = self._get_region(cloud=cloud, region_name=args['region_name'])
+        args['region_name'] = region['name']
+        region_args = copy.deepcopy(region['values'])
 
         # Regions is a list that we can use to create a list of cloud/region
         # objects. It does not belong in the single-cloud dict
-        regions = config.pop('regions', None)
-        if regions and args['region_name'] not in regions:
-            raise exceptions.OpenStackConfigException(
-                'Region {region_name} is not a valid region name for cloud'
-                ' {cloud}. Valid choices are {region_list}. Please note that'
-                ' region names are case sensitive.'.format(
-                    region_name=args['region_name'],
-                    region_list=','.join(regions),
-                    cloud=cloud))
+        config.pop('regions', None)
 
         # Can't just do update, because None values take over
-        for (key, val) in iter(args.items()):
-            if val is not None:
-                if key == 'auth' and config[key] is not None:
-                    config[key] = _auth_update(config[key], val)
-                else:
-                    config[key] = val
+        for arg_list in region_args, args:
+            for (key, val) in iter(arg_list.items()):
+                if val is not None:
+                    if key == 'auth' and config[key] is not None:
+                        config[key] = _auth_update(config[key], val)
+                    else:
+                        config[key] = val
 
         # These backwards compat values are only set via argparse. If it's
         # there, it's because it was passed in explicitly, and should win
