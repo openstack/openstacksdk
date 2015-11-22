@@ -30,6 +30,8 @@ class TestEnviron(base.TestCase):
         self.useFixture(
             fixtures.EnvironmentVariable('OS_USERNAME', 'testuser'))
         self.useFixture(
+            fixtures.EnvironmentVariable('OS_PASSWORD', 'testpass'))
+        self.useFixture(
             fixtures.EnvironmentVariable('OS_PROJECT_NAME', 'testproject'))
         self.useFixture(
             fixtures.EnvironmentVariable('NOVA_PROJECT_ID', 'testnova'))
@@ -57,13 +59,15 @@ class TestEnviron(base.TestCase):
         self.useFixture(
             fixtures.EnvironmentVariable('OS_PREFER_IPV6', 'false'))
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
-                                   vendor_files=[self.vendor_yaml])
+                                   vendor_files=[self.vendor_yaml],
+                                   secure_files=[self.secure_yaml])
         cc = c.get_one_cloud('_test-cloud_')
         self.assertFalse(cc.prefer_ipv6)
 
     def test_environ_exists(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
-                                   vendor_files=[self.vendor_yaml])
+                                   vendor_files=[self.vendor_yaml],
+                                   secure_files=[self.secure_yaml])
         cc = c.get_one_cloud('envvars')
         self._assert_cloud_details(cc)
         self.assertNotIn('auth_url', cc.config)
@@ -78,7 +82,8 @@ class TestEnviron(base.TestCase):
     def test_environ_prefix(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml],
-                                   envvar_prefix='NOVA_')
+                                   envvar_prefix='NOVA_',
+                                   secure_files=[self.secure_yaml])
         cc = c.get_one_cloud('envvars')
         self._assert_cloud_details(cc)
         self.assertNotIn('auth_url', cc.config)
@@ -92,7 +97,8 @@ class TestEnviron(base.TestCase):
 
     def test_get_one_cloud_with_config_files(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
-                                   vendor_files=[self.vendor_yaml])
+                                   vendor_files=[self.vendor_yaml],
+                                   secure_files=[self.secure_yaml])
         self.assertIsInstance(c.cloud_config, dict)
         self.assertIn('cache', c.cloud_config)
         self.assertIsInstance(c.cloud_config['cache'], dict)

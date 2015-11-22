@@ -64,7 +64,6 @@ USER_CONF = {
             'auth': {
                 'auth_url': 'http://example.com/v2',
                 'username': 'testuser',
-                'password': 'testpass',
                 'project_name': 'testproject',
             },
             'region-name': 'test-region',
@@ -112,6 +111,15 @@ USER_CONF = {
         }
     },
 }
+SECURE_CONF = {
+    'clouds': {
+        '_test_cloud_no_vendor': {
+            'auth': {
+                'password': 'testpass',
+            },
+        }
+    }
+}
 NO_CONF = {
     'cache': {'max_age': 1},
 }
@@ -135,6 +143,7 @@ class TestCase(base.BaseTestCase):
         tdir = self.useFixture(fixtures.TempDir())
         conf['cache']['path'] = tdir.path
         self.cloud_yaml = _write_yaml(conf)
+        self.secure_yaml = _write_yaml(SECURE_CONF)
         self.vendor_yaml = _write_yaml(VENDOR_CONF)
         self.no_yaml = _write_yaml(NO_CONF)
 
@@ -155,6 +164,7 @@ class TestCase(base.BaseTestCase):
         self.assertIsNone(cc.cloud)
         self.assertIn('username', cc.auth)
         self.assertEqual('testuser', cc.auth['username'])
+        self.assertEqual('testpass', cc.auth['password'])
         self.assertFalse(cc.config['image_api_use_tasks'])
         self.assertTrue('project_name' in cc.auth or 'project_id' in cc.auth)
         if 'project_name' in cc.auth:
