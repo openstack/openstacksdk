@@ -74,6 +74,12 @@ class TestConnection(base.TestCase):
         self.assertEqual(mock_plugin, conn.authenticator)
 
     @mock.patch("keystoneauth1.loading.base.get_plugin_loader")
+    def test_default_plugin(self, mock_get_plugin):
+        connection.Connection()
+        self.assertTrue(mock_get_plugin.called)
+        self.assertEqual(mock_get_plugin.call_args, mock.call("password"))
+
+    @mock.patch("keystoneauth1.loading.base.get_plugin_loader")
     def test_pass_authenticator(self, mock_get_plugin):
         mock_plugin = mock.Mock()
         mock_get_plugin.return_value = None
