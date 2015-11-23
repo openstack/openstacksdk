@@ -148,7 +148,8 @@ def from_config(cloud_name=None, cloud_config=None, options=None):
 class Connection(object):
 
     def __init__(self, session=None, authenticator=None, profile=None,
-                 verify=True, user_agent=None, auth_plugin=None, **auth_args):
+                 verify=True, user_agent=None, auth_plugin="password",
+                 **auth_args):
         """Create a context for a connection to a cloud provider.
 
         A connection needs a transport and an authenticator.  The user may pass
@@ -184,11 +185,8 @@ class Connection(object):
             specified in :attr:`~openstack.transport.USER_AGENT`.
             The resulting ``user_agent`` value is used for the ``User-Agent``
             HTTP header.
-        :param str auth_plugin: The name of authentication plugin to use.  If
-            the authentication plugin name is not provided, the connection will
-            try to guess what plugin to use based on the *auth_url* in the
-            *auth_args*.  Two common values for the plugin would be
-            ``v3password`` and ``v3token``.
+        :param str auth_plugin: The name of authentication plugin to use.
+            The default value is ``password``.
         :param auth_args: The rest of the parameters provided are assumed to be
             authentication arguments that are used by the authentication
             plugin.
