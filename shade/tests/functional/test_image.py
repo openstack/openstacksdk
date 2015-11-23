@@ -42,6 +42,8 @@ class TestImage(base.TestCase):
                                     filename=test_image.name,
                                     disk_format='raw',
                                     container_format='bare',
+                                    min_disk=10,
+                                    min_ram=1024,
                                     wait=True)
         finally:
             self.cloud.delete_image(image_name, wait=True)

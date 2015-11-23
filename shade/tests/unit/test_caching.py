@@ -294,13 +294,13 @@ class TestMemoryCache(base.TestCase):
             # therefore we should _not_ expect to see the new one here
             self.assertEqual([first_image], self.cloud.list_images())
 
-    def _call_create_image(self, name, container=None):
+    def _call_create_image(self, name, container=None, **kwargs):
         imagefile = tempfile.NamedTemporaryFile(delete=False)
         imagefile.write(b'\0')
         imagefile.close()
         self.cloud.create_image(
             name, imagefile.name, container=container, wait=True,
-            is_public=False)
+            is_public=False, **kwargs)
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
@@ -336,12 +336,13 @@ class TestMemoryCache(base.TestCase):
         fake_image = fakes.FakeImage('42', '42 name', 'success')
         glance_mock.images.create.return_value = fake_image
         glance_mock.images.list.return_value = [fake_image]
-        self._call_create_image('42 name')
+        self._call_create_image('42 name', min_disk=0, min_ram=0)
         args = {'name': '42 name',
                 'container_format': 'bare', 'disk_format': 'qcow2',
                 'owner_specified.shade.md5': mock.ANY,
                 'owner_specified.shade.sha256': mock.ANY,
-                'visibility': 'private'}
+                'visibility': 'private',
+                'min_disk': 0, 'min_ram': 0}
         glance_mock.images.create.assert_called_with(**args)
         glance_mock.images.upload.assert_called_with(
             image_data=mock.ANY, image_id=fake_image.id)
