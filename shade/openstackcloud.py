@@ -391,7 +391,7 @@ class OpenStackCloud(object):
         return _utils._get_entity(self.search_projects, name_or_id, filters)
 
     def update_project(self, name_or_id, description=None, enabled=True):
-        with _utils.shade.exceptions(
+        with _utils.shade_exceptions(
                 "Error in updating project {project}".format(
                     project=name_or_id)):
             proj = self.get_project(name_or_id)
