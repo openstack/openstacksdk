@@ -17,3 +17,4 @@
     - { role: subnet, tags: subnet }
     - { role: user, tags: user }
     - { role: user_group, tags: user_group }
+    - { role: volume, tags: volume }
