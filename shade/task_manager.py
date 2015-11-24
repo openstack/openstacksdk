@@ -22,6 +22,7 @@ import threading
 import time
 import types
 
+import keystoneauth1.exceptions
 import six
 
 from shade import _log
@@ -90,7 +91,16 @@ class Task(object):
 
     def run(self, client):
         try:
-            self.done(self.main(client))
+            # Retry one time if we get a retriable connection failure
+            try:
+                self.done(self.main(client))
+            except keystoneauth1.exceptions.RetriableConnectionFailure:
+                client.log.debug(
+                    "Connection failure for {name}, retrying".format(
+                        name=type(self).__name__))
+                self.done(self.main(client))
+            except Exception:
+                raise
         except Exception as e:
             self.exception(e, sys.exc_info()[2])
 
