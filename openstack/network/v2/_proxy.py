@@ -1150,10 +1150,10 @@ class Proxy(proxy.BaseProxy):
         self._delete(security_group_rule.SecurityGroupRule,
                      value, ignore_missing=ignore_missing)
 
-    def find_security_group_rule(self, name_or_id, ignore_missing=True):
+    def find_security_group_rule(self, value, ignore_missing=True):
         """Find a single security group rule
 
-        :param name_or_id: The name or ID of a security group rule.
+        :param value: The ID of a security group rule.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the resource does not exist.
@@ -1163,7 +1163,7 @@ class Proxy(proxy.BaseProxy):
                   SecurityGroupRule` or None
         """
         return self._find(security_group_rule.SecurityGroupRule,
-                          name_or_id, ignore_missing=ignore_missing)
+                          value, ignore_missing=ignore_missing)
 
     def get_security_group_rule(self, value):
         """Get a single security group rule
