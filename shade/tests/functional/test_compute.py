@@ -40,7 +40,9 @@ class TestCompute(base.TestCase):
         server_name = self.server_prefix + '_create_server'
         self.addCleanup(self.cloud.delete_server, server_name)
         server = self.cloud.create_server(name=server_name,
-                                          image=self.image, flavor=self.flavor)
+                                          image=self.image,
+                                          flavor=self.flavor,
+                                          wait=True)
         self.assertEquals(server['name'], server_name)
         self.assertEquals(server['image']['id'], self.image.id)
         self.assertEquals(server['flavor']['id'], self.flavor.id)
@@ -49,7 +51,8 @@ class TestCompute(base.TestCase):
         server_name = self.server_prefix + '_delete_server'
         self.cloud.create_server(name=server_name,
                                  image=self.image,
-                                 flavor=self.flavor)
+                                 flavor=self.flavor,
+                                 wait=True)
         server_deleted = self.cloud.delete_server(server_name,
                                                   wait=True)
         self.assertIsNone(server_deleted)
