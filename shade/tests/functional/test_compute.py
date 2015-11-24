@@ -28,18 +28,17 @@ class TestCompute(base.TestCase):
     def setUp(self):
         super(TestCompute, self).setUp()
         self.cloud = openstack_cloud(cloud='devstack')
-        self.nova = self.cloud.nova_client
-        self.flavor = pick_flavor(self.nova.flavors.list())
+        self.flavor = pick_flavor(self.cloud.list_flavors())
         if self.flavor is None:
             self.assertFalse('no sensible flavor available')
-        self.image = pick_image(self.nova.images.list())
+        self.image = pick_image(self.cloud.list_images())
         if self.image is None:
             self.assertFalse('no sensible image available')
 
     def _cleanup_servers(self):
-        for i in self.nova.servers.list():
+        for i in self.cloud.list_servers():
             if i.name.startswith('test_create'):
-                self.nova.servers.delete(i)
+                self.cloud.delete_server(i)
 
     def test_create_server(self):
         self.addCleanup(self._cleanup_servers)
