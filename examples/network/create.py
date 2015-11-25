@@ -11,69 +11,25 @@
 # under the License.
 
 """
-Network examples
+Create resources with the Network service.
 
-Create all the pieces parts to have a working network.
-
-To run:
-    python examples/network/create.py
+For a full guide see TODO(etoews):link to docs on developer.openstack.org
 """
 
-import sys
 
-from examples import common
-from examples import connection
+def create_network(conn):
+    print("Create Network:")
 
+    example_network = conn.network.create_network(
+        name='openstacksdk-example-project-network')
 
-def create(conn, name, opts, ports_to_open=[80, 22]):
-    dns_nameservers = opts.data.pop('dns_nameservers', '206.164.176.34')
-    cidr = opts.data.pop('cidr', '10.3.3.0/24')
+    print(example_network)
 
-    network = conn.network.find_network(name)
-    if network is None:
-        network = conn.network.create_network(name=name)
-    print(str(network))
+    example_subnet = conn.network.create_subnet(
+        name='openstacksdk-example-project-subnet',
+        network_id=example_network.id,
+        ip_version='4',
+        cidr='10.0.2.0/24',
+        gateway_ip='10.0.2.1')
 
-    subnet = conn.network.find_subnet(name)
-    if subnet is None:
-        args = {
-            "name": name,
-            "network_id": network.id,
-            "ip_version": "4",
-            "dns_nameservers": [dns_nameservers],
-            "cidr": cidr,
-        }
-        subnet = conn.network.create_subnet(**args)
-    print(str(subnet))
-
-    extnet = conn.network.find_network("Ext-Net")
-    router = conn.network.find_router(name)
-    if router is None:
-        args = {
-            "name": name,
-            "external_gateway_info": {"network_id": extnet.id}
-        }
-        router = conn.network.create_router(**args)
-        conn.network.router_add_interface(router, subnet.id)
-    print(str(router))
-
-    sg = conn.network.find_security_group(name)
-    if sg is None:
-        sg = conn.network.create_security_group(name=name)
-        for port in ports_to_open:
-            conn.network.security_group_open_port(sg.id, port)
-        conn.network.security_group_allow_ping(sg.id)
-    print(str(sg))
-
-    return network
-
-
-def run_network(opts):
-    name = opts.data.pop('name', 'netty')
-    conn = connection.make_connection(opts)
-    return(create(conn, name, opts))
-
-
-if __name__ == "__main__":
-    opts = common.setup()
-    sys.exit(common.main(opts, run_network))
+    print(example_subnet)

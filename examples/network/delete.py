@@ -11,56 +11,18 @@
 # under the License.
 
 """
-Network examples
+Delete resources with the Network service.
 
-Destroy all the pieces parts of a working network.
-
-To run:
-    python examples/network/delete.py
+For a full guide see TODO(etoews):link to docs on developer.openstack.org
 """
 
-import sys
 
-from examples import common
-from examples import connection
+def delete_network(conn):
+    print("Delete Network:")
 
+    example_network = conn.network.find_network(
+        'openstacksdk-example-project-network')
 
-def delete(conn, name):
-
-    router = conn.network.find_router(name)
-    if router is not None:
-        print(str(router))
-
-    subnet = conn.network.find_subnet(name)
-    if subnet is not None:
-        print(str(subnet))
-        if router:
-            try:
-                conn.network.router_remove_interface(router, subnet.id)
-            except Exception:
-                pass
-        for port in conn.network.get_subnet_ports(subnet.id):
-            print(str(port))
-            conn.network.delete_port(port)
-
-    if router is not None:
-        conn.network.delete_router(router)
-
-    if subnet:
-        conn.network.delete_subnet(subnet)
-
-    network = conn.network.find_network(name)
-    if network is not None:
-        print(str(network))
-        conn.network.delete_network(network)
-
-
-def run_network(opts):
-    name = opts.data.pop('name', 'netty')
-    conn = connection.make_connection(opts)
-    return(delete(conn, name))
-
-
-if __name__ == "__main__":
-    opts = common.setup()
-    sys.exit(common.main(opts, run_network))
+    for example_subnet in example_network.subnets:
+        conn.network.delete_subnet(example_subnet, ignore_missing=False)
+    conn.network.delete_network(example_network, ignore_missing=False)
