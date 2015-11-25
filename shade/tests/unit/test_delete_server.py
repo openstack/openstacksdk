@@ -52,7 +52,7 @@ class TestDeleteServer(base.TestCase):
         """
         server = fakes.FakeServer('1234', 'daffy', 'ACTIVE')
         nova_mock.servers.list.return_value = [server]
-        self.cloud.delete_server('daffy', wait=False)
+        self.assertTrue(self.cloud.delete_server('daffy', wait=False))
         nova_mock.servers.delete.assert_called_with(server=server.id)
 
     @mock.patch('shade.OpenStackCloud.nova_client')
@@ -61,12 +61,12 @@ class TestDeleteServer(base.TestCase):
         Test that we return immediately when server is already gone
         """
         nova_mock.servers.list.return_value = []
-        self.cloud.delete_server('tweety', wait=False)
+        self.assertFalse(self.cloud.delete_server('tweety', wait=False))
         self.assertFalse(nova_mock.servers.delete.called)
 
     @mock.patch('shade.OpenStackCloud.nova_client')
     def test_delete_server_already_gone_wait(self, nova_mock):
-        self.cloud.delete_server('speedy', wait=True)
+        self.assertFalse(self.cloud.delete_server('speedy', wait=True))
         self.assertFalse(nova_mock.servers.delete.called)
 
     @mock.patch('shade.OpenStackCloud.nova_client')
@@ -89,7 +89,7 @@ class TestDeleteServer(base.TestCase):
             nova_mock.servers.get.side_effect = _raise_notfound
 
         nova_mock.servers.delete.side_effect = _delete_wily
-        self.cloud.delete_server('wily', wait=True)
+        self.assertTrue(self.cloud.delete_server('wily', wait=True))
         nova_mock.servers.delete.assert_called_with(server=server.id)
 
     @mock.patch('shade.OpenStackCloud.nova_client')
