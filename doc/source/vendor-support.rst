@@ -177,6 +177,7 @@ https://auth.cloud.ovh.net/v2.0
 ============== ================
 Region Name    Human Name
 ============== ================
+BHS1           Beauharnois, QC
 SBG1           Strassbourg, FR
 GRA1           Gravelines, FR
 ============== ================

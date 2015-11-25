@@ -5,6 +5,7 @@
       "auth_url": "https://auth.cloud.ovh.net/v2.0"
     },
     "regions": [
+      "BHS1",
       "GRA1",
       "SBG1"
     ],
