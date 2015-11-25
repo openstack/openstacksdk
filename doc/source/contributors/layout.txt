@@ -2,11 +2,6 @@ openstack/
     connection.py
     resource.py
     session.py
-    transport.py
-    auth/
-        identity/
-            v2.py
-            v3.py
     compute/
         compute_service.py
         v2/

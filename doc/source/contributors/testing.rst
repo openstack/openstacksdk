@@ -14,14 +14,13 @@ Run
 
 In order to run the entire unit test suite, simply run the ``tox`` command
 inside of your source checkout. This will attempt to run every test command
-listed inside of ``tox.ini``, which includes Python 2.7, 3.3, 3.4, PyPy,
+listed inside of ``tox.ini``, which includes Python 2.7, 3.4, PyPy,
 and a PEP 8 check. You should run the full test suite on all versions before
 submitting changes for review in order to avoid unexpected failures in the
 continuous integration system.::
 
    (sdk3)$ tox
    ...
-   py33: commands succeeded
    py34: commands succeeded
    py27: commands succeeded
    pypy: commands succeeded

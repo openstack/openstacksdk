@@ -14,31 +14,6 @@ HTTP verbs, and injects your authentication token into a request,
 determines any service preferences callers may have set, gets the endpoint
 from the authenticator, and sends the request out through the transport.
 
-Auth
-----
-
-As the `Session`_ needs a way to get a token and endpoint, it is constructed
-with either a ``v2.Auth`` or ``v3.Auth`` object from
-:mod:`openstack.auth.identity`. These two classes speak to OpenStack's Identity
-service and are able to handle things like authentication tokens and their
-expiration, and the service catalog.
-
-Transport
----------
-
-The :class:`openstack.transport.Transport` class in is built on
-`requests.Session <http://docs.python-requests.org/en/latest/user/advanced/>`_
-and handles the sending of requests and receiving of responses.
-``Transport.request`` handles the insertion of header values,
-logging of the request and response and converts responses to JSON when
-necessary.
-
-The ``Transport._send_request`` method handles redirection status
-codes returned from ``requests.Session.request``, as the requests library
-follows a
-`browser redirection pattern <https://en.wikipedia.org/wiki/Post/Redirect/Get>`_
-that isn't suitable for this library.
-
 Resource
 --------
 

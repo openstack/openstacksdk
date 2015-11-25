@@ -122,12 +122,6 @@ can be customized.
    :maxdepth: 1
 
    session
-   transport
-   base_auth_plugin
-   identity_base
-   identity_v2
-   identity_v3
-   module_loader
    resource
    service_filter
    utils
