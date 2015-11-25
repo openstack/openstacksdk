@@ -130,6 +130,37 @@ class TestShade(base.TestCase):
         self.assertTrue(mock_client.create_router.called)
 
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_create_router_with_enable_snat_True(self, mock_client):
+        """Do not send enable_snat when same as neutron default."""
+        self.cloud.create_router(name='goofy', admin_state_up=True,
+                                 enable_snat=True)
+        mock_client.create_router.assert_called_once_with(
+            body=dict(
+                router=dict(
+                    name='goofy',
+                    admin_state_up=True,
+                )
+            )
+        )
+
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_create_router_with_enable_snat_False(self, mock_client):
+        """Send enable_snat when it is False."""
+        self.cloud.create_router(name='goofy', admin_state_up=True,
+                                 enable_snat=False)
+        mock_client.create_router.assert_called_once_with(
+            body=dict(
+                router=dict(
+                    name='goofy',
+                    admin_state_up=True,
+                    external_gateway_info=dict(
+                        enable_snat=False
+                    )
+                )
+            )
+        )
+
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     def test_add_router_interface(self, mock_client):
         self.cloud.add_router_interface({'id': '123'}, subnet_id='abc')
         mock_client.add_interface_router.assert_called_once_with(
