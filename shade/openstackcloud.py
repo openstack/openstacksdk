@@ -3313,55 +3313,77 @@ class OpenStackCloud(object):
 
     def delete_server(
             self, name_or_id, wait=False, timeout=180, delete_ips=False):
+        """Delete a server instance.
+
+        :param bool wait: If true, waits for server to be deleted.
+        :param int timeout: Seconds to wait for server deletion.
+        :param bool delete_ips: If true, deletes any floating IPs
+            associated with the instance.
+
+        :returns: True if delete succeeded, False otherwise if the
+            server does not exist.
+
+        :raises: OpenStackCloudException on operation error.
+        """
         server = self.get_server(name_or_id)
+        if not server:
+            return False
+
+        # This portion of the code is intentionally left as a separate
+        # private method in order to avoid an unnecessary API call to get
+        # a server we already have.
         return self._delete_server(
             server, wait=wait, timeout=timeout, delete_ips=delete_ips)
 
     def _delete_server(
             self, server, wait=False, timeout=180, delete_ips=False):
-        if server:
-            if delete_ips:
-                floating_ip = meta.get_server_ip(server, ext_tag='floating')
-                if floating_ip:
-                    ips = self.search_floating_ips(filters={
-                        'floating_ip_address': floating_ip})
-                    if len(ips) != 1:
-                        raise OpenStackException(
-                            "Tried to delete floating ip {floating_ip}"
-                            " associated with server {id} but there was"
-                            " an error finding it. Something is exceptionally"
-                            " broken.".format(
-                                floating_ip=floating_ip,
-                                id=server['id']))
-                    self.delete_floating_ip(ips[0]['id'])
-            try:
-                self.manager.submitTask(
-                    _tasks.ServerDelete(server=server['id']))
-            except nova_exceptions.NotFound:
-                return
-            except OpenStackCloudException:
-                raise
-            except Exception as e:
-                raise OpenStackCloudException(
-                    "Error in deleting server: {0}".format(e))
-        else:
-            return
+        if not server:
+            return False
+
+        if delete_ips:
+            floating_ip = meta.get_server_ip(server, ext_tag='floating')
+            if floating_ip:
+                ips = self.search_floating_ips(filters={
+                    'floating_ip_address': floating_ip})
+                if len(ips) != 1:
+                    raise OpenStackException(
+                        "Tried to delete floating ip {floating_ip}"
+                        " associated with server {id} but there was"
+                        " an error finding it. Something is exceptionally"
+                        " broken.".format(
+                            floating_ip=floating_ip,
+                            id=server['id']))
+                self.delete_floating_ip(ips[0]['id'])
+
+        try:
+            self.manager.submitTask(
+                _tasks.ServerDelete(server=server['id']))
+        except nova_exceptions.NotFound:
+            return False
+        except OpenStackCloudException:
+            raise
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Error in deleting server: {0}".format(e))
+
         if not wait:
-            return
+            return True
+
         for count in _utils._iterate_timeout(
                 timeout,
                 "Timed out waiting for server to get deleted."):
             try:
                 server = self.get_server_by_id(server['id'])
                 if not server:
-                    return
+                    break
             except nova_exceptions.NotFound:
-                return
+                break
             except OpenStackCloudException:
                 raise
             except Exception as e:
                 raise OpenStackCloudException(
                     "Error in deleting server: {0}".format(e))
+        return True
 
     def list_containers(self, full_listing=True):
         try:

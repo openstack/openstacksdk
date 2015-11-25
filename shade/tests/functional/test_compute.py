@@ -36,9 +36,8 @@ class TestCompute(base.TestCase):
             self.assertFalse('no sensible image available')
         self.server_prefix = self.getUniqueString('server')
 
-    def test_create_server(self):
-        server_name = self.server_prefix + '_create_server'
-        self.addCleanup(self.cloud.delete_server, server_name)
+    def test_create_and_delete_server(self):
+        server_name = self.server_prefix + '_create_and_delete'
         server = self.cloud.create_server(name=server_name,
                                           image=self.image,
                                           flavor=self.flavor,
@@ -46,16 +45,7 @@ class TestCompute(base.TestCase):
         self.assertEquals(server['name'], server_name)
         self.assertEquals(server['image']['id'], self.image.id)
         self.assertEquals(server['flavor']['id'], self.flavor.id)
-
-    def test_delete_server(self):
-        server_name = self.server_prefix + '_delete_server'
-        self.cloud.create_server(name=server_name,
-                                 image=self.image,
-                                 flavor=self.flavor,
-                                 wait=True)
-        server_deleted = self.cloud.delete_server(server_name,
-                                                  wait=True)
-        self.assertIsNone(server_deleted)
+        self.assertTrue(self.cloud.delete_server(server_name, wait=True))
 
     def test_get_image_id(self):
         self.assertEqual(
