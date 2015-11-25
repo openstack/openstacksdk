@@ -754,10 +754,10 @@ class Proxy(proxy.BaseProxy):
                      path_args={'pool_id': pool.id},
                      ignore_missing=ignore_missing)
 
-    def find_pool_member(self, member, pool, ignore_missing=True):
+    def find_pool_member(self, name_or_id, pool, ignore_missing=True):
         """Find a single pool member
 
-        :param member: The name or ID of a pool member.
+        :param str name_or_id: The name or ID of a pool member.
         :param pool: The pool can be either the ID of a pool or a
                      :class:`~openstack.network.v2.pool.Pool` instance that
                      the member belongs to.
@@ -770,7 +770,7 @@ class Proxy(proxy.BaseProxy):
                   or None
         """
         pool = _pool.Pool.from_id(pool)
-        return self._find(pool_member.PoolMember, member,
+        return self._find(pool_member.PoolMember, name_or_id,
                           path_args={'pool_id': pool.id},
                           ignore_missing=ignore_missing)
 
@@ -1150,10 +1150,10 @@ class Proxy(proxy.BaseProxy):
         self._delete(security_group_rule.SecurityGroupRule,
                      value, ignore_missing=ignore_missing)
 
-    def find_security_group_rule(self, value, ignore_missing=True):
+    def find_security_group_rule(self, name_or_id, ignore_missing=True):
         """Find a single security group rule
 
-        :param value: The ID of a security group rule.
+        :param str name_or_id: The ID of a security group rule.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the resource does not exist.
@@ -1163,7 +1163,7 @@ class Proxy(proxy.BaseProxy):
                   SecurityGroupRule` or None
         """
         return self._find(security_group_rule.SecurityGroupRule,
-                          value, ignore_missing=ignore_missing)
+                          name_or_id, ignore_missing=ignore_missing)
 
     def get_security_group_rule(self, value):
         """Get a single security group rule

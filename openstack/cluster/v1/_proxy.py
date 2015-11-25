@@ -46,10 +46,10 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(profile.Profile, value, ignore_missing=ignore_missing)
 
-    def find_profile(self, value, ignore_missing=True):
+    def find_profile(self, name_or_id, ignore_missing=True):
         """Find a single profile.
 
-        :param value: The name or ID of a profile.
+        :param str name_or_id: The name or ID of a profile.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the resource does not exist.
@@ -58,7 +58,7 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.cluster.v1.profile.Profile` object
             or None
         """
-        return self._find(profile.Profile, value,
+        return self._find(profile.Profile, name_or_id,
                           ignore_missing=ignore_missing)
 
     def get_profile(self, value):
@@ -137,10 +137,10 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(cluster.Cluster, value, ignore_missing=ignore_missing)
 
-    def find_cluster(self, value, ignore_missing=True):
+    def find_cluster(self, name_or_id, ignore_missing=True):
         """Find a single cluster.
 
-        :param value: The name or ID of a cluster.
+        :param str name_or_id: The name or ID of a cluster.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the resource does not exist.
@@ -149,7 +149,7 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.cluster.v1.cluster.Cluster` object
             or None
         """
-        return self._find(cluster.Cluster, value,
+        return self._find(cluster.Cluster, name_or_id,
                           ignore_missing=ignore_missing)
 
     def get_cluster(self, value):
@@ -228,13 +228,13 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(node.Node, value, ignore_missing=ignore_missing)
 
-    def find_node(self, value, ignore_missing=True):
+    def find_node(self, name_or_id, ignore_missing=True):
         """Find a single node.
 
-        :param value: The name or ID of a node.
+        :param str name_or_id: The name or ID of a node.
         :returns: One :class:`~openstack.cluster.v1.node.Node` object or None.
         """
-        return self._find(node.Node, value, ignore_missing=ignore_missing)
+        return self._find(node.Node, name_or_id, ignore_missing=ignore_missing)
 
     def get_node(self, value):
         """Get a single node.
@@ -313,10 +313,10 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(policy.Policy, value, ignore_missing=ignore_missing)
 
-    def find_policy(self, value, ignore_missing=True):
+    def find_policy(self, name_or_id, ignore_missing=True):
         """Find a single policy.
 
-        :param value: The name or ID of a policy.
+        :param str name_or_id: The name or ID of a policy.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the specified policy does not exist.
@@ -325,7 +325,8 @@ class Proxy(proxy.BaseProxy):
         :returns: A policy object or None.
         :rtype: :class:`~openstack.cluster.v1.policy.Policy`
         """
-        return self._find(policy.Policy, value, ignore_missing=ignore_missing)
+        return self._find(policy.Policy, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def get_policy(self, value):
         """Get a single policy.
