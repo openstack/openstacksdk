@@ -34,24 +34,23 @@ class TestCompute(base.TestCase):
         self.image = pick_image(self.cloud.list_images())
         if self.image is None:
             self.assertFalse('no sensible image available')
-
-    def _cleanup_servers(self):
-        for i in self.cloud.list_servers():
-            if i.name.startswith('test_create'):
-                self.cloud.delete_server(i)
+        self.server_prefix = self.getUniqueString('server')
 
     def test_create_server(self):
-        self.addCleanup(self._cleanup_servers)
-        server = self.cloud.create_server(name='test_create_server',
+        server_name = self.server_prefix + '_create_server'
+        self.addCleanup(self.cloud.delete_server, server_name)
+        server = self.cloud.create_server(name=server_name,
                                           image=self.image, flavor=self.flavor)
-        self.assertEquals(server['name'], 'test_create_server')
+        self.assertEquals(server['name'], server_name)
         self.assertEquals(server['image']['id'], self.image.id)
         self.assertEquals(server['flavor']['id'], self.flavor.id)
 
     def test_delete_server(self):
-        self.cloud.create_server(name='test_delete_server',
-                                 image=self.image, flavor=self.flavor)
-        server_deleted = self.cloud.delete_server('test_delete_server',
+        server_name = self.server_prefix + '_delete_server'
+        self.cloud.create_server(name=server_name,
+                                 image=self.image,
+                                 flavor=self.flavor)
+        server_deleted = self.cloud.delete_server(server_name,
                                                   wait=True)
         self.assertIsNone(server_deleted)
 
