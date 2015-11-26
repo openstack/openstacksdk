@@ -15,8 +15,6 @@ import time
 import unittest
 
 from openstack import connection
-from openstack import exceptions
-from openstack import service_filter
 
 
 CLOUD_NAME = os.getenv('OS_CLOUD', 'test_cloud')
@@ -33,21 +31,16 @@ def requires_service(**kwargs):
     def test_v3_auth(self):
         ...
 
-    :param kwargs: The kwargs needed to create a
-                   :class:`~openstack.service_filter.ServiceFilter`.
-
+    :param kwargs: The kwargs needed to filter an endpoint.
     :returns: The test result if the test is executed.
     :raises: SkipTest, which is handled by the test runner.
     """
     def wrap(method):
         def check(self):
-            try:
-                self.conn.authenticator.get_endpoint(
-                    self.conn.transport,
-                    service_filter.ServiceFilter(**kwargs))
-                return method(self)
-            except exceptions.EndpointNotFound as exc:
-                self.skip(exc.message)
+            ep = self.conn.session.get_endpoint(**kwargs)
+            if ep is None:
+                self.skip('Service endpoint not found.')
+            return method(self)
         return check
     return wrap
 
