@@ -28,6 +28,8 @@ class Node(resource.Resource):
     allow_delete = True
     allow_list = True
 
+    patch_update = True
+
     # Properties
     #: The name of the node.
     name = resource.prop('name')

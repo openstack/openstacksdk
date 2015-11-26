@@ -27,6 +27,8 @@ class Policy(resource.Resource):
     allow_delete = True
     allow_update = True
 
+    patch_update = True
+
     # Properties
     #: The name of the policy.
     name = resource.prop('name')
