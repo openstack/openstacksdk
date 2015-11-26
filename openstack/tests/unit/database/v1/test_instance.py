@@ -55,8 +55,7 @@ class TestInstance(testtools.TestCase):
         response.body = {'user': {'name': 'root', 'password': 'foo'}}
         response.json = mock.Mock(return_value=response.body)
         sess = mock.Mock()
-        sess.post = mock.MagicMock()
-        sess.post.return_value = response
+        sess.post = mock.Mock(return_value=response)
 
         self.assertEqual(response.body['user'], sot.enable_root_user(sess))
 
@@ -69,8 +68,7 @@ class TestInstance(testtools.TestCase):
         response.body = {'rootEnabled': True}
         response.json = mock.Mock(return_value=response.body)
         sess = mock.Mock()
-        sess.get = mock.MagicMock()
-        sess.get.return_value = response
+        sess.get = mock.Mock(return_value=response)
 
         self.assertEqual(True, sot.is_root_enabled(sess))
 
@@ -82,8 +80,7 @@ class TestInstance(testtools.TestCase):
         response = mock.Mock()
         response.json = mock.Mock(return_value='')
         sess = mock.Mock()
-        sess.post = mock.MagicMock()
-        sess.post.return_value = response
+        sess.post = mock.Mock(return_value=response)
 
         self.assertEqual(None, sot.restart(sess))
 
@@ -97,8 +94,7 @@ class TestInstance(testtools.TestCase):
         response = mock.Mock()
         response.json = mock.Mock(return_value='')
         sess = mock.Mock()
-        sess.post = mock.MagicMock()
-        sess.post.return_value = response
+        sess.post = mock.Mock(return_value=response)
         flavor = 'http://flavor/flav'
 
         self.assertEqual(None, sot.resize(sess, flavor))
@@ -113,8 +109,7 @@ class TestInstance(testtools.TestCase):
         response = mock.Mock()
         response.json = mock.Mock(return_value='')
         sess = mock.Mock()
-        sess.post = mock.MagicMock()
-        sess.post.return_value = response
+        sess.post = mock.Mock(return_value=response)
         size = 4
 
         self.assertEqual(None, sot.resize_volume(sess, size))

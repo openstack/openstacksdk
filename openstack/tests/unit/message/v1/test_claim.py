@@ -49,12 +49,14 @@ class TestClaim(testtools.TestCase):
 
     def test_create(self):
         sess = mock.Mock()
-        sess.post = mock.Mock()
-        sess.post.return_value = mock.MagicMock()
+        obj = mock.Mock()
+        fake_attrs = [{'foo': 'bar'}, {'zoo': 'lah'}]
+        obj.json = mock.Mock(return_value=fake_attrs)
+        sess.post = mock.Mock(return_value=obj)
         sot = claim.Claim()
 
-        list(sot.claim_messages(
-            sess, claim.Claim.new(client=CLIENT, queue=QUEUE, **FAKE)))
+        c = claim.Claim.new(client=CLIENT, queue=QUEUE, **FAKE)
+        list(sot.claim_messages(sess, c))
 
         url = '/queues/%s/claims' % QUEUE
         sess.post.assert_called_with(

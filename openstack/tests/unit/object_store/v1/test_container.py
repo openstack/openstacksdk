@@ -62,10 +62,8 @@ class TestContainer(testtools.TestCase):
         self.resp.json = mock.Mock(return_value=self.resp.body)
         self.resp.headers = {"X-Trans-Id": "abcdef"}
         self.sess = mock.Mock()
-        self.sess.put = mock.MagicMock()
-        self.sess.put.return_value = self.resp
-        self.sess.post = mock.MagicMock()
-        self.sess.post.return_value = self.resp
+        self.sess.put = mock.Mock(return_value=self.resp)
+        self.sess.post = mock.Mock(return_value=self.resp)
 
     def test_basic(self):
         sot = container.Container.new(**CONT_EXAMPLE)

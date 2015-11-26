@@ -56,8 +56,7 @@ class TestRouter(testtools.TestCase):
         response.body = {"subnet_id": "3", "port_id": "2"}
         response.json = mock.Mock(return_value=response.body)
         sess = mock.Mock()
-        sess.put = mock.MagicMock()
-        sess.put.return_value = response
+        sess.put = mock.Mock(return_value=response)
 
         self.assertEqual(response.body, sot.add_interface(sess, '3'))
 
@@ -72,8 +71,7 @@ class TestRouter(testtools.TestCase):
         response.body = {"subnet_id": "3", "port_id": "2"}
         response.json = mock.Mock(return_value=response.body)
         sess = mock.Mock()
-        sess.put = mock.MagicMock()
-        sess.put.return_value = response
+        sess.put = mock.Mock(return_value=response)
 
         self.assertEqual(response.body, sot.remove_interface(sess, '3'))
 

@@ -48,8 +48,7 @@ class TestServer(testtools.TestCase):
         self.resp.body = ''
         self.resp.json = mock.Mock(return_value=self.resp.body)
         self.sess = mock.Mock()
-        self.sess.post = mock.MagicMock()
-        self.sess.post.return_value = self.resp
+        self.sess.post = mock.Mock(return_value=self.resp)
 
     def test_basic(self):
         sot = server.Server()

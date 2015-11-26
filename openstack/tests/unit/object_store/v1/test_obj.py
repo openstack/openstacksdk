@@ -62,12 +62,9 @@ class TestObject(testtools.TestCase):
         self.resp.content = "lol here's some content"
         self.resp.headers = {"X-Trans-Id": "abcdef"}
         self.sess = mock.Mock()
-        self.sess.get = mock.MagicMock()
-        self.sess.put = mock.MagicMock()
-        self.sess.post = mock.MagicMock()
-        self.sess.get.return_value = self.resp
-        self.sess.put.return_value = self.resp
-        self.sess.post.return_value = self.resp
+        self.sess.get = mock.Mock(return_value=self.resp)
+        self.sess.put = mock.Mock(return_value=self.resp)
+        self.sess.post = mock.Mock(return_value=self.resp)
 
     def test_basic(self):
         sot = obj.Object.new(**OBJ_EXAMPLE)
