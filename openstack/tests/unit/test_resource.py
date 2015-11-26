@@ -1010,6 +1010,32 @@ class ResourceTests(base.TestCase):
         self.assertEqual(ID, resource.Resource.get_id(ID))
         self.assertEqual(ID, resource.Resource.get_id(res))
 
+    def test_convert_ids(self):
+        class TestResourceFoo(resource.Resource):
+            pass
+
+        class TestResourceBar(resource.Resource):
+            pass
+
+        resfoo = TestResourceFoo({'id': 'FAKEFOO'})
+        resbar = TestResourceBar({'id': 'FAKEBAR'})
+
+        self.assertIsNone(resource.Resource.convert_ids(None))
+        attrs = {
+            'key1': 'value1'
+        }
+        self.assertEqual(attrs, resource.Resource.convert_ids(attrs))
+
+        attrs = {
+            'foo': resfoo,
+            'bar': resbar,
+            'other': 'whatever',
+        }
+        res = resource.Resource.convert_ids(attrs)
+        self.assertEqual('FAKEFOO', res['foo'])
+        self.assertEqual('FAKEBAR', res['bar'])
+        self.assertEqual('whatever', res['other'])
+
     def test_repr(self):
         fr = FakeResource()
         fr._loaded = False

@@ -475,7 +475,7 @@ class Resource(collections.MutableMapping):
             return value
 
     @staticmethod
-    def _convert_ids(attrs):
+    def convert_ids(attrs):
         """Return an attribute dictionary suitable for create/update
 
         As some attributes may be Resource types, their ``id`` attribute
@@ -531,7 +531,7 @@ class Resource(collections.MutableMapping):
             raise exceptions.MethodNotSupported(cls, 'create')
 
         # Convert attributes from Resource types into their ids.
-        attrs = cls._convert_ids(attrs)
+        attrs = cls.convert_ids(attrs)
         headers = attrs.pop(HEADERS, None)
 
         body = cls._get_create_body(attrs)
@@ -727,7 +727,7 @@ class Resource(collections.MutableMapping):
             raise exceptions.MethodNotSupported(cls, 'update')
 
         # Convert attributes from Resource types into their ids.
-        attrs = cls._convert_ids(attrs)
+        attrs = cls.convert_ids(attrs)
         if attrs and cls.id_attribute in attrs:
             del attrs[cls.id_attribute]
         headers = attrs.pop(HEADERS, None)
