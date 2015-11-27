@@ -12,6 +12,7 @@
 
 from openstack.cluster.v1 import action
 from openstack.cluster.v1 import cluster
+from openstack.cluster.v1 import event
 from openstack.cluster.v1 import node
 from openstack.cluster.v1 import policy
 from openstack.cluster.v1 import profile
@@ -409,3 +410,48 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of action instances.
         """
         return self._list(action.Action, paginated=True, **query)
+
+    def get_event(self, value):
+        """Get a single event.
+
+        :param value: The value can be the name or ID of an event or a
+            :class:`~openstack.cluster.v1.event.Event` instance.
+
+        :returns: an event object.
+        :rtype: :class:`~openstack.cluster.v1.event.Event`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            event matching the criteria could be found.
+        """
+        return self._get(event.Event, value)
+
+    def events(self, **query):
+        """Retrieve a generator of events.
+
+        :param kwargs \*\*query: Optional query parameters to be sent to
+            restrict the events to be returned. Available parameters include:
+
+            * obj_name: name string of the object associated with an event.
+            * obj_type: type string of the object related to an event. The
+                        value can be ``cluster``, ``node``, ``policy`` etc.
+            * obj_id: ID of the object associated with an event.
+            * cluster_id: ID of the cluster associated with the event, if any.
+            * action: name of the action associated with an event.
+            * show_deleted: A boolean value indicating whether soft-deleted
+                events should be returned as well.
+            * sort_keys: A list of key names for sorting the resulted list.
+            * sort_dir: Direction for sorting, and its valid values are 'asc'
+                and 'desc'.
+            * limit: Requests a specified size of returned items from the
+                query.  Returns a number of items up to the specified limit
+                value.
+            * marker: Specifies the ID of the last-seen item. Use the limit
+                parameter to make an initial limited request and use the ID of
+                the last-seen item from the response as the marker parameter
+                value in a subsequent limited request.
+            * global_project: A boolean specifying whether events from all
+                projects should be returned. This option is subject to access
+                control checking.
+
+        :returns: A generator of event instances.
+        """
+        return self._list(event.Event, paginated=True, **query)

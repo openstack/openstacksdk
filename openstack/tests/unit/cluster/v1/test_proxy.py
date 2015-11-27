@@ -13,6 +13,7 @@
 from openstack.cluster.v1 import _proxy
 from openstack.cluster.v1 import action
 from openstack.cluster.v1 import cluster
+from openstack.cluster.v1 import event
 from openstack.cluster.v1 import node
 from openstack.cluster.v1 import policy
 from openstack.cluster.v1 import profile
@@ -125,6 +126,15 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_actions(self):
         self.verify_list(self.proxy.actions, action.Action,
+                         paginated=True,
+                         method_kwargs={'limit': 2},
+                         expected_kwargs={'limit': 2})
+
+    def test_event_get(self):
+        self.verify_get(self.proxy.get_event, event.Event)
+
+    def test_events(self):
+        self.verify_list(self.proxy.events, event.Event,
                          paginated=True,
                          method_kwargs={'limit': 2},
                          expected_kwargs={'limit': 2})
