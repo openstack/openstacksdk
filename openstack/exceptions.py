@@ -26,31 +26,6 @@ class SDKException(Exception):
         super(Exception, self).__init__(self.message)
 
 
-class AuthorizationFailure(SDKException):
-    """Cannot authorize API client."""
-    pass
-
-
-class EndpointException(SDKException):
-    """Something is rotten in Service Catalog."""
-    pass
-
-
-class EndpointNotFound(EndpointException):
-    """Could not find requested endpoint in Service Catalog."""
-    pass
-
-
-class EmptyCatalog(EndpointNotFound):
-    """The service catalog is empty."""
-    pass
-
-
-class NoMatchingPlugin(SDKException):
-    """No matching plugins could be created with the provided parameters."""
-    pass
-
-
 class InvalidResponse(SDKException):
     """The response from the server is not valid for this request."""
 

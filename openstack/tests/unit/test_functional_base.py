@@ -10,11 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 import unittest
 
-import mock
-
-from openstack import exceptions
 from openstack.tests.functional import base
 
 
@@ -33,22 +31,19 @@ class Test_requires_service(unittest.TestCase):
         self.sot.skip = self.mock_skip
 
         self.get_endpoint = mock.Mock()
-        self.sot.conn.authenticator.get_endpoint = self.get_endpoint
+        self.sot.conn.session.get_endpoint = self.get_endpoint
 
     def _test(self, **kwargs):
         decorated = base.requires_service(**kwargs)(self.sot.test_method)
         return decorated(self.sot)
 
-    @mock.patch("openstack.service_filter.ServiceFilter")
-    def test_service_exists(self, mock_filter):
+    def test_service_exists(self):
         self.assertEqual(self.return_value, self._test(**self.kwargs))
-        mock_filter.assert_called_with(**self.kwargs)
+        self.get_endpoint.assert_called_with(**self.kwargs)
 
-    @mock.patch("openstack.service_filter.ServiceFilter")
-    def test_service_doesnt_exist(self, mock_filter):
-        exc = exceptions.EndpointNotFound
-        self.sot.conn.authenticator.get_endpoint.side_effect = exc
+    def test_service_doesnt_exist(self):
+        self.get_endpoint.return_value = None
 
         self._test(**self.kwargs)
-        mock_filter.assert_called_with(**self.kwargs)
+        self.get_endpoint.assert_called_with(**self.kwargs)
         self.assertEqual(self.mock_skip.call_count, 1)
