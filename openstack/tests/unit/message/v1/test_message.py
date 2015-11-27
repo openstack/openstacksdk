@@ -50,12 +50,13 @@ class TestMessage(testtools.TestCase):
 
     def test_create(self):
         sess = mock.Mock()
-        sess.post = mock.Mock()
-        sess.post.return_value = mock.MagicMock()
+        obj = mock.Mock()
+        obj.json = mock.Mock(return_value={'resources': {'k': 'v'}})
+        sess.post = mock.Mock(return_value=obj)
         sot = message.Message()
 
-        sot.create_messages(
-            sess, [message.Message.new(client=CLIENT, queue=QUEUE, **FAKE)])
+        msg = message.Message.new(client=CLIENT, queue=QUEUE, **FAKE)
+        sot.create_messages(sess, [msg])
 
         url = '/queues/%s/messages' % QUEUE
         sess.post.assert_called_with(

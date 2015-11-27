@@ -52,8 +52,7 @@ class TestAlarm(testtools.TestCase):
         self.resp.body = ''
         self.resp.json = mock.Mock(return_value=self.resp.body)
         self.sess = mock.Mock()
-        self.sess.put = mock.MagicMock()
-        self.sess.put.return_value = self.resp
+        self.sess.put = mock.Mock(return_value=self.resp)
 
     def test_basic(self):
         sot = alarm.Alarm()

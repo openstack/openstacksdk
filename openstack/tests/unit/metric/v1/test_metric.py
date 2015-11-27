@@ -43,8 +43,7 @@ class TestMetric(testtools.TestCase):
         self.resp = mock.Mock()
         self.resp.body = ''
         self.sess = mock.Mock()
-        self.sess.put = mock.MagicMock()
-        self.sess.put.return_value = self.resp
+        self.sess.put = mock.Mock(return_value=self.resp)
 
     def test_basic(self):
         m = metric.Metric()

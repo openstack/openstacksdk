@@ -258,7 +258,7 @@ class Test_save_object(TestObjectStoreProxy):
     def test_save(self, mock_get):
         the_data = "here's some data"
         mock_get.return_value = the_data
-        ob = mock.MagicMock()
+        ob = mock.Mock()
 
         fake_open = mock.mock_open()
         file_path = "blarga/somefile"

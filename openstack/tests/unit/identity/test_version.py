@@ -46,7 +46,7 @@ class TestVersion(testtools.TestCase):
         self.assertEqual(EXAMPLE['updated'], sot.updated)
 
     def test_list(self):
-        resp = mock.MagicMock()
+        resp = mock.Mock()
         resp.body = {
             "versions": {
                 "values": [
@@ -56,9 +56,8 @@ class TestVersion(testtools.TestCase):
             }
         }
         resp.json = mock.Mock(return_value=resp.body)
-        session = mock.MagicMock()
-        session.get = mock.MagicMock()
-        session.get.return_value = resp
+        session = mock.Mock()
+        session.get = mock.Mock(return_value=resp)
         sot = version.Version(EXAMPLE)
         result = sot.list(session)
         self.assertEqual(next(result)['id'], 'v1.0')

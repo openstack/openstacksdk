@@ -52,8 +52,7 @@ class TestServerMeta(testtools.TestCase):
         resp.body = FAKE_RESPONSE
         resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
-        sess.put = mock.MagicMock()
-        sess.put.return_value = resp
+        sess.put = mock.Mock(return_value=resp)
         sot = server_meta.ServerMeta(EXAMPLE)
 
         sot.create(sess)
@@ -71,8 +70,7 @@ class TestServerMeta(testtools.TestCase):
         resp.body = FAKE_RESPONSES
         resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
-        sess.get = mock.MagicMock()
-        sess.get.return_value = resp
+        sess.get = mock.Mock(return_value=resp)
         sot = server_meta.ServerMeta()
         path_args = {'server_id': FAKE_SERVER_ID}
 
@@ -91,8 +89,7 @@ class TestServerMeta(testtools.TestCase):
         resp.body = FAKE_RESPONSE
         resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
-        sess.put = mock.MagicMock()
-        sess.put.return_value = resp
+        sess.put = mock.Mock(return_value=resp)
         sot = server_meta.ServerMeta(EXAMPLE)
 
         sot.update(sess)
@@ -110,8 +107,7 @@ class TestServerMeta(testtools.TestCase):
         resp.body = FAKE_RESPONSES
         resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
-        sess.delete = mock.MagicMock()
-        sess.delete.return_value = resp
+        sess.delete = mock.Mock(return_value=resp)
         sot = server_meta.ServerMeta(EXAMPLE)
 
         sot.delete(sess)
@@ -126,8 +122,7 @@ class TestServerMeta(testtools.TestCase):
         resp.body = FAKE_RESPONSES
         resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
-        sess.get = mock.MagicMock()
-        sess.get.return_value = resp
+        sess.get = mock.Mock(return_value=resp)
         sot = server_meta.ServerMeta()
         path_args = {'server_id': FAKE_SERVER_ID}
 
