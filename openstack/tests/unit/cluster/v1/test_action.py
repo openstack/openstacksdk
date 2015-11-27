@@ -40,10 +40,10 @@ FAKE = {
 }
 
 
-class TestCluster(testtools.TestCase):
+class TestAction(testtools.TestCase):
 
     def setUp(self):
-        super(TestCluster, self).setUp()
+        super(TestAction, self).setUp()
 
     def test_basic(self):
         sot = action.Action()
