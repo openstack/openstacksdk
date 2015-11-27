@@ -219,3 +219,19 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
 
     def test_server_update(self):
         self.verify_update(self.proxy.update_server, server.Server)
+
+    def test_server_resize(self):
+        self._verify("openstack.compute.v2.server.Server.resize",
+                     self.proxy.resize_server,
+                     method_args=["value", "test-flavor"],
+                     expected_args=["test-flavor"])
+
+    def test_server_confirm_resize(self):
+        self._verify("openstack.compute.v2.server.Server.confirm_resize",
+                     self.proxy.confirm_resize_server,
+                     method_args=["value"])
+
+    def test_server_revert_resize(self):
+        self._verify("openstack.compute.v2.server.Server.revert_resize",
+                     self.proxy.revert_resize_server,
+                     method_args=["value"])

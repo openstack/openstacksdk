@@ -499,3 +499,37 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.compute.v2.server_ip.ServerIP`
         """
         return self._list(server_ip.ServerIP, paginated=False, **query)
+
+    def resize_server(self, value, flavor):
+        """Resize a server
+
+        :param value: Either the ID of a server or a
+                      :class:`~openstack.compute.v2.server.Server` instance.
+        :param falvor: The ID or name of the flavor used to resize the server.
+
+        :returns: None
+        """
+        server = _server.Server.from_id(value)
+        server.resize(self.session, flavor)
+
+    def confirm_resize_server(self, value):
+        """Confirm a pending resize_server action
+
+        :param value: Either the ID of a server or a
+                      :class:`~openstack.compute.v2.server.Server` instance.
+
+        :returns: None
+        """
+        server = _server.Server.from_id(value)
+        server.confirm_resize(self.session)
+
+    def revert_resize_server(self, value):
+        """Cancel and revert a pending resize_server action
+
+        :param value: Either the ID of a server or a
+                      :class:`~openstack.compute.v2.server.Server` instance.
+
+        :returns: None
+        """
+        server = _server.Server.from_id(value)
+        server.revert_resize(self.session)
