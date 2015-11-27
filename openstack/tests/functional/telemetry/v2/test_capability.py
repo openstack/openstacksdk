@@ -21,5 +21,4 @@ class TestCapability(base.BaseFunctionalTest):
         self.assertIn('events:query:simple', ids)
         self.assertIn('meters:query:simple', ids)
         self.assertIn('statistics:query:simple', ids)
-        self.assertIn('alarms:query:simple', ids)
         self.assertIn('samples:query:simple', ids)
