@@ -225,7 +225,7 @@ class BaseProxy(object):
         """
         res = self._get_resource(resource_type, value, path_args)
 
-        query = res._convert_ids(query)
+        query = res.convert_ids(query)
         return res.list(self.session, path_args=path_args, paginated=paginated,
                         params=query)
 
