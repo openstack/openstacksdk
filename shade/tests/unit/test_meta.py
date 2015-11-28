@@ -427,7 +427,7 @@ class TestMeta(testtools.TestCase):
         fake_volume = fakes.FakeVolume(
             id='volume1',
             status='available',
-            display_name='Volume 1 Display Name',
+            name='Volume 1 Display Name',
             attachments=[{'device': '/dev/sda0'}])
         fake_volume_dict = meta.obj_to_dict(fake_volume)
         mock_cloud.get_volumes.return_value = [fake_volume_dict]

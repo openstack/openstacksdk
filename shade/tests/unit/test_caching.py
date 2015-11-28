@@ -18,8 +18,8 @@ import os_client_config as occ
 import testtools
 import yaml
 
-import shade
 import shade.openstackcloud
+from shade import _utils
 from shade import exc
 from shade import meta
 from shade.tests import fakes
@@ -108,12 +108,14 @@ class TestMemoryCache(base.TestCase):
     def test_list_volumes(self, cinder_mock):
         fake_volume = fakes.FakeVolume('volume1', 'available',
                                        'Volume 1 Display Name')
-        fake_volume_dict = meta.obj_to_dict(fake_volume)
+        fake_volume_dict = _utils.normalize_volumes(
+            [meta.obj_to_dict(fake_volume)])[0]
         cinder_mock.volumes.list.return_value = [fake_volume]
         self.assertEqual([fake_volume_dict], self.cloud.list_volumes())
         fake_volume2 = fakes.FakeVolume('volume2', 'available',
                                         'Volume 2 Display Name')
-        fake_volume2_dict = meta.obj_to_dict(fake_volume2)
+        fake_volume2_dict = _utils.normalize_volumes(
+            [meta.obj_to_dict(fake_volume2)])[0]
         cinder_mock.volumes.list.return_value = [fake_volume, fake_volume2]
         self.assertEqual([fake_volume_dict], self.cloud.list_volumes())
         self.cloud.list_volumes.invalidate(self.cloud)
@@ -124,12 +126,14 @@ class TestMemoryCache(base.TestCase):
     def test_list_volumes_creating_invalidates(self, cinder_mock):
         fake_volume = fakes.FakeVolume('volume1', 'creating',
                                        'Volume 1 Display Name')
-        fake_volume_dict = meta.obj_to_dict(fake_volume)
+        fake_volume_dict = _utils.normalize_volumes(
+            [meta.obj_to_dict(fake_volume)])[0]
         cinder_mock.volumes.list.return_value = [fake_volume]
         self.assertEqual([fake_volume_dict], self.cloud.list_volumes())
         fake_volume2 = fakes.FakeVolume('volume2', 'available',
                                         'Volume 2 Display Name')
-        fake_volume2_dict = meta.obj_to_dict(fake_volume2)
+        fake_volume2_dict = _utils.normalize_volumes(
+            [meta.obj_to_dict(fake_volume2)])[0]
         cinder_mock.volumes.list.return_value = [fake_volume, fake_volume2]
         self.assertEqual([fake_volume_dict, fake_volume2_dict],
                          self.cloud.list_volumes())
@@ -138,7 +142,8 @@ class TestMemoryCache(base.TestCase):
     def test_create_volume_invalidates(self, cinder_mock):
         fake_volb4 = fakes.FakeVolume('volume1', 'available',
                                       'Volume 1 Display Name')
-        fake_volb4_dict = meta.obj_to_dict(fake_volb4)
+        fake_volb4_dict = _utils.normalize_volumes(
+            [meta.obj_to_dict(fake_volb4)])[0]
         cinder_mock.volumes.list.return_value = [fake_volb4]
         self.assertEqual([fake_volb4_dict], self.cloud.list_volumes())
         volume = dict(display_name='junk_vol',
@@ -146,6 +151,8 @@ class TestMemoryCache(base.TestCase):
                       display_description='test junk volume')
         fake_vol = fakes.FakeVolume('12345', 'creating', '')
         fake_vol_dict = meta.obj_to_dict(fake_vol)
+        fake_vol_dict = _utils.normalize_volumes(
+            [meta.obj_to_dict(fake_vol)])[0]
         cinder_mock.volumes.create.return_value = fake_vol
         cinder_mock.volumes.list.return_value = [fake_volb4, fake_vol]
 

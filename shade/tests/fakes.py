@@ -95,19 +95,34 @@ class FakeUser(object):
 
 
 class FakeVolume(object):
-    def __init__(self, id, status, display_name, attachments=[]):
+    def __init__(
+            self, id, status, name, attachments=[],
+            size=75):
         self.id = id
         self.status = status
-        self.display_name = display_name
+        self.name = name
         self.attachments = attachments
+        self.size = size
+        self.snapshot_id = 'id:snapshot'
+        self.description = 'description'
+        self.volume_type = 'type:volume'
+        self.availability_zone = 'az1'
+        self.created_at = '1900-01-01 12:34:56'
+        self.source_volid = '12345'
+        self.metadata = {}
 
 
 class FakeVolumeSnapshot(object):
-    def __init__(self, id, status, display_name, display_description):
+    def __init__(
+            self, id, status, name, description, size=75):
         self.id = id
         self.status = status
-        self.display_name = display_name
-        self.display_description = display_description
+        self.name = name
+        self.description = description
+        self.size = size
+        self.created_at = '1900-01-01 12:34:56'
+        self.volume_id = '12345'
+        self.metadata = {}
 
 
 class FakeMachine(object):

@@ -899,12 +899,12 @@ class OpenStackCloud(object):
     def search_volumes(self, name_or_id=None, filters=None):
         volumes = self.list_volumes()
         return _utils._filter_list(
-            volumes, name_or_id, filters, name_key='display_name')
+            volumes, name_or_id, filters)
 
     def search_volume_snapshots(self, name_or_id=None, filters=None):
         volumesnapshots = self.list_volume_snapshots()
         return _utils._filter_list(
-            volumesnapshots, name_or_id, filters, name_key='display_name')
+            volumesnapshots, name_or_id, filters)
 
     def search_flavors(self, name_or_id=None, filters=None):
         flavors = self.list_flavors()
@@ -1027,7 +1027,8 @@ class OpenStackCloud(object):
             warnings.warn('cache argument to list_volumes is deprecated. Use '
                           'invalidate instead.')
         with _utils.shade_exceptions("Error fetching volume list"):
-            return self.manager.submitTask(_tasks.VolumeList())
+            return _utils.normalize_volumes(
+                self.manager.submitTask(_tasks.VolumeList()))
 
     @_utils.cache_on_arguments()
     def list_flavors(self):
@@ -2095,12 +2096,19 @@ class OpenStackCloud(object):
         self.list_images.invalidate(self)
         return True
 
-    def create_volume(self, wait=True, timeout=None, **kwargs):
+    def create_volume(
+            self, size,
+            wait=True, timeout=None, image=None, **kwargs):
         """Create a volume.
 
+        :param size: Size, in GB of the volume to create.
+        :param name: (optional) Name for the volume.
+        :param description: (optional) Name for the volume.
         :param wait: If true, waits for volume to be created.
         :param timeout: Seconds to wait for volume creation. None is forever.
-        :param volkwargs: Keyword arguments as expected for cinder client.
+        :param image: (optional) Image name, id or object from which to create
+                      the volume
+        :param kwargs: Keyword arguments as expected for cinder client.
 
         :returns: The created volume object.
 
@@ -2108,8 +2116,18 @@ class OpenStackCloud(object):
         :raises: OpenStackCloudException on operation error.
         """
 
+        if image:
+            image_obj = self.get_image(image)
+            if not image_obj:
+                raise OpenStackCloudException(
+                    "Image {image} was requested as the basis for a new"
+                    " volume, but was not found on the cloud".format(
+                        image=image))
+            kwargs['imageRef'] = image_obj['id']
+        kwargs = self._get_volume_kwargs(kwargs)
         with _utils.shade_exceptions("Error in creating volume"):
-            volume = self.manager.submitTask(_tasks.VolumeCreate(**kwargs))
+            volume = self.manager.submitTask(_tasks.VolumeCreate(
+                size=size, **kwargs))
         self.list_volumes.invalidate(self)
 
         if volume['status'] == 'error':
@@ -2126,13 +2144,13 @@ class OpenStackCloud(object):
                     continue
 
                 if volume['status'] == 'available':
-                    break
+                    return volume
 
                 if volume['status'] == 'error':
                     raise OpenStackCloudException(
                         "Error in creating volume, please check logs")
 
-        return volume
+        return _utils.normalize_volumes([volume])[0]
 
     def delete_volume(self, name_or_id=None, wait=True, timeout=None):
         """Delete a volume.
@@ -2316,18 +2334,35 @@ class OpenStackCloud(object):
                     )
         return vol
 
+    def _get_volume_kwargs(self, kwargs):
+        name = kwargs.pop('name', kwargs.pop('display_name', None))
+        description = kwargs.pop('description',
+                                 kwargs.pop('display_description', None))
+        if name:
+            if self.cloud_config.get_api_version('volume').startswith('2'):
+                kwargs['name'] = name
+            else:
+                kwargs['display_name'] = name
+        if description:
+            if self.cloud_config.get_api_version('volume').startswith('2'):
+                kwargs['description'] = description
+            else:
+                kwargs['display_description'] = description
+        return kwargs
+
+    @_utils.valid_kwargs('name', 'display_name',
+                         'description', 'display_description')
     def create_volume_snapshot(self, volume_id, force=False,
-                               display_name=None, display_description=None,
-                               wait=True, timeout=None):
+                               wait=True, timeout=None, **kwargs):
         """Create a volume.
 
         :param volume_id: the id of the volume to snapshot.
         :param force: If set to True the snapshot will be created even if the
                       volume is attached to an instance, if False it will not
-        :param display_name: name of the snapshot, one will be generated if
-                             one is not provided
-        :param display_description: description of the snapshot, one will be
-                                    one is not provided
+        :param name: name of the snapshot, one will be generated if one is
+                     not provided
+        :param description: description of the snapshot, one will be generated
+                            if one is not provided
         :param wait: If true, waits for volume snapshot to be created.
         :param timeout: Seconds to wait for volume snapshot creation. None is
                         forever.
@@ -2337,15 +2372,15 @@ class OpenStackCloud(object):
         :raises: OpenStackCloudTimeout if wait time exceeded.
         :raises: OpenStackCloudException on operation error.
         """
+
+        kwargs = self._get_volume_kwargs(kwargs)
         with _utils.shade_exceptions(
                 "Error creating snapshot of volume {volume_id}".format(
                     volume_id=volume_id)):
             snapshot = self.manager.submitTask(
                 _tasks.VolumeSnapshotCreate(
                     volume_id=volume_id, force=force,
-                    display_name=display_name,
-                    display_description=display_description)
-                )
+                    **kwargs))
 
         if wait:
             snapshot_id = snapshot['id']
@@ -2360,9 +2395,9 @@ class OpenStackCloud(object):
 
                 if snapshot['status'] == 'error':
                     raise OpenStackCloudException(
-                        "Error in creating volume, please check logs")
+                        "Error in creating volume snapshot, please check logs")
 
-        return snapshot
+        return _utils.normalize_volumes([snapshot])[0]
 
     def get_volume_snapshot_by_id(self, snapshot_id):
         """Takes a snapshot_id and gets a dict of the snapshot
@@ -2382,7 +2417,7 @@ class OpenStackCloud(object):
                 )
             )
 
-        return snapshot
+        return _utils.normalize_volumes([snapshot])[0]
 
     def get_volume_snapshot(self, name_or_id, filters=None):
         """Get a volume by name or ID.
@@ -2413,10 +2448,10 @@ class OpenStackCloud(object):
 
         """
         with _utils.shade_exceptions("Error getting a list of snapshots"):
-            return self.manager.submitTask(
-                _tasks.VolumeSnapshotList(detailed=detailed,
-                                          search_opts=search_opts)
-            )
+            return _utils.normalize_volumes(
+                self.manager.submitTask(
+                    _tasks.VolumeSnapshotList(
+                        detailed=detailed, search_opts=search_opts)))
 
     def delete_volume_snapshot(self, name_or_id=None, wait=False,
                                timeout=None):

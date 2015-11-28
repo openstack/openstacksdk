@@ -57,14 +57,13 @@ def _iterate_timeout(timeout, message, wait=2):
     raise exc.OpenStackCloudTimeout(message)
 
 
-def _filter_list(data, name_or_id, filters, name_key='name'):
+def _filter_list(data, name_or_id, filters):
     """Filter a list by name/ID and arbitrary meta data.
 
     :param list data:
         The list of dictionary data to filter. It is expected that
         each dictionary contains an 'id' and 'name'
-        key if a value for name_or_id is given. The 'name' key can be
-        overridden with the name_key parameter.
+        key if a value for name_or_id is given.
     :param string name_or_id:
         The name or ID of the entity being filtered.
     :param dict filters:
@@ -77,15 +76,12 @@ def _filter_list(data, name_or_id, filters, name_key='name'):
                   'gender': 'Female'
               }
             }
-    :param string name_key:
-        The name of the name key. Cinder wants display_name. Heat wants
-        stack_name. Defaults to 'name'
     """
     if name_or_id:
         identifier_matches = []
         for e in data:
             e_id = str(e.get('id', None))
-            e_name = e.get(name_key, None)
+            e_name = e.get('name', None)
             if str(name_or_id) in (e_id, e_name):
                 identifier_matches.append(e)
         data = identifier_matches
@@ -311,6 +307,27 @@ def normalize_users(users):
             enabled=user.get('enabled'),
         ) for user in users
     ]
+    return meta.obj_list_to_dict(ret)
+
+
+def normalize_volumes(volumes):
+    ret = []
+    for vol in volumes:
+        new_vol = vol.copy()
+        name = vol.get('name', vol.get('display_name'))
+        description = vol.get('description', vol.get('display_description'))
+        new_vol['name'] = name
+        new_vol['display_name'] = name
+        new_vol['description'] = description
+        new_vol['display_description'] = description
+        # For some reason, cinder uses strings for bools for these fields
+        for field in ('bootable', 'multiattach'):
+            if field in new_vol and new_vol[field] is not None:
+                if new_vol[field].lower() == 'true':
+                    new_vol[field] = True
+                elif new_vol[field].lower() == 'false':
+                    new_vol[field] = False
+        ret.append(new_vol)
     return meta.obj_list_to_dict(ret)
 
 

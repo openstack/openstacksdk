@@ -21,6 +21,7 @@ Tests for the `create_volume_snapshot` command.
 
 from mock import patch
 import os_client_config
+from shade import _utils
 from shade import meta
 from shade import OpenStackCloud
 from shade.tests import base, fakes
@@ -52,14 +53,14 @@ class TestCreateVolumeSnapshot(base.TestCase):
             build_snapshot, fake_snapshot]
 
         self.assertEqual(
-            meta.obj_to_dict(fake_snapshot),
+            _utils.normalize_volumes(
+                [meta.obj_to_dict(fake_snapshot)])[0],
             self.client.create_volume_snapshot(volume_id='1234',
                                                wait=True)
         )
 
         mock_cinder.volume_snapshots.create.assert_called_with(
-            display_description=None, display_name=None, force=False,
-            volume_id='1234'
+            force=False, volume_id='1234'
         )
         mock_cinder.volume_snapshots.get.assert_called_with(
             snapshot_id=meta.obj_to_dict(build_snapshot)['id']
@@ -84,8 +85,7 @@ class TestCreateVolumeSnapshot(base.TestCase):
             wait=True, timeout=1)
 
         mock_cinder.volume_snapshots.create.assert_called_with(
-            display_description=None, display_name=None, force=False,
-            volume_id='1234'
+            force=False, volume_id='1234'
         )
         mock_cinder.volume_snapshots.get.assert_called_with(
             snapshot_id=meta.obj_to_dict(build_snapshot)['id']
@@ -112,8 +112,7 @@ class TestCreateVolumeSnapshot(base.TestCase):
             wait=True, timeout=5)
 
         mock_cinder.volume_snapshots.create.assert_called_with(
-            display_description=None, display_name=None, force=False,
-            volume_id='1234'
+            force=False, volume_id='1234'
         )
         mock_cinder.volume_snapshots.get.assert_called_with(
             snapshot_id=meta.obj_to_dict(build_snapshot)['id']
