@@ -3048,7 +3048,8 @@ class OpenStackCloud(object):
                 'uuid': volume['id'],
                 'source_type': 'volume',
             }
-            kwargs['block_device_mapping'].append(block_mapping)
+            kwargs['block_device_mapping_v2'].append(block_mapping)
+            kwargs['image'] = None
         elif boot_from_volume:
 
             if not hasattr(image, 'id'):
@@ -3070,7 +3071,7 @@ class OpenStackCloud(object):
                 'source_type': 'image',
                 'volume_size': volume_size,
             }
-            del kwargs['image']
+            kwargs['image'] = None
             kwargs['block_device_mapping_v2'].append(block_mapping)
         for volume in volumes:
             volume_obj = self.get_volume(volume)
@@ -3084,7 +3085,7 @@ class OpenStackCloud(object):
                 'boot_index': None,
                 'delete_on_termination': False,
                 'destination_type': 'volume',
-                'uuid': volume['id'],
+                'uuid': volume_obj['id'],
                 'source_type': 'volume',
             }
             kwargs['block_device_mapping_v2'].append(block_mapping)
