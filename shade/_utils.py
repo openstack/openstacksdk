@@ -125,6 +125,9 @@ def _get_entity(func, name_or_id, filters):
     :param dict filters:
         A dictionary of meta data to use for further filtering.
     """
+    # We've been passed a dict/object already, return it
+    if hasattr(name_or_id, 'id'):
+        return name_or_id
     entities = func(name_or_id, filters)
     if not entities:
         return None
