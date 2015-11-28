@@ -569,7 +569,7 @@ class Resource(collections.MutableMapping):
     @classmethod
     def get_data_by_id(cls, session, resource_id, path_args=None,
                        include_headers=False):
-        """Get a the attributes of a remote resource from an id.
+        """Get the attributes of a remote resource from an id.
 
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
