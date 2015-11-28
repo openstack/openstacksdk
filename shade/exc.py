@@ -39,10 +39,11 @@ class OpenStackCloudException(Exception):
         if self.extra_data is not None:
             message = "%s (Extra: %s)" % (message, self.extra_data)
         if (self.inner_exception and self.inner_exception[1]
-                and hasattr(self.inner_exception[1], 'message')):
+                and not self.orig_message.endswith(
+                    str(self.inner_exception[1]))):
             message = "%s (Inner Exception: %s)" % (
                 message,
-                self.inner_exception[1].message)
+                str(self.inner_exception[1]))
         return message
 
 
