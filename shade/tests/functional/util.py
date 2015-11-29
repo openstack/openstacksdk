@@ -23,6 +23,13 @@ import operator
 
 def pick_flavor(flavors):
     """Given a flavor list pick the smallest one."""
+    # Enable running functional tests against rax - which requires
+    # performance flavors be used for boot from volume
+    for flavor in sorted(
+            flavors,
+            key=operator.attrgetter('ram')):
+        if 'performance' in flavor.name:
+            return flavor
     for flavor in sorted(
             flavors,
             key=operator.attrgetter('ram')):
@@ -35,4 +42,7 @@ def pick_image(images):
             return image
     for image in images:
         if image.name.lower().startswith('ubuntu'):
+            return image
+    for image in images:
+        if image.name.lower().startswith('centos'):
             return image
