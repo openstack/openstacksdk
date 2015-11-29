@@ -3087,7 +3087,9 @@ class OpenStackCloud(object):
             kwargs['image'] = None
         elif boot_from_volume:
 
-            if not hasattr(image, 'id'):
+            if hasattr(image, 'id'):
+                image_obj = image
+            else:
                 image_obj = self.get_image(image)
             if not image_obj:
                 raise OpenStackCloudException(
@@ -3095,14 +3097,12 @@ class OpenStackCloud(object):
                     ' {cloud}:{region}'.format(
                         image=image,
                         cloud=self.name, region=self.region_name))
-            else:
-                image = image_obj
 
             block_mapping = {
                 'boot_index': '0',
                 'delete_on_termination': terminate_volume,
                 'destination_type': 'volume',
-                'uuid': image['id'],
+                'uuid': image_obj['id'],
                 'source_type': 'image',
                 'volume_size': volume_size,
             }
@@ -3124,6 +3124,8 @@ class OpenStackCloud(object):
                 'source_type': 'volume',
             }
             kwargs['block_device_mapping_v2'].append(block_mapping)
+        if boot_volume or boot_from_volume or volumes:
+            self.list_volumes.invalidate(self)
         return kwargs
 
     @_utils.valid_kwargs(
@@ -3419,6 +3421,13 @@ class OpenStackCloud(object):
             except Exception as e:
                 raise OpenStackCloudException(
                     "Error in deleting server: {0}".format(e))
+
+        # If the server has volume attachments, or if it has booted
+        # from volume, deleting it will change volume state
+        if (not server['image'] or not server['image']['id']
+                or self.get_volumes(server)):
+            self.list_volumes.invalidate(self)
+
         return True
 
     def list_containers(self, full_listing=True):

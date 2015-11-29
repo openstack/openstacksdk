@@ -45,8 +45,8 @@ class TestVolume(base.TestCase):
             display_name=snapshot_name
         )
 
-        self.assertEqual([volume], self.cloud.list_volumes())
-        self.assertEqual([snapshot], self.cloud.list_volume_snapshots())
+        self.assertIn(volume, self.cloud.list_volumes())
+        self.assertIn(snapshot, self.cloud.list_volume_snapshots())
         self.assertEqual(snapshot,
                          self.cloud.get_volume_snapshot(
                              snapshot['display_name']))
@@ -54,7 +54,7 @@ class TestVolume(base.TestCase):
                          self.cloud.get_volume_snapshot_by_id(snapshot['id']))
 
         self.cloud.delete_volume_snapshot(snapshot_name, wait=True)
-        self.cloud.delete_volume(volume_name)
+        self.cloud.delete_volume(volume_name, wait=True)
 
     def cleanup(self, volume_name, snapshot_name):
         volume = self.cloud.get_volume(volume_name)
