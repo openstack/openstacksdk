@@ -101,8 +101,11 @@ class TestProxyBase(base.TestCase):
                       expected_kwargs=expected_kwargs)
 
     def verify_get(self, test_method, resource_type, value=None,
-                   mock_method="openstack.proxy.BaseProxy._get", **kwargs):
-        the_value = value if value is not None else ["value"]
+                   mock_method="openstack.proxy.BaseProxy._get",
+                   ignore_value=False, **kwargs):
+        the_value = value
+        if value is None:
+            the_value = [] if ignore_value else ["value"]
         expected_kwargs = {"path_args": kwargs} if kwargs else {}
         self._verify2(mock_method, test_method,
                       method_args=the_value,

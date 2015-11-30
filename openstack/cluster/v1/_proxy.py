@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.cluster.v1 import action
+from openstack.cluster.v1 import build_info
 from openstack.cluster.v1 import cluster
 from openstack.cluster.v1 import node
 from openstack.cluster.v1 import policy
@@ -19,6 +20,13 @@ from openstack import proxy
 
 
 class Proxy(proxy.BaseProxy):
+
+    def get_build_info(self):
+        """Get build info for service engine and API
+
+        :returns: A dictionary containing the API and engine revision string.
+        """
+        return self._get(build_info.BuildInfo)
 
     def create_profile(self, **attrs):
         """Create a new profile from attributes.

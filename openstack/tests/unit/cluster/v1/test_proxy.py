@@ -12,6 +12,7 @@
 
 from openstack.cluster.v1 import _proxy
 from openstack.cluster.v1 import action
+from openstack.cluster.v1 import build_info
 from openstack.cluster.v1 import cluster
 from openstack.cluster.v1 import node
 from openstack.cluster.v1 import policy
@@ -23,6 +24,10 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super(TestClusterProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
+
+    def test_build_info_get(self):
+        self.verify_get(self.proxy.get_build_info, build_info.BuildInfo,
+                        ignore_value=True)
 
     def test_profile_create(self):
         self.verify_create(self.proxy.create_profile, profile.Profile)
