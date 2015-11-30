@@ -83,11 +83,10 @@ class TestStack(testtools.TestCase):
         self.assertEqual(FAKE['updated_time'], sot.updated_at)
 
     def test_create(self):
-        resp = mock.MagicMock()
+        resp = mock.Mock()
         resp.json = mock.Mock(return_value=FAKE_CREATE_RESPONSE)
         sess = mock.Mock()
-        sess.post = mock.MagicMock()
-        sess.post.return_value = resp
+        sess.post = mock.Mock(return_value=resp)
         sot = stack.Stack(FAKE)
 
         sot.create(sess)
@@ -130,9 +129,9 @@ class TestStack(testtools.TestCase):
         self.assertEqual(sot, resp)
 
     def test_check(self):
-        session_mock = mock.MagicMock()
+        session_mock = mock.Mock()
         sot = stack.Stack(FAKE)
-        sot._action = mock.MagicMock()
+        sot._action = mock.Mock()
         body = {'check': ''}
         sot.check(session_mock)
         sot._action.assert_called_with(session_mock, body)

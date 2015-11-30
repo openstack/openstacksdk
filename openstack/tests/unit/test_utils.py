@@ -20,7 +20,7 @@ from openstack import utils
 class Test_enable_logging(testtools.TestCase):
 
     def _console_tests(self, fake_logging, level, debug, stream):
-        the_logger = mock.MagicMock()
+        the_logger = mock.Mock()
         fake_logging.getLogger.return_value = the_logger
 
         utils.enable_logging(debug=debug, stream=stream)
@@ -29,7 +29,7 @@ class Test_enable_logging(testtools.TestCase):
         the_logger.setLevel.assert_called_with(level)
 
     def _file_tests(self, fake_logging, level, debug):
-        the_logger = mock.MagicMock()
+        the_logger = mock.Mock()
         fake_logging.getLogger.return_value = the_logger
         fake_path = "fake/path.log"
 
