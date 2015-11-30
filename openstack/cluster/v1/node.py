@@ -77,8 +77,8 @@ class Node(resource.Resource):
         :param session: A session object used for sending request.
         :param body: The body of action to be sent.
         """
-        url = utils.urljoin(self.base_path, self.id, 'action')
-        resp = session.put(url, endpoint_filter=self.service, json=body)
+        url = utils.urljoin(self.base_path, self.id, 'actions')
+        resp = session.post(url, endpoint_filter=self.service, json=body)
         return resp.json()
 
     def join(self, session, cluster_id):
