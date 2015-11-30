@@ -89,7 +89,7 @@ class TestNode(testtools.TestCase):
         resp.body = {'action': '1234-5678-abcd'}
         resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
-        sess.put = mock.MagicMock(return_value=resp)
+        sess.put = mock.Mock(return_value=resp)
         self.assertEqual(resp.body, sot.join(sess, 'cluster-b'))
         url = 'nodes/%s/action' % sot.id
         body = {'join': {'cluster_id': 'cluster-b'}}
@@ -104,7 +104,7 @@ class TestNode(testtools.TestCase):
         resp.body = {'action': '2345-6789-bbbb'}
         resp.json = mock.Mock(return_value=resp.body)
         sess = mock.Mock()
-        sess.put = mock.MagicMock(return_value=resp)
+        sess.put = mock.Mock(return_value=resp)
         self.assertEqual(resp.body, sot.leave(sess))
         url = 'nodes/%s/action' % sot.id
         body = {'leave': {}}

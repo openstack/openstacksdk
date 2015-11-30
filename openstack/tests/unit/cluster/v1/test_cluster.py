@@ -97,7 +97,7 @@ class TestCluster(testtools.TestCase):
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
         sess = mock.Mock()
-        sess.put = mock.MagicMock(return_value=resp)
+        sess.put = mock.Mock(return_value=resp)
         self.assertEqual('', sot.add_nodes(sess, ['node-33']))
         url = 'clusters/%s/action' % sot.id
         body = {'add_nodes': {'nodes': ['node-33']}}
@@ -111,7 +111,7 @@ class TestCluster(testtools.TestCase):
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
         sess = mock.Mock()
-        sess.put = mock.MagicMock(return_value=resp)
+        sess.put = mock.Mock(return_value=resp)
         self.assertEqual('', sot.delete_nodes(sess, ['node-11']))
         url = 'clusters/%s/action' % sot.id
         body = {'del_nodes': {'nodes': ['node-11']}}
@@ -125,7 +125,7 @@ class TestCluster(testtools.TestCase):
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
         sess = mock.Mock()
-        sess.put = mock.MagicMock(return_value=resp)
+        sess.put = mock.Mock(return_value=resp)
         self.assertEqual('', sot.policy_attach(sess, 'POLICY', 1, 2, 0, True))
 
         url = 'clusters/%s/action' % sot.id
@@ -148,7 +148,7 @@ class TestCluster(testtools.TestCase):
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
         sess = mock.Mock()
-        sess.put = mock.MagicMock(return_value=resp)
+        sess.put = mock.Mock(return_value=resp)
         self.assertEqual('', sot.policy_detach(sess, 'POLICY'))
 
         url = 'clusters/%s/action' % sot.id
@@ -163,7 +163,7 @@ class TestCluster(testtools.TestCase):
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
         sess = mock.Mock()
-        sess.put = mock.MagicMock(return_value=resp)
+        sess.put = mock.Mock(return_value=resp)
         self.assertEqual('', sot.policy_update(sess, 'POLICY', 3, 4, 5, False))
 
         url = 'clusters/%s/action' % sot.id
@@ -186,7 +186,7 @@ class TestCluster(testtools.TestCase):
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
         sess = mock.Mock()
-        sess.put = mock.MagicMock(return_value=resp)
+        sess.put = mock.Mock(return_value=resp)
         self.assertEqual('', sot.policy_enable(sess, 'POLICY'))
 
         url = 'clusters/%s/action' % sot.id
@@ -206,7 +206,7 @@ class TestCluster(testtools.TestCase):
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
         sess = mock.Mock()
-        sess.put = mock.MagicMock(return_value=resp)
+        sess.put = mock.Mock(return_value=resp)
         self.assertEqual('', sot.policy_disable(sess, 'POLICY'))
 
         url = 'clusters/%s/action' % sot.id

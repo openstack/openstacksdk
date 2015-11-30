@@ -249,12 +249,12 @@ class HeaderTests(base.TestCase):
         sot._reset_dirty()
         sot.ho = "johnny"
         sot.letsgo = "deedee"
-        response = mock.MagicMock()
+        response = mock.Mock()
         response_body = {'id': 1}
         response.json = mock.Mock(return_value=response_body)
-        sess = mock.MagicMock()
-        sess.post = mock.MagicMock(return_value=response)
-        sess.put = mock.MagicMock(return_value=response)
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=response)
+        sess.put = mock.Mock(return_value=response)
 
         sot.create(sess)
         headers = {'guitar': 'johnny', 'bass': 'deedee'}
@@ -348,12 +348,12 @@ class ResourceTests(base.TestCase):
             resource_key = key
             service = "my_service"
 
-        response = mock.MagicMock()
+        response = mock.Mock()
         response.json = mock.Mock(return_value=response_body)
 
-        sess = mock.MagicMock()
-        sess.put = mock.MagicMock(return_value=response)
-        sess.post = mock.MagicMock(return_value=response)
+        sess = mock.Mock()
+        sess.put = mock.Mock(return_value=response)
+        sess.post = mock.Mock(return_value=response)
 
         resp = FakeResource2.create_by_id(sess, attrs)
         self.assertEqual(response_value, resp)
@@ -407,11 +407,11 @@ class ResourceTests(base.TestCase):
             resource_key = key
             service = "my_service"
 
-        response = mock.MagicMock()
+        response = mock.Mock()
         response.json = mock.Mock(return_value=response_body)
 
-        sess = mock.MagicMock()
-        sess.get = mock.MagicMock(return_value=response)
+        sess = mock.Mock()
+        sess.get = mock.Mock(return_value=response)
 
         r_id = "my_id"
         resp = FakeResource2.get_data_by_id(sess, resource_id=r_id)
@@ -445,11 +445,11 @@ class ResourceTests(base.TestCase):
             resource_key = key
             service = "my_service"
 
-        response = mock.MagicMock()
+        response = mock.Mock()
         response.headers = response_value
 
-        sess = mock.MagicMock()
-        sess.head = mock.MagicMock(return_value=response)
+        sess = mock.Mock()
+        sess.head = mock.Mock(return_value=response)
 
         r_id = "my_id"
         resp = FakeResource2.head_data_by_id(sess, resource_id=r_id)
@@ -488,11 +488,11 @@ class ResourceTests(base.TestCase):
             resource_key = key
             service = "my_service"
 
-        response = mock.MagicMock()
+        response = mock.Mock()
         response.json = mock.Mock(return_value=response_body)
 
-        sess = mock.MagicMock()
-        sess.patch = mock.MagicMock(return_value=response)
+        sess = mock.Mock()
+        sess.patch = mock.Mock(return_value=response)
 
         r_id = "my_id"
         resp = FakeResource2.update_by_id(sess, r_id, attrs)
@@ -533,8 +533,8 @@ class ResourceTests(base.TestCase):
         class FakeResource2(FakeResource):
             service = "my_service"
 
-        sess = mock.MagicMock()
-        sess.delete = mock.MagicMock(return_value=None)
+        sess = mock.Mock()
+        sess.delete = mock.Mock(return_value=None)
 
         r_id = "my_id"
         resp = FakeResource2.delete_by_id(sess, r_id)
@@ -746,7 +746,7 @@ class ResourceTests(base.TestCase):
         obj = FakeResource.existing(id=1, attr="value1",
                                     parent_name=fake_parent)
         obj.first = "value2"  # Make it dirty
-        obj.update_by_id = mock.MagicMock(return_value=dict())
+        obj.update_by_id = mock.Mock(return_value=dict())
         # If no id_attribute is returned in the update response, make sure
         # we handle the resulting KeyError.
         self.assertEqual(obj, obj.update("session"))
@@ -827,12 +827,12 @@ class ResourceTests(base.TestCase):
         full_page = [fake_data.copy(), fake_data.copy(), fake_data.copy()]
         last_page = [fake_data.copy()]
 
-        session = mock.MagicMock()
-        session.get = mock.MagicMock()
-        full_response = mock.MagicMock()
+        session = mock.Mock()
+        session.get = mock.Mock()
+        full_response = mock.Mock()
         response_body = {FakeResource.resources_key: full_page}
         full_response.json = mock.Mock(return_value=response_body)
-        last_response = mock.MagicMock()
+        last_response = mock.Mock()
         response_body = {FakeResource.resources_key: last_page}
         last_response.json = mock.Mock(return_value=response_body)
         pages = [full_response, full_response, last_response]
@@ -1346,7 +1346,7 @@ class TestWaitForStatus(base.TestCase):
 
     def setUp(self):
         super(TestWaitForStatus, self).setUp()
-        self.sess = mock.MagicMock()
+        self.sess = mock.Mock()
 
     def body_with_status(self, body, status):
         body_copy = copy.deepcopy(body)
@@ -1354,7 +1354,7 @@ class TestWaitForStatus(base.TestCase):
         return body_copy
 
     def test_wait_for_status_nothing(self):
-        self.sess.get = mock.MagicMock()
+        self.sess.get = mock.Mock()
         sot = FakeResource.new(**fake_data)
         sot.status = 'ACTIVE'
 
@@ -1363,7 +1363,7 @@ class TestWaitForStatus(base.TestCase):
         self.assertEqual([], self.sess.get.call_args_list)
 
     def test_wait_for_status(self):
-        self.sess.get = mock.MagicMock()
+        self.sess.get = mock.Mock()
         self.sess.get.side_effect = [self.build, self.active]
         sot = FakeResource.new(**fake_data)
 
@@ -1371,7 +1371,7 @@ class TestWaitForStatus(base.TestCase):
             self.sess, sot, 'ACTIVE', [], 1, 2))
 
     def test_wait_for_status_timeout(self):
-        self.sess.get = mock.MagicMock()
+        self.sess.get = mock.Mock()
         self.sess.get.side_effect = [self.build, self.build]
         sot = FakeResource.new(**fake_data)
 
@@ -1379,7 +1379,7 @@ class TestWaitForStatus(base.TestCase):
                           self.sess, sot, 'ACTIVE', ['ERROR'], 1, 2)
 
     def test_wait_for_status_failures(self):
-        self.sess.get = mock.MagicMock()
+        self.sess.get = mock.Mock()
         self.sess.get.side_effect = [self.build, self.error]
         sot = FakeResource.new(**fake_data)
 
@@ -1401,7 +1401,7 @@ class TestWaitForDelete(base.TestCase):
     def test_wait_for_delete(self):
         sess = mock.Mock()
         sot = FakeResource.new(**fake_data)
-        sot.get = mock.MagicMock()
+        sot.get = mock.Mock()
         sot.get.side_effect = [
             sot,
             ksa_exceptions.http.NotFound()]
@@ -1411,7 +1411,7 @@ class TestWaitForDelete(base.TestCase):
     def test_wait_for_delete_fail(self):
         sess = mock.Mock()
         sot = FakeResource.new(**fake_data)
-        sot.get = mock.MagicMock(return_value=sot)
+        sot.get = mock.Mock(return_value=sot)
 
         self.assertRaises(exceptions.ResourceTimeout, resource.wait_for_delete,
                           sess, sot, 1, 2)
