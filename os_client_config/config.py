@@ -18,10 +18,7 @@ import os
 import warnings
 
 import appdirs
-try:
-    from keystoneauth1 import loading
-except ImportError:
-    loading = None
+from keystoneauth1 import loading
 import yaml
 
 from os_client_config import cloud_config
@@ -657,27 +654,23 @@ class OpenStackConfig(object):
         #                compatible behaviour
         config = self.auth_config_hook(config)
 
-        if loading:
-            if validate:
-                try:
-                    loader = self._get_auth_loader(config)
-                    config = self._validate_auth(config, loader)
-                    auth_plugin = loader.load_from_options(**config['auth'])
-                except Exception as e:
-                    # We WANT the ksa exception normally
-                    # but OSC can't handle it right now, so we try deferring
-                    # to ksc. If that ALSO fails, it means there is likely
-                    # a deeper issue, so we assume the ksa error was correct
-                    auth_plugin = None
-                    try:
-                        config = self._validate_auth_ksc(config)
-                    except Exception:
-                        raise e
-            else:
+        if validate:
+            try:
+                loader = self._get_auth_loader(config)
+                config = self._validate_auth(config, loader)
+                auth_plugin = loader.load_from_options(**config['auth'])
+            except Exception as e:
+                # We WANT the ksa exception normally
+                # but OSC can't handle it right now, so we try deferring
+                # to ksc. If that ALSO fails, it means there is likely
+                # a deeper issue, so we assume the ksa error was correct
                 auth_plugin = None
+                try:
+                    config = self._validate_auth_ksc(config)
+                except Exception:
+                    raise e
         else:
             auth_plugin = None
-            config = self._validate_auth_ksc(config)
 
         # If any of the defaults reference other values, we need to expand
         for (key, value) in config.items():
