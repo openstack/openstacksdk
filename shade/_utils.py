@@ -121,11 +121,15 @@ def _get_entity(func, name_or_id, filters):
         A function that takes `name_or_id` and `filters` as parameters
         and returns a list of entities to filter.
     :param string name_or_id:
-        The name or ID of the entity being filtered.
+        The name or ID of the entity being filtered or a dict
     :param dict filters:
         A dictionary of meta data to use for further filtering.
     """
-    # We've been passed a dict/object already, return it
+    # Sometimes in the control flow of shade, we already have an object
+    # fetched. Rather than then needing to pull the name or id out of that
+    # object, pass it in here and rely on caching to prevent us from making
+    # an additional call, it's simple enough to test to see if we got an
+    # object and just short-circuit return it.
     if hasattr(name_or_id, 'id'):
         return name_or_id
     entities = func(name_or_id, filters)
