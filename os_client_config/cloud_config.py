@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import importlib
 import warnings
 
 from keystoneauth1 import adapter
@@ -20,7 +21,42 @@ from keystoneauth1 import session
 import requestsexceptions
 
 from os_client_config import _log
+from os_client_config import constructors
 from os_client_config import exceptions
+
+
+def _get_client(service_key):
+    class_mapping = constructors.get_constructor_mapping()
+    if service_key not in class_mapping:
+        raise exceptions.OpenStackConfigException(
+            "Service {service_key} is unkown. Please pass in a client"
+            " constructor or submit a patch to os-client-config".format(
+                service_key=service_key))
+    mod_name, ctr_name = class_mapping[service_key].rsplit('.', 1)
+    lib_name = mod_name.split('.')[0]
+    try:
+        mod = importlib.import_module(mod_name)
+    except ImportError:
+        raise exceptions.OpenStackConfigException(
+            "Client for '{service_key}' was requested, but"
+            " {mod_name} was unable to be imported. Either import"
+            " the module yourself and pass the constructor in as an argument,"
+            " or perhaps you do not have python-{lib_name} installed.".format(
+                service_key=service_key,
+                mod_name=mod_name,
+                lib_name=lib_name))
+    try:
+        ctr = getattr(mod, ctr_name)
+    except AttributeError:
+        raise exceptions.OpenStackConfigException(
+            "Client for '{service_key}' was requested, but although"
+            " {mod_name} imported fine, the constructor at {fullname}"
+            " as not found. Please check your installation, we have no"
+            " clue what is wrong with your computer.".format(
+                service_key=service_key,
+                mod_name=mod_name,
+                fullname=class_mapping[service_key]))
+    return ctr
 
 
 def _make_key(key, service_type):
@@ -217,7 +253,7 @@ class CloudConfig(object):
         return endpoint
 
     def get_legacy_client(
-            self, service_key, client_class, interface_key=None,
+            self, service_key, client_class=None, interface_key=None,
             pass_version_arg=True, **kwargs):
         """Return a legacy OpenStack client object for the given config.
 
@@ -254,6 +290,9 @@ class CloudConfig(object):
                        Client constructor, so this is in case anything
                        additional needs to be passed in.
         """
+        if not client_class:
+            client_class = _get_client(service_key)
+
         # Because of course swift is different
         if service_key == 'object-store':
             return self._get_swift_client(client_class=client_class, **kwargs)
