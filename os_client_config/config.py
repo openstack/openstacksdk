@@ -177,6 +177,8 @@ class OpenStackConfig(object):
         envvars = _get_os_environ(envvar_prefix=envvar_prefix)
         if envvars:
             self.cloud_config['clouds'][self.envvar_key] = envvars
+            if not self.default_cloud:
+                self.default_cloud = self.envvar_key
 
         # Finally, fall through and make a cloud that starts with defaults
         # because we need somewhere to put arguments, and there are neither
@@ -184,6 +186,7 @@ class OpenStackConfig(object):
         if not self.cloud_config['clouds']:
             self.cloud_config = dict(
                 clouds=dict(defaults=dict(self.defaults)))
+            self.default_cloud = 'defaults'
 
         self._cache_expiration_time = 0
         self._cache_path = CACHE_PATH
@@ -604,13 +607,13 @@ class OpenStackConfig(object):
             on missing required auth parameters
         """
 
-        if cloud is None and self.default_cloud:
-            cloud = self.default_cloud
-
-        if cloud is None and self.envvar_key in self.get_cloud_names():
-            cloud = self.envvar_key
-
         args = self._fix_args(kwargs, argparse=argparse)
+
+        if cloud is None:
+            if 'cloud' in args:
+                cloud = args['cloud']
+            else:
+                cloud = self.default_cloud
 
         if 'region_name' not in args or args['region_name'] is None:
             args['region_name'] = self._get_region(cloud)
