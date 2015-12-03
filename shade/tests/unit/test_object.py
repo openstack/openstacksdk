@@ -19,6 +19,7 @@ from os_client_config import cloud_config
 from swiftclient import client as swift_client
 from swiftclient import service as swift_service
 from swiftclient import exceptions as swift_exc
+import testtools
 
 import shade
 import shade.openstackcloud
@@ -94,3 +95,149 @@ class TestObject(base.TestCase):
             "Precondition failed", http_status=412)
         self.assertEqual(shade.openstackcloud.DEFAULT_OBJECT_SEGMENT_SIZE,
                          self.cloud.get_object_segment_size(None))
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_create_container(self, mock_swift):
+        """Test creating a (private) container"""
+        name = 'test_container'
+        mock_swift.head_container.return_value = None
+
+        self.cloud.create_container(name)
+
+        expected_head_container_calls = [
+            # once for exist test
+            mock.call(container=name),
+            # once for the final return
+            mock.call(container=name, skip_cache=True)
+        ]
+        self.assertTrue(expected_head_container_calls,
+                        mock_swift.head_container.call_args_list)
+        mock_swift.put_container.assert_called_once_with(container=name)
+        # Because the default is 'private', we shouldn't be calling update
+        self.assertFalse(mock_swift.post_container.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_create_container_public(self, mock_swift):
+        """Test creating a public container"""
+        name = 'test_container'
+        mock_swift.head_container.return_value = None
+
+        self.cloud.create_container(name, public=True)
+
+        expected_head_container_calls = [
+            # once for exist test
+            mock.call(container=name),
+            # once for the final return
+            mock.call(container=name, skip_cache=True)
+        ]
+        self.assertTrue(expected_head_container_calls,
+                        mock_swift.head_container.call_args_list)
+        mock_swift.put_container.assert_called_once_with(container=name)
+        mock_swift.post_container.assert_called_once_with(
+            container=name,
+            headers={'x-container-read':
+                     shade.openstackcloud.OBJECT_CONTAINER_ACLS['public']}
+        )
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_create_container_exists(self, mock_swift):
+        """Test creating a container that already exists"""
+        name = 'test_container'
+        fake_container = dict(id='1', name='name')
+        mock_swift.head_container.return_value = fake_container
+        container = self.cloud.create_container(name)
+        mock_swift.head_container.assert_called_once_with(container=name)
+        self.assertEqual(fake_container, container)
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_delete_container(self, mock_swift):
+        name = 'test_container'
+        self.cloud.delete_container(name)
+        mock_swift.delete_container.assert_called_once_with(container=name)
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_delete_container_404(self, mock_swift):
+        """No exception when deleting a container that does not exist"""
+        name = 'test_container'
+        mock_swift.delete_container.side_effect = swift_exc.ClientException(
+            'ERROR', http_status=404)
+        self.cloud.delete_container(name)
+        mock_swift.delete_container.assert_called_once_with(container=name)
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_delete_container_error(self, mock_swift):
+        """Non-404 swift error re-raised as OSCE"""
+        mock_swift.delete_container.side_effect = swift_exc.ClientException(
+            'ERROR')
+        self.assertRaises(shade.OpenStackCloudException,
+                          self.cloud.delete_container, '')
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_update_container(self, mock_swift):
+        name = 'test_container'
+        headers = {'x-container-read':
+                   shade.openstackcloud.OBJECT_CONTAINER_ACLS['public']}
+        self.cloud.update_container(name, headers)
+        mock_swift.post_container.assert_called_once_with(
+            container=name, headers=headers)
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_update_container_error(self, mock_swift):
+        """Swift error re-raised as OSCE"""
+        mock_swift.post_container.side_effect = swift_exc.ClientException(
+            'ERROR')
+        self.assertRaises(shade.OpenStackCloudException,
+                          self.cloud.update_container, '', '')
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_set_container_access_public(self, mock_swift):
+        name = 'test_container'
+        self.cloud.set_container_access(name, 'public')
+        mock_swift.post_container.assert_called_once_with(
+            container=name,
+            headers={'x-container-read':
+                     shade.openstackcloud.OBJECT_CONTAINER_ACLS['public']})
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_set_container_access_private(self, mock_swift):
+        name = 'test_container'
+        self.cloud.set_container_access(name, 'private')
+        mock_swift.post_container.assert_called_once_with(
+            container=name,
+            headers={'x-container-read':
+                     shade.openstackcloud.OBJECT_CONTAINER_ACLS['private']})
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_set_container_access_invalid(self, mock_swift):
+        self.assertRaises(shade.OpenStackCloudException,
+                          self.cloud.set_container_access, '', 'invalid')
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_get_container(self, mock_swift):
+        fake_container = {
+            'x-container-read':
+            shade.openstackcloud.OBJECT_CONTAINER_ACLS['public']
+        }
+        mock_swift.head_container.return_value = fake_container
+        access = self.cloud.get_container_access('foo')
+        self.assertEqual('public', access)
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_get_container_invalid(self, mock_swift):
+        fake_container = {'x-container-read': 'invalid'}
+        mock_swift.head_container.return_value = fake_container
+        with testtools.ExpectedException(
+                exc.OpenStackCloudException,
+                "Could not determine container access for ACL: invalid"
+        ):
+            self.cloud.get_container_access('foo')
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_get_container_access_not_found(self, mock_swift):
+        name = 'invalid_container'
+        mock_swift.head_container.return_value = None
+        with testtools.ExpectedException(
+                exc.OpenStackCloudException,
+                "Container not found: %s" % name
+        ):
+            self.cloud.get_container_access(name)
