@@ -14,9 +14,13 @@
 
 
 import mock
+
 import munch
+import os_client_config as occ
+import testtools
 
 import shade
+from shade.tests import fakes
 from shade.tests.unit import base
 
 
@@ -25,6 +29,74 @@ class TestUsers(base.TestCase):
     def setUp(self):
         super(TestUsers, self).setUp()
         self.cloud = shade.operator_cloud(validate=False)
+
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_create_user_v2(self, mock_keystone, mock_api_version):
+        mock_api_version.return_value = '2'
+        name = 'Mickey Mouse'
+        email = 'mickey@disney.com'
+        password = 'mice-rule'
+        fake_user = fakes.FakeUser('1', email, name)
+        mock_keystone.users.create.return_value = fake_user
+        user = self.cloud.create_user(name=name, email=email,
+                                      password=password)
+        mock_keystone.users.create.assert_called_once_with(
+            name=name, password=password, email=email, enabled=True,
+        )
+        self.assertEqual(name, user.name)
+        self.assertEqual(email, user.email)
+
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_create_user_v3(self, mock_keystone, mock_api_version):
+        mock_api_version.return_value = '3'
+        name = 'Mickey Mouse'
+        email = 'mickey@disney.com'
+        password = 'mice-rule'
+        domain_id = '456'
+        fake_user = fakes.FakeUser('1', email, name)
+        mock_keystone.users.create.return_value = fake_user
+        user = self.cloud.create_user(name=name, email=email,
+                                      password=password,
+                                      domain_id=domain_id)
+        mock_keystone.users.create.assert_called_once_with(
+            name=name, password=password, email=email, enabled=True,
+            domain=domain_id
+        )
+        self.assertEqual(name, user.name)
+        self.assertEqual(email, user.email)
+
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_create_user_v3_no_domain(self, mock_keystone, mock_api_version):
+        mock_api_version.return_value = '3'
+        name = 'Mickey Mouse'
+        email = 'mickey@disney.com'
+        password = 'mice-rule'
+        with testtools.ExpectedException(
+                shade.OpenStackCloudException,
+                "User creation requires an explicit domain_id argument."
+        ):
+            self.cloud.create_user(name=name, email=email, password=password)
+
+    @mock.patch.object(shade.OpenStackCloud, 'get_user_by_id')
+    @mock.patch.object(shade.OpenStackCloud, 'get_user')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_delete_user(self, mock_keystone, mock_get_user, mock_get_by_id):
+        mock_get_user.return_value = dict(id='123')
+        fake_user = fakes.FakeUser('123', 'email', 'name')
+        mock_get_by_id.return_value = fake_user
+        self.assertTrue(self.cloud.delete_user('name'))
+        mock_get_by_id.assert_called_once_with('123', normalize=False)
+        mock_keystone.users.delete.assert_called_once_with(user=fake_user)
+
+    @mock.patch.object(shade.OpenStackCloud, 'get_user')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_delete_user_not_found(self, mock_keystone, mock_get_user):
+        mock_get_user.return_value = None
+        self.assertFalse(self.cloud.delete_user('name'))
+        self.assertFalse(mock_keystone.users.delete.called)
 
     @mock.patch.object(shade.OpenStackCloud, 'get_user')
     @mock.patch.object(shade.OperatorCloud, 'get_group')
