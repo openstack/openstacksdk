@@ -23,20 +23,20 @@ import warnings
 from dogpile import cache
 import requestsexceptions
 
-import cinderclient.client as cinder_client
+import cinderclient.client
 import glanceclient
 import glanceclient.exc
-from heatclient import client as heat_client
+import heatclient.client
 from heatclient.common import template_utils
 import keystoneauth1.exceptions
-from keystoneclient import client as keystone_client
-from neutronclient.neutron import client as neutron_client
-from novaclient import client as nova_client
-from novaclient import exceptions as nova_exceptions
-import swiftclient.client as swift_client
-import swiftclient.service as swift_service
+import keystoneclient.client
+import neutronclient.neutron.client
+import novaclient.client
+import novaclient.exceptions as nova_exceptions
+import swiftclient.client
+import swiftclient.service
 import swiftclient.exceptions as swift_exceptions
-import troveclient.client as trove_client
+import troveclient.client
 
 from shade.exc import *  # noqa
 from shade import _log
@@ -268,7 +268,7 @@ class OpenStackCloud(object):
     def nova_client(self):
         if self._nova_client is None:
             self._nova_client = self._get_client(
-                'compute', nova_client.Client)
+                'compute', novaclient.client.Client)
         return self._nova_client
 
     @property
@@ -285,7 +285,7 @@ class OpenStackCloud(object):
     def keystone_client(self):
         if self._keystone_client is None:
             self._keystone_client = self._get_client(
-                'identity', keystone_client.Client)
+                'identity', keystoneclient.client.Client)
         return self._keystone_client
 
     @property
@@ -645,7 +645,7 @@ class OpenStackCloud(object):
     def heat_client(self):
         if self._heat_client is None:
             self._heat_client = self._get_client(
-                'orchestration', heat_client.Client)
+                'orchestration', heatclient.client.Client)
         return self._heat_client
 
     def get_template_contents(
@@ -663,7 +663,7 @@ class OpenStackCloud(object):
     def swift_client(self):
         if self._swift_client is None:
             self._swift_client = self._get_client(
-                'object-store', swift_client.Connection)
+                'object-store', swiftclient.client.Connection)
         return self._swift_client
 
     @property
@@ -675,7 +675,7 @@ class OpenStackCloud(object):
                 options = dict(os_auth_token=self.auth_token,
                                os_storage_url=endpoint,
                                os_region_name=self.region_name)
-                self._swift_service = swift_service.SwiftService(
+                self._swift_service = swiftclient.service.SwiftService(
                     options=options)
         return self._swift_service
 
@@ -684,21 +684,21 @@ class OpenStackCloud(object):
 
         if self._cinder_client is None:
             self._cinder_client = self._get_client(
-                'volume', cinder_client.Client)
+                'volume', cinderclient.client.Client)
         return self._cinder_client
 
     @property
     def trove_client(self):
         if self._trove_client is None:
             self._trove_client = self._get_client(
-                'database', trove_client.Client)
+                'database', troveclient.client.Client)
         return self._trove_client
 
     @property
     def neutron_client(self):
         if self._neutron_client is None:
             self._neutron_client = self._get_client(
-                'network', neutron_client.Client)
+                'network', neutronclient.neutron.client.Client)
         return self._neutron_client
 
     def create_stack(
@@ -3619,8 +3619,8 @@ class OpenStackCloud(object):
             self.log.debug(
                 "swift uploading {filename} to {container}/{name}".format(
                     filename=filename, container=container, name=name))
-            upload = swift_service.SwiftUploadObject(source=filename,
-                                                     object_name=name)
+            upload = swiftclient.service.SwiftUploadObject(
+                source=filename, object_name=name)
             for r in self.manager.submitTask(_tasks.ObjectCreate(
                 container=container, objects=[upload],
                 options=dict(header=header_list,
