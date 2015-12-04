@@ -14,6 +14,7 @@ from openstack.cluster.v1 import _proxy
 from openstack.cluster.v1 import action
 from openstack.cluster.v1 import build_info
 from openstack.cluster.v1 import cluster
+from openstack.cluster.v1 import cluster_policy
 from openstack.cluster.v1 import event
 from openstack.cluster.v1 import node
 from openstack.cluster.v1 import policy
@@ -125,6 +126,44 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_policy_update(self):
         self.verify_update(self.proxy.update_policy, policy.Policy)
+
+    def test_cluster_policies(self):
+        self.verify_list(self.proxy.cluster_policies,
+                         cluster_policy.ClusterPolicy,
+                         paginated=False, method_args=["FAKE_CLUSTER"],
+                         expected_kwargs={"path_args": {
+                             "cluster_id": "FAKE_CLUSTER"}})
+
+    def test_get_cluster_policies(self):
+        fake_policy = policy.Policy.from_id("FAKE_POLICY")
+        fake_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+
+        # Policy object as input
+        self._verify2('openstack.proxy.BaseProxy._get',
+                      self.proxy.get_cluster_policy,
+                      method_args=[fake_policy, "FAKE_CLUSTER"],
+                      expected_args=[cluster_policy.ClusterPolicy,
+                                     'FAKE_POLICY'],
+                      expected_kwargs={"path_args": {
+                          "cluster_id": "FAKE_CLUSTER"}})
+
+        # Policy ID as input
+        self._verify2('openstack.proxy.BaseProxy._get',
+                      self.proxy.get_cluster_policy,
+                      method_args=["FAKE_POLICY", "FAKE_CLUSTER"],
+                      expected_args=[cluster_policy.ClusterPolicy,
+                                     "FAKE_POLICY"],
+                      expected_kwargs={"path_args": {
+                          "cluster_id": "FAKE_CLUSTER"}})
+
+        # Cluster object as input
+        self._verify2('openstack.proxy.BaseProxy._get',
+                      self.proxy.get_cluster_policy,
+                      method_args=["FAKE_POLICY", fake_cluster],
+                      expected_args=[cluster_policy.ClusterPolicy,
+                                     "FAKE_POLICY"],
+                      expected_kwargs={"path_args": {
+                          "cluster_id": "FAKE_CLUSTER"}})
 
     def test_action_get(self):
         self.verify_get(self.proxy.get_action, action.Action)

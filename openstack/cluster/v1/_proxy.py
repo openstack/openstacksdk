@@ -13,11 +13,13 @@
 from openstack.cluster.v1 import action
 from openstack.cluster.v1 import build_info
 from openstack.cluster.v1 import cluster
+from openstack.cluster.v1 import cluster_policy
 from openstack.cluster.v1 import event
 from openstack.cluster.v1 import node
 from openstack.cluster.v1 import policy
 from openstack.cluster.v1 import profile
 from openstack import proxy
+from openstack import resource
 
 
 class Proxy(proxy.BaseProxy):
@@ -378,6 +380,43 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.cluster.v1.policy.Policy`
         """
         return self._update(policy.Policy, value, **attrs)
+
+    def cluster_policies(self, cluster, **query):
+        """Retrieve a generator of cluster-policy bindings.
+
+        :param cluster: The value can be the name or ID of a cluster or a
+            :class:`~openstack.cluster.v1.cluster.Cluster` instance.
+        :param kwargs \*\*query: Optional query parameters to be sent to
+            restrict the policies to be returned. Available parameters include:
+
+            * priority: The relative prioity of a policy object.
+            * level: The enforcement level of policy objects.
+            * cooldown: The default cooldown value of a policy object.
+            * enabled: A boolean value indicating whether the policy is
+            *          enabled on the cluster.
+        :returns: A generator of cluster-policy binding instances.
+        """
+        cluster_id = resource.Resource.get_id(cluster)
+        return self._list(cluster_policy.ClusterPolicy, paginated=False,
+                          path_args={'cluster_id': cluster_id}, **query)
+
+    def get_cluster_policy(self, value, cluster):
+        """Get a cluster-policy binding.
+
+        :param value: The value can be the name or ID of a policy or a
+            :class:`~openstack.cluster.v1.policy.Policy` instance.
+        :param cluster: The value can be the name or ID of a cluster or a
+            :class:`~openstack.cluster.v1.cluster.Cluster` instance.
+
+        :returns: a cluster-policy binding object.
+        :rtype: :class:`~openstack.cluster.v1.cluster_policy.CLusterPolicy`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            cluster-policy binding matching the criteria could be found.
+        """
+        cluster_id = resource.Resource.get_id(cluster)
+        policy_id = resource.Resource.get_id(value)
+        return self._get(cluster_policy.ClusterPolicy, policy_id,
+                         path_args={'cluster_id': cluster_id})
 
     def get_action(self, value):
         """Get a single action.
