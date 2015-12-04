@@ -16,6 +16,7 @@ Contents:
    contributing
    coding
    future
+   releasenotes
 
 .. include:: ../../README.rst
 
