@@ -325,7 +325,7 @@ Constructing OpenStack Client objects
 
 If all you want to do is get a Client object from a python-*client library,
 and you want it to do all the normal things related to clouds.yaml, `OS_`
-environment variables, a hepler function is provided. The following
+environment variables, a helper function is provided. The following
 will get you a fully configured `novaclient` instance.
 
 ::
