@@ -333,3 +333,21 @@ class TestSecurityGroups(base.TestCase):
                           self.cloud.create_security_group_rule,
                           secgroup_name_or_id='nova-sec-group',
                           direction='egress')
+
+    @mock.patch.object(shade._utils, 'normalize_nova_secgroups')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_list_server_security_groups(self, mock_nova, mock_norm):
+        server = dict(id='server_id')
+        self.cloud.list_server_security_groups(server)
+        mock_nova.servers.list_security_group.assert_called_once_with(
+            server='server_id'
+        )
+        self.assertTrue(mock_norm.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_list_server_security_groups_bad_source(self, mock_nova):
+        self.cloud.secgroup_source = 'invalid'
+        server = dict(id='server_id')
+        ret = self.cloud.list_server_security_groups(server)
+        self.assertEqual([], ret)
+        self.assertFalse(mock_nova.servers.list_security_group.called)
