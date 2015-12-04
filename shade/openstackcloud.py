@@ -23,7 +23,7 @@ import warnings
 from dogpile import cache
 import requestsexceptions
 
-from cinderclient.v1 import client as cinder_client
+import cinderclient.client as cinder_client
 import glanceclient
 import glanceclient.exc
 from heatclient import client as heat_client
