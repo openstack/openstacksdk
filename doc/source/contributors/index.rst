@@ -8,7 +8,7 @@ the SDK to build applications, please see the `user <../users>`_ section.
 About the Project
 -----------------
 
-The OpenStack SDK is a Stackforge project aimed at providing a complete
+The OpenStack SDK is a OpenStack project aimed at providing a complete
 software development kit for the programs which make up the OpenStack
 community. It is a set of Python-based libraries, documentation, examples,
 and tools released under the Apache 2 license.
