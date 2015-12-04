@@ -28,6 +28,7 @@ from openstack.network.v2 import security_group_rule
 from openstack.network.v2 import subnet
 from openstack.network.v2 import vpn_service
 from openstack import proxy
+from openstack import resource
 
 
 class Proxy(proxy.BaseProxy):
@@ -749,9 +750,9 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        pool = _pool.Pool.from_id(pool)
+        pool_id = resource.Resource.get_id(pool)
         self._delete(pool_member.PoolMember, member,
-                     path_args={'pool_id': pool.id},
+                     path_args={'pool_id': pool_id},
                      ignore_missing=ignore_missing)
 
     def find_pool_member(self, name_or_id, pool, ignore_missing=True):
@@ -769,9 +770,9 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.pool_member.PoolMember`
                   or None
         """
-        pool = _pool.Pool.from_id(pool)
+        pool_id = resource.Resource.get_id(pool)
         return self._find(pool_member.PoolMember, name_or_id,
-                          path_args={'pool_id': pool.id},
+                          path_args={'pool_id': pool_id},
                           ignore_missing=ignore_missing)
 
     def get_pool_member(self, member, pool):
@@ -788,9 +789,9 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        pool = _pool.Pool.from_id(pool)
+        pool_id = resource.Resource.get_id(pool)
         return self._get(pool_member.PoolMember, member,
-                         path_args={'pool_id': pool.id})
+                         path_args={'pool_id': pool_id})
 
     def pool_members(self, pool, **query):
         """Return a generator of pool members
@@ -804,9 +805,9 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of pool member objects
         :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
-        pool = _pool.Pool.from_id(pool)
+        pool_id = resource.Resource.get_id(pool)
         return self._list(pool_member.PoolMember,
-                          path_args={'pool_id': pool.id}, paginated=False,
+                          path_args={'pool_id': pool_id}, paginated=False,
                           **query)
 
     def update_pool_member(self, member, **attrs):
