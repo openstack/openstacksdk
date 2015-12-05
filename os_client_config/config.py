@@ -48,6 +48,11 @@ CONFIG_FILES = [
     for d in CONFIG_SEARCH_PATH
     for s in YAML_SUFFIXES + JSON_SUFFIXES
 ]
+SECURE_FILES = [
+    os.path.join(d, 'secure' + s)
+    for d in CONFIG_SEARCH_PATH
+    for s in YAML_SUFFIXES + JSON_SUFFIXES
+]
 VENDOR_FILES = [
     os.path.join(d, 'clouds-public' + s)
     for d in CONFIG_SEARCH_PATH
@@ -99,6 +104,20 @@ def _get_os_environ(envvar_prefix=None):
     return ret
 
 
+def _merge_clouds(old_dict, new_dict):
+    """Like dict.update, except handling nested dicts."""
+    ret = old_dict.copy()
+    for (k, v) in new_dict.items():
+        if isinstance(v, dict):
+            if k in ret:
+                ret[k] = _merge_clouds(ret[k], v)
+            else:
+                ret[k] = v.copy()
+        else:
+            ret[k] = v
+    return ret
+
+
 def _auth_update(old_dict, new_dict):
     """Like dict.update, except handling the nested dict called auth."""
     for (k, v) in new_dict.items():
@@ -116,13 +135,18 @@ class OpenStackConfig(object):
 
     def __init__(self, config_files=None, vendor_files=None,
                  override_defaults=None, force_ipv4=None,
-                 envvar_prefix=None):
+                 envvar_prefix=None, secure_files=None):
         self._config_files = config_files or CONFIG_FILES
+        self._secure_files = secure_files or SECURE_FILES
         self._vendor_files = vendor_files or VENDOR_FILES
 
         config_file_override = os.environ.pop('OS_CLIENT_CONFIG_FILE', None)
         if config_file_override:
             self._config_files.insert(0, config_file_override)
+
+        secure_file_override = os.environ.pop('OS_CLIENT_SECURE_FILE', None)
+        if secure_file_override:
+            self._secure_files.insert(0, secure_file_override)
 
         self.defaults = defaults.get_defaults()
         if override_defaults:
@@ -130,6 +154,10 @@ class OpenStackConfig(object):
 
         # First, use a config file if it exists where expected
         self.config_filename, self.cloud_config = self._load_config_file()
+        _, secure_config = self._load_secure_file()
+        if secure_config:
+            self.cloud_config = _merge_clouds(
+                self.cloud_config, secure_config)
 
         if not self.cloud_config:
             self.cloud_config = {'clouds': {}}
@@ -216,6 +244,9 @@ class OpenStackConfig(object):
 
     def _load_config_file(self):
         return self._load_yaml_json_file(self._config_files)
+
+    def _load_secure_file(self):
+        return self._load_yaml_json_file(self._secure_files)
 
     def _load_vendor_file(self):
         return self._load_yaml_json_file(self._vendor_files)

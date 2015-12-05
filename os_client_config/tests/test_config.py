@@ -30,7 +30,8 @@ class TestConfig(base.TestCase):
 
     def test_get_all_clouds(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
-                                   vendor_files=[self.vendor_yaml])
+                                   vendor_files=[self.vendor_yaml],
+                                   secure_files=[self.no_yaml])
         clouds = c.get_all_clouds()
         # We add one by hand because the regions cloud is going to exist
         # twice since it has two regions in it
@@ -74,7 +75,8 @@ class TestConfig(base.TestCase):
 
     def test_get_one_cloud_with_config_files(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
-                                   vendor_files=[self.vendor_yaml])
+                                   vendor_files=[self.vendor_yaml],
+                                   secure_files=[self.secure_yaml])
         self.assertIsInstance(c.cloud_config, dict)
         self.assertIn('cache', c.cloud_config)
         self.assertIsInstance(c.cloud_config['cache'], dict)
@@ -129,7 +131,8 @@ class TestConfig(base.TestCase):
 
     def test_fallthrough(self):
         c = config.OpenStackConfig(config_files=[self.no_yaml],
-                                   vendor_files=[self.no_yaml])
+                                   vendor_files=[self.no_yaml],
+                                   secure_files=[self.no_yaml])
         for k in os.environ.keys():
             if k.startswith('OS_'):
                 self.useFixture(fixtures.EnvironmentVariable(k))
@@ -137,7 +140,8 @@ class TestConfig(base.TestCase):
 
     def test_prefer_ipv6_true(self):
         c = config.OpenStackConfig(config_files=[self.no_yaml],
-                                   vendor_files=[self.no_yaml])
+                                   vendor_files=[self.no_yaml],
+                                   secure_files=[self.no_yaml])
         cc = c.get_one_cloud(cloud='defaults', validate=False)
         self.assertTrue(cc.prefer_ipv6)
 
@@ -155,7 +159,8 @@ class TestConfig(base.TestCase):
 
     def test_force_ipv4_false(self):
         c = config.OpenStackConfig(config_files=[self.no_yaml],
-                                   vendor_files=[self.no_yaml])
+                                   vendor_files=[self.no_yaml],
+                                   secure_files=[self.no_yaml])
         cc = c.get_one_cloud(cloud='defaults', validate=False)
         self.assertFalse(cc.force_ipv4)
 
@@ -166,7 +171,8 @@ class TestConfig(base.TestCase):
         self.assertEqual('testpass', cc.auth['password'])
 
     def test_get_cloud_names(self):
-        c = config.OpenStackConfig(config_files=[self.cloud_yaml])
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   secure_files=[self.no_yaml])
         self.assertEqual(
             ['_test-cloud-domain-id_',
              '_test-cloud-int-project_',
@@ -177,7 +183,8 @@ class TestConfig(base.TestCase):
              ],
             sorted(c.get_cloud_names()))
         c = config.OpenStackConfig(config_files=[self.no_yaml],
-                                   vendor_files=[self.no_yaml])
+                                   vendor_files=[self.no_yaml],
+                                   secure_files=[self.no_yaml])
         for k in os.environ.keys():
             if k.startswith('OS_'):
                 self.useFixture(fixtures.EnvironmentVariable(k))

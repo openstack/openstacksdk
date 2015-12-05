@@ -145,6 +145,34 @@ as a result of a chosen plugin need to go into the auth dict. For password
 auth, this includes `auth_url`, `username` and `password` as well as anything
 related to domains, projects and trusts.
 
+Splitting Secrets
+-----------------
+
+In some scenarios, such as configuragtion managment controlled environments,
+it might be eaiser to have secrets in one file and non-secrets in another.
+This is fully supported via an optional file `secure.yaml` which follows all
+the same location rules as `clouds.yaml`. It can contain anything you put
+in `clouds.yaml` and will take precedence over anything in the `clouds.yaml`
+file.
+
+::
+
+  # clouds.yaml
+  clouds:
+    internap:
+      profile: internap
+      auth:
+        username: api-55f9a00fb2619
+        project_name: inap-17037
+      regions:
+      - ams01
+      - nyj01
+  # secure.yaml
+  clouds:
+    internap:
+      auth:
+        password: XXXXXXXXXXXXXXXXX
+
 SSL Settings
 ------------
 
