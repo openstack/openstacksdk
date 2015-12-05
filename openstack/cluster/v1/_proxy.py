@@ -18,6 +18,7 @@ from openstack.cluster.v1 import event as _event
 from openstack.cluster.v1 import node as _node
 from openstack.cluster.v1 import policy as _policy
 from openstack.cluster.v1 import profile as _profile
+from openstack.cluster.v1 import profile_type as _profile_type
 from openstack import proxy
 from openstack import resource
 
@@ -30,6 +31,27 @@ class Proxy(proxy.BaseProxy):
         :returns: A dictionary containing the API and engine revision string.
         """
         return self._get(build_info.BuildInfo)
+
+    def profile_types(self, **query):
+        """Get a generator of profile types.
+
+        :returns: A generator of objects that are of type
+                  :class:`~openstack.cluster.v1.profile_type.ProfileType`
+        """
+        return self._list(_profile_type.ProfileType, paginated=False, **query)
+
+    def get_profile_type(self, profile_type):
+        """Get the details about a profile_type.
+
+        :param name: The name of the profile_type to retrieve or an object of
+                    :class:`~openstack.cluster.v1.profile_type.ProfileType`.
+
+        :returns: A :class:`~openstack.cluster.v1.profile_type.ProfileType`
+                  object.
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            profile_type matching the name could be found.
+        """
+        return self._get(_profile_type.ProfileType, profile_type)
 
     def create_profile(self, **attrs):
         """Create a new profile from attributes.

@@ -19,6 +19,7 @@ from openstack.cluster.v1 import event
 from openstack.cluster.v1 import node
 from openstack.cluster.v1 import policy
 from openstack.cluster.v1 import profile
+from openstack.cluster.v1 import profile_type
 from openstack.tests.unit import test_proxy_base
 
 
@@ -30,6 +31,15 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
     def test_build_info_get(self):
         self.verify_get(self.proxy.get_build_info, build_info.BuildInfo,
                         ignore_value=True)
+
+    def test_profile_types(self):
+        self.verify_list(self.proxy.profile_types,
+                         profile_type.ProfileType,
+                         paginated=False)
+
+    def test_profile_type_get(self):
+        self.verify_get(self.proxy.get_profile_type,
+                        profile_type.ProfileType)
 
     def test_profile_create(self):
         self.verify_create(self.proxy.create_profile, profile.Profile)
