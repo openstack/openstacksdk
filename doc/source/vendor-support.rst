@@ -271,10 +271,13 @@ gd1            Guangdong
 vexxhost
 --------
 
-http://auth.api.thenebulacloud.com:5000/v2.0/
+http://auth.vexxhost.net
 
 ============== ================
 Region Name    Human Name
 ============== ================
 ca-ymq-1       Montreal
 ============== ================
+
+* DNS API Version is 1
+* Identity API Version is 3
