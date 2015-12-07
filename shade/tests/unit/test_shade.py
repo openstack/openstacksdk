@@ -218,6 +218,83 @@ class TestShade(base.TestCase):
         self.cloud.delete_router('123')
         self.assertTrue(mock_client.delete_router.called)
 
+    @mock.patch.object(shade.OpenStackCloud, 'search_ports')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_list_router_interfaces_all(self, mock_client, mock_search):
+        internal_port = {'id': 'internal_port_id',
+                         'fixed_ips': [
+                             ('internal_subnet_id', 'ip_address'),
+                         ]}
+        external_port = {'id': 'external_port_id',
+                         'fixed_ips': [
+                             ('external_subnet_id', 'ip_address'),
+                         ]}
+        port_list = [internal_port, external_port]
+        router = {
+            'id': 'router_id',
+            'external_gateway_info': {
+                'external_fixed_ips': [('external_subnet_id', 'ip_address')]
+            }
+        }
+        mock_search.return_value = port_list
+        ret = self.cloud.list_router_interfaces(router)
+        mock_search.assert_called_once_with(
+            filters={'device_id': router['id']}
+        )
+        self.assertEqual(port_list, ret)
+
+    @mock.patch.object(shade.OpenStackCloud, 'search_ports')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_list_router_interfaces_internal(self, mock_client, mock_search):
+        internal_port = {'id': 'internal_port_id',
+                         'fixed_ips': [
+                             ('internal_subnet_id', 'ip_address'),
+                         ]}
+        external_port = {'id': 'external_port_id',
+                         'fixed_ips': [
+                             ('external_subnet_id', 'ip_address'),
+                         ]}
+        port_list = [internal_port, external_port]
+        router = {
+            'id': 'router_id',
+            'external_gateway_info': {
+                'external_fixed_ips': [('external_subnet_id', 'ip_address')]
+            }
+        }
+        mock_search.return_value = port_list
+        ret = self.cloud.list_router_interfaces(router,
+                                                interface_type='internal')
+        mock_search.assert_called_once_with(
+            filters={'device_id': router['id']}
+        )
+        self.assertEqual([internal_port], ret)
+
+    @mock.patch.object(shade.OpenStackCloud, 'search_ports')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_list_router_interfaces_external(self, mock_client, mock_search):
+        internal_port = {'id': 'internal_port_id',
+                         'fixed_ips': [
+                             ('internal_subnet_id', 'ip_address'),
+                         ]}
+        external_port = {'id': 'external_port_id',
+                         'fixed_ips': [
+                             ('external_subnet_id', 'ip_address'),
+                         ]}
+        port_list = [internal_port, external_port]
+        router = {
+            'id': 'router_id',
+            'external_gateway_info': {
+                'external_fixed_ips': [('external_subnet_id', 'ip_address')]
+            }
+        }
+        mock_search.return_value = port_list
+        ret = self.cloud.list_router_interfaces(router,
+                                                interface_type='external')
+        mock_search.assert_called_once_with(
+            filters={'device_id': router['id']}
+        )
+        self.assertEqual([external_port], ret)
+
     @mock.patch.object(shade.OpenStackCloud, 'search_networks')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     def test_create_subnet(self, mock_client, mock_search):
