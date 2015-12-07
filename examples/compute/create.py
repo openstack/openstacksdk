@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import errno
 import os
 
 from examples.connect import FLAVOR_NAME
@@ -17,6 +18,7 @@ from examples.connect import IMAGE_NAME
 from examples.connect import KEYPAIR_NAME
 from examples.connect import NETWORK_NAME
 from examples.connect import PRIVATE_KEYPAIR_FILE
+from examples.connect import SSH_DIR
 
 """
 Create resources with the Compute service.
@@ -34,6 +36,12 @@ def create_keypair(conn):
         keypair = conn.compute.create_keypair(name=KEYPAIR_NAME)
 
         print(keypair)
+
+        try:
+            os.mkdir(SSH_DIR)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise e
 
         with open(PRIVATE_KEYPAIR_FILE, 'w') as f:
             f.write("%s" % keypair.private_key)
