@@ -29,7 +29,7 @@ Service specific settings, like the nova service type, are set with the
 default service type as a prefix. For instance, to set a special service_type
 for trove set
 
-::
+.. code-block:: bash
 
   export OS_DATABASE_SERVICE_TYPE=rax:database
 
@@ -56,7 +56,7 @@ Service specific settings, like the nova service type, are set with the
 default service type as a prefix. For instance, to set a special service_type
 for trove (because you're using Rackspace) set:
 
-::
+.. code-block:: yaml
 
   database_service_type: 'rax:database'
 
@@ -85,7 +85,7 @@ look in an OS specific config dir
 
 An example config file is probably helpful:
 
-::
+.. code-block:: yaml
 
   clouds:
     mordred:
@@ -155,7 +155,7 @@ the same location rules as `clouds.yaml`. It can contain anything you put
 in `clouds.yaml` and will take precedence over anything in the `clouds.yaml`
 file.
 
-::
+.. code-block:: yaml
 
   # clouds.yaml
   clouds:
@@ -209,7 +209,7 @@ that the resource should never expire.
 and presents the cache information so that your various applications that
 are connecting to OpenStack can share a cache should you desire.
 
-::
+.. code-block:: yaml
 
   cache:
     class: dogpile.cache.pylibmc
@@ -242,7 +242,7 @@ caused it to not actually function. In that case, there is a config option
 you can set to unbreak you `force_ipv4`, or `OS_FORCE_IPV4` boolean
 environment variable.
 
-::
+.. code-block:: yaml
 
   client:
     force_ipv4: true
@@ -270,7 +270,7 @@ Usage
 
 The simplest and least useful thing you can do is:
 
-::
+.. code-block:: python
 
   python -m os_client_config.config
 
@@ -279,7 +279,7 @@ it from python, which is much more likely what you want to do, things like:
 
 Get a named cloud.
 
-::
+.. code-block:: python
 
   import os_client_config
 
@@ -289,7 +289,7 @@ Get a named cloud.
 
 Or, get all of the clouds.
 
-::
+.. code-block:: python
 
   import os_client_config
 
@@ -305,7 +305,7 @@ command line options, there is a registration function to register the
 arguments that both os-client-config and keystoneauth know how to deal
 with - as well as a consumption argument.
 
-::
+.. code-block:: python
 
   import argparse
   import sys
@@ -320,14 +320,14 @@ with - as well as a consumption argument.
 
   cloud = cloud_config.get_one_cloud(argparse=options)
 
-Constructing OpenStack Client objects
--------------------------------------
+Constructing Legacy Client objects
+----------------------------------
 
 If all you want to do is get a Client object from a python-*client library,
 and you want it to do all the normal things related to clouds.yaml, `OS_`
 environment variables, a hepler function is provided.
 
-::
+.. code-block:: python
 
   import argparse
 
@@ -338,7 +338,7 @@ environment variables, a hepler function is provided.
 
 If you want to do the same thing but also support command line parsing.
 
-::
+.. code-block:: python
 
   import argparse
 
