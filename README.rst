@@ -325,16 +325,16 @@ Constructing Legacy Client objects
 
 If all you want to do is get a Client object from a python-*client library,
 and you want it to do all the normal things related to clouds.yaml, `OS_`
-environment variables, a hepler function is provided.
+environment variables, a hepler function is provided. The following
+will get you a fully configured `novaclient` instance.
 
 .. code-block:: python
 
   import argparse
 
-  from novaclient import client
   import os_client_config
 
-  nova = os_client_config.make_client('compute', client.Client)
+  nova = os_client_config.make_client('compute')
 
 If you want to do the same thing but also support command line parsing.
 
@@ -342,11 +342,10 @@ If you want to do the same thing but also support command line parsing.
 
   import argparse
 
-  from novaclient import client
   import os_client_config
 
   nova = os_client_config.make_client(
-      'compute', client.Client, options=argparse.ArgumentParser())
+      'compute', options=argparse.ArgumentParser())
 
 If you want to get fancier than that in your python, then the rest of the
 API is avaiable to you. But often times, you just want to do the one thing.

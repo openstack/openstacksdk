@@ -1,0 +1,10 @@
+{
+    "compute": "novaclient.client.Client",
+    "database": "troveclient.client.Client",
+    "identity": "keystoneclient.client.Client",
+    "image": "glanceclient.Client",
+    "network": "neutronclient.neutron.client.Client",
+    "object-store": "swiftclient.client.Connection",
+    "orchestration": "heatclient.client.Client",
+    "volume": "cinderclient.client.Client"
+}
