@@ -18,6 +18,7 @@ from examples.connect import IMAGE_NAME
 from examples.connect import KEYPAIR_NAME
 from examples.connect import NETWORK_NAME
 from examples.connect import PRIVATE_KEYPAIR_FILE
+from examples.connect import SERVER_NAME
 from examples.connect import SSH_DIR
 
 """
@@ -60,7 +61,7 @@ def create_server(conn):
     keypair = create_keypair(conn)
 
     server = conn.compute.create_server(
-        name='openstacksdk-example', image=image, flavor=flavor,
+        name=SERVER_NAME, image=image, flavor=flavor,
         networks=[{"uuid": network.id}], key_name=keypair.name)
 
     server = conn.compute.wait_for_server(server)
