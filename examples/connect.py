@@ -56,11 +56,11 @@ IMAGE_NAME = _get_resource_value('image_name', 'fedora-20.x86_64')
 FLAVOR_NAME = _get_resource_value('flavor_name', 'm1.small')
 NETWORK_NAME = _get_resource_value('network_name', 'private')
 KEYPAIR_NAME = _get_resource_value('keypair_name', 'openstacksdk-example')
-PRIVATE_KEYPAIR_FILE = _get_resource_value('private_keypair_file',
-                                           "{home}/{ssh}/id_rsa.{key}".format(
-                                               home=os.getenv("HOME"),
-                                               ssh='.ssh',
-                                               key=KEYPAIR_NAME))
+SSH_DIR = _get_resource_value(
+    'ssh_dir', '{home}/.ssh'.format(home=os.path.expanduser("~")))
+PRIVATE_KEYPAIR_FILE = _get_resource_value(
+    'private_keypair_file', '{ssh_dir}/id_rsa.{key}'.format(
+        ssh_dir=SSH_DIR, key=KEYPAIR_NAME))
 
 
 def create_connection_from_config():
