@@ -29,7 +29,6 @@ approach, this is where you'll want to begin.
    Connect to an OpenStack Cloud Using a Config File <guides/connect_from_config>
    Logging <guides/logging>
    Block Store <guides/block_store>
-   CDN <guides/cdn>
    Compute <guides/compute>
    Database <guides/database>
    Identity <guides/identity>
@@ -71,7 +70,6 @@ but listed below are the ones provided by this SDK by default.
    :maxdepth: 1
 
    Block Store <proxies/block_store>
-   CDN <proxies/cdn>
    Compute <proxies/compute>
    Database <proxies/database>
    Identity <proxies/identity>
