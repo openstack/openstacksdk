@@ -65,7 +65,7 @@ OBJECT_CONTAINER_ACLS = {
 def _no_pending_volumes(volumes):
     '''If there are any volumes not in a steady state, don't cache'''
     for volume in volumes:
-        if volume['status'] not in ('available', 'error'):
+        if volume['status'] not in ('available', 'error', 'in-use'):
             return False
     return True
 
