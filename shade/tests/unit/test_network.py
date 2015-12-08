@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import mock
+import testtools
 
 import shade
 from shade.tests.unit import base
@@ -48,3 +49,30 @@ class TestNetwork(base.TestCase):
                 }
             )
         )
+
+    @mock.patch.object(shade.OpenStackCloud, 'get_network')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_delete_network(self, mock_neutron, mock_get):
+        mock_get.return_value = dict(id='net-id', name='test-net')
+        self.assertTrue(self.cloud.delete_network('test-net'))
+        mock_get.assert_called_once_with('test-net')
+        mock_neutron.delete_network.assert_called_once_with(network='net-id')
+
+    @mock.patch.object(shade.OpenStackCloud, 'get_network')
+    def test_delete_network_not_found(self, mock_get):
+        mock_get.return_value = None
+        self.assertFalse(self.cloud.delete_network('test-net'))
+        mock_get.assert_called_once_with('test-net')
+
+    @mock.patch.object(shade.OpenStackCloud, 'get_network')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_delete_network_exception(self, mock_neutron, mock_get):
+        mock_get.return_value = dict(id='net-id', name='test-net')
+        mock_neutron.delete_network.side_effect = Exception()
+        with testtools.ExpectedException(
+            shade.OpenStackCloudException,
+            "Error deleting network test-net"
+        ):
+            self.cloud.delete_network('test-net')
+        mock_get.assert_called_once_with('test-net')
+        mock_neutron.delete_network.assert_called_once_with(network='net-id')
