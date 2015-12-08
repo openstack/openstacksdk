@@ -1030,7 +1030,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions(
                 "Error in updating domain {domain}".format(domain=domain_id)):
             domain = self.manager.submitTask(_tasks.DomainUpdate(
-                domain=domain_id, description=description, enabled=enabled))
+                domain=domain_id, name=name, description=description,
+                enabled=enabled))
         return _utils.normalize_domains([domain])[0]
 
     def delete_domain(self, domain_id):
