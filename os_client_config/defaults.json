@@ -12,6 +12,7 @@
   "image_api_use_tasks": false,
   "image_api_version": "2",
   "image_format": "qcow2",
+  "metering_api_version": "2",
   "network_api_version": "2",
   "object_store_api_version": "1",
   "orchestration_api_version": "1",

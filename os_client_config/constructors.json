@@ -3,6 +3,7 @@
     "database": "troveclient.client.Client",
     "identity": "keystoneclient.client.Client",
     "image": "glanceclient.Client",
+    "metering": "ceilometerclient.client.Client",
     "network": "neutronclient.neutron.client.Client",
     "object-store": "swiftclient.client.Connection",
     "orchestration": "heatclient.client.Client",
