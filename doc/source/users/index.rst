@@ -34,7 +34,6 @@ approach, this is where you'll want to begin.
    Identity <guides/identity>
    Image <guides/image>
    Key Management <guides/key_management>
-   Metric <guides/metric>
    Network <guides/network>
    Object Store <guides/object_store>
    Orchestration <guides/orchestration>
@@ -75,7 +74,6 @@ but listed below are the ones provided by this SDK by default.
    Identity <proxies/identity>
    Image <proxies/image>
    Key Management <proxies/key_management>
-   Metric <proxies/metric>
    Network <proxies/network>
    Object Store <proxies/object_store>
    Orchestration <proxies/orchestration>

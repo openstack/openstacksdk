@@ -64,7 +64,6 @@ from openstack.identity import identity_service
 from openstack.image import image_service
 from openstack.key_management import key_management_service
 from openstack.message import message_service
-from openstack.metric import metric_service
 from openstack import module_loader
 from openstack.network import network_service
 from openstack.object_store import object_store_service
@@ -95,7 +94,6 @@ class Profile(object):
         self._add_service(database_service.DatabaseService())
         self._add_service(identity_service.IdentityService())
         self._add_service(image_service.ImageService())
-        self._add_service(metric_service.MetricService())
         self._add_service(network_service.NetworkService())
         self._add_service(object_store_service.ObjectStoreService())
         self._add_service(orchestration_service.OrchestrationService())
@@ -103,6 +101,9 @@ class Profile(object):
         self._add_service(telemetry_service.TelemetryService())
         self._add_service(block_store_service.BlockStoreService())
         self._add_service(message_service.MessageService())
+
+        # NOTE: The Metric service is not added here as it currently
+        # only retrieves the /capabilities API.
 
         if plugins:
             for plugin in plugins:

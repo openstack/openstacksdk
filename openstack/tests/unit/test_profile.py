@@ -27,7 +27,6 @@ class TestProfile(base.TestCase):
             'key-manager',
             'messaging',
             'metering',
-            'metric',
             'network',
             'object-store',
             'orchestration',
@@ -49,8 +48,6 @@ class TestProfile(base.TestCase):
         self.assertEqual('v5', prof.get_filter('image').version)
         prof.set_version('metering', 'v6')
         self.assertEqual('v6', prof.get_filter('metering').version)
-        prof.set_version('metric', 'v9')
-        self.assertEqual('v9', prof.get_filter('metric').version)
         prof.set_version('network', 'v7')
         self.assertEqual('v7', prof.get_filter('network').version)
         prof.set_version('object-store', 'v8')
