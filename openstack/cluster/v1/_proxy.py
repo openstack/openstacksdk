@@ -17,6 +17,7 @@ from openstack.cluster.v1 import cluster_policy as _cluster_policy
 from openstack.cluster.v1 import event as _event
 from openstack.cluster.v1 import node as _node
 from openstack.cluster.v1 import policy as _policy
+from openstack.cluster.v1 import policy_type as _policy_type
 from openstack.cluster.v1 import profile as _profile
 from openstack.cluster.v1 import profile_type as _profile_type
 from openstack import proxy
@@ -52,6 +53,27 @@ class Proxy(proxy.BaseProxy):
             profile_type matching the name could be found.
         """
         return self._get(_profile_type.ProfileType, profile_type)
+
+    def policy_types(self, **query):
+        """Get a generator of policy types.
+
+        :returns: A generator of objects that are of type
+                  :class:`~openstack.cluster.v1.policy_type.PolicyType`
+        """
+        return self._list(_policy_type.PolicyType, paginated=False, **query)
+
+    def get_policy_type(self, policy_type):
+        """Get the details about a policy_type.
+
+        :param policy_type: The name of a poicy_type or an object of
+                :class:`~openstack.cluster.v1.policy_type.PolicyType`.
+
+        :returns: A :class:`~openstack.cluster.v1.policy_type.PolicyType`
+                  object.
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            policy_type matching the name could be found.
+        """
+        return self._get(_policy_type.PolicyType, policy_type)
 
     def create_profile(self, **attrs):
         """Create a new profile from attributes.
