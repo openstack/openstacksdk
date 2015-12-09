@@ -193,3 +193,9 @@ class FakeGroup(object):
         self.name = name
         self.description = description
         self.domain = domain
+
+
+class FakeHypervisor(object):
+    def __init__(self, id, hostname):
+        self.id = id
+        self.hypervisor_hostname = hostname
