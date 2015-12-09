@@ -534,3 +534,65 @@ class TestShade(base.TestCase):
             for count in _utils._iterate_timeout(0.1, message, wait=1):
                 pass
         mock_sleep.assert_called_with(1.0)
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test__nova_extensions(self, mock_nova):
+        body = {
+            'extensions': [
+                {
+                    "updated": "2014-12-03T00:00:00Z",
+                    "name": "Multinic",
+                    "links": [],
+                    "namespace": "http://openstack.org/compute/ext/fake_xml",
+                    "alias": "NMN",
+                    "description": "Multiple network support."
+                },
+                {
+                    "updated": "2014-12-03T00:00:00Z",
+                    "name": "DiskConfig",
+                    "links": [],
+                    "namespace": "http://openstack.org/compute/ext/fake_xml",
+                    "alias": "OS-DCF",
+                    "description": "Disk Management Extension."
+                },
+            ]
+        }
+        mock_nova.client.get.return_value = ('200', body)
+        extensions = self.cloud._nova_extensions()
+        mock_nova.client.get.assert_called_once_with(url='/extensions')
+        self.assertEqual(set(['NMN', 'OS-DCF']), extensions)
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test__nova_extensions_fails(self, mock_nova):
+        mock_nova.client.get.side_effect = Exception()
+        with testtools.ExpectedException(
+            exc.OpenStackCloudException,
+            "Error fetching extension list for nova"
+        ):
+            self.cloud._nova_extensions()
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test__has_nova_extension(self, mock_nova):
+        body = {
+            'extensions': [
+                {
+                    "updated": "2014-12-03T00:00:00Z",
+                    "name": "Multinic",
+                    "links": [],
+                    "namespace": "http://openstack.org/compute/ext/fake_xml",
+                    "alias": "NMN",
+                    "description": "Multiple network support."
+                },
+                {
+                    "updated": "2014-12-03T00:00:00Z",
+                    "name": "DiskConfig",
+                    "links": [],
+                    "namespace": "http://openstack.org/compute/ext/fake_xml",
+                    "alias": "OS-DCF",
+                    "description": "Disk Management Extension."
+                },
+            ]
+        }
+        mock_nova.client.get.return_value = ('200', body)
+        self.assertTrue(self.cloud._has_nova_extension('NMN'))
+        self.assertFalse(self.cloud._has_nova_extension('invalid'))
