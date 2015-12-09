@@ -1,6 +1,9 @@
 Telemetry API
 =============
 
+.. caution::
+   BETA: This API is a work in progress and is subject to change.
+
 For details on how to use telemetry, see :doc:`/users/guides/telemetry`
 
 .. automodule:: openstack.telemetry.v2._proxy

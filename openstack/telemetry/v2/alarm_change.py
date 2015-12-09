@@ -15,6 +15,7 @@ from openstack.telemetry import telemetry_service
 
 
 class AlarmChange(resource.Resource):
+    """.. caution:: This API is a work in progress and is subject to change."""
     id_attribute = 'event_id'
     resource_key = 'alarm_change'
     base_path = '/alarms/%(alarm_id)s/history'

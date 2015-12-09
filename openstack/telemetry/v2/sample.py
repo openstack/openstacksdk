@@ -14,6 +14,7 @@ from openstack.telemetry import telemetry_service
 
 
 class Sample(resource.Resource):
+    """.. caution:: This API is a work in progress and is subject to change."""
     id_attribute = 'sample_id'
     base_path = '/meters/%(counter_name)s'
     service = telemetry_service.TelemetryService()

@@ -16,6 +16,7 @@ from openstack import utils
 
 
 class Alarm(resource.Resource):
+    """.. caution:: This API is a work in progress and is subject to change."""
     id_attribute = 'alarm_id'
     base_path = '/alarms'
     service = telemetry_service.TelemetryService()

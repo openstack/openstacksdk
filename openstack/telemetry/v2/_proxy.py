@@ -21,6 +21,7 @@ from openstack.telemetry.v2 import statistics
 
 
 class Proxy(proxy.BaseProxy):
+    """.. caution:: This API is a work in progress and is subject to change."""
 
     def create_alarm(self, **attrs):
         """Create a new alarm from attributes

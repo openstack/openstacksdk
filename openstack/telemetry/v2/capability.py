@@ -17,6 +17,7 @@ from openstack.telemetry import telemetry_service
 
 
 class Capability(resource.Resource):
+    """.. caution:: This API is a work in progress and is subject to change."""
     resource_key = 'capability'
     resources_key = 'capabilities'
     base_path = '/capabilities'
