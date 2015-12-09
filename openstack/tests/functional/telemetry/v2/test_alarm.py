@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import unittest
 import uuid
 
 from openstack.telemetry.v2 import alarm
 from openstack.tests.functional import base
 
 
+@unittest.skip("bug/1524468")
 class TestAlarm(base.BaseFunctionalTest):
 
     NAME = uuid.uuid4().hex
