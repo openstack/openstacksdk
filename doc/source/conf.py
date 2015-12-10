@@ -25,7 +25,6 @@ sys.path.insert(0, os.path.abspath('../..'))
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
-    'oslosphinx',
 ]
 
 # autodoc generation is a bit aggressive and a nuisance when doing heavy
@@ -92,6 +91,9 @@ html_theme = 'openstackdocs'
 
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = [openstackdocstheme.get_html_theme_path()]
+
+# Don't let openstackdocstheme insert TOCs automatically.
+theme_include_auto_toc = False
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = '%sdoc' % project
