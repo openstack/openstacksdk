@@ -28,7 +28,7 @@ Documentation
 -------------
 
 Documentation is available at
-http://python-openstacksdk.readthedocs.org/en/latest/
+http://developer.openstack.org/sdks/python/openstacksdk/
 
 Requirements
 ------------
