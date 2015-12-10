@@ -13,6 +13,7 @@
 import unittest
 
 from examples.compute import create
+from examples.compute import delete
 from examples.compute import find as compute_find
 from examples.compute import list as compute_list
 from examples import connect
@@ -44,3 +45,6 @@ class TestCompute(unittest.TestCase):
         network_find.find_network(self.conn)
 
         create.create_server(self.conn)
+
+        delete.delete_keypair(self.conn)
+        delete.delete_server(self.conn)
