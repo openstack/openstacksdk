@@ -10,10 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.database.v1 import database
-from openstack.database.v1 import flavor
-from openstack.database.v1 import instance
-from openstack.database.v1 import user
+from openstack.database.v1 import database as _database
+from openstack.database.v1 import flavor as _flavor
+from openstack.database.v1 import instance as _instance
+from openstack.database.v1 import user as _user
 from openstack import proxy
 
 
@@ -29,12 +29,12 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of server creation
         :rtype: :class:`~openstack.database.v1.database.Database`
         """
-        return self._create(database.Database, **attrs)
+        return self._create(_database.Database, **attrs)
 
-    def delete_database(self, value, ignore_missing=True):
+    def delete_database(self, database, ignore_missing=True):
         """Delete a database
 
-        :param value: The value can be either the ID of a database or a
+        :param database: The value can be either the ID of a database or a
                :class:`~openstack.database.v1.database.Database` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
@@ -44,7 +44,8 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(database.Database, value, ignore_missing=ignore_missing)
+        self._delete(_database.Database, database,
+                     ignore_missing=ignore_missing)
 
     def find_database(self, name_or_id, ignore_missing=True):
         """Find a single database
@@ -57,7 +58,7 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.database.v1.database.Database` or None
         """
-        return self._find(database.Database, name_or_id,
+        return self._find(_database.Database, name_or_id,
                           ignore_missing=ignore_missing)
 
     def databases(self, **query):
@@ -69,20 +70,20 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of database objects
         :rtype: :class:`~openstack.database.v1.database.Database`
         """
-        return self._list(database.Database, paginated=False, **query)
+        return self._list(_database.Database, paginated=False, **query)
 
-    def get_database(self, value):
+    def get_database(self, database):
         """Get a single database
 
-        :param value: The value can be the ID of a database or a
-                      :class:`~openstack.database.v1.database.Database`
-                      instance.
+        :param database: The value can be the ID of a database or a
+                         :class:`~openstack.database.v1.database.Database`
+                         instance.
 
         :returns: One :class:`~openstack.database.v1.database.Database`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(database.Database, value)
+        return self._get(_database.Database, database)
 
     def find_flavor(self, name_or_id, ignore_missing=True):
         """Find a single flavor
@@ -95,20 +96,20 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.database.v1.flavor.Flavor` or None
         """
-        return self._find(flavor.Flavor, name_or_id,
+        return self._find(_flavor.Flavor, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_flavor(self, value):
+    def get_flavor(self, flavor):
         """Get a single flavor
 
-        :param value: The value can be the ID of a flavor or a
-                      :class:`~openstack.database.v1.flavor.Flavor` instance.
+        :param flavor: The value can be the ID of a flavor or a
+                       :class:`~openstack.database.v1.flavor.Flavor` instance.
 
         :returns: One :class:`~openstack.database.v1.flavor.Flavor`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(flavor.Flavor, value)
+        return self._get(_flavor.Flavor, flavor)
 
     def flavors(self, **query):
         """Return a generator of flavors
@@ -119,7 +120,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of flavor objects
         :rtype: :class:`~openstack.database.v1.flavor.Flavor`
         """
-        return self._list(flavor.Flavor, paginated=False, **query)
+        return self._list(_flavor.Flavor, paginated=False, **query)
 
     def create_instance(self, **attrs):
         """Create a new instance from attributes
@@ -131,12 +132,12 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of server creation
         :rtype: :class:`~openstack.database.v1.instance.Instance`
         """
-        return self._create(instance.Instance, **attrs)
+        return self._create(_instance.Instance, **attrs)
 
-    def delete_instance(self, value, ignore_missing=True):
+    def delete_instance(self, instance, ignore_missing=True):
         """Delete an instance
 
-        :param value: The value can be either the ID of an instance or a
+        :param instance: The value can be either the ID of an instance or a
                :class:`~openstack.database.v1.instance.Instance` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
@@ -146,7 +147,8 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(instance.Instance, value, ignore_missing=ignore_missing)
+        self._delete(_instance.Instance, instance,
+                     ignore_missing=ignore_missing)
 
     def find_instance(self, name_or_id, ignore_missing=True):
         """Find a single instance
@@ -159,21 +161,21 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.database.v1.instance.Instance` or None
         """
-        return self._find(instance.Instance, name_or_id,
+        return self._find(_instance.Instance, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_instance(self, value):
+    def get_instance(self, instance):
         """Get a single instance
 
-        :param value: The value can be the ID of an instance or a
-                      :class:`~openstack.database.v1.instance.Instance`
-                      instance.
+        :param instance: The value can be the ID of an instance or a
+                         :class:`~openstack.database.v1.instance.Instance`
+                         instance.
 
         :returns: One :class:`~openstack.database.v1.instance.Instance`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(instance.Instance, value)
+        return self._get(_instance.Instance, instance)
 
     def instances(self, **query):
         """Return a generator of instances
@@ -184,21 +186,21 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of instance objects
         :rtype: :class:`~openstack.database.v1.instance.Instance`
         """
-        return self._list(instance.Instance, paginated=False, **query)
+        return self._list(_instance.Instance, paginated=False, **query)
 
-    def update_instance(self, value, **attrs):
+    def update_instance(self, instance, **attrs):
         """Update a instance
 
-        :param value: Either the id of a instance or a
-                      :class:`~openstack.database.v1.instance.Instance`
-                      instance.
+        :param instance: Either the id of a instance or a
+                         :class:`~openstack.database.v1.instance.Instance`
+                         instance.
         :attrs kwargs: The attributes to update on the instance represented
                        by ``value``.
 
         :returns: The updated instance
         :rtype: :class:`~openstack.database.v1.instance.Instance`
         """
-        return self._update(instance.Instance, value, **attrs)
+        return self._update(_instance.Instance, instance, **attrs)
 
     def create_user(self, **attrs):
         """Create a new user from attributes
@@ -210,13 +212,13 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of server creation
         :rtype: :class:`~openstack.database.v1.user.User`
         """
-        return self._create(user.User, **attrs)
+        return self._create(_user.User, **attrs)
 
-    def delete_user(self, value, ignore_missing=True):
+    def delete_user(self, user, ignore_missing=True):
         """Delete a user
 
-        :param value: The value can be either the ID of a user or a
-                      :class:`~openstack.database.v1.user.User` instance.
+        :param user: The value can be either the ID of a user or a
+                     :class:`~openstack.database.v1.user.User` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the user does not exist.
@@ -225,7 +227,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(user.User, value, ignore_missing=ignore_missing)
+        self._delete(_user.User, user, ignore_missing=ignore_missing)
 
     def find_user(self, name_or_id, ignore_missing=True):
         """Find a single user
@@ -238,7 +240,8 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.database.v1.user.User` or None
         """
-        return self._find(user.User, name_or_id, ignore_missing=ignore_missing)
+        return self._find(_user.User, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def users(self, **query):
         """Return a generator of users
@@ -249,16 +252,16 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of user objects
         :rtype: :class:`~openstack.database.v1.user.User`
         """
-        return self._list(user.User, paginated=False, **query)
+        return self._list(_user.User, paginated=False, **query)
 
-    def get_user(self, value):
+    def get_user(self, user):
         """Get a single user
 
-        :param value: The value can be the ID of a user or a
-                      :class:`~openstack.database.v1.user.User` instance.
+        :param user: The value can be the ID of a user or a
+                     :class:`~openstack.database.v1.user.User` instance.
 
         :returns: One :class:`~openstack.database.v1.user.User`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(user.User, value)
+        return self._get(_user.User, user)
