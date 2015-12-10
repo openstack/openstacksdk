@@ -10,25 +10,26 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.block_store.v2 import snapshot
-from openstack.block_store.v2 import type
-from openstack.block_store.v2 import volume
+from openstack.block_store.v2 import snapshot as _snapshot
+from openstack.block_store.v2 import type as _type
+from openstack.block_store.v2 import volume as _volume
 from openstack import proxy
 
 
 class Proxy(proxy.BaseProxy):
 
-    def get_snapshot(self, value):
+    def get_snapshot(self, snapshot):
         """Get a single snapshot
 
-        :param value: The value can be the ID of a snapshot or a
-                      :class:`~openstack.volume.v2.snapshot.Snapshot` instance.
+        :param snapshot: The value can be the ID of a snapshot or a
+                         :class:`~openstack.volume.v2.snapshot.Snapshot`
+                         instance.
 
         :returns: One :class:`~openstack.volume.v2.snapshot.Snapshot`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(snapshot.Snapshot, value)
+        return self._get(_snapshot.Snapshot, snapshot)
 
     def create_snapshot(self, **attrs):
         """Create a new snapshot from attributes
@@ -40,13 +41,14 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of snapshot creation
         :rtype: :class:`~openstack.volume.v2.snapshot.Snapshot`
         """
-        return self._create(snapshot.Snapshot, **attrs)
+        return self._create(_snapshot.Snapshot, **attrs)
 
-    def delete_snapshot(self, value, ignore_missing=True):
+    def delete_snapshot(self, snapshot, ignore_missing=True):
         """Delete a snapshot
 
-        :param value: The value can be either the ID of a snapshot or a
-                      :class:`~openstack.volume.v2.snapshot.Snapshot` instance.
+        :param snapshot: The value can be either the ID of a snapshot or a
+                         :class:`~openstack.volume.v2.snapshot.Snapshot`
+                         instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the snapshot does not exist.
@@ -55,19 +57,20 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(snapshot.Snapshot, value, ignore_missing=ignore_missing)
+        self._delete(_snapshot.Snapshot, snapshot,
+                     ignore_missing=ignore_missing)
 
-    def get_type(self, value):
+    def get_type(self, type):
         """Get a single type
 
-        :param value: The value can be the ID of a type or a
-                      :class:`~openstack.volume.v2.type.Type` instance.
+        :param type: The value can be the ID of a type or a
+                     :class:`~openstack.volume.v2.type.Type` instance.
 
         :returns: One :class:`~openstack.volume.v2.type.Type`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(type.Type, value)
+        return self._get(_type.Type, type)
 
     def create_type(self, **attrs):
         """Create a new type from attributes
@@ -79,13 +82,13 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of type creation
         :rtype: :class:`~openstack.volume.v2.type.Type`
         """
-        return self._create(type.Type, **attrs)
+        return self._create(_type.Type, **attrs)
 
-    def delete_type(self, value, ignore_missing=True):
+    def delete_type(self, type, ignore_missing=True):
         """Delete a type
 
-        :param value: The value can be either the ID of a type or a
-                      :class:`~openstack.volume.v2.type.Type` instance.
+        :param type: The value can be either the ID of a type or a
+                     :class:`~openstack.volume.v2.type.Type` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the type does not exist.
@@ -94,19 +97,19 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(type.Type, value, ignore_missing=ignore_missing)
+        self._delete(_type.Type, type, ignore_missing=ignore_missing)
 
-    def get_volume(self, value):
+    def get_volume(self, volume):
         """Get a single volume
 
-        :param value: The value can be the ID of a volume or a
-                      :class:`~openstack.volume.v2.volume.Volume` instance.
+        :param volume: The value can be the ID of a volume or a
+                       :class:`~openstack.volume.v2.volume.Volume` instance.
 
         :returns: One :class:`~openstack.volume.v2.volume.Volume`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(volume.Volume, value)
+        return self._get(_volume.Volume, volume)
 
     def create_volume(self, **attrs):
         """Create a new volume from attributes
@@ -118,13 +121,13 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of volume creation
         :rtype: :class:`~openstack.volume.v2.volume.Volume`
         """
-        return self._create(volume.Volume, **attrs)
+        return self._create(_volume.Volume, **attrs)
 
-    def delete_volume(self, value, ignore_missing=True):
+    def delete_volume(self, volume, ignore_missing=True):
         """Delete a volume
 
-        :param value: The value can be either the ID of a volume or a
-                      :class:`~openstack.volume.v2.volume.Volume` instance.
+        :param volume: The value can be either the ID of a volume or a
+                       :class:`~openstack.volume.v2.volume.Volume` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the volume does not exist.
@@ -133,4 +136,4 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(volume.Volume, value, ignore_missing=ignore_missing)
+        self._delete(_volume.Volume, volume, ignore_missing=ignore_missing)

@@ -10,14 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.cluster.v1 import action
+from openstack.cluster.v1 import action as _action
 from openstack.cluster.v1 import build_info
-from openstack.cluster.v1 import cluster
-from openstack.cluster.v1 import cluster_policy
-from openstack.cluster.v1 import event
-from openstack.cluster.v1 import node
-from openstack.cluster.v1 import policy
-from openstack.cluster.v1 import profile
+from openstack.cluster.v1 import cluster as _cluster
+from openstack.cluster.v1 import cluster_policy as _cluster_policy
+from openstack.cluster.v1 import event as _event
+from openstack.cluster.v1 import node as _node
+from openstack.cluster.v1 import policy as _policy
+from openstack.cluster.v1 import profile as _profile
 from openstack import proxy
 from openstack import resource
 
@@ -41,13 +41,13 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of profile creation.
         :rtype: :class:`~openstack.cluster.v1.profile.Profile`.
         """
-        return self._create(profile.Profile, **attrs)
+        return self._create(_profile.Profile, **attrs)
 
-    def delete_profile(self, value, ignore_missing=True):
+    def delete_profile(self, profile, ignore_missing=True):
         """Delete a profile.
 
-        :param value: The value can be either the name or ID of a profile or a
-            :class:`~openstack.cluster.v1.profile.Profile` instance.
+        :param profile: The value can be either the name or ID of a profile or
+            a :class:`~openstack.cluster.v1.profile.Profile` instance.
         :param bool ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the profile could not be found. When set to ``True``, no exception
@@ -55,7 +55,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(profile.Profile, value, ignore_missing=ignore_missing)
+        self._delete(_profile.Profile, profile, ignore_missing=ignore_missing)
 
     def find_profile(self, name_or_id, ignore_missing=True):
         """Find a single profile.
@@ -69,20 +69,20 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.cluster.v1.profile.Profile` object
             or None
         """
-        return self._find(profile.Profile, name_or_id,
+        return self._find(_profile.Profile, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_profile(self, value):
+    def get_profile(self, profile):
         """Get a single profile.
 
-        :param value: The value can be the name or ID of a profile or a
+        :param profile: The value can be the name or ID of a profile or a
             :class:`~openstack.cluster.v1.profile.Profile` instance.
 
         :returns: One :class:`~openstack.cluster.v1.profile.Profile`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             profile matching the criteria could be found.
         """
-        return self._get(profile.Profile, value)
+        return self._get(_profile.Profile, profile)
 
     def profiles(self, **query):
         """Retrieve a generator of profiles.
@@ -107,20 +107,20 @@ class Proxy(proxy.BaseProxy):
 
         :returns: A generator of profile instances.
         """
-        return self._list(profile.Profile, paginated=True, **query)
+        return self._list(_profile.Profile, paginated=True, **query)
 
-    def update_profile(self, value, **attrs):
+    def update_profile(self, profile, **attrs):
         """Update a profile.
 
-        :param value: Either the name or the ID of the profile, or an instance
-            of :class:`~openstack.cluster.v1.profile.Profile`.
+        :param profile: Either the name or the ID of the profile, or an
+            instance of :class:`~openstack.cluster.v1.profile.Profile`.
         :param attrs: The attributes to update on the profile represented by
             the ``value`` parameter.
 
         :returns: The updated profile.
         :rtype: :class:`~openstack.cluster.v1.profile.Profile`
         """
-        return self._update(profile.Profile, value, **attrs)
+        return self._update(_profile.Profile, profile, **attrs)
 
     def create_cluster(self, **attrs):
         """Create a new cluster from attributes.
@@ -132,13 +132,13 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of cluster creation.
         :rtype: :class:`~openstack.cluster.v1.cluster.Cluster`.
         """
-        return self._create(cluster.Cluster, **attrs)
+        return self._create(_cluster.Cluster, **attrs)
 
-    def delete_cluster(self, value, ignore_missing=True):
+    def delete_cluster(self, cluster, ignore_missing=True):
         """Delete a cluster.
 
-        :param value: The value can be either the name or ID of a cluster or a
-            :class:`~openstack.cluster.v1.cluster.Cluster` instance.
+        :param cluster: The value can be either the name or ID of a cluster or
+            a :class:`~openstack.cluster.v1.cluster.Cluster` instance.
         :param bool ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the cluster could not be found. When set to ``True``, no exception
@@ -146,7 +146,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(cluster.Cluster, value, ignore_missing=ignore_missing)
+        self._delete(_cluster.Cluster, cluster, ignore_missing=ignore_missing)
 
     def find_cluster(self, name_or_id, ignore_missing=True):
         """Find a single cluster.
@@ -160,20 +160,20 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.cluster.v1.cluster.Cluster` object
             or None
         """
-        return self._find(cluster.Cluster, name_or_id,
+        return self._find(_cluster.Cluster, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_cluster(self, value):
+    def get_cluster(self, cluster):
         """Get a single cluster.
 
-        :param value: The value can be the name or ID of a cluster or a
+        :param cluster: The value can be the name or ID of a cluster or a
             :class:`~openstack.cluster.v1.cluster.Cluster` instance.
 
         :returns: One :class:`~openstack.cluster.v1.cluster.Cluster`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             cluster matching the criteria could be found.
         """
-        return self._get(cluster.Cluster, value)
+        return self._get(_cluster.Cluster, cluster)
 
     def clusters(self, **query):
         """Retrieve a generator of clusters.
@@ -198,20 +198,20 @@ class Proxy(proxy.BaseProxy):
 
         :returns: A generator of cluster instances.
         """
-        return self._list(cluster.Cluster, paginated=True, **query)
+        return self._list(_cluster.Cluster, paginated=True, **query)
 
-    def update_cluster(self, value, **attrs):
+    def update_cluster(self, cluster, **attrs):
         """Update a cluster.
 
-        :param value: Either the name or the ID of the cluster, or an instance
-            of :class:`~openstack.cluster.v1.cluster.Cluster`.
+        :param cluster: Either the name or the ID of the cluster, or an
+            instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
         :param attrs: The attributes to update on the cluster represented by
             the ``value`` parameter.
 
         :returns: The updated cluster.
         :rtype: :class:`~openstack.cluster.v1.cluster.Cluster`
         """
-        return self._update(cluster.Cluster, value, **attrs)
+        return self._update(_cluster.Cluster, cluster, **attrs)
 
     def create_node(self, **attrs):
         """Create a new node from attributes.
@@ -223,12 +223,12 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of node creation.
         :rtype: :class:`~openstack.cluster.v1.node.Node`.
         """
-        return self._create(node.Node, **attrs)
+        return self._create(_node.Node, **attrs)
 
-    def delete_node(self, value, ignore_missing=True):
+    def delete_node(self, node, ignore_missing=True):
         """Delete a node.
 
-        :param value: The value can be either the name or ID of a node or a
+        :param node: The value can be either the name or ID of a node or a
             :class:`~openstack.cluster.v1.node.Node` instance.
         :param bool ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
@@ -237,7 +237,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(node.Node, value, ignore_missing=ignore_missing)
+        self._delete(_node.Node, node, ignore_missing=ignore_missing)
 
     def find_node(self, name_or_id, ignore_missing=True):
         """Find a single node.
@@ -245,9 +245,10 @@ class Proxy(proxy.BaseProxy):
         :param str name_or_id: The name or ID of a node.
         :returns: One :class:`~openstack.cluster.v1.node.Node` object or None.
         """
-        return self._find(node.Node, name_or_id, ignore_missing=ignore_missing)
+        return self._find(_node.Node, name_or_id,
+                          ignore_missing=ignore_missing)
 
-    def get_node(self, value):
+    def get_node(self, node):
         """Get a single node.
 
         :param value: The value can be the name or ID of a node or a
@@ -257,7 +258,7 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             node matching the name or ID could be found.
         """
-        return self._get(node.Node, value)
+        return self._get(_node.Node, node)
 
     def nodes(self, **query):
         """Retrieve a generator of nodes.
@@ -283,12 +284,12 @@ class Proxy(proxy.BaseProxy):
 
         :returns: A generator of node instances.
         """
-        return self._list(node.Node, paginated=True, **query)
+        return self._list(_node.Node, paginated=True, **query)
 
-    def update_node(self, value, **attrs):
+    def update_node(self, node, **attrs):
         """Update a node.
 
-        :param value: Either the name or the ID of the node, or an instance
+        :param node: Either the name or the ID of the node, or an instance
             of :class:`~openstack.cluster.v1.node.Node`.
         :param attrs: The attributes to update on the node represented by
             the ``value`` parameter.
@@ -296,7 +297,7 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated node.
         :rtype: :class:`~openstack.cluster.v1.node.Node`
         """
-        return self._update(node.Node, value, **attrs)
+        return self._update(_node.Node, node, **attrs)
 
     def create_policy(self, **attrs):
         """Create a new policy from attributes.
@@ -308,12 +309,12 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of policy creation.
         :rtype: :class:`~openstack.cluster.v1.policy.Policy`.
         """
-        return self._create(policy.Policy, **attrs)
+        return self._create(_policy.Policy, **attrs)
 
-    def delete_policy(self, value, ignore_missing=True):
+    def delete_policy(self, policy, ignore_missing=True):
         """Delete a policy.
 
-        :param value: The value can be either the name or ID of a policy or a
+        :param policy: The value can be either the name or ID of a policy or a
             :class:`~openstack.cluster.v1.policy.Policy` instance.
         :param bool ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
@@ -322,7 +323,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(policy.Policy, value, ignore_missing=ignore_missing)
+        self._delete(_policy.Policy, policy, ignore_missing=ignore_missing)
 
     def find_policy(self, name_or_id, ignore_missing=True):
         """Find a single policy.
@@ -336,13 +337,13 @@ class Proxy(proxy.BaseProxy):
         :returns: A policy object or None.
         :rtype: :class:`~openstack.cluster.v1.policy.Policy`
         """
-        return self._find(policy.Policy, name_or_id,
+        return self._find(_policy.Policy, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_policy(self, value):
+    def get_policy(self, policy):
         """Get a single policy.
 
-        :param value: The value can be the name or ID of a policy or a
+        :param policy: The value can be the name or ID of a policy or a
             :class:`~openstack.cluster.v1.policy.Policy` instance.
 
         :returns: A policy object.
@@ -350,7 +351,7 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             policy matching the criteria could be found.
         """
-        return self._get(policy.Policy, value)
+        return self._get(_policy.Policy, policy)
 
     def policies(self, **query):
         """Retrieve a generator of policies.
@@ -366,12 +367,12 @@ class Proxy(proxy.BaseProxy):
                 policies should be returned as well.
         :returns: A generator of policy instances.
         """
-        return self._list(policy.Policy, paginated=True, **query)
+        return self._list(_policy.Policy, paginated=True, **query)
 
-    def update_policy(self, value, **attrs):
+    def update_policy(self, policy, **attrs):
         """Update a policy.
 
-        :param value: Either the name or the ID of a policy, or an instance
+        :param policy: Either the name or the ID of a policy, or an instance
             of :class:`~openstack.cluster.v1.policy.Policy`.
         :param attrs: The attributes to update on the policy represented by
             the ``value`` parameter.
@@ -379,7 +380,7 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated policy.
         :rtype: :class:`~openstack.cluster.v1.policy.Policy`
         """
-        return self._update(policy.Policy, value, **attrs)
+        return self._update(_policy.Policy, policy, **attrs)
 
     def cluster_policies(self, cluster, **query):
         """Retrieve a generator of cluster-policy bindings.
@@ -397,13 +398,14 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of cluster-policy binding instances.
         """
         cluster_id = resource.Resource.get_id(cluster)
-        return self._list(cluster_policy.ClusterPolicy, paginated=False,
+        return self._list(_cluster_policy.ClusterPolicy, paginated=False,
                           path_args={'cluster_id': cluster_id}, **query)
 
-    def get_cluster_policy(self, value, cluster):
+    def get_cluster_policy(self, cluster_policy, cluster):
         """Get a cluster-policy binding.
 
-        :param value: The value can be the name or ID of a policy or a
+        :param cluster_policy:
+            The value can be the name or ID of a policy or a
             :class:`~openstack.cluster.v1.policy.Policy` instance.
         :param cluster: The value can be the name or ID of a cluster or a
             :class:`~openstack.cluster.v1.cluster.Cluster` instance.
@@ -414,14 +416,14 @@ class Proxy(proxy.BaseProxy):
             cluster-policy binding matching the criteria could be found.
         """
         cluster_id = resource.Resource.get_id(cluster)
-        policy_id = resource.Resource.get_id(value)
-        return self._get(cluster_policy.ClusterPolicy, policy_id,
+        policy_id = resource.Resource.get_id(cluster_policy)
+        return self._get(_cluster_policy.ClusterPolicy, policy_id,
                          path_args={'cluster_id': cluster_id})
 
-    def get_action(self, value):
+    def get_action(self, action):
         """Get a single action.
 
-        :param value: The value can be the name or ID of an action or a
+        :param action: The value can be the name or ID of an action or a
             :class:`~openstack.cluster.v1.action.Action` instance.
 
         :returns: an action object.
@@ -429,7 +431,7 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             action matching the criteria could be found.
         """
-        return self._get(action.Action, value)
+        return self._get(_action.Action, action)
 
     def actions(self, **query):
         """Retrieve a generator of actions.
@@ -456,12 +458,12 @@ class Proxy(proxy.BaseProxy):
 
         :returns: A generator of action instances.
         """
-        return self._list(action.Action, paginated=True, **query)
+        return self._list(_action.Action, paginated=True, **query)
 
-    def get_event(self, value):
+    def get_event(self, event):
         """Get a single event.
 
-        :param value: The value can be the name or ID of an event or a
+        :param event: The value can be the name or ID of an event or a
             :class:`~openstack.cluster.v1.event.Event` instance.
 
         :returns: an event object.
@@ -469,7 +471,7 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             event matching the criteria could be found.
         """
-        return self._get(event.Event, value)
+        return self._get(_event.Event, event)
 
     def events(self, **query):
         """Retrieve a generator of events.
@@ -501,4 +503,4 @@ class Proxy(proxy.BaseProxy):
 
         :returns: A generator of event instances.
         """
-        return self._list(event.Event, paginated=True, **query)
+        return self._list(_event.Event, paginated=True, **query)
