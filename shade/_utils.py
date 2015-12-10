@@ -329,7 +329,7 @@ def normalize_neutron_floating_ips(ips):
             router_id=ip.get('router_id'),
             attached=(ip.get('port_id') is not None and
                       ip.get('port_id') != ''),
-            status=ip['status'],
+            status=ip.get('status', 'UNKNOWN')
         ))
     return meta.obj_list_to_dict(ret)
 
