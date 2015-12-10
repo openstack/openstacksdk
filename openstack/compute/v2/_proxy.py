@@ -11,12 +11,12 @@
 # under the License.
 
 from openstack.compute.v2 import extension
-from openstack.compute.v2 import flavor
+from openstack.compute.v2 import flavor as _flavor
 from openstack.compute.v2 import image as _image
-from openstack.compute.v2 import keypair
+from openstack.compute.v2 import keypair as _keypair
 from openstack.compute.v2 import limits
 from openstack.compute.v2 import server as _server
-from openstack.compute.v2 import server_interface
+from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import server_ip
 from openstack import proxy
 from openstack import resource
@@ -61,7 +61,7 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.flavor.Flavor` or None
         """
-        return self._find(flavor.Flavor, name_or_id,
+        return self._find(_flavor.Flavor, name_or_id,
                           ignore_missing=ignore_missing)
 
     def create_flavor(self, **attrs):
@@ -74,13 +74,13 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of flavor creation
         :rtype: :class:`~openstack.compute.v2.flavor.Flavor`
         """
-        return self._create(flavor.Flavor, **attrs)
+        return self._create(_flavor.Flavor, **attrs)
 
-    def delete_flavor(self, value, ignore_missing=True):
+    def delete_flavor(self, flavor, ignore_missing=True):
         """Delete a flavor
 
-        :param value: The value can be either the ID of a flavor or a
-                      :class:`~openstack.compute.v2.flavor.Flavor` instance.
+        :param flavor: The value can be either the ID of a flavor or a
+                       :class:`~openstack.compute.v2.flavor.Flavor` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the flavor does not exist.
@@ -89,19 +89,19 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(flavor.Flavor, value, ignore_missing=ignore_missing)
+        self._delete(_flavor.Flavor, flavor, ignore_missing=ignore_missing)
 
-    def get_flavor(self, value):
+    def get_flavor(self, flavor):
         """Get a single flavor
 
-        :param value: The value can be the ID of a flavor or a
-                      :class:`~openstack.compute.v2.flavor.Flavor` instance.
+        :param flavor: The value can be the ID of a flavor or a
+                       :class:`~openstack.compute.v2.flavor.Flavor` instance.
 
         :returns: One :class:`~openstack.compute.v2.flavor.Flavor`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(flavor.Flavor, value)
+        return self._get(_flavor.Flavor, flavor)
 
     def flavors(self, details=True, **query):
         """Return a generator of flavors
@@ -115,13 +115,13 @@ class Proxy(proxy.BaseProxy):
 
         :returns: A generator of flavor objects
         """
-        flv = flavor.FlavorDetail if details else flavor.Flavor
+        flv = _flavor.FlavorDetail if details else _flavor.Flavor
         return self._list(flv, paginated=True, **query)
 
-    def update_flavor(self, value, **attrs):
+    def update_flavor(self, flavor, **attrs):
         """Update a flavor
 
-        :param value: Either the id of a flavor or a
+        :param flavor: Either the id of a flavor or a
                       :class:`~openstack.compute.v2.flavor.Flavor` instance.
         :attrs kwargs: The attributes to update on the flavor represented
                        by ``value``.
@@ -129,12 +129,12 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated flavor
         :rtype: :class:`~openstack.compute.v2.flavor.Flavor`
         """
-        return self._update(flavor.Flavor, value, **attrs)
+        return self._update(_flavor.Flavor, flavor, **attrs)
 
-    def delete_image(self, value, ignore_missing=True):
+    def delete_image(self, image, ignore_missing=True):
         """Delete an image
 
-        :param value: The value can be either the ID of an image or a
+        :param image: The value can be either the ID of an image or a
                       :class:`~openstack.compute.v2.image.Image` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
@@ -144,7 +144,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(_image.Image, value, ignore_missing=ignore_missing)
+        self._delete(_image.Image, image, ignore_missing=ignore_missing)
 
     def find_image(self, name_or_id, ignore_missing=True):
         """Find a single image
@@ -160,17 +160,17 @@ class Proxy(proxy.BaseProxy):
         return self._find(_image.Image, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_image(self, value):
+    def get_image(self, image):
         """Get a single image
 
-        :param value: The value can be the ID of an image or a
+        :param image: The value can be the ID of an image or a
                       :class:`~openstack.compute.v2.image.Image` instance.
 
         :returns: One :class:`~openstack.compute.v2.image.Image`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(_image.Image, value)
+        return self._get(_image.Image, image)
 
     def images(self, details=True, **query):
         """Return a generator of images
@@ -197,13 +197,14 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of keypair creation
         :rtype: :class:`~openstack.compute.v2.keypair.Keypair`
         """
-        return self._create(keypair.Keypair, **attrs)
+        return self._create(_keypair.Keypair, **attrs)
 
-    def delete_keypair(self, value, ignore_missing=True):
+    def delete_keypair(self, keypair, ignore_missing=True):
         """Delete a keypair
 
-        :param value: The value can be either the ID of a keypair or a
-                      :class:`~openstack.compute.v2.keypair.Keypair` instance.
+        :param keypair: The value can be either the ID of a keypair or a
+                        :class:`~openstack.compute.v2.keypair.Keypair`
+                        instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the keypair does not exist.
@@ -212,19 +213,20 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(keypair.Keypair, value, ignore_missing=ignore_missing)
+        self._delete(_keypair.Keypair, keypair, ignore_missing=ignore_missing)
 
-    def get_keypair(self, value):
+    def get_keypair(self, keypair):
         """Get a single keypair
 
-        :param value: The value can be the ID of a keypair or a
-                      :class:`~openstack.compute.v2.keypair.Keypair` instance.
+        :param keypair: The value can be the ID of a keypair or a
+                        :class:`~openstack.compute.v2.keypair.Keypair`
+                        instance.
 
         :returns: One :class:`~openstack.compute.v2.keypair.Keypair`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(keypair.Keypair, value)
+        return self._get(_keypair.Keypair, keypair)
 
     def find_keypair(self, name_or_id, ignore_missing=True):
         """Find a single keypair
@@ -237,7 +239,7 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.keypair.Keypair` or None
         """
-        return self._find(keypair.Keypair, name_or_id,
+        return self._find(_keypair.Keypair, name_or_id,
                           ignore_missing=ignore_missing)
 
     def keypairs(self, **query):
@@ -249,20 +251,21 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of keypair objects
         :rtype: :class:`~openstack.compute.v2.keypair.Keypair`
         """
-        return self._list(keypair.Keypair, paginated=False, **query)
+        return self._list(_keypair.Keypair, paginated=False, **query)
 
-    def update_keypair(self, value, **attrs):
+    def update_keypair(self, keypair, **attrs):
         """Update a keypair
 
-        :param value: Either the id of a keypair or a
-                      :class:`~openstack.compute.v2.keypair.Keypair` instance.
+        :param keypair: Either the id of a keypair or a
+                        :class:`~openstack.compute.v2.keypair.Keypair`
+                        instance.
         :attrs kwargs: The attributes to update on the keypair represented
-                       by ``value``.
+                       by ``keypair``.
 
         :returns: The updated keypair
         :rtype: :class:`~openstack.compute.v2.keypair.Keypair`
         """
-        return self._update(keypair.Keypair, value, **attrs)
+        return self._update(_keypair.Keypair, keypair, **attrs)
 
     def get_limits(self):
         """Retrieve limits that are applied to the project's account
@@ -286,11 +289,11 @@ class Proxy(proxy.BaseProxy):
         """
         return self._create(_server.Server, **attrs)
 
-    def delete_server(self, value, ignore_missing=True):
+    def delete_server(self, server, ignore_missing=True):
         """Delete a server
 
-        :param value: The value can be either the ID of a server or a
-                      :class:`~openstack.compute.v2.server.Server` instance.
+        :param server: The value can be either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the server does not exist.
@@ -299,7 +302,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(_server.Server, value, ignore_missing=ignore_missing)
+        self._delete(_server.Server, server, ignore_missing=ignore_missing)
 
     def find_server(self, name_or_id, ignore_missing=True):
         """Find a single server
@@ -315,17 +318,17 @@ class Proxy(proxy.BaseProxy):
         return self._find(_server.Server, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_server(self, value):
+    def get_server(self, server):
         """Get a single server
 
-        :param value: The value can be the ID of a server or a
-                      :class:`~openstack.compute.v2.server.Server` instance.
+        :param server: The value can be the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
 
         :returns: One :class:`~openstack.compute.v2.server.Server`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(_server.Server, value)
+        return self._get(_server.Server, server)
 
     def servers(self, details=True, **query):
         """Retrieve a generator of servers
@@ -373,22 +376,22 @@ class Proxy(proxy.BaseProxy):
 
         return self._list(srv, paginated=True, **query)
 
-    def update_server(self, value, **attrs):
+    def update_server(self, server, **attrs):
         """Update a server
 
-        :param value: Either the id of a server or a
-                      :class:`~openstack.compute.v2.server.Server` instance.
+        :param server: Either the id of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
         :attrs kwargs: The attributes to update on the server represented
-                       by ``value``.
+                       by ``server``.
 
         :returns: The updated server
         :rtype: :class:`~openstack.compute.v2.server.Server`
         """
-        return self._update(_server.Server, value, **attrs)
+        return self._update(_server.Server, server, **attrs)
 
-    def wait_for_server(self, value, status='ACTIVE', failures=['ERROR'],
+    def wait_for_server(self, server, status='ACTIVE', failures=['ERROR'],
                         interval=2, wait=120):
-        return resource.wait_for_status(self.session, value, status,
+        return resource.wait_for_status(self.session, server, status,
                                         failures, interval, wait)
 
     def create_server_interface(self, server, **attrs):
@@ -405,15 +408,17 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
         """
         server_id = resource.Resource.get_id(server)
-        return self._create(server_interface.ServerInterface,
+        return self._create(_server_interface.ServerInterface,
                             path_args={'server_id': server_id}, **attrs)
 
-    def delete_server_interface(self, value, server=None, ignore_missing=True):
+    def delete_server_interface(self, server_interface, server=None,
+                                ignore_missing=True):
         """Delete a server interface
 
-        :param value: The value can be either the ID of a server interface or a
-               :class:`~openstack.compute.v2.server_interface.ServerInterface`
-               instance.
+        :param server_interface:
+            The value can be either the ID of a server interface or a
+            :class:`~openstack.compute.v2.server_interface.ServerInterface`
+            instance.
         :param server: This parameter need to be specified when ServerInterface
                        ID is given as value. It can be either the ID of a
                        server or a :class:`~openstack.compute.v2.server.Server`
@@ -426,21 +431,22 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        if isinstance(value, server_interface.ServerInterface):
-            server_id = value.server_id
+        if isinstance(server_interface, _server_interface.ServerInterface):
+            server_id = server_interface.server_id
         else:
             server_id = resource.Resource.get_id(server)
 
-        self._delete(server_interface.ServerInterface, value,
+        self._delete(_server_interface.ServerInterface, server_interface,
                      path_args={'server_id': server_id},
                      ignore_missing=ignore_missing)
 
-    def get_server_interface(self, value, server=None):
+    def get_server_interface(self, server_interface, server=None):
         """Get a single server interface
 
-        :param value: The value can be the ID of a server interface or a
-               :class:`~openstack.compute.v2.server_interface.ServerInterface`
-               instance.
+        :param server_interface:
+            The value can be the ID of a server interface or a
+            :class:`~openstack.compute.v2.server_interface.ServerInterface`
+            instance.
         :param server: This parameter need to be specified when ServerInterface
                        ID is given as value. It can be either the ID of a
                        server or a :class:`~openstack.compute.v2.server.Server`
@@ -451,12 +457,12 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        if isinstance(value, server_interface.ServerInterface):
-            server_id = value.server_id
+        if isinstance(server_interface, _server_interface.ServerInterface):
+            server_id = server_interface.server_id
         else:
             server_id = resource.Resource.get_id(server)
 
-        return self._get(server_interface.ServerInterface, value,
+        return self._get(_server_interface.ServerInterface, server_interface,
                          path_args={'server_id': server_id})
 
     def server_interfaces(self, server, **query):
@@ -471,7 +477,7 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
         """
         server_id = resource.Resource.get_id(server)
-        return self._list(server_interface.ServerInterface, paginated=False,
+        return self._list(_server_interface.ServerInterface, paginated=False,
                           path_args={'server_id': server_id},
                           **query)
 
@@ -500,45 +506,45 @@ class Proxy(proxy.BaseProxy):
         """
         return self._list(server_ip.ServerIP, paginated=False, **query)
 
-    def resize_server(self, value, flavor):
+    def resize_server(self, server, flavor):
         """Resize a server
 
-        :param value: Either the ID of a server or a
-                      :class:`~openstack.compute.v2.server.Server` instance.
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
         :param falvor: The ID or name of the flavor used to resize the server.
 
         :returns: None
         """
-        server = _server.Server.from_id(value)
+        server = _server.Server.from_id(server)
         server.resize(self.session, flavor)
 
-    def confirm_resize_server(self, value):
+    def confirm_resize_server(self, server):
         """Confirm a pending resize_server action
 
-        :param value: Either the ID of a server or a
+        :param server: Either the ID of a server or a
                       :class:`~openstack.compute.v2.server.Server` instance.
 
         :returns: None
         """
-        server = _server.Server.from_id(value)
+        server = _server.Server.from_id(server)
         server.confirm_resize(self.session)
 
-    def revert_resize_server(self, value):
+    def revert_resize_server(self, server):
         """Cancel and revert a pending resize_server action
 
-        :param value: Either the ID of a server or a
+        :param server: Either the ID of a server or a
                       :class:`~openstack.compute.v2.server.Server` instance.
 
         :returns: None
         """
-        server = _server.Server.from_id(value)
+        server = _server.Server.from_id(server)
         server.revert_resize(self.session)
 
-    def rebuild_server(self, value, image, name=None, admin_password=None,
+    def rebuild_server(self, server, image, name=None, admin_password=None,
                        **attrs):
         """Rebuild a server
 
-        :param value: Either the ID of a server or a
+        :param server: Either the ID of a server or a
                       :class:`~openstack.compute.v2.server.Server` instance.
         :param image: The ID or name or a
                       :class:`~openstack.compute.v2.image.Image` or full
@@ -560,6 +566,6 @@ class Proxy(proxy.BaseProxy):
                 # the 'image' could be a full url
                 image_ref = image
 
-        server = _server.Server.from_id(value)
+        server = _server.Server.from_id(server)
         return server.rebuild(self.session, name, image_ref, admin_password,
                               **attrs)
