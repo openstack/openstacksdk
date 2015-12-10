@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.identity.v2 import role
-from openstack.identity.v2 import tenant
-from openstack.identity.v2 import user
+from openstack.identity.v2 import role as _role
+from openstack.identity.v2 import tenant as _tenant
+from openstack.identity.v2 import user as _user
 from openstack import proxy
 
 
@@ -28,13 +28,13 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of role creation
         :rtype: :class:`~openstack.identity.v2.role.Role`
         """
-        return self._create(role.Role, **attrs)
+        return self._create(_role.Role, **attrs)
 
-    def delete_role(self, value, ignore_missing=True):
+    def delete_role(self, role, ignore_missing=True):
         """Delete a role
 
-        :param value: The value can be either the ID of a role or a
-                      :class:`~openstack.identity.v2.role.Role` instance.
+        :param role: The value can be either the ID of a role or a
+                     :class:`~openstack.identity.v2.role.Role` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the role does not exist.
@@ -43,7 +43,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(role.Role, value, ignore_missing=ignore_missing)
+        self._delete(_role.Role, role, ignore_missing=ignore_missing)
 
     def find_role(self, name_or_id, ignore_missing=True):
         """Find a single role
@@ -56,19 +56,20 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v2.role.Role` or None
         """
-        return self._find(role.Role, name_or_id, ignore_missing=ignore_missing)
+        return self._find(_role.Role, name_or_id,
+                          ignore_missing=ignore_missing)
 
-    def get_role(self, value):
+    def get_role(self, role):
         """Get a single role
 
-        :param value: The value can be the ID of a role or a
-                      :class:`~openstack.identity.v2.role.Role` instance.
+        :param role: The value can be the ID of a role or a
+                     :class:`~openstack.identity.v2.role.Role` instance.
 
         :returns: One :class:`~openstack.identity.v2.role.Role`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(role.Role, value)
+        return self._get(_role.Role, role)
 
     def roles(self, **query):
         """Retrieve a generator of roles
@@ -79,20 +80,20 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of role instances.
         :rtype: :class:`~openstack.identity.v2.role.Role`
         """
-        return self._list(role.Role, paginated=True, **query)
+        return self._list(_role.Role, paginated=True, **query)
 
-    def update_role(self, value, **attrs):
+    def update_role(self, role, **attrs):
         """Update a role
 
-        :param value: Either the id of a role or a
-                      :class:`~openstack.identity.v2.role.Role` instance.
+        :param role: Either the id of a role or a
+                     :class:`~openstack.identity.v2.role.Role` instance.
         :attrs kwargs: The attributes to update on the role represented
                        by ``value``.
 
         :returns: The updated role
         :rtype: :class:`~openstack.identity.v2.role.Role`
         """
-        return self._update(role.Role, value, **attrs)
+        return self._update(_role.Role, role, **attrs)
 
     def create_tenant(self, **attrs):
         """Create a new tenant from attributes
@@ -104,13 +105,13 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of tenant creation
         :rtype: :class:`~openstack.identity.v2.tenant.Tenant`
         """
-        return self._create(tenant.Tenant, **attrs)
+        return self._create(_tenant.Tenant, **attrs)
 
-    def delete_tenant(self, value, ignore_missing=True):
+    def delete_tenant(self, tenant, ignore_missing=True):
         """Delete a tenant
 
-        :param value: The value can be either the ID of a tenant or a
-                      :class:`~openstack.identity.v2.tenant.Tenant` instance.
+        :param tenant: The value can be either the ID of a tenant or a
+                       :class:`~openstack.identity.v2.tenant.Tenant` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the tenant does not exist.
@@ -119,7 +120,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(tenant.Tenant, value, ignore_missing=ignore_missing)
+        self._delete(_tenant.Tenant, tenant, ignore_missing=ignore_missing)
 
     def find_tenant(self, name_or_id, ignore_missing=True):
         """Find a single tenant
@@ -132,20 +133,20 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v2.tenant.Tenant` or None
         """
-        return self._find(tenant.Tenant, name_or_id,
+        return self._find(_tenant.Tenant, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_tenant(self, value):
+    def get_tenant(self, tenant):
         """Get a single tenant
 
-        :param value: The value can be the ID of a tenant or a
-                      :class:`~openstack.identity.v2.tenant.Tenant` instance.
+        :param tenant: The value can be the ID of a tenant or a
+                       :class:`~openstack.identity.v2.tenant.Tenant` instance.
 
         :returns: One :class:`~openstack.identity.v2.tenant.Tenant`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(tenant.Tenant, value)
+        return self._get(_tenant.Tenant, tenant)
 
     def tenants(self, **query):
         """Retrieve a generator of tenants
@@ -156,12 +157,12 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of tenant instances.
         :rtype: :class:`~openstack.identity.v2.tenant.Tenant`
         """
-        return self._list(tenant.Tenant, paginated=True, **query)
+        return self._list(_tenant.Tenant, paginated=True, **query)
 
-    def update_tenant(self, value, **attrs):
+    def update_tenant(self, tenant, **attrs):
         """Update a tenant
 
-        :param value: Either the id of a tenant or a
+        :param tenant: Either the id of a tenant or a
                       :class:`~openstack.identity.v2.tenant.Tenant` instance.
         :attrs kwargs: The attributes to update on the tenant represented
                        by ``value``.
@@ -169,7 +170,7 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated tenant
         :rtype: :class:`~openstack.identity.v2.tenant.Tenant`
         """
-        return self._update(tenant.Tenant, value, **attrs)
+        return self._update(_tenant.Tenant, tenant, **attrs)
 
     def create_user(self, **attrs):
         """Create a new user from attributes
@@ -181,13 +182,13 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of user creation
         :rtype: :class:`~openstack.identity.v2.user.User`
         """
-        return self._create(user.User, **attrs)
+        return self._create(_user.User, **attrs)
 
-    def delete_user(self, value, ignore_missing=True):
+    def delete_user(self, user, ignore_missing=True):
         """Delete a user
 
-        :param value: The value can be either the ID of a user or a
-                      :class:`~openstack.identity.v2.user.User` instance.
+        :param user: The value can be either the ID of a user or a
+                     :class:`~openstack.identity.v2.user.User` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the user does not exist.
@@ -196,7 +197,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(user.User, value, ignore_missing=ignore_missing)
+        self._delete(_user.User, user, ignore_missing=ignore_missing)
 
     def find_user(self, name_or_id, ignore_missing=True):
         """Find a single user
@@ -209,19 +210,20 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v2.user.User` or None
         """
-        return self._find(user.User, name_or_id, ignore_missing=ignore_missing)
+        return self._find(_user.User, name_or_id,
+                          ignore_missing=ignore_missing)
 
-    def get_user(self, value):
+    def get_user(self, user):
         """Get a single user
 
-        :param value: The value can be the ID of a user or a
-                      :class:`~openstack.identity.v2.user.User` instance.
+        :param user: The value can be the ID of a user or a
+                     :class:`~openstack.identity.v2.user.User` instance.
 
         :returns: One :class:`~openstack.identity.v2.user.User`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(user.User, value)
+        return self._get(_user.User, user)
 
     def users(self, **query):
         """Retrieve a generator of users
@@ -232,17 +234,17 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of user instances.
         :rtype: :class:`~openstack.identity.v2.user.User`
         """
-        return self._list(user.User, paginated=True, **query)
+        return self._list(_user.User, paginated=True, **query)
 
-    def update_user(self, value, **attrs):
+    def update_user(self, user, **attrs):
         """Update a user
 
-        :param value: Either the id of a user or a
-                      :class:`~openstack.identity.v2.user.User` instance.
+        :param user: Either the id of a user or a
+                     :class:`~openstack.identity.v2.user.User` instance.
         :attrs kwargs: The attributes to update on the user represented
                        by ``value``.
 
         :returns: The updated user
         :rtype: :class:`~openstack.identity.v2.user.User`
         """
-        return self._update(user.User, value, **attrs)
+        return self._update(_user.User, user, **attrs)
