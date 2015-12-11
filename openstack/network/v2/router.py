@@ -40,6 +40,14 @@ class Router(resource.Resource):
     project_id = resource.prop('tenant_id')
     #: The router status.
     status = resource.prop('status')
+    #: The highly-available state of the router, which is highly available
+    #: ``True`` or not ``False``. *Type: bool* *Default: False*
+    is_ha = resource.prop('ha', type=bool, default=False)
+    #: The distributed state of the router, which is distributed ``True``
+    #: or not ``False``. *Type: bool* *Default: False*
+    is_distributed = resource.prop('distributed', type=bool, default=False)
+    # The extra routes configuration for the router.
+    routes = resource.prop('routes', type=list)
 
     def add_interface(self, session, subnet_id):
         """Add an internal interface to a logical router.
