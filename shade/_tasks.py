@@ -169,7 +169,7 @@ class NovaUrlGet(task_manager.Task):
 
 class NetworkList(task_manager.Task):
     def main(self, client):
-        return client.neutron_client.list_networks()
+        return client.neutron_client.list_networks(**self.args)
 
 
 class NetworkCreate(task_manager.Task):

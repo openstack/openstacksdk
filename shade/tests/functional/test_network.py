@@ -19,9 +19,6 @@ test_network
 Functional tests for `shade` network methods.
 """
 
-import random
-import string
-
 from shade import openstack_cloud
 from shade.exc import OpenStackCloudException
 from shade.tests import base
@@ -33,14 +30,13 @@ class TestNetwork(base.TestCase):
         self.cloud = openstack_cloud(cloud='devstack-admin')
         if not self.cloud.has_service('network'):
             self.skipTest('Network service not supported by cloud')
-        self.network_prefix = 'test_network' + ''.join(
-            random.choice(string.ascii_lowercase) for _ in range(5))
+        self.network_name = self.getUniqueString('network')
         self.addCleanup(self._cleanup_networks)
 
     def _cleanup_networks(self):
         exception_list = list()
         for network in self.cloud.list_networks():
-            if network['name'].startswith(self.network_prefix):
+            if network['name'].startswith(self.network_name):
                 try:
                     self.cloud.delete_network(network['name'])
                 except Exception as e:
@@ -51,24 +47,31 @@ class TestNetwork(base.TestCase):
             raise OpenStackCloudException('\n'.join(exception_list))
 
     def test_create_network_basic(self):
-        net1_name = self.network_prefix + '_net1'
-        net1 = self.cloud.create_network(name=net1_name)
+        net1 = self.cloud.create_network(name=self.network_name)
         self.assertIn('id', net1)
-        self.assertEqual(net1_name, net1['name'])
+        self.assertEqual(self.network_name, net1['name'])
         self.assertFalse(net1['shared'])
         self.assertFalse(net1['router:external'])
         self.assertTrue(net1['admin_state_up'])
 
     def test_create_network_advanced(self):
-        net1_name = self.network_prefix + '_net1'
         net1 = self.cloud.create_network(
-            name=net1_name,
+            name=self.network_name,
             shared=True,
             external=True,
             admin_state_up=False,
         )
         self.assertIn('id', net1)
-        self.assertEqual(net1_name, net1['name'])
+        self.assertEqual(self.network_name, net1['name'])
         self.assertTrue(net1['router:external'])
         self.assertTrue(net1['shared'])
         self.assertFalse(net1['admin_state_up'])
+
+    def test_list_networks_filtered(self):
+        net1 = self.cloud.create_network(name=self.network_name)
+        self.assertIsNotNone(net1)
+        net2 = self.cloud.create_network(name=self.network_name + 'other')
+        self.assertIsNotNone(net2)
+        match = self.cloud.list_networks(filters=dict(name=self.network_name))
+        self.assertEqual(1, len(match))
+        self.assertEqual(net1['name'], match[0]['name'])
