@@ -220,6 +220,10 @@ class OpenStackCloud(object):
         self._neutron_client = None
         self._nova_client = None
         self._swift_client = None
+        # Lock used to reset client as swift client does not
+        # support keystone sessions meaning that we have to make
+        # a new client in order to get new auth prior to operations.
+        self._swift_client_lock = threading.Lock()
         self._swift_service = None
         self._trove_client = None
 
@@ -661,10 +665,11 @@ class OpenStackCloud(object):
 
     @property
     def swift_client(self):
-        if self._swift_client is None:
-            self._swift_client = self._get_client(
-                'object-store', swiftclient.client.Connection)
-        return self._swift_client
+        with self._swift_client_lock:
+            if self._swift_client is None:
+                self._swift_client = self._get_client(
+                    'object-store', swiftclient.client.Connection)
+            return self._swift_client
 
     @property
     def swift_service(self):
@@ -1997,6 +2002,8 @@ class OpenStackCloud(object):
     def _upload_image_task(
             self, name, filename, container, current_image,
             wait, timeout, **image_properties):
+        with self._swift_client_lock:
+            self._swift_client = None
         self.create_object(
             container, name, filename,
             md5=image_properties.get('md5', None),
