@@ -3646,8 +3646,17 @@ class OpenStackCloud(object):
                     e.http_reason, e.http_host, e.http_path))
 
     def delete_object(self, container, name):
+        """Delete an object from a container.
+
+        :param string container: Name of the container holding the object.
+        :param string name: Name of the object to delete.
+
+        :returns: True if delete succeeded, False if the object was not found.
+
+        :raises: OpenStackCloudException on operation error.
+        """
         if not self.get_object_metadata(container, name):
-            return
+            return False
         try:
             self.manager.submitTask(_tasks.ObjectDelete(
                 container=container, obj=name))
@@ -3655,6 +3664,7 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Object deletion failed: %s (%s/%s)" % (
                     e.http_reason, e.http_host, e.http_path))
+        return True
 
     def get_object_metadata(self, container, name):
         try:

@@ -288,3 +288,37 @@ class TestObject(base.TestCase):
             "ERROR")
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.list_objects, 'container_name')
+
+    @mock.patch.object(shade.OpenStackCloud, 'get_object_metadata')
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_delete_object(self, mock_swift, mock_get_meta):
+        container_name = 'container_name'
+        object_name = 'object_name'
+        mock_get_meta.return_value = {'object': object_name}
+        self.assertTrue(self.cloud.delete_object(container_name, object_name))
+        mock_get_meta.assert_called_once_with(container_name, object_name)
+        mock_swift.delete_object.assert_called_once_with(
+            container=container_name, obj=object_name
+        )
+
+    @mock.patch.object(shade.OpenStackCloud, 'get_object_metadata')
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_delete_object_not_found(self, mock_swift, mock_get_meta):
+        container_name = 'container_name'
+        object_name = 'object_name'
+        mock_get_meta.return_value = None
+        self.assertFalse(self.cloud.delete_object(container_name, object_name))
+        mock_get_meta.assert_called_once_with(container_name, object_name)
+        self.assertFalse(mock_swift.delete_object.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'get_object_metadata')
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_delete_object_exception(self, mock_swift, mock_get_meta):
+        container_name = 'container_name'
+        object_name = 'object_name'
+        mock_get_meta.return_value = {'object': object_name}
+        mock_swift.delete_object.side_effect = swift_exc.ClientException(
+            "ERROR")
+        self.assertRaises(shade.OpenStackCloudException,
+                          self.cloud.delete_object,
+                          container_name, object_name)
