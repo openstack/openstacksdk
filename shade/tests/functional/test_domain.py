@@ -63,3 +63,15 @@ class TestDomain(base.TestCase):
         results = self.cloud.search_domains(filters=dict(name=domain_name))
         self.assertEqual(1, len(results))
         self.assertEqual(domain_name, results[0]['name'])
+
+    def test_update_domain(self):
+        domain = self.cloud.create_domain(self.domain_prefix, 'description')
+        self.assertEqual(self.domain_prefix, domain['name'])
+        self.assertEqual('description', domain['description'])
+        self.assertTrue(domain['enabled'])
+        updated = self.cloud.update_domain(domain['id'], name='updated name',
+                                           description='updated description',
+                                           enabled=False)
+        self.assertEqual('updated name', updated['name'])
+        self.assertEqual('updated description', updated['description'])
+        self.assertFalse(updated['enabled'])
