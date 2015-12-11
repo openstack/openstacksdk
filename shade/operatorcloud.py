@@ -573,10 +573,14 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                         "Timeout waiting for node transition to "
                         "target state of '%s'" % state):
                     machine = self.get_machine(name_or_id)
+                    # NOTE(TheJulia): This performs matching if the requested
+                    # end state matches the state the node has reached.
                     if state in machine['provision_state']:
                         break
+                    # NOTE(TheJulia): This performs matching for cases where
+                    # the reqeusted state action ends in available state.
                     if ("available" in machine['provision_state'] and
-                            "provide" in state):
+                            state in ["provide", "deleted"]):
                         break
             else:
                 machine = self.get_machine(name_or_id)
@@ -720,11 +724,15 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
         self._set_machine_power_state(name_or_id, 'reboot')
 
-    def activate_node(self, uuid, configdrive=None):
-        self.node_set_provision_state(uuid, 'active', configdrive)
+    def activate_node(self, uuid, configdrive=None,
+                      wait=False, timeout=1200):
+        self.node_set_provision_state(
+            uuid, 'active', configdrive, wait=wait, timeout=timeout)
 
-    def deactivate_node(self, uuid):
-        self.node_set_provision_state(uuid, 'deleted')
+    def deactivate_node(self, uuid, wait=False,
+                        timeout=1200):
+        self.node_set_provision_state(
+            uuid, 'deleted', wait=wait, timeout=timeout)
 
     def set_node_instance_info(self, uuid, patch):
         with _utils.shade_exceptions():

@@ -925,7 +925,8 @@ class TestShadeOperator(base.TestCase):
         self.assertDictEqual(node_provide_return_value, return_value)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
-    def test_activate_node(self, mock_client):
+    @mock.patch.object(shade._utils, '_iterate_timeout')
+    def test_activate_node(self, mock_timeout, mock_client):
         mock_client.node.set_provision_state.return_value = None
         node_id = 'node02'
         return_value = self.cloud.activate_node(
@@ -936,18 +937,72 @@ class TestShadeOperator(base.TestCase):
             node_uuid='node02',
             state='active',
             configdrive='http://127.0.0.1/file.iso')
+        self.assertFalse(mock_timeout.called)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
-    def test_deactivate_node(self, mock_client):
+    def test_activate_node_timeout(self, mock_client):
+
+        class active_node_state:
+            provision_state = 'active'
+
+        class available_node_state:
+            provision_state = 'available'
+
+        mock_client.node.get.side_effect = iter([
+            available_node_state,
+            active_node_state])
+
+        mock_client.node.set_provision_state.return_value = None
+        node_id = 'node04'
+        return_value = self.cloud.activate_node(
+            node_id,
+            configdrive='http://127.0.0.1/file.iso',
+            wait=True,
+            timeout=2)
+        self.assertEqual(None, return_value)
+        mock_client.node.set_provision_state.assert_called_with(
+            node_uuid='node04',
+            state='active',
+            configdrive='http://127.0.0.1/file.iso')
+        self.assertEqual(mock_client.node.get.call_count, 2)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    @mock.patch.object(shade._utils, '_iterate_timeout')
+    def test_deactivate_node(self, mock_timeout, mock_client):
         mock_client.node.set_provision_state.return_value = None
         node_id = 'node03'
         return_value = self.cloud.deactivate_node(
-            node_id)
+            node_id, wait=False)
         self.assertEqual(None, return_value)
         mock_client.node.set_provision_state.assert_called_with(
             node_uuid='node03',
             state='deleted',
             configdrive=None)
+        self.assertFalse(mock_timeout.called)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_deactivate_node_timeout(self, mock_client):
+
+        class active_node_state:
+            provision_state = 'active'
+
+        class deactivated_node_state:
+            provision_state = 'available'
+
+        mock_client.node.get.side_effect = iter([
+            active_node_state,
+            deactivated_node_state])
+
+        mock_client.node.set_provision_state.return_value = None
+        node_id = 'node03'
+        return_value = self.cloud.deactivate_node(
+            node_id, wait=True, timeout=2)
+        self.assertEqual(None, return_value)
+        mock_client.node.set_provision_state.assert_called_with(
+            node_uuid='node03',
+            state='deleted',
+            configdrive=None)
+        self.assertEqual(mock_client.node.get.call_count, 2)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_set_node_instance_info(self, mock_client):
