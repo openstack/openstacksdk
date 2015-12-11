@@ -739,14 +739,14 @@ class OpenStackCloud(object):
     def delete_stack(self, name_or_id):
         """Delete a Heat Stack
 
-        :param name_or_id: Stack name or id.
+        :param string name_or_id: Stack name or id.
 
-        :returns: True if delete succeeded, False otherwise.
+        :returns: True if delete succeeded, False if the stack was not found.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the openstack API call
         """
-        stack = self.get_stack(name_or_id=name_or_id)
+        stack = self.get_stack(name_or_id)
         if stack is None:
             self.log.debug("Stack %s not found for deleting" % name_or_id)
             return False
@@ -1054,7 +1054,7 @@ class OpenStackCloud(object):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call.
         """
-        with _utils.shade_exceptions():
+        with _utils.shade_exceptions("Error fetching stack list"):
             stacks = self.manager.submitTask(_tasks.StackList())
         return stacks
 
