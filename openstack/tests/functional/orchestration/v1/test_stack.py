@@ -10,12 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import unittest
+
 from openstack import exceptions
 from openstack.orchestration.v1 import stack
 from openstack.tests.functional import base
 from openstack.tests.functional.network.v2 import test_network
 
 
+@unittest.skip("bug/1525005")
 class TestStack(base.BaseFunctionalTest):
 
     NAME = 'test_stack'
