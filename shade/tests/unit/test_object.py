@@ -241,3 +241,50 @@ class TestObject(base.TestCase):
                 "Container not found: %s" % name
         ):
             self.cloud.get_container_access(name)
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_list_containers(self, mock_swift):
+        containers = [dict(id='1', name='containter1')]
+        mock_swift.get_account.return_value = ('response_headers', containers)
+        ret = self.cloud.list_containers()
+        mock_swift.get_account.assert_called_once_with(full_listing=True)
+        self.assertEqual(containers, ret)
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_list_containers_not_full(self, mock_swift):
+        containers = [dict(id='1', name='containter1')]
+        mock_swift.get_account.return_value = ('response_headers', containers)
+        ret = self.cloud.list_containers(full_listing=False)
+        mock_swift.get_account.assert_called_once_with(full_listing=False)
+        self.assertEqual(containers, ret)
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_list_containers_exception(self, mock_swift):
+        mock_swift.get_account.side_effect = swift_exc.ClientException("ERROR")
+        self.assertRaises(exc.OpenStackCloudException,
+                          self.cloud.list_containers)
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_list_objects(self, mock_swift):
+        objects = [dict(id='1', name='object1')]
+        mock_swift.get_container.return_value = ('response_headers', objects)
+        ret = self.cloud.list_objects('container_name')
+        mock_swift.get_container.assert_called_once_with(
+            container='container_name', full_listing=True)
+        self.assertEqual(objects, ret)
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_list_objects_not_full(self, mock_swift):
+        objects = [dict(id='1', name='object1')]
+        mock_swift.get_container.return_value = ('response_headers', objects)
+        ret = self.cloud.list_objects('container_name', full_listing=False)
+        mock_swift.get_container.assert_called_once_with(
+            container='container_name', full_listing=False)
+        self.assertEqual(objects, ret)
+
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    def test_list_objects_exception(self, mock_swift):
+        mock_swift.get_container.side_effect = swift_exc.ClientException(
+            "ERROR")
+        self.assertRaises(exc.OpenStackCloudException,
+                          self.cloud.list_objects, 'container_name')
