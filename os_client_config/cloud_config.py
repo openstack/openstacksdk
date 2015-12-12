@@ -164,8 +164,9 @@ class CloudConfig(object):
         return self.config.get(key, None)
 
     def get_endpoint(self, service_type):
-        key = _make_key('endpoint', service_type)
-        return self.config.get(key, None)
+        key = _make_key('endpoint_override', service_type)
+        old_key = _make_key('endpoint', service_type)
+        return self.config.get(key, self.config.get(old_key, None))
 
     @property
     def prefer_ipv6(self):
@@ -310,6 +311,7 @@ class CloudConfig(object):
             session=self.get_session(),
             service_name=self.get_service_name(service_key),
             service_type=self.get_service_type(service_key),
+            endpoint_override=self.get_endpoint(service_key),
             region_name=self.region)
 
         if service_key == 'image':

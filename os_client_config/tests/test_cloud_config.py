@@ -25,8 +25,9 @@ from os_client_config.tests import base
 fake_config_dict = {'a': 1, 'os_b': 2, 'c': 3, 'os_c': 4}
 fake_services_dict = {
     'compute_api_version': '2',
-    'compute_endpoint': 'http://compute.example.com',
+    'compute_endpoint_override': 'http://compute.example.com',
     'compute_region_name': 'region-bl',
+    'telemetry_endpoint': 'http://telemetry.example.com',
     'interface': 'public',
     'image_service_type': 'mage',
     'identity_interface': 'admin',
@@ -189,14 +190,24 @@ class TestCloudConfig(base.TestCase):
             verify=True, cert=None, timeout=9)
 
     @mock.patch.object(ksa_session, 'Session')
-    def test_override_session_endpoint(self, mock_session):
+    def test_override_session_endpoint_override(self, mock_session):
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
         cc = cloud_config.CloudConfig(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         self.assertEqual(
             cc.get_session_endpoint('compute'),
-            fake_services_dict['compute_endpoint'])
+            fake_services_dict['compute_endpoint_override'])
+
+    @mock.patch.object(ksa_session, 'Session')
+    def test_override_session_endpoint(self, mock_session):
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        self.assertEqual(
+            cc.get_session_endpoint('telemetry'),
+            fake_services_dict['telemetry_endpoint'])
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_session')
     def test_session_endpoint_identity(self, mock_get_session):
@@ -297,6 +308,7 @@ class TestCloudConfig(base.TestCase):
             '2',
             service_name=None,
             endpoint='http://example.com',
+            endpoint_override=None,
             region_name='region-al',
             interface='public',
             session=mock.ANY,
@@ -316,6 +328,7 @@ class TestCloudConfig(base.TestCase):
         mock_client.assert_called_with(
             '2.0',
             endpoint_type='public',
+            endpoint_override=None,
             region_name='region-al',
             service_type='network',
             session=mock.ANY,
@@ -333,6 +346,7 @@ class TestCloudConfig(base.TestCase):
         mock_client.assert_called_with(
             '2',
             endpoint_type='public',
+            endpoint_override='http://compute.example.com',
             region_name='region-al',
             service_type='compute',
             session=mock.ANY,
@@ -351,6 +365,7 @@ class TestCloudConfig(base.TestCase):
             '2.0',
             endpoint='http://example.com/v2',
             endpoint_type='admin',
+            endpoint_override=None,
             region_name='region-al',
             service_type='identity',
             session=mock.ANY,
@@ -370,6 +385,7 @@ class TestCloudConfig(base.TestCase):
             '3',
             endpoint='http://example.com',
             endpoint_type='admin',
+            endpoint_override=None,
             region_name='region-al',
             service_type='identity',
             session=mock.ANY,
