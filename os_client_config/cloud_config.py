@@ -255,7 +255,7 @@ class CloudConfig(object):
 
     def get_legacy_client(
             self, service_key, client_class=None, interface_key=None,
-            pass_version_arg=True, **kwargs):
+            pass_version_arg=True, version=None, **kwargs):
         """Return a legacy OpenStack client object for the given config.
 
         Most of the OpenStack python-*client libraries have the same
@@ -287,6 +287,8 @@ class CloudConfig(object):
                                  already understand that this is the
                                  case for network, so it can be omitted in
                                  that case.
+        :param version: (optional) Version string to override the configured
+                                   version string.
         :param kwargs: (optional) keyword args are passed through to the
                        Client constructor, so this is in case anything
                        additional needs to be passed in.
@@ -320,13 +322,14 @@ class CloudConfig(object):
             # would need to do if they were requesting 'image' - then
             # they necessarily have glanceclient installed
             from glanceclient.common import utils as glance_utils
-            endpoint, version = glance_utils.strip_version(endpoint)
+            endpoint, _ = glance_utils.strip_version(endpoint)
             constructor_kwargs['endpoint'] = endpoint
         constructor_kwargs.update(kwargs)
         constructor_kwargs[interface_key] = interface
         constructor_args = []
         if pass_version_arg:
-            version = self.get_api_version(service_key)
+            if not version:
+                version = self.get_api_version(service_key)
             # Temporary workaround while we wait for python-openstackclient
             # to be able to handle 2.0 which is what neutronclient expects
             if service_key == 'network' and version == '2':
