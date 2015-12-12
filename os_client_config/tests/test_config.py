@@ -243,7 +243,9 @@ class TestConfigArgparse(base.TestCase):
             project_name='project',
             region_name='region2',
             snack_type='cookie',
+            os_auth_token='no-good-things',
         )
+
         self.options = argparse.Namespace(**self.args)
 
     def test_get_one_cloud_bad_region_argparse(self):
@@ -400,6 +402,34 @@ class TestConfigArgparse(base.TestCase):
         c.register_argparse_arguments(parser, [])
         opts, _remain = parser.parse_known_args(['--os-cloud', 'foo'])
         self.assertEqual(opts.os_cloud, 'foo')
+
+    def test_argparse_default_no_token(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+
+        parser = argparse.ArgumentParser()
+        c.register_argparse_arguments(parser, [])
+        # novaclient will add this
+        parser.add_argument('--os-auth-token')
+        opts, _remain = parser.parse_known_args()
+        cc = c.get_one_cloud(
+            cloud='_test_cloud_regions', argparse=opts)
+        self.assertEqual(cc.config['auth_type'], 'password')
+        self.assertNotIn('token', cc.config['auth'])
+
+    def test_argparse_token(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+
+        parser = argparse.ArgumentParser()
+        c.register_argparse_arguments(parser, [])
+        # novaclient will add this
+        parser.add_argument('--os-auth-token')
+        opts, _remain = parser.parse_known_args(
+            ['--os-auth-token', 'very-bad-things'])
+        cc = c.get_one_cloud(argparse=opts)
+        self.assertEqual(cc.config['auth_type'], 'token')
+        self.assertEqual(cc.config['auth']['token'], 'very-bad-things')
 
     def test_register_argparse_bad_plugin(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],

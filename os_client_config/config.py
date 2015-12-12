@@ -467,6 +467,7 @@ class OpenStackConfig(object):
             'project_domain_id': ('project_domain_id', 'project-domain-id'),
             'project_domain_name': (
                 'project_domain_name', 'project-domain-name'),
+            'token': ('auth-token', 'auth_token', 'token'),
         }
         for target_key, possible_values in mappings.items():
             target = None
@@ -534,6 +535,13 @@ class OpenStackConfig(object):
         # we have no clue if the value we get is from the ksa default
         # for from the user passing it explicitly. We'll stash it for later
         local_parser.add_argument('--timeout', metavar='<timeout>')
+
+        # We need for get_one_cloud to be able to peek at whether a token
+        # was passed so that we can swap the default from password to
+        # token if it was. And we need to also peek for --os-auth-token
+        # for novaclient backwards compat
+        local_parser.add_argument('--os-token')
+        local_parser.add_argument('--os-auth-token')
 
         # Peek into the future and see if we have an auth-type set in
         # config AND a cloud set, so that we know which command line
@@ -831,6 +839,13 @@ class OpenStackConfig(object):
                         config[key] = _auth_update(config[key], val)
                     else:
                         config[key] = val
+
+        # Infer token plugin if a token was given
+        if (('auth' in config and 'token' in config['auth']) or
+                ('auth_token' in config and config['auth_token']) or
+                ('token' in config and config['token'])):
+            config['auth_type'] = 'token'
+            config.setdefault('token', config.pop('auth_token', None))
 
         # These backwards compat values are only set via argparse. If it's
         # there, it's because it was passed in explicitly, and should win
