@@ -15,6 +15,7 @@
 
 # alias because we already had an option named argparse
 import argparse as argparse_mod
+import collections
 import copy
 import json
 import os
@@ -134,6 +135,34 @@ def _auth_update(old_dict, new_dict_source):
         else:
             old_dict[k] = v
     return old_dict
+
+
+def _fix_argv(argv):
+    # Transform any _ characters in arg names to - so that we don't
+    # have to throw billions of compat argparse arguments around all
+    # over the place.
+    processed = collections.defaultdict(list)
+    for index in range(0, len(argv)):
+        if argv[index].startswith('--'):
+            split_args = argv[index].split('=')
+            orig = split_args[0]
+            new = orig.replace('_', '-')
+            if orig != new:
+                split_args[0] = new
+                argv[index] = "=".join(split_args)
+            # Save both for later so we can throw an error about dupes
+            processed[new].append(orig)
+    overlap = []
+    for new, old in processed.items():
+        if len(old) > 1:
+            overlap.extend(old)
+    if overlap:
+        raise exceptions.OpenStackConfigException(
+            "The following options were given: '{options}' which contain"
+            " duplicates except that one has _ and one has -. There is"
+            " no sane way for us to know what you're doing. Remove the"
+            " duplicate option and try again".format(
+                options=','.join(overlap)))
 
 
 class OpenStackConfig(object):
@@ -520,6 +549,9 @@ class OpenStackConfig(object):
         :raises exceptions.OpenStackConfigException if an invalid auth-type
                                                     is requested
         """
+
+        # Fix argv in place - mapping any keys with embedded _ in them to -
+        _fix_argv(argv)
 
         local_parser = argparse_mod.ArgumentParser(add_help=False)
 

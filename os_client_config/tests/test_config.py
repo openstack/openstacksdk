@@ -431,6 +431,37 @@ class TestConfigArgparse(base.TestCase):
         self.assertEqual(cc.config['auth_type'], 'token')
         self.assertEqual(cc.config['auth']['token'], 'very-bad-things')
 
+    def test_argparse_underscores(self):
+        c = config.OpenStackConfig(config_files=[self.no_yaml],
+                                   vendor_files=[self.no_yaml],
+                                   secure_files=[self.no_yaml])
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--os_username')
+        argv = [
+            '--os_username', 'user', '--os_password', 'pass',
+            '--os-auth-url', 'auth-url', '--os-project-name', 'project']
+        c.register_argparse_arguments(parser, argv=argv)
+        opts, _remain = parser.parse_known_args(argv)
+        cc = c.get_one_cloud(argparse=opts)
+        self.assertEqual(cc.config['auth']['username'], 'user')
+        self.assertEqual(cc.config['auth']['password'], 'pass')
+        self.assertEqual(cc.config['auth']['auth_url'], 'auth-url')
+
+    def test_argparse_underscores_duplicate(self):
+        c = config.OpenStackConfig(config_files=[self.no_yaml],
+                                   vendor_files=[self.no_yaml],
+                                   secure_files=[self.no_yaml])
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--os_username')
+        argv = [
+            '--os_username', 'user', '--os_password', 'pass',
+            '--os-username', 'user1', '--os-password', 'pass1',
+            '--os-auth-url', 'auth-url', '--os-project-name', 'project']
+        self.assertRaises(
+            exceptions.OpenStackConfigException,
+            c.register_argparse_arguments,
+            parser=parser, argv=argv)
+
     def test_register_argparse_bad_plugin(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
