@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
+
 import os_client_config
 
 import shade
 from shade import _utils
+from shade import meta
 
 
 class OpenStackInventory(object):
@@ -47,7 +50,7 @@ class OpenStackInventory(object):
             for cloud in self.clouds:
                 cloud._cache.invalidate()
 
-    def list_hosts(self):
+    def list_hosts(self, expand=True):
         hostvars = []
 
         for cloud in self.clouds:
@@ -55,14 +58,23 @@ class OpenStackInventory(object):
             # Cycle on servers
             for server in cloud.list_servers():
 
-                meta = cloud.get_openstack_vars(server)
-                hostvars.append(meta)
+                if expand:
+                    server_vars = cloud.get_openstack_vars(server)
+                else:
+                    # expand_server_vars gets renamed in a follow on
+                    # patch which should make this a bit clearer.
+                    server_vars = meta.expand_server_vars(cloud, server)
+                hostvars.append(server_vars)
 
         return hostvars
 
-    def search_hosts(self, name_or_id=None, filters=None):
-        hosts = self.list_hosts()
+    def search_hosts(self, name_or_id=None, filters=None, expand=True):
+        hosts = self.list_hosts(expand=expand)
         return _utils._filter_list(hosts, name_or_id, filters)
 
-    def get_host(self, name_or_id, filters=None):
-        return _utils._get_entity(self.search_hosts, name_or_id, filters)
+    def get_host(self, name_or_id, filters=None, expand=True):
+        if expand:
+            func = self.search_hosts
+        else:
+            func = functools.partial(self.search_hosts, expand=False)
+        return _utils._get_entity(func, name_or_id, filters)

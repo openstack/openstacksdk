@@ -20,12 +20,12 @@ from shade import inventory
 from shade.tests.unit import base
 
 
-@mock.patch("os_client_config.config.OpenStackConfig")
 class TestInventory(base.TestCase):
 
     def setUp(self):
         super(TestInventory, self).setUp()
 
+    @mock.patch("os_client_config.config.OpenStackConfig")
     @mock.patch("shade.OpenStackCloud")
     def test__init(self, mock_cloud, mock_config):
         mock_config.return_value.get_all_clouds.return_value = [{}]
@@ -39,6 +39,7 @@ class TestInventory(base.TestCase):
         self.assertEqual(1, len(inv.clouds))
         self.assertTrue(mock_config.return_value.get_all_clouds.called)
 
+    @mock.patch("os_client_config.config.OpenStackConfig")
     @mock.patch("shade.OpenStackCloud")
     def test_list_hosts(self, mock_cloud, mock_config):
         mock_config.return_value.get_all_clouds.return_value = [{}]
@@ -57,6 +58,26 @@ class TestInventory(base.TestCase):
         inv.clouds[0].get_openstack_vars.assert_called_once_with(server)
         self.assertEqual([server], ret)
 
+    @mock.patch("os_client_config.config.OpenStackConfig")
+    @mock.patch("shade.meta.expand_server_vars")
+    @mock.patch("shade.OpenStackCloud")
+    def test_list_hosts_no_detail(self, mock_cloud, mock_expand, mock_config):
+        mock_config.return_value.get_all_clouds.return_value = [{}]
+
+        inv = inventory.OpenStackInventory()
+
+        server = dict(id='server_id', name='server_name')
+        self.assertIsInstance(inv.clouds, list)
+        self.assertEqual(1, len(inv.clouds))
+        inv.clouds[0].list_servers.return_value = [server]
+
+        inv.list_hosts(expand=False)
+
+        inv.clouds[0].list_servers.assert_called_once_with()
+        self.assertFalse(inv.clouds[0].get_openstack_vars.called)
+        mock_expand.assert_called_once_with(inv.clouds[0], server)
+
+    @mock.patch("os_client_config.config.OpenStackConfig")
     @mock.patch("shade.OpenStackCloud")
     def test_search_hosts(self, mock_cloud, mock_config):
         mock_config.return_value.get_all_clouds.return_value = [{}]
@@ -72,6 +93,7 @@ class TestInventory(base.TestCase):
         ret = inv.search_hosts('server_id')
         self.assertEqual([server], ret)
 
+    @mock.patch("os_client_config.config.OpenStackConfig")
     @mock.patch("shade.OpenStackCloud")
     def test_get_host(self, mock_cloud, mock_config):
         mock_config.return_value.get_all_clouds.return_value = [{}]
@@ -86,3 +108,9 @@ class TestInventory(base.TestCase):
 
         ret = inv.get_host('server_id')
         self.assertEqual(server, ret)
+
+    @mock.patch("shade.inventory.OpenStackInventory.search_hosts")
+    def test_get_host_no_detail(self, mock_search):
+        inv = inventory.OpenStackInventory()
+        inv.get_host('server_id', expand=False)
+        mock_search.assert_called_once_with('server_id', None, expand=False)

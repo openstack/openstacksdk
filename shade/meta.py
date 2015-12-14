@@ -224,9 +224,20 @@ def get_groups_from_server(cloud, server, server_vars):
 
 
 def expand_server_vars(cloud, server):
-    """Add clean up the server dict with information that is essential."""
+    """Add and clean up the server dict with information that is essential.
+
+    This function should not make additional calls to the cloud with one
+    exception - which is getting external/internal IPs, which have to do
+    some calls to neutron in some cases to find out which IP is routable. This
+    is essential info as you can't otherwise connect to the server without
+    it.
+    """
     server_vars = server
     server_vars.pop('links', None)
+    server_vars['flavor'].pop('links', None)
+    # OpenStack can return image as a string when you've booted from volume
+    if str(server['image']) != server['image']:
+        server_vars['image'].pop('links', None)
 
     # First, add an IP address. Set it to '' rather than None if it does
     # not exist to remain consistent with the pre-existing missing values
@@ -261,6 +272,8 @@ def expand_server_vars(cloud, server):
     az = server_vars.get('OS-EXT-AZ:availability_zone', None)
     if az:
         server_vars['az'] = az
+    # Ensure volumes is always in the server dict, even if empty
+    server_vars['volumes'] = []
     return server_vars
 
 
@@ -273,14 +286,19 @@ def expand_server_security_groups(cloud, server):
 
 
 def get_hostvars_from_server(cloud, server, mounts=None):
-    """Expand additional server information useful for ansible inventory."""
+    """Expand additional server information useful for ansible inventory.
+
+    Variables in this function may make additional cloud queries to flesh out
+    possibly interesting info, making it more expensive to call than
+    expand_server_vars if caching is not set up. If caching is set up,
+    the extra cost should be minimal.
+    """
     server_vars = expand_server_vars(cloud, server)
 
     flavor_id = server['flavor']['id']
     flavor_name = cloud.get_flavor_name(flavor_id)
     if flavor_name:
         server_vars['flavor']['name'] = flavor_name
-    server_vars['flavor'].pop('links', None)
 
     expand_server_security_groups(cloud, server)
 
@@ -294,7 +312,6 @@ def get_hostvars_from_server(cloud, server, mounts=None):
         image_name = cloud.get_image_name(image_id)
         if image_name:
             server_vars['image']['name'] = image_name
-    server_vars['image'].pop('links', None)
 
     volumes = []
     if cloud.has_service('volume'):
