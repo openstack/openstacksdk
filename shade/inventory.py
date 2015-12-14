@@ -20,12 +20,18 @@ from shade import _utils
 
 class OpenStackInventory(object):
 
+    # Put this here so the capability can be detected with hasattr on the class
+    extra_config = None
+
     def __init__(
-            self, config_files=None, refresh=False, private=False):
+            self, config_files=None, refresh=False, private=False,
+            config_key=None, config_defaults=None):
         if config_files is None:
             config_files = []
         config = os_client_config.config.OpenStackConfig(
             config_files=os_client_config.config.CONFIG_FILES + config_files)
+        self.extra_config = config.get_extra_config(
+            config_key, config_defaults)
 
         self.clouds = [
             shade.OpenStackCloud(cloud_config=cloud_config)
