@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.image.v1 import image
+from openstack.image.v1 import image as _image
 from openstack import proxy
 
 
@@ -26,12 +26,12 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of image creation
         :rtype: :class:`~openstack.image.v1.image.Image`
         """
-        return self._create(image.Image, **attrs)
+        return self._create(_image.Image, **attrs)
 
-    def delete_image(self, value, ignore_missing=True):
+    def delete_image(self, image, ignore_missing=True):
         """Delete an image
 
-        :param value: The value can be either the ID of an image or a
+        :param image: The value can be either the ID of an image or a
                       :class:`~openstack.image.v1.image.Image` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
@@ -41,7 +41,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(image.Image, value, ignore_missing=ignore_missing)
+        self._delete(_image.Image, image, ignore_missing=ignore_missing)
 
     def find_image(self, name_or_id, ignore_missing=True):
         """Find a single image
@@ -54,20 +54,20 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.image.v1.image.Image` or None
         """
-        return self._find(image.Image, name_or_id,
+        return self._find(_image.Image, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_image(self, value):
+    def get_image(self, image):
         """Get a single image
 
-        :param value: The value can be the ID of an image or a
+        :param image: The value can be the ID of an image or a
                       :class:`~openstack.image.v1.image.Image` instance.
 
         :returns: One :class:`~openstack.image.v1.image.Image`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(image.Image, value)
+        return self._get(_image.Image, image)
 
     def images(self, **query):
         """Return a generator of images
@@ -78,12 +78,12 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of image objects
         :rtype: :class:`~openstack.image.v1.image.Image`
         """
-        return self._list(image.Image, paginated=True, **query)
+        return self._list(_image.Image, paginated=True, **query)
 
-    def update_image(self, value, **attrs):
+    def update_image(self, image, **attrs):
         """Update a image
 
-        :param value: Either the id of a image or a
+        :param image: Either the id of a image or a
                       :class:`~openstack.image.v1.image.Image` instance.
         :attrs kwargs: The attributes to update on the image represented
                        by ``value``.
@@ -91,4 +91,4 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated image
         :rtype: :class:`~openstack.image.v1.image.Image`
         """
-        return self._update(image.Image, value, **attrs)
+        return self._update(_image.Image, image, **attrs)
