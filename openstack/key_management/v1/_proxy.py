@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.key_management.v1 import container
-from openstack.key_management.v1 import order
-from openstack.key_management.v1 import secret
+from openstack.key_management.v1 import container as _container
+from openstack.key_management.v1 import order as _order
+from openstack.key_management.v1 import secret as _secret
 from openstack import proxy
 
 
@@ -28,12 +28,12 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of container creation
         :rtype: :class:`~openstack.key_management.v1.container.Container`
         """
-        return self._create(container.Container, **attrs)
+        return self._create(_container.Container, **attrs)
 
-    def delete_container(self, value, ignore_missing=True):
+    def delete_container(self, container, ignore_missing=True):
         """Delete a container
 
-        :param value: The value can be either the ID of a container or a
+        :param container: The value can be either the ID of a container or a
                :class:`~openstack.key_management.v1.container.Container`
                instance.
         :param bool ignore_missing: When set to ``False``
@@ -44,7 +44,8 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(container.Container, value, ignore_missing=ignore_missing)
+        self._delete(_container.Container, container,
+                     ignore_missing=ignore_missing)
 
     def find_container(self, name_or_id, ignore_missing=True):
         """Find a single container
@@ -58,13 +59,13 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.key_management.v1.container.Container`
                   or None
         """
-        return self._find(container.Container, name_or_id,
+        return self._find(_container.Container, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_container(self, value):
+    def get_container(self, container):
         """Get a single container
 
-        :param value: The value can be the ID of a container or a
+        :param container: The value can be the ID of a container or a
                       :class:`~openstack.key_management.v1.container.Container`
                       instance.
 
@@ -72,7 +73,7 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(container.Container, value)
+        return self._get(_container.Container, container)
 
     def containers(self, **query):
         """Return a generator of containers
@@ -83,12 +84,12 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of container objects
         :rtype: :class:`~openstack.key_management.v1.container.Container`
         """
-        return self._list(container.Container, paginated=False, **query)
+        return self._list(_container.Container, paginated=False, **query)
 
-    def update_container(self, value, **attrs):
+    def update_container(self, container, **attrs):
         """Update a container
 
-        :param value: Either the id of a container or a
+        :param container: Either the id of a container or a
                       :class:`~openstack.key_management.v1.container.Container`
                       instance.
         :attrs kwargs: The attributes to update on the container represented
@@ -97,7 +98,7 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated container
         :rtype: :class:`~openstack.key_management.v1.container.Container`
         """
-        return self._update(container.Container, value, **attrs)
+        return self._update(_container.Container, container, **attrs)
 
     def create_order(self, **attrs):
         """Create a new order from attributes
@@ -109,12 +110,12 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of order creation
         :rtype: :class:`~openstack.key_management.v1.order.Order`
         """
-        return self._create(order.Order, **attrs)
+        return self._create(_order.Order, **attrs)
 
-    def delete_order(self, value, ignore_missing=True):
+    def delete_order(self, order, ignore_missing=True):
         """Delete an order
 
-        :param value: The value can be either the ID of a order or a
+        :param order: The value can be either the ID of a order or a
                       :class:`~openstack.key_management.v1.order.Order`
                       instance.
         :param bool ignore_missing: When set to ``False``
@@ -125,7 +126,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(order.Order, value, ignore_missing=ignore_missing)
+        self._delete(_order.Order, order, ignore_missing=ignore_missing)
 
     def find_order(self, name_or_id, ignore_missing=True):
         """Find a single order
@@ -138,13 +139,13 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.key_management.v1.order.Order` or None
         """
-        return self._find(order.Order, name_or_id,
+        return self._find(_order.Order, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_order(self, value):
+    def get_order(self, order):
         """Get a single order
 
-        :param value: The value can be the ID of an order or a
+        :param order: The value can be the ID of an order or a
                       :class:`~openstack.key_management.v1.order.Order`
                       instance.
 
@@ -152,7 +153,7 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(order.Order, value)
+        return self._get(_order.Order, order)
 
     def orders(self, **query):
         """Return a generator of orders
@@ -163,12 +164,12 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of order objects
         :rtype: :class:`~openstack.key_management.v1.order.Order`
         """
-        return self._list(order.Order, paginated=False, **query)
+        return self._list(_order.Order, paginated=False, **query)
 
-    def update_order(self, value, **attrs):
+    def update_order(self, order, **attrs):
         """Update a order
 
-        :param value: Either the id of a order or a
+        :param order: Either the id of a order or a
                       :class:`~openstack.key_management.v1.order.Order`
                       instance.
         :attrs kwargs: The attributes to update on the order represented
@@ -177,7 +178,7 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated order
         :rtype: :class:`~openstack.key_management.v1.order.Order`
         """
-        return self._update(order.Order, value, **attrs)
+        return self._update(_order.Order, order, **attrs)
 
     def create_secret(self, **attrs):
         """Create a new secret from attributes
@@ -189,14 +190,14 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of secret creation
         :rtype: :class:`~openstack.key_management.v1.secret.Secret`
         """
-        return self._create(secret.Secret, **attrs)
+        return self._create(_secret.Secret, **attrs)
 
-    def delete_secret(self, value, ignore_missing=True):
+    def delete_secret(self, secret, ignore_missing=True):
         """Delete a secret
 
-        :param value: The value can be either the ID of a secret or a
-                      :class:`~openstack.key_management.v1.secret.Secret`
-                      instance.
+        :param secret: The value can be either the ID of a secret or a
+                       :class:`~openstack.key_management.v1.secret.Secret`
+                       instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the secret does not exist.
@@ -205,7 +206,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(secret.Secret, value, ignore_missing=ignore_missing)
+        self._delete(_secret.Secret, secret, ignore_missing=ignore_missing)
 
     def find_secret(self, name_or_id, ignore_missing=True):
         """Find a single secret
@@ -219,21 +220,21 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.key_management.v1.secret.Secret` or
                   None
         """
-        return self._find(secret.Secret, name_or_id,
+        return self._find(_secret.Secret, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_secret(self, value):
+    def get_secret(self, secret):
         """Get a single secret
 
-        :param value: The value can be the ID of a secret or a
-                      :class:`~openstack.key_management.v1.secret.Secret`
-                      instance.
+        :param secret: The value can be the ID of a secret or a
+                       :class:`~openstack.key_management.v1.secret.Secret`
+                       instance.
 
         :returns: One :class:`~openstack.key_management.v1.secret.Secret`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(secret.Secret, value)
+        return self._get(_secret.Secret, secret)
 
     def secrets(self, **query):
         """Return a generator of secrets
@@ -244,18 +245,18 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of secret objects
         :rtype: :class:`~openstack.key_management.v1.secret.Secret`
         """
-        return self._list(secret.Secret, paginated=False, **query)
+        return self._list(_secret.Secret, paginated=False, **query)
 
-    def update_secret(self, value, **attrs):
+    def update_secret(self, secret, **attrs):
         """Update a secret
 
-        :param value: Either the id of a secret or a
-                      :class:`~openstack.key_management.v1.secret.Secret`
-                      instance.
+        :param secret: Either the id of a secret or a
+                       :class:`~openstack.key_management.v1.secret.Secret`
+                       instance.
         :attrs kwargs: The attributes to update on the secret represented
                        by ``value``.
 
         :returns: The updated secret
         :rtype: :class:`~openstack.key_management.v1.secret.Secret`
         """
-        return self._update(secret.Secret, value, **attrs)
+        return self._update(_secret.Secret, secret, **attrs)
