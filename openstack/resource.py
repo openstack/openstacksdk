@@ -35,7 +35,7 @@ import copy
 import itertools
 import time
 
-from keystoneauth1 import exceptions as ksa_exceptions
+from keystoneauth1 import exceptions as ksa_exc
 import six
 
 from openstack import exceptions
@@ -927,7 +927,7 @@ class Resource(collections.MutableMapping):
         try:
             if cls.allow_retrieve:
                 return cls.get_by_id(session, name_or_id, path_args=path_args)
-        except ksa_exceptions.http.NotFound:
+        except ksa_exc.NotFound:
             pass
 
         data = cls.list(session, path_args=path_args)
@@ -1003,7 +1003,7 @@ def wait_for_delete(session, resource, interval, wait):
     while total_sleep < wait:
         try:
             resource.get(session)
-        except ksa_exceptions.http.NotFound:
+        except ksa_exc.NotFound:
             return resource
         time.sleep(interval)
         total_sleep += interval

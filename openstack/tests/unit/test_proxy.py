@@ -13,6 +13,8 @@
 import mock
 import testtools
 
+from keystoneauth1 import exceptions as ksa_exc
+
 from openstack import exceptions
 from openstack import proxy
 from openstack import resource
@@ -117,15 +119,15 @@ class TestProxyDelete(testtools.TestCase):
         self.assertEqual(rv, self.fake_id)
 
     def test_delete_ignore_missing(self):
-        self.res.delete.side_effect = exceptions.NotFoundException(
-            message="test", status_code=404)
+        self.res.delete.side_effect = ksa_exc.NotFound(message="test",
+                                                       http_status=404)
 
         rv = self.sot._delete(DeleteableResource, self.fake_id)
         self.assertIsNone(rv)
 
     def test_delete_ResourceNotFound(self):
-        self.res.delete.side_effect = exceptions.NotFoundException(
-            message="test", status_code=404)
+        self.res.delete.side_effect = ksa_exc.NotFound(message="test",
+                                                       http_status=404)
 
         self.assertRaisesRegexp(
             exceptions.ResourceNotFound,
@@ -230,8 +232,8 @@ class TestProxyGet(testtools.TestCase):
         self.assertEqual(rv, self.fake_result)
 
     def test_get_not_found(self):
-        self.res.get.side_effect = exceptions.NotFoundException(
-            message="test", status_code=404)
+        self.res.get.side_effect = ksa_exc.NotFound(message="test",
+                                                    http_status=404)
 
         self.assertRaisesRegexp(
             exceptions.ResourceNotFound,
