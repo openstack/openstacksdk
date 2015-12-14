@@ -730,10 +730,11 @@ class OpenStackCloud(object):
             stack = self.manager.submitTask(_tasks.StackCreate(**params))
         if not wait:
             return stack
-        for count in _iterate_timeout(
+        for count in _utils._iterate_timeout(
                 timeout,
                 "Timed out waiting for heat stack to finish"):
-            if self.get_stack(name, cache=False):
+            stack = self.get_stack(name, cache=False)
+            if stack:
                 return stack
 
     def delete_stack(self, name_or_id):
