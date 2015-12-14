@@ -25,7 +25,7 @@ Sometimes an example is nice.
 
   import shade
 
-  # Initialize and turn on debug loggin
+  # Initialize and turn on debug logging
   shade.simple_logging(debug=True)
 
   # Initialize cloud
