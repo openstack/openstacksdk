@@ -12,27 +12,27 @@
 
 import testtools
 
-from openstack.key_management.v1 import container
+from openstack.key_manager.v1 import order
 
-IDENTIFIER = 'http://localhost/containers/IDENTIFIER'
+IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
-    'container_ref': IDENTIFIER,
-    'created': '2',
-    'name': '3',
-    'secret_refs': '4',
-    'status': '5',
-    'type': '6',
-    'updated': '7',
+    'error_reason': '1',
+    'error_status_code': '2',
+    'meta': '3',
+    'order_ref': '4',
+    'secret_ref': '5',
+    'status': '6',
+    'type': '7',
 }
 
 
-class TestContainer(testtools.TestCase):
+class TestOrder(testtools.TestCase):
 
     def test_basic(self):
-        sot = container.Container()
+        sot = order.Order()
         self.assertEqual(None, sot.resource_key)
-        self.assertEqual('containers', sot.resources_key)
-        self.assertEqual('/containers', sot.base_path)
+        self.assertEqual('orders', sot.resources_key)
+        self.assertEqual('/orders', sot.base_path)
         self.assertEqual('key-manager', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)
@@ -41,12 +41,11 @@ class TestContainer(testtools.TestCase):
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = container.Container(EXAMPLE)
-        self.assertEqual(EXAMPLE['container_ref'], sot.container_ref)
-        self.assertEqual(EXAMPLE['created'], sot.created_at)
-        self.assertEqual(EXAMPLE['name'], sot.name)
-        self.assertEqual(EXAMPLE['secret_refs'], sot.secret_refs)
+        sot = order.Order(EXAMPLE)
+        self.assertEqual(EXAMPLE['error_reason'], sot.error_reason)
+        self.assertEqual(EXAMPLE['error_status_code'], sot.error_status_code)
+        self.assertEqual(EXAMPLE['meta'], sot.meta)
+        self.assertEqual(EXAMPLE['order_ref'], sot.order_ref)
+        self.assertEqual(EXAMPLE['secret_ref'], sot.secret_ref)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['type'], sot.type)
-        self.assertEqual(EXAMPLE['updated'], sot.updated_at)
-        self.assertEqual(EXAMPLE['container_ref'], sot.id)

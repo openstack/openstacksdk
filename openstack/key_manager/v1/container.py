@@ -10,14 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.key_management import key_management_service
+from openstack.key_manager import key_manager_service
 from openstack import resource
 
 
-class Order(resource.Resource):
-    resources_key = 'orders'
-    base_path = '/orders'
-    service = key_management_service.KeyManagementService()
+class Container(resource.Resource):
+    id_attribute = 'container_ref'
+    resources_key = 'containers'
+    base_path = '/containers'
+    service = key_manager_service.KeyManagerService()
 
     # capabilities
     allow_create = True
@@ -27,18 +28,17 @@ class Order(resource.Resource):
     allow_list = True
 
     # Properties
-    # TODO(briancurtin): not documented
-    error_reason = resource.prop('error_reason')
-    # TODO(briancurtin): not documented
-    error_status_code = resource.prop('error_status_code')
-    #: a dictionary containing key-value parameters which specify the
-    #: details of an order request
-    meta = resource.prop('meta')
-    #: A URI for this order
-    order_ref = resource.prop('order_ref')
-    #: TODO(briancurtin): not documented
-    secret_ref = resource.prop('secret_ref')
-    # The status of this order
+    #: A URI for this container
+    container_ref = resource.prop('container_ref')
+    #: The timestamp when this container was created
+    created_at = resource.prop('created')
+    #: The name of this container
+    name = resource.prop('name')
+    #: A list of references to secrets in this container
+    secret_refs = resource.prop('secret_refs')
+    #: The status of this container
     status = resource.prop('status')
-    # The type of order
+    #: The type of this container
     type = resource.prop('type')
+    #: The timestamp when this container was updated
+    updated_at = resource.prop('updated')

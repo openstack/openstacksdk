@@ -12,7 +12,7 @@
 
 import testtools
 
-from openstack.key_management.v1 import secret
+from openstack.key_manager.v1 import secret
 
 IDENTIFIER = 'http://localhost:9311/v1/secrets/ID'
 EXAMPLE = {
