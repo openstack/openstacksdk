@@ -11,8 +11,8 @@
 # under the License.
 
 from openstack import exceptions
-from openstack.orchestration.v1 import resource as stack_resource
-from openstack.orchestration.v1 import stack
+from openstack.orchestration.v1 import resource as _resource
+from openstack.orchestration.v1 import stack as _stack
 from openstack import proxy
 
 
@@ -28,7 +28,7 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of stack creation
         :rtype: :class:`~openstack.orchestration.v1.stack.Stack`
         """
-        return self._create(stack.Stack, **attrs)
+        return self._create(_stack.Stack, **attrs)
 
     def find_stack(self, name_or_id, ignore_missing=True):
         """Find a single stack
@@ -41,7 +41,7 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.orchestration.v1.stack.Stack` or None
         """
-        return self._find(stack.Stack, name_or_id,
+        return self._find(_stack.Stack, name_or_id,
                           ignore_missing=ignore_missing)
 
     def stacks(self, **query):
@@ -53,24 +53,24 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of stack objects
         :rtype: :class:`~openstack.orchestration.v1.stack.Stack`
         """
-        return self._list(stack.Stack, paginated=False, **query)
+        return self._list(_stack.Stack, paginated=False, **query)
 
-    def get_stack(self, value):
+    def get_stack(self, stack):
         """Get a single stack
 
-        :param value: The value can be the ID of a stack or a
+        :param stack: The value can be the ID of a stack or a
                :class:`~openstack.orchestration.v1.stack.Stack` instance.
 
         :returns: One :class:`~openstack.orchestration.v1.stack.Stack`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(stack.Stack, value)
+        return self._get(_stack.Stack, stack)
 
-    def update_stack(self, value, **attrs):
+    def update_stack(self, stack, **attrs):
         """Update a stack
 
-        :param value: The value can be the ID of a stack or a
+        :param stack: The value can be the ID of a stack or a
                :class:`~openstack.orchestration.v1.stack.Stack` instance.
         :param kwargs \*\*attrs: The attributes to update on the stack
                                  represented by ``value``.
@@ -80,12 +80,12 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._update(stack.Stack, value, **attrs)
+        return self._update(_stack.Stack, stack, **attrs)
 
-    def delete_stack(self, value, ignore_missing=True):
+    def delete_stack(self, stack, ignore_missing=True):
         """Delete a stack
 
-        :param value: The value can be either the ID of a stack or a
+        :param stack: The value can be either the ID of a stack or a
                       :class:`~openstack.orchestration.v1.stack.Stack`
                       instance.
         :param bool ignore_missing: When set to ``False``
@@ -96,12 +96,12 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(stack.Stack, value, ignore_missing=ignore_missing)
+        self._delete(_stack.Stack, stack, ignore_missing=ignore_missing)
 
-    def resources(self, value, **query):
+    def resources(self, stack, **query):
         """Return a generator of resources
 
-        :param value: This can be a stack object, or the name of a stack
+        :param stack: This can be a stack object, or the name of a stack
                       for which the resources are to be listed.
         :param kwargs \*\*query: Optional query parameters to be sent to limit
                                  the resources being returned.
@@ -116,22 +116,22 @@ class Proxy(proxy.BaseProxy):
         """
         # first try treat the value as a stack object or an ID
         try:
-            stk = stack.Stack.from_id(value)
+            stk = _stack.Stack.from_id(stack)
         except ValueError:
             raise exceptions.ResourceNotFound(
-                "No stack found for %(v)s" % {'v': value})
+                "No stack found for %(v)s" % {'v': stack})
 
         # if stack object doesn't contain a valid name, it means the object
         # was created on the fly so we need to retrieve its name
         if not stk.name:
-            stk = self.find_stack(value)
+            stk = self.find_stack(stack)
             if stk is None:
                 raise exceptions.ResourceNotFound(
-                    "No stack found for %(v)s" % {'v': value})
+                    "No stack found for %(v)s" % {'v': stack})
 
         path_args = {
             'stack_name': stk.name,
             'stack_id': stk.id,
         }
-        return self._list(stack_resource.Resource, paginated=False,
+        return self._list(_resource.Resource, paginated=False,
                           path_args=path_args, **query)
