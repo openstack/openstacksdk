@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.cluster import cluster_service
+from openstack.cluster.v1 import profile as _profile
 from openstack import resource
 from openstack import utils
 
@@ -33,7 +34,7 @@ class Cluster(resource.Resource):
     #: The name of the cluster.
     name = resource.prop('name')
     #: The ID of the profile used by this cluster.
-    profile_id = resource.prop('profile_id')
+    profile = resource.prop('profile_id', type=_profile.Profile)
     #: The ID of the user who created this cluster, thus the owner of it.
     user = resource.prop('user')
     #: The ID of the project this cluster belongs to.
