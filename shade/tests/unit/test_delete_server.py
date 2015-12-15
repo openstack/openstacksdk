@@ -133,3 +133,17 @@ class TestDeleteServer(base.TestCase):
             # Note that message is deprecated from Exception, but not in
             # the novaclient exceptions.
             self.assertIn(fail.message, str(exc))
+
+    @mock.patch('shade.OpenStackCloud.get_volume')
+    @mock.patch('shade.OpenStackCloud.nova_client')
+    def test_delete_server_no_cinder(self, nova_mock, cinder_mock):
+        """
+        Test that novaclient server delete is called when wait=False
+        """
+        server = fakes.FakeServer('1234', 'porky', 'ACTIVE')
+        nova_mock.servers.list.return_value = [server]
+        with mock.patch('shade.OpenStackCloud.has_service',
+                        return_value=False):
+            self.assertTrue(self.cloud.delete_server('porky', wait=False))
+            nova_mock.servers.delete.assert_called_with(server=server.id)
+            self.assertFalse(cinder_mock.called)

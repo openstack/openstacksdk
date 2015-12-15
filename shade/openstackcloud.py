@@ -3430,11 +3430,12 @@ class OpenStackCloud(object):
                 raise OpenStackCloudException(
                     "Error in deleting server: {0}".format(e))
 
-        # If the server has volume attachments, or if it has booted
-        # from volume, deleting it will change volume state
-        if (not server['image'] or not server['image']['id']
-                or self.get_volumes(server)):
-            self.list_volumes.invalidate(self)
+        if self.has_service('volume'):
+            # If the server has volume attachments, or if it has booted
+            # from volume, deleting it will change volume state
+            if (not server['image'] or not server['image']['id']
+                    or self.get_volume(server)):
+                self.list_volumes.invalidate(self)
 
         return True
 
