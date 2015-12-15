@@ -34,6 +34,7 @@ EXAMPLE = {
     'tenant_id': '16',
     'security_groups': '17',
     'status': '18',
+    'port_security_enabled': True,
 }
 
 
@@ -73,3 +74,5 @@ class TestPort(testtools.TestCase):
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['security_groups'], sot.security_groups)
         self.assertEqual(EXAMPLE['status'], sot.status)
+        self.assertEqual(EXAMPLE['port_security_enabled'],
+                         sot.is_port_security_enabled)

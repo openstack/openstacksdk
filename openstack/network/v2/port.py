@@ -79,3 +79,8 @@ class Port(resource.Resource):
     security_groups = resource.prop('security_groups')
     #: The port status. Value is ``ACTIVE`` or ``DOWN``.
     status = resource.prop('status')
+    #: The port security status, which is enabled ``True`` or disabled
+    #: ``False``. *Type: bool* *Default: False*
+    is_port_security_enabled = resource.prop('port_security_enabled',
+                                             type=bool,
+                                             default=False)
