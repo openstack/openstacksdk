@@ -106,21 +106,7 @@ or to run example scripts, you need to install the project's dependencies.::
    (sdk3)$ pip install -r requirements.txt
 
 After the downloads and installs are complete, you'll have a fully functional
-environment to use the SDK in. This step installs the following dependencies.
-
-* `oslo.utils <https://pypi.python.org/pypi/oslo.utils>`_, which we use
-  for its ``timeutils`` module when calculating if or when authentication
-  tokens are considered expired.
-* `pbr <https://pypi.python.org/pypi/pbr>`_, or the Python Build
-  Reasonableness project. pbr injects a set of common defaults which are used
-  throughout the OpenStack project.
-* `requests <https://pypi.python.org/pypi/requests>`_, which we use in the
-  :class:`~openstack.transport.Transport` class to handle HTTP requests and
-  responses.
-* `six <https://pypi.python.org/pypi/six>`_, which we use for compatibility
-  across Python 2 and 3.
-* `stevedore <https://pypi.python.org/pypi/stevedore>`_, which we use for
-  working with plugins. stevedore builds on setuptools ``entry_points``.
+environment to use the SDK in.
 
 Building the Documentation
 --------------------------

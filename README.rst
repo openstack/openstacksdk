@@ -30,16 +30,6 @@ Documentation
 Documentation is available at
 http://developer.openstack.org/sdks/python/openstacksdk/
 
-Requirements
-------------
-
-* Python 2.7, Python 3.3+
-* pbr
-* requests
-* six
-* stevedore
-* oslo.utils
-
 License
 -------
 
