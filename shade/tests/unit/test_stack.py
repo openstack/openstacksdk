@@ -16,6 +16,8 @@
 import mock
 import testtools
 
+from heatclient.common import template_utils
+
 import shade
 from shade import meta
 from shade.tests import fakes
@@ -76,3 +78,36 @@ class TestStack(base.TestCase):
             "Failed to delete stack %s" % stack['id']
         ):
             self.cloud.delete_stack('stack_name')
+
+    @mock.patch.object(template_utils, 'get_template_contents')
+    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
+    def test_create_stack(self, mock_heat, mock_template):
+        mock_template.return_value = ({}, {})
+        self.cloud.create_stack('stack_name')
+        self.assertTrue(mock_template.called)
+        mock_heat.stacks.create.assert_called_once_with(
+            stack_name='stack_name',
+            disable_rollback=False,
+            parameters={},
+            template={},
+            files={}
+        )
+
+    @mock.patch.object(template_utils, 'get_template_contents')
+    @mock.patch.object(shade.OpenStackCloud, 'get_stack')
+    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
+    def test_create_stack_wait(self, mock_heat, mock_get, mock_template):
+        stack = {'id': 'stack_id', 'name': 'stack_name'}
+        mock_template.return_value = ({}, {})
+        mock_get.side_effect = iter([None, stack])
+        ret = self.cloud.create_stack('stack_name', wait=True)
+        self.assertTrue(mock_template.called)
+        mock_heat.stacks.create.assert_called_once_with(
+            stack_name='stack_name',
+            disable_rollback=False,
+            parameters={},
+            template={},
+            files={}
+        )
+        self.assertEqual(2, mock_get.call_count)
+        self.assertEqual(stack, ret)
