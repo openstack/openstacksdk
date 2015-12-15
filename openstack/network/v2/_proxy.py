@@ -11,22 +11,22 @@
 # under the License.
 
 from openstack.network.v2 import extension
-from openstack.network.v2 import floating_ip
-from openstack.network.v2 import health_monitor
-from openstack.network.v2 import listener
-from openstack.network.v2 import load_balancer
-from openstack.network.v2 import metering_label
-from openstack.network.v2 import metering_label_rule
-from openstack.network.v2 import network
+from openstack.network.v2 import floating_ip as _floating_ip
+from openstack.network.v2 import health_monitor as _health_monitor
+from openstack.network.v2 import listener as _listener
+from openstack.network.v2 import load_balancer as _load_balancer
+from openstack.network.v2 import metering_label as _metering_label
+from openstack.network.v2 import metering_label_rule as _metering_label_rule
+from openstack.network.v2 import network as _network
 from openstack.network.v2 import pool as _pool
-from openstack.network.v2 import pool_member
-from openstack.network.v2 import port
-from openstack.network.v2 import quota
-from openstack.network.v2 import router
-from openstack.network.v2 import security_group
-from openstack.network.v2 import security_group_rule
-from openstack.network.v2 import subnet
-from openstack.network.v2 import vpn_service
+from openstack.network.v2 import pool_member as _pool_member
+from openstack.network.v2 import port as _port
+from openstack.network.v2 import quota as _quota
+from openstack.network.v2 import router as _router
+from openstack.network.v2 import security_group as _security_group
+from openstack.network.v2 import security_group_rule as _security_group_rule
+from openstack.network.v2 import subnet as _subnet
+from openstack.network.v2 import vpn_service as _vpn_service
 from openstack import proxy
 from openstack import resource
 
@@ -69,13 +69,14 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of floating ip creation
         :rtype: :class:`~openstack.network.v2.floating_ip.FloatingIP`
         """
-        return self._create(floating_ip.FloatingIP, **attrs)
+        return self._create(_floating_ip.FloatingIP, **attrs)
 
-    def delete_ip(self, value, ignore_missing=True):
+    def delete_ip(self, floating_ip, ignore_missing=True):
         """Delete a floating ip
 
-        :param value: The value can be either the ID of a floating ip or a
-               :class:`~openstack.network.v2.floating_ip.FloatingIP` instance.
+        :param floating_ip: The value can be either the ID of a floating ip
+                    or a :class:`~openstack.network.v2.floating_ip.FloatingIP`
+                    instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the floating ip does not exist.
@@ -84,7 +85,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(floating_ip.FloatingIP, value,
+        self._delete(_floating_ip.FloatingIP, floating_ip,
                      ignore_missing=ignore_missing)
 
     def find_available_ip(self):
@@ -93,7 +94,7 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.floating_ip.FloatingIP`
                   or None
         """
-        return floating_ip.FloatingIP.find_available(self.session)
+        return _floating_ip.FloatingIP.find_available(self.session)
 
     def find_ip(self, name_or_id, ignore_missing=True):
         """Find a single IP
@@ -107,13 +108,13 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.floating_ip.FloatingIP`
                   or None
         """
-        return self._find(floating_ip.FloatingIP, name_or_id,
+        return self._find(_floating_ip.FloatingIP, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_ip(self, value):
+    def get_ip(self, floating_ip):
         """Get a single floating ip
 
-        :param value: The value can be the ID of a floating ip or a
+        :param floating_ip: The value can be the ID of a floating ip or a
                       :class:`~openstack.network.v2.floating_ip.FloatingIP`
                       instance.
 
@@ -121,7 +122,7 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(floating_ip.FloatingIP, value)
+        return self._get(_floating_ip.FloatingIP, floating_ip)
 
     def ips(self, **query):
         """Return a generator of ips
@@ -132,12 +133,12 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of floating IP objects
         :rtype: :class:`~openstack.network.v2.floating_ip.FloatingIP`
         """
-        return self._list(floating_ip.FloatingIP, paginated=False, **query)
+        return self._list(_floating_ip.FloatingIP, paginated=False, **query)
 
-    def update_ip(self, value, **attrs):
+    def update_ip(self, floating_ip, **attrs):
         """Update a ip
 
-        :param value: Either the id of a ip or a
+        :param floating_ip: Either the id of a ip or a
                       :class:`~openstack.network.v2.floating_ip.FloatingIP`
                       instance.
         :attrs kwargs: The attributes to update on the ip represented
@@ -146,7 +147,7 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated ip
         :rtype: :class:`~openstack.network.v2.floating_ip.FloatingIP`
         """
-        return self._update(floating_ip.FloatingIP, value, **attrs)
+        return self._update(_floating_ip.FloatingIP, floating_ip, **attrs)
 
     def create_health_monitor(self, **attrs):
         """Create a new health monitor from attributes
@@ -158,14 +159,15 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of health monitor creation
         :rtype: :class:`~openstack.network.v2.health_monitor.HealthMonitor`
         """
-        return self._create(health_monitor.HealthMonitor, **attrs)
+        return self._create(_health_monitor.HealthMonitor, **attrs)
 
-    def delete_health_monitor(self, value, ignore_missing=True):
+    def delete_health_monitor(self, health_monitor, ignore_missing=True):
         """Delete a health monitor
 
-        :param value: The value can be either the ID of a health monitor or a
-               :class:`~openstack.network.v2.health_monitor.HealthMonitor`
-               instance.
+        :param health_monitor: The value can be either the ID of a
+            health monitor or a
+            :class:`~openstack.network.v2.health_monitor.HealthMonitor`
+            instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the health monitor does not exist.
@@ -174,7 +176,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(health_monitor.HealthMonitor, value,
+        self._delete(_health_monitor.HealthMonitor, health_monitor,
                      ignore_missing=ignore_missing)
 
     def find_health_monitor(self, name_or_id, ignore_missing=True):
@@ -189,13 +191,13 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.health_monitor.
                   HealthMonitor` or None
         """
-        return self._find(health_monitor.HealthMonitor,
+        return self._find(_health_monitor.HealthMonitor,
                           name_or_id, ignore_missing=ignore_missing)
 
-    def get_health_monitor(self, value):
+    def get_health_monitor(self, health_monitor):
         """Get a single health monitor
 
-        :param value: The value can be the ID of a health monitor or a
+        :param health_monitor: The value can be the ID of a health monitor or a
                :class:`~openstack.network.v2.health_monitor.HealthMonitor`
                instance.
 
@@ -204,7 +206,7 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(health_monitor.HealthMonitor, value)
+        return self._get(_health_monitor.HealthMonitor, health_monitor)
 
     def health_monitors(self, **query):
         """Return a generator of health monitors
@@ -215,13 +217,13 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of health monitor objects
         :rtype: :class:`~openstack.network.v2.health_monitor.HealthMonitor`
         """
-        return self._list(health_monitor.HealthMonitor, paginated=False,
+        return self._list(_health_monitor.HealthMonitor, paginated=False,
                           **query)
 
-    def update_health_monitor(self, value, **attrs):
+    def update_health_monitor(self, health_monitor, **attrs):
         """Update a health monitor
 
-        :param value: Either the id of a health monitor or a
+        :param health_monitor: Either the id of a health monitor or a
                       :class:`~openstack.network.v2.health_monitor.
                       HealthMonitor` instance.
         :attrs kwargs: The attributes to update on the health monitor
@@ -230,7 +232,8 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated health monitor
         :rtype: :class:`~openstack.network.v2.health_monitor.HealthMonitor`
         """
-        return self._update(health_monitor.HealthMonitor, value, **attrs)
+        return self._update(_health_monitor.HealthMonitor, health_monitor,
+                            **attrs)
 
     def create_listener(self, **attrs):
         """Create a new listener from attributes
@@ -242,12 +245,12 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of listener creation
         :rtype: :class:`~openstack.network.v2.listener.Listener`
         """
-        return self._create(listener.Listener, **attrs)
+        return self._create(_listener.Listener, **attrs)
 
-    def delete_listener(self, value, ignore_missing=True):
+    def delete_listener(self, listener, ignore_missing=True):
         """Delete a listener
 
-        :param value: The value can be either the ID of a listner or a
+        :param listener: The value can be either the ID of a listner or a
                :class:`~openstack.network.v2.listener.Listener` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
@@ -257,7 +260,8 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(listener.Listener, value, ignore_missing=ignore_missing)
+        self._delete(_listener.Listener, listener,
+                     ignore_missing=ignore_missing)
 
     def find_listener(self, name_or_id, ignore_missing=True):
         """Find a single listener
@@ -270,13 +274,13 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.network.v2.listener.Listener` or None
         """
-        return self._find(listener.Listener, name_or_id,
+        return self._find(_listener.Listener, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_listener(self, value):
+    def get_listener(self, listener):
         """Get a single listener
 
-        :param value: The value can be the ID of a listener or a
+        :param listener: The value can be the ID of a listener or a
                :class:`~openstack.network.v2.listener.Listener`
                instance.
 
@@ -284,7 +288,7 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(listener.Listener, value)
+        return self._get(_listener.Listener, listener)
 
     def listeners(self, **query):
         """Return a generator of listeners
@@ -295,12 +299,12 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of listener objects
         :rtype: :class:`~openstack.network.v2.listener.Listener`
         """
-        return self._list(listener.Listener, paginated=False, **query)
+        return self._list(_listener.Listener, paginated=False, **query)
 
-    def update_listener(self, value, **attrs):
+    def update_listener(self, listener, **attrs):
         """Update a listener
 
-        :param value: Either the id of a listener or a
+        :param listener: Either the id of a listener or a
                       :class:`~openstack.network.v2.listener.Listener`
                       instance.
         :attrs kwargs: The attributes to update on the listener represented
@@ -309,7 +313,7 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated listener
         :rtype: :class:`~openstack.network.v2.listener.Listener`
         """
-        return self._update(listener.Listener, value, **attrs)
+        return self._update(_listener.Listener, listener, **attrs)
 
     def create_load_balancer(self, **attrs):
         """Create a new load balancer from attributes
@@ -321,12 +325,12 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of load balancer creation
         :rtype: :class:`~openstack.network.v2.load_balancer.LoadBalancer`
         """
-        return self._create(load_balancer.LoadBalancer, **attrs)
+        return self._create(_load_balancer.LoadBalancer, **attrs)
 
-    def delete_load_balancer(self, value, ignore_missing=True):
+    def delete_load_balancer(self, load_balancer, ignore_missing=True):
         """Delete a load balancer
 
-        :param value: The value can be either the ID of a load balancer or a
+        :param load_balancer: The value can be the ID of a load balancer or a
                :class:`~openstack.network.v2.load_balancer.LoadBalancer`
                instance.
         :param bool ignore_missing: When set to ``False``
@@ -337,7 +341,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(load_balancer.LoadBalancer, value,
+        self._delete(_load_balancer.LoadBalancer, load_balancer,
                      ignore_missing=ignore_missing)
 
     def find_load_balancer(self, name_or_id, ignore_missing=True):
@@ -352,13 +356,13 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.load_balancer.LoadBalancer`
                   or None
         """
-        return self._find(load_balancer.LoadBalancer, name_or_id,
+        return self._find(_load_balancer.LoadBalancer, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_load_balancer(self, value):
+    def get_load_balancer(self, load_balancer):
         """Get a single load balancer
 
-        :param value: The value can be the ID of a load balancer or a
+        :param load_balancer: The value can be the ID of a load balancer or a
                :class:`~openstack.network.v2.load_balancer.LoadBalancer`
                instance.
 
@@ -366,7 +370,7 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(load_balancer.LoadBalancer, value)
+        return self._get(_load_balancer.LoadBalancer, load_balancer)
 
     def load_balancers(self, **query):
         """Return a generator of load balancers
@@ -377,12 +381,13 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of load balancer objects
         :rtype: :class:`~openstack.network.v2.load_balancer.LoadBalancer`
         """
-        return self._list(load_balancer.LoadBalancer, paginated=False, **query)
+        return self._list(_load_balancer.LoadBalancer, paginated=False,
+                          **query)
 
-    def update_load_balancer(self, value, **attrs):
+    def update_load_balancer(self, load_balancer, **attrs):
         """Update a load balancer
 
-        :param value: Either the id of a load balancer or a
+        :param load_balancer: Either the id of a load balancer or a
                       :class:`~openstack.network.v2.load_balancer.LoadBalancer`
                       instance.
         :attrs kwargs: The attributes to update on the load balancer
@@ -391,7 +396,8 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated load balancer
         :rtype: :class:`~openstack.network.v2.load_balancer.LoadBalancer`
         """
-        return self._update(load_balancer.LoadBalancer, value, **attrs)
+        return self._update(_load_balancer.LoadBalancer, load_balancer,
+                            **attrs)
 
     def create_metering_label(self, **attrs):
         """Create a new metering label from attributes
@@ -403,14 +409,15 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of metering label creation
         :rtype: :class:`~openstack.network.v2.metering_label.MeteringLabel`
         """
-        return self._create(metering_label.MeteringLabel, **attrs)
+        return self._create(_metering_label.MeteringLabel, **attrs)
 
-    def delete_metering_label(self, value, ignore_missing=True):
+    def delete_metering_label(self, metering_label, ignore_missing=True):
         """Delete a metering label
 
-        :param value: The value can be either the ID of a metering label or a
-               :class:`~openstack.network.v2.metering_label.MeteringLabel`
-               instance.
+        :param metering_label:
+                The value can be either the ID of a metering label or a
+                :class:`~openstack.network.v2.metering_label.MeteringLabel`
+                instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the metering label does not exist.
@@ -419,7 +426,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(metering_label.MeteringLabel, value,
+        self._delete(_metering_label.MeteringLabel, metering_label,
                      ignore_missing=ignore_missing)
 
     def find_metering_label(self, name_or_id, ignore_missing=True):
@@ -434,13 +441,13 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.metering_label.
                   MeteringLabel` or None
         """
-        return self._find(metering_label.MeteringLabel, name_or_id,
+        return self._find(_metering_label.MeteringLabel, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_metering_label(self, value):
+    def get_metering_label(self, metering_label):
         """Get a single metering label
 
-        :param value: The value can be the ID of a metering label or a
+        :param metering_label: The value can be the ID of a metering label or a
                :class:`~openstack.network.v2.metering_label.MeteringLabel`
                instance.
 
@@ -449,7 +456,7 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(metering_label.MeteringLabel, value)
+        return self._get(_metering_label.MeteringLabel, metering_label)
 
     def metering_labels(self, **query):
         """Return a generator of metering labels
@@ -460,13 +467,13 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of metering label objects
         :rtype: :class:`~openstack.network.v2.metering_label.MeteringLabel`
         """
-        return self._list(metering_label.MeteringLabel, paginated=False,
+        return self._list(_metering_label.MeteringLabel, paginated=False,
                           **query)
 
-    def update_metering_label(self, value, **attrs):
+    def update_metering_label(self, metering_label, **attrs):
         """Update a metering label
 
-        :param value: Either the id of a metering label or a
+        :param metering_label: Either the id of a metering label or a
                       :class:`~openstack.network.v2.metering_label.
                       MeteringLabel` instance.
         :attrs kwargs: The attributes to update on the metering label
@@ -475,7 +482,8 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated metering label
         :rtype: :class:`~openstack.network.v2.metering_label.MeteringLabel`
         """
-        return self._update(metering_label.MeteringLabel, value, **attrs)
+        return self._update(_metering_label.MeteringLabel, metering_label,
+                            **attrs)
 
     def create_metering_label_rule(self, **attrs):
         """Create a new metering label rule from attributes
@@ -489,12 +497,14 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.metering_label_rule.\
                 MeteringLabelRule`
         """
-        return self._create(metering_label_rule.MeteringLabelRule, **attrs)
+        return self._create(_metering_label_rule.MeteringLabelRule, **attrs)
 
-    def delete_metering_label_rule(self, value, ignore_missing=True):
+    def delete_metering_label_rule(self, metering_label_rule,
+                                   ignore_missing=True):
         """Delete a metering label rule
 
-        :param value: The value can be either the ID of a metering label rule
+        :param metering_label_rule:
+            The value can be either the ID of a metering label rule
             or a :class:`~openstack.network.v2.metering_label_rule.\
             MeteringLabelRule` instance.
         :param bool ignore_missing: When set to ``False``
@@ -505,8 +515,8 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(metering_label_rule.MeteringLabelRule,
-                     value, ignore_missing=ignore_missing)
+        self._delete(_metering_label_rule.MeteringLabelRule,
+                     metering_label_rule, ignore_missing=ignore_missing)
 
     def find_metering_label_rule(self, name_or_id, ignore_missing=True):
         """Find a single metering label rule
@@ -520,13 +530,14 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.metering_label_rule.
                   MeteringLabelRule` or None
         """
-        return self._find(metering_label_rule.MeteringLabelRule, name_or_id,
+        return self._find(_metering_label_rule.MeteringLabelRule, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_metering_label_rule(self, value):
+    def get_metering_label_rule(self, metering_label_rule):
         """Get a single metering label rule
 
-        :param value: The value can be the ID of a metering label rule or a
+        :param metering_label_rule:
+            The value can be the ID of a metering label rule or a
             :class:`~openstack.network.v2.metering_label_rule.\
             MeteringLabelRule` instance.
 
@@ -536,7 +547,8 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(metering_label_rule.MeteringLabelRule, value)
+        return self._get(_metering_label_rule.MeteringLabelRule,
+                         metering_label_rule)
 
     def metering_label_rules(self, **query):
         """Return a generator of metering label rules
@@ -548,13 +560,14 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.metering_label_rule.
                 MeteringLabelRule`
         """
-        return self._list(metering_label_rule.MeteringLabelRule,
+        return self._list(_metering_label_rule.MeteringLabelRule,
                           paginated=False, **query)
 
-    def update_metering_label_rule(self, value, **attrs):
+    def update_metering_label_rule(self, metering_label_rule, **attrs):
         """Update a metering label rule
 
-        :param value: Either the id of a metering label rule or a
+        :param metering_label_rule:
+                      Either the id of a metering label rule or a
                       :class:`~openstack.network.v2.metering_label_rule.
                       MeteringLabelRule` instance.
         :attrs kwargs: The attributes to update on the metering label rule
@@ -564,8 +577,8 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.metering_label_rule.
                        MeteringLabelRule`
         """
-        return self._update(metering_label_rule.MeteringLabelRule, value,
-                            **attrs)
+        return self._update(_metering_label_rule.MeteringLabelRule,
+                            metering_label_rule, **attrs)
 
     def create_network(self, **attrs):
         """Create a new network from attributes
@@ -577,13 +590,14 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of network creation
         :rtype: :class:`~openstack.network.v2.network.Network`
         """
-        return self._create(network.Network, **attrs)
+        return self._create(_network.Network, **attrs)
 
-    def delete_network(self, value, ignore_missing=True):
+    def delete_network(self, network, ignore_missing=True):
         """Delete a network
 
-        :param value: The value can be either the ID of a network or a
-                      :class:`~openstack.network.v2.network.Network` instance.
+        :param network:
+            The value can be either the ID of a network or a
+            :class:`~openstack.network.v2.network.Network` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the network does not exist.
@@ -592,7 +606,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(network.Network, value, ignore_missing=ignore_missing)
+        self._delete(_network.Network, network, ignore_missing=ignore_missing)
 
     def find_network(self, name_or_id, ignore_missing=True):
         """Find a single network
@@ -605,20 +619,21 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.network.v2.network.Network` or None
         """
-        return self._find(network.Network, name_or_id,
+        return self._find(_network.Network, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_network(self, value):
+    def get_network(self, network):
         """Get a single network
 
-        :param value: The value can be the ID of a network or a
-                      :class:`~openstack.network.v2.network.Network` instance.
+        :param network:
+            The value can be the ID of a network or a
+            :class:`~openstack.network.v2.network.Network` instance.
 
         :returns: One :class:`~openstack.network.v2.network.Network`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(network.Network, value)
+        return self._get(_network.Network, network)
 
     def networks(self, **query):
         """Return a generator of networks
@@ -629,20 +644,21 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of network objects
         :rtype: :class:`~openstack.network.v2.network.Network`
         """
-        return self._list(network.Network, paginated=False, **query)
+        return self._list(_network.Network, paginated=False, **query)
 
-    def update_network(self, value, **attrs):
+    def update_network(self, network, **attrs):
         """Update a network
 
-        :param value: Either the id of a network or a
-                      :class:`~openstack.network.v2.network.Network` instance.
+        :param network:
+            Either the id of a network or a
+            :class:`~openstack.network.v2.network.Network` instance.
         :attrs kwargs: The attributes to update on the network represented
                        by ``value``.
 
         :returns: The updated network
         :rtype: :class:`~openstack.network.v2.network.Network`
         """
-        return self._update(network.Network, value, **attrs)
+        return self._update(_network.Network, network, **attrs)
 
     def create_pool(self, **attrs):
         """Create a new pool from attributes
@@ -656,11 +672,11 @@ class Proxy(proxy.BaseProxy):
         """
         return self._create(_pool.Pool, **attrs)
 
-    def delete_pool(self, value, ignore_missing=True):
+    def delete_pool(self, pool, ignore_missing=True):
         """Delete a pool
 
-        :param value: The value can be either the ID of a pool or a
-                      :class:`~openstack.network.v2.pool.Pool` instance.
+        :param pool: The value can be either the ID of a pool or a
+                     :class:`~openstack.network.v2.pool.Pool` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the pool does not exist.
@@ -669,7 +685,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(_pool.Pool, value, ignore_missing=ignore_missing)
+        self._delete(_pool.Pool, pool, ignore_missing=ignore_missing)
 
     def find_pool(self, name_or_id, ignore_missing=True):
         """Find a single pool
@@ -685,17 +701,17 @@ class Proxy(proxy.BaseProxy):
         return self._find(_pool.Pool, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_pool(self, value):
+    def get_pool(self, pool):
         """Get a single pool
 
-        :param value: The value can be the ID of a pool or a
-                      :class:`~openstack.network.v2.pool.Pool` instance.
+        :param pool: The value can be the ID of a pool or a
+                     :class:`~openstack.network.v2.pool.Pool` instance.
 
         :returns: One :class:`~openstack.network.v2.pool.Pool`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(_pool.Pool, value)
+        return self._get(_pool.Pool, pool)
 
     def pools(self, **query):
         """Return a generator of pools
@@ -708,18 +724,18 @@ class Proxy(proxy.BaseProxy):
         """
         return self._list(_pool.Pool, paginated=False, **query)
 
-    def update_pool(self, value, **attrs):
+    def update_pool(self, pool, **attrs):
         """Update a pool
 
-        :param value: Either the id of a pool or a
-                      :class:`~openstack.network.v2.pool.Pool` instance.
+        :param pool: Either the id of a pool or a
+                     :class:`~openstack.network.v2.pool.Pool` instance.
         :attrs kwargs: The attributes to update on the pool represented
                        by ``value``.
 
         :returns: The updated pool
         :rtype: :class:`~openstack.network.v2.pool.Pool`
         """
-        return self._update(_pool.Pool, value, **attrs)
+        return self._update(_pool.Pool, pool, **attrs)
 
     def create_pool_member(self, **attrs):
         """Create a new pool member from attributes
@@ -731,14 +747,14 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of pool member creation
         :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
-        return self._create(pool_member.PoolMember, **attrs)
+        return self._create(_pool_member.PoolMember, **attrs)
 
-    def delete_pool_member(self, member, pool, ignore_missing=True):
+    def delete_pool_member(self, pool_member, pool, ignore_missing=True):
         """Delete a pool member
 
-        :param member: The member can be either the ID of a pool member or a
-                       :class:`~openstack.network.v2.pool_member.PoolMember`
-                       instance.
+        :param pool_member:
+            The member can be either the ID of a pool member or a
+            :class:`~openstack.network.v2.pool_member.PoolMember` instance.
         :param pool: The pool can be either the ID of a pool or a
                      :class:`~openstack.network.v2.pool.Pool` instance that
                      the member belongs to.
@@ -751,7 +767,7 @@ class Proxy(proxy.BaseProxy):
         :returns: ``None``
         """
         pool_id = resource.Resource.get_id(pool)
-        self._delete(pool_member.PoolMember, member,
+        self._delete(_pool_member.PoolMember, pool_member,
                      path_args={'pool_id': pool_id},
                      ignore_missing=ignore_missing)
 
@@ -771,14 +787,14 @@ class Proxy(proxy.BaseProxy):
                   or None
         """
         pool_id = resource.Resource.get_id(pool)
-        return self._find(pool_member.PoolMember, name_or_id,
+        return self._find(_pool_member.PoolMember, name_or_id,
                           path_args={'pool_id': pool_id},
                           ignore_missing=ignore_missing)
 
-    def get_pool_member(self, member, pool):
+    def get_pool_member(self, pool_member, pool):
         """Get a single pool member
 
-        :param member: The member can be the ID of a pool member or a
+        :param pool_member: The member can be the ID of a pool member or a
                        :class:`~openstack.network.v2.pool_member.PoolMember`
                        instance.
         :param pool: The pool can be either the ID of a pool or a
@@ -790,7 +806,7 @@ class Proxy(proxy.BaseProxy):
                  when no resource can be found.
         """
         pool_id = resource.Resource.get_id(pool)
-        return self._get(pool_member.PoolMember, member,
+        return self._get(_pool_member.PoolMember, pool_member,
                          path_args={'pool_id': pool_id})
 
     def pool_members(self, pool, **query):
@@ -806,14 +822,14 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
         pool_id = resource.Resource.get_id(pool)
-        return self._list(pool_member.PoolMember,
+        return self._list(_pool_member.PoolMember,
                           path_args={'pool_id': pool_id}, paginated=False,
                           **query)
 
-    def update_pool_member(self, member, **attrs):
+    def update_pool_member(self, pool_member, **attrs):
         """Update a pool member
 
-        :param member: Either the ID of a pool member or a
+        :param pool_member: Either the ID of a pool member or a
                        :class:`~openstack.network.v2.pool_member.PoolMember`
                        instance.
         :attrs kwargs: The attributes to update on the pool member represented
@@ -822,7 +838,7 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated pool member
         :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
-        return self._update(pool_member.PoolMember, member, **attrs)
+        return self._update(_pool_member.PoolMember, pool_member, **attrs)
 
     def create_port(self, **attrs):
         """Create a new port from attributes
@@ -834,13 +850,13 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of port creation
         :rtype: :class:`~openstack.network.v2.port.Port`
         """
-        return self._create(port.Port, **attrs)
+        return self._create(_port.Port, **attrs)
 
-    def delete_port(self, value, ignore_missing=True):
+    def delete_port(self, port, ignore_missing=True):
         """Delete a port
 
-        :param value: The value can be either the ID of a port or a
-                      :class:`~openstack.network.v2.port.Port` instance.
+        :param port: The value can be either the ID of a port or a
+                     :class:`~openstack.network.v2.port.Port` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the port does not exist.
@@ -849,7 +865,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(port.Port, value, ignore_missing=ignore_missing)
+        self._delete(_port.Port, port, ignore_missing=ignore_missing)
 
     def find_port(self, name_or_id, ignore_missing=True):
         """Find a single port
@@ -862,20 +878,20 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.network.v2.port.Port` or None
         """
-        return self._find(port.Port, name_or_id,
+        return self._find(_port.Port, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_port(self, value):
+    def get_port(self, port):
         """Get a single port
 
-        :param value: The value can be the ID of a port or a
-                      :class:`~openstack.network.v2.port.Port` instance.
+        :param port: The value can be the ID of a port or a
+                     :class:`~openstack.network.v2.port.Port` instance.
 
         :returns: One :class:`~openstack.network.v2.port.Port`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(port.Port, value)
+        return self._get(_port.Port, port)
 
     def ports(self, **query):
         """Return a generator of ports
@@ -886,9 +902,9 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of port objects
         :rtype: :class:`~openstack.network.v2.port.Port`
         """
-        return self._list(port.Port, paginated=False, **query)
+        return self._list(_port.Port, paginated=False, **query)
 
-    def update_port(self, value, **attrs):
+    def update_port(self, port, **attrs):
         """Update a port
 
         :param value: Either the id of a port or a
@@ -899,7 +915,7 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated port
         :rtype: :class:`~openstack.network.v2.port.Port`
         """
-        return self._update(port.Port, value, **attrs)
+        return self._update(_port.Port, port, **attrs)
 
     def add_ip_to_port(self, port, ip):
         ip['port_id'] = port.id
@@ -927,7 +943,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of quota objects
         :rtype: :class:`~openstack.network.v2.quota.Quota`
         """
-        return self._list(quota.Quota, paginated=False, **query)
+        return self._list(_quota.Quota, paginated=False, **query)
 
     def create_router(self, **attrs):
         """Create a new router from attributes
@@ -939,13 +955,13 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of router creation
         :rtype: :class:`~openstack.network.v2.router.Router`
         """
-        return self._create(router.Router, **attrs)
+        return self._create(_router.Router, **attrs)
 
-    def delete_router(self, value, ignore_missing=True):
+    def delete_router(self, router, ignore_missing=True):
         """Delete a router
 
-        :param value: The value can be either the ID of a router or a
-                      :class:`~openstack.network.v2.router.Router` instance.
+        :param router: The value can be either the ID of a router or a
+                       :class:`~openstack.network.v2.router.Router` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the router does not exist.
@@ -954,7 +970,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(router.Router, value, ignore_missing=ignore_missing)
+        self._delete(_router.Router, router, ignore_missing=ignore_missing)
 
     def find_router(self, name_or_id, ignore_missing=True):
         """Find a single router
@@ -967,20 +983,20 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.network.v2.router.Router` or None
         """
-        return self._find(router.Router, name_or_id,
+        return self._find(_router.Router, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_router(self, value):
+    def get_router(self, router):
         """Get a single router
 
-        :param value: The value can be the ID of a router or a
-                      :class:`~openstack.network.v2.router.Router` instance.
+        :param router: The value can be the ID of a router or a
+                       :class:`~openstack.network.v2.router.Router` instance.
 
         :returns: One :class:`~openstack.network.v2.router.Router`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(router.Router, value)
+        return self._get(_router.Router, router)
 
     def routers(self, **query):
         """Return a generator of routers
@@ -991,20 +1007,20 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of router objects
         :rtype: :class:`~openstack.network.v2.router.Router`
         """
-        return self._list(router.Router, paginated=False, **query)
+        return self._list(_router.Router, paginated=False, **query)
 
-    def update_router(self, value, **attrs):
+    def update_router(self, router, **attrs):
         """Update a router
 
-        :param value: Either the id of a router or a
-                      :class:`~openstack.network.v2.router.Router` instance.
+        :param router: Either the id of a router or a
+                       :class:`~openstack.network.v2.router.Router` instance.
         :attrs kwargs: The attributes to update on the router represented
                        by ``value``.
 
         :returns: The updated router
         :rtype: :class:`~openstack.network.v2.router.Router`
         """
-        return self._update(router.Router, value, **attrs)
+        return self._update(_router.Router, router, **attrs)
 
     def router_add_interface(self, router, subnet_id):
         router.add_interface(self.session, subnet_id)
@@ -1022,14 +1038,15 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of security group creation
         :rtype: :class:`~openstack.network.v2.security_group.SecurityGroup`
         """
-        return self._create(security_group.SecurityGroup, **attrs)
+        return self._create(_security_group.SecurityGroup, **attrs)
 
-    def delete_security_group(self, value, ignore_missing=True):
+    def delete_security_group(self, security_group, ignore_missing=True):
         """Delete a security group
 
-        :param value: The value can be either the ID of a security group or a
-               :class:`~openstack.network.v2.security_group.SecurityGroup`
-               instance.
+        :param security_group:
+            The value can be either the ID of a security group or a
+            :class:`~openstack.network.v2.security_group.SecurityGroup`
+            instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the security group does not exist.
@@ -1038,7 +1055,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(security_group.SecurityGroup, value,
+        self._delete(_security_group.SecurityGroup, security_group,
                      ignore_missing=ignore_missing)
 
     def find_security_group(self, name_or_id, ignore_missing=True):
@@ -1053,13 +1070,13 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.security_group.
                   SecurityGroup` or None
         """
-        return self._find(security_group.SecurityGroup, name_or_id,
+        return self._find(_security_group.SecurityGroup, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_security_group(self, value):
+    def get_security_group(self, security_group):
         """Get a single security group
 
-        :param value: The value can be the ID of a security group or a
+        :param security_group: The value can be the ID of a security group or a
                :class:`~openstack.network.v2.security_group.SecurityGroup`
                instance.
 
@@ -1068,7 +1085,7 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(security_group.SecurityGroup, value)
+        return self._get(_security_group.SecurityGroup, security_group)
 
     def security_groups(self, **query):
         """Return a generator of security groups
@@ -1079,13 +1096,13 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of security group objects
         :rtype: :class:`~openstack.network.v2.security_group.SecurityGroup`
         """
-        return self._list(security_group.SecurityGroup, paginated=False,
+        return self._list(_security_group.SecurityGroup, paginated=False,
                           **query)
 
-    def update_security_group(self, value, **attrs):
+    def update_security_group(self, security_group, **attrs):
         """Update a security group
 
-        :param value: Either the id of a security group or a
+        :param security_group: Either the id of a security group or a
             :class:`~openstack.network.v2.security_group.SecurityGroup`
             instance.
         :attrs kwargs: The attributes to update on the security group
@@ -1094,7 +1111,8 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated security group
         :rtype: :class:`~openstack.network.v2.security_group.SecurityGroup`
         """
-        return self._update(security_group.SecurityGroup, value, **attrs)
+        return self._update(_security_group.SecurityGroup, security_group,
+                            **attrs)
 
     def security_group_open_port(self, sgid, port, protocol='tcp'):
         rule = {
@@ -1132,12 +1150,14 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.security_group_rule.\
             SecurityGroupRule`
         """
-        return self._create(security_group_rule.SecurityGroupRule, **attrs)
+        return self._create(_security_group_rule.SecurityGroupRule, **attrs)
 
-    def delete_security_group_rule(self, value, ignore_missing=True):
+    def delete_security_group_rule(self, security_group_rule,
+                                   ignore_missing=True):
         """Delete a security group rule
 
-        :param value: The value can be either the ID of a security group rule
+        :param security_group_rule:
+            The value can be either the ID of a security group rule
             or a :class:`~openstack.network.v2.security_group_rule.
             SecurityGroupRule` instance.
         :param bool ignore_missing: When set to ``False``
@@ -1148,8 +1168,8 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(security_group_rule.SecurityGroupRule,
-                     value, ignore_missing=ignore_missing)
+        self._delete(_security_group_rule.SecurityGroupRule,
+                     security_group_rule, ignore_missing=ignore_missing)
 
     def find_security_group_rule(self, name_or_id, ignore_missing=True):
         """Find a single security group rule
@@ -1163,13 +1183,14 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.security_group_rule.
                   SecurityGroupRule` or None
         """
-        return self._find(security_group_rule.SecurityGroupRule,
+        return self._find(_security_group_rule.SecurityGroupRule,
                           name_or_id, ignore_missing=ignore_missing)
 
-    def get_security_group_rule(self, value):
+    def get_security_group_rule(self, security_group_rule):
         """Get a single security group rule
 
-        :param value: The value can be the ID of a security group rule or a
+        :param security_group_rule:
+            The value can be the ID of a security group rule or a
             :class:`~openstack.network.v2.security_group_rule.\
             SecurityGroupRule` instance.
 
@@ -1178,7 +1199,8 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(security_group_rule.SecurityGroupRule, value)
+        return self._get(_security_group_rule.SecurityGroupRule,
+                         security_group_rule)
 
     def security_group_rules(self, **query):
         """Return a generator of security group rules
@@ -1190,7 +1212,7 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.security_group_rule.
                 SecurityGroupRule`
         """
-        return self._list(security_group_rule.SecurityGroupRule,
+        return self._list(_security_group_rule.SecurityGroupRule,
                           paginated=False, **query)
 
     def create_subnet(self, **attrs):
@@ -1203,13 +1225,13 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of subnet creation
         :rtype: :class:`~openstack.network.v2.subnet.Subnet`
         """
-        return self._create(subnet.Subnet, **attrs)
+        return self._create(_subnet.Subnet, **attrs)
 
-    def delete_subnet(self, value, ignore_missing=True):
+    def delete_subnet(self, subnet, ignore_missing=True):
         """Delete a subnet
 
-        :param value: The value can be either the ID of a subnet or a
-                      :class:`~openstack.network.v2.subnet.Subnet` instance.
+        :param subnet: The value can be either the ID of a subnet or a
+                       :class:`~openstack.network.v2.subnet.Subnet` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the subnet does not exist.
@@ -1218,7 +1240,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(subnet.Subnet, value, ignore_missing=ignore_missing)
+        self._delete(_subnet.Subnet, subnet, ignore_missing=ignore_missing)
 
     def find_subnet(self, name_or_id, ignore_missing=True):
         """Find a single subnet
@@ -1231,20 +1253,20 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.network.v2.subnet.Subnet` or None
         """
-        return self._find(subnet.Subnet, name_or_id,
+        return self._find(_subnet.Subnet, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_subnet(self, value):
+    def get_subnet(self, subnet):
         """Get a single subnet
 
-        :param value: The value can be the ID of a subnet or a
-                      :class:`~openstack.network.v2.subnet.Subnet` instance.
+        :param subnet: The value can be the ID of a subnet or a
+                       :class:`~openstack.network.v2.subnet.Subnet` instance.
 
         :returns: One :class:`~openstack.network.v2.subnet.Subnet`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(subnet.Subnet, value)
+        return self._get(_subnet.Subnet, subnet)
 
     def subnets(self, **query):
         """Return a generator of subnets
@@ -1255,20 +1277,20 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of subnet objects
         :rtype: :class:`~openstack.network.v2.subnet.Subnet`
         """
-        return self._list(subnet.Subnet, paginated=False, **query)
+        return self._list(_subnet.Subnet, paginated=False, **query)
 
-    def update_subnet(self, value, **attrs):
+    def update_subnet(self, subnet, **attrs):
         """Update a subnet
 
-        :param value: Either the id of a subnet or a
-                      :class:`~openstack.network.v2.subnet.Subnet` instance.
+        :param subnet: Either the id of a subnet or a
+                       :class:`~openstack.network.v2.subnet.Subnet` instance.
         :attrs kwargs: The attributes to update on the subnet represented
                        by ``value``.
 
         :returns: The updated subnet
         :rtype: :class:`~openstack.network.v2.subnet.Subnet`
         """
-        return self._update(subnet.Subnet, value, **attrs)
+        return self._update(_subnet.Subnet, subnet, **attrs)
 
     def create_vpn_service(self, **attrs):
         """Create a new vpn service from attributes
@@ -1280,14 +1302,14 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of vpn service creation
         :rtype: :class:`~openstack.network.v2.vpn_service.VPNService`
         """
-        return self._create(vpn_service.VPNService, **attrs)
+        return self._create(_vpn_service.VPNService, **attrs)
 
-    def delete_vpn_service(self, value, ignore_missing=True):
+    def delete_vpn_service(self, vpn_service, ignore_missing=True):
         """Delete a vpn service
 
-        :param value: The value can be either the ID of a vpn service or a
-                      :class:`~openstack.network.v2.vpn_service.VPNService`
-                      instance.
+        :param vpn_service:
+            The value can be either the ID of a vpn service or a
+            :class:`~openstack.network.v2.vpn_service.VPNService` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the vpn service does not exist.
@@ -1296,7 +1318,7 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(vpn_service.VPNService, value,
+        self._delete(_vpn_service.VPNService, vpn_service,
                      ignore_missing=ignore_missing)
 
     def find_vpn_service(self, name_or_id, ignore_missing=True):
@@ -1311,13 +1333,13 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.network.v2.vpn_service.VPNService`
                   or None
         """
-        return self._find(vpn_service.VPNService, name_or_id,
+        return self._find(_vpn_service.VPNService, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_vpn_service(self, value):
+    def get_vpn_service(self, vpn_service):
         """Get a single vpn service
 
-        :param value: The value can be the ID of a vpn service or a
+        :param vpn_service: The value can be the ID of a vpn service or a
                :class:`~openstack.network.v2.vpn_service.VPNService`
                instance.
 
@@ -1326,7 +1348,7 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(vpn_service.VPNService, value)
+        return self._get(_vpn_service.VPNService, vpn_service)
 
     def vpn_services(self, **query):
         """Return a generator of vpn services
@@ -1337,18 +1359,17 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of vpn service objects
         :rtype: :class:`~openstack.network.v2.vpn_service.VPNService`
         """
-        return self._list(vpn_service.VPNService, paginated=False, **query)
+        return self._list(_vpn_service.VPNService, paginated=False, **query)
 
-    def update_vpn_service(self, value, **attrs):
+    def update_vpn_service(self, vpn_service, **attrs):
         """Update a vpn service
 
-        :param value: Either the id of a vpn service or a
-                      :class:`~openstack.network.v2.vpn_service.VPNService`
-                      instance.
+        :param vpn_service: Either the id of a vpn service or a
+            :class:`~openstack.network.v2.vpn_service.VPNService` instance.
         :attrs kwargs: The attributes to update on the vpnservice represented
                        by ``value``.
 
         :returns: The updated vpnservice
         :rtype: :class:`~openstack.network.v2.vpn_service.VPNService`
         """
-        return self._update(vpn_service.VPNService, value, **attrs)
+        return self._update(_vpn_service.VPNService, vpn_service, **attrs)
