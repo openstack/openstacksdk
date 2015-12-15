@@ -1,5 +1,5 @@
-KeyManagement Resources
-=======================
+KeyManager Resources
+====================
 
 .. toctree::
    :maxdepth: 1

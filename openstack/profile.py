@@ -62,7 +62,7 @@ from openstack.database import database_service
 from openstack import exceptions
 from openstack.identity import identity_service
 from openstack.image import image_service
-from openstack.key_management import key_management_service
+from openstack.key_manager import key_manager_service
 from openstack.message import message_service
 from openstack import module_loader
 from openstack.network import network_service
@@ -97,7 +97,7 @@ class Profile(object):
         self._add_service(network_service.NetworkService())
         self._add_service(object_store_service.ObjectStoreService())
         self._add_service(orchestration_service.OrchestrationService())
-        self._add_service(key_management_service.KeyManagementService())
+        self._add_service(key_manager_service.KeyManagerService())
         self._add_service(telemetry_service.TelemetryService())
         self._add_service(block_store_service.BlockStoreService())
         self._add_service(message_service.MessageService())

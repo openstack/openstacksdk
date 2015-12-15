@@ -12,13 +12,13 @@
 
 import testtools
 
-from openstack.key_management import key_management_service
+from openstack.key_manager import key_manager_service
 
 
-class TestKeyManagementService(testtools.TestCase):
+class TestKeyManagerService(testtools.TestCase):
 
     def test_service(self):
-        sot = key_management_service.KeyManagementService()
+        sot = key_manager_service.KeyManagerService()
         self.assertEqual('key-manager', sot.service_type)
         self.assertEqual('public', sot.interface)
         self.assertIsNone(sot.region)

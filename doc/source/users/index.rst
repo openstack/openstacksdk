@@ -33,7 +33,7 @@ approach, this is where you'll want to begin.
    Database <guides/database>
    Identity <guides/identity>
    Image <guides/image>
-   Key Management <guides/key_management>
+   Key Manager <guides/key_manager>
    Network <guides/network>
    Object Store <guides/object_store>
    Orchestration <guides/orchestration>
@@ -73,7 +73,7 @@ but listed below are the ones provided by this SDK by default.
    Database <proxies/database>
    Identity <proxies/identity>
    Image <proxies/image>
-   Key Management <proxies/key_management>
+   Key Manager <proxies/key_manager>
    Network <proxies/network>
    Object Store <proxies/object_store>
    Orchestration <proxies/orchestration>
@@ -99,7 +99,7 @@ The following services have exposed *Resource* classes.
    Database <resources/database/index>
    Identity <resources/identity/index>
    Image <resources/image/index>
-   Key Management <resources/key_management/index>
+   Key Management <resources/key_manager/index>
    Metric <resources/metric/index>
    Network <resources/network/index>
    Orchestration <resources/orchestration/index>

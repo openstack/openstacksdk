@@ -13,12 +13,12 @@
 from openstack import service_filter
 
 
-class KeyManagementService(service_filter.ServiceFilter):
-    """The key management service."""
+class KeyManagerService(service_filter.ServiceFilter):
+    """The key manager service."""
 
     valid_versions = [service_filter.ValidVersion('v1')]
 
     def __init__(self, version=None):
-        """Create a key management service."""
-        super(KeyManagementService, self).__init__(service_type='key-manager',
-                                                   version=version)
+        """Create a key manager service."""
+        super(KeyManagerService, self).__init__(service_type='key-manager',
+                                                version=version)
