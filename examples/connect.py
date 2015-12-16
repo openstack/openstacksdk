@@ -63,6 +63,8 @@ PRIVATE_KEYPAIR_FILE = _get_resource_value(
     'private_keypair_file', '{ssh_dir}/id_rsa.{key}'.format(
         ssh_dir=SSH_DIR, key=KEYPAIR_NAME))
 
+EXAMPLE_IMAGE_NAME = 'openstacksdk-example-public-image'
+
 
 def create_connection_from_config():
     return connection.from_config(cloud_config=cloud, options=opts)
