@@ -11,6 +11,8 @@
 # under the License.
 
 from openstack.cluster import cluster_service
+from openstack.cluster.v1 import cluster as _cluster
+from openstack.cluster.v1 import profile as _profile
 from openstack import resource
 from openstack import utils
 
@@ -37,9 +39,9 @@ class Node(resource.Resource):
     physical_id = resource.prop('physical_id')
     #: The ID of the cluster in which this node is a member.
     #: A node is an orphan node if this field is empty.
-    cluster_id = resource.prop('cluster_id')
+    cluster = resource.prop('cluster_id', type=_cluster.Cluster)
     #: The ID of the profile used by this node.
-    profile_id = resource.prop('profile_id')
+    profile = resource.prop('profile_id', type=_profile.Profile)
     #: The ID of the project this node belongs to.
     project = resource.prop('project')
     #: The name of the profile used by this node.
