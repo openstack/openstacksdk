@@ -14,7 +14,9 @@ import copy
 
 import testtools
 
+from openstack.block_store.v2 import type
 from openstack.block_store.v2 import volume
+from openstack.image.v2 import image
 
 FAKE_ID = "6685584b-1eac-4da6-b5c3-555430cf68ff"
 
@@ -26,9 +28,10 @@ VOLUME = {
     "bootable": False,
     "created_at": "2014-02-21T19:52:04.949734",
     "description": "something",
-    "volume_type": None,
+    "volume_type": "some_type",
     "snapshot_id": "93c2e2aa-7744-4fd6-a31a-80c4726b08d7",
     "source_volid": None,
+    "image": "some_image",
     "metadata": {},
     "id": FAKE_ID,
     "size": 10
@@ -74,11 +77,12 @@ class TestVolume(testtools.TestCase):
         self.assertEqual(VOLUME["bootable"], sot.bootable)
         self.assertEqual(VOLUME["created_at"], sot.created)
         self.assertEqual(VOLUME["description"], sot.description)
-        self.assertEqual(VOLUME["volume_type"], sot.type)
+        self.assertEqual(type.Type({"id": VOLUME["volume_type"]}), sot.type)
         self.assertEqual(VOLUME["snapshot_id"], sot.snapshot)
         self.assertEqual(VOLUME["source_volid"], sot.source_volume)
         self.assertEqual(VOLUME["metadata"], sot.metadata)
         self.assertEqual(VOLUME["size"], sot.size)
+        self.assertEqual(image.Image({"id": VOLUME["image"]}), sot.image)
 
 
 class TestVolumeDetail(testtools.TestCase):

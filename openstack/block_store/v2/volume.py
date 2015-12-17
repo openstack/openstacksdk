@@ -11,6 +11,8 @@
 # under the License.
 
 from openstack.block_store import block_store_service
+from openstack.block_store.v2 import type as _type
+from openstack.image.v2 import image as _image
 from openstack import resource
 
 
@@ -50,9 +52,9 @@ class Volume(resource.Resource):
     size = resource.prop("size", type=int)
     #: The ID of the image from which you want to create the volume.
     #: Required to create a bootable volume.
-    image = resource.prop("imageRef")
+    image = resource.prop("imageRef", type=_image.Image)
     #: The associated volume type.
-    type = resource.prop("volume_type")
+    type = resource.prop("volume_type", type=_type.Type)
     #: Enables or disables the bootable attribute. You can boot an
     #: instance from a bootable volume. *Type: bool*
     bootable = resource.prop("bootable", type=bool)
