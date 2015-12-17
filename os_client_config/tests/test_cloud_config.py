@@ -47,7 +47,7 @@ class TestCloudConfig(base.TestCase):
         self.assertEqual(1, cc.a)
 
         # Look up prefixed attribute, fail - returns None
-        self.assertEqual(None, cc.os_b)
+        self.assertIsNone(cc.os_b)
 
         # Look up straight value, then prefixed value
         self.assertEqual(3, cc.c)
@@ -139,7 +139,7 @@ class TestCloudConfig(base.TestCase):
         self.assertEqual('region-al', cc.get_region_name())
         self.assertEqual('region-al', cc.get_region_name('image'))
         self.assertEqual('region-bl', cc.get_region_name('compute'))
-        self.assertEqual(None, cc.get_api_version('image'))
+        self.assertIsNone(cc.get_api_version('image'))
         self.assertEqual('2', cc.get_api_version('compute'))
         self.assertEqual('mage', cc.get_service_type('image'))
         self.assertEqual('compute', cc.get_service_type('compute'))
@@ -149,7 +149,7 @@ class TestCloudConfig(base.TestCase):
                          cc.get_endpoint('compute'))
         self.assertEqual(None,
                          cc.get_endpoint('image'))
-        self.assertEqual(None, cc.get_service_name('compute'))
+        self.assertIsNone(cc.get_service_name('compute'))
         self.assertEqual('locks', cc.get_service_name('identity'))
 
     def test_volume_override(self):
