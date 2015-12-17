@@ -56,6 +56,13 @@ class Network(resource.Resource):
     status = resource.prop('status')
     #: The associated subnets.
     subnets = resource.prop('subnets')
+    #: Read-only. The maximum transmission unit (MTU) of the network resource.
+    mtu = resource.prop('mtu', type=int)
+    #: The port security status, which is enabled ``True`` or disabled
+    #: ``False``. *Type: bool* *Default: False*
+    is_port_security_enabled = resource.prop('port_security_enabled',
+                                             type=bool,
+                                             default=False)
 
     def is_external(self):
         if self.router_external is not None:

@@ -28,6 +28,8 @@ EXAMPLE = {
     'shared': True,
     'status': '11',
     'subnets': '12',
+    'mtu': 1400,
+    'port_security_enabled': True,
 }
 
 
@@ -62,6 +64,9 @@ class TestNetwork(testtools.TestCase):
         self.assertEqual(EXAMPLE['shared'], sot.shared)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['subnets'], sot.subnets)
+        self.assertEqual(EXAMPLE['mtu'], sot.mtu)
+        self.assertEqual(EXAMPLE['port_security_enabled'],
+                         sot.is_port_security_enabled)
 
     def test_external(self):
         sot = network.Network(EXAMPLE)
