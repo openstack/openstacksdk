@@ -363,6 +363,56 @@ def normalize_groups(domains):
     return meta.obj_list_to_dict(ret)
 
 
+def normalize_role_assignments(assignments):
+    """Put role_assignments into a form that works with search/get interface.
+
+    Role assignments have the structure::
+
+        [
+            {
+                "role": {
+                    "id": "--role-id--"
+                },
+                "scope": {
+                    "domain": {
+                        "id": "--domain-id--"
+                    }
+                },
+                "user": {
+                    "id": "--user-id--"
+                }
+            },
+        ]
+
+    Which is hard to work with in the rest of our interface. Map this to be::
+
+        [
+            {
+                "id": "--role-id--",
+                "domain": "--domain-id--",
+                "user": "--user-id--",
+            }
+        ]
+
+    Scope can be "domain" or "project" and "user" can also be "group".
+
+    :param list assignments: A list of dictionaries of role assignments.
+
+    :returns: A list of flattened/normalized role assignment dicts.
+    """
+    new_assignments = []
+    for assignment in assignments:
+        new_val = {'id': assignment['role']['id']}
+        for scope in ('project', 'domain'):
+            if scope in assignment['scope']:
+                new_val[scope] = assignment['scope'][scope]['id']
+        for assignee in ('user', 'group'):
+            if assignee in assignment:
+                new_val[assignee] = assignment[assignee]['id']
+        new_assignments.append(new_val)
+    return new_assignments
+
+
 def valid_kwargs(*valid_args):
     # This decorator checks if argument passed as **kwargs to a function are
     # present in valid_args.

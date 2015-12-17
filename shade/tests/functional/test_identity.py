@@ -79,3 +79,13 @@ class TestIdentity(base.TestCase):
         role = self.cloud.create_role(role_name)
         self.assertIsNotNone(role)
         self.assertTrue(self.cloud.delete_role(role_name))
+
+    # TODO(Shrews): Once we can support assigning roles within shade, we
+    # need to make this test a little more specific, and add more for testing
+    # filtering functionality.
+    def test_list_role_assignments(self):
+        if self.cloud.cloud_config.get_api_version('identity') in ('2', '2.0'):
+            self.skipTest("Identity service does not support role assignments")
+        assignments = self.cloud.list_role_assignments()
+        self.assertIsInstance(assignments, list)
+        self.assertTrue(len(assignments) > 0)
