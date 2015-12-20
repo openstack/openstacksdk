@@ -50,6 +50,38 @@ class TestStack(base.TestCase):
         ):
             self.cloud.list_stacks()
 
+    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
+    def test_search_stacks(self, mock_heat):
+        fake_stacks = [
+            fakes.FakeStack('001', 'stack1'),
+            fakes.FakeStack('002', 'stack2'),
+        ]
+        mock_heat.stacks.list.return_value = fake_stacks
+        stacks = self.cloud.search_stacks()
+        mock_heat.stacks.list.assert_called_once_with()
+        self.assertEqual(meta.obj_list_to_dict(fake_stacks), stacks)
+
+    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
+    def test_search_stacks_filters(self, mock_heat):
+        fake_stacks = [
+            fakes.FakeStack('001', 'stack1', status='GOOD'),
+            fakes.FakeStack('002', 'stack2', status='BAD'),
+        ]
+        mock_heat.stacks.list.return_value = fake_stacks
+        filters = {'stack_status': 'GOOD'}
+        stacks = self.cloud.search_stacks(filters=filters)
+        mock_heat.stacks.list.assert_called_once_with()
+        self.assertEqual(meta.obj_list_to_dict(fake_stacks[:1]), stacks)
+
+    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
+    def test_search_stacks_exception(self, mock_heat):
+        mock_heat.stacks.list.side_effect = Exception()
+        with testtools.ExpectedException(
+            shade.OpenStackCloudException,
+            "Error fetching stack list"
+        ):
+            self.cloud.search_stacks()
+
     @mock.patch.object(shade.OpenStackCloud, 'get_stack')
     @mock.patch.object(shade.OpenStackCloud, 'heat_client')
     def test_delete_stack(self, mock_heat, mock_get):
