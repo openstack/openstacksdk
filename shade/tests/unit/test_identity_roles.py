@@ -12,11 +12,29 @@
 # limitations under the License.
 
 import mock
+import testtools
 
 import shade
 from shade import meta
+from shade import _utils
 from shade.tests.unit import base
 from shade.tests import fakes
+
+
+RAW_ROLE_ASSIGNMENTS = [
+    {
+        "links": {"assignment": "http://example"},
+        "role": {"id": "123456"},
+        "scope": {"domain": {"id": "161718"}},
+        "user": {"id": "313233"}
+    },
+    {
+        "links": {"assignment": "http://example"},
+        "group": {"id": "101112"},
+        "role": {"id": "123456"},
+        "scope": {"project": {"id": "456789"}}
+    }
+]
 
 
 class TestIdentityRoles(base.TestCase):
@@ -63,3 +81,28 @@ class TestIdentityRoles(base.TestCase):
         mock_get.return_value = meta.obj_to_dict(role_obj)
         self.assertTrue(self.cloud.delete_role('1234'))
         self.assertTrue(mock_keystone.roles.delete.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_list_role_assignments(self, mock_keystone):
+        mock_keystone.role_assignments.list.return_value = RAW_ROLE_ASSIGNMENTS
+        ret = self.cloud.list_role_assignments()
+        mock_keystone.role_assignments.list.assert_called_once_with()
+        normalized_assignments = _utils.normalize_role_assignments(
+            RAW_ROLE_ASSIGNMENTS
+        )
+        self.assertEqual(normalized_assignments, ret)
+
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_list_role_assignments_filters(self, mock_keystone):
+        params = dict(user='123', domain='456', effective=True)
+        self.cloud.list_role_assignments(filters=params)
+        mock_keystone.role_assignments.list.assert_called_once_with(**params)
+
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_list_role_assignments_exception(self, mock_keystone):
+        mock_keystone.role_assignments.list.side_effect = Exception()
+        with testtools.ExpectedException(
+            shade.OpenStackCloudException,
+            "Failed to list role assignments"
+        ):
+            self.cloud.list_role_assignments()
