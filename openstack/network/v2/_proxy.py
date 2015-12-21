@@ -934,6 +934,33 @@ class Proxy(proxy.BaseProxy):
                     result.append(puerta)
         return result
 
+    def delete_quota(self, quota, ignore_missing=True):
+        """Delete a quota (i.e. reset to the default quota)
+
+        :param quota: The value can be either the ID of a quota or a
+                       :class:`~openstack.network.v2.quota.Quota` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when quota does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent quota.
+
+        :returns: ``None``
+        """
+        self._delete(_quota.Quota, quota, ignore_missing=ignore_missing)
+
+    def get_quota(self, quota):
+        """Get a quota
+
+        :param router: The value can be the ID of a quota or a
+                       :class:`~openstack.network.v2.quota.Quota` instance.
+
+        :returns: One :class:`~openstack.network.v2.quota.Quota`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_quota.Quota, quota)
+
     def quotas(self, **query):
         """Return a generator of quotas
 
@@ -944,6 +971,19 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.quota.Quota`
         """
         return self._list(_quota.Quota, paginated=False, **query)
+
+    def update_quota(self, quota, **attrs):
+        """Update a quota
+
+        :param router: Either the ID of a quota or a
+                       :class:`~openstack.network.v2.quota.Quota` instance.
+        :attrs kwargs: The attributes to update on the quota represented
+                       by ``value``.
+
+        :returns: The updated quota
+        :rtype: :class:`~openstack.network.v2.quota.Quota`
+        """
+        return self._update(_quota.Quota, quota, **attrs)
 
     def create_router(self, **attrs):
         """Create a new router from attributes

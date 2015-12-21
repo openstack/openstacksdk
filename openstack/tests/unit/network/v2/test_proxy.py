@@ -310,8 +310,20 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_port_update(self):
         self.verify_update(self.proxy.update_port, port.Port)
 
+    def test_quota_delete(self):
+        self.verify_delete(self.proxy.delete_quota, quota.Quota, False)
+
+    def test_quota_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_quota, quota.Quota, True)
+
+    def test_quota_get(self):
+        self.verify_get(self.proxy.get_quota, quota.Quota)
+
     def test_quotas(self):
         self.verify_list(self.proxy.quotas, quota.Quota, paginated=False)
+
+    def test_quota_update(self):
+        self.verify_update(self.proxy.update_quota, quota.Quota)
 
     def test_router_create_attrs(self):
         self.verify_create(self.proxy.create_router, router.Router)

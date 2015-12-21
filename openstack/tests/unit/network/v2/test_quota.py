@@ -22,6 +22,10 @@ EXAMPLE = {
     'tenant_id': '4',
     'router': 5,
     'subnet': 6,
+    'subnetpool': 7,
+    'security_group_rule': 8,
+    'security_group': 9,
+    'rbac_policy': -1,
 }
 
 
@@ -34,9 +38,9 @@ class TestQuota(testtools.TestCase):
         self.assertEqual('/quotas', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_retrieve)
-        self.assertFalse(sot.allow_update)
-        self.assertFalse(sot.allow_delete)
+        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_update)
+        self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
@@ -47,3 +51,8 @@ class TestQuota(testtools.TestCase):
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['router'], sot.router)
         self.assertEqual(EXAMPLE['subnet'], sot.subnet)
+        self.assertEqual(EXAMPLE['subnetpool'], sot.subnet_pools)
+        self.assertEqual(EXAMPLE['security_group_rule'],
+                         sot.security_group_rules)
+        self.assertEqual(EXAMPLE['security_group'], sot.security_groups)
+        self.assertEqual(EXAMPLE['rbac_policy'], sot.rbac_policies)
