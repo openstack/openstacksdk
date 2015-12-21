@@ -104,6 +104,9 @@ class prop(object):
             return None
         try:
             value = instance[self.name]
+            # self.type() should not be called on None objects.
+            if value is None:
+                return None
         except KeyError:
             try:
                 value = instance[self.alias]

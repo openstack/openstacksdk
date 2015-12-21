@@ -195,6 +195,16 @@ class PropTests(base.TestCase):
         self.assertEqual(val, sot._attrs["something"])
         self.assertEqual(val, sot.attr)
 
+    def test_property_is_none(self):
+        class Test(resource.Resource):
+            attr = resource.prop("something", type=dict)
+
+        args = {"something": None}
+        sot = Test(args)
+
+        self.assertIsNone(sot._attrs["something"])
+        self.assertIsNone(sot.attr)
+
 
 class HeaderTests(base.TestCase):
     class Test(resource.Resource):
