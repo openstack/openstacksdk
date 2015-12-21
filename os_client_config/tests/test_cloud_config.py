@@ -305,10 +305,96 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('image', mock_client)
         mock_client.assert_called_with(
-            '2',
+            2.0,
             service_name=None,
-            endpoint='http://example.com',
-            endpoint_override=None,
+            endpoint_override='http://example.com',
+            region_name='region-al',
+            interface='public',
+            session=mock.ANY,
+            # Not a typo - the config dict above overrides this
+            service_type='mage'
+        )
+
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    def test_legacy_client_image_override(self, mock_get_session_endpoint):
+        mock_client = mock.Mock()
+        mock_get_session_endpoint.return_value = 'http://example.com/v2'
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        config_dict['image_endpoint_override'] = 'http://example.com/override'
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_legacy_client('image', mock_client)
+        mock_client.assert_called_with(
+            2.0,
+            service_name=None,
+            endpoint_override='http://example.com/override',
+            region_name='region-al',
+            interface='public',
+            session=mock.ANY,
+            # Not a typo - the config dict above overrides this
+            service_type='mage'
+        )
+
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    def test_legacy_client_image_versioned(self, mock_get_session_endpoint):
+        mock_client = mock.Mock()
+        mock_get_session_endpoint.return_value = 'http://example.com/v2'
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        # v2 endpoint was passed, 1 requested in config, endpoint wins
+        config_dict['image_api_version'] = '1'
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_legacy_client('image', mock_client)
+        mock_client.assert_called_with(
+            2.0,
+            service_name=None,
+            endpoint_override='http://example.com',
+            region_name='region-al',
+            interface='public',
+            session=mock.ANY,
+            # Not a typo - the config dict above overrides this
+            service_type='mage'
+        )
+
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    def test_legacy_client_image_unversioned(self, mock_get_session_endpoint):
+        mock_client = mock.Mock()
+        mock_get_session_endpoint.return_value = 'http://example.com/'
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        # Versionless endpoint, config wins
+        config_dict['image_api_version'] = '1'
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_legacy_client('image', mock_client)
+        mock_client.assert_called_with(
+            '1',
+            service_name=None,
+            endpoint_override='http://example.com',
+            region_name='region-al',
+            interface='public',
+            session=mock.ANY,
+            # Not a typo - the config dict above overrides this
+            service_type='mage'
+        )
+
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    def test_legacy_client_image_argument(self, mock_get_session_endpoint):
+        mock_client = mock.Mock()
+        mock_get_session_endpoint.return_value = 'http://example.com/v3'
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        # Versionless endpoint, config wins
+        config_dict['image_api_version'] = '6'
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_legacy_client('image', mock_client, version='beef')
+        mock_client.assert_called_with(
+            'beef',
+            service_name=None,
+            endpoint_override='http://example.com',
             region_name='region-al',
             interface='public',
             session=mock.ANY,

@@ -302,6 +302,7 @@ class CloudConfig(object):
         interface = self.get_interface(service_key)
         # trigger exception on lack of service
         endpoint = self.get_session_endpoint(service_key)
+        endpoint_override = self.get_endpoint(service_key)
 
         if not interface_key:
             if service_key == 'image':
@@ -313,7 +314,7 @@ class CloudConfig(object):
             session=self.get_session(),
             service_name=self.get_service_name(service_key),
             service_type=self.get_service_type(service_key),
-            endpoint_override=self.get_endpoint(service_key),
+            endpoint_override=endpoint_override,
             region_name=self.region)
 
         if service_key == 'image':
@@ -322,8 +323,16 @@ class CloudConfig(object):
             # would need to do if they were requesting 'image' - then
             # they necessarily have glanceclient installed
             from glanceclient.common import utils as glance_utils
-            endpoint, _ = glance_utils.strip_version(endpoint)
-            constructor_kwargs['endpoint'] = endpoint
+            endpoint, detected_version = glance_utils.strip_version(endpoint)
+            # If the user has passed in a version, that's explicit, use it
+            if not version:
+                version = detected_version
+            # If the user has passed in or configured an override, use it.
+            # Otherwise, ALWAYS pass in an endpoint_override becuase
+            # we've already done version stripping, so we don't want version
+            # reconstruction to happen twice
+            if not endpoint_override:
+                constructor_kwargs['endpoint_override'] = endpoint
         constructor_kwargs.update(kwargs)
         constructor_kwargs[interface_key] = interface
         constructor_args = []
