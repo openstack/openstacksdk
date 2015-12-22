@@ -20,6 +20,7 @@ from openstack.cluster.v1 import policy as _policy
 from openstack.cluster.v1 import policy_type as _policy_type
 from openstack.cluster.v1 import profile as _profile
 from openstack.cluster.v1 import profile_type as _profile_type
+from openstack.cluster.v1 import receiver as _receiver
 from openstack import proxy
 from openstack import resource
 
@@ -463,6 +464,83 @@ class Proxy(proxy.BaseProxy):
         policy_id = resource.Resource.get_id(cluster_policy)
         return self._get(_cluster_policy.ClusterPolicy, policy_id,
                          path_args={'cluster_id': cluster_id})
+
+    def create_receiver(self, **attrs):
+        """Create a new receiver from attributes.
+
+        :param dict attrs: Keyword arguments that will be used to create a
+             :class:`~openstack.cluster.v1.receiver.Receiver`, it is comprised
+             of the properties on the Receiver class.
+
+        :returns: The results of receiver creation.
+        :rtype: :class:`~openstack.cluster.v1.receiver.Receiver`.
+        """
+        return self._create(_receiver.Receiver, **attrs)
+
+    def delete_receiver(self, receiver, ignore_missing=True):
+        """Delete a receiver.
+
+        :param receiver: The value can be either the name or ID of a receiver
+            or a :class:`~openstack.cluster.v1.receiver.Receiver` instance.
+        :param bool ignore_missing: When set to ``False``, an exception
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the receiver could not be found. When set to ``True``, no exception
+            will be raised when attempting to delete a non-existent receiver.
+
+        :returns: ``None``
+        """
+        self._delete(_receiver.Receiver, receiver,
+                     ignore_missing=ignore_missing)
+
+    def find_receiver(self, name_or_id, ignore_missing=True):
+        """Find a single receiver.
+
+        :param str name_or_id: The name or ID of a receiver.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the specified receiver does not exist. When
+                    set to ``True``, None will be returned when attempting to
+                    find a nonexistent receiver.
+        :returns: A receiver object or None.
+        :rtype: :class:`~openstack.cluster.v1.receiver.Receiver`
+        """
+        return self._find(_receiver.Receiver, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def get_receiver(self, receiver):
+        """Get a single receiver.
+
+        :param receiver: The value can be the name or ID of a receiver or a
+            :class:`~openstack.cluster.v1.receiver.Receiver` instance.
+
+        :returns: A receiver object.
+        :rtype: :class:`~openstack.cluster.v1.receiver.Receiver`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            receiver matching the criteria could be found.
+        """
+        return self._get(_receiver.Receiver, receiver)
+
+    def receivers(self, **query):
+        """Retrieve a generator of receivers.
+
+        :param kwargs \*\*query: Optional query parameters for restricting the
+            receivers to be returned. Available parameters include:
+
+            * name: The name of a receiver object.
+            * type: The type of receiver objects.
+            * cluster_id: The ID of the associated cluster.
+            * action: The name of the associated action.
+            * show_deleted: A boolean value indicating whether soft-deleted
+                policies should be returned as well.
+            * global_project: A boolean value indicating whether receivers
+            *   from all projects will be returned.
+            * sort_keys: A list of attribute names based on which the returned
+                list will be sorted.
+            * sort_dir: A string indicating the sorting direction. Valid
+                values include `asc` and `desc`.
+        :returns: A generator of receiver instances.
+        """
+        return self._list(_receiver.Receiver, paginated=True, **query)
 
     def get_action(self, action):
         """Get a single action.
