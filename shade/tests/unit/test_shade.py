@@ -80,8 +80,8 @@ class TestShade(base.TestCase):
         get_session_mock.return_value = session_mock
         self.cloud.glance_client
         mock_client.assert_called_with(
-            '2',
-            endpoint='http://example.com',
+            2.0,
+            endpoint_override='http://example.com',
             region_name='', service_name=None,
             interface='public',
             service_type='image', session=mock.ANY,
@@ -95,6 +95,7 @@ class TestShade(base.TestCase):
         self.cloud.heat_client
         mock_client.assert_called_with(
             '1',
+            endpoint_override=None,
             endpoint_type='public',
             region_name='',
             service_name=None,
