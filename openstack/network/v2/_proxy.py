@@ -26,6 +26,7 @@ from openstack.network.v2 import router as _router
 from openstack.network.v2 import security_group as _security_group
 from openstack.network.v2 import security_group_rule as _security_group_rule
 from openstack.network.v2 import subnet as _subnet
+from openstack.network.v2 import subnet_pool as _subnet_pool
 from openstack.network.v2 import vpn_service as _vpn_service
 from openstack import proxy
 from openstack import resource
@@ -1291,6 +1292,89 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.subnet.Subnet`
         """
         return self._update(_subnet.Subnet, subnet, **attrs)
+
+    def create_subnet_pool(self, **attrs):
+        """Create a new subnet pool from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.network.v2.subnet_pool.
+                           SubnetPool`, comprised of the properties on the
+                           SubnetPool class.
+
+        :returns: The results of subnet pool creation
+        :rtype: :class:`~openstack.network.v2.subnet_pool.SubnetPool`
+        """
+        return self._create(_subnet_pool.SubnetPool, **attrs)
+
+    def delete_subnet_pool(self, subnet_pool, ignore_missing=True):
+        """Delete a subnet pool
+
+        :param subnet_pool: The value can be either the ID of a subnet pool or
+                            a :class:`~openstack.network.v2.subnet_pool.
+                            SubnetPool` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the subnet pool does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent subnet pool.
+
+        :returns: ``None``
+        """
+        self._delete(_subnet_pool.SubnetPool, subnet_pool,
+                     ignore_missing=ignore_missing)
+
+    def find_subnet_pool(self, name_or_id, ignore_missing=True):
+        """Find a single subnet pool
+
+        :param name_or_id: The name or ID of a subnet pool.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :returns: One :class:`~openstack.network.v2.subnet_pool.SubnetPool`
+                  or None
+        """
+        return self._find(_subnet_pool.SubnetPool, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def get_subnet_pool(self, subnet_pool):
+        """Get a single subnet pool
+
+        :param subnet_pool: The value can be the ID of a subnet pool or a
+                            :class:`~openstack.network.v2.subnet_pool.
+                            SubnetPool` instance.
+
+        :returns: One :class:`~openstack.network.v2.subnet_pool.SubnetPool`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_subnet_pool.SubnetPool, subnet_pool)
+
+    def subnet_pools(self, **query):
+        """Return a generator of subnet pools
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
+
+        :returns: A generator of subnet pool objects
+        :rtype: :class:`~openstack.network.v2.subnet_pool.SubnetPool`
+        """
+        return self._list(_subnet_pool.SubnetPool, paginated=False, **query)
+
+    def update_subnet_pool(self, subnet_pool, **attrs):
+        """Update a subnet pool
+
+        :param subnet_pool: Either the ID of a subnet pool or a
+                            :class:`~openstack.network.v2.subnet_pool.
+                            SubnetPool` instance.
+        :attrs kwargs: The attributes to update on the subnet pool
+                       represented by ``value``.
+
+        :returns: The updated subnet pool
+        :rtype: :class:`~openstack.network.v2.subnet_pool.SubnetPool`
+        """
+        return self._update(_subnet_pool.SubnetPool, subnet_pool, **attrs)
 
     def create_vpn_service(self, **attrs):
         """Create a new vpn service from attributes
