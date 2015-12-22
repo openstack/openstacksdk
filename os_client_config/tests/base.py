@@ -119,7 +119,15 @@ USER_CONF = {
                 'auth_url': 'http://example.com/v2',
             },
             'region_name': 'test-region',
-        }
+        },
+        '_test-cloud_no_region': {
+            'profile': '_test_cloud_in_our_cloud',
+            'auth': {
+                'auth_url': 'http://example.com/v2',
+                'username': 'testuser',
+                'password': 'testpass',
+            },
+        },
     },
     'ansible': {
         'expand-hostvars': False,

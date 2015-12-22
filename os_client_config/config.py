@@ -366,6 +366,13 @@ class OpenStackConfig(object):
     def _get_regions(self, cloud):
         if cloud not in self.cloud_config['clouds']:
             return [self._expand_region_name('')]
+        regions = self._get_known_regions(cloud)
+        if not regions:
+            # We don't know of any regions use a workable default.
+            regions = [self._expand_region_name('')]
+        return regions
+
+    def _get_known_regions(self, cloud):
         config = self._normalize_keys(self.cloud_config['clouds'][cloud])
         if 'regions' in config:
             return self._expand_regions(config['regions'])
@@ -386,15 +393,15 @@ class OpenStackConfig(object):
                 return self._expand_regions(new_cloud['regions'])
             elif 'region_name' in new_cloud and new_cloud['region_name']:
                 return [self._expand_region_name(new_cloud['region_name'])]
-            else:
-                # Wow. We really tried
-                return [self._expand_region_name('')]
 
     def _get_region(self, cloud=None, region_name=''):
         if not cloud:
             return self._expand_region_name(region_name)
 
-        regions = self._get_regions(cloud)
+        regions = self._get_known_regions(cloud)
+        if not regions:
+            return self._expand_region_name(region_name)
+
         if not region_name:
             return regions[0]
 

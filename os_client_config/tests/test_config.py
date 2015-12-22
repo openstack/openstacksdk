@@ -178,6 +178,7 @@ class TestConfig(base.TestCase):
             ['_test-cloud-domain-id_',
              '_test-cloud-int-project_',
              '_test-cloud_',
+             '_test-cloud_no_region',
              '_test_cloud_hyphenated',
              '_test_cloud_no_vendor',
              '_test_cloud_regions',
@@ -229,6 +230,61 @@ class TestConfig(base.TestCase):
             # We write a cache config for testing
             written_config['cache'].pop('path', None)
             self.assertEqual(written_config, resulting_config)
+
+    def test_get_region_no_region_default(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml],
+                                   secure_files=[self.no_yaml])
+        region = c._get_region(cloud='_test-cloud_no_region')
+        self.assertEqual(region, {'name': '', 'values': {}})
+
+    def test_get_region_no_region(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml],
+                                   secure_files=[self.no_yaml])
+        region = c._get_region(cloud='_test-cloud_no_region',
+                               region_name='override-region')
+        self.assertEqual(region, {'name': 'override-region', 'values': {}})
+
+    def test_get_region_region_set(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml],
+                                   secure_files=[self.no_yaml])
+        region = c._get_region(cloud='_test-cloud_', region_name='test-region')
+        self.assertEqual(region, {'name': 'test-region', 'values': {}})
+
+    def test_get_region_many_regions_default(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml],
+                                   secure_files=[self.no_yaml])
+        region = c._get_region(cloud='_test_cloud_regions',
+                               region_name='')
+        self.assertEqual(region, {'name': 'region1', 'values':
+                         {'external_network': 'region1-network'}})
+
+    def test_get_region_many_regions(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml],
+                                   secure_files=[self.no_yaml])
+        region = c._get_region(cloud='_test_cloud_regions',
+                               region_name='region2')
+        self.assertEqual(region, {'name': 'region2', 'values':
+                         {'external_network': 'my-network'}})
+
+    def test_get_region_invalid_region(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml],
+                                   secure_files=[self.no_yaml])
+        self.assertRaises(
+            exceptions.OpenStackConfigException, c._get_region,
+            cloud='_test_cloud_regions', region_name='invalid-region')
+
+    def test_get_region_no_cloud(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml],
+                                   secure_files=[self.no_yaml])
+        region = c._get_region(region_name='no-cloud-region')
+        self.assertEqual(region, {'name': 'no-cloud-region', 'values': {}})
 
 
 class TestConfigArgparse(base.TestCase):
