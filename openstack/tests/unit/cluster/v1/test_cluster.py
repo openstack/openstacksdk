@@ -90,6 +90,48 @@ class TestCluster(testtools.TestCase):
         self.assertEqual(FAKE['timeout'], sot.timeout)
         self.assertEqual(FAKE['tags'], sot.tags)
 
+    def test_scale_in(self):
+        sot = cluster.Cluster(FAKE)
+        sot['id'] = 'IDENTIFIER'
+
+        resp = mock.Mock()
+        resp.json = mock.Mock(return_value='')
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=resp)
+        self.assertEqual('', sot.scale_in(sess, 3))
+        url = 'clusters/%s/actions' % sot.id
+        body = {'scale_in': {'count': 3}}
+        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+                                          json=body)
+
+    def test_scale_out(self):
+        sot = cluster.Cluster(FAKE)
+        sot['id'] = 'IDENTIFIER'
+
+        resp = mock.Mock()
+        resp.json = mock.Mock(return_value='')
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=resp)
+        self.assertEqual('', sot.scale_out(sess, 3))
+        url = 'clusters/%s/actions' % sot.id
+        body = {'scale_out': {'count': 3}}
+        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+                                          json=body)
+
+    def test_resize(self):
+        sot = cluster.Cluster(FAKE)
+        sot['id'] = 'IDENTIFIER'
+
+        resp = mock.Mock()
+        resp.json = mock.Mock(return_value='')
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=resp)
+        self.assertEqual('', sot.resize(sess, foo='bar', zoo=5))
+        url = 'clusters/%s/actions' % sot.id
+        body = {'resize': {'foo': 'bar', 'zoo': 5}}
+        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+                                          json=body)
+
     def test_add_nodes(self):
         sot = cluster.Cluster(FAKE)
         sot['id'] = 'IDENTIFIER'

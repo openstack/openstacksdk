@@ -110,6 +110,12 @@ class Cluster(resource.Resource):
         }
         return self.action(session, body)
 
+    def resize(self, session, **kwargs):
+        body = {
+            'resize': kwargs
+        }
+        return self.action(session, body)
+
     def policy_attach(self, session, policy_id, priority, level, cooldown,
                       enabled):
         body = {
