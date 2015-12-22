@@ -21,7 +21,9 @@ from shade import _utils
 class OpenStackInventory(object):
 
     def __init__(
-            self, config_files=[], refresh=False, private=False):
+            self, config_files=None, refresh=False, private=False):
+        if config_files is None:
+            config_files = []
         config = os_client_config.config.OpenStackConfig(
             config_files=os_client_config.config.CONFIG_FILES + config_files)
 

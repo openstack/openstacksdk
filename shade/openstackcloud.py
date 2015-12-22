@@ -3149,7 +3149,7 @@ class OpenStackCloud(object):
             root_volume=None, terminate_volume=False,
             wait=False, timeout=180, reuse_ips=True,
             network=None, boot_from_volume=False, volume_size='50',
-            boot_volume=None, volumes=[],
+            boot_volume=None, volumes=None,
             **kwargs):
         """Create a virtual server instance.
 
@@ -3226,6 +3226,10 @@ class OpenStackCloud(object):
         :raises: OpenStackCloudException on operation error.
         """
         # nova cli calls this boot_volume. Let's be the same
+
+        if volumes is None:
+            volumes = []
+
         if root_volume and not boot_volume:
             boot_volume = root_volume
 
