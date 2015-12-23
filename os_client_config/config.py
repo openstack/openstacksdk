@@ -883,7 +883,6 @@ class OpenStackConfig(object):
         if (('auth' in config and 'token' in config['auth']) or
                 ('auth_token' in config and config['auth_token']) or
                 ('token' in config and config['token'])):
-            config['auth_type'] = 'token'
             config.setdefault('token', config.pop('auth_token', None))
 
         # These backwards compat values are only set via argparse. If it's

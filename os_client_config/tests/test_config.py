@@ -482,7 +482,8 @@ class TestConfigArgparse(base.TestCase):
         # novaclient will add this
         parser.add_argument('--os-auth-token')
         opts, _remain = parser.parse_known_args(
-            ['--os-auth-token', 'very-bad-things'])
+            ['--os-auth-token', 'very-bad-things',
+             '--os-auth-type', 'token'])
         cc = c.get_one_cloud(argparse=opts)
         self.assertEqual(cc.config['auth_type'], 'token')
         self.assertEqual(cc.config['auth']['token'], 'very-bad-things')
