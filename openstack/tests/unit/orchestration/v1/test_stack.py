@@ -11,9 +11,12 @@
 # under the License.
 
 import mock
+import six
 import testtools
 
+from openstack import exceptions
 from openstack.orchestration.v1 import stack
+from openstack import resource
 
 
 FAKE_ID = 'ce8ae86c-9810-4cb1-8888-7fb53bc523bf'
@@ -135,3 +138,24 @@ class TestStack(testtools.TestCase):
         body = {'check': ''}
         sot.check(session_mock)
         sot._action.assert_called_with(session_mock, body)
+
+    @mock.patch.object(resource.Resource, 'find')
+    def test_find(self, mock_find):
+        sess = mock.Mock()
+        sot = stack.Stack(FAKE)
+        deleted_stack = mock.Mock(status='DELETE_COMPLETE')
+        normal_stack = mock.Mock(status='CREATE_COMPLETE')
+        mock_find.side_effect = [
+            None,
+            normal_stack,
+            deleted_stack,
+            deleted_stack,
+        ]
+
+        self.assertIsNone(sot.find(sess, 'fake_name'))
+        self.assertEqual(normal_stack, sot.find(sess, 'fake_name'))
+        self.assertIsNone(sot.find(sess, 'fake_name', ignore_missing=True))
+        ex = self.assertRaises(exceptions.ResourceNotFound, sot.find,
+                               sess, 'fake_name', ignore_missing=False)
+        self.assertEqual('ResourceNotFound: No stack found for fake_name',
+                         six.text_type(ex))
