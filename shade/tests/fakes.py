@@ -202,7 +202,7 @@ class FakeHypervisor(object):
 
 
 class FakeStack(object):
-    def __init__(self, id, name, description=None, status=None):
+    def __init__(self, id, name, description=None, status='CREATE_COMPLETE'):
         self.id = id
         self.stack_name = name
         self.stack_description = description

@@ -81,7 +81,7 @@ def _no_pending_images(images):
 def _no_pending_stacks(stacks):
     '''If there are any stacks not in a steady state, don't cache'''
     for stack in stacks:
-        status = stack['status']
+        status = stack['stack_status']
         if '_COMPLETE' not in status and '_FAILED' not in status:
             return False
     return True
