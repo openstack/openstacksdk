@@ -32,11 +32,18 @@ if requestsexceptions.SubjectAltNameWarning:
         'ignore', category=requestsexceptions.SubjectAltNameWarning)
 
 
-def simple_logging(debug=False):
+def simple_logging(debug=False, http_debug=False):
+    if http_debug:
+        debug = True
     if debug:
         log_level = logging.DEBUG
     else:
         log_level = logging.INFO
+    if http_debug:
+        # Enable HTTP level tracing
+        log = _log.setup_logging('keystoneauth')
+        log.addHandler(logging.StreamHandler())
+        log.setLevel(log_level)
     log = _log.setup_logging('shade')
     log.addHandler(logging.StreamHandler())
     log.setLevel(log_level)
