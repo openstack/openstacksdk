@@ -4,6 +4,7 @@
     "auth": {
       "auth_url": "https://api.entercloudsuite.com/v2.0"
     },
+    "volume_api_version": "1",
     "regions": [
       "it-mil1",
       "nl-ams1",

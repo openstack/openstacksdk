@@ -4,6 +4,7 @@
     "auth": {
       "auth_url": "https://console.ultimum-cloud.com:5000/v2.0"
     },
+    "volume_api_version": "1",
     "region-name": "RegionOne"
   }
 }
