@@ -217,6 +217,8 @@ class Resource(collections.MutableMapping):
     id_attribute = 'id'
     #: Attribute key associated with the name for this resource.
     name_attribute = 'name'
+    #: Attribute key associated with 'location' from response headers
+    location = header('location')
 
     #: The base part of the url for this resource.
     base_path = ''
@@ -547,10 +549,13 @@ class Resource(collections.MutableMapping):
             resp = session.put(url, endpoint_filter=cls.service, **args)
         else:
             resp = session.post(url, endpoint_filter=cls.service, **args)
+        resp_headers = resp.headers
         resp = resp.json()
 
         if cls.resource_key:
             resp = resp[cls.resource_key]
+        if resp_headers:
+            resp[HEADERS] = copy.deepcopy(resp_headers)
 
         return resp
 
@@ -566,6 +571,8 @@ class Resource(collections.MutableMapping):
         """
         resp = self.create_by_id(session, self._attrs, self.id, path_args=self)
         self._attrs[self.id_attribute] = resp[self.id_attribute]
+        if HEADERS in resp:
+            self.set_headers(resp[HEADERS])
         self._reset_dirty()
         return self
 
@@ -748,10 +755,13 @@ class Resource(collections.MutableMapping):
             resp = session.patch(url, endpoint_filter=cls.service, **args)
         else:
             resp = session.put(url, endpoint_filter=cls.service, **args)
+        resp_headers = resp.headers
         resp = resp.json()
 
         if cls.resource_key and cls.resource_key in resp.keys():
             resp = resp[cls.resource_key]
+        if resp_headers:
+            resp[HEADERS] = resp_headers
 
         return resp
 
@@ -777,7 +787,8 @@ class Resource(collections.MutableMapping):
             pass
         else:
             assert resp_id == self.id
-
+        if HEADERS in resp:
+            self.set_headers(resp[HEADERS])
         self._reset_dirty()
         return self
 
