@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import sys
+
 from openstack.object_store.v1 import account as _account
 from openstack.object_store.v1 import container as _container
 from openstack.object_store.v1 import obj as _obj
@@ -164,10 +166,28 @@ class Proxy(proxy.BaseProxy):
 
         :param object: The object to save to disk.
         :type object: :class:`~openstack.object_store.v1.obj.Object`
-        :param path str: Location to write the object contents.
+        :param path value: Location to write the object contents. Can be a path
+                           to a file or an already opened stream object.
         """
-        with open(path, "w") as out:
-            out.write(self.get_object(object))
+
+        # is this a path or a stream
+        # inspired by https://github.com/kennethreitz/requests/blob/master/requests/models.py#L424
+        is_stream = all([
+            hasattr(path, '__iter__'),
+            not isinstance(path, (str, list, tuple, dict))
+        ])
+
+        content = self.get_object(object)
+
+        if is_stream:
+            path.write(content)
+        else:
+            mode = "w"
+            if sys.version_info[0] == 3:
+                mode = "wb"
+
+            with open(path, mode) as out:
+                out.write(content)
 
     def upload_object(self, **attrs):
         """Upload a new object from attributes
