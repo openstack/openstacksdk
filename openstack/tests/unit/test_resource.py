@@ -396,18 +396,18 @@ class ResourceTests(base.TestCase):
 
     def test_create_without_resource_key(self):
         key = None
-        response_value = [1, 2, 3]
+        response_value = {"a": 1, "b": 2, "c": 3}
         response_body = response_value
-        attrs = {"a": 1, "b": 2, "c": 3}
+        attrs = response_value
         json_body = attrs
         self._test_create_by_id(key, response_value, response_body,
                                 attrs, json_body)
 
     def test_create_with_resource_key(self):
         key = "my_key"
-        response_value = [1, 2, 3]
+        response_value = {"a": 1, "b": 2, "c": 3}
         response_body = {key: response_value}
-        attrs = {"a": 1, "b": 2, "c": 3}
+        attrs = response_body
         json_body = {key: attrs}
         self._test_create_by_id(key, response_value, response_body,
                                 attrs, json_body)
@@ -440,13 +440,13 @@ class ResourceTests(base.TestCase):
 
     def test_get_data_without_resource_key(self):
         key = None
-        response_value = [1, 2, 3]
+        response_value = {"a": 1, "b": 2, "c": 3}
         response_body = response_value
         self._test_get_data_by_id(key, response_value, response_body)
 
     def test_get_data_with_resource_key(self):
         key = "my_key"
-        response_value = [1, 2, 3]
+        response_value = {"a": 1, "b": 2, "c": 3}
         response_body = {key: response_value}
         self._test_get_data_by_id(key, response_value, response_body)
 
@@ -523,18 +523,18 @@ class ResourceTests(base.TestCase):
 
     def test_update_without_resource_key(self):
         key = None
-        response_value = [1, 2, 3]
+        response_value = {"a": 1, "b": 2, "c": 3}
         response_body = response_value
-        attrs = {"a": 1, "b": 2, "c": 3}
+        attrs = response_value
         json_body = attrs
         self._test_update_by_id(key, response_value, response_body,
                                 attrs, json_body)
 
     def test_update_with_resource_key(self):
         key = "my_key"
-        response_value = [1, 2, 3]
+        response_value = {"a": 1, "b": 2, "c": 3}
         response_body = {key: response_value}
-        attrs = {"a": 1, "b": 2, "c": 3}
+        attrs = response_value
         json_body = {key: attrs}
         self._test_update_by_id(key, response_value, response_body,
                                 attrs, json_body)
