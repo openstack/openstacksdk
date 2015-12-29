@@ -246,6 +246,13 @@ class TestConfig(base.TestCase):
                                region_name='override-region')
         self.assertEqual(region, {'name': 'override-region', 'values': {}})
 
+    def test_get_region_region_is_none(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml],
+                                   secure_files=[self.no_yaml])
+        region = c._get_region(cloud='_test-cloud_no_region', region_name=None)
+        self.assertEqual(region, {'name': '', 'values': {}})
+
     def test_get_region_region_set(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml],

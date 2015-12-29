@@ -395,6 +395,8 @@ class OpenStackConfig(object):
                 return [self._expand_region_name(new_cloud['region_name'])]
 
     def _get_region(self, cloud=None, region_name=''):
+        if region_name is None:
+            region_name = ''
         if not cloud:
             return self._expand_region_name(region_name)
 
