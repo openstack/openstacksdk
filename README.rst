@@ -117,7 +117,7 @@ An example config file is probably helpful:
       - IAD
 
 You may note a few things. First, since `auth_url` settings are silly
-and embarrasingly ugly, known cloud vendor profile information is included and
+and embarrassingly ugly, known cloud vendor profile information is included and
 may be referenced by name. One of the benefits of that is that `auth_url`
 isn't the only thing the vendor defaults contain. For instance, since
 Rackspace lists `rax:database` as the service type for trove, `os-client-config`
@@ -148,8 +148,8 @@ related to domains, projects and trusts.
 Splitting Secrets
 -----------------
 
-In some scenarios, such as configuragtion managment controlled environments,
-it might be eaiser to have secrets in one file and non-secrets in another.
+In some scenarios, such as configuration management controlled environments,
+it might be easier to have secrets in one file and non-secrets in another.
 This is fully supported via an optional file `secure.yaml` which follows all
 the same location rules as `clouds.yaml`. It can contain anything you put
 in `clouds.yaml` and will take precedence over anything in the `clouds.yaml`
@@ -380,4 +380,4 @@ If you want to do the same thing but also support command line parsing.
       'compute', options=argparse.ArgumentParser())
 
 If you want to get fancier than that in your python, then the rest of the
-API is avaiable to you. But often times, you just want to do the one thing.
+API is available to you. But often times, you just want to do the one thing.
