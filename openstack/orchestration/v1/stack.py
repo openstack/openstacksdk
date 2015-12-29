@@ -107,3 +107,13 @@ class Stack(resource.Resource):
                 raise exceptions.ResourceNotFound(
                     "No stack found for %s" % name_or_id)
         return stk
+
+
+class StackPreview(Stack):
+    base_path = '/stacks/preview'
+
+    allow_create = True
+    allow_list = False
+    allow_retrieve = False
+    allow_update = False
+    allow_delete = False
