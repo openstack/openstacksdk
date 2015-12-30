@@ -577,7 +577,7 @@ class Resource(collections.MutableMapping):
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
         :param resource_id: This resource's identifier, if needed by
-                            the request. The default is ``None``.
+                            the request.
         :param dict path_args: A dictionary of arguments to construct
                                a compound URL.
                                See `How path_args are used`_ for details.
@@ -612,7 +612,7 @@ class Resource(collections.MutableMapping):
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
         :param resource_id: This resource's identifier, if needed by
-                            the request. The default is ``None``.
+                            the request.
         :param dict path_args: A dictionary of arguments to construct
                                a compound URL.
                                See `How path_args are used`_ for details.
@@ -655,7 +655,7 @@ class Resource(collections.MutableMapping):
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
         :param resource_id: This resource's identifier, if needed by
-                            the request. The default is ``None``.
+                            the request.
         :param dict path_args: A dictionary of arguments to construct
                                a compound URL.
                                See `How path_args are used`_ for details.
@@ -681,7 +681,7 @@ class Resource(collections.MutableMapping):
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
         :param resource_id: This resource's identifier, if needed by
-                            the request. The default is ``None``.
+                            the request.
         :param dict path_args: A dictionary of arguments to construct
                                a compound URL.
                                See `How path_args are used`_ for details.
@@ -715,7 +715,7 @@ class Resource(collections.MutableMapping):
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
         :param resource_id: This resource's identifier, if needed by
-                            the request. The default is ``None``.
+                            the request.
         :param dict attrs: The attributes to be sent in the body
                            of the request.
         :param dict path_args: A dictionary of arguments to construct
@@ -788,7 +788,7 @@ class Resource(collections.MutableMapping):
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
         :param resource_id: This resource's identifier, if needed by
-                            the request. The default is ``None``.
+                            the request.
         :param dict path_args: A dictionary of arguments to construct
                                a compound URL.
                                See `How path_args are used`_ for details.
