@@ -1130,7 +1130,9 @@ class OpenStackCloud(object):
                 "Error fetching server list on {cloud}:{region}:".format(
                     cloud=self.name,
                     region=self.region_name)):
-            servers = self.manager.submitTask(_tasks.ServerList())
+            servers = _utils.normalize_servers(
+                self.manager.submitTask(_tasks.ServerList()),
+                cloud_name=self.name, region_name=self.region_name)
 
             if detailed:
                 return [
@@ -1485,7 +1487,9 @@ class OpenStackCloud(object):
         return _utils._get_entity(searchfunc, name_or_id, filters)
 
     def get_server_by_id(self, id):
-        return self.manager.submitTask(_tasks.ServerGet(server=id))
+        return _utils.normalize_server(
+            self.manager.submitTask(_tasks.ServerGet(server=id)),
+            cloud_name=self.name, region_name=self.region_name)
 
     def get_image(self, name_or_id, filters=None):
         """Get an image by name or ID.

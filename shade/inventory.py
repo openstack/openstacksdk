@@ -61,9 +61,7 @@ class OpenStackInventory(object):
                 if expand:
                     server_vars = cloud.get_openstack_vars(server)
                 else:
-                    # expand_server_vars gets renamed in a follow on
-                    # patch which should make this a bit clearer.
-                    server_vars = meta.expand_server_vars(cloud, server)
+                    server_vars = meta.add_server_interfaces(cloud, server)
                 hostvars.append(server_vars)
 
         return hostvars

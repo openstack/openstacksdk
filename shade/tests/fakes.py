@@ -72,7 +72,11 @@ class FakeServer(object):
         self.name = name
         self.status = status
         self.addresses = addresses
+        if not flavor:
+            flavor = {}
         self.flavor = flavor
+        if not image:
+            image = {}
         self.image = image
         self.accessIPv4 = accessIPv4
         self.accessIPv6 = accessIPv6

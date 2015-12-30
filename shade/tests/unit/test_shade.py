@@ -25,6 +25,7 @@ import shade
 from shade import _utils
 from shade import exc
 from shade import meta
+from shade.tests import fakes
 from shade.tests.unit import base
 
 
@@ -499,7 +500,9 @@ class TestShade(base.TestCase):
         to the ServerList task.'''
         mock_serverlist.return_value = [
             munch.Munch({'name': 'testserver',
-                         'id': '1'})
+                         'id': '1',
+                         'flavor': {},
+                         'image': ''})
         ]
 
         r = self.cloud.list_servers()
@@ -514,7 +517,10 @@ class TestShade(base.TestCase):
         '''This test verifies that when list_servers is called with
         `detailed=True` that it calls `get_hostvars_from_server` for each
         server in the list.'''
-        mock_serverlist.return_value = ['server1', 'server2']
+        mock_serverlist.return_value = [
+            fakes.FakeServer('server1', '', 'ACTIVE'),
+            fakes.FakeServer('server2', '', 'ACTIVE'),
+        ]
         mock_get_hostvars_from_server.side_effect = [
             {'name': 'server1', 'id': '1'},
             {'name': 'server2', 'id': '2'},

@@ -19,6 +19,7 @@ import warlock
 from neutronclient.common import exceptions as neutron_exceptions
 
 import shade
+from shade import _utils
 from shade import meta
 from shade.tests import fakes
 
@@ -359,14 +360,17 @@ class TestMeta(testtools.TestCase):
         mock_get_server_external_ipv6.return_value = PUBLIC_V6
 
         hostvars = meta.get_hostvars_from_server(
-            FakeCloud(), meta.obj_to_dict(FakeServer()))
+            FakeCloud(), _utils.normalize_server(
+                meta.obj_to_dict(FakeServer()),
+                cloud_name='CLOUD_NAME',
+                region_name='REGION_NAME'))
         self.assertNotIn('links', hostvars)
         self.assertEqual(PRIVATE_V4, hostvars['private_v4'])
         self.assertEqual(PUBLIC_V4, hostvars['public_v4'])
         self.assertEqual(PUBLIC_V6, hostvars['public_v6'])
         self.assertEqual(PUBLIC_V6, hostvars['interface_ip'])
-        self.assertEquals(FakeCloud.region_name, hostvars['region'])
-        self.assertEquals(FakeCloud.name, hostvars['cloud'])
+        self.assertEquals('REGION_NAME', hostvars['region'])
+        self.assertEquals('CLOUD_NAME', hostvars['cloud'])
         self.assertEquals("test-image-name", hostvars['image']['name'])
         self.assertEquals(FakeServer.image['id'], hostvars['image']['id'])
         self.assertNotIn('links', hostvars['image'])
@@ -411,14 +415,13 @@ class TestMeta(testtools.TestCase):
             FakeCloud(), meta.obj_to_dict(server))
         self.assertEquals('fake-image-id', hostvars['image']['id'])
 
-    @mock.patch.object(shade.meta, 'get_server_external_ipv4')
-    def test_az(self, mock_get_server_external_ipv4):
-        mock_get_server_external_ipv4.return_value = PUBLIC_V4
-
+    def test_az(self):
         server = FakeServer()
         server.__dict__['OS-EXT-AZ:availability_zone'] = 'az1'
-        hostvars = meta.get_hostvars_from_server(
-            FakeCloud(), meta.obj_to_dict(server))
+
+        hostvars = _utils.normalize_server(
+            meta.obj_to_dict(server),
+            cloud_name='', region_name='')
         self.assertEquals('az1', hostvars['az'])
 
     def test_has_volume(self):

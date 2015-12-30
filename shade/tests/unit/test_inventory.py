@@ -16,7 +16,10 @@
 import mock
 import os_client_config
 
+from shade import _utils
 from shade import inventory
+from shade import meta
+from shade.tests import fakes
 from shade.tests.unit import base
 
 
@@ -59,14 +62,17 @@ class TestInventory(base.TestCase):
         self.assertEqual([server], ret)
 
     @mock.patch("os_client_config.config.OpenStackConfig")
-    @mock.patch("shade.meta.expand_server_vars")
+    @mock.patch("shade.meta.add_server_interfaces")
     @mock.patch("shade.OpenStackCloud")
-    def test_list_hosts_no_detail(self, mock_cloud, mock_expand, mock_config):
+    def test_list_hosts_no_detail(self, mock_cloud, mock_add, mock_config):
         mock_config.return_value.get_all_clouds.return_value = [{}]
 
         inv = inventory.OpenStackInventory()
 
-        server = dict(id='server_id', name='server_name')
+        server = _utils.normalize_server(
+            meta.obj_to_dict(fakes.FakeServer(
+                '1234', 'test', 'ACTIVE', addresses={})),
+            region_name='', cloud_name='')
         self.assertIsInstance(inv.clouds, list)
         self.assertEqual(1, len(inv.clouds))
         inv.clouds[0].list_servers.return_value = [server]
@@ -75,7 +81,7 @@ class TestInventory(base.TestCase):
 
         inv.clouds[0].list_servers.assert_called_once_with()
         self.assertFalse(inv.clouds[0].get_openstack_vars.called)
-        mock_expand.assert_called_once_with(inv.clouds[0], server)
+        mock_add.assert_called_once_with(inv.clouds[0], server)
 
     @mock.patch("os_client_config.config.OpenStackConfig")
     @mock.patch("shade.OpenStackCloud")
