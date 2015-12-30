@@ -381,3 +381,11 @@ If you want to do the same thing but also support command line parsing.
 
 If you want to get fancier than that in your python, then the rest of the
 API is available to you. But often times, you just want to do the one thing.
+
+Source
+------
+
+* Free software: Apache license
+* Documentation: http://docs.openstack.org/developer/os-client-config
+* Source: http://git.openstack.org/cgit/openstack/os-client-config
+* Bugs: http://bugs.launchpad.net/os-client-config
