@@ -304,7 +304,13 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
         self.verify_find(self.proxy.find_node, node.Node)
 
     def test_node_get(self):
-        self.verify_get(self.proxy.get_node, node.Node)
+        self.verify_get(self.proxy.get_node, node.Node, args=None,
+                        expected_kwargs={'args': None})
+
+    def test_node_get_with_args(self):
+        self.verify_get(self.proxy.get_node, node.Node, args={'details': True},
+                        method_kwargs={'args': {'details': True}},
+                        expected_kwargs={'args': {'details': True}})
 
     def test_nodes(self):
         self.verify_list(self.proxy.nodes, node.Node,

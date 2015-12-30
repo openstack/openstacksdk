@@ -436,17 +436,19 @@ class Proxy(proxy.BaseProxy):
         return self._find(_node.Node, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_node(self, node):
+    def get_node(self, node, args=None):
         """Get a single node.
 
-        :param value: The value can be the name or ID of a node or a
+        :param node: The value can be the name or ID of a node or a
             :class:`~openstack.cluster.v1.node.Node` instance.
+        :param args: An optional argument that will be translated into query
+            strings when retrieving the node.
 
         :returns: One :class:`~openstack.cluster.v1.node.Node`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             node matching the name or ID could be found.
         """
-        return self._get(_node.Node, node)
+        return self._get(_node.Node, node, args=args)
 
     def nodes(self, **query):
         """Retrieve a generator of nodes.

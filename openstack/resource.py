@@ -37,6 +37,7 @@ import time
 
 from keystoneauth1 import exceptions as ksa_exc
 import six
+from six.moves.urllib import parse as url_parse
 
 from openstack import exceptions
 from openstack import utils
@@ -570,7 +571,7 @@ class Resource(collections.MutableMapping):
         return self
 
     @classmethod
-    def get_data_by_id(cls, session, resource_id, path_args=None,
+    def get_data_by_id(cls, session, resource_id, path_args=None, args=None,
                        include_headers=False):
         """Get the attributes of a remote resource from an id.
 
@@ -581,6 +582,8 @@ class Resource(collections.MutableMapping):
         :param dict path_args: A dictionary of arguments to construct
                                a compound URL.
                                See `How path_args are used`_ for details.
+        :param dict args: A dictionary of query parameters to be appended to
+                          the compound URL.
         :param bool include_headers: ``True`` if header data should be
                                      included in the response body,
                                      ``False`` if not.
@@ -593,6 +596,8 @@ class Resource(collections.MutableMapping):
             raise exceptions.MethodNotSupported(cls, 'retrieve')
 
         url = cls._get_url(path_args, resource_id)
+        if args:
+            url = '?'.join([url, url_parse.urlencode(args)])
         response = session.get(url, endpoint_filter=cls.service)
         body = response.json()
 
@@ -629,7 +634,7 @@ class Resource(collections.MutableMapping):
                                   include_headers=include_headers)
         return cls.existing(**body)
 
-    def get(self, session, include_headers=False):
+    def get(self, session, include_headers=False, args=None):
         """Get the remote resource associated with this instance.
 
         :param session: The session to use for making this request.
@@ -637,12 +642,13 @@ class Resource(collections.MutableMapping):
         :param bool include_headers: ``True`` if header data should be
                                      included in the response body,
                                      ``False`` if not.
-
+        :param dict args: A dictionary of query parameters to be appended to
+                          the compound URL.
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
                  :data:`Resource.allow_retrieve` is not set to ``True``.
         """
-        body = self.get_data_by_id(session, self.id, path_args=self,
+        body = self.get_data_by_id(session, self.id, path_args=self, args=args,
                                    include_headers=include_headers)
         self._attrs.update(body)
         self._loaded = True

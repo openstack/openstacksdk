@@ -76,11 +76,13 @@ class Limits(resource.Resource):
     absolute = resource.prop("absolute", type=AbsoluteLimits)
     rate = resource.prop("rate", type=list)
 
-    def get(self, session, include_headers=False):
+    def get(self, session, args=None, include_headers=False):
         """Get the Limits resource.
 
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
+        :param dict args: An optional dict that will be translated into query
+            strings for retrieving the object when specified.
 
         :returns: A Limits instance
         :rtype: :class:`~openstack.compute.v2.limits.Limits`

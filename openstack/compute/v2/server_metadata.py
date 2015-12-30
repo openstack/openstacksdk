@@ -42,7 +42,7 @@ class ServerMetadata(resource.Resource):
         return attrs
 
     @classmethod
-    def get_data_by_id(cls, session, resource_id, path_args=None,
+    def get_data_by_id(cls, session, resource_id, path_args=None, args=None,
                        include_headers=False):
         url = cls._get_url(path_args)
         resp = session.get(url, endpoint_filter=cls.service)
