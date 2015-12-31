@@ -45,7 +45,7 @@ class TestServer(testtools.TestCase):
     def setUp(self):
         super(TestServer, self).setUp()
         self.resp = mock.Mock()
-        self.resp.body = ''
+        self.resp.body = None
         self.resp.json = mock.Mock(return_value=self.resp.body)
         self.sess = mock.Mock()
         self.sess.post = mock.Mock(return_value=self.resp)
