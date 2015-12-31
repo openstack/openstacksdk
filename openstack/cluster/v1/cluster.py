@@ -86,7 +86,7 @@ class Cluster(resource.Resource):
         }
         return self.action(session, body)
 
-    def delete_nodes(self, session, nodes):
+    def del_nodes(self, session, nodes):
         body = {
             'del_nodes': {
                 'nodes': nodes,
@@ -110,22 +110,17 @@ class Cluster(resource.Resource):
         }
         return self.action(session, body)
 
-    def resize(self, session, **kwargs):
+    def resize(self, session, **params):
         body = {
-            'resize': kwargs
+            'resize': params
         }
         return self.action(session, body)
 
-    def policy_attach(self, session, policy_id, priority, level, cooldown,
-                      enabled):
+    def policy_attach(self, session, policy_id, **params):
+        data = {'policy_id': policy_id}
+        data.update(params)
         body = {
-            'policy_attach': {
-                'policy_id': policy_id,
-                'priority': priority,
-                'level': level,
-                'cooldown': cooldown,
-                'enabled': enabled,
-            }
+            'policy_attach': data
         }
         return self.action(session, body)
 
@@ -137,23 +132,20 @@ class Cluster(resource.Resource):
         }
         return self.action(session, body)
 
-    def policy_update(self, session, policy_id, priority, level, cooldown,
-                      enabled):
+    def policy_update(self, session, policy_id, **params):
+        data = {'policy_id': policy_id}
+        if 'priority' in params:
+            data['priority'] = params['priority']
+        if 'level' in params:
+            data['level'] = params['level']
+        if 'cooldown' in params:
+            data['cooldown'] = params['cooldown']
+        if 'enabled' in params:
+            data['enabled'] = params['enabled']
 
         body = {
-            'policy_update': {
-                'policy_id': policy_id,
-            }
+            'policy_update': data
         }
-        if priority is not None:
-            body['policy_update']['priority'] = priority
-        if level is not None:
-            body['policy_update']['level'] = level
-        if cooldown is not None:
-            body['policy_update']['cooldown'] = cooldown
-        if enabled is not None:
-            body['policy_update']['enabled'] = enabled
-
         return self.action(session, body)
 
     def policy_enable(self, session, policy_id):

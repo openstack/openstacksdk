@@ -258,6 +258,153 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(_cluster.Cluster, cluster, **attrs)
 
+    def cluster_add_nodes(self, cluster, nodes):
+        """Add nodes to a cluster.
+
+        :param cluster: Either the name or the ID of the cluster, or an
+            instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
+        :param nodes: List of nodes to be added to the cluster.
+        :returns: A dict containing the action initiated by this operation.
+        """
+        if isinstance(cluster, _cluster.Cluster):
+            obj = cluster
+        else:
+            obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
+        return obj.add_nodes(self.session, nodes)
+
+    def cluster_del_nodes(self, cluster, nodes):
+        """Remove nodes from a cluster.
+
+        :param cluster: Either the name or the ID of the cluster, or an
+            instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
+        :param nodes: List of nodes to be removed from the cluster.
+        :returns: A dict containing the action initiated by this operation.
+        """
+        if isinstance(cluster, _cluster.Cluster):
+            obj = cluster
+        else:
+            obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
+        return obj.del_nodes(self.session, nodes)
+
+    def cluster_scale_out(self, cluster, count=None):
+        """Inflate the size of a cluster.
+
+        :param cluster: Either the name or the ID of the cluster, or an
+            instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
+        :param count: Optional parameter specifying the number of nodes to
+            be added.
+        :returns: A dict containing the action initiated by this operation.
+        """
+        if isinstance(cluster, _cluster.Cluster):
+            obj = cluster
+        else:
+            obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
+        return obj.scale_out(self.session, count)
+
+    def cluster_scale_in(self, cluster, count=None):
+        """Shrink the size of a cluster.
+
+        :param cluster: Either the name or the ID of the cluster, or an
+            instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
+        :param count: Optional parameter specifying the number of nodes to
+            be removed.
+        :returns: A dict containing the action initiated by this operation.
+        """
+        if isinstance(cluster, _cluster.Cluster):
+            obj = cluster
+        else:
+            obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
+        return obj.scale_in(self.session, count)
+
+    def cluster_resize(self, cluster, **params):
+        """Resize of cluster.
+
+        :param cluster: Either the name or the ID of the cluster, or an
+            instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
+        :param dict \*\*params: A dictionary providing the parameters for the
+            resize action.
+        :returns: A dict containing the action initiated by this operation.
+        """
+        if isinstance(cluster, _cluster.Cluster):
+            obj = cluster
+        else:
+            obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
+        return obj.resize(self.session, **params)
+
+    def cluster_attach_policy(self, cluster, policy, **params):
+        """Attach a policy to a cluster.
+
+        :param cluster: Either the name or the ID of the cluster, or an
+            instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
+        :param policy: Either the name or the ID of a policy.
+        :param dict \*\*params: A dictionary containing the properties for the
+            policy to be attached.
+        :returns: A dict containing the action initiated by this operation.
+        """
+        if isinstance(cluster, _cluster.Cluster):
+            obj = cluster
+        else:
+            obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
+        return obj.policy_attach(self.session, policy, **params)
+
+    def cluster_detach_policy(self, cluster, policy):
+        """Attach a policy to a cluster.
+
+        :param cluster: Either the name or the ID of the cluster, or an
+            instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
+        :param policy: Either the name or the ID of a policy.
+        :returns: A dict containing the action initiated by this operation.
+        """
+        if isinstance(cluster, _cluster.Cluster):
+            obj = cluster
+        else:
+            obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
+        return obj.policy_detach(self.session, policy)
+
+    def cluster_update_policy(self, cluster, policy, **params):
+        """Change properties of a policy which is bound to the cluster.
+
+        :param cluster: Either the name or the ID of the cluster, or an
+            instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
+        :param policy: Either the name or the ID of a policy.
+        :param dict \*\*params: A dictionary containing the new properties for
+            the policy.
+        :returns: A dict containing the action initiated by this operation.
+        """
+        if isinstance(cluster, _cluster.Cluster):
+            obj = cluster
+        else:
+            obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
+        return obj.policy_update(self.session, policy, **params)
+
+    def cluster_enable_policy(self, cluster, policy):
+        """Enable a policy on the cluster.
+
+        :param cluster: Either the name or the ID of the cluster, or an
+            instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
+        :param policy: Either the name or the ID of a policy.
+        :returns: A dict containing the action initiated by this operation.
+        """
+        if isinstance(cluster, _cluster.Cluster):
+            obj = cluster
+        else:
+            obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
+        return obj.policy_enable(self.session, policy)
+
+    def cluster_disable_policy(self, cluster, policy):
+        """Disable a policy on the cluster.
+
+        :param cluster: Either the name or the ID of the cluster, or an
+            instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
+        :param policy: Either the name or the ID of a policy.
+        :returns: A dict containing the action initiated by this operation.
+        """
+        if isinstance(cluster, _cluster.Cluster):
+            obj = cluster
+        else:
+            obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
+        return obj.policy_disable(self.session, policy)
+
     def create_node(self, **attrs):
         """Create a new node from attributes.
 

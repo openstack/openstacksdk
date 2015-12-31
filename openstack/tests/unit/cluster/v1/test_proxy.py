@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
+
 from openstack.cluster.v1 import _proxy
 from openstack.cluster.v1 import action
 from openstack.cluster.v1 import build_info
@@ -22,6 +24,7 @@ from openstack.cluster.v1 import policy_type
 from openstack.cluster.v1 import profile
 from openstack.cluster.v1 import profile_type
 from openstack.cluster.v1 import receiver
+from openstack import proxy as proxy_base
 from openstack.tests.unit import test_proxy_base
 
 
@@ -97,6 +100,196 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_cluster_update(self):
         self.verify_update(self.proxy.update_cluster, cluster.Cluster)
+
+    @mock.patch.object(proxy_base.BaseProxy, '_find')
+    def test_cluster_add_nodes(self, mock_find):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        mock_find.return_value = mock_cluster
+        self._verify("openstack.cluster.v1.cluster.Cluster.add_nodes",
+                     self.proxy.cluster_add_nodes,
+                     method_args=["FAKE_CLUSTER", ["node1"]],
+                     expected_args=[["node1"]])
+        mock_find.assert_called_once_with(cluster.Cluster, "FAKE_CLUSTER",
+                                          ignore_missing=False)
+
+    def test_cluster_add_nodes_with_obj(self):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        self._verify("openstack.cluster.v1.cluster.Cluster.add_nodes",
+                     self.proxy.cluster_add_nodes,
+                     method_args=[mock_cluster, ["node1"]],
+                     expected_args=[["node1"]])
+
+    @mock.patch.object(proxy_base.BaseProxy, '_find')
+    def test_cluster_del_nodes(self, mock_find):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        mock_find.return_value = mock_cluster
+        self._verify("openstack.cluster.v1.cluster.Cluster.del_nodes",
+                     self.proxy.cluster_del_nodes,
+                     method_args=["FAKE_CLUSTER", ["node1"]],
+                     expected_args=[["node1"]])
+        mock_find.assert_called_once_with(cluster.Cluster, "FAKE_CLUSTER",
+                                          ignore_missing=False)
+
+    def test_cluster_del_nodes_with_obj(self):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        self._verify("openstack.cluster.v1.cluster.Cluster.del_nodes",
+                     self.proxy.cluster_del_nodes,
+                     method_args=[mock_cluster, ["node1"]],
+                     expected_args=[["node1"]])
+
+    @mock.patch.object(proxy_base.BaseProxy, '_find')
+    def test_cluster_scale_out(self, mock_find):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        mock_find.return_value = mock_cluster
+        self._verify("openstack.cluster.v1.cluster.Cluster.scale_out",
+                     self.proxy.cluster_scale_out,
+                     method_args=["FAKE_CLUSTER", 3],
+                     expected_args=[3])
+        mock_find.assert_called_once_with(cluster.Cluster, "FAKE_CLUSTER",
+                                          ignore_missing=False)
+
+    def test_cluster_scale_out_with_obj(self):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        self._verify("openstack.cluster.v1.cluster.Cluster.scale_out",
+                     self.proxy.cluster_scale_out,
+                     method_args=[mock_cluster, 5],
+                     expected_args=[5])
+
+    @mock.patch.object(proxy_base.BaseProxy, '_find')
+    def test_cluster_scale_in(self, mock_find):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        mock_find.return_value = mock_cluster
+        self._verify("openstack.cluster.v1.cluster.Cluster.scale_in",
+                     self.proxy.cluster_scale_in,
+                     method_args=["FAKE_CLUSTER", 3],
+                     expected_args=[3])
+        mock_find.assert_called_once_with(cluster.Cluster, "FAKE_CLUSTER",
+                                          ignore_missing=False)
+
+    def test_cluster_scale_in_with_obj(self):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        self._verify("openstack.cluster.v1.cluster.Cluster.scale_in",
+                     self.proxy.cluster_scale_in,
+                     method_args=[mock_cluster, 5],
+                     expected_args=[5])
+
+    @mock.patch.object(proxy_base.BaseProxy, '_find')
+    def test_cluster_resize(self, mock_find):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        mock_find.return_value = mock_cluster
+        self._verify("openstack.cluster.v1.cluster.Cluster.resize",
+                     self.proxy.cluster_resize,
+                     method_args=["FAKE_CLUSTER"],
+                     method_kwargs={'k1': 'v1', 'k2': 'v2'},
+                     expected_kwargs={'k1': 'v1', 'k2': 'v2'})
+        mock_find.assert_called_once_with(cluster.Cluster, "FAKE_CLUSTER",
+                                          ignore_missing=False)
+
+    def test_cluster_resize_with_obj(self):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        self._verify("openstack.cluster.v1.cluster.Cluster.resize",
+                     self.proxy.cluster_resize,
+                     method_args=[mock_cluster],
+                     method_kwargs={'k1': 'v1', 'k2': 'v2'},
+                     expected_kwargs={'k1': 'v1', 'k2': 'v2'})
+
+    @mock.patch.object(proxy_base.BaseProxy, '_find')
+    def test_cluster_attach_policy(self, mock_find):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        mock_find.return_value = mock_cluster
+        self._verify("openstack.cluster.v1.cluster.Cluster.policy_attach",
+                     self.proxy.cluster_attach_policy,
+                     method_args=["FAKE_CLUSTER", "FAKE_POLICY"],
+                     method_kwargs={"k1": "v1", "k2": "v2"},
+                     expected_args=["FAKE_POLICY"],
+                     expected_kwargs={"k1": "v1", 'k2': "v2"})
+        mock_find.assert_called_once_with(cluster.Cluster, "FAKE_CLUSTER",
+                                          ignore_missing=False)
+
+    def test_cluster_attach_policy_with_obj(self):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        self._verify("openstack.cluster.v1.cluster.Cluster.policy_attach",
+                     self.proxy.cluster_attach_policy,
+                     method_args=[mock_cluster, "FAKE_POLICY"],
+                     method_kwargs={"k1": "v1", "k2": "v2"},
+                     expected_args=["FAKE_POLICY"],
+                     expected_kwargs={"k1": "v1", 'k2': "v2"})
+
+    @mock.patch.object(proxy_base.BaseProxy, '_find')
+    def test_cluster_detach_policy(self, mock_find):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        mock_find.return_value = mock_cluster
+        self._verify("openstack.cluster.v1.cluster.Cluster.policy_detach",
+                     self.proxy.cluster_detach_policy,
+                     method_args=["FAKE_CLUSTER", "FAKE_POLICY"],
+                     expected_args=["FAKE_POLICY"])
+        mock_find.assert_called_once_with(cluster.Cluster, "FAKE_CLUSTER",
+                                          ignore_missing=False)
+
+    def test_cluster_detach_policy_with_obj(self):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        self._verify("openstack.cluster.v1.cluster.Cluster.policy_detach",
+                     self.proxy.cluster_detach_policy,
+                     method_args=[mock_cluster, "FAKE_POLICY"],
+                     expected_args=["FAKE_POLICY"])
+
+    @mock.patch.object(proxy_base.BaseProxy, '_find')
+    def test_cluster_update_policy(self, mock_find):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        mock_find.return_value = mock_cluster
+        self._verify("openstack.cluster.v1.cluster.Cluster.policy_update",
+                     self.proxy.cluster_update_policy,
+                     method_args=["FAKE_CLUSTER", "FAKE_POLICY"],
+                     method_kwargs={"k1": "v1", "k2": "v2"},
+                     expected_args=["FAKE_POLICY"],
+                     expected_kwargs={"k1": "v1", 'k2': "v2"})
+        mock_find.assert_called_once_with(cluster.Cluster, "FAKE_CLUSTER",
+                                          ignore_missing=False)
+
+    def test_cluster_update_policy_with_obj(self):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        self._verify("openstack.cluster.v1.cluster.Cluster.policy_update",
+                     self.proxy.cluster_update_policy,
+                     method_args=[mock_cluster, "FAKE_POLICY"],
+                     method_kwargs={"k1": "v1", "k2": "v2"},
+                     expected_args=["FAKE_POLICY"],
+                     expected_kwargs={"k1": "v1", 'k2': "v2"})
+
+    @mock.patch.object(proxy_base.BaseProxy, '_find')
+    def test_cluster_enable_policy(self, mock_find):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        mock_find.return_value = mock_cluster
+        self._verify("openstack.cluster.v1.cluster.Cluster.policy_enable",
+                     self.proxy.cluster_enable_policy,
+                     method_args=["FAKE_CLUSTER", "FAKE_POLICY"],
+                     expected_args=["FAKE_POLICY"])
+        mock_find.assert_called_once_with(cluster.Cluster, "FAKE_CLUSTER",
+                                          ignore_missing=False)
+
+    def test_cluster_enable_policy_with_obj(self):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        self._verify("openstack.cluster.v1.cluster.Cluster.policy_enable",
+                     self.proxy.cluster_enable_policy,
+                     method_args=[mock_cluster, "FAKE_POLICY"],
+                     expected_args=["FAKE_POLICY"])
+
+    @mock.patch.object(proxy_base.BaseProxy, '_find')
+    def test_cluster_disable_policy(self, mock_find):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        mock_find.return_value = mock_cluster
+        self._verify("openstack.cluster.v1.cluster.Cluster.policy_disable",
+                     self.proxy.cluster_disable_policy,
+                     method_args=["FAKE_CLUSTER", "FAKE_POLICY"],
+                     expected_args=["FAKE_POLICY"])
+        mock_find.assert_called_once_with(cluster.Cluster, "FAKE_CLUSTER",
+                                          ignore_missing=False)
+
+    def test_cluster_disable_policy_with_obj(self):
+        mock_cluster = cluster.Cluster.from_id('FAKE_CLUSTER')
+        self._verify("openstack.cluster.v1.cluster.Cluster.policy_disable",
+                     self.proxy.cluster_disable_policy,
+                     method_args=[mock_cluster, "FAKE_POLICY"],
+                     expected_args=["FAKE_POLICY"])
 
     def test_node_create(self):
         self.verify_create(self.proxy.create_node, node.Node)
