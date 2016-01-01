@@ -21,6 +21,7 @@ from openstack.cluster.v1 import policy
 from openstack.cluster.v1 import policy_type
 from openstack.cluster.v1 import profile
 from openstack.cluster.v1 import profile_type
+from openstack.cluster.v1 import receiver
 from openstack.tests.unit import test_proxy_base
 
 
@@ -182,6 +183,28 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
                                      "FAKE_POLICY"],
                       expected_kwargs={"path_args": {
                           "cluster_id": "FAKE_CLUSTER"}})
+
+    def test_receiver_create(self):
+        self.verify_create(self.proxy.create_receiver, receiver.Receiver)
+
+    def test_receiver_delete(self):
+        self.verify_delete(self.proxy.delete_receiver, receiver.Receiver,
+                           False)
+
+    def test_receiver_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_receiver, receiver.Receiver, True)
+
+    def test_receiver_find(self):
+        self.verify_find(self.proxy.find_receiver, receiver.Receiver)
+
+    def test_receiver_get(self):
+        self.verify_get(self.proxy.get_receiver, receiver.Receiver)
+
+    def test_receivers(self):
+        self.verify_list(self.proxy.receivers, receiver.Receiver,
+                         paginated=True,
+                         method_kwargs={'limit': 2},
+                         expected_kwargs={'limit': 2})
 
     def test_action_get(self):
         self.verify_get(self.proxy.get_action, action.Action)
