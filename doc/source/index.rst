@@ -7,6 +7,7 @@
    contributing
    installation
    api-reference
+   releasenotes
 
 Indices and tables
 ==================
