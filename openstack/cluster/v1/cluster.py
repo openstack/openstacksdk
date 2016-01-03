@@ -43,13 +43,12 @@ class Cluster(resource.Resource):
     domain = resource.prop('domain')
     #: The ID of the parent cluster (if any).
     parent = resource.prop('parent')
+    #: Timestamp of when the cluster was initialized.
+    init_at = resource.prop('init_at')
     #: Timestamp of when the cluster was created.
-    created_at = resource.prop('created_time')
+    created_at = resource.prop('created_at')
     #: Timestamp of when the cluster was last updated.
-    updated_at = resource.prop('updated_time')
-    #: Timestamp of when the cluster was deleted. This is only used on
-    #: clusters that were soft-deleted.
-    deleted_at = resource.prop('deleted_time')
+    updated_at = resource.prop('updated_at')
     #: Lower bound (inclusive) for the size of the cluster.
     min_size = resource.prop('min_size', type=int)
     #: Upper bound (inclusive) for the size of the cluster. A value of

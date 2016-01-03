@@ -33,9 +33,9 @@ FAKE = {
 FAKE_CREATE_RESP = {
     'cluster': {
         'action': 'a679c926-908f-49e7-a822-06ca371e64e1',
-        'created_time': None,
-        'deleted_time': None,
-        'updated_time': None,
+        'init_at': None,
+        'created_at': None,
+        'updated_at': None,
         'data': {},
         'desired_capacity': 1,
         'domain': None,

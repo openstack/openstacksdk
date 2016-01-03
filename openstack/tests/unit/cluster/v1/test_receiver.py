@@ -23,8 +23,8 @@ FAKE = {
     'type': 'webhook',
     'cluster_id': 'FAKE_CLUSTER',
     'action': 'CLUSTER_RESIZE',
-    'created_time': '2015-08-10T09:14:53',
-    'deleted_time': None,
+    'created_at': '2015-08-10T09:14:53',
+    'updated_at': None,
     'actor': {},
     'params': {
         'adjustment_type': 'CHANGE_IN_CAPACITY',
@@ -64,8 +64,8 @@ class TestReceiver(testtools.TestCase):
         self.assertEqual(FAKE['cluster_id'], sot.cluster.id)
         self.assertEqual(FAKE['action'], sot.action)
         self.assertEqual(FAKE['params'], sot.params)
-        self.assertEqual(FAKE['created_time'], sot.created_at)
-        self.assertEqual(FAKE['deleted_time'], sot.deleted_at)
+        self.assertEqual(FAKE['created_at'], sot.created_at)
+        self.assertEqual(FAKE['updated_at'], sot.updated_at)
         self.assertEqual(FAKE['user'], sot.user)
         self.assertEqual(FAKE['project'], sot.project)
         self.assertEqual(FAKE['domain'], sot.domain)

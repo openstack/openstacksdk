@@ -44,9 +44,9 @@ class Receiver(resource.Resource):
     #: The name of the targeted action.
     action = resource.prop('action')
     #: Timestamp of when the receiver was created.
-    created_at = resource.prop('created_time')
-    #: Timestamp of when the receiver was deleted.
-    deleted_at = resource.prop('deleted_time')
+    created_at = resource.prop('created_at')
+    #: Timestamp of when the receiver was last updated.
+    updated_at = resource.prop('updated_at')
     #: The credential of the impersonated user.
     actor = resource.prop('actor', type=dict)
     #: A dictionary containing key-value pairs that are provided to the

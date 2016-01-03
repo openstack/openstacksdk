@@ -135,8 +135,6 @@ class Proxy(proxy.BaseProxy):
         :param kwargs \*\*query: Optional query parameters to be sent to
             restrict the profiles to be returned. Available parameters include:
 
-            * show_deleted: A boolean value indicating whether soft-deleted
-                profiles should be returned as well.
             * filters: A list of key-value pairs for Senlin server to determine
                 whether a profile should be included in the list result.
             * sort_keys: A list of key names for sorting the resulted list.
@@ -226,8 +224,6 @@ class Proxy(proxy.BaseProxy):
         :param kwargs \*\*query: Optional query parameters to be sent to
             restrict the clusters to be returned. Available parameters include:
 
-            * show_deleted: A boolean value indicating whether soft-deleted
-                clusters should be returned as well.
             * filters: A list of key-value pairs for Senlin server to determine
                 whether a cluster should be included in the list result.
             * sort_keys: A list of key names for sorting the resulted list.
@@ -460,8 +456,6 @@ class Proxy(proxy.BaseProxy):
 
             * cluster_id: A string including the name or ID of a cluster to
                 which the resulted node(s) is a member.
-            * show_deleted: A boolean value indicating whether soft-deleted
-                nodes should be returned as well.
             * filters: A list of key-value pairs for server to determine
                 whether a node should be included in the list result.
             * sort_keys: A list of key names for sorting the resulted list.
@@ -555,8 +549,6 @@ class Proxy(proxy.BaseProxy):
             * type: The type name of policy objects.
             * level: The enforcement level of policy objects.
             * cooldown: The default cooldown value of a policy object.
-            * show_deleted: A boolean value indicating whether soft-deleted
-                policies should be returned as well.
         :returns: A generator of policy instances.
         """
         return self._list(_policy.Policy, paginated=True, **query)
@@ -677,8 +669,6 @@ class Proxy(proxy.BaseProxy):
             * type: The type of receiver objects.
             * cluster_id: The ID of the associated cluster.
             * action: The name of the associated action.
-            * show_deleted: A boolean value indicating whether soft-deleted
-                policies should be returned as well.
             * global_project: A boolean value indicating whether receivers
             *   from all projects will be returned.
             * sort_keys: A list of attribute names based on which the returned
@@ -712,8 +702,6 @@ class Proxy(proxy.BaseProxy):
             * target: ID of the target object for which the actions should be
                 returned.
             * action: built-in action types for query.
-            * show_deleted: A boolean value indicating whether soft-deleted
-                actions should be returned as well.
             * sort_keys: A list of key names for sorting the resulted list.
             * sort_dir: Direction for sorting, and its valid values are 'asc'
                 and 'desc'.
@@ -754,8 +742,6 @@ class Proxy(proxy.BaseProxy):
             * obj_id: ID of the object associated with an event.
             * cluster_id: ID of the cluster associated with the event, if any.
             * action: name of the action associated with an event.
-            * show_deleted: A boolean value indicating whether soft-deleted
-                events should be returned as well.
             * sort_keys: A list of key names for sorting the resulted list.
             * sort_dir: Direction for sorting, and its valid values are 'asc'
                 and 'desc'.

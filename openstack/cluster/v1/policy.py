@@ -39,11 +39,9 @@ class Policy(resource.Resource):
     #: The default enforcement level of the policy (0-100).
     level = resource.prop('level', type=int)
     #: The timestamp when the policy is created.
-    created_at = resource.prop('created_time')
+    created_at = resource.prop('created_at')
     #: The timestamp when the policy was last updated.
-    updated_at = resource.prop('updated_time')
-    #: The timestamp when the poicy was deleted.
-    deleted_at = resource.prop('deleted_time')
+    updated_at = resource.prop('updated_at')
     #: The specification of the policy.
     spec = resource.prop('spec', type=dict)
     #: A dictionary containing runtime data of the policy.

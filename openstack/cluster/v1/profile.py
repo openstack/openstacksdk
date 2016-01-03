@@ -41,9 +41,6 @@ class Profile(resource.Resource):
     #: A collection of key-value pairs that are attached to the profile.
     metadata = resource.prop('metadata', type=dict)
     #: Timestamp of when the profile was created.
-    created_at = resource.prop('created_time')
+    created_at = resource.prop('created_at')
     #: Timestamp of when the profile was last updated.
-    updated_at = resource.prop('updated_time')
-    #: Timestamp of when the profile was deleted. This is only used on
-    #: profiles that were soft-deleted.
-    deleted_at = resource.prop('deleted_time')
+    updated_at = resource.prop('updated_at')

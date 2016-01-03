@@ -58,8 +58,6 @@ class Action(resource.Resource):
     #: A list of actions that can start only after this action has finished.
     depended_by = resource.prop('depended_by', type=list)
     #: Timestamp when the action is created.
-    created_at = resource.prop('created_time')
+    created_at = resource.prop('created_at')
     #: Timestamp when the action was last updated.
-    updated_at = resource.prop('updated_time')
-    #: Timestamp when the action was deleted.
-    deleted_at = resource.prop('deleted_time')
+    updated_at = resource.prop('updated_at')

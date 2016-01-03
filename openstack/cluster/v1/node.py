@@ -52,15 +52,12 @@ class Node(resource.Resource):
     #: A string indicating the role the node plays in a cluster.
     role = resource.prop('role')
     #: The timestamp of the node object's initialization.
-    init_time = resource.prop('init_time')
+    init_at = resource.prop('init_at')
     #: The timestamp of the node's creation, i.e. the physical object
     #: represented by this node is also created.
-    created_time = resource.prop('created_time')
+    created_at = resource.prop('created_at')
     #: The timestamp the node was last updated.
-    updated_time = resource.prop('updated_time')
-    #: The timestamp the node was deleted. This is only used for node
-    #: which has been soft deleted.
-    deleted_time = resource.prop('deleted_time')
+    updated_at = resource.prop('updated_at')
     #: A string indicating the node's status.
     status = resource.prop('status')
     #: A string describing why the node entered its current status.
