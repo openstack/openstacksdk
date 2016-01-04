@@ -9,6 +9,7 @@
       "region-b.geo-1"
     ],
     "dns_service_type": "hpext:dns",
+    "volume_api_version": "1",
     "image_api_version": "1"
   }
 }
