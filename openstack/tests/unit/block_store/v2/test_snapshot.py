@@ -67,7 +67,7 @@ class TestSnapshotDetail(testtools.TestCase):
 
     def test_basic(self):
         sot = snapshot.SnapshotDetail(DETAILED_SNAPSHOT)
-        self.assertTrue(isinstance(sot, snapshot.Snapshot))
+        self.assertIsInstance(sot, snapshot.Snapshot)
         self.assertEqual("/snapshots/detail", sot.base_path)
 
     def test_create_detailed(self):
