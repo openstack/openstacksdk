@@ -221,8 +221,8 @@ class HeaderTests(base.TestCase):
         args = {"vocals": val}
         sot = HeaderTests.Test({'headers': args})
         self.assertEqual(val, sot.hey)
-        self.assertEqual(None, sot.ho)
-        self.assertEqual(None, sot.letsgo)
+        self.assertIsNone(sot.ho)
+        self.assertIsNone(sot.letsgo)
 
     def test_set_new(self):
         args = {"vocals": "joey", "bass": "deedee"}
@@ -1325,7 +1325,7 @@ class TestFind(base.TestCase):
             FakeResponse({FakeResource.resources_key: []})
         ]
 
-        self.assertEqual(None, FakeResource.find(self.mock_session, self.NAME))
+        self.assertIsNone(FakeResource.find(self.mock_session, self.NAME))
 
     def test_no_name(self):
         self.mock_get.side_effect = [
@@ -1334,7 +1334,7 @@ class TestFind(base.TestCase):
         ]
         FakeResource.name_attribute = None
 
-        self.assertEqual(None, FakeResource.find(self.mock_session, self.NAME))
+        self.assertIsNone(FakeResource.find(self.mock_session, self.NAME))
 
     def test_nada_not_ignored(self):
         self.mock_get.side_effect = [

@@ -82,7 +82,7 @@ class TestInstance(testtools.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=response)
 
-        self.assertEqual(None, sot.restart(sess))
+        self.assertIsNone(sot.restart(sess))
 
         url = ("instances/%s/action" % IDENTIFIER)
         body = {'restart': {}}
@@ -97,7 +97,7 @@ class TestInstance(testtools.TestCase):
         sess.post = mock.Mock(return_value=response)
         flavor = 'http://flavor/flav'
 
-        self.assertEqual(None, sot.resize(sess, flavor))
+        self.assertIsNone(sot.resize(sess, flavor))
 
         url = ("instances/%s/action" % IDENTIFIER)
         body = {'resize': {'flavorRef': flavor}}
@@ -112,7 +112,7 @@ class TestInstance(testtools.TestCase):
         sess.post = mock.Mock(return_value=response)
         size = 4
 
-        self.assertEqual(None, sot.resize_volume(sess, size))
+        self.assertIsNone(sot.resize_volume(sess, size))
 
         url = ("instances/%s/action" % IDENTIFIER)
         body = {'resize': {'volume': size}}
