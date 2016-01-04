@@ -13,6 +13,7 @@
 import mock
 
 from openstack.compute.v2 import _proxy
+from openstack.compute.v2 import availability_zone as az
 from openstack.compute.v2 import extension
 from openstack.compute.v2 import flavor
 from openstack.compute.v2 import image
@@ -272,3 +273,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                      expected_args=["test_server", "test_image_url",
                                     "test_pass"],
                      expected_kwargs={"metadata": {"k1": "v1"}})
+
+    def test_availability_zones(self):
+        self.verify_list(self.proxy.availability_zones, az.AvailabilityZone,
+                         paginated=False)
