@@ -315,6 +315,38 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
     def test_node_update(self):
         self.verify_update(self.proxy.update_node, node.Node)
 
+    @mock.patch.object(proxy_base.BaseProxy, '_find')
+    def test_node_join(self, mock_find):
+        mock_node = node.Node.from_id("FAKE_NODE")
+        mock_find.return_value = mock_node
+        self._verify("openstack.cluster.v1.node.Node.join",
+                     self.proxy.node_join,
+                     method_args=['FAKE_NODE', "FAKE_CLUSTER"],
+                     expected_args=["FAKE_CLUSTER"])
+        mock_find.assert_called_once_with(node.Node, "FAKE_NODE",
+                                          ignore_missing=False)
+
+    def test_node_join_with_obj(self):
+        mock_node = node.Node.from_id("FAKE_NODE")
+        self._verify("openstack.cluster.v1.node.Node.join",
+                     self.proxy.node_join,
+                     method_args=[mock_node, "FAKE_CLUSTER"],
+                     expected_args=["FAKE_CLUSTER"])
+
+    @mock.patch.object(proxy_base.BaseProxy, '_find')
+    def test_node_leave(self, mock_find):
+        mock_node = node.Node.from_id("FAKE_NODE")
+        mock_find.return_value = mock_node
+        self._verify("openstack.cluster.v1.node.Node.leave",
+                     self.proxy.node_leave,
+                     method_args=["FAKE_NODE"])
+
+    def test_node_leave_with_obj(self):
+        mock_node = node.Node.from_id("FAKE_NODE")
+        self._verify("openstack.cluster.v1.node.Node.leave",
+                     self.proxy.node_leave,
+                     method_args=[mock_node])
+
     def test_policy_create(self):
         self.verify_create(self.proxy.create_policy, policy.Policy)
 

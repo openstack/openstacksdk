@@ -485,6 +485,37 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(_node.Node, node, **attrs)
 
+    def node_join(self, node, cluster):
+        """Join a node to a cluster.
+
+        :param node: Either the name or the ID of a node, or an
+            instance of :class:`~openstack.cluster.v1.node.Node`.
+        :param cluster: Either the name or the ID of of a cluster, or an
+            instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
+        :returns: A dict containing the action initiated by this operation.
+        """
+        if isinstance(node, _node.Node):
+            obj = node
+        else:
+            obj = self._find(_node.Node, node, ignore_missing=False)
+
+        target = resource.Resource.get_id(cluster)
+        return obj.join(self.session, target)
+
+    def node_leave(self, node):
+        """Remove a node from its current cluster.
+
+        :param node: Either the name or the ID of a node, or an
+            instance of :class:`~openstack.cluster.v1.node.Node`.
+        :returns: A dict containing the action initiated by this operation.
+        """
+        if isinstance(node, _node.Node):
+            obj = node
+        else:
+            obj = self._find(_node.Node, node, ignore_missing=False)
+
+        return obj.leave(self.session)
+
     def create_policy(self, **attrs):
         """Create a new policy from attributes.
 
