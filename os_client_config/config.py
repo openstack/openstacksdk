@@ -19,6 +19,7 @@ import collections
 import copy
 import json
 import os
+import sys
 import warnings
 
 import appdirs
@@ -988,4 +989,15 @@ class OpenStackConfig(object):
 if __name__ == '__main__':
     config = OpenStackConfig().get_all_clouds()
     for cloud in config:
-        print(cloud.name, cloud.region, cloud.config)
+        print_cloud = False
+        if len(sys.argv) == 1:
+            print_cloud = True
+        elif len(sys.argv) == 3 and (
+                sys.argv[1] == cloud.name and sys.argv[2] == cloud.region):
+            print_cloud = True
+        elif len(sys.argv) == 2 and (
+                sys.argv[1] == cloud.name):
+            print_cloud = True
+
+        if print_cloud:
+            print(cloud.name, cloud.region, cloud.config)
