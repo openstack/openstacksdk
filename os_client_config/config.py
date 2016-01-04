@@ -26,6 +26,7 @@ from keystoneauth1 import adapter
 from keystoneauth1 import loading
 import yaml
 
+from os_client_config import _log
 from os_client_config import cloud_config
 from os_client_config import defaults
 from os_client_config import exceptions
@@ -170,6 +171,8 @@ class OpenStackConfig(object):
     def __init__(self, config_files=None, vendor_files=None,
                  override_defaults=None, force_ipv4=None,
                  envvar_prefix=None, secure_files=None):
+        self.log = _log.setup_logging(__name__)
+
         self._config_files = config_files or CONFIG_FILES
         self._secure_files = secure_files or SECURE_FILES
         self._vendor_files = vendor_files or VENDOR_FILES
@@ -920,6 +923,7 @@ class OpenStackConfig(object):
                 # but OSC can't handle it right now, so we try deferring
                 # to ksc. If that ALSO fails, it means there is likely
                 # a deeper issue, so we assume the ksa error was correct
+                self.log.debug("Deferring keystone exception: {e}".format(e=e))
                 auth_plugin = None
                 try:
                     config = self._validate_auth_ksc(config)
