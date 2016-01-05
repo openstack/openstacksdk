@@ -2,8 +2,9 @@
   "name": "ultimum",
   "profile": {
     "auth": {
-      "auth_url": "https://console.ultimum-cloud.com:5000/v2.0"
+      "auth_url": "https://console.ultimum-cloud.com:5000/"
     },
+    "identity_api_version": "3",
     "volume_api_version": "1",
     "region-name": "RegionOne"
   }

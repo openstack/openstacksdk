@@ -2,12 +2,13 @@
   "name": "runabove",
   "profile": {
     "auth": {
-      "auth_url": "https://auth.runabove.io/v2.0"
+      "auth_url": "https://auth.runabove.io/"
     },
     "regions": [
       "BHS-1",
       "SBG-1"
     ],
+    "identity_api_version": "3",
     "image_format": "qcow2",
     "floating_ip_source": "None"
   }

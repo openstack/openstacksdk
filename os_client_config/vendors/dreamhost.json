@@ -2,8 +2,9 @@
   "name": "dreamhost",
   "profile": {
     "auth": {
-      "auth_url": "https://keystone.dream.io/v2.0"
+      "auth_url": "https://keystone.dream.io"
     },
+    "identity_api_version": "3",
     "region_name": "RegionOne",
     "image_format": "raw"
   }

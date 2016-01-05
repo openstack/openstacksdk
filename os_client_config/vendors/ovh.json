@@ -2,13 +2,14 @@
   "name": "ovh",
   "profile": {
     "auth": {
-      "auth_url": "https://auth.cloud.ovh.net/v2.0"
+      "auth_url": "https://auth.cloud.ovh.net/"
     },
     "regions": [
       "BHS1",
       "GRA1",
       "SBG1"
     ],
+    "identity_api_version": "3",
     "image_format": "raw",
     "floating_ip_source": "None"
   }
