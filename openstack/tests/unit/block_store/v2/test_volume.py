@@ -89,7 +89,7 @@ class TestVolumeDetail(testtools.TestCase):
 
     def test_basic(self):
         sot = volume.VolumeDetail(VOLUME_DETAIL)
-        self.assertTrue(isinstance(sot, volume.Volume))
+        self.assertIsInstance(sot, volume.Volume)
         self.assertEqual("/volumes/detail", sot.base_path)
 
     def test_create(self):
