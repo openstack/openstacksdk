@@ -955,8 +955,7 @@ class OpenStackCloud(object):
             openstack API call.
         """
         stacks = self.list_stacks()
-        return _utils._filter_list(
-            stacks, name_or_id, filters, name_name='stack_name')
+        return _utils._filter_list(stacks, name_or_id, filters)
 
     def list_keypairs(self):
         """List all available keypairs.
