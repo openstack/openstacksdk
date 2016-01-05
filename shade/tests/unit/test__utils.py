@@ -112,3 +112,39 @@ class TestUtils(base.TestCase):
         ]
         retval = _utils.normalize_nova_secgroup_rules(nova_rules)
         self.assertEqual(expected, retval)
+
+    def test_normalize_volumes_v1(self):
+        vol = dict(
+            display_name='test',
+            display_description='description',
+            bootable=u'false',   # unicode type
+            multiattach='true',  # str type
+        )
+        expected = dict(
+            name=vol['display_name'],
+            display_name=vol['display_name'],
+            description=vol['display_description'],
+            display_description=vol['display_description'],
+            bootable=False,
+            multiattach=True,
+        )
+        retval = _utils.normalize_volumes([vol])
+        self.assertEqual([expected], retval)
+
+    def test_normalize_volumes_v2(self):
+        vol = dict(
+            display_name='test',
+            display_description='description',
+            bootable=False,
+            multiattach=True,
+        )
+        expected = dict(
+            name=vol['display_name'],
+            display_name=vol['display_name'],
+            description=vol['display_description'],
+            display_description=vol['display_description'],
+            bootable=False,
+            multiattach=True,
+        )
+        retval = _utils.normalize_volumes([vol])
+        self.assertEqual([expected], retval)
