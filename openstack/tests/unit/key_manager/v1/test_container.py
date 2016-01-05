@@ -30,7 +30,7 @@ class TestContainer(testtools.TestCase):
 
     def test_basic(self):
         sot = container.Container()
-        self.assertEqual(None, sot.resource_key)
+        self.assertIsNone(sot.resource_key)
         self.assertEqual('containers', sot.resources_key)
         self.assertEqual('/containers', sot.base_path)
         self.assertEqual('key-manager', sot.service.service_type)

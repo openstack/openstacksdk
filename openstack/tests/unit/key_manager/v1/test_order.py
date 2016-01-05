@@ -30,7 +30,7 @@ class TestOrder(testtools.TestCase):
 
     def test_basic(self):
         sot = order.Order()
-        self.assertEqual(None, sot.resource_key)
+        self.assertIsNone(sot.resource_key)
         self.assertEqual('orders', sot.resources_key)
         self.assertEqual('/orders', sot.base_path)
         self.assertEqual('key-manager', sot.service.service_type)

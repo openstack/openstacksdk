@@ -32,7 +32,7 @@ class TestServerMeta(testtools.TestCase):
     def test_basic(self):
         sot = server_meta.ServerMeta()
         self.assertEqual('meta', sot.resource_key)
-        self.assertEqual(None, sot.resources_key)
+        self.assertIsNone(sot.resources_key)
         self.assertEqual('/servers/%(server_id)s/metadata', sot.base_path)
         self.assertEqual('compute', sot.service.service_type)
         self.assertTrue(sot.allow_create)

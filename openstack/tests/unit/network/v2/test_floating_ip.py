@@ -83,5 +83,4 @@ class TestFloatingIP(testtools.TestCase):
         fake_response.json = mock.Mock(return_value=body)
         mock_get.return_value = fake_response
 
-        self.assertEqual(None,
-                         floating_ip.FloatingIP.find_available(mock_session))
+        self.assertIsNone(floating_ip.FloatingIP.find_available(mock_session))
