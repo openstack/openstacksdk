@@ -252,10 +252,10 @@ class Test_objects(TestObjectStoreProxy):
 #                      httpretty.last_request().path)
 
 
-class Test_save_object(TestObjectStoreProxy):
+class Test_download_object(TestObjectStoreProxy):
 
     @mock.patch("openstack.object_store.v1._proxy.Proxy.get_object")
-    def test_save(self, mock_get):
+    def test_download(self, mock_get):
         the_data = "here's some data"
         mock_get.return_value = the_data
         ob = mock.Mock()
