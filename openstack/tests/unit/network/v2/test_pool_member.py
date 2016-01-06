@@ -21,9 +21,8 @@ EXAMPLE = {
     'id': IDENTIFIER,
     'tenant_id': '4',
     'protocol_port': 5,
-    'status': '6',
-    'subnet_id': '7',
-    'weight': 8,
+    'subnet_id': '6',
+    'weight': 7,
 }
 
 
@@ -48,6 +47,5 @@ class TestPoolMember(testtools.TestCase):
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['protocol_port'], sot.protocol_port)
-        self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['subnet_id'], sot.subnet_id)
         self.assertEqual(EXAMPLE['weight'], sot.weight)

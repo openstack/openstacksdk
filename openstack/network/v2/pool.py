@@ -52,5 +52,3 @@ class Pool(resource.Resource):
     #: Session persistence algorithm that should be used (if any).
     #: *Type: dict with keys ``type`` and ``cookie_name``*
     session_persistence = resource.prop('session_persistence')
-    #: The status of the pool. Indicates whether the pool is operational.
-    status = resource.prop('status')

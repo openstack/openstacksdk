@@ -21,13 +21,12 @@ EXAMPLE = {
     'healthmonitor_id': '3',
     'id': IDENTIFIER,
     'lb_algorithm': '5',
-    'listeners': '6',
-    'members': '7',
+    'listeners': [{'id': '6'}],
+    'members': [{'id': '7'}],
     'name': '8',
     'tenant_id': '9',
     'protocol': '10',
     'session_persistence': '11',
-    'status': '12',
 }
 
 
@@ -59,4 +58,3 @@ class TestPool(testtools.TestCase):
         self.assertEqual(EXAMPLE['protocol'], sot.protocol)
         self.assertEqual(EXAMPLE['session_persistence'],
                          sot.session_persistence)
-        self.assertEqual(EXAMPLE['status'], sot.status)
