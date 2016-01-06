@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # Copyright (C) 2011-2013 OpenStack Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
