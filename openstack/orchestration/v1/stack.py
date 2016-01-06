@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack.orchestration import orchestration_service
 from openstack import resource
 from openstack import utils
@@ -94,3 +95,15 @@ class Stack(resource.Resource):
         url = cls._get_url(path_args, resource_id)
         session.put(url, endpoint_filter=cls.service, json=body)
         return cls.get_by_id(session, resource_id)
+
+    @classmethod
+    def find(cls, session, name_or_id, path_args=None, ignore_missing=True):
+        stk = super(Stack, cls).find(session, name_or_id, path_args=path_args,
+                                     ignore_missing=ignore_missing)
+        if stk and stk.status in ['DELETE_COMPLETE', 'ADOPT_COMPLETE']:
+            if ignore_missing:
+                return None
+            else:
+                raise exceptions.ResourceNotFound(
+                    "No stack found for %s" % name_or_id)
+        return stk
