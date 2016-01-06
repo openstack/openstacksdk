@@ -36,6 +36,8 @@ class Listener(resource.Resource):
     connection_limit = resource.prop('connection_limit')
     #: ID of default pool. Must have compatible protocol with listener.
     default_pool_id = resource.prop('default_pool_id')
+    #: A reference to a container of TLS secrets.
+    default_tls_container_ref = resource.prop('default_tls_container_ref')
     #: Description for the listener.
     description = resource.prop('description')
     #: List of IDs of load_balancers associate with this listener.
@@ -45,7 +47,11 @@ class Listener(resource.Resource):
     name = resource.prop('name')
     #: The project this listener is associated with.
     project_id = resource.prop('tenant_id')
-    #: The protocol of the listener, which is TCP, HTTP, or HTTPS.
+    #: The protocol of the listener, which is TCP, HTTP, HTTPS
+    #: or TERMINATED_HTTPS.
     protocol = resource.prop('protocol')
     #: Port the listener will listen to, e.g. 80.
     protocol_port = resource.prop('protocol_port')
+    #: A list of references to TLS secrets.
+    #: *Type: list*
+    sni_container_refs = resource.prop('sni_container_refs')

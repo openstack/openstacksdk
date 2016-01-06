@@ -21,11 +21,13 @@ EXAMPLE = {
     'default_pool_id': '3',
     'description': '4',
     'id': IDENTIFIER,
-    'loadbalancers': '6',
+    'loadbalancers': [{'id': '6'}],
     'name': '7',
     'tenant_id': '8',
     'protocol': '9',
     'protocol_port': '10',
+    'default_tls_container_ref': '11',
+    'sni_container_refs': [],
 }
 
 
@@ -55,3 +57,7 @@ class TestListener(testtools.TestCase):
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['protocol'], sot.protocol)
         self.assertEqual(EXAMPLE['protocol_port'], sot.protocol_port)
+        self.assertEqual(EXAMPLE['default_tls_container_ref'],
+                         sot.default_tls_container_ref)
+        self.assertEqual(EXAMPLE['sni_container_refs'],
+                         sot.sni_container_refs)
