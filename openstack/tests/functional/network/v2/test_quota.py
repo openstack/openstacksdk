@@ -25,3 +25,5 @@ class TestQuota(base.BaseFunctionalTest):
             self.assertIn('floatingip', qot)
             self.assertIn('security_group_rule', qot)
             self.assertIn('security_group', qot)
+            self.assertIn('subnetpool', qot)
+            self.assertIn('rbac_policy', qot)

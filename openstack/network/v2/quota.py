@@ -21,6 +21,9 @@ class Quota(resource.Resource):
     service = network_service.NetworkService()
 
     # capabilities
+    allow_retrieve = True
+    allow_update = True
+    allow_delete = True
     allow_list = True
 
     # Properties
@@ -36,3 +39,11 @@ class Quota(resource.Resource):
     router = resource.prop('router', type=int)
     #: The maximum amount of subnets you can create. *Type: int*
     subnet = resource.prop('subnet', type=int)
+    #: The maximum amount of subnet pools you can create. *Type: int*
+    subnet_pools = resource.prop('subnetpool', type=int)
+    #: The maximum amount of security group rules you can create. *Type: int*
+    security_group_rules = resource.prop('security_group_rule', type=int)
+    #: The maximum amount of security groups you can create. *Type: int*
+    security_groups = resource.prop('security_group', type=int)
+    #: The maximum amount of RBAC policies you can create. *Type: int*
+    rbac_policies = resource.prop('rbac_policy', type=int)
