@@ -29,6 +29,7 @@ from openstack.network.v2 import router
 from openstack.network.v2 import security_group
 from openstack.network.v2 import security_group_rule
 from openstack.network.v2 import subnet
+from openstack.network.v2 import subnet_pool
 from openstack.network.v2 import vpn_service
 from openstack.tests.unit import test_proxy_base
 
@@ -461,6 +462,35 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_subnet_update(self):
         self.verify_update(self.proxy.update_subnet, subnet.Subnet)
+
+    def test_subnet_pool_create_attrs(self):
+        self.verify_create(self.proxy.create_subnet_pool,
+                           subnet_pool.SubnetPool)
+
+    def test_subnet_pool_delete(self):
+        self.verify_delete(self.proxy.delete_subnet_pool,
+                           subnet_pool.SubnetPool, False)
+
+    def test_subnet_pool_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_subnet_pool,
+                           subnet_pool.SubnetPool, True)
+
+    def test_subnet_pool_find(self):
+        self.verify_find(self.proxy.find_subnet_pool,
+                         subnet_pool.SubnetPool)
+
+    def test_subnet_pool_get(self):
+        self.verify_get(self.proxy.get_subnet_pool,
+                        subnet_pool.SubnetPool)
+
+    def test_subnet_pools(self):
+        self.verify_list(self.proxy.subnet_pools,
+                         subnet_pool.SubnetPool,
+                         paginated=False)
+
+    def test_subnet_pool_update(self):
+        self.verify_update(self.proxy.update_subnet_pool,
+                           subnet_pool.SubnetPool)
 
     def test_vpn_service_create_attrs(self):
         self.verify_create(self.proxy.create_vpn_service,
