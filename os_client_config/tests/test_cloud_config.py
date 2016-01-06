@@ -148,8 +148,7 @@ class TestCloudConfig(base.TestCase):
         self.assertEqual('volume', cc.get_service_type('volume'))
         self.assertEqual('http://compute.example.com',
                          cc.get_endpoint('compute'))
-        self.assertEqual(None,
-                         cc.get_endpoint('image'))
+        self.assertIsNone(cc.get_endpoint('image'))
         self.assertIsNone(cc.get_service_name('compute'))
         self.assertEqual('locks', cc.get_service_name('identity'))
 
