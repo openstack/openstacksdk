@@ -43,10 +43,13 @@ class TestRouter(base.BaseFunctionalTest):
         sot = self.conn.network.get_router(self.ID)
         self.assertEqual(self.NAME, sot.name)
         self.assertEqual(self.ID, sot.id)
+        self.assertFalse(sot.is_ha)
 
     def test_list(self):
         names = [o.name for o in self.conn.network.routers()]
         self.assertIn(self.NAME, names)
+        ha = [o.is_ha for o in self.conn.network.routers()]
+        self.assertIn(False, ha)
 
     def test_update(self):
         sot = self.conn.network.update_router(self.ID, name=self.UPDATE_NAME)
