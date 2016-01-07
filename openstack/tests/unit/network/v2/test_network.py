@@ -70,26 +70,26 @@ class TestNetwork(testtools.TestCase):
 
     def test_external(self):
         sot = network.Network(EXAMPLE)
-        self.assertEqual(True, sot.is_external())
+        self.assertTrue(sot.is_external())
 
         example = dict(EXAMPLE)
         example['router:external'] = False
         sot = network.Network(example)
-        self.assertEqual(False, sot.is_external())
+        self.assertFalse(sot.is_external())
 
         example = dict(EXAMPLE)
         del example['router:external']
         sot = network.Network(example)
-        self.assertEqual(False, sot.is_external())
+        self.assertFalse(sot.is_external())
 
         example = dict(EXAMPLE)
         del example['router:external']
         example['router_type'] = 'Internal'
         sot = network.Network(example)
-        self.assertEqual(False, sot.is_external())
+        self.assertFalse(sot.is_external())
 
         example = dict(EXAMPLE)
         del example['router:external']
         example['router_type'] = 'External'
         sot = network.Network(example)
-        self.assertEqual(True, sot.is_external())
+        self.assertTrue(sot.is_external())

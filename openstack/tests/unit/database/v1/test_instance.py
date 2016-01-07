@@ -70,7 +70,7 @@ class TestInstance(testtools.TestCase):
         sess = mock.Mock()
         sess.get = mock.Mock(return_value=response)
 
-        self.assertEqual(True, sot.is_root_enabled(sess))
+        self.assertTrue(sot.is_root_enabled(sess))
 
         url = ("instances/%s/root" % IDENTIFIER)
         sess.get.assert_called_with(url, endpoint_filter=sot.service)

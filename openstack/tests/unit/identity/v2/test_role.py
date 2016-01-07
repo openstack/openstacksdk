@@ -39,7 +39,7 @@ class TestRole(testtools.TestCase):
 
     def test_make_it(self):
         sot = role.Role(EXAMPLE)
-        self.assertEqual(True, sot.enabled)
+        self.assertTrue(sot.enabled)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)

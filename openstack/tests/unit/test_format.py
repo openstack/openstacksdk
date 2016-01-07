@@ -16,16 +16,16 @@ from openstack import format
 
 class TestFormat(testtools.TestCase):
     def test_parse_true(self):
-        self.assertEqual(True, format.BoolStr(True).parsed)
-        self.assertEqual(True, format.BoolStr('True').parsed)
-        self.assertEqual(True, format.BoolStr('TRUE').parsed)
-        self.assertEqual(True, format.BoolStr('true').parsed)
+        self.assertTrue(format.BoolStr(True).parsed)
+        self.assertTrue(format.BoolStr('True').parsed)
+        self.assertTrue(format.BoolStr('TRUE').parsed)
+        self.assertTrue(format.BoolStr('true').parsed)
 
     def test_parse_false(self):
-        self.assertEqual(False, format.BoolStr(False).parsed)
-        self.assertEqual(False, format.BoolStr('False').parsed)
-        self.assertEqual(False, format.BoolStr('FALSE').parsed)
-        self.assertEqual(False, format.BoolStr('false').parsed)
+        self.assertFalse(format.BoolStr(False).parsed)
+        self.assertFalse(format.BoolStr('False').parsed)
+        self.assertFalse(format.BoolStr('FALSE').parsed)
+        self.assertFalse(format.BoolStr('false').parsed)
 
     def test_parse_fails(self):
         self.assertRaises(ValueError, format.BoolStr, None)

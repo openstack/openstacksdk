@@ -594,7 +594,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(fake_attr1, obj['attr1'])
         self.assertEqual(fake_attr2, obj['attr2'])
 
-        self.assertEqual(True, obj.enabled)
+        self.assertTrue(obj.enabled)
         self.assertEqual(fake_name, obj.name)
         self.assertEqual(fake_attr1, obj.first)
         self.assertEqual(fake_attr2, obj.second)
