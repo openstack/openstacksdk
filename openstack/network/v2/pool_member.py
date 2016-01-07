@@ -37,8 +37,6 @@ class PoolMember(resource.Resource):
     project_id = resource.prop('tenant_id')
     #: The port on which the application is hosted.
     protocol_port = resource.prop('protocol_port', type=int)
-    #: The status of the member. Indicates whether the member is operational.
-    status = resource.prop('status')
     #: Subnet in which to access this pool member.
     subnet_id = resource.prop('subnet_id')
     #: A positive integer value that indicates the relative portion of traffic

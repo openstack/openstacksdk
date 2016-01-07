@@ -22,12 +22,11 @@ EXAMPLE = {
     'http_method': '4',
     'id': IDENTIFIER,
     'max_retries': '6',
-    'pools': '7',
-    'status': '8',
-    'tenant_id': '9',
-    'timeout': '10',
-    'type': '11',
-    'url_path': '12',
+    'pools': [{'id': '7'}],
+    'tenant_id': '8',
+    'timeout': '9',
+    'type': '10',
+    'url_path': '11',
 }
 
 
@@ -54,7 +53,6 @@ class TestHealthMonitor(testtools.TestCase):
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['max_retries'], sot.max_retries)
         self.assertEqual(EXAMPLE['pools'], sot.pools)
-        self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['timeout'], sot.timeout)
         self.assertEqual(EXAMPLE['type'], sot.type)

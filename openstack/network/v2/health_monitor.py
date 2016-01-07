@@ -43,9 +43,6 @@ class HealthMonitor(resource.Resource):
     pools = resource.prop('pools')
     #: Owner of the VIP
     project_id = resource.prop('tenant_id')
-    #: The status of the health monitor. Indicates whether the health
-    #: monitor is operational.
-    status = resource.prop('status')
     #: The maximum number of seconds for a monitor to wait for a connection
     #: to be established before it times out. This value must be less than
     #: the delay value.
