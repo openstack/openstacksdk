@@ -20,6 +20,13 @@ class TestProxyBase(base.TestCase):
         super(TestProxyBase, self).setUp()
         self.session = mock.Mock()
 
+    def _add_path_args_for_verify(self, path_args, method_args,
+                                  expected_kwargs):
+        if path_args is not None:
+            for key in path_args:
+                method_args.append(path_args[key])
+            expected_kwargs['path_args'] = path_args
+
     def _verify(self, mock_method, test_method,
                 method_args=None, method_kwargs=None,
                 expected_args=None, expected_kwargs=None,
@@ -129,10 +136,7 @@ class TestProxyBase(base.TestCase):
         method_args = ["name_or_id"]
         expected_kwargs = {}
 
-        if path_args is not None:
-            for key in path_args:
-                method_args.append(path_args[key])
-            expected_kwargs = {"path_args": path_args}
+        self._add_path_args_for_verify(path_args, method_args, expected_kwargs)
 
         # TODO(briancurtin): if sub-tests worked in this mess of
         # test dependencies, the following would be a lot easier to work with.
@@ -169,12 +173,14 @@ class TestProxyBase(base.TestCase):
 
     def verify_update(self, test_method, resource_type,
                       mock_method="openstack.proxy.BaseProxy._update",
-                      expected_result="result", **kwargs):
+                      expected_result="result", path_args=None, **kwargs):
         the_kwargs = {"x": 1, "y": 2, "z": 3}
         method_args = ["resource_or_id"]
-        method_kwargs = the_kwargs
+        method_kwargs = the_kwargs.copy()
         expected_args = [resource_type, "resource_or_id"]
-        expected_kwargs = the_kwargs
+        expected_kwargs = the_kwargs.copy()
+
+        self._add_path_args_for_verify(path_args, method_args, expected_kwargs)
 
         self._verify2(mock_method, test_method,
                       expected_result=expected_result,

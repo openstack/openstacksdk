@@ -234,7 +234,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_pool_member_create_attrs(self):
         self.verify_create(self.proxy.create_pool_member,
-                           pool_member.PoolMember)
+                           pool_member.PoolMember,
+                           method_kwargs={"pool": "test_id"},
+                           expected_kwargs={"path_args": {
+                               "pool_id": "test_id"}})
 
     def test_pool_member_delete(self):
         self.verify_delete(self.proxy.delete_pool_member,
@@ -267,7 +270,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_pool_member_update(self):
         self.verify_update(self.proxy.update_pool_member,
-                           pool_member.PoolMember)
+                           pool_member.PoolMember,
+                           path_args={"pool_id": "test_id"})
 
     def test_pool_create_attrs(self):
         self.verify_create(self.proxy.create_pool, pool.Pool)
