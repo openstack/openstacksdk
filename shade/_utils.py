@@ -15,6 +15,7 @@
 import contextlib
 import inspect
 import netifaces
+import re
 import six
 import time
 
@@ -535,3 +536,167 @@ def shade_exceptions(error_message=None):
         if error_message is None:
             error_message = str(e)
         raise exc.OpenStackCloudException(error_message)
+
+
+def safe_dict_min(key, data):
+    """Safely find the minimum for a given key in a list of dict objects.
+
+    This will find the minimum integer value for specific dictionary key
+    across a list of dictionaries. The values for the given key MUST be
+    integers, or string representations of an integer.
+
+    The dictionary key does not have to be present in all (or any)
+    of the elements/dicts within the data set.
+
+    :param string key: The dictionary key to search for the minimum value.
+    :param list data: List of dicts to use for the data set.
+
+    :returns: None if the field was not not found in any elements, or
+        the minimum value for the field otherwise.
+    """
+    min_value = None
+    for d in data:
+        if (key in d) and (d[key] is not None):
+            try:
+                val = int(d[key])
+            except ValueError:
+                raise exc.OpenStackCloudException(
+                    "Search for minimum value failed. "
+                    "Value for {key} is not an integer: {value}".format(
+                        key=key, value=d[key])
+                )
+            if (min_value is None) or (val < min_value):
+                min_value = val
+    return min_value
+
+
+def safe_dict_max(key, data):
+    """Safely find the maximum for a given key in a list of dict objects.
+
+    This will find the maximum integer value for specific dictionary key
+    across a list of dictionaries. The values for the given key MUST be
+    integers, or string representations of an integer.
+
+    The dictionary key does not have to be present in all (or any)
+    of the elements/dicts within the data set.
+
+    :param string key: The dictionary key to search for the maximum value.
+    :param list data: List of dicts to use for the data set.
+
+    :returns: None if the field was not not found in any elements, or
+        the maximum value for the field otherwise.
+    """
+    max_value = None
+    for d in data:
+        if (key in d) and (d[key] is not None):
+            try:
+                val = int(d[key])
+            except ValueError:
+                raise exc.OpenStackCloudException(
+                    "Search for maximum value failed. "
+                    "Value for {key} is not an integer: {value}".format(
+                        key=key, value=d[key])
+                )
+            if (max_value is None) or (val > max_value):
+                max_value = val
+    return max_value
+
+
+def parse_range(value):
+    """Parse a numerical range string.
+
+    Breakdown a range expression into its operater and numerical parts.
+    This expression must be a string. Valid values must be an integer string,
+    optionally preceeded by one of the following operators::
+
+        - "<"  : Less than
+        - ">"  : Greater than
+        - "<=" : Less than or equal to
+        - ">=" : Greater than or equal to
+
+    Some examples of valid values and function return values::
+
+        - "1024"  : returns (None, 1024)
+        - "<5"    : returns ("<", 5)
+        - ">=100" : returns (">=", 100)
+
+    :param string value: The range expression to be parsed.
+
+    :returns: A tuple with the operator string (or None if no operator
+        was given) and the integer value. None is returned if parsing failed.
+    """
+    if value is None:
+        return None
+
+    range_exp = re.match('(<|>|<=|>=){0,1}(\d+)$', value)
+    if range_exp is None:
+        return None
+
+    op = range_exp.group(1)
+    num = int(range_exp.group(2))
+    return (op, num)
+
+
+def range_filter(data, key, range_exp):
+    """Filter a list by a single range expression.
+
+    :param list data: List of dictionaries to be searched.
+    :param string key: Key name to search within the data set.
+    :param string range_exp: The expression describing the range of values.
+
+    :returns: A list subset of the original data set.
+    :raises: OpenStackCloudException on invalid range expressions.
+    """
+    filtered = []
+    range_exp = str(range_exp).upper()
+
+    if range_exp == "MIN":
+        key_min = safe_dict_min(key, data)
+        if key_min is None:
+            return []
+        for d in data:
+            if int(d[key]) == key_min:
+                filtered.append(d)
+        return filtered
+    elif range_exp == "MAX":
+        key_max = safe_dict_max(key, data)
+        if key_max is None:
+            return []
+        for d in data:
+            if int(d[key]) == key_max:
+                filtered.append(d)
+        return filtered
+
+    # Not looking for a min or max, so a range or exact value must
+    # have been supplied.
+    val_range = parse_range(range_exp)
+
+    # If parsing the range fails, it must be a bad value.
+    if val_range is None:
+        raise exc.OpenStackCloudException(
+            "Invalid range value: {value}".format(value=range_exp))
+
+    op = val_range[0]
+    if op:
+        # Range matching
+        for d in data:
+            d_val = int(d[key])
+            if op == '<':
+                if d_val < val_range[1]:
+                    filtered.append(d)
+            elif op == '>':
+                if d_val > val_range[1]:
+                    filtered.append(d)
+            elif op == '<=':
+                if d_val <= val_range[1]:
+                    filtered.append(d)
+            elif op == '>=':
+                if d_val >= val_range[1]:
+                    filtered.append(d)
+        return filtered
+    else:
+        # Exact number match
+        for d in data:
+            if int(d[key]) == val_range[1]:
+                filtered.append(d)
+        return filtered

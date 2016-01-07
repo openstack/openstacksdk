@@ -351,6 +351,53 @@ class OpenStackCloud(object):
         ret.update(self._get_project_param_dict(project))
         return ret
 
+    def range_search(self, data, filters):
+        """Perform integer range searches across a list of dictionaries.
+
+        Given a list of dictionaries, search across the list using the given
+        dictionary keys and a range of integer values for each key. Only
+        dictionaries that match ALL search filters across the entire original
+        data set will be returned.
+
+        It is not a requirement that each dictionary contain the key used
+        for searching. Those without the key will be considered non-matching.
+
+        The range values must be string values and is either a set of digits
+        representing an integer for matching, or a range operator followed by
+        a set of digits representing an integer for matching. If a range
+        operator is not given, exact value matching will be used. Valid
+        operators are one of: <,>,<=,>=
+
+        :param list data: List of dictionaries to be searched.
+        :param dict filters: Dict describing the one or more range searches to
+            perform. If more than one search is given, the result will be the
+            members of the original data set that match ALL searches. An
+            example of filtering by multiple ranges::
+
+                {"vcpus": "<=5", "ram": "<=2048", "disk": "1"}
+
+        :returns: A list subset of the original data set.
+        :raises: OpenStackCloudException on invalid range expressions.
+        """
+        filtered = []
+
+        for key, range_value in filters.items():
+            # We always want to operate on the full data set so that
+            # calculations for minimum and maximum are correct.
+            results = _utils.range_filter(data, key, range_value)
+
+            if not filtered:
+                # First set of results
+                filtered = results
+            else:
+                # The combination of all searches should be the intersection of
+                # all result sets from each search. So adjust the current set
+                # of filtered data by computing its intersection with the
+                # latest result set.
+                filtered = [r for r in results for f in filtered if r == f]
+
+        return filtered
+
     @_utils.cache_on_arguments()
     def list_projects(self):
         """List Keystone Projects.
