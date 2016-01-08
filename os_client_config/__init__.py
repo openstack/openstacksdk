@@ -31,7 +31,7 @@ def simple_client(service_key, cloud=None, region_name=None):
     at OpenStack REST APIs with a properly configured keystone session.
     """
     return OpenStackConfig().get_one_cloud(
-        cloud=cloud, region_name=region_name).get_session_client('compute')
+        cloud=cloud, region_name=region_name).get_session_client(service_key)
 
 
 def make_client(service_key, constructor, options=None, **kwargs):
