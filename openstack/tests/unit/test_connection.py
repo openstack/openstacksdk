@@ -13,13 +13,10 @@
 import os
 import tempfile
 
-from keystoneauth1 import exceptions as ksa_exc
 import mock
 import os_client_config
-import six
 
 from openstack import connection
-from openstack import exceptions
 from openstack import profile
 from openstack.tests.unit import base
 
@@ -193,37 +190,3 @@ class TestConnection(base.TestCase):
                                     authenticator=mock.Mock())
         res = sot.authorize()
         self.assertIsNone(res)
-
-    def test_authorize_not_authorized(self):
-        fake_session = mock.Mock()
-        ex_auth = ksa_exc.AuthorizationFailure("not authorized")
-        fake_session.get_auth_headers.side_effect = ex_auth
-
-        sot = connection.Connection(session=fake_session,
-                                    authenticator=mock.Mock())
-        ex = self.assertRaises(exceptions.HttpException, sot.authorize)
-        self.assertEqual(401, ex.status_code)
-        self.assertEqual('HttpException: Authentication Failure, not '
-                         'authorized', six.text_type(ex))
-
-    def test_authorize_no_authplugin(self):
-        fake_session = mock.Mock()
-        ex_auth = ksa_exc.MissingAuthPlugin("missing auth plugin")
-        fake_session.get_auth_headers.side_effect = ex_auth
-        sot = connection.Connection(session=fake_session,
-                                    authenticator=mock.Mock())
-        ex = self.assertRaises(exceptions.HttpException, sot.authorize)
-        self.assertEqual(400, ex.status_code)
-        self.assertEqual('HttpException: Bad Request, missing auth plugin',
-                         six.text_type(ex))
-
-    def test_authorize_other_exceptions(self):
-        fake_session = mock.Mock()
-        fake_session.get_auth_headers.side_effect = Exception()
-
-        sot = connection.Connection(session=fake_session,
-                                    authenticator=mock.Mock())
-        ex = self.assertRaises(exceptions.HttpException, sot.authorize)
-        self.assertEqual(500, ex.status_code)
-        self.assertEqual('HttpException: Unknown exception',
-                         six.text_type(ex))

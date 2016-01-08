@@ -14,7 +14,6 @@ import copy
 import json
 import os
 
-from keystoneauth1 import exceptions as ksa_exceptions
 from keystoneauth1 import session
 import mock
 import requests
@@ -1287,7 +1286,7 @@ class TestFind(base.TestCase):
 
     def test_name(self):
         self.mock_get.side_effect = [
-            ksa_exceptions.http.NotFound(),
+            exceptions.NotFoundException(),
             FakeResponse({FakeResource.resources_key: [self.matrix]})
         ]
 
@@ -1330,7 +1329,7 @@ class TestFind(base.TestCase):
         dupe['id'] = 'different'
         self.mock_get.side_effect = [
             # Raise a 404 first so we get out of the ID search and into name.
-            ksa_exceptions.http.NotFound(),
+            exceptions.NotFoundException(),
             FakeResponse({FakeResource.resources_key: [self.matrix, dupe]})
         ]
 
@@ -1358,7 +1357,7 @@ class TestFind(base.TestCase):
 
     def test_nada(self):
         self.mock_get.side_effect = [
-            ksa_exceptions.http.NotFound(),
+            exceptions.NotFoundException(),
             FakeResponse({FakeResource.resources_key: []})
         ]
 
@@ -1366,7 +1365,7 @@ class TestFind(base.TestCase):
 
     def test_no_name(self):
         self.mock_get.side_effect = [
-            ksa_exceptions.http.NotFound(),
+            exceptions.NotFoundException(),
             FakeResponse({FakeResource.resources_key: [self.matrix]})
         ]
         FakeResource.name_attribute = None
@@ -1375,7 +1374,7 @@ class TestFind(base.TestCase):
 
     def test_nada_not_ignored(self):
         self.mock_get.side_effect = [
-            ksa_exceptions.http.NotFound(),
+            exceptions.NotFoundException(),
             FakeResponse({FakeResource.resources_key: []})
         ]
 
@@ -1451,7 +1450,7 @@ class TestWaitForDelete(base.TestCase):
         sot.get = mock.Mock()
         sot.get.side_effect = [
             sot,
-            ksa_exceptions.http.NotFound()]
+            exceptions.NotFoundException()]
 
         self.assertEqual(sot, resource.wait_for_delete(sess, sot, 1, 2))
 

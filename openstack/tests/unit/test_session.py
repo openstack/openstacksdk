@@ -10,8 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 import testtools
 
+from keystoneauth1 import exceptions as _exceptions
+
+from openstack import exceptions
 from openstack.image import image_service
 from openstack import session
 
@@ -41,3 +45,43 @@ class TestSession(testtools.TestCase):
     def test_user_agent_set(self):
         sot = session.Session(None, user_agent="testing/123")
         self.assertTrue(sot.user_agent.startswith("testing/123 openstacksdk"))
+
+    def test_map_exceptions_not_found_exception(self):
+        ksa_exc = _exceptions.HttpError(message="test", http_status=404)
+        func = mock.Mock(side_effect=ksa_exc)
+
+        os_exc = self.assertRaises(
+            exceptions.NotFoundException, session.map_exceptions(func))
+        self.assertIsInstance(os_exc, exceptions.NotFoundException)
+        self.assertEqual(ksa_exc.message, os_exc.message)
+        self.assertEqual(ksa_exc.http_status, os_exc.http_status)
+        self.assertEqual(ksa_exc, os_exc.cause)
+
+    def test_map_exceptions_http_exception(self):
+        ksa_exc = _exceptions.HttpError(message="test", http_status=400)
+        func = mock.Mock(side_effect=ksa_exc)
+
+        os_exc = self.assertRaises(
+            exceptions.HttpException, session.map_exceptions(func))
+        self.assertIsInstance(os_exc, exceptions.HttpException)
+        self.assertEqual(ksa_exc.message, os_exc.message)
+        self.assertEqual(ksa_exc.http_status, os_exc.http_status)
+        self.assertEqual(ksa_exc, os_exc.cause)
+
+    def test_map_exceptions_sdk_exception_1(self):
+        ksa_exc = _exceptions.ClientException()
+        func = mock.Mock(side_effect=ksa_exc)
+
+        os_exc = self.assertRaises(
+            exceptions.SDKException, session.map_exceptions(func))
+        self.assertIsInstance(os_exc, exceptions.SDKException)
+        self.assertEqual(ksa_exc, os_exc.cause)
+
+    def test_map_exceptions_sdk_exception_2(self):
+        ksa_exc = _exceptions.VersionNotAvailable()
+        func = mock.Mock(side_effect=ksa_exc)
+
+        os_exc = self.assertRaises(
+            exceptions.SDKException, session.map_exceptions(func))
+        self.assertIsInstance(os_exc, exceptions.SDKException)
+        self.assertEqual(ksa_exc, os_exc.cause)

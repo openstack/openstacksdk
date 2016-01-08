@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystoneauth1 import exceptions as ksa_exc
 from openstack import exceptions
 from openstack import resource
 
@@ -124,14 +123,17 @@ class BaseProxy(object):
 
         try:
             rv = res.delete(self.session)
-        except ksa_exc.NotFound as exc:
+        except exceptions.NotFoundException as e:
             if ignore_missing:
                 return None
             else:
                 # Reraise with a more specific type and message
                 raise exceptions.ResourceNotFound(
-                    "No %s found for %s" % (resource_type.__name__, value),
-                    details=exc.details, status_code=exc.http_status)
+                    message="No %s found for %s" %
+                            (resource_type.__name__, value),
+                    details=e.details, response=e.response,
+                    request_id=e.request_id, url=e.url, method=e.method,
+                    http_status=e.http_status, cause=e.cause)
 
         return rv
 
@@ -197,10 +199,13 @@ class BaseProxy(object):
 
         try:
             return res.get(self.session, args=args)
-        except ksa_exc.NotFound as exc:
+        except exceptions.NotFoundException as e:
             raise exceptions.ResourceNotFound(
-                "No %s found for %s" % (resource_type.__name__, value),
-                details=exc.details, status_code=exc.http_status)
+                message="No %s found for %s" %
+                        (resource_type.__name__, value),
+                details=e.details, response=e.response,
+                request_id=e.request_id, url=e.url, method=e.method,
+                http_status=e.http_status, cause=e.cause)
 
     def _list(self, resource_type, value=None, paginated=False,
               path_args=None, **query):

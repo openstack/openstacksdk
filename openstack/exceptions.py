@@ -21,9 +21,10 @@ import six
 
 class SDKException(Exception):
     """The base exception class for all exceptions this library raises."""
-    def __init__(self, message=None):
+    def __init__(self, message=None, cause=None):
         self.message = self.__class__.__name__ if message is None else message
-        super(Exception, self).__init__(self.message)
+        self.cause = cause
+        super(SDKException, self).__init__(self.message)
 
 
 class InvalidResponse(SDKException):
@@ -35,10 +36,17 @@ class InvalidResponse(SDKException):
 
 
 class HttpException(SDKException):
-    def __init__(self, message, details=None, status_code=None):
-        super(HttpException, self).__init__(message)
+
+    def __init__(self, message=None, details=None, response=None,
+                 request_id=None, url=None, method=None,
+                 http_status=None, cause=None):
+        super(HttpException, self).__init__(message=message, cause=cause)
         self.details = details
-        self.status_code = status_code
+        self.response = response
+        self.request_id = request_id
+        self.url = url
+        self.method = method
+        self.http_status = http_status
 
     def __unicode__(self):
         msg = self.__class__.__name__ + ": " + self.message
@@ -58,9 +66,9 @@ class NotFoundException(HttpException):
 class MethodNotSupported(SDKException):
     """The resource does not support this operation type."""
     def __init__(self, cls, method):
-        msg = ('The %s method is not supported for %s.%s' %
-               (method, cls.__module__, cls.__name__))
-        super(Exception, self).__init__(msg)
+        message = ('The %s method is not supported for %s.%s' %
+                   (method, cls.__module__, cls.__name__))
+        super(MethodNotSupported, self).__init__(message=message)
 
 
 class DuplicateResource(SDKException):

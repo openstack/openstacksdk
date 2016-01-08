@@ -60,12 +60,9 @@ try to find it and if that fails, you would create it::
 import logging
 import sys
 
-from keystoneauth1 import exceptions as ksa_exc
 from keystoneauth1.loading import base as ksa_loader
 import os_client_config
-import six
 
-from openstack import exceptions
 from openstack import profile as _profile
 from openstack import proxy
 from openstack import session as _session
@@ -250,19 +247,6 @@ class Connection(object):
                 to be authorized or the `auth_plugin` argument is missing,
                 etc.
         """
-        try:
-            headers = self.session.get_auth_headers()
-        except ksa_exc.AuthorizationFailure as ex:
-            raise exceptions.HttpException("Authentication Failure",
-                                           six.text_type(ex),
-                                           status_code=401)
-        except ksa_exc.MissingAuthPlugin as ex:
-            raise exceptions.HttpException("Bad Request",
-                                           six.text_type(ex),
-                                           status_code=400)
-        except Exception as ex:
-            raise exceptions.HttpException("Unknown exception",
-                                           six.text_type(ex),
-                                           status_code=500)
+        headers = self.session.get_auth_headers()
 
         return headers.get('X-Auth-Token') if headers else None

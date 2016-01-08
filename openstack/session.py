@@ -12,15 +12,19 @@
 
 """
 The :class:`~openstack.session.Session` overrides
-:class:`~keystoneauth1.session.Session` to provide end point filtering.
+:class:`~keystoneauth1.session.Session` to provide end point filtering and
+mapping KSA exceptions to SDK exceptions.
 
 """
 import re
-from six.moves.urllib import parse
 
+from keystoneauth1 import exceptions as _exceptions
 from keystoneauth1 import session as _session
 
 import openstack
+from openstack import exceptions
+
+from six.moves.urllib import parse
 
 DEFAULT_USER_AGENT = "openstacksdk/%s" % openstack.__version__
 VERSION_PATTERN = re.compile('/v\d[\d.]*')
@@ -38,6 +42,29 @@ def parse_url(filt, url):
     postfix = path[end:].rstrip('/') if path[end:] else ''
     url = result.scheme + "://" + result.netloc + prefix + version + postfix
     return url
+
+
+def map_exceptions(func):
+    def map_exceptions_wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except _exceptions.HttpError as e:
+            if e.http_status == 404:
+                raise exceptions.NotFoundException(
+                    message=e.message, details=e.details,
+                    response=e.response, request_id=e.request_id,
+                    url=e.url, method=e.method,
+                    http_status=e.http_status, cause=e)
+            else:
+                raise exceptions.HttpException(
+                    message=e.message, details=e.details,
+                    response=e.response, request_id=e.request_id,
+                    url=e.url, method=e.method,
+                    http_status=e.http_status, cause=e)
+        except _exceptions.ClientException as e:
+            raise exceptions.SDKException(message=e.message, cause=e)
+
+    return map_exceptions_wrapper
 
 
 class Session(_session.Session):
@@ -66,7 +93,7 @@ class Session(_session.Session):
         self.profile = profile
 
     def get_endpoint(self, auth=None, interface=None, **kwargs):
-        """Override get endpoint to automate endpoint filering"""
+        """Override get endpoint to automate endpoint filtering"""
 
         service_type = kwargs.get('service_type')
         filt = self.profile.get_filter(service_type)
@@ -74,3 +101,7 @@ class Session(_session.Session):
             filt.interface = interface
         url = super(Session, self).get_endpoint(auth, **filt.get_filter())
         return parse_url(filt, url)
+
+    @map_exceptions
+    def request(self, *args, **kwargs):
+        return super(Session, self).request(*args, **kwargs)

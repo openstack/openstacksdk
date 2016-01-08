@@ -47,11 +47,11 @@ class Test_HttpException(testtools.TestCase):
         self.assertEqual(self.message, exc.message)
         self.assertEqual(details, exc.details)
 
-    def test_status_code(self):
-        status_code = 123
+    def test_http_status(self):
+        http_status = 123
         exc = self.assertRaises(exceptions.HttpException,
                                 self._do_raise, self.message,
-                                status_code=status_code)
+                                http_status=http_status)
 
         self.assertEqual(self.message, exc.message)
-        self.assertEqual(status_code, exc.status_code)
+        self.assertEqual(http_status, exc.http_status)
