@@ -30,6 +30,8 @@ EXAMPLE = {
     'subnets': '12',
     'mtu': 1400,
     'port_security_enabled': True,
+    'availability_zone_hints': ['15', '16'],
+    'availability_zones': ['16'],
 }
 
 
@@ -67,6 +69,10 @@ class TestNetwork(testtools.TestCase):
         self.assertEqual(EXAMPLE['mtu'], sot.mtu)
         self.assertEqual(EXAMPLE['port_security_enabled'],
                          sot.is_port_security_enabled)
+        self.assertEqual(EXAMPLE['availability_zone_hints'],
+                         sot.availability_zone_hints)
+        self.assertEqual(EXAMPLE['availability_zones'],
+                         sot.availability_zones)
 
     def test_external(self):
         sot = network.Network(EXAMPLE)

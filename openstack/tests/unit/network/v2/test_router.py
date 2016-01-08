@@ -24,6 +24,8 @@ EXAMPLE = {
     'tenant_id': '5',
     'status': '6',
     'routes': [],
+    'availability_zone_hints': [],
+    'availability_zones': [],
 }
 
 EXAMPLE_WITH_OPTIONAL = {
@@ -38,6 +40,8 @@ EXAMPLE_WITH_OPTIONAL = {
     'routes': [{'nexthop': '172.24.4.20', 'destination': '10.0.3.1/24'}],
     'ha': True,
     'distributed': True,
+    'availability_zone_hints': ['zone-1', 'zone-2'],
+    'availability_zones': ['zone-2'],
 }
 
 
@@ -67,6 +71,10 @@ class TestRouter(testtools.TestCase):
         self.assertFalse(sot.is_ha)
         self.assertFalse(sot.is_distributed)
         self.assertEqual(EXAMPLE['routes'], sot.routes)
+        self.assertEqual(EXAMPLE['availability_zone_hints'],
+                         sot.availability_zone_hints)
+        self.assertEqual(EXAMPLE['availability_zones'],
+                         sot.availability_zones)
 
     def test_make_it_with_optional(self):
         sot = router.Router(EXAMPLE_WITH_OPTIONAL)
@@ -82,6 +90,10 @@ class TestRouter(testtools.TestCase):
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['distributed'],
                          sot.is_distributed)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['routes'], sot.routes)
+        self.assertEqual(EXAMPLE_WITH_OPTIONAL['availability_zone_hints'],
+                         sot.availability_zone_hints)
+        self.assertEqual(EXAMPLE_WITH_OPTIONAL['availability_zones'],
+                         sot.availability_zones)
 
     def test_add_interface(self):
         sot = router.Router(EXAMPLE)

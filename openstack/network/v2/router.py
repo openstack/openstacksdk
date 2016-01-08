@@ -32,6 +32,12 @@ class Router(resource.Resource):
     #: The administrative state of the router, which is up ``True``
     #: or down ``False``. *Type: bool*
     admin_state_up = resource.prop('admin_state_up', type=bool)
+    #: Availability zone hints to use when scheduling the router.
+    #: *Type: list of availability zone names*
+    availability_zone_hints = resource.prop('availability_zone_hints')
+    #: Availability zones for the router.
+    #: *Type: list of availability zone names*
+    availability_zones = resource.prop('availability_zones')
     #: The ``network_id``, for the external gateway. *Type: dict*
     external_gateway_info = resource.prop('external_gateway_info', type=dict)
     #: The router name.

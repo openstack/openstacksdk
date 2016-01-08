@@ -31,6 +31,12 @@ class Network(resource.Resource):
     #: The administrative state of the network, which is up ``True`` or
     #: down ``False``. *Type: bool*
     admin_state_up = resource.prop('admin_state_up', type=bool)
+    #: Availability zone hints to use when scheduling the network.
+    #: *Type: list of availability zone names*
+    availability_zone_hints = resource.prop('availability_zone_hints')
+    #: Availability zones for the network.
+    #: *Type: list of availability zone names*
+    availability_zones = resource.prop('availability_zones')
     #: The network name.
     name = resource.prop('name')
     #: The project this network is associated with.
