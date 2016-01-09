@@ -304,7 +304,7 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('image', mock_client)
         mock_client.assert_called_with(
-            2.0,
+            version=2.0,
             service_name=None,
             endpoint_override='http://example.com',
             region_name='region-al',
@@ -325,7 +325,7 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('image', mock_client)
         mock_client.assert_called_with(
-            2.0,
+            version=2.0,
             service_name=None,
             endpoint_override='http://example.com/override',
             region_name='region-al',
@@ -347,7 +347,7 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('image', mock_client)
         mock_client.assert_called_with(
-            2.0,
+            version=2.0,
             service_name=None,
             endpoint_override='http://example.com',
             region_name='region-al',
@@ -369,7 +369,7 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('image', mock_client)
         mock_client.assert_called_with(
-            '1',
+            version='1',
             service_name=None,
             endpoint_override='http://example.com',
             region_name='region-al',
@@ -391,7 +391,7 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('image', mock_client, version='beef')
         mock_client.assert_called_with(
-            'beef',
+            version='beef',
             service_name=None,
             endpoint_override='http://example.com',
             region_name='region-al',
@@ -411,7 +411,7 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('network', mock_client)
         mock_client.assert_called_with(
-            '2.0',
+            api_version='2.0',
             endpoint_type='public',
             endpoint_override=None,
             region_name='region-al',
@@ -429,7 +429,7 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('compute', mock_client)
         mock_client.assert_called_with(
-            '2',
+            version='2',
             endpoint_type='public',
             endpoint_override='http://compute.example.com',
             region_name='region-al',
@@ -447,7 +447,7 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('identity', mock_client)
         mock_client.assert_called_with(
-            '2.0',
+            version='2.0',
             endpoint='http://example.com/v2',
             endpoint_type='admin',
             endpoint_override=None,
@@ -467,7 +467,7 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('identity', mock_client)
         mock_client.assert_called_with(
-            '3',
+            version='3',
             endpoint='http://example.com',
             endpoint_type='admin',
             endpoint_override=None,
