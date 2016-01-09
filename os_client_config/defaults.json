@@ -12,6 +12,7 @@
   "image_api_use_tasks": false,
   "image_api_version": "2",
   "image_format": "qcow2",
+  "key_manager_api_version": "v1",
   "metering_api_version": "2",
   "network_api_version": "2",
   "object_store_api_version": "1",

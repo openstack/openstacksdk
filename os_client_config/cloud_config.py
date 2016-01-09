@@ -305,7 +305,7 @@ class CloudConfig(object):
         endpoint_override = self.get_endpoint(service_key)
 
         if not interface_key:
-            if service_key == 'image':
+            if service_key in ('image', 'key-manager'):
                 interface_key = 'interface'
             else:
                 interface_key = 'endpoint_type'
@@ -348,7 +348,10 @@ class CloudConfig(object):
                 if 'endpoint' not in constructor_kwargs:
                     endpoint = self.get_session_endpoint('identity')
                     constructor_kwargs['endpoint'] = endpoint
-            constructor_args.append(version)
+            if service_key == 'key-manager':
+                constructor_kwargs['version'] = version
+            else:
+                constructor_args.append(version)
 
         return client_class(*constructor_args, **constructor_kwargs)
 
