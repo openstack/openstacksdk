@@ -17,6 +17,8 @@ from openstack.tests.functional import base
 
 
 @unittest.skip("bug/1524468")
+@unittest.skipUnless(base.service_exists(service_type="metering"),
+                     "Metering service does not exist")
 class TestAlarmChange(base.BaseFunctionalTest):
 
     NAME = uuid.uuid4().hex

@@ -13,37 +13,34 @@
 import mock
 import unittest
 
+from keystoneauth1 import exceptions as _exceptions
+
 from openstack.tests.functional import base
 
 
-class Test_requires_service(unittest.TestCase):
+class TestServiceExists(unittest.TestCase):
 
     def setUp(self):
-        super(Test_requires_service, self).setUp()
+        super(TestServiceExists, self).setUp()
 
-        self.return_value = 1
+        self.conn = mock.Mock()
+        self.sess = mock.Mock()
+        self.conn.session = self.sess
         self.kwargs = {"service_type": "identity", "version": "v3"}
 
-        self.sot = mock.Mock()
-        self.sot.test_method = lambda *args: self.return_value
+    @mock.patch('openstack.connection.from_config')
+    def test_service_exists(self, mock_from_config):
+        mock_from_config.return_value = self.conn
 
-        self.mock_skip = mock.Mock()
-        self.sot.skip = self.mock_skip
+        self.sess.get_endpoint = mock.Mock()
 
-        self.get_endpoint = mock.Mock()
-        self.sot.conn.session.get_endpoint = self.get_endpoint
+        self.assertTrue(base.service_exists(**self.kwargs))
 
-    def _test(self, **kwargs):
-        decorated = base.requires_service(**kwargs)(self.sot.test_method)
-        return decorated(self.sot)
+    @mock.patch('openstack.connection.from_config')
+    def test_service_doesnt_exist(self, mock_from_config):
+        mock_from_config.return_value = self.conn
 
-    def test_service_exists(self):
-        self.assertEqual(self.return_value, self._test(**self.kwargs))
-        self.get_endpoint.assert_called_with(**self.kwargs)
+        self.sess.get_endpoint = mock.Mock(
+            side_effect=_exceptions.EndpointNotFound(''))
 
-    def test_service_doesnt_exist(self):
-        self.get_endpoint.return_value = None
-
-        self._test(**self.kwargs)
-        self.get_endpoint.assert_called_with(**self.kwargs)
-        self.assertEqual(self.mock_skip.call_count, 1)
+        self.assertFalse(base.service_exists(**self.kwargs))
