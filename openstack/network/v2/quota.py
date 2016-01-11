@@ -28,17 +28,17 @@ class Quota(resource.Resource):
 
     # Properties
     #: The maximum amount of floating IPs you can have. *Type: int*
-    floating_ip = resource.prop('floatingip', type=int)
+    floating_ips = resource.prop('floatingip', type=int)
     #: The maximum amount of networks you can create. *Type: int*
-    network = resource.prop('network', type=int)
+    networks = resource.prop('network', type=int)
     #: The maximum amount of ports you can create. *Type: int*
-    port = resource.prop('port', type=int)
+    ports = resource.prop('port', type=int)
     #: The project these quota values are for.
     project_id = resource.prop('tenant_id')
     #: The maximum amount of routers you can create. *Type: int*
-    router = resource.prop('router', type=int)
+    routers = resource.prop('router', type=int)
     #: The maximum amount of subnets you can create. *Type: int*
-    subnet = resource.prop('subnet', type=int)
+    subnets = resource.prop('subnet', type=int)
     #: The maximum amount of subnet pools you can create. *Type: int*
     subnet_pools = resource.prop('subnetpool', type=int)
     #: The maximum amount of security group rules you can create. *Type: int*

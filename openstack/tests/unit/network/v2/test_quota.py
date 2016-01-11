@@ -45,12 +45,12 @@ class TestQuota(testtools.TestCase):
 
     def test_make_it(self):
         sot = quota.Quota(EXAMPLE)
-        self.assertEqual(EXAMPLE['floatingip'], sot.floating_ip)
-        self.assertEqual(EXAMPLE['network'], sot.network)
-        self.assertEqual(EXAMPLE['port'], sot.port)
+        self.assertEqual(EXAMPLE['floatingip'], sot.floating_ips)
+        self.assertEqual(EXAMPLE['network'], sot.networks)
+        self.assertEqual(EXAMPLE['port'], sot.ports)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
-        self.assertEqual(EXAMPLE['router'], sot.router)
-        self.assertEqual(EXAMPLE['subnet'], sot.subnet)
+        self.assertEqual(EXAMPLE['router'], sot.routers)
+        self.assertEqual(EXAMPLE['subnet'], sot.subnets)
         self.assertEqual(EXAMPLE['subnetpool'], sot.subnet_pools)
         self.assertEqual(EXAMPLE['security_group_rule'],
                          sot.security_group_rules)
