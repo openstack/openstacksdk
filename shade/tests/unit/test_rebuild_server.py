@@ -96,6 +96,45 @@ class TestRebuildServer(base.TestCase):
             self.assertEqual(meta.obj_to_dict(rebuild_server),
                              self.client.rebuild_server("a", "b"))
 
+    def test_rebuild_server_with_admin_pass_no_wait(self):
+        """
+        Test that a server with an admin_pass passed returns the password
+        """
+        with patch("shade.OpenStackCloud"):
+            rebuild_server = fakes.FakeServer('1234', '', 'REBUILD',
+                                              adminPass='ooBootheiX0edoh')
+            config = {
+                "servers.rebuild.return_value": rebuild_server,
+            }
+            OpenStackCloud.nova_client = Mock(**config)
+            self.assertEqual(
+                meta.obj_to_dict(rebuild_server),
+                self.client.rebuild_server('a', 'b',
+                                           admin_pass='ooBootheiX0edoh'))
+
+    def test_rebuild_server_with_admin_pass_wait(self):
+        """
+        Test that a server with an admin_pass passed returns the password
+        """
+        with patch("shade.OpenStackCloud"):
+            rebuild_server = fakes.FakeServer('1234', '', 'REBUILD',
+                                              adminPass='ooBootheiX0edoh')
+            active_server = fakes.FakeServer('1234', '', 'ACTIVE')
+            ret_active_server = fakes.FakeServer('1234', '', 'ACTIVE',
+                                                 adminPass='ooBootheiX0edoh')
+            config = {
+                "servers.rebuild.return_value": rebuild_server,
+                "servers.get.return_value": active_server,
+            }
+            OpenStackCloud.nova_client = Mock(**config)
+            self.client.name = 'cloud-name'
+            self.assertEqual(
+                _utils.normalize_server(
+                    meta.obj_to_dict(ret_active_server),
+                    cloud_name='cloud-name', region_name=''),
+                self.client.rebuild_server("a", "b", wait=True,
+                                           admin_pass='ooBootheiX0edoh'))
+
     def test_rebuild_server_wait(self):
         """
         Test that rebuild_server with a wait returns the server instance when

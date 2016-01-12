@@ -3267,6 +3267,7 @@ class OpenStackCloud(object):
             server = self.manager.submitTask(_tasks.ServerCreate(
                 name=name, flavor=flavor, **kwargs))
             server_id = server.id
+            admin_pass = server.get('adminPass') or kwargs.get('admin_pass')
             if not wait:
                 # This is a direct get task call to skip the list_servers
                 # cache which has absolutely no chance of containing the
@@ -3300,7 +3301,10 @@ class OpenStackCloud(object):
                     auto_ip=auto_ip, ips=ips, ip_pool=ip_pool,
                     wait=wait, timeout=timeout)
                 if server:
+                    server.adminPass = admin_pass
                     return server
+
+        server.adminPass = admin_pass
         return server
 
     def get_active_server(
@@ -3341,11 +3345,13 @@ class OpenStackCloud(object):
                 extra_data=dict(server=server))
         return None
 
-    def rebuild_server(self, server_id, image_id, wait=False, timeout=180):
+    def rebuild_server(self, server_id, image_id, admin_pass=None,
+                       wait=False, timeout=180):
         with _utils.shade_exceptions("Error in rebuilding instance"):
             server = self.manager.submitTask(_tasks.ServerRebuild(
-                server=server_id, image=image_id))
+                server=server_id, image=image_id, password=admin_pass))
         if wait:
+            admin_pass = server.get('adminPass') or admin_pass
             for count in _utils._iterate_timeout(
                     timeout,
                     "Timeout waiting for server {0} to "
@@ -3356,6 +3362,7 @@ class OpenStackCloud(object):
                     continue
 
                 if server['status'] == 'ACTIVE':
+                    server.adminPass = admin_pass
                     return server
 
                 if server['status'] == 'ERROR':

@@ -62,6 +62,21 @@ class TestCompute(base.TestCase):
         self.assertEqual(self.server_name, server['name'])
         self.assertEqual(self.image.id, server['image']['id'])
         self.assertEqual(self.flavor.id, server['flavor']['id'])
+        self.assertIsNotNone(server['adminPass'])
+        self.assertTrue(self.cloud.delete_server(self.server_name, wait=True))
+        self.assertIsNone(self.cloud.get_server(self.server_name))
+
+    def test_create_and_delete_server_with_admin_pass(self):
+        self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
+        server = self.cloud.create_server(name=self.server_name,
+                                          image=self.image,
+                                          flavor=self.flavor,
+                                          admin_pass='sheiqu9loegahSh',
+                                          wait=True)
+        self.assertEqual(self.server_name, server['name'])
+        self.assertEqual(self.image.id, server['image']['id'])
+        self.assertEqual(self.flavor.id, server['flavor']['id'])
+        self.assertEqual(server['adminPass'], 'sheiqu9loegahSh')
         self.assertTrue(self.cloud.delete_server(self.server_name, wait=True))
         self.assertIsNone(self.cloud.get_server(self.server_name))
 

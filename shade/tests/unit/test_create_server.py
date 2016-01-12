@@ -142,6 +142,66 @@ class TestCreateServer(base.TestCase):
                     name='server-name', image='image=id',
                     flavor='flavor-id'))
 
+    def test_create_server_with_admin_pass_no_wait(self):
+        """
+        Test that a server with an admin_pass passed returns the password
+        """
+        with patch("shade.OpenStackCloud"):
+            fake_server = fakes.FakeServer('1234', '', 'BUILD')
+            fake_create_server = fakes.FakeServer('1234', '', 'BUILD',
+                                                  adminPass='ooBootheiX0edoh')
+            config = {
+                "servers.create.return_value": fake_create_server,
+                "servers.get.return_value": fake_server
+            }
+            OpenStackCloud.nova_client = Mock(**config)
+            self.assertEqual(
+                _utils.normalize_server(
+                    meta.obj_to_dict(fake_create_server),
+                    cloud_name=self.client.name,
+                    region_name=self.client.region_name),
+                self.client.create_server(
+                    name='server-name', image='image=id',
+                    flavor='flavor-id', admin_pass='ooBootheiX0edoh'))
+
+    def test_create_server_with_admin_pass_wait(self):
+        """
+        Test that a server with an admin_pass passed returns the password
+        """
+        with patch("shade.OpenStackCloud"):
+            build_server = fakes.FakeServer(
+                '1234', '', 'BUILD', addresses=dict(public='1.1.1.1'),
+                adminPass='ooBootheiX0edoh')
+            next_server = fakes.FakeServer(
+                '1234', '', 'BUILD', addresses=dict(public='1.1.1.1'))
+            fake_server = fakes.FakeServer(
+                '1234', '', 'ACTIVE', addresses=dict(public='1.1.1.1'))
+            ret_fake_server = fakes.FakeServer(
+                '1234', '', 'ACTIVE', addresses=dict(public='1.1.1.1'),
+                adminPass='ooBootheiX0edoh')
+            config = {
+                "servers.create.return_value": build_server,
+                "servers.get.return_value": next_server,
+                "servers.list.side_effect": [
+                    [next_server], [fake_server]]
+            }
+            OpenStackCloud.nova_client = Mock(**config)
+            with patch.object(OpenStackCloud, "add_ips_to_server",
+                              return_value=fake_server):
+                self.assertEqual(
+                    _utils.normalize_server(
+                        meta.obj_to_dict(ret_fake_server),
+                        cloud_name=self.client.name,
+                        region_name=self.client.region_name),
+                    _utils.normalize_server(
+                        meta.obj_to_dict(
+                            self.client.create_server(
+                                'server-name', 'image-id', 'flavor-id',
+                                wait=True, admin_pass='ooBootheiX0edoh')),
+                        cloud_name=self.client.name,
+                        region_name=self.client.region_name)
+                )
+
     def test_create_server_wait(self):
         """
         Test that create_server with a wait returns the server instance when
