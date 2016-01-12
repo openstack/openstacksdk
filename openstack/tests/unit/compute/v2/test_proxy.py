@@ -223,6 +223,13 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
     def test_server_update(self):
         self.verify_update(self.proxy.update_server, server.Server)
 
+    def test_server_wait_for(self):
+        value = server.Server(attrs={'id': '1234'})
+        self.verify_wait_for_status(
+            self.proxy.wait_for_server,
+            method_args=[value],
+            expected_args=[value, 'ACTIVE', ['ERROR'], 2, 120])
+
     def test_server_resize(self):
         self._verify("openstack.compute.v2.server.Server.resize",
                      self.proxy.resize_server,
@@ -277,3 +284,55 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
     def test_availability_zones(self):
         self.verify_list(self.proxy.availability_zones, az.AvailabilityZone,
                          paginated=False)
+
+    def test_get_all_server_metadata(self):
+        self._verify2("openstack.compute.v2.server.Server.get_metadata",
+                      self.proxy.get_server_metadata,
+                      expected_result={},
+                      method_args=["value"],
+                      expected_args=[self.session, None])
+
+    def test_get_one_server_metadata(self):
+        self._verify2("openstack.compute.v2.server.Server.get_metadata",
+                      self.proxy.get_server_metadata,
+                      expected_result={},
+                      method_args=["value"],
+                      method_kwargs={"key": "key"},
+                      expected_args=[self.session, "key"])
+
+    def test_create_server_metadata(self):
+        kwargs = {"a": "1", "b": "2"}
+        self._verify2("openstack.compute.v2.server.Server.create_metadata",
+                      self.proxy.create_server_metadata,
+                      expected_result={},
+                      method_args=["value"],
+                      method_kwargs=kwargs,
+                      expected_args=[self.session],
+                      expected_kwargs=kwargs)
+
+    def test_replace_server_metadata(self):
+        kwargs = {"a": "1", "b": "2"}
+        self._verify2("openstack.compute.v2.server.Server.replace_metadata",
+                      self.proxy.replace_server_metadata,
+                      expected_result={},
+                      method_args=["value"],
+                      method_kwargs=kwargs,
+                      expected_args=[self.session],
+                      expected_kwargs=kwargs)
+
+    def test_update_server_metadata(self):
+        kwargs = {"a": "1", "b": "2"}
+        self._verify2("openstack.compute.v2.server.Server.update_metadata",
+                      self.proxy.update_server_metadata,
+                      expected_result={},
+                      method_args=["value"],
+                      method_kwargs=kwargs,
+                      expected_args=[self.session],
+                      expected_kwargs=kwargs)
+
+    def test_delete_server_metadata(self):
+        self._verify2("openstack.compute.v2.server.Server.delete_metadata",
+                      self.proxy.delete_server_metadata,
+                      expected_result=None,
+                      method_args=["value", "key"],
+                      expected_args=[self.session, "key"])

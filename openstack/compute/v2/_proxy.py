@@ -188,6 +188,102 @@ class Proxy(proxy.BaseProxy):
         img = _image.ImageDetail if details else _image.Image
         return self._list(img, paginated=True, **query)
 
+    def _get_base_resource(self, res, base):
+        # Metadata calls for Image and Server can work for both those
+        # resources but also ImageDetail and ServerDetail. If we get
+        # either class, use it, otherwise create an instance of the base.
+        if isinstance(res, base):
+            return res
+        else:
+            return base({"id": res})
+
+    def get_image_metadata(self, image, key=None):
+        """Return a dictionary of metadata for an image
+
+        :param server: Either the id of an image or a
+                       :class:`~openstack.compute.v2.image.Image` or
+                       :class:`~openstack.compute.v2.image.ImageDetail`
+                       instance.
+        :param key: An optional key to retrieve from the image's metadata.
+                    When no ``key`` is specified, all metadata is retrieved.
+
+        :returns: A dictionary of the image's metadata. All keys and values
+                  are Unicode text.
+        :rtype: dict
+        """
+        res = self._get_base_resource(image, _image.Image)
+        return res.get_metadata(self.session, key)
+
+    def create_image_metadata(self, image, **metadata):
+        """Create metadata for an image
+
+        :param server: Either the id of an image or a
+                       :class:`~openstack.compute.v2.image.Image` or
+                       :class:`~openstack.compute.v2.image.ImageDetail`
+                       instance.
+        :param kwargs metadata: Key/value pairs to be added as metadata
+                                on the image. All keys and values
+                                are stored as Unicode.
+
+        :returns: A dictionary of the metadata that was created on the image.
+                  All keys and values are Unicode text.
+        :rtype: dict
+        """
+        res = self._get_base_resource(image, _image.Image)
+        return res.create_metadata(self.session, **metadata)
+
+    def replace_image_metadata(self, image, **metadata):
+        """Replace metadata for an image
+
+        :param server: Either the id of a image or a
+                       :class:`~openstack.compute.v2.image.Image` or
+                       :class:`~openstack.compute.v2.image.ImageDetail`
+                       instance.
+        :param kwargs metadata: Key/value pairs to be added as metadata
+                                on the image. Any other existing metadata
+                                is removed. All keys and values are stored
+                                as Unicode.
+
+        :returns: A dictionary of the metadata for the image. All keys and
+                  values are Unicode text.
+        :rtype: dict
+        """
+        res = self._get_base_resource(image, _image.Image)
+        return res.replace_metadata(self.session, **metadata)
+
+    def update_image_metadata(self, image, **metadata):
+        """Update metadata for an image
+
+        :param server: Either the id of an image or a
+                       :class:`~openstack.compute.v2.image.Image` or
+                       :class:`~openstack.compute.v2.image.ImageDetail`
+                       instance.
+        :param kwargs metadata: Key/value pairs to be updated in the image's
+                                metadata. No other metadata is modified
+                                by this call. All keys and values are stored
+                                as Unicode.
+
+        :returns: A dictionary of the metadata for the image. All keys and
+                  values are Unicode text.
+        :rtype: dict
+        """
+        res = self._get_base_resource(image, _image.Image)
+        return res.update_metadata(self.session, **metadata)
+
+    def delete_image_metadata(self, image, key):
+        """Delete metadata for an image
+
+        :param server: Either the id of an image or a
+                       :class:`~openstack.compute.v2.image.Image` or
+                       :class:`~openstack.compute.v2.image.ImageDetail`
+                       instance.
+        :param key: The key to delete
+
+        :rtype: ``None``
+        """
+        res = self._get_base_resource(image, _image.Image)
+        return res.delete_metadata(self.session, key)
+
     def create_keypair(self, **attrs):
         """Create a new keypair from attributes
 
@@ -583,3 +679,90 @@ class Proxy(proxy.BaseProxy):
         """
         return self._list(availability_zone.AvailabilityZone,
                           paginated=False, **query)
+
+    def get_server_metadata(self, server, key=None):
+        """Return a dictionary of metadata for a server
+
+        :param server: Either the id of a server or a
+                       :class:`~openstack.compute.v2.server.Server` or
+                       :class:`~openstack.compute.v2.server.ServerDetail`
+                       instance.
+        :param key: An optional key to retrieve from the server's metadata.
+                    When no ``key`` is specified, all metadata is retrieved.
+
+        :returns: A dictionary of the server's metadata. All keys and values
+                  are Unicode text.
+        :rtype: dict
+        """
+        res = self._get_base_resource(server, _server.Server)
+        return res.get_metadata(self.session, key)
+
+    def create_server_metadata(self, server, **metadata):
+        """Create metadata for a server
+
+        :param server: Either the id of a server or a
+                       :class:`~openstack.compute.v2.server.Server` or
+                       :class:`~openstack.compute.v2.server.ServerDetail`
+                       instance.
+        :param kwargs metadata: Key/value pairs to be added as metadata
+                                on the server. All keys and values
+                                are stored as Unicode.
+
+        :returns: A dictionary of the metadata that was created on the server.
+                  All keys and values are Unicode text.
+        :rtype: dict
+        """
+        res = self._get_base_resource(server, _server.Server)
+        return res.create_metadata(self.session, **metadata)
+
+    def replace_server_metadata(self, server, **metadata):
+        """Replace metadata for a server
+
+        :param server: Either the id of a server or a
+                       :class:`~openstack.compute.v2.server.Server` or
+                       :class:`~openstack.compute.v2.server.ServerDetail`
+                       instance.
+        :param kwargs metadata: Key/value pairs to be added as metadata
+                                on the server. Any other existing metadata
+                                is removed. All keys and values are stored
+                                as Unicode.
+
+        :returns: A dictionary of the metadata for the server. All keys and
+                  values are Unicode text.
+        :rtype: dict
+        """
+        res = self._get_base_resource(server, _server.Server)
+        return res.replace_metadata(self.session, **metadata)
+
+    def update_server_metadata(self, server, **metadata):
+        """Update metadata for a server
+
+        :param server: Either the id of a server or a
+                       :class:`~openstack.compute.v2.server.Server` or
+                       :class:`~openstack.compute.v2.server.ServerDetail`
+                       instance.
+        :param kwargs metadata: Key/value pairs to be updated in the server's
+                                metadata. No other metadata is modified
+                                by this call. All keys and values are stored
+                                as Unicode.
+
+        :returns: A dictionary of the metadata for the server. All keys and
+                  values are Unicode text.
+        :rtype: dict
+        """
+        res = self._get_base_resource(server, _server.Server)
+        return res.update_metadata(self.session, **metadata)
+
+    def delete_server_metadata(self, server, key):
+        """Delete metadata for a server
+
+        :param server: Either the id of a server or a
+                       :class:`~openstack.compute.v2.server.Server` or
+                       :class:`~openstack.compute.v2.server.ServerDetail`
+                       instance.
+        :param key: The key to delete
+
+        :rtype: ``None``
+        """
+        res = self._get_base_resource(server, _server.Server)
+        return res.delete_metadata(self.session, key)

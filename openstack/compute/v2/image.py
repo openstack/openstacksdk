@@ -11,10 +11,11 @@
 # under the License.
 
 from openstack.compute import compute_service
+from openstack.compute.v2 import metadata
 from openstack import resource
 
 
-class Image(resource.Resource):
+class Image(resource.Resource, metadata.MetadataMixin):
     resource_key = 'image'
     resources_key = 'images'
     base_path = '/images'
