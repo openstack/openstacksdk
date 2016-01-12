@@ -159,6 +159,19 @@ region-b.geo-1 US East
 * Public IPv4 is provided via NAT with Neutron Floating IP
 * Volume API Version is 1
 
+ibmcloud
+--------
+
+https://identity.open.softlayer.com
+
+============== ================
+Region Name    Human Name
+============== ================
+london         London, UK
+============== ================
+
+* Public IPv4 is provided via NAT with Neutron Floating IP
+
 internap
 --------
 
