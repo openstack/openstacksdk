@@ -1337,9 +1337,8 @@ class Proxy(proxy.BaseProxy):
         """Create a new subnet pool from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.network.v2.subnet_pool.
-                           SubnetPool`, comprised of the properties on the
-                           SubnetPool class.
+            a :class:`~openstack.network.v2.subnet_pool.SubnetPool`,
+            comprised of the properties on the SubnetPool class.
 
         :returns: The results of subnet pool creation
         :rtype: :class:`~openstack.network.v2.subnet_pool.SubnetPool`
@@ -1350,8 +1349,7 @@ class Proxy(proxy.BaseProxy):
         """Delete a subnet pool
 
         :param subnet_pool: The value can be either the ID of a subnet pool or
-                            a :class:`~openstack.network.v2.subnet_pool.
-                            SubnetPool` instance.
+            a :class:`~openstack.network.v2.subnet_pool.SubnetPool` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the subnet pool does not exist.
@@ -1382,8 +1380,7 @@ class Proxy(proxy.BaseProxy):
         """Get a single subnet pool
 
         :param subnet_pool: The value can be the ID of a subnet pool or a
-                            :class:`~openstack.network.v2.subnet_pool.
-                            SubnetPool` instance.
+            :class:`~openstack.network.v2.subnet_pool.SubnetPool` instance.
 
         :returns: One :class:`~openstack.network.v2.subnet_pool.SubnetPool`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
@@ -1406,8 +1403,7 @@ class Proxy(proxy.BaseProxy):
         """Update a subnet pool
 
         :param subnet_pool: Either the ID of a subnet pool or a
-                            :class:`~openstack.network.v2.subnet_pool.
-                            SubnetPool` instance.
+            :class:`~openstack.network.v2.subnet_pool.SubnetPool` instance.
         :attrs kwargs: The attributes to update on the subnet pool
                        represented by ``value``.
 

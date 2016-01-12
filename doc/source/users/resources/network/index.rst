@@ -20,3 +20,4 @@ Network Resources
    v2/security_group
    v2/security_group_rule
    v2/subnet
+   v2/subnet_pool
