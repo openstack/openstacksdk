@@ -74,7 +74,7 @@ Kna1           Karlskrona, SE
 conoha
 ------
 
-https://identity.%(region_name)s.conoha.io/v2.0
+https://identity.%(region_name)s.conoha.io
 
 ============== ================
 Region Name    Human Name
@@ -89,7 +89,7 @@ sjc1           San Jose, CA
 datacentred
 -----------
 
-https://compute.datacentred.io:5000/v2.0
+https://compute.datacentred.io:5000
 
 ============== ================
 Region Name    Human Name
