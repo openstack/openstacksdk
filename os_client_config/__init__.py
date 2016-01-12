@@ -14,6 +14,7 @@
 
 import sys
 
+from os_client_config import cloud_config
 from os_client_config.config import OpenStackConfig  # noqa
 
 
@@ -34,7 +35,7 @@ def simple_client(service_key, cloud=None, region_name=None):
         cloud=cloud, region_name=region_name).get_session_client(service_key)
 
 
-def make_client(service_key, constructor, options=None, **kwargs):
+def make_client(service_key, constructor=None, options=None, **kwargs):
     """Simple wrapper for getting a client instance from a client lib.
 
     OpenStack Client Libraries all have a fairly consistent constructor
@@ -44,6 +45,8 @@ def make_client(service_key, constructor, options=None, **kwargs):
     variables and clouds.yaml - and takes as **kwargs anything you'd expect
     to pass in.
     """
+    if not constructor:
+        constructor = cloud_config._get_client(service_key)
     config = OpenStackConfig()
     if options:
         config.register_argparse_options(options, sys.argv, service_key)
@@ -51,5 +54,5 @@ def make_client(service_key, constructor, options=None, **kwargs):
     else:
         parsed_options = None
 
-    cloud_config = config.get_one_cloud(options=parsed_options, **kwargs)
-    return cloud_config.get_legacy_client(service_key, constructor)
+    cloud = config.get_one_cloud(options=parsed_options, **kwargs)
+    return cloud.get_legacy_client(service_key, constructor)
