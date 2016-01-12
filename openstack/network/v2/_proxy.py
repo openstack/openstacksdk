@@ -939,7 +939,9 @@ class Proxy(proxy.BaseProxy):
         """Delete a quota (i.e. reset to the default quota)
 
         :param quota: The value can be either the ID of a quota or a
-                       :class:`~openstack.network.v2.quota.Quota` instance.
+                      :class:`~openstack.network.v2.quota.Quota` instance.
+                      The ID of a quota is the same as the project ID
+                      for the quota.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when quota does not exist.
@@ -953,8 +955,10 @@ class Proxy(proxy.BaseProxy):
     def get_quota(self, quota):
         """Get a quota
 
-        :param router: The value can be the ID of a quota or a
-                       :class:`~openstack.network.v2.quota.Quota` instance.
+        :param quota: The value can be the ID of a quota or a
+                      :class:`~openstack.network.v2.quota.Quota` instance.
+                      The ID of a quota is the same as the project ID
+                      for the quota.
 
         :returns: One :class:`~openstack.network.v2.quota.Quota`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
@@ -976,8 +980,10 @@ class Proxy(proxy.BaseProxy):
     def update_quota(self, quota, **attrs):
         """Update a quota
 
-        :param router: Either the ID of a quota or a
-                       :class:`~openstack.network.v2.quota.Quota` instance.
+        :param quota: Either the ID of a quota or a
+                      :class:`~openstack.network.v2.quota.Quota` instance.
+                      The ID of a quota is the same as the project ID
+                      for the quota.
         :attrs kwargs: The attributes to update on the quota represented
                        by ``value``.
 
