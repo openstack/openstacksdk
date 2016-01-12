@@ -28,7 +28,7 @@ class OpenStackInventory(object):
 
     def __init__(
             self, config_files=None, refresh=False, private=False,
-            config_key=None, config_defaults=None):
+            config_key=None, config_defaults=None, cloud=None):
         if config_files is None:
             config_files = []
         config = os_client_config.config.OpenStackConfig(
@@ -36,10 +36,19 @@ class OpenStackInventory(object):
         self.extra_config = config.get_extra_config(
             config_key, config_defaults)
 
-        self.clouds = [
-            shade.OpenStackCloud(cloud_config=cloud_config)
-            for cloud_config in config.get_all_clouds()
-        ]
+        if cloud is None:
+            self.clouds = [
+                shade.OpenStackCloud(cloud_config=cloud_config)
+                for cloud_config in config.get_all_clouds()
+            ]
+        else:
+            try:
+                self.clouds = [
+                    shade.OpenStackCloud(
+                        cloud_config=config.get_one_cloud(cloud))
+                ]
+            except os_client_config.exceptions.OpenStackConfigException as e:
+                raise shade.OpenStackCloudException(e)
 
         if private:
             for cloud in self.clouds:
