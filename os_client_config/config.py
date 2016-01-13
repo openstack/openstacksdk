@@ -447,7 +447,7 @@ class OpenStackConfig(object):
         if 'cloud' in cloud:
             del cloud['cloud']
 
-        return self._fix_backwards_madness(cloud)
+        return cloud
 
     def _expand_vendor_profile(self, name, cloud, our_cloud):
         # Expand a profile if it exists. 'cloud' is an old confusing name
@@ -895,6 +895,8 @@ class OpenStackConfig(object):
         config = self._fix_backwards_api_timeout(config)
         if 'endpoint_type' in config:
             config['interface'] = config.pop('endpoint_type')
+
+        config = self._fix_backwards_madness(config)
 
         for key in BOOL_KEYS:
             if key in config:
