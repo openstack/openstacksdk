@@ -171,6 +171,13 @@ class TestConfig(base.TestCase):
         self.assertEqual('user', cc.auth['username'])
         self.assertEqual('testpass', cc.auth['password'])
 
+    def test_only_secure_yaml(self):
+        c = config.OpenStackConfig(config_files=['nonexistent'],
+                                   vendor_files=['nonexistent'],
+                                   secure_files=[self.secure_yaml])
+        cc = c.get_one_cloud(cloud='_test_cloud_no_vendor')
+        self.assertEqual('testpass', cc.auth['password'])
+
     def test_get_cloud_names(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    secure_files=[self.no_yaml])

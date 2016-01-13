@@ -316,7 +316,7 @@ class OpenStackConfig(object):
                         return path, json.load(f)
                     else:
                         return path, yaml.safe_load(f)
-        return (None, None)
+        return (None, {})
 
     def _normalize_keys(self, config):
         new_config = {}
