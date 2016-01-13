@@ -473,6 +473,16 @@ class TestConfigArgparse(base.TestCase):
         opts, _remain = parser.parse_known_args(['--os-cloud', 'foo'])
         self.assertEqual(opts.os_cloud, 'foo')
 
+    def test_env_argparse_precedence(self):
+        self.useFixture(fixtures.EnvironmentVariable(
+            'OS_TENANT_NAME', 'tenants-are-bad'))
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+
+        cc = c.get_one_cloud(
+            cloud='envvars', argparse=self.options)
+        self.assertEqual(cc.auth['project_name'], 'project')
+
     def test_argparse_default_no_token(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
