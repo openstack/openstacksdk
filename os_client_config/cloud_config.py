@@ -335,7 +335,6 @@ class CloudConfig(object):
                 constructor_kwargs['endpoint_override'] = endpoint
         constructor_kwargs.update(kwargs)
         constructor_kwargs[interface_key] = interface
-        constructor_args = []
         if pass_version_arg:
             if not version:
                 version = self.get_api_version(service_key)
@@ -348,12 +347,12 @@ class CloudConfig(object):
                 if 'endpoint' not in constructor_kwargs:
                     endpoint = self.get_session_endpoint('identity')
                     constructor_kwargs['endpoint'] = endpoint
-            if service_key == 'key-manager':
-                constructor_kwargs['version'] = version
+            if service_key == 'network':
+                constructor_kwargs['api_version'] = version
             else:
-                constructor_args.append(version)
+                constructor_kwargs['version'] = version
 
-        return client_class(*constructor_args, **constructor_kwargs)
+        return client_class(**constructor_kwargs)
 
     def _get_swift_client(self, client_class, **kwargs):
         session = self.get_session()
