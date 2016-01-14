@@ -3742,7 +3742,8 @@ class OpenStackCloud(object):
 
     def create_subnet(self, network_name_or_id, cidr, ip_version=4,
                       enable_dhcp=False, subnet_name=None, tenant_id=None,
-                      allocation_pools=None, gateway_ip=None,
+                      allocation_pools=None,
+                      gateway_ip=None, disable_gateway_ip=False,
                       dns_nameservers=None, host_routes=None,
                       ipv6_ra_mode=None, ipv6_address_mode=None):
         """Create a subnet on a specified network.
@@ -3777,6 +3778,10 @@ class OpenStackCloud(object):
            The gateway IP address. When you specify both allocation_pools and
            gateway_ip, you must ensure that the gateway IP does not overlap
            with the specified allocation pools.
+        :param bool disable_gateway_ip:
+           Set to ``True`` if gateway IP address is disabled and ``False`` if
+           enabled. It is not allowed with gateway_ip.
+           Default is ``False``.
         :param list dns_nameservers:
            A list of DNS name servers for the subnet. For example::
 
@@ -3812,6 +3817,10 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Network %s not found." % network_name_or_id)
 
+        if disable_gateway_ip and gateway_ip:
+            raise OpenStackCloudException(
+                'arg:disable_gateway_ip is not allowed with arg:gateway_ip')
+
         # The body of the neutron message for the subnet we wish to create.
         # This includes attributes that are required or have defaults.
         subnet = {
@@ -3830,6 +3839,8 @@ class OpenStackCloud(object):
             subnet['allocation_pools'] = allocation_pools
         if gateway_ip:
             subnet['gateway_ip'] = gateway_ip
+        if disable_gateway_ip:
+            subnet['gateway_ip'] = None
         if dns_nameservers:
             subnet['dns_nameservers'] = dns_nameservers
         if host_routes:
@@ -3872,8 +3883,9 @@ class OpenStackCloud(object):
         return True
 
     def update_subnet(self, name_or_id, subnet_name=None, enable_dhcp=None,
-                      gateway_ip=None, allocation_pools=None,
-                      dns_nameservers=None, host_routes=None):
+                      gateway_ip=None, disable_gateway_ip=None,
+                      allocation_pools=None, dns_nameservers=None,
+                      host_routes=None):
         """Update an existing subnet.
 
         :param string name_or_id:
@@ -3886,6 +3898,10 @@ class OpenStackCloud(object):
            The gateway IP address. When you specify both allocation_pools and
            gateway_ip, you must ensure that the gateway IP does not overlap
            with the specified allocation pools.
+        :param bool disable_gateway_ip:
+           Set to ``True`` if gateway IP address is disabled and ``False`` if
+           enabled. It is not allowed with gateway_ip.
+           Default is ``False``.
         :param list allocation_pools:
            A list of dictionaries of the start and end addresses for the
            allocation pools. For example::
@@ -3926,6 +3942,8 @@ class OpenStackCloud(object):
             subnet['enable_dhcp'] = enable_dhcp
         if gateway_ip:
             subnet['gateway_ip'] = gateway_ip
+        if disable_gateway_ip:
+            subnet['gateway_ip'] = None
         if allocation_pools:
             subnet['allocation_pools'] = allocation_pools
         if dns_nameservers:
@@ -3936,6 +3954,10 @@ class OpenStackCloud(object):
         if not subnet:
             self.log.debug("No subnet data to update")
             return
+
+        if disable_gateway_ip and gateway_ip:
+            raise OpenStackCloudException(
+                'arg:disable_gateway_ip is not allowed with arg:gateway_ip')
 
         curr_subnet = self.get_subnet(name_or_id)
         if not curr_subnet:

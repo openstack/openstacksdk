@@ -341,6 +341,44 @@ class TestShade(base.TestCase):
                                  host_routes=routes)
         self.assertTrue(mock_client.create_subnet.called)
 
+    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_create_subnet_without_gateway_ip(self, mock_client, mock_search):
+        net1 = dict(id='123', name='donald')
+        mock_search.return_value = [net1]
+        pool = [{'start': '192.168.200.2', 'end': '192.168.200.254'}]
+        dns = ['8.8.8.8']
+        self.cloud.create_subnet('kooky', '192.168.200.0/24',
+                                 allocation_pools=pool,
+                                 dns_nameservers=dns,
+                                 disable_gateway_ip=True)
+        self.assertTrue(mock_client.create_subnet.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_create_subnet_with_gateway_ip(self, mock_client, mock_search):
+        net1 = dict(id='123', name='donald')
+        mock_search.return_value = [net1]
+        pool = [{'start': '192.168.200.8', 'end': '192.168.200.254'}]
+        dns = ['8.8.8.8']
+        gateway = '192.168.200.2'
+        self.cloud.create_subnet('kooky', '192.168.200.0/24',
+                                 allocation_pools=pool,
+                                 dns_nameservers=dns,
+                                 gateway_ip=gateway)
+        self.assertTrue(mock_client.create_subnet.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_create_subnet_conflict_gw_ops(self, mock_client, mock_search):
+        net1 = dict(id='123', name='donald')
+        mock_search.return_value = [net1]
+        gateway = '192.168.200.3'
+        self.assertRaises(exc.OpenStackCloudException,
+                          self.cloud.create_subnet, 'kooky',
+                          '192.168.200.0/24', gateway_ip=gateway,
+                          disable_gateway_ip=True)
+
     @mock.patch.object(shade.OpenStackCloud, 'list_networks')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     def test_create_subnet_bad_network(self, mock_client, mock_list):
@@ -405,6 +443,35 @@ class TestShade(base.TestCase):
         mock_get.return_value = subnet1
         self.cloud.update_subnet('123', subnet_name='goofy')
         self.assertTrue(mock_client.update_subnet.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'get_subnet')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_update_subnet_gateway_ip(self, mock_client, mock_get):
+        subnet1 = dict(id='456', name='kooky')
+        mock_get.return_value = subnet1
+        gateway = '192.168.200.3'
+        self.cloud.update_subnet(
+            '456', gateway_ip=gateway)
+        self.assertTrue(mock_client.update_subnet.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'get_subnet')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_update_subnet_disable_gateway_ip(self, mock_client, mock_get):
+        subnet1 = dict(id='456', name='kooky')
+        mock_get.return_value = subnet1
+        self.cloud.update_subnet(
+            '456', disable_gateway_ip=True)
+        self.assertTrue(mock_client.update_subnet.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'get_subnet')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_update_subnet_conflict_gw_ops(self, mock_client, mock_get):
+        subnet1 = dict(id='456', name='kooky')
+        mock_get.return_value = subnet1
+        gateway = '192.168.200.3'
+        self.assertRaises(exc.OpenStackCloudException,
+                          self.cloud.update_subnet,
+                          '456', gateway_ip=gateway, disable_gateway_ip=True)
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_get_flavor_by_ram(self, mock_nova_client):
