@@ -73,35 +73,30 @@ class TestShade(base.TestCase):
                           self.cloud.list_servers)
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_session')
-    @mock.patch.object(glanceclient, 'Client')
-    def test_glance_args(
-            self, mock_client, get_session_mock):
+    @mock.patch.object(cloud_config.CloudConfig, 'get_legacy_client')
+    def test_glance_args(self, get_legacy_client_mock, get_session_mock):
         session_mock = mock.Mock()
         session_mock.get_endpoint.return_value = 'http://example.com/v2'
         get_session_mock.return_value = session_mock
         self.cloud.glance_client
-        mock_client.assert_called_with(
-            2.0,
-            endpoint_override='http://example.com',
-            region_name='', service_name=None,
-            interface='public',
-            service_type='image', session=mock.ANY,
+        get_legacy_client_mock.assert_called_once_with(
+            service_key='image',
+            client_class=glanceclient.Client,
+            interface_key=None,
+            pass_version_arg=True,
         )
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_session')
-    @mock.patch.object(heat_client, 'Client')
-    def test_heat_args(self, mock_client, get_session_mock):
+    @mock.patch.object(cloud_config.CloudConfig, 'get_legacy_client')
+    def test_heat_args(self, get_legacy_client_mock, get_session_mock):
         session_mock = mock.Mock()
         get_session_mock.return_value = session_mock
         self.cloud.heat_client
-        mock_client.assert_called_with(
-            '1',
-            endpoint_override=None,
-            endpoint_type='public',
-            region_name='',
-            service_name=None,
-            service_type='orchestration',
-            session=mock.ANY,
+        get_legacy_client_mock.assert_called_once_with(
+            service_key='orchestration',
+            client_class=heat_client.Client,
+            interface_key=None,
+            pass_version_arg=True,
         )
 
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
