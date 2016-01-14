@@ -133,34 +133,8 @@ class Cluster(resource.Resource):
 
     def policy_update(self, session, policy_id, **params):
         data = {'policy_id': policy_id}
-        if 'priority' in params:
-            data['priority'] = params['priority']
-        if 'level' in params:
-            data['level'] = params['level']
-        if 'cooldown' in params:
-            data['cooldown'] = params['cooldown']
-        if 'enabled' in params:
-            data['enabled'] = params['enabled']
-
+        data.update(params)
         body = {
             'policy_update': data
-        }
-        return self.action(session, body)
-
-    def policy_enable(self, session, policy_id):
-        body = {
-            'policy_update': {
-                'policy_id': policy_id,
-                'enabled': True,
-            }
-        }
-        return self.action(session, body)
-
-    def policy_disable(self, session, policy_id):
-        body = {
-            'policy_update': {
-                'policy_id': policy_id,
-                'enabled': False,
-            }
         }
         return self.action(session, body)

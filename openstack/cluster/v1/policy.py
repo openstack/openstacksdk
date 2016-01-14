@@ -34,10 +34,6 @@ class Policy(resource.Resource):
     name = resource.prop('name')
     #: The type name of the policy.
     type = resource.prop('type')
-    #: The default cooldown time in seconds.
-    cooldown = resource.prop('cooldown', type=int)
-    #: The default enforcement level of the policy (0-100).
-    level = resource.prop('level', type=int)
     #: The timestamp when the policy is created.
     created_at = resource.prop('created_at')
     #: The timestamp when the policy was last updated.

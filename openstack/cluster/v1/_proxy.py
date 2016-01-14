@@ -134,12 +134,13 @@ class Proxy(proxy.BaseProxy):
 
         :param kwargs \*\*query: Optional query parameters to be sent to
             restrict the profiles to be returned. Available parameters include:
-
-            * filters: A list of key-value pairs for Senlin server to determine
-                whether a profile should be included in the list result.
-            * sort_keys: A list of key names for sorting the resulted list.
-            * sort_dir: Direction for sorting, and its valid values are 'asc'
-                and 'desc'.
+            * name: The name of a profile.
+            * type: The type name of a profile.
+            * metadata: A list of key-value pairs that are associated with a
+                profile.
+            * sort: A list of sorting keys separated by commas. Each sorting
+                    key can optionally be attached with a sorting direction
+                    modifier which can be ``asc`` or ``desc``.
             * limit: Requests a specified size of returned items from the
                 query.  Returns a number of items up to the specified limit
                 value.
@@ -147,6 +148,8 @@ class Proxy(proxy.BaseProxy):
                 parameter to make an initial limited request and use the ID of
                 the last-seen item from the response as the marker parameter
                 value in a subsequent limited request.
+            * global_project: A boolean value indicating whether profiles
+                from all projects will be returned.
 
         :returns: A generator of profile instances.
         """
@@ -223,12 +226,11 @@ class Proxy(proxy.BaseProxy):
 
         :param kwargs \*\*query: Optional query parameters to be sent to
             restrict the clusters to be returned. Available parameters include:
-
-            * filters: A list of key-value pairs for Senlin server to determine
-                whether a cluster should be included in the list result.
-            * sort_keys: A list of key names for sorting the resulted list.
-            * sort_dir: Direction for sorting, and its valid values are 'asc'
-                and 'desc'.
+            * name: The name of a cluster.
+            * status: The current status of a cluster.
+            * sort: A list of sorting keys separated by commas. Each sorting
+                    key can optionally be attached with a sorting direction
+                    modifier which can be ``asc`` or ``desc``.
             * limit: Requests a specified size of returned items from the
                 query.  Returns a number of items up to the specified limit
                 value.
@@ -236,6 +238,8 @@ class Proxy(proxy.BaseProxy):
                 parameter to make an initial limited request and use the ID of
                 the last-seen item from the response as the marker parameter
                 value in a subsequent limited request.
+            * global_project: A boolean value indicating whether clusters
+                from all projects will be returned.
 
         :returns: A generator of cluster instances.
         """
@@ -247,7 +251,7 @@ class Proxy(proxy.BaseProxy):
         :param cluster: Either the name or the ID of the cluster, or an
             instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
         :param attrs: The attributes to update on the cluster represented by
-            the ``value`` parameter.
+            the ``cluster`` parameter.
 
         :returns: The updated cluster.
         :rtype: :class:`~openstack.cluster.v1.cluster.Cluster`
@@ -373,40 +377,12 @@ class Proxy(proxy.BaseProxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.policy_update(self.session, policy, **params)
 
-    def cluster_enable_policy(self, cluster, policy):
-        """Enable a policy on the cluster.
-
-        :param cluster: Either the name or the ID of the cluster, or an
-            instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
-        :param policy: Either the name or the ID of a policy.
-        :returns: A dict containing the action initiated by this operation.
-        """
-        if isinstance(cluster, _cluster.Cluster):
-            obj = cluster
-        else:
-            obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
-        return obj.policy_enable(self.session, policy)
-
-    def cluster_disable_policy(self, cluster, policy):
-        """Disable a policy on the cluster.
-
-        :param cluster: Either the name or the ID of the cluster, or an
-            instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
-        :param policy: Either the name or the ID of a policy.
-        :returns: A dict containing the action initiated by this operation.
-        """
-        if isinstance(cluster, _cluster.Cluster):
-            obj = cluster
-        else:
-            obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
-        return obj.policy_disable(self.session, policy)
-
     def create_node(self, **attrs):
         """Create a new node from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
              :class:`~openstack.cluster.v1.node.Node`, it is comprised
-             of the properties on the Node class.
+             of the properties on the ``Node`` class.
 
         :returns: The results of node creation.
         :rtype: :class:`~openstack.cluster.v1.node.Node`.
@@ -456,17 +432,19 @@ class Proxy(proxy.BaseProxy):
 
             * cluster_id: A string including the name or ID of a cluster to
                 which the resulted node(s) is a member.
-            * filters: A list of key-value pairs for server to determine
-                whether a node should be included in the list result.
-            * sort_keys: A list of key names for sorting the resulted list.
-            * sort_dir: Direction for sorting, and its valid values are 'asc'
-                and 'desc'.
+            * name: The name of a node.
+            * status: The current status of a node.
+            * sort: A list of sorting keys separated by commas. Each sorting
+                    key can optionally be attached with a sorting direction
+                    modifier which can be ``asc`` or ``desc``.
             * limit: Requests at most the specified number of items be
                 returned from the query.
             * marker: Specifies the ID of the last-seen node. Use the limit
                 parameter to make an initial limited request and use the ID of
                 the last-seen node from the response as the marker parameter
                 value in a subsequent limited request.
+            * global_project: A boolean value indicating whether nodes
+                from all projects will be returned.
 
         :returns: A generator of node instances.
         """
@@ -478,50 +456,19 @@ class Proxy(proxy.BaseProxy):
         :param node: Either the name or the ID of the node, or an instance
             of :class:`~openstack.cluster.v1.node.Node`.
         :param attrs: The attributes to update on the node represented by
-            the ``value`` parameter.
+            the ``node`` parameter.
 
         :returns: The updated node.
         :rtype: :class:`~openstack.cluster.v1.node.Node`
         """
         return self._update(_node.Node, node, **attrs)
 
-    def node_join(self, node, cluster):
-        """Join a node to a cluster.
-
-        :param node: Either the name or the ID of a node, or an
-            instance of :class:`~openstack.cluster.v1.node.Node`.
-        :param cluster: Either the name or the ID of of a cluster, or an
-            instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
-        :returns: A dict containing the action initiated by this operation.
-        """
-        if isinstance(node, _node.Node):
-            obj = node
-        else:
-            obj = self._find(_node.Node, node, ignore_missing=False)
-
-        target = resource.Resource.get_id(cluster)
-        return obj.join(self.session, target)
-
-    def node_leave(self, node):
-        """Remove a node from its current cluster.
-
-        :param node: Either the name or the ID of a node, or an
-            instance of :class:`~openstack.cluster.v1.node.Node`.
-        :returns: A dict containing the action initiated by this operation.
-        """
-        if isinstance(node, _node.Node):
-            obj = node
-        else:
-            obj = self._find(_node.Node, node, ignore_missing=False)
-
-        return obj.leave(self.session)
-
     def create_policy(self, **attrs):
         """Create a new policy from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
              :class:`~openstack.cluster.v1.policy.Policy`, it is comprised
-             of the properties on the Policy class.
+             of the properties on the ``Policy`` class.
 
         :returns: The results of policy creation.
         :rtype: :class:`~openstack.cluster.v1.policy.Policy`.
@@ -575,11 +522,21 @@ class Proxy(proxy.BaseProxy):
 
         :param kwargs \*\*query: Optional query parameters to be sent to
             restrict the policies to be returned. Available parameters include:
+            * name: The name of a policy.
+            * type: The type name of a policy.
+            * sort: A list of sorting keys separated by commas. Each sorting
+                    key can optionally be attached with a sorting direction
+                    modifier which can be ``asc`` or ``desc``.
+            * limit: Requests a specified size of returned items from the
+                query.  Returns a number of items up to the specified limit
+                value.
+            * marker: Specifies the ID of the last-seen item. Use the limit
+                parameter to make an initial limited request and use the ID of
+                the last-seen item from the response as the marker parameter
+                value in a subsequent limited request.
+            * global_project: A boolean value indicating whether policies from
+                all projects will be returned.
 
-            * name: The name of a policy object.
-            * type: The type name of policy objects.
-            * level: The enforcement level of policy objects.
-            * cooldown: The default cooldown value of a policy object.
         :returns: A generator of policy instances.
         """
         return self._list(_policy.Policy, paginated=True, **query)
@@ -605,11 +562,8 @@ class Proxy(proxy.BaseProxy):
         :param kwargs \*\*query: Optional query parameters to be sent to
             restrict the policies to be returned. Available parameters include:
 
-            * priority: The relative prioity of a policy object.
-            * level: The enforcement level of policy objects.
-            * cooldown: The default cooldown value of a policy object.
             * enabled: A boolean value indicating whether the policy is
-            *          enabled on the cluster.
+                       enabled on the cluster.
         :returns: A generator of cluster-policy binding instances.
         """
         cluster_id = resource.Resource.get_id(cluster)
@@ -700,12 +654,12 @@ class Proxy(proxy.BaseProxy):
             * type: The type of receiver objects.
             * cluster_id: The ID of the associated cluster.
             * action: The name of the associated action.
+            * sort: A list of sorting keys separated by commas. Each sorting
+                    key can optionally be attached with a sorting direction
+                    modifier which can be ``asc`` or ``desc``.
             * global_project: A boolean value indicating whether receivers
             *   from all projects will be returned.
-            * sort_keys: A list of attribute names based on which the returned
-                list will be sorted.
-            * sort_dir: A string indicating the sorting direction. Valid
-                values include `asc` and `desc`.
+
         :returns: A generator of receiver instances.
         """
         return self._list(_receiver.Receiver, paginated=True, **query)
@@ -733,9 +687,9 @@ class Proxy(proxy.BaseProxy):
             * target: ID of the target object for which the actions should be
                 returned.
             * action: built-in action types for query.
-            * sort_keys: A list of key names for sorting the resulted list.
-            * sort_dir: Direction for sorting, and its valid values are 'asc'
-                and 'desc'.
+            * sort: A list of sorting keys separated by commas. Each sorting
+                    key can optionally be attached with a sorting direction
+                    modifier which can be ``asc`` or ``desc``.
             * limit: Requests a specified size of returned items from the
                 query.  Returns a number of items up to the specified limit
                 value.
@@ -773,9 +727,9 @@ class Proxy(proxy.BaseProxy):
             * obj_id: ID of the object associated with an event.
             * cluster_id: ID of the cluster associated with the event, if any.
             * action: name of the action associated with an event.
-            * sort_keys: A list of key names for sorting the resulted list.
-            * sort_dir: Direction for sorting, and its valid values are 'asc'
-                and 'desc'.
+            * sort: A list of sorting keys separated by commas. Each sorting
+                    key can optionally be attached with a sorting direction
+                    modifier which can be ``asc`` or ``desc``.
             * limit: Requests a specified size of returned items from the
                 query.  Returns a number of items up to the specified limit
                 value.

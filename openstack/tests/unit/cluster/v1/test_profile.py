@@ -22,7 +22,6 @@ FAKE = {
     'metadata': {},
     'name': FAKE_NAME,
     'id': FAKE_ID,
-    'permission': '',
     'spec': {
         'type': 'os.nova.server',
         'version': 1.0,
@@ -60,6 +59,5 @@ class TestProfile(testtools.TestCase):
         self.assertEqual(FAKE['id'], sot.id)
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['metadata'], sot.metadata)
-        self.assertEqual(FAKE['permission'], sot.permission)
         self.assertEqual(FAKE['spec'], sot.spec)
         self.assertEqual(FAKE['type'], sot.type_name)

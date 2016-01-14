@@ -36,12 +36,6 @@ class ClusterPolicy(resource.Resource):
     cluster_name = resource.prop('cluster_name')
     #: Type string of the policy.
     policy_type = resource.prop('policy_type')
-    #: Relative priority of the policy among those attached to the cluster.
-    priority = resource.prop('priority')
-    #: Enforcement levle of the policy on the cluster.
-    level = resource.prop('level', type=int)
-    #: Cooldown in seconds for the policy.
-    cooldown = resource.prop('cooldown')
     #: Whether the policy is enabled on the cluster.
     enabled = resource.prop('enabled')
     #: Data associated with the cluster-policy binding.
