@@ -146,7 +146,7 @@ class Object(resource.Resource):
     #: value in the X-Delete-At metadata item.
     delete_after = resource.header("x-delete-after", type=int)
 
-    def get(self, session):
+    def get(self, session, args=None):
         url = self._get_url(self, self.id)
         # TODO(thowe): Add filter header support bug #1488269
         headers = {'Accept': 'bytes'}

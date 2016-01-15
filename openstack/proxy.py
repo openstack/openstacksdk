@@ -177,7 +177,7 @@ class BaseProxy(object):
         return res.create(self.session)
 
     @_check_resource(strict=False)
-    def _get(self, resource_type, value=None, path_args=None):
+    def _get(self, resource_type, value=None, path_args=None, args=None):
         """Get a resource
 
         :param resource_type: The type of resource to get.
@@ -187,13 +187,16 @@ class BaseProxy(object):
                       subclass.
         :param path_args: A dict containing arguments for forming the request
                           URL, if needed.
+        :param args: A optional dict containing arguments that will be
+            translated into query strings when forming the request URL.
+
         :returns: The result of the ``get``
         :rtype: :class:`~openstack.resource.Resource`
         """
         res = self._get_resource(resource_type, value, path_args)
 
         try:
-            return res.get(self.session)
+            return res.get(self.session, args=args)
         except ksa_exc.NotFound as exc:
             raise exceptions.ResourceNotFound(
                 "No %s found for %s" % (resource_type.__name__, value),
