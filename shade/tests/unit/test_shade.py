@@ -29,6 +29,16 @@ from shade.tests import fakes
 from shade.tests.unit import base
 
 
+RANGE_DATA = [
+    dict(id=1, key1=1, key2=5),
+    dict(id=2, key1=1, key2=20),
+    dict(id=3, key1=2, key2=10),
+    dict(id=4, key1=2, key2=30),
+    dict(id=5, key1=3, key2=40),
+    dict(id=6, key1=3, key2=40),
+]
+
+
 class TestShade(base.TestCase):
 
     def setUp(self):
@@ -623,3 +633,36 @@ class TestShade(base.TestCase):
         mock_nova.client.get.return_value = ('200', body)
         self.assertTrue(self.cloud._has_nova_extension('NMN'))
         self.assertFalse(self.cloud._has_nova_extension('invalid'))
+
+    def test_range_search(self):
+        filters = {"key1": "min", "key2": "20"}
+        retval = self.cloud.range_search(RANGE_DATA, filters)
+        self.assertIsInstance(retval, list)
+        self.assertEqual(1, len(retval))
+        self.assertEqual([RANGE_DATA[1]], retval)
+
+    def test_range_search_2(self):
+        filters = {"key1": "<=2", "key2": ">10"}
+        retval = self.cloud.range_search(RANGE_DATA, filters)
+        self.assertIsInstance(retval, list)
+        self.assertEqual(2, len(retval))
+        self.assertEqual([RANGE_DATA[1], RANGE_DATA[3]], retval)
+
+    def test_range_search_3(self):
+        filters = {"key1": "2", "key2": "min"}
+        retval = self.cloud.range_search(RANGE_DATA, filters)
+        self.assertIsInstance(retval, list)
+        self.assertEqual(0, len(retval))
+
+    def test_range_search_4(self):
+        filters = {"key1": "max", "key2": "min"}
+        retval = self.cloud.range_search(RANGE_DATA, filters)
+        self.assertIsInstance(retval, list)
+        self.assertEqual(0, len(retval))
+
+    def test_range_search_5(self):
+        filters = {"key1": "min", "key2": "min"}
+        retval = self.cloud.range_search(RANGE_DATA, filters)
+        self.assertIsInstance(retval, list)
+        self.assertEqual(1, len(retval))
+        self.assertEqual([RANGE_DATA[0]], retval)

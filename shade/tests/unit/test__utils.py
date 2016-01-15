@@ -12,9 +12,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import testtools
 
 from shade import _utils
+from shade import exc
 from shade.tests.unit import base
+
+
+RANGE_DATA = [
+    dict(id=1, key1=1, key2=5),
+    dict(id=2, key1=1, key2=20),
+    dict(id=3, key1=2, key2=10),
+    dict(id=4, key1=2, key2=30),
+    dict(id=5, key1=3, key2=40),
+    dict(id=6, key1=3, key2=40),
+]
 
 
 class TestUtils(base.TestCase):
@@ -148,3 +160,157 @@ class TestUtils(base.TestCase):
         )
         retval = _utils.normalize_volumes([vol])
         self.assertEqual([expected], retval)
+
+    def test_safe_dict_min_ints(self):
+        """Test integer comparison"""
+        data = [{'f1': 3}, {'f1': 2}, {'f1': 1}]
+        retval = _utils.safe_dict_min('f1', data)
+        self.assertEqual(1, retval)
+
+    def test_safe_dict_min_strs(self):
+        """Test integer as strings comparison"""
+        data = [{'f1': '3'}, {'f1': '2'}, {'f1': '1'}]
+        retval = _utils.safe_dict_min('f1', data)
+        self.assertEqual(1, retval)
+
+    def test_safe_dict_min_None(self):
+        """Test None values"""
+        data = [{'f1': 3}, {'f1': None}, {'f1': 1}]
+        retval = _utils.safe_dict_min('f1', data)
+        self.assertEqual(1, retval)
+
+    def test_safe_dict_min_key_missing(self):
+        """Test missing key for an entry still works"""
+        data = [{'f1': 3}, {'x': 2}, {'f1': 1}]
+        retval = _utils.safe_dict_min('f1', data)
+        self.assertEqual(1, retval)
+
+    def test_safe_dict_min_key_not_found(self):
+        """Test key not found in any elements returns None"""
+        data = [{'f1': 3}, {'f1': 2}, {'f1': 1}]
+        retval = _utils.safe_dict_min('doesnotexist', data)
+        self.assertIsNone(retval)
+
+    def test_safe_dict_min_not_int(self):
+        """Test non-integer key value raises OSCE"""
+        data = [{'f1': 3}, {'f1': "aaa"}, {'f1': 1}]
+        with testtools.ExpectedException(
+            exc.OpenStackCloudException,
+            "Search for minimum value failed. "
+            "Value for f1 is not an integer: aaa"
+        ):
+            _utils.safe_dict_min('f1', data)
+
+    def test_safe_dict_max_ints(self):
+        """Test integer comparison"""
+        data = [{'f1': 3}, {'f1': 2}, {'f1': 1}]
+        retval = _utils.safe_dict_max('f1', data)
+        self.assertEqual(3, retval)
+
+    def test_safe_dict_max_strs(self):
+        """Test integer as strings comparison"""
+        data = [{'f1': '3'}, {'f1': '2'}, {'f1': '1'}]
+        retval = _utils.safe_dict_max('f1', data)
+        self.assertEqual(3, retval)
+
+    def test_safe_dict_max_None(self):
+        """Test None values"""
+        data = [{'f1': 3}, {'f1': None}, {'f1': 1}]
+        retval = _utils.safe_dict_max('f1', data)
+        self.assertEqual(3, retval)
+
+    def test_safe_dict_max_key_missing(self):
+        """Test missing key for an entry still works"""
+        data = [{'f1': 3}, {'x': 2}, {'f1': 1}]
+        retval = _utils.safe_dict_max('f1', data)
+        self.assertEqual(3, retval)
+
+    def test_safe_dict_max_key_not_found(self):
+        """Test key not found in any elements returns None"""
+        data = [{'f1': 3}, {'f1': 2}, {'f1': 1}]
+        retval = _utils.safe_dict_max('doesnotexist', data)
+        self.assertIsNone(retval)
+
+    def test_safe_dict_max_not_int(self):
+        """Test non-integer key value raises OSCE"""
+        data = [{'f1': 3}, {'f1': "aaa"}, {'f1': 1}]
+        with testtools.ExpectedException(
+            exc.OpenStackCloudException,
+            "Search for maximum value failed. "
+            "Value for f1 is not an integer: aaa"
+        ):
+            _utils.safe_dict_max('f1', data)
+
+    def test_parse_range_None(self):
+        self.assertIsNone(_utils.parse_range(None))
+
+    def test_parse_range_invalid(self):
+        self.assertIsNone(_utils.parse_range("<invalid"))
+
+    def test_parse_range_int_only(self):
+        retval = _utils.parse_range("1024")
+        self.assertIsInstance(retval, tuple)
+        self.assertIsNone(retval[0])
+        self.assertEqual(1024, retval[1])
+
+    def test_parse_range_lt(self):
+        retval = _utils.parse_range("<1024")
+        self.assertIsInstance(retval, tuple)
+        self.assertEqual("<", retval[0])
+        self.assertEqual(1024, retval[1])
+
+    def test_parse_range_gt(self):
+        retval = _utils.parse_range(">1024")
+        self.assertIsInstance(retval, tuple)
+        self.assertEqual(">", retval[0])
+        self.assertEqual(1024, retval[1])
+
+    def test_parse_range_le(self):
+        retval = _utils.parse_range("<=1024")
+        self.assertIsInstance(retval, tuple)
+        self.assertEqual("<=", retval[0])
+        self.assertEqual(1024, retval[1])
+
+    def test_parse_range_ge(self):
+        retval = _utils.parse_range(">=1024")
+        self.assertIsInstance(retval, tuple)
+        self.assertEqual(">=", retval[0])
+        self.assertEqual(1024, retval[1])
+
+    def test_range_filter_min(self):
+        retval = _utils.range_filter(RANGE_DATA, "key1", "min")
+        self.assertIsInstance(retval, list)
+        self.assertEqual(2, len(retval))
+        self.assertEqual(RANGE_DATA[:2], retval)
+
+    def test_range_filter_max(self):
+        retval = _utils.range_filter(RANGE_DATA, "key1", "max")
+        self.assertIsInstance(retval, list)
+        self.assertEqual(2, len(retval))
+        self.assertEqual(RANGE_DATA[-2:], retval)
+
+    def test_range_filter_range(self):
+        retval = _utils.range_filter(RANGE_DATA, "key1", "<3")
+        self.assertIsInstance(retval, list)
+        self.assertEqual(4, len(retval))
+        self.assertEqual(RANGE_DATA[:4], retval)
+
+    def test_range_filter_exact(self):
+        retval = _utils.range_filter(RANGE_DATA, "key1", "2")
+        self.assertIsInstance(retval, list)
+        self.assertEqual(2, len(retval))
+        self.assertEqual(RANGE_DATA[2:4], retval)
+
+    def test_range_filter_invalid_int(self):
+        with testtools.ExpectedException(
+            exc.OpenStackCloudException,
+            "Invalid range value: <1A0"
+        ):
+            _utils.range_filter(RANGE_DATA, "key1", "<1A0")
+
+    def test_range_filter_invalid_op(self):
+        with testtools.ExpectedException(
+            exc.OpenStackCloudException,
+            "Invalid range value: <>100"
+        ):
+            _utils.range_filter(RANGE_DATA, "key1", "<>100")
