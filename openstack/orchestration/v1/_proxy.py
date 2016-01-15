@@ -18,9 +18,13 @@ from openstack import proxy
 
 class Proxy(proxy.BaseProxy):
 
-    def create_stack(self, **attrs):
+    def create_stack(self, preview=False, **attrs):
         """Create a new stack from attributes
 
+        :param bool perview: When ``True``, returns
+            :class:`~openstack.orchestration.v1.stack.StackPreview` objects,
+            otherwise :class:`~openstack.orchestration.v1.stack.Stack`.
+            *Default: ``False``*
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.orchestration.v1.stack.Stack`,
                            comprised of the properties on the Stack class.
@@ -28,7 +32,8 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of stack creation
         :rtype: :class:`~openstack.orchestration.v1.stack.Stack`
         """
-        return self._create(_stack.Stack, **attrs)
+        stk = _stack.StackPreview if preview else _stack.Stack
+        return self._create(stk, **attrs)
 
     def find_stack(self, name_or_id, ignore_missing=True):
         """Find a single stack

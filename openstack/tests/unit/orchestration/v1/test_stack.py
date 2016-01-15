@@ -103,6 +103,25 @@ class TestStack(testtools.TestCase):
         self.assertEqual(FAKE_ID, sot.id)
         self.assertEqual(FAKE_NAME, sot.name)
 
+    def test_preview(self):
+        resp = mock.Mock()
+        resp.json = mock.Mock(return_value=FAKE_CREATE_RESPONSE)
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=resp)
+        attrs = FAKE.copy()
+        sot = stack.StackPreview(attrs)
+
+        sot.create(sess)
+
+        url = '/stacks/preview'
+        body = sot._attrs.copy()
+        body.pop('id', None)
+        body.pop('name', None)
+        sess.post.assert_called_with(url, endpoint_filter=sot.service,
+                                     json=body)
+        self.assertEqual(FAKE_ID, sot.id)
+        self.assertEqual(FAKE_NAME, sot.name)
+
     def test_update(self):
         # heat responds to update request with an 202 status code
         resp_update = mock.Mock()

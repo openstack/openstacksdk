@@ -28,6 +28,11 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
     def test_stack_create_attrs(self):
         self.verify_create(self.proxy.create_stack, stack.Stack)
 
+    def test_stack_preview_attrs(self):
+        method_kwargs = {"preview": True, "x": 1, "y": 2, "z": 3}
+        self.verify_create(self.proxy.create_stack, stack.StackPreview,
+                           method_kwargs=method_kwargs)
+
     def test_stack_find(self):
         self.verify_find(self.proxy.find_stack, stack.Stack)
 
