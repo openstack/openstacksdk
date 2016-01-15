@@ -26,7 +26,7 @@ FAKE = {
     'name': FAKE_NAME,
     'parent': None,
     'profile_id': 'myserver',
-    'tags': {},
+    'metadata': {},
     'timeout': None,
 }
 
@@ -42,6 +42,7 @@ FAKE_CREATE_RESP = {
         'id': FAKE_ID,
         'init_time': None,
         'max_size': 3,
+        'metadata': {},
         'min_size': 0,
         'name': 'test_cluster',
         'nodes': [],
@@ -52,7 +53,6 @@ FAKE_CREATE_RESP = {
         'project': '333acb15a43242f4a609a27cb097a8f2',
         'status': 'INIT',
         'status_reason': 'Initializing',
-        'tags': {},
         'timeout': None,
         'user': '6d600911ff764e54b309ce734c89595e',
     }
@@ -88,7 +88,7 @@ class TestCluster(testtools.TestCase):
         self.assertEqual(FAKE['desired_capacity'], sot.desired_capacity)
 
         self.assertEqual(FAKE['timeout'], sot.timeout)
-        self.assertEqual(FAKE['tags'], sot.tags)
+        self.assertEqual(FAKE['metadata'], sot.metadata)
 
     def test_scale_in(self):
         sot = cluster.Cluster(FAKE)
@@ -169,9 +169,6 @@ class TestCluster(testtools.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
         params = {
-            'priority': 1,
-            'level': 2,
-            'cooldown': 0,
             'enabled': True,
         }
         self.assertEqual('', sot.policy_attach(sess, 'POLICY', **params))
@@ -180,9 +177,6 @@ class TestCluster(testtools.TestCase):
         body = {
             'policy_attach': {
                 'policy_id': 'POLICY',
-                'priority': 1,
-                'level': 2,
-                'cooldown': 0,
                 'enabled': True,
             }
         }
@@ -213,9 +207,6 @@ class TestCluster(testtools.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
         params = {
-            'priority': 3,
-            'level': 4,
-            'cooldown': 5,
             'enabled': False
         }
         self.assertEqual('', sot.policy_update(sess, 'POLICY', **params))
@@ -224,50 +215,7 @@ class TestCluster(testtools.TestCase):
         body = {
             'policy_update': {
                 'policy_id': 'POLICY',
-                'priority': 3,
-                'level': 4,
-                'cooldown': 5,
                 'enabled': False
-            }
-        }
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
-                                          json=body)
-
-    def test_policy_enable(self):
-        sot = cluster.Cluster(FAKE)
-        sot['id'] = 'IDENTIFIER'
-
-        resp = mock.Mock()
-        resp.json = mock.Mock(return_value='')
-        sess = mock.Mock()
-        sess.post = mock.Mock(return_value=resp)
-        self.assertEqual('', sot.policy_enable(sess, 'POLICY'))
-
-        url = 'clusters/%s/actions' % sot.id
-        body = {
-            'policy_update': {
-                'policy_id': 'POLICY',
-                'enabled': True,
-            }
-        }
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
-                                          json=body)
-
-    def test_policy_disable(self):
-        sot = cluster.Cluster(FAKE)
-        sot['id'] = 'IDENTIFIER'
-
-        resp = mock.Mock()
-        resp.json = mock.Mock(return_value='')
-        sess = mock.Mock()
-        sess.post = mock.Mock(return_value=resp)
-        self.assertEqual('', sot.policy_disable(sess, 'POLICY'))
-
-        url = 'clusters/%s/actions' % sot.id
-        body = {
-            'policy_update': {
-                'policy_id': 'POLICY',
-                'enabled': False,
             }
         }
         sess.post.assert_called_once_with(url, endpoint_filter=sot.service,

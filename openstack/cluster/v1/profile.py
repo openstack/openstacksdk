@@ -34,8 +34,6 @@ class Profile(resource.Resource):
     name = resource.prop('name')
     #: The type of the profile.
     type_name = resource.prop('type')
-    #: The permission string of the profile.
-    permission = resource.prop('permission')
     #: The spec of the profile.
     spec = resource.prop('spec', type=dict)
     #: A collection of key-value pairs that are attached to the profile.

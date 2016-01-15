@@ -31,8 +31,6 @@ FAKE = {
         }
     },
     'type': 'senlin.policy.deletion-1.0',
-    'cooldown': 120,
-    'level': 50,
     'created_at': '2015-08-10T09:14:53',
     'updated_at': None,
     'data': {},
@@ -60,8 +58,6 @@ class TestPolicy(testtools.TestCase):
         sot = policy.Policy(FAKE)
         self.assertIsNone(sot.id)
         self.assertEqual(FAKE['name'], sot.name)
-        self.assertEqual(FAKE['level'], sot.level)
-        self.assertEqual(FAKE['cooldown'], sot.cooldown)
         self.assertEqual(FAKE['spec'], sot.spec)
         self.assertEqual(FAKE['data'], sot.data)
         self.assertEqual(FAKE['created_at'], sot.created_at)

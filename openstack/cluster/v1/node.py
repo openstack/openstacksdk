@@ -14,7 +14,6 @@ from openstack.cluster import cluster_service
 from openstack.cluster.v1 import cluster as _cluster
 from openstack.cluster.v1 import profile as _profile
 from openstack import resource
-from openstack import utils
 
 
 class Node(resource.Resource):
@@ -69,39 +68,3 @@ class Node(resource.Resource):
     #: A map containing the details of the physical object this node
     #: represents
     details = resource.prop('details', type=dict)
-
-    def _action(self, session, body):
-        """Procedure the invoke an action API.
-
-        :param session: A session object used for sending request.
-        :param body: The body of action to be sent.
-        """
-        url = utils.urljoin(self.base_path, self.id, 'actions')
-        resp = session.post(url, endpoint_filter=self.service, json=body)
-        return resp.json()
-
-    def join(self, session, cluster_id):
-        """An action procedure for the node to join a cluster.
-
-        :param session: A session object used for sending request.
-        :param cluster_id: The ID, name or short ID of a cluster the
-            node is about to join.
-        :returns: A dictionary containing the action ID.
-        """
-        body = {
-            'join': {
-                'cluster_id': cluster_id,
-            }
-        }
-        return self._action(session, body)
-
-    def leave(self, session):
-        """An action procedure for the node to leave its current cluster.
-
-        :param session: A session object used for sending request.
-        :returns: A dictionary containing the action ID.
-        """
-        body = {
-            'leave': {}
-        }
-        return self._action(session, body)
