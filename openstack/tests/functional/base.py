@@ -14,35 +14,32 @@ import os
 import time
 import unittest
 
+from keystoneauth1 import exceptions as _exceptions
 from openstack import connection
 
 
 CLOUD_NAME = os.getenv('OS_CLOUD', 'test_cloud')
 
 
-def requires_service(**kwargs):
-    """Check whether a service is available for this test
-
-    When the service exists, the test will be run as normal.
-    When the service does not exist, the test will be skipped.
+def service_exists(**kwargs):
+    """Decorator function to check whether a service exists
 
     Usage:
-    @requires_service(service_type="identity", version="v3")
-    def test_v3_auth(self):
+    @unittest.skipUnless(base.service_exists(service_type="metering"),
+                         "Metering service does not exist")
+    class TestMeter(base.BaseFunctionalTest):
         ...
 
     :param kwargs: The kwargs needed to filter an endpoint.
-    :returns: The test result if the test is executed.
-    :raises: SkipTest, which is handled by the test runner.
+    :returns: True if the service exists, otherwise False.
     """
-    def wrap(method):
-        def check(self):
-            ep = self.conn.session.get_endpoint(**kwargs)
-            if ep is None:
-                self.skip('Service endpoint not found.')
-            return method(self)
-        return check
-    return wrap
+    try:
+        conn = connection.from_config(cloud_name=CLOUD_NAME)
+        conn.session.get_endpoint(**kwargs)
+
+        return True
+    except _exceptions.EndpointNotFound:
+        return False
 
 
 class BaseFunctionalTest(unittest.TestCase):
