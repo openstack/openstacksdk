@@ -262,6 +262,7 @@ class HeaderTests(base.TestCase):
         response = mock.Mock()
         response_body = {'id': 1}
         response.json = mock.Mock(return_value=response_body)
+        response.headers = None
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=response)
         sess.put = mock.Mock(return_value=response)
@@ -352,7 +353,7 @@ class ResourceTests(base.TestCase):
                         matchers.raises(exceptions.MethodNotSupported))
 
     def _test_create_by_id(self, key, response_value, response_body,
-                           attrs, json_body):
+                           attrs, json_body, response_headers=None):
 
         class FakeResource2(FakeResource):
             resource_key = key
@@ -360,13 +361,17 @@ class ResourceTests(base.TestCase):
 
         response = mock.Mock()
         response.json = mock.Mock(return_value=response_body)
+        response.headers = response_headers
+        expected_resp = response_value.copy()
+        if response_headers:
+            expected_resp.update({'headers': response_headers})
 
         sess = mock.Mock()
         sess.put = mock.Mock(return_value=response)
         sess.post = mock.Mock(return_value=response)
 
         resp = FakeResource2.create_by_id(sess, attrs)
-        self.assertEqual(response_value, resp)
+        self.assertEqual(expected_resp, resp)
         sess.post.assert_called_with(FakeResource2.base_path,
                                      endpoint_filter=FakeResource2.service,
                                      json=json_body)
@@ -402,6 +407,17 @@ class ResourceTests(base.TestCase):
         json_body = attrs
         self._test_create_by_id(key, response_value, response_body,
                                 attrs, json_body)
+
+    def test_create_with_response_headers(self):
+        key = None
+        response_value = {"a": 1, "b": 2, "c": 3}
+        response_body = response_value
+        response_headers = {'location': 'foo'}
+        attrs = response_value.copy()
+        json_body = attrs
+        self._test_create_by_id(key, response_value, response_body,
+                                attrs, json_body,
+                                response_headers=response_headers)
 
     def test_create_with_resource_key(self):
         key = "my_key"
@@ -491,7 +507,7 @@ class ResourceTests(base.TestCase):
         self._test_head_data_by_id(key, response_value)
 
     def _test_update_by_id(self, key, response_value, response_body,
-                           attrs, json_body):
+                           attrs, json_body, response_headers=None):
 
         class FakeResource2(FakeResource):
             patch_update = True
@@ -500,13 +516,17 @@ class ResourceTests(base.TestCase):
 
         response = mock.Mock()
         response.json = mock.Mock(return_value=response_body)
+        response.headers = response_headers
+        expected_resp = response_value.copy()
+        if response_headers:
+            expected_resp.update({'headers': response_headers})
 
         sess = mock.Mock()
         sess.patch = mock.Mock(return_value=response)
 
         r_id = "my_id"
         resp = FakeResource2.update_by_id(sess, r_id, attrs)
-        self.assertEqual(response_value, resp)
+        self.assertEqual(expected_resp, resp)
         sess.patch.assert_called_with(
             utils.urljoin(FakeResource2.base_path, r_id),
             endpoint_filter=FakeResource2.service,
@@ -515,7 +535,7 @@ class ResourceTests(base.TestCase):
         path_args = {"parent_name": "my_name"}
         resp = FakeResource2.update_by_id(sess, r_id, attrs,
                                           path_args=path_args)
-        self.assertEqual(response_value, resp)
+        self.assertEqual(expected_resp, resp)
         sess.patch.assert_called_with(
             utils.urljoin(FakeResource2.base_path % path_args, r_id),
             endpoint_filter=FakeResource2.service,
@@ -538,6 +558,17 @@ class ResourceTests(base.TestCase):
         json_body = {key: attrs}
         self._test_update_by_id(key, response_value, response_body,
                                 attrs, json_body)
+
+    def test_update_with_response_headers(self):
+        key = "my_key"
+        response_value = {"a": 1, "b": 2, "c": 3}
+        response_body = {key: response_value}
+        response_headers = {'location': 'foo'}
+        attrs = response_value.copy()
+        json_body = {key: attrs}
+        self._test_update_by_id(key, response_value, response_body,
+                                attrs, json_body,
+                                response_headers=response_headers)
 
     def test_delete_by_id(self):
         class FakeResource2(FakeResource):
@@ -567,6 +598,7 @@ class ResourceTests(base.TestCase):
     def test_create(self):
         resp = mock.Mock()
         resp.json = mock.Mock(return_value=fake_body)
+        resp.headers = {'location': 'foo'}
         self.session.post = mock.Mock(return_value=resp)
 
         obj = FakeResource.new(parent_name=fake_parent,
@@ -598,6 +630,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(fake_name, obj.name)
         self.assertEqual(fake_attr1, obj.first)
         self.assertEqual(fake_attr2, obj.second)
+        self.assertEqual('foo', obj.location)
 
     def test_get(self):
         resp = mock.Mock()
@@ -683,6 +716,7 @@ class ResourceTests(base.TestCase):
 
         resp = mock.Mock()
         resp.json = mock.Mock(return_value=fake_body)
+        resp.headers = {'location': 'foo'}
         self.session.patch = mock.Mock(return_value=resp)
 
         obj = FakeResourcePatch.new(id=fake_id, parent_name=fake_parent,
@@ -710,6 +744,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(fake_name, obj.name)
         self.assertEqual(fake_attr1, obj.first)
         self.assertEqual(fake_attr2, obj.second)
+        self.assertEqual('foo', obj.location)
 
     def test_put_update(self):
         class FakeResourcePut(FakeResource):
@@ -718,6 +753,7 @@ class ResourceTests(base.TestCase):
 
         resp = mock.Mock()
         resp.json = mock.Mock(return_value=fake_body)
+        resp.headers = {'location': 'foo'}
         self.session.put = mock.Mock(return_value=resp)
 
         obj = FakeResourcePut.new(id=fake_id, parent_name=fake_parent,
@@ -745,6 +781,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(fake_name, obj.name)
         self.assertEqual(fake_attr1, obj.first)
         self.assertEqual(fake_attr2, obj.second)
+        self.assertEqual('foo', obj.location)
 
     def test_update_early_exit(self):
         obj = FakeResource()
