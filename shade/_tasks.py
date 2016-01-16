@@ -682,6 +682,26 @@ class RoleDelete(task_manager.Task):
         return client.keystone_client.roles.delete(**self.args)
 
 
+class RoleAddUser(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.roles.add_user_role(**self.args)
+
+
+class RoleGrantUser(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.roles.grant(**self.args)
+
+
+class RoleRemoveUser(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.roles.remove_user_role(**self.args)
+
+
+class RoleRevokeUser(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.roles.revoke(**self.args)
+
+
 class RoleAssignmentList(task_manager.Task):
     def main(self, client):
         return client.keystone_client.role_assignments.list(**self.args)

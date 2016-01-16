@@ -448,6 +448,17 @@ def normalize_role_assignments(assignments):
     return new_assignments
 
 
+def normalize_roles(roles):
+    """Normalize Identity roles."""
+    ret = [
+        dict(
+            id=role.get('id'),
+            name=role.get('name'),
+        ) for role in roles
+    ]
+    return meta.obj_list_to_dict(ret)
+
+
 def valid_kwargs(*valid_args):
     # This decorator checks if argument passed as **kwargs to a function are
     # present in valid_args.

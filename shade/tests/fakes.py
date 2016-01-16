@@ -60,8 +60,9 @@ class FakeImage(object):
 
 
 class FakeProject(object):
-    def __init__(self, id):
+    def __init__(self, id, domain_id=None):
         self.id = id
+        self.domain_id = domain_id or 'default'
 
 
 class FakeServer(object):
@@ -94,10 +95,12 @@ class FakeService(object):
 
 
 class FakeUser(object):
-    def __init__(self, id, email, name):
+    def __init__(self, id, email, name, domain_id=None):
         self.id = id
         self.email = email
         self.name = name
+        if domain_id is not None:
+            self.domain_id = domain_id
 
 
 class FakeVolume(object):
@@ -194,11 +197,11 @@ class FakeRole(object):
 
 
 class FakeGroup(object):
-    def __init__(self, id, name, description, domain=None):
+    def __init__(self, id, name, description, domain_id=None):
         self.id = id
         self.name = name
         self.description = description
-        self.domain = domain
+        self.domain_id = domain_id or 'default'
 
 
 class FakeHypervisor(object):
