@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import availability_zone
 from openstack.network.v2 import extension
 from openstack.network.v2 import floating_ip as _floating_ip
 from openstack.network.v2 import health_monitor as _health_monitor
@@ -33,6 +34,15 @@ from openstack import resource
 
 
 class Proxy(proxy.BaseProxy):
+
+    def availability_zones(self):
+        """Return a generator of availability zones
+
+        :returns: A generator of availability zone objects
+        :rtype:
+            :class:`~openstack.network.v2.availability_zone.AvailabilityZone`
+        """
+        return self._list(availability_zone.AvailabilityZone, paginated=False)
 
     def find_extension(self, name_or_id, ignore_missing=True):
         """Find a single extension

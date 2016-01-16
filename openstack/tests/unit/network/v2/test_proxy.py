@@ -13,6 +13,7 @@
 import mock
 
 from openstack.network.v2 import _proxy
+from openstack.network.v2 import availability_zone
 from openstack.network.v2 import extension
 from openstack.network.v2 import floating_ip
 from openstack.network.v2 import health_monitor
@@ -38,6 +39,11 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super(TestNetworkProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
+
+    def test_availability_zones(self):
+        self.verify_list_no_kwargs(self.proxy.availability_zones,
+                                   availability_zone.AvailabilityZone,
+                                   paginated=False)
 
     def test_extension_find(self):
         self.verify_find(self.proxy.find_extension, extension.Extension)
