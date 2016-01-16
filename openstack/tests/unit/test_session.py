@@ -33,3 +33,11 @@ class TestSession(testtools.TestCase):
         self.assertEqual(
             "http://127.0.0.1:9292/wot/v1/mytenant",
             session.parse_url(filt, "http://127.0.0.1:9292/wot/v2.0/mytenant"))
+
+    def test_user_agent_none(self):
+        sot = session.Session(None)
+        self.assertTrue(sot.user_agent.startswith("openstacksdk"))
+
+    def test_user_agent_set(self):
+        sot = session.Session(None, user_agent="testing/123")
+        self.assertTrue(sot.user_agent.startswith("testing/123 openstacksdk"))

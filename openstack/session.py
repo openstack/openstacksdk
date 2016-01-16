@@ -20,7 +20,9 @@ from six.moves.urllib import parse
 
 from keystoneauth1 import session as _session
 
+import openstack
 
+DEFAULT_USER_AGENT = "openstacksdk/%s" % openstack.__version__
 VERSION_PATTERN = re.compile('/v\d[\d.]*')
 
 
@@ -40,16 +42,27 @@ def parse_url(filt, url):
 
 class Session(_session.Session):
 
-    def __init__(self, profile, **kwargs):
+    def __init__(self, profile, user_agent=None, **kwargs):
         """Create a new Keystone auth session with a profile.
 
         :param profile: If the user has any special profiles such as the
             service name, region, version or interface, they may be provided
             in the profile object.  If no profiles are provided, the
             services that appear first in the service catalog will be used.
+        :param user_agent: A User-Agent header string to use for the
+                           request. If not provided, a default of
+                           :attr:`~openstack.session.DEFAULT_USER_AGENT`
+                           is used, which contains the openstacksdk version
+                           When a non-None value is passed, it will be
+                           prepended to the default.
         :type profile: :class:`~openstack.profile.Profile`
         """
-        super(Session, self).__init__(**kwargs)
+        if user_agent is not None:
+            self.user_agent = "%s %s" % (user_agent, DEFAULT_USER_AGENT)
+        else:
+            self.user_agent = DEFAULT_USER_AGENT
+        super(Session, self).__init__(user_agent=self.user_agent, **kwargs)
+
         self.profile = profile
 
     def get_endpoint(self, auth=None, interface=None, **kwargs):
