@@ -10,7 +10,7 @@ environment variables as illustrated below. The SDK uses
 to handle the configuration.
 
 .. note:: To get your credentials
-   `Download the OpenStack RC file <http://docs.openstack.org/cli-reference/content/cli_openrc.html#openrc-dashboard>`_.
+   `Download the OpenStack RC file <http://docs.openstack.org/cli-reference/common/cli_set_environment_variables_using_openstack_rc.html#download-and-source-the-openstack-rc-file>`_.
 
 Create Connection From A File
 -----------------------------
