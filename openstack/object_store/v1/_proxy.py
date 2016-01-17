@@ -142,9 +142,9 @@ class Proxy(proxy.BaseProxy):
     def get_object(self, object, container=None):
         """Get the data associated with an object
 
-        :param object: The value can be the ID of an object or a
+        :param object: The value can be the name of an object or a
                        :class:`~openstack.object_store.v1.obj.Object` instance.
-        :param container: The value can be the ID of a container or a
+        :param container: The value can be the name of a container or a
                :class:`~openstack.object_store.v1.container.Container`
                instance.
 
@@ -159,15 +159,21 @@ class Proxy(proxy.BaseProxy):
         return self._get(_obj.Object, object,
                          path_args={"container": container_name})
 
-    def download_object(self, object, path):
+    def download_object(self, object, container=None, path=None):
         """Download the data contained inside an object to disk.
 
-        :param object: The object to save to disk.
-        :type object: :class:`~openstack.object_store.v1.obj.Object`
+        :param object: The value can be the name of an object or a
+                       :class:`~openstack.object_store.v1.obj.Object` instance.
+        :param container: The value can be the name of a container or a
+               :class:`~openstack.object_store.v1.container.Container`
+               instance.
         :param path str: Location to write the object contents.
+
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
         """
         with open(path, "w") as out:
-            out.write(self.get_object(object))
+            out.write(self.get_object(object, container))
 
     def upload_object(self, **attrs):
         """Upload a new object from attributes
