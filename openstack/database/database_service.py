@@ -19,6 +19,6 @@ class DatabaseService(service_filter.ServiceFilter):
     valid_versions = [service_filter.ValidVersion('v1')]
 
     def __init__(self, version=None):
-        """Create an database service."""
+        """Create a database service."""
         super(DatabaseService, self).__init__(service_type='database',
                                               version=version)

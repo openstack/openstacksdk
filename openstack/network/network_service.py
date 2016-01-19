@@ -19,6 +19,6 @@ class NetworkService(service_filter.ServiceFilter):
     valid_versions = [service_filter.ValidVersion('v2', 'v2.0')]
 
     def __init__(self, version=None):
-        """Create an network service."""
+        """Create a network service."""
         super(NetworkService, self).__init__(service_type='network',
                                              version=version)
