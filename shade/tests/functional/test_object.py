@@ -64,6 +64,8 @@ class TestObject(base.TestCase):
                 )
             self.assertIsNotNone(
                 self.cloud.get_object_metadata(container_name, name))
+            self.assertIsNotNone(
+                self.cloud.get_object(container_name, name))
             self.assertEqual(
                 name,
                 self.cloud.list_objects(container_name)[0]['name'])
