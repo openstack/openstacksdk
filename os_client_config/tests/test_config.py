@@ -103,6 +103,22 @@ class TestConfig(base.TestCase):
         self.assertNotIn('domain_id', cc.auth)
         self.assertNotIn('domain-id', cc.auth)
 
+    def test_get_one_cloud_domain_scoped(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        cc = c.get_one_cloud('_test-cloud-domain-scoped_')
+        self.assertEqual('12345', cc.auth['domain_id'])
+        self.assertNotIn('user_domain_id', cc.auth)
+        self.assertNotIn('project_domain_id', cc.auth)
+
+    def test_get_one_cloud_infer_user_domain(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        cc = c.get_one_cloud('_test-cloud-int-project_')
+        self.assertEqual('awesome-domain', cc.auth['user_domain_id'])
+        self.assertEqual('awesome-domain', cc.auth['project_domain_id'])
+        self.assertNotIn('domain_id', cc.auth)
+
     def test_get_one_cloud_with_hyphenated_project_id(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
@@ -183,6 +199,7 @@ class TestConfig(base.TestCase):
                                    secure_files=[self.no_yaml])
         self.assertEqual(
             ['_test-cloud-domain-id_',
+             '_test-cloud-domain-scoped_',
              '_test-cloud-int-project_',
              '_test-cloud_',
              '_test-cloud_no_region',

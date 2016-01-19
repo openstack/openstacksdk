@@ -480,6 +480,11 @@ class OpenStackConfig(object):
         cloud = self._handle_domain_id(cloud)
         return cloud
 
+    def _project_scoped(self, cloud):
+        return ('project_id' in cloud or 'project_name' in cloud
+                or 'project_id' in cloud['auth']
+                or 'project_name' in cloud['auth'])
+
     def _handle_domain_id(self, cloud):
         # Allow people to just specify domain once if it's the same
         mappings = {
@@ -487,6 +492,10 @@ class OpenStackConfig(object):
             'domain_name': ('user_domain_name', 'project_domain_name'),
         }
         for target_key, possible_values in mappings.items():
+            if not self._project_scoped(cloud):
+                if target_key in cloud and target_key not in cloud['auth']:
+                    cloud['auth'][target_key] = cloud.pop(target_key)
+                continue
             for key in possible_values:
                 if target_key in cloud['auth'] and key not in cloud['auth']:
                     cloud['auth'][key] = cloud['auth'][target_key]

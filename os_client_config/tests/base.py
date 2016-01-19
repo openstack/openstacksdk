@@ -73,6 +73,7 @@ USER_CONF = {
             'auth': {
                 'username': 'testuser',
                 'password': 'testpass',
+                'domain_id': 'awesome-domain',
                 'project_id': 12345,
                 'auth_url': 'http://example.com/v2',
             },
@@ -126,6 +127,14 @@ USER_CONF = {
                 'auth_url': 'http://example.com/v2',
                 'username': 'testuser',
                 'password': 'testpass',
+            },
+        },
+        '_test-cloud-domain-scoped_': {
+            'auth': {
+                'auth_url': 'http://example.com/v2',
+                'username': 'testuser',
+                'password': 'testpass',
+                'domain-id': '12345',
             },
         },
     },
