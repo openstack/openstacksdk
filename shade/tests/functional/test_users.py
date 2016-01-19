@@ -108,6 +108,27 @@ class TestUsers(base.TestCase):
         self.assertEqual('somebody@nowhere.com', new_user['email'])
         self.assertFalse(new_user['enabled'])
 
+    def test_update_user_password(self):
+        user_name = self.user_prefix + '_password'
+        user_email = 'nobody@nowhere.com'
+        user = self._create_user(name=user_name,
+                                 email=user_email,
+                                 password='old_secret')
+        self.assertIsNotNone(user)
+        self.assertTrue(user['enabled'])
+
+        # This should work for both v2 and v3
+        new_user = self.cloud.update_user(user['id'],
+                                          password='new_secret')
+        self.assertIsNotNone(new_user)
+        self.assertEqual(user['id'], new_user['id'])
+        self.assertEqual(user_name, new_user['name'])
+        self.assertEqual(user_email, new_user['email'])
+        self.assertTrue(new_user['enabled'])
+        self.assertIsNotNone(operator_cloud(
+            username=user_name, password='new_secret',
+            auth_url=self.cloud.auth['auth_url']).keystone_client)
+
     def test_users_and_groups(self):
         if self.cloud.cloud_config.get_api_version('identity') in ('2', '2.0'):
             self.skipTest('Identity service does not support groups')

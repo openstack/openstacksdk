@@ -37,6 +37,11 @@ class UserUpdate(task_manager.Task):
         return client.keystone_client.users.update(**self.args)
 
 
+class UserPasswordUpdate(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.users.update_password(**self.args)
+
+
 class UserGet(task_manager.Task):
     def main(self, client):
         return client.keystone_client.users.get(**self.args)

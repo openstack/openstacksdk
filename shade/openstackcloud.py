@@ -560,9 +560,15 @@ class OpenStackCloud(object):
         if self.cloud_config.get_api_version('identity') != '3':
             # Do not pass v3 args to a v2 keystone.
             kwargs.pop('domain_id', None)
-            kwargs.pop('password', None)
             kwargs.pop('description', None)
             kwargs.pop('default_project', None)
+            password = kwargs.pop('password', None)
+            if password is not None:
+                with _utils.shade_exceptions(
+                        "Error updating password for {user}".format(
+                            user=name_or_id)):
+                    user = self.manager.submitTask(_tasks.UserPasswordUpdate(
+                        user=kwargs['user'], password=password))
         elif 'domain_id' in kwargs:
             # The incoming parameter is domain_id in order to match the
             # parameter name in create_user(), but UserUpdate() needs it
