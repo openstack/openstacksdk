@@ -35,7 +35,7 @@ class TestCreateServer(base.TestCase):
         config = os_client_config.OpenStackConfig()
         self.client = OpenStackCloud(
             cloud_config=config.get_one_cloud(validate=False))
-        self.client._SERVER_LIST_AGE = 0
+        self.client._SERVER_AGE = 0
 
     def test_create_server_with_create_exception(self):
         """
@@ -243,7 +243,7 @@ class TestCreateServer(base.TestCase):
                 "servers.delete.return_value": None,
             }
             OpenStackCloud.nova_client = Mock(**config)
-            self.client._SERVER_LIST_AGE = 0
+            self.client._SERVER_AGE = 0
             with patch.object(OpenStackCloud, "add_ips_to_server",
                               return_value=fake_server):
                 self.assertRaises(
