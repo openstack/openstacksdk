@@ -600,11 +600,12 @@ class ResourceTests(base.TestCase):
         resp.headers = {'location': 'foo'}
         self.session.post = mock.Mock(return_value=resp)
 
+        # Create resource with subset of attributes in order to
+        # verify create refreshes all attributes from response.
         obj = FakeResource.new(parent_name=fake_parent,
                                name=fake_name,
                                enabled=True,
-                               attr1=fake_attr1,
-                               attr2=fake_attr2)
+                               attr1=fake_attr1)
 
         self.assertEqual(obj, obj.create(self.session))
         self.assertFalse(obj.is_dirty)
@@ -612,26 +613,69 @@ class ResourceTests(base.TestCase):
         last_req = self.session.post.call_args[1]["json"][
             FakeResource.resource_key]
 
-        self.assertEqual(5, len(last_req))
+        self.assertEqual(4, len(last_req))
         self.assertTrue(last_req['enabled'])
         self.assertEqual(fake_parent, last_req['parent_name'])
         self.assertEqual(fake_name, last_req['name'])
         self.assertEqual(fake_attr1, last_req['attr1'])
-        self.assertEqual(fake_attr2, last_req['attr2'])
 
-        self.assertEqual(fake_id, obj.id)
         self.assertTrue(obj['enabled'])
         self.assertEqual(fake_name, obj['name'])
+        self.assertEqual(fake_parent, obj['parent_name'])
         self.assertEqual(fake_attr1, obj['attr1'])
         self.assertEqual(fake_attr2, obj['attr2'])
+        self.assertIsNone(obj['status'])
 
         self.assertTrue(obj.enabled)
+        self.assertEqual(fake_id, obj.id)
         self.assertEqual(fake_name, obj.name)
+        self.assertEqual(fake_parent, obj.parent_name)
+        self.assertEqual(fake_parent, obj.parent)
         self.assertEqual(fake_attr1, obj.first)
+        self.assertEqual(fake_attr1, obj.attr1)
         self.assertEqual(fake_attr2, obj.second)
+        self.assertEqual(fake_attr2, obj.attr2)
+        self.assertIsNone(obj.status)
         self.assertEqual('foo', obj.location)
 
     def test_get(self):
+        resp = mock.Mock()
+        resp.json = mock.Mock(return_value=fake_body)
+        resp.headers = {'location': 'foo'}
+        self.session.get = mock.Mock(return_value=resp)
+
+        # Create resource with subset of attributes in order to
+        # verify get refreshes all attributes from response.
+        obj = FakeResource.from_id(str(fake_id))
+        obj['parent_name'] = fake_parent
+
+        self.assertEqual(obj, obj.get(self.session))
+
+        # Check that the proper URL is being built.
+        self.assertCalledURL(self.session.get,
+                             os.path.join(fake_base_path % fake_arguments,
+                                          str(fake_id))[1:])
+
+        self.assertTrue(obj['enabled'])
+        self.assertEqual(fake_name, obj['name'])
+        self.assertEqual(fake_parent, obj['parent_name'])
+        self.assertEqual(fake_attr1, obj['attr1'])
+        self.assertEqual(fake_attr2, obj['attr2'])
+        self.assertIsNone(obj['status'])
+
+        self.assertTrue(obj.enabled)
+        self.assertEqual(fake_id, obj.id)
+        self.assertEqual(fake_name, obj.name)
+        self.assertEqual(fake_parent, obj.parent_name)
+        self.assertEqual(fake_parent, obj.parent)
+        self.assertEqual(fake_attr1, obj.first)
+        self.assertEqual(fake_attr1, obj.attr1)
+        self.assertEqual(fake_attr2, obj.second)
+        self.assertEqual(fake_attr2, obj.attr2)
+        self.assertIsNone(obj.status)
+        self.assertIsNone(obj.location)
+
+    def test_get_by_id(self):
         resp = mock.Mock()
         resp.json = mock.Mock(return_value=fake_body)
         self.session.get = mock.Mock(return_value=resp)
@@ -653,7 +697,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(fake_attr1, obj.first)
         self.assertEqual(fake_attr2, obj.second)
 
-    def test_get_with_headers(self):
+    def test_get_by_id_with_headers(self):
         header1 = "fake-value1"
         header2 = "fake-value2"
         headers = {"header1": header1,
@@ -688,7 +732,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(header1, obj.header1)
         self.assertEqual(header2, obj.header2)
 
-    def test_head(self):
+    def test_head_by_id(self):
         class FakeResource2(FakeResource):
             header1 = resource.header("header1")
             header2 = resource.header("header2")
@@ -718,9 +762,10 @@ class ResourceTests(base.TestCase):
         resp.headers = {'location': 'foo'}
         self.session.patch = mock.Mock(return_value=resp)
 
+        # Create resource with subset of attributes in order to
+        # verify update refreshes all attributes from response.
         obj = FakeResourcePatch.new(id=fake_id, parent_name=fake_parent,
-                                    name=fake_name, attr1=fake_attr1,
-                                    attr2=fake_attr2)
+                                    name=fake_name, attr1=fake_attr1)
         self.assertTrue(obj.is_dirty)
 
         self.assertEqual(obj, obj.update(self.session))
@@ -733,16 +778,28 @@ class ResourceTests(base.TestCase):
         last_req = self.session.patch.call_args[1]["json"][
             FakeResource.resource_key]
 
-        self.assertEqual(4, len(last_req))
+        self.assertEqual(3, len(last_req))
         self.assertEqual(fake_parent, last_req['parent_name'])
         self.assertEqual(fake_name, last_req['name'])
         self.assertEqual(fake_attr1, last_req['attr1'])
-        self.assertEqual(fake_attr2, last_req['attr2'])
 
+        self.assertTrue(obj['enabled'])
+        self.assertEqual(fake_name, obj['name'])
+        self.assertEqual(fake_parent, obj['parent_name'])
+        self.assertEqual(fake_attr1, obj['attr1'])
+        self.assertEqual(fake_attr2, obj['attr2'])
+        self.assertIsNone(obj['status'])
+
+        self.assertTrue(obj.enabled)
         self.assertEqual(fake_id, obj.id)
         self.assertEqual(fake_name, obj.name)
+        self.assertEqual(fake_parent, obj.parent_name)
+        self.assertEqual(fake_parent, obj.parent)
         self.assertEqual(fake_attr1, obj.first)
+        self.assertEqual(fake_attr1, obj.attr1)
         self.assertEqual(fake_attr2, obj.second)
+        self.assertEqual(fake_attr2, obj.attr2)
+        self.assertIsNone(obj.status)
         self.assertEqual('foo', obj.location)
 
     def test_put_update(self):
@@ -755,9 +812,10 @@ class ResourceTests(base.TestCase):
         resp.headers = {'location': 'foo'}
         self.session.put = mock.Mock(return_value=resp)
 
+        # Create resource with subset of attributes in order to
+        # verify update refreshes all attributes from response.
         obj = FakeResourcePut.new(id=fake_id, parent_name=fake_parent,
-                                  name=fake_name, attr1=fake_attr1,
-                                  attr2=fake_attr2)
+                                  name=fake_name, attr1=fake_attr1)
         self.assertTrue(obj.is_dirty)
 
         self.assertEqual(obj, obj.update(self.session))
@@ -770,16 +828,28 @@ class ResourceTests(base.TestCase):
         last_req = self.session.put.call_args[1]["json"][
             FakeResource.resource_key]
 
-        self.assertEqual(4, len(last_req))
+        self.assertEqual(3, len(last_req))
         self.assertEqual(fake_parent, last_req['parent_name'])
         self.assertEqual(fake_name, last_req['name'])
         self.assertEqual(fake_attr1, last_req['attr1'])
-        self.assertEqual(fake_attr2, last_req['attr2'])
 
+        self.assertTrue(obj['enabled'])
+        self.assertEqual(fake_name, obj['name'])
+        self.assertEqual(fake_parent, obj['parent_name'])
+        self.assertEqual(fake_attr1, obj['attr1'])
+        self.assertEqual(fake_attr2, obj['attr2'])
+        self.assertIsNone(obj['status'])
+
+        self.assertTrue(obj.enabled)
         self.assertEqual(fake_id, obj.id)
         self.assertEqual(fake_name, obj.name)
+        self.assertEqual(fake_parent, obj.parent_name)
+        self.assertEqual(fake_parent, obj.parent)
         self.assertEqual(fake_attr1, obj.first)
+        self.assertEqual(fake_attr1, obj.attr1)
         self.assertEqual(fake_attr2, obj.second)
+        self.assertEqual(fake_attr2, obj.attr2)
+        self.assertIsNone(obj.status)
         self.assertEqual('foo', obj.location)
 
     def test_update_early_exit(self):
