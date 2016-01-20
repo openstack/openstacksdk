@@ -39,6 +39,7 @@ import six
 from six.moves.urllib import parse as url_parse
 
 from openstack import exceptions
+from openstack import format
 from openstack import utils
 
 
@@ -120,11 +121,10 @@ class prop(object):
                     value = self.type({self.type.id_attribute: value})
                 else:
                     value = self.type(value)
+            elif issubclass(self.type, format.Formatter):
+                value = self.type.deserialize(value)
             else:
                 value = self.type(value)
-                attr = getattr(value, 'parsed', None)
-                if attr is not None:
-                    value = attr
 
         return value
 
@@ -136,6 +136,8 @@ class prop(object):
                     value = self.type({self.type.id_attribute: value})
                 else:
                     value = self.type(value)
+            elif issubclass(self.type, format.Formatter):
+                value = self.type.serialize(value)
             else:
                 value = str(self.type(value))  # validate to fail fast
 

@@ -9,9 +9,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from openstack import format
 from openstack.metric import metric_service
 from openstack import resource
-from openstack import resource_types
 
 
 class Generic(resource.Resource):
@@ -38,10 +38,10 @@ class Generic(resource.Resource):
     project_id = resource.prop('project_id')
     #: Timestamp when this resource was started
     started_at = resource.prop('started_at',
-                               type=resource_types.ISO8601Datetime)
+                               type=format.ISO8601)
     #: Timestamp when this resource was ended
     ended_at = resource.prop('ended_at',
-                             type=resource_types.ISO8601Datetime)
+                             type=format.ISO8601)
     #: A dictionary of metrics collected on this resource
     metrics = resource.prop('metrics', type=dict)
 

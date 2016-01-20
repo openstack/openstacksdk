@@ -10,31 +10,69 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from datetime import datetime
+import six
 
-class BoolStr(object):
-    """A custom boolean/string hybrid type for resource.props.
+from oslo_utils import timeutils
 
-    Translates a given value to the desired type.
-    """
-    def __init__(self, given):
-        """A boolean parser.
 
-        Interprets the given value as a boolean, ignoring whitespace and case.
-        A TypeError is raised when interpreted as neither True nor False.
-        """
-        expr = str(given).lower()
-        if 'true' == expr:
-            self.parsed = True
-        elif 'false' == expr:
-            self.parsed = False
+class Formatter(object):
+
+    @classmethod
+    def serialize(cls, value):
+        """Return a string representing the formatted value"""
+        raise NotImplementedError
+
+    @classmethod
+    def deserialize(cls, value):
+        """Return a formatted object representing the value"""
+        raise NotImplementedError
+
+
+class ISO8601(Formatter):
+
+    @classmethod
+    def serialize(cls, value):
+        """Convert a datetime to an ISO8601 string"""
+        if isinstance(value, datetime):
+            return value.isoformat()
+        elif isinstance(value, six.string_types):
+            # If we're already given a string, keep it as-is.
+            # This happens when a string comes back in a response body,
+            # as opposed to the datetime case above which happens when
+            # a user is setting a datetime for a request.
+            return value
         else:
-            msg = 'Invalid as boolean: %s' % given
-            raise ValueError(msg)
+            raise ValueError("Unable to serialize ISO8601: %s" % value)
 
-    def __bool__(self):
-        return self.parsed
+    @classmethod
+    def deserialize(cls, value):
+        """Convert an ISO8601 string to a datetime object"""
+        if isinstance(value, six.string_types):
+            return timeutils.parse_isotime(value)
+        else:
+            raise ValueError("Unable to deserialize ISO8601: %s" % value)
 
-    __nonzero__ = __bool__
 
-    def __str__(self):
-        return str(self.parsed)
+class BoolStr(Formatter):
+
+    # The behavior here primarily exists for the deserialize method
+    # to be producing Python booleans.
+
+    @classmethod
+    def deserialize(cls, value):
+        return cls.convert(value)
+
+    @classmethod
+    def serialize(cls, value):
+        return cls.convert(value)
+
+    @classmethod
+    def convert(cls, value):
+        expr = str(value).lower()
+        if "true" == expr:
+            return True
+        elif "false" == expr:
+            return False
+        else:
+            raise ValueError("Unable to convert as boolean: %s" % value)
