@@ -43,7 +43,7 @@ class FloatingIP(resource.Resource):
     floating_network_id = resource.prop('floating_network_id')
     #: The port ID.
     port_id = resource.prop('port_id')
-    #: The project this floating IP is associated with.
+    #: The ID of the project this floating IP is associated with.
     project_id = resource.prop('tenant_id')
     #: The ID of an associated router.
     router_id = resource.prop('router_id')

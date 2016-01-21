@@ -45,7 +45,7 @@ class SubnetPool(resource.Resource):
     #: default_quota is measured units of /64. All projects that use the
     #: subnet pool have the same prefix quota applied. *Type: int*
     default_quota = resource.prop('default_quota', type=int)
-    #: The project that owns the subnet pool.
+    #: The ID of the project that owns the subnet pool.
     project_id = resource.prop('tenant_id')
     #: A list of subnet prefixes that are assigned to the subnet pool.
     #: The adjacent prefixes are merged and treated as a single prefix.

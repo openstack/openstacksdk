@@ -40,12 +40,12 @@ class Listener(resource.Resource):
     default_tls_container_ref = resource.prop('default_tls_container_ref')
     #: Description for the listener.
     description = resource.prop('description')
-    #: List of IDs of load_balancers associate with this listener.
-    #: *Type: list*
-    loadbalancers = resource.prop('loadbalancers')
+    #: List of load balancers associated with this listener.
+    #: *Type: list of dicts which contain the load balancer IDs*
+    load_balancer_ids = resource.prop('loadbalancers')
     #: Name of the listener
     name = resource.prop('name')
-    #: The project this listener is associated with.
+    #: The ID of the project this listener is associated with.
     project_id = resource.prop('tenant_id')
     #: The protocol of the listener, which is TCP, HTTP, HTTPS
     #: or TERMINATED_HTTPS.

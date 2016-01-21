@@ -28,7 +28,7 @@ class MeteringLabelRule(resource.Resource):
     allow_list = True
 
     # Properties
-    #: ingress or egress: The direction in which metering rule is
+    #: ingress or egress: The direction in which metering label rule is
     #: applied. Default: ``"ingress"``
     direction = resource.prop('direction')
     #: Specify whether the ``remote_ip_prefix`` will be excluded or not
@@ -36,7 +36,7 @@ class MeteringLabelRule(resource.Resource):
     #: traffic of a specific IP address of a range. Default: ``False``,
     #: *Type: bool*
     excluded = resource.prop('excluded', type=bool)
-    #: The meteting label ID to associate with this metering rule.
+    #: The metering label ID to associate with this metering label rule.
     metering_label_id = resource.prop('metering_label_id')
-    #: The remote IP prefix to be associated with this metering rule.
+    #: The remote IP prefix to be associated with this metering label rule.
     remote_ip_prefix = resource.prop('remote_ip_prefix')

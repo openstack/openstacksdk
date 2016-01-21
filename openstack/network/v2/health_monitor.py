@@ -39,9 +39,10 @@ class HealthMonitor(resource.Resource):
     http_method = resource.prop('http_method')
     #: Maximum consecutive health probe tries.
     max_retries = resource.prop('max_retries')
-    #: List of IDs of lbaas pools healthmonitor assocaited with
-    pools = resource.prop('pools')
-    #: Owner of the VIP
+    #: List of pools associated with this health monitor
+    #: *Type: list of dicts which contain the pool IDs*
+    pool_ids = resource.prop('pools', type=list)
+    #: The ID of the project this health monitor is associated with.
     project_id = resource.prop('tenant_id')
     #: The maximum number of seconds for a monitor to wait for a connection
     #: to be established before it times out. This value must be less than

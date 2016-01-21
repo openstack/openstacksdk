@@ -46,14 +46,14 @@ class SecurityGroupRule(resource.Resource):
     #: must be less than or equal to the value of the port_range_max
     #: attribute. If the protocol is ICMP, this value must be an ICMP type.
     port_range_min = resource.prop('port_range_min')
-    #: The project this rule is associated with.
+    #: The ID of the project this security group rule is associated with.
     project_id = resource.prop('tenant_id')
     #: The protocol that is matched by the security group rule.
     #: Valid values are ``null``, ``tcp``, ``udp``, and ``icmp``.
     protocol = resource.prop('protocol')
-    #: The remote group ID to be associated with this security group rule.
-    #: You can specify either ``remote_group_id`` or ``remote_ip_prefix``
-    #: in the request body.
+    #: The remote security group ID to be associated with this security
+    #: group rule. You can specify either ``remote_group_id`` or
+    #: ``remote_ip_prefix`` in the request body.
     remote_group_id = resource.prop('remote_group_id')
     #: The remote IP prefix to be associated with this security group rule.
     #: You can specify either ``remote_group_id`` or ``remote_ip_prefix``

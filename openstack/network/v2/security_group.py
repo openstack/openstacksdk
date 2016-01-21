@@ -33,7 +33,7 @@ class SecurityGroup(resource.Resource):
     description = resource.prop('description')
     #: The security group name.
     name = resource.prop('name')
-    #: The project this security group is associated with.
+    #: The ID of the project this security group is associated with.
     project_id = resource.prop('tenant_id')
     #: A list of
     #: :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`

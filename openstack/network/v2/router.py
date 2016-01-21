@@ -42,7 +42,7 @@ class Router(resource.Resource):
     external_gateway_info = resource.prop('external_gateway_info', type=dict)
     #: The router name.
     name = resource.prop('name')
-    #: The project this router is associated with.
+    #: The ID of the project this router is associated with.
     project_id = resource.prop('tenant_id')
     #: The router status.
     status = resource.prop('status')

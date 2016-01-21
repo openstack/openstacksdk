@@ -39,15 +39,15 @@ class Network(resource.Resource):
     availability_zones = resource.prop('availability_zones')
     #: The network name.
     name = resource.prop('name')
-    #: The project this network is associated with.
+    #: The ID of the project this network is associated with.
     project_id = resource.prop('tenant_id')
-    # TODO(briancurtin): These provider_ explanations are made up because
-    # they're undocumented.
-    #: Type of network, such as vlan.
+    #: The type of physical network that maps to this network resource.
+    #: For example, ``flat``, ``vlan``, ``vxlan``, or ``gre``.
     provider_network_type = resource.prop('provider:network_type')
-    #: ID of the physical network.
+    #: The physical network where this network object is implemented.
     provider_physical_network = resource.prop('provider:physical_network')
-    #: Segmentation ID.
+    #: An isolated segment ID on the physical network. The provider
+    #: network type defines the segmentation model.
     provider_segmentation_id = resource.prop('provider:segmentation_id')
     #: Whether or not the router is external. *Type: bool*
     router_external = resource.prop('router:external')
@@ -60,8 +60,9 @@ class Network(resource.Resource):
     shared = resource.prop('shared', type=bool)
     #: The network status.
     status = resource.prop('status')
-    #: The associated subnets.
-    subnets = resource.prop('subnets')
+    #: The associated subnet IDs.
+    #: *Type: list of strs of the subnet IDs*
+    subnet_ids = resource.prop('subnets', type=list)
     #: Read-only. The maximum transmission unit (MTU) of the network resource.
     mtu = resource.prop('mtu', type=int)
     #: The port security status, which is enabled ``True`` or disabled

@@ -59,9 +59,9 @@ class Port(resource.Resource):
     #: In GET operations, the binding:vnic_type extended attribute is
     #: visible to only port owners and administrative users.
     binding_vnic_type = resource.prop('binding:vnic_type')
-    #: The ID of the device that uses this port. For example, a virtual server.
+    #: Device ID of this port.
     device_id = resource.prop('device_id')
-    #: The ID of the entity that uses this port. For example, a dhcp agent.
+    #: Device owner of this port (e.g. ``network:dhcp``).
     device_owner = resource.prop('device_owner')
     #: DNS assignment for the port.
     dns_assignment = resource.prop('dns_assignment')
@@ -80,8 +80,9 @@ class Port(resource.Resource):
     #: The ID of the project who owns the network. Only administrative
     #: users can specify a project ID other than their own.
     project_id = resource.prop('tenant_id')
-    #: The IDs of any attached security groups. *Type: list*
-    security_groups = resource.prop('security_groups', type=list)
+    #: The IDs of any attached security groups.
+    #: *Type: list of strs of the security group IDs*
+    security_group_ids = resource.prop('security_groups', type=list)
     #: The port status. Value is ``ACTIVE`` or ``DOWN``.
     status = resource.prop('status')
     #: The port security status, which is enabled ``True`` or disabled

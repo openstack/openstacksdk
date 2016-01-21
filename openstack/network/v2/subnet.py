@@ -11,7 +11,6 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack.network.v2 import subnet_pool as _subnet_pool
 from openstack import resource
 
 
@@ -55,8 +54,7 @@ class Subnet(resource.Resource):
     name = resource.prop('name')
     #: The ID of the attached network.
     network_id = resource.prop('network_id')
-    #: The project this subnet is associated with.
+    #: The ID of the project this subnet is associated with.
     project_id = resource.prop('tenant_id')
-    #: The subnet pool from which to obtain a CIDR. *Type: SubnetPool*
-    subnet_pool = resource.prop('subnetpool_id',
-                                type=_subnet_pool.SubnetPool)
+    #: The subnet pool ID from which to obtain a CIDR.
+    subnet_pool_id = resource.prop('subnetpool_id')

@@ -33,11 +33,11 @@ class PoolMember(resource.Resource):
     #: The administrative state of the pool member, which is up ``True`` or
     #: down ``False``. *Type: bool*
     admin_state_up = resource.prop('admin_state_up', type=bool)
-    #: The project this pool member is associated with.
+    #: The ID of the project this pool member is associated with.
     project_id = resource.prop('tenant_id')
     #: The port on which the application is hosted.
     protocol_port = resource.prop('protocol_port', type=int)
-    #: Subnet in which to access this pool member.
+    #: Subnet ID in which to access this pool member.
     subnet_id = resource.prop('subnet_id')
     #: A positive integer value that indicates the relative portion of traffic
     #: that this member should receive from the pool. For example, a member
