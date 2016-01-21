@@ -14,6 +14,7 @@
 import mock
 import testtools
 
+import os_client_config as occ
 import shade
 from shade import meta
 from shade import _utils
@@ -82,8 +83,10 @@ class TestIdentityRoles(base.TestCase):
         self.assertTrue(self.cloud.delete_role('1234'))
         self.assertTrue(mock_keystone.roles.delete.called)
 
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_list_role_assignments(self, mock_keystone):
+    def test_list_role_assignments(self, mock_keystone, mock_api_version):
+        mock_api_version.return_value = '3'
         mock_keystone.role_assignments.list.return_value = RAW_ROLE_ASSIGNMENTS
         ret = self.cloud.list_role_assignments()
         mock_keystone.role_assignments.list.assert_called_once_with()
@@ -92,17 +95,74 @@ class TestIdentityRoles(base.TestCase):
         )
         self.assertEqual(normalized_assignments, ret)
 
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_list_role_assignments_filters(self, mock_keystone):
+    def test_list_role_assignments_filters(self, mock_keystone,
+                                           mock_api_version):
+        mock_api_version.return_value = '3'
         params = dict(user='123', domain='456', effective=True)
         self.cloud.list_role_assignments(filters=params)
         mock_keystone.role_assignments.list.assert_called_once_with(**params)
 
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_list_role_assignments_exception(self, mock_keystone):
+    def test_list_role_assignments_exception(self, mock_keystone,
+                                             mock_api_version):
+        mock_api_version.return_value = '3'
         mock_keystone.role_assignments.list.side_effect = Exception()
         with testtools.ExpectedException(
             shade.OpenStackCloudException,
             "Failed to list role assignments"
         ):
             self.cloud.list_role_assignments()
+
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_list_role_assignments_keystone_v2(self, mock_keystone,
+                                               mock_api_version):
+        fake_role = fakes.FakeRole(id='1234', name='fake_role')
+        mock_api_version.return_value = '2.0'
+        mock_keystone.roles.roles_for_user.return_value = [fake_role]
+        ret = self.cloud.list_role_assignments(filters={'user': '2222',
+                                                        'project': '3333'})
+        self.assertEqual(ret, [{'id': fake_role.id,
+                                'project': '3333',
+                                'user': '2222'}])
+
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_list_role_assignments_keystone_v2_with_role(self, mock_keystone,
+                                                         mock_api_version):
+        fake_role1 = fakes.FakeRole(id='1234', name='fake_role')
+        fake_role2 = fakes.FakeRole(id='4321', name='fake_role')
+        mock_api_version.return_value = '2.0'
+        mock_keystone.roles.roles_for_user.return_value = [fake_role1,
+                                                           fake_role2]
+        ret = self.cloud.list_role_assignments(filters={'role': fake_role1.id,
+                                                        'user': '2222',
+                                                        'project': '3333'})
+        self.assertEqual(ret, [{'id': fake_role1.id,
+                                'project': '3333',
+                                'user': '2222'}])
+
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_list_role_assignments_exception_v2(self, mock_keystone,
+                                                mock_api_version):
+        mock_api_version.return_value = '2.0'
+        with testtools.ExpectedException(
+            shade.OpenStackCloudException,
+            "Must provide project and user for keystone v2"
+        ):
+            self.cloud.list_role_assignments()
+
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_list_role_assignments_exception_v2_no_project(self, mock_keystone,
+                                                           mock_api_version):
+        mock_api_version.return_value = '2.0'
+        with testtools.ExpectedException(
+            shade.OpenStackCloudException,
+            "Must provide project and user for keystone v2"
+        ):
+            self.cloud.list_role_assignments(filters={'user': '12345'})

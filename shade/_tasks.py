@@ -687,6 +687,11 @@ class RoleAssignmentList(task_manager.Task):
         return client.keystone_client.role_assignments.list(**self.args)
 
 
+class RolesForUser(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.roles.roles_for_user(**self.args)
+
+
 class StackList(task_manager.Task):
     def main(self, client):
         return client.heat_client.stacks.list()

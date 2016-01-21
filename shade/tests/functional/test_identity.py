@@ -89,3 +89,11 @@ class TestIdentity(base.TestCase):
         assignments = self.cloud.list_role_assignments()
         self.assertIsInstance(assignments, list)
         self.assertTrue(len(assignments) > 0)
+
+    def test_list_role_assignments_v2(self):
+        user = self.cloud.get_user('demo')
+        project = self.cloud.get_project('demo')
+        assignments = self.cloud.list_role_assignments(
+            filters={'user': user.id, 'project': project.id})
+        self.assertIsInstance(assignments, list)
+        self.assertTrue(len(assignments) > 0)
