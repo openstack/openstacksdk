@@ -108,6 +108,13 @@ class Stack(resource.Resource):
                     "No stack found for %s" % name_or_id)
         return stk
 
+    def get(self, session, include_headers=False, args=None):
+        stk = super(Stack, self).get(session, include_headers, args)
+        if stk and stk.status in ['DELETE_COMPLETE', 'ADOPT_COMPLETE']:
+            raise exceptions.NotFoundException(
+                "No stack found for %s" % stk.id)
+        return stk
+
 
 class StackPreview(Stack):
     base_path = '/stacks/preview'

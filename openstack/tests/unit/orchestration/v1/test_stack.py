@@ -178,3 +178,22 @@ class TestStack(testtools.TestCase):
                                sess, 'fake_name', ignore_missing=False)
         self.assertEqual('ResourceNotFound: No stack found for fake_name',
                          six.text_type(ex))
+
+    @mock.patch.object(resource.Resource, 'get')
+    def test_get(self, mock_get):
+        sess = mock.Mock()
+        sot = stack.Stack(FAKE)
+        deleted_stack = mock.Mock(id=FAKE_ID, status='DELETE_COMPLETE')
+        normal_stack = mock.Mock(status='CREATE_COMPLETE')
+        mock_get.side_effect = [
+            normal_stack,
+            exceptions.NotFoundException(message='oops'),
+            deleted_stack,
+        ]
+
+        self.assertEqual(normal_stack, sot.get(sess))
+        ex = self.assertRaises(exceptions.NotFoundException, sot.get, sess)
+        self.assertEqual('NotFoundException: oops', six.text_type(ex))
+        ex = self.assertRaises(exceptions.NotFoundException, sot.get, sess)
+        self.assertEqual('NotFoundException: No stack found for %s' % FAKE_ID,
+                         six.text_type(ex))
