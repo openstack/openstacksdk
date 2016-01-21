@@ -11,6 +11,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import format
 from openstack.object_store.v1 import _base
 from openstack import resource
 
@@ -36,3 +37,5 @@ class Account(_base.BaseResource):
     #: A second secret key value for temporary URLs. If not set,
     #: this header is not returned by this operation.
     meta_temp_url_key_2 = resource.header("x-account-meta-temp-url-key-2")
+    #: The timestamp of the transaction.
+    timestamp = resource.header("x-timestamp", type=format.UNIXEpoch)

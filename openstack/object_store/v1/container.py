@@ -11,6 +11,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import format
 from openstack.object_store.v1 import _base
 from openstack import resource
 
@@ -40,6 +41,8 @@ class Container(_base.BaseResource):
     object_count = resource.header("x-container-object-count", type=int)
     #: The count of bytes used in total.
     bytes_used = resource.header("x-container-bytes-used", type=int)
+    #: The timestamp of the transaction.
+    timestamp = resource.header("x-timestamp", type=format.UNIXEpoch)
 
     # Request headers (when id=None)
     #: If set to True, Object Storage queries all replicas to return the

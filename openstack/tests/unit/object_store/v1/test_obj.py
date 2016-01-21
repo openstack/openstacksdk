@@ -10,6 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from datetime import datetime
+import iso8601
+
 import mock
 import testtools
 
@@ -46,10 +49,11 @@ DICT_EXAMPLE = {
         'accept-ranges': 'bytes',
         'last-modified': 'Sun, 13 Jul 2014 18:41:04 GMT',
         'etag': '243f87b91224d85722564a80fd3cb1f1',
-        'x-timestamp': '1405276863.31924',
+        'x-timestamp': '1453414256.28112',
         'date': 'Thu, 28 Aug 2014 14:41:59 GMT',
         'content-type': 'application/octet-stream',
-        'id': 'tx5fb5ad4f4d0846c6b2bc7-0053ff3fb7'
+        'id': 'tx5fb5ad4f4d0846c6b2bc7-0053ff3fb7',
+        'x-delete-at': '1453416226.16744'
     }
 }
 
@@ -94,9 +98,14 @@ class TestObject(testtools.TestCase):
         self.assertEqual(headers['accept-ranges'], sot.accept_ranges)
         self.assertEqual(headers['last-modified'], sot.last_modified)
         self.assertEqual(headers['etag'], sot.etag)
-        self.assertEqual(headers['x-timestamp'], sot.timestamp)
+        self.assertEqual(datetime(2016, 1, 21, 22, 10, 56, 281120,
+                                  tzinfo=iso8601.UTC),
+                         sot.timestamp)
         self.assertEqual(headers['date'], sot.date)
         self.assertEqual(headers['content-type'], sot.content_type)
+        self.assertEqual(datetime(2016, 1, 21, 22, 43, 46, 167440,
+                                  tzinfo=iso8601.UTC),
+                         sot.delete_at)
 
     def test_get(self):
         sot = obj.Object.new(container=CONTAINER_NAME, name=OBJECT_NAME)
