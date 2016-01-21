@@ -14,6 +14,7 @@
 
 import contextlib
 import inspect
+import munch
 import netifaces
 import re
 import six
@@ -437,7 +438,7 @@ def normalize_role_assignments(assignments):
     """
     new_assignments = []
     for assignment in assignments:
-        new_val = {'id': assignment['role']['id']}
+        new_val = munch.Munch({'id': assignment['role']['id']})
         for scope in ('project', 'domain'):
             if scope in assignment['scope']:
                 new_val[scope] = assignment['scope'][scope]['id']
