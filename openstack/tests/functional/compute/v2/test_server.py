@@ -27,6 +27,7 @@ class TestServer(base.BaseFunctionalTest):
     server = None
     network = None
     subnet = None
+    cidr = '10.99.99.0/16'
 
     @classmethod
     def setUpClass(cls):
@@ -34,7 +35,8 @@ class TestServer(base.BaseFunctionalTest):
         flavor = default_flavor
         image = cls.conn.compute.find_image(default_image)
         cls.network, cls.subnet = test_network.create_network(cls.conn,
-                                                              cls.NAME)
+                                                              cls.NAME,
+                                                              cls.cidr)
         if cls.network:
             args = {'networks': [{"uuid": cls.network.id}]}
         else:

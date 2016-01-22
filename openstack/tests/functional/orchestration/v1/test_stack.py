@@ -25,6 +25,7 @@ class TestStack(base.BaseFunctionalTest):
     stack = None
     network = None
     subnet = None
+    cidr = '10.99.99.0/16'
 
     @classmethod
     def setUpClass(cls):
@@ -36,7 +37,8 @@ class TestStack(base.BaseFunctionalTest):
         with open(tname) as f:
             template = f.read()
         cls.network, cls.subnet = test_network.create_network(cls.conn,
-                                                              cls.NAME)
+                                                              cls.NAME,
+                                                              cls.cidr)
         parameters = {
             'image': image.id,
             'key_name': cls.NAME,
