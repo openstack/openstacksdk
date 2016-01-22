@@ -1,0 +1,3 @@
+---
+features:
+  - Added a new API call, OpenStackCloud.get_object(), to download objects from swift.
