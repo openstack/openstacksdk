@@ -82,7 +82,7 @@ class Task(object):
         if type(self._result) == list:
             return meta.obj_list_to_dict(self._result)
         elif type(self._result) not in (bool, int, float, str, set,
-                                        types.GeneratorType):
+                                        tuple, types.GeneratorType):
             return meta.obj_to_dict(self._result)
         else:
             return self._result

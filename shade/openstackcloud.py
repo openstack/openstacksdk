@@ -3751,6 +3751,31 @@ class OpenStackCloud(object):
                 "Object metadata fetch failed: %s (%s/%s)" % (
                     e.http_reason, e.http_host, e.http_path))
 
+    def get_object(self, container, obj, query_string=None,
+                   resp_chunk_size=None):
+        """Get the headers and body of an object from swift
+
+        :param string container: name of the container.
+        :param string obj: name of the object.
+        :param string query_string: query args for uri.
+                                    (delimiter, prefix, etc.)
+        :param int resp_chunk_size: chunk size of data to read.
+
+        :returns: Tuple (headers, body) of the object, or None if the object
+                  is not found (404)
+        :raises: OpenStackCloudException on operation error.
+        """
+        try:
+            return self.manager.submitTask(_tasks.ObjectGet(
+                container=container, obj=obj, query_string=query_string,
+                resp_chunk_size=resp_chunk_size))
+        except swift_exceptions.ClientException as e:
+            if e.http_status == 404:
+                return None
+            raise OpenStackCloudException(
+                "Object fetch failed: %s (%s/%s)" % (
+                    e.http_reason, e.http_host, e.http_path))
+
     def create_subnet(self, network_name_or_id, cidr, ip_version=4,
                       enable_dhcp=False, subnet_name=None, tenant_id=None,
                       allocation_pools=None,
