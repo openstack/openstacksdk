@@ -474,8 +474,8 @@ class OpenStackConfig(object):
                                                             name))
 
     def _fix_backwards_madness(self, cloud):
-        cloud = self._fix_backwards_project(cloud)
         cloud = self._fix_backwards_auth_plugin(cloud)
+        cloud = self._fix_backwards_project(cloud)
         cloud = self._fix_backwards_interface(cloud)
         cloud = self._handle_domain_id(cloud)
         return cloud
@@ -507,10 +507,6 @@ class OpenStackConfig(object):
         # Also handle moving domain names into auth so that domain mapping
         # is easier
         mappings = {
-            'project_id': ('tenant_id', 'tenant-id',
-                           'project_id', 'project-id'),
-            'project_name': ('tenant_name', 'tenant-name',
-                             'project_name', 'project-name'),
             'domain_id': ('domain_id', 'domain-id'),
             'domain_name': ('domain_name', 'domain-name'),
             'user_domain_id': ('user_domain_id', 'user-domain-id'),
@@ -520,6 +516,19 @@ class OpenStackConfig(object):
                 'project_domain_name', 'project-domain-name'),
             'token': ('auth-token', 'auth_token', 'token'),
         }
+        if cloud.get('auth_type', None) == 'v2password':
+            # If v2password is explcitly requested, this is to deal with old
+            # clouds. That's fine - we need to map settings in the opposite
+            # direction
+            mappings['tenant_id'] = (
+                'project_id', 'project-id', 'tenant_id', 'tenant-id')
+            mappings['tenant_name'] = (
+                'project_name', 'project-name', 'tenant_name', 'tenant-name')
+        else:
+            mappings['project_id'] = (
+                'tenant_id', 'tenant-id', 'project_id', 'project-id')
+            mappings['project_name'] = (
+                'tenant_name', 'tenant-name', 'project_name', 'project-name')
         for target_key, possible_values in mappings.items():
             target = None
             for key in possible_values:
@@ -549,8 +558,6 @@ class OpenStackConfig(object):
         # use of the auth plugin that can do auto-selection and dealing
         # with that based on auth parameters. v2password is basically
         # completely broken
-        if cloud['auth_type'] == 'v2password':
-            cloud['auth_type'] = 'password'
         return cloud
 
     def register_argparse_arguments(self, parser, argv, service_keys=[]):
