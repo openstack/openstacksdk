@@ -134,6 +134,7 @@ class Proxy(proxy.BaseProxy):
 
         :param kwargs \*\*query: Optional query parameters to be sent to
             restrict the profiles to be returned. Available parameters include:
+
             * name: The name of a profile.
             * type: The type name of a profile.
             * metadata: A list of key-value pairs that are associated with a
@@ -226,6 +227,7 @@ class Proxy(proxy.BaseProxy):
 
         :param kwargs \*\*query: Optional query parameters to be sent to
             restrict the clusters to be returned. Available parameters include:
+
             * name: The name of a cluster.
             * status: The current status of a cluster.
             * sort: A list of sorting keys separated by commas. Each sorting
@@ -524,6 +526,7 @@ class Proxy(proxy.BaseProxy):
 
         :param kwargs \*\*query: Optional query parameters to be sent to
             restrict the policies to be returned. Available parameters include:
+
             * name: The name of a policy.
             * type: The type name of a policy.
             * sort: A list of sorting keys separated by commas. Each sorting

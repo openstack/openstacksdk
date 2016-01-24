@@ -69,6 +69,7 @@ but listed below are the ones provided by this SDK by default.
    :maxdepth: 1
 
    Block Store <proxies/block_store>
+   Cluster <proxies/cluster>
    Compute <proxies/compute>
    Database <proxies/database>
    Identity <proxies/identity>
@@ -95,6 +96,7 @@ The following services have exposed *Resource* classes.
    :maxdepth: 1
 
    Block Store <resources/block_store/index>
+   Cluster <resources/cluster/index>
    Compute <resources/compute/index>
    Database <resources/database/index>
    Identity <resources/identity/index>
