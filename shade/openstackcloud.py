@@ -3336,10 +3336,12 @@ class OpenStackCloud(object):
                     raise OpenStackCloudException(
                         "Error in creating the server.")
         if wait:
+            timeout_message = "Timeout waiting for the server to come up."
+            start_time = time.time()
             # There is no point in iterating faster than the list_servers cache
             for count in _utils._iterate_timeout(
                     timeout,
-                    "Timeout waiting for the server to come up.",
+                    timeout_message,
                     wait=self._SERVER_AGE):
                 try:
                     # Use the get_server call so that the list_servers
@@ -3350,10 +3352,17 @@ class OpenStackCloud(object):
                 if not server:
                     continue
 
+                # We have more work to do, but the details of that are
+                # hidden from the user. So, calculate remaining timeout
+                # and pass it down into the IP stack.
+                remaining_timeout = timeout - int(time.time() - start_time)
+                if remaining_timeout <= 0:
+                    raise OpenStackCloudTimeout(timeout_message)
+
                 server = self.get_active_server(
                     server=server, reuse=reuse_ips,
                     auto_ip=auto_ip, ips=ips, ip_pool=ip_pool,
-                    wait=wait, timeout=timeout)
+                    wait=wait, timeout=remaining_timeout)
                 if server:
                     server.adminPass = admin_pass
                     return server
@@ -3378,7 +3387,8 @@ class OpenStackCloud(object):
         if server['status'] == 'ACTIVE':
             if 'addresses' in server and server['addresses']:
                 return self.add_ips_to_server(
-                    server, auto_ip, ips, ip_pool, reuse=reuse, wait=wait)
+                    server, auto_ip, ips, ip_pool, reuse=reuse,
+                    wait=wait, timeout=timeout)
 
             self.log.debug(
                 'Server {server} reached ACTIVE state without'
