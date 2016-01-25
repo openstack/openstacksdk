@@ -16,14 +16,14 @@ from openstack.network.v2 import network
 from openstack.tests.functional import base
 
 
-def create_network(conn, name):
+def create_network(conn, name, cidr):
     try:
         network = conn.network.create_network(name=name)
         subnet = conn.network.create_subnet(
             name=name,
             ip_version=4,
             network_id=network.id,
-            cidr="10.99.99.0/16")
+            cidr=cidr)
         return (network, subnet)
     except Exception as e:
         print(str(e))
