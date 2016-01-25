@@ -26,6 +26,8 @@ EXAMPLE = {
     'tenant_id': '8',
     'vip_address': '9',
     'vip_subnet_id': '10',
+    'vip_port_id': '11',
+    'provider': '12',
 }
 
 
@@ -56,3 +58,5 @@ class TestLoadBalancer(testtools.TestCase):
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['vip_address'], sot.vip_address)
         self.assertEqual(EXAMPLE['vip_subnet_id'], sot.vip_subnet_id)
+        self.assertEqual(EXAMPLE['vip_port_id'], sot.vip_port_id)
+        self.assertEqual(EXAMPLE['provider'], sot.provider)

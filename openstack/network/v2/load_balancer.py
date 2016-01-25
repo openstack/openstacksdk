@@ -42,9 +42,13 @@ class LoadBalancer(resource.Resource):
     operating_status = resource.prop('operating_status')
     #: The project this load_balancer is associated with.
     project_id = resource.prop('tenant_id')
+    #: The name of the provider.
+    provider = resource.prop('provider')
     #: Status of load_balancer provisioning, e.g. ACTIVE, INACTIVE.
     provisioning_status = resource.prop('provisioning_status')
     #: The IP address of the VIP.
     vip_address = resource.prop('vip_address')
+    #: The ID of the port for the VIP.
+    vip_port_id = resource.prop('vip_port_id')
     #: The ID of the subnet on which to allocate the VIP address.
     vip_subnet_id = resource.prop('vip_subnet_id')
