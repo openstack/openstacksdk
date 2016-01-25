@@ -264,7 +264,7 @@ class Test_download_object(TestObjectStoreProxy):
         file_path = "blarga/somefile"
         with mock.patch("openstack.object_store.v1._proxy.open",
                         fake_open, create=True):
-            self.proxy.download_object(ob, file_path)
+            self.proxy.download_object(ob, container="tainer", path=file_path)
 
         fake_open.assert_called_once_with(file_path, "w")
         fake_handle = fake_open()
