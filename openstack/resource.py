@@ -427,6 +427,13 @@ class Resource(collections.MutableMapping):
     def _reset_dirty(self):
         self._dirty = set()
 
+    def _update_attrs_from_response(self, resp, include_headers=False):
+        resp_headers = resp.pop(HEADERS, None)
+        self._attrs.update(resp)
+        self.update_attrs(self._attrs)
+        if include_headers and (resp_headers is not None):
+            self.set_headers(resp_headers)
+
     def update_attrs(self, *args, **kwargs):
         """Update the attributes on this resource
 
@@ -572,9 +579,7 @@ class Resource(collections.MutableMapping):
                  :data:`Resource.allow_create` is not set to ``True``.
         """
         resp = self.create_by_id(session, self._attrs, self.id, path_args=self)
-        self._attrs[self.id_attribute] = resp[self.id_attribute]
-        if HEADERS in resp:
-            self.set_headers(resp[HEADERS])
+        self._update_attrs_from_response(resp, include_headers=True)
         self._reset_dirty()
         return self
 
@@ -658,7 +663,7 @@ class Resource(collections.MutableMapping):
         """
         body = self.get_data_by_id(session, self.id, path_args=self, args=args,
                                    include_headers=include_headers)
-        self._attrs.update(body)
+        self._update_attrs_from_response(body, include_headers)
         self._loaded = True
         return self
 
@@ -794,8 +799,7 @@ class Resource(collections.MutableMapping):
             pass
         else:
             assert resp_id == self.id
-        if HEADERS in resp:
-            self.set_headers(resp[HEADERS])
+        self._update_attrs_from_response(resp, include_headers=True)
         self._reset_dirty()
         return self
 

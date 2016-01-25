@@ -27,7 +27,9 @@ FAKE = {
     'description': '3',
     'disable_rollback': True,
     'id': FAKE_ID,
-    'links': '6',
+    'links': [{
+        'href': 'stacks/%s/%s' % (FAKE_NAME, FAKE_ID),
+        'rel': 'self'}],
     'notification_topics': '7',
     'outputs': '8',
     'parameters': {'OS::stack_id': '9'},
