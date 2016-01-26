@@ -74,3 +74,32 @@ class TestISO8601Formatter(testtools.TestCase):
                 datetime(2015, 8, 27, 9, 49, 58,
                          tzinfo=iso8601.FixedOffset(-5, 0, "-05:00"))),
             "2015-08-27T09:49:58-05:00")
+
+
+class TestUNIXEpochFormatter(testtools.TestCase):
+
+    def test_deserialize(self):
+        self.assertEqual(format.UNIXEpoch.deserialize(1453412616.02406),
+                         datetime(2016, 1, 21, 21, 43, 36, 24060,
+                                  tzinfo=iso8601.UTC))
+        self.assertEqual(format.UNIXEpoch.deserialize(1389453423.35964),
+                         datetime(2014, 1, 11, 15, 17, 3, 359640,
+                                  tzinfo=iso8601.UTC))
+        self.assertEqual(format.UNIXEpoch.deserialize(1389453423),
+                         datetime(2014, 1, 11, 15, 17, 3, tzinfo=iso8601.UTC))
+        self.assertRaises(ValueError, format.UNIXEpoch.deserialize, "lol")
+
+    def test_serialize(self):
+        self.assertEqual(
+            format.UNIXEpoch.serialize(
+                datetime(2016, 1, 21, 21, 43, 36, 24060, tzinfo=iso8601.UTC)),
+            1453412616.02406)
+        self.assertEqual(
+            format.UNIXEpoch.serialize(
+                datetime(2014, 1, 11, 15, 17, 3, 359640, tzinfo=iso8601.UTC)),
+            1389453423.35964)
+        self.assertEqual(
+            format.UNIXEpoch.serialize(
+                datetime(2014, 1, 11, 15, 17, 3, tzinfo=iso8601.UTC)),
+            1389453423)
+        self.assertRaises(ValueError, format.UNIXEpoch.serialize, "lol")

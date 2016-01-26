@@ -10,6 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from datetime import datetime
+import iso8601
+
 import mock
 import testtools
 
@@ -36,7 +39,8 @@ HEAD_EXAMPLE = {
     'x-container-sync-key': 'sync-key',
     'x-container-bytes-used': '630666',
     'x-versions-location': 'versions-location',
-    'content-type': 'application/json; charset=utf-8'
+    'content-type': 'application/json; charset=utf-8',
+    'x-timestamp': '1453414055.48672'
 }
 
 LIST_EXAMPLE = [
@@ -112,6 +116,9 @@ class TestContainer(testtools.TestCase):
                          sot.sync_key)
         self.assertEqual(HEAD_EXAMPLE['x-versions-location'],
                          sot.versions_location)
+        self.assertEqual(datetime(2016, 1, 21, 22, 7, 35, 486720,
+                                  tzinfo=iso8601.UTC),
+                         sot.timestamp)
 
     @mock.patch("openstack.resource.Resource.list")
     def test_list(self, fake_list):

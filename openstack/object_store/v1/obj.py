@@ -11,6 +11,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import format
 from openstack.object_store import object_store_service
 from openstack import resource
 
@@ -117,13 +118,13 @@ class Object(resource.Resource):
     #: If set, the time when the object will be deleted by the system
     #: in the format of a UNIX Epoch timestamp.
     #: If not set, this header is not returned by this operation.
-    delete_at = resource.header("x-delete-at", type=int)
+    delete_at = resource.header("x-delete-at", type=format.UNIXEpoch)
     #: If set, to this is a dynamic large object manifest object.
     #: The value is the container and object name prefix of the
     #: segment objects in the form container/prefix.
     object_manifest = resource.header("x-object-manifest")
-    #: The UNIX timestamp of the transaction.
-    timestamp = resource.header("x-timestamp")
+    #: The timestamp of the transaction.
+    timestamp = resource.header("x-timestamp", type=format.UNIXEpoch)
 
     # Headers for PUT and POST requests
     #: Set to chunked to enable chunked transfer encoding. If used,
