@@ -305,3 +305,17 @@ ca-ymq-1       Montreal
 
 * DNS API Version is 1
 * Identity API Version is 3
+
+zetta
+-----
+
+https://identity.api.zetta.io/v3
+
+============== ================
+Region Name    Human Name
+============== ================
+no-osl1        Oslo
+============== ================
+
+* DNS API Version is 2
+* Identity API Version is 3
