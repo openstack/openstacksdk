@@ -31,19 +31,20 @@ class Port(resource.Resource):
     #: The administrative state of the port, which is up ``True`` or
     #: down ``False``. *Type: bool*
     admin_state_up = resource.prop('admin_state_up', type=bool)
-    #: Allowed address pairs. *Type: dict*
-    allowed_address_pairs = resource.prop('allowed_address_pairs', type=dict)
+    #: Allowed address pairs.
+    allowed_address_pairs = resource.prop('allowed_address_pairs')
     #: The ID of the host where the port is allocated. In some cases,
     #: different implementations can run on different hosts.
     binding_host_id = resource.prop('binding:host_id')
     #: A dictionary the enables the application running on the specified
     #: host to pass and receive vif port-specific information to the plug-in.
-    binding_profile = resource.prop('binding:profile')
+    #: *Type: dict*
+    binding_profile = resource.prop('binding:profile', type=dict)
     #: Read-only. A dictionary that enables the application to pass
     #: information about functions that the Networking API provides.
     #: To enable or disable port filtering features such as security group
     #: and anti-MAC/IP spoofing, specify ``port_filter: True`` or
-    #: ``port_filter: False``.
+    #: ``port_filter: False``. *Type: dict*
     binding_vif_details = resource.prop('binding:vif_details', type=dict)
     #: Read-only. The vif type for the specified port.
     binding_vif_type = resource.prop('binding:vif_type')
@@ -62,8 +63,12 @@ class Port(resource.Resource):
     device_id = resource.prop('device_id')
     #: The ID of the entity that uses this port. For example, a dhcp agent.
     device_owner = resource.prop('device_owner')
+    #: DNS assignment for the port.
+    dns_assignment = resource.prop('dns_assignment')
+    #: DNS name for the port.
+    dns_name = resource.prop('dns_name')
     #: Extra DHCP options.
-    extra_dhcp_opts = resource.prop('extra_dhcp_opts', type=dict)
+    extra_dhcp_opts = resource.prop('extra_dhcp_opts')
     #: IP addresses for the port. Includes the IP address and subnet ID.
     fixed_ips = resource.prop('fixed_ips')
     #: The MAC address of the port.
@@ -75,8 +80,8 @@ class Port(resource.Resource):
     #: The ID of the project who owns the network. Only administrative
     #: users can specify a project ID other than their own.
     project_id = resource.prop('tenant_id')
-    #: The IDs of any attached security groups.
-    security_groups = resource.prop('security_groups')
+    #: The IDs of any attached security groups. *Type: list*
+    security_groups = resource.prop('security_groups', type=list)
     #: The port status. Value is ``ACTIVE`` or ``DOWN``.
     status = resource.prop('status')
     #: The port security status, which is enabled ``True`` or disabled
