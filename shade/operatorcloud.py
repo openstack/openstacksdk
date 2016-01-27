@@ -1286,6 +1286,31 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
         return _utils._get_entity(self.search_roles, name_or_id, filters)
 
+    def _keystone_v2_role_assignments(self, user, project=None,
+                                      role=None, **kwargs):
+        with _utils.shade_exceptions("Failed to list role assignments"):
+            roles = self.manager.submitTask(
+                _tasks.RolesForUser(user=user, tenant=project)
+            )
+        ret = []
+        for tmprole in roles:
+            if role is not None and role != tmprole.id:
+                continue
+            ret.append({
+                'role': {
+                    'id': tmprole.id
+                },
+                'scope': {
+                    'project': {
+                        'id': project,
+                    }
+                },
+                'user': {
+                    'id': user,
+                }
+            })
+        return ret
+
     def list_role_assignments(self, filters=None):
         """List Keystone role assignments
 
@@ -1304,6 +1329,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             'user' and 'group' are mutually exclusive, as are 'domain' and
             'project'.
 
+        NOTE: For keystone v2, only user, project, and role are used.
+              Project and user are both required in filters.
+
         :returns: a list of dicts containing the role assignment description.
             Contains the following attributes::
 
@@ -1317,10 +1345,17 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if not filters:
             filters = {}
 
-        with _utils.shade_exceptions("Failed to list role assignments"):
-            assignments = self.manager.submitTask(
-                _tasks.RoleAssignmentList(**filters)
-            )
+        if self.cloud_config.get_api_version('identity').startswith('2'):
+            if filters.get('project') is None or filters.get('user') is None:
+                raise OpenStackCloudException(
+                    "Must provide project and user for keystone v2"
+                )
+            assignments = self._keystone_v2_role_assignments(**filters)
+        else:
+            with _utils.shade_exceptions("Failed to list role assignments"):
+                assignments = self.manager.submitTask(
+                    _tasks.RoleAssignmentList(**filters)
+                )
         return _utils.normalize_role_assignments(assignments)
 
     def create_flavor(self, name, ram, vcpus, disk, flavorid="auto",
