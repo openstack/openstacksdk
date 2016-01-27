@@ -148,6 +148,13 @@ class Profile(object):
                (service, self.service_keys))
         raise exceptions.SDKException(msg)
 
+    def _get_services(self, service):
+        return self.service_keys if service == self.ALL else [service]
+
+    def _setter(self, service, attr, value):
+        for service in self._get_services(service):
+            setattr(self._get_filter(service), attr, value)
+
     def get_services(self):
         """Get a list of all the known services."""
         services = []
@@ -161,12 +168,7 @@ class Profile(object):
         :param str service: Service type.
         :param str name: Desired service name.
         """
-        if service == self.ALL:
-            services = self.service_keys
-        else:
-            services = [service]
-        for service in services:
-            self._get_filter(service).service_name = name
+        self._setter(service, "service_name", name)
 
     def set_region(self, service, region):
         """Set the desired region for the specified service.
@@ -174,12 +176,7 @@ class Profile(object):
         :param str service: Service type.
         :param str region: Desired service region.
         """
-        if service == self.ALL:
-            services = self.service_keys
-        else:
-            services = [service]
-        for service in services:
-            self._get_filter(service).region = region
+        self._setter(service, "region", region)
 
     def set_version(self, service, version):
         """Set the desired version for the specified service.
@@ -195,9 +192,4 @@ class Profile(object):
         :param str service: Service type.
         :param str interface: Desired service interface.
         """
-        if service == self.ALL:
-            services = self.service_keys
-        else:
-            services = [service]
-        for service in services:
-            self._get_filter(service).interface = interface
+        self._setter(service, "interface", interface)
