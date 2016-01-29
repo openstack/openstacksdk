@@ -779,7 +779,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             service = self.manager.submitTask(_tasks.ServiceCreate(
                 name=name, description=description, **service_kwargs))
 
-        return service
+        return _utils.normalize_keystone_services([service])[0]
 
     def list_services(self):
         """List all Keystone services.

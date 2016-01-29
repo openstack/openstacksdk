@@ -21,6 +21,7 @@ Tests Keystone services commands.
 
 from mock import patch
 import os_client_config
+from shade import _utils
 from shade import OpenStackCloudException
 from shade import OperatorCloud
 from shade.tests.fakes import FakeService
@@ -47,8 +48,9 @@ class CloudServices(base.TestCase):
         self.mock_ks_services = [FakeService(**kwa) for kwa in
                                  self.mock_services]
 
+    @patch.object(_utils, 'normalize_keystone_services')
     @patch.object(OperatorCloud, 'keystone_client')
-    def test_create_service(self, mock_keystone_client):
+    def test_create_service(self, mock_keystone_client, mock_norm):
         kwargs = {
             'name': 'a service',
             'type': 'network',
@@ -58,15 +60,14 @@ class CloudServices(base.TestCase):
         self.client.create_service(**kwargs)
         kwargs['service_type'] = kwargs.pop('type')
         mock_keystone_client.services.create.assert_called_with(**kwargs)
+        self.assertTrue(mock_norm.called)
 
     @patch.object(OperatorCloud, 'keystone_client')
     def test_list_services(self, mock_keystone_client):
         mock_keystone_client.services.list.return_value = \
             self.mock_ks_services
-
         services = self.client.list_services()
         mock_keystone_client.services.list.assert_called_with()
-
         self.assertItemsEqual(self.mock_services, services)
 
     @patch.object(OperatorCloud, 'keystone_client')
