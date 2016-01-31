@@ -248,3 +248,14 @@ class TestCluster(testtools.TestCase):
         body = {'recover': {}}
         sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
                                           json=body)
+
+    def test_cluster_delete(self):
+        sot = cluster.Cluster(FAKE)
+        sot['id'] = 'IDENTIFIER'
+        url = 'clusters/%s' % sot.id
+        resp = mock.Mock(headers={'location': 'actions/fake_action'})
+        sess = mock.Mock()
+        sess.delete = mock.Mock(return_value=resp)
+        clus = sot.delete(sess)
+        self.assertEqual('actions/fake_action', clus.location)
+        sess.delete.assert_called_once_with(url, endpoint_filter=sot.service)

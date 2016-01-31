@@ -106,3 +106,14 @@ class TestNode(testtools.TestCase):
         body = {'recover': {}}
         sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
                                           json=body)
+
+    def test_node_delete(self):
+        sot = node.Node(FAKE)
+        sot['id'] = 'IDENTIFIER'
+        url = 'nodes/%s' % sot.id
+        resp = mock.Mock(headers={'location': 'actions/fake_action'})
+        sess = mock.Mock()
+        sess.delete = mock.Mock(return_value=resp)
+        nod = sot.delete(sess)
+        self.assertEqual('actions/fake_action', nod.location)
+        sess.delete.assert_called_once_with(url, endpoint_filter=sot.service)

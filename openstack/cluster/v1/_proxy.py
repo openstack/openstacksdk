@@ -191,9 +191,11 @@ class Proxy(proxy.BaseProxy):
             the cluster could not be found. When set to ``True``, no exception
             will be raised when attempting to delete a non-existent cluster.
 
-        :returns: ``None``
+        :returns: The instance of the Cluster which was deleted.
+        :rtype: :class:`~openstack.cluster.v1.cluster.Cluster`.
         """
-        self._delete(_cluster.Cluster, cluster, ignore_missing=ignore_missing)
+        return self._delete(_cluster.Cluster, cluster,
+                            ignore_missing=ignore_missing)
 
     def find_cluster(self, name_or_id, ignore_missing=True):
         """Find a single cluster.
@@ -427,9 +429,10 @@ class Proxy(proxy.BaseProxy):
             the node could not be found. When set to ``True``, no exception
             will be raised when attempting to delete a non-existent node.
 
-        :returns: ``None``
+        :returns: The instance of the Node which was deleted.
+        :rtype: :class:`~openstack.cluster.v1.node.Node`.
         """
-        self._delete(_node.Node, node, ignore_missing=ignore_missing)
+        return self._delete(_node.Node, node, ignore_missing=ignore_missing)
 
     def check_node(self, node, **params):
         """check a node.

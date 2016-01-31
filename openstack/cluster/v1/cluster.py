@@ -149,3 +149,17 @@ class Cluster(resource.Resource):
             'recover': params
         }
         return self.action(session, body)
+
+    def delete(self, session):
+        """Delete the remote resource associated with this instance.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~openstack.session.Session`
+
+        :returns: The instance of the Cluster which was deleted.
+        :rtype: :class:`~openstack.cluster.v1.cluster.Cluster`.
+        """
+        url = self._get_url(self, self.id)
+        resp = session.delete(url, endpoint_filter=self.service)
+        self.location = resp.headers['location']
+        return self
