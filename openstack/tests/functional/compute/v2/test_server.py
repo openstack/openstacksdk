@@ -75,13 +75,18 @@ class TestServer(base.BaseFunctionalTest):
         self.assertDictEqual(self.conn.compute.replace_server_metadata(sot),
                              {})
 
-        # Insert first and last name metadata
+        # Create first and last name metadata
         meta = {"first": "Matthew", "last": "Dellavedova"}
         self.assertDictEqual(
             self.conn.compute.create_server_metadata(sot, **meta), meta)
 
+        # Create something that already exists
+        meta = {"last": "Inman"}
+        self.assertDictEqual(
+            self.conn.compute.create_server_metadata(sot, **meta), meta)
+
         # Update only the first name
-        short = {"first": "Matt", "last": "Dellavedova"}
+        short = {"first": "Matt", "last": "Inman"}
         self.assertDictEqual(
             self.conn.compute.update_server_metadata(sot,
                                                      first=short["first"]),

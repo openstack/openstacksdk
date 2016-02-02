@@ -17,6 +17,17 @@ from openstack import resource
 
 
 class Container(_base.BaseResource):
+    _custom_metadata_prefix = "X-Container-Meta-"
+    _system_metadata = {
+        "content_type": "content-type",
+        "detect_content_type": "x-detect-content-type",
+        "versions_location": "x-versions-location",
+        "read_ACL": "x-container-read",
+        "write_ACL": "x-container-write",
+        "sync_to": "x-container-sync-to",
+        "sync_key": "x-container-sync-key"
+    }
+
     base_path = "/"
     id_attribute = "name"
 
@@ -70,9 +81,7 @@ class Container(_base.BaseResource):
     #: the name before you include it in the header. To disable
     #: versioning, set the header to an empty string.
     versions_location = resource.header("x-versions-location")
-    #: Set to any value to disable versioning.
-    remove_versions_location = resource.header("x-remove-versions-location")
-    #: Changes the MIME type for the object.
+    #: The MIME type of the list of names.
     content_type = resource.header("content-type")
     #: If set to true, Object Storage guesses the content type based
     #: on the file extension and ignores the value sent in the
