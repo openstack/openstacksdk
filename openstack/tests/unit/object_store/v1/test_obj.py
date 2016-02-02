@@ -101,7 +101,6 @@ class TestObject(testtools.TestCase):
         self.assertEqual(datetime(2016, 1, 21, 22, 10, 56, 281120,
                                   tzinfo=iso8601.UTC),
                          sot.timestamp)
-        self.assertEqual(headers['date'], sot.date)
         self.assertEqual(headers['content-type'], sot.content_type)
         self.assertEqual(datetime(2016, 1, 21, 22, 43, 46, 167440,
                                   tzinfo=iso8601.UTC),

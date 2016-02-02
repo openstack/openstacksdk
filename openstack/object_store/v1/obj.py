@@ -104,8 +104,6 @@ class Object(resource.Resource):
     etag = resource.header("etag")
     #: Set to True if this object is a static large object manifest object.
     is_static_large_object = resource.header("x-static-large-object")
-    #: The transaction date and time.
-    date = resource.header("date")
     #: If set, the value of the Content-Encoding metadata.
     #: If not set, this header is not returned by this operation.
     content_encoding = resource.header("content-encoding")
