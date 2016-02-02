@@ -11,6 +11,7 @@
 # under the License.
 
 import os
+import os_client_config
 import time
 import unittest
 
@@ -18,7 +19,31 @@ from keystoneauth1 import exceptions as _exceptions
 from openstack import connection
 
 
-CLOUD_NAME = os.getenv('OS_CLOUD', 'test_cloud')
+#: Defines the OpenStack Client Config (OCC) cloud key in your OCC config
+#: file, typically in $HOME/.config/openstack/clouds.yaml. That configuration
+#: will determine where the functional tests will be run and what resource
+#: defaults will be used to run the functional tests.
+TEST_CLOUD = os.getenv('OS_CLOUD', 'test_cloud')
+
+
+class Opts(object):
+    def __init__(self, cloud_name='test_cloud', debug=False):
+        self.cloud = cloud_name
+        self.debug = debug
+
+
+def _get_resource_value(resource_key, default):
+    try:
+        return cloud.config['functional'][resource_key]
+    except KeyError:
+        return default
+
+opts = Opts(cloud_name=TEST_CLOUD)
+occ = os_client_config.OpenStackConfig()
+cloud = occ.get_one_cloud(opts.cloud, argparse=opts)
+
+IMAGE_NAME = _get_resource_value('image_name', 'cirros-0.3.4-x86_64-uec')
+FLAVOR_NAME = _get_resource_value('flavor_name', 'm1.small')
 
 
 def service_exists(**kwargs):
@@ -34,7 +59,7 @@ def service_exists(**kwargs):
     :returns: True if the service exists, otherwise False.
     """
     try:
-        conn = connection.from_config(cloud_name=CLOUD_NAME)
+        conn = connection.from_config(cloud_name=TEST_CLOUD)
         conn.session.get_endpoint(**kwargs)
 
         return True
@@ -46,7 +71,7 @@ class BaseFunctionalTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.conn = connection.from_config(cloud_name=CLOUD_NAME)
+        cls.conn = connection.from_config(cloud_name=TEST_CLOUD)
 
     @classmethod
     def assertIs(cls, expected, actual):
