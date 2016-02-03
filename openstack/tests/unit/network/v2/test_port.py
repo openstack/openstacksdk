@@ -17,24 +17,26 @@ from openstack.network.v2 import port
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     'admin_state_up': True,
-    'allowed_address_pairs': {'2': 2},
+    'allowed_address_pairs': [{'2': 2}],
     'binding:host_id': '3',
-    'binding:profile': '4',
+    'binding:profile': {'4': 4},
     'binding:vif_details': {'5': 5},
     'binding:vif_type': '6',
     'binding:vnic_type': '7',
     'device_id': '8',
     'device_owner': '9',
-    'extra_dhcp_opts': {'10': 10},
-    'fixed_ips': {'11': '12'},
+    'extra_dhcp_opts': [{'10': 10}],
+    'fixed_ips': [{'11': '12'}],
     'id': IDENTIFIER,
     'mac_address': '13',
     'name': '14',
     'network_id': '15',
     'tenant_id': '16',
-    'security_groups': '17',
+    'security_groups': ['17'],
     'status': '18',
     'port_security_enabled': True,
+    'dns_assignment': [{'19': 19}],
+    'dns_name': '20',
 }
 
 
@@ -76,3 +78,5 @@ class TestPort(testtools.TestCase):
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['port_security_enabled'],
                          sot.is_port_security_enabled)
+        self.assertEqual(EXAMPLE['dns_assignment'], sot.dns_assignment)
+        self.assertEqual(EXAMPLE['dns_name'], sot.dns_name)
