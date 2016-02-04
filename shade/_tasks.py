@@ -729,4 +729,4 @@ class StackCreate(task_manager.Task):
 
 class StackDelete(task_manager.Task):
     def main(self, client):
-        return client.heat_client.stacks.delete(**self.args)
+        return client.heat_client.stacks.delete(self.args['id'])
