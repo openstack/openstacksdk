@@ -81,7 +81,8 @@ class Task(object):
 
         # NOTE(Shrews): Since the client API might decide to subclass one
         # of these result types, we use isinstance() here instead of type().
-        if isinstance(self._result, list):
+        if (isinstance(self._result, list) or
+            isinstance(self._result, types.GeneratorType)):
             return meta.obj_list_to_dict(self._result)
         elif (not isinstance(self._result, bool) and
               not isinstance(self._result, int) and

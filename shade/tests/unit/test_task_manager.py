@@ -13,8 +13,6 @@
 # limitations under the License.
 
 
-import types
-
 from shade import task_manager
 from shade.tests.unit import base
 
@@ -72,10 +70,6 @@ class TestTaskManager(base.TestCase):
         configured interpreters (e.g. py27, p34, pypy, ...)
         """
         self.assertRaises(TestException, self.manager.submitTask, TestTask())
-
-    def test_dont_munchify_generators(self):
-        ret = self.manager.submitTask(TestTaskGenerator())
-        self.assertIsInstance(ret, types.GeneratorType)
 
     def test_dont_munchify_int(self):
         ret = self.manager.submitTask(TestTaskInt())

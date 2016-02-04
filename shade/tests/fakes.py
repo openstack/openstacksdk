@@ -224,6 +224,7 @@ class FakeHypervisor(object):
 class FakeStack(object):
     def __init__(self, id, name, description=None, status='CREATE_COMPLETE'):
         self.id = id
+        self.name = name
         self.stack_name = name
         self.stack_description = description
         self.stack_status = status

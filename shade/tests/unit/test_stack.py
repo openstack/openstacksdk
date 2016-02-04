@@ -143,3 +143,13 @@ class TestStack(base.TestCase):
         )
         self.assertEqual(2, mock_get.call_count)
         self.assertEqual(stack, ret)
+
+    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
+    def test_get_stack(self, mock_heat):
+        stack = fakes.FakeStack('azerty', 'stack',)
+        mock_heat.stacks.list.return_value = [stack]
+        res = self.cloud.get_stack('stack')
+        self.assertIsNotNone(res)
+        self.assertEqual(stack.stack_name, res['stack_name'])
+        self.assertEqual(stack.stack_name, res['name'])
+        self.assertEqual(stack.stack_status, res['stack_status'])

@@ -1138,7 +1138,7 @@ class OpenStackCloud(object):
         """
         with _utils.shade_exceptions("Error fetching stack list"):
             stacks = self.manager.submitTask(_tasks.StackList())
-        return stacks
+        return _utils.normalize_stacks(stacks)
 
     def list_server_security_groups(self, server):
         """List all security groups associated with the given server.
