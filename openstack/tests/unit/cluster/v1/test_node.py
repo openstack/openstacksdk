@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 import testtools
 
 from openstack.cluster.v1 import node
@@ -78,3 +79,31 @@ class TestNode(testtools.TestCase):
         self.assertEqual(FAKE['index'], sot.index)
         self.assertEqual(FAKE['role'], sot.role)
         self.assertEqual(FAKE['metadata'], sot.metadata)
+
+    def test_check(self):
+        sot = node.Node(FAKE)
+        sot['id'] = 'IDENTIFIER'
+
+        resp = mock.Mock()
+        resp.json = {'action': '1234-5678-abcd'}
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=resp)
+        self.assertEqual(resp.json, sot.check(sess))
+        url = 'nodes/%s/actions' % sot.id
+        body = {'check': {}}
+        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+                                          json=body)
+
+    def test_recover(self):
+        sot = node.Node(FAKE)
+        sot['id'] = 'IDENTIFIER'
+
+        resp = mock.Mock()
+        resp.json = {'action': '2345-6789-bbbb'}
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=resp)
+        self.assertEqual(resp.json, sot.recover(sess))
+        url = 'nodes/%s/actions' % sot.id
+        body = {'recover': {}}
+        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+                                          json=body)

@@ -405,6 +405,28 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(_node.Node, node, ignore_missing=ignore_missing)
 
+    def check_node(self, node, **params):
+        """check a node.
+
+        :param node: The value can be either the ID of a node or a
+            :class:`~openstack.cluster.v1.node.Node` instance.
+
+        :returns: A dictionary containing the action ID.
+        """
+        obj = self._get_resource(_node.Node, node)
+        return obj.check(self.session, **params)
+
+    def recover_node(self, node, **params):
+        """recover a node.
+
+        :param node: The value can be either the ID of a node or a
+            :class:`~openstack.cluster.v1.node.Node` instance.
+
+        :returns: A dictionary containing the action ID.
+        """
+        obj = self._get_resource(_node.Node, node)
+        return obj.recover(self.session, **params)
+
     def find_node(self, name_or_id, ignore_missing=True):
         """Find a single node.
 
