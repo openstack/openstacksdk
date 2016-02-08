@@ -120,6 +120,7 @@ class TestStack(base.TestCase):
         mock_heat.stacks.create.assert_called_once_with(
             stack_name='stack_name',
             disable_rollback=False,
+            environment={},
             parameters={},
             template={},
             files={}
@@ -137,6 +138,7 @@ class TestStack(base.TestCase):
         mock_heat.stacks.create.assert_called_once_with(
             stack_name='stack_name',
             disable_rollback=False,
+            environment={},
             parameters={},
             template={},
             files={}
