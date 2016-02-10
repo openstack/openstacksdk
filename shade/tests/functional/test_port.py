@@ -89,7 +89,7 @@ class TestPort(base.TestCase):
 
         updated_port = self.cloud.get_port(name_or_id=port['id'])
         # extra_dhcp_opts is added later by Neutron...
-        if 'extra_dhcp_opts' in updated_port:
+        if 'extra_dhcp_opts' in updated_port and 'extra_dhcp_opts' not in port:
             del updated_port['extra_dhcp_opts']
         self.assertEqual(port, updated_port)
 
