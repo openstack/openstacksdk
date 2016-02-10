@@ -2,7 +2,7 @@
   "name": "vexxhost",
   "profile": {
     "auth": {
-      "auth_url": "http://auth.vexxhost.net"
+      "auth_url": "https://auth.vexxhost.net"
     },
     "regions": [
       "ca-ymq-1"
