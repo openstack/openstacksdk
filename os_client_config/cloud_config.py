@@ -355,22 +355,53 @@ class CloudConfig(object):
         return client_class(**constructor_kwargs)
 
     def _get_swift_client(self, client_class, **kwargs):
+        auth_args = self.get_auth_args()
+        auth_version = self.get_api_version('identity')
         session = self.get_session()
         token = session.get_token()
         endpoint = self.get_session_endpoint(service_key='object-store')
         if not endpoint:
             return None
+        # If we have a username/password, we want to pass them to
+        # swift - because otherwise it will not re-up tokens appropriately
+        # However, if we only have non-password auth, then get a token
+        # and pass it in
         swift_kwargs = dict(
+            auth_version=auth_version,
             preauthurl=endpoint,
             preauthtoken=token,
-            auth_version=self.get_api_version('identity'),
             os_options=dict(
+                region_name=self.get_region_name(),
                 auth_token=token,
                 object_storage_url=endpoint,
-                region_name=self.get_region_name()),
-        )
+                service_type=self.get_service_type('object-store'),
+                endpoint_type=self.get_interface('object-store'),
+
+            ))
         if self.config['api_timeout'] is not None:
             swift_kwargs['timeout'] = float(self.config['api_timeout'])
+
+        # create with password
+        swift_kwargs['user'] = auth_args.get('username')
+        swift_kwargs['key'] = auth_args.get('password')
+        swift_kwargs['authurl'] = auth_args.get('auth_url')
+        os_options = {}
+        if auth_version == '2.0':
+            os_options['tenant_name'] = auth_args.get('project_name')
+            os_options['tenant_id'] = auth_args.get('project_id')
+        else:
+            os_options['project_name'] = auth_args.get('project_name')
+            os_options['project_id'] = auth_args.get('project_id')
+
+        for key in (
+                'user_id',
+                'project_domain_id',
+                'project_domain_name',
+                'user_domain_id',
+                'user_domain_name'):
+            os_options[key] = auth_args.get(key)
+        swift_kwargs['os_options'].update(os_options)
+
         return client_class(**swift_kwargs)
 
     def get_cache_expiration_time(self):

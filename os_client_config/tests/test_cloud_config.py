@@ -235,10 +235,23 @@ class TestCloudConfig(base.TestCase):
             region_name='region-al',
             service_type='orchestration')
 
+    @mock.patch.object(cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(cloud_config.CloudConfig, 'get_auth_args')
     @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
-    def test_legacy_client_object_store(self, mock_get_session_endpoint):
+    def test_legacy_client_object_store_password(
+            self,
+            mock_get_session_endpoint,
+            mock_get_auth_args,
+            mock_get_api_version):
         mock_client = mock.Mock()
-        mock_get_session_endpoint.return_value = 'http://example.com/v2'
+        mock_get_session_endpoint.return_value = 'http://swift.example.com'
+        mock_get_api_version.return_value = '3'
+        mock_get_auth_args.return_value = dict(
+            username='testuser',
+            password='testpassword',
+            project_name='testproject',
+            auth_url='http://example.com',
+        )
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
         cc = cloud_config.CloudConfig(
@@ -246,19 +259,106 @@ class TestCloudConfig(base.TestCase):
         cc.get_legacy_client('object-store', mock_client)
         mock_client.assert_called_with(
             preauthtoken=mock.ANY,
+            auth_version=u'3',
+            authurl='http://example.com',
+            key='testpassword',
             os_options={
                 'auth_token': mock.ANY,
                 'region_name': 'region-al',
-                'object_storage_url': 'http://example.com/v2'
+                'object_storage_url': 'http://swift.example.com',
+                'user_id': None,
+                'user_domain_name': None,
+                'project_name': 'testproject',
+                'project_domain_name': None,
+                'project_domain_id': None,
+                'project_id': None,
+                'service_type': 'object-store',
+                'endpoint_type': 'public',
+                'user_domain_id': None
             },
-            preauthurl='http://example.com/v2',
-            auth_version='2.0')
+            preauthurl='http://swift.example.com',
+            user='testuser')
 
+    @mock.patch.object(cloud_config.CloudConfig, 'get_auth_args')
     @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
-    def test_legacy_client_object_store_timeout(
-            self, mock_get_session_endpoint):
+    def test_legacy_client_object_store_password_v2(
+            self, mock_get_session_endpoint, mock_get_auth_args):
+        mock_client = mock.Mock()
+        mock_get_session_endpoint.return_value = 'http://swift.example.com'
+        mock_get_auth_args.return_value = dict(
+            username='testuser',
+            password='testpassword',
+            project_name='testproject',
+            auth_url='http://example.com',
+        )
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_legacy_client('object-store', mock_client)
+        mock_client.assert_called_with(
+            preauthtoken=mock.ANY,
+            auth_version=u'2.0',
+            authurl='http://example.com',
+            key='testpassword',
+            os_options={
+                'auth_token': mock.ANY,
+                'region_name': 'region-al',
+                'object_storage_url': 'http://swift.example.com',
+                'user_id': None,
+                'user_domain_name': None,
+                'tenant_name': 'testproject',
+                'project_domain_name': None,
+                'project_domain_id': None,
+                'tenant_id': None,
+                'service_type': 'object-store',
+                'endpoint_type': 'public',
+                'user_domain_id': None
+            },
+            preauthurl='http://swift.example.com',
+            user='testuser')
+
+    @mock.patch.object(cloud_config.CloudConfig, 'get_auth_args')
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    def test_legacy_client_object_store(
+            self, mock_get_session_endpoint, mock_get_auth_args):
         mock_client = mock.Mock()
         mock_get_session_endpoint.return_value = 'http://example.com/v2'
+        mock_get_auth_args.return_value = {}
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_legacy_client('object-store', mock_client)
+        mock_client.assert_called_with(
+            preauthtoken=mock.ANY,
+            auth_version=u'2.0',
+            authurl=None,
+            key=None,
+            os_options={
+                'auth_token': mock.ANY,
+                'region_name': 'region-al',
+                'object_storage_url': 'http://example.com/v2',
+                'user_id': None,
+                'user_domain_name': None,
+                'tenant_name': None,
+                'project_domain_name': None,
+                'project_domain_id': None,
+                'tenant_id': None,
+                'service_type': 'object-store',
+                'endpoint_type': 'public',
+                'user_domain_id': None
+            },
+            preauthurl='http://example.com/v2',
+            user=None)
+
+    @mock.patch.object(cloud_config.CloudConfig, 'get_auth_args')
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    def test_legacy_client_object_store_timeout(
+            self, mock_get_session_endpoint, mock_get_auth_args):
+        mock_client = mock.Mock()
+        mock_get_session_endpoint.return_value = 'http://example.com/v2'
+        mock_get_auth_args.return_value = {}
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
         config_dict['api_timeout'] = 9
@@ -267,32 +367,59 @@ class TestCloudConfig(base.TestCase):
         cc.get_legacy_client('object-store', mock_client)
         mock_client.assert_called_with(
             preauthtoken=mock.ANY,
+            auth_version=u'2.0',
+            authurl=None,
+            key=None,
             os_options={
                 'auth_token': mock.ANY,
                 'region_name': 'region-al',
-                'object_storage_url': 'http://example.com/v2'
+                'object_storage_url': 'http://example.com/v2',
+                'user_id': None,
+                'user_domain_name': None,
+                'tenant_name': None,
+                'project_domain_name': None,
+                'project_domain_id': None,
+                'tenant_id': None,
+                'service_type': 'object-store',
+                'endpoint_type': 'public',
+                'user_domain_id': None
             },
             preauthurl='http://example.com/v2',
-            auth_version='2.0',
-            timeout=9.0)
+            timeout=9.0,
+            user=None)
 
-    def test_legacy_client_object_store_endpoint(self):
+    @mock.patch.object(cloud_config.CloudConfig, 'get_auth_args')
+    def test_legacy_client_object_store_endpoint(
+            self, mock_get_auth_args):
         mock_client = mock.Mock()
+        mock_get_auth_args.return_value = {}
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
-        config_dict['object_store_endpoint'] = 'http://example.com/v2'
+        config_dict['object_store_endpoint'] = 'http://example.com/swift'
         cc = cloud_config.CloudConfig(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('object-store', mock_client)
         mock_client.assert_called_with(
             preauthtoken=mock.ANY,
+            auth_version=u'2.0',
+            authurl=None,
+            key=None,
             os_options={
                 'auth_token': mock.ANY,
                 'region_name': 'region-al',
-                'object_storage_url': 'http://example.com/v2'
+                'object_storage_url': 'http://example.com/swift',
+                'user_id': None,
+                'user_domain_name': None,
+                'tenant_name': None,
+                'project_domain_name': None,
+                'project_domain_id': None,
+                'tenant_id': None,
+                'service_type': 'object-store',
+                'endpoint_type': 'public',
+                'user_domain_id': None
             },
-            preauthurl='http://example.com/v2',
-            auth_version='2.0')
+            preauthurl='http://example.com/swift',
+            user=None)
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
     def test_legacy_client_image(self, mock_get_session_endpoint):
