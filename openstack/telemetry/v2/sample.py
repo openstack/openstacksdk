@@ -28,13 +28,13 @@ class Sample(resource.Resource):
     metadata = resource.prop('metadata', alias='resource_metadata')
     #: The meter name this sample is for
     counter_name = resource.prop('meter', alias='counter_name')
-    #: The project this sample was taken for
+    #: The ID of the project this sample was taken for
     project_id = resource.prop('project_id')
     #: When the sample has been recorded
     recorded_at = resource.prop('recorded_at')
-    #: The Resource this sample was taken for
+    #: The ID of the resource this sample was taken for
     resource_id = resource.prop('resource_id')
-    #: The source that identifies where the sample comes from
+    #: The name of the source that identifies where the sample comes from
     source = resource.prop('source')
     #: When the sample has been generated
     generated_at = resource.prop('timestamp')
@@ -42,7 +42,7 @@ class Sample(resource.Resource):
     type = resource.prop('type', alias='counter_type')
     #: The unit of measure
     unit = resource.prop('unit', alias='counter_unit')
-    #: The user this sample was taken for
+    #: The ID of the user this sample was taken for
     user_id = resource.prop('user_id')
     #: The metered value
     volume = resource.prop('volume', alias='counter_volume')
