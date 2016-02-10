@@ -142,23 +142,6 @@ de-fra1        Frankfurt, DE
 
 * Volume API Version is 1
 
-hp
---
-
-https://region-b.geo-1.identity.hpcloudsvc.com:35357/v2.0
-
-============== ================
-Region Name    Human Name
-============== ================
-region-a.geo-1 US West
-region-b.geo-1 US East
-============== ================
-
-* DNS Service Type is `hpext:dns`
-* Image API Version is 1
-* Public IPv4 is provided via NAT with Neutron Floating IP
-* Volume API Version is 1
-
 ibmcloud
 --------
 
@@ -232,20 +215,6 @@ SYD            Sydney
   :vm_mode: hvm
   :xenapi_use_agent: False
 * Volume API Version is 1
-
-runabove
---------
-
-https://auth.runabove.io/v2.0
-
-============== ================
-Region Name    Human Name
-============== ================
-SBG-1          Strassbourg, FR
-BHS-1          Beauharnois, QC
-============== ================
-
-* Floating IPs are not supported
 
 switchengines
 -------------
