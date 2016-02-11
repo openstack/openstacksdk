@@ -50,20 +50,12 @@ fi
 shift $((OPTIND-1))
 TAGS=$( echo "$*" | tr ' ' , )
 
-if [ -d ${ENVDIR}/ansible ]
-then
-    echo "Using existing Ansible install"
-else
-    echo "Installing Ansible at $ENVDIR"
-    git clone --recursive git://github.com/ansible/ansible.git ${ENVDIR}/ansible
-fi
-
 # We need to source the current tox environment so that Ansible will
 # be setup for the correct python environment.
 source $ENVDIR/bin/activate
 
-# Setup Ansible
-source $ENVDIR/ansible/hacking/env-setup
+echo "Installing Ansible"
+pip install ansible
 
 # Run the shade Ansible tests
 tag_opt=""
