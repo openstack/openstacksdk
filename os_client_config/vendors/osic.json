@@ -1,0 +1,11 @@
+{
+  "name": "osic",
+  "profile": {
+    "auth": {
+      "auth_url": "https://cloud1.osic.org:5000"
+    },
+    "regions": [
+      "RegionOne"
+    ]
+  }
+}
