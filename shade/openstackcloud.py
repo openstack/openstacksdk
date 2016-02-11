@@ -1564,6 +1564,46 @@ class OpenStackCloud(object):
         """
         return _utils._get_entity(self.search_images, name_or_id, filters)
 
+    def download_image(self, name_or_id, output_path=None, output_file=None):
+        """Download an image from glance by name or ID
+
+        :param str name_or_id: Name or ID of the image.
+        :param output_path: the output path to write the image to. Either this
+            or output_file must be specified
+        :param output_file: a file object (or file-like object) to write the
+            image data to. Only write() will be called on this object. Either
+            this or output_path must be specified
+
+        :raises: OpenStackCloudException in the event download_image is called
+            without exactly one of either output_path or output_file
+        :raises: OpenStackCloudResourceNotFound if no images are found matching
+            the name or id provided
+        """
+        if output_path is None and output_file is None:
+            raise OpenStackCloudException('No output specified, an output path'
+                                          ' or file object is necessary to '
+                                          'write the image data to')
+        elif output_path is not None and output_file is not None:
+            raise OpenStackCloudException('Both an output path and file object'
+                                          ' were provided, however only one '
+                                          'can be used at once')
+
+        image = self.search_images(name_or_id)
+        if len(image) == 0:
+            raise OpenStackCloudResourceNotFound(
+                "No images with name or id %s were found" % name_or_id)
+        image_contents = self.glance_client.images.data(image[0]['id'])
+        with _utils.shade_exceptions("Unable to download image"):
+            if output_path:
+                with open(output_path, 'wb') as fd:
+                    for chunk in image_contents:
+                        fd.write(chunk)
+                return
+            elif output_file:
+                for chunk in image_contents:
+                    output_file.write(chunk)
+                return
+
     def get_floating_ip(self, id, filters=None):
         """Get a floating IP by ID
 

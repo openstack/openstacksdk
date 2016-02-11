@@ -19,6 +19,8 @@ test_compute
 Functional tests for `shade` image methods.
 """
 
+import filecmp
+import os
 import tempfile
 
 from shade import openstack_cloud
@@ -47,3 +49,23 @@ class TestImage(base.TestCase):
                                     wait=True)
         finally:
             self.cloud.delete_image(image_name, wait=True)
+
+    def test_download_image(self):
+        test_image = tempfile.NamedTemporaryFile(delete=False)
+        self.addCleanup(os.remove, test_image.name)
+        test_image.write('\0' * 1024 * 1024)
+        test_image.close()
+        image_name = self.getUniqueString('image')
+        self.cloud.create_image(name=image_name,
+                                filename=test_image.name,
+                                disk_format='raw',
+                                container_format='bare',
+                                min_disk=10,
+                                min_ram=1024,
+                                wait=True)
+        self.addCleanup(self.cloud.delete_image, image_name, wait=True)
+        output = os.path.join(tempfile.gettempdir(), self.getUniqueString())
+        self.cloud.download_image(image_name, output)
+        self.addCleanup(os.remove, output)
+        self.assertTrue(filecmp.cmp(test_image.name, output),
+                        "Downloaded contents don't match created image")
