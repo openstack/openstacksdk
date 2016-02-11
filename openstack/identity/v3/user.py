@@ -29,7 +29,7 @@ class User(resource.Resource):
     patch_update = True
 
     # Properties
-    #: References the user's default project against which to authorize,
+    #: References the user's default project ID against which to authorize,
     #: if the API user does not explicitly specify one when creating a token.
     #: Setting this attribute does not grant any actual authorization on the
     #: project, and is merely provided for the user's convenience.
@@ -42,9 +42,9 @@ class User(resource.Resource):
     default_project_id = resource.prop('default_project_id')
     #: The description of this user. *Type: string*
     description = resource.prop('description')
-    #: References the domain which owns the user; if a domain is not
+    #: References the domain ID which owns the user; if a domain ID is not
     #: specified by the client, the Identity service implementation will
-    #: default it to the domain to which the client's token is scoped.
+    #: default it to the domain ID to which the client's token is scoped.
     #: *Type: string*
     domain_id = resource.prop('domain_id')
     #: The email of this user. *Type: string*

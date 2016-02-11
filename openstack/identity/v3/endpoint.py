@@ -44,10 +44,10 @@ class Endpoint(resource.Resource):
     #:
     #: *Type: string*
     interface = resource.prop('interface')
-    #: Represents the containing region of the service endpoint. *New in v3.2*
-    #: *Type: string*
+    #: Represents the containing region ID of the service endpoint.
+    #: *New in v3.2* *Type: string*
     region_id = resource.prop('region_id')
-    #: References the service to which the endpoint belongs. *Type: string*
+    #: References the service ID to which the endpoint belongs. *Type: string*
     service_id = resource.prop('service_id')
     #: Fully qualified URL of the service endpoint. *Type: string*
     url = resource.prop('url')

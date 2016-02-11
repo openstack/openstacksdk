@@ -32,13 +32,13 @@ class Credential(resource.Resource):
     #: Arbitrary blob of the credential data, to be parsed according to the
     #: ``type``. *Type: string*
     blob = resource.prop('blob')
-    #: References a project which limits the scope the credential applies to.
-    #: This attribute is **mandatory** if the credential type is ``ec2``.
+    #: References a project ID which limits the scope the credential applies
+    #: to. This attribute is **mandatory** if the credential type is ``ec2``.
     #: *Type: string*
     project_id = resource.prop('project_id')
     #: Representing the credential type, such as ``ec2`` or ``cert``.
     #: A specific implementation may determine the list of supported types.
     #: *Type: string*
     type = resource.prop('type')
-    #: References the user which owns the credential. *Type: string*
+    #: References the user ID which owns the credential. *Type: string*
     user_id = resource.prop('user_id')
