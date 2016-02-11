@@ -27,7 +27,7 @@ EXAMPLE = {
     'segments': '9',
     'shared': True,
     'status': '11',
-    'subnets': '12',
+    'subnets': ['12a', '12b'],
     'mtu': 1400,
     'port_security_enabled': True,
     'availability_zone_hints': ['15', '16'],
@@ -65,7 +65,7 @@ class TestNetwork(testtools.TestCase):
         self.assertEqual(EXAMPLE['segments'], sot.segments)
         self.assertEqual(EXAMPLE['shared'], sot.shared)
         self.assertEqual(EXAMPLE['status'], sot.status)
-        self.assertEqual(EXAMPLE['subnets'], sot.subnets)
+        self.assertEqual(EXAMPLE['subnets'], sot.subnet_ids)
         self.assertEqual(EXAMPLE['mtu'], sot.mtu)
         self.assertEqual(EXAMPLE['port_security_enabled'],
                          sot.is_port_security_enabled)

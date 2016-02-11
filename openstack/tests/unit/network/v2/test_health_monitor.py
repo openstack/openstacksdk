@@ -52,7 +52,7 @@ class TestHealthMonitor(testtools.TestCase):
         self.assertEqual(EXAMPLE['http_method'], sot.http_method)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['max_retries'], sot.max_retries)
-        self.assertEqual(EXAMPLE['pools'], sot.pools)
+        self.assertEqual(EXAMPLE['pools'], sot.pool_ids)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['timeout'], sot.timeout)
         self.assertEqual(EXAMPLE['type'], sot.type)

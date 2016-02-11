@@ -13,7 +13,6 @@
 import testtools
 
 from openstack.network.v2 import subnet
-from openstack.network.v2 import subnet_pool
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
@@ -63,6 +62,4 @@ class TestSubnet(testtools.TestCase):
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['network_id'], sot.network_id)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
-        subnet_pool_data = {'id': EXAMPLE['subnetpool_id']}
-        self.assertEqual(subnet_pool.SubnetPool(subnet_pool_data),
-                         sot.subnet_pool)
+        self.assertEqual(EXAMPLE['subnetpool_id'], sot.subnet_pool_id)

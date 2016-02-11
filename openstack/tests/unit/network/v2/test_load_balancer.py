@@ -19,7 +19,7 @@ EXAMPLE = {
     'admin_state_up': True,
     'description': '2',
     'id': IDENTIFIER,
-    'listeners': '4',
+    'listeners': [{'id', '4'}],
     'name': '5',
     'operating_status': '6',
     'provisioning_status': '7',
@@ -50,7 +50,7 @@ class TestLoadBalancer(testtools.TestCase):
         self.assertEqual(EXAMPLE['admin_state_up'], sot.admin_state_up)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['id'], sot.id)
-        self.assertEqual(EXAMPLE['listeners'], sot.listeners)
+        self.assertEqual(EXAMPLE['listeners'], sot.listener_ids)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['operating_status'], sot.operating_status)
         self.assertEqual(EXAMPLE['provisioning_status'],

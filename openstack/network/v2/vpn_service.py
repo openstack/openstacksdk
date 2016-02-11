@@ -39,9 +39,9 @@ class VPNService(resource.Resource):
     name = resource.prop('name')
     #: ID of the router into which the VPN service is inserted.
     router_id = resource.prop('router_id')
-    #: The project this vpnservice is associated with.
+    #: The ID of the project this vpnservice is associated with.
     project_id = resource.prop('tenant_id')
     #: The vpnservice status.
     status = resource.prop('status')
-    #: The subnet on which the tenant wants the vpnservice.
+    #: The ID of the subnet on which the tenant wants the vpnservice.
     subnet_id = resource.prop('subnet_id')

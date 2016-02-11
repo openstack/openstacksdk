@@ -33,7 +33,7 @@ class Quota(resource.Resource):
     networks = resource.prop('network', type=int)
     #: The maximum amount of ports you can create. *Type: int*
     ports = resource.prop('port', type=int)
-    #: The project these quota values are for.
+    #: The ID of the project these quota values are for.
     project_id = resource.prop('tenant_id')
     #: The maximum amount of routers you can create. *Type: int*
     routers = resource.prop('router', type=int)

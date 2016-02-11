@@ -74,7 +74,7 @@ class TestPort(testtools.TestCase):
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['network_id'], sot.network_id)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
-        self.assertEqual(EXAMPLE['security_groups'], sot.security_groups)
+        self.assertEqual(EXAMPLE['security_groups'], sot.security_group_ids)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['port_security_enabled'],
                          sot.is_port_security_enabled)

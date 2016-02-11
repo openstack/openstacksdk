@@ -34,18 +34,20 @@ class Pool(resource.Resource):
     #: Description for the pool.
     description = resource.prop('description')
     #: The ID of the associated health monitor.
-    healthmonitor_id = resource.prop('healthmonitor_id')
+    health_monitor_id = resource.prop('healthmonitor_id')
     #: The load-balancer algorithm, which is round-robin, least-connections,
     #: and so on. This value, which must be supported, is dependent on the
     #: load-balancer provider. Round-robin must be supported.
     lb_algorithm = resource.prop('lb_algorithm')
-    #: List of IDs of associated listeners. *Type: list*
-    listeners = resource.prop('listeners')
-    #: List of members that belong to the pool. *Type: list*
-    members = resource.prop('members')
+    #: List of associated listeners.
+    #: *Type: list of dicts which contain the listener IDs*
+    listener_ids = resource.prop('listeners', type=list)
+    #: List of members that belong to the pool.
+    #: *Type: list of dicts which contain the member IDs*
+    member_ids = resource.prop('members', type=list)
     #: Pool name. Does not have to be unique.
     name = resource.prop('name')
-    #: The project this pool is associated with.
+    #: The ID of the project this pool is associated with.
     project_id = resource.prop('tenant_id')
     #: The protocol of the pool, which is TCP, HTTP, or HTTPS.
     protocol = resource.prop('protocol')
