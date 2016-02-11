@@ -41,6 +41,7 @@ echo "Running shade functional test suite"
 set +e
 sudo -E -H -u jenkins tox -efunctional
 EXIT_CODE=$?
+sudo testr last --subunit > $WORKSPACE/tempest.subunit
 set -e
 
 exit $EXIT_CODE
