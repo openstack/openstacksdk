@@ -193,6 +193,7 @@ def normalize_keystone_services(services):
             'description': service.get('description', None),
             'type': service_type,
             'service_type': service_type,
+            'enabled': service['enabled']
         }
         ret.append(new_service)
     return meta.obj_list_to_dict(ret)

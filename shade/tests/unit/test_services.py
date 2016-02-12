@@ -31,13 +31,13 @@ from shade.tests.unit import base
 class CloudServices(base.TestCase):
     mock_services = [
         {'id': 'id1', 'name': 'service1', 'type': 'type1',
-         'service_type': 'type1', 'description': 'desc1'},
+         'service_type': 'type1', 'description': 'desc1', 'enabled': True},
         {'id': 'id2', 'name': 'service2', 'type': 'type2',
-         'service_type': 'type2', 'description': 'desc2'},
+         'service_type': 'type2', 'description': 'desc2', 'enabled': True},
         {'id': 'id3', 'name': 'service3', 'type': 'type2',
-         'service_type': 'type2', 'description': 'desc3'},
+         'service_type': 'type2', 'description': 'desc3', 'enabled': True},
         {'id': 'id4', 'name': 'service4', 'type': 'type3',
-         'service_type': 'type3', 'description': 'desc4'}
+         'service_type': 'type3', 'description': 'desc4', 'enabled': True}
     ]
 
     def setUp(self):

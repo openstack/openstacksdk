@@ -1,0 +1,5 @@
+---
+fixes:
+  - Keystone service descriptions were missing an attribute describing whether
+    or not the service was enabled. A new 'enabled' boolean attribute has been
+    added to the service data.

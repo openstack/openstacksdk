@@ -85,12 +85,14 @@ class FakeServer(object):
 
 
 class FakeService(object):
-    def __init__(self, id, name, type, service_type, description=''):
+    def __init__(self, id, name, type, service_type, description='',
+                 enabled=True):
         self.id = id
         self.name = name
         self.type = type
         self.service_type = service_type
         self.description = description
+        self.enabled = enabled
 
 
 class FakeUser(object):
