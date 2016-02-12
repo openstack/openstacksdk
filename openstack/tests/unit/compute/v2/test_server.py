@@ -15,8 +15,6 @@ import copy
 import mock
 import testtools
 
-from openstack.compute.v2 import flavor
-from openstack.compute.v2 import image
 from openstack.compute.v2 import server
 
 IDENTIFIER = 'IDENTIFIER'
@@ -68,12 +66,10 @@ class TestServer(testtools.TestCase):
         self.assertEqual(EXAMPLE['accessIPv6'], sot.access_ipv6)
         self.assertEqual(EXAMPLE['addresses'], sot.addresses)
         self.assertEqual(EXAMPLE['created'], sot.created_at)
-        self.assertEqual(EXAMPLE['flavorRef'], sot.flavor)
-        self.assertIsInstance(sot.flavor, flavor.Flavor)
+        self.assertEqual(EXAMPLE['flavorRef'], sot.flavor_id)
         self.assertEqual(EXAMPLE['hostId'], sot.host_id)
         self.assertEqual(EXAMPLE['id'], sot.id)
-        self.assertEqual(EXAMPLE['imageRef'], sot.image)
-        self.assertIsInstance(sot.image, image.Image)
+        self.assertEqual(EXAMPLE['imageRef'], sot.image_id)
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['metadata'], sot.metadata)
         self.assertEqual(EXAMPLE['name'], sot.name)

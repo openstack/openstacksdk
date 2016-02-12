@@ -122,7 +122,7 @@ class Proxy(proxy.BaseProxy):
     def update_flavor(self, flavor, **attrs):
         """Update a flavor
 
-        :param flavor: Either the id of a flavor or a
+        :param flavor: Either the ID of a flavor or a
                       :class:`~openstack.compute.v2.flavor.Flavor` instance.
         :attrs kwargs: The attributes to update on the flavor represented
                        by ``value``.
@@ -200,7 +200,7 @@ class Proxy(proxy.BaseProxy):
     def get_image_metadata(self, image, key=None):
         """Return a dictionary of metadata for an image
 
-        :param server: Either the id of an image or a
+        :param server: Either the ID of an image or a
                        :class:`~openstack.compute.v2.image.Image` or
                        :class:`~openstack.compute.v2.image.ImageDetail`
                        instance.
@@ -217,7 +217,7 @@ class Proxy(proxy.BaseProxy):
     def create_image_metadata(self, image, **metadata):
         """Create metadata for an image
 
-        :param server: Either the id of an image or a
+        :param server: Either the ID of an image or a
                        :class:`~openstack.compute.v2.image.Image` or
                        :class:`~openstack.compute.v2.image.ImageDetail`
                        instance.
@@ -235,7 +235,7 @@ class Proxy(proxy.BaseProxy):
     def replace_image_metadata(self, image, **metadata):
         """Replace metadata for an image
 
-        :param server: Either the id of a image or a
+        :param server: Either the ID of a image or a
                        :class:`~openstack.compute.v2.image.Image` or
                        :class:`~openstack.compute.v2.image.ImageDetail`
                        instance.
@@ -254,7 +254,7 @@ class Proxy(proxy.BaseProxy):
     def update_image_metadata(self, image, **metadata):
         """Update metadata for an image
 
-        :param server: Either the id of an image or a
+        :param server: Either the ID of an image or a
                        :class:`~openstack.compute.v2.image.Image` or
                        :class:`~openstack.compute.v2.image.ImageDetail`
                        instance.
@@ -273,7 +273,7 @@ class Proxy(proxy.BaseProxy):
     def delete_image_metadata(self, image, key):
         """Delete metadata for an image
 
-        :param server: Either the id of an image or a
+        :param server: Either the ID of an image or a
                        :class:`~openstack.compute.v2.image.Image` or
                        :class:`~openstack.compute.v2.image.ImageDetail`
                        instance.
@@ -353,7 +353,7 @@ class Proxy(proxy.BaseProxy):
     def update_keypair(self, keypair, **attrs):
         """Update a keypair
 
-        :param keypair: Either the id of a keypair or a
+        :param keypair: Either the ID of a keypair or a
                         :class:`~openstack.compute.v2.keypair.Keypair`
                         instance.
         :attrs kwargs: The attributes to update on the keypair represented
@@ -476,7 +476,7 @@ class Proxy(proxy.BaseProxy):
     def update_server(self, server, **attrs):
         """Update a server
 
-        :param server: Either the id of a server or a
+        :param server: Either the ID of a server or a
                        :class:`~openstack.compute.v2.server.Server` instance.
         :attrs kwargs: The attributes to update on the server represented
                        by ``server``.
@@ -683,7 +683,7 @@ class Proxy(proxy.BaseProxy):
     def get_server_metadata(self, server, key=None):
         """Return a dictionary of metadata for a server
 
-        :param server: Either the id of a server or a
+        :param server: Either the ID of a server or a
                        :class:`~openstack.compute.v2.server.Server` or
                        :class:`~openstack.compute.v2.server.ServerDetail`
                        instance.
@@ -700,7 +700,7 @@ class Proxy(proxy.BaseProxy):
     def create_server_metadata(self, server, **metadata):
         """Create metadata for a server
 
-        :param server: Either the id of a server or a
+        :param server: Either the ID of a server or a
                        :class:`~openstack.compute.v2.server.Server` or
                        :class:`~openstack.compute.v2.server.ServerDetail`
                        instance.
@@ -718,7 +718,7 @@ class Proxy(proxy.BaseProxy):
     def replace_server_metadata(self, server, **metadata):
         """Replace metadata for a server
 
-        :param server: Either the id of a server or a
+        :param server: Either the ID of a server or a
                        :class:`~openstack.compute.v2.server.Server` or
                        :class:`~openstack.compute.v2.server.ServerDetail`
                        instance.
@@ -737,7 +737,7 @@ class Proxy(proxy.BaseProxy):
     def update_server_metadata(self, server, **metadata):
         """Update metadata for a server
 
-        :param server: Either the id of a server or a
+        :param server: Either the ID of a server or a
                        :class:`~openstack.compute.v2.server.Server` or
                        :class:`~openstack.compute.v2.server.ServerDetail`
                        instance.
@@ -756,7 +756,7 @@ class Proxy(proxy.BaseProxy):
     def delete_server_metadata(self, server, key):
         """Delete metadata for a server
 
-        :param server: Either the id of a server or a
+        :param server: Either the ID of a server or a
                        :class:`~openstack.compute.v2.server.Server` or
                        :class:`~openstack.compute.v2.server.ServerDetail`
                        instance.
