@@ -31,7 +31,7 @@ class Alarm(resource.Resource):
     # Properties
     #: The actions to do when alarm state changes to alarm
     alarm_actions = resource.prop('alarm_actions')
-    #: The UUID of the alarm
+    #: The ID of the alarm
     alarm_id = resource.prop('alarm_id')
     # TODO(briancurtin): undocumented
     combination_rule = resource.prop('combination_rule')
@@ -45,7 +45,7 @@ class Alarm(resource.Resource):
     name = resource.prop('name')
     #: The actions to do when alarm state change to ok
     ok_actions = resource.prop('ok_actions')
-    #: The ID of the project or tenant that owns the alarm
+    #: The ID of the project that owns the alarm
     project_id = resource.prop('project_id')
     #: The actions should be re-triggered on each evaluation cycle
     repeat_actions = resource.prop('repeat_actions', type=bool)

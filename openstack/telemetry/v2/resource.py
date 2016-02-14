@@ -33,11 +33,11 @@ class Resource(resource.Resource):
     links = resource.prop('links')
     #: Arbitrary metadata associated with the resource
     metadata = resource.prop('metadata')
-    #: The ID of the owning project or tenant
+    #: The ID of the owning project
     project_id = resource.prop('project_id')
-    #: The unique identifier for the resource
+    #: The ID for the resource
     resource_id = resource.prop('resource_id')
-    #: The source where the resource comes from
+    #: The name of the source where the resource comes from
     source = resource.prop('source')
     #: The ID of the user who created the resource or updated it last
     user_id = resource.prop('user_id')
