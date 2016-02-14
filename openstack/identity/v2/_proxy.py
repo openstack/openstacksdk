@@ -85,7 +85,7 @@ class Proxy(proxy.BaseProxy):
     def update_role(self, role, **attrs):
         """Update a role
 
-        :param role: Either the id of a role or a
+        :param role: Either the ID of a role or a
                      :class:`~openstack.identity.v2.role.Role` instance.
         :attrs kwargs: The attributes to update on the role represented
                        by ``value``.
@@ -162,7 +162,7 @@ class Proxy(proxy.BaseProxy):
     def update_tenant(self, tenant, **attrs):
         """Update a tenant
 
-        :param tenant: Either the id of a tenant or a
+        :param tenant: Either the ID of a tenant or a
                       :class:`~openstack.identity.v2.tenant.Tenant` instance.
         :attrs kwargs: The attributes to update on the tenant represented
                        by ``value``.
@@ -239,7 +239,7 @@ class Proxy(proxy.BaseProxy):
     def update_user(self, user, **attrs):
         """Update a user
 
-        :param user: Either the id of a user or a
+        :param user: Either the ID of a user or a
                      :class:`~openstack.identity.v2.user.User` instance.
         :attrs kwargs: The attributes to update on the user represented
                        by ``value``.

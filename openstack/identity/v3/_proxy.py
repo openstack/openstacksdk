@@ -95,7 +95,7 @@ class Proxy(proxy.BaseProxy):
     def update_credential(self, credential, **attrs):
         """Update a credential
 
-        :param credential: Either the id of a credential or a
+        :param credential: Either the ID of a credential or a
             :class:`~openstack.identity.v3.credential.Credential` instance.
         :attrs kwargs: The attributes to update on the credential represented
                        by ``value``.
@@ -173,7 +173,7 @@ class Proxy(proxy.BaseProxy):
     def update_domain(self, domain, **attrs):
         """Update a domain
 
-        :param domain: Either the id of a domain or a
+        :param domain: Either the ID of a domain or a
                        :class:`~openstack.identity.v3.domain.Domain` instance.
         :attrs kwargs: The attributes to update on the domain represented
                        by ``value``.
@@ -253,7 +253,7 @@ class Proxy(proxy.BaseProxy):
     def update_endpoint(self, endpoint, **attrs):
         """Update a endpoint
 
-        :param endpoint: Either the id of a endpoint or a
+        :param endpoint: Either the ID of a endpoint or a
                          :class:`~openstack.identity.v3.endpoint.Endpoint`
                          instance.
         :attrs kwargs: The attributes to update on the endpoint represented
@@ -333,7 +333,7 @@ class Proxy(proxy.BaseProxy):
     def update_group(self, group, **attrs):
         """Update a group
 
-        :param group: Either the id of a group or a
+        :param group: Either the ID of a group or a
                       :class:`~openstack.identity.v3.group.Group` instance.
         :attrs kwargs: The attributes to update on the group represented
                        by ``value``.
@@ -411,7 +411,7 @@ class Proxy(proxy.BaseProxy):
     def update_policy(self, policy, **attrs):
         """Update a policy
 
-        :param policy: Either the id of a policy or a
+        :param policy: Either the ID of a policy or a
                        :class:`~openstack.identity.v3.policy.Policy` instance.
         :attrs kwargs: The attributes to update on the policy represented
                        by ``value``.
@@ -489,7 +489,7 @@ class Proxy(proxy.BaseProxy):
     def update_project(self, project, **attrs):
         """Update a project
 
-        :param project: Either the id of a project or a
+        :param project: Either the ID of a project or a
             :class:`~openstack.identity.v3.project.Project` instance.
         :attrs kwargs: The attributes to update on the project represented
                        by ``value``.
@@ -567,7 +567,7 @@ class Proxy(proxy.BaseProxy):
     def update_service(self, service, **attrs):
         """Update a service
 
-        :param service: Either the id of a service or a
+        :param service: Either the ID of a service or a
             :class:`~openstack.identity.v3.service.Service` instance.
         :attrs kwargs: The attributes to update on the service represented
                        by ``value``.
@@ -645,7 +645,7 @@ class Proxy(proxy.BaseProxy):
     def update_user(self, user, **attrs):
         """Update a user
 
-        :param user: Either the id of a user or a
+        :param user: Either the ID of a user or a
                      :class:`~openstack.identity.v3.user.User` instance.
         :attrs kwargs: The attributes to update on the user represented
                        by ``value``.
@@ -723,7 +723,7 @@ class Proxy(proxy.BaseProxy):
     def update_trust(self, trust, **attrs):
         """Update a trust
 
-        :param trust: Either the id of a trust or a
+        :param trust: Either the ID of a trust or a
                       :class:`~openstack.identity.v3.trust.Trust` instance.
         :attrs kwargs: The attributes to update on the trust represented
                        by ``value``.
@@ -801,7 +801,7 @@ class Proxy(proxy.BaseProxy):
     def update_region(self, region, **attrs):
         """Update a region
 
-        :param region: Either the id of a region or a
+        :param region: Either the ID of a region or a
                       :class:`~openstack.identity.v3.region.Region` instance.
         :attrs kwargs: The attributes to update on the region represented
                        by ``value``.

@@ -31,9 +31,9 @@ class Group(resource.Resource):
     # Properties
     #: The description of this group. *Type: string*
     description = resource.prop('description')
-    #: References the domain which owns the group; if a domain is not
+    #: References the domain ID which owns the group; if a domain ID is not
     #: specified by the client, the Identity service implementation will
-    #: default it to the domain to which the client's token is scoped.
+    #: default it to the domain ID to which the client's token is scoped.
     #: *Type: string*
     domain_id = resource.prop('domain_id')
     #: Unique group name, within the owning domain. *Type: string*

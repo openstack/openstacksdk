@@ -28,14 +28,14 @@ class Trust(resource.Resource):
     allow_retrieve = True
 
     # Properties
-    #: Identifies the project upon which the trustor is
+    #: ID of the project upon which the trustor is
     #: delegating authorization. *Type: string*
     project_id = resource.prop('project_id')
     #: Specifies the expiration time of the trust. A trust may be revoked
     #: ahead of expiration. If the value represents a time in the past,
     #: the trust is deactivated. *Type: string*
     expires_at = resource.prop('expires_at')
-    #: Identity of the trust object. *Type: string*
+    #: ID of the trust object. *Type: string*
     id = resource.prop('id')
     #: If ``impersonation`` is set to true, then the ``user`` attribute
     #: of tokens that are generated based on the trust will represent
@@ -44,10 +44,10 @@ class Trust(resource.Resource):
     #: If ``impersonation`` is set to ``False``, then the token's ``user``
     #: attribute will represent that of the trustee. *Type: boolean*
     impersonation = resource.prop('impersonation')
-    #: Represents the user who is capable of consuming the trust.
+    #: Represents the user ID who is capable of consuming the trust.
     #: *Type: string*
     trustee_user_id = resource.prop('trustee_user_id')
-    #: Represents the user who created the trust, and who's authorization is
+    #: Represents the user ID who created the trust, and who's authorization is
     #: being delegated. *Type: string*
     trustor_user_id = resource.prop('trustor_user_id')
     #: Specifies the subset of the trustor's roles on the ``project_id``
