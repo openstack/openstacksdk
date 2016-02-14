@@ -39,5 +39,5 @@ class ServerInterface(resource.Resource):
     port_id = resource.prop('port_id')
     #: The port state.
     port_state = resource.prop('port_state')
-    #: The UUID for the server.
+    #: The ID for the server.
     server_id = resource.prop('server_id')

@@ -31,7 +31,7 @@ class ServerIP(resource.Resource):
     addr = resource.prop('addr')
     #: The network label, such as public or private.
     network_label = resource.prop('network_label')
-    #: The UUID for the server.
+    #: The ID for the server.
     server_id = resource.prop('server_id')
     # Version of the IP protocol. Currently either 4 or 6.
     version = resource.prop('version')
