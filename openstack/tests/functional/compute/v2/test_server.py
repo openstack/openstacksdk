@@ -40,7 +40,7 @@ class TestServer(base.BaseFunctionalTest):
         else:
             args = {}
         sot = cls.conn.compute.create_server(
-            name=cls.NAME, flavor=flavor.id, image=image.id, **args)
+            name=cls.NAME, flavor_id=flavor.id, image_id=image.id, **args)
         cls.conn.compute.wait_for_server(sot)
         assert isinstance(sot, server.Server)
         cls.assertIs(cls.NAME, sot.name)

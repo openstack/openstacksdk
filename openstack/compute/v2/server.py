@@ -41,18 +41,14 @@ class Server(resource.Resource, metadata.MetadataMixin):
     addresses = resource.prop('addresses', type=dict)
     #: Timestamp of when the server was created.
     created_at = resource.prop('created')
-    #: A dictionary with details on the flavor this server is running.
-    #: The dictionary includes a key for the ``id`` of the flavor, as well
-    #: as a ``links`` key, which includes a list of relevant links for this
-    #: flavor. *Type: dict*
-    flavor_id = resource.prop('flavorRef', alias='flavor', type=dict)
+    #: The flavor reference, as a ID or full URL, for the flavor to use for
+    #: this server.
+    flavor_id = resource.prop('flavorRef')
     #: An ID representing the host of this server.
     host_id = resource.prop('hostId')
-    #: A dictionary with details on the image this server is running.
-    #: The dictionary includes a key for ``id`` of the image, as well
-    #: as a ``links`` key, which includes a list of relevant links for this
-    #: image. *Type: dict*
-    image_id = resource.prop('imageRef', alias='image', type=dict)
+    #: The image reference, as a ID or full URL, for the image to use for
+    #: this server.
+    image_id = resource.prop('imageRef')
     #: A list of dictionaries holding links relevant to this server.
     links = resource.prop('links')
     #: Metadata stored for this server. *Type: dict*
