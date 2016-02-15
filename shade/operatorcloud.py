@@ -1545,6 +1545,161 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         return True
 
+    def _get_grant_revoke_params(self, role, user=None, group=None,
+                                 project=None, domain=None):
+        role = self.get_role(role)
+        if role is None:
+            return {}
+        data = {'role': role.id}
+
+        # domain and group not available in keystone v2.0
+        keystone_version = self.cloud_config.get_api_version('identity')
+        is_keystone_v2 = keystone_version.startswith('2')
+
+        filters = {}
+        if not is_keystone_v2 and domain:
+            filters['domain_id'] = data['domain'] = \
+                self.get_domain(domain)['id']
+
+        if user:
+            data['user'] = self.get_user(user, filters=filters)
+
+        if project:
+            # drop domain in favor of project
+            data.pop('domain', None)
+            data['project'] = self.get_project(project, filters=filters)
+
+        if not is_keystone_v2 and group:
+            data['group'] = self.get_group(group, filters=filters)
+
+        return data
+
+    def grant_role(self, name_or_id, user=None, group=None,
+                   project=None, domain=None, wait=False, timeout=60):
+        """Grant a role to a user.
+
+        :param string name_or_id: The name or id of the role.
+        :param string user: The name or id of the user.
+        :param string group: The name or id of the group. (v3)
+        :param string project: The name or id of the project.
+        :param string domain: The name or id of the domain. (v3)
+        :param bool wait: Wait for role to be granted
+        :param int timeout: Timeout to wait for role to be granted
+
+        NOTE: for wait and timeout, sometimes granting roles is not
+              instantaneous for granting roles.
+
+        NOTE: project is required for keystone v2
+
+        :returns: True if the role is assigned, otherwise False
+
+        :raise OpenStackCloudException: if the role cannot be granted
+        """
+        data = self._get_grant_revoke_params(name_or_id, user, group,
+                                             project, domain)
+        filters = data.copy()
+        if not data:
+            raise OpenStackCloudException(
+                'Role {0} not found.'.format(name_or_id))
+
+        if data.get('user') is not None and data.get('group') is not None:
+            raise OpenStackCloudException(
+                'Specify either a group or a user, not both')
+        if data.get('user') is None and data.get('group') is None:
+            raise OpenStackCloudException(
+                'Must specify either a user or a group')
+        if self.cloud_config.get_api_version('identity').startswith('2') and \
+                data.get('project') is None:
+            raise OpenStackCloudException(
+                'Must specify project for keystone v2')
+
+        if self.list_role_assignments(filters=filters):
+            self.log.debug('Assignment already exists')
+            return False
+
+        with _utils.shade_exceptions(
+                "Error granting access to role: {0}".format(
+                data)):
+            if self.cloud_config.get_api_version('identity').startswith('2'):
+                data['tenant'] = data.pop('project')
+                self.manager.submitTask(_tasks.RoleAddUser(**data))
+            else:
+                if data.get('project') is None and data.get('domain') is None:
+                    raise OpenStackCloudException(
+                        'Must specify either a domain or project')
+                self.manager.submitTask(_tasks.RoleGrantUser(**data))
+        if wait:
+            for count in _utils._iterate_timeout(
+                    timeout,
+                    "Timeout waiting for role to be granted"):
+                if self.list_role_assignments(filters=filters):
+                    break
+        return True
+
+    def revoke_role(self, name_or_id, user=None, group=None,
+                    project=None, domain=None, wait=False, timeout=60):
+        """Revoke a role from a user.
+
+        :param string name_or_id: The name or id of the role.
+        :param string user: The name or id of the user.
+        :param string group: The name or id of the group. (v3)
+        :param string project: The name or id of the project.
+        :param string domain: The id of the domain. (v3)
+        :param bool wait: Wait for role to be revoked
+        :param int timeout: Timeout to wait for role to be revoked
+
+        NOTE: for wait and timeout, sometimes revoking roles is not
+              instantaneous for revoking roles.
+
+        NOTE: project is required for keystone v2
+
+        :returns: True if the role is revoke, otherwise False
+
+        :raise OpenStackCloudException: if the role cannot be removed
+        """
+        data = self._get_grant_revoke_params(name_or_id, user, group,
+                                             project, domain)
+        filters = data.copy()
+
+        if not data:
+            raise OpenStackCloudException(
+                'Role {0} not found.'.format(name_or_id))
+
+        if data.get('user') is not None and data.get('group') is not None:
+            raise OpenStackCloudException(
+                'Specify either a group or a user, not both')
+        if data.get('user') is None and data.get('group') is None:
+            raise OpenStackCloudException(
+                'Must specify either a user or a group')
+        if self.cloud_config.get_api_version('identity').startswith('2') and \
+                data.get('project') is None:
+            raise OpenStackCloudException(
+                'Must specify project for keystone v2')
+
+        if not self.list_role_assignments(filters=filters):
+            self.log.debug('Assignment does not exist')
+            return False
+
+        with _utils.shade_exceptions(
+                "Error revoking access to role: {0}".format(
+                data)):
+            if self.cloud_config.get_api_version('identity').startswith('2'):
+                data['tenant'] = data.pop('project')
+                self.manager.submitTask(_tasks.RoleRemoveUser(**data))
+            else:
+                if data.get('project') is None \
+                        and data.get('domain') is None:
+                    raise OpenStackCloudException(
+                        'Must specify either a domain or project')
+                self.manager.submitTask(_tasks.RoleRevokeUser(**data))
+        if wait:
+            for count in _utils._iterate_timeout(
+                    timeout,
+                    "Timeout waiting for role to be revoked"):
+                if not self.list_role_assignments(filters=filters):
+                    break
+        return True
+
     def list_hypervisors(self):
         """List all hypervisors
 
