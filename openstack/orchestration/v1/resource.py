@@ -36,12 +36,13 @@ class Resource(resource.Resource):
     #: as it appears in the stack template.
     logical_resource_id = resource.prop('logical_resource_id')
     #: ID of the physical resource (if any) that backs up the resource. For
-    #: example, it contains a nova server UUID if the resource is a nova
+    #: example, it contains a nova server ID if the resource is a nova
     #: server.
     physical_resource_id = resource.prop('physical_resource_id')
-    #: A list of IDs for resources that depends on this resource. This
+    #: A list of resource names that depend on this resource. This
     #: property facilitates the deduction of resource dependencies.
-    required_by = resource.prop('required_by')
+    #: *Type: list*
+    required_by = resource.prop('required_by', type=list)
     #: A string representation of the resource type.
     resource_type = resource.prop('resource_type')
     #: A string representing the status the resource is currently in.
