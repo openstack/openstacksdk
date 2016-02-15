@@ -62,7 +62,7 @@ class TestImage(testtools.TestCase):
         self.assertEqual(EXAMPLE['min_disk'], sot.min_disk)
         self.assertEqual(EXAMPLE['min_ram'], sot.min_ram)
         self.assertEqual(EXAMPLE['name'], sot.name)
-        self.assertEqual(EXAMPLE['owner'], sot.owner)
+        self.assertEqual(EXAMPLE['owner'], sot.owner_id)
         self.assertEqual(EXAMPLE['properties'], sot.properties)
         self.assertEqual(EXAMPLE['protected'], sot.protected)
         self.assertEqual(EXAMPLE['size'], sot.size)

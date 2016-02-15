@@ -53,8 +53,8 @@ class Image(resource.Resource):
     min_disk = resource.prop('min_disk')
     #: The name of the image.
     name = resource.prop('name')
-    #: The ID of the owner, or tenant, of the image.
-    owner = resource.prop('owner')
+    #: The ID of the owner, or project, of the image.
+    owner_id = resource.prop('owner')
     #: Properties, if any, that are associated with the image.
     properties = resource.prop('properties')
     #: Defines whether the image can be deleted.

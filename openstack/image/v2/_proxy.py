@@ -92,7 +92,7 @@ class Proxy(proxy.BaseProxy):
     def update_image(self, image, **attrs):
         """Update a image
 
-        :param image: Either the id of a image or a
+        :param image: Either the ID of a image or a
                       :class:`~openstack.image.v2.image.Image` instance.
         :attrs kwargs: The attributes to update on the image represented
                        by ``value``.
@@ -169,7 +169,7 @@ class Proxy(proxy.BaseProxy):
     def update_member(self, member, **attrs):
         """Update a member
 
-        :param member: Either the id of a member or a
+        :param member: Either the ID of a member or a
                        :class:`~openstack.image.v2.member.Member` instance.
         :attrs kwargs: The attributes to update on the member represented
                        by ``value``.

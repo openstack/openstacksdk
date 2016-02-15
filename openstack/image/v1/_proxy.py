@@ -83,7 +83,7 @@ class Proxy(proxy.BaseProxy):
     def update_image(self, image, **attrs):
         """Update a image
 
-        :param image: Either the id of a image or a
+        :param image: Either the ID of a image or a
                       :class:`~openstack.image.v1.image.Image` instance.
         :attrs kwargs: The attributes to update on the image represented
                        by ``value``.
