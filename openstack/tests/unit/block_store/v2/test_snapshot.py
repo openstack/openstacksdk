@@ -58,7 +58,7 @@ class TestSnapshot(testtools.TestCase):
         self.assertEqual(SNAPSHOT["status"], sot.status)
         self.assertEqual(SNAPSHOT["created_at"], sot.created_at)
         self.assertEqual(SNAPSHOT["metadata"], sot.metadata)
-        self.assertEqual(SNAPSHOT["volume_id"], sot.volume)
+        self.assertEqual(SNAPSHOT["volume_id"], sot.volume_id)
         self.assertEqual(SNAPSHOT["size"], sot.size)
         self.assertEqual(SNAPSHOT["name"], sot.name)
 

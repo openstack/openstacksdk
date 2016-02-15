@@ -26,7 +26,7 @@ class Type(resource.Resource):
     allow_delete = True
 
     # Properties
-    #: A UUID representing this volume.
+    #: A ID representing this type.
     id = resource.prop("id")
     #: Name of the type.
     name = resource.prop("name")
