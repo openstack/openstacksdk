@@ -25,6 +25,7 @@ import os_client_config
 from neutronclient.common import exceptions as n_exc
 
 from shade import _utils
+from shade import exc
 from shade import meta
 from shade import OpenStackCloud
 from shade.tests import fakes
@@ -214,25 +215,118 @@ class TestFloatingIP(base.TestCase):
             self.mock_floating_ip_new_rep['floatingip']['floating_ip_address'],
             ip['floating_ip_address'])
 
-    @patch.object(OpenStackCloud, 'keystone_session')
-    @patch.object(OpenStackCloud, '_neutron_list_floating_ips')
-    @patch.object(OpenStackCloud, 'search_networks')
+    @patch.object(_utils, 'normalize_neutron_floating_ips')
+    @patch.object(OpenStackCloud, '_neutron_available_floating_ips')
     @patch.object(OpenStackCloud, 'has_service')
-    def test_available_floating_ip_existing(
-            self, mock_has_service, mock_search_networks,
-            mock__neutron_list_floating_ips, mock_keystone_session):
+    @patch.object(OpenStackCloud, 'keystone_session')
+    def test_available_floating_ip_neutron(self,
+                                           mock_keystone,
+                                           mock_has_service,
+                                           mock__neutron_call,
+                                           mock_normalize):
+        """
+        Test the correct path is taken when using neutron.
+        """
+        # force neutron path
         mock_has_service.return_value = True
-        mock_search_networks.return_value = [self.mock_get_network_rep]
-        mock__neutron_list_floating_ips.return_value = \
-            [self.mock_floating_ip_new_rep['floatingip']]
-        mock_keystone_session.get_project_id.return_value = \
-            '4969c491a3c74ee4af974e6d800c62df'
+        mock__neutron_call.return_value = []
 
-        ip = self.client.available_floating_ip(network='my-network')
+        self.client.available_floating_ip(network='netname')
 
-        self.assertEqual(
-            self.mock_floating_ip_new_rep['floatingip']['floating_ip_address'],
-            ip['floating_ip_address'])
+        mock_has_service.assert_called_once_with('network')
+        mock__neutron_call.assert_called_once_with(network='netname',
+                                                   server=None)
+        mock_normalize.assert_called_once_with([])
+
+    @patch.object(_utils, '_filter_list')
+    @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
+    @patch.object(OpenStackCloud, '_neutron_list_floating_ips')
+    @patch.object(OpenStackCloud, 'get_external_networks')
+    @patch.object(OpenStackCloud, 'keystone_session')
+    def test__neutron_available_floating_ips(
+            self,
+            mock_keystone_session,
+            mock_get_ext_nets,
+            mock__neutron_list_fips,
+            mock__neutron_create_fip,
+            mock__filter_list):
+        """
+        Test without specifying a network name.
+        """
+        mock_keystone_session.get_project_id.return_value = 'proj-id'
+        mock_get_ext_nets.return_value = [self.mock_get_network_rep]
+        mock__neutron_list_fips.return_value = []
+        mock__filter_list.return_value = []
+
+        # Test if first network is selected if no network is given
+        self.client._neutron_available_floating_ips()
+
+        mock_keystone_session.get_project_id.assert_called_once_with()
+        mock_get_ext_nets.assert_called_once_with()
+        mock__neutron_list_fips.assert_called_once_with()
+        mock__filter_list.assert_called_once_with(
+            [], name_or_id=None,
+            filters={'port_id': None,
+                     'floating_network_id': self.mock_get_network_rep['id'],
+                     'tenant_id': 'proj-id'}
+        )
+        mock__neutron_create_fip.assert_called_once_with(
+            network_name_or_id=self.mock_get_network_rep['id'],
+            server=None
+        )
+
+    @patch.object(_utils, '_filter_list')
+    @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
+    @patch.object(OpenStackCloud, '_neutron_list_floating_ips')
+    @patch.object(OpenStackCloud, 'get_external_networks')
+    @patch.object(OpenStackCloud, 'keystone_session')
+    def test__neutron_available_floating_ips_network(
+            self,
+            mock_keystone_session,
+            mock_get_ext_nets,
+            mock__neutron_list_fips,
+            mock__neutron_create_fip,
+            mock__filter_list):
+        """
+        Test with specifying a network name.
+        """
+        mock_keystone_session.get_project_id.return_value = 'proj-id'
+        mock_get_ext_nets.return_value = [self.mock_get_network_rep]
+        mock__neutron_list_fips.return_value = []
+        mock__filter_list.return_value = []
+
+        self.client._neutron_available_floating_ips(
+            network=self.mock_get_network_rep['name']
+        )
+
+        mock_keystone_session.get_project_id.assert_called_once_with()
+        mock_get_ext_nets.assert_called_once_with()
+        mock__neutron_list_fips.assert_called_once_with()
+        mock__filter_list.assert_called_once_with(
+            [], name_or_id=None,
+            filters={'port_id': None,
+                     'floating_network_id': self.mock_get_network_rep['id'],
+                     'tenant_id': 'proj-id'}
+        )
+        mock__neutron_create_fip.assert_called_once_with(
+            network_name_or_id=self.mock_get_network_rep['id'],
+            server=None
+        )
+
+    @patch.object(OpenStackCloud, 'get_external_networks')
+    @patch.object(OpenStackCloud, 'keystone_session')
+    def test__neutron_available_floating_ips_invalid_network(
+            self,
+            mock_keystone_session,
+            mock_get_ext_nets):
+        """
+        Test with an invalid network name.
+        """
+        mock_keystone_session.get_project_id.return_value = 'proj-id'
+        mock_get_ext_nets.return_value = []
+        self.assertRaises(exc.OpenStackCloudException,
+                          self.client._neutron_available_floating_ips,
+                          network='INVALID')
 
     @patch.object(OpenStackCloud, 'nova_client')
     @patch.object(OpenStackCloud, 'keystone_session')
