@@ -35,6 +35,13 @@ class InvalidResponse(SDKException):
         self.response = response
 
 
+class InvalidRequest(SDKException):
+    """The request to the server is not valid."""
+
+    def __init__(self, message=None):
+        super(InvalidRequest, self).__init__(message)
+
+
 class HttpException(SDKException):
 
     def __init__(self, message=None, details=None, response=None,
@@ -65,9 +72,15 @@ class NotFoundException(HttpException):
 
 class MethodNotSupported(SDKException):
     """The resource does not support this operation type."""
-    def __init__(self, cls, method):
+    def __init__(self, resource, method):
+        # This needs to work with both classes and instances.
+        try:
+            name = resource.__name__
+        except AttributeError:
+            name = resource.__class__.__name__
+
         message = ('The %s method is not supported for %s.%s' %
-                   (method, cls.__module__, cls.__name__))
+                   (method, resource.__module__, name))
         super(MethodNotSupported, self).__init__(message=message)
 
 
