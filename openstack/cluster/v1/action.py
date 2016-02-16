@@ -29,13 +29,13 @@ class Action(resource.Resource):
     #: Name of the action.
     name = resource.prop('name')
     #: ID of the target object, which can be a cluster or a node.
-    target = resource.prop('target')
+    target_id = resource.prop('target')
     #: Built-in type name of action.
     action = resource.prop('action')
     #: A string representation of the reason why the action was created.
     cause = resource.prop('cause')
     #: The owning engine that is currently running the action.
-    owner = resource.prop('owner')
+    owner_id = resource.prop('owner')
     #: Interval in seconds between two consecutive executions.
     interval = resource.prop('interval')
     #: The time the action was started.

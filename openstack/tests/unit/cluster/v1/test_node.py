@@ -72,7 +72,6 @@ class TestNode(testtools.TestCase):
         sot = node.Node(FAKE)
         self.assertEqual(FAKE['id'], sot.id)
         self.assertEqual(FAKE['name'], sot.name)
-
         self.assertEqual(FAKE['profile_id'], sot.profile_id)
         self.assertEqual(FAKE['cluster_id'], sot.cluster_id)
         self.assertEqual(FAKE['name'], sot.name)
