@@ -8,11 +8,14 @@
 #    tox -e ansible [TAG ...]
 # or
 #    tox -e ansible -- -c cloudX [TAG ...]
+# or to use the development version of Ansible:
+#    tox -e ansible -- -d -c cloudX [TAG ...]
 #
 # USAGE:
-#    run-ansible-tests.sh -e ENVDIR [-c CLOUD] [TAG ...]
+#    run-ansible-tests.sh -e ENVDIR [-d] [-c CLOUD] [TAG ...]
 #
 # PARAMETERS:
+#    -d         Use Ansible source repo development branch.
 #    -e ENVDIR  Directory of the tox environment to use for testing.
 #    -c CLOUD   Name of the cloud to use for testing.
 #               Defaults to "devstack-admin".
@@ -30,10 +33,12 @@
 
 CLOUD="devstack-admin"
 ENVDIR=
+USE_DEV=0
 
-while getopts "c:e:" opt
+while getopts "c:de:" opt
 do
     case $opt in
+    d) USE_DEV=1 ;;
     c) CLOUD=${OPTARG} ;;
     e) ENVDIR=${OPTARG} ;;
     ?) echo "Invalid option: -${OPTARG}"
@@ -54,8 +59,20 @@ TAGS=$( echo "$*" | tr ' ' , )
 # be setup for the correct python environment.
 source $ENVDIR/bin/activate
 
-echo "Installing Ansible"
-pip install ansible
+if [ ${USE_DEV} -eq 1 ]
+then
+    if [ -d ${ENVDIR}/ansible ]
+    then
+        echo "Using existing Ansible source repo"
+    else
+        echo "Installing Ansible source repo at $ENVDIR"
+        git clone --recursive git://github.com/ansible/ansible.git ${ENVDIR}/ansible
+    fi
+    source $ENVDIR/ansible/hacking/env-setup
+else
+    echo "Installing Ansible from pip"
+    pip install ansible
+fi
 
 # Run the shade Ansible tests
 tag_opt=""
