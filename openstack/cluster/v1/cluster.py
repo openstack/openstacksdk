@@ -138,3 +138,15 @@ class Cluster(resource.Resource):
             'policy_update': data
         }
         return self.action(session, body)
+
+    def check(self, session, **params):
+        body = {
+            'check': params
+        }
+        return self.action(session, body)
+
+    def recover(self, session, **params):
+        body = {
+            'recover': params
+        }
+        return self.action(session, body)
