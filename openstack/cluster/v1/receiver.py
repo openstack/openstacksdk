@@ -12,7 +12,6 @@
 
 
 from openstack.cluster import cluster_service
-from openstack.cluster.v1 import cluster as _cluster
 from openstack import resource
 
 
@@ -34,13 +33,13 @@ class Receiver(resource.Resource):
     #: The type of the receiver.
     type = resource.prop('type')
     #: The ID of the user who created the receiver, thus the owner of it.
-    user = resource.prop('user')
+    user_id = resource.prop('user')
     #: The ID of the project this receiver belongs to.
-    project = resource.prop('project')
+    project_id = resource.prop('project')
     #: The domain ID of the receiver.
-    domain = resource.prop('domain')
+    domain_id = resource.prop('domain')
     #: The ID of the targeted cluster.
-    cluster = resource.prop('cluster_id', type=_cluster.Cluster)
+    cluster_id = resource.prop('cluster_id')
     #: The name of the targeted action.
     action = resource.prop('action')
     #: Timestamp of when the receiver was created.

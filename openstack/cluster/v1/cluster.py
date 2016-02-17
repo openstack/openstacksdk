@@ -11,7 +11,6 @@
 # under the License.
 
 from openstack.cluster import cluster_service
-from openstack.cluster.v1 import profile as _profile
 from openstack import resource
 from openstack import utils
 
@@ -34,15 +33,15 @@ class Cluster(resource.Resource):
     #: The name of the cluster.
     name = resource.prop('name')
     #: The ID of the profile used by this cluster.
-    profile = resource.prop('profile_id', type=_profile.Profile)
+    profile_id = resource.prop('profile_id')
     #: The ID of the user who created this cluster, thus the owner of it.
-    user = resource.prop('user')
+    user_id = resource.prop('user')
     #: The ID of the project this cluster belongs to.
-    project = resource.prop('project')
+    project_id = resource.prop('project')
     #: The domain ID of the cluster owner.
-    domain = resource.prop('domain')
+    domain_id = resource.prop('domain')
     #: The ID of the parent cluster (if any).
-    parent = resource.prop('parent')
+    parent_id = resource.prop('parent')
     #: Timestamp of when the cluster was initialized.
     init_at = resource.prop('init_at')
     #: Timestamp of when the cluster was created.
@@ -68,7 +67,7 @@ class Cluster(resource.Resource):
     #: A dictionary with some runtime data associated with the cluster.
     data = resource.prop('data', type=dict)
     #: A list IDs of nodes that are members of the cluster.
-    nodes = resource.prop('nodes')
+    node_ids = resource.prop('nodes')
     #: Name of the profile used by the cluster.
     profile_name = resource.prop('profile_name')
 
