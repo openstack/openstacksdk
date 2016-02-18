@@ -432,7 +432,7 @@ class OpenStackConfig(object):
         # Only validate cloud name if one was given
         if name and name not in self.cloud_config['clouds']:
             raise exceptions.OpenStackConfigException(
-                "Named cloud {name} requested that was not found.".format(
+                "Cloud {name} was not found.".format(
                     name=name))
 
         our_cloud = self.cloud_config['clouds'].get(name, dict())
