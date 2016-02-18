@@ -40,9 +40,12 @@ class TestClaim(testtools.TestCase):
         self.assertFalse(sot.allow_list)
 
     def test_make_it(self):
-        sot = claim.Claim.new(client=CLIENT, queue=QUEUE, limit=LIMIT, **FAKE)
-        self.assertEqual(CLIENT, sot.client)
-        self.assertEqual(QUEUE, sot.queue)
+        sot = claim.Claim.new(client_id=CLIENT,
+                              queue_name=QUEUE,
+                              limit=LIMIT,
+                              **FAKE)
+        self.assertEqual(CLIENT, sot.client_id)
+        self.assertEqual(QUEUE, sot.queue_name)
         self.assertEqual(LIMIT, sot.limit)
         self.assertEqual(FAKE['ttl'], sot.ttl)
         self.assertEqual(FAKE['grace'], sot.grace)
@@ -55,7 +58,7 @@ class TestClaim(testtools.TestCase):
         sess.post = mock.Mock(return_value=obj)
         sot = claim.Claim()
 
-        c = claim.Claim.new(client=CLIENT, queue=QUEUE, **FAKE)
+        c = claim.Claim.new(client_id=CLIENT, queue_name=QUEUE, **FAKE)
         list(sot.claim_messages(sess, c))
 
         url = '/queues/%s/claims' % QUEUE
@@ -73,7 +76,7 @@ class TestClaim(testtools.TestCase):
         sot = claim.Claim()
 
         messages = list(sot.claim_messages(
-            sess, claim.Claim.new(client=CLIENT, queue=QUEUE, **FAKE)))
+            sess, claim.Claim.new(client_id=CLIENT, queue_name=QUEUE, **FAKE)))
 
         self.assertEqual(0, len(messages))
 
@@ -87,6 +90,8 @@ class TestClaim(testtools.TestCase):
 
         try:
             list(sot.claim_messages(
-                sess, claim.Claim.new(client=CLIENT, queue=QUEUE, **FAKE)))
+                sess, claim.Claim.new(client_id=CLIENT,
+                                      queue_name=QUEUE,
+                                      **FAKE)))
         except exceptions.InvalidResponse as e:
             self.assertEqual(400, e.response.status_code)
