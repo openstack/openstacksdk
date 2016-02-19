@@ -379,6 +379,32 @@ class Proxy(proxy.BaseProxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.policy_update(self.session, policy, **params)
 
+    def check_cluster(self, cluster, **params):
+        """check a cluster.
+
+        :param cluster: The value can be either the ID of a cluster or a
+            :class:`~openstack.cluster.v1.cluster.Cluster` instance.
+        :param dict \*\*params: A dictionary providing the parameters for the
+            check action.
+
+        :returns: A dictionary containing the action ID.
+        """
+        obj = self._get_resource(_cluster.Cluster, cluster)
+        return obj.check(self.session, **params)
+
+    def recover_cluster(self, cluster, **params):
+        """recover a node.
+
+        :param cluster: The value can be either the ID of a cluster or a
+            :class:`~openstack.cluster.v1.cluster.Cluster` instance.
+        :param dict \*\*params: A dictionary providing the parameters for the
+            check action.
+
+        :returns: A dictionary containing the action ID.
+        """
+        obj = self._get_resource(_cluster.Cluster, cluster)
+        return obj.recover(self.session, **params)
+
     def create_node(self, **attrs):
         """Create a new node from attributes.
 

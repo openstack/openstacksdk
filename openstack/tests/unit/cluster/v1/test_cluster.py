@@ -220,3 +220,31 @@ class TestCluster(testtools.TestCase):
         }
         sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
                                           json=body)
+
+    def test_check(self):
+        sot = cluster.Cluster(FAKE)
+        sot['id'] = 'IDENTIFIER'
+
+        resp = mock.Mock()
+        resp.json = mock.Mock(return_value='')
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=resp)
+        self.assertEqual('', sot.check(sess))
+        url = 'clusters/%s/actions' % sot.id
+        body = {'check': {}}
+        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+                                          json=body)
+
+    def test_recover(self):
+        sot = cluster.Cluster(FAKE)
+        sot['id'] = 'IDENTIFIER'
+
+        resp = mock.Mock()
+        resp.json = mock.Mock(return_value='')
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=resp)
+        self.assertEqual('', sot.recover(sess))
+        url = 'clusters/%s/actions' % sot.id
+        body = {'recover': {}}
+        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+                                          json=body)
