@@ -68,12 +68,10 @@ Returned Resources
 Complex objects returned to the caller must be a dict type. The
 methods `obj_to_dict()` or `obj_list_to_dict()` should be used for this.
 
-As of this writing, those two methods are returning Bunch objects, which help
+As of this writing, those two methods are returning Munch objects, which help
 to maintain backward compatibility with a time when shade returned raw
-objects. Bunch allows the returned resource to act as *both* an object
-and a dict. Use of Bunch objects will eventually be deprecated in favor
-of just pure dicts, so do not depend on the Bunch object functionality.
-Expect a pure dict type.
+objects. Munch allows the returned resource to act as *both* an object
+and a dict.
 
 Nova vs. Neutron
 ================

@@ -455,7 +455,7 @@ class OpenStackCloud(object):
 
         :param string domain_id: domain id to scope the listed projects.
 
-        :returns: a list of dicts containing the project description.
+        :returns: a list of ``munch.Munch`` containing the project description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
@@ -479,7 +479,7 @@ class OpenStackCloud(object):
         :param filters: a dict containing additional filters to use.
         :param domain_id: domain id to scope the searched projects.
 
-        :returns: a list of dict containing the projects
+        :returns: a list of ``munch.Munch`` containing the projects
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
@@ -494,7 +494,7 @@ class OpenStackCloud(object):
         :param filters: a dict containing additional filters to use.
         :param domain_id: domain id (keystone v3 only)
 
-        :returns: a list of dicts containing the project description.
+        :returns: a list of ``munch.Munch`` containing the project description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
@@ -577,7 +577,7 @@ class OpenStackCloud(object):
     def list_users(self):
         """List Keystone Users.
 
-        :returns: a list of dicts containing the user description.
+        :returns: a list of ``munch.Munch`` containing the user description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
@@ -592,7 +592,7 @@ class OpenStackCloud(object):
         :param string name: user name or id.
         :param dict filters: a dict containing additional filters to use.
 
-        :returns: a list of dict containing the users
+        :returns: a list of ``munch.Munch`` containing the users
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
@@ -606,7 +606,7 @@ class OpenStackCloud(object):
         :param string name_or_id: user name or id.
         :param dict filters: a dict containing additional filters to use.
 
-        :returns: a single dict containing the user description.
+        :returns: a single ``munch.Munch`` containing the user description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
@@ -619,7 +619,7 @@ class OpenStackCloud(object):
         :param string user_id: user ID
         :param bool normalize: Flag to control dict normalization
 
-        :returns: a single dict containing the user description
+        :returns: a single ``munch.Munch`` containing the user description
         """
         with _utils.shade_exceptions(
                 "Error getting user with ID {user_id}".format(
@@ -1140,7 +1140,7 @@ class OpenStackCloud(object):
         :param filters: a dict containing additional filters to use. e.g.
                         {'router:external': True}
 
-        :returns: a list of dicts containing the network description.
+        :returns: a list of ``munch.Munch`` containing the network description.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call.
@@ -1155,7 +1155,7 @@ class OpenStackCloud(object):
         :param filters: a dict containing additional filters to use. e.g.
                         {'admin_state_up': True}
 
-        :returns: a list of dicts containing the router description.
+        :returns: a list of ``munch.Munch`` containing the router description.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call.
@@ -1170,7 +1170,7 @@ class OpenStackCloud(object):
         :param filters: a dict containing additional filters to use. e.g.
                         {'enable_dhcp': True}
 
-        :returns: a list of dicts containing the subnet description.
+        :returns: a list of ``munch.Munch`` containing the subnet description.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call.
@@ -1185,7 +1185,7 @@ class OpenStackCloud(object):
         :param filters: a dict containing additional filters to use. e.g.
                         {'device_id': '2711c67a-b4a7-43dd-ace7-6187b791c3f0'}
 
-        :returns: a list of dicts containing the port description.
+        :returns: a list of ``munch.Munch`` containing the port description.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call.
@@ -1261,7 +1261,7 @@ class OpenStackCloud(object):
         :param filters: a dict containing additional filters to use. e.g.
                 {'stack_status': 'CREATE_COMPLETE'}
 
-        :returns: a list of dict containing the stack description.
+        :returns: a list of ``munch.Munch`` containing the stack description.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call.
@@ -1272,7 +1272,7 @@ class OpenStackCloud(object):
     def list_keypairs(self):
         """List all available keypairs.
 
-        :returns: A list of keypair dicts.
+        :returns: A list of ``munch.Munch`` containing keypair info.
 
         """
         with _utils.shade_exceptions("Error fetching keypair list"):
@@ -1282,7 +1282,7 @@ class OpenStackCloud(object):
         """List all available networks.
 
         :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of network dicts.
+        :returns: A list of ``munch.Munc`` containing network info.
 
         """
         # Translate None from search interface to empty {} for kwargs below
@@ -1296,7 +1296,7 @@ class OpenStackCloud(object):
         """List all available routers.
 
         :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of router dicts.
+        :returns: A list of router ``munch.Munch``.
 
         """
         # Translate None from search interface to empty {} for kwargs below
@@ -1310,7 +1310,7 @@ class OpenStackCloud(object):
         """List all available subnets.
 
         :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of subnet dicts.
+        :returns: A list of subnet ``munch.Munch``.
 
         """
         # Translate None from search interface to empty {} for kwargs below
@@ -1324,7 +1324,7 @@ class OpenStackCloud(object):
         """List all available ports.
 
         :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of port dicts.
+        :returns: A list of port ``munch.Munch``.
 
         """
         # If pushdown filters are specified, bypass local caching.
@@ -1356,7 +1356,7 @@ class OpenStackCloud(object):
     def list_volumes(self, cache=True):
         """List all available volumes.
 
-        :returns: A list of volume dicts.
+        :returns: A list of volume ``munch.Munch``.
 
         """
         if not cache:
@@ -1370,7 +1370,7 @@ class OpenStackCloud(object):
     def list_flavors(self, get_extra=True):
         """List all available flavors.
 
-        :returns: A list of flavor dicts.
+        :returns: A list of flavor ``munch.Munch``.
 
         """
         with _utils.shade_exceptions("Error fetching flavor list"):
@@ -1398,7 +1398,7 @@ class OpenStackCloud(object):
     def list_stacks(self):
         """List all Heat stacks.
 
-        :returns: a list of dict containing the stack description.
+        :returns: a list of ``munch.Munch`` containing the stack description.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call.
@@ -1410,7 +1410,7 @@ class OpenStackCloud(object):
     def list_server_security_groups(self, server):
         """List all security groups associated with the given server.
 
-        :returns: A list of security group dicts.
+        :returns: A list of security group ``munch.Munch``.
         """
 
         # Don't even try if we're a cloud that doesn't have them
@@ -1426,7 +1426,7 @@ class OpenStackCloud(object):
     def list_security_groups(self):
         """List all available security groups.
 
-        :returns: A list of security group dicts.
+        :returns: A list of security group ``munch.Munch``.
 
         """
         # Handle neutron security groups
@@ -1453,7 +1453,7 @@ class OpenStackCloud(object):
     def list_servers(self, detailed=False):
         """List all available servers.
 
-        :returns: A list of server dicts.
+        :returns: A list of server ``munch.Munch``.
 
         """
         if (time.time() - self._servers_time) >= self._SERVER_AGE:
@@ -1542,7 +1542,7 @@ class OpenStackCloud(object):
     def list_floating_ip_pools(self):
         """List all available floating IP pools.
 
-        :returns: A list of floating IP pool dicts.
+        :returns: A list of floating IP pool ``munch.Munch``.
 
         """
         if not self._has_nova_extension('os-floating-ip-pools'):
@@ -1555,7 +1555,7 @@ class OpenStackCloud(object):
     def list_floating_ips(self):
         """List all available floating IPs.
 
-        :returns: A list of floating IP dicts.
+        :returns: A list of floating IP ``munch.Munch``.
 
         """
         if self._use_neutron_floating():
@@ -1759,7 +1759,7 @@ class OpenStackCloud(object):
     def get_external_networks(self):
         """Return the networks that are configured to route northbound.
 
-        :returns: A list of network dicts if one is found
+        :returns: A list of network ``munch.Munch`` if one is found
         """
         self._find_interesting_networks()
         return self._external_networks
@@ -1767,7 +1767,7 @@ class OpenStackCloud(object):
     def get_internal_networks(self):
         """Return the networks that are configured to not route northbound.
 
-        :returns: A list of network dicts if one is found
+        :returns: A list of network ``munch.Munch`` if one is found
         """
         self._find_interesting_networks()
         return self._internal_networks
@@ -1791,7 +1791,7 @@ class OpenStackCloud(object):
                   }
                 }
 
-        :returns: A keypair dict or None if no matching keypair is
+        :returns: A keypair ``munch.Munch`` or None if no matching keypair is
         found.
 
         """
@@ -1812,7 +1812,7 @@ class OpenStackCloud(object):
                   }
                 }
 
-        :returns: A network dict or None if no matching network is
+        :returns: A network ``munch.Munch`` or None if no matching network is
         found.
 
         """
@@ -1833,7 +1833,7 @@ class OpenStackCloud(object):
                   }
                 }
 
-        :returns: A router dict or None if no matching router is
+        :returns: A router ``munch.Munch`` or None if no matching router is
         found.
 
         """
@@ -1854,7 +1854,7 @@ class OpenStackCloud(object):
                   }
                 }
 
-        :returns: A subnet dict or None if no matching subnet is
+        :returns: A subnet ``munch.Munch`` or None if no matching subnet is
         found.
 
         """
@@ -1875,7 +1875,7 @@ class OpenStackCloud(object):
                   }
                 }
 
-        :returns: A port dict or None if no matching port is found.
+        :returns: A port ``munch.Munch`` or None if no matching port is found.
 
         """
         return _utils._get_entity(self.search_ports, name_or_id, filters)
@@ -1895,7 +1895,7 @@ class OpenStackCloud(object):
                   }
                 }
 
-        :returns: A volume dict or None if no matching volume is
+        :returns: A volume ``munch.Munch`` or None if no matching volume is
         found.
 
         """
@@ -1916,7 +1916,7 @@ class OpenStackCloud(object):
                   }
                 }
 
-        :returns: A flavor dict or None if no matching flavor is
+        :returns: A flavor ``munch.Munch`` or None if no matching flavor is
         found.
 
         """
@@ -1937,7 +1937,7 @@ class OpenStackCloud(object):
                   }
                 }
 
-        :returns: A security group dict or None if no matching
+        :returns: A security group ``munch.Munch`` or None if no matching
                   security group is found.
 
         """
@@ -1959,7 +1959,7 @@ class OpenStackCloud(object):
                   }
                 }
 
-        :returns: A server dict or None if no matching server is
+        :returns: A server ``munch.Munch`` or None if no matching server is
         found.
 
         """
@@ -2006,7 +2006,8 @@ class OpenStackCloud(object):
                   }
                 }
 
-        :returns: An image dict or None if no matching image is found.
+        :returns: An image ``munch.Munch`` or None if no matching image
+                  is found
 
         """
         return _utils._get_entity(self.search_images, name_or_id, filters)
@@ -2066,7 +2067,7 @@ class OpenStackCloud(object):
                   }
                 }
 
-        :returns: A floating IP dict or None if no matching floating
+        :returns: A floating IP ``munch.Munch`` or None if no matching floating
         IP is found.
 
         """
@@ -2079,7 +2080,7 @@ class OpenStackCloud(object):
         :param filters: a dict containing additional filters to use. e.g.
                 {'stack_status': 'CREATE_COMPLETE'}
 
-        :returns: a dict containing the stack description
+        :returns: a ``munch.Munch`` containing the stack description
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call or if multiple matches are found.
@@ -2241,8 +2242,8 @@ class OpenStackCloud(object):
         :param string subnet_id: The ID of the subnet to use for the interface
         :param string port_id: The ID of the port to use for the interface
 
-        :returns: A dict with the router id (id), subnet ID (subnet_id),
-            port ID (port_id) and tenant ID (tenant_id).
+        :returns: A ``munch.Munch`` with the router id (id),
+            subnet ID (subnet_id), port ID (port_id) and tenant ID (tenant_id).
 
         :raises: OpenStackCloudException on operation error.
         """
@@ -2295,7 +2296,7 @@ class OpenStackCloud(object):
             Controls whether all, internal interfaces or external interfaces
             are returned.
 
-        :returns: A list of port dict objects.
+        :returns: A list of port ``munch.Munch`` objects.
         """
         ports = self.search_ports(filters={'device_id': router['id']})
 
@@ -3148,7 +3149,7 @@ class OpenStackCloud(object):
                   }
                 }
 
-        :returns: A volume dict or None if no matching volume is
+        :returns: A volume ``munch.Munch`` or None if no matching volume is
         found.
 
         """
@@ -3158,7 +3159,7 @@ class OpenStackCloud(object):
     def list_volume_snapshots(self, detailed=True, search_opts=None):
         """List all volume snapshots.
 
-        :returns: A list of volume snapshots dicts.
+        :returns: A list of volume snapshots ``munch.Munch``.
 
         """
         with _utils.shade_exceptions("Error getting a list of snapshots"):
@@ -3612,7 +3613,7 @@ class OpenStackCloud(object):
         :param skip_attach: (optional) Skip the actual attach and just do
                             the wait. Defaults to False.
 
-        :returns: The server dict
+        :returns: The server ``munch.Munch``
 
         :raises: OpenStackCloudException, on operation error.
         """
@@ -3860,7 +3861,7 @@ class OpenStackCloud(object):
         :param nat_destination: (optional) the name of the network of the
                                 port to associate with the floating ip.
 
-        :returns: the update server dict
+        :returns: the updated server ``munch.Munch``
         """
         if reuse:
             f_ip = self.available_floating_ip(network=network)
@@ -3894,7 +3895,7 @@ class OpenStackCloud(object):
         :param fixed_address: (optional) Fixed address of the server to
                                          attach the IP to
 
-        :returns: The updated server dict
+        :returns: The updated server ``munch.Munch``
 
         :raises: ``OpenStackCloudException``, on operation error.
         """
@@ -4160,7 +4161,7 @@ class OpenStackCloud(object):
                                 be attached to, if it's not possible to
                                 infer from the cloud's configuration.
                                 (Optional, defaults to None)
-        :returns: A dict representing the created server.
+        :returns: A ``munch.Munch`` representing the created server.
         :raises: OpenStackCloudException on operation error.
         """
         # nova cli calls this boot_volume. Let's be the same
@@ -5114,7 +5115,7 @@ class OpenStackCloud(object):
         :param device_id: The ID of the device that uses this port.
             For example, a virtual server. (Optional)
 
-        :returns: a dictionary describing the created port.
+        :returns: a ``munch.Munch`` describing the created port.
 
         :raises: ``OpenStackCloudException`` on operation error.
         """
@@ -5173,7 +5174,7 @@ class OpenStackCloud(object):
         :param device_owner: The ID of the entity that uses this port.
             For example, a DHCP agent.  (Optional)
 
-        :returns: a dictionary describing the updated port.
+        :returns: a ``munch.Munch`` describing the updated port.
 
         :raises: OpenStackCloudException on operation error.
         """
@@ -5213,7 +5214,7 @@ class OpenStackCloud(object):
         :param string name: A name for the security group.
         :param string description: Describes the security group.
 
-        :returns: A dict representing the new security group.
+        :returns: A ``munch.Munch`` representing the new security group.
 
         :raises: OpenStackCloudException on operation error.
         :raises: OpenStackCloudUnavailableFeature if security groups are
@@ -5297,7 +5298,7 @@ class OpenStackCloud(object):
         :param string name: New name for the security group.
         :param string description: New description for the security group.
 
-        :returns: A dictionary describing the updated security group.
+        :returns: A ``munch.Munch`` describing the updated security group.
 
         :raises: OpenStackCloudException on operation error.
         """
@@ -5380,7 +5381,7 @@ class OpenStackCloud(object):
             Must be IPv4 or IPv6, and addresses represented in CIDR must
             match the ingress or egress rules.
 
-        :returns: A dict representing the new security group rule.
+        :returns: A ``munch.Munch`` representing the new security group rule.
 
         :raises: OpenStackCloudException on operation error.
         """
