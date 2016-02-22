@@ -362,8 +362,6 @@ will get you a fully configured `novaclient` instance.
 
 .. code-block:: python
 
-  import argparse
-
   import os_client_config
 
   nova = os_client_config.make_client('compute')
@@ -381,6 +379,21 @@ If you want to do the same thing but also support command line parsing.
 
 If you want to get fancier than that in your python, then the rest of the
 API is available to you. But often times, you just want to do the one thing.
+
+Constructing Mounted Session Objects
+------------------------------------
+
+What if you want to make direct REST calls via a Session interface? You're
+in luck. The same interface for `make_client` is supported for `session_client`
+and will return you a keystoneauth Session object that is mounted on the
+endpoint for the service you're looking for.
+
+  import os_client_config
+
+  session = os_client_config.session_client('compute', cloud='vexxhost')
+
+  response = session.get('/servers')
+  server_list = response.json()['servers']
 
 Source
 ------

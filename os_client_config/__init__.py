@@ -18,7 +18,18 @@ from os_client_config import cloud_config
 from os_client_config.config import OpenStackConfig  # noqa
 
 
-def simple_client(service_key, cloud=None, region_name=None):
+def get_config(service_key=None, options=None, **kwargs):
+    config = OpenStackConfig()
+    if options:
+        config.register_argparse_options(options, sys.argv, service_key)
+        parsed_options = options.parse_known_args(sys.argv)
+    else:
+        parsed_options = None
+
+    return config.get_one_cloud(options=parsed_options, **kwargs)
+
+
+def session_client(service_key, options=None, **kwargs):
     """Simple wrapper function. It has almost no features.
 
     This will get you a raw requests Session Adapter that is mounted
@@ -31,8 +42,10 @@ def simple_client(service_key, cloud=None, region_name=None):
     get_session_client on it. This function is to make it easy to poke
     at OpenStack REST APIs with a properly configured keystone session.
     """
-    return OpenStackConfig().get_one_cloud(
-        cloud=cloud, region_name=region_name).get_session_client(service_key)
+    cloud = get_config(service_key=service_key, options=options, **kwargs)
+    return cloud.get_session_client(service_key)
+# Backwards compat - simple_client was a terrible name
+simple_client = session_client
 
 
 def make_client(service_key, constructor=None, options=None, **kwargs):
@@ -45,14 +58,7 @@ def make_client(service_key, constructor=None, options=None, **kwargs):
     variables and clouds.yaml - and takes as **kwargs anything you'd expect
     to pass in.
     """
+    cloud = get_config(service_key=service_key, options=options, **kwargs)
     if not constructor:
         constructor = cloud_config._get_client(service_key)
-    config = OpenStackConfig()
-    if options:
-        config.register_argparse_options(options, sys.argv, service_key)
-        parsed_options = options.parse_args(sys.argv)
-    else:
-        parsed_options = None
-
-    cloud = config.get_one_cloud(options=parsed_options, **kwargs)
     return cloud.get_legacy_client(service_key, constructor)
