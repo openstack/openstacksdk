@@ -88,23 +88,21 @@ An example config file is probably helpful:
 .. code-block:: yaml
 
   clouds:
-    mordred:
-      profile: hp
+    mtvexx:
+      profile: vexxhost
       auth:
         username: mordred@inaugust.com
         password: XXXXXXXXX
         project_name: mordred@inaugust.com
-      region_name: region-b.geo-1
-      dns_service_type: hpext:dns
-      compute_api_version: 1.1
-    monty:
+      region_name: ca-ymq-1
+      dns_api_version: 1
+    mordred:
+      region_name: RegionOne
       auth:
-        auth_url: https://region-b.geo-1.identity.hpcloudsvc.com:35357/v2.0
-        username: monty.taylor@hp.com
-        password: XXXXXXXX
-        project_name: monty.taylor@hp.com-default-tenant
-      region_name: region-b.geo-1
-      dns_service_type: hpext:dns
+        username: 'mordred'
+        password: XXXXXXX
+        project_name: 'shade'
+        auth_url: 'https://montytaylor-sjc.openstack.blueboxgrid.com:5001/v2.0'
     infra:
       profile: rackspace
       auth:
@@ -221,14 +219,14 @@ are connecting to OpenStack can share a cache should you desire.
       server: 5
       flavor: -1
   clouds:
-    mordred:
-      profile: hp
+    mtvexx:
+      profile: vexxhost
       auth:
         username: mordred@inaugust.com
         password: XXXXXXXXX
         project_name: mordred@inaugust.com
-      region_name: region-b.geo-1
-      dns_service_type: hpext:dns
+      region_name: ca-ymq-1
+      dns_api_version: 1
 
 
 IPv6
@@ -247,13 +245,14 @@ environment variable.
   client:
     force_ipv4: true
   clouds:
-    mordred:
-      profile: hp
+    mtvexx:
+      profile: vexxhost
       auth:
         username: mordred@inaugust.com
         password: XXXXXXXXX
         project_name: mordred@inaugust.com
-      region_name: region-b.geo-1
+      region_name: ca-ymq-1
+      dns_api_version: 1
     monty:
       profile: rax
       auth:
@@ -316,7 +315,7 @@ Get a named cloud.
   import os_client_config
 
   cloud_config = os_client_config.OpenStackConfig().get_one_cloud(
-      'hp', region_name='region-b.geo-1')
+      'internap', region_name='ams01')
   print(cloud_config.name, cloud_config.region, cloud_config.config)
 
 Or, get all of the clouds.
@@ -365,6 +364,14 @@ will get you a fully configured `novaclient` instance.
   import os_client_config
 
   nova = os_client_config.make_client('compute')
+
+If you want to do the same thing but on a named cloud.
+
+.. code-block:: python
+
+  import os_client_config
+
+  nova = os_client_config.make_client('compute', cloud='mtvexx')
 
 If you want to do the same thing but also support command line parsing.
 
