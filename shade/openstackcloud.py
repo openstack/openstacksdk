@@ -1674,16 +1674,17 @@ class OpenStackCloud(object):
                 "Unable to delete keypair %s: %s" % (name, e))
         return True
 
-    # TODO(Shrews): This will eventually need to support tenant ID and
-    # provider networks, which are admin-level params.
     def create_network(self, name, shared=False, admin_state_up=True,
-                       external=False):
+                       external=False, provider=None):
         """Create a network.
 
         :param string name: Name of the network being created.
         :param bool shared: Set the network as shared.
         :param bool admin_state_up: Set the network administrative state to up.
         :param bool external: Whether this network is externally accessible.
+        :param dict provider: A dict of network provider options. Example::
+
+           { 'network_type': 'vlan', 'segmentation_id': 'vlan1' }
 
         :returns: The network object.
         :raises: OpenStackCloudException on operation error.
@@ -1694,6 +1695,17 @@ class OpenStackCloud(object):
             'shared': shared,
             'admin_state_up': admin_state_up,
         }
+
+        if provider:
+            if not isinstance(provider, dict):
+                raise OpenStackCloudException(
+                    "Parameter 'provider' must be a dict")
+            # Only pass what we know
+            for attr in ('physical_network', 'network_type',
+                         'segmentation_id'):
+                if attr in provider:
+                    arg = "provider:" + attr
+                    network[arg] = provider[attr]
 
         # Do not send 'router:external' unless it is explicitly
         # set since sending it *might* cause "Forbidden" errors in
