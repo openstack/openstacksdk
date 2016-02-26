@@ -4,6 +4,7 @@ coverage>=3.6
 discover
 fixtures>=0.3.14
 mock>=1.0
+python-openstackclient>=2.1.0
 python-subunit
 oslosphinx>=2.2.0  # Apache-2.0
 sphinx>=1.1.2,!=1.2.0,!=1.3b1,<1.3
