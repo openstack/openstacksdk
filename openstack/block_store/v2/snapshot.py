@@ -27,7 +27,7 @@ class Snapshot(resource.Resource):
     allow_update = True
 
     # Properties
-    #: A UUID representing this snapshot.
+    #: A ID representing this snapshot.
     id = resource.prop("id")
     #: Name of the snapshot. Default is None.
     name = resource.prop("name")
@@ -42,7 +42,7 @@ class Snapshot(resource.Resource):
     #: Metadata associated with this snapshot.
     metadata = resource.prop("metadata", type=dict)
     #: The ID of the volume this snapshot was taken of.
-    volume = resource.prop("volume_id")
+    volume_id = resource.prop("volume_id")
     #: The size of the volume, in GBs.
     size = resource.prop("size", type=int)
     #: Indicate whether to snapshot, even if the volume is attached.
@@ -56,5 +56,5 @@ class SnapshotDetail(Snapshot):
 
     #: The percentage of completeness the snapshot is currently at.
     progress = resource.prop("os-extended-snapshot-attributes:progress")
-    #: The tenant ID this snapshot is associatd with.
+    #: The project ID this snapshot is associated with.
     project_id = resource.prop("os-extended-snapshot-attributes:project_id")

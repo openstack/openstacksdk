@@ -18,23 +18,6 @@ from openstack import proxy
 
 class Proxy(proxy.BaseProxy):
 
-    def _convert_id(self, attrs, value, resource_type):
-        """Convert potential Resource values into IDs
-
-        The structure of Snapshot and Volume resources is such that their
-        Resource subclasses contain properties of each other's types, because
-        a Snapshot can be created of a Volume, and a Volume can be created from
-        a Snapshot. Additionally, a Volume can be created from another
-        Volume, yet the source_volume prop can't refer to the current class.
-        We work around this by simply looking for those Resource types
-        before sending them on.
-        """
-        val = attrs.pop(value, None)
-        if val is not None:
-            if isinstance(val, resource_type):
-                val = val.id
-            attrs[value] = val
-
     def get_snapshot(self, snapshot):
         """Get a single snapshot
 
@@ -58,7 +41,6 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of snapshot creation
         :rtype: :class:`~openstack.volume.v2.snapshot.Snapshot`
         """
-        self._convert_id(attrs, "volume", _volume.Volume)
         return self._create(_snapshot.Snapshot, **attrs)
 
     def delete_snapshot(self, snapshot, ignore_missing=True):
@@ -139,8 +121,6 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of volume creation
         :rtype: :class:`~openstack.volume.v2.volume.Volume`
         """
-        self._convert_id(attrs, "source_volume", _volume.Volume)
-        self._convert_id(attrs, "snapshot", _snapshot.Snapshot)
         return self._create(_volume.Volume, **attrs)
 
     def delete_volume(self, volume, ignore_missing=True):

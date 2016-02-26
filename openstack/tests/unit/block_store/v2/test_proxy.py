@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
-
 from openstack.block_store.v2 import _proxy
 from openstack.block_store.v2 import snapshot
 from openstack.block_store.v2 import type
@@ -29,16 +27,6 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
 
     def test_snapshot_create_attrs(self):
         self.verify_create(self.proxy.create_snapshot, snapshot.Snapshot)
-
-    def test_snapshot_create_volume_prop(self):
-        self.proxy._create = mock.Mock()
-
-        id = "12345"
-        vol = volume.Volume({"id": id})
-        self.proxy.create_snapshot(volume=vol)
-
-        kwargs = self.proxy._create.call_args[1]
-        self.assertEqual({"volume": id}, kwargs)
 
     def test_snapshot_delete(self):
         self.verify_delete(self.proxy.delete_snapshot,
@@ -65,18 +53,6 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
 
     def test_volume_create_attrs(self):
         self.verify_create(self.proxy.create_volume, volume.Volume)
-
-    def test_volume_create_snapshot_prop(self):
-        self.proxy._create = mock.Mock()
-
-        id1 = "12345"
-        id2 = "67890"
-        snap = snapshot.Snapshot({"id": id1})
-        source = volume.Volume({"id": id2})
-        self.proxy.create_volume(snapshot=snap, source_volume=source)
-
-        kwargs = self.proxy._create.call_args[1]
-        self.assertEqual({"snapshot": id1, "source_volume": id2}, kwargs)
 
     def test_volume_delete(self):
         self.verify_delete(self.proxy.delete_volume, volume.Volume, False)

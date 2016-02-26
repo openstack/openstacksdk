@@ -11,8 +11,6 @@
 # under the License.
 
 from openstack.block_store import block_store_service
-from openstack.block_store.v2 import type as _type
-from openstack.image.v2 import image as _image
 from openstack import resource
 
 
@@ -29,7 +27,7 @@ class Volume(resource.Resource):
     allow_update = True
 
     # Properties
-    #: A UUID representing this volume.
+    #: A ID representing this volume.
     id = resource.prop("id")
     #: The name of this volume.
     name = resource.prop("name")
@@ -41,20 +39,20 @@ class Volume(resource.Resource):
     #: To create a volume from an existing volume, specify the ID of
     #: the existing volume. If specified, the volume is created with
     #: same size of the source volume.
-    source_volume = resource.prop("source_volid")
+    source_volume_id = resource.prop("source_volid")
     #: The volume description.
     description = resource.prop("description")
     #: To create a volume from an existing snapshot, specify the ID of
     #: the existing volume snapshot. If specified, the volume is created
     #: in same availability zone and with same size of the snapshot.
-    snapshot = resource.prop("snapshot_id")
+    snapshot_id = resource.prop("snapshot_id")
     #: The size of the volume, in GBs. *Type: int*
     size = resource.prop("size", type=int)
     #: The ID of the image from which you want to create the volume.
     #: Required to create a bootable volume.
-    image = resource.prop("imageRef", type=_image.Image)
-    #: The associated volume type.
-    type = resource.prop("volume_type", type=_type.Type)
+    image_id = resource.prop("imageRef")
+    #: The name of the associated volume type.
+    volume_type = resource.prop("volume_type")
     #: Enables or disables the bootable attribute. You can boot an
     #: instance from a bootable volume. *Type: bool*
     bootable = resource.prop("bootable", type=bool)
@@ -91,7 +89,7 @@ class VolumeDetail(Volume):
     extended_replication_status = resource.prop(
         "os-volume-replication:extended_status")
     #: ID of the consistency group.
-    consistency_group = resource.prop("consistencygroup_id")
+    consistency_group_id = resource.prop("consistencygroup_id")
     #: Data set by the replication driver
     replication_driver_data = resource.prop(
         "os-volume-replication:driver_data")
