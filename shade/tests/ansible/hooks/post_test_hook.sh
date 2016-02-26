@@ -19,9 +19,21 @@ cd $SHADE_DIR
 sudo chown -R jenkins:stack $SHADE_DIR
 
 echo "Running shade Ansible test suite"
-set +e
-sudo -E -H -u jenkins tox -eansible
-EXIT_CODE=$?
-set -e
+
+if [ ${SHADE_ANSIBLE_DEV:-0} -eq 1 ]
+then
+    # Use the upstream development version of Ansible
+    set +e
+    sudo -E -H -u jenkins tox -eansible -- -d
+    EXIT_CODE=$?
+    set -e
+else
+    # Use the release version of Ansible
+    set +e
+    sudo -E -H -u jenkins tox -eansible
+    EXIT_CODE=$?
+    set -e
+fi
+
 
 exit $EXIT_CODE
