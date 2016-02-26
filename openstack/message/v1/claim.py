@@ -29,17 +29,17 @@ class Claim(resource.Resource):
     allow_retrieve = False
     allow_delete = False
 
-    #: A UUID for each client instance. The UUID must be submitted in its
+    #: A ID for each client instance. The ID must be submitted in its
     #: canonical form (for example, 3381af92-2b9e-11e3-b191-71861300734c).
-    #: The client generates this UUID once. The client UUID persists between
-    #: restarts of the client so the client should reuse that same UUID.
-    #: All message-related operations require the use of the client UUID in
+    #: The client generates this ID once. The client ID persists between
+    #: restarts of the client so the client should reuse that same ID.
+    #: All message-related operations require the use of the client ID in
     #: the headers to ensure that messages are not echoed back to the client
     #: that posted them, unless the client explicitly requests this.
-    client = None
+    client_id = None
 
-    #: The queue this Claim belongs to.
-    queue = None
+    #: The name of the queue this Claim belongs to.
+    queue_name = None
 
     #: Specifies the number of Messages to return.
     limit = None
@@ -54,8 +54,8 @@ class Claim(resource.Resource):
     @classmethod
     def claim_messages(cls, session, claim):
         """Create a remote resource from this instance."""
-        url = cls._get_url({'queue_name': claim.queue})
-        headers = {'Client-ID': claim.client}
+        url = cls._get_url({'queue_name': claim.queue_name})
+        headers = {'Client-ID': claim.client_id}
         params = {'limit': claim.limit} if claim.limit else None
         body = []
 
@@ -77,7 +77,9 @@ class Claim(resource.Resource):
 
         for message_attrs in body:
             yield message.Message.new(
-                client=claim.client, queue=claim.queue, **message_attrs)
+                client_id=claim.client_id,
+                queue_name=claim.queue_name,
+                **message_attrs)
 
 
 class ClaimEncoder(json.JSONEncoder):

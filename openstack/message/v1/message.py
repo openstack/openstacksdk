@@ -29,17 +29,17 @@ class Message(resource.Resource):
     allow_retrieve = False
     allow_delete = False
 
-    #: A UUID for each client instance. The UUID must be submitted in its
+    #: A ID for each client instance. The ID must be submitted in its
     #: canonical form (for example, 3381af92-2b9e-11e3-b191-71861300734c).
-    #: The client generates this UUID once. The client UUID persists between
-    #: restarts of the client so the client should reuse that same UUID.
-    #: All message-related operations require the use of the client UUID in
+    #: The client generates this ID once. The client ID persists between
+    #: restarts of the client so the client should reuse that same ID.
+    #: All message-related operations require the use of the client ID in
     #: the headers to ensure that messages are not echoed back to the client
     #: that posted them, unless the client explicitly requests this.
-    client = None
+    client_id = None
 
-    #: The queue this Message belongs to.
-    queue = None
+    #: The name of the queue this Message belongs to.
+    queue_name = None
 
     #: A relative href that references this Message.
     href = resource.prop("href")
@@ -61,13 +61,13 @@ class Message(resource.Resource):
             raise ValueError('messages cannot be empty')
 
         for i, message in enumerate(messages, -1):
-            if message.queue != messages[i].queue:
+            if message.queue_name != messages[i].queue_name:
                 raise ValueError('All queues in messages must be equal')
-            if message.client != messages[i].client:
+            if message.client_id != messages[i].client_id:
                 raise ValueError('All clients in messages must be equal')
 
-        url = cls._get_url({'queue_name': messages[0].queue})
-        headers = {'Client-ID': messages[0].client}
+        url = cls._get_url({'queue_name': messages[0].queue_name})
+        headers = {'Client-ID': messages[0].client_id}
 
         resp = session.post(url, endpoint_filter=cls.service, headers=headers,
                             data=json.dumps(messages, cls=MessageEncoder))
@@ -96,7 +96,7 @@ class Message(resource.Resource):
     def delete_by_id(cls, session, message, path_args=None):
         url = cls._strip_version(message.href)
         headers = {
-            'Client-ID': message.client,
+            'Client-ID': message.client_id,
             'Accept': '',
         }
         session.delete(url, endpoint_filter=cls.service, headers=headers)

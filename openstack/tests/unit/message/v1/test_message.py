@@ -55,7 +55,7 @@ class TestMessage(testtools.TestCase):
         sess.post = mock.Mock(return_value=obj)
         sot = message.Message()
 
-        msg = message.Message.new(client=CLIENT, queue=QUEUE, **FAKE)
+        msg = message.Message.new(client_id=CLIENT, queue_name=QUEUE, **FAKE)
         sot.create_messages(sess, [msg])
 
         url = '/queues/%s/messages' % QUEUE
@@ -75,7 +75,9 @@ class TestMessage(testtools.TestCase):
         sot = message.Message()
 
         sot.delete_by_id(
-            sess, message.Message.new(client=CLIENT, queue=QUEUE, **FAKE_HREF))
+            sess, message.Message.new(client_id=CLIENT,
+                                      queue_name=QUEUE,
+                                      **FAKE_HREF))
 
         url = '/queues/%s/messages/1234' % QUEUE
         sess.delete.assert_called_with(
