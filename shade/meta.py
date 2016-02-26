@@ -399,7 +399,13 @@ def obj_to_dict(obj, request_id=None):
         instance = munch.Munch()
 
     for key in dir(obj):
-        value = getattr(obj, key)
+        try:
+            value = getattr(obj, key)
+        # some attributes can be defined as a @propierty, so we can't assure
+        # to have a valid value
+        # e.g. id in python-novaclient/tree/novaclient/v2/quotas.py
+        except AttributeError:
+            continue
         if isinstance(value, NON_CALLABLES) and not key.startswith('_'):
             instance[key] = value
     return _add_request_id(instance, request_id)
