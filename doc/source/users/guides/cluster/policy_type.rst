@@ -15,4 +15,31 @@
 Working with Policy Types
 =========================
 
-.. TODO(Qiming): Implement this guide
+A **policy** is a template that encodes the information needed for specifying
+the rules that are checked/enforced before/after certain actions are performed
+on a cluster. The rules are encoded in a property named ``spec``.
+
+
+List Policy Types
+~~~~~~~~~~~~~~~~~
+
+To examine the known policy types:
+
+.. literalinclude:: ../../examples/cluster/policy_type.py
+   :pyobject: list_policy_types
+
+Full example: `manage policy type`_
+
+
+Get Policy Type
+~~~~~~~~~~~~~~~
+
+To retrieve the details about a policy type, you need to provide the name of
+it.
+
+.. literalinclude:: ../../examples/cluster/policy_type.py
+   :pyobject: get_policy_type
+
+Full example: `manage policy type`_
+
+.. _manage profile type: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/cluster/policy_type.py
