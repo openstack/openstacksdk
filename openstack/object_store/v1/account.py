@@ -17,6 +17,8 @@ from openstack import resource
 
 
 class Account(_base.BaseResource):
+    _custom_metadata_prefix = "X-Account-Meta-"
+
     base_path = "/"
 
     allow_retrieve = True

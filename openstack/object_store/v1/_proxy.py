@@ -19,60 +19,42 @@ from openstack import proxy
 class Proxy(proxy.BaseProxy):
 
     def get_account_metadata(self):
-        """Get metatdata for this account
+        """Get metadata for this account.
 
         :rtype:
             :class:`~openstack.object_store.v1.account.Account`
         """
         return self._head(_account.Account)
 
-    def set_account_metadata(self, account):
-        """Set metatdata for this account.
+    def set_account_metadata(self, **metadata):
+        """Set metadata for this account.
 
-        :param account: Account metadata specified on a
-            :class:`~openstack.object_store.v1.account.Account` object
-            to be sent to the server.
-        :type account:
-            :class:`~openstack.object_store.v1.account.Account`
-
-        :rtype: ``None``
+        :param kwargs metadata: Key/value pairs to be set as metadata
+                                on the container. Custom  metadata can be set.
+                                Custom metadata are keys and values defined
+                                by the user.
         """
-        account.update(self.session)
+        account = self._get_resource(_account.Account, None)
+        account.set_metadata(self.session, metadata)
+
+    def delete_account_metadata(self, keys):
+        """Delete metadata for this account.
+
+        :param list keys: The keys of metadata to be deleted.
+        """
+        account = self._get_resource(_account.Account, None)
+        account.delete_metadata(self.session, keys)
 
     def containers(self, **query):
         """Obtain Container objects for this account.
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :rtype: A generator of
             :class:`~openstack.object_store.v1.container.Container` objects.
         """
         return _container.Container.list(self.session, **query)
-
-    def get_container_metadata(self, container):
-        """Get metatdata for a container
-
-        :param container: The value can be the name of a container or a
-               :class:`~openstack.object_store.v1.container.Container`
-               instance.
-
-        :returns: One :class:`~openstack.object_store.v1.container.Container`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
-        """
-        return self._head(_container.Container, container)
-
-    def set_container_metadata(self, container):
-        """Set metatdata for a container.
-
-        :param container: A container object containing metadata to be set.
-        :type container:
-            :class:`~openstack.object_store.v1.container.Container`
-
-        :rtype: ``None``
-        """
-        container.create(self.session)
 
     def create_container(self, **attrs):
         """Create a new container from attributes
@@ -103,6 +85,54 @@ class Proxy(proxy.BaseProxy):
         self._delete(_container.Container, container,
                      ignore_missing=ignore_missing)
 
+    def get_container_metadata(self, container):
+        """Get metadata for a container
+
+        :param container: The value can be the name of a container or a
+               :class:`~openstack.object_store.v1.container.Container`
+               instance.
+
+        :returns: One :class:`~openstack.object_store.v1.container.Container`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._head(_container.Container, container)
+
+    def set_container_metadata(self, container, **metadata):
+        """Set metadata for a container.
+
+        :param container: The value can be the name of a container or a
+               :class:`~openstack.object_store.v1.container.Container`
+               instance.
+        :param kwargs metadata: Key/value pairs to be set as metadata
+                                on the container. Both custom and system
+                                metadata can be set. Custom metadata are keys
+                                and values defined by the user. System
+                                metadata are keys defined by the Object Store
+                                and values defined by the user. The system
+                                metadata keys are:
+                                - `content_type`
+                                - `detect_content_type`
+                                - `versions_location`
+                                - `read_ACL`
+                                - `write_ACL`
+                                - `sync_to`
+                                - `sync_key`
+        """
+        res = self._get_resource(_container.Container, container)
+        res.set_metadata(self.session, metadata)
+
+    def delete_container_metadata(self, container, keys):
+        """Delete metadata for a container.
+
+        :param container: The value can be the ID of a container or a
+               :class:`~openstack.object_store.v1.container.Container`
+               instance.
+        :param list keys: The keys of metadata to be deleted.
+        """
+        res = self._get_resource(_container.Container, container)
+        res.delete_metadata(self.session, keys)
+
     def objects(self, container, **query):
         """Return a generator that yields the Container's objects.
 
@@ -121,28 +151,24 @@ class Proxy(proxy.BaseProxy):
         objs = _obj.Object.list(self.session,
                                 path_args={"container": container.name},
                                 **query)
-        # TODO(briancurtin): Objects have to know their container at this
-        # point, otherwise further operations like getting their metadata
-        # or downloading them is a hassle because the end-user would have
-        # to maintain both the container and the object separately.
-        for ob in objs:
-            ob.container = container.name
-            yield ob
+        for obj in objs:
+            obj.container = container.name
+            yield obj
 
-    def _get_container_name(self, object, container):
-        if isinstance(object, _obj.Object):
-            if object.container is not None:
-                return object.container
+    def _get_container_name(self, obj, container):
+        if isinstance(obj, _obj.Object):
+            if obj.container is not None:
+                return obj.container
         if container is not None:
             container = _container.Container.from_id(container)
             return container.name
 
         raise ValueError("container must be specified")
 
-    def get_object(self, object, container=None):
+    def get_object(self, obj, container=None):
         """Get the data associated with an object
 
-        :param object: The value can be the name of an object or a
+        :param obj: The value can be the name of an object or a
                        :class:`~openstack.object_store.v1.obj.Object` instance.
         :param container: The value can be the name of a container or a
                :class:`~openstack.object_store.v1.container.Container`
@@ -154,15 +180,15 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        container_name = self._get_container_name(object, container)
+        container_name = self._get_container_name(obj, container)
 
-        return self._get(_obj.Object, object,
+        return self._get(_obj.Object, obj,
                          path_args={"container": container_name})
 
-    def download_object(self, object, container=None, path=None):
+    def download_object(self, obj, container=None, path=None):
         """Download the data contained inside an object to disk.
 
-        :param object: The value can be the name of an object or a
+        :param obj: The value can be the name of an object or a
                        :class:`~openstack.object_store.v1.obj.Object` instance.
         :param container: The value can be the name of a container or a
                :class:`~openstack.object_store.v1.container.Container`
@@ -173,7 +199,7 @@ class Proxy(proxy.BaseProxy):
                  when no resource can be found.
         """
         with open(path, "w") as out:
-            out.write(self.get_object(object, container))
+            out.write(self.get_object(obj, container))
 
     def upload_object(self, **attrs):
         """Upload a new object from attributes
@@ -199,10 +225,10 @@ class Proxy(proxy.BaseProxy):
         """Copy an object."""
         raise NotImplementedError
 
-    def delete_object(self, object, ignore_missing=True, container=None):
+    def delete_object(self, obj, ignore_missing=True, container=None):
         """Delete an object
 
-        :param object: The value can be either the name of an object or a
+        :param obj: The value can be either the name of an object or a
                        :class:`~openstack.object_store.v1.container.Container`
                        instance.
         :param container: The value can be the ID of a container or a
@@ -216,17 +242,16 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        container_name = self._get_container_name(object, container)
+        container_name = self._get_container_name(obj, container)
 
-        self._delete(_obj.Object, object, ignore_missing=ignore_missing,
+        self._delete(_obj.Object, obj, ignore_missing=ignore_missing,
                      path_args={"container": container_name})
 
-    def get_object_metadata(self, object, container=None):
-        """Get metatdata for an object
+    def get_object_metadata(self, obj, container=None):
+        """Get metadata for an object.
 
-        :param object: The value is an
-               :class:`~openstack.object_store.v1.obj.Object`
-               instance.
+        :param obj: The value can be the name of an object or a
+                    :class:`~openstack.object_store.v1.obj.Object` instance.
         :param container: The value can be the ID of a container or a
                :class:`~openstack.object_store.v1.container.Container`
                instance.
@@ -235,17 +260,51 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        container_name = self._get_container_name(object, container)
+        container_name = self._get_container_name(obj, container)
 
-        return self._head(_obj.Object, object,
+        return self._head(_obj.Object, obj,
                           path_args={"container": container_name})
 
-    def set_object_metadata(self, object):
-        """Set metatdata for an object.
+    def set_object_metadata(self, obj, container=None, **metadata):
+        """Set metadata for an object.
 
-        :param object: The object to set metadata for.
-        :type object: :class:`~openstack.object_store.v1.obj.Object`
+        Note: This method will do an extra HEAD call.
 
-        :rtype: ``None``
+        :param obj: The value can be the name of an object or a
+                    :class:`~openstack.object_store.v1.obj.Object` instance.
+        :param container: The value can be the name of a container or a
+               :class:`~openstack.object_store.v1.container.Container`
+               instance.
+        :param kwargs metadata: Key/value pairs to be set as metadata
+                                on the container. Both custom and system
+                                metadata can be set. Custom metadata are keys
+                                and values defined by the user. System
+                                metadata are keys defined by the Object Store
+                                and values defined by the user. The system
+                                metadata keys are:
+                                - `content_type`
+                                - `content_encoding`
+                                - `content_disposition`
+                                - `detect_content_type`
+                                - `delete_after`
+                                - `delete_at`
         """
-        object.create(self.session)
+        container_name = self._get_container_name(obj, container)
+        res = self._get_resource(_obj.Object, obj,
+                                 path_args={"container": container_name})
+        res.set_metadata(self.session, metadata)
+
+    def delete_object_metadata(self, obj, container=None, keys=None):
+        """Delete metadata for an object.
+
+        :param obj: The value can be the name of an object or a
+                    :class:`~openstack.object_store.v1.obj.Object` instance.
+        :param container: The value can be the ID of a container or a
+               :class:`~openstack.object_store.v1.container.Container`
+               instance.
+        :param list keys: The keys of metadata to be deleted.
+        """
+        container_name = self._get_container_name(obj, container)
+        res = self._get_resource(_obj.Object, obj,
+                                 path_args={"container": container_name})
+        res.delete_metadata(self.session, keys)

@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
 import uuid
 
 from openstack.tests.functional import base
@@ -46,12 +47,110 @@ class TestObject(base.BaseFunctionalTest):
         result = self.conn.object_store.get_object(self.sot)
         self.assertEqual(self.DATA, result)
 
-    def test_get_metadata(self):
-        self.sot.data = None
-        self.sot.set_headers({'x-object-meta-test': 'orly'})
-        result = self.conn.object_store.set_object_metadata(self.sot)
-        result = self.conn.object_store.get_object_metadata(self.sot)
-        self.assertEqual(self.FILE, result.name)
-        headers = result.get_headers()
-        self.assertEqual(str(len(self.DATA)), headers['content-length'])
-        self.assertEqual('orly', headers['x-object-meta-test'])
+    def test_system_metadata(self):
+        # get system metadata
+        obj = self.conn.object_store.get_object_metadata(
+            self.FILE, container=self.FOLDER)
+        self.assertGreaterEqual(0, obj.bytes)
+        self.assertIsNotNone(obj.etag)
+
+        # set system metadata
+        obj = self.conn.object_store.get_object_metadata(
+            self.FILE, container=self.FOLDER)
+        self.assertIsNone(obj.content_disposition)
+        self.assertIsNone(obj.content_encoding)
+        self.conn.object_store.set_object_metadata(
+            obj, content_disposition='attachment', content_encoding='gzip')
+        obj = self.conn.object_store.get_object_metadata(obj)
+        self.assertEqual('attachment', obj.content_disposition)
+        self.assertEqual('gzip', obj.content_encoding)
+
+        # update system metadata
+        self.conn.object_store.set_object_metadata(
+            obj, content_encoding='deflate')
+        obj = self.conn.object_store.get_object_metadata(obj)
+        self.assertEqual('attachment', obj.content_disposition)
+        self.assertEqual('deflate', obj.content_encoding)
+
+        # set system metadata and custom metadata
+        self.conn.object_store.set_object_metadata(
+            obj, k0='v0', delete_after=100)
+        obj = self.conn.object_store.get_object_metadata(obj)
+        self.assertIn('k0', obj.metadata)
+        self.assertEqual('v0', obj.metadata['k0'])
+        self.assertEqual('attachment', obj.content_disposition)
+        self.assertEqual('deflate', obj.content_encoding)
+        self.assertIsInstance(obj.delete_at, datetime.datetime)
+
+        # unset system metadata
+        self.conn.object_store.delete_object_metadata(
+            obj, keys=['delete_after'])
+        obj = self.conn.object_store.get_object_metadata(obj)
+        self.assertIn('k0', obj.metadata)
+        self.assertEqual('v0', obj.metadata['k0'])
+        self.assertEqual('attachment', obj.content_disposition)
+        self.assertEqual('deflate', obj.content_encoding)
+        self.assertIsNone(obj.delete_at)
+
+        # unset more system metadata
+        self.conn.object_store.delete_object_metadata(
+            obj, keys=['content_disposition'])
+        obj = self.conn.object_store.get_object_metadata(obj)
+        self.assertIn('k0', obj.metadata)
+        self.assertEqual('v0', obj.metadata['k0'])
+        self.assertIsNone(obj.content_disposition)
+        self.assertEqual('deflate', obj.content_encoding)
+        self.assertIsNone(obj.delete_at)
+
+    def test_custom_metadata(self):
+        # get custom metadata
+        obj = self.conn.object_store.get_object_metadata(
+            self.FILE, container=self.FOLDER)
+        self.assertFalse(obj.metadata)
+
+        # set no custom metadata
+        self.conn.object_store.set_object_metadata(obj)
+        obj = self.conn.object_store.get_object_metadata(obj)
+        self.assertFalse(obj.metadata)
+
+        # set empty custom metadata
+        self.conn.object_store.set_object_metadata(obj, k0='')
+        obj = self.conn.object_store.get_object_metadata(obj)
+        self.assertFalse(obj.metadata)
+
+        # set custom metadata
+        self.conn.object_store.set_object_metadata(obj, k1='v1')
+        obj = self.conn.object_store.get_object_metadata(obj)
+        self.assertTrue(obj.metadata)
+        self.assertEqual(1, len(obj.metadata))
+        self.assertIn('k1', obj.metadata)
+        self.assertEqual('v1', obj.metadata['k1'])
+
+        # set more custom metadata by named object and container
+        self.conn.object_store.set_object_metadata(self.FILE, self.FOLDER,
+                                                   k2='v2')
+        obj = self.conn.object_store.get_object_metadata(obj)
+        self.assertTrue(obj.metadata)
+        self.assertEqual(2, len(obj.metadata))
+        self.assertIn('k1', obj.metadata)
+        self.assertEqual('v1', obj.metadata['k1'])
+        self.assertIn('k2', obj.metadata)
+        self.assertEqual('v2', obj.metadata['k2'])
+
+        # update custom metadata
+        self.conn.object_store.set_object_metadata(obj, k1='v1.1')
+        obj = self.conn.object_store.get_object_metadata(obj)
+        self.assertTrue(obj.metadata)
+        self.assertEqual(2, len(obj.metadata))
+        self.assertIn('k1', obj.metadata)
+        self.assertEqual('v1.1', obj.metadata['k1'])
+        self.assertIn('k2', obj.metadata)
+        self.assertEqual('v2', obj.metadata['k2'])
+
+        # unset custom metadata
+        self.conn.object_store.delete_object_metadata(obj, keys=['k1'])
+        obj = self.conn.object_store.get_object_metadata(obj)
+        self.assertTrue(obj.metadata)
+        self.assertEqual(1, len(obj.metadata))
+        self.assertIn('k2', obj.metadata)
+        self.assertEqual('v2', obj.metadata['k2'])

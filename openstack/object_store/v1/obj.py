@@ -11,12 +11,25 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
+
 from openstack import format
 from openstack.object_store import object_store_service
+from openstack.object_store.v1 import _base
 from openstack import resource
 
 
-class Object(resource.Resource):
+class Object(_base.BaseResource):
+    _custom_metadata_prefix = "X-Object-Meta-"
+    _system_metadata = {
+        "content_disposition": "content-disposition",
+        "content_encoding": "content-encoding",
+        "content_type": "content-type",
+        "detect_content_type": "x-detect-content-type",
+        "delete_after": "x-delete-after",
+        "delete_at": "x-delete-at"
+    }
+
     base_path = "/%(container)s"
     service = object_store_service.ObjectStoreService()
     id_attribute = "name"
@@ -87,9 +100,6 @@ class Object(resource.Resource):
     content_type = resource.header("content_type", alias="content-type")
     #: The type of ranges that the object accepts.
     accept_ranges = resource.header("accept-ranges")
-    #: The date and time that the object was created or the last
-    #: time that the metadata was changed.
-    last_modified = resource.header("last_modified", alias="last-modified")
     #: For objects smaller than 5 GB, this value is the MD5 checksum
     #: of the object content. The value is not quoted.
     #: For manifest objects, this value is the MD5 checksum of the
@@ -113,6 +123,10 @@ class Object(resource.Resource):
     #: which is the default.
     #: If not set, this header is not returned by this operation.
     content_disposition = resource.header("content-disposition")
+    #: Specifies the number of seconds after which the object is
+    #: removed. Internally, the Object Storage system stores this
+    #: value in the X-Delete-At metadata item.
+    delete_after = resource.header("x-delete-after", type=int)
     #: If set, the time when the object will be deleted by the system
     #: in the format of a UNIX Epoch timestamp.
     #: If not set, this header is not returned by this operation.
@@ -123,6 +137,9 @@ class Object(resource.Resource):
     object_manifest = resource.header("x-object-manifest")
     #: The timestamp of the transaction.
     timestamp = resource.header("x-timestamp", type=format.UNIXEpoch)
+    #: The date and time that the object was created or the last
+    #: time that the metadata was changed.
+    last_modified = resource.header("last_modified", alias="last-modified")
 
     # Headers for PUT and POST requests
     #: Set to chunked to enable chunked transfer encoding. If used,
@@ -140,21 +157,65 @@ class Object(resource.Resource):
     #: Using PUT with X-Copy-From has the same effect as using the
     #: COPY operation to copy an object.
     copy_from = resource.header("x-copy-from")
-    #: Specifies the number of seconds after which the object is
-    #: removed. Internally, the Object Storage system stores this
-    #: value in the X-Delete-At metadata item.
-    delete_after = resource.header("x-delete-after", type=int)
 
-    def get(self, session, args=None):
+    # The Object Store treats the metadata for its resources inconsistently so
+    # Object.set_metadata must override the BaseResource.set_metadata to
+    # account for it.
+    def set_metadata(self, session, metadata):
+        # Filter out items with empty values so the create metadata behaviour
+        # is the same as account and container
+        filtered_metadata = \
+            {key: value for key, value in metadata.iteritems() if value}
+
+        # Get a copy of the original metadata so it doesn't get erased on POST
+        # and update it with the new metadata values.
+        obj = self.head(session)
+        metadata2 = copy.deepcopy(obj.metadata)
+        metadata2.update(filtered_metadata)
+
+        # Include any original system metadata so it doesn't get erased on POST
+        for key in self._system_metadata:
+            value = getattr(obj, key)
+            if value and key not in metadata2:
+                metadata2[key] = value
+
+        super(Object, self).set_metadata(session, metadata2)
+
+    # The Object Store treats the metadata for its resources inconsistently so
+    # Object.delete_metadata must override the BaseResource.delete_metadata to
+    # account for it.
+    def delete_metadata(self, session, keys):
+        # Get a copy of the original metadata so it doesn't get erased on POST
+        # and update it with the new metadata values.
+        obj = self.head(session)
+        metadata = copy.deepcopy(obj.metadata)
+
+        # Include any original system metadata so it doesn't get erased on POST
+        for key in self._system_metadata:
+            value = getattr(obj, key)
+            if value:
+                metadata[key] = value
+
+        # Remove the metadata
+        for key in keys:
+            if key == 'delete_after':
+                del(metadata['delete_at'])
+            else:
+                del(metadata[key])
+
         url = self._get_url(self, self.id)
-        # TODO(thowe): Add filter header support bug #1488269
+        session.post(url, endpoint_filter=self.service,
+                     headers=self._calculate_headers(metadata))
+
+    def get(self, session, include_headers=False, args=None):
+        url = self._get_url(self, self.id)
         headers = {'Accept': 'bytes'}
         resp = session.get(url, endpoint_filter=self.service, headers=headers)
         resp = resp.content
+        self._set_metadata()
         return resp
 
     def create(self, session):
-        """Create a remote resource from this instance."""
         url = self._get_url(self, self.id)
 
         headers = self.get_headers()
