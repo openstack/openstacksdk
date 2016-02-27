@@ -202,3 +202,16 @@ class TestCompute(base.BaseFunctionalTestCase):
         if volume:
             self.assertEquals('deleting', volume.status)
         self.assertIsNone(self.demo_cloud.get_server(self.server_name))
+
+    def test_create_image_snapshot_wait_active(self):
+        self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
+        server = self.demo_cloud.create_server(
+            name=self.server_name,
+            image=self.image,
+            flavor=self.flavor,
+            admin_pass='sheiqu9loegahSh',
+            wait=True)
+        image = self.demo_cloud.create_image_snapshot('test-snapshot', server,
+                                                      wait=True)
+        self.addCleanup(self.demo_cloud.delete_image, image['id'])
+        self.assertEqual('active', image['status'])
