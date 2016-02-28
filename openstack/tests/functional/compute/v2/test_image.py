@@ -55,40 +55,55 @@ class TestImage(base.BaseFunctionalTest):
 
     def test_image_metadata(self):
         image = self._get_non_test_image()
-        sot = self.conn.compute.get_image(image.id)
 
-        # Start by clearing out any other metadata.
-        self.assertDictEqual(self.conn.compute.replace_image_metadata(sot),
-                             {})
+        # delete pre-existing metadata
+        self.conn.compute.delete_image_metadata(image, image.metadata.keys())
+        image = self.conn.compute.get_image_metadata(image)
+        self.assertFalse(image.metadata)
 
-        # Insert first and last name metadata
-        meta = {"first": "Matthew", "last": "Dellavedova"}
-        self.assertDictEqual(
-            self.conn.compute.create_image_metadata(sot, **meta), meta)
+        # get metadata
+        image = self.conn.compute.get_image_metadata(image)
+        self.assertFalse(image.metadata)
 
-        # Update only the first name
-        short = {"first": "Matt", "last": "Dellavedova"}
-        self.assertDictEqual(
-            self.conn.compute.update_image_metadata(sot,
-                                                    first=short["first"]),
-            short)
+        # set no metadata
+        self.conn.compute.set_image_metadata(image)
+        image = self.conn.compute.get_image_metadata(image)
+        self.assertFalse(image.metadata)
 
-        # Get all metadata and then only the last name
-        self.assertDictEqual(self.conn.compute.get_image_metadata(sot),
-                             short)
-        self.assertDictEqual(
-            self.conn.compute.get_image_metadata(sot, "last"),
-            {"last": short["last"]})
+        # set empty metadata
+        self.conn.compute.set_image_metadata(image, k0='')
+        image = self.conn.compute.get_image_metadata(image)
+        self.assertFalse(image.metadata)
 
-        # Replace everything with just a nickname
-        nick = {"nickname": "Delly"}
-        self.assertDictEqual(
-            self.conn.compute.replace_image_metadata(sot, **nick),
-            nick)
-        self.assertDictEqual(self.conn.compute.get_image_metadata(sot),
-                             nick)
+        # set metadata
+        self.conn.compute.set_image_metadata(image, k1='v1')
+        image = self.conn.compute.get_image_metadata(image)
+        self.assertTrue(image.metadata)
+        self.assertEqual(1, len(image.metadata))
+        self.assertIn('k1', image.metadata)
+        self.assertEqual('v1', image.metadata['k1'])
 
-        # Delete the only remaining key, make sure we're empty
-        self.assertIsNone(
-            self.conn.compute.delete_image_metadata(sot, "nickname"))
-        self.assertDictEqual(self.conn.compute.get_image_metadata(sot), {})
+        # set more metadata
+        self.conn.compute.set_image_metadata(image, k2='v2')
+        image = self.conn.compute.get_image_metadata(image)
+        self.assertTrue(image.metadata)
+        self.assertEqual(2, len(image.metadata))
+        self.assertIn('k1', image.metadata)
+        self.assertEqual('v1', image.metadata['k1'])
+        self.assertIn('k2', image.metadata)
+        self.assertEqual('v2', image.metadata['k2'])
+
+        # update metadata
+        self.conn.compute.set_image_metadata(image, k1='v1.1')
+        image = self.conn.compute.get_image_metadata(image)
+        self.assertTrue(image.metadata)
+        self.assertEqual(2, len(image.metadata))
+        self.assertIn('k1', image.metadata)
+        self.assertEqual('v1.1', image.metadata['k1'])
+        self.assertIn('k2', image.metadata)
+        self.assertEqual('v2', image.metadata['k2'])
+
+        # delete metadata
+        self.conn.compute.delete_image_metadata(image, image.metadata.keys())
+        image = self.conn.compute.get_image_metadata(image)
+        self.assertFalse(image.metadata)

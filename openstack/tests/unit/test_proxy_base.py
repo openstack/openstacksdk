@@ -50,7 +50,7 @@ class TestProxyBase(base.TestCase):
     # the _verify method. It will be removed once there is one API to
     # be verifying.
     def _verify2(self, mock_method, test_method,
-                 method_args=None, method_kwargs=None,
+                 method_args=None, method_kwargs=None, method_result=None,
                  expected_args=None, expected_kwargs=None,
                  expected_result=None):
         with mock.patch(mock_method) as mocked:
@@ -62,8 +62,12 @@ class TestProxyBase(base.TestCase):
                 expected_args = expected_args or ()
                 expected_kwargs = expected_kwargs or {}
 
-                self.assertEqual(expected_result, test_method(*method_args,
-                                 **method_kwargs))
+                if method_result:
+                    self.assertEqual(method_result, test_method(*method_args,
+                                     **method_kwargs))
+                else:
+                    self.assertEqual(expected_result, test_method(*method_args,
+                                     **method_kwargs))
                 mocked.assert_called_with(*expected_args, **expected_kwargs)
             else:
                 self.assertEqual(expected_result, test_method())

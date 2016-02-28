@@ -69,45 +69,58 @@ class TestServer(base.BaseFunctionalTest):
         self.assertIn(self.NAME, names)
 
     def test_server_metadata(self):
-        sot = self.conn.compute.get_server(self.server.id)
+        test_server = self.conn.compute.get_server(self.server.id)
 
-        # Start by clearing out any other metadata.
-        self.assertDictEqual(self.conn.compute.replace_server_metadata(sot),
-                             {})
+        # get metadata
+        test_server = self.conn.compute.get_server_metadata(test_server)
+        self.assertFalse(test_server.metadata)
 
-        # Create first and last name metadata
-        meta = {"first": "Matthew", "last": "Dellavedova"}
-        self.assertDictEqual(
-            self.conn.compute.create_server_metadata(sot, **meta), meta)
+        # set no metadata
+        self.conn.compute.set_server_metadata(test_server)
+        test_server = self.conn.compute.get_server_metadata(test_server)
+        self.assertFalse(test_server.metadata)
 
-        # Create something that already exists
-        meta = {"last": "Inman"}
-        self.assertDictEqual(
-            self.conn.compute.create_server_metadata(sot, **meta), meta)
+        # set empty metadata
+        self.conn.compute.set_server_metadata(test_server, k0='')
+        server = self.conn.compute.get_server_metadata(test_server)
+        self.assertTrue(server.metadata)
 
-        # Update only the first name
-        short = {"first": "Matt", "last": "Inman"}
-        self.assertDictEqual(
-            self.conn.compute.update_server_metadata(sot,
-                                                     first=short["first"]),
-            short)
+        # set metadata
+        self.conn.compute.set_server_metadata(test_server, k1='v1')
+        test_server = self.conn.compute.get_server_metadata(test_server)
+        self.assertTrue(test_server.metadata)
+        self.assertEqual(2, len(test_server.metadata))
+        self.assertIn('k0', test_server.metadata)
+        self.assertEqual('', test_server.metadata['k0'])
+        self.assertIn('k1', test_server.metadata)
+        self.assertEqual('v1', test_server.metadata['k1'])
 
-        # Get all metadata and then only the last name
-        self.assertDictEqual(self.conn.compute.get_server_metadata(sot),
-                             short)
-        self.assertDictEqual(
-            self.conn.compute.get_server_metadata(sot, "last"),
-            {"last": short["last"]})
+        # set more metadata
+        self.conn.compute.set_server_metadata(test_server, k2='v2')
+        test_server = self.conn.compute.get_server_metadata(test_server)
+        self.assertTrue(test_server.metadata)
+        self.assertEqual(3, len(test_server.metadata))
+        self.assertIn('k0', test_server.metadata)
+        self.assertEqual('', test_server.metadata['k0'])
+        self.assertIn('k1', test_server.metadata)
+        self.assertEqual('v1', test_server.metadata['k1'])
+        self.assertIn('k2', test_server.metadata)
+        self.assertEqual('v2', test_server.metadata['k2'])
 
-        # Replace everything with just a nickname
-        nick = {"nickname": "Delly"}
-        self.assertDictEqual(
-            self.conn.compute.replace_server_metadata(sot, **nick),
-            nick)
-        self.assertDictEqual(self.conn.compute.get_server_metadata(sot),
-                             nick)
+        # update metadata
+        self.conn.compute.set_server_metadata(test_server, k1='v1.1')
+        test_server = self.conn.compute.get_server_metadata(test_server)
+        self.assertTrue(test_server.metadata)
+        self.assertEqual(3, len(test_server.metadata))
+        self.assertIn('k0', test_server.metadata)
+        self.assertEqual('', test_server.metadata['k0'])
+        self.assertIn('k1', test_server.metadata)
+        self.assertEqual('v1.1', test_server.metadata['k1'])
+        self.assertIn('k2', test_server.metadata)
+        self.assertEqual('v2', test_server.metadata['k2'])
 
-        # Delete the only remaining key, make sure we're empty
-        self.assertIsNone(
-            self.conn.compute.delete_server_metadata(sot, "nickname"))
-        self.assertDictEqual(self.conn.compute.get_server_metadata(sot), {})
+        # delete metadata
+        self.conn.compute.delete_server_metadata(
+            test_server, test_server.metadata.keys())
+        test_server = self.conn.compute.get_server_metadata(test_server)
+        self.assertFalse(test_server.metadata)
