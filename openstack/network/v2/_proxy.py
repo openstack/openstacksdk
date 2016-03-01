@@ -748,9 +748,12 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(_pool.Pool, pool, **attrs)
 
-    def create_pool_member(self, **attrs):
+    def create_pool_member(self, pool, **attrs):
         """Create a new pool member from attributes
 
+        :param pool: The pool can be either the ID of a pool or a
+                     :class:`~openstack.network.v2.pool.Pool` instance that
+                     the member will be created in.
         :param dict attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.pool_member.PoolMember`,
             comprised of the properties on the PoolMember class.
@@ -758,7 +761,10 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of pool member creation
         :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
-        return self._create(_pool_member.PoolMember, **attrs)
+        pool_id = resource.Resource.get_id(pool)
+        return self._create(_pool_member.PoolMember,
+                            path_args={'pool_id': pool_id},
+                            **attrs)
 
     def delete_pool_member(self, pool_member, pool, ignore_missing=True):
         """Delete a pool member
@@ -837,19 +843,24 @@ class Proxy(proxy.BaseProxy):
                           path_args={'pool_id': pool_id}, paginated=False,
                           **query)
 
-    def update_pool_member(self, pool_member, **attrs):
+    def update_pool_member(self, pool_member, pool, **attrs):
         """Update a pool member
 
         :param pool_member: Either the ID of a pool member or a
                        :class:`~openstack.network.v2.pool_member.PoolMember`
                        instance.
+        :param pool: The pool can be either the ID of a pool or a
+                     :class:`~openstack.network.v2.pool.Pool` instance that
+                     the member belongs to.
         :attrs kwargs: The attributes to update on the pool member represented
                        by ``value``.
 
         :returns: The updated pool member
         :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
-        return self._update(_pool_member.PoolMember, pool_member, **attrs)
+        pool_id = resource.Resource.get_id(pool)
+        return self._update(_pool_member.PoolMember, pool_member,
+                            path_args={'pool_id': pool_id}, **attrs)
 
     def create_port(self, **attrs):
         """Create a new port from attributes
