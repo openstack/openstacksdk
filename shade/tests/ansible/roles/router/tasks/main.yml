@@ -63,8 +63,14 @@
      state: absent
      name: shade_subnet2
 
-- name: Delete network
+- name: Delete internal network
   os_network:
      cloud: "{{ cloud }}"
      state: absent
      name: "{{ network_name }}"
+
+- name: Delete external network
+  os_network:
+     cloud: "{{ cloud }}"
+     state: absent
+     name: "{{ external_network_name }}"
