@@ -3350,7 +3350,7 @@ class OpenStackCloud(object):
                 raise OpenStackCloudException(
                     'nics parameter to create_server takes a list of dicts.'
                     ' Got: {nics}'.format(nics=kwargs['nics']))
-        if network and 'nics' not in kwargs:
+        if network and ('nics' not in kwargs or not kwargs['nics']):
             network_obj = self.get_network(name_or_id=network)
             if not network_obj:
                 raise OpenStackCloudException(
