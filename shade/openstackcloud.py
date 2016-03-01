@@ -787,7 +787,7 @@ class OpenStackCloud(object):
         for count in _utils._iterate_timeout(
                 timeout,
                 "Timed out waiting for heat stack to finish"):
-            stack = self.get_stack(name, cache=False)
+            stack = self.get_stack(name)
             if stack:
                 return stack
 

@@ -89,7 +89,7 @@ class TestStack(base.TestCase):
         mock_get.return_value = stack
         self.assertTrue(self.cloud.delete_stack('stack_name'))
         mock_get.assert_called_once_with('stack_name')
-        mock_heat.stacks.delete.assert_called_once_with(id=stack['id'])
+        mock_heat.stacks.delete.assert_called_once_with(stack['id'])
 
     @mock.patch.object(shade.OpenStackCloud, 'get_stack')
     @mock.patch.object(shade.OpenStackCloud, 'heat_client')
