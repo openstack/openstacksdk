@@ -221,11 +221,13 @@ class OpenStackCloud(object):
         self._neutron_client = None
         self._nova_client = None
         self._swift_client = None
-        # Lock used to reset client as swift client does not
-        # support keystone sessions meaning that we have to make
-        # a new client in order to get new auth prior to operations.
-        self._swift_client_lock = threading.Lock()
         self._swift_service = None
+        # Lock used to reset swift client.  Since swift client does not
+        # support keystone sessions, we we have to make a new client
+        # in order to get new auth prior to operations, otherwise
+        # long-running sessions will fail.
+        self._swift_client_lock = threading.Lock()
+        self._swift_service_lock = threading.Lock()
         self._trove_client = None
 
         self._local_ipv6 = _utils.localhost_supports_ipv6()
@@ -727,16 +729,18 @@ class OpenStackCloud(object):
 
     @property
     def swift_service(self):
-        if self._swift_service is None:
-            with _utils.shade_exceptions("Error constructing swift client"):
-                endpoint = self.get_session_endpoint(
-                    service_key='object-store')
-                options = dict(os_auth_token=self.auth_token,
-                               os_storage_url=endpoint,
-                               os_region_name=self.region_name)
-                self._swift_service = swiftclient.service.SwiftService(
-                    options=options)
-        return self._swift_service
+        with self._swift_service_lock:
+            if self._swift_service is None:
+                with _utils.shade_exceptions("Error constructing "
+                                             "swift client"):
+                    endpoint = self.get_session_endpoint(
+                        service_key='object-store')
+                    options = dict(os_auth_token=self.auth_token,
+                                   os_storage_url=endpoint,
+                                   os_region_name=self.region_name)
+                    self._swift_service = swiftclient.service.SwiftService(
+                        options=options)
+            return self._swift_service
 
     @property
     def cinder_client(self):
@@ -2112,8 +2116,13 @@ class OpenStackCloud(object):
     def _upload_image_task(
             self, name, filename, container, current_image,
             wait, timeout, **image_properties):
+
+        # get new client sessions
         with self._swift_client_lock:
             self._swift_client = None
+        with self._swift_service_lock:
+            self._swift_service_lock = None
+
         self.create_object(
             container, name, filename,
             md5=image_properties.get('md5', None),
