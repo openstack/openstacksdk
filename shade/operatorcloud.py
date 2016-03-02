@@ -747,13 +747,14 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 _tasks.MachineNodeUpdate(node_id=uuid, patch=patch))
 
     @_utils.valid_kwargs('type', 'service_type', 'description')
-    def create_service(self, name, **kwargs):
+    def create_service(self, name, enabled=True, **kwargs):
         """Create a service.
 
         :param name: Service name.
         :param type: Service type. (type or service_type required.)
         :param service_type: Service type. (type or service_type required.)
         :param description: Service description (optional).
+        :param enabled: Whether the service is enabled (v3 only)
 
         :returns: a dict containing the services description, i.e. the
             following attributes::
@@ -767,17 +768,47 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             openstack API call.
 
         """
-        service_type = kwargs.get('type', kwargs.get('service_type'))
-        description = kwargs.get('description', None)
-        with _utils.shade_exceptions("Failed to create service {name}".format(
-                name=name)):
-            if self.cloud_config.get_api_version('identity').startswith('2'):
-                service_kwargs = {'service_type': service_type}
-            else:
-                service_kwargs = {'type': service_type}
+        type_ = kwargs.pop('type', None)
+        service_type = kwargs.pop('service_type', None)
 
-            service = self.manager.submitTask(_tasks.ServiceCreate(
-                name=name, description=description, **service_kwargs))
+        if self.cloud_config.get_api_version('identity').startswith('2'):
+            kwargs['service_type'] = type_ or service_type
+        else:
+            kwargs['type'] = type_ or service_type
+            kwargs['enabled'] = enabled
+
+        with _utils.shade_exceptions(
+            "Failed to create service {name}".format(name=name)
+        ):
+            service = self.manager.submitTask(
+                _tasks.ServiceCreate(name=name, **kwargs)
+            )
+
+        return _utils.normalize_keystone_services([service])[0]
+
+    @_utils.valid_kwargs('name', 'enabled', 'type', 'service_type',
+                         'description')
+    def update_service(self, name_or_id, **kwargs):
+        # NOTE(SamYaple): Service updates are only available on v3 api
+        if self.cloud_config.get_api_version('identity').startswith('2'):
+            raise OpenStackCloudUnavailableFeature(
+                'Unavailable Feature: Service update requires Identity v3'
+            )
+
+        # NOTE(SamYaple): Keystone v3 only accepts 'type' but shade accepts
+        #                 both 'type' and 'service_type' with a preference
+        #                 towards 'type'
+        type_ = kwargs.pop('type', None)
+        service_type = kwargs.pop('service_type', None)
+        if type_ or service_type:
+            kwargs['type'] = type_ or service_type
+
+        with _utils.shade_exceptions(
+            "Error in updating service {service}".format(service=name_or_id)
+        ):
+            service = self.manager.submitTask(
+                _tasks.ServiceUpdate(service=name_or_id, **kwargs)
+            )
 
         return _utils.normalize_keystone_services([service])[0]
 

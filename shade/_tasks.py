@@ -607,6 +607,11 @@ class ServiceList(task_manager.Task):
         return client.keystone_client.services.list()
 
 
+class ServiceUpdate(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.services.update(**self.args)
+
+
 class ServiceDelete(task_manager.Task):
     def main(self, client):
         return client.keystone_client.services.delete(**self.args)

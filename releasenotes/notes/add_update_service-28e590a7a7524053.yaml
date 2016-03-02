@@ -1,0 +1,6 @@
+---
+features:
+  - Add the ability to update a keystone service information. This feature is
+    not available on keystone v2.0. The new function, update_service(), allows
+    the user to update description, name of service, service type, and enabled
+    status.
