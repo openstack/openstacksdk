@@ -1,0 +1,6 @@
+---
+fixes:
+  - The create_server() API call would not use the supplied 'network'
+    parameter if the 'nics' parameter was also supplied, even though it would
+    be an empty list. It now uses 'network' if 'nics' is not supplied or if
+    it is an empty list.

@@ -250,3 +250,28 @@ class TestCreateServer(base.TestCase):
                     OpenStackCloudException, self.client.create_server,
                     'server-name', 'image-id', 'flavor-id',
                     wait=True)
+
+    @patch('shade.OpenStackCloud.nova_client')
+    @patch('shade.OpenStackCloud.get_network')
+    def test_create_server_network_with_no_nics(self, mock_get_network,
+                                                mock_nova):
+        """
+        Verify that if 'network' is supplied, and 'nics' is not, that we
+        attempt to get the network for the server.
+        """
+        self.client.create_server('server-name', 'image-id', 'flavor-id',
+                                  network='network-name')
+        mock_get_network.assert_called_once_with(name_or_id='network-name')
+
+    @patch('shade.OpenStackCloud.nova_client')
+    @patch('shade.OpenStackCloud.get_network')
+    def test_create_server_network_with_empty_nics(self,
+                                                   mock_get_network,
+                                                   mock_nova):
+        """
+        Verify that if 'network' is supplied, along with an empty 'nics' list,
+        it's treated the same as if 'nics' were not included.
+        """
+        self.client.create_server('server-name', 'image-id', 'flavor-id',
+                                  network='network-name', nics=[])
+        mock_get_network.assert_called_once_with(name_or_id='network-name')
