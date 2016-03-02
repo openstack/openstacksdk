@@ -2015,12 +2015,76 @@ class OpenStackCloud(object):
                 if self.get_image(image.id) is None:
                     return
 
+    def _get_name_and_filename(self, name):
+        # See if name points to an existing file
+        if os.path.exists(name):
+            # Neat. Easy enough
+            return (os.path.splitext(os.path.basename(name))[0], name)
+
+        # Try appending the disk format
+        name_with_ext = '.'.join((
+            name, self.cloud_config.config['image_format']))
+        if os.path.exists(name_with_ext):
+            return (os.path.basename(name), name_with_ext)
+
+        raise OpenStackCloudException(
+            'No filename parameter was given to create_image,'
+            ' and {name} was not the path to an existing file.'
+            ' Please provide either a path to an existing file'
+            ' or a name and a filename'.format(name=name))
+
     def create_image(
-            self, name, filename, container='images',
+            self, name, filename=None, container='images',
             md5=None, sha256=None,
             disk_format=None, container_format=None,
             disable_vendor_agent=True,
             wait=False, timeout=3600, **kwargs):
+        """Upload an image to Glance.
+
+        :param str name: Name of the image to create. If it is a pathname
+                         of an image, the name will be constructed from the
+                         extensionless basename of the path.
+        :param str filename: The path to the file to upload, if needed.
+                             (optional, defaults to None)
+        :param str container: Name of the container in swift where images
+                              should be uploaded for import if the cloud
+                              requires such a thing. (optiona, defaults to
+                              'images')
+        :param str md5: md5 sum of the image file. If not given, an md5 will
+                        be calculated.
+        :param str sha256: sha256 sum of the image file. If not given, an md5
+                           will be calculated.
+        :param str disk_format: The disk format the image is in. (optional,
+                                defaults to the os-client-config config value
+                                for this cloud)
+        :param str container_format: The container format the image is in.
+                                     (optional, defaults to the
+                                     os-client-config config value for this
+                                     cloud)
+        :param bool disable_vendor_agent: Whether or not to append metadata
+                                          flags to the image to inform the
+                                          cloud in question to not expect a
+                                          vendor agent to be runing.
+                                          (optional, defaults to True)
+        :param bool wait: If true, waits for image to be created. Defaults to
+                          true - however, be aware that one of the upload
+                          methods is always synchronous.
+        :param timeout: Seconds to wait for image creation. None is forever.
+
+        Additional kwargs will be passed to the image creation as additional
+        metadata for the image.
+
+        :returns: A ``munch.Munch`` of the Image object
+
+        :raises: OpenStackCloudException if there are problems uploading
+        """
+
+        if not disk_format:
+            disk_format = self.cloud_config.config['image_format']
+
+        # If there is no filename, see if name is actually the filename
+        if not filename:
+            name, filename = self._get_name_and_filename(name)
 
         if not disk_format:
             disk_format = self.cloud_config.config['image_format']
