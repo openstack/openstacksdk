@@ -3751,6 +3751,8 @@ class OpenStackCloud(object):
 
     def _get_file_hashes(self, filename):
         if filename not in self._file_hash_cache:
+            self.log.debug(
+                'Calculating hashes for {filename}'.format(filename=filename))
             md5 = hashlib.md5()
             sha256 = hashlib.sha256()
             with open(filename, 'rb') as file_obj:
@@ -3759,6 +3761,11 @@ class OpenStackCloud(object):
                     sha256.update(chunk)
             self._file_hash_cache[filename] = dict(
                 md5=md5.hexdigest(), sha256=sha256.hexdigest())
+            self.log.debug(
+                "Image file {filename} md5:{md5} sha256:{sha256}".format(
+                    filename=filename,
+                    md5=self._file_hash_cache[filename]['md5'],
+                    sha256=self._file_hash_cache[filename]['sha256']))
         return (self._file_hash_cache[filename]['md5'],
                 self._file_hash_cache[filename]['sha256'])
 
