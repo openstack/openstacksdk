@@ -727,6 +727,29 @@ class OpenStackCloud(object):
                     'object-store', swiftclient.client.Connection)
             return self._swift_client
 
+    def _get_swift_kwargs(self):
+        auth_version = self.cloud_config.get_api_version('identity')
+        auth_args = self.cloud_config.config.get('auth', {})
+        os_options = {'auth_version': auth_version}
+        if auth_version == '2.0':
+            os_options['os_tenant_name'] = auth_args.get('project_name')
+            os_options['os_tenant_id'] = auth_args.get('project_id')
+        else:
+            os_options['os_project_name'] = auth_args.get('project_name')
+            os_options['os_project_id'] = auth_args.get('project_id')
+
+        for key in (
+                'username',
+                'password',
+                'auth_url',
+                'user_id',
+                'project_domain_id',
+                'project_domain_name',
+                'user_domain_id',
+                'user_domain_name'):
+            os_options['os_{key}'.format(key=key)] = auth_args.get(key)
+        return os_options
+
     @property
     def swift_service(self):
         with self._swift_service_lock:
@@ -738,6 +761,7 @@ class OpenStackCloud(object):
                     options = dict(os_auth_token=self.auth_token,
                                    os_storage_url=endpoint,
                                    os_region_name=self.region_name)
+                    options.update(self._get_swift_kwargs())
                     self._swift_service = swiftclient.service.SwiftService(
                         options=options)
             return self._swift_service
