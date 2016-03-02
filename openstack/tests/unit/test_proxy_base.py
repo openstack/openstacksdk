@@ -21,10 +21,11 @@ class TestProxyBase(base.TestCase):
         self.session = mock.Mock()
 
     def _add_path_args_for_verify(self, path_args, method_args,
-                                  expected_kwargs):
+                                  expected_kwargs, value=None):
         if path_args is not None:
-            for key in path_args:
-                method_args.append(path_args[key])
+            if value is None:
+                for key in path_args:
+                    method_args.append(path_args[key])
             expected_kwargs['path_args'] = path_args
 
     def _verify(self, mock_method, test_method,
@@ -98,15 +99,18 @@ class TestProxyBase(base.TestCase):
     def verify_delete(self, test_method, resource_type, ignore,
                       input_path_args=None, expected_path_args=None,
                       mock_method="openstack.proxy.BaseProxy._delete"):
+        method_args = ["resource_or_id"]
         method_kwargs = {"ignore_missing": ignore}
         if isinstance(input_path_args, dict):
             for key in input_path_args:
                 method_kwargs[key] = input_path_args[key]
+        elif isinstance(input_path_args, list):
+            method_args = input_path_args
         expected_kwargs = {"ignore_missing": ignore}
         if expected_path_args:
             expected_kwargs["path_args"] = expected_path_args
         self._verify2(mock_method, test_method,
-                      method_args=["resource_or_id"],
+                      method_args=method_args,
                       method_kwargs=method_kwargs,
                       expected_args=[resource_type, "resource_or_id"],
                       expected_kwargs=expected_kwargs)
@@ -117,16 +121,19 @@ class TestProxyBase(base.TestCase):
         the_value = value
         if value is None:
             the_value = [] if ignore_value else ["value"]
+        expected_args = kwargs.pop("expected_args", [])
         expected_kwargs = kwargs.pop("expected_kwargs", {})
         method_kwargs = kwargs.pop("method_kwargs", kwargs)
         if args:
             expected_kwargs["args"] = args
         if kwargs:
             expected_kwargs["path_args"] = kwargs
+        if not expected_args:
+            expected_args = [resource_type] + the_value
         self._verify2(mock_method, test_method,
                       method_args=the_value,
                       method_kwargs=method_kwargs or {},
-                      expected_args=[resource_type] + the_value,
+                      expected_args=expected_args,
                       expected_kwargs=expected_kwargs)
 
     def verify_head(self, test_method, resource_type,
@@ -140,12 +147,14 @@ class TestProxyBase(base.TestCase):
                       expected_args=[resource_type] + the_value,
                       expected_kwargs=expected_kwargs)
 
-    def verify_find(self, test_method, resource_type, path_args=None,
-                    mock_method="openstack.proxy.BaseProxy._find", **kwargs):
-        method_args = ["name_or_id"]
+    def verify_find(self, test_method, resource_type, value=None,
+                    mock_method="openstack.proxy.BaseProxy._find",
+                    path_args=None, **kwargs):
+        method_args = value or ["name_or_id"]
         expected_kwargs = {}
 
-        self._add_path_args_for_verify(path_args, method_args, expected_kwargs)
+        self._add_path_args_for_verify(path_args, method_args, expected_kwargs,
+                                       value=value)
 
         # TODO(briancurtin): if sub-tests worked in this mess of
         # test dependencies, the following would be a lot easier to work with.
@@ -189,22 +198,22 @@ class TestProxyBase(base.TestCase):
                       expected_kwargs={"paginated": paginated},
                       expected_result=["result"])
 
-    def verify_update(self, test_method, resource_type,
+    def verify_update(self, test_method, resource_type, value=None,
                       mock_method="openstack.proxy.BaseProxy._update",
                       expected_result="result", path_args=None, **kwargs):
-        the_kwargs = {"x": 1, "y": 2, "z": 3}
-        method_args = ["resource_or_id"]
-        method_kwargs = the_kwargs.copy()
-        expected_args = [resource_type, "resource_or_id"]
-        expected_kwargs = the_kwargs.copy()
+        method_args = value or ["resource_or_id"]
+        method_kwargs = {"x": 1, "y": 2, "z": 3}
+        expected_args = kwargs.pop("expected_args", ["resource_or_id"])
+        expected_kwargs = method_kwargs.copy()
 
-        self._add_path_args_for_verify(path_args, method_args, expected_kwargs)
+        self._add_path_args_for_verify(path_args, method_args, expected_kwargs,
+                                       value=value)
 
         self._verify2(mock_method, test_method,
                       expected_result=expected_result,
                       method_args=method_args,
                       method_kwargs=method_kwargs,
-                      expected_args=expected_args,
+                      expected_args=[resource_type] + expected_args,
                       expected_kwargs=expected_kwargs,
                       **kwargs)
 

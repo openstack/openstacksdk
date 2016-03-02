@@ -14,6 +14,7 @@ from openstack.image.v2 import image as _image
 from openstack.image.v2 import member as _member
 from openstack.image.v2 import tag as _tag
 from openstack import proxy
+from openstack import resource
 
 
 class Proxy(proxy.BaseProxy):
@@ -102,9 +103,12 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(_image.Image, image, **attrs)
 
-    def create_member(self, **attrs):
+    def create_member(self, image, **attrs):
         """Create a new member from attributes
 
+        :param image: The value can be the ID of a image or a
+                      :class:`~openstack.image.v2.image.Image` instance
+                      that the member will be created for.
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.image.v2.member.Member`,
                            comprised of the properties on the Member class.
@@ -112,13 +116,19 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of member creation
         :rtype: :class:`~openstack.image.v2.member.Member`
         """
-        return self._create(_member.Member, **attrs)
+        image_id = resource.Resource.get_id(image)
+        return self._create(_member.Member,
+                            path_args={'image_id': image_id}, **attrs)
 
-    def delete_member(self, member, ignore_missing=True):
+    def delete_member(self, member, image=None, ignore_missing=True):
         """Delete a member
 
         :param member: The value can be either the ID of a member or a
                        :class:`~openstack.image.v2.member.Member` instance.
+        :param image: This is the image that the member belongs to,
+                      this parameter need to be specified when member ID is
+                      given as value. The value can be the ID of a image or a
+                      :class:`~openstack.image.v2.image.Image` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the member does not exist.
@@ -127,12 +137,21 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(_member.Member, member, ignore_missing=ignore_missing)
+        if isinstance(member, _member.Member):
+            image_id = member.image_id
+        else:
+            image_id = resource.Resource.get_id(image)
+        self._delete(_member.Member, member,
+                     path_args={'image_id': image_id},
+                     ignore_missing=ignore_missing)
 
-    def find_member(self, name_or_id, ignore_missing=True):
+    def find_member(self, name_or_id, image, ignore_missing=True):
         """Find a single member
 
         :param name_or_id: The name or ID of a member.
+        :param image: This is the image that the member belongs to,
+                      the value can be the ID of a image or a
+                      :class:`~openstack.image.v2.image.Image` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the resource does not exist.
@@ -140,44 +159,69 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.image.v2.member.Member` or None
         """
+        image_id = resource.Resource.get_id(image)
         return self._find(_member.Member, name_or_id,
+                          path_args={'image_id': image_id},
                           ignore_missing=ignore_missing)
 
-    def get_member(self, member):
+    def get_member(self, member, image=None):
         """Get a single member
 
         :param member: The value can be the ID of a member or a
                        :class:`~openstack.image.v2.member.Member` instance.
-
+        :param image: This is the image that the member belongs to,
+                      this parameter need to be specified when member ID is
+                      given as value. The value can be the ID of a image or a
+                      :class:`~openstack.image.v2.image.Image` instance.
         :returns: One :class:`~openstack.image.v2.member.Member`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(_member.Member, member)
+        if isinstance(member, _member.Member):
+            image_id = member.image_id
+        else:
+            image_id = resource.Resource.get_id(image)
+        return self._get(_member.Member, member,
+                         path_args={'image_id': image_id})
 
-    def members(self, **query):
+    def members(self, image, **query):
         """Return a generator of members
 
+        :param image: This is the image that the member belongs to,
+                      the value can be the ID of a image or a
+                      :class:`~openstack.image.v2.image.Image` instance.
         :param kwargs \*\*query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of member objects
         :rtype: :class:`~openstack.image.v2.member.Member`
         """
-        return self._list(_member.Member, paginated=False, **query)
+        image_id = resource.Resource.get_id(image)
+        return self._list(_member.Member, paginated=False,
+                          path_args={'image_id': image_id},
+                          **query)
 
-    def update_member(self, member, **attrs):
+    def update_member(self, member, image=None, **attrs):
         """Update a member
 
         :param member: Either the ID of a member or a
                        :class:`~openstack.image.v2.member.Member` instance.
+        :param image: This is the image that the member belongs to,
+                      this parameter need to be specified when member ID is
+                      given as value. The value can be the ID of a image or a
+                      :class:`~openstack.image.v2.image.Image` instance.
         :attrs kwargs: The attributes to update on the member represented
                        by ``value``.
 
         :returns: The updated member
         :rtype: :class:`~openstack.image.v2.member.Member`
         """
-        return self._update(_member.Member, member, **attrs)
+        if isinstance(member, _member.Member):
+            image_id = member.image_id
+        else:
+            image_id = resource.Resource.get_id(image)
+        return self._update(_member.Member, member,
+                            path_args={'image_id': image_id}, **attrs)
 
     def create_tag(self, **attrs):
         """Create a new tag from attributes
