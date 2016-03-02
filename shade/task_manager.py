@@ -79,10 +79,17 @@ class Task(object):
             six.reraise(type(self._exception), self._exception,
                         self._traceback)
 
+        # NOTE(Shrews): Since the client API might decide to subclass one
+        # of these result types, we use isinstance() here instead of type().
         if isinstance(self._result, list):
             return meta.obj_list_to_dict(self._result)
-        elif type(self._result) not in (bool, int, float, str, set,
-                                        tuple, types.GeneratorType):
+        elif (not isinstance(self._result, bool) and
+              not isinstance(self._result, int) and
+              not isinstance(self._result, float) and
+              not isinstance(self._result, str) and
+              not isinstance(self._result, set) and
+              not isinstance(self._result, tuple) and
+              not isinstance(self._result, types.GeneratorType)):
             return meta.obj_to_dict(self._result)
         else:
             return self._result
