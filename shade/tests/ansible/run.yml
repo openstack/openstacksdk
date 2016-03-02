@@ -14,6 +14,7 @@
     - { role: port, tags: port }
     - { role: router, tags: router }
     - { role: security_group, tags: security_group }
+    - { role: server, tags: server }
     - { role: subnet, tags: subnet }
     - { role: user, tags: user }
     - { role: user_group, tags: user_group }
