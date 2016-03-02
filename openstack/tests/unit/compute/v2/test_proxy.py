@@ -16,6 +16,7 @@ from openstack.compute.v2 import _proxy
 from openstack.compute.v2 import availability_zone as az
 from openstack.compute.v2 import extension
 from openstack.compute.v2 import flavor
+from openstack.compute.v2 import hypervisor
 from openstack.compute.v2 import image
 from openstack.compute.v2 import keypair
 from openstack.compute.v2 import limits
@@ -361,3 +362,15 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
     def test_server_groups(self):
         self.verify_list(self.proxy.server_groups, server_group.ServerGroup,
                          paginated=False)
+
+    def test_hypervisors(self):
+        self.verify_list(self.proxy.hypervisors, hypervisor.Hypervisor,
+                         paginated=False)
+
+    def test_find_hypervisor(self):
+        self.verify_find(self.proxy.find_hypervisor,
+                         hypervisor.Hypervisor)
+
+    def test_get_hypervisor(self):
+        self.verify_get(self.proxy.get_hypervisor,
+                        hypervisor.Hypervisor)

@@ -13,6 +13,7 @@
 from openstack.compute.v2 import availability_zone
 from openstack.compute.v2 import extension
 from openstack.compute.v2 import flavor as _flavor
+from openstack.compute.v2 import hypervisor as _hypervisor
 from openstack.compute.v2 import image as _image
 from openstack.compute.v2 import keypair as _keypair
 from openstack.compute.v2 import limits
@@ -837,3 +838,39 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.compute.v2.server_group.ServerGroup`
         """
         return self._list(_server_group.ServerGroup, paginated=False, **query)
+
+    def hypervisors(self, **query):
+        """Return a generator of hypervisor
+
+        :returns: A generator of hypervisor
+        :rtype: class: `~openstack.compute.v2.hypervisor.Hypervisor`
+        """
+
+        return self._list(_hypervisor.Hypervisor, paginated=False, **query)
+
+    def find_hypervisor(self, name_or_id, ignore_missing=True):
+        """Find a hypervisor from name or id to get the corresponding info
+
+        :param name_or_id: The name or id of a hypervisor
+
+        :returns:
+            One: class:`~openstack.compute.v2.hypervisor.Hypervisor` object
+            or None
+        """
+
+        return self._find(_hypervisor.Hypervisor, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def get_hypervisor(self, hypervisor):
+        """Get a single hypervisor
+
+        :param hypervisor: The value can be the ID of a hypervisor or a
+               :class:`~openstack.compute.v2.hypervisor.Hypervisor`
+               instance.
+
+        :returns:
+            A :class:`~openstack.compute.v2.hypervisor.Hypervisor` object.
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_hypervisor.Hypervisor, hypervisor)
