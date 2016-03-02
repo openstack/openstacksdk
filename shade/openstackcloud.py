@@ -2496,6 +2496,7 @@ class OpenStackCloud(object):
                     timeout,
                     "Timeout waiting for volume %s to attach." % volume['id']):
                 try:
+                    self.list_volumes.invalidate(self)
                     vol = self.get_volume(volume['id'])
                 except Exception:
                     self.log.debug(
