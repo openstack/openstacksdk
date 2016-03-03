@@ -472,6 +472,16 @@ class TestMeta(testtools.TestCase):
         self.assertTrue(hasattr(cloud_dict, 'name'))
         self.assertEquals(cloud_dict.name, cloud_dict['name'])
 
+    def test_obj_to_dict_subclass(self):
+        class FakeObjDict(dict):
+            additional = 1
+        obj = FakeObjDict(foo='bar')
+        obj_dict = meta.obj_to_dict(obj)
+        self.assertIn('additional', obj_dict)
+        self.assertIn('foo', obj_dict)
+        self.assertEquals(obj_dict['additional'], 1)
+        self.assertEquals(obj_dict['foo'], 'bar')
+
     def test_warlock_to_dict(self):
         schema = {
             'name': 'Test',

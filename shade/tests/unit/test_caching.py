@@ -394,6 +394,9 @@ class TestMemoryCache(base.TestCase):
             id = '99'
             name = '99 name'
 
+            def _shadeunittest(self):
+                pass
+
         fake_image = FakeImage()
         fake_image.update({
             'id': '99',
@@ -406,6 +409,9 @@ class TestMemoryCache(base.TestCase):
         class FakeTask(dict):
             status = 'success'
             result = {'image_id': '99'}
+
+            def _shadeunittest(self):
+                pass
 
         fake_task = FakeTask()
         fake_task.update({
@@ -439,6 +445,10 @@ class TestMemoryCache(base.TestCase):
             id = 1
             status = 'active'
             name = 'None Test Image'
+
+            def _shadeunittest(self):
+                pass
+
         fi = FakeImage(id=FakeImage.id, status=FakeImage.status,
                        name=FakeImage.name)
         glance_mock.images.list.return_value = [fi]
