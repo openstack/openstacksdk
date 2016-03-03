@@ -95,32 +95,63 @@ class TestRouter(testtools.TestCase):
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['availability_zones'],
                          sot.availability_zones)
 
-    def test_add_interface(self):
+    def test_add_interface_subnet(self):
+        # Add subnet to a router
         sot = router.Router(EXAMPLE)
         response = mock.Mock()
         response.body = {"subnet_id": "3", "port_id": "2"}
         response.json = mock.Mock(return_value=response.body)
         sess = mock.Mock()
         sess.put = mock.Mock(return_value=response)
-
-        self.assertEqual(response.body, sot.add_interface(sess, '3'))
+        body = {"subnet_id": "3"}
+        self.assertEqual(response.body, sot.add_interface(sess, **body))
 
         url = 'routers/IDENTIFIER/add_router_interface'
-        body = {"subnet_id": "3"}
         sess.put.assert_called_with(url, endpoint_filter=sot.service,
                                     json=body)
 
-    def test_remove_interface(self):
+    def test_add_interface_port(self):
+        # Add port to a router
+        sot = router.Router(EXAMPLE)
+        response = mock.Mock()
+        response.body = {"subnet_id": "3", "port_id": "3"}
+        response.json = mock.Mock(return_value=response.body)
+        sess = mock.Mock()
+        sess.put = mock.Mock(return_value=response)
+
+        body = {"port_id": "3"}
+        self.assertEqual(response.body, sot.add_interface(sess, **body))
+
+        url = 'routers/IDENTIFIER/add_router_interface'
+        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+                                    json=body)
+
+    def test_remove_interface_subnet(self):
+        # Remove subnet from a router
         sot = router.Router(EXAMPLE)
         response = mock.Mock()
         response.body = {"subnet_id": "3", "port_id": "2"}
         response.json = mock.Mock(return_value=response.body)
         sess = mock.Mock()
         sess.put = mock.Mock(return_value=response)
-
-        self.assertEqual(response.body, sot.remove_interface(sess, '3'))
+        body = {"subnet_id": "3"}
+        self.assertEqual(response.body, sot.remove_interface(sess, **body))
 
         url = 'routers/IDENTIFIER/remove_router_interface'
-        body = {"subnet_id": "3"}
+        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+                                    json=body)
+
+    def test_remove_interface_port(self):
+        # Remove port from a router
+        sot = router.Router(EXAMPLE)
+        response = mock.Mock()
+        response.body = {"subnet_id": "3", "port_id": "3"}
+        response.json = mock.Mock(return_value=response.body)
+        sess = mock.Mock()
+        sess.put = mock.Mock(return_value=response)
+        body = {"port_id": "3"}
+        self.assertEqual(response.body, sot.remove_interface(sess, **body))
+
+        url = 'routers/IDENTIFIER/remove_router_interface'
         sess.put.assert_called_with(url, endpoint_filter=sot.service,
                                     json=body)
