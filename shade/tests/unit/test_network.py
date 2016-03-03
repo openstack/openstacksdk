@@ -37,6 +37,20 @@ class TestNetwork(base.TestCase):
         )
 
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_create_network_specific_tenant(self, mock_neutron):
+        self.cloud.create_network("netname", project_id="project_id_value")
+        mock_neutron.create_network.assert_called_with(
+            body=dict(
+                network=dict(
+                    name='netname',
+                    shared=False,
+                    admin_state_up=True,
+                    tenant_id="project_id_value",
+                )
+            )
+        )
+
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     def test_create_network_external(self, mock_neutron):
         self.cloud.create_network("netname", external=True)
         mock_neutron.create_network.assert_called_with(

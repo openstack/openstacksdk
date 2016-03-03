@@ -1675,7 +1675,7 @@ class OpenStackCloud(object):
         return True
 
     def create_network(self, name, shared=False, admin_state_up=True,
-                       external=False, provider=None):
+                       external=False, provider=None, project_id=None):
         """Create a network.
 
         :param string name: Name of the network being created.
@@ -1685,16 +1685,20 @@ class OpenStackCloud(object):
         :param dict provider: A dict of network provider options. Example::
 
            { 'network_type': 'vlan', 'segmentation_id': 'vlan1' }
+        :param string project_id: Specify the project ID this network
+            will be created on (admin-only).
 
         :returns: The network object.
         :raises: OpenStackCloudException on operation error.
         """
-
         network = {
             'name': name,
             'shared': shared,
             'admin_state_up': admin_state_up,
         }
+
+        if project_id is not None:
+            network['tenant_id'] = project_id
 
         if provider:
             if not isinstance(provider, dict):
