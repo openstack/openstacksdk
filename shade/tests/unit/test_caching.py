@@ -496,28 +496,30 @@ class TestMemoryCache(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_cache_no_cloud_name(self, glance_mock):
-        class FakeImage(dict):
-            id = 1
+        class FakeImage(object):
             status = 'active'
             name = 'None Test Image'
 
-            def _shadeunittest(self):
-                pass
+            def __init__(self, id):
+                self.id = id
 
-        fi = FakeImage(id=FakeImage.id, status=FakeImage.status,
-                       name=FakeImage.name)
+        fi = FakeImage(id=1)
         glance_mock.images.list.return_value = [fi]
         self.cloud.name = None
-        self.assertEqual([fi], [dict(x) for x in self.cloud.list_images()])
+        self.assertEqual(
+            meta.obj_list_to_dict([fi]),
+            self.cloud.list_images())
         # Now test that the list was cached
-        fi2 = FakeImage(id=2, status=FakeImage.status, name=FakeImage.name)
-        fi2.id = 2
+        fi2 = FakeImage(id=2)
         glance_mock.images.list.return_value = [fi, fi2]
-        self.assertEqual([fi], [dict(x) for x in self.cloud.list_images()])
+        self.assertEqual(
+            meta.obj_list_to_dict([fi]),
+            self.cloud.list_images())
         # Invalidation too
         self.cloud.list_images.invalidate(self.cloud)
         self.assertEqual(
-            [fi, fi2], [dict(x) for x in self.cloud.list_images()])
+            meta.obj_list_to_dict([fi, fi2]),
+            self.cloud.list_images())
 
 
 class TestBogusAuth(base.TestCase):

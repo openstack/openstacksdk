@@ -338,9 +338,6 @@ def obj_to_dict(obj):
         # If we obj_to_dict twice, don't fail, just return the munch
         # Also, don't try to modify Mock objects - that way lies madness
         return obj
-    elif hasattr(obj, '_shadeunittest'):
-        # Hook for unittesting
-        instance = munch.Munch()
     elif hasattr(obj, 'schema') and hasattr(obj, 'validate'):
         # It's a warlock
         return warlock_to_dict(obj)
