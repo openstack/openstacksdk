@@ -13,9 +13,11 @@
 # under the License.
 import tempfile
 
+from glanceclient.v2 import shell
 import mock
 import os_client_config as occ
 import testtools
+import warlock
 import yaml
 
 import shade.openstackcloud
@@ -24,6 +26,74 @@ from shade import exc
 from shade import meta
 from shade.tests import fakes
 from shade.tests.unit import base
+
+
+# Mock out the gettext function so that the task schema can be copypasta
+def _(msg):
+    return msg
+
+
+_TASK_PROPERTIES = {
+    "id": {
+        "description": _("An identifier for the task"),
+        "pattern": _('^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}'
+                     '-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$'),
+        "type": "string"
+    },
+    "type": {
+        "description": _("The type of task represented by this content"),
+        "enum": [
+            "import",
+        ],
+        "type": "string"
+    },
+    "status": {
+        "description": _("The current status of this task"),
+        "enum": [
+            "pending",
+            "processing",
+            "success",
+            "failure"
+        ],
+        "type": "string"
+    },
+    "input": {
+        "description": _("The parameters required by task, JSON blob"),
+        "type": ["null", "object"],
+    },
+    "result": {
+        "description": _("The result of current task, JSON blob"),
+        "type": ["null", "object"],
+    },
+    "owner": {
+        "description": _("An identifier for the owner of this task"),
+        "type": "string"
+    },
+    "message": {
+        "description": _("Human-readable informative message only included"
+                         " when appropriate (usually on failure)"),
+        "type": "string",
+    },
+    "expires_at": {
+        "description": _("Datetime when this resource would be"
+                         " subject to removal"),
+        "type": ["null", "string"]
+    },
+    "created_at": {
+        "description": _("Datetime when this resource was created"),
+        "type": "string"
+    },
+    "updated_at": {
+        "description": _("Datetime when this resource was updated"),
+        "type": "string"
+    },
+    'self': {'type': 'string'},
+    'schema': {'type': 'string'}
+}
+_TASK_SCHEMA = dict(
+    name='Task', properties=_TASK_PROPERTIES,
+    additionalProperties=False,
+)
 
 
 class TestMemoryCache(base.TestCase):
@@ -388,38 +458,24 @@ class TestMemoryCache(base.TestCase):
         fake_sha256 = "fake-sha256"
         get_file_hashes.return_value = (fake_md5, fake_sha256)
 
-        # V2's warlock objects just work like dicts
-        class FakeImage(dict):
-            status = 'CREATED'
-            id = '99'
-            name = '99 name'
-
-            def _shadeunittest(self):
-                pass
-
-        fake_image = FakeImage()
-        fake_image.update({
-            'id': '99',
-            'name': '99 name',
-            shade.openstackcloud.IMAGE_MD5_KEY: fake_md5,
-            shade.openstackcloud.IMAGE_SHA256_KEY: fake_sha256,
-        })
+        FakeImage = warlock.model_factory(shell.get_image_schema())
+        fake_image = FakeImage(
+            id='a35e8afc-cae9-4e38-8441-2cd465f79f7b', name='name-99',
+            status='active', visibility='private')
         glance_mock.images.list.return_value = [fake_image]
 
-        class FakeTask(dict):
-            status = 'success'
-            result = {'image_id': '99'}
-
-            def _shadeunittest(self):
-                pass
-
-        fake_task = FakeTask()
-        fake_task.update({
-            'id': '100',
+        FakeTask = warlock.model_factory(_TASK_SCHEMA)
+        args = {
+            'id': '21FBD9A7-85EC-4E07-9D58-72F1ACF7CB1F',
             'status': 'success',
-        })
+            'type': 'import',
+            'result': {
+                'image_id': 'a35e8afc-cae9-4e38-8441-2cd465f79f7b',
+            },
+        }
+        fake_task = FakeTask(**args)
         glance_mock.tasks.get.return_value = fake_task
-        self._call_create_image(name='99 name',
+        self._call_create_image(name='name-99',
                                 container='image_upload_v2_test_container')
         args = {'header': ['x-object-meta-x-shade-md5:fake-md5',
                            'x-object-meta-x-shade-sha256:fake-sha256'],
@@ -429,12 +485,11 @@ class TestMemoryCache(base.TestCase):
             objects=mock.ANY,
             options=args)
         glance_mock.tasks.create.assert_called_with(type='import', input={
-            'import_from': 'image_upload_v2_test_container/99 name',
-            'image_properties': {'name': '99 name'}})
+            'import_from': 'image_upload_v2_test_container/name-99',
+            'image_properties': {'name': 'name-99'}})
         args = {'owner_specified.shade.md5': fake_md5,
                 'owner_specified.shade.sha256': fake_sha256,
-                'image_id': '99',
-                'visibility': 'private'}
+                'image_id': 'a35e8afc-cae9-4e38-8441-2cd465f79f7b'}
         glance_mock.images.update.assert_called_with(**args)
         fake_image_dict = meta.obj_to_dict(fake_image)
         self.assertEqual([fake_image_dict], self.cloud.list_images())
