@@ -1077,7 +1077,20 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         return _utils.normalize_domains([domain])[0]
 
     def update_domain(
-            self, domain_id, name=None, description=None, enabled=None):
+            self, domain_id=None, name=None, description=None,
+            enabled=None, name_or_id=None):
+        if domain_id is None:
+            if name_or_id is None:
+                raise OpenStackCloudException(
+                    "You must pass either domain_id or name_or_id value"
+                )
+            dom = self.get_domain(None, name_or_id)
+            if dom is None:
+                raise OpenStackCloudException(
+                    "Domain {0} not found for updating".format(name_or_id)
+                )
+            domain_id = dom['id']
+
         with _utils.shade_exceptions(
                 "Error in updating domain {domain}".format(domain=domain_id)):
             domain = self.manager.submitTask(_tasks.DomainUpdate(
@@ -1085,23 +1098,37 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 enabled=enabled))
         return _utils.normalize_domains([domain])[0]
 
-    def delete_domain(self, domain_id):
+    def delete_domain(self, domain_id=None, name_or_id=None):
         """Delete a Keystone domain.
 
         :param domain_id: ID of the domain to delete.
+        :param name_or_id: Name or ID of the domain to delete.
 
-        :returns: None
+        :returns: True if delete succeeded, False otherwise.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the openstack API call.
         """
-        with _utils.shade_exceptions("Failed to delete domain {id}".format(
-                id=domain_id)):
+        if domain_id is None:
+            if name_or_id is None:
+                raise OpenStackCloudException(
+                    "You must pass either domain_id or name_or_id value"
+                )
+            dom = self.get_domain(None, name_or_id)
+            if dom is None:
+                self.log.debug(
+                    "Domain {0} not found for deleting".format(name_or_id))
+                return False
+            domain_id = dom['id']
+
+        with _utils.shade_exceptions(
+            "Failed to delete domain {id}".format(id=domain_id)):
             # Deleting a domain is expensive, so disabling it first increases
             # the changes of success
             domain = self.update_domain(domain_id, enabled=False)
-            self.manager.submitTask(_tasks.DomainDelete(
-                domain=domain['id']))
+            self.manager.submitTask(_tasks.DomainDelete(domain=domain['id']))
+
+        return True
 
     def list_domains(self):
         """List Keystone domains.
@@ -1115,9 +1142,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             domains = self.manager.submitTask(_tasks.DomainList())
         return _utils.normalize_domains(domains)
 
-    def search_domains(self, filters=None):
+    def search_domains(self, filters=None, name_or_id=None):
         """Search Keystone domains.
 
+        :param name_or_id: domain name or id
         :param dict filters: A dict containing additional filters to use.
              Keys to search on are id, name, enabled and description.
 
@@ -1130,15 +1158,22 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        with _utils.shade_exceptions("Failed to list domains"):
-            domains = self.manager.submitTask(
-                _tasks.DomainList(**filters))
-        return _utils.normalize_domains(domains)
+        if name_or_id is not None:
+            domains = self.list_domains()
+            return _utils._filter_list(domains, name_or_id, filters)
+        else:
+            with _utils.shade_exceptions("Failed to list domains"):
+                domains = self.manager.submitTask(
+                    _tasks.DomainList(**filters))
+            return _utils.normalize_domains(domains)
 
-    def get_domain(self, domain_id):
+    def get_domain(self, domain_id=None, name_or_id=None, filters=None):
         """Get exactly one Keystone domain.
 
         :param domain_id: domain id.
+        :param name_or_id: domain name or id.
+        :param dict filters: A dict containing additional filters to use.
+             Keys to search on are id, name, enabled and description.
 
         :returns: a dict containing the domain description, or None if not
             found. Each dict contains the following attributes::
@@ -1149,13 +1184,16 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        with _utils.shade_exceptions(
-            "Failed to get domain "
-            "{domain_id}".format(domain_id=domain_id)
-        ):
-            domain = self.manager.submitTask(
-                _tasks.DomainGet(domain=domain_id))
-        return _utils.normalize_domains([domain])[0]
+        if domain_id is None:
+            return _utils._get_entity(self.search_domains, filters, name_or_id)
+        else:
+            with _utils.shade_exceptions(
+                "Failed to get domain "
+                "{domain_id}".format(domain_id=domain_id)
+            ):
+                domain = self.manager.submitTask(
+                    _tasks.DomainGet(domain=domain_id))
+            return _utils.normalize_domains([domain])[0]
 
     @_utils.cache_on_arguments()
     def list_groups(self):

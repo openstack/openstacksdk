@@ -49,6 +49,13 @@ class TestDomains(base.TestCase):
         self.assertTrue(mock_keystone.domains.get.called)
         self.assertEqual(domain['name'], 'a-domain')
 
+    @mock.patch.object(shade._utils, '_get_entity')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_get_domain_with_name_or_id(self, mock_keystone, mock_get):
+        self.cloud.get_domain(name_or_id='1234')
+        mock_get.assert_called_once_with(mock.ANY,
+                                         None, '1234')
+
     @mock.patch.object(shade._utils, 'normalize_domains')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_create_domain(self, mock_keystone, mock_normalize):
@@ -78,6 +85,15 @@ class TestDomains(base.TestCase):
         mock_keystone.domains.delete.assert_called_once_with(
             domain='update_domain_id')
 
+    @mock.patch.object(shade.OperatorCloud, 'get_domain')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_delete_domain_name_or_id(self, mock_keystone, mock_get):
+        self.cloud.update_domain(name_or_id='a-domain',
+                                 name='new name',
+                                 description='new description',
+                                 enabled=False)
+        mock_get.assert_called_once_with(None, 'a-domain')
+
     @mock.patch.object(shade.OperatorCloud, 'update_domain')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_delete_domain_exception(self, mock_keystone, mock_update):
@@ -101,6 +117,15 @@ class TestDomains(base.TestCase):
             description='new description', enabled=False)
         mock_normalize.assert_called_once_with(
             [meta.obj_to_dict(domain_obj)])
+
+    @mock.patch.object(shade.OperatorCloud, 'get_domain')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_update_domain_name_or_id(self, mock_keystone, mock_get):
+        self.cloud.update_domain(name_or_id='a-domain',
+                                 name='new name',
+                                 description='new description',
+                                 enabled=False)
+        mock_get.assert_called_once_with(None, 'a-domain')
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_update_domain_exception(self, mock_keystone):
