@@ -22,11 +22,12 @@ Tests Keystone endpoints commands.
 from mock import patch
 import os_client_config
 from shade import OperatorCloud
+from shade.exc import OpenStackCloudException
 from shade.tests.fakes import FakeEndpoint
+from shade.tests.fakes import FakeEndpointv3
 from shade.tests.unit import base
 
 
-# ToDo: support v3 api (dguerri)
 class TestCloudEndpoints(base.TestCase):
     mock_endpoints = [
         {'id': 'id1', 'service_id': 'sid1', 'region': 'region1',
@@ -36,18 +37,31 @@ class TestCloudEndpoints(base.TestCase):
         {'id': 'id3', 'service_id': 'sid3', 'region': 'region2',
          'publicurl': 'purl3', 'internalurl': 'iurl3', 'adminurl': 'aurl3'}
     ]
+    mock_endpoints_v3 = [
+        {'id': 'id1_v3', 'service_id': 'sid1', 'region': 'region1',
+         'url': 'url1', 'interface': 'public'},
+        {'id': 'id2_v3', 'service_id': 'sid1', 'region': 'region1',
+         'url': 'url2', 'interface': 'admin'},
+        {'id': 'id3_v3', 'service_id': 'sid1', 'region': 'region1',
+         'url': 'url3', 'interface': 'internal'}
+    ]
 
     def setUp(self):
         super(TestCloudEndpoints, self).setUp()
         config = os_client_config.OpenStackConfig()
-        self.client = OperatorCloud(
-            cloud_config=config.get_one_cloud(validate=False))
+        self.client = OperatorCloud(cloud_config=config.get_one_cloud(
+            validate=False))
         self.mock_ks_endpoints = \
             [FakeEndpoint(**kwa) for kwa in self.mock_endpoints]
+        self.mock_ks_endpoints_v3 = \
+            [FakeEndpointv3(**kwa) for kwa in self.mock_endpoints_v3]
 
     @patch.object(OperatorCloud, 'list_services')
     @patch.object(OperatorCloud, 'keystone_client')
-    def test_create_endpoint(self, mock_keystone_client, mock_list_services):
+    @patch.object(os_client_config.cloud_config.CloudConfig, 'get_api_version')
+    def test_create_endpoint_v2(self, mock_api_version, mock_keystone_client,
+                                mock_list_services):
+        mock_api_version.return_value = '2.0'
         mock_list_services.return_value = [
             {
                 'id': 'service_id1',
@@ -57,23 +71,104 @@ class TestCloudEndpoints(base.TestCase):
             }
         ]
         mock_keystone_client.endpoints.create.return_value = \
-            self.mock_ks_endpoints[0]
+            self.mock_ks_endpoints[2]
 
         endpoints = self.client.create_endpoint(
             service_name_or_id='service1',
             region='mock_region',
             public_url='mock_public_url',
+            internal_url='mock_internal_url',
+            admin_url='mock_admin_url'
         )
 
         mock_keystone_client.endpoints.create.assert_called_with(
             service_id='service_id1',
             region='mock_region',
             publicurl='mock_public_url',
+            internalurl='mock_internal_url',
+            adminurl='mock_admin_url',
+        )
+
+        # test keys and values are correct
+        for k, v in self.mock_endpoints[2].items():
+            self.assertEquals(v, endpoints[0].get(k))
+
+        # test v3 semantics on v2.0 endpoint
+        mock_keystone_client.endpoints.create.return_value = \
+            self.mock_ks_endpoints[0]
+
+        self.assertRaises(OpenStackCloudException,
+                          self.client.create_endpoint,
+                          service_name_or_id='service1',
+                          interface='mock_admin_url',
+                          url='admin')
+
+        endpoints_3on2 = self.client.create_endpoint(
+            service_name_or_id='service1',
+            region='mock_region',
+            interface='public',
+            url='mock_public_url'
         )
 
         # test keys and values are correct
         for k, v in self.mock_endpoints[0].items():
+            self.assertEquals(v, endpoints_3on2[0].get(k))
+
+    @patch.object(OperatorCloud, 'list_services')
+    @patch.object(OperatorCloud, 'keystone_client')
+    @patch.object(os_client_config.cloud_config.CloudConfig, 'get_api_version')
+    def test_create_endpoint_v3(self, mock_api_version, mock_keystone_client,
+                                mock_list_services):
+        mock_api_version.return_value = '3'
+        mock_list_services.return_value = [
+            {
+                'id': 'service_id1',
+                'name': 'service1',
+                'type': 'type1',
+                'description': 'desc1'
+            }
+        ]
+        mock_keystone_client.endpoints.create.return_value = \
+            self.mock_ks_endpoints_v3[0]
+
+        endpoints = self.client.create_endpoint(
+            service_name_or_id='service1',
+            region='mock_region',
+            url='mock_url',
+            interface='mock_interface',
+            enabled=False
+        )
+        mock_keystone_client.endpoints.create.assert_called_with(
+            service='service_id1',
+            region='mock_region',
+            url='mock_url',
+            interface='mock_interface',
+            enabled=False
+        )
+
+        # test keys and values are correct
+        for k, v in self.mock_endpoints_v3[0].items():
             self.assertEquals(v, endpoints[0].get(k))
+
+        # test v2.0 semantics on v3 endpoint
+        mock_keystone_client.endpoints.create.side_effect = \
+            self.mock_ks_endpoints_v3
+
+        endpoints_2on3 = self.client.create_endpoint(
+            service_name_or_id='service1',
+            region='mock_region',
+            public_url='mock_public_url',
+            internal_url='mock_internal_url',
+            admin_url='mock_admin_url',
+        )
+
+        # Three endpoints should be returned, public, internal, and admin
+        self.assertEquals(len(endpoints_2on3), 3)
+
+        # test keys and values are correct
+        for count in range(len(endpoints_2on3)):
+            for k, v in self.mock_endpoints_v3[count].items():
+                self.assertEquals(v, endpoints_2on3[count].get(k))
 
     @patch.object(OperatorCloud, 'keystone_client')
     def test_list_endpoints(self, mock_keystone_client):

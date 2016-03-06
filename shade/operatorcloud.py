@@ -898,7 +898,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                         " internal_url, admin_url parameters instead of"
                         " url and interface".format(
                             service=service_name_or_id))
-                urlkwargs['%url' % interface] = url
+                urlkwargs['{}url'.format(interface)] = url
                 urlkwargs['service_id'] = service['id']
             else:
                 urlkwargs['url'] = url
