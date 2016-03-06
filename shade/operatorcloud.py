@@ -875,9 +875,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: OpenStackCloudException if the service cannot be found or if
             something goes wrong during the openstack API call.
         """
-        if url and kwargs:
+        public_url = kwargs.pop('public_url', None)
+        internal_url = kwargs.pop('internal_url', None)
+        admin_url = kwargs.pop('admin_url', None)
+
+        if (url or interface) and (public_url or internal_url or admin_url):
             raise OpenStackCloudException(
-                "create_endpoint takes either url and interace OR"
+                "create_endpoint takes either url and interface OR"
                 " public_url, internal_url, admin_url")
 
         service = self.get_service(name_or_id=service_name_or_id)
@@ -899,39 +903,48 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                         " url and interface".format(
                             service=service_name_or_id))
                 urlkwargs['{}url'.format(interface)] = url
-                urlkwargs['service_id'] = service['id']
             else:
                 urlkwargs['url'] = url
                 urlkwargs['interface'] = interface
-                urlkwargs['enabled'] = enabled
-                urlkwargs['service'] = service['id']
             endpoint_args.append(urlkwargs)
         else:
-            if self.cloud_config.get_api_version(
-                    'identity').startswith('2'):
+            expected_endpoints = {'public': public_url,
+                                  'internal': internal_url,
+                                  'admin': admin_url}
+            if self.cloud_config.get_api_version('identity').startswith('2'):
                 urlkwargs = {}
-                for arg_key, arg_val in kwargs.items():
-                    urlkwargs[arg_key.replace('_', '')] = arg_val
-                urlkwargs['service_id'] = service['id']
+                for interface, url in expected_endpoints.items():
+                    if url:
+                        urlkwargs['{}url'.format(interface)] = url
                 endpoint_args.append(urlkwargs)
             else:
-                for arg_key, arg_val in kwargs.items():
-                    urlkwargs = {}
-                    urlkwargs['url'] = arg_val
-                    urlkwargs['interface'] = arg_key.split('_')[0]
-                    urlkwargs['enabled'] = enabled
-                    urlkwargs['service'] = service['id']
-                    endpoint_args.append(urlkwargs)
+                for interface, url in expected_endpoints.items():
+                    if url:
+                        urlkwargs = {}
+                        urlkwargs['url'] = url
+                        urlkwargs['interface'] = interface
+                        endpoint_args.append(urlkwargs)
+
+        if self.cloud_config.get_api_version('identity').startswith('2'):
+            kwargs['service_id'] = service['id']
+            # Keystone v2 requires 'region' arg even if it is None
+            kwargs['region'] = region
+        else:
+            kwargs['service'] = service['id']
+            kwargs['enabled'] = enabled
+            if region is not None:
+                kwargs['region'] = region
 
         with _utils.shade_exceptions(
-            "Failed to create endpoint for service "
-            "{service}".format(service=service['name'])
+            "Failed to create endpoint for service"
+            " {service}".format(service=service['name'])
         ):
             for args in endpoint_args:
-                endpoint = self.manager.submitTask(_tasks.EndpointCreate(
-                    region=region,
-                    **args
-                ))
+                # NOTE(SamYaple): Add shared kwargs to endpoint args
+                args.update(kwargs)
+                endpoint = self.manager.submitTask(
+                    _tasks.EndpointCreate(**args)
+                )
                 endpoints.append(endpoint)
             return endpoints
 
