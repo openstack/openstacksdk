@@ -724,6 +724,11 @@ class EndpointCreate(task_manager.Task):
         return client.keystone_client.endpoints.create(**self.args)
 
 
+class EndpointUpdate(task_manager.Task):
+    def main(self, client):
+        return client.keystone_client.endpoints.update(**self.args)
+
+
 class EndpointList(task_manager.Task):
     def main(self, client):
         return client.keystone_client.endpoints.list()

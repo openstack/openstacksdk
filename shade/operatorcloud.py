@@ -980,6 +980,26 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 endpoints.append(endpoint)
             return endpoints
 
+    @_utils.valid_kwargs('enabled', 'service_name_or_id', 'url', 'interface',
+                         'region')
+    def update_endpoint(self, endpoint_id, **kwargs):
+        # NOTE(SamYaple): Endpoint updates are only available on v3 api
+        if self.cloud_config.get_api_version('identity').startswith('2'):
+            raise OpenStackCloudUnavailableFeature(
+                'Unavailable Feature: Endpoint update'
+            )
+
+        service_name_or_id = kwargs.pop('service_name_or_id', None)
+        if service_name_or_id is not None:
+            kwargs['service'] = service_name_or_id
+
+        with _utils.shade_exceptions(
+            "Failed to update endpoint {}".format(endpoint_id)
+        ):
+            return self.manager.submitTask(_tasks.EndpointUpdate(
+                endpoint=endpoint_id, **kwargs
+            ))
+
     def list_endpoints(self):
         """List Keystone endpoints.
 
@@ -988,7 +1008,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        # ToDo: support v3 api (dguerri)
+        # NOTE(SamYaple): With keystone v3 we can filter directly via the
+        # the keystone api, but since the return of all the endpoints even in
+        # large environments is small, we can continue to filter in shade just
+        # like the v2 api.
         with _utils.shade_exceptions("Failed to list endpoints"):
             endpoints = self.manager.submitTask(_tasks.EndpointList())
 
@@ -1042,7 +1065,6 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the openstack API call.
         """
-        # ToDo: support v3 api (dguerri)
         endpoint = self.get_endpoint(id=id)
         if endpoint is None:
             self.log.debug("Endpoint %s not found for deleting" % id)

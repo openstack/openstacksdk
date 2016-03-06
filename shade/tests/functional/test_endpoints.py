@@ -25,6 +25,7 @@ import string
 import random
 
 from shade.exc import OpenStackCloudException
+from shade.exc import OpenStackCloudUnavailableFeature
 from shade.tests.functional import base
 
 
@@ -100,6 +101,39 @@ class TestEndpoints(base.BaseFunctionalTestCase):
 
         self.assertNotEqual([], endpoints)
         self.assertIsNotNone(endpoints[0].get('id'))
+
+    def test_update_endpoint(self):
+        if self.operator_cloud.cloud_config.get_api_version(
+            'identity').startswith('2'):
+            # NOTE(SamYaple): Update endpoint only works with v3 api
+            self.assertRaises(OpenStackCloudUnavailableFeature,
+                              self.operator_cloud.update_endpoint,
+                              'endpoint_id1')
+        else:
+            service = self.operator_cloud.create_service(
+                name='service1', type='test_type')
+            endpoint = self.operator_cloud.create_endpoint(
+                service_name_or_id=service['id'],
+                url='http://admin.url/',
+                interface='admin',
+                region='orig_region',
+                enabled=False)[0]
+
+            new_service = self.operator_cloud.create_service(
+                name='service2', type='test_type')
+            new_endpoint = self.operator_cloud.update_endpoint(
+                endpoint.id,
+                service_name_or_id=new_service.id,
+                url='http://public.url/',
+                interface='public',
+                region='update_region',
+                enabled=True)
+
+            self.assertEqual(new_endpoint.url, 'http://public.url/')
+            self.assertEqual(new_endpoint.interface, 'public')
+            self.assertEqual(new_endpoint.region, 'update_region')
+            self.assertEqual(new_endpoint.service_id, new_service.id)
+            self.assertTrue(new_endpoint.enabled)
 
     def test_list_endpoints(self):
         service_name = self.new_item_name + '_list'
