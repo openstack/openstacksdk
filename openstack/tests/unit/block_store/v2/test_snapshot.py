@@ -9,6 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import datetime
 
 import testtools
 
@@ -19,12 +20,13 @@ FAKE_ID = "ffa9bc5e-1172-4021-acaf-cdcd78a9584d"
 SNAPSHOT = {
     "status": "creating",
     "description": "Daily backup",
-    "created_at": "2013-02-25T03:56:53.081642",
+    "created_at": "2015-03-09T12:14:57.233772",
     "metadata": {},
     "volume_id": "5aa119a8-d25b-45a7-8d1b-88e127885635",
     "size": 1,
     "id": FAKE_ID,
-    "name": "snap-001"
+    "name": "snap-001",
+    "force": "true",
 }
 
 DETAILS = {
@@ -56,11 +58,14 @@ class TestSnapshot(testtools.TestCase):
         sot = snapshot.Snapshot(SNAPSHOT)
         self.assertEqual(SNAPSHOT["id"], sot.id)
         self.assertEqual(SNAPSHOT["status"], sot.status)
-        self.assertEqual(SNAPSHOT["created_at"], sot.created_at)
+        dt = datetime.datetime(2015, 3, 9, 12, 14, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
         self.assertEqual(SNAPSHOT["metadata"], sot.metadata)
         self.assertEqual(SNAPSHOT["volume_id"], sot.volume_id)
         self.assertEqual(SNAPSHOT["size"], sot.size)
         self.assertEqual(SNAPSHOT["name"], sot.name)
+        self.assertTrue(sot.is_forced)
 
 
 class TestSnapshotDetail(testtools.TestCase):
