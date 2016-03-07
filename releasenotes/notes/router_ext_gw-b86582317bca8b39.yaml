@@ -1,0 +1,4 @@
+---
+fixes:
+  - No longer fail in list_router_interfaces() if a router does
+    not have the external_gateway_info key.

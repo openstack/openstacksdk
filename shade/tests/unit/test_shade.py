@@ -252,6 +252,28 @@ class TestShade(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'search_ports')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_list_router_interfaces_no_gw(self, mock_client, mock_search):
+        """
+        If a router does not have external_gateway_info, do not fail.
+        """
+        external_port = {'id': 'external_port_id',
+                         'fixed_ips': [
+                             ('external_subnet_id', 'ip_address'),
+                         ]}
+        port_list = [external_port]
+        router = {
+            'id': 'router_id',
+        }
+        mock_search.return_value = port_list
+        ret = self.cloud.list_router_interfaces(router,
+                                                interface_type='external')
+        mock_search.assert_called_once_with(
+            filters={'device_id': router['id']}
+        )
+        self.assertEqual([], ret)
+
+    @mock.patch.object(shade.OpenStackCloud, 'search_ports')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     def test_list_router_interfaces_all(self, mock_client, mock_search):
         internal_port = {'id': 'internal_port_id',
                          'fixed_ips': [
