@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.block_store import block_store_service
+from openstack import format
 from openstack import resource
 
 
@@ -38,16 +39,17 @@ class Snapshot(resource.Resource):
     #: Description of snapshot. Default is None.
     description = resource.prop("description")
     #: The timestamp of this snapshot creation.
-    created_at = resource.prop("created_at")
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    created_at = resource.prop("created_at", type=format.ISO8601)
     #: Metadata associated with this snapshot.
     metadata = resource.prop("metadata", type=dict)
     #: The ID of the volume this snapshot was taken of.
     volume_id = resource.prop("volume_id")
     #: The size of the volume, in GBs.
     size = resource.prop("size", type=int)
-    #: Indicate whether to snapshot, even if the volume is attached.
-    #: Default is False.
-    force = resource.prop("force", type=bool)
+    #: Indicate whether to create snapshot, even if the volume is attached.
+    #: Default is ``False``. *Type: bool*
+    is_forced = resource.prop("force", type=format.BoolStr)
 
 
 class SnapshotDetail(Snapshot):

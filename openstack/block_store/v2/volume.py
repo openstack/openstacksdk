@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.block_store import block_store_service
+from openstack import format
 from openstack import resource
 
 
@@ -55,7 +56,7 @@ class Volume(resource.Resource):
     volume_type = resource.prop("volume_type")
     #: Enables or disables the bootable attribute. You can boot an
     #: instance from a bootable volume. *Type: bool*
-    bootable = resource.prop("bootable", type=bool)
+    is_bootable = resource.prop("bootable", type=format.BoolStr)
     #: One or more metadata key and value pairs to associate with the volume.
     metadata = resource.prop("metadata")
 
@@ -66,8 +67,9 @@ class Volume(resource.Resource):
     status = resource.prop("status")
     #: TODO(briancurtin): This is currently undocumented in the API.
     attachments = resource.prop("attachments")
-    #: The time this volume was created at.
-    created = resource.prop("created_at")
+    #: The timestamp of this volume creation.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    created_at = resource.prop("created_at", type=format.ISO8601)
 
 
 class VolumeDetail(Volume):
@@ -93,5 +95,6 @@ class VolumeDetail(Volume):
     #: Data set by the replication driver
     replication_driver_data = resource.prop(
         "os-volume-replication:driver_data")
-    #: ``True`` if this volume is encrypted, ``False`` if not. *Type: bool*
-    encrypted = resource.prop("encrypted", type=bool)
+    #: ``True`` if this volume is encrypted, ``False`` if not.
+    #: *Type: bool*
+    is_encrypted = resource.prop("encrypted", type=format.BoolStr)

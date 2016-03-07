@@ -11,6 +11,7 @@
 # under the License.
 
 import copy
+import datetime
 
 import testtools
 
@@ -23,8 +24,8 @@ VOLUME = {
     "name": "my_volume",
     "attachments": [],
     "availability_zone": "nova",
-    "bootable": False,
-    "created_at": "2014-02-21T19:52:04.949734",
+    "bootable": "false",
+    "created_at": "2015-03-09T12:14:57.233772",
     "description": "something",
     "volume_type": "some_type",
     "snapshot_id": "93c2e2aa-7744-4fd6-a31a-80c4726b08d7",
@@ -45,7 +46,7 @@ DETAILS = {
     "consistencygroup_id": "123asf-asdf123",
     "os-volume-replication:driver_data": "ahasadfasdfasdfasdfsdf",
     "snapshot_id": "93c2e2aa-7744-4fd6-a31a-80c4726b08d7",
-    "encrypted": False,
+    "encrypted": "false",
 }
 
 VOLUME_DETAIL = copy.copy(VOLUME)
@@ -72,8 +73,10 @@ class TestVolume(testtools.TestCase):
         self.assertEqual(VOLUME["status"], sot.status)
         self.assertEqual(VOLUME["attachments"], sot.attachments)
         self.assertEqual(VOLUME["availability_zone"], sot.availability_zone)
-        self.assertEqual(VOLUME["bootable"], sot.bootable)
-        self.assertEqual(VOLUME["created_at"], sot.created)
+        self.assertFalse(sot.is_bootable)
+        dt = datetime.datetime(2015, 3, 9, 12, 14, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
         self.assertEqual(VOLUME["description"], sot.description)
         self.assertEqual(VOLUME["volume_type"], sot.volume_type)
         self.assertEqual(VOLUME["snapshot_id"], sot.snapshot_id)
@@ -108,4 +111,4 @@ class TestVolumeDetail(testtools.TestCase):
                          sot.consistency_group_id)
         self.assertEqual(VOLUME_DETAIL["os-volume-replication:driver_data"],
                          sot.replication_driver_data)
-        self.assertEqual(VOLUME_DETAIL["encrypted"], sot.encrypted)
+        self.assertFalse(sot.is_encrypted)
