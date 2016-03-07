@@ -37,9 +37,11 @@ class Generic(resource.Resource):
     #: The ID of the project
     project_id = resource.prop('project_id')
     #: Timestamp when this resource was started
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
     started_at = resource.prop('started_at',
                                type=format.ISO8601)
     #: Timestamp when this resource was ended
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
     ended_at = resource.prop('ended_at',
                              type=format.ISO8601)
     #: A dictionary of metrics collected on this resource
