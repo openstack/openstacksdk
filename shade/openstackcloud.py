@@ -2209,7 +2209,7 @@ class OpenStackCloud(object):
         with self._swift_client_lock:
             self._swift_client = None
         with self._swift_service_lock:
-            self._swift_service_lock = None
+            self._swift_service = None
 
         self.create_object(
             container, name, filename,
