@@ -22,24 +22,26 @@ class Segment(resource.Resource):
     service = network_service.NetworkService()
 
     # capabilities
-    allow_create = False
+    allow_create = True
     allow_retrieve = True
-    allow_update = False
-    allow_delete = False
+    allow_update = True
+    allow_delete = True
     allow_list = True
 
-    # TODO(rtheis): Add description and name properties when support
-    # is available.
-
     # Properties
+    #: The segment description.
+    description = resource.prop('description')
+    #: The segment name.
+    name = resource.prop('name')
     #: The ID of the network associated with this segment.
     network_id = resource.prop('network_id')
     #: The type of network associated with this segment, such as
-    #: ``flat``, ``gre``, ``vlan`` or ``vxlan``.
+    #: ``flat``, ``geneve``, ``gre``, ``local``, ``vlan`` or ``vxlan``.
     network_type = resource.prop('network_type')
     #: The name of the physical network associated with this segment.
     physical_network = resource.prop('physical_network')
     #: The segmentation ID for this segment. The network type
     #: defines the segmentation model, VLAN ID for ``vlan`` network type
-    #: and tunnel ID for ``gre`` and ``vxlan`` network types. *Type: int*
+    #: and tunnel ID for ``geneve``, ``gre`` and ``vxlan`` network types.
+    #: *Type: int*
     segmentation_id = resource.prop('segmentation_id', type=int)

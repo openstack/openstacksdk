@@ -16,11 +16,13 @@ from openstack.network.v2 import segment
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
+    'description': '1',
     'id': IDENTIFIER,
-    'network_id': '1',
-    'network_type': 'vxlan',
+    'name': '2',
+    'network_id': '3',
+    'network_type': 'geneve',
     'physical_network': None,
-    'segmentation_id': 2,
+    'segmentation_id': 4,
 }
 
 
@@ -32,15 +34,17 @@ class TestSegment(testtools.TestCase):
         self.assertEqual('segments', sot.resources_key)
         self.assertEqual('/segments', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
-        self.assertFalse(sot.allow_create)
+        self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)
-        self.assertFalse(sot.allow_update)
-        self.assertFalse(sot.allow_delete)
+        self.assertTrue(sot.allow_update)
+        self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
         sot = segment.Segment(EXAMPLE)
+        self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['network_id'], sot.network_id)
         self.assertEqual(EXAMPLE['network_type'], sot.network_type)
         self.assertEqual(EXAMPLE['physical_network'], sot.physical_network)

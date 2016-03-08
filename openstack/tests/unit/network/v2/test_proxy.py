@@ -571,6 +571,15 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          security_group_rule.SecurityGroupRule,
                          paginated=False)
 
+    def test_segment_create_attrs(self):
+        self.verify_create(self.proxy.create_segment, segment.Segment)
+
+    def test_segment_delete(self):
+        self.verify_delete(self.proxy.delete_segment, segment.Segment, False)
+
+    def test_segment_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_segment, segment.Segment, True)
+
     def test_segment_find(self):
         self.verify_find(self.proxy.find_segment, segment.Segment)
 
@@ -579,6 +588,9 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_segments(self):
         self.verify_list(self.proxy.segments, segment.Segment, paginated=False)
+
+    def test_segment_update(self):
+        self.verify_update(self.proxy.update_segment, segment.Segment)
 
     def test_subnet_create_attrs(self):
         self.verify_create(self.proxy.create_subnet, subnet.Subnet)
