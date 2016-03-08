@@ -55,30 +55,28 @@ class Router(resource.Resource):
     # The extra routes configuration for the router.
     routes = resource.prop('routes', type=list)
 
-    def add_interface(self, session, subnet_id):
+    def add_interface(self, session, **body):
         """Add an internal interface to a logical router.
 
         :param session: The session to communicate through.
         :type session: :class:`~openstack.session.Session`
-        :param str subnet_id: The ID of a subnet to add.
+        :param dict body : The body requested to be updated on the outer
 
         :returns: The body of the response as a dictionary.
         """
-        body = {'subnet_id': subnet_id}
         url = utils.urljoin(self.base_path, self.id, 'add_router_interface')
         resp = session.put(url, endpoint_filter=self.service, json=body)
         return resp.json()
 
-    def remove_interface(self, session, subnet_id):
+    def remove_interface(self, session, **body):
         """Remove an internal interface from a logical router.
 
         :param session: The session to communicate through.
         :type session: :class:`~openstack.session.Session`
-        :param str subnet_id: The ID of a subnet to remove.
+        :param dict body : The body requested to be updated on the outer
 
         :returns: The body of the response as a dictionary.
         """
-        body = {'subnet_id': subnet_id}
         url = utils.urljoin(self.base_path, self.id, 'remove_router_interface')
         resp = session.put(url, endpoint_filter=self.service, json=body)
         return resp.json()

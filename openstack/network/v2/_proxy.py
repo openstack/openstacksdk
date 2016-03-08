@@ -1090,11 +1090,41 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(_router.Router, router, **attrs)
 
-    def router_add_interface(self, router, subnet_id):
-        router.add_interface(self.session, subnet_id)
+    def router_add_interface(self, router, subnet_id=None, port_id=None):
+        """Add Interface to a router
 
-    def router_remove_interface(self, router, subnet_id):
-        router.remove_interface(self.session, subnet_id)
+        :param router: Either the router ID or an instance of
+                       :class:`~openstack.network.v2.router.Router`
+        :param subnet_id: ID of the subnet
+        :param port_id: ID of the port
+        :returns: Router with updated interface
+        :rtype: :class: `~openstack.network.v2.router.Router`
+        """
+
+        body = {}
+        if port_id:
+            body = {'port_id': port_id}
+        else:
+            body = {'subnet_id': subnet_id}
+        return router.add_interface(self.session, **body)
+
+    def router_remove_interface(self, router, subnet_id=None, port_id=None):
+        """Remove Interface from a router
+
+        :param router: Either the router ID or an instance of
+                       :class:`~openstack.network.v2.router.Router`
+        :param subnet: ID of the subnet
+        :param port: ID of the port
+        :returns: Router with updated interface
+        :rtype: :class: `~openstack.network.v2.router.Router`
+        """
+
+        body = {}
+        if port_id:
+            body = {'port_id': port_id}
+        else:
+            body = {'subnet_id': subnet_id}
+        return router.remove_interface(self.session, **body)
 
     def create_security_group(self, **attrs):
         """Create a new security group from attributes
