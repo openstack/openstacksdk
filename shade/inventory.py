@@ -59,19 +59,23 @@ class OpenStackInventory(object):
             for cloud in self.clouds:
                 cloud._cache.invalidate()
 
-    def list_hosts(self, expand=True):
+    def list_hosts(self, expand=True, fail_on_cloud_config=True):
         hostvars = []
 
         for cloud in self.clouds:
+            try:
+                # Cycle on servers
+                for server in cloud.list_servers():
 
-            # Cycle on servers
-            for server in cloud.list_servers():
-
-                if expand:
-                    server_vars = cloud.get_openstack_vars(server)
-                else:
-                    server_vars = meta.add_server_interfaces(cloud, server)
-                hostvars.append(server_vars)
+                    if expand:
+                        server_vars = cloud.get_openstack_vars(server)
+                    else:
+                        server_vars = meta.add_server_interfaces(cloud, server)
+                    hostvars.append(server_vars)
+            except shade.OpenStackCloudException:
+                # Don't fail on one particular cloud as others may work
+                if fail_on_cloud_config:
+                    raise
 
         return hostvars
 
