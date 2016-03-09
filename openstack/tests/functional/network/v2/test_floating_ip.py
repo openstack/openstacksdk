@@ -62,7 +62,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
         cls.ROT_ID = sot.id
         cls.ROT = sot
         # Add Router's Interface to Internal Network
-        sot = cls.ROT.add_interface(cls.conn.session, cls.INT_SUB_ID)
+        sot = cls.ROT.add_interface(cls.conn.session, subnet_id=cls.INT_SUB_ID)
         cls.assertIs(sot['subnet_id'], cls.INT_SUB_ID)
         # Create Port in Internal Network
         prt = cls.conn.network.create_port(network_id=cls.INT_NET_ID)
@@ -79,7 +79,8 @@ class TestFloatingIP(base.BaseFunctionalTest):
         cls.assertIs(None, sot)
         sot = cls.conn.network.delete_port(cls.PORT_ID, ignore_missing=False)
         cls.assertIs(None, sot)
-        sot = cls.ROT.remove_interface(cls.conn.session, cls.INT_SUB_ID)
+        sot = cls.ROT.remove_interface(cls.conn.session,
+                                       subnet_id=cls.INT_SUB_ID)
         cls.assertIs(sot['subnet_id'], cls.INT_SUB_ID)
         sot = cls.conn.network.delete_router(cls.ROT_ID, ignore_missing=False)
         cls.assertIs(None, sot)

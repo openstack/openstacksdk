@@ -61,11 +61,13 @@ class TestRouterInterface(base.BaseFunctionalTest):
         cls.assertIs(None, sot)
 
     def test_router_add_interface(self):
-        iface = self.ROT.add_interface(self.conn.session, self.SUB_ID)
+        iface = self.ROT.add_interface(self.conn.session,
+                                       subnet_id=self.SUB_ID)
         self._verification(iface)
 
     def test_router_remove_interface(self):
-        iface = self.ROT.remove_interface(self.conn.session, self.SUB_ID)
+        iface = self.ROT.remove_interface(self.conn.session,
+                                          subnet_id=self.SUB_ID)
         self._verification(iface)
 
     def _verification(self, interface):
