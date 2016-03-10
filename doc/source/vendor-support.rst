@@ -171,6 +171,19 @@ nyj01          New York, NY
 * Image API Version is 1
 * Floating IPs are not supported
 
+osic
+----
+
+https://cloud1.osic.org:5000
+
+============== =================
+Region Name    Human Name
+============== =================
+RegionOne      RegionOne
+============== =================
+
+* Public IPv4 is provided via NAT with Neutron Floating IP
+
 ovh
 ---
 
