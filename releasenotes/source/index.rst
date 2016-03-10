@@ -1,5 +1,6 @@
-Welcome to Nova Release Notes documentation!
-==============================================
+================================
+ os-client-config Release Notes
+================================
 
 Contents
 ========
@@ -8,7 +9,7 @@ Contents
    :maxdepth: 2
 
    unreleased
-
+   mitaka
 
 Indices and tables
 ==================
