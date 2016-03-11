@@ -12,6 +12,7 @@
 
 from openstack.compute import compute_service
 from openstack.compute.v2 import metadata
+from openstack import format
 from openstack import resource
 
 
@@ -33,7 +34,8 @@ class Image(resource.Resource, metadata.MetadataMixin):
     #: The name of this image.
     name = resource.prop('name')
     #: Timestamp when the image was created.
-    created_at = resource.prop('created')
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    created_at = resource.prop('created', type=format.ISO8601)
     #: Metadata pertaining to this image. *Type: dict*
     metadata = resource.prop('metadata', type=dict)
     #: The mimimum disk size. *Type: int*
@@ -46,7 +48,8 @@ class Image(resource.Resource, metadata.MetadataMixin):
     #: The status of this image.
     status = resource.prop('status')
     #: Timestamp when the image was updated.
-    updated_at = resource.prop('updated')
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    updated_at = resource.prop('updated', type=format.ISO8601)
     #: Size of the image in bytes. *Type: int*
     size = resource.prop('OS-EXT-IMG-SIZE:size', type=int)
 

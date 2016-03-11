@@ -9,6 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import datetime
 
 import testtools
 
@@ -22,13 +23,13 @@ BASIC_EXAMPLE = {
 }
 
 DETAILS = {
-    'created': '1',
+    'created': '2015-03-09T12:14:57.233772',
     'metadata': {'key': '2'},
     'minDisk': 3,
     'minRam': 4,
     'progress': 5,
     'status': '6',
-    'updated': '7',
+    'updated': '2015-03-09T12:15:57.233772',
     'OS-EXT-IMG-SIZE:size': 8
 }
 
@@ -70,7 +71,9 @@ class TestImage(testtools.TestCase):
 
     def test_make_detail(self):
         sot = image.ImageDetail(DETAIL_EXAMPLE)
-        self.assertEqual(DETAIL_EXAMPLE['created'], sot.created_at)
+        dt = datetime.datetime(2015, 3, 9, 12, 14, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
         self.assertEqual(DETAIL_EXAMPLE['id'], sot.id)
         self.assertEqual(DETAIL_EXAMPLE['links'], sot.links)
         self.assertEqual(DETAIL_EXAMPLE['metadata'], sot.metadata)
@@ -79,5 +82,7 @@ class TestImage(testtools.TestCase):
         self.assertEqual(DETAIL_EXAMPLE['name'], sot.name)
         self.assertEqual(DETAIL_EXAMPLE['progress'], sot.progress)
         self.assertEqual(DETAIL_EXAMPLE['status'], sot.status)
-        self.assertEqual(DETAIL_EXAMPLE['updated'], sot.updated_at)
+        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
         self.assertEqual(DETAIL_EXAMPLE['OS-EXT-IMG-SIZE:size'], sot.size)

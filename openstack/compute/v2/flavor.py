@@ -46,8 +46,8 @@ class Flavor(resource.Resource):
     swap = resource.prop('swap')
     #: Size of the ephemeral data disk attached to this server. *Type: int*
     ephemeral = resource.prop('OS-FLV-EXT-DATA:ephemeral', type=int)
-    #: ``True`` if this flavor is disabled, ``False`` if not.
-    disabled = resource.prop('OS-FLV-DISABLED:disabled')
+    #: ``True`` if this flavor is disabled, ``False`` if not. *Type: bool*
+    is_disabled = resource.prop('OS-FLV-DISABLED:disabled', type=bool)
     #: The bandwidth scaling factor this flavor receives on the network.
     rxtx_factor = resource.prop('rxtx_factor', type=float)
 

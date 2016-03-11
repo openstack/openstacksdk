@@ -58,7 +58,7 @@ class TestFlavor(testtools.TestCase):
         self.assertEqual(BASIC_EXAMPLE['OS-FLV-EXT-DATA:ephemeral'],
                          sot.ephemeral)
         self.assertEqual(BASIC_EXAMPLE['OS-FLV-DISABLED:disabled'],
-                         sot.disabled)
+                         sot.is_disabled)
         self.assertEqual(BASIC_EXAMPLE['rxtx_factor'], sot.rxtx_factor)
 
     def test_detail(self):
