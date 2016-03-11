@@ -1,7 +1,7 @@
 [run]
 branch = True
 source = openstack
-omit = openstack/tests/*,openstack/openstack/*
+omit = openstack/tests/*
 
 [report]
 ignore_errors = True
