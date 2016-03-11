@@ -32,6 +32,8 @@ EXAMPLE = {
     'port_security_enabled': True,
     'availability_zone_hints': ['15', '16'],
     'availability_zones': ['16'],
+    'ipv4_address_scope': '17',
+    'ipv6_address_scope': '18',
 }
 
 
@@ -72,3 +74,7 @@ class TestNetwork(testtools.TestCase):
                          sot.availability_zone_hints)
         self.assertEqual(EXAMPLE['availability_zones'],
                          sot.availability_zones)
+        self.assertEqual(EXAMPLE['ipv4_address_scope'],
+                         sot.ipv4_address_scope_id)
+        self.assertEqual(EXAMPLE['ipv6_address_scope'],
+                         sot.ipv6_address_scope_id)

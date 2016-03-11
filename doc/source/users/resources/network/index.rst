@@ -4,6 +4,7 @@ Network Resources
 .. toctree::
    :maxdepth: 1
 
+   v2/address_scope
    v2/availability_zone
    v2/extension
    v2/floating_ip
