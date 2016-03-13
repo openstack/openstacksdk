@@ -1669,8 +1669,18 @@ class OpenStackCloud(object):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call or if multiple matches are found.
         """
+
+        def search_one_stack(name_or_id=None, filters=None):
+            # stack names are mandatory and enforced unique in the project
+            # so a StackGet can always be used for name or ID.
+            with _utils.shade_exceptions("Error fetching stack"):
+                stacks = [self.manager.submitTask(
+                    _tasks.StackGet(stack_id=name_or_id))]
+            nstacks = _utils.normalize_stacks(stacks)
+            return _utils._filter_list(nstacks, name_or_id, filters)
+
         return _utils._get_entity(
-            self.search_stacks, name_or_id, filters)
+            search_one_stack, name_or_id, filters)
 
     def create_keypair(self, name, public_key):
         """Create a new keypair.
