@@ -16,6 +16,7 @@
 import mock
 import testtools
 
+from heatclient.common import event_utils
 from heatclient.common import template_utils
 
 import shade
@@ -119,16 +120,19 @@ class TestStack(base.TestCase):
             environment={},
             parameters={},
             template={},
-            files={}
+            files={},
+            timeout_mins=60,
         )
 
+    @mock.patch.object(event_utils, 'poll_for_events')
     @mock.patch.object(template_utils, 'get_template_contents')
     @mock.patch.object(shade.OpenStackCloud, 'get_stack')
     @mock.patch.object(shade.OpenStackCloud, 'heat_client')
-    def test_create_stack_wait(self, mock_heat, mock_get, mock_template):
+    def test_create_stack_wait(self, mock_heat, mock_get, mock_template,
+                               mock_poll):
         stack = {'id': 'stack_id', 'name': 'stack_name'}
         mock_template.return_value = ({}, {})
-        mock_get.side_effect = iter([None, stack])
+        mock_get.return_value = stack
         ret = self.cloud.create_stack('stack_name', wait=True)
         self.assertTrue(mock_template.called)
         mock_heat.stacks.create.assert_called_once_with(
@@ -137,9 +141,11 @@ class TestStack(base.TestCase):
             environment={},
             parameters={},
             template={},
-            files={}
+            files={},
+            timeout_mins=60,
         )
-        self.assertEqual(2, mock_get.call_count)
+        self.assertEqual(1, mock_get.call_count)
+        self.assertEqual(1, mock_poll.call_count)
         self.assertEqual(stack, ret)
 
     @mock.patch.object(shade.OpenStackCloud, 'heat_client')
