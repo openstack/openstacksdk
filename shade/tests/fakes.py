@@ -31,6 +31,15 @@ class FakeEndpoint(object):
         self.adminurl = adminurl
 
 
+class FakeEndpointv3(object):
+    def __init__(self, id, service_id, region, url, interface=None):
+        self.id = id
+        self.service_id = service_id
+        self.region = region
+        self.url = url
+        self.interface = interface
+
+
 class FakeFlavor(object):
     def __init__(self, id, name):
         self.id = id
