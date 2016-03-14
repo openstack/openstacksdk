@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import testtools
 
 from openstack.image.v1 import image
@@ -21,18 +23,18 @@ EXAMPLE = {
     'copy_from': '3',
     'disk_format': '4',
     'id': IDENTIFIER,
-    'is_public': '5',
+    'is_public': True,
     'location': '6',
     'min_disk': '7',
     'min_ram': '8',
     'name': '9',
     'owner': '10',
     'properties': '11',
-    'protected': '12',
+    'protected': True,
     'size': '13',
     'status': '14',
-    'created_at': '2014-06-15 14:18:37.794540',
-    'updated_at': '2014-06-16 14:18:37.794540',
+    'created_at': '2015-03-09T12:14:57.233772',
+    'updated_at': '2015-03-09T12:15:57.233772',
 }
 
 
@@ -57,15 +59,19 @@ class TestImage(testtools.TestCase):
         self.assertEqual(EXAMPLE['copy_from'], sot.copy_from)
         self.assertEqual(EXAMPLE['disk_format'], sot.disk_format)
         self.assertEqual(IDENTIFIER, sot.id)
-        self.assertEqual(EXAMPLE['is_public'], sot.is_public)
+        self.assertTrue(sot.is_public)
         self.assertEqual(EXAMPLE['location'], sot.location)
         self.assertEqual(EXAMPLE['min_disk'], sot.min_disk)
         self.assertEqual(EXAMPLE['min_ram'], sot.min_ram)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['owner'], sot.owner_id)
         self.assertEqual(EXAMPLE['properties'], sot.properties)
-        self.assertEqual(EXAMPLE['protected'], sot.protected)
+        self.assertTrue(sot.is_protected)
         self.assertEqual(EXAMPLE['size'], sot.size)
         self.assertEqual(EXAMPLE['status'], sot.status)
-        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
-        self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
+        dt = datetime.datetime(2015, 3, 9, 12, 14, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
+        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
