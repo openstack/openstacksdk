@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import format
 from openstack.key_manager import key_manager_service
 from openstack import resource
 
@@ -30,8 +31,9 @@ class Container(resource.Resource):
     # Properties
     #: A URI for this container
     container_ref = resource.prop('container_ref')
-    #: The timestamp when this container was created
-    created_at = resource.prop('created')
+    #: The timestamp when this container was created.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    created_at = resource.prop('created', type=format.ISO8601)
     #: The name of this container
     name = resource.prop('name')
     #: A list of references to secrets in this container
@@ -40,5 +42,6 @@ class Container(resource.Resource):
     status = resource.prop('status')
     #: The type of this container
     type = resource.prop('type')
-    #: The timestamp when this container was updated
-    updated_at = resource.prop('updated')
+    #: The timestamp when this container was updated.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    updated_at = resource.prop('updated', type=format.ISO8601)

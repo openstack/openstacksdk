@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import testtools
 
 from openstack.key_manager.v1 import secret
@@ -19,12 +21,12 @@ EXAMPLE = {
     'algorithm': '1',
     'bit_length': '2',
     'content_types': '3',
-    'expiration': '4',
+    'expiration': '2017-03-09T12:14:57.233772',
     'mode': '5',
     'name': '6',
     'secret_ref': IDENTIFIER,
     'status': '8',
-    'updated': '9',
+    'updated': '2015-03-09T12:15:57.233772',
 }
 
 
@@ -47,10 +49,14 @@ class TestSecret(testtools.TestCase):
         self.assertEqual(EXAMPLE['algorithm'], sot.algorithm)
         self.assertEqual(EXAMPLE['bit_length'], sot.bit_length)
         self.assertEqual(EXAMPLE['content_types'], sot.content_types)
-        self.assertEqual(EXAMPLE['expiration'], sot.expires_at)
+        dt = datetime.datetime(2017, 3, 9, 12, 14, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.expires_at.replace(tzinfo=None))
         self.assertEqual(EXAMPLE['mode'], sot.mode)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['secret_ref'], sot.secret_ref)
         self.assertEqual(EXAMPLE['status'], sot.status)
-        self.assertEqual(EXAMPLE['updated'], sot.updated_at)
+        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
         self.assertEqual(EXAMPLE['secret_ref'], sot.id)

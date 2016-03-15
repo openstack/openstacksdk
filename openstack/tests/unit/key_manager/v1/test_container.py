@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import testtools
 
 from openstack.key_manager.v1 import container
@@ -17,12 +19,12 @@ from openstack.key_manager.v1 import container
 IDENTIFIER = 'http://localhost/containers/IDENTIFIER'
 EXAMPLE = {
     'container_ref': IDENTIFIER,
-    'created': '2',
+    'created': '2015-03-09T12:14:57.233772',
     'name': '3',
     'secret_refs': '4',
     'status': '5',
     'type': '6',
-    'updated': '7',
+    'updated': '2015-03-09T12:15:57.233772',
 }
 
 
@@ -43,10 +45,14 @@ class TestContainer(testtools.TestCase):
     def test_make_it(self):
         sot = container.Container(EXAMPLE)
         self.assertEqual(EXAMPLE['container_ref'], sot.container_ref)
-        self.assertEqual(EXAMPLE['created'], sot.created_at)
+        dt = datetime.datetime(2015, 3, 9, 12, 14, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['secret_refs'], sot.secret_refs)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['type'], sot.type)
-        self.assertEqual(EXAMPLE['updated'], sot.updated_at)
+        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
         self.assertEqual(EXAMPLE['container_ref'], sot.id)
