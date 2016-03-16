@@ -3477,7 +3477,6 @@ class OpenStackCloud(object):
         with _utils.shade_exceptions("Error in creating instance"):
             server = self.manager.submitTask(_tasks.ServerCreate(
                 name=name, flavor=flavor, **kwargs))
-            server_id = server.id
             admin_pass = server.get('adminPass') or kwargs.get('admin_pass')
             if not wait:
                 # This is a direct get task call to skip the list_servers
@@ -3492,40 +3491,54 @@ class OpenStackCloud(object):
                 if server.status == 'ERROR':
                     raise OpenStackCloudException(
                         "Error in creating the server.")
+
         if wait:
-            timeout_message = "Timeout waiting for the server to come up."
-            start_time = time.time()
-            # There is no point in iterating faster than the list_servers cache
-            for count in _utils._iterate_timeout(
-                    timeout,
-                    timeout_message,
-                    wait=self._SERVER_AGE):
-                try:
-                    # Use the get_server call so that the list_servers
-                    # cache can be leveraged
-                    server = self.get_server(server_id)
-                except Exception:
-                    continue
-                if not server:
-                    continue
-
-                # We have more work to do, but the details of that are
-                # hidden from the user. So, calculate remaining timeout
-                # and pass it down into the IP stack.
-                remaining_timeout = timeout - int(time.time() - start_time)
-                if remaining_timeout <= 0:
-                    raise OpenStackCloudTimeout(timeout_message)
-
-                server = self.get_active_server(
-                    server=server, reuse=reuse_ips,
-                    auto_ip=auto_ip, ips=ips, ip_pool=ip_pool,
-                    wait=wait, timeout=remaining_timeout)
-                if server:
-                    server.adminPass = admin_pass
-                    return server
+            server = self.wait_for_server(
+                server, auto_ip=auto_ip, ips=ips, ip_pool=ip_pool,
+                reuse=reuse_ips, timeout=timeout
+            )
 
         server.adminPass = admin_pass
         return server
+
+    def wait_for_server(
+            self, server, auto_ip=True, ips=None, ip_pool=None,
+            reuse=True, timeout=180):
+        """
+        Wait for a server to reach ACTIVE status.
+        """
+        server_id = server['id']
+        timeout_message = "Timeout waiting for the server to come up."
+        start_time = time.time()
+
+        # There is no point in iterating faster than the list_servers cache
+        for count in _utils._iterate_timeout(
+                timeout,
+                timeout_message,
+                wait=self._SERVER_AGE):
+            try:
+                # Use the get_server call so that the list_servers
+                # cache can be leveraged
+                server = self.get_server(server_id)
+            except Exception:
+                continue
+            if not server:
+                continue
+
+            # We have more work to do, but the details of that are
+            # hidden from the user. So, calculate remaining timeout
+            # and pass it down into the IP stack.
+            remaining_timeout = timeout - int(time.time() - start_time)
+            if remaining_timeout <= 0:
+                raise OpenStackCloudTimeout(timeout_message)
+
+            server = self.get_active_server(
+                server=server, reuse=reuse,
+                auto_ip=auto_ip, ips=ips, ip_pool=ip_pool,
+                wait=True, timeout=remaining_timeout)
+
+            if server is not None and server['status'] == 'ACTIVE':
+                return server
 
     def get_active_server(
             self, server, auto_ip=True, ips=None, ip_pool=None,

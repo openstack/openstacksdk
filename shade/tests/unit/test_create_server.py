@@ -20,6 +20,7 @@ Tests for the `create_server` command.
 """
 
 from mock import patch, Mock
+import mock
 import os_client_config
 from shade import _utils
 from shade import meta
@@ -164,67 +165,84 @@ class TestCreateServer(base.TestCase):
                     name='server-name', image='image=id',
                     flavor='flavor-id', admin_pass='ooBootheiX0edoh'))
 
-    def test_create_server_with_admin_pass_wait(self):
+    @patch.object(OpenStackCloud, "wait_for_server")
+    @patch.object(OpenStackCloud, "nova_client")
+    def test_create_server_with_admin_pass_wait(self, mock_nova, mock_wait):
         """
         Test that a server with an admin_pass passed returns the password
         """
-        with patch("shade.OpenStackCloud"):
-            build_server = fakes.FakeServer(
-                '1234', '', 'BUILD', addresses=dict(public='1.1.1.1'),
-                adminPass='ooBootheiX0edoh')
-            next_server = fakes.FakeServer(
-                '1234', '', 'BUILD', addresses=dict(public='1.1.1.1'))
-            fake_server = fakes.FakeServer(
-                '1234', '', 'ACTIVE', addresses=dict(public='1.1.1.1'))
-            ret_fake_server = fakes.FakeServer(
-                '1234', '', 'ACTIVE', addresses=dict(public='1.1.1.1'),
-                adminPass='ooBootheiX0edoh')
-            config = {
-                "servers.create.return_value": build_server,
-                "servers.get.return_value": next_server,
-                "servers.list.side_effect": [
-                    [next_server], [fake_server]]
-            }
-            OpenStackCloud.nova_client = Mock(**config)
-            with patch.object(OpenStackCloud, "add_ips_to_server",
-                              return_value=fake_server):
-                self.assertEqual(
-                    _utils.normalize_server(
-                        meta.obj_to_dict(ret_fake_server),
-                        cloud_name=self.client.name,
-                        region_name=self.client.region_name),
-                    _utils.normalize_server(
-                        meta.obj_to_dict(
-                            self.client.create_server(
-                                'server-name', 'image-id', 'flavor-id',
-                                wait=True, admin_pass='ooBootheiX0edoh')),
-                        cloud_name=self.client.name,
-                        region_name=self.client.region_name)
-                )
+        fake_server = fakes.FakeServer('1234', '', 'BUILD')
+        fake_server_with_pass = fakes.FakeServer('1234', '', 'BUILD',
+                                                 adminPass='ooBootheiX0edoh')
 
-    def test_create_server_wait(self):
+        mock_nova.servers.create.return_value = fake_server
+        mock_nova.servers.get.return_value = fake_server
+        # The wait returns non-password server
+        mock_wait.return_value = _utils.normalize_server(
+            meta.obj_to_dict(fake_server), None, None)
+
+        server = self.client.create_server(
+            name='server-name', image='image-id',
+            flavor='flavor-id', admin_pass='ooBootheiX0edoh', wait=True)
+
+        # Assert that we did wait
+        self.assertTrue(mock_wait.called)
+
+        # Even with the wait, we should still get back a passworded server
+        self.assertEqual(
+            server,
+            _utils.normalize_server(meta.obj_to_dict(fake_server_with_pass),
+                                    None, None)
+        )
+
+    @patch.object(OpenStackCloud, "get_active_server")
+    @patch.object(OpenStackCloud, "get_server")
+    def test_wait_for_server(self, mock_get_server, mock_get_active_server):
         """
-        Test that create_server with a wait returns the server instance when
+        Test that waiting for a server returns the server instance when
         its status changes to "ACTIVE".
         """
-        with patch("shade.OpenStackCloud"):
-            build_server = fakes.FakeServer(
-                '1234', '', 'ACTIVE', addresses=dict(public='1.1.1.1'))
-            fake_server = fakes.FakeServer(
-                '1234', '', 'ACTIVE', addresses=dict(public='1.1.1.1'))
-            config = {
-                "servers.create.return_value": build_server,
-                "servers.get.return_value": build_server,
-                "servers.list.side_effect": [
-                    [build_server], [fake_server]]
-            }
-            OpenStackCloud.nova_client = Mock(**config)
-            with patch.object(OpenStackCloud, "add_ips_to_server",
-                              return_value=fake_server):
-                self.assertEqual(
-                    self.client.create_server(
-                        'server-name', 'image-id', 'flavor-id', wait=True),
-                    fake_server)
+        building_server = {'id': 'fake_server_id', 'status': 'BUILDING'}
+        active_server = {'id': 'fake_server_id', 'status': 'ACTIVE'}
+
+        mock_get_server.side_effect = iter([building_server, active_server])
+        mock_get_active_server.side_effect = iter([
+            building_server, active_server])
+
+        server = self.client.wait_for_server(building_server)
+
+        self.assertEqual(2, mock_get_server.call_count)
+        mock_get_server.assert_has_calls([
+            mock.call(building_server['id']),
+            mock.call(active_server['id']),
+        ])
+
+        self.assertEqual(2, mock_get_active_server.call_count)
+        mock_get_active_server.assert_has_calls([
+            mock.call(server=building_server, reuse=True, auto_ip=True,
+                      ips=None, ip_pool=None, wait=True, timeout=mock.ANY),
+            mock.call(server=active_server, reuse=True, auto_ip=True,
+                      ips=None, ip_pool=None, wait=True, timeout=mock.ANY),
+        ])
+
+        self.assertEqual('ACTIVE', server['status'])
+
+    @patch.object(OpenStackCloud, 'wait_for_server')
+    @patch.object(OpenStackCloud, 'nova_client')
+    def test_create_server_wait(self, mock_nova, mock_wait):
+        """
+        Test that create_server with a wait actually does the wait.
+        """
+        fake_server = {'id': 'fake_server_id', 'status': 'BUILDING'}
+        mock_nova.servers.create.return_value = fake_server
+
+        self.client.create_server(
+            'server-name', 'image-id', 'flavor-id', wait=True),
+
+        mock_wait.assert_called_once_with(
+            fake_server, auto_ip=True, ips=None,
+            ip_pool=None, reuse=True, timeout=180
+        )
 
     @patch('time.sleep')
     def test_create_server_no_addresses(self, mock_sleep):
