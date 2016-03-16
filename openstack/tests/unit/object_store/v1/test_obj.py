@@ -44,6 +44,7 @@ OBJ_EXAMPLE = {
 DICT_EXAMPLE = {
     'container': CONTAINER_NAME,
     'name': OBJECT_NAME,
+    'content_type': 'application/octet-stream',
     'headers': {
         'content-length': '252466',
         'accept-ranges': 'bytes',
@@ -51,7 +52,6 @@ DICT_EXAMPLE = {
         'etag': '243f87b91224d85722564a80fd3cb1f1',
         'x-timestamp': '1453414256.28112',
         'date': 'Thu, 28 Aug 2014 14:41:59 GMT',
-        'content-type': 'application/octet-stream',
         'id': 'tx5fb5ad4f4d0846c6b2bc7-0053ff3fb7',
         'x-delete-at': '1453416226.16744'
     }

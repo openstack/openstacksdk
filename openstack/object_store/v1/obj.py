@@ -97,7 +97,7 @@ class Object(_base.BaseResource):
     #: the object, in bytes.
     content_length = resource.header("content-length")
     #: The MIME type of the object.
-    content_type = resource.header("content_type", alias="content-type")
+    content_type = resource.header("content-type")
     #: The type of ranges that the object accepts.
     accept_ranges = resource.header("accept-ranges")
     #: For objects smaller than 5 GB, this value is the MD5 checksum
