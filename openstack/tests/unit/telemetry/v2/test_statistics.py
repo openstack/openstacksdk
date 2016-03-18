@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import mock
 import testtools
 
@@ -20,14 +22,14 @@ EXAMPLE = {
     'avg': '2',
     'count': '3',
     'duration': '4',
-    'duration_end': '5',
-    'duration_start': '6',
+    'duration_end': '2015-03-09T12:45:00.000000',
+    'duration_start': '2015-03-09T12:15:00.000000',
     'groupby': '7',
     'max': '8',
     'min': '9',
     'period': '10',
-    'period_end': '11',
-    'period_start': '12',
+    'period_end': '2015-03-09T12:45:00.000000',
+    'period_start': '2015-03-09T12:15:00.000000',
     'sum': '13',
     'unit': '14',
 }
@@ -54,14 +56,22 @@ class TestStatistics(testtools.TestCase):
         self.assertEqual(EXAMPLE['avg'], sot.avg)
         self.assertEqual(EXAMPLE['count'], sot.count)
         self.assertEqual(EXAMPLE['duration'], sot.duration)
-        self.assertEqual(EXAMPLE['duration_end'], sot.duration_end)
-        self.assertEqual(EXAMPLE['duration_start'], sot.duration_start)
+        dt = datetime.datetime(2015, 3, 9, 12, 45, 00, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.duration_end_at.replace(tzinfo=None))
+        dt = datetime.datetime(2015, 3, 9, 12, 15, 00, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.duration_start_at.replace(tzinfo=None))
         self.assertEqual(EXAMPLE['groupby'], sot.group_by)
         self.assertEqual(EXAMPLE['max'], sot.max)
         self.assertEqual(EXAMPLE['min'], sot.min)
         self.assertEqual(EXAMPLE['period'], sot.period)
-        self.assertEqual(EXAMPLE['period_end'], sot.period_end)
-        self.assertEqual(EXAMPLE['period_start'], sot.period_start)
+        dt = datetime.datetime(2015, 3, 9, 12, 45, 00, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.period_end_at.replace(tzinfo=None))
+        dt = datetime.datetime(2015, 3, 9, 12, 15, 00, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.period_start_at.replace(tzinfo=None))
         self.assertEqual(EXAMPLE['sum'], sot.sum)
         self.assertEqual(EXAMPLE['unit'], sot.unit)
 

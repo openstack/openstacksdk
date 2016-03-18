@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import mock
 import testtools
 
@@ -29,8 +31,8 @@ EXAMPLE = {
     'repeat_actions': False,
     'severity': 'low',
     'state': 'insufficient data',
-    'state_timestamp': '8',
-    'timestamp': '9',
+    'state_timestamp': '2015-03-09T12:15:57.233772',
+    'timestamp': '2015-03-09T12:15:57.233772',
     'threshold_rule': {'meter_name': 'a',
                        'evaluation_periods:': '1',
                        'period': '60',
@@ -73,17 +75,21 @@ class TestAlarm(testtools.TestCase):
         self.assertEqual(IDENTIFIER, sot.alarm_id)
         self.assertEqual(EXAMPLE['combination_rule'], sot.combination_rule)
         self.assertEqual(EXAMPLE['description'], sot.description)
-        self.assertTrue(sot.enabled)
+        self.assertTrue(sot.is_enabled)
         self.assertEqual(EXAMPLE['insufficient_data_actions'],
                          sot.insufficient_data_actions)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['ok_actions'], sot.ok_actions)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
-        self.assertFalse(sot.repeat_actions)
+        self.assertFalse(sot.is_repeat_actions)
         self.assertEqual(EXAMPLE['severity'], sot.severity)
         self.assertEqual(EXAMPLE['state'], sot.state)
-        self.assertEqual(EXAMPLE['state_timestamp'], sot.state_changed_at)
-        self.assertEqual(EXAMPLE['timestamp'], sot.updated_at)
+        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.state_changed_at.replace(tzinfo=None))
+        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
         self.assertEqual(EXAMPLE['threshold_rule'], sot.threshold_rule)
         self.assertEqual(EXAMPLE['time_constraints'], sot.time_constraints)
         self.assertEqual(EXAMPLE['type'], sot.type)
