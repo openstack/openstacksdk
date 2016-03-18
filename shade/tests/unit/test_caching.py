@@ -303,8 +303,10 @@ class TestMemoryCache(base.TestCase):
         nova_mock.flavors.list.return_value = []
         self.assertEqual([], self.cloud.list_flavors())
 
-        fake_flavor = fakes.FakeFlavor('555', 'vanilla')
-        fake_flavor_dict = meta.obj_to_dict(fake_flavor)
+        fake_flavor = fakes.FakeFlavor('555', 'vanilla', 100)
+        fake_flavor_dict = _utils.normalize_flavors(
+            [meta.obj_to_dict(fake_flavor)]
+        )[0]
         nova_mock.flavors.list.return_value = [fake_flavor]
         self.cloud.list_flavors.invalidate(self.cloud)
         self.assertEqual([fake_flavor_dict], self.cloud.list_flavors())

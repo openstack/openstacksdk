@@ -1429,7 +1429,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                                     is_public=is_public)
             )
 
-        return flavor
+        return _utils.normalize_flavors([flavor])[0]
 
     def delete_flavor(self, name_or_id):
         """Delete a flavor
@@ -1466,7 +1466,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
         try:
             flavor = self.manager.submitTask(
-                _tasks.FlavorGet(flavor=flavor_id)
+                _tasks.FlavorGet(flavor=flavor_id), raw=True
             )
         except nova_exceptions.NotFound:
             self.log.debug(

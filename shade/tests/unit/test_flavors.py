@@ -40,7 +40,7 @@ class TestFlavors(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_delete_flavor(self, mock_nova):
         mock_nova.flavors.list.return_value = [
-            fakes.FakeFlavor('123', 'lemon')
+            fakes.FakeFlavor('123', 'lemon', 100)
         ]
         self.assertTrue(self.op_cloud.delete_flavor('lemon'))
         mock_nova.flavors.delete.assert_called_once_with(flavor='123')
@@ -54,7 +54,7 @@ class TestFlavors(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_delete_flavor_exception(self, mock_nova):
         mock_nova.flavors.list.return_value = [
-            fakes.FakeFlavor('123', 'lemon')
+            fakes.FakeFlavor('123', 'lemon', 100)
         ]
         mock_nova.flavors.delete.side_effect = Exception()
         self.assertRaises(shade.OpenStackCloudException,

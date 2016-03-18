@@ -70,7 +70,7 @@ class Task(object):
         self._traceback = tb
         self._finished.set()
 
-    def wait(self):
+    def wait(self, raw):
         self._finished.wait()
         # TODO(mordred): We store the raw requests response if there is
         # one now. So we should probably do an error handler to throw
@@ -78,6 +78,10 @@ class Task(object):
         if self._exception:
             six.reraise(type(self._exception), self._exception,
                         self._traceback)
+
+        if raw:
+            # Do NOT convert the result.
+            return self._result
 
         # NOTE(Shrews): Since the client API might decide to subclass one
         # of these result types, we use isinstance() here instead of type().
@@ -126,7 +130,13 @@ class TaskManager(object):
         """ This is a direct action passthrough TaskManager """
         pass
 
-    def submitTask(self, task):
+    def submitTask(self, task, raw=False):
+        """Submit and execute the given task.
+
+        :param task: The task to execute.
+        :param bool raw: If True, return the raw result as received from the
+            underlying client call.
+        """
         self.log.debug(
             "Manager %s running task %s" % (self.name, type(task).__name__))
         start = time.time()
@@ -135,4 +145,4 @@ class TaskManager(object):
         self.log.debug(
             "Manager %s ran task %s in %ss" % (
                 self.name, type(task).__name__, (end - start)))
-        return task.wait()
+        return task.wait(raw)

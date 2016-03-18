@@ -24,7 +24,6 @@ from os_client_config import cloud_config
 import shade
 from shade import _utils
 from shade import exc
-from shade import meta
 from shade.tests import fakes
 from shade.tests.unit import base
 
@@ -493,47 +492,21 @@ class TestShade(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_get_flavor_by_ram(self, mock_nova_client):
-
-        class Flavor1(object):
-            id = '1'
-            name = 'vanilla ice cream'
-            ram = 100
-
-        class Flavor2(object):
-            id = '2'
-            name = 'chocolate ice cream'
-            ram = 200
-
-        vanilla = meta.obj_to_dict(Flavor1())
-        chocolate = meta.obj_to_dict(Flavor2())
+        vanilla = fakes.FakeFlavor('1', 'vanilla ice cream', 100)
+        chocolate = fakes.FakeFlavor('1', 'chocolate ice cream', 200)
         mock_nova_client.flavors.list.return_value = [vanilla, chocolate]
         flavor = self.cloud.get_flavor_by_ram(ram=150)
-        self.assertEquals(chocolate, flavor)
+        self.assertEquals(chocolate.id, flavor['id'])
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_get_flavor_by_ram_and_include(self, mock_nova_client):
-        class Flavor1(object):
-            id = '1'
-            name = 'vanilla ice cream'
-            ram = 100
-
-        class Flavor2(object):
-            id = '2'
-            name = 'chocolate ice cream'
-            ram = 200
-
-        class Flavor3(object):
-            id = '3'
-            name = 'strawberry ice cream'
-            ram = 250
-
-        vanilla = meta.obj_to_dict(Flavor1())
-        chocolate = meta.obj_to_dict(Flavor2())
-        strawberry = meta.obj_to_dict(Flavor3())
+        vanilla = fakes.FakeFlavor('1', 'vanilla ice cream', 100)
+        chocolate = fakes.FakeFlavor('2', 'chocoliate ice cream', 200)
+        strawberry = fakes.FakeFlavor('3', 'strawberry ice cream', 250)
         mock_nova_client.flavors.list.return_value = [
             vanilla, chocolate, strawberry]
         flavor = self.cloud.get_flavor_by_ram(ram=150, include='strawberry')
-        self.assertEquals(strawberry, flavor)
+        self.assertEquals(strawberry.id, flavor['id'])
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_get_flavor_by_ram_not_found(self, mock_nova_client):
@@ -544,17 +517,12 @@ class TestShade(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_get_flavor_string_and_int(self, mock_nova_client):
-        class Flavor1(object):
-            id = '1'
-            name = 'vanilla ice cream'
-            ram = 100
-
-        vanilla = meta.obj_to_dict(Flavor1())
+        vanilla = fakes.FakeFlavor('1', 'vanilla ice cream', 100)
         mock_nova_client.flavors.list.return_value = [vanilla]
         flavor1 = self.cloud.get_flavor('1')
-        self.assertEquals(vanilla, flavor1)
+        self.assertEquals(vanilla.id, flavor1['id'])
         flavor2 = self.cloud.get_flavor(1)
-        self.assertEquals(vanilla, flavor2)
+        self.assertEquals(vanilla.id, flavor2['id'])
 
     def test__neutron_exceptions_resource_not_found(self):
         with mock.patch.object(

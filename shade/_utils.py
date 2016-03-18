@@ -468,6 +468,18 @@ def normalize_stacks(stacks):
     return stacks
 
 
+def normalize_flavors(flavors):
+    """ Normalize a list of flavor objects """
+    for flavor in flavors:
+        flavor.pop('links', None)
+        flavor.pop('NAME_ATTR', None)
+        flavor.pop('HUMAN_ID', None)
+        flavor.pop('human_id', None)
+        if 'extra_specs' not in flavor:
+            flavor['extra_specs'] = {}
+    return flavors
+
+
 def valid_kwargs(*valid_args):
     # This decorator checks if argument passed as **kwargs to a function are
     # present in valid_args.

@@ -1137,7 +1137,14 @@ class OpenStackCloud(object):
 
         """
         with _utils.shade_exceptions("Error fetching flavor list"):
-            return self.manager.submitTask(_tasks.FlavorList(is_public=None))
+            raw_flavors = self.manager.submitTask(
+                _tasks.FlavorList(is_public=None), raw=True)
+            for flavor in raw_flavors:
+                flavor.extra_specs = flavor.get_keys()
+
+            return _utils.normalize_flavors(
+                meta.obj_list_to_dict(raw_flavors)
+            )
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_stacks)
     def list_stacks(self):

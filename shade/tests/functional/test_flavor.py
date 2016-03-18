@@ -21,9 +21,6 @@ test_flavor
 Functional tests for `shade` flavor resource.
 """
 
-import string
-import random
-
 import shade
 from shade.exc import OpenStackCloudException
 from shade.tests import base
@@ -37,8 +34,7 @@ class TestFlavor(base.TestCase):
         self.operator_cloud = shade.operator_cloud(cloud='devstack-admin')
 
         # Generate a random name for flavors in this test
-        self.new_item_name = 'flavor_' + ''.join(
-            random.choice(string.ascii_lowercase) for _ in range(5))
+        self.new_item_name = self.getUniqueString('flavor')
 
         self.addCleanup(self._cleanup_flavors)
 
@@ -67,6 +63,12 @@ class TestFlavor(base.TestCase):
         flavor = self.operator_cloud.create_flavor(**flavor_kwargs)
 
         self.assertIsNotNone(flavor['id'])
+
+        # When properly normalized, we should always get an extra_specs
+        # and expect empty dict on create.
+        self.assertIn('extra_specs', flavor)
+        self.assertEqual({}, flavor['extra_specs'])
+
         for key in flavor_kwargs.keys():
             self.assertIn(key, flavor)
         for key, value in flavor_kwargs.items():
@@ -93,6 +95,8 @@ class TestFlavor(base.TestCase):
         # to make sure both of the flavors we just created are present.
         found = []
         for f in flavors:
+            # extra_specs should be added within list_flavors()
+            self.assertIn('extra_specs', f)
             if f['name'] in (pub_flavor_name, priv_flavor_name):
                 found.append(f)
         self.assertEqual(2, len(found))
@@ -125,3 +129,32 @@ class TestFlavor(base.TestCase):
                                                  project['id'])
         flavors = self.demo_cloud.search_flavors(priv_flavor_name)
         self.assertEqual(0, len(flavors))
+
+    def test_set_unset_flavor_specs(self):
+        """
+        Test setting and unsetting flavor extra specs
+        """
+        flavor_name = self.new_item_name + '_spec_test'
+        kwargs = dict(
+            name=flavor_name, ram=1024, vcpus=2, disk=10
+        )
+        new_flavor = self.operator_cloud.create_flavor(**kwargs)
+
+        # Expect no extra_specs
+        self.assertEqual({}, new_flavor['extra_specs'])
+
+        # Now set them
+        extra_specs = {'foo': 'aaa', 'bar': 'bbb'}
+        self.operator_cloud.set_flavor_specs(new_flavor['id'], extra_specs)
+        mod_flavor = self.operator_cloud.get_flavor(new_flavor['id'])
+
+        # Verify extra_specs were set
+        self.assertIn('extra_specs', mod_flavor)
+        self.assertEqual(extra_specs, mod_flavor['extra_specs'])
+
+        # Unset the 'foo' value
+        self.operator_cloud.unset_flavor_specs(mod_flavor['id'], ['foo'])
+        mod_flavor = self.operator_cloud.get_flavor(new_flavor['id'])
+
+        # Verify 'foo' is unset and 'bar' is still set
+        self.assertEqual({'bar': 'bbb'}, mod_flavor['extra_specs'])

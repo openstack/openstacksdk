@@ -41,9 +41,13 @@ class FakeEndpointv3(object):
 
 
 class FakeFlavor(object):
-    def __init__(self, id, name):
+    def __init__(self, id, name, ram):
         self.id = id
         self.name = name
+        self.ram = ram
+
+    def get_keys(self):
+        return {}
 
 
 class FakeFloatingIP(object):
