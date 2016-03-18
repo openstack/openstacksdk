@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import format
 from openstack import resource
 from openstack.telemetry import telemetry_service
 
@@ -35,8 +36,9 @@ class AlarmChange(resource.Resource):
     on_behalf_of_id = resource.prop('on_behalf_of')
     #: The project ID of the initiating identity
     project_id = resource.prop('project_id')
-    #: The time/date of the alarm change
-    triggered_at = resource.prop('timestamp')
+    #: The time/date of the alarm change.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    triggered_at = resource.prop('timestamp', type=format.ISO8601)
     #: The type of change
     type = resource.prop('type')
     #: The user ID of the initiating identity

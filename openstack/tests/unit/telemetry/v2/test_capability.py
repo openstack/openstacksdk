@@ -46,7 +46,7 @@ class TestCapability(testtools.TestCase):
     def test_make_it(self):
         sot = capability.Capability(EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)
-        self.assertEqual(EXAMPLE['enabled'], sot.enabled)
+        self.assertEqual(EXAMPLE['enabled'], sot.is_enabled)
 
     def test_list(self):
         sess = mock.Mock()
@@ -59,12 +59,12 @@ class TestCapability(testtools.TestCase):
         caps = sorted(caps, key=lambda cap: cap.id)
         self.assertEqual(5, len(caps))
         self.assertEqual('alarms:history:query:simple', caps[0].id)
-        self.assertTrue(caps[0].enabled)
+        self.assertTrue(caps[0].is_enabled)
         self.assertEqual('alarms:query:simple', caps[1].id)
-        self.assertTrue(caps[1].enabled)
+        self.assertTrue(caps[1].is_enabled)
         self.assertEqual('events:query:simple', caps[2].id)
-        self.assertTrue(caps[2].enabled)
+        self.assertTrue(caps[2].is_enabled)
         self.assertEqual('resources:query:simple', caps[3].id)
-        self.assertTrue(caps[3].enabled)
+        self.assertTrue(caps[3].is_enabled)
         self.assertEqual('statistics:query:complex', caps[4].id)
-        self.assertFalse(caps[4].enabled)
+        self.assertFalse(caps[4].is_enabled)

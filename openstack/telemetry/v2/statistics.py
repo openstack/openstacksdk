@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import format
 from openstack import resource
 from openstack.telemetry import telemetry_service
 
@@ -36,10 +37,12 @@ class Statistics(resource.Resource):
     count = resource.prop('count')
     #: The difference, in seconds, between the oldest and newest timestamp
     duration = resource.prop('duration')
-    #: UTC date and time of the oldest timestamp, or the query end time
-    duration_end = resource.prop('duration_end')
-    #: UTC date and time of the earliest timestamp, or the query start time
-    duration_start = resource.prop('duration_start')
+    #: UTC date and time of the oldest timestamp, or the query end time.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    duration_end_at = resource.prop('duration_end', type=format.ISO8601)
+    #: UTC date and time of the earliest timestamp, or the query start time.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    duration_start_at = resource.prop('duration_start', type=format.ISO8601)
     #: Dictionary of field names for group, if groupby statistics are requested
     group_by = resource.prop('groupby')
     #: The maximum volume seen in the data
@@ -48,10 +51,12 @@ class Statistics(resource.Resource):
     min = resource.prop('min')
     #: The difference, in seconds, between the period start and end
     period = resource.prop('period')
-    #: UTC date and time of the period end
-    period_end = resource.prop('period_end')
-    #: UTC date and time of the period start
-    period_start = resource.prop('period_start')
+    #: UTC date and time of the period end.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    period_end_at = resource.prop('period_end', type=format.ISO8601)
+    #: UTC date and time of the period start.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    period_start_at = resource.prop('period_start', type=format.ISO8601)
     #: The total of all of the volume values seen in the data
     sum = resource.prop('sum')
     #: The unit type of the data set

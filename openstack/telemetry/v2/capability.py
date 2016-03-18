@@ -27,7 +27,7 @@ class Capability(resource.Resource):
     allow_list = True
 
     # Properties
-    enabled = resource.prop('enabled')
+    is_enabled = resource.prop('enabled', type=bool)
 
     @classmethod
     def list(cls, session, limit=None, marker=None, path_args=None,
