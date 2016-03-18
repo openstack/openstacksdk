@@ -17,7 +17,6 @@ from openstack import resource
 
 class Secret(resource.Resource):
     id_attribute = 'secret_ref'
-    resource_key = 'secret'
     resources_key = 'secrets'
     base_path = '/secrets'
     service = key_manager_service.KeyManagerService()

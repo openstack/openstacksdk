@@ -34,7 +34,7 @@ class TestSecret(testtools.TestCase):
 
     def test_basic(self):
         sot = secret.Secret()
-        self.assertEqual('secret', sot.resource_key)
+        self.assertIsNone(sot.resource_key)
         self.assertEqual('secrets', sot.resources_key)
         self.assertEqual('/secrets', sot.base_path)
         self.assertEqual('key-manager', sot.service.service_type)
