@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import format
 from openstack.orchestration import orchestration_service
 from openstack import resource
 
@@ -29,12 +30,13 @@ class Resource(resource.Resource):
     allow_update = False
 
     # Properties
-    name = resource.prop('resource_name')
     #: A list of dictionaries containing links relevant to the resource.
     links = resource.prop('links')
     #: ID of the logical resource, usually the literal name of the resource
     #: as it appears in the stack template.
     logical_resource_id = resource.prop('logical_resource_id')
+    #: Name of the resource.
+    name = resource.prop('resource_name')
     #: ID of the physical resource (if any) that backs up the resource. For
     #: example, it contains a nova server ID if the resource is a nova
     #: server.
@@ -50,4 +52,5 @@ class Resource(resource.Resource):
     #: A string that explains why the resource is in its current status.
     status_reason = resource.prop('resource_status_reason')
     #: Timestamp of the last update made to the resource.
-    updated_at = resource.prop('updated_time')
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    updated_at = resource.prop('updated_time', type=format.ISO8601)
