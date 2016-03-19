@@ -102,6 +102,15 @@ class OpenStackCloud(object):
                                 OpenStack API tasks. Unless you're doing
                                 rate limiting client side, you almost
                                 certainly don't need this. (optional)
+    :param bool log_inner_exceptions: Send wrapped exceptions to the error log.
+                                      Defaults to false, because there are a
+                                      number of wrapped exceptions that are
+                                      noise for normal usage. It's possible
+                                      that for a user that has python logging
+                                      configured properly, it's desirable to
+                                      have all of the wrapped exceptions be
+                                      emitted to the error log. This flag
+                                      will enable that behavior.
     :param CloudConfig cloud_config: Cloud config object from os-client-config
                                      In the future, this will be the only way
                                      to pass in cloud configuration, but is
@@ -111,7 +120,10 @@ class OpenStackCloud(object):
     def __init__(
             self,
             cloud_config=None,
-            manager=None, **kwargs):
+            manager=None, log_inner_exceptions=False, **kwargs):
+
+        if log_inner_exceptions:
+            OpenStackCloudException.log_inner_exceptions = True
 
         self.log = _log.setup_logging('shade')
         if not cloud_config:
