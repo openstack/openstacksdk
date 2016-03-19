@@ -41,10 +41,6 @@ RANGE_DATA = [
 
 class TestShade(base.TestCase):
 
-    def setUp(self):
-        super(TestShade, self).setUp()
-        self.cloud = shade.openstack_cloud(validate=False)
-
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, shade.OpenStackCloud)
 

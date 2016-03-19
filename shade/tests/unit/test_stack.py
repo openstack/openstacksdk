@@ -26,10 +26,6 @@ from shade.tests.unit import base
 
 class TestStack(base.TestCase):
 
-    def setUp(self):
-        super(TestStack, self).setUp()
-        self.cloud = shade.openstack_cloud(validate=False)
-
     @mock.patch.object(shade.OpenStackCloud, 'heat_client')
     def test_list_stacks(self, mock_heat):
         fake_stacks = [

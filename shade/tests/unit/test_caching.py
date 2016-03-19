@@ -18,7 +18,6 @@ import mock
 import os_client_config as occ
 import testtools
 import warlock
-import yaml
 
 import shade.openstackcloud
 from shade import _utils
@@ -98,7 +97,7 @@ _TASK_SCHEMA = dict(
 
 class TestMemoryCache(base.TestCase):
 
-    CACHING_CONFIG = {
+    CLOUD_CONFIG = {
         'cache':
         {
             'max_age': 90,
@@ -109,7 +108,7 @@ class TestMemoryCache(base.TestCase):
         },
         'clouds':
         {
-            '_cache_test_':
+            '_test_cloud_':
             {
                 'auth':
                 {
@@ -122,22 +121,6 @@ class TestMemoryCache(base.TestCase):
             },
         },
     }
-
-    def setUp(self):
-        super(TestMemoryCache, self).setUp()
-
-        # Isolate os-client-config from test environment
-        config = tempfile.NamedTemporaryFile(delete=False)
-        config.write(bytes(yaml.dump(self.CACHING_CONFIG).encode('utf-8')))
-        config.close()
-        vendor = tempfile.NamedTemporaryFile(delete=False)
-        vendor.write(b'{}')
-        vendor.close()
-
-        self.cloud_config = occ.OpenStackConfig(config_files=[config.name],
-                                                vendor_files=[vendor.name])
-        self.cloud = shade.openstack_cloud(cloud='_cache_test_',
-                                           config=self.cloud_config)
 
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, shade.OpenStackCloud)
@@ -523,9 +506,20 @@ class TestMemoryCache(base.TestCase):
 
 
 class TestBogusAuth(base.TestCase):
-    CONFIG = {
+    CLOUD_CONFIG = {
         'clouds':
         {
+            '_test_cloud_':
+            {
+                'auth':
+                {
+                    'auth_url': 'http://198.51.100.1:35357/v2.0',
+                    'username': '_test_user_',
+                    'password': '_test_pass_',
+                    'project_name': '_test_project_',
+                },
+                'region_name': '_test_region_',
+            },
             '_bogus_test_':
             {
                 'auth_type': 'bogus',
@@ -544,18 +538,7 @@ class TestBogusAuth(base.TestCase):
     def setUp(self):
         super(TestBogusAuth, self).setUp()
 
-        # Isolate os-client-config from test environment
-        config = tempfile.NamedTemporaryFile(delete=False)
-        config.write(bytes(yaml.dump(self.CONFIG).encode('utf-8')))
-        config.close()
-        vendor = tempfile.NamedTemporaryFile(delete=False)
-        vendor.write(b'{}')
-        vendor.close()
-
-        self.cloud_config = occ.OpenStackConfig(config_files=[config.name],
-                                                vendor_files=[vendor.name])
-
     def test_get_auth_bogus(self):
         with testtools.ExpectedException(exc.OpenStackCloudException):
             shade.openstack_cloud(
-                cloud='_bogus_test_', config=self.cloud_config)
+                cloud='_bogus_test_', config=self.config)

@@ -55,10 +55,6 @@ nova_grp_dict = meta.obj_to_dict(nova_grp_obj)
 
 class TestSecurityGroups(base.TestCase):
 
-    def setUp(self):
-        super(TestSecurityGroups, self).setUp()
-        self.cloud = shade.openstack_cloud(validate=False)
-
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_list_security_groups_neutron(self, mock_nova, mock_neutron):

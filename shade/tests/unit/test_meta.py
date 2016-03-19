@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import mock
-import testtools
 import warlock
 
 from neutronclient.common import exceptions as neutron_exceptions
@@ -22,6 +21,7 @@ import shade
 from shade import _utils
 from shade import meta
 from shade.tests import fakes
+from shade.tests.unit import base
 
 PRIVATE_V4 = '198.51.100.3'
 PUBLIC_V4 = '192.0.2.99'
@@ -80,7 +80,7 @@ class FakeServer(object):
     accessIPv6 = ''
 
 
-class TestMeta(testtools.TestCase):
+class TestMeta(base.TestCase):
     def test_find_nova_addresses_key_name(self):
         # Note 198.51.100.0/24 is TEST-NET-2 from rfc5737
         addrs = {'public': [{'addr': '198.51.100.1', 'version': 4}],
@@ -122,9 +122,10 @@ class TestMeta(testtools.TestCase):
 
     def test_get_server_ip(self):
         srv = meta.obj_to_dict(FakeServer())
-        cloud = shade.openstack_cloud(validate=False)
-        self.assertEqual(PRIVATE_V4, meta.get_server_private_ip(srv, cloud))
-        self.assertEqual(PUBLIC_V4, meta.get_server_external_ipv4(cloud, srv))
+        self.assertEqual(
+            PRIVATE_V4, meta.get_server_private_ip(srv, self.cloud))
+        self.assertEqual(
+            PUBLIC_V4, meta.get_server_external_ipv4(self.cloud, srv))
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
     @mock.patch.object(shade.OpenStackCloud, 'search_networks')
@@ -145,9 +146,9 @@ class TestMeta(testtools.TestCase):
                                    'addr': PUBLIC_V4,
                                    'version': 4}]}
         ))
-        cloud = shade.openstack_cloud(validate=False)
 
-        self.assertEqual(PRIVATE_V4, meta.get_server_private_ip(srv, cloud))
+        self.assertEqual(
+            PRIVATE_V4, meta.get_server_private_ip(srv, self.cloud))
         mock_has_service.assert_called_with('network')
         mock_search_networks.assert_called_with(
             filters={'router:external': False}
@@ -176,8 +177,7 @@ class TestMeta(testtools.TestCase):
             },
         ]
 
-        cloud = shade.openstack_cloud(validate=False)
-        srv = cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
+        srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             flavor={u'id': u'1'},
             image={
@@ -216,8 +216,7 @@ class TestMeta(testtools.TestCase):
                 'addr': PUBLIC_V4,
                 'version': 4}]},
         ))
-        ip = meta.get_server_external_ipv4(
-            cloud=shade.openstack_cloud(validate=False), server=srv)
+        ip = meta.get_server_external_ipv4(cloud=self.cloud, server=srv)
 
         self.assertEqual(PUBLIC_V4, ip)
 
@@ -225,8 +224,7 @@ class TestMeta(testtools.TestCase):
         srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             accessIPv4=PUBLIC_V4))
-        ip = meta.get_server_external_ipv4(
-            cloud=shade.openstack_cloud(validate=False), server=srv)
+        ip = meta.get_server_external_ipv4(cloud=self.cloud, server=srv)
 
         self.assertEqual(PUBLIC_V4, ip)
 
@@ -254,8 +252,7 @@ class TestMeta(testtools.TestCase):
 
         srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE'))
-        ip = meta.get_server_external_ipv4(
-            cloud=shade.openstack_cloud(validate=False), server=srv)
+        ip = meta.get_server_external_ipv4(cloud=self.cloud, server=srv)
 
         self.assertEqual(PUBLIC_V4, ip)
         self.assertTrue(mock_get_server_ip.called)
@@ -269,8 +266,7 @@ class TestMeta(testtools.TestCase):
         srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             addresses={'public': [{'addr': PUBLIC_V4, 'version': 4}]}))
-        ip = meta.get_server_external_ipv4(
-            cloud=shade.openstack_cloud(validate=False), server=srv)
+        ip = meta.get_server_external_ipv4(cloud=self.cloud, server=srv)
 
         self.assertEqual(PUBLIC_V4, ip)
 
@@ -285,8 +281,7 @@ class TestMeta(testtools.TestCase):
         srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             addresses={'test-net': [{'addr': PRIVATE_V4}]}))
-        ip = meta.get_server_external_ipv4(
-            cloud=shade.openstack_cloud(validate=False), server=srv)
+        ip = meta.get_server_external_ipv4(cloud=self.cloud, server=srv)
 
         self.assertIsNone(ip)
         self.assertTrue(mock_get_server_ip.called)

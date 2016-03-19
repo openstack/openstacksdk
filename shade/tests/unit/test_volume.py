@@ -22,10 +22,6 @@ from shade.tests.unit import base
 
 class TestVolume(base.TestCase):
 
-    def setUp(self):
-        super(TestVolume, self).setUp()
-        self.cloud = shade.openstack_cloud(validate=False)
-
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_attach_volume(self, mock_nova):
         server = dict(id='server001')

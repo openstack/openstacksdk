@@ -19,10 +19,6 @@ from shade.tests.unit import base
 
 class TestNetwork(base.TestCase):
 
-    def setUp(self):
-        super(TestNetwork, self).setUp()
-        self.cloud = shade.openstack_cloud(validate=False)
-
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     def test_create_network(self, mock_neutron):
         self.cloud.create_network("netname")

@@ -25,10 +25,6 @@ from shade.tests.unit import base
 
 class TestKeypair(base.TestCase):
 
-    def setUp(self):
-        super(TestKeypair, self).setUp()
-        self.cloud = shade.openstack_cloud(validate=False)
-
     @patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_keypair(self, mock_nova):
         keyname = 'my_keyname'

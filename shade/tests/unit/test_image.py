@@ -20,14 +20,13 @@ import six
 
 import shade
 from shade import exc
-from shade.tests import base
+from shade.tests.unit import base
 
 
 class TestImage(base.TestCase):
 
     def setUp(self):
         super(TestImage, self).setUp()
-        self.cloud = shade.openstack_cloud(validate=False)
         self.image_id = str(uuid.uuid4())
         self.fake_search_return = [{
             u'image_state': u'available',
