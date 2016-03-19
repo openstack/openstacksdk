@@ -21,6 +21,8 @@ log = _log.setup_logging(__name__)
 
 class OpenStackCloudException(Exception):
 
+    log_inner_exceptions = False
+
     def __init__(self, message, extra_data=None):
         args = [message]
         if extra_data:
@@ -44,6 +46,8 @@ class OpenStackCloudException(Exception):
             message = "%s (Inner Exception: %s)" % (
                 message,
                 str(self.inner_exception[1]))
+        if self.log_inner_exceptions:
+            self.log_error()
         return message
 
 

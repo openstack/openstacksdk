@@ -40,3 +40,7 @@ class TestCase(base.TestCase):
         self.sleep_fixture = self.useFixture(fixtures.MonkeyPatch(
                                              'time.sleep',
                                              _nosleep))
+        # Getting the inner exceptions in the test log is super useful
+        self.useFixture(fixtures.MonkeyPatch(
+            'shade.exc.OpenStackCloudException.log_inner_exceptions',
+            True))
