@@ -87,6 +87,14 @@ class FlavorList(task_manager.Task):
         return client.nova_client.flavors.list(**self.args)
 
 
+class FlavorGetExtraSpecs(task_manager.RequestTask):
+    result_key = 'extra_specs'
+
+    def main(self, client):
+        return client._compute_client.get(
+            "/flavors/{id}/os-extra_specs".format(**self.args))
+
+
 class FlavorCreate(task_manager.Task):
     def main(self, client):
         return client.nova_client.flavors.create(**self.args)
@@ -166,10 +174,16 @@ class KeypairDelete(task_manager.Task):
         return client.nova_client.keypairs.delete(**self.args)
 
 
-class NovaUrlGet(task_manager.Task):
+class NovaListExtensions(task_manager.RequestTask):
+    result_key = 'extensions'
+
     def main(self, client):
-        self.requests = True
-        return client.nova_client.client.get(**self.args)
+        return client._compute_client.get('/extensions')
+
+
+class NovaUrlGet(task_manager.RequestTask):
+    def main(self, client):
+        return client._compute_client.get(**self.args)
 
 
 class NetworkList(task_manager.Task):

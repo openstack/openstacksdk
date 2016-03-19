@@ -41,10 +41,14 @@ class FakeEndpointv3(object):
 
 
 class FakeFlavor(object):
-    def __init__(self, id, name, ram):
+    def __init__(self, id, name, ram, extra_specs=None):
         self.id = id
         self.name = name
         self.ram = ram
+        # Leave it unset if we don't pass it in to test that normalize_ works
+        # but we also have to be able to pass one in to deal with mocks
+        if extra_specs:
+            self.extra_specs = extra_specs
 
     def get_keys(self):
         return {}

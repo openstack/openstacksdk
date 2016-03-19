@@ -490,19 +490,28 @@ class TestShade(base.TestCase):
                           self.cloud.update_subnet,
                           '456', gateway_ip=gateway, disable_gateway_ip=True)
 
+    @mock.patch.object(shade.OpenStackCloud, '_compute_client')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_get_flavor_by_ram(self, mock_nova_client):
+    def test_get_flavor_by_ram(self, mock_nova_client, mock_compute):
         vanilla = fakes.FakeFlavor('1', 'vanilla ice cream', 100)
         chocolate = fakes.FakeFlavor('1', 'chocolate ice cream', 200)
         mock_nova_client.flavors.list.return_value = [vanilla, chocolate]
+        mock_response = mock.Mock()
+        mock_response.json.return_value = dict(extra_specs=[])
+        mock_compute.get.return_value = mock_response
         flavor = self.cloud.get_flavor_by_ram(ram=150)
         self.assertEquals(chocolate.id, flavor['id'])
 
+    @mock.patch.object(shade.OpenStackCloud, '_compute_client')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_get_flavor_by_ram_and_include(self, mock_nova_client):
+    def test_get_flavor_by_ram_and_include(
+            self, mock_nova_client, mock_compute):
         vanilla = fakes.FakeFlavor('1', 'vanilla ice cream', 100)
         chocolate = fakes.FakeFlavor('2', 'chocoliate ice cream', 200)
         strawberry = fakes.FakeFlavor('3', 'strawberry ice cream', 250)
+        mock_response = mock.Mock()
+        mock_response.json.return_value = dict(extra_specs=[])
+        mock_compute.get.return_value = mock_response
         mock_nova_client.flavors.list.return_value = [
             vanilla, chocolate, strawberry]
         flavor = self.cloud.get_flavor_by_ram(ram=150, include='strawberry')
@@ -515,10 +524,15 @@ class TestShade(base.TestCase):
                           self.cloud.get_flavor_by_ram,
                           ram=100)
 
+    @mock.patch.object(shade.OpenStackCloud, '_compute_client')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_get_flavor_string_and_int(self, mock_nova_client):
+    def test_get_flavor_string_and_int(
+            self, mock_nova_client, mock_compute):
         vanilla = fakes.FakeFlavor('1', 'vanilla ice cream', 100)
         mock_nova_client.flavors.list.return_value = [vanilla]
+        mock_response = mock.Mock()
+        mock_response.json.return_value = dict(extra_specs=[])
+        mock_compute.get.return_value = mock_response
         flavor1 = self.cloud.get_flavor('1')
         self.assertEquals(vanilla.id, flavor1['id'])
         flavor2 = self.cloud.get_flavor(1)
@@ -625,8 +639,8 @@ class TestShade(base.TestCase):
                 pass
         mock_sleep.assert_called_with(1.0)
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test__nova_extensions(self, mock_nova):
+    @mock.patch.object(shade.OpenStackCloud, '_compute_client')
+    def test__nova_extensions(self, mock_compute):
         body = {
             'extensions': [
                 {
@@ -647,22 +661,24 @@ class TestShade(base.TestCase):
                 },
             ]
         }
-        mock_nova.client.get.return_value = ('200', body)
+        mock_response = mock.Mock()
+        mock_response.json.return_value = body
+        mock_compute.get.return_value = mock_response
         extensions = self.cloud._nova_extensions()
-        mock_nova.client.get.assert_called_once_with(url='/extensions')
+        mock_compute.get.assert_called_once_with('/extensions')
         self.assertEqual(set(['NMN', 'OS-DCF']), extensions)
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test__nova_extensions_fails(self, mock_nova):
-        mock_nova.client.get.side_effect = Exception()
+    @mock.patch.object(shade.OpenStackCloud, '_compute_client')
+    def test__nova_extensions_fails(self, mock_compute):
+        mock_compute.get.side_effect = Exception()
         with testtools.ExpectedException(
             exc.OpenStackCloudException,
             "Error fetching extension list for nova"
         ):
             self.cloud._nova_extensions()
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test__has_nova_extension(self, mock_nova):
+    @mock.patch.object(shade.OpenStackCloud, '_compute_client')
+    def test__has_nova_extension(self, mock_compute):
         body = {
             'extensions': [
                 {
@@ -683,7 +699,9 @@ class TestShade(base.TestCase):
                 },
             ]
         }
-        mock_nova.client.get.return_value = ('200', body)
+        mock_response = mock.Mock()
+        mock_response.json.return_value = body
+        mock_compute.get.return_value = mock_response
         self.assertTrue(self.cloud._has_nova_extension('NMN'))
         self.assertFalse(self.cloud._has_nova_extension('invalid'))
 

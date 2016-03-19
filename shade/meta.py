@@ -323,7 +323,13 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     return server_vars
 
 
-def obj_to_dict(obj):
+def _add_request_id(obj, request_id):
+    if request_id is not None:
+        obj['x_openstack_request_ids'] = [request_id]
+    return obj
+
+
+def obj_to_dict(obj, request_id=None):
     """ Turn an object with attributes into a dict suitable for serializing.
 
     Some of the things that are returned in OpenStack are objects with
@@ -340,7 +346,7 @@ def obj_to_dict(obj):
         return obj
     elif hasattr(obj, 'schema') and hasattr(obj, 'validate'):
         # It's a warlock
-        return warlock_to_dict(obj)
+        return _add_request_id(warlock_to_dict(obj), request_id)
     elif isinstance(obj, dict):
         # The new request-id tracking spec:
         # https://specs.openstack.org/openstack/nova-specs/specs/juno/approved/log-request-id-mappings.html
@@ -357,10 +363,10 @@ def obj_to_dict(obj):
         value = getattr(obj, key)
         if isinstance(value, NON_CALLABLES) and not key.startswith('_'):
             instance[key] = value
-    return instance
+    return _add_request_id(instance, request_id)
 
 
-def obj_list_to_dict(list):
+def obj_list_to_dict(obj_list, request_id=None):
     """Enumerate through lists of objects and return lists of dictonaries.
 
     Some of the objects returned in OpenStack are actually lists of objects,
@@ -368,8 +374,8 @@ def obj_list_to_dict(list):
     the conversion to lists of dictonaries.
     """
     new_list = []
-    for obj in list:
-        new_list.append(obj_to_dict(obj))
+    for obj in obj_list:
+        new_list.append(obj_to_dict(obj, request_id=request_id))
     return new_list
 
 

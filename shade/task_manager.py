@@ -53,6 +53,7 @@ class Task(object):
         self._finished = threading.Event()
         self.args = kw
         self.requests = False
+        self._request_id = None
 
     @abc.abstractmethod
     def main(self, client):
@@ -72,9 +73,7 @@ class Task(object):
 
     def wait(self, raw):
         self._finished.wait()
-        # TODO(mordred): We store the raw requests response if there is
-        # one now. So we should probably do an error handler to throw
-        # some exceptions if it's not 200
+
         if self._exception:
             six.reraise(type(self._exception), self._exception,
                         self._traceback)
@@ -87,7 +86,8 @@ class Task(object):
         # of these result types, we use isinstance() here instead of type().
         if (isinstance(self._result, list) or
             isinstance(self._result, types.GeneratorType)):
-            return meta.obj_list_to_dict(self._result)
+            return meta.obj_list_to_dict(
+                self._result, request_id=self._request_id)
         elif (not isinstance(self._result, bool) and
               not isinstance(self._result, int) and
               not isinstance(self._result, float) and
@@ -95,7 +95,7 @@ class Task(object):
               not isinstance(self._result, set) and
               not isinstance(self._result, tuple) and
               not isinstance(self._result, types.GeneratorType)):
-            return meta.obj_to_dict(self._result)
+            return meta.obj_to_dict(self._result, request_id=self._request_id)
         else:
             return self._result
 
@@ -113,6 +113,20 @@ class Task(object):
                 raise
         except Exception as e:
             self.exception(e, sys.exc_info()[2])
+
+
+class RequestTask(Task):
+
+    # keystoneauth1 throws keystoneauth1.exceptions.http.HttpError on !200
+    def done(self, result):
+        self._response = result
+        result_json = self._response.json()
+        if self.result_key:
+            self._result = result_json[self.result_key]
+        else:
+            self._result = result_json
+        self._request_id = self._response.headers.get('x-openstack-request-id')
+        self._finished.set()
 
 
 class TaskManager(object):

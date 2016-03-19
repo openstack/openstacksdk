@@ -37,8 +37,12 @@ class TestFlavors(base.TestCase):
             is_public=True
         )
 
+    @mock.patch.object(shade.OpenStackCloud, '_compute_client')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_delete_flavor(self, mock_nova):
+    def test_delete_flavor(self, mock_nova, mock_compute):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = dict(extra_specs=[])
+        mock_compute.get.return_value = mock_response
         mock_nova.flavors.list.return_value = [
             fakes.FakeFlavor('123', 'lemon', 100)
         ]

@@ -155,6 +155,7 @@ class TestMeta(base.TestCase):
         )
 
     @mock.patch.object(shade.OpenStackCloud, 'list_server_security_groups')
+    @mock.patch.object(shade.OpenStackCloud, 'get_volumes')
     @mock.patch.object(shade.OpenStackCloud, 'get_image_name')
     @mock.patch.object(shade.OpenStackCloud, 'get_flavor_name')
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
@@ -162,10 +163,12 @@ class TestMeta(base.TestCase):
     def test_get_server_private_ip_devstack(
             self, mock_search_networks, mock_has_service,
             mock_get_flavor_name, mock_get_image_name,
+            mock_get_volumes,
             mock_list_server_security_groups):
         mock_get_image_name.return_value = 'cirros-0.3.4-x86_64-uec'
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_has_service.return_value = True
+        mock_get_volumes.return_value = []
         mock_search_networks.return_value = [
             {
                 'id': 'test_pnztt_net',

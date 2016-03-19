@@ -242,6 +242,8 @@ class OpenStackCloud(object):
         self._swift_service_lock = threading.Lock()
         self._trove_client = None
 
+        self._raw_clients = {}
+
         self._local_ipv6 = _utils.localhost_supports_ipv6()
 
         self.cloud_config = cloud_config
@@ -282,6 +284,15 @@ class OpenStackCloud(object):
                 " This could mean that your credentials are wrong.".format(
                     service=service_key))
         return client
+
+    def _get_raw_client(self, service_key):
+        return self.cloud_config.get_session_client(service_key)
+
+    @property
+    def _compute_client(self):
+        if 'compute' not in self._raw_clients:
+            self._raw_clients['compute'] = self._get_raw_client('compute')
+        return self._raw_clients['compute']
 
     @property
     def nova_client(self):
@@ -922,10 +933,9 @@ class OpenStackCloud(object):
         extensions = set()
 
         with _utils.shade_exceptions("Error fetching extension list for nova"):
-            body = self.manager.submitTask(
-                _tasks.NovaUrlGet(url='/extensions'))
-            for x in body['extensions']:
-                extensions.add(x['alias'])
+            for extension in self.manager.submitTask(
+                    _tasks.NovaListExtensions()):
+                extensions.add(extension['alias'])
 
         return extensions
 
@@ -1130,21 +1140,26 @@ class OpenStackCloud(object):
                 self.manager.submitTask(_tasks.VolumeList()))
 
     @_utils.cache_on_arguments()
-    def list_flavors(self):
+    def list_flavors(self, get_extra=True):
         """List all available flavors.
 
         :returns: A list of flavor dicts.
 
         """
         with _utils.shade_exceptions("Error fetching flavor list"):
-            raw_flavors = self.manager.submitTask(
-                _tasks.FlavorList(is_public=None), raw=True)
-            for flavor in raw_flavors:
-                flavor.extra_specs = flavor.get_keys()
+            flavors = self.manager.submitTask(
+                _tasks.FlavorList(is_public=None))
 
-            return _utils.normalize_flavors(
-                meta.obj_list_to_dict(raw_flavors)
-            )
+        with _utils.shade_exceptions("Error fetching flavor extra specs"):
+            for flavor in flavors:
+                if 'OS-FLV-WITH-EXT-SPECS:extra_specs' in flavor:
+                    flavor.extra_specs = flavor.get(
+                        'OS-FLV-WITH-EXT-SPECS:extra_specs')
+                elif get_extra:
+                    flavor.extra_specs = self.manager.submitTask(
+                        _tasks.FlavorGetExtraSpecs(id=flavor.id))
+
+        return _utils.normalize_flavors(flavors)
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_stacks)
     def list_stacks(self):
