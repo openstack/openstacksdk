@@ -33,7 +33,7 @@ class Service(resource.Resource):
     description = resource.prop('description')
     #: Setting this value to ``False`` prevents the service and
     #: its endpoints from appearing in the service catalog. *Type: bool*
-    enabled = resource.prop('enabled', type=bool)
+    is_enabled = resource.prop('enabled', type=bool)
     #: User-facing name of the service. *Type: string*
     name = resource.prop('name')
     #: Describes the API implemented by the service. The following values are

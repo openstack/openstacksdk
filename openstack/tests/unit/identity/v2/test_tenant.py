@@ -40,6 +40,6 @@ class TestTenant(testtools.TestCase):
     def test_make_it(self):
         sot = tenant.Tenant(EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)
-        self.assertEqual(EXAMPLE['enabled'], sot.enabled)
+        self.assertTrue(sot.is_enabled)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)

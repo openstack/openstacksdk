@@ -40,6 +40,6 @@ class TestDomain(testtools.TestCase):
     def test_make_it(self):
         sot = domain.Domain(EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)
-        self.assertEqual(EXAMPLE['enabled'], sot.enabled)
+        self.assertTrue(sot.is_enabled)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)

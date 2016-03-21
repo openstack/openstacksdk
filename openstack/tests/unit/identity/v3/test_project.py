@@ -42,6 +42,6 @@ class TestProject(testtools.TestCase):
         sot = project.Project(EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['domain_id'], sot.domain_id)
-        self.assertEqual(EXAMPLE['enabled'], sot.enabled)
+        self.assertTrue(sot.is_enabled)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)

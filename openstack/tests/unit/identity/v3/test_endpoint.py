@@ -41,7 +41,7 @@ class TestEndpoint(testtools.TestCase):
 
     def test_make_it(self):
         sot = endpoint.Endpoint(EXAMPLE)
-        self.assertEqual(EXAMPLE['enabled'], sot.enabled)
+        self.assertTrue(sot.is_enabled)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['interface'], sot.interface)
         self.assertEqual(EXAMPLE['region_id'], sot.region_id)

@@ -31,8 +31,8 @@ class Role(resource.Resource):
     # Properties
     #: The description of the role. *Type: string*
     description = resource.prop('description')
+    #: Setting this attribute to ``False`` prevents this role from being
+    #: available in the role list. *Type: bool*
+    is_enabled = resource.prop('enabled', type=format.BoolStr)
     #: Unique role name. *Type: string*
     name = resource.prop('name')
-    #: Setting this attribute to ``False`` prevents this role from being
-    #: available in the role list.
-    enabled = resource.prop('enabled', type=format.BoolStr)

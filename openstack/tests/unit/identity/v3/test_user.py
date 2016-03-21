@@ -48,7 +48,7 @@ class TestUser(testtools.TestCase):
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['domain_id'], sot.domain_id)
         self.assertEqual(EXAMPLE['email'], sot.email)
-        self.assertEqual(EXAMPLE['enabled'], sot.enabled)
+        self.assertTrue(sot.is_enabled)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['password'], sot.password)

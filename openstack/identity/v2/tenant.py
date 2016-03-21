@@ -34,6 +34,6 @@ class Tenant(resource.Resource):
     #: against this tenant. Additionally, all pre-existing tokens authorized
     #: for the tenant are immediately invalidated. Re-enabling a tenant
     #: does not re-enable pre-existing tokens. *Type: bool*
-    enabled = resource.prop('enabled', type=bool)
+    is_enabled = resource.prop('enabled', type=bool)
     #: Unique tenant name. *Type: string*
     name = resource.prop('name')

@@ -29,9 +29,6 @@ class Endpoint(resource.Resource):
     patch_update = True
 
     # Properties
-    #: Setting this value to ``False`` prevents the endpoint from appearing
-    #: in the service catalog. *Type: bool*
-    enabled = resource.prop('enabled', type=bool)
     #: Describes the interface of the endpoint according to one of the
     #: following values:
     #:
@@ -44,6 +41,9 @@ class Endpoint(resource.Resource):
     #:
     #: *Type: string*
     interface = resource.prop('interface')
+    #: Setting this value to ``False`` prevents the endpoint from appearing
+    #: in the service catalog. *Type: bool*
+    is_enabled = resource.prop('enabled', type=bool)
     #: Represents the containing region ID of the service endpoint.
     #: *New in v3.2* *Type: string*
     region_id = resource.prop('region_id')

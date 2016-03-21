@@ -40,6 +40,6 @@ class Project(resource.Resource):
     #: against this project. Additionally, all pre-existing tokens authorized
     #: for the project are immediately invalidated. Re-enabling a project
     #: does not re-enable pre-existing tokens. *Type: bool*
-    enabled = resource.prop('enabled', type=bool)
+    is_enabled = resource.prop('enabled', type=bool)
     #: Unique project name, within the owning domain. *Type: string*
     name = resource.prop('name')
