@@ -29,6 +29,7 @@ approach, this is where you'll want to begin.
    Connect to an OpenStack Cloud Using a Config File <guides/connect_from_config>
    Logging <guides/logging>
    Block Store <guides/block_store>
+   Cluster <guides/cluster>
    Compute <guides/compute>
    Database <guides/database>
    Identity <guides/identity>
