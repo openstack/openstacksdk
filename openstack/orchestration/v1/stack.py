@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack import exceptions
+from openstack import format
 from openstack.orchestration import orchestration_service
 from openstack import resource
 from openstack import utils
@@ -32,25 +33,27 @@ class Stack(resource.Resource):
     allow_delete = True
 
     # Properties
-    name = resource.prop('stack_name')
     #: Placeholder for AWS compatible template listing capabilities
     #: required by the stack.
     capabilities = resource.prop('capabilities')
     #: Timestamp of the stack creation.
-    created_at = resource.prop('creation_time')
-    #: A text decription of the stack.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    created_at = resource.prop('creation_time', type=format.ISO8601)
+    #: A text description of the stack.
     description = resource.prop('description')
     #: Whether the stack will support a rollback operation on stack
-    #: create/update failures.
-    disable_rollback = resource.prop('disable_rollback', type=bool)
-    #: A list of dictionaris containing links relevant to the stack.
+    #: create/update failures. *Type: bool*
+    is_rollback_disabled = resource.prop('disable_rollback', type=bool)
+    #: A list of dictionaries containing links relevant to the stack.
     links = resource.prop('links')
+    #: Name of the stack.
+    name = resource.prop('stack_name')
     #: Placeholder for future extensions where stack related events
     #: can be published.
     notification_topics = resource.prop('notification_topics')
     #: A dictionary containing output keys and values from the stack, if any.
     outputs = resource.prop('outputs')
-    #: A ditionary containing the parameter names and values for the stack.
+    #: A dictionary containing the parameter names and values for the stack.
     parameters = resource.prop('parameters', type=dict)
     #: A string representation of the stack status, e.g. ``CREATE_COMPLETED``.
     status = resource.prop('stack_status')
@@ -64,7 +67,8 @@ class Stack(resource.Resource):
     #: Stack operation timeout in minutes.
     timeout_mins = resource.prop('timeout_mins')
     #: Timestamp of last update on the stack.
-    updated_at = resource.prop('updated_time')
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    updated_at = resource.prop('updated_time', type=format.ISO8601)
 
     def _action(self, session, body):
         """Perform stack actions"""

@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import mock
 import six
 import testtools
@@ -23,7 +25,7 @@ FAKE_ID = 'ce8ae86c-9810-4cb1-8888-7fb53bc523bf'
 FAKE_NAME = 'test_stack'
 FAKE = {
     'capabilities': '1',
-    'creation_time': '2',
+    'creation_time': '2015-03-09T12:15:57.233772',
     'description': '3',
     'disable_rollback': True,
     'id': FAKE_ID,
@@ -39,7 +41,7 @@ FAKE = {
     'template_description': '13',
     'template_url': 'http://www.example.com/wordpress.yaml',
     'timeout_mins': '14',
-    'updated_time': '15',
+    'updated_time': '2015-03-09T12:30:00.000000',
 }
 FAKE_CREATE_RESPONSE = {
     'stack': {
@@ -67,9 +69,11 @@ class TestStack(testtools.TestCase):
     def test_make_it(self):
         sot = stack.Stack(FAKE)
         self.assertEqual(FAKE['capabilities'], sot.capabilities)
-        self.assertEqual(FAKE['creation_time'], sot.created_at)
+        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
         self.assertEqual(FAKE['description'], sot.description)
-        self.assertEqual(FAKE['disable_rollback'], sot.disable_rollback)
+        self.assertTrue(sot.is_rollback_disabled)
         self.assertEqual(FAKE['id'], sot.id)
         self.assertEqual(FAKE['links'], sot.links)
         self.assertEqual(FAKE['notification_topics'],
@@ -85,7 +89,9 @@ class TestStack(testtools.TestCase):
         self.assertEqual(FAKE['template_url'],
                          sot.template_url)
         self.assertEqual(FAKE['timeout_mins'], sot.timeout_mins)
-        self.assertEqual(FAKE['updated_time'], sot.updated_at)
+        dt = datetime.datetime(2015, 3, 9, 12, 30, 00, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
 
     def test_create(self):
         resp = mock.Mock()
