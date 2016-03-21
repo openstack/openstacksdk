@@ -24,18 +24,16 @@ Functional tests for `shade` port resource.
 import string
 import random
 
-from shade import openstack_cloud
 from shade.exc import OpenStackCloudException
-from shade.tests import base
+from shade.tests.functional import base
 
 
-class TestPort(base.TestCase):
+class TestPort(base.BaseFunctionalTestCase):
 
     def setUp(self):
         super(TestPort, self).setUp()
-        self.cloud = openstack_cloud(cloud='devstack-admin')
         # Skip Neutron tests if neutron is not present
-        if not self.cloud.has_service('network'):
+        if not self.operator_cloud.has_service('network'):
             self.skipTest('Network service not supported by cloud')
 
         # Generate a unique port name to allow concurrent tests
@@ -47,10 +45,10 @@ class TestPort(base.TestCase):
     def _cleanup_ports(self):
         exception_list = list()
 
-        for p in self.cloud.list_ports():
+        for p in self.operator_cloud.list_ports():
             if p['name'].startswith(self.new_port_name):
                 try:
-                    self.cloud.delete_port(name_or_id=p['id'])
+                    self.operator_cloud.delete_port(name_or_id=p['id'])
                 except Exception as e:
                     # We were unable to delete this port, let's try with next
                     exception_list.append(str(e))
@@ -64,11 +62,11 @@ class TestPort(base.TestCase):
     def test_create_port(self):
         port_name = self.new_port_name + '_create'
 
-        networks = self.cloud.list_networks()
+        networks = self.operator_cloud.list_networks()
         if not networks:
             self.assertFalse('no sensible network available')
 
-        port = self.cloud.create_port(
+        port = self.operator_cloud.create_port(
             network_id=networks[0]['id'], name=port_name)
         self.assertIsInstance(port, dict)
         self.assertTrue('id' in port)
@@ -77,17 +75,17 @@ class TestPort(base.TestCase):
     def test_get_port(self):
         port_name = self.new_port_name + '_get'
 
-        networks = self.cloud.list_networks()
+        networks = self.operator_cloud.list_networks()
         if not networks:
             self.assertFalse('no sensible network available')
 
-        port = self.cloud.create_port(
+        port = self.operator_cloud.create_port(
             network_id=networks[0]['id'], name=port_name)
         self.assertIsInstance(port, dict)
         self.assertTrue('id' in port)
         self.assertEqual(port.get('name'), port_name)
 
-        updated_port = self.cloud.get_port(name_or_id=port['id'])
+        updated_port = self.operator_cloud.get_port(name_or_id=port['id'])
         # extra_dhcp_opts is added later by Neutron...
         if 'extra_dhcp_opts' in updated_port and 'extra_dhcp_opts' not in port:
             del updated_port['extra_dhcp_opts']
@@ -97,39 +95,39 @@ class TestPort(base.TestCase):
         port_name = self.new_port_name + '_update'
         new_port_name = port_name + '_new'
 
-        networks = self.cloud.list_networks()
+        networks = self.operator_cloud.list_networks()
         if not networks:
             self.assertFalse('no sensible network available')
 
-        self.cloud.create_port(
+        self.operator_cloud.create_port(
             network_id=networks[0]['id'], name=port_name)
 
-        port = self.cloud.update_port(name_or_id=port_name,
-                                      name=new_port_name)
+        port = self.operator_cloud.update_port(
+            name_or_id=port_name, name=new_port_name)
         self.assertIsInstance(port, dict)
         self.assertEqual(port.get('name'), new_port_name)
 
-        updated_port = self.cloud.get_port(name_or_id=port['id'])
+        updated_port = self.operator_cloud.get_port(name_or_id=port['id'])
         self.assertEqual(port.get('name'), new_port_name)
         self.assertEqual(port, updated_port)
 
     def test_delete_port(self):
         port_name = self.new_port_name + '_delete'
 
-        networks = self.cloud.list_networks()
+        networks = self.operator_cloud.list_networks()
         if not networks:
             self.assertFalse('no sensible network available')
 
-        port = self.cloud.create_port(
+        port = self.operator_cloud.create_port(
             network_id=networks[0]['id'], name=port_name)
         self.assertIsInstance(port, dict)
         self.assertTrue('id' in port)
         self.assertEqual(port.get('name'), port_name)
 
-        updated_port = self.cloud.get_port(name_or_id=port['id'])
+        updated_port = self.operator_cloud.get_port(name_or_id=port['id'])
         self.assertIsNotNone(updated_port)
 
-        self.cloud.delete_port(name_or_id=port_name)
+        self.operator_cloud.delete_port(name_or_id=port_name)
 
-        updated_port = self.cloud.get_port(name_or_id=port['id'])
+        updated_port = self.operator_cloud.get_port(name_or_id=port['id'])
         self.assertIsNone(updated_port)

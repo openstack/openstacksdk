@@ -19,8 +19,7 @@ test_floating_ip_pool
 Functional tests for floating IP pool resource (managed by nova)
 """
 
-from shade import openstack_cloud
-from shade.tests import base
+from shade.tests.functional import base
 
 
 # When using nova-network, floating IP pools are created with nova-manage
@@ -32,19 +31,18 @@ from shade.tests import base
 # nova floating-ip-pool-list returns 404.
 
 
-class TestFloatingIPPool(base.TestCase):
+class TestFloatingIPPool(base.BaseFunctionalTestCase):
     def setUp(self):
         super(TestFloatingIPPool, self).setUp()
-        self.cloud = openstack_cloud(cloud='devstack')
 
-        if not self.cloud._has_nova_extension('os-floating-ip-pools'):
+        if not self.demo_cloud._has_nova_extension('os-floating-ip-pools'):
             # Skipping this test is floating-ip-pool extension is not
             # available on the testing cloud
             self.skip(
                 'Floating IP pools extension is not available')
 
     def test_list_floating_ip_pools(self):
-        pools = self.cloud.list_floating_ip_pools()
+        pools = self.demo_cloud.list_floating_ip_pools()
         if not pools:
             self.assertFalse('no floating-ip pool available')
 

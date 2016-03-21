@@ -24,19 +24,17 @@ Functional tests for `shade` endpoint resource.
 import string
 import random
 
-from shade import operator_cloud
 from shade.exc import OpenStackCloudException
-from shade.tests import base
+from shade.tests.functional import base
 
 
-class TestEndpoints(base.TestCase):
+class TestEndpoints(base.BaseFunctionalTestCase):
 
     endpoint_attributes = ['id', 'region', 'publicurl', 'internalurl',
                            'service_id', 'adminurl']
 
     def setUp(self):
         super(TestEndpoints, self).setUp()
-        self.operator_cloud = operator_cloud(cloud='devstack-admin')
 
         # Generate a random name for services and regions in this test
         self.new_item_name = 'test_' + ''.join(

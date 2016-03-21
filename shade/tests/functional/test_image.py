@@ -23,16 +23,14 @@ import filecmp
 import os
 import tempfile
 
-from shade import openstack_cloud
-from shade.tests import base
+from shade.tests.functional import base
 from shade.tests.functional.util import pick_image
 
 
-class TestImage(base.TestCase):
+class TestImage(base.BaseFunctionalTestCase):
     def setUp(self):
         super(TestImage, self).setUp()
-        self.cloud = openstack_cloud(cloud='devstack')
-        self.image = pick_image(self.cloud.nova_client.images.list())
+        self.image = pick_image(self.demo_cloud.nova_client.images.list())
 
     def test_create_image(self):
         test_image = tempfile.NamedTemporaryFile(delete=False)
@@ -40,15 +38,16 @@ class TestImage(base.TestCase):
         test_image.close()
         image_name = self.getUniqueString('image')
         try:
-            self.cloud.create_image(name=image_name,
-                                    filename=test_image.name,
-                                    disk_format='raw',
-                                    container_format='bare',
-                                    min_disk=10,
-                                    min_ram=1024,
-                                    wait=True)
+            self.demo_cloud.create_image(
+                name=image_name,
+                filename=test_image.name,
+                disk_format='raw',
+                container_format='bare',
+                min_disk=10,
+                min_ram=1024,
+                wait=True)
         finally:
-            self.cloud.delete_image(image_name, wait=True)
+            self.demo_cloud.delete_image(image_name, wait=True)
 
     def test_download_image(self):
         test_image = tempfile.NamedTemporaryFile(delete=False)
@@ -56,16 +55,17 @@ class TestImage(base.TestCase):
         test_image.write('\0' * 1024 * 1024)
         test_image.close()
         image_name = self.getUniqueString('image')
-        self.cloud.create_image(name=image_name,
-                                filename=test_image.name,
-                                disk_format='raw',
-                                container_format='bare',
-                                min_disk=10,
-                                min_ram=1024,
-                                wait=True)
-        self.addCleanup(self.cloud.delete_image, image_name, wait=True)
+        self.demo_cloud.create_image(
+            name=image_name,
+            filename=test_image.name,
+            disk_format='raw',
+            container_format='bare',
+            min_disk=10,
+            min_ram=1024,
+            wait=True)
+        self.addCleanup(self.demo_cloud.delete_image, image_name, wait=True)
         output = os.path.join(tempfile.gettempdir(), self.getUniqueString())
-        self.cloud.download_image(image_name, output)
+        self.demo_cloud.download_image(image_name, output)
         self.addCleanup(os.remove, output)
         self.assertTrue(filecmp.cmp(test_image.name, output),
                         "Downloaded contents don't match created image")

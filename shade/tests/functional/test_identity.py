@@ -24,10 +24,10 @@ import string
 
 from shade import operator_cloud
 from shade import OpenStackCloudException
-from shade.tests import base
+from shade.tests.functional import base
 
 
-class TestIdentity(base.TestCase):
+class TestIdentity(base.BaseFunctionalTestCase):
     def setUp(self):
         super(TestIdentity, self).setUp()
         self.cloud = operator_cloud(cloud='devstack-admin')

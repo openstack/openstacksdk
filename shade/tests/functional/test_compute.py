@@ -19,19 +19,17 @@ test_compute
 Functional tests for `shade` compute methods.
 """
 
-from shade import openstack_cloud
-from shade.tests import base
+from shade.tests.functional import base
 from shade.tests.functional.util import pick_flavor, pick_image
 
 
-class TestCompute(base.TestCase):
+class TestCompute(base.BaseFunctionalTestCase):
     def setUp(self):
         super(TestCompute, self).setUp()
-        self.cloud = openstack_cloud(cloud='devstack')
-        self.flavor = pick_flavor(self.cloud.list_flavors())
+        self.flavor = pick_flavor(self.demo_cloud.list_flavors())
         if self.flavor is None:
             self.assertFalse('no sensible flavor available')
-        self.image = pick_image(self.cloud.list_images())
+        self.image = pick_image(self.demo_cloud.list_images())
         if self.image is None:
             self.assertFalse('no sensible image available')
         self.server_name = self.getUniqueString()
@@ -44,59 +42,63 @@ class TestCompute(base.TestCase):
         a server can start the process of deleting a volume if it is booted
         from that volume. This encapsulates that logic.
         """
-        server = self.cloud.get_server(server_name)
+        server = self.demo_cloud.get_server(server_name)
         if not server:
             return
-        volumes = self.cloud.get_volumes(server)
-        self.cloud.delete_server(server.name, wait=True)
+        volumes = self.demo_cloud.get_volumes(server)
+        self.demo_cloud.delete_server(server.name, wait=True)
         for volume in volumes:
             if volume.status != 'deleting':
-                self.cloud.delete_volume(volume.id, wait=True)
+                self.demo_cloud.delete_volume(volume.id, wait=True)
 
     def test_create_and_delete_server(self):
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
-        server = self.cloud.create_server(name=self.server_name,
-                                          image=self.image,
-                                          flavor=self.flavor,
-                                          wait=True)
+        server = self.demo_cloud.create_server(
+            name=self.server_name,
+            image=self.image,
+            flavor=self.flavor,
+            wait=True)
         self.assertEqual(self.server_name, server['name'])
         self.assertEqual(self.image.id, server['image']['id'])
         self.assertEqual(self.flavor.id, server['flavor']['id'])
         self.assertIsNotNone(server['adminPass'])
-        self.assertTrue(self.cloud.delete_server(self.server_name, wait=True))
-        self.assertIsNone(self.cloud.get_server(self.server_name))
+        self.assertTrue(
+            self.demo_cloud.delete_server(self.server_name, wait=True))
+        self.assertIsNone(self.demo_cloud.get_server(self.server_name))
 
     def test_create_and_delete_server_with_admin_pass(self):
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
-        server = self.cloud.create_server(name=self.server_name,
-                                          image=self.image,
-                                          flavor=self.flavor,
-                                          admin_pass='sheiqu9loegahSh',
-                                          wait=True)
+        server = self.demo_cloud.create_server(
+            name=self.server_name,
+            image=self.image,
+            flavor=self.flavor,
+            admin_pass='sheiqu9loegahSh',
+            wait=True)
         self.assertEqual(self.server_name, server['name'])
         self.assertEqual(self.image.id, server['image']['id'])
         self.assertEqual(self.flavor.id, server['flavor']['id'])
         self.assertEqual(server['adminPass'], 'sheiqu9loegahSh')
-        self.assertTrue(self.cloud.delete_server(self.server_name, wait=True))
-        self.assertIsNone(self.cloud.get_server(self.server_name))
+        self.assertTrue(
+            self.demo_cloud.delete_server(self.server_name, wait=True))
+        self.assertIsNone(self.demo_cloud.get_server(self.server_name))
 
     def test_get_image_id(self):
         self.assertEqual(
-            self.image.id, self.cloud.get_image_id(self.image.id))
+            self.image.id, self.demo_cloud.get_image_id(self.image.id))
         self.assertEqual(
-            self.image.id, self.cloud.get_image_id(self.image.name))
+            self.image.id, self.demo_cloud.get_image_id(self.image.name))
 
     def test_get_image_name(self):
         self.assertEqual(
-            self.image.name, self.cloud.get_image_name(self.image.id))
+            self.image.name, self.demo_cloud.get_image_name(self.image.id))
         self.assertEqual(
-            self.image.name, self.cloud.get_image_name(self.image.name))
+            self.image.name, self.demo_cloud.get_image_name(self.image.name))
 
     def _assert_volume_attach(self, server, volume_id=None):
         self.assertEqual(self.server_name, server['name'])
         self.assertEqual('', server['image'])
         self.assertEqual(self.flavor.id, server['flavor']['id'])
-        volumes = self.cloud.get_volumes(server)
+        volumes = self.demo_cloud.get_volumes(server)
         self.assertEqual(1, len(volumes))
         volume = volumes[0]
         if volume_id:
@@ -108,10 +110,10 @@ class TestCompute(base.TestCase):
         return volume_id
 
     def test_create_boot_from_volume_image(self):
-        if not self.cloud.has_service('volume'):
+        if not self.demo_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
-        server = self.cloud.create_server(
+        server = self.demo_cloud.create_server(
             name=self.server_name,
             image=self.image,
             flavor=self.flavor,
@@ -119,21 +121,21 @@ class TestCompute(base.TestCase):
             volume_size=1,
             wait=True)
         volume_id = self._assert_volume_attach(server)
-        volume = self.cloud.get_volume(volume_id)
+        volume = self.demo_cloud.get_volume(volume_id)
         self.assertIsNotNone(volume)
         self.assertEqual(volume['name'], volume['display_name'])
         self.assertEqual(True, volume['bootable'])
         self.assertEqual(server['id'], volume['attachments'][0]['server_id'])
-        self.assertTrue(self.cloud.delete_server(server.id, wait=True))
-        self.assertTrue(self.cloud.delete_volume(volume.id, wait=True))
-        self.assertIsNone(self.cloud.get_server(server.id))
-        self.assertIsNone(self.cloud.get_volume(volume.id))
+        self.assertTrue(self.demo_cloud.delete_server(server.id, wait=True))
+        self.assertTrue(self.demo_cloud.delete_volume(volume.id, wait=True))
+        self.assertIsNone(self.demo_cloud.get_server(server.id))
+        self.assertIsNone(self.demo_cloud.get_volume(volume.id))
 
     def test_create_terminate_volume_image(self):
-        if not self.cloud.has_service('volume'):
+        if not self.demo_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
-        server = self.cloud.create_server(
+        server = self.demo_cloud.create_server(
             name=self.server_name,
             image=self.image,
             flavor=self.flavor,
@@ -142,21 +144,22 @@ class TestCompute(base.TestCase):
             volume_size=1,
             wait=True)
         volume_id = self._assert_volume_attach(server)
-        self.assertTrue(self.cloud.delete_server(self.server_name, wait=True))
-        volume = self.cloud.get_volume(volume_id)
+        self.assertTrue(
+            self.demo_cloud.delete_server(self.server_name, wait=True))
+        volume = self.demo_cloud.get_volume(volume_id)
         # We can either get None (if the volume delete was quick), or a volume
         # that is in the process of being deleted.
         if volume:
             self.assertEquals('deleting', volume.status)
-        self.assertIsNone(self.cloud.get_server(self.server_name))
+        self.assertIsNone(self.demo_cloud.get_server(self.server_name))
 
     def test_create_boot_from_volume_preexisting(self):
-        if not self.cloud.has_service('volume'):
+        if not self.demo_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
-        volume = self.cloud.create_volume(
+        volume = self.demo_cloud.create_volume(
             size=1, name=self.server_name, image=self.image, wait=True)
-        server = self.cloud.create_server(
+        server = self.demo_cloud.create_server(
             name=self.server_name,
             image=None,
             flavor=self.flavor,
@@ -164,24 +167,25 @@ class TestCompute(base.TestCase):
             volume_size=1,
             wait=True)
         volume_id = self._assert_volume_attach(server, volume_id=volume['id'])
-        self.assertTrue(self.cloud.delete_server(self.server_name, wait=True))
-        self.addCleanup(self.cloud.delete_volume, volume_id)
-        volume = self.cloud.get_volume(volume_id)
+        self.assertTrue(
+            self.demo_cloud.delete_server(self.server_name, wait=True))
+        self.addCleanup(self.demo_cloud.delete_volume, volume_id)
+        volume = self.demo_cloud.get_volume(volume_id)
         self.assertIsNotNone(volume)
         self.assertEqual(volume['name'], volume['display_name'])
         self.assertEqual(True, volume['bootable'])
         self.assertEqual([], volume['attachments'])
-        self.assertTrue(self.cloud.delete_volume(volume_id))
-        self.assertIsNone(self.cloud.get_server(self.server_name))
-        self.assertIsNone(self.cloud.get_volume(volume_id))
+        self.assertTrue(self.demo_cloud.delete_volume(volume_id))
+        self.assertIsNone(self.demo_cloud.get_server(self.server_name))
+        self.assertIsNone(self.demo_cloud.get_volume(volume_id))
 
     def test_create_boot_from_volume_preexisting_terminate(self):
-        if not self.cloud.has_service('volume'):
+        if not self.demo_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
-        volume = self.cloud.create_volume(
+        volume = self.demo_cloud.create_volume(
             size=1, name=self.server_name, image=self.image, wait=True)
-        server = self.cloud.create_server(
+        server = self.demo_cloud.create_server(
             name=self.server_name,
             image=None,
             flavor=self.flavor,
@@ -190,10 +194,11 @@ class TestCompute(base.TestCase):
             volume_size=1,
             wait=True)
         volume_id = self._assert_volume_attach(server, volume_id=volume['id'])
-        self.assertTrue(self.cloud.delete_server(self.server_name, wait=True))
-        volume = self.cloud.get_volume(volume_id)
+        self.assertTrue(
+            self.demo_cloud.delete_server(self.server_name, wait=True))
+        volume = self.demo_cloud.get_volume(volume_id)
         # We can either get None (if the volume delete was quick), or a volume
         # that is in the process of being deleted.
         if volume:
             self.assertEquals('deleting', volume.status)
-        self.assertIsNone(self.cloud.get_server(self.server_name))
+        self.assertIsNone(self.demo_cloud.get_server(self.server_name))
