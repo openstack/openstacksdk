@@ -19,24 +19,25 @@ from openstack import format
 
 class TestBoolStrFormatter(testtools.TestCase):
 
-    # NOTE: serialize/deserialize go through the same code path
+    def test_deserialize(self):
+        self.assertTrue(format.BoolStr.deserialize(True))
+        self.assertTrue(format.BoolStr.deserialize('True'))
+        self.assertTrue(format.BoolStr.deserialize('TRUE'))
+        self.assertTrue(format.BoolStr.deserialize('true'))
+        self.assertFalse(format.BoolStr.deserialize(False))
+        self.assertFalse(format.BoolStr.deserialize('False'))
+        self.assertFalse(format.BoolStr.deserialize('FALSE'))
+        self.assertFalse(format.BoolStr.deserialize('false'))
+        self.assertRaises(ValueError, format.BoolStr.deserialize, None)
+        self.assertRaises(ValueError, format.BoolStr.deserialize, '')
+        self.assertRaises(ValueError, format.BoolStr.deserialize, 'INVALID')
 
-    def test_format_true(self):
-        self.assertTrue(format.BoolStr.serialize(True))
-        self.assertTrue(format.BoolStr.serialize('True'))
-        self.assertTrue(format.BoolStr.serialize('TRUE'))
-        self.assertTrue(format.BoolStr.serialize('true'))
-
-    def test_format_false(self):
-        self.assertFalse(format.BoolStr.serialize(False))
-        self.assertFalse(format.BoolStr.serialize('False'))
-        self.assertFalse(format.BoolStr.serialize('FALSE'))
-        self.assertFalse(format.BoolStr.serialize('false'))
-
-    def test_format_fails(self):
+    def test_serialize(self):
+        self.assertEqual('true', format.BoolStr.serialize(True))
+        self.assertEqual('false', format.BoolStr.serialize(False))
         self.assertRaises(ValueError, format.BoolStr.serialize, None)
         self.assertRaises(ValueError, format.BoolStr.serialize, '')
-        self.assertRaises(ValueError, format.BoolStr.serialize, 'INVALID')
+        self.assertRaises(ValueError, format.BoolStr.serialize, 'True')
 
 
 class TestISO8601Formatter(testtools.TestCase):
