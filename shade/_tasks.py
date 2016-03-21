@@ -95,6 +95,24 @@ class FlavorGetExtraSpecs(task_manager.RequestTask):
             "/flavors/{id}/os-extra_specs".format(**self.args))
 
 
+class FlavorSetExtraSpecs(task_manager.RequestTask):
+    result_key = 'extra_specs'
+
+    def main(self, client):
+        return client._compute_client.post(
+            "/flavors/{id}/os-extra_specs".format(**self.args),
+            json=self.args['json']
+            )
+
+
+class FlavorUnsetExtraSpecs(task_manager.RequestTask):
+
+    def main(self, client):
+        return client._compute_client.delete(
+            "/flavors/{id}/os-extra_specs/{key}".format(**self.args),
+            )
+
+
 class FlavorCreate(task_manager.Task):
     def main(self, client):
         return client.nova_client.flavors.create(**self.args)

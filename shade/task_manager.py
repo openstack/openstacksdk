@@ -21,6 +21,7 @@ import time
 import types
 
 import keystoneauth1.exceptions
+import simplejson
 import six
 
 from shade import _log
@@ -100,6 +101,7 @@ class Task(object):
             return self._result
 
     def run(self, client):
+        self._client = client
         try:
             # Retry one time if we get a retriable connection failure
             try:
@@ -117,10 +119,21 @@ class Task(object):
 
 class RequestTask(Task):
 
+    # It's totally legit for calls to not return things
+    result_key = None
+
     # keystoneauth1 throws keystoneauth1.exceptions.http.HttpError on !200
     def done(self, result):
         self._response = result
-        result_json = self._response.json()
+
+        try:
+            result_json = self._response.json()
+        except (simplejson.scanner.JSONDecodeError, ValueError) as e:
+            result_json = self._response.text
+            self._client.log.debug(
+                'Could not decode json in response: {e}'.format(e=str(e)))
+            self._client.log.debug(result_json)
+
         if self.result_key:
             self._result = result_json[self.result_key]
         else:
