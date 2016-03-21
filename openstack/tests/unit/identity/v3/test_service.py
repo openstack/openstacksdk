@@ -41,7 +41,7 @@ class TestService(testtools.TestCase):
     def test_make_it(self):
         sot = service.Service(EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)
-        self.assertEqual(EXAMPLE['enabled'], sot.enabled)
+        self.assertTrue(sot.is_enabled)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['type'], sot.type)

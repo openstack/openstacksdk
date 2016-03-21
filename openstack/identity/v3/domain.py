@@ -38,6 +38,6 @@ class Domain(resource.Resource):
     #: to the above entities are immediately invalidated.
     #: Re-enabling a domain does not re-enable pre-existing tokens.
     #: *Type: bool*
-    enabled = resource.prop('enabled', type=bool)
+    is_enabled = resource.prop('enabled', type=bool)
     #: The globally unique name of this domain. *Type: string*
     name = resource.prop('name')

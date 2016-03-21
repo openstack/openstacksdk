@@ -43,3 +43,4 @@ class TestRole(testtools.TestCase):
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
+        self.assertTrue(sot.is_enabled)

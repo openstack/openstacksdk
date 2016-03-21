@@ -34,6 +34,6 @@ class User(resource.Resource):
     #: receiving authorization. Additionally, all pre-existing tokens held by
     #: the user are immediately invalidated. Re-enabling a user does not
     #: re-enable pre-existing tokens. *Type: bool*
-    enabled = resource.prop('enabled', type=bool)
+    is_enabled = resource.prop('enabled', type=bool)
     #: The name of this user. *Type: string*
     name = resource.prop('name')

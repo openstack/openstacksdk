@@ -40,6 +40,6 @@ class TestUser(testtools.TestCase):
     def test_make_it(self):
         sot = user.User(EXAMPLE)
         self.assertEqual(EXAMPLE['email'], sot.email)
-        self.assertEqual(EXAMPLE['enabled'], sot.enabled)
+        self.assertTrue(sot.is_enabled)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
