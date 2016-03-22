@@ -446,7 +446,7 @@ class OpenStackCloud(object):
         :param name: project name or id.
         :param filters: a dict containing additional filters to use.
 
-        :returns: a list of dict containing the role description
+        :returns: a list of dict containing the projects
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
