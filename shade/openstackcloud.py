@@ -537,7 +537,7 @@ class OpenStackCloud(object):
         :param string name: user name or id.
         :param dict filters: a dict containing additional filters to use.
 
-        :returns: a list of dict containing the role description
+        :returns: a list of dict containing the users
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
