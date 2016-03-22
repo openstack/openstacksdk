@@ -14,7 +14,6 @@ import jsonpatch
 
 from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
-from novaclient import exceptions as nova_exceptions
 
 from shade.exc import *  # noqa
 from shade import openstackcloud
@@ -1452,47 +1451,6 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         return True
 
-    def _mod_flavor_specs(self, action, flavor_id, specs):
-        """Common method for modifying flavor extra specs.
-
-        Nova (very sadly) doesn't expose this with a public API, so we
-        must get the actual flavor object and make a method call on it.
-
-        Two separate try-except blocks are used because Nova can raise
-        a NotFound exception if FlavorGet() is given an invalid flavor ID,
-        or if the unset_keys() method of the flavor object is given an
-        invalid spec key. We need to be able to differentiate between these
-        actions, thus the separate blocks.
-        """
-        try:
-            flavor = self.manager.submitTask(
-                _tasks.FlavorGet(flavor=flavor_id), raw=True
-            )
-        except nova_exceptions.NotFound:
-            self.log.debug(
-                "Flavor ID {0} not found. "
-                "Cannot {1} extra specs.".format(flavor_id, action)
-            )
-            raise OpenStackCloudResourceNotFound(
-                "Flavor ID {0} not found".format(flavor_id)
-            )
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error getting flavor ID {0}: {1}".format(flavor_id, e)
-            )
-
-        try:
-            if action == 'set':
-                flavor.set_keys(specs)
-            elif action == 'unset':
-                flavor.unset_keys(specs)
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Unable to {0} flavor specs: {1}".format(action, e)
-            )
-
     def set_flavor_specs(self, flavor_id, extra_specs):
         """Add extra specs to a flavor
 
@@ -1502,7 +1460,14 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: OpenStackCloudException on operation error.
         :raises: OpenStackCloudResourceNotFound if flavor ID is not found.
         """
-        self._mod_flavor_specs('set', flavor_id, extra_specs)
+        try:
+            self.manager.submitTask(
+                _tasks.FlavorSetExtraSpecs(
+                    id=flavor_id, json=dict(extra_specs=extra_specs)))
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Unable to set flavor specs: {0}".format(str(e))
+            )
 
     def unset_flavor_specs(self, flavor_id, keys):
         """Delete extra specs from a flavor
@@ -1513,7 +1478,14 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: OpenStackCloudException on operation error.
         :raises: OpenStackCloudResourceNotFound if flavor ID is not found.
         """
-        self._mod_flavor_specs('unset', flavor_id, keys)
+        for key in keys:
+            try:
+                self.manager.submitTask(
+                    _tasks.FlavorUnsetExtraSpecs(id=flavor_id, key=key))
+            except Exception as e:
+                raise OpenStackCloudException(
+                    "Unable to delete flavor spec {0}: {0}".format(
+                        key, str(e)))
 
     def _mod_flavor_access(self, action, flavor_id, project_id):
         """Common method for adding and removing flavor access
