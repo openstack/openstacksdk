@@ -60,6 +60,28 @@
      state: absent
      name: "{{ port_name }}"
 
+- name: Create port (with allowed_address_pairs and extra_dhcp_opts)
+  os_port:
+     cloud: "{{ cloud }}"
+     state: present
+     name: "{{ port_name }}"
+     network: "{{ network_name }}"
+     no_security_groups: True
+     allowed_address_pairs:
+       - ip_address: 10.6.7.0/24
+     extra_dhcp_opts:
+       - opt_name: "bootfile-name"
+         opt_value: "testfile.1"
+  register: port
+
+- debug: var=port
+
+- name: Delete port (with allowed_address_pairs and extra_dhcp_opts)
+  os_port:
+     cloud: "{{ cloud }}"
+     state: absent
+     name: "{{ port_name }}"
+
 - name: Delete security group
   os_security_group:
      cloud: "{{ cloud }}"
