@@ -13,6 +13,7 @@
 # under the License.
 
 
+import cinderclient.exceptions as cinder_exc
 import mock
 import testtools
 
@@ -188,3 +189,20 @@ class TestVolume(base.TestCase):
             "Error in detaching volume %s" % errored_volume['id']
         ):
             self.cloud.detach_volume(server, volume)
+
+    @mock.patch.object(shade.OpenStackCloud, 'get_volume')
+    @mock.patch.object(shade.OpenStackCloud, 'cinder_client')
+    def test_delete_volume_deletes(self, mock_cinder, mock_get):
+        volume = dict(id='volume001', status='attached')
+        mock_get.side_effect = iter([volume, None])
+
+        self.assertTrue(self.cloud.delete_volume(volume['id']))
+
+    @mock.patch.object(shade.OpenStackCloud, 'get_volume')
+    @mock.patch.object(shade.OpenStackCloud, 'cinder_client')
+    def test_delete_volume_gone_away(self, mock_cinder, mock_get):
+        volume = dict(id='volume001', status='attached')
+        mock_get.side_effect = iter([volume])
+        mock_cinder.volumes.delete.side_effect = cinder_exc.NotFound('N/A')
+
+        self.assertFalse(self.cloud.delete_volume(volume['id']))
