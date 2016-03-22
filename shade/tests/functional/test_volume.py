@@ -21,16 +21,14 @@ Functional tests for `shade` block storage methods.
 
 from testtools import content
 
-from shade import openstack_cloud
-from shade.tests import base
+from shade.tests.functional import base
 
 
-class TestVolume(base.TestCase):
+class TestVolume(base.BaseFunctionalTestCase):
 
     def setUp(self):
         super(TestVolume, self).setUp()
-        self.cloud = openstack_cloud(cloud='devstack')
-        if not self.cloud.has_service('volume'):
+        if not self.demo_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
 
     def test_volumes(self):
@@ -39,29 +37,32 @@ class TestVolume(base.TestCase):
         snapshot_name = self.getUniqueString()
         self.addDetail('volume', content.text_content(volume_name))
         self.addCleanup(self.cleanup, volume_name, snapshot_name)
-        volume = self.cloud.create_volume(display_name=volume_name, size=1)
-        snapshot = self.cloud.create_volume_snapshot(
+        volume = self.demo_cloud.create_volume(
+            display_name=volume_name, size=1)
+        snapshot = self.demo_cloud.create_volume_snapshot(
             volume['id'],
             display_name=snapshot_name
         )
 
-        volume_ids = [v['id'] for v in self.cloud.list_volumes()]
+        volume_ids = [v['id'] for v in self.demo_cloud.list_volumes()]
         self.assertIn(volume['id'], volume_ids)
 
-        snapshot_ids = [s['id'] for s in self.cloud.list_volume_snapshots()]
+        snapshot_list = self.demo_cloud.list_volume_snapshots()
+        snapshot_ids = [s['id'] for s in snapshot_list]
         self.assertIn(snapshot['id'], snapshot_ids)
 
-        ret_snapshot = self.cloud.get_volume_snapshot_by_id(snapshot['id'])
+        ret_snapshot = self.demo_cloud.get_volume_snapshot_by_id(
+            snapshot['id'])
         self.assertEqual(snapshot['id'], ret_snapshot['id'])
 
-        self.cloud.delete_volume_snapshot(snapshot_name, wait=True)
-        self.cloud.delete_volume(volume_name, wait=True)
+        self.demo_cloud.delete_volume_snapshot(snapshot_name, wait=True)
+        self.demo_cloud.delete_volume(volume_name, wait=True)
 
     def cleanup(self, volume_name, snapshot_name):
-        volume = self.cloud.get_volume(volume_name)
-        snapshot = self.cloud.get_volume_snapshot(snapshot_name)
+        volume = self.demo_cloud.get_volume(volume_name)
+        snapshot = self.demo_cloud.get_volume_snapshot(snapshot_name)
         # Need to delete snapshots before volumes
         if snapshot:
-            self.cloud.delete_volume_snapshot(snapshot_name)
+            self.demo_cloud.delete_volume_snapshot(snapshot_name)
         if volume:
-            self.cloud.delete_volume(volume_name)
+            self.demo_cloud.delete_volume(volume_name)

@@ -23,26 +23,24 @@ import tempfile
 
 from testtools import content
 
-from shade import openstack_cloud
-from shade.tests import base
+from shade.tests.functional import base
 
 
-class TestObject(base.TestCase):
+class TestObject(base.BaseFunctionalTestCase):
 
     def setUp(self):
         super(TestObject, self).setUp()
-        self.cloud = openstack_cloud(cloud='devstack')
-        if not self.cloud.has_service('object-store'):
+        if not self.demo_cloud.has_service('object-store'):
             self.skipTest('Object service not supported by cloud')
 
     def test_create_object(self):
         '''Test uploading small and large files.'''
         container_name = self.getUniqueString('container')
         self.addDetail('container', content.text_content(container_name))
-        self.addCleanup(self.cloud.delete_container, container_name)
-        self.cloud.create_container(container_name)
+        self.addCleanup(self.demo_cloud.delete_container, container_name)
+        self.demo_cloud.create_container(container_name)
         self.assertEqual(container_name,
-                         self.cloud.list_containers()[0]['name'])
+                         self.demo_cloud.list_containers()[0]['name'])
         sizes = (
             (64 * 1024, 1),      # 64K, one segment
             (50 * 1024 ** 2, 5)  # 50MB, 5 segments
@@ -54,23 +52,24 @@ class TestObject(base.TestCase):
                 sparse_file.write("\0")
                 sparse_file.flush()
                 name = 'test-%d' % size
-                self.cloud.create_object(container_name, name,
-                                         sparse_file.name,
-                                         segment_size=segment_size)
-                self.assertFalse(self.cloud.is_object_stale(
+                self.demo_cloud.create_object(
+                    container_name, name,
+                    sparse_file.name,
+                    segment_size=segment_size)
+                self.assertFalse(self.demo_cloud.is_object_stale(
                     container_name, name,
                     sparse_file.name
                     )
                 )
             self.assertIsNotNone(
-                self.cloud.get_object_metadata(container_name, name))
+                self.demo_cloud.get_object_metadata(container_name, name))
             self.assertIsNotNone(
-                self.cloud.get_object(container_name, name))
+                self.demo_cloud.get_object(container_name, name))
             self.assertEqual(
                 name,
-                self.cloud.list_objects(container_name)[0]['name'])
-            self.cloud.delete_object(container_name, name)
-        self.assertEqual([], self.cloud.list_objects(container_name))
+                self.demo_cloud.list_objects(container_name)[0]['name'])
+            self.demo_cloud.delete_object(container_name, name)
+        self.assertEqual([], self.demo_cloud.list_objects(container_name))
         self.assertEqual(container_name,
-                         self.cloud.list_containers()[0]['name'])
-        self.cloud.delete_container(container_name)
+                         self.demo_cloud.list_containers()[0]['name'])
+        self.demo_cloud.delete_container(container_name)

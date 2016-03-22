@@ -21,17 +21,14 @@ test_flavor
 Functional tests for `shade` flavor resource.
 """
 
-import shade
 from shade.exc import OpenStackCloudException
-from shade.tests import base
+from shade.tests.functional import base
 
 
-class TestFlavor(base.TestCase):
+class TestFlavor(base.BaseFunctionalTestCase):
 
     def setUp(self):
         super(TestFlavor, self).setUp()
-        self.demo_cloud = shade.openstack_cloud(cloud='devstack')
-        self.operator_cloud = shade.operator_cloud(cloud='devstack-admin')
 
         # Generate a random name for flavors in this test
         self.new_item_name = self.getUniqueString('flavor')

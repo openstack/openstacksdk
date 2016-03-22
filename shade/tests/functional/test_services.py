@@ -24,19 +24,17 @@ Functional tests for `shade` service resource.
 import string
 import random
 
-from shade import operator_cloud
 from shade.exc import OpenStackCloudException
 from shade.exc import OpenStackCloudUnavailableFeature
-from shade.tests import base
+from shade.tests.functional import base
 
 
-class TestServices(base.TestCase):
+class TestServices(base.BaseFunctionalTestCase):
 
     service_attributes = ['id', 'name', 'type', 'description']
 
     def setUp(self):
         super(TestServices, self).setUp()
-        self.operator_cloud = operator_cloud(cloud='devstack-admin')
 
         # Generate a random name for services in this test
         self.new_service_name = 'test_' + ''.join(

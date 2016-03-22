@@ -21,9 +21,8 @@ Functional tests for `shade` router methods.
 
 import ipaddress
 
-from shade import openstack_cloud
 from shade.exc import OpenStackCloudException
-from shade.tests import base
+from shade.tests.functional import base
 
 
 EXPECTED_TOPLEVEL_FIELDS = (
@@ -34,11 +33,10 @@ EXPECTED_TOPLEVEL_FIELDS = (
 EXPECTED_GW_INFO_FIELDS = ('network_id', 'enable_snat', 'external_fixed_ips')
 
 
-class TestRouter(base.TestCase):
+class TestRouter(base.BaseFunctionalTestCase):
     def setUp(self):
         super(TestRouter, self).setUp()
-        self.cloud = openstack_cloud(cloud='devstack-admin')
-        if not self.cloud.has_service('network'):
+        if not self.operator_cloud.has_service('network'):
             self.skipTest('Network service not supported by cloud')
 
         self.router_prefix = self.getUniqueString('router')
@@ -52,10 +50,10 @@ class TestRouter(base.TestCase):
 
     def _cleanup_routers(self):
         exception_list = list()
-        for router in self.cloud.list_routers():
+        for router in self.operator_cloud.list_routers():
             if router['name'].startswith(self.router_prefix):
                 try:
-                    self.cloud.delete_router(router['name'])
+                    self.operator_cloud.delete_router(router['name'])
                 except Exception as e:
                     exception_list.append(str(e))
                     continue
@@ -65,10 +63,10 @@ class TestRouter(base.TestCase):
 
     def _cleanup_networks(self):
         exception_list = list()
-        for network in self.cloud.list_networks():
+        for network in self.operator_cloud.list_networks():
             if network['name'].startswith(self.network_prefix):
                 try:
-                    self.cloud.delete_network(network['name'])
+                    self.operator_cloud.delete_network(network['name'])
                 except Exception as e:
                     exception_list.append(str(e))
                     continue
@@ -78,10 +76,10 @@ class TestRouter(base.TestCase):
 
     def _cleanup_subnets(self):
         exception_list = list()
-        for subnet in self.cloud.list_subnets():
+        for subnet in self.operator_cloud.list_subnets():
             if subnet['name'].startswith(self.subnet_prefix):
                 try:
-                    self.cloud.delete_subnet(subnet['id'])
+                    self.operator_cloud.delete_subnet(subnet['id'])
                 except Exception as e:
                     exception_list.append(str(e))
                     continue
@@ -91,10 +89,11 @@ class TestRouter(base.TestCase):
 
     def test_create_router_basic(self):
         net1_name = self.network_prefix + '_net1'
-        net1 = self.cloud.create_network(name=net1_name, external=True)
+        net1 = self.operator_cloud.create_network(
+            name=net1_name, external=True)
 
         router_name = self.router_prefix + '_create_basic'
-        router = self.cloud.create_router(
+        router = self.operator_cloud.create_router(
             name=router_name,
             admin_state_up=True,
             ext_gateway_net_id=net1['id'],
@@ -120,8 +119,9 @@ class TestRouter(base.TestCase):
         # is using different resources to prevent race conditions.
         net1_name = self.network_prefix + '_net1'
         sub1_name = self.subnet_prefix + '_sub1'
-        net1 = self.cloud.create_network(name=net1_name, external=True)
-        sub1 = self.cloud.create_subnet(
+        net1 = self.operator_cloud.create_network(
+            name=net1_name, external=True)
+        sub1 = self.operator_cloud.create_subnet(
             net1['id'], external_cidr, subnet_name=sub1_name,
             gateway_ip=external_gateway_ip
         )
@@ -130,7 +130,7 @@ class TestRouter(base.TestCase):
         last_ip = str(list(ip_net.hosts())[-1])
 
         router_name = self.router_prefix + '_create_advanced'
-        router = self.cloud.create_router(
+        router = self.operator_cloud.create_router(
             name=router_name,
             admin_state_up=False,
             ext_gateway_net_id=net1['id'],
@@ -171,15 +171,17 @@ class TestRouter(base.TestCase):
             external_cidr='10.3.3.0/24')
         net_name = self.network_prefix + '_intnet1'
         sub_name = self.subnet_prefix + '_intsub1'
-        net = self.cloud.create_network(name=net_name)
-        sub = self.cloud.create_subnet(
+        net = self.operator_cloud.create_network(name=net_name)
+        sub = self.operator_cloud.create_subnet(
             net['id'], '10.4.4.0/24', subnet_name=sub_name,
             gateway_ip='10.4.4.1'
         )
 
-        iface = self.cloud.add_router_interface(router, subnet_id=sub['id'])
+        iface = self.operator_cloud.add_router_interface(
+            router, subnet_id=sub['id'])
         self.assertIsNone(
-            self.cloud.remove_router_interface(router, subnet_id=sub['id'])
+            self.operator_cloud.remove_router_interface(
+                router, subnet_id=sub['id'])
         )
 
         # Test return values *after* the interface is detached so the
@@ -195,20 +197,22 @@ class TestRouter(base.TestCase):
             external_cidr='10.5.5.0/24')
         net_name = self.network_prefix + '_intnet1'
         sub_name = self.subnet_prefix + '_intsub1'
-        net = self.cloud.create_network(name=net_name)
-        sub = self.cloud.create_subnet(
+        net = self.operator_cloud.create_network(name=net_name)
+        sub = self.operator_cloud.create_subnet(
             net['id'], '10.6.6.0/24', subnet_name=sub_name,
             gateway_ip='10.6.6.1'
         )
 
-        iface = self.cloud.add_router_interface(router, subnet_id=sub['id'])
-        all_ifaces = self.cloud.list_router_interfaces(router)
-        int_ifaces = self.cloud.list_router_interfaces(
+        iface = self.operator_cloud.add_router_interface(
+            router, subnet_id=sub['id'])
+        all_ifaces = self.operator_cloud.list_router_interfaces(router)
+        int_ifaces = self.operator_cloud.list_router_interfaces(
             router, interface_type='internal')
-        ext_ifaces = self.cloud.list_router_interfaces(
+        ext_ifaces = self.operator_cloud.list_router_interfaces(
             router, interface_type='external')
         self.assertIsNone(
-            self.cloud.remove_router_interface(router, subnet_id=sub['id'])
+            self.operator_cloud.remove_router_interface(
+                router, subnet_id=sub['id'])
         )
 
         # Test return values *after* the interface is detached so the
@@ -228,7 +232,8 @@ class TestRouter(base.TestCase):
             external_cidr='10.7.7.0/24')
 
         new_name = self.router_prefix + '_update_name'
-        updated = self.cloud.update_router(router['id'], name=new_name)
+        updated = self.operator_cloud.update_router(
+            router['id'], name=new_name)
         self.assertIsNotNone(updated)
 
         for field in EXPECTED_TOPLEVEL_FIELDS:
@@ -247,8 +252,8 @@ class TestRouter(base.TestCase):
         router = self._create_and_verify_advanced_router(
             external_cidr='10.8.8.0/24')
 
-        updated = self.cloud.update_router(router['id'],
-                                           admin_state_up=True)
+        updated = self.operator_cloud.update_router(
+            router['id'], admin_state_up=True)
         self.assertIsNotNone(updated)
 
         for field in EXPECTED_TOPLEVEL_FIELDS:
@@ -272,12 +277,12 @@ class TestRouter(base.TestCase):
         # create a new subnet
         existing_net_id = router['external_gateway_info']['network_id']
         sub_name = self.subnet_prefix + '_update'
-        sub = self.cloud.create_subnet(
+        sub = self.operator_cloud.create_subnet(
             existing_net_id, '10.10.10.0/24', subnet_name=sub_name,
             gateway_ip='10.10.10.1'
         )
 
-        updated = self.cloud.update_router(
+        updated = self.operator_cloud.update_router(
             router['id'],
             ext_gateway_net_id=existing_net_id,
             ext_fixed_ips=[

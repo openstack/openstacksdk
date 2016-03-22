@@ -21,22 +21,21 @@ Functional tests for `shade` user methods.
 
 from shade import operator_cloud
 from shade import OpenStackCloudException
-from shade.tests import base
+from shade.tests.functional import base
 
 
-class TestUsers(base.TestCase):
+class TestUsers(base.BaseFunctionalTestCase):
     def setUp(self):
         super(TestUsers, self).setUp()
-        self.cloud = operator_cloud(cloud='devstack-admin')
         self.user_prefix = self.getUniqueString('user')
         self.addCleanup(self._cleanup_users)
 
     def _cleanup_users(self):
         exception_list = list()
-        for user in self.cloud.list_users():
+        for user in self.operator_cloud.list_users():
             if user['name'].startswith(self.user_prefix):
                 try:
-                    self.cloud.delete_user(user['id'])
+                    self.operator_cloud.delete_user(user['id'])
                 except Exception as e:
                     exception_list.append(str(e))
                     continue
@@ -46,26 +45,26 @@ class TestUsers(base.TestCase):
 
     def _create_user(self, **kwargs):
         domain_id = None
-        identity_version = self.cloud.cloud_config.get_api_version('identity')
-        if identity_version not in ('2', '2.0'):
-            domain = self.cloud.get_domain('default')
+        i_ver = self.operator_cloud.cloud_config.get_api_version('identity')
+        if i_ver not in ('2', '2.0'):
+            domain = self.operator_cloud.get_domain('default')
             domain_id = domain['id']
-        return self.cloud.create_user(domain_id=domain_id, **kwargs)
+        return self.operator_cloud.create_user(domain_id=domain_id, **kwargs)
 
     def test_list_users(self):
-        users = self.cloud.list_users()
+        users = self.operator_cloud.list_users()
         self.assertIsNotNone(users)
         self.assertNotEqual([], users)
 
     def test_get_user(self):
-        user = self.cloud.get_user('admin')
+        user = self.operator_cloud.get_user('admin')
         self.assertIsNotNone(user)
         self.assertIn('id', user)
         self.assertIn('name', user)
         self.assertEqual('admin', user['name'])
 
     def test_search_users(self):
-        users = self.cloud.search_users(filters={'enabled': True})
+        users = self.operator_cloud.search_users(filters={'enabled': True})
         self.assertIsNotNone(users)
 
     def test_create_user(self):
@@ -82,10 +81,10 @@ class TestUsers(base.TestCase):
         user_email = 'nobody@nowhere.com'
         user = self._create_user(name=user_name, email=user_email)
         self.assertIsNotNone(user)
-        self.assertTrue(self.cloud.delete_user(user['id']))
+        self.assertTrue(self.operator_cloud.delete_user(user['id']))
 
     def test_delete_user_not_found(self):
-        self.assertFalse(self.cloud.delete_user('does_not_exist'))
+        self.assertFalse(self.operator_cloud.delete_user('does_not_exist'))
 
     def test_update_user(self):
         user_name = self.user_prefix + '_updatev3'
@@ -96,12 +95,13 @@ class TestUsers(base.TestCase):
 
         # Pass some keystone v3 params. This should work no matter which
         # version of keystone we are testing against.
-        new_user = self.cloud.update_user(user['id'],
-                                          name=user_name + '2',
-                                          email='somebody@nowhere.com',
-                                          enabled=False,
-                                          password='secret',
-                                          description='')
+        new_user = self.operator_cloud.update_user(
+            user['id'],
+            name=user_name + '2',
+            email='somebody@nowhere.com',
+            enabled=False,
+            password='secret',
+            description='')
         self.assertIsNotNone(new_user)
         self.assertEqual(user['id'], new_user['id'])
         self.assertEqual(user_name + '2', new_user['name'])
@@ -118,8 +118,8 @@ class TestUsers(base.TestCase):
         self.assertTrue(user['enabled'])
 
         # This should work for both v2 and v3
-        new_user = self.cloud.update_user(user['id'],
-                                          password='new_secret')
+        new_user = self.operator_cloud.update_user(
+            user['id'], password='new_secret')
         self.assertIsNotNone(new_user)
         self.assertEqual(user['id'], new_user['id'])
         self.assertEqual(user_name, new_user['name'])
@@ -127,17 +127,18 @@ class TestUsers(base.TestCase):
         self.assertTrue(new_user['enabled'])
         self.assertIsNotNone(operator_cloud(
             username=user_name, password='new_secret',
-            auth_url=self.cloud.auth['auth_url']).keystone_client)
+            auth_url=self.operator_cloud.auth['auth_url']).keystone_client)
 
     def test_users_and_groups(self):
-        if self.cloud.cloud_config.get_api_version('identity') in ('2', '2.0'):
+        i_ver = self.operator_cloud.cloud_config.get_api_version('identity')
+        if i_ver in ('2', '2.0'):
             self.skipTest('Identity service does not support groups')
 
         group_name = self.getUniqueString('group')
-        self.addCleanup(self.cloud.delete_group, group_name)
+        self.addCleanup(self.operator_cloud.delete_group, group_name)
 
         # Create a group
-        group = self.cloud.create_group(group_name, 'test group')
+        group = self.operator_cloud.create_group(group_name, 'test group')
         self.assertIsNotNone(group)
 
         # Create a user
@@ -147,9 +148,11 @@ class TestUsers(base.TestCase):
         self.assertIsNotNone(user)
 
         # Add the user to the group
-        self.cloud.add_user_to_group(user_name, group_name)
-        self.assertTrue(self.cloud.is_user_in_group(user_name, group_name))
+        self.operator_cloud.add_user_to_group(user_name, group_name)
+        self.assertTrue(
+            self.operator_cloud.is_user_in_group(user_name, group_name))
 
         # Remove them from the group
-        self.cloud.remove_user_from_group(user_name, group_name)
-        self.assertFalse(self.cloud.is_user_in_group(user_name, group_name))
+        self.operator_cloud.remove_user_from_group(user_name, group_name)
+        self.assertFalse(
+            self.operator_cloud.is_user_in_group(user_name, group_name))

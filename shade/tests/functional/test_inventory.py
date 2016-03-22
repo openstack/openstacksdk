@@ -19,22 +19,20 @@ test_inventory
 Functional tests for `shade` inventory methods.
 """
 
-from shade import openstack_cloud
 from shade import inventory
 
-from shade.tests import base
+from shade.tests.functional import base
 from shade.tests.functional.util import pick_flavor, pick_image
 
 
-class TestInventory(base.TestCase):
+class TestInventory(base.BaseFunctionalTestCase):
     def setUp(self):
         super(TestInventory, self).setUp()
         # This needs to use an admin account, otherwise a public IP
         # is not allocated from devstack.
-        self.cloud = openstack_cloud(cloud='devstack-admin')
         self.inventory = inventory.OpenStackInventory()
         self.server_name = 'test_inventory_server'
-        self.nova = self.cloud.nova_client
+        self.nova = self.operator_cloud.nova_client
         self.flavor = pick_flavor(self.nova.flavors.list())
         if self.flavor is None:
             self.assertTrue(False, 'no sensible flavor available')
@@ -42,7 +40,7 @@ class TestInventory(base.TestCase):
         if self.image is None:
             self.assertTrue(False, 'no sensible image available')
         self.addCleanup(self._cleanup_servers)
-        self.cloud.create_server(
+        self.operator_cloud.create_server(
             name=self.server_name, image=self.image, flavor=self.flavor,
             wait=True, auto_ip=True)
 

@@ -19,26 +19,24 @@ test_network
 Functional tests for `shade` network methods.
 """
 
-from shade import openstack_cloud
 from shade.exc import OpenStackCloudException
-from shade.tests import base
+from shade.tests.functional import base
 
 
-class TestNetwork(base.TestCase):
+class TestNetwork(base.BaseFunctionalTestCase):
     def setUp(self):
         super(TestNetwork, self).setUp()
-        self.cloud = openstack_cloud(cloud='devstack-admin')
-        if not self.cloud.has_service('network'):
+        if not self.operator_cloud.has_service('network'):
             self.skipTest('Network service not supported by cloud')
         self.network_name = self.getUniqueString('network')
         self.addCleanup(self._cleanup_networks)
 
     def _cleanup_networks(self):
         exception_list = list()
-        for network in self.cloud.list_networks():
+        for network in self.operator_cloud.list_networks():
             if network['name'].startswith(self.network_name):
                 try:
-                    self.cloud.delete_network(network['name'])
+                    self.operator_cloud.delete_network(network['name'])
                 except Exception as e:
                     exception_list.append(str(e))
                     continue
@@ -47,7 +45,7 @@ class TestNetwork(base.TestCase):
             raise OpenStackCloudException('\n'.join(exception_list))
 
     def test_create_network_basic(self):
-        net1 = self.cloud.create_network(name=self.network_name)
+        net1 = self.operator_cloud.create_network(name=self.network_name)
         self.assertIn('id', net1)
         self.assertEqual(self.network_name, net1['name'])
         self.assertFalse(net1['shared'])
@@ -55,7 +53,7 @@ class TestNetwork(base.TestCase):
         self.assertTrue(net1['admin_state_up'])
 
     def test_create_network_advanced(self):
-        net1 = self.cloud.create_network(
+        net1 = self.operator_cloud.create_network(
             name=self.network_name,
             shared=True,
             external=True,
@@ -68,7 +66,7 @@ class TestNetwork(base.TestCase):
         self.assertFalse(net1['admin_state_up'])
 
     def test_create_network_provider_flat(self):
-        net1 = self.cloud.create_network(
+        net1 = self.operator_cloud.create_network(
             name=self.network_name,
             shared=True,
             provider={
@@ -83,10 +81,12 @@ class TestNetwork(base.TestCase):
         self.assertIsNone(net1['provider:segmentation_id'])
 
     def test_list_networks_filtered(self):
-        net1 = self.cloud.create_network(name=self.network_name)
+        net1 = self.operator_cloud.create_network(name=self.network_name)
         self.assertIsNotNone(net1)
-        net2 = self.cloud.create_network(name=self.network_name + 'other')
+        net2 = self.operator_cloud.create_network(
+            name=self.network_name + 'other')
         self.assertIsNotNone(net2)
-        match = self.cloud.list_networks(filters=dict(name=self.network_name))
+        match = self.operator_cloud.list_networks(
+            filters=dict(name=self.network_name))
         self.assertEqual(1, len(match))
         self.assertEqual(net1['name'], match[0]['name'])
