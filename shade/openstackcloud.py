@@ -24,6 +24,7 @@ from dogpile import cache
 import requestsexceptions
 
 import cinderclient.client
+import cinderclient.exceptions as cinder_exceptions
 import glanceclient
 import glanceclient.exc
 import heatclient.client
@@ -2429,8 +2430,14 @@ class OpenStackCloud(object):
             return False
 
         with _utils.shade_exceptions("Error in deleting volume"):
-            self.manager.submitTask(
-                _tasks.VolumeDelete(volume=volume['id']))
+            try:
+                self.manager.submitTask(
+                    _tasks.VolumeDelete(volume=volume['id']))
+            except cinder_exceptions.NotFound:
+                self.log.debug(
+                    "Volume {id} not found when deleting. Ignoring.".format(
+                        id=volume['id']))
+                return False
 
         self.list_volumes.invalidate(self)
         if wait:
