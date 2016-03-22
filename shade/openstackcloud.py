@@ -2805,7 +2805,7 @@ class OpenStackCloud(object):
         Return a list of available floating IPs or allocate a new one and
         return it in a list of 1 element.
 
-        :param network: Nova pool name or Neutron network name or id.
+        :param str network: A Neutron network name or id.
         :param server: (server) Server the Floating IP is for
 
         :returns: a list of floating IP addresses.
@@ -2819,17 +2819,33 @@ class OpenStackCloud(object):
             project_id = self.keystone_session.get_project_id()
 
         with _utils.neutron_exceptions("unable to get available floating IPs"):
-            networks = self.get_external_networks()
-            if not networks:
-                raise OpenStackCloudResourceNotFound(
-                    "unable to find an external network")
+            if network:
+                # Use given list to get first matching external network
+                floating_network_id = None
+                for ext_net in self.get_external_networks():
+                    if network in (ext_net['name'], ext_net['id']):
+                        floating_network_id = ext_net['id']
+                        break
+
+                if floating_network_id is None:
+                    raise OpenStackCloudResourceNotFound(
+                        "unable to find external network {net}".format(
+                            net=network)
+                    )
+            else:
+                # Get first existing external network
+                networks = self.get_external_networks()
+                if not networks:
+                    raise OpenStackCloudResourceNotFound(
+                        "unable to find an external network")
+                floating_network_id = networks[0]['id']
 
             filters = {
                 'port_id': None,
-                'floating_network_id': networks[0]['id'],
+                'floating_network_id': floating_network_id,
                 'tenant_id': project_id
-
             }
+
             floating_ips = self._neutron_list_floating_ips()
             available_ips = _utils._filter_list(
                 floating_ips, name_or_id=None, filters=filters)
@@ -2839,7 +2855,7 @@ class OpenStackCloud(object):
             # No available IP found or we didn't try
             # allocate a new Floating IP
             f_ip = self._neutron_create_floating_ip(
-                network_name_or_id=networks[0]['id'], server=server)
+                network_name_or_id=floating_network_id, server=server)
 
             return [f_ip]
 
