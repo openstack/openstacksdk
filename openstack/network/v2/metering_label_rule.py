@@ -35,7 +35,7 @@ class MeteringLabelRule(resource.Resource):
     #: from traffic counters of the metering label, ie: to not count the
     #: traffic of a specific IP address of a range. Default: ``False``,
     #: *Type: bool*
-    excluded = resource.prop('excluded', type=bool)
+    is_excluded = resource.prop('excluded', type=bool)
     #: The metering label ID to associate with this metering label rule.
     metering_label_id = resource.prop('metering_label_id')
     #: The remote IP prefix to be associated with this metering label rule.

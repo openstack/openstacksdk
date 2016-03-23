@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import testtools
 
 from openstack.network.v2 import extension
@@ -21,7 +23,7 @@ EXAMPLE = {
     'links': '3',
     'name': '4',
     'namespace': '5',
-    'updated': '6',
+    'updated': '2016-03-09T12:14:57.233772',
 }
 
 
@@ -47,4 +49,6 @@ class TestExtension(testtools.TestCase):
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['namespace'], sot.namespace)
-        self.assertEqual(EXAMPLE['updated'], sot.updated)
+        dt = datetime.datetime(2016, 3, 9, 12, 14, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))

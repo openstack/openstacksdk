@@ -28,13 +28,13 @@ class Pool(resource.Resource):
     allow_list = True
 
     # Properties
-    #: The administrative state of the pool, which is up ``True`` or down
-    #: ``False``. *Type: bool*
-    admin_state_up = resource.prop('admin_state_up', type=bool)
     #: Description for the pool.
     description = resource.prop('description')
     #: The ID of the associated health monitor.
     health_monitor_id = resource.prop('healthmonitor_id')
+    #: The administrative state of the pool, which is up ``True`` or down
+    #: ``False``. *Type: bool*
+    is_admin_state_up = resource.prop('admin_state_up', type=bool)
     #: The load-balancer algorithm, which is round-robin, least-connections,
     #: and so on. This value, which must be supported, is dependent on the
     #: load-balancer provider. Round-robin must be supported.

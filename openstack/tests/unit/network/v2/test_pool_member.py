@@ -45,7 +45,7 @@ class TestPoolMember(testtools.TestCase):
     def test_make_it(self):
         sot = pool_member.PoolMember(EXAMPLE)
         self.assertEqual(EXAMPLE['address'], sot.address)
-        self.assertEqual(EXAMPLE['admin_state_up'], sot.admin_state_up)
+        self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['protocol_port'], sot.protocol_port)

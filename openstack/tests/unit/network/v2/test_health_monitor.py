@@ -46,7 +46,7 @@ class TestHealthMonitor(testtools.TestCase):
 
     def test_make_it(self):
         sot = health_monitor.HealthMonitor(EXAMPLE)
-        self.assertEqual(EXAMPLE['admin_state_up'], sot.admin_state_up)
+        self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['delay'], sot.delay)
         self.assertEqual(EXAMPLE['expected_codes'], sot.expected_codes)
         self.assertEqual(EXAMPLE['http_method'], sot.http_method)

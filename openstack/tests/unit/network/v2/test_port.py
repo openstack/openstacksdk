@@ -56,7 +56,7 @@ class TestPort(testtools.TestCase):
 
     def test_make_it(self):
         sot = port.Port(EXAMPLE)
-        self.assertEqual(EXAMPLE['admin_state_up'], sot.admin_state_up)
+        self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['allowed_address_pairs'],
                          sot.allowed_address_pairs)
         self.assertEqual(EXAMPLE['binding:host_id'], sot.binding_host_id)
@@ -76,7 +76,6 @@ class TestPort(testtools.TestCase):
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['security_groups'], sot.security_group_ids)
         self.assertEqual(EXAMPLE['status'], sot.status)
-        self.assertEqual(EXAMPLE['port_security_enabled'],
-                         sot.is_port_security_enabled)
+        self.assertTrue(sot.is_port_security_enabled)
         self.assertEqual(EXAMPLE['dns_assignment'], sot.dns_assignment)
         self.assertEqual(EXAMPLE['dns_name'], sot.dns_name)

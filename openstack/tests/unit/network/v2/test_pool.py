@@ -46,7 +46,7 @@ class TestPool(testtools.TestCase):
 
     def test_make_it(self):
         sot = pool.Pool(EXAMPLE)
-        self.assertEqual(EXAMPLE['admin_state_up'], sot.admin_state_up)
+        self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['healthmonitor_id'], sot.health_monitor_id)
         self.assertEqual(EXAMPLE['id'], sot.id)

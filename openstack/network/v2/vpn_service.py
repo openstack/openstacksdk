@@ -28,13 +28,13 @@ class VPNService(resource.Resource):
     allow_list = True
 
     # Properties
-    #: The administrative state of the vpnservice, which is up ``True`` or
-    #: down ``False``. *Type: bool*
-    admin_state_up = resource.prop('admin_state_up', type=bool)
     #: Human-readable description for the vpnservice.
     description = resource.prop('description')
     #: The unique ID for the vpnservice.
     id = resource.prop('id')
+    #: The administrative state of the vpnservice, which is up ``True`` or
+    #: down ``False``. *Type: bool*
+    is_admin_state_up = resource.prop('admin_state_up', type=bool)
     #: The vpnservice name.
     name = resource.prop('name')
     #: ID of the router into which the VPN service is inserted.

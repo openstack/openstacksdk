@@ -52,7 +52,7 @@ class TestSubnet(testtools.TestCase):
         self.assertEqual(EXAMPLE['allocation_pools'], sot.allocation_pools)
         self.assertEqual(EXAMPLE['cidr'], sot.cidr)
         self.assertEqual(EXAMPLE['dns_nameservers'], sot.dns_nameservers)
-        self.assertEqual(EXAMPLE['enable_dhcp'], sot.enable_dhcp)
+        self.assertTrue(sot.is_dhcp_enabled)
         self.assertEqual(EXAMPLE['gateway_ip'], sot.gateway_ip)
         self.assertEqual(EXAMPLE['host_routes'], sot.host_routes)
         self.assertEqual(EXAMPLE['id'], sot.id)

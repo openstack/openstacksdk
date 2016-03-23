@@ -69,7 +69,7 @@ class TestSubnet(base.BaseFunctionalTest):
         self.assertEqual(self.IPV4, sot.ip_version)
         self.assertEqual(self.ROUTES, sot.host_routes)
         self.assertEqual("10.100.0.1", sot.gateway_ip)
-        self.assertTrue(sot.enable_dhcp)
+        self.assertTrue(sot.is_dhcp_enabled)
 
     def test_list(self):
         names = [o.name for o in self.conn.network.subnets()]

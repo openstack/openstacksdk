@@ -51,7 +51,7 @@ class TestNetwork(testtools.TestCase):
 
     def test_make_it(self):
         sot = network.Network(EXAMPLE)
-        self.assertEqual(EXAMPLE['admin_state_up'], sot.admin_state_up)
+        self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
@@ -61,41 +61,14 @@ class TestNetwork(testtools.TestCase):
                          sot.provider_physical_network)
         self.assertEqual(EXAMPLE['provider:segmentation_id'],
                          sot.provider_segmentation_id)
-        self.assertEqual(EXAMPLE['router:external'], sot.router_external)
+        self.assertTrue(sot.is_router_external)
         self.assertEqual(EXAMPLE['segments'], sot.segments)
-        self.assertEqual(EXAMPLE['shared'], sot.shared)
+        self.assertTrue(sot.is_shared)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['subnets'], sot.subnet_ids)
         self.assertEqual(EXAMPLE['mtu'], sot.mtu)
-        self.assertEqual(EXAMPLE['port_security_enabled'],
-                         sot.is_port_security_enabled)
+        self.assertTrue(sot.is_port_security_enabled)
         self.assertEqual(EXAMPLE['availability_zone_hints'],
                          sot.availability_zone_hints)
         self.assertEqual(EXAMPLE['availability_zones'],
                          sot.availability_zones)
-
-    def test_external(self):
-        sot = network.Network(EXAMPLE)
-        self.assertTrue(sot.is_external())
-
-        example = dict(EXAMPLE)
-        example['router:external'] = False
-        sot = network.Network(example)
-        self.assertFalse(sot.is_external())
-
-        example = dict(EXAMPLE)
-        del example['router:external']
-        sot = network.Network(example)
-        self.assertFalse(sot.is_external())
-
-        example = dict(EXAMPLE)
-        del example['router:external']
-        example['router_type'] = 'Internal'
-        sot = network.Network(example)
-        self.assertFalse(sot.is_external())
-
-        example = dict(EXAMPLE)
-        del example['router:external']
-        example['router_type'] = 'External'
-        sot = network.Network(example)
-        self.assertTrue(sot.is_external())
