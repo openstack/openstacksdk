@@ -818,7 +818,10 @@ class OpenStackCloud(object):
             template_object=None, files=None,
             rollback=True,
             wait=False, timeout=180,
+            environment_files=None,
             **parameters):
+        envfiles, env = template_utils.process_multiple_environments_and_files(
+            env_paths=environment_files)
         tpl_files, template = template_utils.get_template_contents(
             template_file=template_file,
             template_url=template_url,
@@ -829,7 +832,8 @@ class OpenStackCloud(object):
             disable_rollback=not rollback,
             parameters=parameters,
             template=template,
-            files=tpl_files,
+            files=dict(list(tpl_files.items()) + list(envfiles.items())),
+            environment=env,
         )
         with _utils.shade_exceptions("Error creating stack {name}".format(
                 name=name)):
