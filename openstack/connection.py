@@ -65,6 +65,7 @@ import os_client_config
 
 from openstack import profile as _profile
 from openstack import proxy
+from openstack import proxy2
 from openstack import session as _session
 from openstack import utils
 
@@ -226,7 +227,8 @@ class Connection(object):
         try:
             __import__(module)
             proxy_class = getattr(sys.modules[module], "Proxy")
-            if not issubclass(proxy_class, proxy.BaseProxy):
+            if not (issubclass(proxy_class, proxy.BaseProxy) or
+                    issubclass(proxy_class, proxy2.BaseProxy)):
                 raise TypeError("%s.Proxy must inherit from BaseProxy" %
                                 proxy_class.__module__)
             setattr(self, attr_name, proxy_class(self.session))
