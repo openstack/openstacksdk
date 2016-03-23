@@ -3704,7 +3704,7 @@ class OpenStackCloud(object):
                 ips = self.search_floating_ips(filters={
                     'floating_ip_address': floating_ip})
                 if len(ips) != 1:
-                    raise OpenStackException(
+                    raise OpenStackCloudException(
                         "Tried to delete floating ip {floating_ip}"
                         " associated with server {id} but there was"
                         " an error finding it. Something is exceptionally"
