@@ -92,14 +92,13 @@ class TestInventory(base.TestCase):
 
         ret = inv.list_hosts()
 
-        inv.clouds[0].list_servers.assert_called_once_with()
-        inv.clouds[0].get_openstack_vars.assert_called_once_with(server)
+        inv.clouds[0].list_servers.assert_called_once_with(detailed=True)
+        self.assertFalse(inv.clouds[0].get_openstack_vars.called)
         self.assertEqual([server], ret)
 
     @mock.patch("os_client_config.config.OpenStackConfig")
-    @mock.patch("shade.meta.add_server_interfaces")
     @mock.patch("shade.OpenStackCloud")
-    def test_list_hosts_no_detail(self, mock_cloud, mock_add, mock_config):
+    def test_list_hosts_no_detail(self, mock_cloud, mock_config):
         mock_config.return_value.get_all_clouds.return_value = [{}]
 
         inv = inventory.OpenStackInventory()
@@ -114,9 +113,8 @@ class TestInventory(base.TestCase):
 
         inv.list_hosts(expand=False)
 
-        inv.clouds[0].list_servers.assert_called_once_with()
+        inv.clouds[0].list_servers.assert_called_once_with(detailed=False)
         self.assertFalse(inv.clouds[0].get_openstack_vars.called)
-        mock_add.assert_called_once_with(inv.clouds[0], server)
 
     @mock.patch("os_client_config.config.OpenStackConfig")
     @mock.patch("shade.OpenStackCloud")

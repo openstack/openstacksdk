@@ -574,6 +574,9 @@ class TestShade(base.TestCase):
             munch.Munch({'name': 'testserver',
                          'id': '1',
                          'flavor': {},
+                         'addresses': {},
+                         'accessIPv4': '',
+                         'accessIPv6': '',
                          'image': ''})
         ]
 

@@ -1256,7 +1256,10 @@ class OpenStackCloud(object):
                     for server in servers
                 ]
             else:
-                return servers
+                return [
+                    meta.add_server_interfaces(self, server)
+                    for server in servers
+                ]
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_images)
     def list_images(self, filter_deleted=True):

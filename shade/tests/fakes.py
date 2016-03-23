@@ -90,7 +90,10 @@ class FakeServer(object):
         self.id = id
         self.name = name
         self.status = status
-        self.addresses = addresses
+        if not addresses:
+            self.addresses = {}
+        else:
+            self.addresses = addresses
         if not flavor:
             flavor = {}
         self.flavor = flavor

@@ -18,7 +18,6 @@ import os_client_config
 
 import shade
 from shade import _utils
-from shade import meta
 
 
 class OpenStackInventory(object):
@@ -65,13 +64,8 @@ class OpenStackInventory(object):
         for cloud in self.clouds:
             try:
                 # Cycle on servers
-                for server in cloud.list_servers():
-
-                    if expand:
-                        server_vars = cloud.get_openstack_vars(server)
-                    else:
-                        server_vars = meta.add_server_interfaces(cloud, server)
-                    hostvars.append(server_vars)
+                for server in cloud.list_servers(detailed=expand):
+                    hostvars.append(server)
             except shade.OpenStackCloudException:
                 # Don't fail on one particular cloud as others may work
                 if fail_on_cloud_config:
