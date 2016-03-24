@@ -72,7 +72,7 @@ class Task(object):
         self._traceback = tb
         self._finished.set()
 
-    def wait(self, raw):
+    def wait(self, raw=False):
         self._finished.wait()
 
         if self._exception:
