@@ -11,10 +11,10 @@
 # under the License.
 
 from openstack.compute import compute_service
-from openstack import resource
+from openstack import resource2
 
 
-class Extension(resource.Resource):
+class Extension(resource2.Resource):
     resource_key = 'extension'
     resources_key = 'extensions'
     base_path = '/extensions'
@@ -22,20 +22,20 @@ class Extension(resource.Resource):
     id_attribute = "alias"
 
     # capabilities
-    allow_retrieve = True
+    allow_get = True
     allow_list = True
 
     # Properties
     #: A short name by which this extension is also known.
-    alias = resource.prop('alias')
+    alias = resource2.Body('alias', alternate_id=True)
     #: Text describing this extension's purpose.
-    description = resource.prop('description')
+    description = resource2.Body('description')
     #: Links pertaining to this extension. This is a list of dictionaries,
     #: each including keys ``href`` and ``rel``.
-    links = resource.prop('links')
+    links = resource2.Body('links')
     #: The name of the extension.
-    name = resource.prop('name')
+    name = resource2.Body('name')
     #: A URL pointing to the namespace for this extension.
-    namespace = resource.prop('namespace')
+    namespace = resource2.Body('namespace')
     #: Timestamp when this extension was last updated.
-    updated_at = resource.prop('updated')
+    updated_at = resource2.Body('updated')

@@ -45,13 +45,22 @@ class TestImage(testtools.TestCase):
         self.assertEqual('/images', sot.base_path)
         self.assertEqual('compute', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
+        self.assertDictEqual({"server": "server",
+                              "name": "name",
+                              "status": "status",
+                              "type": "type",
+                              "min_disk": "minDisk",
+                              "min_ram": "minRam",
+                              "changes_since": "changes-since"},
+                             sot._query_mapping._mapping)
+
     def test_make_basic(self):
-        sot = image.Image(BASIC_EXAMPLE)
+        sot = image.Image(**BASIC_EXAMPLE)
         self.assertEqual(BASIC_EXAMPLE['id'], sot.id)
         self.assertEqual(BASIC_EXAMPLE['links'], sot.links)
         self.assertEqual(BASIC_EXAMPLE['name'], sot.name)
@@ -63,13 +72,13 @@ class TestImage(testtools.TestCase):
         self.assertEqual('/images/detail', sot.base_path)
         self.assertEqual('compute', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_retrieve)
+        self.assertFalse(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_detail(self):
-        sot = image.ImageDetail(DETAIL_EXAMPLE)
+        sot = image.ImageDetail(**DETAIL_EXAMPLE)
         self.assertEqual(DETAIL_EXAMPLE['created'], sot.created_at)
         self.assertEqual(DETAIL_EXAMPLE['id'], sot.id)
         self.assertEqual(DETAIL_EXAMPLE['links'], sot.links)

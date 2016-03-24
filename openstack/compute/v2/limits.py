@@ -11,96 +11,99 @@
 # under the License.
 
 from openstack.compute import compute_service
-from openstack import resource
+from openstack import resource2
 
 
-class AbsoluteLimits(resource.Resource):
+class AbsoluteLimits(resource2.Resource):
 
     #: The number of key-value pairs that can be set as image metadata.
-    image_meta = resource.prop("maxImageMeta")
+    image_meta = resource2.Body("maxImageMeta")
     #: The maximum number of personality contents that can be supplied.
-    personality = resource.prop("maxPersonality")
+    personality = resource2.Body("maxPersonality")
     #: The maximum size, in bytes, of a personality.
-    personality_size = resource.prop("maxPersonalitySize")
+    personality_size = resource2.Body("maxPersonalitySize")
     #: The maximum amount of security group rules allowed.
-    security_group_rules = resource.prop("maxSecurityGroupRules")
+    security_group_rules = resource2.Body("maxSecurityGroupRules")
     #: The maximum amount of security groups allowed.
-    security_groups = resource.prop("maxSecurityGroups")
+    security_groups = resource2.Body("maxSecurityGroups")
     #: The amount of security groups currently in use.
-    security_groups_used = resource.prop("totalSecurityGroupsUsed")
+    security_groups_used = resource2.Body("totalSecurityGroupsUsed")
     #: The number of key-value pairs that can be set as sever metadata.
-    server_meta = resource.prop("maxServerMeta")
+    server_meta = resource2.Body("maxServerMeta")
     #: The maximum amount of cores.
-    total_cores = resource.prop("maxTotalCores")
+    total_cores = resource2.Body("maxTotalCores")
     #: The amount of cores currently in use.
-    total_cores_used = resource.prop("totalCoresUsed")
+    total_cores_used = resource2.Body("totalCoresUsed")
     #: The maximum amount of floating IPs.
-    floating_ips = resource.prop("maxTotalFloatingIps")
+    floating_ips = resource2.Body("maxTotalFloatingIps")
     #: The amount of floating IPs currently in use.
-    floating_ips_used = resource.prop("totalFloatingIpsUsed")
+    floating_ips_used = resource2.Body("totalFloatingIpsUsed")
     #: The maximum amount of instances.
-    instances = resource.prop("maxTotalInstances")
+    instances = resource2.Body("maxTotalInstances")
     #: The amount of instances currently in use.
-    instances_used = resource.prop("totalInstancesUsed")
+    instances_used = resource2.Body("totalInstancesUsed")
     #: The maximum amount of keypairs.
-    keypairs = resource.prop("maxTotalKeypairs")
+    keypairs = resource2.Body("maxTotalKeypairs")
     #: The maximum RAM size in megabytes.
-    total_ram = resource.prop("maxTotalRAMSize")
+    total_ram = resource2.Body("maxTotalRAMSize")
     #: The RAM size in megabytes currently in use.
-    total_ram_used = resource.prop("totalRAMUsed")
+    total_ram_used = resource2.Body("totalRAMUsed")
     #: The maximum amount of server groups.
-    server_groups = resource.prop("maxServerGroups")
+    server_groups = resource2.Body("maxServerGroups")
     #: The amount of server groups currently in use.
-    server_groups_used = resource.prop("totalServerGroupsUsed")
+    server_groups_used = resource2.Body("totalServerGroupsUsed")
     #: The maximum number of members in a server group.
-    server_group_members = resource.prop("maxServerGroupMembers")
+    server_group_members = resource2.Body("maxServerGroupMembers")
 
 
-class RateLimits(resource.Resource):
+class RateLimit(resource2.Resource):
 
     #: A list of the specific limits that apply to the ``regex`` and ``uri``.
-    limits = resource.prop("limit", type=list)
+    limits = resource2.Body("limit", type=list)
     #: A regex representing which routes this rate limit applies to.
-    regex = resource.prop("regex")
+    regex = resource2.Body("regex")
     #: A URI representing which routes this rate limit applies to.
-    uri = resource.prop("uri")
+    uri = resource2.Body("uri")
 
 
-class Limits(resource.Resource):
+class Limits(resource2.Resource):
     base_path = "/limits"
     resource_key = "limits"
     service = compute_service.ComputeService()
 
-    allow_retrieve = True
+    allow_get = True
 
-    absolute = resource.prop("absolute", type=AbsoluteLimits)
-    rate = resource.prop("rate", type=list)
+    absolute = resource2.Body("absolute", type=AbsoluteLimits)
+    rate = resource2.Body("rate", type=list)
 
-    def get(self, session, args=None, include_headers=False):
+    def get(self, session):
         """Get the Limits resource.
 
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
-        :param dict args: An optional dict that will be translated into query
-            strings for retrieving the object when specified.
 
         :returns: A Limits instance
         :rtype: :class:`~openstack.compute.v2.limits.Limits`
         """
-        body = self.get_data_by_id(session, self.id,
-                                   include_headers=include_headers)
+        request = self._prepare_request(requires_id=False, prepend_key=False)
 
-        # Split the rates away from absolute limits. We can create
-        # the `absolute` property and AbsoluteLimits resource directly
-        # from the body. We have to iterate through the list inside `rate`
-        # in order to create the RateLimits instances for the `rate` property.
-        rate_body = body.pop("rate")
-        self._attrs.update(body)
+        response = session.get(request.uri, endpoint_filter=self.service)
+
+        body = response.json()
+        body = body[self.resource_key]
+
+        absolute_body = self._transpose_component(
+            body["absolute"], AbsoluteLimits._body_mapping())
+        self.absolute = AbsoluteLimits.existing(**absolute_body)
+
+        rates_body = body["rate"]
 
         rates = []
-        for rate in rate_body:
-            rates.append(RateLimits(rate))
+        for rate_body in rates_body:
+            rate_body = self._transpose_component(rate_body,
+                                                  RateLimit._body_mapping())
+            rates.append(RateLimit(**rate_body))
 
-        self._attrs.update({"rate": rates})
-        self._loaded = True
+        self.rate = rates
+
         return self

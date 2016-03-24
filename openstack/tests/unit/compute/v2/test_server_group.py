@@ -32,13 +32,16 @@ class TestServerGroup(testtools.TestCase):
         self.assertEqual('/os-server-groups', sot.base_path)
         self.assertEqual('compute', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
+        self.assertDictEqual({"all_projects": "all_projects"},
+                             sot._query_mapping._mapping)
+
     def test_make_it(self):
-        sot = server_group.ServerGroup(EXAMPLE)
+        sot = server_group.ServerGroup(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['members'], sot.member_ids)

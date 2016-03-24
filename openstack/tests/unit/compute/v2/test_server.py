@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import copy
-
 import mock
 import testtools
 
@@ -35,6 +33,21 @@ EXAMPLE = {
     'status': '14',
     'updated': '2015-03-09T12:15:57.233772',
     'user_id': '16',
+    'key_name': '17',
+    'OS-DCF:diskConfig': '18',
+    'OS-EXT-AZ:availability_zone': '19',
+    'OS-EXT-STS:power_state': '20',
+    'OS-EXT-STS:task_state': '21',
+    'OS-EXT-STS:vm_state': '22',
+    'os-extended-volumes:volumes_attached': '23',
+    'OS-SRV-USG:launched_at': '2015-03-09T12:15:57.233772',
+    'OS-SRV-USG:terminated_at': '2015-03-09T12:15:57.233772',
+    'security_groups': '26',
+    'adminPass': '27',
+    'personality': '28',
+    'block_device_mapping_v2': {'key': '29'},
+    'os:scheduler_hints': {'key': '30'},
+    'user_data': '31'
 }
 
 
@@ -55,13 +68,21 @@ class TestServer(testtools.TestCase):
         self.assertEqual('/servers', sot.base_path)
         self.assertEqual('compute', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
+        self.assertDictEqual({"image": "image",
+                              "flavor": "flavor",
+                              "name": "name",
+                              "status": "status",
+                              "host": "host",
+                              "changes_since": "changes-since"},
+                             sot._query_mapping._mapping)
+
     def test_make_it(self):
-        sot = server.Server(EXAMPLE)
+        sot = server.Server(**EXAMPLE)
         self.assertEqual(EXAMPLE['accessIPv4'], sot.access_ipv4)
         self.assertEqual(EXAMPLE['accessIPv6'], sot.access_ipv6)
         self.assertEqual(EXAMPLE['addresses'], sot.addresses)
@@ -78,6 +99,25 @@ class TestServer(testtools.TestCase):
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['updated'], sot.updated_at)
         self.assertEqual(EXAMPLE['user_id'], sot.user_id)
+        self.assertEqual(EXAMPLE['key_name'], sot.key_name)
+        self.assertEqual(EXAMPLE['OS-DCF:diskConfig'], sot.disk_config)
+        self.assertEqual(EXAMPLE['OS-EXT-AZ:availability_zone'],
+                         sot.availability_zone)
+        self.assertEqual(EXAMPLE['OS-EXT-STS:power_state'], sot.power_state)
+        self.assertEqual(EXAMPLE['OS-EXT-STS:task_state'], sot.task_state)
+        self.assertEqual(EXAMPLE['OS-EXT-STS:vm_state'], sot.vm_state)
+        self.assertEqual(EXAMPLE['os-extended-volumes:volumes_attached'],
+                         sot.attached_volumes)
+        self.assertEqual(EXAMPLE['OS-SRV-USG:launched_at'], sot.launched_at)
+        self.assertEqual(EXAMPLE['OS-SRV-USG:terminated_at'],
+                         sot.terminated_at)
+        self.assertEqual(EXAMPLE['security_groups'], sot.security_groups)
+        self.assertEqual(EXAMPLE['adminPass'], sot.admin_password)
+        self.assertEqual(EXAMPLE['personality'], sot.personality)
+        self.assertEqual(EXAMPLE['block_device_mapping_v2'],
+                         sot.block_device_mapping)
+        self.assertEqual(EXAMPLE['os:scheduler_hints'], sot.scheduler_hints)
+        self.assertEqual(EXAMPLE['user_data'], sot.user_data)
 
     def test_detail(self):
         sot = server.ServerDetail()
@@ -86,22 +126,15 @@ class TestServer(testtools.TestCase):
         self.assertEqual('/servers/detail', sot.base_path)
         self.assertEqual('compute', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_retrieve)
+        self.assertFalse(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
-    def test_create_body(self):
-        params = copy.deepcopy(EXAMPLE)
-        params['scheduler_hints'] = {'group': 'GROUP1_ID'}
-        body = server.Server._get_create_body(params)
-        self.assertNotIn('scheduler_hints', body)
-        self.assertEqual({'group': 'GROUP1_ID'}, body['os:scheduler_hints'])
-
     def test_change_passowrd(self):
-        sot = server.Server(EXAMPLE)
+        sot = server.Server(**EXAMPLE)
 
-        self.assertEqual(self.resp.body, sot.change_password(self.sess, 'a'))
+        self.assertIsNone(sot.change_password(self.sess, 'a'))
 
         url = 'servers/IDENTIFIER/action'
         body = {"changePassword": {"adminPass": "a"}}
@@ -110,9 +143,9 @@ class TestServer(testtools.TestCase):
             url, endpoint_filter=sot.service, json=body, headers=headers)
 
     def test_reboot(self):
-        sot = server.Server(EXAMPLE)
+        sot = server.Server(**EXAMPLE)
 
-        self.assertEqual(self.resp.body, sot.reboot(self.sess, 'HARD'))
+        self.assertIsNone(sot.reboot(self.sess, 'HARD'))
 
         url = 'servers/IDENTIFIER/action'
         body = {"reboot": {"type": "HARD"}}
@@ -121,21 +154,18 @@ class TestServer(testtools.TestCase):
             url, endpoint_filter=sot.service, json=body, headers=headers)
 
     def test_rebuild(self):
-        sot = server.Server(EXAMPLE)
+        sot = server.Server(**EXAMPLE)
+        # Let the translate pass through, that portion is tested elsewhere
+        sot._translate_response = lambda arg: arg
 
-        self.assertEqual(
-            self.resp.body,
-            sot.rebuild(
-                self.sess,
-                name='noo',
-                image_href='http://image/1',
-                admin_password='seekr3t',
-                access_ipv4="12.34.56.78",
-                access_ipv6="fe80::100",
-                metadata={"meta var": "meta val"},
-                personality=[{"path": "/etc/motd", "contents": "foo"}],
-            )
-        )
+        result = sot.rebuild(self.sess, name='noo', admin_password='seekr3t',
+                             image='http://image/1', access_ipv4="12.34.56.78",
+                             access_ipv6="fe80::100",
+                             metadata={"meta var": "meta val"},
+                             personality=[{"path": "/etc/motd",
+                                           "contents": "foo"}])
+
+        self.assertIsInstance(result, server.Server)
 
         url = 'servers/IDENTIFIER/action'
         body = {
@@ -147,6 +177,7 @@ class TestServer(testtools.TestCase):
                 "accessIPv6": "fe80::100",
                 "metadata": {"meta var": "meta val"},
                 "personality": [{"path": "/etc/motd", "contents": "foo"}],
+                "preserve_ephemeral": False
             }
         }
         headers = {'Accept': ''}
@@ -154,17 +185,15 @@ class TestServer(testtools.TestCase):
             url, endpoint_filter=sot.service, json=body, headers=headers)
 
     def test_rebuild_minimal(self):
-        sot = server.Server(EXAMPLE)
+        sot = server.Server(**EXAMPLE)
+        # Let the translate pass through, that portion is tested elsewhere
+        sot._translate_response = lambda arg: arg
 
-        self.assertEqual(
-            self.resp.body,
-            sot.rebuild(
-                self.sess,
-                name='nootoo',
-                image_href='http://image/2',
-                admin_password='seekr3two',
-            )
-        )
+        result = sot.rebuild(self.sess, name='nootoo',
+                             admin_password='seekr3two',
+                             image='http://image/2')
+
+        self.assertIsInstance(result, server.Server)
 
         url = 'servers/IDENTIFIER/action'
         body = {
@@ -172,6 +201,7 @@ class TestServer(testtools.TestCase):
                 "name": "nootoo",
                 "imageRef": "http://image/2",
                 "adminPass": "seekr3two",
+                "preserve_ephemeral": False
             }
         }
         headers = {'Accept': ''}
@@ -179,9 +209,9 @@ class TestServer(testtools.TestCase):
             url, endpoint_filter=sot.service, json=body, headers=headers)
 
     def test_resize(self):
-        sot = server.Server(EXAMPLE)
+        sot = server.Server(**EXAMPLE)
 
-        self.assertEqual(self.resp.body, sot.resize(self.sess, '2'))
+        self.assertIsNone(sot.resize(self.sess, '2'))
 
         url = 'servers/IDENTIFIER/action'
         body = {"resize": {"flavorRef": "2"}}
@@ -190,9 +220,9 @@ class TestServer(testtools.TestCase):
             url, endpoint_filter=sot.service, json=body, headers=headers)
 
     def test_confirm_resize(self):
-        sot = server.Server(EXAMPLE)
+        sot = server.Server(**EXAMPLE)
 
-        self.assertEqual(self.resp.body, sot.confirm_resize(self.sess))
+        self.assertIsNone(sot.confirm_resize(self.sess))
 
         url = 'servers/IDENTIFIER/action'
         body = {"confirmResize": None}
@@ -201,9 +231,9 @@ class TestServer(testtools.TestCase):
             url, endpoint_filter=sot.service, json=body, headers=headers)
 
     def test_revert_resize(self):
-        sot = server.Server(EXAMPLE)
+        sot = server.Server(**EXAMPLE)
 
-        self.assertEqual(self.resp.body, sot.revert_resize(self.sess))
+        self.assertIsNone(sot.revert_resize(self.sess))
 
         url = 'servers/IDENTIFIER/action'
         body = {"revertResize": None}
@@ -212,14 +242,11 @@ class TestServer(testtools.TestCase):
             url, endpoint_filter=sot.service, json=body, headers=headers)
 
     def test_create_image(self):
-        sot = server.Server(EXAMPLE)
+        sot = server.Server(**EXAMPLE)
         name = 'noo'
         metadata = {'nu': 'image', 'created': 'today'}
 
-        self.assertEqual(
-            self.resp.body,
-            sot.create_image(self.sess, name, metadata)
-        )
+        self.assertIsNone(sot.create_image(self.sess, name, metadata))
 
         url = 'servers/IDENTIFIER/action'
         body = {"createImage": {'name': name, 'metadata': metadata}}
@@ -228,13 +255,10 @@ class TestServer(testtools.TestCase):
             url, endpoint_filter=sot.service, json=body, headers=headers)
 
     def test_create_image_minimal(self):
-        sot = server.Server(EXAMPLE)
+        sot = server.Server(**EXAMPLE)
         name = 'noo'
 
-        self.assertEqual(
-            self.resp.body,
-            sot.create_image(self.sess, name)
-        )
+        self.assertIsNone(self.resp.body, sot.create_image(self.sess, name))
 
         url = 'servers/IDENTIFIER/action'
         body = {"createImage": {'name': name}}
@@ -242,38 +266,24 @@ class TestServer(testtools.TestCase):
         self.sess.post.assert_called_with(
             url, endpoint_filter=dict(sot.service), json=body, headers=headers)
 
-    def test_get_ips(self):
-        name = "jenkins"
-        fixed = {
-            "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:f9:58:b4",
-            "version": 4,
-            "addr": "10.3.3.8",
-            "OS-EXT-IPS:type": "fixed",
-        }
-        float1 = {
-            "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:f9:58:b4",
-            "version": 4,
-            "addr": "15.125.3.1",
-            "OS-EXT-IPS:type": "floating",
-        }
-        float2 = {
-            "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:f9:58:b4",
-            "version": 4,
-            "addr": "15.125.3.2",
-            "OS-EXT-IPS:type": "floating",
-        }
+    def test_add_security_group(self):
+        sot = server.Server(**EXAMPLE)
 
-        addresses = {name: [fixed]}
-        attrs = {'id': IDENTIFIER, 'name': name, 'addresses': addresses}
-        sot = server.Server(attrs=attrs)
-        self.assertEqual([], sot.get_floating_ips())
+        self.assertIsNone(sot.add_security_group(self.sess, "group"))
 
-        addresses = {name: [fixed, float1, float2]}
-        attrs = {'id': IDENTIFIER, 'name': name, 'addresses': addresses}
-        sot = server.Server(attrs=attrs)
-        self.assertEqual(["15.125.3.1", "15.125.3.2"], sot.get_floating_ips())
+        url = 'servers/IDENTIFIER/action'
+        body = {"addSecurityGroup": {"name": "group"}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
 
-        addresses = {name: [float1, fixed]}
-        attrs = {'id': IDENTIFIER, 'name': name, 'addresses': addresses}
-        sot = server.Server(attrs=attrs)
-        self.assertEqual(["15.125.3.1"], sot.get_floating_ips())
+    def test_remove_security_group(self):
+        sot = server.Server(**EXAMPLE)
+
+        self.assertIsNone(sot.remove_security_group(self.sess, "group"))
+
+        url = 'servers/IDENTIFIER/action'
+        body = {"removeSecurityGroup": {"name": "group"}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)

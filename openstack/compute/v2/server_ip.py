@@ -10,16 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import six
-
 from openstack.compute import compute_service
-from openstack import resource
+from openstack import resource2
+from openstack import utils
 
 
-class ServerIP(resource.Resource):
-    id_attribute = 'addr'
-    resource_key = 'server_ip'
-    resources_key = 'server_ips'
+class ServerIP(resource2.Resource):
+    resources_key = 'addresses'
     base_path = '/servers/%(server_id)s/ips'
     service = compute_service.ComputeService()
 
@@ -28,27 +25,30 @@ class ServerIP(resource.Resource):
 
     # Properties
     #: The IP address. The format of the address depends on :attr:`version`
-    addr = resource.prop('addr')
+    address = resource2.Body('addr')
     #: The network label, such as public or private.
-    network_label = resource.prop('network_label')
+    network_label = resource2.URI('network_label')
     #: The ID for the server.
-    server_id = resource.prop('server_id')
+    server_id = resource2.URI('server_id')
     # Version of the IP protocol. Currently either 4 or 6.
-    version = resource.prop('version')
+    version = resource2.Body('version')
 
     @classmethod
-    def list(cls, session, path_args=None, **params):
-        url = cls._get_url(path_args)
-        resp = session.get(url, endpoint_filter=cls.service, params=params)
+    def list(cls, session, paginated=False, server_id=None,
+             network_label=None, **params):
+        url = cls.base_path % {"server_id": server_id}
+
+        if network_label is not None:
+            url = utils.urljoin(url, network_label)
+
+        resp = session.get(url, endpoint_filter=cls.service)
         resp = resp.json()
-        ray = []
-        for network_label, addresses in six.iteritems(resp['addresses']):
+
+        if network_label is None:
+            resp = resp[cls.resources_key]
+
+        for label, addresses in resp.items():
             for address in addresses:
-                record = {
-                    'server_id': path_args['server_id'],
-                    'network_label': network_label,
-                    'version': address['version'],
-                    'addr': address['addr'],
-                }
-                ray.append(cls.existing(**record))
-        return ray
+                yield cls.existing(network_label=label,
+                                   address=address["addr"],
+                                   version=address["version"])

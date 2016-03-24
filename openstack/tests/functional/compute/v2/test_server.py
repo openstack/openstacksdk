@@ -35,12 +35,15 @@ class TestServer(base.BaseFunctionalTest):
         cls.network, cls.subnet = test_network.create_network(cls.conn,
                                                               cls.NAME,
                                                               cls.cidr)
-        if cls.network:
-            args = {'networks': [{"uuid": cls.network.id}]}
-        else:
-            args = {}
+        if not cls.network:
+            # We can't call TestCase.fail from within the setUpClass
+            # classmethod, but we need to raise some exception in order
+            # to get this setup to fail and thusly fail the entire class.
+            raise Exception("Unable to create network for TestServer")
+
         sot = cls.conn.compute.create_server(
-            name=cls.NAME, flavor_id=flavor.id, image_id=image.id, **args)
+            name=cls.NAME, flavor_id=flavor.id, image_id=image.id,
+            networks=[{"uuid": cls.network.id}])
         cls.conn.compute.wait_for_server(sot)
         assert isinstance(sot, server.Server)
         cls.assertIs(cls.NAME, sot.name)

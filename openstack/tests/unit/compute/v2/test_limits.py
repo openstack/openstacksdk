@@ -68,13 +68,13 @@ class TestAbsoluteLimits(testtools.TestCase):
         self.assertEqual("", sot.base_path)
         self.assertIsNone(sot.service)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_retrieve)
+        self.assertFalse(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertFalse(sot.allow_list)
 
     def test_make_it(self):
-        sot = limits.AbsoluteLimits(ABSOLUTE_LIMITS)
+        sot = limits.AbsoluteLimits(**ABSOLUTE_LIMITS)
         self.assertEqual(ABSOLUTE_LIMITS["maxImageMeta"], sot.image_meta)
         self.assertEqual(ABSOLUTE_LIMITS["maxPersonality"], sot.personality)
         self.assertEqual(ABSOLUTE_LIMITS["maxPersonalitySize"],
@@ -109,22 +109,22 @@ class TestAbsoluteLimits(testtools.TestCase):
                          sot.total_cores_used)
 
 
-class TestRateLimits(testtools.TestCase):
+class TestRateLimit(testtools.TestCase):
 
     def test_basic(self):
-        sot = limits.RateLimits()
+        sot = limits.RateLimit()
         self.assertIsNone(sot.resource_key)
         self.assertIsNone(sot.resources_key)
         self.assertEqual("", sot.base_path)
         self.assertIsNone(sot.service)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_retrieve)
+        self.assertFalse(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertFalse(sot.allow_list)
 
     def test_make_it(self):
-        sot = limits.RateLimits(RATE_LIMIT)
+        sot = limits.RateLimit(**RATE_LIMIT)
         self.assertEqual(RATE_LIMIT["regex"], sot.regex)
         self.assertEqual(RATE_LIMIT["uri"], sot.uri)
         self.assertEqual(RATE_LIMIT["limit"], sot.limits)
@@ -137,19 +137,59 @@ class TestLimits(testtools.TestCase):
         self.assertEqual("limits", sot.resource_key)
         self.assertEqual("/limits", sot.base_path)
         self.assertEqual("compute", sot.service.service_type)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertFalse(sot.allow_list)
 
-    @mock.patch("openstack.resource.Resource.get_data_by_id")
-    def test_get(self, mock_get):
-        # Only return values under the limits key since that's our
-        # resource_key, which would be filtered out in get_data_by_id.
-        mock_get.return_value = LIMITS_BODY["limits"]
+    def test_get(self):
+        sess = mock.Mock()
+        resp = mock.Mock()
+        sess.get.return_value = resp
+        resp.json.return_value = LIMITS_BODY
 
-        sot = limits.Limits().get("fake session")
+        sot = limits.Limits().get(sess)
 
-        self.assertEqual(sot.absolute, limits.AbsoluteLimits(ABSOLUTE_LIMITS))
-        self.assertEqual(sot.rate, [limits.RateLimits(RATE_LIMIT)])
+        self.assertEqual(ABSOLUTE_LIMITS["maxImageMeta"],
+                         sot.absolute.image_meta)
+        self.assertEqual(ABSOLUTE_LIMITS["maxPersonality"],
+                         sot.absolute.personality)
+        self.assertEqual(ABSOLUTE_LIMITS["maxPersonalitySize"],
+                         sot.absolute.personality_size)
+        self.assertEqual(ABSOLUTE_LIMITS["maxSecurityGroupRules"],
+                         sot.absolute.security_group_rules)
+        self.assertEqual(ABSOLUTE_LIMITS["maxSecurityGroups"],
+                         sot.absolute.security_groups)
+        self.assertEqual(ABSOLUTE_LIMITS["maxServerMeta"],
+                         sot.absolute.server_meta)
+        self.assertEqual(ABSOLUTE_LIMITS["maxTotalCores"],
+                         sot.absolute.total_cores)
+        self.assertEqual(ABSOLUTE_LIMITS["maxTotalFloatingIps"],
+                         sot.absolute.floating_ips)
+        self.assertEqual(ABSOLUTE_LIMITS["maxTotalInstances"],
+                         sot.absolute.instances)
+        self.assertEqual(ABSOLUTE_LIMITS["maxTotalKeypairs"],
+                         sot.absolute.keypairs)
+        self.assertEqual(ABSOLUTE_LIMITS["maxTotalRAMSize"],
+                         sot.absolute.total_ram)
+        self.assertEqual(ABSOLUTE_LIMITS["maxServerGroups"],
+                         sot.absolute.server_groups)
+        self.assertEqual(ABSOLUTE_LIMITS["maxServerGroupMembers"],
+                         sot.absolute.server_group_members)
+        self.assertEqual(ABSOLUTE_LIMITS["totalFloatingIpsUsed"],
+                         sot.absolute.floating_ips_used)
+        self.assertEqual(ABSOLUTE_LIMITS["totalSecurityGroupsUsed"],
+                         sot.absolute.security_groups_used)
+        self.assertEqual(ABSOLUTE_LIMITS["totalRAMUsed"],
+                         sot.absolute.total_ram_used)
+        self.assertEqual(ABSOLUTE_LIMITS["totalInstancesUsed"],
+                         sot.absolute.instances_used)
+        self.assertEqual(ABSOLUTE_LIMITS["totalServerGroupsUsed"],
+                         sot.absolute.server_groups_used)
+        self.assertEqual(ABSOLUTE_LIMITS["totalCoresUsed"],
+                         sot.absolute.total_cores_used)
+
+        self.assertEqual(RATE_LIMIT["uri"], sot.rate[0].uri)
+        self.assertEqual(RATE_LIMIT["regex"], sot.rate[0].regex)
+        self.assertEqual(RATE_LIMIT["limit"], sot.rate[0].limits)

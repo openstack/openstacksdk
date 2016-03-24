@@ -27,11 +27,12 @@ class TestKeypair(base.BaseFunctionalTest):
         sot = cls.conn.compute.create_keypair(name=cls.NAME)
         assert isinstance(sot, keypair.Keypair)
         cls.assertIs(cls.NAME, sot.name)
+        cls._keypair = sot
         cls.ID = sot.id
 
     @classmethod
     def tearDownClass(cls):
-        sot = cls.conn.compute.delete_keypair(cls.ID)
+        sot = cls.conn.compute.delete_keypair(cls._keypair)
         cls.assertIs(None, sot)
 
     def test_find(self):

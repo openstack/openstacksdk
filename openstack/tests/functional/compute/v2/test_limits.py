@@ -17,8 +17,8 @@ class TestLimits(base.BaseFunctionalTest):
 
     def test_limits(self):
         sot = self.conn.compute.get_limits()
-        self.assertIn('maxTotalInstances', sot.absolute)
-        self.assertIn('maxTotalRAMSize', sot.absolute)
-        self.assertIn('maxTotalKeypairs', sot.absolute)
-        self.assertIn('maxSecurityGroups', sot.absolute)
-        self.assertIn('maxSecurityGroupRules', sot.absolute)
+        self.assertIsNotNone('maxTotalInstances', sot.absolute)
+        self.assertIsNotNone('maxTotalRAMSize', sot.absolute)
+        self.assertIsNotNone('maxTotalKeypairs', sot.absolute)
+        self.assertIsNotNone('maxSecurityGroups', sot.absolute)
+        self.assertIsNotNone('maxSecurityGroupRules', sot.absolute)

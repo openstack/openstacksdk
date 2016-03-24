@@ -46,12 +46,12 @@ class TestImage(base.BaseFunctionalTest):
         sot = self.conn.compute.get_image(image.id)
         self.assertEqual(image.id, sot.id)
         self.assertEqual(image.name, sot.name)
-        self.assertIn('links', image)
-        self.assertIn('minDisk', image)
-        self.assertIn('minRam', image)
-        self.assertIn('metadata', image)
-        self.assertIn('progress', image)
-        self.assertIn('status', image)
+        self.assertIsNotNone(image.links)
+        self.assertIsNotNone(image.min_disk)
+        self.assertIsNotNone(image.min_ram)
+        self.assertIsNotNone(image.metadata)
+        self.assertIsNotNone(image.progress)
+        self.assertIsNotNone(image.status)
 
     def test_image_metadata(self):
         image = self._get_non_test_image()

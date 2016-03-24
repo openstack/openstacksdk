@@ -27,14 +27,20 @@ class TestAvailabilityZone(testtools.TestCase):
 
     def test_basic(self):
         sot = az.AvailabilityZone()
-        self.assertEqual('availability_zone', sot.resource_key)
         self.assertEqual('availabilityZoneInfo', sot.resources_key)
         self.assertEqual('/os-availability-zone', sot.base_path)
         self.assertTrue(sot.allow_list)
         self.assertEqual('compute', sot.service.service_type)
 
+    def test_basic_detail(self):
+        sot = az.AvailabilityZoneDetail()
+        self.assertEqual('availabilityZoneInfo', sot.resources_key)
+        self.assertEqual('/os-availability-zone/detail', sot.base_path)
+        self.assertTrue(sot.allow_list)
+        self.assertEqual('compute', sot.service.service_type)
+
     def test_make_basic(self):
-        sot = az.AvailabilityZone(BASIC_EXAMPLE)
+        sot = az.AvailabilityZone(**BASIC_EXAMPLE)
         self.assertEqual(BASIC_EXAMPLE['id'], sot.id)
         self.assertEqual(BASIC_EXAMPLE['zoneState'], sot.state)
         self.assertEqual(BASIC_EXAMPLE['hosts'], sot.hosts)

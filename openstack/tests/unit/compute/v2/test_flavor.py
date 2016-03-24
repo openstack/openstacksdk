@@ -39,13 +39,19 @@ class TestFlavor(testtools.TestCase):
         self.assertEqual('/flavors', sot.base_path)
         self.assertEqual('compute', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
+        self.assertDictEqual({"sort_key": "sort_key",
+                              "sort_dir": "sort_dir",
+                              "min_disk": "minDisk",
+                              "min_ram": "minRam"},
+                             sot._query_mapping._mapping)
+
     def test_make_basic(self):
-        sot = flavor.Flavor(BASIC_EXAMPLE)
+        sot = flavor.Flavor(**BASIC_EXAMPLE)
         self.assertEqual(BASIC_EXAMPLE['id'], sot.id)
         self.assertEqual(BASIC_EXAMPLE['links'], sot.links)
         self.assertEqual(BASIC_EXAMPLE['name'], sot.name)
@@ -68,7 +74,7 @@ class TestFlavor(testtools.TestCase):
         self.assertEqual('/flavors/detail', sot.base_path)
         self.assertEqual('compute', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_retrieve)
+        self.assertFalse(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)

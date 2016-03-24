@@ -11,12 +11,10 @@
 # under the License.
 
 from openstack.compute import compute_service
-from openstack import resource
+from openstack import resource2
 
 
-class Keypair(resource.Resource):
-    id_attribute = 'name'
-    name_attribute = None
+class Keypair(resource2.Resource):
     resource_key = 'keypair'
     resources_key = 'keypairs'
     base_path = '/os-keypairs'
@@ -24,35 +22,36 @@ class Keypair(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
-    allow_update = True
+    allow_get = True
     allow_delete = True
     allow_list = True
 
     # Properties
     #: The short fingerprint associated with the ``public_key`` for
     #: this keypair.
-    fingerprint = resource.prop('fingerprint')
+    fingerprint = resource2.Body('fingerprint')
+    # NOTE: There is in fact an 'id' field. However, it's not useful
+    # because all operations use the 'name' as an identifier.
+    # Additionally, the 'id' field only appears *after* creation,
+    # so suddenly you have an 'id' field filled in after the fact,
+    # and it just gets in the way. We need to cover this up by having
+    # the name be both our id and name.
+    #: The id identifying the keypair
+    id = resource2.Body('name')
     #: A name identifying the keypair
-    name = resource.prop('name')
+    name = resource2.Body('name', alternate_id=True)
     #: The private key for the keypair
-    private_key = resource.prop('private_key')
+    private_key = resource2.Body('private_key')
     #: The SSH public key that is paired with the server.
-    public_key = resource.prop('public_key')
+    public_key = resource2.Body('public_key')
 
-    def __init__(self, attrs=None, loaded=False):
-        if attrs is not None:
-            if 'keypair' in attrs:
-                attrs = attrs['keypair']
-        super(Keypair, self).__init__(attrs, loaded=loaded)
+    @classmethod
+    def list(cls, session, paginated=False):
+        resp = session.get(cls.base_path, endpoint_filter=cls.service,
+                           headers={"Accept": "application/json"})
+        resp = resp.json()
+        resp = resp[cls.resources_key]
 
-    def create(self, session):
-        """Create a new keypair from this instance.
-
-        This is needed because the name is the id, but we can't create one
-        with a PUT.  That and we need the private_key out of the response.
-        """
-        resp = self.create_by_id(session, self._attrs)
-        self._attrs = resp
-        self._reset_dirty()
-        return self
+        for data in resp:
+            value = cls.existing(**data[cls.resource_key])
+            yield value

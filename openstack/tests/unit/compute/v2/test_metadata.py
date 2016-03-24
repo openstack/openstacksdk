@@ -32,12 +32,12 @@ class TestMetadata(testtools.TestCase):
         self.meta_result = {"meta": {"oh": "yeah"}}
 
     def test_get_all_metadata_Server(self):
-        self._test_get_all_metadata(server.Server({"id": IDENTIFIER}))
+        self._test_get_all_metadata(server.Server(id=IDENTIFIER))
 
     def test_get_all_metadata_ServerDetail(self):
         # This is tested explicitly so we know ServerDetail items are
         # properly having /detail stripped out of their base_path.
-        self._test_get_all_metadata(server.ServerDetail({"id": IDENTIFIER}))
+        self._test_get_all_metadata(server.ServerDetail(id=IDENTIFIER))
 
     def _test_get_all_metadata(self, sot):
         response = mock.Mock()
@@ -58,7 +58,7 @@ class TestMetadata(testtools.TestCase):
         sess = mock.Mock()
         sess.post.return_value = response
 
-        sot = server.Server({"id": IDENTIFIER})
+        sot = server.Server(id=IDENTIFIER)
 
         set_meta = {"lol": "rofl"}
 
@@ -74,7 +74,7 @@ class TestMetadata(testtools.TestCase):
         sess = mock.Mock()
         sess.delete.return_value = None
 
-        sot = server.Server({"id": IDENTIFIER})
+        sot = server.Server(id=IDENTIFIER)
 
         key = "hey"
 

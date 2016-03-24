@@ -39,15 +39,14 @@ class TestServerInterface(testtools.TestCase):
         self.assertEqual('/servers/%(server_id)s/os-interface', sot.base_path)
         self.assertEqual('compute', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = server_interface.ServerInterface(EXAMPLE)
+        sot = server_interface.ServerInterface(**EXAMPLE)
         self.assertEqual(EXAMPLE['fixed_ips'], sot.fixed_ips)
-        self.assertEqual(EXAMPLE['port_id'], sot.id)
         self.assertEqual(EXAMPLE['mac_addr'], sot.mac_addr)
         self.assertEqual(EXAMPLE['net_id'], sot.net_id)
         self.assertEqual(EXAMPLE['port_id'], sot.port_id)
