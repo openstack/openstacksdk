@@ -12,6 +12,7 @@
 
 
 from openstack.cluster import cluster_service
+from openstack import format
 from openstack import resource
 
 
@@ -39,9 +40,11 @@ class Action(resource.Resource):
     #: Interval in seconds between two consecutive executions.
     interval = resource.prop('interval')
     #: The time the action was started.
-    start_time = resource.prop('start_time')
+    #: *Type: datetime object parsed from a UNIX epoch*
+    start_at = resource.prop('start_time', type=format.UNIXEpoch)
     #: The time the action completed execution.
-    end_time = resource.prop('end_time')
+    #: *Type: datetime object parsed from a UNIX epoch*
+    end_at = resource.prop('end_time', type=format.UNIXEpoch)
     #: The timeout in seconds.
     timeout = resource.prop('timeout')
     #: Current status of the action.
@@ -58,6 +61,8 @@ class Action(resource.Resource):
     #: A list of actions that can start only after this action has finished.
     depended_by = resource.prop('depended_by', type=list)
     #: Timestamp when the action is created.
-    created_at = resource.prop('created_at')
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    created_at = resource.prop('created_at', type=format.ISO8601)
     #: Timestamp when the action was last updated.
-    updated_at = resource.prop('updated_at')
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    updated_at = resource.prop('updated_at', type=format.ISO8601)

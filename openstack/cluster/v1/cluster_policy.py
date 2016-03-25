@@ -36,7 +36,7 @@ class ClusterPolicy(resource.Resource):
     cluster_name = resource.prop('cluster_name')
     #: Type string of the policy.
     policy_type = resource.prop('policy_type')
-    #: Whether the policy is enabled on the cluster.
-    enabled = resource.prop('enabled')
+    #: Whether the policy is enabled on the cluster. *Type: bool*
+    is_enabled = resource.prop('enabled', type=bool)
     #: Data associated with the cluster-policy binding.
     data = resource.prop('data', type=dict)

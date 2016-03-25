@@ -48,7 +48,7 @@ class TestClusterPolicy(testtools.TestCase):
         self.assertEqual(FAKE['cluster_id'], sot.cluster_id)
         self.assertEqual(FAKE['cluster_name'], sot.cluster_name)
         self.assertEqual(FAKE['data'], sot.data)
-        self.assertEqual(FAKE['enabled'], sot.enabled)
+        self.assertTrue(sot.is_enabled)
         self.assertEqual(FAKE['policy_id'], sot.policy_id)
         self.assertEqual(FAKE['policy_name'], sot.policy_name)
         self.assertEqual(FAKE['policy_type'], sot.policy_type)

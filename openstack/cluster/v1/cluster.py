@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.cluster import cluster_service
+from openstack import format
 from openstack import resource
 from openstack import utils
 
@@ -43,11 +44,14 @@ class Cluster(resource.Resource):
     #: The ID of the parent cluster (if any).
     parent_id = resource.prop('parent')
     #: Timestamp of when the cluster was initialized.
-    init_at = resource.prop('init_at')
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    init_at = resource.prop('init_at', type=format.ISO8601)
     #: Timestamp of when the cluster was created.
-    created_at = resource.prop('created_at')
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    created_at = resource.prop('created_at', type=format.ISO8601)
     #: Timestamp of when the cluster was last updated.
-    updated_at = resource.prop('updated_at')
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    updated_at = resource.prop('updated_at', type=format.ISO8601)
     #: Lower bound (inclusive) for the size of the cluster.
     min_size = resource.prop('min_size', type=int)
     #: Upper bound (inclusive) for the size of the cluster. A value of

@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import testtools
 
 from openstack.cluster.v1 import profile
@@ -32,7 +34,9 @@ FAKE = {
             'name': 'cirros_server'
         }
     },
-    'type': 'os.nova.server'
+    'type': 'os.nova.server',
+    'created_at': '2015-10-10T12:46:36.000000',
+    'updated_at': '2016-10-10T12:46:36.000000',
 }
 
 
@@ -61,3 +65,9 @@ class TestProfile(testtools.TestCase):
         self.assertEqual(FAKE['metadata'], sot.metadata)
         self.assertEqual(FAKE['spec'], sot.spec)
         self.assertEqual(FAKE['type'], sot.type_name)
+        dt = datetime.datetime(2015, 10, 10, 12, 46, 36, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
+        dt = datetime.datetime(2016, 10, 10, 12, 46, 36, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))

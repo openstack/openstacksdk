@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import mock
 import testtools
 
@@ -28,14 +30,17 @@ FAKE = {
     'profile_id': 'myserver',
     'metadata': {},
     'timeout': None,
+    'init_at': '2015-10-10T12:46:36.000000',
+    'created_at': '2015-10-10T12:46:36.000000',
+    'updated_at': '2016-10-10T12:46:36.000000',
 }
 
 FAKE_CREATE_RESP = {
     'cluster': {
         'action': 'a679c926-908f-49e7-a822-06ca371e64e1',
-        'init_at': None,
-        'created_at': None,
-        'updated_at': None,
+        'init_at': '2015-10-10T12:46:36.000000',
+        'created_at': '2015-10-10T12:46:36.000000',
+        'updated_at': '2016-10-10T12:46:36.000000',
         'data': {},
         'desired_capacity': 1,
         'domain': None,
@@ -89,6 +94,16 @@ class TestCluster(testtools.TestCase):
 
         self.assertEqual(FAKE['timeout'], sot.timeout)
         self.assertEqual(FAKE['metadata'], sot.metadata)
+
+        dt = datetime.datetime(2015, 10, 10, 12, 46, 36, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.init_at.replace(tzinfo=None))
+        dt = datetime.datetime(2015, 10, 10, 12, 46, 36, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
+        dt = datetime.datetime(2016, 10, 10, 12, 46, 36, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
 
     def test_scale_in(self):
         sot = cluster.Cluster(FAKE)

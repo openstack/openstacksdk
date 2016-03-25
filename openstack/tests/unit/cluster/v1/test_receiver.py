@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import testtools
 
 from openstack.cluster.v1 import receiver
@@ -23,8 +25,8 @@ FAKE = {
     'type': 'webhook',
     'cluster_id': 'FAKE_CLUSTER',
     'action': 'CLUSTER_RESIZE',
-    'created_at': '2015-08-10T09:14:53',
-    'updated_at': None,
+    'created_at': '2015-10-10T12:46:36.000000',
+    'updated_at': '2016-10-10T12:46:36.000000',
     'actor': {},
     'params': {
         'adjustment_type': 'CHANGE_IN_CAPACITY',
@@ -64,8 +66,12 @@ class TestReceiver(testtools.TestCase):
         self.assertEqual(FAKE['cluster_id'], sot.cluster_id)
         self.assertEqual(FAKE['action'], sot.action)
         self.assertEqual(FAKE['params'], sot.params)
-        self.assertEqual(FAKE['created_at'], sot.created_at)
-        self.assertEqual(FAKE['updated_at'], sot.updated_at)
+        dt = datetime.datetime(2015, 10, 10, 12, 46, 36, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
+        dt = datetime.datetime(2016, 10, 10, 12, 46, 36, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
         self.assertEqual(FAKE['user'], sot.user_id)
         self.assertEqual(FAKE['project'], sot.project_id)
         self.assertEqual(FAKE['domain'], sot.domain_id)

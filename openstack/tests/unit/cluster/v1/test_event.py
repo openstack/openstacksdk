@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import testtools
 
 from openstack.cluster.v1 import event
@@ -28,7 +30,7 @@ FAKE = {
     'project': '42d9e9663331431f97b75e25136307ff',
     'status': 'START',
     'status_reason': 'The action was abandoned.',
-    'timestamp': '2015-10-03T03:35:09',
+    'timestamp': '2016-10-10T12:46:36.000000',
     'user': '5e5bf8027826429c96af157f68dc9072'
 }
 
@@ -61,5 +63,7 @@ class TestEvent(testtools.TestCase):
         self.assertEqual(FAKE['project'], sot.project_id)
         self.assertEqual(FAKE['status'], sot.status)
         self.assertEqual(FAKE['status_reason'], sot.status_reason)
-        self.assertEqual(FAKE['timestamp'], sot.timestamp)
+        dt = datetime.datetime(2016, 10, 10, 12, 46, 36, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.timestamp.replace(tzinfo=None))
         self.assertEqual(FAKE['user'], sot.user_id)

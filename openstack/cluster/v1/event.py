@@ -12,6 +12,7 @@
 
 
 from openstack.cluster import cluster_service
+from openstack import format
 from openstack import resource
 
 
@@ -27,7 +28,7 @@ class Event(resource.Resource):
 
     # Properties
     id = resource.prop('id')
-    timestamp = resource.prop('timestamp')
+    timestamp = resource.prop('timestamp', type=format.ISO8601)
     obj_id = resource.prop('obj_id')
     obj_name = resource.prop('obj_name')
     obj_type = resource.prop('obj_type')

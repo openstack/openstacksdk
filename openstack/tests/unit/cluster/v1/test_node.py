@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import mock
 import testtools
 
@@ -27,6 +29,9 @@ FAKE = {
     'profile_id': 'myserver',
     'index': 1,
     'role': 'master',
+    'created_at': '2015-10-10T12:46:36.000000',
+    'updated_at': '2016-10-10T12:46:36.000000',
+    'init_at': '2015-10-10T12:46:36.000000',
 }
 
 FAKE_CREATE_RESP = {
@@ -35,12 +40,12 @@ FAKE_CREATE_RESP = {
         'name': FAKE_NAME,
         'cluster_id': '99001122-aabb-ccdd-ffff-efdcab124567',
         'action': '1122aabb-eeff-7755-2222-00991234dcba',
-        'created_at': None,
-        'updated_at': None,
+        'created_at': '2015-10-10T12:46:36.000000',
+        'updated_at': '2016-10-10T12:46:36.000000',
         'data': {},
         'role': 'master',
         'index': 1,
-        'init_time': None,
+        'init_at': '2015-10-10T12:46:36.000000',
         'metadata': {},
         'profile_id': '560a8f9d-7596-4a32-85e8-03645fa7be13',
         'profile_name': 'myserver',
@@ -78,6 +83,15 @@ class TestNode(testtools.TestCase):
         self.assertEqual(FAKE['index'], sot.index)
         self.assertEqual(FAKE['role'], sot.role)
         self.assertEqual(FAKE['metadata'], sot.metadata)
+        dt = datetime.datetime(2015, 10, 10, 12, 46, 36, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.init_at.replace(tzinfo=None))
+        dt = datetime.datetime(2015, 10, 10, 12, 46, 36, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
+        dt = datetime.datetime(2016, 10, 10, 12, 46, 36, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
 
     def test_check(self):
         sot = node.Node(FAKE)

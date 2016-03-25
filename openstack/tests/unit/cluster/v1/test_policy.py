@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import testtools
 
 from openstack.cluster.v1 import policy
@@ -31,8 +33,8 @@ FAKE = {
         }
     },
     'type': 'senlin.policy.deletion-1.0',
-    'created_at': '2015-08-10T09:14:53',
-    'updated_at': None,
+    'created_at': '2015-10-10T12:46:36.000000',
+    'updated_at': '2016-10-10T12:46:36.000000',
     'data': {},
 }
 
@@ -60,5 +62,9 @@ class TestPolicy(testtools.TestCase):
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['spec'], sot.spec)
         self.assertEqual(FAKE['data'], sot.data)
-        self.assertEqual(FAKE['created_at'], sot.created_at)
-        self.assertEqual(FAKE['updated_at'], sot.updated_at)
+        dt = datetime.datetime(2015, 10, 10, 12, 46, 36, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
+        dt = datetime.datetime(2016, 10, 10, 12, 46, 36, 000000).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
