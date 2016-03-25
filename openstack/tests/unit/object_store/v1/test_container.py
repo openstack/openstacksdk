@@ -138,7 +138,7 @@ class TestContainer(testtools.TestCase):
     def _test_create_update(self, sot, sot_call, sess_method):
         sot.read_ACL = "some ACL"
         sot.write_ACL = "another ACL"
-        sot.detect_content_type = True
+        sot.is_content_type_detected = True
         headers = {
             "x-container-read": "some ACL",
             "x-container-write": "another ACL",

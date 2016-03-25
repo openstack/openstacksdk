@@ -40,4 +40,5 @@ class Account(_base.BaseResource):
     #: this header is not returned by this operation.
     meta_temp_url_key_2 = resource.header("x-account-meta-temp-url-key-2")
     #: The timestamp of the transaction.
+    #: *Type: datetime object parsed from a UNIX epoch*
     timestamp = resource.header("x-timestamp", type=format.UNIXEpoch)
