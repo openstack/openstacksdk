@@ -85,8 +85,9 @@ class FakeProject(object):
 class FakeServer(object):
     def __init__(
             self, id, name, status, addresses=None,
-            accessIPv4='', accessIPv6='', flavor=None, image=None,
-            adminPass=None):
+            accessIPv4='', accessIPv6='', private_v4='',
+            private_v6='', public_v4='', public_v6='',
+            flavor=None, image=None, adminPass=None):
         self.id = id
         self.name = name
         self.status = status
@@ -102,6 +103,10 @@ class FakeServer(object):
         self.image = image
         self.accessIPv4 = accessIPv4
         self.accessIPv6 = accessIPv6
+        self.private_v4 = private_v4
+        self.public_v4 = public_v4
+        self.private_v6 = private_v6
+        self.public_v6 = public_v6
         self.adminPass = adminPass
 
 
