@@ -61,7 +61,7 @@ class TestRouter(testtools.TestCase):
 
     def test_make_it(self):
         sot = router.Router(EXAMPLE)
-        self.assertEqual(EXAMPLE['admin_state_up'], sot.admin_state_up)
+        self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['external_gateway_info'],
                          sot.external_gateway_info)
         self.assertEqual(EXAMPLE['id'], sot.id)
@@ -78,17 +78,15 @@ class TestRouter(testtools.TestCase):
 
     def test_make_it_with_optional(self):
         sot = router.Router(EXAMPLE_WITH_OPTIONAL)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['admin_state_up'],
-                         sot.admin_state_up)
+        self.assertFalse(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['external_gateway_info'],
                          sot.external_gateway_info)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['id'], sot.id)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['name'], sot.name)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['status'], sot.status)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['ha'], sot.is_ha)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['distributed'],
-                         sot.is_distributed)
+        self.assertTrue(sot.is_ha)
+        self.assertTrue(sot.is_distributed)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['routes'], sot.routes)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['availability_zone_hints'],
                          sot.availability_zone_hints)

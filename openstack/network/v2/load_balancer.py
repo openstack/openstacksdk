@@ -28,11 +28,11 @@ class LoadBalancer(resource.Resource):
     allow_list = True
 
     # Properties
-    #: The administrative state of the load balancer, which is up
-    #: ``True`` or down ``False``. *Type: bool*
-    admin_state_up = resource.prop('admin_state_up', type=bool)
     #: Description for the load balancer.
     description = resource.prop('description')
+    #: The administrative state of the load balancer, which is up
+    #: ``True`` or down ``False``. *Type: bool*
+    is_admin_state_up = resource.prop('admin_state_up', type=bool)
     #: List of listeners associated with this load balancer.
     #: *Type: list of dicts which contain the listener IDs*
     listener_ids = resource.prop('listeners', type=list)

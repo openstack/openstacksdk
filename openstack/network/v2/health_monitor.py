@@ -28,15 +28,15 @@ class HealthMonitor(resource.Resource):
     allow_list = True
 
     # Properties
-    #: The administrative state of the health monitor, which is up
-    #: ``True`` or down ``False``. *Type: bool*
-    admin_state_up = resource.prop('admin_state_up', type=bool)
     #: The time, in seconds, between sending probes to members.
     delay = resource.prop('delay')
     #: Expected HTTP codes for a passing HTTP(S) monitor.
     expected_codes = resource.prop('expected_codes')
     #: The HTTP method that the monitor uses for requests.
     http_method = resource.prop('http_method')
+    #: The administrative state of the health monitor, which is up
+    #: ``True`` or down ``False``. *Type: bool*
+    is_admin_state_up = resource.prop('admin_state_up', type=bool)
     #: Maximum consecutive health probe tries.
     max_retries = resource.prop('max_retries')
     #: List of pools associated with this health monitor

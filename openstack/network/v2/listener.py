@@ -28,9 +28,6 @@ class Listener(resource.Resource):
     allow_list = True
 
     # Properties
-    #: The administrative state of the listener, which is up
-    #: ``True`` or down ``False``. *Type: bool*
-    admin_state_up = resource.prop('admin_state_up', type=bool)
     #: The maximum number of connections permitted for this load balancer.
     #: Default is infinite.
     connection_limit = resource.prop('connection_limit')
@@ -40,6 +37,9 @@ class Listener(resource.Resource):
     default_tls_container_ref = resource.prop('default_tls_container_ref')
     #: Description for the listener.
     description = resource.prop('description')
+    #: The administrative state of the listener, which is up
+    #: ``True`` or down ``False``. *Type: bool*
+    is_admin_state_up = resource.prop('admin_state_up', type=bool)
     #: List of load balancers associated with this listener.
     #: *Type: list of dicts which contain the load balancer IDs*
     load_balancer_ids = resource.prop('loadbalancers')

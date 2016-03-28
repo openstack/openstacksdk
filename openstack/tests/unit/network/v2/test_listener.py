@@ -47,7 +47,7 @@ class TestListener(testtools.TestCase):
 
     def test_make_it(self):
         sot = listener.Listener(EXAMPLE)
-        self.assertEqual(EXAMPLE['admin_state_up'], sot.admin_state_up)
+        self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['connection_limit'], sot.connection_limit)
         self.assertEqual(EXAMPLE['default_pool_id'], sot.default_pool_id)
         self.assertEqual(EXAMPLE['description'], sot.description)

@@ -32,7 +32,7 @@ class PoolMember(resource.Resource):
     address = resource.prop('address')
     #: The administrative state of the pool member, which is up ``True`` or
     #: down ``False``. *Type: bool*
-    admin_state_up = resource.prop('admin_state_up', type=bool)
+    is_admin_state_up = resource.prop('admin_state_up', type=bool)
     #: The ID of the project this pool member is associated with.
     project_id = resource.prop('tenant_id')
     #: The port on which the application is hosted.

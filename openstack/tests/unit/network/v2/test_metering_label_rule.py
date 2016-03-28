@@ -41,7 +41,7 @@ class TestMeteringLabelRule(testtools.TestCase):
     def test_make_it(self):
         sot = metering_label_rule.MeteringLabelRule(EXAMPLE)
         self.assertEqual(EXAMPLE['direction'], sot.direction)
-        self.assertEqual(EXAMPLE['excluded'], sot.excluded)
+        self.assertFalse(sot.is_excluded)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['metering_label_id'], sot.metering_label_id)
         self.assertEqual(EXAMPLE['remote_ip_prefix'], sot.remote_ip_prefix)
