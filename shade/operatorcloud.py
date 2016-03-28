@@ -1598,7 +1598,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param string user: The name or id of the user.
         :param string group: The name or id of the group. (v3)
         :param string project: The name or id of the project.
-        :param string domain: The name or id of the domain. (v3)
+        :param string domain: The id of the domain. (v3)
         :param bool wait: Wait for role to be granted
         :param int timeout: Timeout to wait for role to be granted
 
