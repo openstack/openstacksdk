@@ -111,8 +111,9 @@ class Proxy(proxy.BaseProxy):
                                 metadata are keys defined by the Object Store
                                 and values defined by the user. The system
                                 metadata keys are:
+
                                 - `content_type`
-                                - `detect_content_type`
+                                - `is_content_type_detected`
                                 - `versions_location`
                                 - `read_ACL`
                                 - `write_ACL`
@@ -282,12 +283,13 @@ class Proxy(proxy.BaseProxy):
                                 metadata are keys defined by the Object Store
                                 and values defined by the user. The system
                                 metadata keys are:
+
                                 - `content_type`
                                 - `content_encoding`
                                 - `content_disposition`
-                                - `detect_content_type`
                                 - `delete_after`
                                 - `delete_at`
+                                - `is_content_type_detected`
         """
         container_name = self._get_container_name(obj, container)
         res = self._get_resource(_obj.Object, obj,

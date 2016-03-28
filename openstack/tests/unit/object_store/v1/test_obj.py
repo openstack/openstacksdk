@@ -96,7 +96,7 @@ class TestObject(testtools.TestCase):
         headers = DICT_EXAMPLE['headers']
         self.assertEqual(headers['content-length'], sot.content_length)
         self.assertEqual(headers['accept-ranges'], sot.accept_ranges)
-        self.assertEqual(headers['last-modified'], sot.last_modified)
+        self.assertEqual(headers['last-modified'], sot.last_modified_at)
         self.assertEqual(headers['etag'], sot.etag)
         self.assertEqual(datetime(2016, 1, 21, 22, 10, 56, 281120,
                                   tzinfo=iso8601.UTC),
@@ -108,7 +108,7 @@ class TestObject(testtools.TestCase):
 
     def test_get(self):
         sot = obj.Object.new(container=CONTAINER_NAME, name=OBJECT_NAME)
-        sot.newest = True
+        sot.is_newest = True
         sot.if_match = {"who": "what"}
 
         rv = sot.get(self.sess)
@@ -127,7 +127,7 @@ class TestObject(testtools.TestCase):
     def _test_create(self, method, data, accept):
         sot = obj.Object.new(container=CONTAINER_NAME, name=OBJECT_NAME,
                              data=data)
-        sot.newest = True
+        sot.is_newest = True
         headers = {"x-newest": True, "Accept": ""}
 
         rv = sot.create(self.sess)

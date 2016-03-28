@@ -20,7 +20,7 @@ class Container(_base.BaseResource):
     _custom_metadata_prefix = "X-Container-Meta-"
     _system_metadata = {
         "content_type": "content-type",
-        "detect_content_type": "x-detect-content-type",
+        "is_content_type_detected": "x-detect-content-type",
         "versions_location": "x-versions-location",
         "read_ACL": "x-container-read",
         "write_ACL": "x-container-write",
@@ -53,6 +53,7 @@ class Container(_base.BaseResource):
     #: The count of bytes used in total.
     bytes_used = resource.header("x-container-bytes-used", type=int)
     #: The timestamp of the transaction.
+    #: *Type: datetime object parsed from a UNIX epoch*
     timestamp = resource.header("x-timestamp", type=format.UNIXEpoch)
 
     # Request headers (when id=None)
@@ -60,8 +61,8 @@ class Container(_base.BaseResource):
     #: most recent one. If you omit this header, Object Storage responds
     #: faster after it finds one valid replica. Because setting this
     #: header to True is more expensive for the back end, use it only
-    #: when it is absolutely needed.
-    newest = resource.header("x-newest", type=bool)
+    #: when it is absolutely needed. *Type: bool*
+    is_newest = resource.header("x-newest", type=bool)
 
     # Request headers (when id=name)
     #: The ACL that grants read access. If not set, this header is not
@@ -85,8 +86,9 @@ class Container(_base.BaseResource):
     content_type = resource.header("content-type")
     #: If set to true, Object Storage guesses the content type based
     #: on the file extension and ignores the value sent in the
-    #: Content-Type header, if present.
-    detect_content_type = resource.header("x-detect-content-type", type=bool)
+    #: Content-Type header, if present. *Type: bool*
+    is_content_type_detected = resource.header("x-detect-content-type",
+                                               type=bool)
     #: In combination with Expect: 100-Continue, specify an
     #: "If-None-Match: \*" header to query whether the server already
     #: has a copy of the object before any data is sent.

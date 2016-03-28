@@ -25,9 +25,9 @@ class Object(_base.BaseResource):
         "content_disposition": "content-disposition",
         "content_encoding": "content-encoding",
         "content_type": "content-type",
-        "detect_content_type": "x-detect-content-type",
         "delete_after": "x-delete-after",
-        "delete_at": "x-delete-at"
+        "delete_at": "x-delete-at",
+        "is_content_type_detected": "x-detect-content-type",
     }
 
     base_path = "/%(container)s"
@@ -59,8 +59,8 @@ class Object(_base.BaseResource):
     #: the most recent one. If you omit this header, Object Storage
     #: responds faster after it finds one valid replica. Because
     #: setting this header to True is more expensive for the back end,
-    #: use it only when it is absolutely needed.
-    newest = resource.header("x-newest", type=bool)
+    #: use it only when it is absolutely needed. *Type: bool*
+    is_newest = resource.header("x-newest", type=bool)
     #: TODO(briancurtin) there's a lot of content here...
     range = resource.header("range", type=dict)
     #: See http://www.ietf.org/rfc/rfc2616.txt.
@@ -82,7 +82,8 @@ class Object(_base.BaseResource):
     #: Used with temporary URLs to specify the expiry time of the
     #: signature. For more information about temporary URLs, see
     #: OpenStack Object Storage API v1 Reference.
-    expires = resource.header("expires")
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    expires_at = resource.header("expires", type=format.ISO8601)
     #: If you include the multipart-manifest=get query parameter and
     #: the object is a large object, the object contents are not
     #: returned. Instead, the manifest is returned in the
@@ -113,7 +114,9 @@ class Object(_base.BaseResource):
     #: was corrupted, so retry the operation.
     etag = resource.header("etag")
     #: Set to True if this object is a static large object manifest object.
-    is_static_large_object = resource.header("x-static-large-object")
+    #: *Type: bool*
+    is_static_large_object = resource.header("x-static-large-object",
+                                             type=bool)
     #: If set, the value of the Content-Encoding metadata.
     #: If not set, this header is not returned by this operation.
     content_encoding = resource.header("content-encoding")
@@ -130,16 +133,18 @@ class Object(_base.BaseResource):
     #: If set, the time when the object will be deleted by the system
     #: in the format of a UNIX Epoch timestamp.
     #: If not set, this header is not returned by this operation.
+    #: *Type: datetime object parsed from a UNIX epoch*
     delete_at = resource.header("x-delete-at", type=format.UNIXEpoch)
     #: If set, to this is a dynamic large object manifest object.
     #: The value is the container and object name prefix of the
     #: segment objects in the form container/prefix.
     object_manifest = resource.header("x-object-manifest")
     #: The timestamp of the transaction.
+    #: *Type: datetime object parsed from a UNIX epoch*
     timestamp = resource.header("x-timestamp", type=format.UNIXEpoch)
     #: The date and time that the object was created or the last
     #: time that the metadata was changed.
-    last_modified = resource.header("last_modified", alias="last-modified")
+    last_modified_at = resource.header("last_modified", alias="last-modified")
 
     # Headers for PUT and POST requests
     #: Set to chunked to enable chunked transfer encoding. If used,
@@ -147,8 +152,9 @@ class Object(_base.BaseResource):
     transfer_encoding = resource.header("transfer-encoding")
     #: If set to true, Object Storage guesses the content type based
     #: on the file extension and ignores the value sent in the
-    #: Content-Type header, if present.
-    detect_content_type = resource.header("x-detect-content-type", type=bool)
+    #: Content-Type header, if present. *Type: bool*
+    is_content_type_detected = resource.header("x-detect-content-type",
+                                               type=bool)
     #: If set, this is the name of an object used to create the new
     #: object by copying the X-Copy-From object. The value is in form
     #: {container}/{object}. You must UTF-8-encode and then URL-encode
