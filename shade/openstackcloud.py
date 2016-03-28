@@ -2065,20 +2065,30 @@ class OpenStackCloud(object):
             return image.id
         return None
 
-    def create_image_snapshot(self, name, server, wait=False, timeout=3600,
-                              **metadata):
+    def create_image_snapshot(
+            self, name, server, wait=False, timeout=3600, **metadata):
         image_id = str(self.manager.submitTask(_tasks.ImageSnapshotCreate(
             image_name=name, server=server, metadata=metadata)))
         self.list_images.invalidate(self)
+        image = self.get_image(image_id)
+
         if not wait:
-            return self.get_image(image_id)
-        for count in _utils._iterate_timeout(timeout,
-                                             "Timeout waiting for image to "
-                                             "snapshot"):
+            return image
+        return self.wait_for_image(image, timeout=timeout)
+
+    def wait_for_image(self, image, timeout=3600):
+        image_id = image['id']
+        for count in _utils._iterate_timeout(
+                timeout, "Timeout waiting for image to snapshot"):
             self.list_images.invalidate(self)
             image = self.get_image(image_id)
+            if not image:
+                continue
             if image['status'] == 'active':
                 return image
+            elif image['status'] == 'error':
+                raise OpenStackCloudException(
+                    'Image {image} hit error state'.format(image=image_id))
 
     def delete_image(self, name_or_id, wait=False, timeout=3600):
         image = self.get_image(name_or_id)
