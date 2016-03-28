@@ -1,0 +1,7 @@
+---
+features:
+  - Adds a new pair of options to create_image_snapshot(), wait and timeout,
+    to have the function wait until the image snapshot being created goes
+    into an active state.
+  - Adds a new function wait_for_image() which will wait for an image to go
+    into an active state.
