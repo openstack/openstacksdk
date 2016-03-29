@@ -182,6 +182,8 @@ class OpenStackCloud(object):
         self._servers_time = 0
         self._servers_lock = threading.Lock()
 
+        self._networks_lock = threading.Lock()
+
         cache_expiration_time = int(cloud_config.get_cache_expiration_time())
         cache_class = cloud_config.get_cache_class()
         cache_arguments = cloud_config.get_cache_arguments()
@@ -1396,22 +1398,25 @@ class OpenStackCloud(object):
 
         :returns: A list of network dicts if one is found
         """
-        _all_networks = self._get_network(
-            self._external_network_name_or_id,
-            self.use_external_network,
-            self._external_networks,
-            self._external_network_stamp,
-            filters=None)
-        # Filter locally because we have an or condition
-        _external_networks = []
-        for network in _all_networks:
-            if (('router:external' in network
-                    and network['router:external']) or
-                    'provider:network_type' in network):
-                _external_networks.append(network)
-        # TODO(mordred): This needs to be mutex protected
-        self._external_networks = _external_networks
-        self._external_network_stamp = True
+        if self._networks_lock.acquire():
+            try:
+                _all_networks = self._get_network(
+                    self._external_network_name_or_id,
+                    self.use_external_network,
+                    self._external_networks,
+                    self._external_network_stamp,
+                    filters=None)
+                # Filter locally because we have an or condition
+                _external_networks = []
+                for network in _all_networks:
+                    if (('router:external' in network
+                            and network['router:external']) or
+                            'provider:network_type' in network):
+                        _external_networks.append(network)
+                self._external_networks = _external_networks
+                self._external_network_stamp = True
+            finally:
+                self._networks_lock.release()
         return self._external_networks
 
     def get_internal_networks(self):
@@ -1420,21 +1425,24 @@ class OpenStackCloud(object):
         :returns: A list of network dicts if one is found
         """
         # Just router:external False is not enough.
-        _all_networks = self._get_network(
-            self._internal_network_name_or_id,
-            self.use_internal_network,
-            self._internal_networks,
-            self._internal_network_stamp,
-            filters={
-                'router:external': False,
-            })
-        _internal_networks = []
-        for network in _all_networks:
-            if 'provider:network_type' not in network:
-                _internal_networks.append(network)
-        # TODO(mordred): This needs to be mutex protected
-        self._internal_networks = _internal_networks
-        self._internal_network_stamp = True
+        if self._networks_lock.acquire():
+            try:
+                _all_networks = self._get_network(
+                    self._internal_network_name_or_id,
+                    self.use_internal_network,
+                    self._internal_networks,
+                    self._internal_network_stamp,
+                    filters={
+                        'router:external': False,
+                    })
+                _internal_networks = []
+                for network in _all_networks:
+                    if 'provider:network_type' not in network:
+                        _internal_networks.append(network)
+                self._internal_networks = _internal_networks
+                self._internal_network_stamp = True
+            finally:
+                self._networks_lock.release()
         return self._internal_networks
 
     def get_keypair(self, name_or_id, filters=None):
