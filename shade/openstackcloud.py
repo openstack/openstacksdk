@@ -174,7 +174,9 @@ class OpenStackCloud(object):
             self.log.debug(
                 "Turning off Insecure SSL warnings since verify=False")
             category = requestsexceptions.InsecureRequestWarning
-            warnings.filterwarnings('ignore', category=category)
+            if category:
+                # InsecureRequestWarning references a Warning class or is None
+                warnings.filterwarnings('ignore', category=category)
 
         self._servers = []
         self._servers_time = 0
