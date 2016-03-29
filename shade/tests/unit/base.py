@@ -18,6 +18,7 @@
 import time
 
 import fixtures
+import os
 import os_client_config as occ
 import tempfile
 
@@ -56,10 +57,21 @@ class TestCase(base.TestCase):
         vendor.write(b'{}')
         vendor.close()
 
+        # set record mode depending on environment
+        record_mode = os.environ.get('BETAMAX_RECORD_FIXTURES', False)
+        if record_mode:
+            self.record_fixtures = 'new_episodes'
+        else:
+            self.record_fixtures = None
+
+        test_cloud = os.environ.get('SHADE_OS_CLOUD', '_test_cloud_')
         self.config = occ.OpenStackConfig(
             config_files=[config.name],
             vendor_files=[vendor.name])
-        self.cloud_config = self.config.get_one_cloud(cloud='_test_cloud_')
+        self.cloud_config = self.config.get_one_cloud(cloud=test_cloud)
         self.cloud = shade.OpenStackCloud(
+            cloud_config=self.cloud_config,
+            log_inner_exceptions=True)
+        self.op_cloud = shade.OperatorCloud(
             cloud_config=self.cloud_config,
             log_inner_exceptions=True)
