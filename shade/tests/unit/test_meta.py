@@ -210,7 +210,8 @@ class TestMeta(base.TestCase):
         mock_has_service.return_value = True
         mock_search_networks.return_value = [{
             'id': 'test-net-id',
-            'name': 'test-net'
+            'name': 'test-net',
+            'router:external': True,
         }]
 
         srv = meta.obj_to_dict(fakes.FakeServer(
@@ -222,6 +223,52 @@ class TestMeta(base.TestCase):
         ip = meta.get_server_external_ipv4(cloud=self.cloud, server=srv)
 
         self.assertEqual(PUBLIC_V4, ip)
+
+    @mock.patch.object(shade.OpenStackCloud, 'has_service')
+    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
+    def test_get_server_external_provider_ipv4_neutron(
+            self, mock_search_networks,
+            mock_has_service):
+        # Testing Clouds with Neutron
+        mock_has_service.return_value = True
+        mock_search_networks.return_value = [{
+            'id': 'test-net-id',
+            'name': 'test-net',
+            'provider:network_type': 'vlan',
+        }]
+
+        srv = meta.obj_to_dict(fakes.FakeServer(
+            id='test-id', name='test-name', status='ACTIVE',
+            addresses={'test-net': [{
+                'addr': PUBLIC_V4,
+                'version': 4}]},
+        ))
+        ip = meta.get_server_external_ipv4(cloud=self.cloud, server=srv)
+
+        self.assertEqual(PUBLIC_V4, ip)
+
+    @mock.patch.object(shade.OpenStackCloud, 'has_service')
+    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
+    def test_get_server_external_none_ipv4_neutron(
+            self, mock_search_networks,
+            mock_has_service):
+        # Testing Clouds with Neutron
+        mock_has_service.return_value = True
+        mock_search_networks.return_value = [{
+            'id': 'test-net-id',
+            'name': 'test-net',
+            'router:external': False,
+        }]
+
+        srv = meta.obj_to_dict(fakes.FakeServer(
+            id='test-id', name='test-name', status='ACTIVE',
+            addresses={'test-net': [{
+                'addr': PUBLIC_V4,
+                'version': 4}]},
+        ))
+        ip = meta.get_server_external_ipv4(cloud=self.cloud, server=srv)
+
+        self.assertEqual(None, ip)
 
     def test_get_server_external_ipv4_neutron_accessIPv4(self):
         srv = meta.obj_to_dict(fakes.FakeServer(
