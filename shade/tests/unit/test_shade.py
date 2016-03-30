@@ -567,21 +567,24 @@ class TestShade(base.TestCase):
                               self.cloud.list_networks)
 
     @mock.patch.object(shade._tasks.ServerList, 'main')
-    def test_list_servers(self, mock_serverlist):
+    @mock.patch('shade.meta.add_server_interfaces')
+    def test_list_servers(self, mock_add_srv_int, mock_serverlist):
         '''This test verifies that calling list_servers results in a call
         to the ServerList task.'''
-        mock_serverlist.return_value = [
-            munch.Munch({'name': 'testserver',
-                         'id': '1',
-                         'flavor': {},
-                         'addresses': {},
-                         'accessIPv4': '',
-                         'accessIPv6': '',
-                         'image': ''})
-        ]
+        server_obj = munch.Munch({'name': 'testserver',
+                                  'id': '1',
+                                  'flavor': {},
+                                  'addresses': {},
+                                  'accessIPv4': '',
+                                  'accessIPv6': '',
+                                  'image': ''})
+        mock_serverlist.return_value = [server_obj]
+        mock_add_srv_int.side_effect = [server_obj]
 
         r = self.cloud.list_servers()
+
         self.assertEquals(1, len(r))
+        self.assertEquals(1, mock_add_srv_int.call_count)
         self.assertEquals('testserver', r[0]['name'])
 
     @mock.patch.object(shade._tasks.ServerList, 'main')
