@@ -65,19 +65,22 @@ class FakeCloud(object):
         return []
 
 
-class FakeServer(object):
-    id = 'test-id-0'
-    metadata = {'group': 'test-group'}
-    addresses = {'private': [{'OS-EXT-IPS:type': 'fixed',
-                              'addr': PRIVATE_V4,
-                              'version': 4}],
-                 'public': [{'OS-EXT-IPS:type': 'floating',
-                             'addr': PUBLIC_V4,
-                             'version': 4}]}
-    flavor = {'id': '101'}
-    image = {'id': '471c2475-da2f-47ac-aba5-cb4aa3d546f5'}
-    accessIPv4 = ''
-    accessIPv6 = ''
+standard_fake_server = fakes.FakeServer(
+    id='test-id-0',
+    name='test-id-0',
+    status='ACTIVE',
+    metadata={'group': 'test-group'},
+    addresses={'private': [{'OS-EXT-IPS:type': 'fixed',
+                            'addr': PRIVATE_V4,
+                            'version': 4}],
+               'public': [{'OS-EXT-IPS:type': 'floating',
+                           'addr': PUBLIC_V4,
+                           'version': 4}]},
+    flavor={'id': '101'},
+    image={'id': '471c2475-da2f-47ac-aba5-cb4aa3d546f5'},
+    accessIPv4='',
+    accessIPv6='',
+)
 
 
 class TestMeta(base.TestCase):
@@ -121,7 +124,7 @@ class TestMeta(base.TestCase):
             addrs, key_name='public', ext_tag='fixed', version=6))
 
     def test_get_server_ip(self):
-        srv = meta.obj_to_dict(FakeServer())
+        srv = meta.obj_to_dict(standard_fake_server)
         self.assertEqual(
             PRIVATE_V4, meta.get_server_private_ip(srv, self.cloud))
         self.assertEqual(
@@ -317,7 +320,11 @@ class TestMeta(base.TestCase):
              'test-region_test-az',
              'test-name_test-region_test-az'],
             meta.get_groups_from_server(
-                FakeCloud(), meta.obj_to_dict(FakeServer()), server_vars))
+                FakeCloud(),
+                meta.obj_to_dict(standard_fake_server),
+                server_vars
+            )
+        )
 
     def test_obj_list_to_dict(self):
         """Test conversion of a list of objects to a list of dictonaries"""
@@ -342,7 +349,7 @@ class TestMeta(base.TestCase):
         mock_list_server_security_groups.return_value = [
             {'name': 'testgroup', 'id': '1'}]
 
-        server = meta.obj_to_dict(FakeServer())
+        server = meta.obj_to_dict(standard_fake_server)
         hostvars = meta.get_hostvars_from_server(FakeCloud(), server)
 
         mock_list_server_security_groups.assert_called_once_with(server)
@@ -359,7 +366,7 @@ class TestMeta(base.TestCase):
 
         hostvars = meta.get_hostvars_from_server(
             FakeCloud(), _utils.normalize_server(
-                meta.obj_to_dict(FakeServer()),
+                meta.obj_to_dict(standard_fake_server),
                 cloud_name='CLOUD_NAME',
                 region_name='REGION_NAME'))
         self.assertNotIn('links', hostvars)
@@ -370,9 +377,11 @@ class TestMeta(base.TestCase):
         self.assertEquals('REGION_NAME', hostvars['region'])
         self.assertEquals('CLOUD_NAME', hostvars['cloud'])
         self.assertEquals("test-image-name", hostvars['image']['name'])
-        self.assertEquals(FakeServer.image['id'], hostvars['image']['id'])
+        self.assertEquals(standard_fake_server.image['id'],
+                          hostvars['image']['id'])
         self.assertNotIn('links', hostvars['image'])
-        self.assertEquals(FakeServer.flavor['id'], hostvars['flavor']['id'])
+        self.assertEquals(standard_fake_server.flavor['id'],
+                          hostvars['flavor']['id'])
         self.assertEquals("test-flavor-name", hostvars['flavor']['name'])
         self.assertNotIn('links', hostvars['flavor'])
         # test having volumes
@@ -390,7 +399,7 @@ class TestMeta(base.TestCase):
         fake_cloud = FakeCloud()
         fake_cloud.force_ipv4 = True
         hostvars = meta.get_hostvars_from_server(
-            fake_cloud, meta.obj_to_dict(FakeServer()))
+            fake_cloud, meta.obj_to_dict(standard_fake_server))
         self.assertEqual(PUBLIC_V4, hostvars['interface_ip'])
 
     @mock.patch.object(shade.meta, 'get_server_external_ipv4')
@@ -400,21 +409,21 @@ class TestMeta(base.TestCase):
         cloud = FakeCloud()
         cloud.private = True
         hostvars = meta.get_hostvars_from_server(
-            cloud, meta.obj_to_dict(FakeServer()))
+            cloud, meta.obj_to_dict(standard_fake_server))
         self.assertEqual(PRIVATE_V4, hostvars['interface_ip'])
 
     @mock.patch.object(shade.meta, 'get_server_external_ipv4')
     def test_image_string(self, mock_get_server_external_ipv4):
         mock_get_server_external_ipv4.return_value = PUBLIC_V4
 
-        server = FakeServer()
+        server = standard_fake_server
         server.image = 'fake-image-id'
         hostvars = meta.get_hostvars_from_server(
             FakeCloud(), meta.obj_to_dict(server))
         self.assertEquals('fake-image-id', hostvars['image']['id'])
 
     def test_az(self):
-        server = FakeServer()
+        server = standard_fake_server
         server.__dict__['OS-EXT-AZ:availability_zone'] = 'az1'
 
         hostvars = _utils.normalize_server(
@@ -433,7 +442,7 @@ class TestMeta(base.TestCase):
         fake_volume_dict = meta.obj_to_dict(fake_volume)
         mock_cloud.get_volumes.return_value = [fake_volume_dict]
         hostvars = meta.get_hostvars_from_server(
-            mock_cloud, meta.obj_to_dict(FakeServer()))
+            mock_cloud, meta.obj_to_dict(standard_fake_server))
         self.assertEquals('volume1', hostvars['volumes'][0]['id'])
         self.assertEquals('/dev/sda0', hostvars['volumes'][0]['device'])
 
@@ -441,7 +450,7 @@ class TestMeta(base.TestCase):
         fake_cloud = FakeCloud()
         fake_cloud.service_val = False
         hostvars = meta.get_hostvars_from_server(
-            fake_cloud, meta.obj_to_dict(FakeServer()))
+            fake_cloud, meta.obj_to_dict(standard_fake_server))
         self.assertEquals([], hostvars['volumes'])
 
     def test_unknown_volume_exception(self):
@@ -457,11 +466,11 @@ class TestMeta(base.TestCase):
             FakeException,
             meta.get_hostvars_from_server,
             mock_cloud,
-            meta.obj_to_dict(FakeServer()))
+            meta.obj_to_dict(standard_fake_server))
 
     def test_obj_to_dict(self):
         cloud = FakeCloud()
-        cloud.server = FakeServer()
+        cloud.server = standard_fake_server
         cloud_dict = meta.obj_to_dict(cloud)
         self.assertEqual(FakeCloud.name, cloud_dict['name'])
         self.assertNotIn('_unused', cloud_dict)
