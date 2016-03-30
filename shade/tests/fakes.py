@@ -87,7 +87,8 @@ class FakeServer(object):
             self, id, name, status, addresses=None,
             accessIPv4='', accessIPv6='', private_v4='',
             private_v6='', public_v4='', public_v6='',
-            flavor=None, image=None, adminPass=None):
+            flavor=None, image=None, adminPass=None,
+            metadata=None):
         self.id = id
         self.name = name
         self.status = status
@@ -108,6 +109,7 @@ class FakeServer(object):
         self.private_v6 = private_v6
         self.public_v6 = public_v6
         self.adminPass = adminPass
+        self.metadata = metadata
 
 
 class FakeService(object):
