@@ -142,23 +142,15 @@ class OpenStackCloud(object):
         self.secgroup_source = cloud_config.config['secgroup_source']
         self.force_ipv4 = cloud_config.force_ipv4
 
-        self._external_networks = []
         self._external_network_name_or_id = cloud_config.config.get(
             'external_network', None)
         self._use_external_network = cloud_config.config.get(
             'use_external_network', True)
 
-        self._internal_networks = []
         self._internal_network_name_or_id = cloud_config.config.get(
             'internal_network', None)
         self._use_internal_network = cloud_config.config.get(
             'use_internal_network', True)
-
-        # Variables to prevent us from going through the network finding
-        # logic again if we've done it once. This is different from just
-        # the cached value, since "None" is a valid value to find.
-        self._external_network_stamp = False
-        self._internal_network_stamp = False
 
         if manager is not None:
             self.manager = manager
@@ -183,6 +175,7 @@ class OpenStackCloud(object):
         self._servers_lock = threading.Lock()
 
         self._networks_lock = threading.Lock()
+        self._reset_network_caches()
 
         cache_expiration_time = int(cloud_config.get_cache_expiration_time())
         cache_class = cloud_config.get_cache_class()
@@ -1356,6 +1349,16 @@ class OpenStackCloud(object):
     def use_internal_network(self):
         return self._use_internal_network
 
+    def _reset_network_caches(self):
+        # Variables to prevent us from going through the network finding
+        # logic again if we've done it once. This is different from just
+        # the cached value, since "None" is a valid value to find.
+        with self._networks_lock:
+            self._external_networks = []
+            self._internal_networks = []
+            self._external_network_stamp = False
+            self._internal_network_stamp = False
+
     def _get_network(
             self,
             name_or_id,
@@ -1818,6 +1821,10 @@ class OpenStackCloud(object):
                 "Error creating network {0}".format(name)):
             net = self.manager.submitTask(
                 _tasks.NetworkCreate(body=dict({'network': network})))
+
+        # Reset cache so the new network is picked up
+        self._reset_network_caches()
+
         return net['network']
 
     def delete_network(self, name_or_id):
@@ -1838,6 +1845,9 @@ class OpenStackCloud(object):
                 "Error deleting network {0}".format(name_or_id)):
             self.manager.submitTask(
                 _tasks.NetworkDelete(network=network['id']))
+
+        # Reset cache so the deleted network is removed
+        self._reset_network_caches()
 
         return True
 
