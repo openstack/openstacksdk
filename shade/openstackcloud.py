@@ -1150,9 +1150,7 @@ class OpenStackCloud(object):
             # a lock, and the non-blocking acquire method will cause
             # subsequent threads to just skip this and use the old
             # data until it succeeds.
-            # For the first time, when there is no data, make the call
-            # blocking.
-            if self._ports_lock.acquire(len(self._ports) == 0):
+            if self._ports_lock.acquire(False):
                 try:
                     self._ports = self._list_ports(filters)
                     self._ports_time = time.time()
@@ -1270,9 +1268,7 @@ class OpenStackCloud(object):
             # a lock, and the non-blocking acquire method will cause
             # subsequent threads to just skip this and use the old
             # data until it succeeds.
-            # For the first time, when there is no data, make the call
-            # blocking.
-            if self._servers_lock.acquire(len(self._servers) == 0):
+            if self._servers_lock.acquire(False):
                 try:
                     self._servers = self._list_servers(detailed=detailed)
                     self._servers_time = time.time()
