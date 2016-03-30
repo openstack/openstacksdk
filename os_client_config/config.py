@@ -477,6 +477,7 @@ class OpenStackConfig(object):
         cloud = self._fix_backwards_auth_plugin(cloud)
         cloud = self._fix_backwards_project(cloud)
         cloud = self._fix_backwards_interface(cloud)
+        cloud = self._fix_backwards_networks(cloud)
         cloud = self._handle_domain_id(cloud)
         return cloud
 
@@ -484,6 +485,29 @@ class OpenStackConfig(object):
         return ('project_id' in cloud or 'project_name' in cloud
                 or 'project_id' in cloud['auth']
                 or 'project_name' in cloud['auth'])
+
+    def _fix_backwards_networks(self, cloud):
+        # Leave the external_network and internal_network keys in the
+        # dict because consuming code might be expecting them.
+        networks = cloud.get('networks', [])
+        for key in ('external_network', 'internal_network'):
+            external = key.startswith('external')
+            if key in cloud and 'networks' in cloud:
+                raise exceptions.OpenStackConfigException(
+                    "Both {key} and networks were specified in the config."
+                    " Please remove {key} from the config and use the network"
+                    " list to configure network behavior.".format(key=key))
+            if key in cloud:
+                warnings.warn(
+                    "{key} is deprecated. Please replace with an entry in"
+                    " a dict inside of the networks list with name: {name}"
+                    " and routes_externally: {external}".format(
+                        key=key, name=cloud[key], external=external))
+                networks.append(dict(
+                    name=cloud[key],
+                    routes_externally=external))
+        cloud['networks'] = networks
+        return cloud
 
     def _handle_domain_id(self, cloud):
         # Allow people to just specify domain once if it's the same

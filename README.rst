@@ -289,12 +289,16 @@ region.
       regions:
       - name: ams01
         values:
-          external_network: inap-17037-WAN1654
-          internal_network: inap-17037-LAN4820
+          networks:
+          - name: inap-17037-WAN1654
+            routes_externally: true
+          - name: inap-17037-LAN6745
       - name: nyj01
         values:
-          external_network: inap-17037-WAN7752
-          internal_network: inap-17037-LAN6745
+          networks:
+          - name: inap-17037-WAN1654
+            routes_externally: true
+          - name: inap-17037-LAN6745
 
 Usage
 -----

@@ -753,3 +753,34 @@ class TestBackwardsCompatibility(base.TestCase):
             }
         }
         self.assertEqual(expected, result)
+
+    def test_backwards_network_fail(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        cloud = {
+            'external_network': 'public',
+            'networks': [
+                {'name': 'private', 'routes_externally': False},
+            ]
+        }
+        self.assertRaises(
+            exceptions.OpenStackConfigException,
+            c._fix_backwards_networks, cloud)
+
+    def test_backwards_network(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        cloud = {
+            'external_network': 'public',
+            'internal_network': 'private',
+        }
+        result = c._fix_backwards_networks(cloud)
+        expected = {
+            'external_network': 'public',
+            'internal_network': 'private',
+            'networks': [
+                {'name': 'public', 'routes_externally': True},
+                {'name': 'private', 'routes_externally': False},
+            ]
+        }
+        self.assertEqual(expected, result)
