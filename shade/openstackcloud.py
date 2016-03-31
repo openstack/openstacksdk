@@ -3151,15 +3151,10 @@ class OpenStackCloud(object):
             return (None, None)
         port = None
         if not fixed_address:
-            if len(ports) > 1:
-                raise OpenStackCloudException(
-                    "More than one port was found for server {server}"
-                    " and no fixed_address was specified. It is not"
-                    " possible to infer correct behavior. Please specify"
-                    " a fixed_address - or file a bug in shade describing"
-                    " how you think this should work.")
             # We're assuming one, because we have no idea what to do with
             # more than one.
+            # TODO(mordred) Fix this for real by allowing a configurable
+            #               NAT destination setting
             port = ports[0]
             # Select the first available IPv4 address
             for address in port.get('fixed_ips', list()):
