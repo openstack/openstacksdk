@@ -17,6 +17,7 @@ import operator
 import os
 import os_client_config
 import os_client_config.defaults
+import six
 import threading
 import time
 import warnings
@@ -2875,7 +2876,7 @@ class OpenStackCloud(object):
         Return a list of available floating IPs or allocate a new one and
         return it in a list of 1 element.
 
-        :param str network: A Neutron network name or id.
+        :param network: A single Neutron network name or id, or a list of them.
         :param server: (server) Server the Floating IP is for
 
         :returns: a list of floating IP addresses.
@@ -2890,11 +2891,17 @@ class OpenStackCloud(object):
 
         with _utils.neutron_exceptions("unable to get available floating IPs"):
             if network:
+                if isinstance(network, six.string_types):
+                    network = [network]
+
                 # Use given list to get first matching external network
                 floating_network_id = None
-                for ext_net in self.get_external_networks():
-                    if network in (ext_net['name'], ext_net['id']):
-                        floating_network_id = ext_net['id']
+                for net in network:
+                    for ext_net in self.get_external_networks():
+                        if net in (ext_net['name'], ext_net['id']):
+                            floating_network_id = ext_net['id']
+                            break
+                    if floating_network_id:
                         break
 
                 if floating_network_id is None:
