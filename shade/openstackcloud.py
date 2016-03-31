@@ -58,6 +58,7 @@ DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
 # This halves the current default for Swift
 DEFAULT_MAX_FILE_SIZE = (5 * 1024 * 1024 * 1024 + 2) / 2
 DEFAULT_SERVER_AGE = 5
+DEFAULT_PORT_AGE = 5
 
 
 OBJECT_CONTAINER_ACLS = {
@@ -175,6 +176,10 @@ class OpenStackCloud(object):
         self._servers_time = 0
         self._servers_lock = threading.Lock()
 
+        self._ports = []
+        self._ports_time = 0
+        self._ports_lock = threading.Lock()
+
         self._networks_lock = threading.Lock()
         self._reset_network_caches()
 
@@ -190,6 +195,7 @@ class OpenStackCloud(object):
                 expiration_time=cache_expiration_time,
                 arguments=cache_arguments)
             self._SERVER_AGE = DEFAULT_SERVER_AGE
+            self._PORT_AGE = DEFAULT_PORT_AGE
         else:
             def _fake_invalidate(unused):
                 pass
@@ -202,6 +208,7 @@ class OpenStackCloud(object):
             # Replace this with a more specific cache configuration
             # soon.
             self._SERVER_AGE = 0
+            self._PORT_AGE = 0
             self._cache = _FakeCache()
             # Undecorate cache decorated methods. Otherwise the call stacks
             # wind up being stupidly long and hard to debug
@@ -219,6 +226,8 @@ class OpenStackCloud(object):
         # fall back to whatever it was before
         self._SERVER_AGE = cloud_config.get_cache_resource_expiration(
             'server', self._SERVER_AGE)
+        self._PORT_AGE = cloud_config.get_cache_resource_expiration(
+            'port', self._PORT_AGE)
 
         self._container_cache = dict()
         self._file_hash_cache = dict()
@@ -1007,7 +1016,14 @@ class OpenStackCloud(object):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call.
         """
-        ports = self.list_ports(filters)
+        # If port caching is enabled, do not push the filter down to
+        # neutron; get all the ports (potentially from the cache) and
+        # filter locally.
+        if self._PORT_AGE:
+            pushdown_filters = None
+        else:
+            pushdown_filters = filters
+        ports = self.list_ports(pushdown_filters)
         return _utils._filter_list(ports, name_or_id, filters)
 
     def search_volumes(self, name_or_id=None, filters=None):
@@ -1123,11 +1139,32 @@ class OpenStackCloud(object):
         :returns: A list of port dicts.
 
         """
+        # If pushdown filters are specified, bypass local caching.
+        if filters:
+            return self._list_ports(filters)
         # Translate None from search interface to empty {} for kwargs below
-        if not filters:
-            filters = {}
+        filters = {}
+        if (time.time() - self._ports_time) >= self._PORT_AGE:
+            # Since we're using cached data anyway, we don't need to
+            # have more than one thread actually submit the list
+            # ports task.  Let the first one submit it while holding
+            # a lock, and the non-blocking acquire method will cause
+            # subsequent threads to just skip this and use the old
+            # data until it succeeds.
+            # For the first time, when there is no data, make the call
+            # blocking.
+            if self._ports_lock.acquire(len(self._ports) == 0):
+                try:
+                    self._ports = self._list_ports(filters)
+                    self._ports_time = time.time()
+                finally:
+                    self._ports_lock.release()
+        return self._ports
+
+    def _list_ports(self, filters):
         with _utils.neutron_exceptions("Error fetching port list"):
-            return self.manager.submitTask(_tasks.PortList(**filters))['ports']
+            return self.manager.submitTask(
+                _tasks.PortList(**filters))['ports']
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_volumes)
     def list_volumes(self, cache=True):
@@ -3153,7 +3190,22 @@ class OpenStackCloud(object):
         return server
 
     def _get_free_fixed_port(self, server, fixed_address=None):
-        ports = self.search_ports(filters={'device_id': server['id']})
+        # If we are caching port lists, we may not find the port for
+        # our server if the list is old.  Try for at least 2 cache
+        # periods if that is the case.
+        if self._PORT_AGE:
+            timeout = self._PORT_AGE * 2
+        else:
+            timeout = None
+        for count in _utils._iterate_timeout(
+                timeout,
+                "Timeout waiting for port to show up in list",
+                wait=self._PORT_AGE):
+            try:
+                ports = self.search_ports(filters={'device_id': server['id']})
+                break
+            except OpenStackCloudTimeout:
+                ports = None
         if not ports:
             return (None, None)
         port = None
