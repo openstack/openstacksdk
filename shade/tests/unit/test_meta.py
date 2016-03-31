@@ -131,11 +131,11 @@ class TestMeta(base.TestCase):
             PUBLIC_V4, meta.get_server_ip(srv, ext_tag='floating'))
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
-    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
+    @mock.patch.object(shade.OpenStackCloud, 'list_networks')
     def test_get_server_private_ip(
-            self, mock_search_networks, mock_has_service):
+            self, mock_list_networks, mock_has_service):
         mock_has_service.return_value = True
-        mock_search_networks.return_value = [{
+        mock_list_networks.return_value = [{
             'id': 'test-net-id',
             'name': 'test-net-name'
         }]
@@ -153,18 +153,16 @@ class TestMeta(base.TestCase):
         self.assertEqual(
             PRIVATE_V4, meta.get_server_private_ip(srv, self.cloud))
         mock_has_service.assert_called_with('network')
-        mock_search_networks.assert_called_with(
-            filters={'router:external': False}
-        )
+        mock_list_networks.assert_called_once_with()
 
     @mock.patch.object(shade.OpenStackCloud, 'list_server_security_groups')
     @mock.patch.object(shade.OpenStackCloud, 'get_volumes')
     @mock.patch.object(shade.OpenStackCloud, 'get_image_name')
     @mock.patch.object(shade.OpenStackCloud, 'get_flavor_name')
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
-    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
+    @mock.patch.object(shade.OpenStackCloud, 'list_networks')
     def test_get_server_private_ip_devstack(
-            self, mock_search_networks, mock_has_service,
+            self, mock_list_networks, mock_has_service,
             mock_get_flavor_name, mock_get_image_name,
             mock_get_volumes,
             mock_list_server_security_groups):
@@ -172,10 +170,11 @@ class TestMeta(base.TestCase):
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_has_service.return_value = True
         mock_get_volumes.return_value = []
-        mock_search_networks.return_value = [
+        mock_list_networks.return_value = [
             {
                 'id': 'test_pnztt_net',
-                'name': 'test_pnztt_net'
+                'name': 'test_pnztt_net',
+                'router:external': False,
             },
             {
                 'id': 'private',
@@ -200,18 +199,16 @@ class TestMeta(base.TestCase):
 
         self.assertEqual(PRIVATE_V4, srv['private_v4'])
         mock_has_service.assert_called_with('volume')
-        mock_search_networks.assert_called_with(
-            filters={'router:external': False}
-        )
+        mock_list_networks.assert_called_once_with()
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
-    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
+    @mock.patch.object(shade.OpenStackCloud, 'list_networks')
     def test_get_server_external_ipv4_neutron(
-            self, mock_search_networks,
+            self, mock_list_networks,
             mock_has_service):
         # Testing Clouds with Neutron
         mock_has_service.return_value = True
-        mock_search_networks.return_value = [{
+        mock_list_networks.return_value = [{
             'id': 'test-net-id',
             'name': 'test-net',
             'router:external': True,
@@ -228,13 +225,13 @@ class TestMeta(base.TestCase):
         self.assertEqual(PUBLIC_V4, ip)
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
-    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
+    @mock.patch.object(shade.OpenStackCloud, 'list_networks')
     def test_get_server_external_provider_ipv4_neutron(
-            self, mock_search_networks,
+            self, mock_list_networks,
             mock_has_service):
         # Testing Clouds with Neutron
         mock_has_service.return_value = True
-        mock_search_networks.return_value = [{
+        mock_list_networks.return_value = [{
             'id': 'test-net-id',
             'name': 'test-net',
             'provider:network_type': 'vlan',
@@ -251,13 +248,13 @@ class TestMeta(base.TestCase):
         self.assertEqual(PUBLIC_V4, ip)
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
-    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
+    @mock.patch.object(shade.OpenStackCloud, 'list_networks')
     def test_get_server_external_none_ipv4_neutron(
-            self, mock_search_networks,
+            self, mock_list_networks,
             mock_has_service):
         # Testing Clouds with Neutron
         mock_has_service.return_value = True
-        mock_search_networks.return_value = [{
+        mock_list_networks.return_value = [{
             'id': 'test-net-id',
             'name': 'test-net',
             'router:external': False,

@@ -357,14 +357,14 @@ class TestFloatingIP(base.TestCase):
     @patch.object(OpenStackCloud, 'keystone_session')
     @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
     @patch.object(OpenStackCloud, '_neutron_list_floating_ips')
-    @patch.object(OpenStackCloud, 'search_networks')
+    @patch.object(OpenStackCloud, 'list_networks')
     @patch.object(OpenStackCloud, 'has_service')
     def test_available_floating_ip_new(
-            self, mock_has_service, mock_search_networks,
+            self, mock_has_service, mock_list_networks,
             mock__neutron_list_floating_ips,
             mock__neutron_create_floating_ip, mock_keystone_session):
         mock_has_service.return_value = True
-        mock_search_networks.return_value = [self.mock_get_network_rep]
+        mock_list_networks.return_value = [self.mock_get_network_rep]
         mock__neutron_list_floating_ips.return_value = []
         mock__neutron_create_floating_ip.return_value = \
             self.mock_floating_ip_new_rep['floatingip']
