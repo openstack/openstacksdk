@@ -145,7 +145,7 @@ class TestStack(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'heat_client')
     def test_get_stack(self, mock_heat):
         stack = fakes.FakeStack('azerty', 'stack',)
-        mock_heat.stacks.list.return_value = [stack]
+        mock_heat.stacks.get.return_value = stack
         res = self.cloud.get_stack('stack')
         self.assertIsNotNone(res)
         self.assertEqual(stack.stack_name, res['stack_name'])
