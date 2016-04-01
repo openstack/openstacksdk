@@ -1411,6 +1411,8 @@ class OpenStackCloud(object):
                 nat_destination = None
                 default_network = None
 
+                all_subnets = None
+
                 # Filter locally because we have an or condition
                 try:
                     # TODO(mordred): Rackspace exposes neutron but it does not
@@ -1457,6 +1459,25 @@ class OpenStackCloud(object):
                                 ' by name.'.format(
                                     nat_net=self._nat_destination))
                         nat_destination = network
+                    elif self._nat_destination is None:
+                        # TODO(mordred) need a config value for floating
+                        # ips for this cloud so that we can skip this
+                        # No configured nat destination, we have to figured
+                        # it out.
+                        if all_subnets is None:
+                            try:
+                                all_subnets = self.list_subnets()
+                            except OpenStackCloudException:
+                                # Thanks Rackspace broken neutron
+                                all_subnets = []
+
+                        for subnet in all_subnets:
+                            # TODO(mordred) trap for detecting more than
+                            # one network with a gateway_ip without a config
+                            if ('gateway_ip' in subnet and subnet['gateway_ip']
+                                    and network['id'] == subnet['network_id']):
+                                nat_destination = network
+                                break
 
                     # Default network
                     if self._default_network in (
