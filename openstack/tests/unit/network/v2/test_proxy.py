@@ -13,6 +13,7 @@
 import mock
 
 from openstack.network.v2 import _proxy
+from openstack.network.v2 import address_scope
 from openstack.network.v2 import availability_zone
 from openstack.network.v2 import extension
 from openstack.network.v2 import floating_ip
@@ -39,6 +40,37 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super(TestNetworkProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
+
+    def test_address_scope_create_attrs(self):
+        self.verify_create(self.proxy.create_address_scope,
+                           address_scope.AddressScope)
+
+    def test_address_scope_delete(self):
+        self.verify_delete(self.proxy.delete_address_scope,
+                           address_scope.AddressScope,
+                           False)
+
+    def test_address_scope_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_address_scope,
+                           address_scope.AddressScope,
+                           True)
+
+    def test_address_scope_find(self):
+        self.verify_find(self.proxy.find_address_scope,
+                         address_scope.AddressScope)
+
+    def test_address_scope_get(self):
+        self.verify_get(self.proxy.get_address_scope,
+                        address_scope.AddressScope)
+
+    def test_address_scopes(self):
+        self.verify_list(self.proxy.address_scopes,
+                         address_scope.AddressScope,
+                         paginated=False)
+
+    def test_address_scope_update(self):
+        self.verify_update(self.proxy.update_address_scope,
+                           address_scope.AddressScope)
 
     def test_availability_zones(self):
         self.verify_list_no_kwargs(self.proxy.availability_zones,

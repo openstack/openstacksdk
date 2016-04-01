@@ -26,6 +26,7 @@ EXAMPLE = {
     'prefixes': ['10.0.2.0/24', '10.0.4.0/24'],
     'ip_version': 4,
     'shared': True,
+    'address_scope_id': '11',
 }
 
 
@@ -58,3 +59,4 @@ class TestSubnetpool(testtools.TestCase):
         self.assertEqual(EXAMPLE['prefixes'], sot.prefixes)
         self.assertEqual(EXAMPLE['ip_version'], sot.ip_version)
         self.assertTrue(sot.is_shared)
+        self.assertEqual(EXAMPLE['address_scope_id'], sot.address_scope_id)

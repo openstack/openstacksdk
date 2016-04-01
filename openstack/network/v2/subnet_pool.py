@@ -28,6 +28,8 @@ class SubnetPool(resource.Resource):
     allow_list = True
 
     # Properties
+    #: The ID of the address scope associated with the subnet pool.
+    address_scope_id = resource.prop('address_scope_id')
     #: The length of the prefix to allocate when the cidr or prefixlen
     #: attributes are omitted when creating a subnet. *Type: int*
     default_prefix_length = resource.prop('default_prefixlen', type=int)

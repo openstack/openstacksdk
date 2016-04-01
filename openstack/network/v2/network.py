@@ -34,6 +34,10 @@ class Network(resource.Resource):
     #: Availability zones for the network.
     #: *Type: list of availability zone names*
     availability_zones = resource.prop('availability_zones')
+    #: The ID of the IPv4 address scope for the network.
+    ipv4_address_scope_id = resource.prop('ipv4_address_scope')
+    #: The ID of the IPv6 address scope for the network.
+    ipv6_address_scope_id = resource.prop('ipv6_address_scope')
     #: The administrative state of the network, which is up ``True`` or
     #: down ``False``. *Type: bool*
     is_admin_state_up = resource.prop('admin_state_up', type=bool)

@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import address_scope as _address_scope
 from openstack.network.v2 import availability_zone
 from openstack.network.v2 import extension
 from openstack.network.v2 import floating_ip as _floating_ip
@@ -34,6 +35,91 @@ from openstack import resource
 
 
 class Proxy(proxy.BaseProxy):
+
+    def create_address_scope(self, **attrs):
+        """Create a new address scope from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.network.v2.address_scope.AddressScope`,
+            comprised of the properties on the AddressScope class.
+
+        :returns: The results of address scope creation
+        :rtype: :class:`~openstack.network.v2.address_scope.AddressScope`
+        """
+        return self._create(_address_scope.AddressScope, **attrs)
+
+    def delete_address_scope(self, address_scope, ignore_missing=True):
+        """Delete an address scope
+
+        :param address_scope: The value can be either the ID of an
+            address scope or
+            a :class:`~openstack.network.v2.address_scope.AddressScope`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the address scope does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent address scope.
+
+        :returns: ``None``
+        """
+        self._delete(_address_scope.AddressScope, address_scope,
+                     ignore_missing=ignore_missing)
+
+    def find_address_scope(self, name_or_id, ignore_missing=True):
+        """Find a single address scope
+
+        :param name_or_id: The name or ID of an address scope.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :returns: One :class:`~openstack.network.v2.address_scope.AddressScope`
+                  or None
+        """
+        return self._find(_address_scope.AddressScope, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def get_address_scope(self, address_scope):
+        """Get a single address scope
+
+        :param address_scope: The value can be the ID of an address scope or a
+            :class:`~openstack.network.v2.address_scope.AddressScope` instance.
+
+        :returns: One :class:`~openstack.network.v2.address_scope.AddressScope`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_address_scope.AddressScope, address_scope)
+
+    def address_scopes(self, **query):
+        """Return a generator of address scopes
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
+
+        :returns: A generator of address scope objects
+        :rtype: :class:`~openstack.network.v2.address_scope.AddressScope`
+        """
+        return self._list(_address_scope.AddressScope,
+                          paginated=False,
+                          **query)
+
+    def update_address_scope(self, address_scope, **attrs):
+        """Update an address scope
+
+        :param address_scope: Either the ID of an address scope or a
+            :class:`~openstack.network.v2.address_scope.AddressScope` instance.
+        :attrs kwargs: The attributes to update on the address scope
+                       represented by ``value``.
+
+        :returns: The updated address scope
+        :rtype: :class:`~openstack.network.v2.address_scope.AddressScope`
+        """
+        return self._update(_address_scope.AddressScope,
+                            address_scope,
+                            **attrs)
 
     def availability_zones(self):
         """Return a generator of availability zones
