@@ -66,6 +66,11 @@ class TestDomain(base.BaseFunctionalTestCase):
         self.assertEqual(1, len(results))
         self.assertEqual(domain_name, results[0]['name'])
 
+        # Now we search by name with name_or_id, should find only new domain
+        results = self.operator_cloud.search_domains(name_or_id=domain_name)
+        self.assertEqual(1, len(results))
+        self.assertEqual(domain_name, results[0]['name'])
+
     def test_update_domain(self):
         domain = self.operator_cloud.create_domain(
             self.domain_prefix, 'description')
@@ -78,3 +83,42 @@ class TestDomain(base.BaseFunctionalTestCase):
         self.assertEqual('updated name', updated['name'])
         self.assertEqual('updated description', updated['description'])
         self.assertFalse(updated['enabled'])
+
+        # Now we update domain by name with name_or_id
+        updated = self.operator_cloud.update_domain(
+            None,
+            name_or_id='updated name',
+            name='updated name 2',
+            description='updated description 2',
+            enabled=True)
+        self.assertEqual('updated name 2', updated['name'])
+        self.assertEqual('updated description 2', updated['description'])
+        self.assertTrue(updated['enabled'])
+
+    def test_delete_domain(self):
+        domain = self.operator_cloud.create_domain(self.domain_prefix,
+                                                   'description')
+        self.assertEqual(self.domain_prefix, domain['name'])
+        self.assertEqual('description', domain['description'])
+        self.assertTrue(domain['enabled'])
+        deleted = self.operator_cloud.delete_domain(domain['id'])
+        self.assertTrue(deleted)
+
+        # Now we delete domain by name with name_or_id
+        domain = self.operator_cloud.create_domain(
+            self.domain_prefix, 'description')
+        self.assertEqual(self.domain_prefix, domain['name'])
+        self.assertEqual('description', domain['description'])
+        self.assertTrue(domain['enabled'])
+        deleted = self.operator_cloud.delete_domain(None, domain['name'])
+        self.assertTrue(deleted)
+
+        # Finally, we assert we get False from delete_domain if domain does
+        # not exist
+        domain = self.operator_cloud.create_domain(
+            self.domain_prefix, 'description')
+        self.assertEqual(self.domain_prefix, domain['name'])
+        self.assertEqual('description', domain['description'])
+        self.assertTrue(domain['enabled'])
+        deleted = self.operator_cloud.delete_domain(None, 'bogus_domain')
+        self.assertFalse(deleted)
