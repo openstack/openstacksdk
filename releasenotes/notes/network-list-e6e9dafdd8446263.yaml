@@ -3,9 +3,8 @@ features:
   - Support added for configuring metadata about networks
     for a cloud in a list of dicts, rather than in the
     external_network and internal_network entries. The dicts
-    support a name and a routes_externally field, as well as
-    any other arbitrary metadata needed by consuming
-    applications.
+    support a name, a routes_externally field, a nat_destination
+    field and a default_interface field.
 deprecations:
   - external_network and internal_network are deprecated and
     should be replaced with the list of network dicts.

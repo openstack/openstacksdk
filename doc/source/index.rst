@@ -6,6 +6,7 @@
    vendor-support
    contributing
    installation
+   network-config
    api-reference
    releasenotes
 

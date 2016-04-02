@@ -277,7 +277,7 @@ To support this, the region list can actually be a list of dicts, and any
 setting that can be set at the cloud level can be overridden for that
 region.
 
-::
+.. code-block:: yaml
 
   clouds:
     internap:

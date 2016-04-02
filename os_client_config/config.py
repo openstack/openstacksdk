@@ -83,6 +83,8 @@ def set_default(key, value):
 
 
 def get_boolean(value):
+    if value is None:
+        return False
     if type(value) is bool:
         return value
     if value.lower() == 'true':
@@ -486,10 +488,37 @@ class OpenStackConfig(object):
                 or 'project_id' in cloud['auth']
                 or 'project_name' in cloud['auth'])
 
+    def _validate_networks(self, networks, key):
+        value = None
+        for net in networks:
+            if value and net[key]:
+                raise exceptions.OpenStackConfigException(
+                    "Duplicate network entries for {key}: {net1} and {net2}."
+                    " Only one network can be flagged with {key}".format(
+                        key=key,
+                        net1=value['name'],
+                        net2=net['name']))
+            if not value and net[key]:
+                value = net
+
     def _fix_backwards_networks(self, cloud):
         # Leave the external_network and internal_network keys in the
         # dict because consuming code might be expecting them.
-        networks = cloud.get('networks', [])
+        networks = []
+        # Normalize existing network entries
+        for net in cloud.get('networks', []):
+            name = net.get('name')
+            if not name:
+                raise exceptions.OpenStackConfigException(
+                    'Entry in network list is missing required field "name".')
+            network = dict(
+                name=name,
+                routes_externally=get_boolean(net.get('routes_externally')),
+                nat_destination=get_boolean(net.get('nat_destination')),
+                default_interface=get_boolean(net.get('default_interface')),
+            )
+            networks.append(network)
+
         for key in ('external_network', 'internal_network'):
             external = key.startswith('external')
             if key in cloud and 'networks' in cloud:
@@ -505,7 +534,14 @@ class OpenStackConfig(object):
                         key=key, name=cloud[key], external=external))
                 networks.append(dict(
                     name=cloud[key],
-                    routes_externally=external))
+                    routes_externally=external,
+                    nat_destination=not external,
+                    default_interface=external))
+
+        # Validate that we don't have duplicates
+        self._validate_networks(networks, 'nat_destination')
+        self._validate_networks(networks, 'default_interface')
+
         cloud['networks'] = networks
         return cloud
 
