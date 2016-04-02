@@ -38,10 +38,12 @@ one that programs should use. It defaults to false. An example of needing to
 use this value is a cloud with two private networks, and where a user is
 running ansible in one of the servers to talk to other servers on the private
 network. Because both networks are private, there would otherwise be no way
-to determine which one should be used for the traffic.
+to determine which one should be used for the traffic. There can only be one
+`default_interface` per cloud.
 
 `nat_destination` is a boolean field that indicates which network floating
 ips should be attached to. It defaults to false. Normally this can be inferred
 by looking for a network that has subnets that have a gateway_ip. But it's
 possible to have more than one network that satisfies that condition, so the
-user might want to tell programs which one to pick.
+user might want to tell programs which one to pick. There can be only one
+`nat_destination` per cloud.
