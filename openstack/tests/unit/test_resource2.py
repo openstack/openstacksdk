@@ -509,6 +509,21 @@ class TestResource(base.TestCase):
         self.assertIn("name", resource2.Resource._body_mapping())
         self.assertIn("id", resource2.Resource._body_mapping())
 
+    def test__mapping_overrides(self):
+        # Iterating through the MRO used to wipe out overrides of mappings
+        # found in base classes.
+        new_name = "MyName"
+        new_id = "MyID"
+
+        class Test(resource2.Resource):
+            name = resource2.Body(new_name)
+            id = resource2.Body(new_id)
+
+        mapping = Test._body_mapping()
+
+        self.assertEqual(new_name, mapping["name"])
+        self.assertEqual(new_id, mapping["id"])
+
     def test__body_mapping(self):
         class Test(resource2.Resource):
             x = resource2.Body("x")

@@ -332,7 +332,10 @@ class Resource(object):
         for klass in cls.__mro__:
             for key, value in klass.__dict__.items():
                 if isinstance(value, component):
-                    mapping[key] = value.name
+                    # Make sure base classes don't end up overwriting
+                    # mappings we've found previously in subclasses.
+                    if key not in mapping:
+                        mapping[key] = value.name
         return mapping
 
     @classmethod
