@@ -111,23 +111,26 @@ class UNIXEpoch(Formatter):
 
 class BoolStr(Formatter):
 
-    # The behavior here primarily exists for the deserialize method
-    # to be producing Python booleans.
-
     @classmethod
     def deserialize(cls, value):
-        return cls.convert(value)
-
-    @classmethod
-    def serialize(cls, value):
-        return cls.convert(value)
-
-    @classmethod
-    def convert(cls, value):
+        """Convert a boolean string to a boolean"""
         expr = str(value).lower()
         if "true" == expr:
             return True
         elif "false" == expr:
             return False
         else:
-            raise ValueError("Unable to convert as boolean: %s" % value)
+            raise ValueError("Unable to deserialize boolean string: %s"
+                             % value)
+
+    @classmethod
+    def serialize(cls, value):
+        """Convert a boolean to a boolean string"""
+        if isinstance(value, bool):
+            if value:
+                return "true"
+            else:
+                return "false"
+        else:
+            raise ValueError("Unable to serialize boolean string: %s"
+                             % value)
