@@ -90,6 +90,32 @@ USER_CONF = {
             },
             'region_name': 'test-region',
         },
+        '_test-cloud-networks_': {
+            'auth': {
+                'username': 'testuser',
+                'password': 'testpass',
+                'project_id': 12345,
+                'auth_url': 'http://example.com/v2',
+                'domain_id': '6789',
+                'project_domain_id': '123456789',
+            },
+            'networks': [{
+                'name': 'a-public',
+                'routes_externally': True,
+            }, {
+                'name': 'another-public',
+                'routes_externally': True,
+                'default_interface': True,
+            }, {
+                'name': 'a-private',
+                'routes_externally': False,
+            }, {
+                'name': 'another-private',
+                'routes_externally': False,
+                'nat_destination': True,
+                }],
+            'region_name': 'test-region',
+        },
         '_test_cloud_regions': {
             'auth': {
                 'username': 'testuser',

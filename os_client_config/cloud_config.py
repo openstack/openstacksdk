@@ -442,23 +442,25 @@ class CloudConfig(object):
     def get_external_networks(self):
         """Get list of network names for external networks."""
         return [
-            net['name'] for net in self._openstack_config['networks']
+            net['name'] for net in self.config['networks']
             if net['routes_externally']]
 
     def get_internal_networks(self):
         """Get list of network names for internal networks."""
         return [
-            net['name'] for net in self._openstack_config['networks']
+            net['name'] for net in self.config['networks']
             if not net['routes_externally']]
 
     def get_default_network(self):
         """Get network used for default interactions."""
-        for net in self._openstack_config['networks']:
+        for net in self.config['networks']:
             if net['default_interface']:
-                return net
+                return net['name']
+        return None
 
     def get_nat_destination(self):
         """Get network used for NAT destination."""
-        for net in self._openstack_config['networks']:
+        for net in self.config['networks']:
             if net['nat_destination']:
-                return net
+                return net['name']
+        return None

@@ -187,6 +187,26 @@ class TestConfig(base.TestCase):
         self.assertEqual('user', cc.auth['username'])
         self.assertEqual('testpass', cc.auth['password'])
 
+    def test_get_one_cloud_networks(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        cc = c.get_one_cloud('_test-cloud-networks_')
+        self.assertEqual(
+            ['a-public', 'another-public'], cc.get_external_networks())
+        self.assertEqual(
+            ['a-private', 'another-private'], cc.get_internal_networks())
+        self.assertEqual('another-private', cc.get_nat_destination())
+        self.assertEqual('another-public', cc.get_default_network())
+
+    def test_get_one_cloud_no_networks(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        cc = c.get_one_cloud('_test-cloud-domain-scoped_')
+        self.assertEqual([], cc.get_external_networks())
+        self.assertEqual([], cc.get_internal_networks())
+        self.assertIsNone(cc.get_nat_destination())
+        self.assertIsNone(cc.get_default_network())
+
     def test_only_secure_yaml(self):
         c = config.OpenStackConfig(config_files=['nonexistent'],
                                    vendor_files=['nonexistent'],
@@ -201,6 +221,7 @@ class TestConfig(base.TestCase):
             ['_test-cloud-domain-id_',
              '_test-cloud-domain-scoped_',
              '_test-cloud-int-project_',
+             '_test-cloud-networks_',
              '_test-cloud_',
              '_test-cloud_no_region',
              '_test_cloud_hyphenated',
