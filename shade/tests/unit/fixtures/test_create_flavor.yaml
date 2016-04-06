@@ -1,0 +1,2105 @@
+http_interactions:
+- recorded_at: '2016-04-14T10:09:57'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+    method: GET
+    uri: http://192.168.0.19:35357/
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "versions": {
+            "values": [
+              {
+                "status": "stable",
+                "updated": "2016-04-04T00:00:00Z",
+                "media-types": [
+                  {
+                    "base": "application/json",
+                    "type": "application/vnd.openstack.identity-v3+json"
+                  }
+                ],
+                "id": "v3.6",
+                "links": [
+                  {
+                    "href": "http://192.168.0.19:35357/v3/",
+                    "rel": "self"
+                  }
+                ]
+              },
+              {
+                "status": "stable",
+                "updated": "2014-04-17T00:00:00Z",
+                "media-types": [
+                  {
+                    "base": "application/json",
+                    "type": "application/vnd.openstack.identity-v2.0+json"
+                  }
+                ],
+                "id": "v2.0",
+                "links": [
+                  {
+                    "href": "http://192.168.0.19:35357/v2.0/",
+                    "rel": "self"
+                  },
+                  {
+                    "href": "http://docs.openstack.org/",
+                    "type": "text/html",
+                    "rel": "describedby"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - '595'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:09:57 GMT
+      Keep-Alive:
+      - timeout=5, max=100
+      Server:
+      - Apache/2.4.7 (Ubuntu)
+      Vary:
+      - X-Auth-Token
+    status:
+      code: 300
+      message: Multiple Choices
+    url: http://192.168.0.19:35357/
+- recorded_at: '2016-04-14T10:09:58'
+  request:
+    body:
+      encoding: utf-8
+      string: |-
+        {
+          "auth": {
+            "tenantName": "dummy",
+            "passwordCredentials": {
+              "username": "dummy",
+              "password": "********"
+            }
+          }
+        }
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '103'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+    method: POST
+    uri: http://192.168.0.19:35357/v2.0/tokens
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "access": {
+            "token": {
+              "issued_at": "2016-04-14T10:09:58.014014Z",
+              "expires": "9999-12-31T23:59:59Z",
+              "id": "7fa3037ae2fe48ada8c626a51dc01ffd",
+              "tenant": {
+                "enabled": true,
+                "description": "Bootstrap project for initializing the cloud.",
+                "name": "admin",
+                "id": "1c36b64c840a42cd9e9b931a369337f0"
+              },
+              "audit_ids": [
+                "FgG3Q8T3Sh21r_7HyjHP8A"
+              ]
+            },
+            "serviceCatalog": [
+              {
+                "endpoints_links": [],
+                "endpoints": [
+                  {
+                    "adminURL": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0",
+                    "region": "RegionOne",
+                    "publicURL": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0",
+                    "internalURL": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0",
+                    "id": "32466f357f3545248c47471ca51b0d3a"
+                  }
+                ],
+                "type": "compute",
+                "name": "nova"
+              },
+              {
+                "endpoints_links": [],
+                "endpoints": [
+                  {
+                    "adminURL": "http://192.168.0.19:8776/v2/1c36b64c840a42cd9e9b931a369337f0",
+                    "region": "RegionOne",
+                    "publicURL": "http://192.168.0.19:8776/v2/1c36b64c840a42cd9e9b931a369337f0",
+                    "internalURL": "http://192.168.0.19:8776/v2/1c36b64c840a42cd9e9b931a369337f0",
+                    "id": "1e875ca2225b408bbf3520a1b8e1a537"
+                  }
+                ],
+                "type": "volumev2",
+                "name": "cinderv2"
+              },
+              {
+                "endpoints_links": [],
+                "endpoints": [
+                  {
+                    "adminURL": "http://192.168.0.19:9292",
+                    "region": "RegionOne",
+                    "publicURL": "http://192.168.0.19:9292",
+                    "internalURL": "http://192.168.0.19:9292",
+                    "id": "5a64de3c4a614d8d8f8d1ba3dee5f45f"
+                  }
+                ],
+                "type": "image",
+                "name": "glance"
+              },
+              {
+                "endpoints_links": [],
+                "endpoints": [
+                  {
+                    "adminURL": "http://192.168.0.19:8774/v2/1c36b64c840a42cd9e9b931a369337f0",
+                    "region": "RegionOne",
+                    "publicURL": "http://192.168.0.19:8774/v2/1c36b64c840a42cd9e9b931a369337f0",
+                    "internalURL": "http://192.168.0.19:8774/v2/1c36b64c840a42cd9e9b931a369337f0",
+                    "id": "74ba16ca98154dfface2af92e97062a7"
+                  }
+                ],
+                "type": "compute_legacy",
+                "name": "nova_legacy"
+              },
+              {
+                "endpoints_links": [],
+                "endpoints": [
+                  {
+                    "adminURL": "http://192.168.0.19:8776/v1/1c36b64c840a42cd9e9b931a369337f0",
+                    "region": "RegionOne",
+                    "publicURL": "http://192.168.0.19:8776/v1/1c36b64c840a42cd9e9b931a369337f0",
+                    "internalURL": "http://192.168.0.19:8776/v1/1c36b64c840a42cd9e9b931a369337f0",
+                    "id": "3d15fdfc7d424f3c8923324417e1a3d1"
+                  }
+                ],
+                "type": "volume",
+                "name": "cinder"
+              },
+              {
+                "endpoints_links": [],
+                "endpoints": [
+                  {
+                    "adminURL": "http://192.168.0.19:35357/v2.0",
+                    "region": "RegionOne",
+                    "publicURL": "http://192.168.0.19:5000/v2.0",
+                    "internalURL": "http://192.168.0.19:5000/v2.0",
+                    "id": "4deb4d0504a044a395d4480741ba628c"
+                  }
+                ],
+                "type": "identity",
+                "name": "keystone"
+              }
+            ],
+            "user": {
+              "username": "dummy",
+              "roles_links": [],
+              "id": "71675f719c3343e8ac441cc28f396474",
+              "roles": [
+                {
+                  "name": "admin"
+                }
+              ],
+              "name": "admin"
+            },
+            "metadata": {
+              "is_admin": 0,
+              "roles": [
+                "6d813db50b6e4a1ababdbbb5a83c7de5"
+              ]
+            }
+          }
+        }
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - '2647'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:09:57 GMT
+      Keep-Alive:
+      - timeout=5, max=99
+      Server:
+      - Apache/2.4.7 (Ubuntu)
+      Vary:
+      - X-Auth-Token
+      x-openstack-request-id:
+      - req-b60e1abb-6819-41c7-8851-e22adf92158e
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:35357/v2.0/tokens
+- recorded_at: '2016-04-14T10:09:58'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-novaclient
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/detail?is_public=None
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "flavors": [
+            {
+              "name": "m1.tiny",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/1",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/1",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 512,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 1,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 1,
+              "id": "1"
+            },
+            {
+              "name": "m1.small",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/2",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/2",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 2048,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 1,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 20,
+              "id": "2"
+            },
+            {
+              "name": "m1.medium",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/3",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/3",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 4096,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 2,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 40,
+              "id": "3"
+            },
+            {
+              "name": "m1.large",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/4",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/4",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 8192,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 4,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 80,
+              "id": "4"
+            },
+            {
+              "name": "m1.nano",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/42",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/42",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 64,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 1,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 0,
+              "id": "42"
+            },
+            {
+              "name": "m1.xlarge",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/5",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/5",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 16384,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 8,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 160,
+              "id": "5"
+            },
+            {
+              "name": "m1.micro",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/84",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/84",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 128,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 1,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 0,
+              "id": "84"
+            }
+          ]
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '2933'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:09:58 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-2c57220f-2462-4e60-9561-6d192762f087
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/detail?is_public=None
+- recorded_at: '2016-04-14T10:09:58'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/1/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:09:58 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-c2c93548-8671-49ff-9e24-50e7f2f5115a
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/1/os-extra_specs
+- recorded_at: '2016-04-14T10:09:58'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/2/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:09:58 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-7c377ee6-689a-484a-aee5-691cd97211a6
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/2/os-extra_specs
+- recorded_at: '2016-04-14T10:09:58'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/3/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:09:58 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-fa02df4b-b312-46f6-a945-bd5d2f324fa4
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/3/os-extra_specs
+- recorded_at: '2016-04-14T10:09:59'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/4/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:09:59 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-0be39be0-2c60-4b0b-879c-a989ce48e68f
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/4/os-extra_specs
+- recorded_at: '2016-04-14T10:09:59'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/42/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:09:59 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-87a26e5f-c9f2-4ee7-9f9c-a4371ba1da8a
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/42/os-extra_specs
+- recorded_at: '2016-04-14T10:09:59'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/5/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:09:59 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-466cd9ac-fc04-431e-88b5-9951c8859edb
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/5/os-extra_specs
+- recorded_at: '2016-04-14T10:09:59'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/84/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:09:59 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-75179ff1-71b6-4635-a0d2-f6b72ac0526f
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/84/os-extra_specs
+- recorded_at: '2016-04-14T10:09:59'
+  request:
+    body:
+      encoding: utf-8
+      string: |-
+        {
+          "flavor": {
+            "name": "vanilla",
+            "ram": 12345,
+            "vcpus": 4,
+            "swap": 0,
+            "os-flavor-access:is_public": true,
+            "rxtx_factor": 1.0,
+            "OS-FLV-EXT-DATA:ephemeral": 0,
+            "disk": 100,
+            "id": null
+          }
+        }
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '181'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-novaclient
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: POST
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "flavor": {
+            "name": "vanilla",
+            "links": [
+              {
+                "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/8987fc39-f5b8-46ce-bf1e-816e01623b30",
+                "rel": "self"
+              },
+              {
+                "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/8987fc39-f5b8-46ce-bf1e-816e01623b30",
+                "rel": "bookmark"
+              }
+            ],
+            "ram": 12345,
+            "OS-FLV-DISABLED:disabled": false,
+            "vcpus": 4,
+            "swap": "",
+            "os-flavor-access:is_public": true,
+            "rxtx_factor": 1.0,
+            "OS-FLV-EXT-DATA:ephemeral": 0,
+            "disk": 100,
+            "id": "8987fc39-f5b8-46ce-bf1e-816e01623b30"
+          }
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '533'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:09:59 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-a47adf29-b5cc-45af-812b-db35ec6f22ac
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors
+- recorded_at: '2016-04-14T10:09:59'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-novaclient
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/8987fc39-f5b8-46ce-bf1e-816e01623b30
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "flavor": {
+            "name": "vanilla",
+            "links": [
+              {
+                "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/8987fc39-f5b8-46ce-bf1e-816e01623b30",
+                "rel": "self"
+              },
+              {
+                "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/8987fc39-f5b8-46ce-bf1e-816e01623b30",
+                "rel": "bookmark"
+              }
+            ],
+            "ram": 12345,
+            "OS-FLV-DISABLED:disabled": false,
+            "vcpus": 4,
+            "swap": "",
+            "os-flavor-access:is_public": true,
+            "rxtx_factor": 1.0,
+            "OS-FLV-EXT-DATA:ephemeral": 0,
+            "disk": 100,
+            "id": "8987fc39-f5b8-46ce-bf1e-816e01623b30"
+          }
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '533'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:09:59 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-42ab9a08-608e-4f76-bd26-0a2d6e650099
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/8987fc39-f5b8-46ce-bf1e-816e01623b30
+- recorded_at: '2016-04-14T10:10:00'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-novaclient
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/detail?is_public=None
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "flavors": [
+            {
+              "name": "m1.tiny",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/1",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/1",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 512,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 1,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 1,
+              "id": "1"
+            },
+            {
+              "name": "m1.small",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/2",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/2",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 2048,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 1,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 20,
+              "id": "2"
+            },
+            {
+              "name": "m1.medium",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/3",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/3",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 4096,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 2,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 40,
+              "id": "3"
+            },
+            {
+              "name": "m1.large",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/4",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/4",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 8192,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 4,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 80,
+              "id": "4"
+            },
+            {
+              "name": "m1.nano",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/42",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/42",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 64,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 1,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 0,
+              "id": "42"
+            },
+            {
+              "name": "m1.xlarge",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/5",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/5",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 16384,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 8,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 160,
+              "id": "5"
+            },
+            {
+              "name": "m1.micro",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/84",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/84",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 128,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 1,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 0,
+              "id": "84"
+            },
+            {
+              "name": "vanilla",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/8987fc39-f5b8-46ce-bf1e-816e01623b30",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/8987fc39-f5b8-46ce-bf1e-816e01623b30",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 12345,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 4,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 100,
+              "id": "8987fc39-f5b8-46ce-bf1e-816e01623b30"
+            }
+          ]
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '3456'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:00 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-87e35330-ca43-43d7-b42a-422bccca8b94
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/detail?is_public=None
+- recorded_at: '2016-04-14T10:10:00'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/1/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:00 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-4013b982-885e-4225-bf62-7ecd78d81465
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/1/os-extra_specs
+- recorded_at: '2016-04-14T10:10:00'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/2/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:00 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-748fb97b-73e4-4857-b2f9-d32ae868097d
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/2/os-extra_specs
+- recorded_at: '2016-04-14T10:10:00'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/3/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:00 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-e7dde10b-483d-4d15-b608-2093dd10c849
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/3/os-extra_specs
+- recorded_at: '2016-04-14T10:10:00'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/4/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:00 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-7dcb269b-c961-43e5-ac4e-69237edcf6d8
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/4/os-extra_specs
+- recorded_at: '2016-04-14T10:10:01'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/42/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:01 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-4b048baf-1a27-427f-9771-974288273a95
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/42/os-extra_specs
+- recorded_at: '2016-04-14T10:10:01'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/5/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:01 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-846cd913-191f-4714-9d1b-6a2e0015b538
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/5/os-extra_specs
+- recorded_at: '2016-04-14T10:10:01'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/84/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:01 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-a3b21f98-51b8-472c-9ff0-1376beff1498
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/84/os-extra_specs
+- recorded_at: '2016-04-14T10:10:01'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/8987fc39-f5b8-46ce-bf1e-816e01623b30/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:01 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-14cc8bb9-27cc-48ba-9b42-c31d1322b8a7
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/8987fc39-f5b8-46ce-bf1e-816e01623b30/os-extra_specs
+- recorded_at: '2016-04-14T10:10:01'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-novaclient
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/detail?is_public=None
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "flavors": [
+            {
+              "name": "m1.tiny",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/1",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/1",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 512,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 1,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 1,
+              "id": "1"
+            },
+            {
+              "name": "m1.small",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/2",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/2",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 2048,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 1,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 20,
+              "id": "2"
+            },
+            {
+              "name": "m1.medium",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/3",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/3",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 4096,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 2,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 40,
+              "id": "3"
+            },
+            {
+              "name": "m1.large",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/4",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/4",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 8192,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 4,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 80,
+              "id": "4"
+            },
+            {
+              "name": "m1.nano",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/42",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/42",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 64,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 1,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 0,
+              "id": "42"
+            },
+            {
+              "name": "m1.xlarge",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/5",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/5",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 16384,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 8,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 160,
+              "id": "5"
+            },
+            {
+              "name": "m1.micro",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/84",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/84",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 128,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 1,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 0,
+              "id": "84"
+            },
+            {
+              "name": "vanilla",
+              "links": [
+                {
+                  "href": "http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/8987fc39-f5b8-46ce-bf1e-816e01623b30",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://192.168.0.19:8774/1c36b64c840a42cd9e9b931a369337f0/flavors/8987fc39-f5b8-46ce-bf1e-816e01623b30",
+                  "rel": "bookmark"
+                }
+              ],
+              "ram": 12345,
+              "OS-FLV-DISABLED:disabled": false,
+              "vcpus": 4,
+              "swap": "",
+              "os-flavor-access:is_public": true,
+              "rxtx_factor": 1.0,
+              "OS-FLV-EXT-DATA:ephemeral": 0,
+              "disk": 100,
+              "id": "8987fc39-f5b8-46ce-bf1e-816e01623b30"
+            }
+          ]
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '3456'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:01 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-13ba0453-4b97-467c-b996-ba2d7965df01
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/detail?is_public=None
+- recorded_at: '2016-04-14T10:10:02'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/1/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:02 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-b223f5a5-d817-433c-8f11-61b351b0d964
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/1/os-extra_specs
+- recorded_at: '2016-04-14T10:10:02'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/2/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:02 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-1fb1cd46-72eb-452a-a937-6f4c99af71f4
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/2/os-extra_specs
+- recorded_at: '2016-04-14T10:10:02'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/3/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:02 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-3e20c7f7-7583-412c-8382-abe4f8ad1222
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/3/os-extra_specs
+- recorded_at: '2016-04-14T10:10:02'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/4/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:02 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-dadfb69e-f689-4215-ad82-4a4933536922
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/4/os-extra_specs
+- recorded_at: '2016-04-14T10:10:02'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/42/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:02 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-e8f3a46a-ca1f-498f-8694-40d9836ca23c
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/42/os-extra_specs
+- recorded_at: '2016-04-14T10:10:02'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/5/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:02 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-4e6ccef8-6b65-4f83-92d4-6a0edcfda130
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/5/os-extra_specs
+- recorded_at: '2016-04-14T10:10:02'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/84/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:02 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-b7d2664c-ca1f-4271-9935-c5ccef7a3b11
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/84/os-extra_specs
+- recorded_at: '2016-04-14T10:10:03'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - keystoneauth1/2.6.0 python-requests/2.9.1 CPython/2.7.6
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: GET
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/8987fc39-f5b8-46ce-bf1e-816e01623b30/os-extra_specs
+  response:
+    body:
+      encoding: null
+      string: |-
+        {
+          "extra_specs": {}
+        }
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '19'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:03 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-b84891a9-84cc-4faf-816a-07d5fefdfc06
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 200
+      message: OK
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/8987fc39-f5b8-46ce-bf1e-816e01623b30/os-extra_specs
+- recorded_at: '2016-04-14T10:10:03'
+  request:
+    body:
+      encoding: utf-8
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-novaclient
+      X-Auth-Token:
+      - 7fa3037ae2fe48ada8c626a51dc01ffd
+    method: DELETE
+    uri: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/8987fc39-f5b8-46ce-bf1e-816e01623b30
+  response:
+    body:
+      encoding: null
+      string: ''
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 14 Apr 2016 10:10:03 GMT
+      Vary:
+      - X-OpenStack-Nova-API-Version
+      X-Compute-Request-Id:
+      - req-3e795065-ba65-437f-af6c-19373da4f3aa
+      X-Openstack-Nova-Api-Version:
+      - '2.1'
+    status:
+      code: 202
+      message: Accepted
+    url: http://192.168.0.19:8774/v2.1/1c36b64c840a42cd9e9b931a369337f0/flavors/8987fc39-f5b8-46ce-bf1e-816e01623b30
+recorded_with: betamax/0.6.0
+

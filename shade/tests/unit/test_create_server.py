@@ -43,7 +43,7 @@ class TestCreateServer(base.TestCase):
         Test that an exception in the novaclient create raises an exception in
         create_server.
         """
-        with patch("shade.OpenStackCloud"):
+        with patch("shade.OpenStackCloud.nova_client"):
             config = {
                 "servers.create.side_effect": Exception("exception"),
             }
@@ -57,7 +57,7 @@ class TestCreateServer(base.TestCase):
         Test that an exception when attempting to get the server instance via
         the novaclient raises an exception in create_server.
         """
-        with patch("shade.OpenStackCloud"):
+        with patch("shade.OpenStackCloud.nova_client"):
             config = {
                 "servers.create.return_value": Mock(status="BUILD"),
                 "servers.get.side_effect": Exception("exception")
@@ -74,7 +74,7 @@ class TestCreateServer(base.TestCase):
         """
         build_server = fakes.FakeServer('1234', '', 'BUILD')
         error_server = fakes.FakeServer('1234', '', 'ERROR')
-        with patch("shade.OpenStackCloud"):
+        with patch("shade.OpenStackCloud.nova_client"):
             config = {
                 "servers.create.return_value": build_server,
                 "servers.get.return_value": error_server,
@@ -89,7 +89,7 @@ class TestCreateServer(base.TestCase):
         Test that a server error while waiting for the server to spawn
         raises an exception in create_server.
         """
-        with patch("shade.OpenStackCloud"):
+        with patch("shade.OpenStackCloud.nova_client"):
             build_server = fakes.FakeServer('1234', '', 'BUILD')
             error_server = fakes.FakeServer('1234', '', 'ERROR')
             fake_floating_ip = fakes.FakeFloatingIP('1234', 'ippool',
@@ -113,7 +113,7 @@ class TestCreateServer(base.TestCase):
         Test that a timeout while waiting for the server to spawn raises an
         exception in create_server.
         """
-        with patch("shade.OpenStackCloud"):
+        with patch("shade.OpenStackCloud.nova_client"):
             fake_server = fakes.FakeServer('1234', '', 'BUILD')
             config = {
                 "servers.create.return_value": fake_server,
@@ -131,7 +131,7 @@ class TestCreateServer(base.TestCase):
         Test that create_server with no wait and no exception in the
         novaclient create call returns the server instance.
         """
-        with patch("shade.OpenStackCloud"):
+        with patch("shade.OpenStackCloud.nova_client"):
             fake_server = fakes.FakeServer('1234', '', 'BUILD')
             fake_floating_ip = fakes.FakeFloatingIP('1234', 'ippool',
                                                     '1.1.1.1', '2.2.2.2',
@@ -155,7 +155,7 @@ class TestCreateServer(base.TestCase):
         """
         Test that a server with an admin_pass passed returns the password
         """
-        with patch("shade.OpenStackCloud"):
+        with patch("shade.OpenStackCloud.nova_client"):
             fake_server = fakes.FakeServer('1234', '', 'BUILD')
             fake_create_server = fakes.FakeServer('1234', '', 'BUILD',
                                                   adminPass='ooBootheiX0edoh')
@@ -265,7 +265,7 @@ class TestCreateServer(base.TestCase):
         Test that create_server with a wait throws an exception if the
         server doesn't have addresses.
         """
-        with patch("shade.OpenStackCloud"):
+        with patch("shade.OpenStackCloud.nova_client"):
             build_server = fakes.FakeServer('1234', '', 'BUILD')
             fake_server = fakes.FakeServer('1234', '', 'ACTIVE')
             fake_floating_ip = fakes.FakeFloatingIP('1234', 'ippool',
