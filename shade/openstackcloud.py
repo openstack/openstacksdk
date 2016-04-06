@@ -3128,12 +3128,19 @@ class OpenStackCloud(object):
 
             return [f_ip]
 
-    def create_floating_ip(self, network=None, server=None):
+    def create_floating_ip(self, network=None, server=None,
+                           fixed_address=None, nat_destination=None):
         """Allocate a new floating IP from a network or a pool.
 
-        :param network: Nova pool name or Neutron network name or id.
+        :param network: Nova pool name or Neutron network name or id
+                        that the floating IP should come from.
         :param server: (optional) Server dict for the server to create
-                       the IP for and to which it should be attached
+                       the IP for and to which it should be attached.
+        :param fixed_address: (optional) Fixed IP to attach the floating
+                              ip to.
+        :param nat_destination: (optional) Name or id of the network
+                                that the fixed IP to attach the floating
+                                IP to should be on.
 
         :returns: a floating IP address
 
@@ -3143,7 +3150,9 @@ class OpenStackCloud(object):
             try:
                 f_ips = _utils.normalize_neutron_floating_ips(
                     [self._neutron_create_floating_ip(
-                        network_name_or_id=network, server=server)]
+                        network_name_or_id=network, server=server,
+                        fixed_address=fixed_address,
+                        nat_destination=nat_destination)]
                 )
                 return f_ips[0]
             except OpenStackCloudURINotFound as e:
@@ -3158,7 +3167,8 @@ class OpenStackCloud(object):
         return f_ips[0]
 
     def _neutron_create_floating_ip(
-            self, network_name_or_id=None, server=None):
+            self, network_name_or_id=None, server=None,
+            fixed_address=None, nat_destination=None):
         with _utils.neutron_exceptions(
                 "unable to create floating IP for net "
                 "{0}".format(network_name_or_id)):
@@ -3178,10 +3188,12 @@ class OpenStackCloud(object):
                 'floating_network_id': networks[0]['id'],
             }
             if server:
-                (port, fixed_address) = self._get_free_fixed_port(server)
+                (port, fixed_ip_address) = self._get_free_fixed_port(
+                    server, fixed_address=fixed_address,
+                    nat_destination=nat_destination)
                 if port:
                     kwargs['port_id'] = port['id']
-                    kwargs['fixed_ip_address'] = fixed_address
+                    kwargs['fixed_ip_address'] = fixed_ip_address
             return self.manager.submitTask(_tasks.NeutronFloatingIPCreate(
                 body={'floatingip': kwargs}))['floatingip']
 
@@ -3303,7 +3315,14 @@ class OpenStackCloud(object):
                     return server
         return server
 
-    def _get_free_fixed_port(self, server, fixed_address=None):
+    def _get_free_fixed_port(self, server, fixed_address=None,
+                             nat_destination=None):
+        """Returns server's port.
+
+        :param server: Server dict.
+        :param fixed_address: Fixed ip address of the port
+        :param nat_destination: Name or ID of the network of the port.
+        """
         # If we are caching port lists, we may not find the port for
         # our server if the list is old.  Try for at least 2 cache
         # periods if that is the case.
@@ -3316,7 +3335,8 @@ class OpenStackCloud(object):
                 "Timeout waiting for port to show up in list",
                 wait=self._PORT_AGE):
             try:
-                ports = self.search_ports(filters={'device_id': server['id']})
+                port_filter = {'device_id': server['id']}
+                ports = self.search_ports(filters=port_filter)
                 break
             except OpenStackCloudTimeout:
                 ports = None
@@ -3324,10 +3344,19 @@ class OpenStackCloud(object):
             return (None, None)
         port = None
         if not fixed_address:
-            nat_network = self.get_nat_destination()
-            if len(ports) == 1 or not self._nat_destination:
+            if nat_destination:
+                nat_network = self.get_network(nat_destination)
+                if not nat_network:
+                    raise OpenStackCloudException(
+                        'NAT Destination {nat_destination} was configured'
+                        ' but not found on the cloud. Please check your'
+                        ' config and your cloud and try again.'.format(
+                            nat_destination=nat_destination))
+            else:
+                nat_network = self.get_nat_destination()
+            if len(ports) == 1 or not nat_network:
                 port = ports[0]
-                if nat_network is None:
+                if len(ports) > 1 and not nat_network:
                     warnings.warn(
                         'During Floating IP creation, multiple private'
                         ' networks were found. {net} is being selected at'
@@ -3474,7 +3503,7 @@ class OpenStackCloud(object):
 
     def _add_ip_from_pool(
             self, server, network, fixed_address=None, reuse=True,
-            wait=False, timeout=60):
+            wait=False, timeout=60, nat_destination=None):
         """Add a floating IP to a sever from a given pool
 
         This method reuses available IPs, when possible, or allocate new IPs
@@ -3490,13 +3519,16 @@ class OpenStackCloud(object):
                      to the server in Nova. Defaults to False.
         :param timeout: (optional) Seconds to wait, defaults to 60.
                         See the ``wait`` parameter.
+        :param nat_destination: (optional) the name of the network of the
+                                port to associate with the floating ip.
 
         :returns: the update server dict
         """
         if reuse:
             f_ip = self.available_floating_ip(network=network)
         else:
-            f_ip = self.create_floating_ip(network=network)
+            f_ip = self.create_floating_ip(
+                network=network, nat_destination=nat_destination)
 
         return self._attach_ip_to_server(
             server=server, floating_ip=f_ip, fixed_address=fixed_address,
@@ -3573,11 +3605,12 @@ class OpenStackCloud(object):
 
     def add_ips_to_server(
             self, server, auto_ip=True, ips=None, ip_pool=None,
-            wait=False, timeout=60, reuse=True, fixed_address=None):
+            wait=False, timeout=60, reuse=True, fixed_address=None,
+            nat_destination=None):
         if ip_pool:
             server = self._add_ip_from_pool(
                 server, ip_pool, reuse=reuse, wait=wait, timeout=timeout,
-                fixed_address=fixed_address)
+                fixed_address=fixed_address, nat_destination=nat_destination)
         elif ips:
             server = self.add_ip_list(
                 server, ips, wait=wait, timeout=timeout,

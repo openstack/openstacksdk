@@ -349,7 +349,8 @@ class TestFloatingIP(base.TestCase):
             dict(id='1234'), ip_pool='my-network', reuse=False)
 
         mock__neutron_create_floating_ip.assert_called_once_with(
-            network_name_or_id='my-network', server=None)
+            network_name_or_id='my-network', server=None,
+            fixed_address=None, nat_destination=None)
         mock_attach_ip_to_server.assert_called_once_with(
             server={'id': '1234'}, fixed_address=None,
             floating_ip=self.floating_ip, wait=False, timeout=60)
