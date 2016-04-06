@@ -1,0 +1,4 @@
+---
+features:
+  - Add support for Designate zones resources, with the
+    usual methods (search/list/get/create/update/delete).

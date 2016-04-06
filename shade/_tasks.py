@@ -772,3 +772,23 @@ class StackDelete(task_manager.Task):
 class StackGet(task_manager.Task):
     def main(self, client):
         return client.heat_client.stacks.get(**self.args)
+
+
+class ZoneList(task_manager.Task):
+    def main(self, client):
+        return client.designate_client.zones.list()
+
+
+class ZoneCreate(task_manager.Task):
+    def main(self, client):
+        return client.designate_client.zones.create(**self.args)
+
+
+class ZoneUpdate(task_manager.Task):
+    def main(self, client):
+        return client.designate_client.zones.update(**self.args)
+
+
+class ZoneDelete(task_manager.Task):
+    def main(self, client):
+        return client.designate_client.zones.delete(**self.args)

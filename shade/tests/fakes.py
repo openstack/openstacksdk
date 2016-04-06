@@ -246,3 +246,15 @@ class FakeStack(object):
         self.stack_name = name
         self.stack_description = description
         self.stack_status = status
+
+
+class FakeZone(object):
+    def __init__(self, id, name, type_, email, description,
+                 ttl, masters):
+        self.id = id
+        self.name = name
+        self.type_ = type_
+        self.email = email
+        self.description = description
+        self.ttl = ttl
+        self.masters = masters

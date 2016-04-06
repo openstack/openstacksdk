@@ -19,5 +19,6 @@ python-troveclient>=1.2.0
 python-ironicclient>=0.10.0
 python-swiftclient>=2.5.0
 python-heatclient>=0.3.0
+python-designateclient>=2.1.0
 
 dogpile.cache>=0.5.3
