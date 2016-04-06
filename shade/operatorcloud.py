@@ -1142,7 +1142,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             domains = self.manager.submitTask(_tasks.DomainList())
         return _utils.normalize_domains(domains)
 
-    def search_domains(self, filters={}, name_or_id=None):
+    def search_domains(self, filters=None, name_or_id=None):
         """Search Keystone domains.
 
         :param name_or_id: domain name or id
@@ -1158,6 +1158,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
+        if filters is None:
+            filters = {}
         if name_or_id is not None:
             domains = self.list_domains()
             return _utils._filter_list(domains, name_or_id, filters)
