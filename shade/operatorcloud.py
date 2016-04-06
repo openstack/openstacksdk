@@ -1142,7 +1142,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             domains = self.manager.submitTask(_tasks.DomainList())
         return _utils.normalize_domains(domains)
 
-    def search_domains(self, filters=None, name_or_id=None):
+    def search_domains(self, filters={}, name_or_id=None):
         """Search Keystone domains.
 
         :param name_or_id: domain name or id
