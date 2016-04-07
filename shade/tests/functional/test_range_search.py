@@ -21,6 +21,14 @@ from shade.tests.functional import base
 
 class TestRangeSearch(base.BaseFunctionalTestCase):
 
+    def _filter_m1_flavors(self, results):
+        """The m1 flavors are the original devstack flavors"""
+        new_results = []
+        for flavor in results:
+            if flavor['name'].startswith("m1."):
+                new_results.append(flavor)
+        return new_results
+
     def test_range_search_bad_range(self):
         flavors = self.demo_cloud.list_flavors()
         self.assertRaises(
@@ -31,6 +39,8 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
         flavors = self.demo_cloud.list_flavors()
         result = self.demo_cloud.range_search(flavors, {"ram": "4096"})
         self.assertIsInstance(result, list)
+        # should only be 1 m1 flavor with 4096 ram
+        result = self._filter_m1_flavors(result)
         self.assertEqual(1, len(result))
         self.assertEqual("m1.medium", result[0]['name'])
 
@@ -39,7 +49,8 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
         result = self.demo_cloud.range_search(flavors, {"ram": "MIN"})
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))
-        self.assertEqual("m1.tiny", result[0]['name'])
+        # older devstack does not have cirros256
+        self.assertTrue(result[0]['name'] in ('cirros256', 'm1.tiny'))
 
     def test_range_search_max(self):
         flavors = self.demo_cloud.list_flavors()
@@ -50,17 +61,19 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
 
     def test_range_search_lt(self):
         flavors = self.demo_cloud.list_flavors()
-        result = self.demo_cloud.range_search(flavors, {"ram": "<4096"})
+        result = self.demo_cloud.range_search(flavors, {"ram": "<1024"})
         self.assertIsInstance(result, list)
-        self.assertEqual(2, len(result))
-        flavor_names = [r['name'] for r in result]
-        self.assertIn("m1.tiny", flavor_names)
-        self.assertIn("m1.small", flavor_names)
+        # should only be 1 m1 flavor with <1024 ram
+        result = self._filter_m1_flavors(result)
+        self.assertEqual(1, len(result))
+        self.assertEqual("m1.tiny", result[0]['name'])
 
     def test_range_search_gt(self):
         flavors = self.demo_cloud.list_flavors()
         result = self.demo_cloud.range_search(flavors, {"ram": ">4096"})
         self.assertIsInstance(result, list)
+        # should only be 2 m1 flavors with >4096 ram
+        result = self._filter_m1_flavors(result)
         self.assertEqual(2, len(result))
         flavor_names = [r['name'] for r in result]
         self.assertIn("m1.large", flavor_names)
@@ -70,6 +83,8 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
         flavors = self.demo_cloud.list_flavors()
         result = self.demo_cloud.range_search(flavors, {"ram": "<=4096"})
         self.assertIsInstance(result, list)
+        # should only be 3 m1 flavors with <=4096 ram
+        result = self._filter_m1_flavors(result)
         self.assertEqual(3, len(result))
         flavor_names = [r['name'] for r in result]
         self.assertIn("m1.tiny", flavor_names)
@@ -80,6 +95,8 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
         flavors = self.demo_cloud.list_flavors()
         result = self.demo_cloud.range_search(flavors, {"ram": ">=4096"})
         self.assertIsInstance(result, list)
+        # should only be 3 m1 flavors with >=4096 ram
+        result = self._filter_m1_flavors(result)
         self.assertEqual(3, len(result))
         flavor_names = [r['name'] for r in result]
         self.assertIn("m1.medium", flavor_names)
@@ -92,24 +109,25 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
             flavors, {"ram": "MIN", "vcpus": "MIN"})
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))
-        self.assertEqual("m1.tiny", result[0]['name'])
+        # older devstack does not have cirros256
+        self.assertTrue(result[0]['name'] in ('cirros256', 'm1.tiny'))
 
     def test_range_search_multi_2(self):
         flavors = self.demo_cloud.list_flavors()
         result = self.demo_cloud.range_search(
-            flavors, {"ram": "<8192", "vcpus": "MIN"})
+            flavors, {"ram": "<1024", "vcpus": "MIN"})
         self.assertIsInstance(result, list)
-        self.assertEqual(2, len(result))
+        result = self._filter_m1_flavors(result)
+        self.assertEqual(1, len(result))
         flavor_names = [r['name'] for r in result]
-        # All of these should have 1 vcpu
         self.assertIn("m1.tiny", flavor_names)
-        self.assertIn("m1.small", flavor_names)
 
     def test_range_search_multi_3(self):
         flavors = self.demo_cloud.list_flavors()
         result = self.demo_cloud.range_search(
             flavors, {"ram": ">=4096", "vcpus": "<6"})
         self.assertIsInstance(result, list)
+        result = self._filter_m1_flavors(result)
         self.assertEqual(2, len(result))
         flavor_names = [r['name'] for r in result]
         self.assertIn("m1.medium", flavor_names)
