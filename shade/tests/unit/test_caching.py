@@ -472,11 +472,13 @@ class TestMemoryCache(base.TestCase):
                                 container='image_upload_v2_test_container')
         args = {'header': ['x-object-meta-x-shade-md5:fake-md5',
                            'x-object-meta-x-shade-sha256:fake-sha256'],
-                'segment_size': 1000}
+                'segment_size': 1000,
+                'use_slo': True}
         swift_service_mock.upload.assert_called_with(
             container='image_upload_v2_test_container',
             objects=mock.ANY,
             options=args)
+
         glance_mock.tasks.create.assert_called_with(type='import', input={
             'import_from': 'image_upload_v2_test_container/name-99',
             'image_properties': {'name': 'name-99'}})

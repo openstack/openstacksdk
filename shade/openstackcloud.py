@@ -4074,9 +4074,11 @@ class OpenStackCloud(object):
             upload = swiftclient.service.SwiftUploadObject(
                 source=filename, object_name=name)
             for r in self.manager.submitTask(_tasks.ObjectCreate(
-                container=container, objects=[upload],
-                options=dict(header=header_list,
-                             segment_size=segment_size))):
+                    container=container, objects=[upload],
+                    options=dict(
+                        header=header_list,
+                        segment_size=segment_size,
+                        use_slo=True))):
                 if not r['success']:
                     raise OpenStackCloudException(
                         'Failed at action ({action}) [{error}]:'.format(**r))
