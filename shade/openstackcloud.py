@@ -4032,6 +4032,7 @@ class OpenStackCloud(object):
     def create_object(
             self, container, name, filename=None,
             md5=None, sha256=None, segment_size=None,
+            use_slo=True,
             **headers):
         """Create a file object
 
@@ -4050,6 +4051,10 @@ class OpenStackCloud(object):
             a reasonable default.
         :param headers: These will be passed through to the object creation
             API as HTTP Headers.
+        :param use_slo: If the object is large enough to need to be a Large
+            Object, use a static rather than dyanmic object. Static Objects
+            will delete segment objects when the manifest object is deleted.
+            (optional, defaults to True)
 
         :raises: ``OpenStackCloudException`` on operation error.
         """
@@ -4078,7 +4083,7 @@ class OpenStackCloud(object):
                     options=dict(
                         header=header_list,
                         segment_size=segment_size,
-                        use_slo=True))):
+                        use_slo=use_slo))):
                 if not r['success']:
                     raise OpenStackCloudException(
                         'Failed at action ({action}) [{error}]:'.format(**r))
