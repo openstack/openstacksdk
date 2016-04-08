@@ -364,13 +364,12 @@ class TestMemoryCache(base.TestCase):
             # therefore we should _not_ expect to see the new one here
             self.assertEqual([first_image], self.cloud.list_images())
 
-    def _call_create_image(self, name, container=None, **kwargs):
+    def _call_create_image(self, name, **kwargs):
         imagefile = tempfile.NamedTemporaryFile(delete=False)
         imagefile.write(b'\0')
         imagefile.close()
         self.cloud.create_image(
-            name, imagefile.name, container=container, wait=True,
-            is_public=False, **kwargs)
+            name, imagefile.name, wait=True, is_public=False, **kwargs)
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
@@ -385,9 +384,11 @@ class TestMemoryCache(base.TestCase):
         self._call_create_image('42 name')
         args = {'name': '42 name',
                 'container_format': 'bare', 'disk_format': 'qcow2',
-                'properties': {'owner_specified.shade.md5': mock.ANY,
-                               'owner_specified.shade.sha256': mock.ANY,
-                               'is_public': False}}
+                'properties': {
+                    'owner_specified.shade.md5': mock.ANY,
+                    'owner_specified.shade.sha256': mock.ANY,
+                    'owner_specified.shade.object': 'images/42 name',
+                    'is_public': False}}
         fake_image_dict = meta.obj_to_dict(fake_image)
         glance_mock.images.create.assert_called_with(**args)
         glance_mock.images.update.assert_called_with(
@@ -411,6 +412,7 @@ class TestMemoryCache(base.TestCase):
                 'container_format': 'bare', 'disk_format': 'qcow2',
                 'owner_specified.shade.md5': mock.ANY,
                 'owner_specified.shade.sha256': mock.ANY,
+                'owner_specified.shade.object': 'images/42 name',
                 'visibility': 'private',
                 'min_disk': 0, 'min_ram': 0}
         glance_mock.images.create.assert_called_with(**args)
@@ -482,8 +484,10 @@ class TestMemoryCache(base.TestCase):
         glance_mock.tasks.create.assert_called_with(type='import', input={
             'import_from': 'image_upload_v2_test_container/name-99',
             'image_properties': {'name': 'name-99'}})
+        object_path = 'image_upload_v2_test_container/name-99'
         args = {'owner_specified.shade.md5': fake_md5,
                 'owner_specified.shade.sha256': fake_sha256,
+                'owner_specified.shade.object': object_path,
                 'image_id': 'a35e8afc-cae9-4e38-8441-2cd465f79f7b'}
         glance_mock.images.update.assert_called_with(**args)
         fake_image_dict = meta.obj_to_dict(fake_image)

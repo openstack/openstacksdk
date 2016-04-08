@@ -52,6 +52,7 @@ OBJECT_MD5_KEY = 'x-object-meta-x-shade-md5'
 OBJECT_SHA256_KEY = 'x-object-meta-x-shade-sha256'
 IMAGE_MD5_KEY = 'owner_specified.shade.md5'
 IMAGE_SHA256_KEY = 'owner_specified.shade.sha256'
+IMAGE_OBJECT_KEY = 'owner_specified.shade.object'
 # Rackspace returns this for intermittent import errors
 IMAGE_ERROR_396 = "Image cannot be imported. Error code: '396'"
 DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
@@ -2170,7 +2171,9 @@ class OpenStackCloud(object):
                 raise OpenStackCloudException(
                     'Image {image} hit error state'.format(image=image_id))
 
-    def delete_image(self, name_or_id, wait=False, timeout=3600):
+    def delete_image(
+            self, name_or_id, wait=False, timeout=3600,
+            delete_objects=True):
         image = self.get_image(name_or_id)
         with _utils.shade_exceptions("Error in deleting image"):
             # Note that in v1, the param name is image, but in v2,
@@ -2183,6 +2186,11 @@ class OpenStackCloud(object):
                 self.manager.submitTask(
                     _tasks.ImageDelete(image=image.id))
             self.list_images.invalidate(self)
+
+            # Task API means an image was uploaded to swift
+            if self.image_api_use_tasks and IMAGE_OBJECT_KEY in image:
+                (container, objname) = image[IMAGE_OBJECT_KEY].split('/', 1)
+                self.delete_object(container=container, name=name)
 
         if wait:
             for count in _utils._iterate_timeout(
@@ -2280,6 +2288,7 @@ class OpenStackCloud(object):
             return current_image
         kwargs[IMAGE_MD5_KEY] = md5
         kwargs[IMAGE_SHA256_KEY] = sha256
+        kwargs[IMAGE_OBJECT_KEY] = '/'.join([container, name])
 
         if disable_vendor_agent:
             kwargs.update(self.cloud_config.config['disable_vendor_agent'])
