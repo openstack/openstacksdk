@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import testtools
 
 from openstack.network.v2 import subnet
@@ -30,6 +32,9 @@ EXAMPLE = {
     'network_id': '10',
     'tenant_id': '11',
     'subnetpool_id': '12',
+    'description': '13',
+    'created_at': '2016-03-09T12:14:57.233772',
+    'updated_at': '2016-07-09T12:14:57.233772',
 }
 
 
@@ -63,3 +68,10 @@ class TestSubnet(testtools.TestCase):
         self.assertEqual(EXAMPLE['network_id'], sot.network_id)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['subnetpool_id'], sot.subnet_pool_id)
+        self.assertEqual(EXAMPLE['description'], sot.description)
+        dt = datetime.datetime(2016, 3, 9, 12, 14, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
+        dt = datetime.datetime(2016, 7, 9, 12, 14, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))

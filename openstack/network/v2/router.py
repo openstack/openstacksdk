@@ -35,6 +35,8 @@ class Router(resource.Resource):
     #: Availability zones for the router.
     #: *Type: list of availability zone names*
     availability_zones = resource.prop('availability_zones')
+    #: The router description.
+    description = resource.prop('description')
     #: The ``network_id``, for the external gateway. *Type: dict*
     external_gateway_info = resource.prop('external_gateway_info', type=dict)
     #: The administrative state of the router, which is up ``True``

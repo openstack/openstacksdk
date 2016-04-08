@@ -33,6 +33,8 @@ class SecurityGroupRule(resource.Resource):
     #: rule is applied to incoming ingress traffic for that instance.
     #: An egress rule is applied to traffic leaving the instance.
     direction = resource.prop('direction')
+    #: The security group rule description.
+    description = resource.prop('description')
     #: Must be IPv4 or IPv6, and addresses represented in CIDR must match
     #: the ingress or egress rules.
     ethertype = resource.prop('ethertype')

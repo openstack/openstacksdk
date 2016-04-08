@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import format
 from openstack.network import network_service
 from openstack import resource
 
@@ -56,6 +57,11 @@ class Port(resource.Resource):
     #: In GET operations, the binding:vnic_type extended attribute is
     #: visible to only port owners and administrative users.
     binding_vnic_type = resource.prop('binding:vnic_type')
+    #: Timestamp when the port was created.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    created_at = resource.prop('created_at', type=format.ISO8601)
+    #: The port description.
+    description = resource.prop('description')
     #: Device ID of this port.
     device_id = resource.prop('device_id')
     #: Device owner of this port (e.g. ``network:dhcp``).
@@ -90,3 +96,6 @@ class Port(resource.Resource):
     security_group_ids = resource.prop('security_groups', type=list)
     #: The port status. Value is ``ACTIVE`` or ``DOWN``.
     status = resource.prop('status')
+    #: Timestamp when the port was last updated.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    updated_at = resource.prop('updated_at', type=format.ISO8601)

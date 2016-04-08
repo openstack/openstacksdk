@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import format
 from openstack.network import network_service
 from openstack import resource
 
@@ -34,6 +35,11 @@ class Network(resource.Resource):
     #: Availability zones for the network.
     #: *Type: list of availability zone names*
     availability_zones = resource.prop('availability_zones')
+    #: Timestamp when the network was created.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    created_at = resource.prop('created_at', type=format.ISO8601)
+    #: The network description.
+    description = resource.prop('description')
     #: The ID of the IPv4 address scope for the network.
     ipv4_address_scope_id = resource.prop('ipv4_address_scope')
     #: The ID of the IPv6 address scope for the network.
@@ -41,6 +47,9 @@ class Network(resource.Resource):
     #: The administrative state of the network, which is up ``True`` or
     #: down ``False``. *Type: bool*
     is_admin_state_up = resource.prop('admin_state_up', type=bool)
+    #: Whether or not this is the default external network.
+    #: *Type: bool*
+    is_default = resource.prop('is_default', type=bool)
     #: The port security status, which is enabled ``True`` or disabled
     #: ``False``. *Type: bool* *Default: False*
     is_port_security_enabled = resource.prop('port_security_enabled',
@@ -75,3 +84,6 @@ class Network(resource.Resource):
     #: The associated subnet IDs.
     #: *Type: list of strs of the subnet IDs*
     subnet_ids = resource.prop('subnets', type=list)
+    #: Timestamp when the network was last updated.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    updated_at = resource.prop('updated_at', type=format.ISO8601)

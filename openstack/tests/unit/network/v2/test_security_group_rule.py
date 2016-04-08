@@ -26,6 +26,7 @@ EXAMPLE = {
     'remote_group_id': '8',
     'remote_ip_prefix': '9',
     'security_group_id': '10',
+    'description': '11',
 }
 
 
@@ -55,3 +56,4 @@ class TestSecurityGroupRule(testtools.TestCase):
         self.assertEqual(EXAMPLE['remote_group_id'], sot.remote_group_id)
         self.assertEqual(EXAMPLE['remote_ip_prefix'], sot.remote_ip_prefix)
         self.assertEqual(EXAMPLE['security_group_id'], sot.security_group_id)
+        self.assertEqual(EXAMPLE['description'], sot.description)

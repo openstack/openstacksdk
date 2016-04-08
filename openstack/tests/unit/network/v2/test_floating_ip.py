@@ -24,6 +24,8 @@ EXAMPLE = {
     'port_id': '5',
     'tenant_id': '6',
     'router_id': '7',
+    'description': '8',
+    'status': 'ACTIVE',
 }
 
 
@@ -52,6 +54,8 @@ class TestFloatingIP(testtools.TestCase):
         self.assertEqual(EXAMPLE['port_id'], sot.port_id)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['router_id'], sot.router_id)
+        self.assertEqual(EXAMPLE['description'], sot.description)
+        self.assertEqual(EXAMPLE['status'], sot.status)
 
     def test_find_available(self):
         mock_session = mock.Mock()

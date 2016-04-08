@@ -26,6 +26,7 @@ EXAMPLE = {
     'routes': [],
     'availability_zone_hints': [],
     'availability_zones': [],
+    'description': '10',
 }
 
 EXAMPLE_WITH_OPTIONAL = {
@@ -42,6 +43,7 @@ EXAMPLE_WITH_OPTIONAL = {
     'distributed': True,
     'availability_zone_hints': ['zone-1', 'zone-2'],
     'availability_zones': ['zone-2'],
+    'description': 'description',
 }
 
 
@@ -75,6 +77,7 @@ class TestRouter(testtools.TestCase):
                          sot.availability_zone_hints)
         self.assertEqual(EXAMPLE['availability_zones'],
                          sot.availability_zones)
+        self.assertEqual(EXAMPLE['description'], sot.description)
 
     def test_make_it_with_optional(self):
         sot = router.Router(EXAMPLE_WITH_OPTIONAL)
@@ -92,6 +95,8 @@ class TestRouter(testtools.TestCase):
                          sot.availability_zone_hints)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['availability_zones'],
                          sot.availability_zones)
+        self.assertEqual(EXAMPLE_WITH_OPTIONAL['description'],
+                         sot.description)
 
     def test_add_interface_subnet(self):
         # Add subnet to a router

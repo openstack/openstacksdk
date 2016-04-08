@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import format
 from openstack.network import network_service
 from openstack import resource
 
@@ -32,6 +33,11 @@ class Subnet(resource.Resource):
     allocation_pools = resource.prop('allocation_pools')
     #: The CIDR.
     cidr = resource.prop('cidr')
+    #: Timestamp when the subnet was created.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    created_at = resource.prop('created_at', type=format.ISO8601)
+    #: The subnet description.
+    description = resource.prop('description')
     #: A list of DNS nameservers.
     dns_nameservers = resource.prop('dns_nameservers')
     #: The gateway IP address.
@@ -56,3 +62,6 @@ class Subnet(resource.Resource):
     project_id = resource.prop('tenant_id')
     #: The subnet pool ID from which to obtain a CIDR.
     subnet_pool_id = resource.prop('subnetpool_id')
+    #: Timestamp when the subnet was last updated.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    updated_at = resource.prop('updated_at', type=format.ISO8601)
