@@ -2338,15 +2338,28 @@ class OpenStackCloud(object):
                     image_kwargs[k] = int(image_kwargs[k])
         image = self.manager.submitTask(_tasks.ImageCreate(
             name=name, **image_kwargs))
-        self.manager.submitTask(_tasks.ImageUpload(
-            image_id=image.id, image_data=image_data))
+        try:
+            self.manager.submitTask(_tasks.ImageUpload(
+                image_id=image.id, image_data=image_data))
+        except Exception:
+            self.log.debug("Deleting failed upload of image {name}".format(
+                image=image['name']))
+            self.manager.submitTask(_tasks.ImageDelete(image_id=image.id))
+            raise
+
         return image
 
     def _upload_image_put_v1(self, name, image_data, **image_kwargs):
         image = self.manager.submitTask(_tasks.ImageCreate(
             name=name, **image_kwargs))
-        self.manager.submitTask(_tasks.ImageUpdate(
-            image=image, data=image_data))
+        try:
+            self.manager.submitTask(_tasks.ImageUpdate(
+                image=image, data=image_data))
+        except Exception:
+            self.log.debug("Deleting failed upload of image {name}".format(
+                image=image['name']))
+            self.manager.submitTask(_tasks.ImageDelete(image_id=image.id))
+            raise
         return image
 
     def _upload_image_put(self, name, filename, **image_kwargs):
