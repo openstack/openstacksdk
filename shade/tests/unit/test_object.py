@@ -64,8 +64,10 @@ class TestObject(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'swift_client')
     def test_get_object_segment_size(self, swift_mock):
-        swift_mock.get_capabilities.return_value = {'swift':
-                                                    {'max_file_size': 1000}}
+        swift_mock.get_capabilities.return_value = {
+            'swift': {'max_file_size': 1000},
+            'slo': {'min_segment_size': 500}}
+        self.assertEqual(500, self.cloud.get_object_segment_size(400))
         self.assertEqual(900, self.cloud.get_object_segment_size(900))
         self.assertEqual(1000, self.cloud.get_object_segment_size(1000))
         self.assertEqual(1000, self.cloud.get_object_segment_size(1100))

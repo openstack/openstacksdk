@@ -3977,6 +3977,7 @@ class OpenStackCloud(object):
         '''get a segment size that will work given capabilities'''
         if segment_size is None:
             segment_size = DEFAULT_OBJECT_SEGMENT_SIZE
+        min_segment_size = 0
         try:
             caps = self.get_object_capabilities()
         except swift_exceptions.ClientException as e:
@@ -3991,9 +3992,12 @@ class OpenStackCloud(object):
         else:
             server_max_file_size = caps.get('swift', {}).get('max_file_size',
                                                              0)
+            min_segment_size = caps.get('slo', {}).get('min_segment_size', 0)
 
         if segment_size > server_max_file_size:
             return server_max_file_size
+        if segment_size < min_segment_size:
+            return min_segment_size
         return segment_size
 
     def is_object_stale(
