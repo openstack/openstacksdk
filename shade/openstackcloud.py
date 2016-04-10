@@ -3704,7 +3704,7 @@ class OpenStackCloud(object):
             root_volume=None, terminate_volume=False,
             wait=False, timeout=180, reuse_ips=True,
             network=None, boot_from_volume=False, volume_size='50',
-            boot_volume=None, volumes=None,
+            boot_volume=None, volumes=None, nat_destination=None,
             **kwargs):
         """Create a virtual server instance.
 
@@ -3777,6 +3777,10 @@ class OpenStackCloud(object):
                                  volume from the image and use that.
         :param volume_size: When booting an image from volume, how big should
                             the created volume be? Defaults to 50.
+        :param nat_destination: Which network should a created floating IP
+                                be attached to, if it's not possible to
+                                infer from the cloud's configuration.
+                                (Optional, defaults to None)
         :returns: A dict representing the created server.
         :raises: OpenStackCloudException on operation error.
         """
@@ -3836,7 +3840,8 @@ class OpenStackCloud(object):
         if wait:
             server = self.wait_for_server(
                 server, auto_ip=auto_ip, ips=ips, ip_pool=ip_pool,
-                reuse=reuse_ips, timeout=timeout
+                reuse=reuse_ips, timeout=timeout,
+                nat_destination=nat_destination,
             )
 
         server.adminPass = admin_pass
@@ -3844,7 +3849,7 @@ class OpenStackCloud(object):
 
     def wait_for_server(
             self, server, auto_ip=True, ips=None, ip_pool=None,
-            reuse=True, timeout=180):
+            reuse=True, timeout=180, nat_destination=None):
         """
         Wait for a server to reach ACTIVE status.
         """
@@ -3876,14 +3881,15 @@ class OpenStackCloud(object):
             server = self.get_active_server(
                 server=server, reuse=reuse,
                 auto_ip=auto_ip, ips=ips, ip_pool=ip_pool,
-                wait=True, timeout=remaining_timeout)
+                wait=True, timeout=remaining_timeout,
+                nat_destination=nat_destination)
 
             if server is not None and server['status'] == 'ACTIVE':
                 return server
 
     def get_active_server(
             self, server, auto_ip=True, ips=None, ip_pool=None,
-            reuse=True, wait=False, timeout=180):
+            reuse=True, wait=False, timeout=180, nat_destination=None):
 
         if server['status'] == 'ERROR':
             if 'fault' in server and 'message' in server['fault']:
@@ -3899,6 +3905,7 @@ class OpenStackCloud(object):
             if 'addresses' in server and server['addresses']:
                 return self.add_ips_to_server(
                     server, auto_ip, ips, ip_pool, reuse=reuse,
+                    nat_destination=nat_destination,
                     wait=wait, timeout=timeout)
 
             self.log.debug(
