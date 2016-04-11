@@ -101,10 +101,10 @@ class TestStack(base.TestCase):
     def test_delete_stack_exception(self, mock_heat, mock_get):
         stack = {'id': 'stack_id', 'name': 'stack_name'}
         mock_get.return_value = stack
-        mock_heat.stacks.delete.side_effect = Exception()
+        mock_heat.stacks.delete.side_effect = Exception('ouch')
         with testtools.ExpectedException(
             shade.OpenStackCloudException,
-            "Failed to delete stack %s" % stack['id']
+            "Failed to delete stack stack_name: ouch"
         ):
             self.cloud.delete_stack('stack_name')
 

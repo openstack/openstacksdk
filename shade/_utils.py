@@ -21,6 +21,7 @@ import six
 import time
 
 from decorator import decorator
+from heatclient import exc as heat_exc
 from neutronclient.common import exceptions as neutron_exc
 
 from shade import _log
@@ -532,6 +533,18 @@ def cache_on_arguments(*cache_on_args, **cache_on_kwargs):
 
         return _cache_decorator
     return _inner_cache_on_arguments
+
+
+@contextlib.contextmanager
+def heat_exceptions(error_message):
+    try:
+        yield
+    except heat_exc.NotFound as e:
+        raise exc.OpenStackCloudResourceNotFound(
+            "{msg}: {exc}".format(msg=error_message, exc=str(e)))
+    except Exception as e:
+        raise exc.OpenStackCloudException(
+            "{msg}: {exc}".format(msg=error_message, exc=str(e)))
 
 
 @contextlib.contextmanager

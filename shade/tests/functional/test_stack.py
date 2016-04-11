@@ -21,6 +21,7 @@ Functional tests for `shade` stack methods.
 
 import tempfile
 
+from shade import exc
 from shade import openstack_cloud
 from shade.tests import base
 
@@ -70,6 +71,8 @@ resource_registry:
   My::Simple::Template: %s
 '''
 
+validate_template = '''heat_template_version: asdf-no-such-version '''
+
 
 class TestStack(base.TestCase):
 
@@ -81,6 +84,16 @@ class TestStack(base.TestCase):
 
     def _cleanup_stack(self):
         self.cloud.delete_stack(self.stack_name)
+
+    def test_stack_validation(self):
+        test_template = tempfile.NamedTemporaryFile(delete=False)
+        test_template.write(validate_template)
+        test_template.close()
+        stack_name = self.getUniqueString('validate_template')
+        self.assertRaises(exc.OpenStackCloudException,
+                          self.cloud.create_stack,
+                          name=stack_name,
+                          template_file=test_template.name)
 
     def test_stack_simple(self):
         test_template = tempfile.NamedTemporaryFile(delete=False)

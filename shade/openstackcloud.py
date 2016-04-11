@@ -32,6 +32,7 @@ import glanceclient.exc
 import heatclient.client
 from heatclient.common import event_utils
 from heatclient.common import template_utils
+from heatclient import exc as heat_exceptions
 import keystoneauth1.exceptions
 import keystoneclient.client
 import neutronclient.neutron.client
@@ -846,7 +847,7 @@ class OpenStackCloud(object):
             environment=env,
             timeout_mins=timeout // 60,
         )
-        with _utils.shade_exceptions("Error creating stack {name}".format(
+        with _utils.heat_exceptions("Error creating stack {name}".format(
                 name=name)):
             self.manager.submitTask(_tasks.StackCreate(**params))
         if wait:
@@ -869,8 +870,8 @@ class OpenStackCloud(object):
             self.log.debug("Stack %s not found for deleting" % name_or_id)
             return False
 
-        with _utils.shade_exceptions("Failed to delete stack {id}".format(
-                id=stack['id'])):
+        with _utils.heat_exceptions("Failed to delete stack {id}".format(
+                id=name_or_id)):
             self.manager.submitTask(_tasks.StackDelete(id=stack['id']))
         return True
 
@@ -1775,8 +1776,11 @@ class OpenStackCloud(object):
             # stack names are mandatory and enforced unique in the project
             # so a StackGet can always be used for name or ID.
             with _utils.shade_exceptions("Error fetching stack"):
-                stacks = [self.manager.submitTask(
-                    _tasks.StackGet(stack_id=name_or_id))]
+                try:
+                    stacks = [self.manager.submitTask(
+                        _tasks.StackGet(stack_id=name_or_id))]
+                except heat_exceptions.NotFound:
+                    return []
             nstacks = _utils.normalize_stacks(stacks)
             return _utils._filter_list(nstacks, name_or_id, filters)
 
