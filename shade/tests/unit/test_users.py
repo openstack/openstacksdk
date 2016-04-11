@@ -101,7 +101,8 @@ class TestUsers(base.TestCase):
         password = 'mice-rule'
         with testtools.ExpectedException(
                 shade.OpenStackCloudException,
-                "User creation requires an explicit domain_id argument."
+                "User or project creation requires an explicit"
+                " domain_id argument."
         ):
             self.cloud.create_user(name=name, email=email, password=password)
 

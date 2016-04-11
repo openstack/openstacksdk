@@ -62,7 +62,8 @@ class TestProject(base.TestCase):
         mock_api_version.return_value = '3'
         with testtools.ExpectedException(
                 shade.OpenStackCloudException,
-                "User creation requires an explicit domain_id argument."
+                "User or project creation requires an explicit"
+                " domain_id argument."
         ):
             self.cloud.create_project(name='foo', description='bar')
 
