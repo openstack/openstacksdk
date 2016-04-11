@@ -30,6 +30,7 @@ import cinderclient.exceptions as cinder_exceptions
 import glanceclient
 import glanceclient.exc
 import heatclient.client
+from heatclient.common import event_utils
 from heatclient.common import template_utils
 import keystoneauth1.exceptions
 import keystoneclient.client
@@ -826,7 +827,7 @@ class OpenStackCloud(object):
             template_file=None, template_url=None,
             template_object=None, files=None,
             rollback=True,
-            wait=False, timeout=180,
+            wait=False, timeout=3600,
             environment_files=None,
             **parameters):
         envfiles, env = template_utils.process_multiple_environments_and_files(
@@ -843,18 +844,15 @@ class OpenStackCloud(object):
             template=template,
             files=dict(list(tpl_files.items()) + list(envfiles.items())),
             environment=env,
+            timeout_mins=timeout // 60,
         )
         with _utils.shade_exceptions("Error creating stack {name}".format(
                 name=name)):
-            stack = self.manager.submitTask(_tasks.StackCreate(**params))
-        if not wait:
-            return stack
-        for count in _utils._iterate_timeout(
-                timeout,
-                "Timed out waiting for heat stack to finish"):
-            stack = self.get_stack(name)
-            if stack:
-                return stack
+            self.manager.submitTask(_tasks.StackCreate(**params))
+        if wait:
+            event_utils.poll_for_events(self.heat_client, stack_name=name,
+                                        action='CREATE')
+        return self.get_stack(name)
 
     def delete_stack(self, name_or_id):
         """Delete a Heat Stack

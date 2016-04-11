@@ -1,0 +1,137 @@
+# -*- coding: utf-8 -*-
+
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+"""
+test_stack
+----------------------------------
+
+Functional tests for `shade` stack methods.
+"""
+
+import tempfile
+
+from shade import openstack_cloud
+from shade.tests import base
+
+simple_template = '''heat_template_version: 2014-10-16
+parameters:
+  length:
+    type: number
+    default: 10
+
+resources:
+  my_rand:
+    type: OS::Heat::RandomString
+    properties:
+      length: {get_param: length}
+outputs:
+  rand:
+    value:
+      get_attr: [my_rand, value]
+'''
+
+root_template = '''heat_template_version: 2014-10-16
+parameters:
+  length:
+    type: number
+    default: 10
+  count:
+    type: number
+    default: 5
+
+resources:
+  my_rands:
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: {get_param: count}
+      resource_def:
+        type: My::Simple::Template
+        properties:
+          length: {get_param: length}
+outputs:
+  rands:
+    value:
+      get_attr: [my_rands, attributes, rand]
+'''
+
+environment = '''
+resource_registry:
+  My::Simple::Template: %s
+'''
+
+
+class TestStack(base.TestCase):
+
+    def setUp(self):
+        super(TestStack, self).setUp()
+        self.cloud = openstack_cloud(cloud='devstack')
+        if not self.cloud.has_service('orchestration'):
+            self.skipTest('Orchestration service not supported by cloud')
+
+    def _cleanup_stack(self):
+        self.cloud.delete_stack(self.stack_name)
+
+    def test_stack_simple(self):
+        test_template = tempfile.NamedTemporaryFile(delete=False)
+        test_template.write(simple_template)
+        test_template.close()
+        self.stack_name = self.getUniqueString('simple_stack')
+        self.addCleanup(self._cleanup_stack)
+        stack = self.cloud.create_stack(name=self.stack_name,
+                                        template_file=test_template.name,
+                                        wait=True)
+
+        # assert expected values in stack
+        self.assertEqual('CREATE_COMPLETE', stack['stack_status'])
+        rand = stack['outputs'][0]['output_value']
+        self.assertEqual(10, len(rand))
+
+        # assert get_stack matches returned create_stack
+        stack = self.cloud.get_stack(self.stack_name)
+        self.assertEqual('CREATE_COMPLETE', stack['stack_status'])
+        self.assertEqual(rand, stack['outputs'][0]['output_value'])
+
+        # assert stack is in list_stacks
+        stacks = self.cloud.list_stacks()
+        stack_ids = [s['id'] for s in stacks]
+        self.assertIn(stack['id'], stack_ids)
+
+    def test_stack_nested(self):
+
+        test_template = tempfile.NamedTemporaryFile(
+            suffix='.yaml', delete=False)
+        test_template.write(root_template)
+        test_template.close()
+
+        simple_tmpl = tempfile.NamedTemporaryFile(suffix='.yaml', delete=False)
+        simple_tmpl.write(simple_template)
+        simple_tmpl.close()
+
+        env = tempfile.NamedTemporaryFile(suffix='.yaml', delete=False)
+        env.write(environment % simple_tmpl.name)
+        env.close()
+
+        self.stack_name = self.getUniqueString('nested_stack')
+        self.addCleanup(self._cleanup_stack)
+        stack = self.cloud.create_stack(name=self.stack_name,
+                                        template_file=test_template.name,
+                                        environment_files=[env.name],
+                                        wait=True)
+
+        # assert expected values in stack
+        self.assertEqual('CREATE_COMPLETE', stack['stack_status'])
+        rands = stack['outputs'][0]['output_value']
+        self.assertEqual(['0', '1', '2', '3', '4'], sorted(rands.keys()))
+        for rand in rands.values():
+            self.assertEqual(10, len(rand))
