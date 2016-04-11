@@ -67,25 +67,25 @@ class TestProject(base.TestCase):
             self.cloud.create_project(name='foo', description='bar')
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, 'update_project')
+    @mock.patch.object(shade.OpenStackCloud, 'get_project')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_delete_project_v2(self, mock_keystone, mock_update,
+    def test_delete_project_v2(self, mock_keystone, mock_get,
                                mock_api_version):
         mock_api_version.return_value = '2'
-        mock_update.return_value = dict(id='123')
+        mock_get.return_value = dict(id='123')
         self.cloud.delete_project('123')
-        mock_update.assert_called_once_with('123', enabled=False)
+        mock_get.assert_called_once_with('123')
         mock_keystone.tenants.delete.assert_called_once_with(tenant='123')
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, 'update_project')
+    @mock.patch.object(shade.OpenStackCloud, 'get_project')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_delete_project_v3(self, mock_keystone, mock_update,
+    def test_delete_project_v3(self, mock_keystone, mock_get,
                                mock_api_version):
         mock_api_version.return_value = '3'
-        mock_update.return_value = dict(id='123')
+        mock_get.return_value = dict(id='123')
         self.cloud.delete_project('123')
-        mock_update.assert_called_once_with('123', enabled=False)
+        mock_get.assert_called_once_with('123')
         mock_keystone.projects.delete.assert_called_once_with(project='123')
 
     @mock.patch.object(shade.OpenStackCloud, 'get_project')

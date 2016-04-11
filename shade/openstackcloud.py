@@ -522,7 +522,7 @@ class OpenStackCloud(object):
         with _utils.shade_exceptions(
                 "Error in deleting project {project}".format(
                     project=name_or_id)):
-            project = self.update_project(name_or_id, enabled=False)
+            project = self.get_project(name_or_id)
             params = {}
             if self.cloud_config.get_api_version('identity') == '3':
                 params['project'] = project['id']
