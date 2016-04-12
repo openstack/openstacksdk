@@ -47,6 +47,7 @@ class TestFloatingIP(base.TestCase):
         floating_ip_dict = {
             "id": "this-is-a-floating-ip-id",
             "fixed_ip_address": None,
+            "internal_network": None,
             "floating_ip_address": "203.0.113.29",
             "network": "this-is-a-net-or-pool-id",
             "attached": False,
@@ -77,7 +78,7 @@ class TestFloatingIP(base.TestCase):
 
         mock_add_ip_from_pool.assert_called_with(
             server_dict, pool, reuse=True, wait=False, timeout=60,
-            fixed_address=None)
+            fixed_address=None, nat_destination=None)
 
     @patch.object(OpenStackCloud, 'nova_client')
     @patch.object(OpenStackCloud, 'add_ip_list')
