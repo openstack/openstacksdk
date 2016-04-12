@@ -27,6 +27,7 @@ EXAMPLE = {
     'tenant_id': '9',
     'protocol': '10',
     'session_persistence': '11',
+    'loadbalancers': [{'id': '12'}],
 }
 
 
@@ -58,3 +59,4 @@ class TestPool(testtools.TestCase):
         self.assertEqual(EXAMPLE['protocol'], sot.protocol)
         self.assertEqual(EXAMPLE['session_persistence'],
                          sot.session_persistence)
+        self.assertEqual(EXAMPLE['loadbalancers'], sot.load_balancer_ids)

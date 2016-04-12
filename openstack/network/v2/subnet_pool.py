@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import format
 from openstack.network import network_service
 from openstack import resource
 
@@ -30,6 +31,9 @@ class SubnetPool(resource.Resource):
     # Properties
     #: The ID of the address scope associated with the subnet pool.
     address_scope_id = resource.prop('address_scope_id')
+    #: Timestamp when the subnet pool was created.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    created_at = resource.prop('created_at', type=format.ISO8601)
     #: The length of the prefix to allocate when the cidr or prefixlen
     #: attributes are omitted when creating a subnet. *Type: int*
     default_prefix_length = resource.prop('default_prefixlen', type=int)
@@ -39,9 +43,14 @@ class SubnetPool(resource.Resource):
     #: default_quota is measured units of /64. All projects that use the
     #: subnet pool have the same prefix quota applied. *Type: int*
     default_quota = resource.prop('default_quota', type=int)
+    #: The subnet pool description.
+    description = resource.prop('description')
     #: Read-only. The IP address family of the list of prefixes.
     #: *Type: int*
     ip_version = resource.prop('ip_version', type=int)
+    #: Whether or not this is the default subnet pool.
+    #: *Type: bool*
+    is_default = resource.prop('is_default', type=bool)
     #: Indicates whether this subnet pool is shared across all projects.
     #: *Type: bool*
     is_shared = resource.prop('shared', type=bool)
@@ -59,3 +68,6 @@ class SubnetPool(resource.Resource):
     #: The adjacent prefixes are merged and treated as a single prefix.
     #: *Type: list*
     prefixes = resource.prop('prefixes', type=list)
+    #: Timestamp when the subnet pool was last updated.
+    #: *Type: datetime object parsed from ISO 8601 formatted string*
+    updated_at = resource.prop('updated_at', type=format.ISO8601)

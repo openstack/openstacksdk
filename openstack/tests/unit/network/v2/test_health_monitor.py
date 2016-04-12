@@ -27,6 +27,7 @@ EXAMPLE = {
     'timeout': '9',
     'type': '10',
     'url_path': '11',
+    'name': '12',
 }
 
 
@@ -57,3 +58,4 @@ class TestHealthMonitor(testtools.TestCase):
         self.assertEqual(EXAMPLE['timeout'], sot.timeout)
         self.assertEqual(EXAMPLE['type'], sot.type)
         self.assertEqual(EXAMPLE['url_path'], sot.url_path)
+        self.assertEqual(EXAMPLE['name'], sot.name)

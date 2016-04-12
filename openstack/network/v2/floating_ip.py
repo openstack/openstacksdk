@@ -30,6 +30,8 @@ class FloatingIP(resource.Resource):
     allow_list = True
 
     # Properties
+    #: The floating IP description.
+    description = resource.prop('description')
     #: The fixed IP address associated with the floating IP. If you
     #: intend to associate the floating IP with a fixed IP at creation
     #: time, then you must indicate the identifier of the internal port.
@@ -47,6 +49,8 @@ class FloatingIP(resource.Resource):
     project_id = resource.prop('tenant_id')
     #: The ID of an associated router.
     router_id = resource.prop('router_id')
+    #: The floating IP status. Value is ``ACTIVE`` or ``DOWN``.
+    status = resource.prop('status')
 
     @classmethod
     def find_available(cls, session):

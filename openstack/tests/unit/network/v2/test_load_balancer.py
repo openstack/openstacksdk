@@ -28,6 +28,7 @@ EXAMPLE = {
     'vip_subnet_id': '10',
     'vip_port_id': '11',
     'provider': '12',
+    'pools': [{'id', '13'}],
 }
 
 
@@ -60,3 +61,4 @@ class TestLoadBalancer(testtools.TestCase):
         self.assertEqual(EXAMPLE['vip_subnet_id'], sot.vip_subnet_id)
         self.assertEqual(EXAMPLE['vip_port_id'], sot.vip_port_id)
         self.assertEqual(EXAMPLE['provider'], sot.provider)
+        self.assertEqual(EXAMPLE['pools'], sot.pool_ids)

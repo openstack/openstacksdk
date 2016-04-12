@@ -42,6 +42,9 @@ class Pool(resource.Resource):
     #: List of associated listeners.
     #: *Type: list of dicts which contain the listener IDs*
     listener_ids = resource.prop('listeners', type=list)
+    #: List of associated load balancers.
+    #: *Type: list of dicts which contain the load balancer IDs*
+    load_balancer_ids = resource.prop('loadbalancers', type=list)
     #: List of members that belong to the pool.
     #: *Type: list of dicts which contain the member IDs*
     member_ids = resource.prop('members', type=list)

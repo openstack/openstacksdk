@@ -39,6 +39,8 @@ class HealthMonitor(resource.Resource):
     is_admin_state_up = resource.prop('admin_state_up', type=bool)
     #: Maximum consecutive health probe tries.
     max_retries = resource.prop('max_retries')
+    #: Name of the health monitor.
+    name = resource.prop('name')
     #: List of pools associated with this health monitor
     #: *Type: list of dicts which contain the pool IDs*
     pool_ids = resource.prop('pools', type=list)

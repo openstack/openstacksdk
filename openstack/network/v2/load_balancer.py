@@ -40,6 +40,9 @@ class LoadBalancer(resource.Resource):
     name = resource.prop('name')
     #: Status of load_balancer operating, e.g. ONLINE, OFFLINE.
     operating_status = resource.prop('operating_status')
+    #: List of pools associated with this load balancer.
+    #: *Type: list of dicts which contain the pool IDs*
+    pool_ids = resource.prop('pools', type=list)
     #: The ID of the project this load balancer is associated with.
     project_id = resource.prop('tenant_id')
     #: The name of the provider.

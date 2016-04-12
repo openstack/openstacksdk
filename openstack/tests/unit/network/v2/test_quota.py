@@ -26,6 +26,11 @@ EXAMPLE = {
     'security_group_rule': 8,
     'security_group': 9,
     'rbac_policy': -1,
+    'healthmonitor': 11,
+    'listener': 12,
+    'loadbalancer': 13,
+    'l7policy': 14,
+    'pool': 15,
 }
 
 
@@ -56,3 +61,8 @@ class TestQuota(testtools.TestCase):
                          sot.security_group_rules)
         self.assertEqual(EXAMPLE['security_group'], sot.security_groups)
         self.assertEqual(EXAMPLE['rbac_policy'], sot.rbac_policies)
+        self.assertEqual(EXAMPLE['healthmonitor'], sot.health_monitors)
+        self.assertEqual(EXAMPLE['listener'], sot.listeners)
+        self.assertEqual(EXAMPLE['loadbalancer'], sot.load_balancers)
+        self.assertEqual(EXAMPLE['l7policy'], sot.l7_policies)
+        self.assertEqual(EXAMPLE['pool'], sot.pools)

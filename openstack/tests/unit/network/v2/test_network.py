@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import testtools
 
 from openstack.network.v2 import network
@@ -34,6 +36,10 @@ EXAMPLE = {
     'availability_zones': ['16'],
     'ipv4_address_scope': '17',
     'ipv6_address_scope': '18',
+    'description': '19',
+    'created_at': '2016-03-09T12:14:57.233772',
+    'updated_at': '2016-07-09T12:14:57.233772',
+    'is_default': False,
 }
 
 
@@ -78,3 +84,11 @@ class TestNetwork(testtools.TestCase):
                          sot.ipv4_address_scope_id)
         self.assertEqual(EXAMPLE['ipv6_address_scope'],
                          sot.ipv6_address_scope_id)
+        self.assertEqual(EXAMPLE['description'], sot.description)
+        dt = datetime.datetime(2016, 3, 9, 12, 14, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
+        dt = datetime.datetime(2016, 7, 9, 12, 14, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
+        self.assertFalse(sot.is_default)

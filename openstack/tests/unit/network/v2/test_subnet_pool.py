@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import testtools
 
 from openstack.network.v2 import subnet_pool
@@ -27,6 +29,10 @@ EXAMPLE = {
     'ip_version': 4,
     'shared': True,
     'address_scope_id': '11',
+    'description': '12',
+    'created_at': '2016-03-09T12:14:57.233772',
+    'updated_at': '2016-07-09T12:14:57.233772',
+    'is_default': True,
 }
 
 
@@ -60,3 +66,11 @@ class TestSubnetpool(testtools.TestCase):
         self.assertEqual(EXAMPLE['ip_version'], sot.ip_version)
         self.assertTrue(sot.is_shared)
         self.assertEqual(EXAMPLE['address_scope_id'], sot.address_scope_id)
+        self.assertEqual(EXAMPLE['description'], sot.description)
+        dt = datetime.datetime(2016, 3, 9, 12, 14, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
+        dt = datetime.datetime(2016, 7, 9, 12, 14, 57, 233772).replace(
+            tzinfo=None)
+        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
+        self.assertTrue(sot.is_default)
