@@ -28,6 +28,9 @@ class TestSession(testtools.TestCase):
             "http://127.0.0.1:9292/v1",
             session.parse_url(filt, "http://127.0.0.1:9292"))
         self.assertEqual(
+            "http://127.0.0.1:9292/foo/v1",
+            session.parse_url(filt, "http://127.0.0.1:9292/foo"))
+        self.assertEqual(
             "http://127.0.0.1:9292/v2",
             session.parse_url(filt, "http://127.0.0.1:9292/v2.0"))
         filt.version = 'v1'
