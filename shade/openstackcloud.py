@@ -3344,19 +3344,32 @@ class OpenStackCloud(object):
             return (None, None)
         port = None
         if not fixed_address:
-            if nat_destination:
-                nat_network = self.get_network(nat_destination)
-                if not nat_network:
-                    raise OpenStackCloudException(
-                        'NAT Destination {nat_destination} was configured'
-                        ' but not found on the cloud. Please check your'
-                        ' config and your cloud and try again.'.format(
-                            nat_destination=nat_destination))
-            else:
-                nat_network = self.get_nat_destination()
-            if len(ports) == 1 or not nat_network:
+            if len(ports) == 1:
                 port = ports[0]
-                if len(ports) > 1 and not nat_network:
+            else:
+                if nat_destination:
+                    nat_network = self.get_network(nat_destination)
+                    if not nat_network:
+                        raise OpenStackCloudException(
+                            'NAT Destination {nat_destination} was configured'
+                            ' but not found on the cloud. Please check your'
+                            ' config and your cloud and try again.'.format(
+                                nat_destination=nat_destination))
+                else:
+                    nat_network = self.get_nat_destination()
+
+                if nat_network:
+                    for maybe_port in ports:
+                        if maybe_port['network_id'] == nat_network['id']:
+                            port = maybe_port
+                    if not port:
+                        raise OpenStackCloudException(
+                            'No port on server {server} was found matching'
+                            ' the network configured as the NAT destination'
+                            ' {dest}. Please check your config'.format(
+                                server=server['id'], dest=nat_network['name']))
+                else:
+                    port = ports[0]
                     warnings.warn(
                         'During Floating IP creation, multiple private'
                         ' networks were found. {net} is being selected at'
@@ -3366,17 +3379,6 @@ class OpenStackCloud(object):
                         ' your clouds.yaml file. If you do not have a'
                         ' clouds.yaml file, please make one - your setup'
                         ' is complicated.'.format(net=port['network_id']))
-            else:
-                for maybe_port in ports:
-                    if maybe_port['network_id'] == nat_network['id']:
-                        port = maybe_port
-                        break
-                if not port:
-                    raise OpenStackCloudException(
-                        'No port on server {server} was found matching the'
-                        ' network configured as the NAT destination {dest}.'
-                        ' Please check your config'.format(
-                            server=server['id'], dest=nat_network['name']))
 
             # Select the first available IPv4 address
             for address in port.get('fixed_ips', list()):
