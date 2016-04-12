@@ -147,13 +147,13 @@ class OpenStackCloud(object):
         self.secgroup_source = cloud_config.config['secgroup_source']
         self.force_ipv4 = cloud_config.force_ipv4
 
-        self._external_network_name_or_id = cloud_config.config.get(
-            'external_network', None)
+        self._external_network_names = cloud_config.get_external_networks()
+        self._internal_network_names = cloud_config.get_internal_networks()
+        self._nat_destination = cloud_config.get_nat_destination()
+        self._default_network = cloud_config.get_default_network()
+
         self._use_external_network = cloud_config.config.get(
             'use_external_network', True)
-
-        self._internal_network_name_or_id = cloud_config.config.get(
-            'internal_network', None)
         self._use_internal_network = cloud_config.config.get(
             'use_internal_network', True)
 
@@ -1390,70 +1390,150 @@ class OpenStackCloud(object):
         with self._networks_lock:
             self._external_networks = []
             self._internal_networks = []
-            self._external_network_stamp = False
-            self._internal_network_stamp = False
+            self._nat_destination_network = None
+            self._default_network_network = None
+            self._network_list_stamp = False
 
-    def _get_network(
-            self,
-            name_or_id,
-            use_network_func,
-            network_cache,
-            network_stamp,
-            filters):
-        if not use_network_func():
-            return []
-        if network_cache:
-            return network_cache
-        if network_stamp:
-            return []
-        if not self.has_service('network'):
-            return []
-        if name_or_id:
-            ext_net = self.get_network(name_or_id)
-            if not ext_net:
-                raise OpenStackCloudException(
-                    "Network {network} was provided for external"
-                    " access and that network could not be found".format(
-                        network=name_or_id))
-            else:
-                return []
-        try:
-            # TODO(mordred): Rackspace exposes neutron but it does not
-            # work. I think that overriding what the service catalog
-            # reports should be a thing os-client-config should handle
-            # in a vendor profile - but for now it does not. That means
-            # this search_networks can just totally fail. If it does though,
-            # that's fine, clearly the neutron introspection is not going
-            # to work.
-            return self.search_networks(filters=filters)
-        except OpenStackCloudException:
-            pass
-        return []
+    def _find_interesting_networks(self):
+        if self._networks_lock.acquire():
+            try:
+                if self._network_list_stamp:
+                    return
+                if (not self._use_external_network
+                        and not self._use_internal_network):
+                    # Both have been flagged as skip - don't do a list
+                    return
+                if not self.has_service('network'):
+                    return
+
+                external_networks = []
+                internal_networks = []
+                nat_destination = None
+                default_network = None
+
+                # Filter locally because we have an or condition
+                try:
+                    # TODO(mordred): Rackspace exposes neutron but it does not
+                    # work. I think that overriding what the service catalog
+                    # reports should be a thing os-client-config should handle
+                    # in a vendor profile - but for now it does not. That means
+                    # this search_networks can just totally fail. If it does
+                    # though, that's fine, clearly the neutron introspection is
+                    # not going to work.
+                    all_networks = self.list_networks()
+                except OpenStackCloudException:
+                    self._network_list_stamp = True
+                    return
+
+                for network in all_networks:
+                    # External networks
+                    if (network['name'] in self._external_network_names
+                            or network['id'] in self._external_network_names):
+                        external_networks.append(network)
+                    elif (('router:external' in network
+                            and network['router:external']) or
+                            'provider:network_type' in network):
+                        external_networks.append(network)
+
+                    # Internal networks
+                    if (network['name'] in self._internal_network_names
+                            or network['id'] in self._internal_network_names):
+                        internal_networks.append(network)
+                    elif (('router:external' in network
+                            and not network['router:external']) and
+                            'provider:network_type' not in network):
+                        internal_networks.append(network)
+
+                    # NAT Destination
+                    if self._nat_destination in (
+                            network['name'], network['id']):
+                        if nat_destination:
+                            raise OpenStackCloudException(
+                                'Multiple networks were found matching'
+                                ' {nat_net} which is the network configured'
+                                ' to be the NAT destination. Please check your'
+                                ' cloud resources. It is probably a good idea'
+                                ' to configure this network by id rather than'
+                                ' by name.'.format(
+                                    nat_net=self._nat_destination))
+                        nat_destination = network
+
+                    # Default network
+                    if self._default_network in (
+                            network['name'], network['id']):
+                        if default_network:
+                            raise OpenStackCloudException(
+                                'Multiple networks were found matching'
+                                ' {default_net} which is the network'
+                                ' configured to be the default interface'
+                                ' network. Please check your cloud resources.'
+                                ' It is probably a good idea'
+                                ' to configure this network by id rather than'
+                                ' by name.'.format(
+                                    default_net=self._default_network))
+                        default_network = network
+
+                if (self._external_network_names
+                        and len(self._external_network_names)
+                        != len(external_networks)):
+                    raise OpenStackCloudException(
+                        "Networks: {network} were provided for external"
+                        " access and those networks could not be found".format(
+                            network=",".join(self._external_network_names)))
+
+                if (self._internal_network_names
+                        and len(self._internal_network_names)
+                        != len(internal_networks)):
+                    raise OpenStackCloudException(
+                        "Networks: {network} were provided for internal"
+                        " access and those networks could not be found".format(
+                            network=",".join(self._internal_network_names)))
+
+                if self._nat_destination and not nat_destination:
+                    raise OpenStackCloudException(
+                        'Network {network} was configured to be the'
+                        ' destination for inbound NAT but it could not be'
+                        ' found'.format(
+                            network=self._nat_destination))
+
+                if self._default_network and not default_network:
+                    raise OpenStackCloudException(
+                        'Network {network} was configured to be the'
+                        ' default network interface but it could not be'
+                        ' found'.format(
+                            network=self._default_interface))
+
+                self._external_networks = external_networks
+                self._internal_networks = internal_networks
+                self._nat_destination_network = nat_destination
+                self._default_network_network = default_network
+
+                self._network_list_stamp = True
+            finally:
+                self._networks_lock.release()
+
+    def get_nat_destination(self):
+        """Return the network that is configured to be the NAT destination.
+
+        :returns: A network dict if one is found
+        """
+        self._find_interesting_networks()
+        return self._nat_destination_network
+
+    def get_default_network(self):
+        """Return the network that is configured to be the default interface.
+
+        :returns: A network dict if one is found
+        """
+        self._find_interesting_networks()
+        return self._default_network_network
 
     def get_external_networks(self):
         """Return the networks that are configured to route northbound.
 
         :returns: A list of network dicts if one is found
         """
-        if self._networks_lock.acquire():
-            try:
-                _all_networks = self._get_network(
-                    self._external_network_name_or_id,
-                    self.use_external_network,
-                    self._external_networks,
-                    self._external_network_stamp,
-                    filters=None)
-                # Filter locally because we have an or condition
-                _external_networks = []
-                for network in _all_networks:
-                    if (('router:external' in network
-                            and network['router:external']) or
-                            'provider:network_type' in network):
-                        _external_networks.append(network)
-                self._external_networks = _external_networks
-                self._external_network_stamp = True
-            finally:
-                self._networks_lock.release()
+        self._find_interesting_networks()
         return self._external_networks
 
     def get_internal_networks(self):
@@ -1461,25 +1541,7 @@ class OpenStackCloud(object):
 
         :returns: A list of network dicts if one is found
         """
-        # Just router:external False is not enough.
-        if self._networks_lock.acquire():
-            try:
-                _all_networks = self._get_network(
-                    self._internal_network_name_or_id,
-                    self.use_internal_network,
-                    self._internal_networks,
-                    self._internal_network_stamp,
-                    filters={
-                        'router:external': False,
-                    })
-                _internal_networks = []
-                for network in _all_networks:
-                    if 'provider:network_type' not in network:
-                        _internal_networks.append(network)
-                self._internal_networks = _internal_networks
-                self._internal_network_stamp = True
-            finally:
-                self._networks_lock.release()
+        self._find_interesting_networks()
         return self._internal_networks
 
     def get_keypair(self, name_or_id, filters=None):
@@ -3240,11 +3302,31 @@ class OpenStackCloud(object):
             return (None, None)
         port = None
         if not fixed_address:
-            # We're assuming one, because we have no idea what to do with
-            # more than one.
-            # TODO(mordred) Fix this for real by allowing a configurable
-            #               NAT destination setting
-            port = ports[0]
+            nat_network = self.get_nat_destination()
+            if len(ports) == 1 or not self._nat_destination:
+                port = ports[0]
+                if nat_network is None:
+                    warnings.warn(
+                        'During Floating IP creation, multiple private'
+                        ' networks were found. {net} is being selected at'
+                        ' random to be the destination of the NAT. If that'
+                        ' is not what you want, please configure the'
+                        ' nat_destination property of the networks list in'
+                        ' your clouds.yaml file. If you do not have a'
+                        ' clouds.yaml file, please make one - your setup'
+                        ' is complicated.'.format(net=port['network_id']))
+            else:
+                for maybe_port in ports:
+                    if maybe_port['network_id'] == nat_network['id']:
+                        port = maybe_port
+                        break
+                if not port:
+                    raise OpenStackCloudException(
+                        'No port on server {server} was found matching the'
+                        ' network configured as the NAT destination {dest}.'
+                        ' Please check your config'.format(
+                            server=server['id'], dest=nat_network['name']))
+
             # Select the first available IPv4 address
             for address in port.get('fixed_ips', list()):
                 try:

@@ -4,7 +4,7 @@ munch
 decorator
 jsonpatch
 ipaddress
-os-client-config>=1.13.0
+os-client-config>=1.17.0
 requestsexceptions>=1.1.1
 six
 
