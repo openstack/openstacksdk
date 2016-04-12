@@ -220,9 +220,11 @@ class TestCreateServer(base.TestCase):
         self.assertEqual(2, mock_get_active_server.call_count)
         mock_get_active_server.assert_has_calls([
             mock.call(server=building_server, reuse=True, auto_ip=True,
-                      ips=None, ip_pool=None, wait=True, timeout=mock.ANY),
+                      ips=None, ip_pool=None, wait=True, timeout=mock.ANY,
+                      nat_destination=None),
             mock.call(server=active_server, reuse=True, auto_ip=True,
-                      ips=None, ip_pool=None, wait=True, timeout=mock.ANY),
+                      ips=None, ip_pool=None, wait=True, timeout=mock.ANY,
+                      nat_destination=None),
         ])
 
         self.assertEqual('ACTIVE', server['status'])
@@ -241,7 +243,8 @@ class TestCreateServer(base.TestCase):
 
         mock_wait.assert_called_once_with(
             fake_server, auto_ip=True, ips=None,
-            ip_pool=None, reuse=True, timeout=180
+            ip_pool=None, reuse=True, timeout=180,
+            nat_destination=None,
         )
 
     @patch('time.sleep')
