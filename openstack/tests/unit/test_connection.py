@@ -25,6 +25,7 @@ CONFIG_AUTH_URL = "http://127.0.0.1:5000/v2.0"
 CONFIG_USERNAME = "BozoTheClown"
 CONFIG_PASSWORD = "TopSecret"
 CONFIG_PROJECT = "TheGrandPrizeGame"
+CONFIG_CACERT = "TrustMe"
 
 CLOUD_CONFIG = """
 clouds:
@@ -35,8 +36,25 @@ clouds:
       username: {username}
       password: {password}
       project_name: {project}
+  insecure:
+    auth:
+      auth_url: {auth_url}
+      username: {username}
+      password: {password}
+      project_name: {project}
+    cacert: {cacert}
+    insecure: True
+  cacert:
+    auth:
+      auth_url: {auth_url}
+      username: {username}
+      password: {password}
+      project_name: {project}
+    cacert: {cacert}
+    insecure: False
 """.format(auth_url=CONFIG_AUTH_URL, username=CONFIG_USERNAME,
-           password=CONFIG_PASSWORD, project=CONFIG_PROJECT)
+           password=CONFIG_PASSWORD, project=CONFIG_PROJECT,
+           cacert=CONFIG_CACERT)
 
 
 class TestConnection(base.TestCase):
@@ -171,6 +189,15 @@ class TestConnection(base.TestCase):
         # NOTE: Along the way, the `v` prefix gets added so we can build
         # up URLs with it.
         self.assertEqual("v" + version, pref.version)
+
+    def test_from_config_verify(self):
+        self._prepare_test_config()
+
+        sot = connection.from_config(cloud_name="insecure")
+        self.assertFalse(sot.session.verify)
+
+        sot = connection.from_config(cloud_name="cacert")
+        self.assertEqual(CONFIG_CACERT, sot.session.verify)
 
     def test_authorize_works(self):
         fake_session = mock.Mock()

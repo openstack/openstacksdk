@@ -140,8 +140,9 @@ def from_config(cloud_name=None, cloud_config=None, options=None):
         auth['verify'] = auth.pop('cacert')
     if 'cacert' in cloud_config.config:
         auth['verify'] = cloud_config.config['cacert']
-    if 'insecure' in cloud_config.config:
-        auth['verify'] = not bool(cloud_config.config['insecure'])
+    insecure = cloud_config.config.get('insecure', False)
+    if insecure:
+        auth['verify'] = False
 
     cert = cloud_config.config.get('cert')
     if cert:
