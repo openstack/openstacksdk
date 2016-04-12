@@ -82,6 +82,29 @@ standard_fake_server = fakes.FakeServer(
     accessIPv6='',
 )
 
+SUBNETS_WITH_NAT = [
+    {
+        u'name': u'',
+        u'enable_dhcp': True,
+        u'network_id': u'5ef0358f-9403-4f7b-9151-376ca112abf7',
+        u'tenant_id': u'29c79f394b2946f1a0f8446d715dc301',
+        u'dns_nameservers': [],
+        u'ipv6_ra_mode': None,
+        u'allocation_pools': [
+            {
+                u'start': u'10.10.10.2',
+                u'end': u'10.10.10.254'
+            }
+        ],
+        u'gateway_ip': u'10.10.10.1',
+        u'ipv6_address_mode': None,
+        u'ip_version': 4,
+        u'host_routes': [],
+        u'cidr': u'10.10.10.0/24',
+        u'id': u'14025a85-436e-4418-b0ee-f5b12a50f9b4'
+    },
+]
+
 
 class TestMeta(base.TestCase):
     def test_find_nova_addresses_key_name(self):
@@ -131,10 +154,12 @@ class TestMeta(base.TestCase):
             PUBLIC_V4, meta.get_server_ip(srv, ext_tag='floating'))
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
+    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
     @mock.patch.object(shade.OpenStackCloud, 'list_networks')
     def test_get_server_private_ip(
-            self, mock_list_networks, mock_has_service):
+            self, mock_list_networks, mock_list_subnets, mock_has_service):
         mock_has_service.return_value = True
+        mock_list_subnets.return_value = SUBNETS_WITH_NAT
         mock_list_networks.return_value = [{
             'id': 'test-net-id',
             'name': 'test-net-name'
@@ -155,6 +180,7 @@ class TestMeta(base.TestCase):
         mock_has_service.assert_called_with('network')
         mock_list_networks.assert_called_once_with()
 
+    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
     @mock.patch.object(shade.OpenStackCloud, 'list_server_security_groups')
     @mock.patch.object(shade.OpenStackCloud, 'get_volumes')
     @mock.patch.object(shade.OpenStackCloud, 'get_image_name')
@@ -165,11 +191,13 @@ class TestMeta(base.TestCase):
             self, mock_list_networks, mock_has_service,
             mock_get_flavor_name, mock_get_image_name,
             mock_get_volumes,
-            mock_list_server_security_groups):
+            mock_list_server_security_groups,
+            mock_list_subnets):
         mock_get_image_name.return_value = 'cirros-0.3.4-x86_64-uec'
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_has_service.return_value = True
         mock_get_volumes.return_value = []
+        mock_list_subnets.return_value = SUBNETS_WITH_NAT
         mock_list_networks.return_value = [
             {
                 'id': 'test_pnztt_net',
@@ -202,12 +230,14 @@ class TestMeta(base.TestCase):
         mock_list_networks.assert_called_once_with()
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
+    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
     @mock.patch.object(shade.OpenStackCloud, 'list_networks')
     def test_get_server_external_ipv4_neutron(
-            self, mock_list_networks,
+            self, mock_list_networks, mock_list_subnets,
             mock_has_service):
         # Testing Clouds with Neutron
         mock_has_service.return_value = True
+        mock_list_subnets.return_value = []
         mock_list_networks.return_value = [{
             'id': 'test-net-id',
             'name': 'test-net',
@@ -225,12 +255,14 @@ class TestMeta(base.TestCase):
         self.assertEqual(PUBLIC_V4, ip)
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
+    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
     @mock.patch.object(shade.OpenStackCloud, 'list_networks')
     def test_get_server_external_provider_ipv4_neutron(
-            self, mock_list_networks,
+            self, mock_list_networks, mock_list_subnets,
             mock_has_service):
         # Testing Clouds with Neutron
         mock_has_service.return_value = True
+        mock_list_subnets.return_value = SUBNETS_WITH_NAT
         mock_list_networks.return_value = [{
             'id': 'test-net-id',
             'name': 'test-net',
@@ -248,12 +280,14 @@ class TestMeta(base.TestCase):
         self.assertEqual(PUBLIC_V4, ip)
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
+    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
     @mock.patch.object(shade.OpenStackCloud, 'list_networks')
     def test_get_server_external_none_ipv4_neutron(
-            self, mock_list_networks,
+            self, mock_list_networks, mock_list_subnets,
             mock_has_service):
         # Testing Clouds with Neutron
         mock_has_service.return_value = True
+        mock_list_subnets.return_value = SUBNETS_WITH_NAT
         mock_list_networks.return_value = [{
             'id': 'test-net-id',
             'name': 'test-net',
@@ -287,16 +321,18 @@ class TestMeta(base.TestCase):
         self.assertEqual(PUBLIC_V6, ip)
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
-    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
+    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
+    @mock.patch.object(shade.OpenStackCloud, 'list_networks')
     @mock.patch.object(shade.OpenStackCloud, 'search_ports')
     @mock.patch.object(meta, 'get_server_ip')
     def test_get_server_external_ipv4_neutron_exception(
             self, mock_get_server_ip, mock_search_ports,
-            mock_search_networks,
+            mock_list_networks, mock_list_subnets,
             mock_has_service):
         # Testing Clouds with a non working Neutron
         mock_has_service.return_value = True
-        mock_search_networks.return_value = []
+        mock_list_subnets.return_value = []
+        mock_list_networks.return_value = []
         mock_search_ports.side_effect = neutron_exceptions.NotFound()
         mock_get_server_ip.return_value = PUBLIC_V4
 
