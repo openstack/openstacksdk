@@ -152,6 +152,8 @@ class OpenStackCloud(object):
         self._nat_destination = cloud_config.get_nat_destination()
         self._default_network = cloud_config.get_default_network()
 
+        self._floating_ip_source = cloud_config.config.get(
+            'floating_ip_source').lower()
         self._use_external_network = cloud_config.config.get(
             'use_external_network', True)
         self._use_internal_network = cloud_config.config.get(
@@ -1565,6 +1567,9 @@ class OpenStackCloud(object):
         """
         self._find_interesting_networks()
         return self._internal_networks
+
+    def _use_nova_floating(self):
+        return self._floating_ip_source == 'nova'
 
     def get_keypair(self, name_or_id, filters=None):
         """Get a keypair by name or ID.
@@ -3003,7 +3008,7 @@ class OpenStackCloud(object):
         :returns: a (normalized) structure with a floating IP address
                   description.
         """
-        if self.has_service('network'):
+        if self.has_service('network') and not self._use_nova_floating():
             try:
                 f_ips = _utils.normalize_neutron_floating_ips(
                     self._neutron_available_floating_ips(
@@ -3286,7 +3291,7 @@ class OpenStackCloud(object):
         if ext_ip == floating_ip['floating_ip_address']:
             return server
 
-        if self.has_service('network'):
+        if self.has_service('network') and not self._use_nova_floating():
             if not skip_attach:
                 try:
                     self._neutron_attach_ip_to_server(
