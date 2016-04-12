@@ -46,8 +46,8 @@ class TestConnection(base.TestCase):
         mock_profile = mock.Mock()
         mock_profile.get_services = mock.Mock(return_value=[])
         conn = connection.Connection(profile=mock_profile, authenticator='2',
-                                     verify=True, user_agent='1')
-        args = {'auth': '2', 'user_agent': '1', 'verify': True}
+                                     verify=True, cert='cert', user_agent='1')
+        args = {'auth': '2', 'user_agent': '1', 'verify': True, 'cert': 'cert'}
         mock_session_init.assert_called_with(mock_profile, **args)
         self.assertEqual(mock_session_init, conn.session)
 
