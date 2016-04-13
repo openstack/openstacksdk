@@ -16,7 +16,10 @@ from openstack import exceptions
 from openstack.image.v2 import _proxy
 from openstack.image.v2 import image
 from openstack.image.v2 import member
+from openstack.tests.unit.image.v2 import test_image as fake_image
 from openstack.tests.unit import test_proxy_base2
+
+EXAMPLE = fake_image.EXAMPLE
 
 
 class TestImageProxy(test_proxy_base2.TestProxyBase):
@@ -53,8 +56,19 @@ class TestImageProxy(test_proxy_base2.TestProxyBase):
     def test_image_delete_ignore(self):
         self.verify_delete(self.proxy.delete_image, image.Image, True)
 
-    def test_image_update(self):
-        self.verify_update(self.proxy.update_image, image.Image)
+    @mock.patch("openstack.resource2.Resource._translate_response")
+    @mock.patch("openstack.proxy2.BaseProxy._get")
+    @mock.patch("openstack.image.v2.image.Image.update")
+    def test_image_update(self, mock_update_image, mock_get_image,
+                          mock_transpose):
+        original_image = image.Image(**EXAMPLE)
+        mock_get_image.return_value = original_image
+        EXAMPLE['name'] = 'fake_name'
+        updated_image = image.Image(**EXAMPLE)
+        mock_update_image.return_value = updated_image.to_dict()
+        result = self.proxy.update_image(original_image,
+                                         **updated_image.to_dict())
+        self.assertEqual('fake_name', result.get('name'))
 
     def test_image_get(self):
         self.verify_get(self.proxy.get_image, image.Image)
