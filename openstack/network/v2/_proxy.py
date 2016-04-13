@@ -1015,8 +1015,8 @@ class Proxy(proxy.BaseProxy):
     def update_port(self, port, **attrs):
         """Update a port
 
-        :param value: Either the id of a port or a
-                      :class:`~openstack.network.v2.port.Port` instance.
+        :param port: Either the id of a port or a
+                     :class:`~openstack.network.v2.port.Port` instance.
         :attrs kwargs: The attributes to update on the port represented
                        by ``value``.
 
