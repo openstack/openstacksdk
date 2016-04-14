@@ -173,12 +173,49 @@ class RequestTask(BaseTask):
         return self._result
 
 
+def _result_filter_cb(result):
+    return result
+
+
+def generate_task_class(method, name, result_filter_cb):
+    if name is None:
+        if callable(method):
+            name = method.__name__
+        else:
+            name = method
+
+    class RunTask(Task):
+        def __init__(self, **kw):
+            super(RunTask, self).__init__(**kw)
+            self.name = name
+            self._method = method
+
+        def wait(self, raw=False):
+            super(RequestTask, self).wait()
+
+            if raw:
+                # Do NOT convert the result.
+                return self._result
+            return result_filter_cb(self._result)
+
+        def main(self, client):
+            if callable(self._method):
+                return method(**self.args)
+            else:
+                meth = getattr(client, self._method)
+                return meth(**self.args)
+
+
 class TaskManager(object):
     log = _log.setup_logging(__name__)
 
-    def __init__(self, client, name):
+    def __init__(self, client, name, result_filter_cb=None):
         self.name = name
         self._client = client
+        if not result_filter_cb:
+            self._result_filter_cb = _result_filter_cb
+        else:
+            self._result_filter_cb = result_filter_cb
 
     def stop(self):
         """ This is a direct action passthrough TaskManager """
@@ -204,3 +241,17 @@ class TaskManager(object):
             "Manager %s ran task %s in %ss" % (
                 self.name, task.name, (end - start)))
         return task.wait(raw)
+
+    def submit_function(
+            self, method, name=None, result_filter_cb=None, **kwargs):
+        """ Allows submitting an arbitrary method for work.
+
+        :param method: Method to run in the TaskManager. Can be either the
+                       name of a method to find on self.client, or a callable.
+        """
+        if not result_filter_cb:
+            result_filter_cb = self._result_filter_cb
+
+        task_class = generate_task_class(method, name, result_filter_cb)
+
+        return self.manager.submitTask(task_class(**kwargs))
