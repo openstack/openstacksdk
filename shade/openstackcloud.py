@@ -374,7 +374,8 @@ class OpenStackCloud(object):
         if self.cloud_config.get_api_version('identity') == '3':
             if not domain_id:
                 raise OpenStackCloudException(
-                    "User creation requires an explicit domain_id argument.")
+                    "User or project creation requires an explicit"
+                    " domain_id argument.")
             else:
                 return {'domain': domain_id}
         else:
