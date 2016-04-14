@@ -177,6 +177,8 @@ class OpenStackCloud(object):
                 # InsecureRequestWarning references a Warning class or is None
                 warnings.filterwarnings('ignore', category=category)
 
+        self._disable_warnings = {}
+
         self._servers = []
         self._servers_time = 0
         self._servers_lock = threading.Lock()
@@ -948,9 +950,13 @@ class OpenStackCloud(object):
 
     def has_service(self, service_key):
         if not self.cloud_config.config.get('has_%s' % service_key, True):
-            self.log.debug(
-                "Disabling {service_key} entry in catalog per config".format(
-                    service_key=service_key))
+            # TODO(mordred) add a stamp here so that we only report this once
+            if not (service_key in self._disable_warnings
+                    and self._disable_warnings[service_key]):
+                self.log.debug(
+                    "Disabling {service_key} entry in catalog"
+                    " per config".format(service_key=service_key))
+                self._disable_warnings[service_key] = True
             return False
         try:
             endpoint = self.get_session_endpoint(service_key)
