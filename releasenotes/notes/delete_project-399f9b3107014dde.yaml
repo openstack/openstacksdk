@@ -1,0 +1,5 @@
+---
+fixes:
+  - The delete_project() API now conforms to our standard of returning True
+    when the delete succeeds, or False when the project was not found. It
+    would previously raise an expection if the project was not found.

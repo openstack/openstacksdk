@@ -73,7 +73,7 @@ class TestProject(base.TestCase):
                                mock_api_version):
         mock_api_version.return_value = '2'
         mock_get.return_value = dict(id='123')
-        self.cloud.delete_project('123')
+        self.assertTrue(self.cloud.delete_project('123'))
         mock_get.assert_called_once_with('123')
         mock_keystone.tenants.delete.assert_called_once_with(tenant='123')
 
@@ -84,7 +84,7 @@ class TestProject(base.TestCase):
                                mock_api_version):
         mock_api_version.return_value = '3'
         mock_get.return_value = dict(id='123')
-        self.cloud.delete_project('123')
+        self.assertTrue(self.cloud.delete_project('123'))
         mock_get.assert_called_once_with('123')
         mock_keystone.projects.delete.assert_called_once_with(project='123')
 

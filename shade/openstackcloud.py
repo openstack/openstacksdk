@@ -521,16 +521,33 @@ class OpenStackCloud(object):
         return project
 
     def delete_project(self, name_or_id):
+        """Delete a project
+
+        :param string name_or_id: Project name or id.
+
+        :returns: True if delete succeeded, False if the project was not found.
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during
+            the openstack API call
+        """
+
         with _utils.shade_exceptions(
                 "Error in deleting project {project}".format(
                     project=name_or_id)):
             project = self.get_project(name_or_id)
+            if project is None:
+                self.log.debug(
+                    "Project {0} not found for deleting".format(name_or_id))
+                return False
+
             params = {}
             if self.cloud_config.get_api_version('identity') == '3':
                 params['project'] = project['id']
             else:
                 params['tenant'] = project['id']
             self.manager.submitTask(_tasks.ProjectDelete(**params))
+
+        return True
 
     @_utils.cache_on_arguments()
     def list_users(self):
