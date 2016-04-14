@@ -181,6 +181,55 @@ def get_server_external_ipv6(server):
     return None
 
 
+def get_server_default_ip(cloud, server):
+    """ Get the configured 'default' address
+
+    It is possible in clouds.yaml to configure for a cloud a network that
+    is the 'default_interface'. This is the network that should be used
+    to talk to instances on the network.
+
+    :param cloud: the cloud we're working with
+    :param server: the server dict from which we want to get the default
+                   IPv4 address
+    :return: a string containing the IPv4 address or None
+    """
+    ext_net = cloud.get_default_network()
+    if ext_net:
+        if (cloud._local_ipv6 and not cloud.force_ipv4):
+            # try 6 first, fall back to four
+            versions = [6, 4]
+        else:
+            versions = [4]
+        for version in versions:
+            ext_ip = get_server_ip(
+                server, key_name=ext_net['name'], version=version)
+            if ext_ip is not None:
+                return ext_ip
+    return None
+
+
+def _get_interface_ip(cloud, server):
+    """ Get the interface IP for the server
+
+    Interface IP is the IP that should be used for communicating with the
+    server. It is:
+    - the IP on the configured default_interface network
+    - if cloud.private, the private ip if it exists
+    - if the server has a public ip, the public ip
+    """
+    default_ip = get_server_default_ip(cloud, server)
+    if default_ip:
+        return default_ip
+
+    if cloud.private and server['private_v4']:
+        return server['private_v4']
+
+    if (server['public_v6'] and cloud._local_ipv6 and not cloud.force_ipv4):
+        return server['public_v6']
+    else:
+        return server['public_v4']
+
+
 def get_groups_from_server(cloud, server, server_vars):
     groups = []
 
@@ -242,17 +291,7 @@ def add_server_interfaces(cloud, server):
     server['public_v4'] = get_server_external_ipv4(cloud, server) or ''
     server['public_v6'] = get_server_external_ipv6(server) or ''
     server['private_v4'] = get_server_private_ip(server, cloud) or ''
-    interface_ip = None
-    if cloud.private and server['private_v4']:
-        interface_ip = server['private_v4']
-    else:
-        if (server['public_v6'] and cloud._local_ipv6
-            and not cloud.force_ipv4):
-            interface_ip = server['public_v6']
-        else:
-            interface_ip = server['public_v4']
-    if interface_ip:
-        server['interface_ip'] = interface_ip
+    server['interface_ip'] = _get_interface_ip(cloud, server) or ''
 
     # Some clouds do not set these, but they're a regular part of the Nova
     # server record. Since we know them, go ahead and set them. In the case

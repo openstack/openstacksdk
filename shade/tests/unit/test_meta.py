@@ -64,6 +64,8 @@ class FakeCloud(object):
     def list_server_security_groups(self, server):
         return []
 
+    def get_default_network(self):
+        return None
 
 standard_fake_server = fakes.FakeServer(
     id='test-id-0',
