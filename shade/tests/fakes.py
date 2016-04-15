@@ -260,3 +260,15 @@ class FakeZone(object):
         self.description = description
         self.ttl = ttl
         self.masters = masters
+
+
+class FakeRecordset(object):
+    def __init__(self, zone, id, name, type_, description,
+                 ttl, records):
+        self.zone = zone
+        self.id = id
+        self.name = name
+        self.type_ = type_
+        self.description = description
+        self.ttl = ttl
+        self.records = records

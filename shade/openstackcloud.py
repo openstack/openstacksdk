@@ -5423,3 +5423,124 @@ class OpenStackCloud(object):
                 _tasks.ZoneDelete(zone=zone['id']))
 
         return True
+
+    def list_recordsets(self, zone):
+        """List all available recordsets.
+
+        :param zone: Name or id of the zone managing the recordset
+
+        :returns: A list of recordsets.
+
+        """
+        with _utils.shade_exceptions("Error fetching recordsets list"):
+            return self.manager.submitTask(_tasks.RecordSetList(zone=zone))
+
+    def get_recordset(self, zone, name_or_id):
+        """Get a recordset by name or ID.
+
+        :param zone: Name or ID of the zone managing the recordset
+        :param name_or_id: Name or ID of the recordset
+
+        :returns:  A recordset dict or None if no matching recordset is
+            found.
+
+        """
+        try:
+            return self.manager.submitTask(_tasks.RecordSetGet(
+                zone=zone,
+                recordset=name_or_id))
+        except:
+            return None
+
+    def search_recordsets(self, zone, name_or_id=None, filters=None):
+        recordsets = self.list_recordsets(zone=zone)
+        return _utils._filter_list(recordsets, name_or_id, filters)
+
+    def create_recordset(self, zone, name, recordset_type, records,
+                         description=None, ttl=None):
+        """Create a recordset.
+
+        :param zone: Name or ID of the zone managing the recordset
+        :param name: Name of the recordset
+        :param recordset_type: Type of the recordset
+        :param records: List of the recordset definitions
+        :param description: Description of the recordset
+        :param ttl: TTL value of the recordset
+
+        :returns: a dict representing the created recordset.
+
+        :raises: OpenStackCloudException on operation error.
+
+        """
+        if self.get_zone(zone) is None:
+            raise OpenStackCloudException(
+                "Zone %s not found." % zone)
+
+        # We capitalize the type in case the user sends in lowercase
+        recordset_type = recordset_type.upper()
+
+        with _utils.shade_exceptions(
+                "Unable to create recordset {name}".format(name=name)):
+            return self.manager.submitTask(_tasks.RecordSetCreate(
+                zone=zone, name=name, type_=recordset_type, records=records,
+                description=description, ttl=ttl))
+
+    @_utils.valid_kwargs('email', 'description', 'ttl', 'masters')
+    def update_recordset(self, zone, name_or_id, **kwargs):
+        """Update a recordset.
+
+        :param zone: Name or id of the zone managing the recordset
+        :param name_or_id: Name or ID of the recordset being updated.
+        :param records: List of the recordset definitions
+        :param description: Description of the recordset
+        :param ttl: TTL (Time to live) value in seconds of the recordset
+
+        :returns: a dict representing the updated recordset.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        zone_obj = self.get_zone(zone)
+        if zone_obj is None:
+            raise OpenStackCloudException(
+                "Zone %s not found." % zone)
+
+        recordset_obj = self.get_recordset(zone, name_or_id)
+        if recordset_obj is None:
+            raise OpenStackCloudException(
+                "Recordset %s not found." % name_or_id)
+
+        with _utils.shade_exceptions(
+                "Error updating recordset {0}".format(name_or_id)):
+            new_recordset = self.manager.submitTask(
+                _tasks.RecordSetUpdate(
+                    zone=zone, recordset=name_or_id, values=kwargs))
+
+        return new_recordset
+
+    def delete_recordset(self, zone, name_or_id):
+        """Delete a recordset.
+
+        :param zone: Name or ID of the zone managing the recordset.
+        :param name_or_id: Name or ID of the recordset being deleted.
+
+        :returns: True if delete succeeded, False otherwise.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+
+        zone = self.get_zone(zone)
+        if zone is None:
+            self.log.debug("Zone %s not found for deleting" % zone)
+            return False
+
+        recordset = self.get_recordset(zone['id'], name_or_id)
+        if recordset is None:
+            self.log.debug("Recordset %s not found for deleting" % name_or_id)
+            return False
+
+        with _utils.shade_exceptions(
+                "Error deleting recordset {0}".format(name_or_id)):
+            self.manager.submitTask(
+                _tasks.RecordSetDelete(zone=zone['id'], recordset=name_or_id))
+
+        return True
