@@ -1022,80 +1022,88 @@ class TestResourceActions(base.TestCase):
                          Test.base_path % {"something": uri_param})
 
     def test_list_multi_page_response_paginated(self):
-        ids = [1, 2, 3]
-        mock_response = mock.Mock()
-        mock_response.json.side_effect = [[{"id": ids[0]}],
-                                          [{"id": ids[1]}],
-                                          [{"id": ids[2]}],
-                                          []]
+        # This tests our ability to stop making calls once
+        # we've received all of the data. However, this tests
+        # the case that we always receive full pages of data
+        # and then the signal that there is no more data - an empty list.
+        # In this case, we need to make one extra request beyond
+        # the end of data to ensure we've received it all.
+        ids = [1, 2]
+        resp1 = mock.Mock()
+        resp1.json.return_value = [{"id": ids[0]}]
+        resp2 = mock.Mock()
+        resp2.json.return_value = [{"id": ids[1]}]
+        resp3 = mock.Mock()
+        resp3.json.return_value = []
 
-        self.session.get.return_value = mock_response
+        self.session.get.side_effect = [resp1, resp2, resp3]
 
-        results = list(self.sot.list(self.session, paginated=True))
+        results = self.sot.list(self.session, paginated=True)
 
-        self.assertEqual(3, len(results))
+        result0 = next(results)
+        self.assertEqual(result0.id, ids[0])
+        self.session.get.assert_called_with(
+            self.base_path,
+            endpoint_filter=self.service_name,
+            headers={"Accept": "application/json"},
+            params={})
 
-        # Look at the `params` argument to each of the get calls that
-        # were made.
-        self.session.get.call_args_list[0][1]["params"] = {}
-        self.session.get.call_args_list[1][1]["params"] = {"marker": ids[0]}
-        self.session.get.call_args_list[2][1]["params"] = {"marker": ids[1]}
-        # We determine the limit based on the first response's size
-        self.session.get.call_args_list[1][1]["params"] = {"limit": 1}
-        self.session.get.call_args_list[2][1]["params"] = {"limit": 1}
+        result1 = next(results)
+        self.assertEqual(result1.id, ids[1])
+        self.session.get.assert_called_with(
+            self.base_path,
+            endpoint_filter=self.service_name,
+            headers={"Accept": "application/json"},
+            params={"limit": 1, "marker": 1})
 
-        for call, result in enumerate(results):
-            # Look at the first item in the tuple of *args that is in the
-            # first item in the list of call_args for this call in the
-            # call_args_list. This represents any positional arguments
-            # to the session.get call.
-            self.assertEqual(self.session.get.call_args_list[call][0][0],
-                             self.base_path)
-            self.assertEqual(
-                self.session.get.call_args_list[call][1]["endpoint_filter"],
-                self.service_name)
-            self.assertEqual(
-                self.session.get.call_args_list[call][1]["headers"],
-                {"Accept": "application/json"})
-
-            self.assertEqual(ids[call], results[call].id)
-            self.assertIsInstance(results[call], self.test_class)
+        self.assertRaises(StopIteration, next, results)
+        self.session.get.assert_called_with(
+            self.base_path,
+            endpoint_filter=self.service_name,
+            headers={"Accept": "application/json"},
+            params={"limit": 1, "marker": 2})
 
     def test_list_multi_page_early_termination(self):
+        # This tests our ability to be somewhat smart when evaluating
+        # the contents of the responses. When we receive a full page
+        # of data, we can be smart about terminating our responses
+        # once we see that we've received a page with less data than
+        # expected, saving one request.
         ids = [1, 2, 3]
-        mock_response = mock.Mock()
-        mock_response.json.side_effect = [[{"id": ids[0]}, {"id": ids[1]}],
-                                          [{"id": ids[2]}]]
+        resp1 = mock.Mock()
+        resp1.json.return_value = [{"id": ids[0]}, {"id": ids[1]}]
+        resp2 = mock.Mock()
+        resp2.json.return_value = [{"id": ids[2]}]
 
-        self.session.get.return_value = mock_response
+        self.session.get.side_effect = [resp1, resp2]
 
-        results = list(self.sot.list(self.session, paginated=True))
+        results = self.sot.list(self.session, paginated=True)
 
-        self.assertEqual(3, len(results))
+        # Get the first page's two items
+        result0 = next(results)
+        self.assertEqual(result0.id, ids[0])
+        result1 = next(results)
+        self.assertEqual(result1.id, ids[1])
+        self.session.get.assert_called_with(
+            self.base_path,
+            endpoint_filter=self.service_name,
+            headers={"Accept": "application/json"},
+            params={})
 
-        # We should know that we received less than a full page of
-        # results from the second request, so ensure that we don't
-        # make a third call.
+        # Second page only has one item
+        result2 = next(results)
+        self.assertEqual(result2.id, ids[2])
+        self.session.get.assert_called_with(
+            self.base_path,
+            endpoint_filter=self.service_name,
+            headers={"Accept": "application/json"},
+            params={"limit": 2, "marker": 2})
+
+        # Ensure we're done after those three items
+        self.assertRaises(StopIteration, next, results)
+
+        # Ensure we only made two calls to get this done
         self.assertEqual(2, len(self.session.get.call_args_list))
-
-        # Look at the `params` argument to each of the get calls that
-        # were made.
-        self.session.get.call_args_list[0][1]["params"] = {}
-        self.session.get.call_args_list[1][1]["params"] = {"marker": ids[1]}
-
-        for call in self.session.get.call_args_list:
-            # Look at the first item in the tuple of *args that is in the
-            # first item in the list of call_args for this call in the
-            # call_args_list. This represents any positional arguments
-            # to the session.get call.
-            self.assertEqual(call[0][0], self.base_path)
-            self.assertEqual(call[1]["endpoint_filter"], self.service_name)
-            self.assertEqual(call[1]["headers"],
-                             {"Accept": "application/json"})
-
-        for call, result in enumerate(results):
-            self.assertEqual(ids[call], results[call].id)
-            self.assertIsInstance(results[call], self.test_class)
 
 
 class TestResourceFind(base.TestCase):
