@@ -1447,9 +1447,11 @@ class OpenStackCloud(object):
             if (network['name'] in self._external_network_names
                     or network['id'] in self._external_network_names):
                 external_networks.append(network)
-            elif (('router:external' in network
+            elif ((('router:external' in network
                     and network['router:external']) or
-                    'provider:network_type' in network):
+                    'provider:network_type' in network) and
+                    network['name'] not in self._internal_network_names and
+                    network['id'] not in self._internal_network_names):
                 external_networks.append(network)
 
             # Internal networks
@@ -1458,7 +1460,8 @@ class OpenStackCloud(object):
                 internal_networks.append(network)
             elif (('router:external' in network
                     and not network['router:external']) and
-                    'provider:network_type' not in network):
+                    network['name'] not in self._external_network_names and
+                    network['id'] not in self._external_network_names):
                 internal_networks.append(network)
 
             # NAT Destination
