@@ -1723,7 +1723,7 @@ class OpenStackCloud(object):
         """
         return _utils._get_entity(self.search_volumes, name_or_id, filters)
 
-    def get_flavor(self, name_or_id, filters=None, get_extra=False):
+    def get_flavor(self, name_or_id, filters=None):
         """Get a flavor by name or ID.
 
         :param name_or_id: Name or ID of the flavor.
