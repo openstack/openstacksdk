@@ -1381,7 +1381,7 @@ class OpenStackCloud(object):
         :returns: A list of floating IP dicts.
 
         """
-        if self.has_service('network'):
+        if self.has_service('network') and not self._use_nova_floating():
             try:
                 return _utils.normalize_neutron_floating_ips(
                     self._neutron_list_floating_ips())
@@ -1540,7 +1540,7 @@ class OpenStackCloud(object):
                 'Network {network} was configured to be the'
                 ' default network interface but it could not be'
                 ' found'.format(
-                    network=self._default_interface))
+                    network=self._default_network))
 
         self._external_networks = external_networks
         self._internal_networks = internal_networks
@@ -1723,7 +1723,7 @@ class OpenStackCloud(object):
         """
         return _utils._get_entity(self.search_volumes, name_or_id, filters)
 
-    def get_flavor(self, name_or_id, filters=None):
+    def get_flavor(self, name_or_id, filters=None, get_extra=False):
         """Get a flavor by name or ID.
 
         :param name_or_id: Name or ID of the flavor.
@@ -3178,7 +3178,7 @@ class OpenStackCloud(object):
 
         :raises: ``OpenStackCloudException``, on operation error.
         """
-        if self.has_service('network'):
+        if self.has_service('network') and not self._use_nova_floating():
             try:
                 f_ips = _utils.normalize_neutron_floating_ips(
                     [self._neutron_create_floating_ip(
@@ -3254,7 +3254,7 @@ class OpenStackCloud(object):
 
         :raises: ``OpenStackCloudException``, on operation error.
         """
-        if self.has_service('network'):
+        if self.has_service('network') and not self._use_nova_floating():
             try:
                 return self._neutron_delete_floating_ip(floating_ip_id)
             except OpenStackCloudURINotFound as e:
@@ -3486,7 +3486,7 @@ class OpenStackCloud(object):
 
         :raises: ``OpenStackCloudException``, on operation error.
         """
-        if self.has_service('network'):
+        if self.has_service('network') and not self._use_nova_floating():
             try:
                 return self._neutron_detach_ip_from_server(
                     server_id=server_id, floating_ip_id=floating_ip_id)
