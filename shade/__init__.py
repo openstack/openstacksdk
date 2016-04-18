@@ -52,17 +52,27 @@ def simple_logging(debug=False, http_debug=False):
     log = _log.setup_logging('keystoneauth.identity.generic.base')
 
 
-def openstack_clouds(config=None, debug=False):
+def openstack_clouds(config=None, debug=False, cloud=None):
     if not config:
         config = os_client_config.OpenStackConfig()
     try:
-        return [
-            OpenStackCloud(
-                cloud=f.name, debug=debug,
-                cloud_config=f,
-                **f.config)
-            for f in config.get_all_clouds()
-        ]
+        if cloud is None:
+            return [
+                OpenStackCloud(
+                    cloud=f.name, debug=debug,
+                    cloud_config=f,
+                    **f.config)
+                for f in config.get_all_clouds()
+            ]
+        else:
+            return [
+                OpenStackCloud(
+                    cloud=f.name, debug=debug,
+                    cloud_config=f,
+                    **f.config)
+                for f in config.get_all_clouds()
+                if f.name == cloud
+            ]
     except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin as e:
         raise OpenStackCloudException(
             "Invalid cloud configuration: {exc}".format(exc=str(e)))
