@@ -2460,7 +2460,7 @@ class OpenStackCloud(object):
             self.manager.submitTask(_tasks.ImageUpload(
                 image_id=image.id, image_data=image_data))
         except Exception:
-            self.log.debug("Deleting failed upload of image {name}".format(
+            self.log.debug("Deleting failed upload of image {image}".format(
                 image=image['name']))
             self.manager.submitTask(_tasks.ImageDelete(image_id=image.id))
             raise
@@ -2474,7 +2474,7 @@ class OpenStackCloud(object):
             self.manager.submitTask(_tasks.ImageUpdate(
                 image=image, data=image_data))
         except Exception:
-            self.log.debug("Deleting failed upload of image {name}".format(
+            self.log.debug("Deleting failed upload of image {image}".format(
                 image=image['name']))
             self.manager.submitTask(_tasks.ImageDelete(image_id=image.id))
             raise

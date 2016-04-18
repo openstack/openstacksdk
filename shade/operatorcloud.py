@@ -1524,7 +1524,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                     _tasks.FlavorUnsetExtraSpecs(id=flavor_id, key=key))
             except Exception as e:
                 raise OpenStackCloudException(
-                    "Unable to delete flavor spec {0}: {0}".format(
+                    "Unable to delete flavor spec {0}: {1}".format(
                         key, str(e)))
 
     def _mod_flavor_access(self, action, flavor_id, project_id):
