@@ -3247,16 +3247,42 @@ class OpenStackCloud(object):
                 _tasks.NovaFloatingIPCreate(pool=pool))
             return pool_ip
 
-    def delete_floating_ip(self, floating_ip_id):
-        """Deallocate a floating IP from a tenant.
+    def delete_floating_ip(self, floating_ip_id, retry=1):
+        """Deallocate a floating IP from a project.
 
         :param floating_ip_id: a floating IP address id.
+        :param retry: number of times to retry. Optional, defaults to 1,
+                      which is in addition to the initial delete call.
+                      A value of 0 will also cause no checking of results to
+                      occur.
 
         :returns: True if the IP address has been deleted, False if the IP
                   address was not found.
 
         :raises: ``OpenStackCloudException``, on operation error.
         """
+        for count in range(0, max(0, retry) + 1):
+            result = self._delete_floating_ip(floating_ip_id)
+
+            if (retry == 0) or not result:
+                return result
+
+            # neutron sometimes returns success when deleating a floating
+            # ip. That's awesome. SO - verify that the delete actually
+            # worked.
+            f_ip = self.get_floating_ip(id=floating_ip_id)
+            if not f_ip:
+                return True
+
+        raise OpenStackCloudException(
+            "Attempted to delete Floating IP {ip} with id {id} a total of"
+            " {retry} times. Although the cloud did not indicate any errors"
+            " the floating ip is still in existence. Aborting further"
+            " operations.".format(
+                id=floating_ip_id, ip=f_ip['floating_ip_address'],
+                retry=retry + 1))
+
+    def _delete_floating_ip(self, floating_ip_id):
         if self.has_service('network') and not self._use_nova_floating():
             try:
                 return self._neutron_delete_floating_ip(floating_ip_id)
@@ -3264,9 +3290,6 @@ class OpenStackCloud(object):
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
                     "'{msg}'. Trying with Nova.".format(msg=str(e)))
-                # Fall-through, trying with Nova
-
-        # Else, we are using Nova network
         return self._nova_delete_floating_ip(floating_ip_id)
 
     def _neutron_delete_floating_ip(self, floating_ip_id):
@@ -3276,7 +3299,10 @@ class OpenStackCloud(object):
                     _tasks.NeutronFloatingIPDelete(floatingip=floating_ip_id))
         except OpenStackCloudResourceNotFound:
             return False
-
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Unable to delete floating IP id {fip_id}: {msg}".format(
+                    fip_id=floating_ip_id, msg=str(e)))
         return True
 
     def _nova_delete_floating_ip(self, floating_ip_id):
@@ -3291,7 +3317,6 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Unable to delete floating IP id {fip_id}: {msg}".format(
                     fip_id=floating_ip_id, msg=str(e)))
-
         return True
 
     def _attach_ip_to_server(
@@ -3991,13 +4016,16 @@ class OpenStackCloud(object):
         return server
 
     def delete_server(
-            self, name_or_id, wait=False, timeout=180, delete_ips=False):
+            self, name_or_id, wait=False, timeout=180, delete_ips=False,
+            delete_ip_retry=1):
         """Delete a server instance.
 
         :param bool wait: If true, waits for server to be deleted.
         :param int timeout: Seconds to wait for server deletion.
         :param bool delete_ips: If true, deletes any floating IPs
             associated with the instance.
+        :param int delete_ip_retry: Number of times to retry deleting
+            any floating ips, should the first try be unsuccessful.
 
         :returns: True if delete succeeded, False otherwise if the
             server does not exist.
@@ -4012,10 +4040,12 @@ class OpenStackCloud(object):
         # private method in order to avoid an unnecessary API call to get
         # a server we already have.
         return self._delete_server(
-            server, wait=wait, timeout=timeout, delete_ips=delete_ips)
+            server, wait=wait, timeout=timeout, delete_ips=delete_ips,
+            delete_ip_retry=delete_ip_retry)
 
     def _delete_server(
-            self, server, wait=False, timeout=180, delete_ips=False):
+            self, server, wait=False, timeout=180, delete_ips=False,
+            delete_ip_retry=1):
         if not server:
             return False
 
@@ -4032,7 +4062,15 @@ class OpenStackCloud(object):
                         " broken.".format(
                             floating_ip=floating_ip,
                             id=server['id']))
-                self.delete_floating_ip(ips[0]['id'])
+                deleted = self.delete_floating_ip(
+                    ips[0]['id'], retry=delete_ip_retry)
+                if not deleted:
+                    raise OpenStackCloudException(
+                        "Tried to delete floating ip {floating_ip}"
+                        " associated with server {id} but there was"
+                        " an error deleting it. Not deleting server.".format(
+                            floating_ip=floating_ip,
+                            id=server['id']))
 
         try:
             self.manager.submitTask(
