@@ -853,6 +853,29 @@ class OpenStackCloud(object):
             wait=False, timeout=3600,
             environment_files=None,
             **parameters):
+        """Create a Heat Stack.
+
+        :param string name: Name of the stack.
+        :param string template_file: Path to the template.
+        :param string template_url: URL of template.
+        :param string template_object: URL to retrieve template object.
+        :param dict files: dict of additional file content to include.
+        :param boolean rollback: Enable rollback on create failure.
+        :param boolean wait: Whether to wait for the delete to finish.
+        :param int timeout: Stack create timeout in seconds.
+        :param list environment_files: Paths to environment files to apply.
+
+        Other arguments will be passed as stack parameters which will take
+        precedence over any parameters specified in the environments.
+
+        Only one of template_file, template_url, template_object should be
+        specified.
+
+        :returns: a dict containing the stack description
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during
+            the openstack API call
+        """
         envfiles, env = template_utils.process_multiple_environments_and_files(
             env_paths=environment_files)
         tpl_files, template = template_utils.get_template_contents(
