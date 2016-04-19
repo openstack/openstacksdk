@@ -467,6 +467,28 @@ class TestFloatingIP(base.TestCase):
             }
         )
 
+    @patch.object(OpenStackCloud, 'delete_floating_ip')
+    @patch.object(OpenStackCloud, 'get_server_by_id')
+    @patch.object(OpenStackCloud, 'create_floating_ip')
+    @patch.object(OpenStackCloud, 'has_service')
+    def test_add_ip_refresh_timeout(
+            self, mock_has_service, mock_create_floating_ip,
+            mock_get_server_by_id, mock_delete_floating_ip):
+        mock_has_service.return_value = True
+
+        mock_create_floating_ip.return_value = self.floating_ip
+        mock_get_server_by_id.return_value = self.fake_server
+
+        self.assertRaises(
+            exc.OpenStackCloudTimeout,
+            self.client._add_auto_ip,
+            server=self.fake_server,
+            wait=True, timeout=2,
+            reuse=False)
+
+        mock_delete_floating_ip.assert_called_once_with(
+            self.floating_ip['id'])
+
     @patch.object(OpenStackCloud, 'get_floating_ip')
     @patch.object(OpenStackCloud, 'neutron_client')
     @patch.object(OpenStackCloud, 'has_service')

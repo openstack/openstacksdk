@@ -3652,6 +3652,7 @@ class OpenStackCloud(object):
 
     def _add_auto_ip(self, server, wait=False, timeout=60, reuse=True):
         skip_attach = False
+        created = False
         if reuse:
             f_ip = self.available_floating_ip()
         else:
@@ -3660,10 +3661,29 @@ class OpenStackCloud(object):
                 # This gets passed in for both nova and neutron
                 # but is only meaninful for the neutron logic branch
                 skip_attach = True
+            created = True
 
-        return self._attach_ip_to_server(
-            server=server, floating_ip=f_ip, wait=wait, timeout=timeout,
-            skip_attach=skip_attach)
+        try:
+            return self._attach_ip_to_server(
+                server=server, floating_ip=f_ip, wait=wait, timeout=timeout,
+                skip_attach=skip_attach)
+        except OpenStackCloudTimeout:
+            if (self.has_service('network')
+                    and not self._use_nova_floating()
+                    and created):
+                # We are here because we created an IP on the port
+                # It failed. Delete so as not to leak an unmanaged
+                # resource
+                self.log.error(
+                    "Timeout waiting for floating IP to become"
+                    " active. Floating IP {ip}:{id} was created for"
+                    " server {server} but is being deleted due to"
+                    " activation failure.".format(
+                        ip=f_ip['floating_ip_address'],
+                        id=f_ip['id'],
+                        server=server['id']))
+                self.delete_floating_ip(f_ip['id'])
+            raise
 
     def add_ips_to_server(
             self, server, auto_ip=True, ips=None, ip_pool=None,
