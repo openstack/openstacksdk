@@ -123,10 +123,10 @@ class TestDeleteServer(base.TestCase):
                                                                 'ACTIVE')]
         for fail in self.novaclient_exceptions:
 
-            def _raise_fail(server):
+            def _raise_fail():
                 raise fail(code=fail.http_status)
 
-            nova_mock.servers.get.side_effect = _raise_fail
+            nova_mock.servers.list.side_effect = _raise_fail
             exc = self.assertRaises(shade_exc.OpenStackCloudException,
                                     self.cloud.delete_server, 'yosemite',
                                     wait=True)

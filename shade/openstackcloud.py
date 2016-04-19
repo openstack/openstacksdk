@@ -195,6 +195,7 @@ class OpenStackCloud(object):
         cache_arguments = cloud_config.get_cache_arguments()
 
         if cache_class != 'dogpile.cache.null':
+            self.cache_enabled = True
             self._cache = cache.make_region(
                 function_key_generator=self._make_cache_key
             ).configure(
@@ -204,6 +205,8 @@ class OpenStackCloud(object):
             self._SERVER_AGE = DEFAULT_SERVER_AGE
             self._PORT_AGE = DEFAULT_PORT_AGE
         else:
+            self.cache_enabled = False
+
             def _fake_invalidate(unused):
                 pass
 
@@ -4045,28 +4048,27 @@ class OpenStackCloud(object):
         if not wait:
             return True
 
+        # If the server has volume attachments, or if it has booted
+        # from volume, deleting it will change volume state so we will
+        # need to invalidate the cache. Avoid the extra API call if
+        # caching is not enabled.
+        reset_volume_cache = False
+        if (self.cache_enabled
+                and self.has_service('volume')
+                and self.get_volumes(server)):
+            reset_volume_cache = True
+
         for count in _utils._iterate_timeout(
                 timeout,
                 "Timed out waiting for server to get deleted.",
                 wait=self._SERVER_AGE):
-            try:
-                server = self.get_server_by_id(server['id'])
+            with _utils.shade_exceptions("Error in deleting server"):
+                server = self.get_server(server['id'])
                 if not server:
                     break
-            except nova_exceptions.NotFound:
-                break
-            except OpenStackCloudException:
-                raise
-            except Exception as e:
-                raise OpenStackCloudException(
-                    "Error in deleting server: {0}".format(e))
 
-        if self.has_service('volume'):
-            # If the server has volume attachments, or if it has booted
-            # from volume, deleting it will change volume state
-            if (not server['image'] or not server['image']['id']
-                    or self.get_volume(server)):
-                self.list_volumes.invalidate(self)
+        if reset_volume_cache:
+            self.list_volumes.invalidate(self)
 
         # Reset the list servers cache time so that the next list server
         # call gets a new list
