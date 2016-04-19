@@ -495,6 +495,13 @@ def normalize_flavors(flavors):
     return flavors
 
 
+def normalize_baymodels(baymodels):
+    """Normalize Magnum baymodels."""
+    for baymodel in baymodels:
+        baymodel['id'] = baymodel['uuid']
+    return baymodels
+
+
 def valid_kwargs(*valid_args):
     # This decorator checks if argument passed as **kwargs to a function are
     # present in valid_args.
@@ -759,3 +766,21 @@ def range_filter(data, key, range_exp):
             if int(d[key]) == val_range[1]:
                 filtered.append(d)
         return filtered
+
+
+def generate_patches_from_kwargs(operation, **kwargs):
+    """Given a set of parameters, returns a list with the
+    valid patch values.
+
+    :param string operation: The operation to perform.
+    :param list kwargs: Dict of parameters.
+
+    :returns: A list with the right patch values.
+    """
+    patches = []
+    for k, v in kwargs.items():
+        patch = {'op': operation,
+                 'value': v,
+                 'path': '/%s' % k}
+        patches.append(patch)
+    return patches
