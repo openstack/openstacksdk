@@ -1384,7 +1384,7 @@ class OpenStackCloud(object):
         :returns: A list of floating IP dicts.
 
         """
-        if self.has_service('network') and not self._use_nova_floating():
+        if self._use_neutron_floating():
             try:
                 return _utils.normalize_neutron_floating_ips(
                     self._neutron_list_floating_ips())
@@ -1598,8 +1598,9 @@ class OpenStackCloud(object):
         self._find_interesting_networks()
         return self._internal_networks
 
-    def _use_nova_floating(self):
-        return self._floating_ip_source == 'nova'
+    def _use_neutron_floating(self):
+        return (self.has_service('network')
+                and self._floating_ip_source == 'neutron')
 
     def get_keypair(self, name_or_id, filters=None):
         """Get a keypair by name or ID.
@@ -3038,7 +3039,7 @@ class OpenStackCloud(object):
         :returns: a (normalized) structure with a floating IP address
                   description.
         """
-        if self.has_service('network') and not self._use_nova_floating():
+        if self._use_neutron_floating():
             try:
                 f_ips = _utils.normalize_neutron_floating_ips(
                     self._neutron_available_floating_ips(
@@ -3181,7 +3182,7 @@ class OpenStackCloud(object):
 
         :raises: ``OpenStackCloudException``, on operation error.
         """
-        if self.has_service('network') and not self._use_nova_floating():
+        if self._use_neutron_floating():
             try:
                 f_ips = _utils.normalize_neutron_floating_ips(
                     [self._neutron_create_floating_ip(
@@ -3283,7 +3284,7 @@ class OpenStackCloud(object):
                 retry=retry + 1))
 
     def _delete_floating_ip(self, floating_ip_id):
-        if self.has_service('network') and not self._use_nova_floating():
+        if self._use_neutron_floating():
             try:
                 return self._neutron_delete_floating_ip(floating_ip_id)
             except OpenStackCloudURINotFound as e:
@@ -3346,7 +3347,7 @@ class OpenStackCloud(object):
         if ext_ip == floating_ip['floating_ip_address']:
             return server
 
-        if self.has_service('network') and not self._use_nova_floating():
+        if self._use_neutron_floating():
             if not skip_attach:
                 try:
                     self._neutron_attach_ip_to_server(
@@ -3514,7 +3515,7 @@ class OpenStackCloud(object):
 
         :raises: ``OpenStackCloudException``, on operation error.
         """
-        if self.has_service('network') and not self._use_nova_floating():
+        if self._use_neutron_floating():
             try:
                 return self._neutron_detach_ip_from_server(
                     server_id=server_id, floating_ip_id=floating_ip_id)
@@ -3668,9 +3669,7 @@ class OpenStackCloud(object):
                 server=server, floating_ip=f_ip, wait=wait, timeout=timeout,
                 skip_attach=skip_attach)
         except OpenStackCloudTimeout:
-            if (self.has_service('network')
-                    and not self._use_nova_floating()
-                    and created):
+            if self._use_neutron_floating() and created:
                 # We are here because we created an IP on the port
                 # It failed. Delete so as not to leak an unmanaged
                 # resource
