@@ -3320,6 +3320,34 @@ class OpenStackCloud(object):
                     fip_id=floating_ip_id, msg=str(e)))
         return True
 
+    def delete_unattached_floating_ips(self, wait=False, timeout=60):
+        """Safely delete unattached floating ips.
+
+        If the cloud can safely purge any unattached floating ips without
+        race conditions, do so.
+
+        Safely here means a specific thing. It means that you are not running
+        this while another process that might do a two step create/attach
+        is running. You can safely run this  method while another process
+        is creating servers and attaching floating IPs to them if either that
+        process is using add_auto_ip from shade, or is creating the floating
+        IPs by passing in a server to the create_floating_ip call.
+
+        :param wait: Whether to wait for each IP to be deleted
+        :param timeout: How long to wait for each IP
+
+        :returns: True if Floating IPs have been deleted, False if not
+
+        :raises: ``OpenStackCloudException``, on operation error.
+        """
+        processed = []
+        if self._use_neutron_floating():
+            for ip in self.list_floating_ips():
+                if not ip['attached']:
+                    processed.append(self.delete_floating_ip(
+                        id=ip['id'], wait=wait, timeout=timeout))
+        return all(processed) if processed else False
+
     def _attach_ip_to_server(
             self, server, floating_ip,
             fixed_address=None, wait=False,

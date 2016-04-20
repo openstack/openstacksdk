@@ -531,3 +531,36 @@ class TestFloatingIP(base.TestCase):
             fixed_address='192.0.2.129')
 
         self.assertEqual(server, self.fake_server)
+
+    @patch.object(OpenStackCloud, 'delete_floating_ip')
+    @patch.object(OpenStackCloud, 'list_floating_ips')
+    @patch.object(OpenStackCloud, '_use_neutron_floating')
+    def test_cleanup_floating_ips(
+            self, mock_use_neutron_floating, mock_list_floating_ips,
+            mock_delete_floating_ip):
+        mock_use_neutron_floating.return_value = True
+        floating_ips = [{
+            "id": "this-is-a-floating-ip-id",
+            "fixed_ip_address": None,
+            "internal_network": None,
+            "floating_ip_address": "203.0.113.29",
+            "network": "this-is-a-net-or-pool-id",
+            "attached": False,
+            "status": "ACTIVE"
+        }, {
+            "id": "this-is-an-attached-floating-ip-id",
+            "fixed_ip_address": None,
+            "internal_network": None,
+            "floating_ip_address": "203.0.113.29",
+            "network": "this-is-a-net-or-pool-id",
+            "attached": True,
+            "status": "ACTIVE"
+        }]
+
+        mock_list_floating_ips.return_value = floating_ips
+
+        self.client.delete_unattached_floating_ips()
+
+        mock_delete_floating_ip.assert_called_once_with(
+            id="this-is-a-floating-ip-id",
+            timeout=60, wait=False)
