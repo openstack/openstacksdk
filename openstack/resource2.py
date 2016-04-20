@@ -655,10 +655,10 @@ class Resource(object):
 
             if not paginated:
                 return
-            if "limit" in params and yielded < params["limit"]:
+            if "limit" in query_params and yielded < query_params["limit"]:
                 return
-            params["limit"] = yielded
-            params["marker"] = new_marker
+            query_params["limit"] = yielded
+            query_params["marker"] = new_marker
 
     @classmethod
     def _get_one_match(cls, name_or_id, results):
