@@ -42,6 +42,7 @@ import swiftclient.client
 import swiftclient.service
 import swiftclient.exceptions as swift_exceptions
 import troveclient.client
+import designateclient.client
 
 from shade.exc import *  # noqa
 from shade import _log
@@ -260,6 +261,7 @@ class OpenStackCloud(object):
         self._swift_client_lock = threading.Lock()
         self._swift_service_lock = threading.Lock()
         self._trove_client = None
+        self._designate_client = None
 
         self._raw_clients = {}
 
@@ -847,6 +849,13 @@ class OpenStackCloud(object):
             self._neutron_client = self._get_client(
                 'network', neutronclient.neutron.client.Client)
         return self._neutron_client
+
+    @property
+    def designate_client(self):
+        if self._designate_client is None:
+            self._designate_client = self._get_client(
+                'dns', designateclient.client.Client)
+        return self._designate_client
 
     def create_stack(
             self, name,
@@ -5093,3 +5102,113 @@ class OpenStackCloud(object):
             raise OpenStackCloudUnavailableFeature(
                 "Unavailable feature: security groups"
             )
+
+    def list_zones(self):
+        """List all available zones.
+
+        :returns: A list of zones dicts.
+
+        """
+        with _utils.shade_exceptions("Error fetching zones list"):
+            return self.manager.submitTask(_tasks.ZoneList())
+
+    def get_zone(self, name_or_id, filters=None):
+        """Get a zone by name or ID.
+
+        :param name_or_id: Name or ID of the zone
+        :param dict filters:
+            A dictionary of meta data to use for further filtering
+
+        :returns:  A zone dict or None if no matching zone is
+        found.
+
+        """
+        return _utils._get_entity(self.search_zones, name_or_id, filters)
+
+    def search_zones(self, name_or_id=None, filters=None):
+        zones = self.list_zones()
+        return _utils._filter_list(zones, name_or_id, filters)
+
+    def create_zone(self, name, zone_type=None, email=None, description=None,
+                    ttl=None, masters=None):
+        """Create a new zone.
+
+        :param name: Name of the zone being created.
+        :param zone_type: Type of the zone (primary/secondary)
+        :param email: Email of the zone owner (only
+                      applies if zone_type is primary)
+        :param description: Description of the zone
+        :param ttl: TTL (Time to live) value in seconds
+        :param masters: Master nameservers (only applies
+                        if zone_type is secondary)
+
+        :returns: a dict representing the created zone.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+
+        # We capitalize in case the user passes time in lowercase, as
+        # designate call expects PRIMARY/SECONDARY
+        if zone_type is not None:
+            zone_type = zone_type.upper()
+            if zone_type not in ('PRIMARY', 'SECONDARY'):
+                raise OpenStackCloudException(
+                    "Invalid type %s, valid choices are PRIMARY or SECONDARY" %
+                    zone_type)
+
+        with _utils.shade_exceptions("Unable to create zone {name}".format(
+                name=name)):
+            return self.manager.submitTask(_tasks.ZoneCreate(
+                name=name, type_=zone_type, email=email,
+                description=description, ttl=ttl, masters=masters))
+
+    @_utils.valid_kwargs('email', 'description', 'ttl', 'masters')
+    def update_zone(self, name_or_id, **kwargs):
+        """Update a zone.
+
+        :param name_or_id: Name or ID of the zone being updated.
+        :param email: Email of the zone owner (only
+                      applies if zone_type is primary)
+        :param description: Description of the zone
+        :param ttl: TTL (Time to live) value in seconds
+        :param masters: Master nameservers (only applies
+                        if zone_type is secondary)
+
+        :returns: a dict representing the updated zone.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        zone = self.get_zone(name_or_id)
+        if not zone:
+            raise OpenStackCloudException(
+                "Zone %s not found." % name_or_id)
+
+        with _utils.shade_exceptions(
+                "Error updating zone {0}".format(name_or_id)):
+            new_zone = self.manager.submitTask(
+                _tasks.ZoneUpdate(
+                    zone=zone['id'], values=kwargs))
+
+        return new_zone
+
+    def delete_zone(self, name_or_id):
+        """Delete a zone.
+
+        :param name_or_id: Name or ID of the zone being deleted.
+
+        :returns: True if delete succeeded, False otherwise.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+
+        zone = self.get_zone(name_or_id)
+        if zone is None:
+            self.log.debug("Zone %s not found for deleting" % name_or_id)
+            return False
+
+        with _utils.shade_exceptions(
+                "Error deleting zone {0}".format(name_or_id)):
+            self.manager.submitTask(
+                _tasks.ZoneDelete(zone=zone['id']))
+
+        return True
