@@ -222,9 +222,6 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
     def test_trusts(self):
         self.verify_list(self.proxy.trusts, trust.Trust, paginated=False)
 
-    def test_trust_update(self):
-        self.verify_update(self.proxy.update_trust, trust.Trust)
-
     def test_region_create_attrs(self):
         self.verify_create(self.proxy.create_region, region.Region)
 

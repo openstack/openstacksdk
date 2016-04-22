@@ -720,19 +720,6 @@ class Proxy(proxy.BaseProxy):
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_trust.Trust, paginated=False, **query)
 
-    def update_trust(self, trust, **attrs):
-        """Update a trust
-
-        :param trust: Either the ID of a trust or a
-                      :class:`~openstack.identity.v3.trust.Trust` instance.
-        :attrs kwargs: The attributes to update on the trust represented
-                       by ``value``.
-
-        :returns: The updated trust
-        :rtype: :class:`~openstack.identity.v3.trust.Trust`
-        """
-        return self._update(_trust.Trust, trust, **attrs)
-
     def create_region(self, **attrs):
         """Create a new region from attributes
 
