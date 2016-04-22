@@ -14,6 +14,7 @@ Network Resources
    v2/metering_label
    v2/metering_label_rule
    v2/network
+   v2/network_ip_availability
    v2/pool
    v2/pool_member
    v2/port

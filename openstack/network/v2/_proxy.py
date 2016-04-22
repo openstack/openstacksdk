@@ -20,6 +20,7 @@ from openstack.network.v2 import load_balancer as _load_balancer
 from openstack.network.v2 import metering_label as _metering_label
 from openstack.network.v2 import metering_label_rule as _metering_label_rule
 from openstack.network.v2 import network as _network
+from openstack.network.v2 import network_ip_availability
 from openstack.network.v2 import pool as _pool
 from openstack.network.v2 import pool_member as _pool_member
 from openstack.network.v2 import port as _port
@@ -756,6 +757,50 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.network.Network`
         """
         return self._update(_network.Network, network, **attrs)
+
+    def find_network_ip_availability(self, name_or_id, ignore_missing=True):
+        """Find IP availability of a network
+
+        :param name_or_id: The name or ID of a network.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :returns: One :class:`~openstack.network.v2.network_ip_availability.
+                       NetworkIPAvailability` or None
+        """
+        return self._find(network_ip_availability.NetworkIPAvailability,
+                          name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def get_network_ip_availability(self, network):
+        """Get IP availability of a network
+
+        :param network:
+            The value can be the ID of a network or a
+            :class:`~openstack.network.v2.network.Network` instance.
+
+        :returns: One :class:`~openstack.network.v2.network_ip_availability.
+                      NetworkIPAvailability`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(network_ip_availability.NetworkIPAvailability,
+                         network)
+
+    def network_ip_availabilities(self, **query):
+        """Return a generator of network ip availabilities
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
+
+        :returns: A generator of network ip availability objects
+        :rtype: :class:`~openstack.network.v2.network_ip_availability.
+                NetworkIPAvailability`
+        """
+        return self._list(network_ip_availability.NetworkIPAvailability,
+                          paginated=False, **query)
 
     def create_pool(self, **attrs):
         """Create a new pool from attributes

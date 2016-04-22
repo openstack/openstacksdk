@@ -23,6 +23,7 @@ from openstack.network.v2 import load_balancer
 from openstack.network.v2 import metering_label
 from openstack.network.v2 import metering_label_rule
 from openstack.network.v2 import network
+from openstack.network.v2 import network_ip_availability
 from openstack.network.v2 import pool
 from openstack.network.v2 import pool_member
 from openstack.network.v2 import port
@@ -269,6 +270,18 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_network_update(self):
         self.verify_update(self.proxy.update_network, network.Network)
+
+    def test_network_ip_availability_find(self):
+        self.verify_find(self.proxy.find_network_ip_availability,
+                         network_ip_availability.NetworkIPAvailability)
+
+    def test_network_ip_availability_get(self):
+        self.verify_get(self.proxy.get_network_ip_availability,
+                        network_ip_availability.NetworkIPAvailability)
+
+    def test_network_ip_availabilities(self):
+        self.verify_list(self.proxy.network_ip_availabilities,
+                         network_ip_availability.NetworkIPAvailability)
 
     def test_pool_member_create_attrs(self):
         self.verify_create(self.proxy.create_pool_member,
