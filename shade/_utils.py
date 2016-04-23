@@ -118,7 +118,7 @@ def _filter_list(data, name_or_id, filters):
     return filtered
 
 
-def _get_entity(func, name_or_id, filters):
+def _get_entity(func, name_or_id, filters, **kwargs):
     """Return a single entity from the list returned by a given method.
 
     :param callable func:
@@ -136,7 +136,7 @@ def _get_entity(func, name_or_id, filters):
     # object and just short-circuit return it.
     if hasattr(name_or_id, 'id'):
         return name_or_id
-    entities = func(name_or_id, filters)
+    entities = func(name_or_id, filters, **kwargs)
     if not entities:
         return None
     if len(entities) > 1:

@@ -63,6 +63,25 @@ class TestProject(base.BaseFunctionalTestCase):
         self.assertEqual(project_name, project['name'])
         self.assertEqual('test_create_project', project['description'])
 
+    def test_update_project(self):
+        project_name = self.new_project_name + '_update'
+
+        params = {
+            'name': project_name,
+            'description': 'test_update_project',
+        }
+        if self.identity_version == '3':
+            params['domain_id'] = \
+                self.operator_cloud.get_domain('default')['id']
+
+        project = self.operator_cloud.create_project(**params)
+        updated_project = self.operator_cloud.update_project(project_name,
+                                                             description='new')
+        self.assertIsNotNone(updated_project)
+        self.assertEqual(project['id'], updated_project['id'])
+        self.assertEqual(project['name'], updated_project['name'])
+        self.assertEqual(updated_project['description'], 'new')
+
     def test_delete_project(self):
         project_name = self.new_project_name + '_delete'
         params = {'name': project_name}

@@ -447,8 +447,10 @@ class OpenStackCloud(object):
         return filtered
 
     @_utils.cache_on_arguments()
-    def list_projects(self):
+    def list_projects(self, domain_id=None):
         """List Keystone Projects.
+
+        :param string domain_id: domain id to scope the listed projects.
 
         :returns: a list of dicts containing the project description.
 
@@ -456,44 +458,53 @@ class OpenStackCloud(object):
             the openstack API call.
         """
         try:
-            projects = self.manager.submitTask(_tasks.ProjectList())
+            if self.cloud_config.get_api_version('identity') == '3':
+                projects = self.manager.submitTask(
+                    _tasks.ProjectList(domain=domain_id))
+            else:
+                projects = self.manager.submitTask(
+                    _tasks.ProjectList())
         except Exception as e:
             self.log.debug("Failed to list projects", exc_info=True)
             raise OpenStackCloudException(str(e))
         return projects
 
-    def search_projects(self, name_or_id=None, filters=None):
+    def search_projects(self, name_or_id=None, filters=None, domain_id=None):
         """Seach Keystone projects.
 
         :param name: project name or id.
         :param filters: a dict containing additional filters to use.
+        :param domain_id: domain id to scope the searched projects.
 
         :returns: a list of dict containing the projects
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        projects = self.list_projects()
+        projects = self.list_projects(domain_id=domain_id)
         return _utils._filter_list(projects, name_or_id, filters)
 
-    def get_project(self, name_or_id, filters=None):
+    def get_project(self, name_or_id, filters=None, domain_id=None):
         """Get exactly one Keystone project.
 
         :param id: project name or id.
         :param filters: a dict containing additional filters to use.
+        :param domain_id: domain id (keystone v3 only)
 
         :returns: a list of dicts containing the project description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        return _utils._get_entity(self.search_projects, name_or_id, filters)
+        return _utils._get_entity(self.search_projects, name_or_id, filters,
+                                  domain_id=domain_id)
 
-    def update_project(self, name_or_id, description=None, enabled=True):
+    def update_project(self, name_or_id, description=None, enabled=True,
+                       domain_id=None):
         with _utils.shade_exceptions(
                 "Error in updating project {project}".format(
                     project=name_or_id)):
-            proj = self.get_project(name_or_id)
+            proj = self.get_project(name_or_id, domain_id=domain_id)
             if not proj:
                 raise OpenStackCloudException(
                     "Project %s not found." % name_or_id)
@@ -528,10 +539,12 @@ class OpenStackCloud(object):
         self.list_projects.invalidate(self)
         return project
 
-    def delete_project(self, name_or_id):
+    def delete_project(self, name_or_id, domain_id=None):
         """Delete a project
 
         :param string name_or_id: Project name or id.
+        :param string domain_id: Domain id containing the project (keystone
+            v3 only).
 
         :returns: True if delete succeeded, False if the project was not found.
 
@@ -542,7 +555,7 @@ class OpenStackCloud(object):
         with _utils.shade_exceptions(
                 "Error in deleting project {project}".format(
                     project=name_or_id)):
-            project = self.get_project(name_or_id)
+            project = self.get_project(name_or_id, domain_id=domain_id)
             if project is None:
                 self.log.debug(
                     "Project {0} not found for deleting".format(name_or_id))
