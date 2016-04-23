@@ -19,6 +19,7 @@ test_floating_ip_neutron
 Tests Floating IP resource methods for Neutron
 """
 
+import mock
 from mock import patch
 import os_client_config
 
@@ -340,20 +341,22 @@ class TestFloatingIP(base.TestCase):
             mock_keystone_session,
             mock_nova_client):
         mock_has_service.return_value = True
-        mock__neutron_create_floating_ip.return_value = \
-            self.mock_floating_ip_list_rep['floatingips'][0]
+        fip = _utils.normalize_neutron_floating_ips(
+            self.mock_floating_ip_list_rep['floatingips'])[0]
+        mock__neutron_create_floating_ip.return_value = fip
         mock_keystone_session.get_project_id.return_value = \
             '4969c491a3c74ee4af974e6d800c62df'
+        fake_server = meta.obj_to_dict(fakes.FakeServer('1234', '', 'ACTIVE'))
 
         self.client.add_ips_to_server(
-            dict(id='1234'), ip_pool='my-network', reuse=False)
+            fake_server, ip_pool='my-network', reuse=False)
 
         mock__neutron_create_floating_ip.assert_called_once_with(
             network_name_or_id='my-network', server=None,
-            fixed_address=None, nat_destination=None)
+            fixed_address=None, nat_destination=None, wait=False, timeout=60)
         mock_attach_ip_to_server.assert_called_once_with(
-            server={'id': '1234'}, fixed_address=None,
-            floating_ip=self.floating_ip, wait=False, timeout=60)
+            server=fake_server, fixed_address=None,
+            floating_ip=fip, wait=False, timeout=mock.ANY)
 
     @patch.object(OpenStackCloud, 'keystone_session')
     @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
@@ -564,3 +567,19 @@ class TestFloatingIP(base.TestCase):
         mock_delete_floating_ip.assert_called_once_with(
             id="this-is-a-floating-ip-id",
             timeout=60, wait=False)
+
+    @patch.object(OpenStackCloud, '_submit_create_fip')
+    @patch.object(OpenStackCloud, '_get_free_fixed_port')
+    @patch.object(OpenStackCloud, 'get_external_networks')
+    def test_create_floating_ip_no_port(
+            self, mock_get_ext_nets, mock_get_free_fixed_port,
+            mock_submit_create_fip):
+        fake_port = dict(id='port-id')
+        mock_get_ext_nets.return_value = [self.mock_get_network_rep]
+        mock_get_free_fixed_port.return_value = (fake_port, '10.0.0.2')
+        mock_submit_create_fip.return_value = dict(port_id=None)
+
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.client._neutron_create_floating_ip,
+            server=dict(id='some-server'))

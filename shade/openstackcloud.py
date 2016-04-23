@@ -3300,7 +3300,8 @@ class OpenStackCloud(object):
             return [f_ip]
 
     def create_floating_ip(self, network=None, server=None,
-                           fixed_address=None, nat_destination=None):
+                           fixed_address=None, nat_destination=None,
+                           wait=False, timeout=60):
         """Allocate a new floating IP from a network or a pool.
 
         :param network: Nova pool name or Neutron network name or id
@@ -3312,6 +3313,12 @@ class OpenStackCloud(object):
         :param nat_destination: (optional) Name or id of the network
                                 that the fixed IP to attach the floating
                                 IP to should be on.
+        :param wait: (optional) Whether to wait for the IP to be active.
+                     Defaults to False. Only applies if a server is
+                     provided.
+        :param timeout: (optional) How long to wait for the IP to be active.
+                        Defaults to 60. Only applies if a server is
+                        provided.
 
         :returns: a floating IP address
 
@@ -3319,13 +3326,11 @@ class OpenStackCloud(object):
         """
         if self._use_neutron_floating():
             try:
-                f_ips = _utils.normalize_neutron_floating_ips(
-                    [self._neutron_create_floating_ip(
-                        network_name_or_id=network, server=server,
-                        fixed_address=fixed_address,
-                        nat_destination=nat_destination)]
-                )
-                return f_ips[0]
+                return self._neutron_create_floating_ip(
+                    network_name_or_id=network, server=server,
+                    fixed_address=fixed_address,
+                    nat_destination=nat_destination,
+                    wait=wait, timeout=timeout)
             except OpenStackCloudURINotFound as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
@@ -3337,9 +3342,15 @@ class OpenStackCloud(object):
             [self._nova_create_floating_ip(pool=network)])
         return f_ips[0]
 
+    def _submit_create_fip(self, kwargs):
+        # Split into a method to aid in test mocking
+        return _utils.normalize_neutron_floating_ips(
+            [self.manager.submitTask(_tasks.NeutronFloatingIPCreate(
+                body={'floatingip': kwargs}))['floatingip']])[0]
+
     def _neutron_create_floating_ip(
             self, network_name_or_id=None, server=None,
-            fixed_address=None, nat_destination=None):
+            fixed_address=None, nat_destination=None, wait=False, timeout=60):
         with _utils.neutron_exceptions(
                 "unable to create floating IP for net "
                 "{0}".format(network_name_or_id)):
@@ -3358,6 +3369,7 @@ class OpenStackCloud(object):
             kwargs = {
                 'floating_network_id': networks[0]['id'],
             }
+            port = None
             if server:
                 (port, fixed_ip_address) = self._get_free_fixed_port(
                     server, fixed_address=fixed_address,
@@ -3365,8 +3377,37 @@ class OpenStackCloud(object):
                 if port:
                     kwargs['port_id'] = port['id']
                     kwargs['fixed_ip_address'] = fixed_ip_address
-            return self.manager.submitTask(_tasks.NeutronFloatingIPCreate(
-                body={'floatingip': kwargs}))['floatingip']
+            fip = self._submit_create_fip(kwargs)
+            fip_id = fip['id']
+
+            if port:
+                if fip['port_id'] != port['id']:
+                    raise OpenStackCloudException(
+                        "Attempted to create FIP on port {port} for server"
+                        " {server} but something went wrong".format(
+                            port=port['id'], server=server['id']))
+                # The FIP is only going to become active in this context
+                # when we've attached it to something, which only occurs
+                # if we've provided a port as a parameter
+                if wait:
+                    try:
+                        for count in _utils._iterate_timeout(
+                                timeout,
+                                "Timeout waiting for the floating IP"
+                                " to be ACTIVE"):
+                            fip = self.get_floating_ip(fip_id)
+                            if fip['status'] == 'ACTIVE':
+                                break
+                    except OpenStackCloudTimeout:
+                        self.log.error(
+                            "Timed out on floating ip {fip} becoming active."
+                            " Deleting".format(fip=fip_id))
+                        try:
+                            self.delete_floating_ip(fip_id)
+                        except Exception:
+                            pass
+                        raise
+            return fip
 
     def _nova_create_floating_ip(self, pool=None):
         with _utils.shade_exceptions(
@@ -3753,9 +3794,17 @@ class OpenStackCloud(object):
         if reuse:
             f_ip = self.available_floating_ip(network=network)
         else:
+            start_time = time.time()
             f_ip = self.create_floating_ip(
-                network=network, nat_destination=nat_destination)
+                network=network, nat_destination=nat_destination,
+                wait=wait, timeout=timeout)
+            timeout = timeout - (time.time() - start_time)
 
+        # We run attach as a second call rather than in the create call
+        # because there are code flows where we will not have an attached
+        # FIP yet. However, even if it was attached in the create, we run
+        # the attach function below to get back the server dict refreshed
+        # with the FIP information.
         return self._attach_ip_to_server(
             server=server, floating_ip=f_ip, fixed_address=fixed_address,
             wait=wait, timeout=timeout)
@@ -3820,7 +3869,10 @@ class OpenStackCloud(object):
         if reuse:
             f_ip = self.available_floating_ip()
         else:
-            f_ip = self.create_floating_ip(server=server)
+            start_time = time.time()
+            f_ip = self.create_floating_ip(
+                server=server, wait=wait, timeout=timeout)
+            timeout = timeout - (time.time() - start_time)
             if server:
                 # This gets passed in for both nova and neutron
                 # but is only meaninful for the neutron logic branch
@@ -3828,6 +3880,11 @@ class OpenStackCloud(object):
             created = True
 
         try:
+            # We run attach as a second call rather than in the create call
+            # because there are code flows where we will not have an attached
+            # FIP yet. However, even if it was attached in the create, we run
+            # the attach function below to get back the server dict refreshed
+            # with the FIP information.
             return self._attach_ip_to_server(
                 server=server, floating_ip=f_ip, wait=wait, timeout=timeout,
                 skip_attach=skip_attach)

@@ -313,15 +313,21 @@ def normalize_neutron_floating_ips(ips):
         ]
 
     """
-    ret = [dict(
-        id=ip['id'],
-        fixed_ip_address=ip.get('fixed_ip_address'),
-        floating_ip_address=ip['floating_ip_address'],
-        network=ip['floating_network_id'],
-        attached=(ip.get('port_id') is not None and
-                  ip.get('port_id') != ''),
-        status=ip['status']
-    ) for ip in ips]
+    ret = []
+    for ip in ips:
+        network_id = ip.get('floating_network_id', ip.get('network'))
+        ret.append(dict(
+            id=ip['id'],
+            fixed_ip_address=ip.get('fixed_ip_address'),
+            floating_ip_address=ip['floating_ip_address'],
+            network=network_id,
+            floating_network_id=network_id,
+            port_id=ip.get('port_id'),
+            router_id=ip.get('router_id'),
+            attached=(ip.get('port_id') is not None and
+                      ip.get('port_id') != ''),
+            status=ip['status'],
+        ))
     return meta.obj_list_to_dict(ret)
 
 
