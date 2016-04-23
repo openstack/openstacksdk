@@ -83,7 +83,8 @@ class TestStack(base.TestCase):
             self.skipTest('Orchestration service not supported by cloud')
 
     def _cleanup_stack(self):
-        self.cloud.delete_stack(self.stack_name)
+        self.cloud.delete_stack(self.stack_name, wait=True)
+        self.assertIsNone(self.cloud.get_stack(self.stack_name))
 
     def test_stack_validation(self):
         test_template = tempfile.NamedTemporaryFile(delete=False)

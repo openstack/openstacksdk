@@ -967,10 +967,11 @@ class OpenStackCloud(object):
                                         marker=marker)
         return self.get_stack(name_or_id)
 
-    def delete_stack(self, name_or_id):
+    def delete_stack(self, name_or_id, wait=False):
         """Delete a Heat Stack
 
         :param string name_or_id: Stack name or id.
+        :param boolean wait: Whether to wait for the delete to finish
 
         :returns: True if delete succeeded, False if the stack was not found.
 
@@ -982,9 +983,33 @@ class OpenStackCloud(object):
             self.log.debug("Stack %s not found for deleting" % name_or_id)
             return False
 
+        if wait:
+            # find the last event to use as the marker
+            events = event_utils.get_events(self.heat_client,
+                                            name_or_id,
+                                            event_args={'sort_dir': 'desc',
+                                                        'limit': 1})
+            marker = events[0].id if events else None
+
         with _utils.heat_exceptions("Failed to delete stack {id}".format(
                 id=name_or_id)):
             self.manager.submitTask(_tasks.StackDelete(id=stack['id']))
+        if wait:
+            try:
+                event_utils.poll_for_events(self.heat_client,
+                                            stack_name=name_or_id,
+                                            action='DELETE',
+                                            marker=marker)
+            except (heat_exceptions.NotFound, heat_exceptions.CommandError):
+                # heatclient might raise NotFound or CommandError on
+                # not found during poll_for_events
+                pass
+            stack = self.get_stack(name_or_id)
+            if stack and stack['stack_status'] == 'DELETE_FAILED':
+                raise OpenStackCloudException(
+                    "Failed to delete stack {id}: {reason}".format(
+                        id=name_or_id, reason=stack['stack_status_reason']))
+
         return True
 
     def get_name(self):
