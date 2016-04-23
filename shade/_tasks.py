@@ -764,6 +764,11 @@ class StackCreate(task_manager.Task):
         return client.heat_client.stacks.create(**self.args)
 
 
+class StackUpdate(task_manager.Task):
+    def main(self, client):
+        return client.heat_client.stacks.update(**self.args)
+
+
 class StackDelete(task_manager.Task):
     def main(self, client):
         return client.heat_client.stacks.delete(self.args['id'])

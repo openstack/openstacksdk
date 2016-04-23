@@ -902,6 +902,71 @@ class OpenStackCloud(object):
                                         action='CREATE')
         return self.get_stack(name)
 
+    def update_stack(
+            self, name_or_id,
+            template_file=None, template_url=None,
+            template_object=None, files=None,
+            rollback=True,
+            wait=False, timeout=3600,
+            environment_files=None,
+            **parameters):
+        """Update a Heat Stack.
+
+        :param string name_or_id: Name or id of the stack to update.
+        :param string template_file: Path to the template.
+        :param string template_url: URL of template.
+        :param string template_object: URL to retrieve template object.
+        :param dict files: dict of additional file content to include.
+        :param boolean rollback: Enable rollback on update failure.
+        :param boolean wait: Whether to wait for the delete to finish.
+        :param int timeout: Stack update timeout in seconds.
+        :param list environment_files: Paths to environment files to apply.
+
+        Other arguments will be passed as stack parameters which will take
+        precedence over any parameters specified in the environments.
+
+        Only one of template_file, template_url, template_object should be
+        specified.
+
+        :returns: a dict containing the stack description
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during
+            the openstack API calls
+        """
+        envfiles, env = template_utils.process_multiple_environments_and_files(
+            env_paths=environment_files)
+        tpl_files, template = template_utils.get_template_contents(
+            template_file=template_file,
+            template_url=template_url,
+            template_object=template_object,
+            files=files)
+        params = dict(
+            stack_id=name_or_id,
+            disable_rollback=not rollback,
+            parameters=parameters,
+            template=template,
+            files=dict(list(tpl_files.items()) + list(envfiles.items())),
+            environment=env,
+            timeout_mins=timeout // 60,
+        )
+        if wait:
+            # find the last event to use as the marker
+            events = event_utils.get_events(self.heat_client,
+                                            name_or_id,
+                                            event_args={'sort_dir': 'desc',
+                                                        'limit': 1})
+            marker = events[0].id if events else None
+
+        with _utils.heat_exceptions("Error updating stack {name}".format(
+                name=name_or_id)):
+            self.manager.submitTask(_tasks.StackUpdate(**params))
+        if wait:
+            event_utils.poll_for_events(self.heat_client,
+                                        name_or_id,
+                                        action='UPDATE',
+                                        marker=marker)
+        return self.get_stack(name_or_id)
+
     def delete_stack(self, name_or_id):
         """Delete a Heat Stack
 

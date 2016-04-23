@@ -120,6 +120,29 @@ class TestStack(base.TestCase):
         stack_ids = [s['id'] for s in stacks]
         self.assertIn(stack['id'], stack_ids)
 
+        # update with no changes
+        stack = self.cloud.update_stack(self.stack_name,
+                                        template_file=test_template.name,
+                                        wait=True)
+
+        # assert no change in updated stack
+        self.assertEqual('UPDATE_COMPLETE', stack['stack_status'])
+        rand = stack['outputs'][0]['output_value']
+        self.assertEqual(rand, stack['outputs'][0]['output_value'])
+
+        # update with changes
+        stack = self.cloud.update_stack(self.stack_name,
+                                        template_file=test_template.name,
+                                        wait=True,
+                                        length=12)
+
+        # assert changed output in updated stack
+        stack = self.cloud.get_stack(self.stack_name)
+        self.assertEqual('UPDATE_COMPLETE', stack['stack_status'])
+        new_rand = stack['outputs'][0]['output_value']
+        self.assertNotEqual(rand, new_rand)
+        self.assertEqual(12, len(new_rand))
+
     def test_stack_nested(self):
 
         test_template = tempfile.NamedTemporaryFile(

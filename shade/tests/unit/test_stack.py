@@ -148,6 +148,46 @@ class TestStack(base.TestCase):
         self.assertEqual(1, mock_poll.call_count)
         self.assertEqual(stack, ret)
 
+    @mock.patch.object(template_utils, 'get_template_contents')
+    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
+    def test_update_stack(self, mock_heat, mock_template):
+        mock_template.return_value = ({}, {})
+        self.cloud.update_stack('stack_name')
+        self.assertTrue(mock_template.called)
+        mock_heat.stacks.update.assert_called_once_with(
+            stack_id='stack_name',
+            disable_rollback=False,
+            environment={},
+            parameters={},
+            template={},
+            files={},
+            timeout_mins=60,
+        )
+
+    @mock.patch.object(event_utils, 'poll_for_events')
+    @mock.patch.object(template_utils, 'get_template_contents')
+    @mock.patch.object(shade.OpenStackCloud, 'get_stack')
+    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
+    def test_update_stack_wait(self, mock_heat, mock_get, mock_template,
+                               mock_poll):
+        stack = {'id': 'stack_id', 'name': 'stack_name'}
+        mock_template.return_value = ({}, {})
+        mock_get.return_value = stack
+        ret = self.cloud.update_stack('stack_name', wait=True)
+        self.assertTrue(mock_template.called)
+        mock_heat.stacks.update.assert_called_once_with(
+            stack_id='stack_name',
+            disable_rollback=False,
+            environment={},
+            parameters={},
+            template={},
+            files={},
+            timeout_mins=60,
+        )
+        self.assertEqual(1, mock_get.call_count)
+        self.assertEqual(1, mock_poll.call_count)
+        self.assertEqual(stack, ret)
+
     @mock.patch.object(shade.OpenStackCloud, 'heat_client')
     def test_get_stack(self, mock_heat):
         stack = fakes.FakeStack('azerty', 'stack',)
