@@ -177,6 +177,41 @@ class HypervisorList(task_manager.Task):
         return client.nova_client.hypervisors.list(**self.args)
 
 
+class AggregateList(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.aggregates.list(**self.args)
+
+
+class AggregateCreate(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.aggregates.create(**self.args)
+
+
+class AggregateUpdate(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.aggregates.update(**self.args)
+
+
+class AggregateDelete(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.aggregates.delete(**self.args)
+
+
+class AggregateAddHost(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.aggregates.add_host(**self.args)
+
+
+class AggregateRemoveHost(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.aggregates.remove_host(**self.args)
+
+
+class AggregateSetMetadata(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.aggregates.set_metadata(**self.args)
+
+
 class KeypairList(task_manager.Task):
     def main(self, client):
         return client.nova_client.keypairs.list()

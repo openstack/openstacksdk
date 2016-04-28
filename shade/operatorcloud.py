@@ -1764,3 +1764,169 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         with _utils.shade_exceptions("Error fetching hypervisor list"):
             return self.manager.submitTask(_tasks.HypervisorList())
+
+    def search_aggregates(self, name_or_id=None, filters=None):
+        """Seach host aggregates.
+
+        :param name: aggregate name or id.
+        :param filters: a dict containing additional filters to use.
+
+        :returns: a list of dicts containing the aggregates
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        aggregates = self.list_aggregates()
+        return _utils._filter_list(aggregates, name_or_id, filters)
+
+    def list_aggregates(self):
+        """List all available host aggregates.
+
+        :returns: A list of aggregate dicts.
+
+        """
+        with _utils.shade_exceptions("Error fetching aggregate list"):
+            return self.manager.submitTask(_tasks.AggregateList())
+
+    def get_aggregate(self, name_or_id, filters=None):
+        """Get an aggregate by name or ID.
+
+        :param name_or_id: Name or ID of the aggregate.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'availability_zone': 'nova',
+                  'metadata': {
+                      'cpu_allocation_ratio': '1.0'
+                  }
+                }
+
+        :returns: An aggregate dict or None if no matching aggregate is
+        found.
+
+        """
+        return _utils._get_entity(self.search_aggregates, name_or_id, filters)
+
+    def create_aggregate(self, name, availability_zone=None):
+        """Create a new host aggregate.
+
+        :param name: Name of the host aggregate being created
+        :param availability_zone: Availability zone to assign hosts
+
+        :returns: a dict representing the new host aggregate.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        with _utils.shade_exceptions(
+                "Unable to create host aggregate {name}".format(
+                    name=name)):
+            return self.manager.submitTask(_tasks.AggregateCreate(
+                name=name, availability_zone=availability_zone))
+
+    @_utils.valid_kwargs('name', 'availability_zone')
+    def update_aggregate(self, name_or_id, **kwargs):
+        """Update a host aggregate.
+
+        :param name_or_id: Name or ID of the aggregate being updated.
+        :param name: New aggregate name
+        :param availability_zone: Availability zone to assign to hosts
+
+        :returns: a dict representing the updated host aggregate.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        aggregate = self.get_aggregate(name_or_id)
+        if not aggregate:
+            raise OpenStackCloudException(
+                "Host aggregate %s not found." % name_or_id)
+
+        with _utils.shade_exceptions(
+                "Error updating aggregate {name}".format(name=name_or_id)):
+            new_aggregate = self.manager.submitTask(
+                _tasks.AggregateUpdate(
+                    aggregate=aggregate['id'], values=kwargs))
+
+        return new_aggregate
+
+    def delete_aggregate(self, name_or_id):
+        """Delete a host aggregate.
+
+        :param name_or_id: Name or ID of the host aggregate to delete.
+
+        :returns: True if delete succeeded, False otherwise.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        aggregate = self.get_aggregate(name_or_id)
+        if not aggregate:
+            self.log.debug("Aggregate %s not found for deleting" % name_or_id)
+            return False
+
+        with _utils.shade_exceptions(
+                "Error deleting aggregate {name}".format(name=name_or_id)):
+            self.manager.submitTask(
+                _tasks.AggregateDelete(aggregate=aggregate['id']))
+
+        return True
+
+    def set_aggregate_metadata(self, name_or_id, metadata):
+        """Set aggregate metadata, replacing the existing metadata.
+
+        :param name_or_id: Name of the host aggregate to update
+        :param metadata: Dict containing metadata to replace (Use
+                {'key': None} to remove a key)
+
+        :returns: a dict representing the new host aggregate.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        aggregate = self.get_aggregate(name_or_id)
+        if not aggregate:
+            raise OpenStackCloudException(
+                "Host aggregate %s not found." % name_or_id)
+
+        with _utils.shade_exceptions(
+                "Unable to set metadata for host aggregate {name}".format(
+                    name=name_or_id)):
+            return self.manager.submitTask(_tasks.AggregateSetMetadata(
+                aggregate=aggregate['id'], metadata=metadata))
+
+    def add_host_to_aggregate(self, name_or_id, host_name):
+        """Add a host to an aggregate.
+
+        :param name_or_id: Name or ID of the host aggregate.
+        :param host_name: Host to add.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        aggregate = self.get_aggregate(name_or_id)
+        if not aggregate:
+            raise OpenStackCloudException(
+                "Host aggregate %s not found." % name_or_id)
+
+        with _utils.shade_exceptions(
+                "Unable to add host {host} to aggregate {name}".format(
+                    name=name_or_id, host=host_name)):
+            return self.manager.submitTask(_tasks.AggregateAddHost(
+                aggregate=aggregate['id'], host=host_name))
+
+    def remove_host_from_aggregate(self, name_or_id, host_name):
+        """Remove a host from an aggregate.
+
+        :param name_or_id: Name or ID of the host aggregate.
+        :param host_name: Host to remove.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        aggregate = self.get_aggregate(name_or_id)
+        if not aggregate:
+            raise OpenStackCloudException(
+                "Host aggregate %s not found." % name_or_id)
+
+        with _utils.shade_exceptions(
+                "Unable to remove host {host} from aggregate {name}".format(
+                    name=name_or_id, host=host_name)):
+            return self.manager.submitTask(_tasks.AggregateRemoveHost(
+                aggregate=aggregate['id'], host=host_name))
