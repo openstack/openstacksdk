@@ -399,6 +399,8 @@ in luck. The same interface for `make_client` is supported for `session_client`
 and will return you a keystoneauth Session object that is mounted on the
 endpoint for the service you're looking for.
 
+.. code-block:: python
+
   import os_client_config
 
   session = os_client_config.session_client('compute', cloud='vexxhost')
