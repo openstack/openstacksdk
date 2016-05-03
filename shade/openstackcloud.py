@@ -1212,6 +1212,20 @@ class OpenStackCloud(object):
         servers = self.list_servers(detailed=detailed)
         return _utils._filter_list(servers, name_or_id, filters)
 
+    def search_server_groups(self, name_or_id=None, filters=None):
+        """Seach server groups.
+
+        :param name: server group name or id.
+        :param filters: a dict containing additional filters to use.
+
+        :returns: a list of dicts containing the server groups
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        server_groups = self.list_server_groups()
+        return _utils._filter_list(server_groups, name_or_id, filters)
+
     def search_images(self, name_or_id=None, filters=None):
         images = self.list_images()
         return _utils._filter_list(images, name_or_id, filters)
@@ -1460,6 +1474,15 @@ class OpenStackCloud(object):
                     meta.add_server_interfaces(self, server)
                     for server in servers
                 ]
+
+    def list_server_groups(self):
+        """List all available server groups.
+
+        :returns: A list of server group dicts.
+
+        """
+        with _utils.shade_exceptions("Error fetching server group list"):
+            return self.manager.submitTask(_tasks.ServerGroupList())
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_images)
     def list_images(self, filter_deleted=True):
@@ -1932,6 +1955,25 @@ class OpenStackCloud(object):
         return meta.add_server_interfaces(self, _utils.normalize_server(
             self.manager.submitTask(_tasks.ServerGet(server=id)),
             cloud_name=self.name, region_name=self.region_name))
+
+    def get_server_group(self, name_or_id=None, filters=None):
+        """Get a server group by name or ID.
+
+        :param name_or_id: Name or ID of the server group.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'policy': 'affinity',
+                }
+
+        :returns: A server groups dict or None if no matching server group
+        is found.
+
+        """
+        return _utils._get_entity(self.search_server_groups, name_or_id,
+                                  filters)
 
     def get_image(self, name_or_id, filters=None):
         """Get an image by name or ID.
@@ -4350,6 +4392,44 @@ class OpenStackCloud(object):
         # Reset the list servers cache time so that the next list server
         # call gets a new list
         self._servers_time = self._servers_time - self._SERVER_AGE
+        return True
+
+    def create_server_group(self, name, policies):
+        """Create a new server group.
+
+        :param name: Name of the server group being created
+        :param policies: List of policies for the server group.
+
+        :returns: a dict representing the new server group.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        with _utils.shade_exceptions(
+                "Unable to create server group {name}".format(
+                    name=name)):
+            return self.manager.submitTask(_tasks.ServerGroupCreate(
+                name=name, policies=policies))
+
+    def delete_server_group(self, name_or_id):
+        """Delete a server group.
+
+        :param name_or_id: Name or id of the server group to delete
+
+        :returns: True if delete succeeded, False otherwise
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        server_group = self.get_server_group(name_or_id)
+        if not server_group:
+            self.log.debug("Server group %s not found for deleting" %
+                           name_or_id)
+            return False
+
+        with _utils.shade_exceptions(
+                "Error deleting server group {name}".format(name=name_or_id)):
+            self.manager.submitTask(
+                _tasks.ServerGroupDelete(id=server_group['id']))
+
         return True
 
     def list_containers(self, full_listing=True):

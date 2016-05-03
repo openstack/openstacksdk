@@ -114,6 +114,13 @@ class FakeServer(object):
         self.interface_ip = interface_ip
 
 
+class FakeServerGroup(object):
+    def __init__(self, id, name, policies):
+        self.id = id
+        self.name = name
+        self.policies = policies
+
+
 class FakeService(object):
     def __init__(self, id, name, type, service_type, description='',
                  enabled=True):
