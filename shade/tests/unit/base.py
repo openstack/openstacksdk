@@ -20,7 +20,6 @@ import time
 import fixtures
 import os_client_config as occ
 import tempfile
-import yaml
 
 import shade.openstackcloud
 from shade.tests import base
@@ -28,26 +27,7 @@ from shade.tests import base
 
 class TestCase(base.TestCase):
 
-    """Test case base class for all unit tests."""
-
-    CLOUD_CONFIG = {
-        'clouds':
-        {
-            '_test_cloud_':
-            {
-                'auth':
-                {
-                    'auth_url': 'http://198.51.100.1:35357/v2.0',
-                    'username': '_test_user_',
-                    'password': '_test_pass_',
-                    'project_name': '_test_project_',
-                },
-                'region_name': '_test_region_',
-            },
-        },
-    }
-
-    def setUp(self):
+    def setUp(self, cloud_config_fixture='clouds.yaml'):
         """Run before each test method to initialize test environment."""
 
         super(TestCase, self).setUp()
@@ -61,11 +41,17 @@ class TestCase(base.TestCase):
         self.sleep_fixture = self.useFixture(fixtures.MonkeyPatch(
                                              'time.sleep',
                                              _nosleep))
+        self.fixtures_directory = 'shade/tests/unit/fixtures'
 
         # Isolate os-client-config from test environment
         config = tempfile.NamedTemporaryFile(delete=False)
-        config.write(bytes(yaml.dump(self.CLOUD_CONFIG).encode('utf-8')))
+        cloud_path = '%s/clouds/%s' % (self.fixtures_directory,
+                                       cloud_config_fixture)
+        with open(cloud_path, 'rb') as f:
+            content = f.read()
+            config.write(content)
         config.close()
+
         vendor = tempfile.NamedTemporaryFile(delete=False)
         vendor.write(b'{}')
         vendor.close()
