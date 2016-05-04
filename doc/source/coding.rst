@@ -15,6 +15,20 @@ Some of it just hasn't been changed yet. But be clear, all new code
 
 Below are the patterns that we expect Shade developers to follow.
 
+Release Notes
+=============
+
+Shade uses `reno <http://docs.openstack.org/developer/reno/>`_ for
+managing its release notes. A new release note should be added to
+your contribution anytime you add new API calls, fix significant bugs,
+add new functionality or parameters to existing API calls, or make any
+other significant changes to the code base that we should draw attention
+to for the user base.
+
+It is *not* necessary to add release notes for minor fixes, such as
+correction of documentation typos, minor code cleanup or reorganization,
+or any other change that a user would not notice through normal usage.
+
 API Methods
 ===========
 
