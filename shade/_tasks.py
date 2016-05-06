@@ -928,3 +928,8 @@ class BaymodelUpdate(task_manager.Task):
     def main(self, client):
         return client.magnum_client.baymodels.update(
             self.args['id'], self.args['patch'])
+
+
+class MagnumServicesList(task_manager.Task):
+    def main(self, client):
+        return client.magnum_client.mservices.list(detail=False)
