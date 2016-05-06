@@ -45,6 +45,7 @@ class TestNetworkIPAvailability(testtools.TestCase):
         self.assertEqual('network_ip_availability', sot.resource_key)
         self.assertEqual('network_ip_availabilities', sot.resources_key)
         self.assertEqual('/network-ip-availabilities', sot.base_path)
+        self.assertEqual('network_name', sot.name_attribute)
         self.assertEqual('network', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)

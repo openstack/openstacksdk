@@ -18,6 +18,7 @@ class NetworkIPAvailability(resource.Resource):
     resource_key = 'network_ip_availability'
     resources_key = 'network_ip_availabilities'
     base_path = '/network-ip-availabilities'
+    name_attribute = 'network_name'
     service = network_service.NetworkService()
 
     # capabilities
