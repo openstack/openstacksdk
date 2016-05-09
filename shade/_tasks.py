@@ -172,6 +172,26 @@ class ServerRebuild(task_manager.Task):
         return client.nova_client.servers.rebuild(**self.args)
 
 
+class ServerGroupList(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.server_groups.list(**self.args)
+
+
+class ServerGroupGet(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.server_groups.get(**self.args)
+
+
+class ServerGroupCreate(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.server_groups.create(**self.args)
+
+
+class ServerGroupDelete(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.server_groups.delete(**self.args)
+
+
 class HypervisorList(task_manager.Task):
     def main(self, client):
         return client.nova_client.hypervisors.list(**self.args)
