@@ -272,3 +272,17 @@ class FakeRecordset(object):
         self.description = description
         self.ttl = ttl
         self.records = records
+
+
+class FakeAggregate(object):
+    def __init__(self, id, name, availability_zone=None, metadata=None,
+                 hosts=None):
+        self.id = id
+        self.name = name
+        self.availability_zone = availability_zone
+        if not metadata:
+            metadata = {}
+        self.metadata = metadata
+        if not hosts:
+            hosts = []
+        self.hosts = hosts
