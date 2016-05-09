@@ -351,6 +351,13 @@ class CloudConfig(object):
                 constructor_kwargs['api_version'] = version
             else:
                 constructor_kwargs['version'] = version
+        if service_key == 'database':
+            # TODO(mordred) Remove when https://review.openstack.org/314032
+            # has landed and released. We're passing in a Session, but the
+            # trove Client object has username and password as required
+            # args
+            constructor_kwargs['username'] = None
+            constructor_kwargs['password'] = None
 
         return client_class(**constructor_kwargs)
 
