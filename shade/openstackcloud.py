@@ -1359,8 +1359,14 @@ class OpenStackCloud(object):
                     flavor.extra_specs = flavor.get(
                         'OS-FLV-WITH-EXT-SPECS:extra_specs')
                 elif get_extra:
-                    flavor.extra_specs = self.manager.submitTask(
-                        _tasks.FlavorGetExtraSpecs(id=flavor.id))
+                    try:
+                        flavor.extra_specs = self.manager.submitTask(
+                            _tasks.FlavorGetExtraSpecs(id=flavor.id))
+                    except keystoneauth1.exceptions.http.HttpError as e:
+                        flavor.extra_specs = []
+                        self.log.debug(
+                            'Fetching extra specs for flavor failed:'
+                            ' {msg}'.format(msg=str(e)))
 
         return _utils.normalize_flavors(flavors)
 
