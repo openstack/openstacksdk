@@ -5571,7 +5571,7 @@ class OpenStackCloud(object):
                 zone=zone, name=name, type_=recordset_type, records=records,
                 description=description, ttl=ttl))
 
-    @_utils.valid_kwargs('email', 'description', 'ttl', 'masters')
+    @_utils.valid_kwargs('description', 'ttl', 'records')
     def update_recordset(self, zone, name_or_id, **kwargs):
         """Update a recordset.
 
