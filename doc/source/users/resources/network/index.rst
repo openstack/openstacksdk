@@ -5,6 +5,7 @@ Network Resources
    :maxdepth: 1
 
    v2/address_scope
+   v2/agent
    v2/availability_zone
    v2/extension
    v2/floating_ip

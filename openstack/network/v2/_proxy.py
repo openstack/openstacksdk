@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.network.v2 import address_scope as _address_scope
+from openstack.network.v2 import agent as _agent
 from openstack.network.v2 import availability_zone
 from openstack.network.v2 import extension
 from openstack.network.v2 import floating_ip as _floating_ip
@@ -121,6 +122,59 @@ class Proxy(proxy.BaseProxy):
         return self._update(_address_scope.AddressScope,
                             address_scope,
                             **attrs)
+
+    def agents(self, **query):
+        """Return a generator of network agents
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
+
+        :returns: A generator of agents
+        :rtype: :class:`~openstack.network.v2.agent.Agent`
+        """
+        return self._list(_agent.Agent, paginated=False, **query)
+
+    def delete_agent(self, agent, ignore_missing=True):
+        """Delete a network agent
+
+        :param agent: The value can be the ID of a agent or a
+                     :class:`~openstack.network.v2.agent.Agent` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the agent does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent agent.
+
+        :returns: ``None``
+        """
+        self._delete(_agent.Agent, agent,
+                     ignore_missing=ignore_missing)
+
+    def get_agent(self, agent, ignore_missing=True):
+        """Get a single network agent
+
+        :param agent: The value can be the ID of a agent or a
+                     :class:`~openstack.network.v2.agent.Agent` instance.
+
+        :returns: One :class:`~openstack.network.v2.agent.Agent`
+        :rtype: :class:`~openstack.network.v2.agent.Agent`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_agent.Agent, agent)
+
+    def update_agent(self, agent, **attrs):
+        """Update a network agent
+
+        :param agent: The value can be the ID of a agent or a
+                     :class:`~openstack.network.v2.agent.Agent` instance.
+        :attrs kwargs: The attributes to update on the agent represented
+                       by ``value``.
+
+        :returns: One :class:`~openstack.network.v2.agent.Agent`
+        :rtype: :class:`~openstack.network.v2.agent.Agent`
+        """
+        return self._update(_agent.Agent, agent, **attrs)
 
     def availability_zones(self):
         """Return a generator of availability zones
