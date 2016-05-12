@@ -1562,6 +1562,7 @@ class OpenStackCloud(object):
         with _utils.shade_exceptions("Error fetching floating IP pool list"):
             return self.manager.submitTask(_tasks.FloatingIPPoolList())
 
+    @_utils.cache_on_arguments(resource='floating_ip')
     def list_floating_ips(self):
         """List all available floating IPs.
 
@@ -3558,7 +3559,8 @@ class OpenStackCloud(object):
                         for count in _utils._iterate_timeout(
                                 timeout,
                                 "Timeout waiting for the floating IP"
-                                " to be ACTIVE"):
+                                " to be ACTIVE",
+                                wait=self._get_cache_time('floating_ip')):
                             fip = self.get_floating_ip(fip_id)
                             if fip['status'] == 'ACTIVE':
                                 break
@@ -3611,6 +3613,11 @@ class OpenStackCloud(object):
 
             if (retry == 0) or not result:
                 return result
+
+            # Wait for the cached floating ip list to be regenerated
+            float_expire_time = self._get_cache_time('floating_ip')
+            if float_expire_time:
+                time.sleep(float_expire_time)
 
             # neutron sometimes returns success when deleating a floating
             # ip. That's awesome. SO - verify that the delete actually
