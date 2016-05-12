@@ -64,6 +64,7 @@ DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
 DEFAULT_MAX_FILE_SIZE = (5 * 1024 * 1024 * 1024 + 2) / 2
 DEFAULT_SERVER_AGE = 5
 DEFAULT_PORT_AGE = 5
+DEFAULT_FLOAT_AGE = 5
 
 
 OBJECT_CONTAINER_ACLS = {
@@ -205,6 +206,10 @@ class OpenStackCloud(object):
         self._ports_time = 0
         self._ports_lock = threading.Lock()
 
+        self._floating_ips = []
+        self._floating_ips_time = 0
+        self._floating_ips_lock = threading.Lock()
+
         self._networks_lock = threading.Lock()
         self._reset_network_caches()
 
@@ -228,6 +233,7 @@ class OpenStackCloud(object):
 
             self._SERVER_AGE = DEFAULT_SERVER_AGE
             self._PORT_AGE = DEFAULT_PORT_AGE
+            self._FLOAT_AGE = DEFAULT_FLOAT_AGE
         else:
             self.cache_enabled = False
 
@@ -243,6 +249,7 @@ class OpenStackCloud(object):
             # soon.
             self._SERVER_AGE = 0
             self._PORT_AGE = 0
+            self._FLOAT_AGE = 0
             self._cache = _FakeCache()
             # Undecorate cache decorated methods. Otherwise the call stacks
             # wind up being stupidly long and hard to debug
@@ -262,6 +269,8 @@ class OpenStackCloud(object):
             'server', self._SERVER_AGE)
         self._PORT_AGE = cloud_config.get_cache_resource_expiration(
             'port', self._PORT_AGE)
+        self._FLOAT_AGE = cloud_config.get_cache_resource_expiration(
+            'floating_ip', self._FLOAT_AGE)
 
         self._container_cache = dict()
         self._file_hash_cache = dict()
@@ -1590,12 +1599,7 @@ class OpenStackCloud(object):
         with _utils.shade_exceptions("Error fetching floating IP pool list"):
             return self.manager.submit_task(_tasks.FloatingIPPoolList())
 
-    def list_floating_ips(self):
-        """List all available floating IPs.
-
-        :returns: A list of floating IP ``munch.Munch``.
-
-        """
+    def _list_floating_ips(self):
         if self._use_neutron_floating():
             try:
                 return _utils.normalize_neutron_floating_ips(
@@ -1608,6 +1612,27 @@ class OpenStackCloud(object):
 
         floating_ips = self._nova_list_floating_ips()
         return _utils.normalize_nova_floating_ips(floating_ips)
+
+    def list_floating_ips(self):
+        """List all available floating IPs.
+
+        :returns: A list of floating IP ``munch.Munch``.
+
+        """
+        if (time.time() - self._floating_ips_time) >= self._FLOAT_AGE:
+            # Since we're using cached data anyway, we don't need to
+            # have more than one thread actually submit the list
+            # floating ips task.  Let the first one submit it while holding
+            # a lock, and the non-blocking acquire method will cause
+            # subsequent threads to just skip this and use the old
+            # data until it succeeds.
+            if self._floating_ips_lock.acquire(False):
+                try:
+                    self._floating_ips = self._list_floating_ips()
+                    self._floating_ips_time = time.time()
+                finally:
+                    self._floating_ips_lock.release()
+        return self._floating_ips
 
     def _neutron_list_floating_ips(self):
         with _utils.neutron_exceptions("error fetching floating IPs list"):
@@ -3715,9 +3740,10 @@ class OpenStackCloud(object):
                         for count in _utils._iterate_timeout(
                                 timeout,
                                 "Timeout waiting for the floating IP"
-                                " to be ACTIVE"):
+                                " to be ACTIVE",
+                                wait=self._FLOAT_AGE):
                             fip = self.get_floating_ip(fip_id)
-                            if fip['status'] == 'ACTIVE':
+                            if fip and fip['status'] == 'ACTIVE':
                                 break
                     except OpenStackCloudTimeout:
                         self.log.error(
@@ -3768,6 +3794,10 @@ class OpenStackCloud(object):
 
             if (retry == 0) or not result:
                 return result
+
+            # Wait for the cached floating ip list to be regenerated
+            if self._FLOAT_AGE:
+                time.sleep(self._FLOAT_AGE)
 
             # neutron sometimes returns success when deleating a floating
             # ip. That's awesome. SO - verify that the delete actually
