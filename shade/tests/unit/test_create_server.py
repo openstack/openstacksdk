@@ -92,11 +92,15 @@ class TestCreateServer(base.TestCase):
         with patch("shade.OpenStackCloud"):
             build_server = fakes.FakeServer('1234', '', 'BUILD')
             error_server = fakes.FakeServer('1234', '', 'ERROR')
+            fake_floating_ip = fakes.FakeFloatingIP('1234', 'ippool',
+                                                    '1.1.1.1', '2.2.2.2',
+                                                    '5678')
             config = {
                 "servers.create.return_value": build_server,
                 "servers.get.return_value": build_server,
                 "servers.list.side_effect": [
-                    [build_server], [error_server]]
+                    [build_server], [error_server]],
+                "floating_ips.list.return_value": [fake_floating_ip]
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
@@ -129,9 +133,13 @@ class TestCreateServer(base.TestCase):
         """
         with patch("shade.OpenStackCloud"):
             fake_server = fakes.FakeServer('1234', '', 'BUILD')
+            fake_floating_ip = fakes.FakeFloatingIP('1234', 'ippool',
+                                                    '1.1.1.1', '2.2.2.2',
+                                                    '5678')
             config = {
                 "servers.create.return_value": fake_server,
-                "servers.get.return_value": fake_server
+                "servers.get.return_value": fake_server,
+                "floating_ips.list.return_value": [fake_floating_ip]
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertEqual(
@@ -151,9 +159,13 @@ class TestCreateServer(base.TestCase):
             fake_server = fakes.FakeServer('1234', '', 'BUILD')
             fake_create_server = fakes.FakeServer('1234', '', 'BUILD',
                                                   adminPass='ooBootheiX0edoh')
+            fake_floating_ip = fakes.FakeFloatingIP('1234', 'ippool',
+                                                    '1.1.1.1', '2.2.2.2',
+                                                    '5678')
             config = {
                 "servers.create.return_value": fake_create_server,
-                "servers.get.return_value": fake_server
+                "servers.get.return_value": fake_server,
+                "floating_ips.list.return_value": [fake_floating_ip]
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertEqual(
@@ -256,12 +268,16 @@ class TestCreateServer(base.TestCase):
         with patch("shade.OpenStackCloud"):
             build_server = fakes.FakeServer('1234', '', 'BUILD')
             fake_server = fakes.FakeServer('1234', '', 'ACTIVE')
+            fake_floating_ip = fakes.FakeFloatingIP('1234', 'ippool',
+                                                    '1.1.1.1', '2.2.2.2',
+                                                    '5678')
             config = {
                 "servers.create.return_value": build_server,
                 "servers.get.return_value": [build_server, None],
                 "servers.list.side_effect": [
                     [build_server], [fake_server]],
                 "servers.delete.return_value": None,
+                "floating_ips.list.return_value": [fake_floating_ip]
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.client._SERVER_AGE = 0

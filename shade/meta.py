@@ -277,6 +277,32 @@ def expand_server_vars(cloud, server):
     return add_server_interfaces(cloud, server)
 
 
+def _make_address_dict(fip):
+    address = dict(version=4, addr=fip['floating_ip_address'])
+    address['OS-EXT-IPS:type'] = 'floating'
+    # MAC address comes from the port, not the FIP. It also doesn't matter
+    # to anyone at the moment, so just make a fake one
+    address['OS-EXT-IPS-MAC:mac_addr'] = 'de:ad:be:ef:be:ef'
+    return address
+
+
+def _get_suplemental_addresses(cloud, server):
+    fixed_ip_mapping = {}
+    for name, network in server['addresses'].items():
+        for address in network:
+            if address['version'] == 6:
+                continue
+            if address['OS-EXT-IPS:type'] == 'floating':
+                # We have a floating IP that nova knows about, do nothing
+                return server['addresses']
+            fixed_ip_mapping[address['addr']] = name
+    for fip in cloud.list_floating_ips():
+        if fip['fixed_ip_address'] in fixed_ip_mapping:
+            fixed_net = fixed_ip_mapping[fip['fixed_ip_address']]
+            server['addresses'][fixed_net].append(_make_address_dict(fip))
+    return server['addresses']
+
+
 def add_server_interfaces(cloud, server):
     """Add network interface information to server.
 
@@ -288,6 +314,7 @@ def add_server_interfaces(cloud, server):
     """
     # First, add an IP address. Set it to '' rather than None if it does
     # not exist to remain consistent with the pre-existing missing values
+    server['addresses'] = _get_suplemental_addresses(cloud, server)
     server['public_v4'] = get_server_external_ipv4(cloud, server) or ''
     server['public_v6'] = get_server_external_ipv6(server) or ''
     server['private_v4'] = get_server_private_ip(server, cloud) or ''

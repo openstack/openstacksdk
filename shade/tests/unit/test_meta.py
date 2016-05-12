@@ -182,6 +182,7 @@ class TestMeta(base.TestCase):
         mock_has_service.assert_called_with('network')
         mock_list_networks.assert_called_once_with()
 
+    @mock.patch.object(shade.OpenStackCloud, 'list_floating_ips')
     @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
     @mock.patch.object(shade.OpenStackCloud, 'list_server_security_groups')
     @mock.patch.object(shade.OpenStackCloud, 'get_volumes')
@@ -194,7 +195,8 @@ class TestMeta(base.TestCase):
             mock_get_flavor_name, mock_get_image_name,
             mock_get_volumes,
             mock_list_server_security_groups,
-            mock_list_subnets):
+            mock_list_subnets,
+            mock_list_floating_ips):
         mock_get_image_name.return_value = 'cirros-0.3.4-x86_64-uec'
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_has_service.return_value = True
@@ -211,6 +213,7 @@ class TestMeta(base.TestCase):
                 'name': 'private',
             },
         ]
+        mock_list_floating_ips.return_value = []
 
         srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
@@ -230,6 +233,7 @@ class TestMeta(base.TestCase):
         self.assertEqual(PRIVATE_V4, srv['private_v4'])
         mock_has_service.assert_called_with('volume')
         mock_list_networks.assert_called_once_with()
+        mock_list_floating_ips.assert_called_once_with()
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
     @mock.patch.object(shade.OpenStackCloud, 'list_subnets')

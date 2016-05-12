@@ -56,10 +56,14 @@ class TestRebuildServer(base.TestCase):
         """
         rebuild_server = fakes.FakeServer('1234', '', 'REBUILD')
         error_server = fakes.FakeServer('1234', '', 'ERROR')
+        fake_floating_ip = fakes.FakeFloatingIP('1234', 'ippool',
+                                                '1.1.1.1', '2.2.2.2',
+                                                '5678')
         with patch("shade.OpenStackCloud"):
             config = {
                 "servers.rebuild.return_value": rebuild_server,
                 "servers.get.return_value": error_server,
+                "floating_ips.list.return_value": [fake_floating_ip]
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
@@ -122,9 +126,13 @@ class TestRebuildServer(base.TestCase):
             active_server = fakes.FakeServer('1234', '', 'ACTIVE')
             ret_active_server = fakes.FakeServer('1234', '', 'ACTIVE',
                                                  adminPass='ooBootheiX0edoh')
+            fake_floating_ip = fakes.FakeFloatingIP('1234', 'ippool',
+                                                    '1.1.1.1', '2.2.2.2',
+                                                    '5678')
             config = {
                 "servers.rebuild.return_value": rebuild_server,
                 "servers.get.return_value": active_server,
+                "floating_ips.list.return_value": [fake_floating_ip]
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.client.name = 'cloud-name'
@@ -143,9 +151,13 @@ class TestRebuildServer(base.TestCase):
         with patch("shade.OpenStackCloud"):
             rebuild_server = fakes.FakeServer('1234', '', 'REBUILD')
             active_server = fakes.FakeServer('1234', '', 'ACTIVE')
+            fake_floating_ip = fakes.FakeFloatingIP('1234', 'ippool',
+                                                    '1.1.1.1', '2.2.2.2',
+                                                    '5678')
             config = {
                 "servers.rebuild.return_value": rebuild_server,
-                "servers.get.return_value": active_server
+                "servers.get.return_value": active_server,
+                "floating_ips.list.return_value": [fake_floating_ip]
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.client.name = 'cloud-name'
