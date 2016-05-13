@@ -84,7 +84,7 @@ fi
 # Until we have a module that lets us determine the image we want from
 # within a playbook, we have to find the image here and pass it in.
 # We use the openstack client instead of nova client since it can use clouds.yaml.
-IMAGE=`openstack --os-cloud=${CLOUD} image list -f value -c Name | grep -v -e ramdisk -e kernel`
+IMAGE=`openstack --os-cloud=${CLOUD} image list -f value -c Name | grep cirros | grep -v -e ramdisk -e kernel`
 if [ $? -ne 0 ]
 then
   echo "Failed to find Cirros image"
