@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import mock
 import testtools
 
@@ -83,15 +81,9 @@ class TestNode(testtools.TestCase):
         self.assertEqual(FAKE['index'], sot.index)
         self.assertEqual(FAKE['role'], sot.role)
         self.assertEqual(FAKE['metadata'], sot.metadata)
-        dt = datetime.datetime(2015, 10, 10, 12, 46, 36, 000000).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.init_at.replace(tzinfo=None))
-        dt = datetime.datetime(2015, 10, 10, 12, 46, 36, 000000).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
-        dt = datetime.datetime(2016, 10, 10, 12, 46, 36, 000000).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
+        self.assertEqual(FAKE['init_at'], sot.init_at)
+        self.assertEqual(FAKE['created_at'], sot.created_at)
+        self.assertEqual(FAKE['updated_at'], sot.updated_at)
 
     def test_check(self):
         sot = node.Node(FAKE)
