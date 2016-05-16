@@ -2314,7 +2314,7 @@ class OpenStackCloud(object):
 
     def create_router(self, name=None, admin_state_up=True,
                       ext_gateway_net_id=None, enable_snat=None,
-                      ext_fixed_ips=None):
+                      ext_fixed_ips=None, project_id=None):
         """Create a logical router.
 
         :param string name: The router name.
@@ -2331,6 +2331,7 @@ class OpenStackCloud(object):
                   "ip_address": "192.168.10.2"
                 }
               ]
+        :param string project_id: Project ID for the router.
 
         :returns: The router object.
         :raises: OpenStackCloudException on operation error.
@@ -2338,6 +2339,8 @@ class OpenStackCloud(object):
         router = {
             'admin_state_up': admin_state_up
         }
+        if project_id is not None:
+            router['tenant_id'] = project_id
         if name:
             router['name'] = name
         ext_gw_info = self._build_external_gateway_info(
