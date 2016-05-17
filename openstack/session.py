@@ -35,8 +35,8 @@ def parse_url(filt, url):
     path = result.path
     vstr = VERSION_PATTERN.search(path)
     if not vstr:
-        return (result.scheme + "://" + result.netloc + path.rstrip('/') +
-                '/' + filt.get_path())
+        path += '/' + filt.get_path()
+        vstr = VERSION_PATTERN.search(path)
     start, end = vstr.span()
     prefix = path[:start]
     version = '/' + filt.get_path(path[start + 1:end])
