@@ -29,6 +29,7 @@ from openstack.network.v2 import pool
 from openstack.network.v2 import pool_member
 from openstack.network.v2 import port
 from openstack.network.v2 import quota
+from openstack.network.v2 import rbac_policy
 from openstack.network.v2 import router
 from openstack.network.v2 import security_group
 from openstack.network.v2 import security_group_rule
@@ -395,6 +396,32 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_quota_update(self):
         self.verify_update(self.proxy.update_quota, quota.Quota)
+
+    def test_rbac_policy_create_attrs(self):
+        self.verify_create(self.proxy.create_rbac_policy,
+                           rbac_policy.RBACPolicy)
+
+    def test_rbac_policy_delete(self):
+        self.verify_delete(self.proxy.delete_rbac_policy,
+                           rbac_policy.RBACPolicy, False)
+
+    def test_rbac_policy_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_rbac_policy,
+                           rbac_policy.RBACPolicy, True)
+
+    def test_rbac_policy_find(self):
+        self.verify_find(self.proxy.find_rbac_policy, rbac_policy.RBACPolicy)
+
+    def test_rbac_policy_get(self):
+        self.verify_get(self.proxy.get_rbac_policy, rbac_policy.RBACPolicy)
+
+    def test_rbac_policies(self):
+        self.verify_list(self.proxy.rbac_policies,
+                         rbac_policy.RBACPolicy, paginated=False)
+
+    def test_rbac_policy_update(self):
+        self.verify_update(self.proxy.update_rbac_policy,
+                           rbac_policy.RBACPolicy)
 
     def test_router_create_attrs(self):
         self.verify_create(self.proxy.create_router, router.Router)
