@@ -76,6 +76,19 @@ provide external network access for servers on project networks.
 
 Full example: `network resource list`_
 
+List Network Agents
+------------
+
+A **network agent** is a plugin that handles various tasks used to
+implement virtual networks.  These agents include neutron-dhcp-agent,
+neutron-l3-agent, neutron-metering-agent, and neutron-lbaas-agent,
+among others.
+
+.. literalinclude:: ../examples/network/list.py
+   :pyobject: list_network_agents
+
+Full example: `network resource list`_
+
 Create Network
 --------------
 

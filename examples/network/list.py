@@ -50,3 +50,10 @@ def list_routers(conn):
 
     for router in conn.network.routers():
         print(router)
+
+
+def list_network_agents(conn):
+    print("List Network Agents:")
+
+    for agent in conn.network.agents():
+        print(agent)
