@@ -1616,7 +1616,7 @@ class OpenStackCloud(object):
                 external_networks.append(network)
             elif ((('router:external' in network
                     and network['router:external']) or
-                    'provider:network_type' in network) and
+                    network.get('provider:physical_network')) and
                     network['name'] not in self._internal_network_names and
                     network['id'] not in self._internal_network_names):
                 external_networks.append(network)
@@ -1625,8 +1625,8 @@ class OpenStackCloud(object):
             if (network['name'] in self._internal_network_names
                     or network['id'] in self._internal_network_names):
                 internal_networks.append(network)
-            elif (('router:external' in network
-                    and not network['router:external']) and
+            elif (not network.get('router:external', False) and
+                    not network.get('provider:physical_network') and
                     network['name'] not in self._external_network_names and
                     network['id'] not in self._external_network_names):
                 internal_networks.append(network)

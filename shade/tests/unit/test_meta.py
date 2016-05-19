@@ -269,6 +269,7 @@ class TestMeta(base.TestCase):
             'id': 'test-net-id',
             'name': 'test-net',
             'provider:network_type': 'vlan',
+            'provider:physical_network': 'vlan',
         }]
 
         srv = meta.obj_to_dict(fakes.FakeServer(
@@ -280,6 +281,35 @@ class TestMeta(base.TestCase):
         ip = meta.get_server_external_ipv4(cloud=self.cloud, server=srv)
 
         self.assertEqual(PUBLIC_V4, ip)
+
+    @mock.patch.object(shade.OpenStackCloud, 'has_service')
+    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
+    @mock.patch.object(shade.OpenStackCloud, 'list_networks')
+    def test_get_server_internal_provider_ipv4_neutron(
+            self, mock_list_networks, mock_list_subnets,
+            mock_has_service):
+        # Testing Clouds with Neutron
+        mock_has_service.return_value = True
+        mock_list_subnets.return_value = SUBNETS_WITH_NAT
+        mock_list_networks.return_value = [{
+            'id': 'test-net-id',
+            'name': 'test-net',
+            'router:external': False,
+            'provider:network_type': 'vxlan',
+            'provider:physical_network': None,
+        }]
+
+        srv = meta.obj_to_dict(fakes.FakeServer(
+            id='test-id', name='test-name', status='ACTIVE',
+            addresses={'test-net': [{
+                'addr': PRIVATE_V4,
+                'version': 4}]},
+        ))
+        self.assertIsNone(
+            meta.get_server_external_ipv4(cloud=self.cloud, server=srv))
+        int_ip = meta.get_server_private_ip(cloud=self.cloud, server=srv)
+
+        self.assertEqual(PRIVATE_V4, int_ip)
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
     @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
