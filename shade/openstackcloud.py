@@ -35,6 +35,7 @@ from heatclient.common import template_utils
 from heatclient import exc as heat_exceptions
 import keystoneauth1.exceptions
 import keystoneclient.client
+import magnumclient.client
 import neutronclient.neutron.client
 import novaclient.client
 import novaclient.exceptions as nova_exceptions
@@ -262,6 +263,7 @@ class OpenStackCloud(object):
         self._swift_service_lock = threading.Lock()
         self._trove_client = None
         self._designate_client = None
+        self._magnum_client = None
 
         self._raw_clients = {}
 
@@ -855,6 +857,13 @@ class OpenStackCloud(object):
             self._trove_client = self._get_client(
                 'database', troveclient.client.Client)
         return self._trove_client
+
+    @property
+    def magnum_client(self):
+        if self._magnum_client is None:
+            self._magnum_client = self._get_client(
+                'container', magnumclient.client.Client)
+        return self._magnum_client
 
     @property
     def neutron_client(self):
