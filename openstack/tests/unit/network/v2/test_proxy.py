@@ -32,6 +32,7 @@ from openstack.network.v2 import quota
 from openstack.network.v2 import router
 from openstack.network.v2 import security_group
 from openstack.network.v2 import security_group_rule
+from openstack.network.v2 import segment
 from openstack.network.v2 import subnet
 from openstack.network.v2 import subnet_pool
 from openstack.network.v2 import vpn_service
@@ -510,6 +511,15 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.security_group_rules,
                          security_group_rule.SecurityGroupRule,
                          paginated=False)
+
+    def test_segment_find(self):
+        self.verify_find(self.proxy.find_segment, segment.Segment)
+
+    def test_segment_get(self):
+        self.verify_get(self.proxy.get_segment, segment.Segment)
+
+    def test_segments(self):
+        self.verify_list(self.proxy.segments, segment.Segment, paginated=False)
 
     def test_subnet_create_attrs(self):
         self.verify_create(self.proxy.create_subnet, subnet.Subnet)
