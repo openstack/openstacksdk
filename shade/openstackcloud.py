@@ -3452,8 +3452,12 @@ class OpenStackCloud(object):
                             " Deleting".format(fip=fip_id))
                         try:
                             self.delete_floating_ip(fip_id)
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            self.log.error(
+                                "FIP LEAK: Attempted to delete floating ip "
+                                "{fip} but received {exc} exception: "
+                                "{err}".format(fip=fip_id, exc=e.__class__,
+                                               err=str(e)))
                         raise
             return fip
 
@@ -3949,7 +3953,14 @@ class OpenStackCloud(object):
                         ip=f_ip['floating_ip_address'],
                         id=f_ip['id'],
                         server=server['id']))
-                self.delete_floating_ip(f_ip['id'])
+                try:
+                    self.delete_floating_ip(f_ip['id'])
+                except Exception as e:
+                    self.log.error(
+                        "FIP LEAK: Attempted to delete floating ip "
+                        "{fip} but received {exc} exception: {err}".format(
+                            fip=f_ip['id'], exc=e.__class__, err=str(e)))
+                    raise e
             raise
 
     def add_ips_to_server(
