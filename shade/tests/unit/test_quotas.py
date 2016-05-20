@@ -82,3 +82,33 @@ class TestQuotas(base.TestCase):
 
         mock_cinder.quotas.delete.assert_called_once_with(
             tenant_id='project_a')
+
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_neutron_update_quotas(self, mock_keystone, mock_neutron):
+        project = fakes.FakeProject('project_a')
+        mock_keystone.tenants.list.return_value = [project]
+        self.cloud.set_network_quotas(project, network=1)
+
+        mock_neutron.update_quota.assert_called_once_with(
+            body={'quota': {'network': 1}}, tenant_id='project_a')
+
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_neutron_get_quotas(self, mock_keystone, mock_neutron):
+        project = fakes.FakeProject('project_a')
+        mock_keystone.tenants.list.return_value = [project]
+        self.cloud.get_network_quotas(project)
+
+        mock_neutron.show_quota.assert_called_once_with(
+            tenant_id='project_a')
+
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_neutron_delete_quotas(self, mock_keystone, mock_neutron):
+        project = fakes.FakeProject('project_a')
+        mock_keystone.tenants.list.return_value = [project]
+        self.cloud.delete_network_quotas(project)
+
+        mock_neutron.delete_quota.assert_called_once_with(
+            tenant_id='project_a')

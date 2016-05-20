@@ -2053,3 +2053,54 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 _tasks.CinderQuotasDelete(tenant_id=proj.id))
         except cinder_exceptions.BadRequest:
             raise OpenStackCloudException("cinder client call failed")
+
+    def set_network_quotas(self, name_or_id, **kwargs):
+        """ Set a network quota in a project
+
+        :param name_or_id: project name or id
+        :param kwargs: key/value pairs of quota name and quota value
+
+        :raises: OpenStackCloudException if the resource to set the
+            quota does not exist.
+        """
+
+        proj = self.get_project(name_or_id)
+        if not proj:
+            raise OpenStackCloudException("project does not exist")
+
+        body = {'quota': kwargs}
+        with _utils.neutron_exceptions("network client call failed"):
+            self.manager.submitTask(
+                _tasks.NeutronQuotasSet(tenant_id=proj.id,
+                                        body=body))
+
+    def get_network_quotas(self, name_or_id):
+        """ Get network quotas for a project
+
+        :param name_or_id: project name or id
+        :raises: OpenStackCloudException if it's not a valid project
+
+        :returns: Munch object with the quotas
+        """
+        proj = self.get_project(name_or_id)
+        if not proj:
+            raise OpenStackCloudException("project does not exist")
+        with _utils.neutron_exceptions("network client call failed"):
+            return self.manager.submitTask(
+                _tasks.NeutronQuotasGet(tenant_id=proj.id))
+
+    def delete_network_quotas(self, name_or_id):
+        """ Delete network quotas for a project
+
+        :param name_or_id: project name or id
+        :raises: OpenStackCloudException if it's not a valid project or the
+        network client call failed
+
+        :returns: dict with the quotas
+        """
+        proj = self.get_project(name_or_id)
+        if not proj:
+            raise OpenStackCloudException("project does not exist")
+        with _utils.neutron_exceptions("network client call failed"):
+            return self.manager.submitTask(
+                _tasks.NeutronQuotasDelete(tenant_id=proj.id))

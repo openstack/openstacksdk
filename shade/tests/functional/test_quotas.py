@@ -60,3 +60,25 @@ class TestVolumeQuotas(base.TestCase):
         self.cloud.delete_volume_quotas('demo')
         self.assertEqual(volumes,
                          self.cloud.get_volume_quotas('demo')['volumes'])
+
+
+class TestNetworkQuotas(base.TestCase):
+
+    def setUp(self):
+        super(TestNetworkQuotas, self).setUp()
+        self.cloud = operator_cloud(cloud='devstack-admin')
+        if not self.cloud.has_service('network'):
+            self.skipTest('network service not supported by cloud')
+
+    def test_quotas(self):
+        '''Test quotas functionality'''
+        quotas = self.cloud.get_network_quotas('demo')
+        network = quotas['network']
+        self.cloud.set_network_quotas('demo', network=network + 1)
+        self.assertEqual(network + 1,
+                         self.cloud.get_network_quotas('demo')['network']
+                         )
+        self.cloud.delete_network_quotas('demo')
+        self.assertEqual(network,
+                         self.cloud.get_network_quotas('demo')['network']
+                         )
