@@ -40,3 +40,23 @@ class TestComputeQuotas(base.TestCase):
                          self.cloud.get_compute_quotas('demo')['cores'])
         self.cloud.delete_compute_quotas('demo')
         self.assertEqual(cores, self.cloud.get_compute_quotas('demo')['cores'])
+
+
+class TestVolumeQuotas(base.TestCase):
+
+    def setUp(self):
+        super(TestVolumeQuotas, self).setUp()
+        self.cloud = operator_cloud(cloud='devstack-admin')
+        if not self.cloud.has_service('volume'):
+            self.skipTest('volume service not supported by cloud')
+
+    def test_quotas(self):
+        '''Test quotas functionality'''
+        quotas = self.cloud.get_volume_quotas('demo')
+        volumes = quotas['volumes']
+        self.cloud.set_volume_quotas('demo', volumes=volumes + 1)
+        self.assertEqual(volumes + 1,
+                         self.cloud.get_volume_quotas('demo')['volumes'])
+        self.cloud.delete_volume_quotas('demo')
+        self.assertEqual(volumes,
+                         self.cloud.get_volume_quotas('demo')['volumes'])

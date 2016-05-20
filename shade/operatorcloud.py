@@ -15,6 +15,7 @@ import jsonpatch
 from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
 from novaclient import exceptions as nova_exceptions
+from cinderclient import exceptions as cinder_exceptions
 
 from shade.exc import *  # noqa
 from shade import openstackcloud
@@ -1996,3 +1997,59 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 _tasks.NovaQuotasDelete(tenant_id=proj.id))
         except novaclient.exceptions.BadRequest:
             raise OpenStackCloudException("nova client call failed")
+
+    def set_volume_quotas(self, name_or_id, **kwargs):
+        """ Set a volume quota in a project
+
+        :param name_or_id: project name or id
+        :param kwargs: key/value pairs of quota name and quota value
+
+        :raises: OpenStackCloudException if the resource to set the
+            quota does not exist.
+        """
+
+        proj = self.get_project(name_or_id)
+        if not proj:
+            raise OpenStackCloudException("project does not exist")
+
+        try:
+            self.manager.submitTask(
+                _tasks.CinderQuotasSet(tenant_id=proj.id,
+                                       **kwargs))
+        except cinder_exceptions.BadRequest:
+            raise OpenStackCloudException("No valid quota or resource")
+
+    def get_volume_quotas(self, name_or_id):
+        """ Get volume quotas for a project
+
+        :param name_or_id: project name or id
+        :raises: OpenStackCloudException if it's not a valid project
+
+        :returns: Munch object with the quotas
+        """
+        proj = self.get_project(name_or_id)
+        if not proj:
+            raise OpenStackCloudException("project does not exist")
+        try:
+            return self.manager.submitTask(
+                _tasks.CinderQuotasGet(tenant_id=proj.id))
+        except cinder_exceptions.BadRequest:
+            raise OpenStackCloudException("cinder client call failed")
+
+    def delete_volume_quotas(self, name_or_id):
+        """ Delete volume quotas for a project
+
+        :param name_or_id: project name or id
+        :raises: OpenStackCloudException if it's not a valid project or the
+        cinder client call failed
+
+        :returns: dict with the quotas
+        """
+        proj = self.get_project(name_or_id)
+        if not proj:
+            raise OpenStackCloudException("project does not exist")
+        try:
+            return self.manager.submitTask(
+                _tasks.CinderQuotasDelete(tenant_id=proj.id))
+        except cinder_exceptions.BadRequest:
+            raise OpenStackCloudException("cinder client call failed")
