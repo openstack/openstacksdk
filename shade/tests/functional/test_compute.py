@@ -19,6 +19,7 @@ test_compute
 Functional tests for `shade` compute methods.
 """
 
+from shade import exc
 from shade.tests.functional import base
 from shade.tests.functional.util import pick_flavor, pick_image
 
@@ -215,3 +216,37 @@ class TestCompute(base.BaseFunctionalTestCase):
                                                       wait=True)
         self.addCleanup(self.demo_cloud.delete_image, image['id'])
         self.assertEqual('active', image['status'])
+
+    def test_set_and_delete_metadata(self):
+        self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
+        self.demo_cloud.create_server(
+            name=self.server_name,
+            image=self.image,
+            flavor=self.flavor,
+            wait=True)
+        self.demo_cloud.set_server_metadata(self.server_name,
+                                            {'key1': 'value1',
+                                             'key2': 'value2'})
+        updated_server = self.demo_cloud.get_server(self.server_name)
+        self.assertEqual(set(updated_server.metadata.items()),
+                         set({'key1': 'value1', 'key2': 'value2'}.items()))
+
+        self.demo_cloud.set_server_metadata(self.server_name,
+                                            {'key2': 'value3'})
+        updated_server = self.demo_cloud.get_server(self.server_name)
+        self.assertEqual(set(updated_server.metadata.items()),
+                         set({'key1': 'value1', 'key2': 'value3'}.items()))
+
+        self.demo_cloud.delete_server_metadata(self.server_name, ['key2'])
+        updated_server = self.demo_cloud.get_server(self.server_name)
+        self.assertEqual(set(updated_server.metadata.items()),
+                         set({'key1': 'value1'}.items()))
+
+        self.demo_cloud.delete_server_metadata(self.server_name, ['key1'])
+        updated_server = self.demo_cloud.get_server(self.server_name)
+        self.assertEqual(set(updated_server.metadata.items()), set([]))
+
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.demo_cloud.delete_server_metadata,
+            self.server_name, ['key1'])

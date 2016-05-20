@@ -4302,6 +4302,47 @@ class OpenStackCloud(object):
                         extra_data=dict(server=server))
         return server
 
+    def set_server_metadata(self, name_or_id, metadata):
+        """Set metadata in a server instance.
+
+        :param str name_or_id: The name or id of the server instance
+            to update.
+        :param dict metadata: A dictionary with the key=value pairs
+            to set in the server instance. It only updates the key=value
+            pairs provided. Existing ones will remain untouched.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        try:
+            self.manager.submitTask(
+                _tasks.ServerSetMetadata(server=self.get_server(name_or_id),
+                                         metadata=metadata))
+        except OpenStackCloudException:
+            raise
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Error updating metadata: {0}".format(e))
+
+    def delete_server_metadata(self, name_or_id, metadata_keys):
+        """Delete metadata from a server instance.
+
+        :param str name_or_id: The name or id of the server instance
+            to update.
+        :param list metadata_keys: A list with the keys to be deleted
+            from the server instance.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        try:
+            self.manager.submitTask(
+                _tasks.ServerDeleteMetadata(server=self.get_server(name_or_id),
+                                            keys=metadata_keys))
+        except OpenStackCloudException:
+            raise
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Error deleting metadata: {0}".format(e))
+
     def delete_server(
             self, name_or_id, wait=False, timeout=180, delete_ips=False,
             delete_ip_retry=1):
