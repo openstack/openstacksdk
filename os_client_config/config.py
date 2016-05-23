@@ -831,7 +831,7 @@ class OpenStackConfig(object):
             config['auth']['token'] = 'notused'
         return loading.get_plugin_loader(config['auth_type'])
 
-    def _validate_auth_ksc(self, config):
+    def _validate_auth_ksc(self, config, cloud):
         try:
             import keystoneclient.auth as ksc_auth
         except ImportError:
@@ -1005,7 +1005,7 @@ class OpenStackConfig(object):
                 self.log.debug("Deferring keystone exception: {e}".format(e=e))
                 auth_plugin = None
                 try:
-                    config = self._validate_auth_ksc(config)
+                    config = self._validate_auth_ksc(config, cloud)
                 except Exception:
                     raise e
         else:
