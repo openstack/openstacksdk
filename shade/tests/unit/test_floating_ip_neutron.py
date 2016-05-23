@@ -565,8 +565,7 @@ class TestFloatingIP(base.TestCase):
         self.client.delete_unattached_floating_ips()
 
         mock_delete_floating_ip.assert_called_once_with(
-            id="this-is-a-floating-ip-id",
-            timeout=60, wait=False)
+            floating_ip_id='this-is-a-floating-ip-id', retry=1)
 
     @patch.object(OpenStackCloud, '_submit_create_fip')
     @patch.object(OpenStackCloud, '_get_free_fixed_port')
