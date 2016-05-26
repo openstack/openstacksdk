@@ -66,6 +66,12 @@ class TestObject(base.BaseFunctionalTestCase):
                 'bar', self.demo_cloud.get_object_metadata(
                     container_name, name)['x-object-meta-foo']
             )
+            self.demo_cloud.update_object(container=container_name, name=name,
+                                          metadata={'testk': 'testv'})
+            self.assertEqual(
+                'testv', self.demo_cloud.get_object_metadata(
+                    container_name, name)['x-object-meta-testk']
+            )
             self.assertIsNotNone(
                 self.demo_cloud.get_object(container_name, name))
             self.assertEqual(

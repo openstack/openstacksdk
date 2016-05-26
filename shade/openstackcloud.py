@@ -4684,6 +4684,37 @@ class OpenStackCloud(object):
                     raise OpenStackCloudException(
                         'Failed at action ({action}) [{error}]:'.format(**r))
 
+    def update_object(self, container, name, metadata=None, **headers):
+        """Update the metadtata of an object
+
+        :param container: The name of the container the object is in
+        :param name: Name for the object within the container.
+        :param headers: These will be passed through to the object update
+            API as HTTP Headers.
+        :param metadata: This dict will get changed into headers that set
+            metadata of the object
+
+        :raises: ``OpenStackCloudException`` on operation error.
+        """
+        if not metadata:
+            metadata = {}
+
+        metadata_headers = {}
+
+        for (k, v) in metadata.items():
+            metadata_headers['x-object-meta-' + k] = v
+
+        headers = dict(headers, **metadata_headers)
+
+        try:
+            return self.manager.submitTask(
+                _tasks.ObjectUpdate(container=container, obj=name,
+                                    headers=headers))
+        except swift_exceptions.ClientException as e:
+            raise OpenStackCloudException(
+                "Object update failed: %s (%s/%s)" % (
+                    e.http_reason, e.http_host, e.http_path))
+
     def list_objects(self, container, full_listing=True):
         try:
             return self.manager.submitTask(_tasks.ObjectList(
