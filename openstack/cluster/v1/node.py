@@ -11,7 +11,6 @@
 # under the License.
 
 from openstack.cluster import cluster_service
-from openstack import format
 from openstack import resource
 from openstack import utils
 
@@ -52,14 +51,14 @@ class Node(resource.Resource):
     role = resource.prop('role')
     #: The timestamp of the node object's initialization.
     #: *Type: datetime object parsed from ISO 8601 formatted string*
-    init_at = resource.prop('init_at', type=format.ISO8601)
+    init_at = resource.prop('init_at')
     #: The timestamp of the node's creation, i.e. the physical object
     #: represented by this node is also created.
     #: *Type: datetime object parsed from ISO 8601 formatted string*
-    created_at = resource.prop('created_at', type=format.ISO8601)
+    created_at = resource.prop('created_at')
     #: The timestamp the node was last updated.
     #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('updated_at', type=format.ISO8601)
+    updated_at = resource.prop('updated_at')
     #: A string indicating the node's status.
     status = resource.prop('status')
     #: A string describing why the node entered its current status.
