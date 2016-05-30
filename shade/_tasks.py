@@ -877,3 +877,18 @@ class RecordSetUpdate(task_manager.Task):
 class RecordSetDelete(task_manager.Task):
     def main(self, client):
         return client.designate_client.recordsets.delete(**self.args)
+
+
+class NovaQuotasSet(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.quotas.update(**self.args)
+
+
+class NovaQuotasGet(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.quotas.get(**self.args)
+
+
+class NovaQuotasDelete(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.quotas.delete(**self.args)

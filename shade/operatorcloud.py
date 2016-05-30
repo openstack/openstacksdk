@@ -14,6 +14,7 @@ import jsonpatch
 
 from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
+from novaclient import exceptions as nova_exceptions
 
 from shade.exc import *  # noqa
 from shade import openstackcloud
@@ -1930,3 +1931,68 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                     name=name_or_id, host=host_name)):
             return self.manager.submitTask(_tasks.AggregateRemoveHost(
                 aggregate=aggregate['id'], host=host_name))
+
+    def set_compute_quotas(self, name_or_id, **kwargs):
+        """ Set a quota in a project
+
+        :param name_or_id: project name or id
+        :param kwargs: key/value pairs of quota name and quota value
+
+        :raises: OpenStackCloudException if the resource to set the
+            quota does not exist.
+        """
+
+        proj = self.get_project(name_or_id)
+        if not proj:
+            raise OpenStackCloudException("project does not exist")
+
+        # compute_quotas = {key: val for key, val in kwargs.items()
+        #                  if key in quota.COMPUTE_QUOTAS}
+        # TODO(ghe): Manage volume and network quotas
+        # network_quotas = {key: val for key, val in kwargs.items()
+        #                  if key in quota.NETWORK_QUOTAS}
+        # volume_quotas = {key: val for key, val in kwargs.items()
+        #                 if key in quota.VOLUME_QUOTAS}
+
+        try:
+            self.manager.submitTask(
+                _tasks.NovaQuotasSet(tenant_id=proj.id,
+                                     force=True,
+                                     **kwargs))
+        except novaclient.exceptions.BadRequest:
+            raise OpenStackCloudException("No valid quota or resource")
+
+    def get_compute_quotas(self, name_or_id):
+        """ Get quota for a project
+
+        :param name_or_id: project name or id
+        :raises: OpenStackCloudException if it's not a valid project
+
+        :returns: Munch object with the quotas
+        """
+        proj = self.get_project(name_or_id)
+        if not proj:
+            raise OpenStackCloudException("project does not exist")
+        try:
+            return self.manager.submitTask(
+                _tasks.NovaQuotasGet(tenant_id=proj.id))
+        except nova_exceptions.BadRequest:
+            raise OpenStackCloudException("nova client call failed")
+
+    def delete_compute_quotas(self, name_or_id):
+        """ Delete quota for a project
+
+        :param name_or_id: project name or id
+        :raises: OpenStackCloudException if it's not a valid project or the
+        nova client call failed
+
+        :returns: dict with the quotas
+        """
+        proj = self.get_project(name_or_id)
+        if not proj:
+            raise OpenStackCloudException("project does not exist")
+        try:
+            return self.manager.submitTask(
+                _tasks.NovaQuotasDelete(tenant_id=proj.id))
+        except novaclient.exceptions.BadRequest:
+            raise OpenStackCloudException("nova client call failed")
