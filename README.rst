@@ -355,6 +355,43 @@ with - as well as a consumption argument.
 
   cloud = cloud_config.get_one_cloud(argparse=options)
 
+Constructing OpenStack SDK object
+---------------------------------
+
+If what you want to do is get an OpenStack SDK Connection and you want it to
+do all the normal things related to clouds.yaml, `OS_` environment variables,
+a helper function is provided. The following will get you a fully configured
+`openstacksdk` instance.
+
+.. code-block:: python
+
+  import os_client_config
+
+  sdk = os_client_config.make_sdk()
+
+If you want to do the same thing but on a named cloud.
+
+.. code-block:: python
+
+  import os_client_config
+
+  sdk = os_client_config.make_sdk(cloud='mtvexx')
+
+If you want to do the same thing but also support command line parsing.
+
+.. code-block:: python
+
+  import argparse
+
+  import os_client_config
+
+  sdk = os_client_config.make_sdk(options=argparse.ArgumentParser())
+
+It should be noted that OpenStack SDK has ways to construct itself that allow
+for additional flexibility. If the helper function here does not meet your
+needs, you should see the `from_config` method of
+`openstack.connection.Connection <http://developer.openstack.org/sdks/python/openstacksdk/users/guides/connect_from_config.html>`_
+
 Constructing Legacy Client objects
 ----------------------------------
 
