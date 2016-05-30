@@ -1,0 +1,3 @@
+---
+features: 
+  - Add new APIs, OperatorCloud.get_volume_quotas(), OperatorCloud.set_volume_quotas() and OperatorCloud.delete_volume_quotas() to manage cinder quotas for projects and users

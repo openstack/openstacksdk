@@ -53,3 +53,32 @@ class TestQuotas(base.TestCase):
         self.cloud.delete_compute_quotas(project)
 
         mock_nova.quotas.delete.assert_called_once_with(tenant_id='project_a')
+
+    @mock.patch.object(shade.OpenStackCloud, 'cinder_client')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_cinder_update_quotas(self, mock_keystone, mock_cinder):
+        project = fakes.FakeProject('project_a')
+        mock_keystone.tenants.list.return_value = [project]
+        self.cloud.set_volume_quotas(project, volumes=1)
+
+        mock_cinder.quotas.update.assert_called_once_with(
+            volumes=1, tenant_id='project_a')
+
+    @mock.patch.object(shade.OpenStackCloud, 'cinder_client')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_cinder_get_quotas(self, mock_keystone, mock_cinder):
+        project = fakes.FakeProject('project_a')
+        mock_keystone.tenants.list.return_value = [project]
+        self.cloud.get_volume_quotas(project)
+
+        mock_cinder.quotas.get.assert_called_once_with(tenant_id='project_a')
+
+    @mock.patch.object(shade.OpenStackCloud, 'cinder_client')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_cinder_delete_quotas(self, mock_keystone, mock_cinder):
+        project = fakes.FakeProject('project_a')
+        mock_keystone.tenants.list.return_value = [project]
+        self.cloud.delete_volume_quotas(project)
+
+        mock_cinder.quotas.delete.assert_called_once_with(
+            tenant_id='project_a')
