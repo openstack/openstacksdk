@@ -4689,14 +4689,14 @@ class OpenStackCloud(object):
                         'Failed at action ({action}) [{error}]:'.format(**r))
 
     def update_object(self, container, name, metadata=None, **headers):
-        """Update the metadtata of an object
+        """Update the metadata of an object
 
         :param container: The name of the container the object is in
         :param name: Name for the object within the container.
-        :param headers: These will be passed through to the object update
-            API as HTTP Headers.
         :param metadata: This dict will get changed into headers that set
             metadata of the object
+        :param headers: These will be passed through to the object update
+            API as HTTP Headers.
 
         :raises: ``OpenStackCloudException`` on operation error.
         """

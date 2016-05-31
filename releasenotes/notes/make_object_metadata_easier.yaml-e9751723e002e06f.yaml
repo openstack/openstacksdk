@@ -1,0 +1,5 @@
+---
+features:
+  - create_object() now has a "metadata" parameter that can be used to create
+    an object with metadata of each key and value pair in that dictionary
+  - Add an update_object() function that updates the metadata of a swift object
