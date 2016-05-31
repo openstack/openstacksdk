@@ -4621,7 +4621,7 @@ class OpenStackCloud(object):
     def create_object(
             self, container, name, filename=None,
             md5=None, sha256=None, segment_size=None,
-            use_slo=True,
+            use_slo=True, metadata=None,
             **headers):
         """Create a file object
 
@@ -4644,9 +4644,14 @@ class OpenStackCloud(object):
             Object, use a static rather than dyanmic object. Static Objects
             will delete segment objects when the manifest object is deleted.
             (optional, defaults to True)
+        :param metadata: This dict will get changed into headers that set
+            metadata of the object
 
         :raises: ``OpenStackCloudException`` on operation error.
         """
+        if not metadata:
+            metadata = {}
+
         if not filename:
             filename = name
 
@@ -4657,6 +4662,8 @@ class OpenStackCloud(object):
         headers[OBJECT_MD5_KEY] = md5
         headers[OBJECT_SHA256_KEY] = sha256
         header_list = sorted([':'.join([k, v]) for (k, v) in headers.items()])
+        for (k, v) in metadata.items():
+            header_list.append(':'.join(['x-object-meta-' + k, v]))
 
         # On some clouds this is not necessary. On others it is. I'm confused.
         self.create_container(container)

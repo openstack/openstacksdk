@@ -55,14 +55,17 @@ class TestObject(base.BaseFunctionalTestCase):
                 self.demo_cloud.create_object(
                     container_name, name,
                     sparse_file.name,
-                    segment_size=segment_size)
+                    segment_size=segment_size,
+                    metadata={'foo': 'bar'})
                 self.assertFalse(self.demo_cloud.is_object_stale(
                     container_name, name,
                     sparse_file.name
                     )
                 )
-            self.assertIsNotNone(
-                self.demo_cloud.get_object_metadata(container_name, name))
+            self.assertEqual(
+                'bar', self.demo_cloud.get_object_metadata(
+                    container_name, name)['x-object-meta-foo']
+            )
             self.assertIsNotNone(
                 self.demo_cloud.get_object(container_name, name))
             self.assertEqual(
