@@ -1,0 +1,17 @@
+clouds:
+  _test_cloud_:
+    auth:
+      auth_url: http://192.168.0.19:35357
+      password: password
+      project_name: admin
+      username: admin
+    identity_api_version: '2.0'
+    region_name: RegionOne
+  _bogus_test_:
+    auth_type: bogus
+    auth:
+      auth_url: http://198.51.100.1:35357/v2.0
+      username: _test_user_
+      password: _test_pass_
+      project_name: _test_project_
+    region_name: _test_region_

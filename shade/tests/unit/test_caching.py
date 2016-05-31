@@ -97,30 +97,9 @@ _TASK_SCHEMA = dict(
 
 class TestMemoryCache(base.TestCase):
 
-    CLOUD_CONFIG = {
-        'cache':
-        {
-            'max_age': 90,
-            'class': 'dogpile.cache.memory',
-            'expiration': {
-                'server': 1,
-            },
-        },
-        'clouds':
-        {
-            '_test_cloud_':
-            {
-                'auth':
-                {
-                    'auth_url': 'http://198.51.100.1:35357/v2.0',
-                    'username': '_test_user_',
-                    'password': '_test_pass_',
-                    'project_name': '_test_project_',
-                },
-                'region_name': '_test_region_',
-            },
-        },
-    }
+    def setUp(self):
+        super(TestMemoryCache, self).setUp(
+            cloud_config_fixture='clouds_cache.yaml')
 
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, shade.OpenStackCloud)
@@ -522,37 +501,10 @@ class TestMemoryCache(base.TestCase):
 
 
 class TestBogusAuth(base.TestCase):
-    CLOUD_CONFIG = {
-        'clouds':
-        {
-            '_test_cloud_':
-            {
-                'auth':
-                {
-                    'auth_url': 'http://198.51.100.1:35357/v2.0',
-                    'username': '_test_user_',
-                    'password': '_test_pass_',
-                    'project_name': '_test_project_',
-                },
-                'region_name': '_test_region_',
-            },
-            '_bogus_test_':
-            {
-                'auth_type': 'bogus',
-                'auth':
-                {
-                    'auth_url': 'http://198.51.100.1:35357/v2.0',
-                    'username': '_test_user_',
-                    'password': '_test_pass_',
-                    'project_name': '_test_project_',
-                },
-                'region_name': '_test_region_',
-            },
-        },
-    }
 
     def setUp(self):
-        super(TestBogusAuth, self).setUp()
+        super(TestBogusAuth, self).setUp(
+            cloud_config_fixture='clouds_cache.yaml')
 
     def test_get_auth_bogus(self):
         with testtools.ExpectedException(exc.OpenStackCloudException):
