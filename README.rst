@@ -392,6 +392,23 @@ for additional flexibility. If the helper function here does not meet your
 needs, you should see the `from_config` method of
 `openstack.connection.Connection <http://developer.openstack.org/sdks/python/openstacksdk/users/guides/connect_from_config.html>`_
 
+Constructing REST API Clients
+-----------------------------
+
+What if you want to make direct REST calls via a Session interface? You're
+in luck. The same interface for `make_sdk` is supported for
+`make_rest_client` and will return you a keystoneauth Session object that is
+mounted on the endpoint for the service you're looking for.
+
+.. code-block:: python
+
+  import os_client_config
+
+  session = os_client_config.make_rest_client('compute', cloud='vexxhost')
+
+  response = session.get('/servers')
+  server_list = response.json()['servers']
+
 Constructing Legacy Client objects
 ----------------------------------
 
@@ -427,23 +444,6 @@ If you want to do the same thing but also support command line parsing.
 
 If you want to get fancier than that in your python, then the rest of the
 API is available to you. But often times, you just want to do the one thing.
-
-Constructing Mounted Session Objects
-------------------------------------
-
-What if you want to make direct REST calls via a Session interface? You're
-in luck. The same interface for `make_client` is supported for `session_client`
-and will return you a keystoneauth Session object that is mounted on the
-endpoint for the service you're looking for.
-
-.. code-block:: python
-
-  import os_client_config
-
-  session = os_client_config.session_client('compute', cloud='vexxhost')
-
-  response = session.get('/servers')
-  server_list = response.json()['servers']
 
 Source
 ------

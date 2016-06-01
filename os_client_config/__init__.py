@@ -34,7 +34,7 @@ def get_config(service_key=None, options=None, **kwargs):
     return config.get_one_cloud(options=parsed_options, **kwargs)
 
 
-def session_client(service_key, options=None, **kwargs):
+def make_rest_client(service_key, options=None, **kwargs):
     """Simple wrapper function. It has almost no features.
 
     This will get you a raw requests Session Adapter that is mounted
@@ -50,7 +50,9 @@ def session_client(service_key, options=None, **kwargs):
     cloud = get_config(service_key=service_key, options=options, **kwargs)
     return cloud.get_session_client(service_key)
 # Backwards compat - simple_client was a terrible name
-simple_client = session_client
+simple_client = make_rest_client
+# Backwards compat - session_client was a terrible name
+session_client = make_rest_client
 
 
 def make_client(service_key, constructor=None, options=None, **kwargs):
@@ -73,7 +75,7 @@ def make_sdk(options=None, **kwargs):
     """Simple wrapper for getting an OpenStack SDK Connection.
 
     For completeness, provide a mechanism that matches make_client and
-    session_client. The heavy lifting here is done in openstacksdk.
+    make_rest_client. The heavy lifting here is done in openstacksdk.
 
     :rtype: :class:`~openstack.connection.Connection`
     """
