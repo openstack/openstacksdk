@@ -30,6 +30,7 @@ import cinderclient.exceptions as cinder_exceptions
 import glanceclient
 import glanceclient.exc
 import heatclient.client
+import magnumclient.exceptions as magnum_exceptions
 from heatclient.common import event_utils
 from heatclient.common import template_utils
 from heatclient import exc as heat_exceptions
@@ -5662,3 +5663,158 @@ class OpenStackCloud(object):
                 _tasks.RecordSetDelete(zone=zone['id'], recordset=name_or_id))
 
         return True
+
+    @_utils.cache_on_arguments()
+    def list_baymodels(self, detail=False):
+        """List Magnum baymodels.
+
+        :param bool detail. Flag to control if we need summarized or
+            detailed output.
+
+        :returns: a list of dicts containing the baymodel details.
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        with _utils.shade_exceptions("Error fetching baymodel list"):
+            baymodels = self.manager.submitTask(
+                _tasks.BaymodelList(detail=detail))
+        return _utils.normalize_baymodels(baymodels)
+
+    def search_baymodels(self, name_or_id=None, filters=None, detail=False):
+        """Search Magnum baymodels.
+
+        :param name_or_id: baymodel name or ID.
+        :param filters: a dict containing additional filters to use.
+        :param detail: a boolean to control if we need summarized or
+            detailed output.
+
+        :returns: a list of dict containing the baymodels
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the openstack API call.
+        """
+        baymodels = self.list_baymodels(detail=detail)
+        return _utils._filter_list(
+            baymodels, name_or_id, filters)
+
+    def get_baymodel(self, name_or_id, filters=None, detail=False):
+        """Get a baymodel by name or ID.
+
+        :param name_or_id: Name or ID of the baymodel.
+        :param dict filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
+
+        :returns: A baymodel dict or None if no matching baymodel is
+            found.
+
+        """
+        return _utils._get_entity(self.search_baymodels, name_or_id,
+                                  filters=filters, detail=detail)
+
+    def create_baymodel(self, name, image_id=None, keypair_id=None,
+                        coe=None, **kwargs):
+        """Create a Magnum baymodel.
+
+        :param string name: Name of the baymodel.
+        :param string image_id: Name or ID of the image to use.
+        :param string keypair_id: Name or ID of the keypair to use.
+        :param string coe: Name of the coe for the baymodel.
+
+        Other arguments will be passed in kwargs.
+
+        :returns: a dict containing the baymodel description
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during
+            the openstack API call
+        """
+        with _utils.shade_exceptions(
+                "Error creating baymodel of name {baymodel_name}".format(
+                    baymodel_name=name)):
+            baymodel = self.manager.submitTask(
+                _tasks.BaymodelCreate(
+                    name=name, image_id=image_id,
+                    keypair_id=keypair_id, coe=coe, **kwargs))
+
+        self.list_baymodels.invalidate(self)
+        return baymodel
+
+    def delete_baymodel(self, name_or_id):
+        """Delete a baymodel.
+
+        :param name_or_id: Name or unique ID of the baymodel.
+        :returns: True if the delete succeeded, False if the
+            baymodel was not found.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+
+        self.list_baymodels.invalidate(self)
+        baymodel = self.get_baymodel(name_or_id)
+
+        if not baymodel:
+            self.log.debug(
+                "Baymodel {name_or_id} does not exist".format(
+                    name_or_id=name_or_id),
+                exc_info=True)
+            return False
+
+        with _utils.shade_exceptions("Error in deleting baymodel"):
+            try:
+                self.manager.submitTask(
+                    _tasks.BaymodelDelete(id=baymodel['id']))
+            except magnum_exceptions.NotFound:
+                self.log.debug(
+                    "Baymodel {id} not found when deleting. Ignoring.".format(
+                        id=baymodel['id']))
+                return False
+
+        self.list_baymodels.invalidate(self)
+        return True
+
+    @_utils.valid_kwargs('name', 'image_id', 'flavor_id', 'master_flavor_id',
+                         'keypair_id', 'external_network_id', 'fixed_network',
+                         'dns_nameserver', 'docker_volume_size', 'labels',
+                         'coe', 'http_proxy', 'https_proxy', 'no_proxy',
+                         'network_driver', 'tls_disabled', 'public',
+                         'registry_enabled', 'volume_driver')
+    def update_baymodel(self, name_or_id, operation, **kwargs):
+        """Update a Magnum baymodel.
+
+        :param name_or_id: Name or ID of the baymodel being updated.
+        :param operation: Operation to perform - add, remove, replace.
+
+        Other arguments will be passed with kwargs.
+
+        :returns: a dict representing the updated baymodel.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        self.list_baymodels.invalidate(self)
+        baymodel = self.get_baymodel(name_or_id)
+        if not baymodel:
+            raise OpenStackCloudException(
+                "Baymodel %s not found." % name_or_id)
+
+        if operation not in ['add', 'replace', 'remove']:
+            raise TypeError(
+                "%s operation not in 'add', 'replace', 'remove'" % operation)
+
+        patches = _utils.generate_patches_from_kwargs(operation, **kwargs)
+
+        with _utils.shade_exceptions(
+                "Error updating baymodel {0}".format(name_or_id)):
+            self.manager.submitTask(
+                _tasks.BaymodelUpdate(
+                    id=baymodel['id'], patch=patches))
+
+        new_baymodel = self.get_baymodel(name_or_id)
+        return new_baymodel

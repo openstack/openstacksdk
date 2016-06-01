@@ -907,3 +907,24 @@ class CinderQuotasGet(task_manager.Task):
 class CinderQuotasDelete(task_manager.Task):
     def main(self, client):
         return client.cinder_client.quotas.delete(**self.args)
+
+
+class BaymodelList(task_manager.Task):
+    def main(self, client):
+        return client.magnum_client.baymodels.list(**self.args)
+
+
+class BaymodelCreate(task_manager.Task):
+    def main(self, client):
+        return client.magnum_client.baymodels.create(**self.args)
+
+
+class BaymodelDelete(task_manager.Task):
+    def main(self, client):
+        return client.magnum_client.baymodels.delete(self.args['id'])
+
+
+class BaymodelUpdate(task_manager.Task):
+    def main(self, client):
+        return client.magnum_client.baymodels.update(
+            self.args['id'], self.args['patch'])
