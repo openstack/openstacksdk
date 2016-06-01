@@ -11,7 +11,6 @@
 # under the License.
 
 import os
-import tempfile
 
 import fixtures
 import mock
@@ -134,7 +133,7 @@ class TestConnection(base.TestCase):
     def _prepare_test_config(self):
         # Create a temporary directory where our test config will live
         # and insert it into the search path via OS_CLIENT_CONFIG_FILE.
-        config_dir = tempfile.mkdtemp()
+        config_dir = self.useFixture(fixtures.TempDir()).path
         config_path = os.path.join(config_dir, "clouds.yaml")
 
         with open(config_path, "w") as conf:
