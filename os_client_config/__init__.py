@@ -67,3 +67,16 @@ def make_client(service_key, constructor=None, options=None, **kwargs):
     if not constructor:
         constructor = cloud_config._get_client(service_key)
     return cloud.get_legacy_client(service_key, constructor)
+
+
+def make_sdk(options=None, **kwargs):
+    """Simple wrapper for getting an OpenStack SDK Connection.
+
+    For completeness, provide a mechanism that matches make_client and
+    session_client. The heavy lifting here is done in openstacksdk.
+
+    :rtype: :class:`~openstack.connection.Connection`
+    """
+    from openstack import connection
+    cloud = get_config(options=options, **kwargs)
+    return connection.from_config(cloud_config=cloud, options=options)
