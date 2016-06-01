@@ -392,6 +392,39 @@ for additional flexibility. If the helper function here does not meet your
 needs, you should see the `from_config` method of
 `openstack.connection.Connection <http://developer.openstack.org/sdks/python/openstacksdk/users/guides/connect_from_config.html>`_
 
+Constructing shade objects
+--------------------------
+
+If what you want to do is get a
+`shade <http://docs.openstack.org/infra/shade/>`_ OpenStackCloud object, a
+helper function that honors clouds.yaml and `OS_` environment variables is
+provided. The following will get you a fully configured `OpenStackCloud`
+instance.
+
+.. code-block:: python
+
+  import os_client_config
+
+  cloud = os_client_config.make_shade()
+
+If you want to do the same thing but on a named cloud.
+
+.. code-block:: python
+
+  import os_client_config
+
+  cloud = os_client_config.make_shade(cloud='mtvexx')
+
+If you want to do the same thing but also support command line parsing.
+
+.. code-block:: python
+
+  import argparse
+
+  import os_client_config
+
+  cloud = os_client_config.make_shade(options=argparse.ArgumentParser())
+
 Constructing REST API Clients
 -----------------------------
 

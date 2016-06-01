@@ -82,3 +82,15 @@ def make_sdk(options=None, **kwargs):
     from openstack import connection
     cloud = get_config(options=options, **kwargs)
     return connection.from_config(cloud_config=cloud, options=options)
+
+
+def make_shade(options=None, **kwargs):
+    """Simple wrapper for getting a Shade OpenStackCloud object
+
+    A mechanism that matches make_sdk, make_client and make_rest_client.
+
+    :rtype: :class:`~shade.OpenStackCloud`
+    """
+    import shade
+    cloud = get_config(options=options, **kwargs)
+    return shade.OpenStackCloud(cloud_config=cloud, **kwargs)
