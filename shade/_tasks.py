@@ -546,7 +546,7 @@ class ObjectCreate(task_manager.Task):
 
 class ObjectUpdate(task_manager.Task):
     def main(self, client):
-        client.swift_client.post_object(**self.args)
+        return client.swift_client.post_object(**self.args)
 
 
 class ObjectList(task_manager.Task):
