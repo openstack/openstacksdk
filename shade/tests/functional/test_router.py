@@ -111,6 +111,35 @@ class TestRouter(base.BaseFunctionalTestCase):
         self.assertEqual(net1['id'], ext_gw_info['network_id'])
         self.assertTrue(ext_gw_info['enable_snat'])
 
+    def test_create_router_project(self):
+        project = self.operator_cloud.get_project('demo')
+        self.assertIsNotNone(project)
+        proj_id = project['id']
+        net1_name = self.network_prefix + '_net1'
+        net1 = self.operator_cloud.create_network(
+            name=net1_name, external=True, project_id=proj_id)
+
+        router_name = self.router_prefix + '_create_project'
+        router = self.operator_cloud.create_router(
+            name=router_name,
+            admin_state_up=True,
+            ext_gateway_net_id=net1['id'],
+            project_id=proj_id
+        )
+
+        for field in EXPECTED_TOPLEVEL_FIELDS:
+            self.assertIn(field, router)
+
+        ext_gw_info = router['external_gateway_info']
+        for field in EXPECTED_GW_INFO_FIELDS:
+            self.assertIn(field, ext_gw_info)
+
+        self.assertEqual(router_name, router['name'])
+        self.assertEqual('ACTIVE', router['status'])
+        self.assertEqual(proj_id, router['tenant_id'])
+        self.assertEqual(net1['id'], ext_gw_info['network_id'])
+        self.assertTrue(ext_gw_info['enable_snat'])
+
     def _create_and_verify_advanced_router(self,
                                            external_cidr,
                                            external_gateway_ip=None):
