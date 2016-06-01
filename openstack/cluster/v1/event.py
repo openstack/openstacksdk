@@ -12,7 +12,6 @@
 
 
 from openstack.cluster import cluster_service
-from openstack import format
 from openstack import resource
 
 
@@ -27,15 +26,26 @@ class Event(resource.Resource):
     allow_retrieve = True
 
     # Properties
-    id = resource.prop('id')
-    timestamp = resource.prop('timestamp', type=format.ISO8601)
-    obj_id = resource.prop('obj_id')
-    obj_name = resource.prop('obj_name')
-    obj_type = resource.prop('obj_type')
+    #: Timestamp string (in ISO8601 format) when the event was generated.
+    generated_at = resource.prop('timestamp')
+    #: The UUID of the object related to this event.
+    obj_id = resource.prop('oid')
+    #: The name of the object related to this event.
+    obj_name = resource.prop('oname')
+    #: The type name of the object related to this event.
+    obj_type = resource.prop('otype')
+    #: The UUID of the cluster related to this event, if any.
     cluster_id = resource.prop('cluster_id')
+    #: The event level (priority).
     level = resource.prop('level')
+    #: The ID of the user.
     user_id = resource.prop('user')
+    #: The ID of the project (tenant).
     project_id = resource.prop('project')
+    #: The string representation of the action associated with the event.
     action = resource.prop('action')
+    #: The status of the associated object.
     status = resource.prop('status')
+    #: A string description of the reason that brought the object into its
+    #: current status.
     status_reason = resource.prop('status_reason')

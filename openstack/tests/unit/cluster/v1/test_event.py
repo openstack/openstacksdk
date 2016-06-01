@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import testtools
 
 from openstack.cluster.v1 import event
@@ -24,9 +22,9 @@ FAKE = {
     'id': 'ffaed25e-46f5-4089-8e20-b3b4722fd597',
     'level': '20',
     'metadata': {},
-    'obj_id': 'efff1c11-2ada-47da-bedd-2c9af4fd099a',
-    'obj_name': 'node_create_b4a49016',
-    'obj_type': 'NODEACTION',
+    'oid': 'efff1c11-2ada-47da-bedd-2c9af4fd099a',
+    'oname': 'node_create_b4a49016',
+    'otype': 'NODEACTION',
     'project': '42d9e9663331431f97b75e25136307ff',
     'status': 'START',
     'status_reason': 'The action was abandoned.',
@@ -57,13 +55,11 @@ class TestEvent(testtools.TestCase):
         self.assertEqual(FAKE['deleted_time'], sot.deleted_time)
         self.assertEqual(FAKE['level'], sot.level)
         self.assertEqual(FAKE['metadata'], sot.metadata)
-        self.assertEqual(FAKE['obj_id'], sot.obj_id)
-        self.assertEqual(FAKE['obj_name'], sot.obj_name)
-        self.assertEqual(FAKE['obj_type'], sot.obj_type)
+        self.assertEqual(FAKE['oid'], sot.obj_id)
+        self.assertEqual(FAKE['oname'], sot.obj_name)
+        self.assertEqual(FAKE['otype'], sot.obj_type)
         self.assertEqual(FAKE['project'], sot.project_id)
         self.assertEqual(FAKE['status'], sot.status)
         self.assertEqual(FAKE['status_reason'], sot.status_reason)
-        dt = datetime.datetime(2016, 10, 10, 12, 46, 36, 000000).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.timestamp.replace(tzinfo=None))
+        self.assertEqual(FAKE['timestamp'], sot.generated_at)
         self.assertEqual(FAKE['user'], sot.user_id)
