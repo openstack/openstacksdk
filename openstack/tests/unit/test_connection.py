@@ -13,6 +13,7 @@
 import os
 import tempfile
 
+import fixtures
 import mock
 import os_client_config
 
@@ -133,16 +134,14 @@ class TestConnection(base.TestCase):
     def _prepare_test_config(self):
         # Create a temporary directory where our test config will live
         # and insert it into the search path via OS_CLIENT_CONFIG_FILE.
-        # NOTE: If OCC stops popping OS_C_C_F off of os.environ, this
-        # will need to change to respect that. It currently works between
-        # tests because the environment variable is always wiped by OCC itself.
         config_dir = tempfile.mkdtemp()
         config_path = os.path.join(config_dir, "clouds.yaml")
 
         with open(config_path, "w") as conf:
             conf.write(CLOUD_CONFIG)
 
-        os.environ["OS_CLIENT_CONFIG_FILE"] = config_path
+        self.useFixture(fixtures.EnvironmentVariable(
+            "OS_CLIENT_CONFIG_FILE", config_path))
 
     def test_from_config_given_data(self):
         self._prepare_test_config()
