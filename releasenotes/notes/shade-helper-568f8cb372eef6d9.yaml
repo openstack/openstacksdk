@@ -1,0 +1,4 @@
+---
+features:
+  - Added helper method for constructing shade
+    OpenStackCloud objects.
