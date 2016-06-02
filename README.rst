@@ -429,9 +429,10 @@ Constructing REST API Clients
 -----------------------------
 
 What if you want to make direct REST calls via a Session interface? You're
-in luck. The same interface for `make_sdk` is supported for
-`make_rest_client` and will return you a keystoneauth Session object that is
-mounted on the endpoint for the service you're looking for.
+in luck. A similar interface is available as with `openstacksdk` and `shade`.
+The main difference is that you need to specify which service you want to
+talk to and `make_rest_client` will return you a keystoneauth Session object
+that is mounted on the endpoint for the service you're looking for.
 
 .. code-block:: python
 
@@ -445,9 +446,9 @@ mounted on the endpoint for the service you're looking for.
 Constructing Legacy Client objects
 ----------------------------------
 
-If all you want to do is get a Client object from a python-\*client library,
+If you want get an old-style Client object from a python-\*client library,
 and you want it to do all the normal things related to clouds.yaml, `OS_`
-environment variables, a helper function is provided. The following
+environment variables, a helper function is also provided. The following
 will get you a fully configured `novaclient` instance.
 
 .. code-block:: python
