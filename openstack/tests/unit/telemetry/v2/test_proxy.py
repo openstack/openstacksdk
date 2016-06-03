@@ -11,8 +11,6 @@
 # under the License.
 
 from openstack.telemetry.v2 import _proxy
-from openstack.telemetry.v2 import alarm
-from openstack.telemetry.v2 import alarm_change
 from openstack.telemetry.v2 import capability
 from openstack.telemetry.v2 import meter
 from openstack.telemetry.v2 import resource
@@ -25,38 +23,6 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super(TestTelemetryProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
-
-    def test_alarm_change_find(self):
-        self.verify_find(self.proxy.find_alarm_change,
-                         alarm_change.AlarmChange)
-
-    def test_alarm_changes(self):
-        larm = alarm.Alarm.existing(alarm_id='larm')
-        expected_kwargs = {'path_args': {'alarm_id': 'larm'}}
-        self.verify_list(self.proxy.alarm_changes, alarm_change.AlarmChange,
-                         method_args=[larm], paginated=False,
-                         expected_kwargs=expected_kwargs)
-
-    def test_alarm_create_attrs(self):
-        self.verify_create(self.proxy.create_alarm, alarm.Alarm)
-
-    def test_alarm_delete(self):
-        self.verify_delete(self.proxy.delete_alarm, alarm.Alarm, False)
-
-    def test_alarm_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_alarm, alarm.Alarm, True)
-
-    def test_alarm_find(self):
-        self.verify_find(self.proxy.find_alarm, alarm.Alarm)
-
-    def test_alarm_get(self):
-        self.verify_get(self.proxy.get_alarm, alarm.Alarm)
-
-    def test_alarms(self):
-        self.verify_list(self.proxy.alarms, alarm.Alarm, paginated=False)
-
-    def test_alarm_update(self):
-        self.verify_update(self.proxy.update_alarm, alarm.Alarm)
 
     def test_capability_find(self):
         self.verify_find(self.proxy.find_capability, capability.Capability)

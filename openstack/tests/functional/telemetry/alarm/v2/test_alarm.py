@@ -13,22 +13,25 @@
 import unittest
 import uuid
 
+from openstack.telemetry.alarm.v2 import alarm
 from openstack.tests.functional import base
 
 
 @unittest.skip("bug/1524468")
+@unittest.skipUnless(base.service_exists(service_type="alarming"),
+                     "Alarming service does not exist")
 @unittest.skipUnless(base.service_exists(service_type="metering"),
                      "Metering service does not exist")
-class TestAlarmChange(base.BaseFunctionalTest):
+class TestAlarm(base.BaseFunctionalTest):
 
     NAME = uuid.uuid4().hex
-    alarm = None
+    ID = None
 
     @classmethod
     def setUpClass(cls):
-        super(TestAlarmChange, cls).setUpClass()
+        super(TestAlarm, cls).setUpClass()
         meter = next(cls.conn.telemetry.meters())
-        alarm = cls.conn.telemetry.create_alarm(
+        sot = cls.conn.alarm.create_alarm(
             name=cls.NAME,
             type='threshold',
             threshold_rule={
@@ -36,13 +39,20 @@ class TestAlarmChange(base.BaseFunctionalTest):
                 'threshold': 1.1,
             },
         )
-        cls.alarm = alarm
+        assert isinstance(sot, alarm.Alarm)
+        cls.assertIs(cls.NAME, sot.name)
+        cls.ID = sot.id
 
     @classmethod
     def tearDownClass(cls):
-        cls.conn.telemetry.delete_alarm(cls.alarm, ignore_missing=False)
+        sot = cls.conn.alarm.delete_alarm(cls.ID, ignore_missing=False)
+        cls.assertIs(None, sot)
+
+    def test_get(self):
+        sot = self.conn.alarm.get_alarm(self.ID)
+        self.assertEqual(self.NAME, sot.name)
+        self.assertEqual(self.ID, sot.id)
 
     def test_list(self):
-        change = next(self.conn.telemetry.alarm_changes(self.alarm))
-        self.assertEqual(self.alarm.id, change.alarm_id)
-        self.assertEqual('creation', change.type)
+        names = [o.name for o in self.conn.alarm.alarms()]
+        self.assertIn(self.NAME, names)

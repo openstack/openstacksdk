@@ -13,7 +13,7 @@
 import mock
 import testtools
 
-from openstack.telemetry.v2 import alarm
+from openstack.telemetry.alarm.v2 import alarm
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
@@ -31,13 +31,15 @@ EXAMPLE = {
     'state': 'insufficient data',
     'state_timestamp': '2015-03-09T12:15:57.233772',
     'timestamp': '2015-03-09T12:15:57.233772',
-    'threshold_rule': {'meter_name': 'a',
-                       'evaluation_periods:': '1',
-                       'period': '60',
-                       'statistic': 'avg',
-                       'threshold': '92.6',
-                       'comparison_operator': 'gt',
-                       'exclude_outliers': True, },
+    'threshold_rule': {
+        'meter_name': 'a',
+        'evaluation_periods:': '1',
+        'period': '60',
+        'statistic': 'avg',
+        'threshold': '92.6',
+        'comparison_operator': 'gt',
+        'exclude_outliers': True,
+    },
     'time_constraints': [{'name': 'a', 'duration': 'b', 'start': 'c', }],
     'type': '10',
     'user_id': '11',
@@ -59,7 +61,7 @@ class TestAlarm(testtools.TestCase):
         self.assertIsNone(sot.resource_key)
         self.assertIsNone(sot.resources_key)
         self.assertEqual('/alarms', sot.base_path)
-        self.assertEqual('metering', sot.service.service_type)
+        self.assertEqual('alarming', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)
         self.assertTrue(sot.allow_update)

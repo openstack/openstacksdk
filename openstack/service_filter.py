@@ -188,4 +188,4 @@ class ServiceFilter(dict):
         object store where the service type is `object-store` and the module
         is `object_store`.
         """
-        return self.__class__.__module__.split('.')[1]
+        return self.__class__.__module__.split('.')[-2]

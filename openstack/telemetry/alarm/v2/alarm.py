@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack import resource
-from openstack.telemetry import telemetry_service
+from openstack.telemetry.alarm import alarm_service
 from openstack import utils
 
 
@@ -19,7 +19,7 @@ class Alarm(resource.Resource):
     """.. caution:: This API is a work in progress and is subject to change."""
     id_attribute = 'alarm_id'
     base_path = '/alarms'
-    service = telemetry_service.TelemetryService()
+    service = alarm_service.AlarmService()
 
     # Supported Operations
     allow_create = True
@@ -55,6 +55,7 @@ class Alarm(resource.Resource):
     #: The state off the alarm
     state = resource.prop('state')
     #: The timestamp of the last alarm state change.
+    #: *Type: ISO 8601 formatted string*
     state_changed_at = resource.prop('state_timestamp')
     # TODO(briancurtin): undocumented
     threshold_rule = resource.prop('threshold_rule', type=dict)
@@ -63,6 +64,7 @@ class Alarm(resource.Resource):
     #: Explicit type specifier to select which rule to follow
     type = resource.prop('type')
     #: The timestamp of the last alarm definition update.
+    #: *Type: ISO 8601 formatted string*
     updated_at = resource.prop('timestamp')
     #: The ID of the user who created the alarm
     user_id = resource.prop('user_id')
@@ -70,7 +72,8 @@ class Alarm(resource.Resource):
     def change_state(self, session, next_state):
         """Set the state of an alarm.
 
-           The next_state may be one of: 'ok' 'insufficient data' 'alarm'
+        :param next_state: The valid values can be one of: ``ok``, ``alarm``,
+                           ``insufficient data``.
         """
         url = utils.urljoin(self.base_path, self.id, 'state')
         resp = session.put(url, endpoint_filter=self.service, json=next_state)
@@ -79,7 +82,7 @@ class Alarm(resource.Resource):
     def check_state(self, session):
         """Retrieve the current state of an alarm from the service.
 
-           The properties of the alarm are not modified.
+        The properties of the alarm are not modified.
         """
         url = utils.urljoin(self.base_path, self.id, 'state')
         resp = session.get(url, endpoint_filter=self.service)
