@@ -21,12 +21,12 @@ import re
 from keystoneauth1 import exceptions as _exceptions
 from keystoneauth1 import session as _session
 
-import openstack
 from openstack import exceptions
+from openstack import version as openstack_version
 
 from six.moves.urllib import parse
 
-DEFAULT_USER_AGENT = "openstacksdk/%s" % openstack.__version__
+DEFAULT_USER_AGENT = "openstacksdk/%s" % openstack_version.__version__
 VERSION_PATTERN = re.compile('/v\d[\d.]*')
 
 
