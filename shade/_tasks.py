@@ -909,6 +909,21 @@ class CinderQuotasDelete(task_manager.Task):
         return client.cinder_client.quotas.delete(**self.args)
 
 
+class NeutronQuotasSet(task_manager.Task):
+    def main(self, client):
+        return client.neutron_client.update_quota(**self.args)
+
+
+class NeutronQuotasGet(task_manager.Task):
+    def main(self, client):
+        return client.neutron_client.show_quota(**self.args)['quota']
+
+
+class NeutronQuotasDelete(task_manager.Task):
+    def main(self, client):
+        return client.neutron_client.delete_quota(**self.args)
+
+
 class BaymodelList(task_manager.Task):
     def main(self, client):
         return client.magnum_client.baymodels.list(**self.args)
