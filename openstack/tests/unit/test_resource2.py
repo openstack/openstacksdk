@@ -438,6 +438,19 @@ class TestResource(base.TestCase):
         self.assertIn("b=2", the_repr)
         self.assertIn("c=3", the_repr)
 
+    def test_equality(self):
+        class Example(resource2.Resource):
+            x = resource2.Body("x")
+            y = resource2.Header("y")
+            z = resource2.URI("z")
+
+        e1 = Example(x=1, y=2, z=3)
+        e2 = Example(x=1, y=2, z=3)
+        e3 = Example(x=0, y=0, z=0)
+
+        self.assertEqual(e1, e2)
+        self.assertNotEqual(e1, e3)
+
     def test__update(self):
         sot = resource2.Resource()
 
@@ -845,7 +858,7 @@ class TestResourceActions(base.TestCase):
         self.sot._body = mock.Mock()
         self.sot._body.dirty = mock.Mock(return_value={"x": "y"})
 
-        result = self.sot.update(self.session)
+        self.sot.update(self.session)
 
         self.sot._prepare_request.assert_called_once_with(prepend_key=True)
 
@@ -861,7 +874,6 @@ class TestResourceActions(base.TestCase):
                 json=self.request.body, headers=self.request.headers)
 
         self.sot._translate_response.assert_called_once_with(self.response)
-        self.assertEqual(result, self.sot)
 
     def test_update_put(self):
         self._test_update(patch_update=False)
@@ -875,8 +887,7 @@ class TestResourceActions(base.TestCase):
         self.sot._header = mock.Mock()
         self.sot._header.dirty = dict()
 
-        result = self.sot.update(self.session)
-        self.assertEqual(result, self.sot)
+        self.sot.update(self.session)
 
         self.session.put.assert_not_called()
 
