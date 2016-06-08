@@ -11,7 +11,6 @@
 # under the License.
 
 import copy
-import datetime
 
 import mock
 import testtools
@@ -66,9 +65,7 @@ class TestServer(testtools.TestCase):
         self.assertEqual(EXAMPLE['accessIPv4'], sot.access_ipv4)
         self.assertEqual(EXAMPLE['accessIPv6'], sot.access_ipv6)
         self.assertEqual(EXAMPLE['addresses'], sot.addresses)
-        dt = datetime.datetime(2015, 3, 9, 12, 14, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['created'], sot.created_at)
         self.assertEqual(EXAMPLE['flavorRef'], sot.flavor_id)
         self.assertEqual(EXAMPLE['hostId'], sot.host_id)
         self.assertEqual(EXAMPLE['id'], sot.id)
@@ -79,9 +76,7 @@ class TestServer(testtools.TestCase):
         self.assertEqual(EXAMPLE['progress'], sot.progress)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['status'], sot.status)
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['updated'], sot.updated_at)
         self.assertEqual(EXAMPLE['user_id'], sot.user_id)
 
     def test_detail(self):

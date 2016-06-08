@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
 import uuid
 
 from openstack.tests.functional import base
@@ -80,7 +79,6 @@ class TestObject(base.BaseFunctionalTest):
         self.assertEqual('v0', obj.metadata['k0'])
         self.assertEqual('attachment', obj.content_disposition)
         self.assertEqual('deflate', obj.content_encoding)
-        self.assertIsInstance(obj.delete_at, datetime.datetime)
 
         # unset system metadata
         self.conn.object_store.delete_object_metadata(

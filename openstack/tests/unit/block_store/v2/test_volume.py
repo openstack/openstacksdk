@@ -11,7 +11,6 @@
 # under the License.
 
 import copy
-import datetime
 
 import testtools
 
@@ -74,9 +73,7 @@ class TestVolume(testtools.TestCase):
         self.assertEqual(VOLUME["attachments"], sot.attachments)
         self.assertEqual(VOLUME["availability_zone"], sot.availability_zone)
         self.assertFalse(sot.is_bootable)
-        dt = datetime.datetime(2015, 3, 9, 12, 14, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
+        self.assertEqual(VOLUME["created_at"], sot.created_at)
         self.assertEqual(VOLUME["description"], sot.description)
         self.assertEqual(VOLUME["volume_type"], sot.volume_type)
         self.assertEqual(VOLUME["snapshot_id"], sot.snapshot_id)

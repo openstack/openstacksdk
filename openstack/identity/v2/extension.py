@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import format
 from openstack.identity import identity_service
 from openstack import resource
 
@@ -42,8 +41,7 @@ class Extension(resource.Resource):
     #: *Type: string*
     namespace = resource.prop('namespace')
     #: The last time the extension has been modified (update date).
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('updated', type=format.ISO8601)
+    updated_at = resource.prop('updated')
 
     @classmethod
     def list(cls, session, **params):

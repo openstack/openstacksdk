@@ -10,9 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from datetime import datetime
-import iso8601
-
 import mock
 import testtools
 
@@ -98,13 +95,9 @@ class TestObject(testtools.TestCase):
         self.assertEqual(headers['accept-ranges'], sot.accept_ranges)
         self.assertEqual(headers['last-modified'], sot.last_modified_at)
         self.assertEqual(headers['etag'], sot.etag)
-        self.assertEqual(datetime(2016, 1, 21, 22, 10, 56, 281120,
-                                  tzinfo=iso8601.UTC),
-                         sot.timestamp)
+        self.assertEqual(headers['x-timestamp'], sot.timestamp)
         self.assertEqual(headers['content-type'], sot.content_type)
-        self.assertEqual(datetime(2016, 1, 21, 22, 43, 46, 167440,
-                                  tzinfo=iso8601.UTC),
-                         sot.delete_at)
+        self.assertEqual(headers['x-delete-at'], sot.delete_at)
 
     def test_get(self):
         sot = obj.Object.new(container=CONTAINER_NAME, name=OBJECT_NAME)

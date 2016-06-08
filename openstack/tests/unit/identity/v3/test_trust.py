@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import testtools
 
 from openstack.identity.v3 import trust
@@ -46,9 +44,7 @@ class TestTrust(testtools.TestCase):
         sot = trust.Trust(EXAMPLE)
         self.assertEqual(EXAMPLE['project_id'],
                          sot.project_id)
-        dt = datetime.datetime(2016, 3, 9, 12, 14, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.expires_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['expires_at'], sot.expires_at)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertTrue(sot.is_impersonation)
         self.assertEqual(EXAMPLE['trustee_user_id'], sot.trustee_user_id)

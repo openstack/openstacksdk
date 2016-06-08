@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import testtools
 
 from openstack.image.v2 import member
@@ -43,11 +41,7 @@ class TestMember(testtools.TestCase):
     def test_make_it(self):
         sot = member.Member(EXAMPLE)
         self.assertEqual(IDENTIFIER, sot.id)
-        dt = datetime.datetime(2015, 3, 9, 12, 14, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
         self.assertEqual(EXAMPLE['image_id'], sot.image_id)
         self.assertEqual(EXAMPLE['status'], sot.status)
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)

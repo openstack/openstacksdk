@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import testtools
 
 from openstack.image.v1 import image
@@ -69,9 +67,5 @@ class TestImage(testtools.TestCase):
         self.assertTrue(sot.is_protected)
         self.assertEqual(EXAMPLE['size'], sot.size)
         self.assertEqual(EXAMPLE['status'], sot.status)
-        dt = datetime.datetime(2015, 3, 9, 12, 14, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
+        self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)

@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import testtools
 
 from openstack.orchestration.v1 import resource
@@ -64,6 +62,4 @@ class TestResource(testtools.TestCase):
         self.assertEqual(FAKE['resource_type'], sot.resource_type)
         self.assertEqual(FAKE['status'], sot.status)
         self.assertEqual(FAKE['status_reason'], sot.status_reason)
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
+        self.assertEqual(FAKE['updated_time'], sot.updated_at)

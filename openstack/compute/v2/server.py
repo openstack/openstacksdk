@@ -12,7 +12,6 @@
 
 from openstack.compute import compute_service
 from openstack.compute.v2 import metadata
-from openstack import format
 from openstack import resource
 from openstack import utils
 
@@ -41,8 +40,7 @@ class Server(resource.Resource, metadata.MetadataMixin):
     #: of the IP address. *Type: dict*
     addresses = resource.prop('addresses', type=dict)
     #: Timestamp of when the server was created.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    created_at = resource.prop('created', type=format.ISO8601)
+    created_at = resource.prop('created')
     #: The flavor reference, as a ID or full URL, for the flavor to use for
     #: this server.
     flavor_id = resource.prop('flavorRef')
@@ -69,8 +67,7 @@ class Server(resource.Resource, metadata.MetadataMixin):
     #: ``SUSPENDED``, ``UNKNOWN``, or ``VERIFY_RESIZE``.
     status = resource.prop('status')
     #: Timestamp of when this server was last updated.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('updated', type=format.ISO8601)
+    updated_at = resource.prop('updated')
     #: The user ID associated with this server.
     user_id = resource.prop('user_id')
 

@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import mock
 import testtools
 
@@ -52,9 +50,7 @@ class TestAlarmChange(testtools.TestCase):
         self.assertEqual(IDENTIFIER, sot.event_id)
         self.assertEqual(EXAMPLE['on_behalf_of'], sot.on_behalf_of_id)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.triggered_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['timestamp'], sot.triggered_at)
         self.assertEqual(EXAMPLE['type'], sot.type)
         self.assertEqual(EXAMPLE['user_id'], sot.user_id)
 
@@ -73,8 +69,6 @@ class TestAlarmChange(testtools.TestCase):
         self.assertEqual(IDENTIFIER, first.event_id)
         self.assertEqual(EXAMPLE['on_behalf_of'], first.on_behalf_of_id)
         self.assertEqual(EXAMPLE['project_id'], first.project_id)
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, first.triggered_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['timestamp'], first.triggered_at)
         self.assertEqual(EXAMPLE['type'], first.type)
         self.assertEqual(EXAMPLE['user_id'], first.user_id)

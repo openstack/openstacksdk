@@ -11,7 +11,6 @@
 # under the License.
 
 
-from openstack import format
 from openstack.identity import identity_service
 from openstack import resource
 
@@ -35,8 +34,7 @@ class Trust(resource.Resource):
     #: Specifies the expiration time of the trust. A trust may be revoked
     #: ahead of expiration. If the value represents a time in the past,
     #: the trust is deactivated.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    expires_at = resource.prop('expires_at', type=format.ISO8601)
+    expires_at = resource.prop('expires_at')
     #: ID of the trust object. *Type: string*
     id = resource.prop('id')
     #: If ``impersonation`` is set to true, then the ``user`` attribute

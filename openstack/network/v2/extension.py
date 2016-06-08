@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import format
 from openstack.network import network_service
 from openstack import resource
 
@@ -38,5 +37,4 @@ class Extension(resource.Resource):
     #: A URL pointing to the namespace for this extension.
     namespace = resource.prop('namespace')
     #: Timestamp when the extension was last updated.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('updated', type=format.ISO8601)
+    updated_at = resource.prop('updated')

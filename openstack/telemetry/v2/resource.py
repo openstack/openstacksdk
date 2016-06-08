@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import format
 from openstack import resource
 from openstack.telemetry import telemetry_service
 
@@ -28,14 +27,10 @@ class Resource(resource.Resource):
     # Properties
     #: UTC date & time not later than the first sample known
     #: for this resource.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    first_sample_at = resource.prop('first_sample_timestamp',
-                                    type=format.ISO8601)
+    first_sample_at = resource.prop('first_sample_timestamp')
     #: UTC date & time not earlier than the last sample known
     #: for this resource.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    last_sample_at = resource.prop('last_sample_timestamp',
-                                   type=format.ISO8601)
+    last_sample_at = resource.prop('last_sample_timestamp')
     #: A list containing a self link and associated meter links
     links = resource.prop('links')
     #: Arbitrary metadata associated with the resource

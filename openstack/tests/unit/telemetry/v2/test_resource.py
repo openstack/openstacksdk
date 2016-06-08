@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import testtools
 
 from openstack.telemetry.v2 import resource
@@ -48,12 +46,10 @@ class TestResource(testtools.TestCase):
     def test_make_it(self):
         sot = resource.Resource(EXAMPLE)
         self.assertEqual(EXAMPLE['resource_id'], sot.id)
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.first_sample_at.replace(tzinfo=None))
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.last_sample_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['first_sample_timestamp'],
+                         sot.first_sample_at)
+        self.assertEqual(EXAMPLE['last_sample_timestamp'],
+                         sot.last_sample_at)
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['metadata'], sot.metadata)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)

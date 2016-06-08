@@ -11,7 +11,6 @@
 # under the License.
 
 from openstack.compute import compute_service
-from openstack import format
 from openstack import resource
 
 
@@ -39,5 +38,4 @@ class Extension(resource.Resource):
     #: A URL pointing to the namespace for this extension.
     namespace = resource.prop('namespace')
     #: Timestamp when this extension was last updated.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('updated', type=format.ISO8601)
+    updated_at = resource.prop('updated')

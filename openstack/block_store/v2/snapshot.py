@@ -39,8 +39,7 @@ class Snapshot(resource.Resource):
     #: Description of snapshot. Default is None.
     description = resource.prop("description")
     #: The timestamp of this snapshot creation.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    created_at = resource.prop("created_at", type=format.ISO8601)
+    created_at = resource.prop("created_at")
     #: Metadata associated with this snapshot.
     metadata = resource.prop("metadata", type=dict)
     #: The ID of the volume this snapshot was taken of.

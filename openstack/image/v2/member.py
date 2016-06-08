@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import format
 from openstack.image import image_service
 from openstack import resource
 
@@ -30,12 +29,10 @@ class Member(resource.Resource):
 
     # Properties
     #: The date and time when the member was created.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    created_at = resource.prop('created_at', type=format.ISO8601)
+    created_at = resource.prop('created_at')
     #: Image ID stored through the image API. Typically a UUID.
     image_id = resource.prop('image_id')
     #: The status of the image.
     status = resource.prop('status')
     #: The date and time when the member was updated.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('updated_at', type=format.ISO8601)
+    updated_at = resource.prop('updated_at')

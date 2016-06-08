@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import format
 from openstack.network import network_service
 from openstack import resource
 
@@ -38,14 +37,11 @@ class Agent(resource.Resource):
     #: Network agent configuration data specific to the agent_type.
     configuration = resource.prop('configurations')
     #: Timestamp when the network agent was created.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    created_at = resource.prop('created_at', type=format.ISO8601)
+    created_at = resource.prop('created_at')
     #: The network agent description.
     description = resource.prop('description')
     #: Timestamp when the network agent's heartbeat was last seen.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    last_heartbeat_at = resource.prop('heartbeat_timestamp',
-                                      type=format.ISO8601)
+    last_heartbeat_at = resource.prop('heartbeat_timestamp')
     #: The host the agent is running on.
     host = resource.prop('host')
     #: The administrative state of the network agent, which is up
@@ -55,7 +51,6 @@ class Agent(resource.Resource):
     #: *Type: bool*
     is_alive = resource.prop('alive', type=bool)
     #: Timestamp when the network agent was last started.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    started_at = resource.prop('started_at', type=format.ISO8601)
+    started_at = resource.prop('started_at')
     #: The messaging queue topic the network agent subscribes to.
     topic = resource.prop('topic')

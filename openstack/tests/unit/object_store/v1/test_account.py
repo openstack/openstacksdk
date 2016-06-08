@@ -10,9 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from datetime import datetime
-import iso8601
-
 import testtools
 
 from openstack.object_store.v1 import account
@@ -56,6 +53,4 @@ class TestAccount(testtools.TestCase):
                          sot.account_container_count)
         self.assertEqual(int(ACCOUNT_EXAMPLE['x-account-object-count']),
                          sot.account_object_count)
-        self.assertEqual(datetime(2016, 1, 21, 21, 59, 15, 889370,
-                                  tzinfo=iso8601.UTC),
-                         sot.timestamp)
+        self.assertEqual(ACCOUNT_EXAMPLE['x-timestamp'], sot.timestamp)

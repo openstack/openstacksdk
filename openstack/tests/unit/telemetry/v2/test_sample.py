@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import mock
 import testtools
 
@@ -68,14 +66,10 @@ class TestSample(testtools.TestCase):
         self.assertEqual(SAMPLE['metadata'], sot.metadata)
         self.assertEqual(SAMPLE['counter_name'], sot.counter_name)
         self.assertEqual(SAMPLE['project_id'], sot.project_id)
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.recorded_at.replace(tzinfo=None))
+        self.assertEqual(SAMPLE['recorded_at'], sot.recorded_at)
         self.assertEqual(SAMPLE['resource_id'], sot.resource_id)
         self.assertEqual(SAMPLE['source'], sot.source)
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.generated_at.replace(tzinfo=None))
+        self.assertEqual(SAMPLE['timestamp'], sot.generated_at)
         self.assertEqual(SAMPLE['type'], sot.type)
         self.assertEqual(SAMPLE['unit'], sot.unit)
         self.assertEqual(SAMPLE['user_id'], sot.user_id)
@@ -89,15 +83,11 @@ class TestSample(testtools.TestCase):
         self.assertEqual(OLD_SAMPLE['counter_unit'], sot.unit)
         self.assertEqual(OLD_SAMPLE['counter_volume'], sot.volume)
         self.assertEqual(OLD_SAMPLE['project_id'], sot.project_id)
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.recorded_at.replace(tzinfo=None))
+        self.assertEqual(OLD_SAMPLE['recorded_at'], sot.recorded_at)
         self.assertEqual(OLD_SAMPLE['resource_id'], sot.resource_id)
         self.assertEqual(OLD_SAMPLE['resource_metadata'], sot.metadata)
         self.assertEqual(OLD_SAMPLE['source'], sot.source)
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.generated_at.replace(tzinfo=None))
+        self.assertEqual(OLD_SAMPLE['timestamp'], sot.generated_at)
         self.assertEqual(OLD_SAMPLE['user_id'], sot.user_id)
 
     def test_list(self):
@@ -113,14 +103,10 @@ class TestSample(testtools.TestCase):
         self.assertEqual(SAMPLE['metadata'], first.metadata)
         self.assertEqual(SAMPLE['counter_name'], first.counter_name)
         self.assertEqual(SAMPLE['project_id'], first.project_id)
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, first.recorded_at.replace(tzinfo=None))
+        self.assertEqual(SAMPLE['recorded_at'], first.recorded_at)
         self.assertEqual(SAMPLE['resource_id'], first.resource_id)
         self.assertEqual(SAMPLE['source'], first.source)
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, first.generated_at.replace(tzinfo=None))
+        self.assertEqual(SAMPLE['timestamp'], first.generated_at)
         self.assertEqual(SAMPLE['type'], first.type)
         self.assertEqual(SAMPLE['unit'], first.unit)
         self.assertEqual(SAMPLE['user_id'], first.user_id)

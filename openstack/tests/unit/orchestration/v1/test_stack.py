@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import mock
 import six
 import testtools
@@ -69,9 +67,7 @@ class TestStack(testtools.TestCase):
     def test_make_it(self):
         sot = stack.Stack(FAKE)
         self.assertEqual(FAKE['capabilities'], sot.capabilities)
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
+        self.assertEqual(FAKE['creation_time'], sot.created_at)
         self.assertEqual(FAKE['description'], sot.description)
         self.assertTrue(sot.is_rollback_disabled)
         self.assertEqual(FAKE['id'], sot.id)
@@ -89,9 +85,7 @@ class TestStack(testtools.TestCase):
         self.assertEqual(FAKE['template_url'],
                          sot.template_url)
         self.assertEqual(FAKE['timeout_mins'], sot.timeout_mins)
-        dt = datetime.datetime(2015, 3, 9, 12, 30, 00, 000000).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
+        self.assertEqual(FAKE['updated_time'], sot.updated_at)
 
     def test_create(self):
         resp = mock.Mock()

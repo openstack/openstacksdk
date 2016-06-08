@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import testtools
 
 from openstack.key_manager.v1 import container
@@ -45,14 +43,10 @@ class TestContainer(testtools.TestCase):
     def test_make_it(self):
         sot = container.Container(EXAMPLE)
         self.assertEqual(EXAMPLE['container_ref'], sot.container_ref)
-        dt = datetime.datetime(2015, 3, 9, 12, 14, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['created'], sot.created_at)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['secret_refs'], sot.secret_refs)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['type'], sot.type)
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['updated'], sot.updated_at)
         self.assertEqual(EXAMPLE['container_ref'], sot.id)

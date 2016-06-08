@@ -10,9 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from datetime import datetime
-import iso8601
-
 import mock
 import testtools
 
@@ -116,9 +113,7 @@ class TestContainer(testtools.TestCase):
                          sot.sync_key)
         self.assertEqual(HEAD_EXAMPLE['x-versions-location'],
                          sot.versions_location)
-        self.assertEqual(datetime(2016, 1, 21, 22, 7, 35, 486720,
-                                  tzinfo=iso8601.UTC),
-                         sot.timestamp)
+        self.assertEqual(HEAD_EXAMPLE['x-timestamp'], sot.timestamp)
 
     @mock.patch("openstack.resource.Resource.list")
     def test_list(self, fake_list):

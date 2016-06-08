@@ -11,7 +11,6 @@
 # under the License.
 
 from openstack.cluster import cluster_service
-from openstack import format
 from openstack import resource
 
 
@@ -40,8 +39,6 @@ class Profile(resource.Resource):
     #: A collection of key-value pairs that are attached to the profile.
     metadata = resource.prop('metadata', type=dict)
     #: Timestamp of when the profile was created.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    created_at = resource.prop('created_at', type=format.ISO8601)
+    created_at = resource.prop('created_at')
     #: Timestamp of when the profile was last updated.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('updated_at', type=format.ISO8601)
+    updated_at = resource.prop('updated_at')

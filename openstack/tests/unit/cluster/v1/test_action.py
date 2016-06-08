@@ -10,9 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-import iso8601
-
 import testtools
 
 from openstack.cluster.v1 import action
@@ -65,12 +62,8 @@ class TestAction(testtools.TestCase):
         self.assertEqual(FAKE['cause'], sot.cause)
         self.assertEqual(FAKE['owner'], sot.owner_id)
         self.assertEqual(FAKE['interval'], sot.interval)
-        self.assertEqual(datetime.datetime(2016, 1, 21, 22, 7, 35, 486720,
-                                           tzinfo=iso8601.UTC),
-                         sot.start_at)
-        self.assertEqual(datetime.datetime(2016, 1, 21, 22, 7, 35, 486720,
-                                           tzinfo=iso8601.UTC),
-                         sot.end_at)
+        self.assertEqual(FAKE['start_time'], sot.start_at)
+        self.assertEqual(FAKE['end_time'], sot.end_at)
         self.assertEqual(FAKE['timeout'], sot.timeout)
         self.assertEqual(FAKE['status'], sot.status)
         self.assertEqual(FAKE['status_reason'], sot.status_reason)
@@ -78,9 +71,5 @@ class TestAction(testtools.TestCase):
         self.assertEqual(FAKE['outputs'], sot.outputs)
         self.assertEqual(FAKE['depends_on'], sot.depends_on)
         self.assertEqual(FAKE['depended_by'], sot.depended_by)
-        dt = datetime.datetime(2015, 10, 10, 12, 46, 36, 000000).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
-        dt = datetime.datetime(2016, 10, 10, 12, 46, 36, 000000).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
+        self.assertEqual(FAKE['created_at'], sot.created_at)
+        self.assertEqual(FAKE['updated_at'], sot.updated_at)

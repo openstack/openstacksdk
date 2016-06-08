@@ -11,7 +11,6 @@
 # under the License.
 
 from openstack import exceptions
-from openstack import format
 from openstack.orchestration import orchestration_service
 from openstack import resource
 from openstack import utils
@@ -37,8 +36,7 @@ class Stack(resource.Resource):
     #: required by the stack.
     capabilities = resource.prop('capabilities')
     #: Timestamp of the stack creation.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    created_at = resource.prop('creation_time', type=format.ISO8601)
+    created_at = resource.prop('creation_time')
     #: A text description of the stack.
     description = resource.prop('description')
     #: Whether the stack will support a rollback operation on stack
@@ -67,8 +65,7 @@ class Stack(resource.Resource):
     #: Stack operation timeout in minutes.
     timeout_mins = resource.prop('timeout_mins')
     #: Timestamp of last update on the stack.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('updated_time', type=format.ISO8601)
+    updated_at = resource.prop('updated_time')
 
     def _action(self, session, body):
         """Perform stack actions"""

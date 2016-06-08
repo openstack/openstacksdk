@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import testtools
 
 from openstack.network.v2 import port
@@ -85,9 +83,5 @@ class TestPort(testtools.TestCase):
         self.assertEqual(EXAMPLE['dns_assignment'], sot.dns_assignment)
         self.assertEqual(EXAMPLE['dns_name'], sot.dns_name)
         self.assertEqual(EXAMPLE['description'], sot.description)
-        dt = datetime.datetime(2016, 3, 9, 12, 14, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
-        dt = datetime.datetime(2016, 7, 9, 12, 14, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
+        self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)

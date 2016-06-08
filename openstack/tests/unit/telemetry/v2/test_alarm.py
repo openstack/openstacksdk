@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import mock
 import testtools
 
@@ -84,12 +82,8 @@ class TestAlarm(testtools.TestCase):
         self.assertFalse(sot.is_repeat_actions)
         self.assertEqual(EXAMPLE['severity'], sot.severity)
         self.assertEqual(EXAMPLE['state'], sot.state)
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.state_changed_at.replace(tzinfo=None))
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['state_timestamp'], sot.state_changed_at)
+        self.assertEqual(EXAMPLE['timestamp'], sot.updated_at)
         self.assertEqual(EXAMPLE['threshold_rule'], sot.threshold_rule)
         self.assertEqual(EXAMPLE['time_constraints'], sot.time_constraints)
         self.assertEqual(EXAMPLE['type'], sot.type)

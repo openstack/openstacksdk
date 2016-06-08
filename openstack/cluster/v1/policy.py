@@ -11,7 +11,6 @@
 # under the License.
 
 from openstack.cluster import cluster_service
-from openstack import format
 from openstack import resource
 
 
@@ -36,11 +35,9 @@ class Policy(resource.Resource):
     #: The type name of the policy.
     type = resource.prop('type')
     #: The timestamp when the policy is created.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    created_at = resource.prop('created_at', type=format.ISO8601)
+    created_at = resource.prop('created_at')
     #: The timestamp when the policy was last updated.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('updated_at', type=format.ISO8601)
+    updated_at = resource.prop('updated_at')
     #: The specification of the policy.
     spec = resource.prop('spec', type=dict)
     #: A dictionary containing runtime data of the policy.

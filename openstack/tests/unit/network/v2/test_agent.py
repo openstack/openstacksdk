@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import testtools
 
 from openstack.network.v2 import agent
@@ -57,17 +55,10 @@ class TestAgent(testtools.TestCase):
                          sot.availability_zone)
         self.assertEqual(EXAMPLE['binary'], sot.binary)
         self.assertEqual(EXAMPLE['configurations'], sot.configuration)
-        dt = datetime.datetime(2016, 3, 9, 12, 14, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
         self.assertEqual(EXAMPLE['description'], sot.description)
-        dt = datetime.datetime(2016, 8, 9, 12, 14, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt,
-                         sot.last_heartbeat_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['heartbeat_timestamp'], sot.last_heartbeat_at)
         self.assertEqual(EXAMPLE['host'], sot.host)
         self.assertEqual(EXAMPLE['id'], sot.id)
-        dt = datetime.datetime(2016, 7, 9, 12, 14, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.started_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['started_at'], sot.started_at)
         self.assertEqual(EXAMPLE['topic'], sot.topic)

@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import mock
 import testtools
 
@@ -56,22 +54,14 @@ class TestStatistics(testtools.TestCase):
         self.assertEqual(EXAMPLE['avg'], sot.avg)
         self.assertEqual(EXAMPLE['count'], sot.count)
         self.assertEqual(EXAMPLE['duration'], sot.duration)
-        dt = datetime.datetime(2015, 3, 9, 12, 45, 00, 000000).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.duration_end_at.replace(tzinfo=None))
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 00, 000000).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.duration_start_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['duration_end'], sot.duration_end_at)
+        self.assertEqual(EXAMPLE['duration_start'], sot.duration_start_at)
         self.assertEqual(EXAMPLE['groupby'], sot.group_by)
         self.assertEqual(EXAMPLE['max'], sot.max)
         self.assertEqual(EXAMPLE['min'], sot.min)
         self.assertEqual(EXAMPLE['period'], sot.period)
-        dt = datetime.datetime(2015, 3, 9, 12, 45, 00, 000000).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.period_end_at.replace(tzinfo=None))
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 00, 000000).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.period_start_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['period_end'], sot.period_end_at)
+        self.assertEqual(EXAMPLE['period_start'], sot.period_start_at)
         self.assertEqual(EXAMPLE['sum'], sot.sum)
         self.assertEqual(EXAMPLE['unit'], sot.unit)
 

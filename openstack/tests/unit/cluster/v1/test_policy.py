@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import testtools
 
 from openstack.cluster.v1 import policy
@@ -62,9 +60,5 @@ class TestPolicy(testtools.TestCase):
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['spec'], sot.spec)
         self.assertEqual(FAKE['data'], sot.data)
-        dt = datetime.datetime(2015, 10, 10, 12, 46, 36, 000000).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
-        dt = datetime.datetime(2016, 10, 10, 12, 46, 36, 000000).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
+        self.assertEqual(FAKE['created_at'], sot.created_at)
+        self.assertEqual(FAKE['updated_at'], sot.updated_at)

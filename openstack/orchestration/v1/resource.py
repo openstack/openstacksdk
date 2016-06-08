@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import format
 from openstack.orchestration import orchestration_service
 from openstack import resource
 
@@ -52,5 +51,4 @@ class Resource(resource.Resource):
     #: A string that explains why the resource is in its current status.
     status_reason = resource.prop('resource_status_reason')
     #: Timestamp of the last update made to the resource.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('updated_time', type=format.ISO8601)
+    updated_at = resource.prop('updated_time')

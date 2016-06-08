@@ -10,9 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 from openstack.cluster import cluster_service
-from openstack import format
 from openstack import resource
 
 
@@ -44,11 +42,9 @@ class Receiver(resource.Resource):
     #: The name of the targeted action.
     action = resource.prop('action')
     #: Timestamp of when the receiver was created.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    created_at = resource.prop('created_at', type=format.ISO8601)
+    created_at = resource.prop('created_at')
     #: Timestamp of when the receiver was last updated.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('updated_at', type=format.ISO8601)
+    updated_at = resource.prop('updated_at')
     #: The credential of the impersonated user.
     actor = resource.prop('actor', type=dict)
     #: A dictionary containing key-value pairs that are provided to the

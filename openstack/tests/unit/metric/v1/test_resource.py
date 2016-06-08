@@ -9,7 +9,6 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import datetime
 
 import testtools
 
@@ -53,7 +52,5 @@ class TestResource(testtools.TestCase):
         self.assertEqual(EXAMPLE_GENERIC['type'], r.type)
         self.assertEqual(EXAMPLE_GENERIC['id'], r.id)
         self.assertEqual(EXAMPLE_GENERIC['metrics'], r.metrics)
-        dt = datetime.datetime(2015, 3, 9, 12, 14, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, r.started_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE_GENERIC['started_at'], r.started_at)
         self.assertEqual(EXAMPLE_GENERIC['ended_at'], r.ended_at)

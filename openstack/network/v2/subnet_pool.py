@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import format
 from openstack.network import network_service
 from openstack import resource
 
@@ -32,8 +31,7 @@ class SubnetPool(resource.Resource):
     #: The ID of the address scope associated with the subnet pool.
     address_scope_id = resource.prop('address_scope_id')
     #: Timestamp when the subnet pool was created.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    created_at = resource.prop('created_at', type=format.ISO8601)
+    created_at = resource.prop('created_at')
     #: The length of the prefix to allocate when the cidr or prefixlen
     #: attributes are omitted when creating a subnet. *Type: int*
     default_prefix_length = resource.prop('default_prefixlen', type=int)
@@ -69,5 +67,4 @@ class SubnetPool(resource.Resource):
     #: *Type: list*
     prefixes = resource.prop('prefixes', type=list)
     #: Timestamp when the subnet pool was last updated.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('updated_at', type=format.ISO8601)
+    updated_at = resource.prop('updated_at')

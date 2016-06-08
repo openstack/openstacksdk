@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import format
 from openstack.image import image_service
 from openstack import resource
 from openstack import utils
@@ -44,8 +43,7 @@ class Image(resource.Resource):
     #: the image is just a blob of unstructured data.
     container_format = resource.prop('container_format')
     #: The date and time when the image was created.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    created_at = resource.prop('created_at', type=format.ISO8601)
+    created_at = resource.prop('created_at')
     #: Valid values are: aki, ari, ami, raw, iso, vhd, vdi, qcow2, or vmdk.
     #: The disk format of a VM image is the format of the underlying
     #: disk image. Virtual appliance vendors have different formats
@@ -75,8 +73,7 @@ class Image(resource.Resource):
     #: Tags, if any, that are associated with the image.
     tags = resource.prop('tags')
     #: The date and time when the image was updated.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('updated_at', type=format.ISO8601)
+    updated_at = resource.prop('updated_at')
     #: The virtual size of the image.
     virtual_size = resource.prop('virtual_size')
     #: The image visibility.

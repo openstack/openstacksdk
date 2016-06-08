@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import format
 from openstack.key_manager import key_manager_service
 from openstack import resource
 
@@ -37,8 +36,7 @@ class Secret(resource.Resource):
     #: A list of content types
     content_types = resource.prop('content_types')
     #: Once this timestamp has past, the secret will no longer be available.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    expires_at = resource.prop('expiration', type=format.ISO8601)
+    expires_at = resource.prop('expiration')
     #: The type/mode of the algorithm associated with the secret information.
     mode = resource.prop('mode')
     #: The name of the secret set by the user
@@ -48,5 +46,4 @@ class Secret(resource.Resource):
     #: The status of this secret
     status = resource.prop('status')
     #: A timestamp when this secret was updated.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('updated', type=format.ISO8601)
+    updated_at = resource.prop('updated')

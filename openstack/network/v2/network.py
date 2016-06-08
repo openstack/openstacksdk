@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import format
 from openstack.network import network_service
 from openstack import resource
 
@@ -36,8 +35,7 @@ class Network(resource.Resource):
     #: *Type: list of availability zone names*
     availability_zones = resource.prop('availability_zones')
     #: Timestamp when the network was created.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    created_at = resource.prop('created_at', type=format.ISO8601)
+    created_at = resource.prop('created_at')
     #: The network description.
     description = resource.prop('description')
     #: The ID of the IPv4 address scope for the network.
@@ -85,5 +83,4 @@ class Network(resource.Resource):
     #: *Type: list of strs of the subnet IDs*
     subnet_ids = resource.prop('subnets', type=list)
     #: Timestamp when the network was last updated.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('updated_at', type=format.ISO8601)
+    updated_at = resource.prop('updated_at')

@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import format
 from openstack import resource
 from openstack.telemetry import telemetry_service
 
@@ -29,15 +28,13 @@ class Sample(resource.Resource):
     #: The meter name this sample is for
     counter_name = resource.prop('meter', alias='counter_name')
     #: When the sample has been generated.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    generated_at = resource.prop('timestamp', type=format.ISO8601)
+    generated_at = resource.prop('timestamp')
     #: Arbitrary metadata associated with the sample
     metadata = resource.prop('metadata', alias='resource_metadata')
     #: The ID of the project this sample was taken for
     project_id = resource.prop('project_id')
     #: When the sample has been recorded.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    recorded_at = resource.prop('recorded_at', type=format.ISO8601)
+    recorded_at = resource.prop('recorded_at')
     #: The ID of the resource this sample was taken for
     resource_id = resource.prop('resource_id')
     #: The name of the source that identifies where the sample comes from

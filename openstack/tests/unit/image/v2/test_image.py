@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-
 import mock
 import testtools
 
@@ -56,9 +54,7 @@ class TestImage(testtools.TestCase):
         self.assertEqual(IDENTIFIER, sot.id)
         self.assertEqual(EXAMPLE['checksum'], sot.checksum)
         self.assertEqual(EXAMPLE['container_format'], sot.container_format)
-        dt = datetime.datetime(2015, 3, 9, 12, 14, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.created_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
         self.assertEqual(EXAMPLE['disk_format'], sot.disk_format)
         self.assertEqual(EXAMPLE['min_disk'], sot.min_disk)
         self.assertEqual(EXAMPLE['name'], sot.name)
@@ -67,9 +63,7 @@ class TestImage(testtools.TestCase):
         self.assertFalse(sot.is_protected)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['tags'], sot.tags)
-        dt = datetime.datetime(2015, 3, 9, 12, 15, 57, 233772).replace(
-            tzinfo=None)
-        self.assertEqual(dt, sot.updated_at.replace(tzinfo=None))
+        self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
         self.assertEqual(EXAMPLE['virtual_size'], sot.virtual_size)
         self.assertEqual(EXAMPLE['visibility'], sot.visibility)
 

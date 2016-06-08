@@ -68,8 +68,7 @@ class Volume(resource.Resource):
     #: TODO(briancurtin): This is currently undocumented in the API.
     attachments = resource.prop("attachments")
     #: The timestamp of this volume creation.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    created_at = resource.prop("created_at", type=format.ISO8601)
+    created_at = resource.prop("created_at")
 
 
 class VolumeDetail(Volume):

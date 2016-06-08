@@ -13,7 +13,6 @@
 
 import copy
 
-from openstack import format
 from openstack.object_store import object_store_service
 from openstack.object_store.v1 import _base
 from openstack import resource
@@ -82,8 +81,7 @@ class Object(_base.BaseResource):
     #: Used with temporary URLs to specify the expiry time of the
     #: signature. For more information about temporary URLs, see
     #: OpenStack Object Storage API v1 Reference.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    expires_at = resource.header("expires", type=format.ISO8601)
+    expires_at = resource.header("expires")
     #: If you include the multipart-manifest=get query parameter and
     #: the object is a large object, the object contents are not
     #: returned. Instead, the manifest is returned in the
@@ -133,15 +131,13 @@ class Object(_base.BaseResource):
     #: If set, the time when the object will be deleted by the system
     #: in the format of a UNIX Epoch timestamp.
     #: If not set, this header is not returned by this operation.
-    #: *Type: datetime object parsed from a UNIX epoch*
-    delete_at = resource.header("x-delete-at", type=format.UNIXEpoch)
+    delete_at = resource.header("x-delete-at")
     #: If set, to this is a dynamic large object manifest object.
     #: The value is the container and object name prefix of the
     #: segment objects in the form container/prefix.
     object_manifest = resource.header("x-object-manifest")
     #: The timestamp of the transaction.
-    #: *Type: datetime object parsed from a UNIX epoch*
-    timestamp = resource.header("x-timestamp", type=format.UNIXEpoch)
+    timestamp = resource.header("x-timestamp")
     #: The date and time that the object was created or the last
     #: time that the metadata was changed.
     last_modified_at = resource.header("last_modified", alias="last-modified")

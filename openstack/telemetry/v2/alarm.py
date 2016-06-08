@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import format
 from openstack import resource
 from openstack.telemetry import telemetry_service
 from openstack import utils
@@ -56,8 +55,7 @@ class Alarm(resource.Resource):
     #: The state off the alarm
     state = resource.prop('state')
     #: The timestamp of the last alarm state change.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    state_changed_at = resource.prop('state_timestamp', type=format.ISO8601)
+    state_changed_at = resource.prop('state_timestamp')
     # TODO(briancurtin): undocumented
     threshold_rule = resource.prop('threshold_rule', type=dict)
     #: Describe time constraints for the alarm
@@ -65,8 +63,7 @@ class Alarm(resource.Resource):
     #: Explicit type specifier to select which rule to follow
     type = resource.prop('type')
     #: The timestamp of the last alarm definition update.
-    #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('timestamp', type=format.ISO8601)
+    updated_at = resource.prop('timestamp')
     #: The ID of the user who created the alarm
     user_id = resource.prop('user_id')
 
