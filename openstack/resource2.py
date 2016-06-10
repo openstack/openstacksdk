@@ -270,6 +270,12 @@ class Resource(object):
         return "%s.%s(%s)" % (
             self.__module__, self.__class__.__name__, args)
 
+    def __eq__(self, comparand):
+        """Return True if another resource has the same contents"""
+        return all([self._body.attributes == comparand._body.attributes,
+                    self._header.attributes == comparand._header.attributes,
+                    self._uri.attributes == comparand._uri.attributes])
+
     def _update(self, **attrs):
         """Given attributes, update them on this instance
 
