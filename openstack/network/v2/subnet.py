@@ -58,6 +58,8 @@ class Subnet(resource.Resource):
     network_id = resource.prop('network_id')
     #: The ID of the project this subnet is associated with.
     project_id = resource.prop('tenant_id')
+    #: The ID of the segment this subnet is associated with.
+    segment_id = resource.prop('segment_id')
     #: The subnet pool ID from which to obtain a CIDR.
     subnet_pool_id = resource.prop('subnetpool_id')
     #: Timestamp when the subnet was last updated.
