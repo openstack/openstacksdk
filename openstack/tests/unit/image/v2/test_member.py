@@ -31,15 +31,15 @@ class TestMember(testtools.TestCase):
         self.assertEqual('members', sot.resources_key)
         self.assertEqual('/images/%(image_id)s/members', sot.base_path)
         self.assertEqual('image', sot.service.service_type)
-        self.assertEqual('member_id', sot.id_attribute)
+        self.assertEqual('member', sot._alternate_id())
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = member.Member(EXAMPLE)
+        sot = member.Member(**EXAMPLE)
         self.assertEqual(IDENTIFIER, sot.id)
         self.assertEqual(EXAMPLE['created_at'], sot.created_at)
         self.assertEqual(EXAMPLE['image_id'], sot.image_id)

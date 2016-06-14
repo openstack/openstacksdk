@@ -17,8 +17,8 @@ class ImageService(service_filter.ServiceFilter):
     """The image service."""
 
     valid_versions = [
-        service_filter.ValidVersion('v1'),
         service_filter.ValidVersion('v2'),
+        service_filter.ValidVersion('v1')
     ]
 
     def __init__(self, version=None):

@@ -10,23 +10,42 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
+
+from openstack import exceptions
 from openstack.image.v2 import _proxy
 from openstack.image.v2 import image
 from openstack.image.v2 import member
-from openstack.image.v2 import tag
-from openstack.tests.unit import test_proxy_base
+from openstack.tests.unit import test_proxy_base2
 
 
-class TestImageProxy(test_proxy_base.TestProxyBase):
+class TestImageProxy(test_proxy_base2.TestProxyBase):
     def setUp(self):
         super(TestImageProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
-    def test_image_create_attrs(self):
-        self.verify_create(self.proxy.upload_image, image.Image,
-                           method_kwargs={'data': 'Image'},
-                           expected_kwargs={},
-                           expected_result=image.Image())
+    def test_image_create_no_args(self):
+        # container_format and disk_format are required args
+        self.assertRaises(exceptions.InvalidRequest, self.proxy.upload_image)
+
+    def test_image_create(self):
+        # NOTE: This doesn't use any of the base class verify methods
+        # because it ends up making two separate calls to complete the
+        # operation.
+        created_image = mock.Mock(spec=image.Image(id="id"))
+
+        self.proxy._create = mock.Mock()
+        self.proxy._create.return_value = created_image
+
+        rv = self.proxy.upload_image(data="data", container_format="x",
+                                     disk_format="y", name="z")
+
+        self.proxy._create.assert_called_with(image.Image,
+                                              container_format="x",
+                                              disk_format="y",
+                                              name="z")
+        created_image.upload.assert_called_with(self.session)
+        self.assertEqual(rv, created_image)
 
     def test_image_delete(self):
         self.verify_delete(self.proxy.delete_image, image.Image, False)
@@ -43,113 +62,81 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
     def test_images(self):
         self.verify_list(self.proxy.images, image.Image, paginated=True)
 
-    def test_member_create_attrs(self):
-        self.verify_create(self.proxy.create_member, member.Member,
-                           method_kwargs={'image': 'image_1'},
-                           expected_kwargs={'path_args': {
-                               'image_id': 'image_1'}})
+    def test_add_tag(self):
+        self._verify("openstack.image.v2.image.Image.add_tag",
+                     self.proxy.add_tag,
+                     method_args=["image", "tag"],
+                     expected_args=["tag"])
 
-    def test_member_create_attrs_with_image_instance(self):
-        image_1 = image.Image.from_id('image_1')
-        self.verify_create(self.proxy.create_member, member.Member,
-                           method_kwargs={'image': image_1},
-                           expected_kwargs={'path_args': {
-                               'image_id': 'image_1'}})
+    def test_remove_tag(self):
+        self._verify("openstack.image.v2.image.Image.remove_tag",
+                     self.proxy.remove_tag,
+                     method_args=["image", "tag"],
+                     expected_args=["tag"])
+
+    def test_deactivate_image(self):
+        self._verify("openstack.image.v2.image.Image.deactivate",
+                     self.proxy.deactivate_image,
+                     method_args=["image"])
+
+    def test_reactivate_image(self):
+        self._verify("openstack.image.v2.image.Image.reactivate",
+                     self.proxy.reactivate_image,
+                     method_args=["image"])
+
+    def test_member_create(self):
+        self.verify_create(self.proxy.add_member, member.Member,
+                           method_kwargs={"image": "test_id"},
+                           expected_kwargs={"image_id": "test_id"})
 
     def test_member_delete(self):
-        self.verify_delete(self.proxy.delete_member, member.Member, False,
-                           input_path_args=['resource_or_id', 'image_1'],
-                           expected_path_args={'image_id': 'image_1'})
+        self._verify2("openstack.proxy2.BaseProxy._delete",
+                      self.proxy.remove_member,
+                      method_args=["member_id"],
+                      method_kwargs={"image": "image_id",
+                                     "ignore_missing": False},
+                      expected_args=[member.Member],
+                      expected_kwargs={"member_id": "member_id",
+                                       "image_id": "image_id",
+                                       "ignore_missing": False})
 
     def test_member_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_member, member.Member, True,
-                           input_path_args=['resource_or_id', 'image_1'],
-                           expected_path_args={'image_id': 'image_1'})
-
-    def test_member_delete_with_image_instance(self):
-        image_1 = image.Image.from_id('image_1')
-        self.verify_delete(self.proxy.delete_member, member.Member, True,
-                           input_path_args=['resource_or_id', image_1],
-                           expected_path_args={'image_id': 'image_1'})
-
-    def test_member_delete_with_member_instance(self):
-        member_1 = member.Member.from_id('member_1')
-        member_1.image_id = 'image_1'
-        self._verify2('openstack.proxy.BaseProxy._delete',
-                      self.proxy.delete_member,
-                      method_args=[member_1],
-                      expected_args=[member.Member, member_1],
-                      expected_kwargs={'path_args': {
-                          'image_id': 'image_1'},
-                          'ignore_missing': True})
+        self._verify2("openstack.proxy2.BaseProxy._delete",
+                      self.proxy.remove_member,
+                      method_args=["member_id"],
+                      method_kwargs={"image": "image_id"},
+                      expected_args=[member.Member],
+                      expected_kwargs={"member_id": "member_id",
+                                       "image_id": "image_id",
+                                       "ignore_missing": True})
 
     def test_member_update(self):
-        self.verify_update(self.proxy.update_member, member.Member,
-                           ['resource_or_id', 'image_1'],
-                           path_args={'image_id': 'image_1'})
-
-    def test_member_update_with_image_instance(self):
-        image_1 = image.Image.from_id('image_1')
-        self.verify_update(self.proxy.update_member, member.Member,
-                           ['resource_or_id', image_1],
-                           path_args={'image_id': 'image_1'})
-
-    def test_member_update_with_member_instance(self):
-        member_1 = member.Member.from_id('member_1')
-        member_1.image_id = 'image_1'
-        self.verify_update(self.proxy.update_member, member.Member,
-                           [member_1], path_args={'image_id': 'image_1'},
-                           expected_args=[member_1])
+        self._verify2("openstack.proxy2.BaseProxy._update",
+                      self.proxy.update_member,
+                      method_args=['member_id', 'image_id'],
+                      expected_args=[member.Member],
+                      expected_kwargs={'member_id': 'member_id',
+                                       'image_id': 'image_id'})
 
     def test_member_get(self):
-        self.verify_get(self.proxy.get_member, member.Member,
-                        ['member_1', 'image_1'],
-                        expected_args=[member.Member, 'member_1'],
-                        expected_kwargs={'path_args': {'image_id': 'image_1'}})
-
-    def test_member_get_with_image_instance(self):
-        image_1 = image.Image.from_id('image_1')
-        self.verify_get(self.proxy.get_member, member.Member,
-                        ['member_1', image_1],
-                        expected_args=[member.Member, 'member_1'],
-                        expected_kwargs={'path_args': {'image_id': 'image_1'}})
-
-    def test_member_get_with_member_instance(self):
-        member_1 = member.Member.from_id('member_1')
-        member_1.image_id = 'image_1'
-        self.verify_get(self.proxy.get_member, member.Member,
-                        [member_1], expected_args=[member.Member, member_1],
-                        expected_kwargs={'path_args': {'image_id': 'image_1'}})
+        self._verify2("openstack.proxy2.BaseProxy._get",
+                      self.proxy.get_member,
+                      method_args=['member_id'],
+                      method_kwargs={"image": "image_id"},
+                      expected_args=[member.Member],
+                      expected_kwargs={'member_id': 'member_id',
+                                       'image_id': 'image_id'})
 
     def test_member_find(self):
-        self.verify_find(self.proxy.find_member, member.Member,
-                         ['name_or_id', 'image_1'],
-                         path_args={'image_id': 'image_1'})
-
-    def test_member_find_with_image_instance(self):
-        image_1 = image.Image.from_id('image_1')
-        self.verify_find(self.proxy.find_member, member.Member,
-                         ['name_or_id', image_1],
-                         path_args={'image_id': 'image_1'})
+        self._verify2("openstack.proxy2.BaseProxy._find",
+                      self.proxy.find_member,
+                      method_args=['member_id'],
+                      method_kwargs={"image": "image_id"},
+                      expected_args=[member.Member, "member_id"],
+                      expected_kwargs={'ignore_missing': True,
+                                       'image_id': 'image_id'})
 
     def test_members(self):
         self.verify_list(self.proxy.members, member.Member, paginated=False,
                          method_args=('image_1',),
-                         expected_kwargs={
-                             'path_args': {'image_id': 'image_1'}})
-
-    def test_members_with_image_instance(self):
-        image_1 = image.Image.from_id('image_1')
-        self.verify_list(self.proxy.members, member.Member, paginated=False,
-                         method_args=(image_1,),
-                         expected_kwargs={
-                             'path_args': {'image_id': 'image_1'}})
-
-    def test_tag_create_attrs(self):
-        self.verify_create(self.proxy.create_tag, tag.Tag)
-
-    def test_tag_delete(self):
-        self.verify_delete(self.proxy.delete_tag, tag.Tag, False)
-
-    def test_tag_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_tag, tag.Tag, True)
+                         expected_kwargs={'image_id': 'image_1'})

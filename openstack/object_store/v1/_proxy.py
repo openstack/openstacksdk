@@ -181,6 +181,8 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
+        # TODO(briancurtin): call this download_object and make sure it's
+        # just returning the raw data, like download_image does
         container_name = self._get_container_name(obj, container)
 
         return self._get(_obj.Object, obj,
@@ -199,6 +201,10 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
+        # TODO(briancurtin): download_object should really have the behavior
+        # of get_object, and this writing to a file should not exist.
+        # TODO(briancurtin): This method should probably offload the get
+        # operation into another thread or something of that nature.
         with open(path, "w") as out:
             out.write(self.get_object(obj, container))
 

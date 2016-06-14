@@ -25,10 +25,10 @@ class TestSession(testtools.TestCase):
     def test_parse_url(self):
         filt = image_service.ImageService()
         self.assertEqual(
-            "http://127.0.0.1:9292/v1",
+            "http://127.0.0.1:9292/v2",
             session.parse_url(filt, "http://127.0.0.1:9292"))
         self.assertEqual(
-            "http://127.0.0.1:9292/foo/v1",
+            "http://127.0.0.1:9292/foo/v2",
             session.parse_url(filt, "http://127.0.0.1:9292/foo"))
         self.assertEqual(
             "http://127.0.0.1:9292/v2",
