@@ -831,10 +831,19 @@ class TestResourceActions(base.TestCase):
     def test_get(self):
         result = self.sot.get(self.session)
 
-        self.sot._prepare_request.assert_called_once_with()
+        self.sot._prepare_request.assert_called_once_with(requires_id=True)
         self.session.get.assert_called_once_with(
-            self.request.uri,
-            endpoint_filter=self.service_name)
+            self.request.uri, endpoint_filter=self.service_name)
+
+        self.sot._translate_response.assert_called_once_with(self.response)
+        self.assertEqual(result, self.sot)
+
+    def test_get_not_requires_id(self):
+        result = self.sot.get(self.session, False)
+
+        self.sot._prepare_request.assert_called_once_with(requires_id=False)
+        self.session.get.assert_called_once_with(
+            self.request.uri, endpoint_filter=self.service_name)
 
         self.sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, self.sot)

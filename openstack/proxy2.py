@@ -193,7 +193,7 @@ class BaseProxy(object):
         return res.create(self.session)
 
     @_check_resource(strict=False)
-    def _get(self, resource_type, value=None, **attrs):
+    def _get(self, resource_type, value=None, requires_id=True, **attrs):
         """Get a resource
 
         :param resource_type: The type of resource to get.
@@ -214,7 +214,7 @@ class BaseProxy(object):
         res = self._get_resource(resource_type, value, **attrs)
 
         try:
-            return res.get(self.session)
+            return res.get(self.session, requires_id=requires_id)
         except exceptions.NotFoundException as e:
             raise exceptions.ResourceNotFound(
                 message="No %s found for %s" %
