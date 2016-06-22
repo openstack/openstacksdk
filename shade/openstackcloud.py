@@ -2090,8 +2090,12 @@ class OpenStackCloud(object):
             # so a StackGet can always be used for name or ID.
             with _utils.shade_exceptions("Error fetching stack"):
                 try:
-                    stacks = [self.manager.submitTask(
-                        _tasks.StackGet(stack_id=name_or_id))]
+                    stack = self.manager.submitTask(
+                        _tasks.StackGet(stack_id=name_or_id))
+                    # Treat DELETE_COMPLETE stacks as a NotFound
+                    if stack['stack_status'] == 'DELETE_COMPLETE':
+                        return []
+                    stacks = [stack]
                 except heat_exceptions.NotFound:
                     return []
             nstacks = _utils.normalize_stacks(stacks)
