@@ -243,6 +243,8 @@ class Resource(object):
     allow_head = False
     #: Use PATCH for update operations on this resource.
     patch_update = False
+    #: Use PUT for create operations on this resource.
+    put_create = False
 
     def __init__(self, synchronized=False, **attrs):
         # NOTE: _collect_attrs modifies **attrs in place, removing
@@ -275,6 +277,21 @@ class Resource(object):
         return all([self._body.attributes == comparand._body.attributes,
                     self._header.attributes == comparand._header.attributes,
                     self._uri.attributes == comparand._uri.attributes])
+
+    def __getattribute__(self, name):
+        """Return an attribute on this instance
+
+        This is mostly a pass-through except for a specialization on
+        the 'id' name, as this can exist under a different name via the
+        `alternate_id` argument to resource.Body.
+        """
+        if name == "id":
+            if name in self._body:
+                return self._body[name]
+            else:
+                return self._body[self._alternate_id()]
+        else:
+            return object.__getattribute__(self, name)
 
     def _update(self, **attrs):
         """Given attributes, update them on this instance
@@ -495,16 +512,16 @@ class Resource(object):
         if not self.allow_create:
             raise exceptions.MethodNotSupported(self, "create")
 
-        if self.id is None:
-            request = self._prepare_request(requires_id=False,
-                                            prepend_key=True)
-            response = session.post(request.uri, endpoint_filter=self.service,
-                                    json=request.body, headers=request.headers)
-        else:
+        if self.put_create:
             request = self._prepare_request(requires_id=True,
                                             prepend_key=True)
             response = session.put(request.uri, endpoint_filter=self.service,
                                    json=request.body, headers=request.headers)
+        else:
+            request = self._prepare_request(requires_id=False,
+                                            prepend_key=True)
+            response = session.post(request.uri, endpoint_filter=self.service,
+                                    json=request.body, headers=request.headers)
 
         self._translate_response(response)
         return self

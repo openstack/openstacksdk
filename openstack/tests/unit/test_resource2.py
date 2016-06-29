@@ -409,6 +409,7 @@ class TestResource(base.TestCase):
         self.assertFalse(sot.allow_list)
         self.assertFalse(sot.allow_head)
         self.assertFalse(sot.patch_update)
+        self.assertFalse(sot.put_create)
 
     def test_repr(self):
         a = {"a": 1}
@@ -575,6 +576,11 @@ class TestResource(base.TestCase):
             alt = resource2.Body("alt", alternate_id=True)
 
         self.assertTrue("alt", Test._alternate_id())
+
+        value = "lol"
+        sot = Test(alt=value)
+        self.assertEqual(sot.alt, value)
+        self.assertEqual(sot.id, value)
 
     def test__get_id_instance(self):
         class Test(resource2.Resource):
@@ -800,13 +806,15 @@ class TestResourceActions(base.TestCase):
         self.session.delete = mock.Mock(return_value=self.response)
         self.session.head = mock.Mock(return_value=self.response)
 
-    def _test_create(self, requires_id=False, prepend_key=False):
-        if not requires_id:
-            self.sot.id = None
+    def _test_create(self, cls, requires_id=False, prepend_key=False):
+        id = "id" if requires_id else None
+        sot = cls(id=id)
+        sot._prepare_request = mock.Mock(return_value=self.request)
+        sot._translate_response = mock.Mock()
 
-        result = self.sot.create(self.session)
+        result = sot.create(self.session)
 
-        self.sot._prepare_request.assert_called_once_with(
+        sot._prepare_request.assert_called_once_with(
             requires_id=requires_id, prepend_key=prepend_key)
         if requires_id:
             self.session.put.assert_called_once_with(
@@ -819,14 +827,26 @@ class TestResourceActions(base.TestCase):
                 endpoint_filter=self.service_name,
                 json=self.request.body, headers=self.request.headers)
 
-        self.sot._translate_response.assert_called_once_with(self.response)
-        self.assertEqual(result, self.sot)
+        sot._translate_response.assert_called_once_with(self.response)
+        self.assertEqual(result, sot)
 
-    def test_create_with_id(self):
-        self._test_create(requires_id=True, prepend_key=True)
+    def test_put_create(self):
+        class Test(resource2.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_create = True
+            put_create = True
 
-    def test_create_without_id(self):
-        self._test_create(requires_id=False, prepend_key=True)
+        self._test_create(Test, requires_id=True, prepend_key=True)
+
+    def test_post_create(self):
+        class Test(resource2.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_create = True
+            put_create = False
+
+        self._test_create(Test, requires_id=False, prepend_key=True)
 
     def test_get(self):
         result = self.sot.get(self.session)
