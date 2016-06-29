@@ -20,6 +20,7 @@ Network Resources
    v2/pool_member
    v2/port
    v2/quota
+   v2/rbac_policy
    v2/router
    v2/security_group
    v2/security_group_rule

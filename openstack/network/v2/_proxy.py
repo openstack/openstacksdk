@@ -26,6 +26,7 @@ from openstack.network.v2 import pool as _pool
 from openstack.network.v2 import pool_member as _pool_member
 from openstack.network.v2 import port as _port
 from openstack.network.v2 import quota as _quota
+from openstack.network.v2 import rbac_policy as _rbac_policy
 from openstack.network.v2 import router as _router
 from openstack.network.v2 import security_group as _security_group
 from openstack.network.v2 import security_group_rule as _security_group_rule
@@ -1198,6 +1199,91 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.quota.Quota`
         """
         return self._update(_quota.Quota, quota, **attrs)
+
+    def create_rbac_policy(self, **attrs):
+        """Create a new RBAC policy from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.rbac_policy.RBACPolicy`,
+            comprised of the properties on the RBACPolicy class.
+
+        :return: The results of RBAC policy creation
+        :rtype: :class:`~openstack.network.v2.rbac_policy.RBACPolicy`
+        """
+        return self._create(_rbac_policy.RBACPolicy, **attrs)
+
+    def delete_rbac_policy(self, rbac_policy, ignore_missing=True):
+        """Delete a RBAC policy
+
+        :param rbac_policy: The value can be either the ID of a RBAC policy or
+            a :class:`~openstack.network.v2.rbac_policy.RBACPolicy` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the RBAC policy does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent RBAC policy.
+
+        :returns: ``None``
+        """
+        self._delete(_rbac_policy.RBACPolicy, rbac_policy,
+                     ignore_missing=ignore_missing)
+
+    def find_rbac_policy(self, id, ignore_missing=True):
+        """Find a single RBAC policy
+
+        :param id: The ID of a RBAC policy.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :returns: One
+            :class:`~openstack.network.v2.rbac_policy.RBACPolicy` or None
+        """
+        return self._find(_rbac_policy.RBACPolicy, id,
+                          ignore_missing=ignore_missing)
+
+    def get_rbac_policy(self, rbac_policy):
+        """Get a single RBAC policy
+
+        :param rbac_policy: The value can be the ID of a RBAC policy or a
+            :class:`~openstack.network.v2.rbac_policy.RBACPolicy` instance.
+
+        :returns: One :class:`~openstack.network.v2.rbac_policy.RBACPolicy`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_rbac_policy.RBACPolicy, rbac_policy)
+
+    def rbac_policies(self, **query):
+        """Return a generator of RBAC policies
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+            the resources being returned. Available parameters include:
+
+            * tenant_id: The owner tenant ID.
+            * target_tenant: ID of the tenant to which the RBAC policy
+                will be enforced.
+            * object_type: Type of the object that RBAC policy affects.
+            * action: Action for the RBAC policy.
+
+        :returns: A generator of rbac objects
+        :rtype: :class:`~openstack.network.v2.rbac_policy.RBACPolicy`
+        """
+        return self._list(_rbac_policy.RBACPolicy, paginated=False, **query)
+
+    def update_rbac_policy(self, rbac_policy, **attrs):
+        """Update a RBAC policy
+
+        :param rbac_policy: Either the id of a RBAC policy or a
+            :class:`~openstack.network.v2.rbac_policy.RBACPolicy` instance.
+        :attrs kwargs: The attributes to update on the RBAC policy represented
+            by ``value``.
+
+        :returns: The updated RBAC policy
+        :rtype: :class:`~openstack.network.v2.rbac_policy.RBACPolicy`
+        """
+        return self._update(_rbac_policy.RBACPolicy, rbac_policy, **attrs)
 
     def create_router(self, **attrs):
         """Create a new router from attributes
