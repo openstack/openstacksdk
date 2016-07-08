@@ -391,6 +391,13 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_quota_get(self):
         self.verify_get(self.proxy.get_quota, quota.Quota)
 
+    def test_quota_default_get(self):
+        self.verify_get(self.proxy.get_quota_default, quota.QuotaDefault,
+                        value=[mock.sentinel.project_id],
+                        expected_args=[quota.QuotaDefault],
+                        expected_kwargs={"path_args": {
+                            "project": mock.sentinel.project_id}})
+
     def test_quotas(self):
         self.verify_list(self.proxy.quotas, quota.Quota, paginated=False)
 

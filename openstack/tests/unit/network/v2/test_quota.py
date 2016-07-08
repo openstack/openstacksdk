@@ -66,3 +66,37 @@ class TestQuota(testtools.TestCase):
         self.assertEqual(EXAMPLE['loadbalancer'], sot.load_balancers)
         self.assertEqual(EXAMPLE['l7policy'], sot.l7_policies)
         self.assertEqual(EXAMPLE['pool'], sot.pools)
+
+
+class TestQuotaDefault(testtools.TestCase):
+
+    def test_basic(self):
+        default = quota.QuotaDefault()
+        self.assertEqual('quota', default.resource_key)
+        self.assertEqual('quotas', default.resources_key)
+        self.assertEqual('/quotas/%(project)s/default', default.base_path)
+        self.assertEqual('network', default.service.service_type)
+        self.assertFalse(default.allow_create)
+        self.assertTrue(default.allow_retrieve)
+        self.assertFalse(default.allow_update)
+        self.assertFalse(default.allow_delete)
+        self.assertFalse(default.allow_list)
+
+    def test_make_it(self):
+        default = quota.Quota(EXAMPLE)
+        self.assertEqual(EXAMPLE['floatingip'], default.floating_ips)
+        self.assertEqual(EXAMPLE['network'], default.networks)
+        self.assertEqual(EXAMPLE['port'], default.ports)
+        self.assertEqual(EXAMPLE['tenant_id'], default.project_id)
+        self.assertEqual(EXAMPLE['router'], default.routers)
+        self.assertEqual(EXAMPLE['subnet'], default.subnets)
+        self.assertEqual(EXAMPLE['subnetpool'], default.subnet_pools)
+        self.assertEqual(EXAMPLE['security_group_rule'],
+                         default.security_group_rules)
+        self.assertEqual(EXAMPLE['security_group'], default.security_groups)
+        self.assertEqual(EXAMPLE['rbac_policy'], default.rbac_policies)
+        self.assertEqual(EXAMPLE['healthmonitor'], default.health_monitors)
+        self.assertEqual(EXAMPLE['listener'], default.listeners)
+        self.assertEqual(EXAMPLE['loadbalancer'], default.load_balancers)
+        self.assertEqual(EXAMPLE['l7policy'], default.l7_policies)
+        self.assertEqual(EXAMPLE['pool'], default.pools)

@@ -1174,6 +1174,22 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(_quota.Quota, quota)
 
+    def get_quota_default(self, quota):
+        """Get a default quota
+
+        :param quota: The value can be the ID of a default quota or a
+                      :class:`~openstack.network.v2.quota.QuotaDefault`
+                      instance. The ID of a default quota is the same
+                      as the project ID for the default quota.
+
+        :returns: One :class:`~openstack.network.v2.quota.QuotaDefault`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        project_id = resource.Resource.get_id(quota)
+        return self._get(_quota.QuotaDefault,
+                         path_args={'project': project_id})
+
     def quotas(self, **query):
         """Return a generator of quotas
 

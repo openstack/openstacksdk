@@ -57,3 +57,13 @@ class Quota(resource.Resource):
     security_group_rules = resource.prop('security_group_rule', type=int)
     #: The maximum amount of security groups you can create. *Type: int*
     security_groups = resource.prop('security_group', type=int)
+
+
+class QuotaDefault(Quota):
+    base_path = '/quotas/%(project)s/default'
+
+    # capabilities
+    allow_retrieve = True
+    allow_update = False
+    allow_delete = False
+    allow_list = False
