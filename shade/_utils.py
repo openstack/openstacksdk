@@ -529,16 +529,19 @@ def valid_kwargs(*valid_args):
 
 
 def cache_on_arguments(*cache_on_args, **cache_on_kwargs):
+    _cache_name = cache_on_kwargs.pop('resource', None)
+
     def _inner_cache_on_arguments(func):
         def _cache_decorator(obj, *args, **kwargs):
-            the_method = obj._cache.cache_on_arguments(
+            the_method = obj._get_cache(_cache_name).cache_on_arguments(
                 *cache_on_args, **cache_on_kwargs)(
                     func.__get__(obj, type(obj)))
             return the_method(*args, **kwargs)
 
         def invalidate(obj, *args, **kwargs):
-            return obj._cache.cache_on_arguments()(func).invalidate(
-                *args, **kwargs)
+            return obj._get_cache(
+                _cache_name).cache_on_arguments()(func).invalidate(
+                    *args, **kwargs)
 
         _cache_decorator.invalidate = invalidate
         _cache_decorator.func = func
