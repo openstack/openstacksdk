@@ -5,6 +5,9 @@
       "auth_url": "https://identity1.citycloud.com:5000/v3/"
     },
     "regions": [
+      "Buf1",
+      "La1",
+      "Fra1",
       "Lon1",
       "Sto2",
       "Kna1"

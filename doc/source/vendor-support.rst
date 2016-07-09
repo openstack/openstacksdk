@@ -62,9 +62,12 @@ https://identity1.citycloud.com:5000/v3/
 ============== ================
 Region Name    Human Name
 ============== ================
+Buf1           Buffalo, NY
+Fra1           Frankfurt, DE
+Kna1           Karlskrona, SE
+La1            Los Angeles, CA
 Lon1           London, UK
 Sto2           Stockholm, SE
-Kna1           Karlskrona, SE
 ============== ================
 
 * Identity API Version is 3
