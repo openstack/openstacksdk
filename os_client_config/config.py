@@ -468,6 +468,12 @@ class OpenStackConfig(object):
             else:
                 profile_data = vendors.get_profile(profile_name)
                 if profile_data:
+                    status = profile_data.pop('status', 'active')
+                    message = profile_data.pop('message', '')
+                    if status == 'deprecated':
+                        warnings.warn(
+                            "{profile_name} is deprecated: {message}".format(
+                                profile_name=profile_name, message=message))
                     _auth_update(cloud, profile_data)
                 else:
                     # Can't find the requested vendor config, go about business
