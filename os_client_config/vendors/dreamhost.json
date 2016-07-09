@@ -1,6 +1,8 @@
 {
   "name": "dreamhost",
   "profile": {
+    "status": "deprecated",
+    "message": "The dreamhost profile is deprecated. Please use the dreamcompute profile instead",
     "auth": {
       "auth_url": "https://keystone.dream.io"
     },

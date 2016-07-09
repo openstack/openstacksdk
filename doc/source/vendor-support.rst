@@ -99,8 +99,25 @@ sal01          Manchester, UK
 
 * Image API Version is 1
 
+dreamcompute
+------------
+
+https://iad2.dream.io:5000
+
+============== ================
+Region Name    Human Name
+============== ================
+RegionOne      Region One
+============== ================
+
+* Identity API Version is 3
+* Images must be in `raw` format
+* IPv6 is provided to every server
+
 dreamhost
 ---------
+
+Deprecated, please use dreamcompute
 
 https://keystone.dream.io/v2.0
 
