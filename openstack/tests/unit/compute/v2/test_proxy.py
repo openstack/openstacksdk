@@ -64,9 +64,6 @@ class TestComputeProxy(test_proxy_base2.TestProxyBase):
                          method_kwargs={"details": False, "query": 1},
                          expected_kwargs={"query": 1})
 
-    def test_flavor_update(self):
-        self.verify_update(self.proxy.update_flavor, flavor.Flavor)
-
     def test_image_delete(self):
         self.verify_delete(self.proxy.delete_image, image.Image, False)
 

@@ -118,19 +118,6 @@ class Proxy(proxy2.BaseProxy):
         flv = _flavor.FlavorDetail if details else _flavor.Flavor
         return self._list(flv, paginated=True, **query)
 
-    def update_flavor(self, flavor, **attrs):
-        """Update a flavor
-
-        :param flavor: Either the ID of a flavor or a
-                      :class:`~openstack.compute.v2.flavor.Flavor` instance.
-        :attrs kwargs: The attributes to update on the flavor represented
-                       by ``value``.
-
-        :returns: The updated flavor
-        :rtype: :class:`~openstack.compute.v2.flavor.Flavor`
-        """
-        return self._update(_flavor.Flavor, flavor, **attrs)
-
     def delete_image(self, image, ignore_missing=True):
         """Delete an image
 

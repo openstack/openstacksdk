@@ -23,7 +23,6 @@ class Flavor(resource2.Resource):
     # capabilities
     allow_create = True
     allow_get = True
-    allow_update = True
     allow_delete = True
     allow_list = True
 
