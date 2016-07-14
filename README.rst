@@ -1,7 +1,7 @@
 Introduction
 ============
 
-shade is a simple client library for operating OpenStack clouds. The
+shade is a simple client library for interacting with OpenStack clouds. The
 key word here is *simple*. Clouds can do many many many things - but there are
 probably only about 10 of them that most people care about with any
 regularity. If you want to do complicated things, you should probably use
