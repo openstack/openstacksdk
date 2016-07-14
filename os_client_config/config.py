@@ -474,6 +474,11 @@ class OpenStackConfig(object):
                         warnings.warn(
                             "{profile_name} is deprecated: {message}".format(
                                 profile_name=profile_name, message=message))
+                    elif status == 'shutdown':
+                        raise exceptions.OpenStackConfigException(
+                            "{profile_name} references a cloud that no longer"
+                            " exists: {message}".format(
+                                profile_name=profile_name, message=message))
                     _auth_update(cloud, profile_data)
                 else:
                     # Can't find the requested vendor config, go about business
