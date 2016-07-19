@@ -2104,3 +2104,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.neutron_exceptions("network client call failed"):
             return self.manager.submitTask(
                 _tasks.NeutronQuotasDelete(tenant_id=proj.id))
+
+    def list_magnum_services(self):
+        """List all Magnum services.
+        :returns: a list of dicts containing the service details.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        with _utils.shade_exceptions("Error fetching Magnum services list"):
+            return self.manager.submitTask(
+                _tasks.MagnumServicesList())

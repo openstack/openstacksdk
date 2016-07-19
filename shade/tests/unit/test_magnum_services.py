@@ -35,7 +35,7 @@ class TestMagnumServices(base.TestCase):
 
     def setUp(self):
         super(TestMagnumServices, self).setUp()
-        self.cloud = shade.openstack_cloud(validate=False)
+        self.cloud = shade.operator_cloud(validate=False)
 
     @mock.patch.object(shade.OpenStackCloud, 'magnum_client')
     def test_list_magnum_services(self, mock_magnum):
