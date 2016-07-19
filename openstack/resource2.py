@@ -526,12 +526,13 @@ class Resource(object):
         self._translate_response(response)
         return self
 
-    def get(self, session):
+    def get(self, session, requires_id=True):
         """Get a remote resource based on this instance.
 
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
-
+        :param boolean requires_id: A boolean indicating whether resource ID
+                                    should be part of the requested URI.
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
                  :data:`Resource.allow_get` is not set to ``True``.
@@ -539,8 +540,7 @@ class Resource(object):
         if not self.allow_get:
             raise exceptions.MethodNotSupported(self, "get")
 
-        request = self._prepare_request()
-
+        request = self._prepare_request(requires_id=requires_id)
         response = session.get(request.uri, endpoint_filter=self.service)
 
         self._translate_response(response)

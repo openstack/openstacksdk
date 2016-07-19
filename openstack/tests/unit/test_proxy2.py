@@ -290,7 +290,7 @@ class TestProxyGet(testtools.TestCase):
     def test_get_resource(self):
         rv = self.sot._get(RetrieveableResource, self.res)
 
-        self.res.get.assert_called_with(self.session)
+        self.res.get.assert_called_with(self.session, requires_id=True)
         self.assertEqual(rv, self.fake_result)
 
     def test_get_resource_with_args(self):
@@ -298,14 +298,14 @@ class TestProxyGet(testtools.TestCase):
         rv = self.sot._get(RetrieveableResource, self.res, **args)
 
         self.res._update.assert_called_once_with(**args)
-        self.res.get.assert_called_with(self.session)
+        self.res.get.assert_called_with(self.session, requires_id=True)
         self.assertEqual(rv, self.fake_result)
 
     def test_get_id(self):
         rv = self.sot._get(RetrieveableResource, self.fake_id)
 
         RetrieveableResource.new.assert_called_with(id=self.fake_id)
-        self.res.get.assert_called_with(self.session)
+        self.res.get.assert_called_with(self.session, requires_id=True)
         self.assertEqual(rv, self.fake_result)
 
     def test_get_not_found(self):
