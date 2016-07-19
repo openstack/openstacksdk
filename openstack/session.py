@@ -28,6 +28,7 @@ from six.moves.urllib import parse
 
 DEFAULT_USER_AGENT = "openstacksdk/%s" % openstack_version.__version__
 VERSION_PATTERN = re.compile('/v\d[\d.]*')
+API_REQUEST_HEADER = "openstack-api-version"
 
 
 def parse_url(filt, url):
@@ -89,9 +90,33 @@ class Session(_session.Session):
             self.user_agent = "%s %s" % (user_agent, DEFAULT_USER_AGENT)
         else:
             self.user_agent = DEFAULT_USER_AGENT
-        super(Session, self).__init__(user_agent=self.user_agent, **kwargs)
 
         self.profile = profile
+        api_version_header = self._get_api_requests()
+        super(Session, self).__init__(user_agent=self.user_agent,
+                                      additional_headers=api_version_header,
+                                      **kwargs)
+
+    def _get_api_requests(self):
+        """Get API micro-version requests.
+
+        :param profile: A profile object that contains customizations about
+                        service name, region, version, interface or
+                        api_version.
+        :return: A standard header string if there is any specialization in
+                 API microversion, or None if no such request exists.
+        """
+        if self.profile is None:
+            return None
+
+        req = []
+        for svc in self.profile.get_services():
+            if svc.service_type and svc.api_version:
+                req.append(" ".join([svc.service_type, svc.api_version]))
+        if req:
+            return {API_REQUEST_HEADER: ",".join(req)}
+
+        return None
 
     def get_endpoint(self, auth=None, interface=None, **kwargs):
         """Override get endpoint to automate endpoint filtering"""
