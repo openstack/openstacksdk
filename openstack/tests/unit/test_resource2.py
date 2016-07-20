@@ -609,6 +609,125 @@ class TestResource(base.TestCase):
         value = "id"
         self.assertEqual(value, resource2.Resource._get_id(value))
 
+    def test_to_dict(self):
+
+        class Test(resource2.Resource):
+            foo = resource2.Header('foo')
+            bar = resource2.Body('bar')
+
+        res = Test(id='FAKE_ID')
+
+        expected = {
+            'id': 'FAKE_ID',
+            'name': None,
+            'location': None,
+            'foo': None,
+            'bar': None
+        }
+        self.assertEqual(expected, res.to_dict())
+
+    def test_to_dict_no_body(self):
+
+        class Test(resource2.Resource):
+            foo = resource2.Header('foo')
+            bar = resource2.Body('bar')
+
+        res = Test(id='FAKE_ID')
+
+        expected = {
+            'location': None,
+            'foo': None,
+        }
+        self.assertEqual(expected, res.to_dict(body=False))
+
+    def test_to_dict_no_header(self):
+
+        class Test(resource2.Resource):
+            foo = resource2.Header('foo')
+            bar = resource2.Body('bar')
+
+        res = Test(id='FAKE_ID')
+
+        expected = {
+            'id': 'FAKE_ID',
+            'name': None,
+            'bar': None
+        }
+        self.assertEqual(expected, res.to_dict(headers=False))
+
+    def test_to_dict_ignore_none(self):
+
+        class Test(resource2.Resource):
+            foo = resource2.Header('foo')
+            bar = resource2.Body('bar')
+
+        res = Test(id='FAKE_ID', bar='BAR')
+
+        expected = {
+            'id': 'FAKE_ID',
+            'bar': 'BAR',
+        }
+        self.assertEqual(expected, res.to_dict(ignore_none=True))
+
+    def test_to_dict_with_mro(self):
+
+        class Parent(resource2.Resource):
+            foo = resource2.Header('foo')
+            bar = resource2.Body('bar')
+
+        class Child(Parent):
+            foo_new = resource2.Header('foo_baz_server')
+            bar_new = resource2.Body('bar_baz_server')
+
+        res = Child(id='FAKE_ID')
+
+        expected = {
+            'foo': None,
+            'bar': None,
+            'foo_new': None,
+            'bar_new': None,
+            'id': 'FAKE_ID',
+            'location': None,
+            'name': None
+        }
+        self.assertEqual(expected, res.to_dict())
+
+    def test_to_dict_value_error(self):
+
+        class Test(resource2.Resource):
+            foo = resource2.Header('foo')
+            bar = resource2.Body('bar')
+
+        res = Test(id='FAKE_ID')
+
+        err = self.assertRaises(ValueError,
+                                res.to_dict, body=False, headers=False)
+        self.assertEqual('At least one of `body` or `headers` must be True',
+                         six.text_type(err))
+
+    def test_to_dict_with_mro_no_override(self):
+
+        class Parent(resource2.Resource):
+            header = resource2.Header('HEADER')
+            body = resource2.Body('BODY')
+
+        class Child(Parent):
+            # The following two properties are not supposed to be overridden
+            # by the parent class property values.
+            header = resource2.Header('ANOTHER_HEADER')
+            body = resource2.Body('ANOTHER_BODY')
+
+        res = Child(id='FAKE_ID', body='BODY_VALUE', header='HEADER_VALUE')
+
+        expected = {
+            'body': 'BODY_VALUE',
+            'header': 'HEADER_VALUE',
+            'id': 'FAKE_ID',
+            'location': None,
+            'name': None
+        }
+        self.assertEqual(expected, res.to_dict())
+
     def test_new(self):
         class Test(resource2.Resource):
             attr = resource2.Body("attr")

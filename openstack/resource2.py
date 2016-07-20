@@ -432,6 +432,53 @@ class Resource(object):
         """
         return cls(synchronized=True, **kwargs)
 
+    def to_dict(self, body=True, headers=True, ignore_none=False):
+        """Return a dictionary of this resource's contents
+
+        :param bool body: Include the :class:`~openstack.resource2.Body`
+                          attributes in the returned dictionary.
+        :param bool headers: Include the :class:`~openstack.resource2.Header`
+                             attributes in the returned dictionary.
+        :param bool ignore_none: When True, exclude key/value pairs where
+                                 the value is None. This will exclude
+                                 attributes that the server hasn't returned.
+
+        :return: A dictionary of key/value pairs where keys are named
+                 as they exist as attributes of this class.
+        """
+        mapping = {}
+
+        components = []
+        if body:
+            components.append(Body)
+        if headers:
+            components.append(Header)
+        if not components:
+            raise ValueError(
+                "At least one of `body` or `headers` must be True")
+
+        # isinstance stricly requires this to be a tuple
+        components = tuple(components)
+
+        # NOTE: This is similar to the implementation in _get_mapping
+        # but is slightly different in that we're looking at an instance
+        # and we're mapping names on this class to their actual stored
+        # values.
+        # Since we're looking at class definitions we need to include
+        # subclasses, so check the whole MRO.
+        for klass in self.__class__.__mro__:
+            for key, value in klass.__dict__.items():
+                if isinstance(value, components):
+                    # Make sure base classes don't end up overwriting
+                    # mappings we've found previously in subclasses.
+                    if key not in mapping:
+                        value = getattr(self, key, None)
+                        if ignore_none and value is None:
+                            continue
+                        mapping[key] = value
+
+        return mapping
+
     def _prepare_request(self, requires_id=True, prepend_key=False):
         """Prepare a request to be sent to the server
 
