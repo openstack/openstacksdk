@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.cluster import cluster_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class BuildInfo(resource.Resource):
@@ -20,8 +20,10 @@ class BuildInfo(resource.Resource):
     service = cluster_service.ClusterService()
 
     # Capabilities
-    allow_retrieve = True
+    allow_get = True
 
     # Properties
-    api = resource.prop('api')
-    engine = resource.prop('engine')
+    #: String representation of the API build version
+    api = resource.Body('api')
+    #: String representation of the engine build version
+    engine = resource.Body('engine')

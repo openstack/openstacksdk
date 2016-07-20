@@ -27,16 +27,15 @@ class TestProfileType(testtools.TestCase):
 
     def test_basic(self):
         sot = profile_type.ProfileType()
-        self.assertEqual('name', sot.id_attribute)
         self.assertEqual('profile_type', sot.resource_key)
         self.assertEqual('profile_types', sot.resources_key)
         self.assertEqual('/profile-types', sot.base_path)
         self.assertEqual('clustering', sot.service.service_type)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_list)
 
     def test_instantiate(self):
-        sot = profile_type.ProfileType(FAKE)
-        self.assertEqual(FAKE['name'], sot.id)
+        sot = profile_type.ProfileType(**FAKE)
+        self.assertEqual(FAKE['name'], sot._get_id(sot))
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['schema'], sot.schema)

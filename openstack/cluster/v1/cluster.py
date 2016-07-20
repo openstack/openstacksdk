@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.cluster import cluster_service
-from openstack import resource
+from openstack import resource2 as resource
 from openstack import utils
 
 
@@ -23,59 +23,62 @@ class Cluster(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
     patch_update = True
 
+    _query_mapping = resource.QueryParameters(
+        'name', 'status', 'sort', 'global_project')
+
     # Properties
     #: The name of the cluster.
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: The ID of the profile used by this cluster.
-    profile_id = resource.prop('profile_id')
+    profile_id = resource.Body('profile_id')
     #: The ID of the user who created this cluster, thus the owner of it.
-    user_id = resource.prop('user')
+    user_id = resource.Body('user')
     #: The ID of the project this cluster belongs to.
-    project_id = resource.prop('project')
+    project_id = resource.Body('project')
     #: The domain ID of the cluster owner.
-    domain_id = resource.prop('domain')
+    domain_id = resource.Body('domain')
     #: The ID of the parent cluster (if any).
-    parent_id = resource.prop('parent')
+    parent_id = resource.Body('parent')
     #: Timestamp of when the cluster was initialized.
     #: *Type: datetime object parsed from ISO 8601 formatted string*
-    init_at = resource.prop('init_at')
+    init_at = resource.Body('init_at')
     #: Timestamp of when the cluster was created.
     #: *Type: datetime object parsed from ISO 8601 formatted string*
-    created_at = resource.prop('created_at')
+    created_at = resource.Body('created_at')
     #: Timestamp of when the cluster was last updated.
     #: *Type: datetime object parsed from ISO 8601 formatted string*
-    updated_at = resource.prop('updated_at')
+    updated_at = resource.Body('updated_at')
     #: Lower bound (inclusive) for the size of the cluster.
-    min_size = resource.prop('min_size', type=int)
+    min_size = resource.Body('min_size', type=int)
     #: Upper bound (inclusive) for the size of the cluster. A value of
     #: -1 indicates that there is no upper limit of cluster size.
-    max_size = resource.prop('max_size', type=int)
+    max_size = resource.Body('max_size', type=int)
     #: Desired capacity for the cluster. A cluster would be created at the
     #: scale specified by this value.
-    desired_capacity = resource.prop('desired_capacity', type=int)
+    desired_capacity = resource.Body('desired_capacity', type=int)
     #: Default timeout (in seconds) for cluster operations.
-    timeout = resource.prop('timeout')
+    timeout = resource.Body('timeout')
     #: A string representation of the cluster status.
-    status = resource.prop('status')
+    status = resource.Body('status')
     #: A string describing the reason why the cluster in current status.
-    status_reason = resource.prop('status_reason')
+    status_reason = resource.Body('status_reason')
     #: A collection of key-value pairs that are attached to the cluster.
-    metadata = resource.prop('metadata', type=dict)
+    metadata = resource.Body('metadata', type=dict)
     #: A dictionary with some runtime data associated with the cluster.
-    data = resource.prop('data', type=dict)
+    data = resource.Body('data', type=dict)
     #: A list IDs of nodes that are members of the cluster.
-    node_ids = resource.prop('nodes')
+    node_ids = resource.Body('nodes')
     #: Name of the profile used by the cluster.
-    profile_name = resource.prop('profile_name')
+    profile_name = resource.Body('profile_name')
 
     def action(self, session, body):
-        url = utils.urljoin(self.base_path, self.id, 'actions')
+        url = utils.urljoin(self.base_path, self._get_id(self), 'actions')
         resp = session.post(url, endpoint_filter=self.service, json=body)
         return resp.json()
 
@@ -152,17 +155,3 @@ class Cluster(resource.Resource):
             'recover': params
         }
         return self.action(session, body)
-
-    def delete(self, session):
-        """Delete the remote resource associated with this instance.
-
-        :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
-
-        :returns: The instance of the Cluster which was deleted.
-        :rtype: :class:`~openstack.cluster.v1.cluster.Cluster`.
-        """
-        url = self._get_url(self, self.id)
-        resp = session.delete(url, endpoint_filter=self.service)
-        self.location = resp.headers['location']
-        return self

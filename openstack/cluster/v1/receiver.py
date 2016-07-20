@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.cluster import cluster_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Receiver(resource.Resource):
@@ -22,34 +22,37 @@ class Receiver(resource.Resource):
 
     # Capabilities
     allow_list = True
-    allow_retrieve = True
+    allow_get = True
     allow_create = True
     allow_delete = True
 
+    _query_mapping = resource.QueryParameters(
+        'name', 'type', 'cluster_id', 'action', 'sort', 'global_project')
+
     # Properties
     #: The name of the receiver.
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: The type of the receiver.
-    type = resource.prop('type')
+    type = resource.Body('type')
     #: The ID of the user who created the receiver, thus the owner of it.
-    user_id = resource.prop('user')
+    user_id = resource.Body('user')
     #: The ID of the project this receiver belongs to.
-    project_id = resource.prop('project')
+    project_id = resource.Body('project')
     #: The domain ID of the receiver.
-    domain_id = resource.prop('domain')
+    domain_id = resource.Body('domain')
     #: The ID of the targeted cluster.
-    cluster_id = resource.prop('cluster_id')
+    cluster_id = resource.Body('cluster_id')
     #: The name of the targeted action.
-    action = resource.prop('action')
+    action = resource.Body('action')
     #: Timestamp of when the receiver was created.
-    created_at = resource.prop('created_at')
+    created_at = resource.Body('created_at')
     #: Timestamp of when the receiver was last updated.
-    updated_at = resource.prop('updated_at')
+    updated_at = resource.Body('updated_at')
     #: The credential of the impersonated user.
-    actor = resource.prop('actor', type=dict)
+    actor = resource.Body('actor', type=dict)
     #: A dictionary containing key-value pairs that are provided to the
     #: targeted action.
-    params = resource.prop('params', type=dict)
+    params = resource.Body('params', type=dict)
     #: The information about the channel through which you can trigger the
     #: receiver hence the associated action.
-    channel = resource.prop('channel', type=dict)
+    channel = resource.Body('channel', type=dict)

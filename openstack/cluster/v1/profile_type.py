@@ -11,11 +11,10 @@
 # under the License.
 
 from openstack.cluster import cluster_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class ProfileType(resource.Resource):
-    id_attribute = 'name'
     resource_key = 'profile_type'
     resources_key = 'profile_types'
     base_path = '/profile-types'
@@ -23,10 +22,10 @@ class ProfileType(resource.Resource):
 
     # Capabilities
     allow_list = True
-    allow_retrieve = True
+    allow_get = True
 
     # Properties
     #: Name of the profile type.
-    name = resource.prop('name')
+    name = resource.Body('name', alternate_id=True)
     #: The schema of the profile type.
-    schema = resource.prop('schema')
+    schema = resource.Body('schema')

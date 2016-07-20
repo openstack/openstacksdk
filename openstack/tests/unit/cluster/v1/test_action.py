@@ -19,6 +19,7 @@ FAKE_ID = '633bd3c6-520b-420f-8e6a-dc2a47022b53'
 FAKE_NAME = 'node_create_c3783474'
 
 FAKE = {
+    'id': FAKE_ID,
     'name': FAKE_NAME,
     'target': 'c378e474-d091-43a3-b083-e19719291358',
     'action': 'NODE_CREATE',
@@ -50,12 +51,12 @@ class TestAction(testtools.TestCase):
         self.assertEqual('actions', sot.resources_key)
         self.assertEqual('/actions', sot.base_path)
         self.assertEqual('clustering', sot.service.service_type)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_list)
 
     def test_instantiate(self):
-        sot = action.Action(FAKE)
-        self.assertIsNone(sot.id)
+        sot = action.Action(**FAKE)
+        self.assertEqual(FAKE['id'], sot.id)
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['target'], sot.target_id)
         self.assertEqual(FAKE['action'], sot.action)

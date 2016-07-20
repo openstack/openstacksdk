@@ -18,10 +18,8 @@ from openstack.cluster.v1 import event
 FAKE = {
     'action': 'NODE_CREATE',
     'cluster_id': None,
-    'deleted_time': None,
     'id': 'ffaed25e-46f5-4089-8e20-b3b4722fd597',
     'level': '20',
-    'metadata': {},
     'oid': 'efff1c11-2ada-47da-bedd-2c9af4fd099a',
     'oname': 'node_create_b4a49016',
     'otype': 'NODEACTION',
@@ -44,17 +42,15 @@ class TestEvent(testtools.TestCase):
         self.assertEqual('events', sot.resources_key)
         self.assertEqual('/events', sot.base_path)
         self.assertEqual('clustering', sot.service.service_type)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_list)
 
     def test_instantiate(self):
-        sot = event.Event(FAKE)
+        sot = event.Event(**FAKE)
         self.assertEqual(FAKE['id'], sot.id)
         self.assertEqual(FAKE['action'], sot.action)
         self.assertEqual(FAKE['cluster_id'], sot.cluster_id)
-        self.assertEqual(FAKE['deleted_time'], sot.deleted_time)
         self.assertEqual(FAKE['level'], sot.level)
-        self.assertEqual(FAKE['metadata'], sot.metadata)
         self.assertEqual(FAKE['oid'], sot.obj_id)
         self.assertEqual(FAKE['oname'], sot.obj_name)
         self.assertEqual(FAKE['otype'], sot.obj_type)

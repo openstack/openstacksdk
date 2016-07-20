@@ -27,16 +27,15 @@ class TestPolicyType(testtools.TestCase):
 
     def test_basic(self):
         sot = policy_type.PolicyType()
-        self.assertEqual('name', sot.id_attribute)
         self.assertEqual('policy_type', sot.resource_key)
         self.assertEqual('policy_types', sot.resources_key)
         self.assertEqual('/policy-types', sot.base_path)
         self.assertEqual('clustering', sot.service.service_type)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_list)
 
     def test_instantiate(self):
-        sot = policy_type.PolicyType(FAKE)
-        self.assertEqual(FAKE['name'], sot.id)
+        sot = policy_type.PolicyType(**FAKE)
+        self.assertEqual(FAKE['name'], sot._get_id(sot))
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['schema'], sot.schema)

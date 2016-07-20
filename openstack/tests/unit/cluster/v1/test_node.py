@@ -56,9 +56,6 @@ FAKE_CREATE_RESP = {
 
 class TestNode(testtools.TestCase):
 
-    def setUp(self):
-        super(TestNode, self).setUp()
-
     def test_basic(self):
         sot = node.Node()
         self.assertEqual('node', sot.resource_key)
@@ -66,13 +63,13 @@ class TestNode(testtools.TestCase):
         self.assertEqual('/nodes', sot.base_path)
         self.assertEqual('clustering', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_instantiate(self):
-        sot = node.Node(FAKE)
+        sot = node.Node(**FAKE)
         self.assertEqual(FAKE['id'], sot.id)
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['profile_id'], sot.profile_id)
@@ -86,8 +83,7 @@ class TestNode(testtools.TestCase):
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
 
     def test_check(self):
-        sot = node.Node(FAKE)
-        sot['id'] = 'IDENTIFIER'
+        sot = node.Node(**FAKE)
 
         resp = mock.Mock()
         resp.json = {'action': '1234-5678-abcd'}
@@ -100,8 +96,7 @@ class TestNode(testtools.TestCase):
                                           json=body)
 
     def test_recover(self):
-        sot = node.Node(FAKE)
-        sot['id'] = 'IDENTIFIER'
+        sot = node.Node(**FAKE)
 
         resp = mock.Mock()
         resp.json = {'action': '2345-6789-bbbb'}
@@ -113,13 +108,14 @@ class TestNode(testtools.TestCase):
         sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
                                           json=body)
 
-    def test_node_delete(self):
-        sot = node.Node(FAKE)
-        sot['id'] = 'IDENTIFIER'
-        url = 'nodes/%s' % sot.id
-        resp = mock.Mock(headers={'location': 'actions/fake_action'})
-        sess = mock.Mock()
-        sess.delete = mock.Mock(return_value=resp)
-        nod = sot.delete(sess)
-        self.assertEqual('actions/fake_action', nod.location)
-        sess.delete.assert_called_once_with(url, endpoint_filter=sot.service)
+
+class TestNodeDetail(testtools.TestCase):
+
+    def test_basic(self):
+        sot = node.NodeDetail()
+        self.assertEqual('/nodes/%(node_id)s?show_details=True', sot.base_path)
+        self.assertFalse(sot.allow_create)
+        self.assertTrue(sot.allow_get)
+        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_delete)
+        self.assertFalse(sot.allow_list)
