@@ -76,7 +76,7 @@ class Limits(resource2.Resource):
     absolute = resource2.Body("absolute", type=AbsoluteLimits)
     rate = resource2.Body("rate", type=list)
 
-    def get(self, session):
+    def get(self, session, requires_id=False):
         """Get the Limits resource.
 
         :param session: The session to use for making this request.
