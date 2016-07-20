@@ -92,7 +92,7 @@ class Limits(resource2.Resource):
         body = response.json()
         body = body[self.resource_key]
 
-        absolute_body = self._transpose_component(
+        absolute_body = self._filter_component(
             body["absolute"], AbsoluteLimits._body_mapping())
         self.absolute = AbsoluteLimits.existing(**absolute_body)
 
@@ -100,8 +100,8 @@ class Limits(resource2.Resource):
 
         rates = []
         for rate_body in rates_body:
-            rate_body = self._transpose_component(rate_body,
-                                                  RateLimit._body_mapping())
+            rate_body = self._filter_component(rate_body,
+                                               RateLimit._body_mapping())
             rates.append(RateLimit(**rate_body))
 
         self.rate = rates
