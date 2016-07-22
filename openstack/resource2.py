@@ -463,18 +463,13 @@ class Resource(object):
 
         return _Request(uri, body, headers)
 
-    def _transpose_component(self, component, mapping):
-        """Transpose the keys in component based on a mapping
+    def _filter_component(self, component, mapping):
+        """Filter the keys in component based on a mapping
 
-        This method converts a dict of server-side data to have
-        the appropriate keys for attributes on this instance.
+        This method converts a dict of server-side data to contain
+        only the appropriate keys for attributes on this instance.
         """
-        result = {}
-        for key, value in mapping.items():
-            if value in component:
-                result[key] = component[value]
-
-        return result
+        return {k: v for k, v in component.items() if k in mapping.values()}
 
     def _translate_response(self, response, has_body=True):
         """Given a KSA response, inflate this instance with its data
@@ -490,12 +485,12 @@ class Resource(object):
             if self.resource_key and self.resource_key in body:
                 body = body[self.resource_key]
 
-            body = self._transpose_component(body, self._body_mapping())
+            body = self._filter_component(body, self._body_mapping())
             self._body.attributes.update(body)
             self._body.clean()
 
-        headers = self._transpose_component(response.headers,
-                                            self._header_mapping())
+        headers = self._filter_component(response.headers,
+                                         self._header_mapping())
         self._header.attributes.update(headers)
         self._header.clean()
 

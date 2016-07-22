@@ -668,19 +668,20 @@ class TestResource(base.TestCase):
         self.assertEqual({key: {"x": body_value}}, result.body)
         self.assertEqual({"y": header_value}, result.headers)
 
-    def test__transpose_component(self):
+    def test__filter_component(self):
         client_name = "client_name"
         server_name = "serverName"
         value = "value"
         # Include something in the mapping that we don't receive
         # so the branch that looks at existence in the compoment is checked.
         mapping = {client_name: server_name, "other": "blah"}
-        component = {server_name: value}
+        component = {server_name: value, "something": "else"}
 
         sot = resource2.Resource()
-        result = sot._transpose_component(component, mapping)
+        result = sot._filter_component(component, mapping)
 
-        self.assertEqual({client_name: value}, result)
+        # The something:else mapping should not make it into here.
+        self.assertEqual({server_name: value}, result)
 
     def test__translate_response_no_body(self):
         class Test(resource2.Resource):
@@ -690,7 +691,7 @@ class TestResource(base.TestCase):
         response.headers = dict()
 
         sot = Test()
-        sot._transpose_component = mock.Mock(return_value={"attr": "value"})
+        sot._filter_component = mock.Mock(return_value={"attr": "value"})
 
         sot._translate_response(response, has_body=False)
 
@@ -707,7 +708,7 @@ class TestResource(base.TestCase):
         response.json.return_value = body
 
         sot = Test()
-        sot._transpose_component = mock.Mock(side_effect=[body, dict()])
+        sot._filter_component = mock.Mock(side_effect=[body, dict()])
 
         sot._translate_response(response, has_body=True)
 
@@ -728,7 +729,7 @@ class TestResource(base.TestCase):
         response.json.return_value = {key: body}
 
         sot = Test()
-        sot._transpose_component = mock.Mock(side_effect=[body, dict()])
+        sot._filter_component = mock.Mock(side_effect=[body, dict()])
 
         sot._translate_response(response, has_body=True)
 
