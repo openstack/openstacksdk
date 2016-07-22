@@ -573,14 +573,19 @@ class TestResource(base.TestCase):
 
     def test__alternate_id(self):
         class Test(resource2.Resource):
-            alt = resource2.Body("alt", alternate_id=True)
+            alt = resource2.Body("the_alt", alternate_id=True)
 
-        self.assertTrue("alt", Test._alternate_id())
+        self.assertTrue("the_alt", Test._alternate_id())
 
-        value = "lol"
-        sot = Test(alt=value)
-        self.assertEqual(sot.alt, value)
-        self.assertEqual(sot.id, value)
+        value1 = "lol"
+        sot = Test(alt=value1)
+        self.assertEqual(sot.alt, value1)
+        self.assertEqual(sot.id, value1)
+
+        value2 = "rofl"
+        sot = Test(the_alt=value2)
+        self.assertEqual(sot.alt, value2)
+        self.assertEqual(sot.id, value2)
 
     def test__get_id_instance(self):
         class Test(resource2.Resource):
