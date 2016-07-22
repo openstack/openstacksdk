@@ -40,9 +40,9 @@ class TestFlavor(testtools.TestCase):
         self.assertEqual('compute', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_get)
-        self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
+        self.assertFalse(sot.allow_update)
 
         self.assertDictEqual({"sort_key": "sort_key",
                               "sort_dir": "sort_dir",
