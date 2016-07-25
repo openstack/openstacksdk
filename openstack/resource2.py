@@ -386,10 +386,10 @@ class Resource(object):
         Returns an empty string if no name exists, as this method is
         consumed by _get_id and passed to getattr.
         """
-        for key, value in cls.__dict__.items():
+        for value in cls.__dict__.values():
             if isinstance(value, Body):
                 if value.alternate_id:
-                    return key
+                    return value.name
         return ""
 
     @staticmethod
