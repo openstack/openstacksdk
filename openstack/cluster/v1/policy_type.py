@@ -11,11 +11,10 @@
 # under the License.
 
 from openstack.cluster import cluster_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class PolicyType(resource.Resource):
-    id_attribute = 'name'
     resource_key = 'policy_type'
     resources_key = 'policy_types'
     base_path = '/policy-types'
@@ -23,10 +22,10 @@ class PolicyType(resource.Resource):
 
     # Capabilities
     allow_list = True
-    allow_retrieve = True
+    allow_get = True
 
     # Properties
     #: Name of policy type.
-    name = resource.prop('name')
+    name = resource.Body('name', alternate_id=True)
     #: The schema of the policy type.
-    schema = resource.prop('schema')
+    schema = resource.Body('schema')

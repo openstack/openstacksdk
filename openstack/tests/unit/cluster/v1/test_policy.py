@@ -19,6 +19,7 @@ FAKE_ID = 'ac5415bd-f522-4160-8be0-f8853e4bc332'
 FAKE_NAME = 'test_policy'
 
 FAKE = {
+    'id': FAKE_ID,
     'name': FAKE_NAME,
     'spec': {
         'type': 'senlin.policy.deletion',
@@ -49,14 +50,14 @@ class TestPolicy(testtools.TestCase):
         self.assertEqual('/policies', sot.base_path)
         self.assertEqual('clustering', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_instantiate(self):
-        sot = policy.Policy(FAKE)
-        self.assertIsNone(sot.id)
+        sot = policy.Policy(**FAKE)
+        self.assertEqual(FAKE['id'], sot.id)
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['spec'], sot.spec)
         self.assertEqual(FAKE['data'], sot.data)

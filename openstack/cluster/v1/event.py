@@ -12,7 +12,7 @@
 
 
 from openstack.cluster import cluster_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Event(resource.Resource):
@@ -23,29 +23,33 @@ class Event(resource.Resource):
 
     # Capabilities
     allow_list = True
-    allow_retrieve = True
+    allow_get = True
+
+    _query_mapping = resource.QueryParameters(
+        'oname', 'otype', 'oid', 'cluster_id', 'action', 'level',
+        'sort', 'global_project')
 
     # Properties
     #: Timestamp string (in ISO8601 format) when the event was generated.
-    generated_at = resource.prop('timestamp')
+    generated_at = resource.Body('timestamp')
     #: The UUID of the object related to this event.
-    obj_id = resource.prop('oid')
+    obj_id = resource.Body('oid')
     #: The name of the object related to this event.
-    obj_name = resource.prop('oname')
+    obj_name = resource.Body('oname')
     #: The type name of the object related to this event.
-    obj_type = resource.prop('otype')
+    obj_type = resource.Body('otype')
     #: The UUID of the cluster related to this event, if any.
-    cluster_id = resource.prop('cluster_id')
+    cluster_id = resource.Body('cluster_id')
     #: The event level (priority).
-    level = resource.prop('level')
+    level = resource.Body('level')
     #: The ID of the user.
-    user_id = resource.prop('user')
+    user_id = resource.Body('user')
     #: The ID of the project (tenant).
-    project_id = resource.prop('project')
+    project_id = resource.Body('project')
     #: The string representation of the action associated with the event.
-    action = resource.prop('action')
+    action = resource.Body('action')
     #: The status of the associated object.
-    status = resource.prop('status')
+    status = resource.Body('status')
     #: A string description of the reason that brought the object into its
     #: current status.
-    status_reason = resource.prop('status_reason')
+    status_reason = resource.Body('status_reason')

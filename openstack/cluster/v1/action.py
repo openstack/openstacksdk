@@ -12,7 +12,7 @@
 
 
 from openstack.cluster import cluster_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Action(resource.Resource):
@@ -23,41 +23,44 @@ class Action(resource.Resource):
 
     # Capabilities
     allow_list = True
-    allow_retrieve = True
+    allow_get = True
+
+    _query_mapping = resource.QueryParameters(
+        'name', 'target', 'action', 'status', 'sort', 'global_project')
 
     # Properties
     #: Name of the action.
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: ID of the target object, which can be a cluster or a node.
-    target_id = resource.prop('target')
+    target_id = resource.Body('target')
     #: Built-in type name of action.
-    action = resource.prop('action')
+    action = resource.Body('action')
     #: A string representation of the reason why the action was created.
-    cause = resource.prop('cause')
+    cause = resource.Body('cause')
     #: The owning engine that is currently running the action.
-    owner_id = resource.prop('owner')
+    owner_id = resource.Body('owner')
     #: Interval in seconds between two consecutive executions.
-    interval = resource.prop('interval')
+    interval = resource.Body('interval')
     #: The time the action was started.
-    start_at = resource.prop('start_time')
+    start_at = resource.Body('start_time')
     #: The time the action completed execution.
-    end_at = resource.prop('end_time')
+    end_at = resource.Body('end_time')
     #: The timeout in seconds.
-    timeout = resource.prop('timeout')
+    timeout = resource.Body('timeout')
     #: Current status of the action.
-    status = resource.prop('status')
+    status = resource.Body('status')
     #: A string describing the reason that brought the action to its current
     #  status.
-    status_reason = resource.prop('status_reason')
+    status_reason = resource.Body('status_reason')
     #: A dictionary containing the inputs to the action.
-    inputs = resource.prop('inputs', type=dict)
+    inputs = resource.Body('inputs', type=dict)
     #: A dictionary containing the outputs to the action.
-    outputs = resource.prop('outputs', type=dict)
+    outputs = resource.Body('outputs', type=dict)
     #: A list of actions that must finish before this action starts execution.
-    depends_on = resource.prop('depends_on', type=list)
+    depends_on = resource.Body('depends_on', type=list)
     #: A list of actions that can start only after this action has finished.
-    depended_by = resource.prop('depended_by', type=list)
+    depended_by = resource.Body('depended_by', type=list)
     #: Timestamp when the action is created.
-    created_at = resource.prop('created_at')
+    created_at = resource.Body('created_at')
     #: Timestamp when the action was last updated.
-    updated_at = resource.prop('updated_at')
+    updated_at = resource.Body('updated_at')

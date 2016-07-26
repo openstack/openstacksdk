@@ -50,14 +50,14 @@ class TestProfile(testtools.TestCase):
         self.assertEqual('/profiles', sot.base_path)
         self.assertEqual('clustering', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.patch_update)
 
     def test_instantiate(self):
-        sot = profile.Profile(FAKE)
+        sot = profile.Profile(**FAKE)
         self.assertEqual(FAKE['id'], sot.id)
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['metadata'], sot.metadata)

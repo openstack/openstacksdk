@@ -35,15 +35,14 @@ class TestClusterPolicy(testtools.TestCase):
         sot = cluster_policy.ClusterPolicy()
         self.assertEqual('cluster_policy', sot.resource_key)
         self.assertEqual('cluster_policies', sot.resources_key)
-        self.assertEqual('policy_id', sot.id_attribute)
         self.assertEqual('/clusters/%(cluster_id)s/policies',
                          sot.base_path)
         self.assertEqual('clustering', sot.service.service_type)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_list)
 
     def test_instantiate(self):
-        sot = cluster_policy.ClusterPolicy(FAKE)
+        sot = cluster_policy.ClusterPolicy(**FAKE)
         self.assertEqual(FAKE['policy_id'], sot.id)
         self.assertEqual(FAKE['cluster_id'], sot.cluster_id)
         self.assertEqual(FAKE['cluster_name'], sot.cluster_name)

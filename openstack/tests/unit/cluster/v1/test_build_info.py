@@ -35,10 +35,9 @@ class TestBuildInfo(testtools.TestCase):
         self.assertEqual('/build-info', sot.base_path)
         self.assertEqual('build_info', sot.resource_key)
         self.assertEqual('clustering', sot.service.service_type)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
 
     def test_instantiate(self):
-        sot = build_info.BuildInfo(FAKE)
-        self.assertIsNone(sot.id)
+        sot = build_info.BuildInfo(**FAKE)
         self.assertEqual(FAKE['api'], sot.api)
         self.assertEqual(FAKE['engine'], sot.engine)

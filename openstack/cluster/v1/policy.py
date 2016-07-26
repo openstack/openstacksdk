@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.cluster import cluster_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Policy(resource.Resource):
@@ -22,23 +22,26 @@ class Policy(resource.Resource):
 
     # Capabilities
     allow_list = True
-    allow_retrieve = True
+    allow_get = True
     allow_create = True
     allow_delete = True
     allow_update = True
 
     patch_update = True
 
+    _query_mapping = resource.QueryParameters(
+        'name', 'type', 'sort', 'global_project')
+
     # Properties
     #: The name of the policy.
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: The type name of the policy.
-    type = resource.prop('type')
+    type = resource.Body('type')
     #: The timestamp when the policy is created.
-    created_at = resource.prop('created_at')
+    created_at = resource.Body('created_at')
     #: The timestamp when the policy was last updated.
-    updated_at = resource.prop('updated_at')
+    updated_at = resource.Body('updated_at')
     #: The specification of the policy.
-    spec = resource.prop('spec', type=dict)
+    spec = resource.Body('spec', type=dict)
     #: A dictionary containing runtime data of the policy.
-    data = resource.prop('data', type=dict)
+    data = resource.Body('data', type=dict)

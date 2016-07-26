@@ -11,11 +11,10 @@
 # under the License.
 
 from openstack.cluster import cluster_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class ClusterPolicy(resource.Resource):
-    id_attribute = 'policy_id'
     resource_key = 'cluster_policy'
     resources_key = 'cluster_policies'
     base_path = '/clusters/%(cluster_id)s/policies'
@@ -23,20 +22,20 @@ class ClusterPolicy(resource.Resource):
 
     # Capabilities
     allow_list = True
-    allow_retrieve = True
+    allow_get = True
 
     # Properties
     #: ID of the policy object.
-    policy_id = resource.prop('policy_id')
+    policy_id = resource.Body('policy_id', alternate_id=True)
     #: Name of the policy object.
-    policy_name = resource.prop('policy_name')
+    policy_name = resource.Body('policy_name')
     #: ID of the cluster object.
-    cluster_id = resource.prop('cluster_id')
+    cluster_id = resource.URI('cluster_id')
     #: Name of the cluster object.
-    cluster_name = resource.prop('cluster_name')
+    cluster_name = resource.Body('cluster_name')
     #: Type string of the policy.
-    policy_type = resource.prop('policy_type')
+    policy_type = resource.Body('policy_type')
     #: Whether the policy is enabled on the cluster. *Type: bool*
-    is_enabled = resource.prop('enabled', type=bool)
+    is_enabled = resource.Body('enabled', type=bool)
     #: Data associated with the cluster-policy binding.
-    data = resource.prop('data', type=dict)
+    data = resource.Body('data', type=dict)

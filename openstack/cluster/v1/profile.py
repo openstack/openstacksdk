@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.cluster import cluster_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Profile(resource.Resource):
@@ -22,23 +22,26 @@ class Profile(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
     patch_update = True
 
-    # properties
+    _query_mapping = resource.QueryParameters(
+        'name', 'type', 'metadata')
+
+    # Bodyerties
     #: The name of the profile
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: The type of the profile.
-    type_name = resource.prop('type')
+    type_name = resource.Body('type')
     #: The spec of the profile.
-    spec = resource.prop('spec', type=dict)
+    spec = resource.Body('spec', type=dict)
     #: A collection of key-value pairs that are attached to the profile.
-    metadata = resource.prop('metadata', type=dict)
+    metadata = resource.Body('metadata', type=dict)
     #: Timestamp of when the profile was created.
-    created_at = resource.prop('created_at')
+    created_at = resource.Body('created_at')
     #: Timestamp of when the profile was last updated.
-    updated_at = resource.prop('updated_at')
+    updated_at = resource.Body('updated_at')

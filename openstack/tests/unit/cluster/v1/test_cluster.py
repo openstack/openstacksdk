@@ -20,6 +20,7 @@ FAKE_ID = '092d0955-2645-461a-b8fa-6a44655cdb2c'
 FAKE_NAME = 'test_cluster'
 
 FAKE = {
+    'id': 'IDENTIFIER',
     'desired_capacity': 1,
     'max_size': 3,
     'min_size': 0,
@@ -74,14 +75,15 @@ class TestCluster(testtools.TestCase):
         self.assertEqual('/clusters', sot.base_path)
         self.assertEqual('clustering', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_instantiate(self):
-        sot = cluster.Cluster(FAKE)
-        self.assertIsNone(sot.id)
+        sot = cluster.Cluster(**FAKE)
+
+        self.assertEqual(FAKE['id'], sot.id)
         self.assertEqual(FAKE['name'], sot.name)
 
         self.assertEqual(FAKE['profile_id'], sot.profile_id)
@@ -98,8 +100,7 @@ class TestCluster(testtools.TestCase):
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
 
     def test_scale_in(self):
-        sot = cluster.Cluster(FAKE)
-        sot['id'] = 'IDENTIFIER'
+        sot = cluster.Cluster(**FAKE)
 
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
@@ -112,8 +113,7 @@ class TestCluster(testtools.TestCase):
                                           json=body)
 
     def test_scale_out(self):
-        sot = cluster.Cluster(FAKE)
-        sot['id'] = 'IDENTIFIER'
+        sot = cluster.Cluster(**FAKE)
 
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
@@ -126,8 +126,7 @@ class TestCluster(testtools.TestCase):
                                           json=body)
 
     def test_resize(self):
-        sot = cluster.Cluster(FAKE)
-        sot['id'] = 'IDENTIFIER'
+        sot = cluster.Cluster(**FAKE)
 
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
@@ -140,8 +139,7 @@ class TestCluster(testtools.TestCase):
                                           json=body)
 
     def test_add_nodes(self):
-        sot = cluster.Cluster(FAKE)
-        sot['id'] = 'IDENTIFIER'
+        sot = cluster.Cluster(**FAKE)
 
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
@@ -154,8 +152,7 @@ class TestCluster(testtools.TestCase):
                                           json=body)
 
     def test_del_nodes(self):
-        sot = cluster.Cluster(FAKE)
-        sot['id'] = 'IDENTIFIER'
+        sot = cluster.Cluster(**FAKE)
 
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
@@ -168,8 +165,7 @@ class TestCluster(testtools.TestCase):
                                           json=body)
 
     def test_policy_attach(self):
-        sot = cluster.Cluster(FAKE)
-        sot['id'] = 'IDENTIFIER'
+        sot = cluster.Cluster(**FAKE)
 
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
@@ -191,8 +187,7 @@ class TestCluster(testtools.TestCase):
                                           json=body)
 
     def test_policy_detach(self):
-        sot = cluster.Cluster(FAKE)
-        sot['id'] = 'IDENTIFIER'
+        sot = cluster.Cluster(**FAKE)
 
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
@@ -206,8 +201,7 @@ class TestCluster(testtools.TestCase):
                                           json=body)
 
     def test_policy_update(self):
-        sot = cluster.Cluster(FAKE)
-        sot['id'] = 'IDENTIFIER'
+        sot = cluster.Cluster(**FAKE)
 
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
@@ -229,8 +223,7 @@ class TestCluster(testtools.TestCase):
                                           json=body)
 
     def test_check(self):
-        sot = cluster.Cluster(FAKE)
-        sot['id'] = 'IDENTIFIER'
+        sot = cluster.Cluster(**FAKE)
 
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
@@ -243,8 +236,7 @@ class TestCluster(testtools.TestCase):
                                           json=body)
 
     def test_recover(self):
-        sot = cluster.Cluster(FAKE)
-        sot['id'] = 'IDENTIFIER'
+        sot = cluster.Cluster(**FAKE)
 
         resp = mock.Mock()
         resp.json = mock.Mock(return_value='')
@@ -255,14 +247,3 @@ class TestCluster(testtools.TestCase):
         body = {'recover': {}}
         sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
                                           json=body)
-
-    def test_cluster_delete(self):
-        sot = cluster.Cluster(FAKE)
-        sot['id'] = 'IDENTIFIER'
-        url = 'clusters/%s' % sot.id
-        resp = mock.Mock(headers={'location': 'actions/fake_action'})
-        sess = mock.Mock()
-        sess.delete = mock.Mock(return_value=resp)
-        clus = sot.delete(sess)
-        self.assertEqual('actions/fake_action', clus.location)
-        sess.delete.assert_called_once_with(url, endpoint_filter=sot.service)
