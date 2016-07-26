@@ -183,21 +183,22 @@ class QueryParameters(object):
     def __init__(self, *names, **mappings):
         """Create a dict of accepted query parameters
 
-        names are strings where the client-side name matches
-        what the server expects, e.g., server=server.
+        :param names: List of strings containing client-side query parameter
+                      names. Each name in the list maps directly to the name
+                      expected by the server.
 
-        mappings are key-value pairs where the key is the
-        client-side name we'll accept here and the value is
-        the name the server expects, e.g, changes_since=changes-since
+        :param mappings: Key-value pairs where the key is the client-side
+                         name we'll accept here and the value is the name
+                         the server expects, e.g, changes_since=changes-since
         """
         self._mapping = dict({name: name for name in names}, **mappings)
 
     def _transpose(self, query):
         """Transpose the keys in query based on the mapping
 
-        This method converts the keys in `query` from their
-        client-side names to have the appropriate keys as
-        expected by the server for query parameters.
+        :param dict query: Collection of key-value pairs where each key is the
+                           client-side parameter name to be transposed to its
+                           server side name.
         """
         result = {}
         for key, value in self._mapping.items():
