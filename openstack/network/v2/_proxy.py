@@ -25,6 +25,8 @@ from openstack.network.v2 import network_ip_availability
 from openstack.network.v2 import pool as _pool
 from openstack.network.v2 import pool_member as _pool_member
 from openstack.network.v2 import port as _port
+from openstack.network.v2 import qos_minimum_bandwidth_rule as \
+    _qos_minimum_bandwidth_rule
 from openstack.network.v2 import qos_policy as _qos_policy
 from openstack.network.v2 import quota as _quota
 from openstack.network.v2 import rbac_policy as _rbac_policy
@@ -1144,6 +1146,215 @@ class Proxy(proxy.BaseProxy):
                     result.append(puerta)
         return result
 
+    def create_qos_minimum_bandwidth_rule(self, qos_policy, **attrs):
+        """Create a new minimum bandwidth rule
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.network.v2.
+                           qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule`,
+                           comprised of the properties on the
+                           QoSMinimumBandwidthRule class.
+        :param qos_policy: The value can be the ID of the QoS policy that the
+                           rule belongs or a :class:`~openstack.network.v2.
+                           qos_policy.QoSPolicy` instance.
+
+        :returns: The results of resource creation
+        :rtype: :class:`~openstack.network.v2.qos_minimum_bandwidth_rule.
+                    QoSMinimumBandwidthRule`
+        """
+        qos_policy_id = resource.Resource.get_id(qos_policy)
+        return self._create(
+            _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+            path_args={'qos_policy_id': qos_policy_id}, **attrs)
+
+    def delete_qos_minimum_bandwidth_rule(self, qos_rule, qos_policy,
+                                          ignore_missing=True):
+        """Delete a minimum bandwidth rule
+
+        :param qos_rule: The value can be either the ID of a minimum bandwidth
+                         rule or a :class:`~openstack.network.v2.
+                         qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule`
+                         instance.
+        :param qos_policy: The value can be the ID of the QoS policy that the
+                           rule belongs or a :class:`~openstack.network.v2.
+                           qos_policy.QoSPolicy` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent minimum bandwidth rule.
+
+        :returns: ``None``
+        """
+        qos_policy_id = resource.Resource.get_id(qos_policy)
+        self._delete(_qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+                     qos_rule, ignore_missing=ignore_missing,
+                     path_args={'qos_policy_id': qos_policy_id})
+
+    def find_qos_minimum_bandwidth_rule(self, qos_rule_id, qos_policy,
+                                        ignore_missing=True):
+        """Find a minimum bandwidth rule
+
+        :param qos_rule_id: The ID of a minimum bandwidth rule.
+        :param qos_policy: The value can be the ID of the QoS policy that the
+                           rule belongs or a :class:`~openstack.network.v2.
+                           qos_policy.QoSPolicy` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :returns: One :class:`~openstack.network.v2.qos_minimum_bandwidth_rule.
+                    QoSMinimumBandwidthRule` or None
+        """
+        qos_policy_id = resource.Resource.get_id(qos_policy)
+        return self._find(_qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+                          qos_rule_id, ignore_missing=ignore_missing,
+                          path_args={'qos_policy_id': qos_policy_id})
+
+    def get_qos_minimum_bandwidth_rule(self, qos_rule, qos_policy):
+        """Get a single minimum bandwidth rule
+
+        :param qos_rule: The value can be the ID of a minimum bandwidth rule or
+                         a :class:`~openstack.network.v2.
+                         qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule`
+                         instance.
+        :param qos_policy: The value can be the ID of the QoS policy that the
+                           rule belongs or a :class:`~openstack.network.v2.
+                           qos_policy.QoSPolicy` instance.
+        :returns: One :class:`~openstack.network.v2.qos_minimum_bandwidth_rule.
+                       QoSMinimumBandwidthRule`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                       when no resource can be found.
+        """
+        qos_policy_id = resource.Resource.get_id(qos_policy)
+        return self._get(_qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+                         qos_rule, path_args={'qos_policy_id': qos_policy_id})
+
+    def qos_minimum_bandwidth_rules(self, qos_policy, **query):
+        """Return a generator of minimum bandwidth rules
+
+        :param qos_policy: The value can be the ID of the QoS policy that the
+                           rule belongs or a :class:`~openstack.network.v2.
+                           qos_policy.QoSPolicy` instance.
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
+        :returns: A generator of minimum bandwidth rule objects
+        :rtype: :class:`~openstack.network.v2.qos_minimum_bandwidth_rule.
+                       QoSMinimumBandwidthRule`
+        """
+        qos_policy_id = resource.Resource.get_id(qos_policy)
+        return self._list(_qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+                          paginated=False,
+                          path_args={'qos_policy_id': qos_policy_id}, **query)
+
+    def update_qos_minimum_bandwidth_rule(self, qos_rule, qos_policy,
+                                          **attrs):
+        """Update a minimum bandwidth rule
+
+        :param qos_rule: Either the id of a minimum bandwidth rule or a
+                         :class:`~openstack.network.v2.
+                         qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule`
+                         instance.
+        :param qos_policy: The value can be the ID of the QoS policy that the
+                           rule belongs or a :class:`~openstack.network.v2.
+                           qos_policy.QoSPolicy` instance.
+        :attrs kwargs: The attributes to update on the minimum bandwidth rule
+                       represented by ``value``.
+
+        :returns: The updated minimum bandwidth rule
+        :rtype: :class:`~openstack.network.v2.qos_minimum_bandwidth_rule.
+                       QoSMinimumBandwidthRule`
+        """
+        qos_policy_id = resource.Resource.get_id(qos_policy)
+        return self._update(_qos_minimum_bandwidth_rule.
+                            QoSMinimumBandwidthRule, qos_rule,
+                            path_args={'qos_policy_id': qos_policy_id},
+                            **attrs)
+
+    def create_qos_policy(self, **attrs):
+        """Create a new QoS policy from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.network.v2.qos_policy.
+                           QoSPolicy`, comprised of the properties on the
+                           QoSPolicy class.
+
+        :returns: The results of QoS policy creation
+        :rtype: :class:`~openstack.network.v2.qos_policy.QoSPolicy`
+        """
+        return self._create(_qos_policy.QoSPolicy, **attrs)
+
+    def delete_qos_policy(self, qos_policy, ignore_missing=True):
+        """Delete a QoS policy
+
+        :param qos_policy: The value can be either the ID of a QoS policy or a
+                           :class:`~openstack.network.v2.qos_policy.QoSPolicy`
+                           instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the QoS policy does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent QoS policy.
+
+        :returns: ``None``
+        """
+        self._delete(_qos_policy.QoSPolicy, qos_policy,
+                     ignore_missing=ignore_missing)
+
+    def find_qos_policy(self, name_or_id, ignore_missing=True):
+        """Find a single QoS policy
+
+        :param name_or_id: The name or ID of a QoS policy.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :returns: One :class:`~openstack.network.v2.qos_policy.QoSPolicy` or
+                  None
+        """
+        return self._find(_qos_policy.QoSPolicy, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def get_qos_policy(self, qos_policy):
+        """Get a single QoS policy
+
+        :param qos_policy: The value can be the ID of a QoS policy or a
+                           :class:`~openstack.network.v2.qos_policy.QoSPolicy`
+                           instance.
+
+        :returns: One :class:`~openstack.network.v2.qos_policy.QoSPolicy`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_qos_policy.QoSPolicy, qos_policy)
+
+    def qos_policies(self, **query):
+        """Return a generator of QoS policies
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
+
+        :returns: A generator of QoS policy objects
+        :rtype: :class:`~openstack.network.v2.qos_policy.QoSPolicy`
+        """
+        return self._list(_qos_policy.QoSPolicy, paginated=False, **query)
+
+    def update_qos_policy(self, qos_policy, **attrs):
+        """Update a QoS policy
+
+        :param qos_policy: Either the id of a QoS policy or a
+                           :class:`~openstack.network.v2.qos_policy.QoSPolicy`
+                           instance.
+        :attrs kwargs: The attributes to update on the QoS policy represented
+                       by ``value``.
+
+        :returns: The updated QoS policy
+        :rtype: :class:`~openstack.network.v2.qos_policy.QoSPolicy`
+        """
+        return self._update(_qos_policy.QoSPolicy, qos_policy, **attrs)
+
     def delete_quota(self, quota, ignore_missing=True):
         """Delete a quota (i.e. reset to the default quota)
 
@@ -1891,86 +2102,3 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.vpn_service.VPNService`
         """
         return self._update(_vpn_service.VPNService, vpn_service, **attrs)
-
-    def create_qos_policy(self, **attrs):
-        """Create a new QoS policy from attributes
-
-        :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.network.v2.qos_policy.
-                           QoSPolicy`, comprised of the properties on the
-                           QoSPolicy class.
-
-        :returns: The results of QoS policy creation
-        :rtype: :class:`~openstack.network.v2.qos_policy.QoSPolicy`
-        """
-        return self._create(_qos_policy.QoSPolicy, **attrs)
-
-    def delete_qos_policy(self, qos_policy, ignore_missing=True):
-        """Delete a QoS policy
-
-        :param qos_policy: The value can be either the ID of a QoS policy or a
-                           :class:`~openstack.network.v2.qos_policy.QoSPolicy`
-                           instance.
-        :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the QoS policy does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent QoS policy.
-
-        :returns: ``None``
-        """
-        self._delete(_qos_policy.QoSPolicy, qos_policy,
-                     ignore_missing=ignore_missing)
-
-    def find_qos_policy(self, name_or_id, ignore_missing=True):
-        """Find a single QoS policy
-
-        :param name_or_id: The name or ID of a QoS policy.
-        :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
-        :returns: One :class:`~openstack.network.v2.qos_policy.QoSPolicy` or
-                  None
-        """
-        return self._find(_qos_policy.QoSPolicy, name_or_id,
-                          ignore_missing=ignore_missing)
-
-    def get_qos_policy(self, qos_policy):
-        """Get a single QoS policy
-
-        :param qos_policy: The value can be the ID of a QoS policy or a
-                           :class:`~openstack.network.v2.qos_policy.QoSPolicy`
-                           instance.
-
-        :returns: One :class:`~openstack.network.v2.qos_policy.QoSPolicy`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
-        """
-        return self._get(_qos_policy.QoSPolicy, qos_policy)
-
-    def qos_policies(self, **query):
-        """Return a generator of QoS policies
-
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
-                                 the resources being returned.
-
-        :returns: A generator of QoS policy objects
-        :rtype: :class:`~openstack.network.v2.qos_policy.QoSPolicy`
-        """
-        return self._list(_qos_policy.QoSPolicy, paginated=False, **query)
-
-    def update_qos_policy(self, qos_policy, **attrs):
-        """Update a QoS policy
-
-        :param qos_policy: Either the id of a QoS policy or a
-                           :class:`~openstack.network.v2.qos_policy.QoSPolicy`
-                           instance.
-        :attrs kwargs: The attributes to update on the QoS policy represented
-                       by ``value``.
-
-        :returns: The updated QoS policy
-        :rtype: :class:`~openstack.network.v2.qos_policy.QoSPolicy`
-        """
-        return self._update(_qos_policy.QoSPolicy, qos_policy, **attrs)

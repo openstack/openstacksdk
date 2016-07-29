@@ -755,10 +755,7 @@ class Resource(collections.MutableMapping):
             del attrs[cls.id_attribute]
         headers = attrs.pop(HEADERS, None)
 
-        if cls.resource_key:
-            body = {cls.resource_key: attrs}
-        else:
-            body = attrs
+        body = cls._get_create_body(attrs)
 
         url = cls._get_url(path_args, resource_id)
         args = {'json': body}

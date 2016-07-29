@@ -11,6 +11,7 @@
 # under the License.
 
 import mock
+import uuid
 
 from openstack.network.v2 import _proxy
 from openstack.network.v2 import address_scope
@@ -28,6 +29,7 @@ from openstack.network.v2 import network_ip_availability
 from openstack.network.v2 import pool
 from openstack.network.v2 import pool_member
 from openstack.network.v2 import port
+from openstack.network.v2 import qos_minimum_bandwidth_rule
 from openstack.network.v2 import qos_policy
 from openstack.network.v2 import quota
 from openstack.network.v2 import rbac_policy
@@ -39,6 +41,10 @@ from openstack.network.v2 import subnet
 from openstack.network.v2 import subnet_pool
 from openstack.network.v2 import vpn_service
 from openstack.tests.unit import test_proxy_base
+
+
+QOS_POLICY_ID = 'qos-policy-id-' + uuid.uuid4().hex
+QOS_RULE_ID = 'qos-rule-id-' + uuid.uuid4().hex
 
 
 class TestNetworkProxy(test_proxy_base.TestProxyBase):
@@ -382,6 +388,53 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_port_update(self):
         self.verify_update(self.proxy.update_port, port.Port)
+
+    def test_qos_minimum_bandwidth_rule_create_attrs(self):
+        self.verify_create(
+            self.proxy.create_qos_minimum_bandwidth_rule,
+            qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+            method_kwargs={'qos_policy': QOS_POLICY_ID},
+            expected_kwargs={'path_args': {'qos_policy_id': QOS_POLICY_ID}})
+
+    def test_qos_minimum_bandwidth_rule_delete(self):
+        self.verify_delete(
+            self.proxy.delete_qos_minimum_bandwidth_rule,
+            qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+            False, input_path_args=["resource_or_id", QOS_POLICY_ID],
+            expected_path_args={'qos_policy_id': QOS_POLICY_ID},)
+
+    def test_qos_minimum_bandwidth_rule_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_qos_minimum_bandwidth_rule,
+            qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+            True, input_path_args=["resource_or_id", QOS_POLICY_ID],
+            expected_path_args={'qos_policy_id': QOS_POLICY_ID}, )
+
+    def test_qos_minimum_bandwidth_rule_find(self):
+        self.verify_find(self.proxy.find_qos_minimum_bandwidth_rule,
+                         qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+                         path_args={'qos_policy_id': QOS_POLICY_ID})
+
+    def test_qos_minimum_bandwidth_rule_get(self):
+        self.verify_get(
+            self.proxy.get_qos_minimum_bandwidth_rule,
+            qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+            method_kwargs={'qos_policy': QOS_POLICY_ID},
+            expected_kwargs={'path_args': {'qos_policy_id': QOS_POLICY_ID}})
+
+    def test_qos_minimum_bandwidth_rules(self):
+        self.verify_list(
+            self.proxy.qos_minimum_bandwidth_rules,
+            qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+            paginated=False,
+            method_kwargs={'qos_policy': QOS_POLICY_ID},
+            expected_kwargs={'path_args': {'qos_policy_id': QOS_POLICY_ID}})
+
+    def test_qos_minimum_bandwidth_rule_update(self):
+        self.verify_update(
+            self.proxy.update_qos_minimum_bandwidth_rule,
+            qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+            path_args={'qos_policy_id': QOS_POLICY_ID})
 
     def test_qos_policy_create_attrs(self):
         self.verify_create(self.proxy.create_qos_policy, qos_policy.QoSPolicy)
