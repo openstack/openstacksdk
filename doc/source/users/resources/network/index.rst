@@ -19,6 +19,7 @@ Network Resources
    v2/pool
    v2/pool_member
    v2/port
+   v2/qos_dscp_marking_rule
    v2/qos_minimum_bandwidth_rule
    v2/qos_policy
    v2/quota
