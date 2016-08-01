@@ -69,3 +69,60 @@ class TestImage(base.BaseFunctionalTestCase):
         self.addCleanup(os.remove, output)
         self.assertTrue(filecmp.cmp(test_image.name, output),
                         "Downloaded contents don't match created image")
+
+    def test_create_image_skip_duplicate(self):
+        test_image = tempfile.NamedTemporaryFile(delete=False)
+        test_image.write('\0' * 1024 * 1024)
+        test_image.close()
+        image_name = self.getUniqueString('image')
+        try:
+            first_image = self.demo_cloud.create_image(
+                name=image_name,
+                filename=test_image.name,
+                disk_format='raw',
+                container_format='bare',
+                min_disk=10,
+                min_ram=1024,
+                wait=True)
+            second_image = self.demo_cloud.create_image(
+                name=image_name,
+                filename=test_image.name,
+                disk_format='raw',
+                container_format='bare',
+                min_disk=10,
+                min_ram=1024,
+                wait=True)
+            self.assertEqual(first_image.id, second_image.id)
+        finally:
+            self.demo_cloud.delete_image(image_name, wait=True)
+
+    def test_create_image_force_duplicate(self):
+        test_image = tempfile.NamedTemporaryFile(delete=False)
+        test_image.write('\0' * 1024 * 1024)
+        test_image.close()
+        image_name = self.getUniqueString('image')
+        second_image = None
+        try:
+            first_image = self.demo_cloud.create_image(
+                name=image_name,
+                filename=test_image.name,
+                disk_format='raw',
+                container_format='bare',
+                min_disk=10,
+                min_ram=1024,
+                wait=True)
+            second_image = self.demo_cloud.create_image(
+                name=image_name,
+                filename=test_image.name,
+                disk_format='raw',
+                container_format='bare',
+                min_disk=10,
+                min_ram=1024,
+                allow_duplicates=True,
+                wait=True)
+            self.assertNotEqual(first_image.id, second_image.id)
+        finally:
+            if first_image:
+                self.demo_cloud.delete_image(first_image.id, wait=True)
+            if second_image:
+                self.demo_cloud.delete_image(second_image.id, wait=True)
