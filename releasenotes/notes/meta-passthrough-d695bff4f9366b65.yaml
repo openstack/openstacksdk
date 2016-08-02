@@ -1,0 +1,7 @@
+---
+features:
+  - Added a parameter to create_image 'meta' which allows
+    for providing parameters to the API that will not have
+    any type conversions performed. For the simple case,
+    the existing kwargs approach to image metadata is still
+    the best bet.

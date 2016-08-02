@@ -2547,7 +2547,7 @@ class OpenStackCloud(object):
             disk_format=None, container_format=None,
             disable_vendor_agent=True,
             wait=False, timeout=3600,
-            allow_duplicates=False, **kwargs):
+            allow_duplicates=False, meta=None, **kwargs):
         """Upload an image to Glance.
 
         :param str name: Name of the image to create. If it is a pathname
@@ -2581,9 +2581,19 @@ class OpenStackCloud(object):
         :param timeout: Seconds to wait for image creation. None is forever.
         :param allow_duplicates: If true, skips checks that enforce unique
                                  image name. (optional, defaults to False)
+        :param meta: A dict of key/value pairs to use for metadata that
+                     bypasses automatic type conversion.
 
         Additional kwargs will be passed to the image creation as additional
-        metadata for the image.
+        metadata for the image and will have all values converted to string
+        except for min_disk, min_ram, size and virtual_size which will be
+        converted to int.
+
+        If you are sure you have all of your data types correct or have an
+        advanced need to be explicit, use meta. If you are just a normal
+        consumer, using kwargs is likely the right choice.
+
+        If a value is in meta and kwargs, meta wins.
 
         :returns: A ``munch.Munch`` of the Image object
 
@@ -2592,6 +2602,9 @@ class OpenStackCloud(object):
 
         if not disk_format:
             disk_format = self.cloud_config.config['image_format']
+
+        if not meta:
+            meta = {}
 
         # If there is no filename, see if name is actually the filename
         if not filename:
@@ -2640,15 +2653,21 @@ class OpenStackCloud(object):
                 return self._upload_image_task(
                     name, filename, container,
                     current_image=current_image,
-                    wait=wait, timeout=timeout, **kwargs)
+                    wait=wait, timeout=timeout,
+                    meta=meta, **kwargs)
             else:
+                # If a user used the v1 calling format, they will have
+                # passed a dict called properties along
+                properties = kwargs.pop('properties', {})
+                kwargs.update(properties)
                 image_kwargs = dict(properties=kwargs)
                 if disk_format:
                     image_kwargs['disk_format'] = disk_format
                 if container_format:
                     image_kwargs['container_format'] = container_format
 
-                return self._upload_image_put(name, filename, **image_kwargs)
+                return self._upload_image_put(
+                    name, filename, meta=meta, **image_kwargs)
         except OpenStackCloudException:
             self.log.debug("Image creation failed", exc_info=True)
             raise
@@ -2656,15 +2675,25 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 "Image creation failed: {message}".format(message=str(e)))
 
-    def _upload_image_put_v2(self, name, image_data, **image_kwargs):
-        if 'properties' in image_kwargs:
-            img_props = image_kwargs.pop('properties')
-            for k, v in iter(img_props.items()):
-                image_kwargs[k] = str(v)
-            # some MUST be integer
-            for k in ('min_disk', 'min_ram'):
-                if k in image_kwargs:
-                    image_kwargs[k] = int(image_kwargs[k])
+    def _make_v2_image_params(self, meta, properties):
+        ret = {}
+        for k, v in iter(properties.items()):
+            if k in ('min_disk', 'min_ram', 'size', 'virtual_size'):
+                ret[k] = int(v)
+            else:
+                if v is None:
+                    ret[k] = None
+                else:
+                    ret[k] = str(v)
+        ret.update(meta)
+        return ret
+
+    def _upload_image_put_v2(self, name, image_data, meta, **image_kwargs):
+
+        properties = image_kwargs.pop('properties', {})
+
+        image_kwargs.update(self._make_v2_image_params(meta, properties))
+
         image = self.manager.submitTask(_tasks.ImageCreate(
             name=name, **image_kwargs))
         try:
@@ -2678,7 +2707,10 @@ class OpenStackCloud(object):
 
         return image
 
-    def _upload_image_put_v1(self, name, image_data, **image_kwargs):
+    def _upload_image_put_v1(
+            self, name, image_data, meta, **image_kwargs):
+
+        image_kwargs['properties'].update(meta)
         image = self.manager.submitTask(_tasks.ImageCreate(
             name=name, **image_kwargs))
         try:
@@ -2691,19 +2723,25 @@ class OpenStackCloud(object):
             raise
         return image
 
-    def _upload_image_put(self, name, filename, **image_kwargs):
+    def _upload_image_put(
+            self, name, filename, meta, **image_kwargs):
         image_data = open(filename, 'rb')
         # Because reasons and crying bunnies
         if self.cloud_config.get_api_version('image') == '2':
-            image = self._upload_image_put_v2(name, image_data, **image_kwargs)
+            image = self._upload_image_put_v2(
+                name, image_data, meta, **image_kwargs)
         else:
-            image = self._upload_image_put_v1(name, image_data, **image_kwargs)
+            image = self._upload_image_put_v1(
+                name, image_data, meta, **image_kwargs)
         self._cache.invalidate()
         return self.get_image(image.id)
 
     def _upload_image_task(
             self, name, filename, container, current_image,
-            wait, timeout, **image_properties):
+            wait, timeout, meta, **image_kwargs):
+
+        parameters = image_kwargs.pop('parameters', {})
+        image_kwargs.update(parameters)
 
         # get new client sessions
         with self._swift_client_lock:
@@ -2713,8 +2751,8 @@ class OpenStackCloud(object):
 
         self.create_object(
             container, name, filename,
-            md5=image_properties.get('md5', None),
-            sha256=image_properties.get('sha256', None))
+            md5=image_kwargs.get('md5', None),
+            sha256=image_kwargs.get('sha256', None))
         if not current_image:
             current_image = self.get_image(name)
         # TODO(mordred): Can we do something similar to what nodepool does
@@ -2752,8 +2790,7 @@ class OpenStackCloud(object):
                     if image is None:
                         continue
                     self.update_image_properties(
-                        image=image,
-                        **image_properties)
+                        image=image, meta=meta, **image_kwargs)
                     return self.get_image(status.result['image_id'])
                 if status.status == 'failure':
                     if status.message == IMAGE_ERROR_396:
@@ -2769,9 +2806,11 @@ class OpenStackCloud(object):
             return glance_task
 
     def update_image_properties(
-            self, image=None, name_or_id=None, **properties):
+            self, image=None, name_or_id=None, meta=None, **properties):
         if image is None:
             image = self.get_image(name_or_id)
+        if not meta:
+            meta = {}
 
         img_props = {}
         for k, v in iter(properties.items()):
@@ -2782,15 +2821,15 @@ class OpenStackCloud(object):
 
         # This makes me want to die inside
         if self.cloud_config.get_api_version('image') == '2':
-            return self._update_image_properties_v2(image, img_props)
+            return self._update_image_properties_v2(image, meta, img_props)
         else:
-            return self._update_image_properties_v1(image, img_props)
+            return self._update_image_properties_v1(image, meta, img_props)
 
-    def _update_image_properties_v2(self, image, properties):
+    def _update_image_properties_v2(self, image, meta, properties):
         img_props = {}
-        for k, v in iter(properties.items()):
+        for k, v in iter(self._make_v2_image_params(meta, properties).items()):
             if image.get(k, None) != v:
-                img_props[k] = str(v)
+                img_props[k] = v
         if not img_props:
             return False
         self.manager.submitTask(_tasks.ImageUpdate(
@@ -2798,7 +2837,8 @@ class OpenStackCloud(object):
         self.list_images.invalidate(self)
         return True
 
-    def _update_image_properties_v1(self, image, properties):
+    def _update_image_properties_v1(self, image, meta, properties):
+        properties.update(meta)
         img_props = {}
         for k, v in iter(properties.items()):
             if image.properties.get(k, None) != v:
