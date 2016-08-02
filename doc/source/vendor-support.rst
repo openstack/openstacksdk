@@ -186,9 +186,10 @@ Region Name    Human Name
 ams01          Amsterdam, NL
 da01           Dallas, TX
 nyj01          New York, NY
+sin01          Singapore
+sjc01          San Jose, CA
 ============== ================
 
-* Image API Version is 1
 * Floating IPs are not supported
 
 osic

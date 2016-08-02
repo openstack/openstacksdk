@@ -7,10 +7,11 @@
     "regions": [
       "ams01",
       "da01",
-      "nyj01"
+      "nyj01",
+      "sin01",
+      "sjc01"
     ],
     "identity_api_version": "3",
-    "image_api_version": "1",
     "floating_ip_source": "None"
   }
 }
