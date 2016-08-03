@@ -486,14 +486,6 @@ class OpenStackConfig(object):
                                   " the cloud '{1}'".format(profile_name,
                                                             name))
 
-    def _fix_backwards_madness(self, cloud):
-        cloud = self._fix_backwards_auth_plugin(cloud)
-        cloud = self._fix_backwards_project(cloud)
-        cloud = self._fix_backwards_interface(cloud)
-        cloud = self._fix_backwards_networks(cloud)
-        cloud = self._handle_domain_id(cloud)
-        return cloud
-
     def _project_scoped(self, cloud):
         return ('project_id' in cloud or 'project_name' in cloud
                 or 'project_id' in cloud['auth']
@@ -823,7 +815,7 @@ class OpenStackConfig(object):
     def auth_config_hook(self, config):
         """Allow examination of config values before loading auth plugin
 
-        OpenStackClient will override this to perform additional chacks
+        OpenStackClient will override this to perform additional checks
         on auth_type.
         """
         return config
@@ -922,6 +914,41 @@ class OpenStackConfig(object):
 
         return config
 
+    def magic_fixes(self, config):
+        """Perform the set of magic argument fixups"""
+
+        # Infer token plugin if a token was given
+        if (('auth' in config and 'token' in config['auth']) or
+                ('auth_token' in config and config['auth_token']) or
+                ('token' in config and config['token'])):
+            config.setdefault('token', config.pop('auth_token', None))
+
+        # These backwards compat values are only set via argparse. If it's
+        # there, it's because it was passed in explicitly, and should win
+        config = self._fix_backwards_api_timeout(config)
+        if 'endpoint_type' in config:
+            config['interface'] = config.pop('endpoint_type')
+
+        config = self._fix_backwards_auth_plugin(config)
+        config = self._fix_backwards_project(config)
+        config = self._fix_backwards_interface(config)
+        config = self._fix_backwards_networks(config)
+        config = self._handle_domain_id(config)
+
+        for key in BOOL_KEYS:
+            if key in config:
+                if type(config[key]) is not bool:
+                    config[key] = get_boolean(config[key])
+
+        # TODO(mordred): Special casing auth_url here. We should
+        #                come back to this betterer later so that it's
+        #                more generalized
+        if 'auth' in config and 'auth_url' in config['auth']:
+            config['auth']['auth_url'] = config['auth']['auth_url'].format(
+                **config)
+
+        return config
+
     def get_one_cloud(self, cloud=None, validate=True,
                       argparse=None, **kwargs):
         """Retrieve a single cloud configuration and merge additional options
@@ -972,31 +999,7 @@ class OpenStackConfig(object):
                     else:
                         config[key] = val
 
-        # Infer token plugin if a token was given
-        if (('auth' in config and 'token' in config['auth']) or
-                ('auth_token' in config and config['auth_token']) or
-                ('token' in config and config['token'])):
-            config.setdefault('token', config.pop('auth_token', None))
-
-        # These backwards compat values are only set via argparse. If it's
-        # there, it's because it was passed in explicitly, and should win
-        config = self._fix_backwards_api_timeout(config)
-        if 'endpoint_type' in config:
-            config['interface'] = config.pop('endpoint_type')
-
-        config = self._fix_backwards_madness(config)
-
-        for key in BOOL_KEYS:
-            if key in config:
-                if type(config[key]) is not bool:
-                    config[key] = get_boolean(config[key])
-
-        # TODO(mordred): Special casing auth_url here. We should
-        #                come back to this betterer later so that it's
-        #                more generalized
-        if 'auth' in config and 'auth_url' in config['auth']:
-            config['auth']['auth_url'] = config['auth']['auth_url'].format(
-                **config)
+        config = self.magic_fixes(config)
 
         # NOTE(dtroyer): OSC needs a hook into the auth args before the
         #                plugin is loaded in order to maintain backward-
