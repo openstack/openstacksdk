@@ -13,10 +13,12 @@
   "image_api_version": "2",
   "image_format": "qcow2",
   "key_manager_api_version": "v1",
+  "message": "",
   "metering_api_version": "2",
   "network_api_version": "2",
   "object_store_api_version": "1",
   "orchestration_api_version": "1",
   "secgroup_source": "neutron",
+  "status": "active",
   "volume_api_version": "2"
 }

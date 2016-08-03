@@ -55,11 +55,22 @@
           "default": "public",
           "enum": [ "public", "internal", "admin" ]
         },
+        "message": {
+          "name": "Status message",
+          "description": "Optional message with information related to status",
+          "type": "string"
+        },
         "secgroup_source": {
           "name": "Security Group Source",
           "description": "Which service provides security groups",
           "enum": [ "neutron", "nova", "None" ],
           "default": "neutron"
+        },
+        "status": {
+          "name": "Vendor status",
+          "description": "Status of the vendor's cloud",
+          "enum": [ "active", "deprecated"],
+          "default": "active"
         },
         "compute_service_name": {
           "name": "Compute API Service Name",
