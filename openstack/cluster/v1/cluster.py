@@ -43,8 +43,6 @@ class Cluster(resource.Resource):
     project_id = resource.Body('project')
     #: The domain ID of the cluster owner.
     domain_id = resource.Body('domain')
-    #: The ID of the parent cluster (if any).
-    parent_id = resource.Body('parent')
     #: Timestamp of when the cluster was initialized.
     #: *Type: datetime object parsed from ISO 8601 formatted string*
     init_at = resource.Body('init_at')
