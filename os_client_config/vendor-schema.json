@@ -69,7 +69,7 @@
         "status": {
           "name": "Vendor status",
           "description": "Status of the vendor's cloud",
-          "enum": [ "active", "deprecated"],
+          "enum": [ "active", "deprecated", "shutdown"],
           "default": "active"
         },
         "compute_service_name": {
