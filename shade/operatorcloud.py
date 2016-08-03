@@ -85,8 +85,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :param name_or_id: A node name or UUID that will be looked up.
 
-        :returns: Dictonary representing the node found or None if no nodes
-                  are found.
+        :returns: ``munch.Munch`` representing the node found or None if no
+                  nodes are found.
         """
         try:
             return self.manager.submitTask(
@@ -99,7 +99,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :param mac: Port MAC address to query in order to return a node.
 
-        :returns: Dictonary representing the node found or None
+        :returns: ``munch.Munch`` representing the node found or None
                   if the node is not found.
         """
         try:
@@ -125,7 +125,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param timeout: Integer value, defautling to 3600 seconds, for the$
                         wait state to reach completion.
 
-        :returns: Dictonary representing the current state of the machine
+        :returns: ``munch.Munch`` representing the current state of the machine
                   upon exit of the method.
         """
 
@@ -217,7 +217,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :raises: OpenStackCloudException on operation error.
 
-        :returns: Returns a dictonary representing the new
+        :returns: Returns a ``munch.Munch`` representing the new
                   baremetal node.
         """
         with _utils.shade_exceptions("Error registering machine with Ironic"):
@@ -394,7 +394,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :raises: OpenStackCloudException on operation error.
 
-        :returns: Dictonary representing the newly updated node.
+        :returns: ``munch.Munch`` representing the newly updated node.
         """
 
         with _utils.shade_exceptions(
@@ -438,7 +438,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :raises: OpenStackCloudException on operation error.
 
-        :returns: Dictonary containing a machine sub-dictonary consisting
+        :returns: ``munch.Munch`` containing a machine sub-dictonary consisting
                   of the updated data returned from the API update operation,
                   and a list named changes which contains all of the API paths
                   that received updates.
@@ -556,7 +556,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :raises: OpenStackCloudException on operation error.
 
-        :returns: Dictonary representing the current state of the machine
+        :returns: ``munch.Munch`` representing the current state of the machine
                   upon exit of the method.
         """
         with _utils.shade_exceptions(
@@ -757,8 +757,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param description: Service description (optional).
         :param enabled: Whether the service is enabled (v3 only)
 
-        :returns: a dict containing the services description, i.e. the
-            following attributes::
+        :returns: a ``munch.Munch`` containing the services description,
+            i.e. the following attributes::
             - id: <service id>
             - name: <service name>
             - type: <service type>
@@ -816,7 +816,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
     def list_services(self):
         """List all Keystone services.
 
-        :returns: a list of dict containing the services description.
+        :returns: a list of ``munch.Munch`` containing the services description
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call.
@@ -832,7 +832,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param filters: a dict containing additional filters to use. e.g.
                         {'type': 'network'}.
 
-        :returns: a list of dict containing the services description.
+        :returns: a list of ``munch.Munch`` containing the services description
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call.
@@ -847,8 +847,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param filters: a dict containing additional filters to use. e.g.
                 {'type': 'network'}
 
-        :returns: a dict containing the services description, i.e. the
-            following attributes::
+        :returns: a ``munch.Munch`` containing the services description,
+            i.e. the following attributes::
             - id: <service id>
             - name: <service name>
             - type: <service type>
@@ -902,7 +902,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
               (url, interface) calling semantics are supported. But
               you can only use one of them at a time.
 
-        :returns: a list of dicts containing the endpoint description.
+        :returns: a list of ``munch.Munch`` containing the endpoint description
 
         :raises: OpenStackCloudException if the service cannot be found or if
             something goes wrong during the openstack API call.
@@ -983,7 +983,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
     def list_endpoints(self):
         """List Keystone endpoints.
 
-        :returns: a list of dict containing the endpoint description.
+        :returns: a list of ``munch.Munch`` containing the endpoint description
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
@@ -1001,8 +1001,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param filters: a dict containing additional filters to use. e.g.
                 {'region': 'region-a.geo-1'}
 
-        :returns: a list of dict containing the endpoint description. Each dict
-            contains the following attributes::
+        :returns: a list of ``munch.Munch`` containing the endpoint
+            description. Each dict contains the following attributes::
             - id: <endpoint id>
             - region: <endpoint region>
             - public_url: <endpoint public url>
@@ -1022,8 +1022,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param filters: a dict containing additional filters to use. e.g.
                 {'region': 'region-a.geo-1'}
 
-        :returns: a dict containing the endpoint description. i.e. a dict
-            containing the following attributes::
+        :returns: a ``munch.Munch`` containing the endpoint description.
+            i.e. a ``munch.Munch`` containing the following attributes::
             - id: <endpoint id>
             - region: <endpoint region>
             - public_url: <endpoint public url>
@@ -1066,7 +1066,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param description: A description of the domain.
         :param enabled: Is the domain enabled or not (default True).
 
-        :returns: a dict containing the domain description
+        :returns: a ``munch.Munch`` containing the domain description
 
         :raise OpenStackCloudException: if the domain cannot be created
         """
@@ -1135,7 +1135,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
     def list_domains(self):
         """List Keystone domains.
 
-        :returns: a list of dicts containing the domain description.
+        :returns: a list of ``munch.Munch`` containing the domain description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
@@ -1151,8 +1151,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param dict filters: A dict containing additional filters to use.
              Keys to search on are id, name, enabled and description.
 
-        :returns: a list of dicts containing the domain description. Each dict
-            contains the following attributes::
+        :returns: a list of ``munch.Munch`` containing the domain description.
+            Each ``munch.Munch`` contains the following attributes::
             - id: <domain id>
             - name: <domain name>
             - description: <domain description>
@@ -1179,8 +1179,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param dict filters: A dict containing additional filters to use.
              Keys to search on are id, name, enabled and description.
 
-        :returns: a dict containing the domain description, or None if not
-            found. Each dict contains the following attributes::
+        :returns: a ``munch.Munch`` containing the domain description, or None
+            if not found. Each ``munch.Munch`` contains the following
+            attributes::
             - id: <domain id>
             - name: <domain name>
             - description: <domain description>
@@ -1203,7 +1204,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
     def list_groups(self):
         """List Keystone Groups.
 
-        :returns: A list of dicts containing the group description.
+        :returns: A list of ``munch.Munch`` containing the group description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
@@ -1218,7 +1219,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param name: Group name or id.
         :param filters: A dict containing additional filters to use.
 
-        :returns: A list of dict containing the group description.
+        :returns: A list of ``munch.Munch`` containing the group description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
@@ -1232,7 +1233,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param id: Group name or id.
         :param filters: A dict containing additional filters to use.
 
-        :returns: A dict containing the group description.
+        :returns: A ``munch.Munch`` containing the group description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
@@ -1246,7 +1247,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param string description: Group description.
         :param string domain: Domain name or ID for the group.
 
-        :returns: A dict containing the group description.
+        :returns: A ``munch.Munch`` containing the group description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
@@ -1276,7 +1277,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param string name: New group name.
         :param string description: New group description.
 
-        :returns: A dict containing the group description.
+        :returns: A ``munch.Munch`` containing the group description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
@@ -1324,7 +1325,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
     def list_roles(self):
         """List Keystone roles.
 
-        :returns: a list of dicts containing the role description.
+        :returns: a list of ``munch.Munch`` containing the role description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
@@ -1340,8 +1341,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param string name: role name or id.
         :param dict filters: a dict containing additional filters to use.
 
-        :returns: a list of dict containing the role description. Each dict
-            contains the following attributes::
+        :returns: a list of ``munch.Munch`` containing the role description.
+            Each ``munch.Munch`` contains the following attributes::
 
                 - id: <role id>
                 - name: <role name>
@@ -1359,8 +1360,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param id: role name or id.
         :param filters: a dict containing additional filters to use.
 
-        :returns: a single dict containing the role description. Each dict
-            contains the following attributes::
+        :returns: a single ``munch.Munch`` containing the role description.
+            Each ``munch.Munch`` contains the following attributes::
 
                 - id: <role id>
                 - name: <role name>
@@ -1417,8 +1418,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         NOTE: For keystone v2, only user, project, and role are used.
               Project and user are both required in filters.
 
-        :returns: a list of dicts containing the role assignment description.
-            Contains the following attributes::
+        :returns: a list of ``munch.Munch`` containing the role assignment
+            description. Contains the following attributes::
 
                 - id: <role id>
                 - user|group: <user or group id>
@@ -1457,7 +1458,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param rxtx_factor: RX/TX factor
         :param is_public: Make flavor accessible to the public
 
-        :returns: A dict describing the new flavor.
+        :returns: A ``munch.Munch`` describing the new flavor.
 
         :raises: OpenStackCloudException on operation error.
         """
@@ -1571,7 +1572,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :param string name: The name of the role.
 
-        :returns: a dict containing the role description
+        :returns: a ``munch.Munch`` containing the role description
 
         :raise OpenStackCloudException: if the role cannot be created
         """
@@ -1761,7 +1762,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
     def list_hypervisors(self):
         """List all hypervisors
 
-        :returns: A list of hypervisor dicts.
+        :returns: A list of hypervisor ``munch.Munch``.
         """
 
         with _utils.shade_exceptions("Error fetching hypervisor list"):
