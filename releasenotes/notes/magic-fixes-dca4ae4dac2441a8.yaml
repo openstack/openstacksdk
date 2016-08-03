@@ -1,0 +1,6 @@
+---
+fixes:
+  - Refactor ``OpenStackConfig._fix_backward_madness()`` into
+    ``OpenStackConfig.magic_fixes()`` that allows subclasses
+    to inject more  fixup magic into the flow during
+    ``get_one_cloud()`` processing.

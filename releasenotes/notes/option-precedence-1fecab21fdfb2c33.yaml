@@ -1,0 +1,7 @@
+---
+fixes:
+  - Reverse the order of option selction in
+    ``OpenStackConfig._validate_auth()`` to prefer auth options
+    passed in (from argparse) over those found in clouds.yaml.
+    This allows the application to override config profile
+    auth settings.
