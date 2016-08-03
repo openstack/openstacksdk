@@ -888,14 +888,14 @@ class OpenStackConfig(object):
         plugin_options = loader.get_options()
 
         for p_opt in plugin_options:
-            # if it's in config.auth, win, kill it from config dict
-            # if it's in config and not in config.auth, move it
+            # if it's in config, win, move it and kill it from config dict
+            # if it's in config.auth but not in config we're good
             # deprecated loses to current
             # provided beats default, deprecated or not
-            winning_value = self._find_winning_auth_value(
-                p_opt, config['auth'])
+            winning_value = self._find_winning_auth_value(p_opt, config)
             if not winning_value:
-                winning_value = self._find_winning_auth_value(p_opt, config)
+                winning_value = self._find_winning_auth_value(
+                    p_opt, config['auth'])
 
             # Clean up after ourselves
             for opt in [p_opt.name] + [o.name for o in p_opt.deprecated]:
