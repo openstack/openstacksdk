@@ -1,0 +1,6 @@
+---
+features:
+  - Add a field to vendor cloud profiles to indicate
+    active, deprecated and shutdown status.  A message to
+    the user is triggered when attempting to use cloud
+    with either deprecated or shutdown status.
