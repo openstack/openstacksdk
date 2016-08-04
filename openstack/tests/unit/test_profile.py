@@ -34,6 +34,21 @@ class TestProfile(base.TestCase):
         ]
         self.assertEqual(expected, prof.service_keys)
 
+    def test_default_versions(self):
+        prof = profile.Profile()
+        self.assertEqual('v1', prof.get_filter('clustering').version)
+        self.assertEqual('v2', prof.get_filter('compute').version)
+        self.assertEqual('v1', prof.get_filter('database').version)
+        self.assertEqual('v3', prof.get_filter('identity').version)
+        self.assertEqual('v2', prof.get_filter('image').version)
+        self.assertEqual('v2', prof.get_filter('network').version)
+        self.assertEqual('v1', prof.get_filter('object-store').version)
+        self.assertEqual('v1', prof.get_filter('orchestration').version)
+        self.assertEqual('v1', prof.get_filter('key-manager').version)
+        self.assertEqual('v1', prof.get_filter('metering').version)
+        self.assertEqual('v2', prof.get_filter('volume').version)
+        self.assertEqual('v1', prof.get_filter('messaging').version)
+
     def test_set(self):
         prof = profile.Profile()
         prof.set_version('compute', 'v2')

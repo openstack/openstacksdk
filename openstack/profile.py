@@ -89,18 +89,20 @@ class Profile(object):
         'compute', etc.
         """
         self._services = {}
-        self._add_service(cluster_service.ClusterService())
-        self._add_service(compute_service.ComputeService())
-        self._add_service(database_service.DatabaseService())
-        self._add_service(identity_service.IdentityService())
-        self._add_service(image_service.ImageService())
-        self._add_service(network_service.NetworkService())
-        self._add_service(object_store_service.ObjectStoreService())
-        self._add_service(orchestration_service.OrchestrationService())
-        self._add_service(key_manager_service.KeyManagerService())
-        self._add_service(telemetry_service.TelemetryService())
-        self._add_service(block_store_service.BlockStoreService())
-        self._add_service(message_service.MessageService())
+        self._add_service(cluster_service.ClusterService(version="v1"))
+        self._add_service(compute_service.ComputeService(version="v2"))
+        self._add_service(database_service.DatabaseService(version="v1"))
+        self._add_service(identity_service.IdentityService(version="v3"))
+        self._add_service(image_service.ImageService(version="v2"))
+        self._add_service(network_service.NetworkService(version="v2"))
+        self._add_service(
+            object_store_service.ObjectStoreService(version="v1"))
+        self._add_service(
+            orchestration_service.OrchestrationService(version="v1"))
+        self._add_service(key_manager_service.KeyManagerService(version="v1"))
+        self._add_service(telemetry_service.TelemetryService(version="v1"))
+        self._add_service(block_store_service.BlockStoreService(version="v2"))
+        self._add_service(message_service.MessageService(version="v1"))
 
         # NOTE: The Metric service is not added here as it currently
         # only retrieves the /capabilities API.

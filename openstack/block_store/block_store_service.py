@@ -21,4 +21,5 @@ class BlockStoreService(service_filter.ServiceFilter):
     def __init__(self, version=None):
         """Create a block store service."""
         super(BlockStoreService, self).__init__(service_type='volume',
-                                                version=version)
+                                                version=version,
+                                                requires_project_id=True)

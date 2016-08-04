@@ -27,6 +27,12 @@ class SDKException(Exception):
         super(SDKException, self).__init__(self.message)
 
 
+class EndpointNotFound(SDKException):
+    """A mismatch occurred between what the client and server expect."""
+    def __init__(self, message=None):
+        super(EndpointNotFound, self).__init__(message)
+
+
 class InvalidResponse(SDKException):
     """The response from the server is not valid for this request."""
 
