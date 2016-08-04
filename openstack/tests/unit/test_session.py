@@ -17,6 +17,7 @@ from keystoneauth1 import exceptions as _exceptions
 
 from openstack import exceptions
 from openstack.image import image_service
+from openstack import profile
 from openstack import session
 
 
@@ -41,13 +42,42 @@ class TestSession(testtools.TestCase):
             "http://127.0.0.1:9292/wot/v1/mytenant",
             session.parse_url(filt, "http://127.0.0.1:9292/wot/v2.0/mytenant"))
 
-    def test_user_agent_none(self):
+    def test_init_user_agent_none(self):
         sot = session.Session(None)
         self.assertTrue(sot.user_agent.startswith("openstacksdk"))
 
-    def test_user_agent_set(self):
+    def test_init_user_agent_set(self):
         sot = session.Session(None, user_agent="testing/123")
         self.assertTrue(sot.user_agent.startswith("testing/123 openstacksdk"))
+
+    def test_init_with_single_api_request(self):
+        prof = profile.Profile()
+        prof.set_api_version('clustering', '1.2')
+
+        sot = session.Session(prof)
+
+        # The assertion acutally tests the property assigned in parent class
+        self.assertEqual({'openstack-api-version': 'clustering 1.2'},
+                         sot.additional_headers)
+
+    def test_init_with_multi_api_requests(self):
+        prof = profile.Profile()
+        prof.set_api_version('clustering', '1.2')
+        prof.set_api_version('compute', '2.15')
+
+        sot = session.Session(prof)
+
+        versions = sot.additional_headers['openstack-api-version']
+        requests = [req.strip() for req in versions.split(',')]
+        self.assertIn('clustering 1.2', requests)
+        self.assertIn('compute 2.15', requests)
+
+    def test_init_with_no_api_requests(self):
+        prof = profile.Profile()
+
+        sot = session.Session(prof)
+
+        self.assertEqual({}, sot.additional_headers)
 
     def test_map_exceptions_not_found_exception(self):
         ksa_exc = _exceptions.HttpError(message="test", http_status=404)

@@ -72,7 +72,7 @@ class ServiceFilter(dict):
     valid_versions = []
 
     def __init__(self, service_type, interface=PUBLIC, region=None,
-                 service_name=None, version=None):
+                 service_name=None, version=None, api_version=None):
         """Create a service identifier.
 
         :param string service_type: The desired type of service.
@@ -81,12 +81,14 @@ class ServiceFilter(dict):
         :param string region: The desired region (optional).
         :param string service_name: Name of the service
         :param string version: Version of service to use.
+        :param string api_version: Microversion of service supported.
         """
         self['service_type'] = service_type.lower()
         self['interface'] = interface
         self['region_name'] = region
         self['service_name'] = service_name
         self['version'] = version
+        self['api_version'] = api_version
 
     @property
     def service_type(self):
@@ -123,6 +125,14 @@ class ServiceFilter(dict):
     @version.setter
     def version(self, value):
         self['version'] = value
+
+    @property
+    def api_version(self):
+        return self['api_version']
+
+    @api_version.setter
+    def api_version(self, value):
+        self['api_version'] = value
 
     @property
     def path(self):

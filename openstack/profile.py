@@ -186,6 +186,14 @@ class Profile(object):
         """
         self._get_filter(service).version = version
 
+    def set_api_version(self, service, api_version):
+        """Set the desired API micro-version for the specified service.
+
+        :param str service: Service type.
+        :param str api_version: Desired service API micro-version.
+        """
+        self._setter(service, "api_version", api_version)
+
     def set_interface(self, service, interface):
         """Set the desired interface for the specified service.
 

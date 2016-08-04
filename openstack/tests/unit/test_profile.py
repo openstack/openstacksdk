@@ -60,6 +60,16 @@ class TestProfile(base.TestCase):
         self.assertRaises(exceptions.SDKException, prof.set_version, 'bogus',
                           'v2')
 
+    def test_set_api_version(self):
+        # This tests that api_version is effective after explicit setting, or
+        # else it defaults to None.
+        prof = profile.Profile()
+        prof.set_api_version('clustering', '1.2')
+        svc = prof.get_filter('clustering')
+        self.assertEqual('1.2', svc.api_version)
+        svc = prof.get_filter('compute')
+        self.assertIsNone(svc.api_version)
+
     def test_set_all(self):
         prof = profile.Profile()
         prof.set_name(prof.ALL, 'fee')

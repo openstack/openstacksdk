@@ -24,6 +24,16 @@ class TestValidVersion(testtools.TestCase):
 
 
 class TestServiceFilter(testtools.TestCase):
+    def test_init(self):
+        sot = service_filter.ServiceFilter(
+            'ServiceType', region='REGION1', service_name='ServiceName',
+            version='1', api_version='1.23')
+        self.assertEqual('servicetype', sot.service_type)
+        self.assertEqual('REGION1', sot.region)
+        self.assertEqual('ServiceName', sot.service_name)
+        self.assertEqual('1', sot.version)
+        self.assertEqual('1.23', sot.api_version)
+
     def test_get_module(self):
         sot = identity_service.IdentityService()
         self.assertEqual('openstack.identity.v3', sot.get_module())
