@@ -16,6 +16,7 @@ from openstack.cluster.v1 import _proxy
 from openstack.cluster.v1 import action
 from openstack.cluster.v1 import build_info
 from openstack.cluster.v1 import cluster
+from openstack.cluster.v1 import cluster_attr
 from openstack.cluster.v1 import cluster_policy
 from openstack.cluster.v1 import event
 from openstack.cluster.v1 import node
@@ -255,6 +256,13 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
                      method_kwargs={"k1": "v1", "k2": "v2"},
                      expected_args=["FAKE_POLICY"],
                      expected_kwargs={"k1": "v1", 'k2': "v2"})
+
+    def test_collect_cluster_attrs(self):
+        self.verify_list(self.proxy.collect_cluster_attrs,
+                         cluster_attr.ClusterAttr, paginated=False,
+                         method_args=['FAKE_ID', 'path.to.attr'],
+                         expected_kwargs={'cluster_id': 'FAKE_ID',
+                                          'path': 'path.to.attr'})
 
     @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
     def test_cluster_check(self, mock_get):
