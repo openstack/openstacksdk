@@ -763,7 +763,7 @@ class OpenStackConfig(object):
                         cloud, region_name=region['name']))
         return clouds
 
-    def _fix_args(self, args, argparse=None):
+    def _fix_args(self, args=None, argparse=None):
         """Massage the passed-in options
 
         Replace - with _ and strip os_ prefixes.
@@ -771,6 +771,8 @@ class OpenStackConfig(object):
         Convert an argparse Namespace object to a dict, removing values
         that are either None or ''.
         """
+        if not args:
+            args = {}
 
         if argparse:
             # Convert the passed-in Namespace
@@ -831,7 +833,7 @@ class OpenStackConfig(object):
             config['auth']['token'] = 'notused'
         return loading.get_plugin_loader(config['auth_type'])
 
-    def _validate_auth_ksc(self, config, cloud):
+    def _validate_auth_ksc(self, config, cloud, fixed_argparse):
         try:
             import keystoneclient.auth as ksc_auth
         except ImportError:
@@ -842,14 +844,22 @@ class OpenStackConfig(object):
             config['auth_type']).get_options()
 
         for p_opt in plugin_options:
+            # if it's in argparse, it was passed on the command line and wins
             # if it's in config.auth, win, kill it from config dict
             # if it's in config and not in config.auth, move it
             # deprecated loses to current
             # provided beats default, deprecated or not
             winning_value = self._find_winning_auth_value(
-                p_opt, config['auth'])
-            if not winning_value:
-                winning_value = self._find_winning_auth_value(p_opt, config)
+                p_opt, fixed_argparse)
+            if winning_value:
+                found_in_argparse = True
+            else:
+                found_in_argparse = False
+                winning_value = self._find_winning_auth_value(
+                    p_opt, config['auth'])
+                if not winning_value:
+                    winning_value = self._find_winning_auth_value(
+                        p_opt, config)
 
             # if the plugin tells us that this value is required
             # then error if it's doesn't exist now
@@ -865,7 +875,12 @@ class OpenStackConfig(object):
             # Clean up after ourselves
             for opt in [p_opt.name] + [o.name for o in p_opt.deprecated_opts]:
                 opt = opt.replace('-', '_')
-                config.pop(opt, None)
+                # don't do this if the value came from argparse, because we
+                # don't (yet) know if the value in not-auth came from argparse
+                # overlay or from someone passing in a dict to kwargs
+                # TODO(mordred) Fix that data path too
+                if not found_in_argparse:
+                    config.pop(opt, None)
                 config['auth'].pop(opt, None)
 
             if winning_value:
@@ -879,25 +894,38 @@ class OpenStackConfig(object):
 
         return config
 
-    def _validate_auth(self, config, loader):
+    def _validate_auth(self, config, loader, fixed_argparse):
         # May throw a keystoneauth1.exceptions.NoMatchingPlugin
 
         plugin_options = loader.get_options()
 
         for p_opt in plugin_options:
+            # if it's in argparse, it was passed on the command line and wins
             # if it's in config.auth, win, kill it from config dict
             # if it's in config and not in config.auth, move it
             # deprecated loses to current
             # provided beats default, deprecated or not
             winning_value = self._find_winning_auth_value(
-                p_opt, config['auth'])
-            if not winning_value:
-                winning_value = self._find_winning_auth_value(p_opt, config)
+                p_opt, fixed_argparse)
+            if winning_value:
+                found_in_argparse = True
+            else:
+                found_in_argparse = False
+                winning_value = self._find_winning_auth_value(
+                    p_opt, config['auth'])
+                if not winning_value:
+                    winning_value = self._find_winning_auth_value(
+                        p_opt, config)
 
             # Clean up after ourselves
             for opt in [p_opt.name] + [o.name for o in p_opt.deprecated]:
                 opt = opt.replace('-', '_')
-                config.pop(opt, None)
+                # don't do this if the value came from argparse, because we
+                # don't (yet) know if the value in not-auth came from argparse
+                # overlay or from someone passing in a dict to kwargs
+                # TODO(mordred) Fix that data path too
+                if not found_in_argparse:
+                    config.pop(opt, None)
                 config['auth'].pop(opt, None)
 
             if winning_value:
@@ -932,6 +960,11 @@ class OpenStackConfig(object):
         """
 
         args = self._fix_args(kwargs, argparse=argparse)
+        # Run the fix just for argparse by itself. We need to
+        # have a copy of the argparse options separately from
+        # any merged copied later in validate_auth so that we
+        # can determine precedence
+        fixed_argparse = self._fix_args(argparse=argparse)
 
         if cloud is None:
             if 'cloud' in args:
@@ -995,7 +1028,7 @@ class OpenStackConfig(object):
         if validate:
             try:
                 loader = self._get_auth_loader(config)
-                config = self._validate_auth(config, loader)
+                config = self._validate_auth(config, loader, fixed_argparse)
                 auth_plugin = loader.load_from_options(**config['auth'])
             except Exception as e:
                 # We WANT the ksa exception normally
@@ -1005,7 +1038,8 @@ class OpenStackConfig(object):
                 self.log.debug("Deferring keystone exception: {e}".format(e=e))
                 auth_plugin = None
                 try:
-                    config = self._validate_auth_ksc(config, cloud)
+                    config = self._validate_auth_ksc(
+                        config, cloud, fixed_argparse)
                 except Exception:
                     raise e
         else:
