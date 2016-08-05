@@ -5895,13 +5895,3 @@ class OpenStackCloud(object):
 
         new_baymodel = self.get_baymodel(name_or_id)
         return new_baymodel
-
-    def list_magnum_services(self):
-        """List all Magnum services.
-        :returns: a list of dicts containing the service details.
-
-        :raises: OpenStackCloudException on operation error.
-        """
-        with _utils.shade_exceptions("Error fetching Magnum services list"):
-            return self.manager.submitTask(
-                _tasks.MagnumServicesList())
