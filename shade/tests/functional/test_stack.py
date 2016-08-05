@@ -22,8 +22,7 @@ Functional tests for `shade` stack methods.
 import tempfile
 
 from shade import exc
-from shade import openstack_cloud
-from shade.tests import base
+from shade.tests.functional import base
 
 simple_template = '''heat_template_version: 2014-10-16
 parameters:
@@ -74,17 +73,16 @@ resource_registry:
 validate_template = '''heat_template_version: asdf-no-such-version '''
 
 
-class TestStack(base.TestCase):
+class TestStack(base.BaseFunctionalTestCase):
 
     def setUp(self):
         super(TestStack, self).setUp()
-        self.cloud = openstack_cloud(cloud='devstack')
-        if not self.cloud.has_service('orchestration'):
+        if not self.demo_cloud.has_service('orchestration'):
             self.skipTest('Orchestration service not supported by cloud')
 
     def _cleanup_stack(self):
-        self.cloud.delete_stack(self.stack_name, wait=True)
-        self.assertIsNone(self.cloud.get_stack(self.stack_name))
+        self.demo_cloud.delete_stack(self.stack_name, wait=True)
+        self.assertIsNone(self.demo_cloud.get_stack(self.stack_name))
 
     def test_stack_validation(self):
         test_template = tempfile.NamedTemporaryFile(delete=False)
@@ -92,7 +90,7 @@ class TestStack(base.TestCase):
         test_template.close()
         stack_name = self.getUniqueString('validate_template')
         self.assertRaises(exc.OpenStackCloudException,
-                          self.cloud.create_stack,
+                          self.demo_cloud.create_stack,
                           name=stack_name,
                           template_file=test_template.name)
 
@@ -102,9 +100,10 @@ class TestStack(base.TestCase):
         test_template.close()
         self.stack_name = self.getUniqueString('simple_stack')
         self.addCleanup(self._cleanup_stack)
-        stack = self.cloud.create_stack(name=self.stack_name,
-                                        template_file=test_template.name,
-                                        wait=True)
+        stack = self.demo_cloud.create_stack(
+            name=self.stack_name,
+            template_file=test_template.name,
+            wait=True)
 
         # assert expected values in stack
         self.assertEqual('CREATE_COMPLETE', stack['stack_status'])
@@ -112,19 +111,20 @@ class TestStack(base.TestCase):
         self.assertEqual(10, len(rand))
 
         # assert get_stack matches returned create_stack
-        stack = self.cloud.get_stack(self.stack_name)
+        stack = self.demo_cloud.get_stack(self.stack_name)
         self.assertEqual('CREATE_COMPLETE', stack['stack_status'])
         self.assertEqual(rand, stack['outputs'][0]['output_value'])
 
         # assert stack is in list_stacks
-        stacks = self.cloud.list_stacks()
+        stacks = self.demo_cloud.list_stacks()
         stack_ids = [s['id'] for s in stacks]
         self.assertIn(stack['id'], stack_ids)
 
         # update with no changes
-        stack = self.cloud.update_stack(self.stack_name,
-                                        template_file=test_template.name,
-                                        wait=True)
+        stack = self.demo_cloud.update_stack(
+            self.stack_name,
+            template_file=test_template.name,
+            wait=True)
 
         # assert no change in updated stack
         self.assertEqual('UPDATE_COMPLETE', stack['stack_status'])
@@ -132,13 +132,14 @@ class TestStack(base.TestCase):
         self.assertEqual(rand, stack['outputs'][0]['output_value'])
 
         # update with changes
-        stack = self.cloud.update_stack(self.stack_name,
-                                        template_file=test_template.name,
-                                        wait=True,
-                                        length=12)
+        stack = self.demo_cloud.update_stack(
+            self.stack_name,
+            template_file=test_template.name,
+            wait=True,
+            length=12)
 
         # assert changed output in updated stack
-        stack = self.cloud.get_stack(self.stack_name)
+        stack = self.demo_cloud.get_stack(self.stack_name)
         self.assertEqual('UPDATE_COMPLETE', stack['stack_status'])
         new_rand = stack['outputs'][0]['output_value']
         self.assertNotEqual(rand, new_rand)
@@ -161,10 +162,11 @@ class TestStack(base.TestCase):
 
         self.stack_name = self.getUniqueString('nested_stack')
         self.addCleanup(self._cleanup_stack)
-        stack = self.cloud.create_stack(name=self.stack_name,
-                                        template_file=test_template.name,
-                                        environment_files=[env.name],
-                                        wait=True)
+        stack = self.demo_cloud.create_stack(
+            name=self.stack_name,
+            template_file=test_template.name,
+            environment_files=[env.name],
+            wait=True)
 
         # assert expected values in stack
         self.assertEqual('CREATE_COMPLETE', stack['stack_status'])
