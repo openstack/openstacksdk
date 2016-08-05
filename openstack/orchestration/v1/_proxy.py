@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack.orchestration.v1 import resource as _resource
 from openstack.orchestration.v1 import software_config as _sc
 from openstack.orchestration.v1 import software_deployment as _sd
 from openstack.orchestration.v1 import stack as _stack
+from openstack.orchestration.v1 import template as _template
 from openstack import proxy2
 
 
@@ -249,3 +251,33 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._update(_sd.SoftwareDeployment, software_deployment,
                             **attrs)
+
+    def validate_template(self, template, environment=None, template_url=None,
+                          ignore_errors=None):
+        """Validates a template.
+
+        :param template: The stack template on which the validation is
+                         performed.
+        :param environment: A JSON environment for the stack, if provided.
+        :param template_url: A URI to the location containing the stack
+                             template for validation. This parameter is only
+                             required if the ``template`` parameter is None.
+                             This parameter is ignored if ``template`` is
+                             specified.
+        :param ignore_errors: A string containing comma separated error codes
+                              to ignore. Currently the only valid error code
+                              is '99001'.
+        :returns: The result of template validation.
+        :raises: :class:`~openstack.exceptions.InvalidRequest` if neither
+                 `template` not `template_url` is provided.
+        :raises: :class:`~openstack.exceptions.HttpException` if the template
+                 fails the validation.
+        """
+        if template is None and template_url is None:
+            raise exceptions.InvalidRequest(
+                "'template_url' must be specified when template is None")
+
+        tmpl = _template.Template.new()
+        return tmpl.validate(self.session, template, environment=environment,
+                             template_url=template_url,
+                             ignore_errors=ignore_errors)

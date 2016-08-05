@@ -19,6 +19,7 @@ from openstack.orchestration.v1 import resource
 from openstack.orchestration.v1 import software_config as sc
 from openstack.orchestration.v1 import software_deployment as sd
 from openstack.orchestration.v1 import stack
+from openstack.orchestration.v1 import template
 from openstack.tests.unit import test_proxy_base2
 
 
@@ -131,3 +132,24 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
                            sd.SoftwareDeployment, True)
         self.verify_delete(self.proxy.delete_software_deployment,
                            sd.SoftwareDeployment, False)
+
+    @mock.patch.object(template.Template, 'validate')
+    def test_validate_template(self, mock_validate):
+        tmpl = mock.Mock()
+        env = mock.Mock()
+        tmpl_url = 'A_URI'
+        ignore_errors = 'a_string'
+
+        res = self.proxy.validate_template(tmpl, env, tmpl_url, ignore_errors)
+
+        mock_validate.assert_called_once_with(
+            self.proxy.session, tmpl, environment=env, template_url=tmpl_url,
+            ignore_errors=ignore_errors)
+        self.assertEqual(mock_validate.return_value, res)
+
+    def test_validate_template_invalid_request(self):
+        err = self.assertRaises(exceptions.InvalidRequest,
+                                self.proxy.validate_template,
+                                None, template_url=None)
+        self.assertEqual("'template_url' must be specified when template is "
+                         "None", six.text_type(err))
