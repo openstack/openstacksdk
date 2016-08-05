@@ -16,7 +16,7 @@ import testtools
 
 from openstack import exceptions
 from openstack.orchestration.v1 import stack
-from openstack import resource
+from openstack import resource2 as resource
 
 
 FAKE_ID = 'ce8ae86c-9810-4cb1-8888-7fb53bc523bf'
@@ -59,13 +59,13 @@ class TestStack(testtools.TestCase):
         self.assertEqual('/stacks', sot.base_path)
         self.assertEqual('orchestration', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = stack.Stack(FAKE)
+        sot = stack.Stack(**FAKE)
         self.assertEqual(FAKE['capabilities'], sot.capabilities)
         self.assertEqual(FAKE['creation_time'], sot.created_at)
         self.assertEqual(FAKE['description'], sot.description)
@@ -82,109 +82,45 @@ class TestStack(testtools.TestCase):
                          sot.status_reason)
         self.assertEqual(FAKE['template_description'],
                          sot.template_description)
-        self.assertEqual(FAKE['template_url'],
-                         sot.template_url)
+        self.assertEqual(FAKE['template_url'], sot.template_url)
         self.assertEqual(FAKE['timeout_mins'], sot.timeout_mins)
         self.assertEqual(FAKE['updated_time'], sot.updated_at)
 
-    def test_create(self):
-        resp = mock.Mock()
-        resp.json = mock.Mock(return_value=FAKE_CREATE_RESPONSE)
+    @mock.patch.object(resource.Resource, 'create')
+    def test_create(self, mock_create):
         sess = mock.Mock()
-        sess.post = mock.Mock(return_value=resp)
         sot = stack.Stack(FAKE)
 
-        sot.create(sess)
+        res = sot.create(sess)
 
-        url = '/stacks'
-        body = sot._attrs.copy()
-        body.pop('id', None)
-        body.pop('name', None)
-        sess.post.assert_called_with(url, endpoint_filter=sot.service,
-                                     json=body)
-        self.assertEqual(FAKE_ID, sot.id)
-        self.assertEqual(FAKE_NAME, sot.name)
+        mock_create.assert_called_once_with(sess, prepend_key=False)
+        self.assertEqual(mock_create.return_value, res)
 
-    def test_preview(self):
-        resp = mock.Mock()
-        resp.json = mock.Mock(return_value=FAKE_CREATE_RESPONSE)
+    @mock.patch.object(resource.Resource, 'update')
+    def test_update(self, mock_update):
         sess = mock.Mock()
-        sess.post = mock.Mock(return_value=resp)
-        attrs = FAKE.copy()
-        sot = stack.StackPreview(attrs)
-
-        sot.create(sess)
-
-        url = '/stacks/preview'
-        body = sot._attrs.copy()
-        body.pop('id', None)
-        body.pop('name', None)
-        sess.post.assert_called_with(url, endpoint_filter=sot.service,
-                                     json=body)
-        self.assertEqual(FAKE_ID, sot.id)
-        self.assertEqual(FAKE_NAME, sot.name)
-
-    def test_update(self):
-        # heat responds to update request with an 202 status code
-        resp_update = mock.Mock()
-        resp_update.status_code = 202
-        sess = mock.Mock()
-        sess.patch = mock.Mock(return_value=resp_update)
-
-        resp_get = mock.Mock()
-        resp_get.body = {'stack': FAKE_CREATE_RESPONSE}
-        resp_get.json = mock.Mock(return_value=resp_get.body)
-        sess.get = mock.Mock(return_value=resp_get)
-
-        # create a stack for update
         sot = stack.Stack(FAKE)
-        new_body = sot._attrs.copy()
-        del new_body['id']
-        del new_body['name']
 
-        sot.timeout_mins = 119
-        resp = sot.update(sess)
+        res = sot.update(sess)
 
-        url = 'stacks/%s' % sot.id
-        new_body['timeout_mins'] = 119
-        sess.put.assert_called_once_with(url, endpoint_filter=sot.service,
-                                         json=new_body)
-        sess.get.assert_called_once_with(url, endpoint_filter=sot.service)
-        self.assertEqual(sot, resp)
+        mock_update.assert_called_once_with(sess, prepend_key=False,
+                                            has_body=False)
+        self.assertEqual(mock_update.return_value, res)
 
     def test_check(self):
-        session_mock = mock.Mock()
-        sot = stack.Stack(FAKE)
+        sess = mock.Mock()
+        sot = stack.Stack(**FAKE)
         sot._action = mock.Mock()
         body = {'check': ''}
-        sot.check(session_mock)
-        sot._action.assert_called_with(session_mock, body)
 
-    @mock.patch.object(resource.Resource, 'find')
-    def test_find(self, mock_find):
-        sess = mock.Mock()
-        sot = stack.Stack(FAKE)
-        deleted_stack = mock.Mock(status='DELETE_COMPLETE')
-        normal_stack = mock.Mock(status='CREATE_COMPLETE')
-        mock_find.side_effect = [
-            None,
-            normal_stack,
-            deleted_stack,
-            deleted_stack,
-        ]
+        sot.check(sess)
 
-        self.assertIsNone(sot.find(sess, 'fake_name'))
-        self.assertEqual(normal_stack, sot.find(sess, 'fake_name'))
-        self.assertIsNone(sot.find(sess, 'fake_name', ignore_missing=True))
-        ex = self.assertRaises(exceptions.ResourceNotFound, sot.find,
-                               sess, 'fake_name', ignore_missing=False)
-        self.assertEqual('ResourceNotFound: No stack found for fake_name',
-                         six.text_type(ex))
+        sot._action.assert_called_with(sess, body)
 
     @mock.patch.object(resource.Resource, 'get')
     def test_get(self, mock_get):
         sess = mock.Mock()
-        sot = stack.Stack(FAKE)
+        sot = stack.Stack(**FAKE)
         deleted_stack = mock.Mock(id=FAKE_ID, status='DELETE_COMPLETE')
         normal_stack = mock.Mock(status='CREATE_COMPLETE')
         mock_get.side_effect = [
@@ -199,3 +135,16 @@ class TestStack(testtools.TestCase):
         ex = self.assertRaises(exceptions.NotFoundException, sot.get, sess)
         self.assertEqual('NotFoundException: No stack found for %s' % FAKE_ID,
                          six.text_type(ex))
+
+
+class TestStackPreview(testtools.TestCase):
+
+    def test_basic(self):
+        sot = stack.StackPreview()
+
+        self.assertEqual('/stacks/preview', sot.base_path)
+        self.assertTrue(sot.allow_create)
+        self.assertFalse(sot.allow_list)
+        self.assertFalse(sot.allow_get)
+        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_delete)

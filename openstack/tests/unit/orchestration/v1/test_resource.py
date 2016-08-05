@@ -52,7 +52,7 @@ class TestResource(testtools.TestCase):
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = resource.Resource(FAKE)
+        sot = resource.Resource(**FAKE)
         self.assertEqual(FAKE['links'], sot.links)
         self.assertEqual(FAKE['logical_resource_id'], sot.logical_resource_id)
         self.assertEqual(FAKE['name'], sot.name)

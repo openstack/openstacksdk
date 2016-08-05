@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.orchestration import orchestration_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Resource(resource.Resource):
@@ -30,25 +30,26 @@ class Resource(resource.Resource):
 
     # Properties
     #: A list of dictionaries containing links relevant to the resource.
-    links = resource.prop('links')
+    links = resource.Body('links')
     #: ID of the logical resource, usually the literal name of the resource
     #: as it appears in the stack template.
-    logical_resource_id = resource.prop('logical_resource_id')
+    logical_resource_id = resource.Body('logical_resource_id',
+                                        alternate_id=True)
     #: Name of the resource.
-    name = resource.prop('resource_name')
+    name = resource.Body('resource_name')
     #: ID of the physical resource (if any) that backs up the resource. For
     #: example, it contains a nova server ID if the resource is a nova
     #: server.
-    physical_resource_id = resource.prop('physical_resource_id')
+    physical_resource_id = resource.Body('physical_resource_id')
     #: A list of resource names that depend on this resource. This
     #: property facilitates the deduction of resource dependencies.
     #: *Type: list*
-    required_by = resource.prop('required_by', type=list)
+    required_by = resource.Body('required_by', type=list)
     #: A string representation of the resource type.
-    resource_type = resource.prop('resource_type')
+    resource_type = resource.Body('resource_type')
     #: A string representing the status the resource is currently in.
-    status = resource.prop('resource_status')
+    status = resource.Body('resource_status')
     #: A string that explains why the resource is in its current status.
-    status_reason = resource.prop('resource_status_reason')
+    status_reason = resource.Body('resource_status_reason')
     #: Timestamp of the last update made to the resource.
-    updated_at = resource.prop('updated_time')
+    updated_at = resource.Body('updated_time')

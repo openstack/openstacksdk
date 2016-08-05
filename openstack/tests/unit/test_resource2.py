@@ -937,7 +937,7 @@ class TestResourceActions(base.TestCase):
         sot._prepare_request = mock.Mock(return_value=self.request)
         sot._translate_response = mock.Mock()
 
-        result = sot.create(self.session)
+        result = sot.create(self.session, prepend_key=prepend_key)
 
         sot._prepare_request.assert_called_once_with(
             requires_id=requires_id, prepend_key=prepend_key)
@@ -1005,16 +1005,19 @@ class TestResourceActions(base.TestCase):
         self.sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, self.sot)
 
-    def _test_update(self, patch_update=False):
+    def _test_update(self, patch_update=False, prepend_key=True,
+                     has_body=True):
         self.sot.patch_update = patch_update
 
         # Need to make sot look dirty so we can attempt an update
         self.sot._body = mock.Mock()
         self.sot._body.dirty = mock.Mock(return_value={"x": "y"})
 
-        self.sot.update(self.session)
+        self.sot.update(self.session, prepend_key=prepend_key,
+                        has_body=has_body)
 
-        self.sot._prepare_request.assert_called_once_with(prepend_key=True)
+        self.sot._prepare_request.assert_called_once_with(
+            prepend_key=prepend_key)
 
         if patch_update:
             self.session.patch.assert_called_once_with(
@@ -1027,13 +1030,14 @@ class TestResourceActions(base.TestCase):
                 endpoint_filter=self.service_name,
                 json=self.request.body, headers=self.request.headers)
 
-        self.sot._translate_response.assert_called_once_with(self.response)
+        self.sot._translate_response.assert_called_once_with(
+            self.response, has_body=has_body)
 
     def test_update_put(self):
-        self._test_update(patch_update=False)
+        self._test_update(patch_update=False, prepend_key=True, has_body=True)
 
     def test_update_patch(self):
-        self._test_update(patch_update=True)
+        self._test_update(patch_update=True, prepend_key=False, has_body=False)
 
     def test_update_not_dirty(self):
         self.sot._body = mock.Mock()

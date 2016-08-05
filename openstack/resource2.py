@@ -542,11 +542,14 @@ class Resource(object):
         self._header.attributes.update(headers)
         self._header.clean()
 
-    def create(self, session):
+    def create(self, session, prepend_key=True):
         """Create a remote resource based on this instance.
 
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
+        :param prepend_key: A boolean indicating whether the resource_key
+                            should be prepended in a resource creation
+                            request. Default to True.
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -557,12 +560,12 @@ class Resource(object):
 
         if self.put_create:
             request = self._prepare_request(requires_id=True,
-                                            prepend_key=True)
+                                            prepend_key=prepend_key)
             response = session.put(request.uri, endpoint_filter=self.service,
                                    json=request.body, headers=request.headers)
         else:
             request = self._prepare_request(requires_id=False,
-                                            prepend_key=True)
+                                            prepend_key=prepend_key)
             response = session.post(request.uri, endpoint_filter=self.service,
                                     json=request.body, headers=request.headers)
 
@@ -610,11 +613,14 @@ class Resource(object):
         self._translate_response(response)
         return self
 
-    def update(self, session):
+    def update(self, session, prepend_key=True, has_body=True):
         """Update the remote resource based on this instance.
 
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
+        :param prepend_key: A boolean indicating whether the resource_key
+                            should be prepended in a resource update request.
+                            Default to True.
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -627,7 +633,7 @@ class Resource(object):
         if not self.allow_update:
             raise exceptions.MethodNotSupported(self, "update")
 
-        request = self._prepare_request(prepend_key=True)
+        request = self._prepare_request(prepend_key=prepend_key)
 
         if self.patch_update:
             response = session.patch(request.uri, endpoint_filter=self.service,
@@ -637,7 +643,7 @@ class Resource(object):
             response = session.put(request.uri, endpoint_filter=self.service,
                                    json=request.body, headers=request.headers)
 
-        self._translate_response(response)
+        self._translate_response(response, has_body=has_body)
         return self
 
     def delete(self, session):

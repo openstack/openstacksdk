@@ -10,20 +10,20 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import exceptions
 from openstack.orchestration.v1 import resource as _resource
 from openstack.orchestration.v1 import stack as _stack
-from openstack import proxy
+from openstack import proxy2
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy2.BaseProxy):
 
     def create_stack(self, preview=False, **attrs):
         """Create a new stack from attributes
 
         :param bool perview: When ``True``, returns
-            :class:`~openstack.orchestration.v1.stack.StackPreview` objects,
-            otherwise :class:`~openstack.orchestration.v1.stack.Stack`.
+            an :class:`~openstack.orchestration.v1.stack.StackPreview` object,
+            otherwise an :class:`~openstack.orchestration.v1.stack.Stack`
+            object.
             *Default: ``False``*
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.orchestration.v1.stack.Stack`,
@@ -32,8 +32,8 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of stack creation
         :rtype: :class:`~openstack.orchestration.v1.stack.Stack`
         """
-        stk = _stack.StackPreview if preview else _stack.Stack
-        return self._create(stk, **attrs)
+        res_type = _stack.StackPreview if preview else _stack.Stack
+        return self._create(res_type, **attrs)
 
     def find_stack(self, name_or_id, ignore_missing=True):
         """Find a single stack
@@ -120,23 +120,10 @@ class Proxy(proxy.BaseProxy):
                  when the stack cannot be found.
         """
         # first try treat the value as a stack object or an ID
-        try:
-            stk = _stack.Stack.from_id(stack)
-        except ValueError:
-            raise exceptions.ResourceNotFound(
-                "No stack found for %(v)s" % {'v': stack})
+        if isinstance(stack, _stack.Stack):
+            obj = stack
+        else:
+            obj = self._find(_stack.Stack, stack, ignore_missing=False)
 
-        # if stack object doesn't contain a valid name, it means the object
-        # was created on the fly so we need to retrieve its name
-        if not stk.name:
-            stk = self.find_stack(stack)
-            if stk is None:
-                raise exceptions.ResourceNotFound(
-                    "No stack found for %(v)s" % {'v': stack})
-
-        path_args = {
-            'stack_name': stk.name,
-            'stack_id': stk.id,
-        }
         return self._list(_resource.Resource, paginated=False,
-                          path_args=path_args, **query)
+                          stack_name=obj.name, stack_id=obj.id, **query)

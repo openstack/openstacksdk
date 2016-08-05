@@ -17,10 +17,10 @@ from openstack import exceptions
 from openstack.orchestration.v1 import _proxy
 from openstack.orchestration.v1 import resource
 from openstack.orchestration.v1 import stack
-from openstack.tests.unit import test_proxy_base
+from openstack.tests.unit import test_proxy_base2
 
 
-class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
+class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
     def setUp(self):
         super(TestOrchestrationProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
@@ -51,25 +51,33 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
     def test_stack_delete_ignore(self):
         self.verify_delete(self.proxy.delete_stack, stack.Stack, True)
 
-    @mock.patch.object(stack.Stack, 'from_id')
     @mock.patch.object(stack.Stack, 'find')
-    def test_resources_with_stack_object(self, mock_find, mock_from):
+    def test_resources_with_stack_object(self, mock_find):
         stack_id = '1234'
         stack_name = 'test_stack'
-        stack_identity = {'id': stack_id, 'name': stack_name}
-        stk = stack.Stack(attrs=stack_identity)
-        mock_from.return_value = stk
+        stk = stack.Stack(id=stack_id, name=stack_name)
 
-        path_args = {'stack_id': stk.id, 'stack_name': stk.name}
         self.verify_list(self.proxy.resources, resource.Resource,
-                         paginated=False,
-                         method_args=[stk],
-                         expected_kwargs={'path_args': path_args})
+                         paginated=False, method_args=[stk],
+                         expected_kwargs={'stack_name': stack_name,
+                                          'stack_id': stack_id})
 
         self.assertEqual(0, mock_find.call_count)
 
-    def test_resources_with_stack_name(self):
-        self.verify_find(self.proxy.find_stack, stack.Stack)
+    @mock.patch.object(stack.Stack, 'find')
+    def test_resources_with_stack_name(self, mock_find):
+        stack_id = '1234'
+        stack_name = 'test_stack'
+        stk = stack.Stack(id=stack_id, name=stack_name)
+        mock_find.return_value = stk
+
+        self.verify_list(self.proxy.resources, resource.Resource,
+                         paginated=False, method_args=[stack_id],
+                         expected_kwargs={'stack_name': stack_name,
+                                          'stack_id': stack_id})
+
+        mock_find.assert_called_once_with(mock.ANY, stack_id,
+                                          ignore_missing=False)
 
     @mock.patch.object(stack.Stack, 'find')
     @mock.patch.object(resource.Resource, 'list')

@@ -12,7 +12,7 @@
 
 from openstack import exceptions
 from openstack.orchestration import orchestration_service
-from openstack import resource
+from openstack import resource2 as resource
 from openstack import utils
 
 
@@ -24,93 +24,78 @@ class Stack(resource.Resource):
     service = orchestration_service.OrchestrationService()
 
     # capabilities
-    # NOTE(thowe): Special handling for other operations
     allow_create = True
     allow_list = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
 
     # Properties
     #: Placeholder for AWS compatible template listing capabilities
     #: required by the stack.
-    capabilities = resource.prop('capabilities')
+    capabilities = resource.Body('capabilities')
     #: Timestamp of the stack creation.
-    created_at = resource.prop('creation_time')
+    created_at = resource.Body('creation_time')
     #: A text description of the stack.
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: Whether the stack will support a rollback operation on stack
     #: create/update failures. *Type: bool*
-    is_rollback_disabled = resource.prop('disable_rollback', type=bool)
+    is_rollback_disabled = resource.Body('disable_rollback', type=bool)
     #: A list of dictionaries containing links relevant to the stack.
-    links = resource.prop('links')
+    links = resource.Body('links')
     #: Name of the stack.
-    name = resource.prop('stack_name')
+    name = resource.Body('stack_name')
     #: Placeholder for future extensions where stack related events
     #: can be published.
-    notification_topics = resource.prop('notification_topics')
-    #: A dictionary containing output keys and values from the stack, if any.
-    outputs = resource.prop('outputs')
+    notification_topics = resource.Body('notification_topics')
+    #: A list containing output keys and values from the stack, if any.
+    outputs = resource.Body('outputs')
+    #: The ID of the owner stack if any.
+    owner_id = resource.Body('stack_owner')
     #: A dictionary containing the parameter names and values for the stack.
-    parameters = resource.prop('parameters', type=dict)
-    #: A string representation of the stack status, e.g. ``CREATE_COMPLETED``.
-    status = resource.prop('stack_status')
+    parameters = resource.Body('parameters', type=dict)
+    #: The ID of the parent stack if any
+    parent_id = resource.Body('parent')
+    #: A string representation of the stack status, e.g. ``CREATE_COMPLETE``.
+    status = resource.Body('stack_status')
     #: A text explaining how the stack transits to its current status.
-    status_reason = resource.prop('stack_status_reason')
+    status_reason = resource.Body('stack_status_reason')
+    #: A dict containing the template use for stack creation.
+    template = resource.Body('template', type=dict)
     #: Stack template description text. Currently contains the same text
     #: as that of the ``description`` property.
-    template_description = resource.prop('template_description')
-    #: A URL (i.e. HTTP or HTTPS) where stack template can be retrieved.
-    template_url = resource.prop('template_url')
+    template_description = resource.Body('template_description')
+    #: A string containing the URL where a stack template can be found.
+    template_url = resource.Body('template_url')
     #: Stack operation timeout in minutes.
-    timeout_mins = resource.prop('timeout_mins')
+    timeout_mins = resource.Body('timeout_mins')
     #: Timestamp of last update on the stack.
-    updated_at = resource.prop('updated_time')
+    updated_at = resource.Body('updated_time')
+    #: The ID of the user project created for this stack.
+    user_project_id = resource.Body('stack_user_project_id')
+
+    def create(self, session):
+        # This overrides the default behavior of resource creation because
+        # heat doesn't accept resource_key in its request.
+        return super(Stack, self).create(session, prepend_key=False)
+
+    def update(self, session):
+        # This overrides the default behavior of resource creation because
+        # heat doesn't accept resource_key in its request.
+        return super(Stack, self).update(session, prepend_key=False,
+                                         has_body=False)
 
     def _action(self, session, body):
         """Perform stack actions"""
-        url = utils.urljoin(self.base_path, self.id, 'actions')
+        url = utils.urljoin(self.base_path, self._get_id(self), 'actions')
         resp = session.post(url, endpoint_filter=self.service, json=body)
         return resp.json()
 
     def check(self, session):
         return self._action(session, {'check': ''})
 
-    @classmethod
-    def create_by_id(cls, session, attrs, resource_id=None, path_args=None):
-        body = attrs.copy()
-        body.pop('id', None)
-        body.pop('name', None)
-        url = cls.base_path
-        resp = session.post(url, endpoint_filter=cls.service, json=body)
-        resp = resp.json()
-        return resp[cls.resource_key]
-
-    @classmethod
-    def update_by_id(cls, session, resource_id, attrs, path_args=None):
-        # Heat returns a 202 for update operation, we ignore the non-existent
-        # response.body and do an additional get
-        body = attrs.copy()
-        body.pop('id', None)
-        body.pop('name', None)
-        url = cls._get_url(path_args, resource_id)
-        session.put(url, endpoint_filter=cls.service, json=body)
-        return cls.get_by_id(session, resource_id)
-
-    @classmethod
-    def find(cls, session, name_or_id, path_args=None, ignore_missing=True):
-        stk = super(Stack, cls).find(session, name_or_id, path_args=path_args,
-                                     ignore_missing=ignore_missing)
-        if stk and stk.status in ['DELETE_COMPLETE', 'ADOPT_COMPLETE']:
-            if ignore_missing:
-                return None
-            else:
-                raise exceptions.ResourceNotFound(
-                    "No stack found for %s" % name_or_id)
-        return stk
-
-    def get(self, session, include_headers=False, args=None):
-        stk = super(Stack, self).get(session, include_headers, args)
+    def get(self, session, requires_id=True):
+        stk = super(Stack, self).get(session, requires_id=requires_id)
         if stk and stk.status in ['DELETE_COMPLETE', 'ADOPT_COMPLETE']:
             raise exceptions.NotFoundException(
                 "No stack found for %s" % stk.id)
@@ -122,6 +107,6 @@ class StackPreview(Stack):
 
     allow_create = True
     allow_list = False
-    allow_retrieve = False
+    allow_get = False
     allow_update = False
     allow_delete = False
