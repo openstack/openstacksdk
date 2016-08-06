@@ -16,6 +16,8 @@
 import mock
 
 import shade
+from keystoneauth1.fixture import keystoneauth_betamax
+from keystoneauth1.fixture import serializer
 from shade.tests import fakes
 from shade.tests.unit import base
 
@@ -25,16 +27,36 @@ class TestFlavors(base.TestCase):
     def setUp(self):
         super(TestFlavors, self).setUp()
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_create_flavor(self, mock_nova):
+    def test_create_flavor(self):
+        self.useFixture(keystoneauth_betamax.BetamaxFixture(
+            cassette_name='test_create_flavor',
+            cassette_library_dir=self.fixtures_directory,
+            record=self.record_fixtures,
+            serializer=serializer.YamlJsonSerializer))
+
+        old_flavors = self.op_cloud.list_flavors()
         self.op_cloud.create_flavor(
             'vanilla', 12345, 4, 100
         )
-        mock_nova.flavors.create.assert_called_once_with(
-            name='vanilla', ram=12345, vcpus=4, disk=100,
-            flavorid='auto', ephemeral=0, swap=0, rxtx_factor=1.0,
-            is_public=True
-        )
+
+        # test that we have a new flavor added
+        new_flavors = self.op_cloud.list_flavors()
+        self.assertEquals(len(new_flavors) - len(old_flavors), 1)
+
+        # test that new flavor is created correctly
+        found = False
+        for flavor in new_flavors:
+            if flavor['name'] == 'vanilla':
+                found = True
+                break
+        self.assertTrue(found)
+        needed_keys = {'name', 'ram', 'vcpus', 'id', 'is_public', 'disk'}
+        if found:
+            # check flavor content
+            self.assertTrue(needed_keys.issubset(flavor.keys()))
+
+        # delete created flavor
+        self.op_cloud.delete_flavor('vanilla')
 
     @mock.patch.object(shade.OpenStackCloud, '_compute_client')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
