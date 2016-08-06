@@ -250,3 +250,16 @@ class TestCompute(base.BaseFunctionalTestCase):
             exc.OpenStackCloudException,
             self.demo_cloud.delete_server_metadata,
             self.server_name, ['key1'])
+
+    def test_update_server(self):
+        self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
+        self.demo_cloud.create_server(
+            name=self.server_name,
+            image=self.image,
+            flavor=self.flavor,
+            wait=True)
+        server_updated = self.demo_cloud.update_server(
+            self.server_name,
+            name='new_name'
+        )
+        self.assertEqual('new_name', server_updated['name'])

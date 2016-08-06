@@ -167,6 +167,11 @@ class ServerDelete(task_manager.Task):
         return client.nova_client.servers.delete(**self.args)
 
 
+class ServerUpdate(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.servers.update(**self.args)
+
+
 class ServerRebuild(task_manager.Task):
     def main(self, client):
         return client.nova_client.servers.rebuild(**self.args)

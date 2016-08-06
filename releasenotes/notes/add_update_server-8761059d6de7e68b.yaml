@@ -1,0 +1,3 @@
+---
+features:
+  - Add update_server method to update name or description of a server.

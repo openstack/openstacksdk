@@ -4472,6 +4472,30 @@ class OpenStackCloud(object):
         self._servers_time = self._servers_time - self._SERVER_AGE
         return True
 
+    @_utils.valid_kwargs(
+        'name', 'description')
+    def update_server(self, name_or_id, **kwargs):
+        """Update a server.
+
+        :param name_or_id: Name of the server to be updated.
+        :name: New name for the server
+        :description: New description for the server
+
+        :returns: a dictionary representing the updated server.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        server = self.get_server(name_or_id=name_or_id)
+        if server is None:
+            raise OpenStackCloudException(
+                "failed to find server '{server}'".format(server=name_or_id))
+
+        with _utils.shade_exceptions(
+                "Error updating server {0}".format(name_or_id)):
+            return self.manager.submitTask(
+                _tasks.ServerUpdate(
+                    server=server['id'], **kwargs))
+
     def create_server_group(self, name, policies):
         """Create a new server group.
 
