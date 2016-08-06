@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.orchestration.v1 import resource as _resource
+from openstack.orchestration.v1 import software_config as _sc
 from openstack.orchestration.v1 import stack as _stack
 from openstack import proxy2
 
@@ -97,7 +98,7 @@ class Proxy(proxy2.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the stack does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent stack.
 
         :returns: ``None``
         """
@@ -127,3 +128,55 @@ class Proxy(proxy2.BaseProxy):
 
         return self._list(_resource.Resource, paginated=False,
                           stack_name=obj.name, stack_id=obj.id, **query)
+
+    def create_software_config(self, **attrs):
+        """Create a new software config from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.orchestration.v1.software_config.SoftwareConfig`,
+            comprised of the properties on the SoftwareConfig class.
+
+        :returns: The results of software config creation
+        :rtype:
+            :class:`~openstack.orchestration.v1.software_config.SoftwareConfig`
+        """
+        return self._create(_sc.SoftwareConfig, **attrs)
+
+    def software_configs(self, **query):
+        """Returns a generator of software configs
+
+        :param dict query: Optional query parameters to be sent to limit the
+                           software configs returned.
+        :returns: A generator of software config objects.
+        :rtype:
+        :class:`~openstack.orchestration.v1.software_config.SoftwareConfig`
+        """
+        return self._list(_sc.SoftwareConfig, paginated=True, **query)
+
+    def get_software_config(self, software_config):
+        """Create a software config.
+
+        :param software_config: The value can be the ID of a software config
+            or a instace of
+            :class:`~openstack.orchestration.v1.software_config.SoftwareConfig`,
+
+        :returns: An object of type
+            :class:`~openstack.orchestration.v1.software_config.SoftwareConfig`
+        """
+        return self._get(_sc.SoftwareConfig, software_config)
+
+    def delete_software_config(self, software_config, ignore_missing=True):
+        """Delete a software config
+
+        :param software_config: The value can be either the ID of a software
+            config or an instance of
+            :class:`~openstack.orchestration.v1.software_config.SoftwareConfig`
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the software config does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent software config.
+        :returns: ``None``
+        """
+        self._delete(_sc.SoftwareConfig, software_config,
+                     ignore_missing=ignore_missing)

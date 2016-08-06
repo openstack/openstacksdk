@@ -16,6 +16,7 @@ import six
 from openstack import exceptions
 from openstack.orchestration.v1 import _proxy
 from openstack.orchestration.v1 import resource
+from openstack.orchestration.v1 import software_config as sc
 from openstack.orchestration.v1 import stack
 from openstack.tests.unit import test_proxy_base2
 
@@ -90,3 +91,20 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
                                self.proxy.resources, stack_name)
         self.assertEqual('ResourceNotFound: No stack found for test_stack',
                          six.text_type(ex))
+
+    def test_create_software_config(self):
+        self.verify_create(self.proxy.create_software_config,
+                           sc.SoftwareConfig)
+
+    def test_software_configs(self):
+        self.verify_list(self.proxy.software_configs, sc.SoftwareConfig,
+                         paginated=True)
+
+    def test_get_software_config(self):
+        self.verify_get(self.proxy.get_software_config, sc.SoftwareConfig)
+
+    def test_delete_software_config(self):
+        self.verify_delete(self.proxy.delete_software_config,
+                           sc.SoftwareConfig, True)
+        self.verify_delete(self.proxy.delete_software_config,
+                           sc.SoftwareConfig, False)
