@@ -72,6 +72,19 @@ class TestFloatingIP(base.TestCase):
         }
     }
 
+    mock_floating_ip_port_rep = {
+        'floatingip': {
+            'fixed_ip_address': '10.0.0.4',
+            'floating_ip_address': '172.24.4.229',
+            'floating_network_id': 'my-network-id',
+            'id': '2f245a7b-796b-4f26-9cf9-9e82d248fda8',
+            'port_id': 'ce705c24-c1ef-408a-bda3-7bbd946164ab',
+            'router_id': None,
+            'status': 'ACTIVE',
+            'tenant_id': '4969c491a3c74ee4af974e6d800c62df'
+        }
+    }
+
     mock_get_network_rep = {
         'status': 'ACTIVE',
         'subnets': [
@@ -216,6 +229,44 @@ class TestFloatingIP(base.TestCase):
             self.mock_floating_ip_new_rep['floatingip']['floating_ip_address'],
             ip['floating_ip_address'])
 
+    @patch.object(OpenStackCloud, 'neutron_client')
+    @patch.object(OpenStackCloud, 'search_networks')
+    @patch.object(OpenStackCloud, 'has_service')
+    def test_create_floating_ip_port_bad_response(
+            self, mock_has_service, mock_search_networks, mock_neutron_client):
+        mock_has_service.return_value = True
+        mock_search_networks.return_value = [self.mock_get_network_rep]
+        mock_neutron_client.create_floatingip.return_value = \
+            self.mock_floating_ip_new_rep
+
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.client.create_floating_ip,
+            network='my-network', port='ce705c24-c1ef-408a-bda3-7bbd946164ab')
+
+    @patch.object(OpenStackCloud, 'neutron_client')
+    @patch.object(OpenStackCloud, 'search_networks')
+    @patch.object(OpenStackCloud, 'has_service')
+    def test_create_floating_ip_port(
+            self, mock_has_service, mock_search_networks, mock_neutron_client):
+        mock_has_service.return_value = True
+        mock_search_networks.return_value = [self.mock_get_network_rep]
+        mock_neutron_client.create_floatingip.return_value = \
+            self.mock_floating_ip_port_rep
+
+        ip = self.client.create_floating_ip(
+            network='my-network', port='ce705c24-c1ef-408a-bda3-7bbd946164ab')
+
+        mock_neutron_client.create_floatingip.assert_called_with(
+            body={'floatingip': {
+                'floating_network_id': 'my-network-id',
+                'port_id': 'ce705c24-c1ef-408a-bda3-7bbd946164ab',
+            }}
+        )
+        self.assertEqual(
+            self.mock_floating_ip_new_rep['floatingip']['floating_ip_address'],
+            ip['floating_ip_address'])
+
     @patch.object(_utils, 'normalize_neutron_floating_ips')
     @patch.object(OpenStackCloud, '_neutron_available_floating_ips')
     @patch.object(OpenStackCloud, 'has_service')
@@ -352,7 +403,7 @@ class TestFloatingIP(base.TestCase):
             fake_server, ip_pool='my-network', reuse=False)
 
         mock__neutron_create_floating_ip.assert_called_once_with(
-            network_name_or_id='my-network', server=None,
+            network_name_or_id='my-network', server=None, port=None,
             fixed_address=None, nat_destination=None, wait=False, timeout=60)
         mock_attach_ip_to_server.assert_called_once_with(
             server=fake_server, fixed_address=None,
