@@ -13,6 +13,7 @@
 from openstack.cluster.v1 import action as _action
 from openstack.cluster.v1 import build_info
 from openstack.cluster.v1 import cluster as _cluster
+from openstack.cluster.v1 import cluster_attr as _cluster_attr
 from openstack.cluster.v1 import cluster_policy as _cluster_policy
 from openstack.cluster.v1 import event as _event
 from openstack.cluster.v1 import node as _node
@@ -380,6 +381,18 @@ class Proxy(proxy2.BaseProxy):
         else:
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.policy_update(self.session, policy, **params)
+
+    def collect_cluster_attrs(self, cluster, path):
+        """Collect attribute values across a cluster.
+
+        :param cluster: The value can be either the ID of a cluster or a
+            :class:`~openstack.cluster.v1.cluster.Cluster` instance.
+        :param path: A Json path string specifying the attribute to collect.
+
+        :returns: A dictionary containing the list of attribute values.
+        """
+        return self._list(_cluster_attr.ClusterAttr, paginated=False,
+                          cluster_id=cluster, path=path)
 
     def check_cluster(self, cluster, **params):
         """check a cluster.
