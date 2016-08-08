@@ -55,6 +55,14 @@ nova_grp_dict = meta.obj_to_dict(nova_grp_obj)
 
 class TestSecurityGroups(base.TestCase):
 
+    def setUp(self):
+        super(TestSecurityGroups, self).setUp()
+        self.has_neutron = True
+
+        def fake_has_service(*args, **kwargs):
+            return self.has_neutron
+        self.cloud.has_service = fake_has_service
+
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_list_security_groups_neutron(self, mock_nova, mock_neutron):
@@ -67,6 +75,7 @@ class TestSecurityGroups(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_list_security_groups_nova(self, mock_nova, mock_neutron):
         self.cloud.secgroup_source = 'nova'
+        self.has_neutron = False
         self.cloud.list_security_groups()
         self.assertFalse(mock_neutron.list_security_groups.called)
         self.assertTrue(mock_nova.security_groups.list.called)
@@ -75,6 +84,7 @@ class TestSecurityGroups(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_list_security_groups_none(self, mock_nova, mock_neutron):
         self.cloud.secgroup_source = None
+        self.has_neutron = False
         self.assertRaises(shade.OpenStackCloudUnavailableFeature,
                           self.cloud.list_security_groups)
         self.assertFalse(mock_neutron.list_security_groups.called)
@@ -93,6 +103,7 @@ class TestSecurityGroups(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_delete_security_group_nova(self, mock_nova):
         self.cloud.secgroup_source = 'nova'
+        self.has_neutron = False
         nova_return = [nova_grp_obj]
         mock_nova.security_groups.list.return_value = nova_return
         self.cloud.delete_security_group('2')
@@ -111,6 +122,7 @@ class TestSecurityGroups(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_delete_security_group_nova_not_found(self, mock_nova):
         self.cloud.secgroup_source = 'nova'
+        self.has_neutron = False
         nova_return = [nova_grp_obj]
         mock_nova.security_groups.list.return_value = nova_return
         self.cloud.delete_security_group('doesNotExist')
@@ -140,6 +152,7 @@ class TestSecurityGroups(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_security_group_nova(self, mock_nova):
         group_name = self.getUniqueString()
+        self.has_neutron = False
         group_desc = 'security group from test_create_security_group_neutron'
         new_group = fakes.FakeSecgroup(id='2',
                                        name=group_name,
@@ -159,6 +172,7 @@ class TestSecurityGroups(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_security_group_none(self, mock_nova, mock_neutron):
         self.cloud.secgroup_source = None
+        self.has_neutron = False
         self.assertRaises(shade.OpenStackCloudUnavailableFeature,
                           self.cloud.create_security_group,
                           '', '')
@@ -178,6 +192,7 @@ class TestSecurityGroups(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_update_security_group_nova(self, mock_nova):
+        self.has_neutron = False
         new_name = self.getUniqueString()
         self.cloud.secgroup_source = 'nova'
         nova_return = [nova_grp_obj]
@@ -228,6 +243,7 @@ class TestSecurityGroups(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'get_security_group')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_security_group_rule_nova(self, mock_nova, mock_get):
+        self.has_neutron = False
         self.cloud.secgroup_source = 'nova'
 
         new_rule = fakes.FakeNovaSecgroupRule(
@@ -249,6 +265,7 @@ class TestSecurityGroups(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_security_group_rule_nova_no_ports(self,
                                                       mock_nova, mock_get):
+        self.has_neutron = False
         self.cloud.secgroup_source = 'nova'
 
         new_rule = fakes.FakeNovaSecgroupRule(
@@ -269,6 +286,7 @@ class TestSecurityGroups(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_security_group_rule_none(self, mock_nova, mock_neutron):
+        self.has_neutron = False
         self.cloud.secgroup_source = None
         self.assertRaises(shade.OpenStackCloudUnavailableFeature,
                           self.cloud.create_security_group_rule,
@@ -286,6 +304,7 @@ class TestSecurityGroups(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_delete_security_group_rule_nova(self, mock_nova):
+        self.has_neutron = False
         self.cloud.secgroup_source = 'nova'
         r = self.cloud.delete_security_group_rule('xyz')
         mock_nova.security_group_rules.delete.assert_called_once_with(
@@ -295,6 +314,7 @@ class TestSecurityGroups(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_delete_security_group_rule_none(self, mock_nova, mock_neutron):
+        self.has_neutron = False
         self.cloud.secgroup_source = None
         self.assertRaises(shade.OpenStackCloudUnavailableFeature,
                           self.cloud.delete_security_group_rule,
@@ -314,6 +334,7 @@ class TestSecurityGroups(base.TestCase):
         r = self.cloud.delete_security_group('doesNotExist')
         self.assertFalse(r)
 
+        self.has_neutron = False
         self.cloud.secgroup_source = 'nova'
         mock_neutron.security_group_rules.delete.side_effect = (
             nova_exc.NotFound("uh oh")
@@ -323,6 +344,7 @@ class TestSecurityGroups(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_nova_egress_security_group_rule(self, mock_nova):
+        self.has_neutron = False
         self.cloud.secgroup_source = 'nova'
         mock_nova.security_groups.list.return_value = [nova_grp_obj]
         self.assertRaises(shade.OpenStackCloudException,
@@ -333,6 +355,7 @@ class TestSecurityGroups(base.TestCase):
     @mock.patch.object(shade._utils, 'normalize_nova_secgroups')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_list_server_security_groups(self, mock_nova, mock_norm):
+        self.has_neutron = False
         server = dict(id='server_id')
         self.cloud.list_server_security_groups(server)
         mock_nova.servers.list_security_group.assert_called_once_with(
@@ -342,6 +365,7 @@ class TestSecurityGroups(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_list_server_security_groups_bad_source(self, mock_nova):
+        self.has_neutron = False
         self.cloud.secgroup_source = 'invalid'
         server = dict(id='server_id')
         ret = self.cloud.list_server_security_groups(server)
