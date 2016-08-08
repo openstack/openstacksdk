@@ -12,6 +12,7 @@
 
 from openstack.orchestration.v1 import resource as _resource
 from openstack.orchestration.v1 import software_config as _sc
+from openstack.orchestration.v1 import software_deployment as _sd
 from openstack.orchestration.v1 import stack as _stack
 from openstack import proxy2
 
@@ -154,7 +155,7 @@ class Proxy(proxy2.BaseProxy):
         return self._list(_sc.SoftwareConfig, paginated=True, **query)
 
     def get_software_config(self, software_config):
-        """Create a software config.
+        """Get details about a specific software config.
 
         :param software_config: The value can be the ID of a software config
             or a instace of
@@ -180,3 +181,71 @@ class Proxy(proxy2.BaseProxy):
         """
         self._delete(_sc.SoftwareConfig, software_config,
                      ignore_missing=ignore_missing)
+
+    def create_software_deployment(self, **attrs):
+        """Create a new software deployment from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`,
+            comprised of the properties on the SoftwareDeployment class.
+
+        :returns: The results of software deployment creation
+        :rtype:
+            :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
+        """
+        return self._create(_sd.SoftwareDeployment, **attrs)
+
+    def software_deployments(self, **query):
+        """Returns a generator of software deployments
+
+        :param dict query: Optional query parameters to be sent to limit the
+                           software deployments returned.
+        :returns: A generator of software deployment objects.
+        :rtype:
+        :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
+        """
+        return self._list(_sd.SoftwareDeployment, paginated=False, **query)
+
+    def get_software_deployment(self, software_deployment):
+        """Get details about a specific software deployment resource
+
+        :param software_deployment: The value can be the ID of a software
+            deployment or an instace of
+            :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`,
+
+        :returns: An object of type
+            :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
+        """
+        return self._get(_sd.SoftwareDeployment, software_deployment)
+
+    def delete_software_deployment(self, software_deployment,
+                                   ignore_missing=True):
+        """Delete a software deployment
+
+        :param software_deployment: The value can be either the ID of a
+            software deployment or an instance of
+            :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the software deployment does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent software deployment.
+        :returns: ``None``
+        """
+        self._delete(_sd.SoftwareDeployment, software_deployment,
+                     ignore_missing=ignore_missing)
+
+    def update_software_deployment(self, software_deployment, **attrs):
+        """Update a software deployment
+
+        :param server: Either the ID of a software deployment or an instance of
+            :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
+        :param dict attrs: The attributes to update on the software deployment
+                           represented by ``software_deployment``.
+
+        :returns: The updated software deployment
+        :rtype:
+        :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
+        """
+        return self._update(_sd.SoftwareDeployment, software_deployment,
+                            **attrs)

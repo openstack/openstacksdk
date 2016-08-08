@@ -17,6 +17,7 @@ from openstack import exceptions
 from openstack.orchestration.v1 import _proxy
 from openstack.orchestration.v1 import resource
 from openstack.orchestration.v1 import software_config as sc
+from openstack.orchestration.v1 import software_deployment as sd
 from openstack.orchestration.v1 import stack
 from openstack.tests.unit import test_proxy_base2
 
@@ -108,3 +109,25 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
                            sc.SoftwareConfig, True)
         self.verify_delete(self.proxy.delete_software_config,
                            sc.SoftwareConfig, False)
+
+    def test_create_software_deployment(self):
+        self.verify_create(self.proxy.create_software_deployment,
+                           sd.SoftwareDeployment)
+
+    def test_software_deployments(self):
+        self.verify_list(self.proxy.software_deployments,
+                         sd.SoftwareDeployment, paginated=False)
+
+    def test_get_software_deployment(self):
+        self.verify_get(self.proxy.get_software_deployment,
+                        sd.SoftwareDeployment)
+
+    def test_update_software_deployment(self):
+        self.verify_update(self.proxy.update_software_deployment,
+                           sd.SoftwareDeployment)
+
+    def test_delete_software_deployment(self):
+        self.verify_delete(self.proxy.delete_software_deployment,
+                           sd.SoftwareDeployment, True)
+        self.verify_delete(self.proxy.delete_software_deployment,
+                           sd.SoftwareDeployment, False)
