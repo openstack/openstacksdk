@@ -21,6 +21,7 @@ from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import server_ip
+from openstack.compute.v2 import service as _service
 from openstack import proxy2
 from openstack import resource2
 
@@ -828,3 +829,69 @@ class Proxy(proxy2.BaseProxy):
                  when no resource can be found.
         """
         return self._get(_hypervisor.Hypervisor, hypervisor)
+
+    def get_service(self, service):
+        """Get a single service
+
+        :param service: The value can be the ID of a serivce or a
+               :class:`~openstack.compute.v2.service.Service`
+               instance.
+
+        :returns:
+            A :class:`~openstack.compute.v2.serivce.Service` object.
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_service.Service, service)
+
+    def force_service_down(self, service, host, binary):
+        """Force a service down
+
+        :param service: Either the ID of a service or a
+                       :class:`~openstack.compute.v2.server.Service` instance.
+        :param str host: The host where service runs.
+        :param str binary: The name of service.
+
+        :returns: None
+        """
+        service = self._get_resource(_service.Service, service)
+        service.force_down(self.session, host, binary)
+
+    def disable_service(self, service, host, binary, disabled_reason=None):
+        """Disable a service
+
+        :param service: Either the ID of a service or a
+                       :class:`~openstack.compute.v2.server.Service` instance.
+        :param str host: The host where service runs.
+        :param str binary: The name of service.
+        :param str disabled_reason: The reason of force down a service.
+
+        :returns: None
+        """
+        service = self._get_resource(_service.Service, service)
+        service.disable(self.session,
+                        host, binary,
+                        disabled_reason)
+
+    def enable_service(self, service, host, binary):
+        """Enable a service
+
+        :param service: Either the ID of a service or a
+                       :class:`~openstack.compute.v2.server.Service` instance.
+        :param str host: The host where service runs.
+        :param str binary: The name of service.
+
+
+        :returns: None
+        """
+        service = self._get_resource(_service.Service, service)
+        service.enable(self.session, host, binary)
+
+    def services(self):
+        """Return a generator of service
+
+        :returns: A generator of service
+        :rtype: class: `~openstack.compute.v2.service.Service`
+        """
+
+        return self._list(_service.Service, paginated=False)
