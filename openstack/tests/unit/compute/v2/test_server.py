@@ -153,6 +153,17 @@ class TestServer(testtools.TestCase):
         self.sess.post.assert_called_with(
             url, endpoint_filter=sot.service, json=body, headers=headers)
 
+    def test_force_delete(self):
+        sot = server.Server(**EXAMPLE)
+
+        self.assertIsNone(sot.force_delete(self.sess))
+
+        url = 'servers/IDENTIFIER/action'
+        body = {'forceDelete': None}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
     def test_rebuild(self):
         sot = server.Server(**EXAMPLE)
         # Let the translate pass through, that portion is tested elsewhere

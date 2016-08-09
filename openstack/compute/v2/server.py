@@ -136,6 +136,11 @@ class Server(resource2.Resource, metadata.MetadataMixin):
         body = {'reboot': {'type': reboot_type}}
         self._action(session, body)
 
+    def force_delete(self, session):
+        """Force delete a server."""
+        body = {'forceDelete': None}
+        self._action(session, body)
+
     def rebuild(self, session, name, admin_password,
                 preserve_ephemeral=False, image=None,
                 access_ipv4=None, access_ipv6=None,

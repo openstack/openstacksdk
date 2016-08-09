@@ -322,7 +322,7 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._create(_server.Server, **attrs)
 
-    def delete_server(self, server, ignore_missing=True):
+    def delete_server(self, server, ignore_missing=True, force=False):
         """Delete a server
 
         :param server: The value can be either the ID of a server or a
@@ -331,11 +331,17 @@ class Proxy(proxy2.BaseProxy):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the server does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server.
+                    attempting to delete a nonexistent server
+        :param bool force: When set to ``True``, the server deletion will be
+                           forced immediatly.
 
         :returns: ``None``
         """
-        self._delete(_server.Server, server, ignore_missing=ignore_missing)
+        if force:
+            server = self._get_resource(_server.Server, server)
+            server.force_delete(self.session)
+        else:
+            self._delete(_server.Server, server, ignore_missing=ignore_missing)
 
     def find_server(self, name_or_id, ignore_missing=True):
         """Find a single server

@@ -207,6 +207,11 @@ class TestComputeProxy(test_proxy_base2.TestProxyBase):
     def test_server_delete_ignore(self):
         self.verify_delete(self.proxy.delete_server, server.Server, True)
 
+    def test_server_force_delete(self):
+        self._verify("openstack.compute.v2.server.Server.force_delete",
+                     self.proxy.delete_server,
+                     method_args=["value", False, True])
+
     def test_server_find(self):
         self.verify_find(self.proxy.find_server, server.Server)
 
