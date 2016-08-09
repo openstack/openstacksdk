@@ -26,7 +26,6 @@ class TestNetwork(base.TestCase):
             body=dict(
                 network=dict(
                     name='netname',
-                    shared=False,
                     admin_state_up=True
                 )
             )
@@ -39,7 +38,6 @@ class TestNetwork(base.TestCase):
             body=dict(
                 network=dict(
                     name='netname',
-                    shared=False,
                     admin_state_up=True,
                     tenant_id="project_id_value",
                 )
@@ -53,7 +51,6 @@ class TestNetwork(base.TestCase):
             body=dict(
                 network={
                     'name': 'netname',
-                    'shared': False,
                     'admin_state_up': True,
                     'router:external': True
                 }
@@ -70,7 +67,6 @@ class TestNetwork(base.TestCase):
             body=dict(
                 network={
                     'name': 'netname',
-                    'shared': False,
                     'admin_state_up': True,
                     'provider:physical_network':
                         provider_opts['physical_network'],
@@ -93,7 +89,6 @@ class TestNetwork(base.TestCase):
             body=dict(
                 network={
                     'name': 'netname',
-                    'shared': False,
                     'admin_state_up': True,
                     'provider:physical_network':
                         provider_opts['physical_network'],

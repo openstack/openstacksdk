@@ -2158,9 +2158,11 @@ class OpenStackCloud(object):
         """
         network = {
             'name': name,
-            'shared': shared,
             'admin_state_up': admin_state_up,
         }
+
+        if shared:
+            network['shared'] = shared
 
         if project_id is not None:
             network['tenant_id'] = project_id
