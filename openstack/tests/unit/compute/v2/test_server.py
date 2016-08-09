@@ -22,9 +22,11 @@ EXAMPLE = {
     'addresses': {'region': '3'},
     'created': '2015-03-09T12:14:57.233772',
     'flavorRef': '5',
+    'flavor': {'id': 'FLAVOR_ID', 'links': {}},
     'hostId': '6',
     'id': IDENTIFIER,
     'imageRef': '8',
+    'image': {'id': 'IMAGE_ID', 'links': {}},
     'links': '9',
     'metadata': {'key': '10'},
     'name': '11',
@@ -88,9 +90,11 @@ class TestServer(testtools.TestCase):
         self.assertEqual(EXAMPLE['addresses'], sot.addresses)
         self.assertEqual(EXAMPLE['created'], sot.created_at)
         self.assertEqual(EXAMPLE['flavorRef'], sot.flavor_id)
+        self.assertEqual(EXAMPLE['flavor'], sot.flavor)
         self.assertEqual(EXAMPLE['hostId'], sot.host_id)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['imageRef'], sot.image_id)
+        self.assertEqual(EXAMPLE['image'], sot.image)
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['metadata'], sot.metadata)
         self.assertEqual(EXAMPLE['name'], sot.name)

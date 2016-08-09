@@ -50,11 +50,15 @@ class Server(resource2.Resource, metadata.MetadataMixin):
     #: The flavor reference, as a ID or full URL, for the flavor to use for
     #: this server.
     flavor_id = resource2.Body('flavorRef')
+    #: The flavor property as returned from server.
+    flavor = resource2.Body('flavor', type=dict)
     #: An ID representing the host of this server.
     host_id = resource2.Body('hostId')
     #: The image reference, as a ID or full URL, for the image to use for
     #: this server.
     image_id = resource2.Body('imageRef')
+    #: The image property as returned from server.
+    image = resource2.Body('image', type=dict)
     #: Metadata stored for this server. *Type: dict*
     metadata = resource2.Body('metadata', type=dict)
     #: While the server is building, this value represents the percentage
