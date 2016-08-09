@@ -10,18 +10,25 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack.image.v2 import image as _image
 from openstack.image.v2 import member as _member
-from openstack.image.v2 import tag as _tag
-from openstack import proxy
-from openstack import resource
+from openstack import proxy2
+from openstack import resource2
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy2.BaseProxy):
 
-    def upload_image(self, **attrs):
+    def upload_image(self, container_format=None, disk_format=None,
+                     data=None, **attrs):
         """Upload a new image from attributes
 
+        :param container_format: Format of the container.
+                                 A valid value is ami, ari, aki, bare,
+                                 ovf, ova, or docker.
+        :param disk_format: The format of the disk. A valid value is ami,
+                            ari, aki, vhd, vmdk, raw, qcow2, vdi, or iso.
+        :param data: The data to be uploaded as an image.
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.image.v2.image.Image`,
                            comprised of the properties on the Image class.
@@ -29,14 +36,40 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of image creation
         :rtype: :class:`~openstack.image.v2.image.Image`
         """
+        # container_format and disk_format are required to be set
+        # on the image by the time upload_image is called, but they're not
+        # required by the _create call. Enforce them here so that we don't
+        # need to handle a failure in _create, as upload_image will
+        # return a 400 with a message about disk_format and container_format
+        # not being set.
+        if not all([container_format, disk_format]):
+            raise exceptions.InvalidRequest(
+                "Both container_format and disk_format are required")
 
-        data = attrs.pop('data')
-        img = self._create(_image.Image, **attrs)
+        img = self._create(_image.Image, disk_format=disk_format,
+                           container_format=container_format,
+                           **attrs)
 
+        # TODO(briancurtin): Perhaps we should run img.upload_image
+        # in a background thread and just return what is called by
+        # self._create, especially because the upload_image call doesn't
+        # return anything anyway. Otherwise this blocks while uploading
+        # significant amounts of image data.
         img.data = data
-        img.upload_image(self.session)
+        img.upload(self.session)
 
         return img
+
+    def download_image(self, image):
+        """Download an image
+
+        :param image: The value can be either the ID of an image or a
+                      :class:`~openstack.image.v2.image.Image` instance.
+
+        :returns: The bytes comprising the given Image.
+        """
+        image = self._get_resource(_image.Image, image)
+        return image.download(self.session)
 
     def delete_image(self, image, ignore_missing=True):
         """Delete an image
@@ -103,7 +136,55 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(_image.Image, image, **attrs)
 
-    def create_member(self, image, **attrs):
+    def deactivate_image(self, image):
+        """Deactivate an image
+
+        :param image: Either the ID of a image or a
+                      :class:`~openstack.image.v2.image.Image` instance.
+
+        :returns: None
+        """
+        image = self._get_resource(_image.Image, image)
+        image.deactivate(self.session)
+
+    def reactivate_image(self, image):
+        """Deactivate an image
+
+        :param image: Either the ID of a image or a
+                      :class:`~openstack.image.v2.image.Image` instance.
+
+        :returns: None
+        """
+        image = self._get_resource(_image.Image, image)
+        image.reactivate(self.session)
+
+    def add_tag(self, image, tag):
+        """Add a tag to an image
+
+        :param image: The value can be the ID of a image or a
+                      :class:`~openstack.image.v2.image.Image` instance
+                      that the member will be created for.
+        :param str tag: The tag to be added
+
+        :returns: None
+        """
+        image = self._get_resource(_image.Image, image)
+        image.add_tag(self.session, tag)
+
+    def remove_tag(self, image, tag):
+        """Remove a tag to an image
+
+        :param image: The value can be the ID of a image or a
+                      :class:`~openstack.image.v2.image.Image` instance
+                      that the member will be created for.
+        :param str tag: The tag to be removed
+
+        :returns: None
+        """
+        image = self._get_resource(_image.Image, image)
+        image.remove_tag(self.session, tag)
+
+    def add_member(self, image, **attrs):
         """Create a new member from attributes
 
         :param image: The value can be the ID of a image or a
@@ -116,19 +197,14 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of member creation
         :rtype: :class:`~openstack.image.v2.member.Member`
         """
-        image_id = resource.Resource.get_id(image)
-        return self._create(_member.Member,
-                            path_args={'image_id': image_id}, **attrs)
+        image_id = resource2.Resource._get_id(image)
+        return self._create(_member.Member, image_id=image_id, **attrs)
 
-    def delete_member(self, member, image=None, ignore_missing=True):
+    def remove_member(self, member, image, ignore_missing=True):
         """Delete a member
 
         :param member: The value can be either the ID of a member or a
                        :class:`~openstack.image.v2.member.Member` instance.
-        :param image: This is the image that the member belongs to,
-                      this parameter need to be specified when member ID is
-                      given as value. The value can be the ID of a image or a
-                      :class:`~openstack.image.v2.image.Image` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the member does not exist.
@@ -137,12 +213,9 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        if isinstance(member, _member.Member):
-            image_id = member.image_id
-        else:
-            image_id = resource.Resource.get_id(image)
-        self._delete(_member.Member, member,
-                     path_args={'image_id': image_id},
+        image_id = resource2.Resource._get_id(image)
+        member_id = resource2.Resource._get_id(member)
+        self._delete(_member.Member, member_id=member_id, image_id=image_id,
                      ignore_missing=ignore_missing)
 
     def find_member(self, name_or_id, image, ignore_missing=True):
@@ -159,56 +232,48 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.image.v2.member.Member` or None
         """
-        image_id = resource.Resource.get_id(image)
-        return self._find(_member.Member, name_or_id,
-                          path_args={'image_id': image_id},
+        image_id = resource2.Resource._get_id(image)
+        return self._find(_member.Member, name_or_id, image_id=image_id,
                           ignore_missing=ignore_missing)
 
-    def get_member(self, member, image=None):
-        """Get a single member
+    def get_member(self, member, image):
+        """Get a single member on an image
 
         :param member: The value can be the ID of a member or a
                        :class:`~openstack.image.v2.member.Member` instance.
-        :param image: This is the image that the member belongs to,
-                      this parameter need to be specified when member ID is
-                      given as value. The value can be the ID of a image or a
+        :param image: This is the image that the member belongs to.
+                      The value can be the ID of a image or a
                       :class:`~openstack.image.v2.image.Image` instance.
         :returns: One :class:`~openstack.image.v2.member.Member`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        if isinstance(member, _member.Member):
-            image_id = member.image_id
-        else:
-            image_id = resource.Resource.get_id(image)
-        return self._get(_member.Member, member,
-                         path_args={'image_id': image_id})
+        member_id = resource2.Resource._get_id(member)
+        image_id = resource2.Resource._get_id(image)
+        return self._get(_member.Member, member_id=member_id,
+                         image_id=image_id)
 
-    def members(self, image, **query):
+    def members(self, image):
         """Return a generator of members
 
         :param image: This is the image that the member belongs to,
                       the value can be the ID of a image or a
                       :class:`~openstack.image.v2.image.Image` instance.
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
-                                 the resources being returned.
 
         :returns: A generator of member objects
         :rtype: :class:`~openstack.image.v2.member.Member`
         """
-        image_id = resource.Resource.get_id(image)
+        image_id = resource2.Resource._get_id(image)
         return self._list(_member.Member, paginated=False,
-                          path_args={'image_id': image_id},
-                          **query)
+                          image_id=image_id)
 
-    def update_member(self, member, image=None, **attrs):
-        """Update a member
+    def update_member(self, member, image, **attrs):
+        """Update the member of an image
 
         :param member: Either the ID of a member or a
                        :class:`~openstack.image.v2.member.Member` instance.
-        :param image: This is the image that the member belongs to,
-                      this parameter need to be specified when member ID is
-                      given as value. The value can be the ID of a image or a
+        :param image: This is the image that the member belongs to.
+                      The value can be the ID of a image or a
                       :class:`~openstack.image.v2.image.Image` instance.
         :attrs kwargs: The attributes to update on the member represented
                        by ``value``.
@@ -216,36 +281,7 @@ class Proxy(proxy.BaseProxy):
         :returns: The updated member
         :rtype: :class:`~openstack.image.v2.member.Member`
         """
-        if isinstance(member, _member.Member):
-            image_id = member.image_id
-        else:
-            image_id = resource.Resource.get_id(image)
-        return self._update(_member.Member, member,
-                            path_args={'image_id': image_id}, **attrs)
-
-    def create_tag(self, **attrs):
-        """Create a new tag from attributes
-
-        :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.image.v2.tag.Tag`,
-                           comprised of the properties on the Tag class.
-
-        :returns: The results of tag creation
-        :rtype: :class:`~openstack.image.v2.tag.Tag`
-        """
-        return self._create(_tag.Tag, **attrs)
-
-    def delete_tag(self, tag, ignore_missing=True):
-        """Delete a tag
-
-        :param tag: The value can be either the ID of a tag or a
-                    :class:`~openstack.image.v2.tag.Tag` instance.
-        :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the tag does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent tag.
-
-        :returns: ``None``
-        """
-        self._delete(_tag.Tag, tag, ignore_missing=ignore_missing)
+        member_id = resource2.Resource._get_id(member)
+        image_id = resource2.Resource._get_id(image)
+        return self._update(_member.Member, member_id=member_id,
+                            image_id=image_id, **attrs)

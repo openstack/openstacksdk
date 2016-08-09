@@ -11,28 +11,35 @@
 # under the License.
 
 from openstack.image import image_service
-from openstack import resource
+from openstack import resource2
 
 
-class Member(resource.Resource):
-    id_attribute = 'member_id'
+class Member(resource2.Resource):
     resources_key = 'members'
     base_path = '/images/%(image_id)s/members'
     service = image_service.ImageService()
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
-    # Properties
+    # See https://bugs.launchpad.net/glance/+bug/1526991 for member/member_id
+    # 'member' is documented incorrectly as being deprecated but it's the
+    # only thing that works. 'member_id' is not accepted.
+
+    #: The ID of the image member. An image member is a tenant
+    #: with whom the image is shared.
+    member_id = resource2.Body('member', alternate_id=True)
     #: The date and time when the member was created.
-    created_at = resource.prop('created_at')
+    created_at = resource2.Body('created_at')
     #: Image ID stored through the image API. Typically a UUID.
-    image_id = resource.prop('image_id')
+    image_id = resource2.URI('image_id')
     #: The status of the image.
-    status = resource.prop('status')
+    status = resource2.Body('status')
+    #: The URL for schema of the member.
+    schema = resource2.Body('schema')
     #: The date and time when the member was updated.
-    updated_at = resource.prop('updated_at')
+    updated_at = resource2.Body('updated_at')

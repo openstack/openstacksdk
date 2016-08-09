@@ -119,7 +119,7 @@ class TestConnection(base.TestCase):
                          conn.database.__class__.__module__)
         self.assertEqual('openstack.identity.v3._proxy',
                          conn.identity.__class__.__module__)
-        self.assertEqual('openstack.image.v1._proxy',
+        self.assertEqual('openstack.image.v2._proxy',
                          conn.image.__class__.__module__)
         self.assertEqual('openstack.network.v2._proxy',
                          conn.network.__class__.__module__)

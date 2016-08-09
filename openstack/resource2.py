@@ -714,6 +714,13 @@ class Resource(object):
             yielded = 0
             new_marker = None
             for data in resp:
+                # Do not allow keys called "self" through. Glance chose
+                # to name a key "self", so we need to pop it out because
+                # we can't send it through cls.existing and into the
+                # Resource initializer. "self" is already the first
+                # argument and is practically a reserved word.
+                data.pop("self", None)
+
                 value = cls.existing(**data)
                 new_marker = value.id
                 yielded += 1
