@@ -3369,7 +3369,7 @@ class OpenStackCloud(object):
 
     def create_floating_ip(self, network=None, server=None,
                            fixed_address=None, nat_destination=None,
-                           wait=False, timeout=60):
+                           port=None, wait=False, timeout=60):
         """Allocate a new floating IP from a network or a pool.
 
         :param network: Nova pool name or Neutron network name or id
@@ -3381,6 +3381,10 @@ class OpenStackCloud(object):
         :param nat_destination: (optional) Name or id of the network
                                 that the fixed IP to attach the floating
                                 IP to should be on.
+        :param port: (optional) The port id that the floating IP should be
+                                attached to. Specifying a port conflicts
+                                with specifying a server, fixed_address or
+                                nat_destination.
         :param wait: (optional) Whether to wait for the IP to be active.
                      Defaults to False. Only applies if a server is
                      provided.
@@ -3398,6 +3402,7 @@ class OpenStackCloud(object):
                     network_name_or_id=network, server=server,
                     fixed_address=fixed_address,
                     nat_destination=nat_destination,
+                    port=port,
                     wait=wait, timeout=timeout)
             except OpenStackCloudURINotFound as e:
                 self.log.debug(
@@ -3405,6 +3410,13 @@ class OpenStackCloud(object):
                     "'{msg}'. Trying with Nova.".format(msg=str(e)))
                 # Fall-through, trying with Nova
 
+        if port:
+            raise OpenStackCloudException(
+                "This cloud uses nova-network which does not support"
+                " arbitrary floating-ip/port mappings. Please nudge"
+                " your cloud provider to upgrade the networking stack"
+                " to neutron, or alternately provide the server,"
+                " fixed_address and nat_destination arguments as appropriate")
         # Else, we are using Nova network
         f_ips = _utils.normalize_nova_floating_ips(
             [self._nova_create_floating_ip(pool=network)])
@@ -3418,7 +3430,9 @@ class OpenStackCloud(object):
 
     def _neutron_create_floating_ip(
             self, network_name_or_id=None, server=None,
-            fixed_address=None, nat_destination=None, wait=False, timeout=60):
+            fixed_address=None, nat_destination=None,
+            port=None,
+            wait=False, timeout=60):
         with _utils.neutron_exceptions(
                 "unable to create floating IP for net "
                 "{0}".format(network_name_or_id)):
@@ -3437,23 +3451,32 @@ class OpenStackCloud(object):
             kwargs = {
                 'floating_network_id': networks[0]['id'],
             }
-            port = None
-            if server:
-                (port, fixed_ip_address) = self._get_free_fixed_port(
-                    server, fixed_address=fixed_address,
-                    nat_destination=nat_destination)
-                if port:
-                    kwargs['port_id'] = port['id']
-                    kwargs['fixed_ip_address'] = fixed_ip_address
+            if not port:
+                if server:
+                    (port_obj, fixed_ip_address) = self._get_free_fixed_port(
+                        server, fixed_address=fixed_address,
+                        nat_destination=nat_destination)
+                    if port_obj:
+                        port = port_obj['id']
+                    if fixed_ip_address:
+                        kwargs['fixed_ip_address'] = fixed_ip_address
+            if port:
+                kwargs['port_id'] = port
+
             fip = self._submit_create_fip(kwargs)
             fip_id = fip['id']
 
             if port:
-                if fip['port_id'] != port['id']:
-                    raise OpenStackCloudException(
-                        "Attempted to create FIP on port {port} for server"
-                        " {server} but something went wrong".format(
-                            port=port['id'], server=server['id']))
+                if fip['port_id'] != port:
+                    if server:
+                        raise OpenStackCloudException(
+                            "Attempted to create FIP on port {port} for server"
+                            " {server} but something went wrong".format(
+                                port=port, server=server['id']))
+                    else:
+                        raise OpenStackCloudException(
+                            "Attempted to create FIP on port {port}"
+                            " but something went wrong".format(port=port))
                 # The FIP is only going to become active in this context
                 # when we've attached it to something, which only occurs
                 # if we've provided a port as a parameter
