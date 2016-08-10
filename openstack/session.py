@@ -16,34 +16,21 @@ The :class:`~openstack.session.Session` overrides
 mapping KSA exceptions to SDK exceptions.
 
 """
-import re
+from collections import namedtuple
 
 from keystoneauth1 import exceptions as _exceptions
 from keystoneauth1 import session as _session
 
 from openstack import exceptions
+from openstack import utils
 from openstack import version as openstack_version
 
 from six.moves.urllib import parse
 
 DEFAULT_USER_AGENT = "openstacksdk/%s" % openstack_version.__version__
-VERSION_PATTERN = re.compile('/v\d[\d.]*')
 API_REQUEST_HEADER = "openstack-api-version"
 
-
-def parse_url(filt, url):
-    result = parse.urlparse(url)
-    path = result.path
-    vstr = VERSION_PATTERN.search(path)
-    if not vstr:
-        return (result.scheme + "://" + result.netloc + path.rstrip('/') +
-                '/' + filt.get_path())
-    start, end = vstr.span()
-    prefix = path[:start]
-    version = '/' + filt.get_path(path[start + 1:end])
-    postfix = path[end:].rstrip('/') if path[end:] else ''
-    url = result.scheme + "://" + result.netloc + prefix + version + postfix
-    return url
+Version = namedtuple("Version", ["major", "minor"])
 
 
 def map_exceptions(func):
@@ -93,6 +80,8 @@ class Session(_session.Session):
 
         self.profile = profile
         api_version_header = self._get_api_requests()
+        self.endpoint_cache = {}
+
         super(Session, self).__init__(user_agent=self.user_agent,
                                       additional_headers=api_version_header,
                                       **kwargs)
@@ -118,15 +107,137 @@ class Session(_session.Session):
 
         return None
 
-    def get_endpoint(self, auth=None, interface=None, **kwargs):
-        """Override get endpoint to automate endpoint filtering"""
+    def _get_endpoint_versions(self, service_type, endpoint):
+        """Get available endpoints from the remote service
 
-        service_type = kwargs.get('service_type')
+        Take the endpoint that the Service Catalog gives us, then split off
+        anything and just take the root. We need to make a request there
+        to get the versions the API exposes.
+        """
+        parts = parse.urlparse(endpoint)
+        root_endpoint = "://".join([parts.scheme, parts.netloc])
+        response = self.get(root_endpoint)
+
+        # Normalize the version response. Identity nests the versions
+        # a level deeper than others, inside of a "values" dictionary.
+        response_body = response.json()
+        if "versions" in response_body:
+            versions = response_body["versions"]
+            if "values" in versions:
+                versions = versions["values"]
+            return root_endpoint, versions
+
+        raise exceptions.EndpointNotFound(
+            "Unable to parse endpoints for %s" % service_type)
+
+    def _parse_version(self, version):
+        """Parse the version and return major and minor components
+
+        If the version was given with a leading "v", e.g., "v3", strip
+        that off to just numerals.
+        """
+        version_num = version[version.find("v") + 1:]
+        components = version_num.split(".")
+        if len(components) == 1:
+            # The minor version of a v2 ends up being -1 so that we can
+            # loop through versions taking the highest available match
+            # while also working around a direct match for 2.0.
+            rv = Version(int(components[0]), -1)
+        elif len(components) == 2:
+            rv = Version(*[int(component) for component in components])
+        else:
+            raise ValueError("Unable to parse version string %s" % version)
+
+        return rv
+
+    def _get_version_match(self, versions, profile_version, service_type,
+                           root_endpoint, requires_project_id):
+        """Return the best matching version
+
+        Look through each version trying to find the best match for
+        the version specified in this profile.
+         * The best match will only ever be found within the same
+           major version, meaning a v2 profile will never match if
+           only v3 is available on the server.
+         * The search for the best match is fuzzy if needed.
+           * If the profile specifies v2 and the server has
+             v2.0, v2.1, and v2.2, the match will be v2.2.
+           * When an exact major/minor is specified, e.g., v2.0,
+             it will only match v2.0.
+        """
+        match = None
+        for version in versions:
+            api_version = self._parse_version(version["id"])
+            if profile_version.major != api_version.major:
+                continue
+
+            if profile_version.minor <= api_version.minor:
+                for link in version["links"]:
+                    if link["rel"] == "self":
+                        match = link["href"]
+
+            # Only break out of the loop on an exact match,
+            # otherwise keep trying.
+            if profile_version.minor == api_version.minor:
+                break
+
+        if match is None:
+            raise exceptions.EndpointNotFound(
+                "Unable to determine endpoint for %s" % service_type)
+
+        # Some services return only the path fragment of a URI.
+        # If we split and see that we're not given the scheme and netloc,
+        # construct the match with the root from the service catalog.
+        match_split = parse.urlsplit(match)
+        if not all([match_split.scheme, match_split.netloc]):
+            match = root_endpoint + match
+
+        # For services that require the project id in the request URI,
+        # add them in here.
+        if requires_project_id:
+            match = utils.urljoin(match, self.get_project_id())
+
+        return match
+
+    def get_endpoint(self, auth=None, interface=None, service_type=None,
+                     **kwargs):
+        """Override get endpoint to automate endpoint filtering
+
+        This method uses the service catalog to find the root URI of
+        each service and then gets all available versions directly
+        from the service, not from the service catalog.
+
+        Endpoints are cached per service type and interface combination
+        so that they're only requested from the remote service once
+        per instance of this class.
+        """
+        key = (service_type, interface)
+        if key in self.endpoint_cache:
+            return self.endpoint_cache[key]
+
         filt = self.profile.get_filter(service_type)
         if filt.interface is None:
             filt.interface = interface
-        url = super(Session, self).get_endpoint(auth, **filt.get_filter())
-        return parse_url(filt, url)
+        sc_endpoint = super(Session, self).get_endpoint(auth,
+                                                        **filt.get_filter())
+
+        # Object Storage is, of course, different. Just use what we get
+        # back from the service catalog as not only does it not offer
+        # a list of supported versions, it appends an "AUTH_" prefix to
+        # the project id so we'd have to special case that as well.
+        if service_type == "object-store":
+            self.endpoint_cache[key] = sc_endpoint
+            return sc_endpoint
+
+        root_endpoint, versions = self._get_endpoint_versions(service_type,
+                                                              sc_endpoint)
+        profile_version = self._parse_version(filt.version)
+        match = self._get_version_match(versions, profile_version,
+                                        service_type, root_endpoint,
+                                        filt.requires_project_id)
+
+        self.endpoint_cache[key] = match
+        return match
 
     @map_exceptions
     def request(self, *args, **kwargs):

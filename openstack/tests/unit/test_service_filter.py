@@ -27,12 +27,13 @@ class TestServiceFilter(testtools.TestCase):
     def test_init(self):
         sot = service_filter.ServiceFilter(
             'ServiceType', region='REGION1', service_name='ServiceName',
-            version='1', api_version='1.23')
+            version='1', api_version='1.23', requires_project_id=True)
         self.assertEqual('servicetype', sot.service_type)
         self.assertEqual('REGION1', sot.region)
         self.assertEqual('ServiceName', sot.service_name)
         self.assertEqual('1', sot.version)
         self.assertEqual('1.23', sot.api_version)
+        self.assertTrue(sot.requires_project_id)
 
     def test_get_module(self):
         sot = identity_service.IdentityService()

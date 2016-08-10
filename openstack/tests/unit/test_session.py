@@ -16,31 +16,11 @@ import testtools
 from keystoneauth1 import exceptions as _exceptions
 
 from openstack import exceptions
-from openstack.image import image_service
 from openstack import profile
 from openstack import session
 
 
 class TestSession(testtools.TestCase):
-
-    def test_parse_url(self):
-        filt = image_service.ImageService()
-        self.assertEqual(
-            "http://127.0.0.1:9292/v2",
-            session.parse_url(filt, "http://127.0.0.1:9292"))
-        self.assertEqual(
-            "http://127.0.0.1:9292/foo/v2",
-            session.parse_url(filt, "http://127.0.0.1:9292/foo"))
-        self.assertEqual(
-            "http://127.0.0.1:9292/v2",
-            session.parse_url(filt, "http://127.0.0.1:9292/v2.0"))
-        filt.version = 'v1'
-        self.assertEqual(
-            "http://127.0.0.1:9292/v1/mytenant",
-            session.parse_url(filt, "http://127.0.0.1:9292/v2.0/mytenant/"))
-        self.assertEqual(
-            "http://127.0.0.1:9292/wot/v1/mytenant",
-            session.parse_url(filt, "http://127.0.0.1:9292/wot/v2.0/mytenant"))
 
     def test_init_user_agent_none(self):
         sot = session.Session(None)
@@ -118,3 +98,118 @@ class TestSession(testtools.TestCase):
             exceptions.SDKException, session.map_exceptions(func))
         self.assertIsInstance(os_exc, exceptions.SDKException)
         self.assertEqual(ksa_exc, os_exc.cause)
+
+    def _test__get_endpoint_versions(self, body, versions):
+        sot = session.Session(None)
+
+        fake_response = mock.Mock()
+        fake_response.json = mock.Mock(return_value=body)
+        sot.get = mock.Mock(return_value=fake_response)
+
+        scheme = "https"
+        netloc = "devstack"
+        root = scheme + "://" + netloc
+
+        rv = sot._get_endpoint_versions(
+            "compute", "%s://%s/v2.1/projectidblahblah" % (scheme, netloc))
+
+        sot.get.assert_called_with(root)
+
+        self.assertEqual(rv[0], root)
+        self.assertEqual(rv[1], versions)
+
+    def test__get_endpoint_versions_nested(self):
+        versions = [{"id": "v2.0"}, {"id": "v2.1"}]
+        body = {"versions": {"values": versions}}
+        self._test__get_endpoint_versions(body, versions)
+
+    def test__get_endpoint_versions(self):
+        versions = [{"id": "v2.0"}, {"id": "v2.1"}]
+        body = {"versions": versions}
+        self._test__get_endpoint_versions(body, versions)
+
+    def test__get_endpoint_versions_exception(self):
+        sot = session.Session(None)
+
+        fake_response = mock.Mock()
+        fake_response.json = mock.Mock(return_value={})
+        sot.get = mock.Mock(return_value=fake_response)
+
+        self.assertRaises(exceptions.EndpointNotFound,
+                          sot._get_endpoint_versions, "service", "endpoint")
+
+    def test__parse_version(self):
+        sot = session.Session(None)
+
+        self.assertEqual(sot._parse_version("2"), (2, -1))
+        self.assertEqual(sot._parse_version("v2"), (2, -1))
+        self.assertEqual(sot._parse_version("v2.1"), (2, 1))
+        self.assertRaises(ValueError, sot._parse_version, "lol")
+
+    def test__get_version_match_none(self):
+        sot = session.Session(None)
+
+        self.assertRaises(
+            exceptions.EndpointNotFound,
+            sot._get_version_match, [], None, "service", "root", False)
+
+    def test__get_version_match_fuzzy(self):
+        match = "http://devstack/v2.1/"
+        versions = [{"id": "v2.0",
+                     "links": [{"href": "http://devstack/v2/",
+                                "rel": "self"}]},
+                    {"id": "v2.1",
+                     "links": [{"href": match,
+                                "rel": "self"}]}]
+
+        sot = session.Session(None)
+        # Look for a v2 match, which we internally denote as a minor
+        # version of -1 so we can find the highest matching minor.
+        rv = sot._get_version_match(versions, session.Version(2, -1),
+                                    "service", "root", False)
+        self.assertEqual(rv, match)
+
+    def test__get_version_match_exact(self):
+        match = "http://devstack/v2/"
+        versions = [{"id": "v2.0",
+                     "links": [{"href": match,
+                                "rel": "self"}]},
+                    {"id": "v2.1",
+                     "links": [{"href": "http://devstack/v2.1/",
+                                "rel": "self"}]}]
+
+        sot = session.Session(None)
+        rv = sot._get_version_match(versions, session.Version(2, 0),
+                                    "service", "root", False)
+        self.assertEqual(rv, match)
+
+    def test__get_version_match_fragment(self):
+        root = "http://cloud.net"
+        match = "/v2/"
+        versions = [{"id": "v2.0", "links": [{"href": match, "rel": "self"}]}]
+
+        sot = session.Session(None)
+        rv = sot._get_version_match(versions, session.Version(2, 0),
+                                    "service", root, False)
+        self.assertEqual(rv, root+match)
+
+    def test__get_version_match_project_id(self):
+        match = "http://devstack/v2/"
+        project_id = "asdf123"
+        versions = [{"id": "v2.0", "links": [{"href": match, "rel": "self"}]}]
+
+        sot = session.Session(None)
+        sot.get_project_id = mock.Mock(return_value=project_id)
+        rv = sot._get_version_match(versions, session.Version(2, 0),
+                                    "service", "root", True)
+        self.assertEqual(rv, match + project_id)
+
+    def test_get_endpoint_cached(self):
+        sot = session.Session(None)
+        service_type = "compute"
+        interface = "public"
+        endpoint = "the world wide web"
+
+        sot.endpoint_cache[(service_type, interface)] = endpoint
+        rv = sot.get_endpoint(service_type=service_type, interface=interface)
+        self.assertEqual(rv, endpoint)
