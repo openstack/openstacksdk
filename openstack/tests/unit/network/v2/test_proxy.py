@@ -29,6 +29,7 @@ from openstack.network.v2 import network_ip_availability
 from openstack.network.v2 import pool
 from openstack.network.v2 import pool_member
 from openstack.network.v2 import port
+from openstack.network.v2 import qos_bandwidth_limit_rule
 from openstack.network.v2 import qos_dscp_marking_rule
 from openstack.network.v2 import qos_minimum_bandwidth_rule
 from openstack.network.v2 import qos_policy
@@ -389,6 +390,53 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_port_update(self):
         self.verify_update(self.proxy.update_port, port.Port)
+
+    def test_qos_bandwidth_limit_rule_create_attrs(self):
+        self.verify_create(
+            self.proxy.create_qos_bandwidth_limit_rule,
+            qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+            method_kwargs={'qos_policy': QOS_POLICY_ID},
+            expected_kwargs={'path_args': {'qos_policy_id': QOS_POLICY_ID}})
+
+    def test_qos_bandwidth_limit_rule_delete(self):
+        self.verify_delete(
+            self.proxy.delete_qos_bandwidth_limit_rule,
+            qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+            False, input_path_args=["resource_or_id", QOS_POLICY_ID],
+            expected_path_args={'qos_policy_id': QOS_POLICY_ID},)
+
+    def test_qos_bandwidth_limit_rule_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_qos_bandwidth_limit_rule,
+            qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+            True, input_path_args=["resource_or_id", QOS_POLICY_ID],
+            expected_path_args={'qos_policy_id': QOS_POLICY_ID}, )
+
+    def test_qos_bandwidth_limit_rule_find(self):
+        self.verify_find(self.proxy.find_qos_bandwidth_limit_rule,
+                         qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+                         path_args={'qos_policy_id': QOS_POLICY_ID})
+
+    def test_qos_bandwidth_limit_rule_get(self):
+        self.verify_get(
+            self.proxy.get_qos_bandwidth_limit_rule,
+            qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+            method_kwargs={'qos_policy': QOS_POLICY_ID},
+            expected_kwargs={'path_args': {'qos_policy_id': QOS_POLICY_ID}})
+
+    def test_qos_bandwidth_limit_rules(self):
+        self.verify_list(
+            self.proxy.qos_bandwidth_limit_rules,
+            qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+            paginated=False,
+            method_kwargs={'qos_policy': QOS_POLICY_ID},
+            expected_kwargs={'path_args': {'qos_policy_id': QOS_POLICY_ID}})
+
+    def test_qos_bandwidth_limit_rule_update(self):
+        self.verify_update(
+            self.proxy.update_qos_bandwidth_limit_rule,
+            qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+            path_args={'qos_policy_id': QOS_POLICY_ID})
 
     def test_qos_dscp_marking_rule_create_attrs(self):
         self.verify_create(
