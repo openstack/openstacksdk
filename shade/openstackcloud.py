@@ -5766,43 +5766,52 @@ class OpenStackCloud(object):
         return True
 
     @_utils.cache_on_arguments()
-    def list_baymodels(self, detail=False):
-        """List Magnum baymodels.
+    def list_cluster_templates(self, detail=False):
+        """List Magnum ClusterTemplates.
+
+        ClusterTemplate is the new name for BayModel.
 
         :param bool detail. Flag to control if we need summarized or
             detailed output.
 
-        :returns: a list of dicts containing the baymodel details.
+        :returns: a list of dicts containing the cluster template details.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        with _utils.shade_exceptions("Error fetching baymodel list"):
-            baymodels = self.manager.submitTask(
-                _tasks.BaymodelList(detail=detail))
-        return _utils.normalize_baymodels(baymodels)
+        with _utils.shade_exceptions("Error fetching ClusterTemplate list"):
+            cluster_templates = self.manager.submitTask(
+                _tasks.ClusterTemplateList(detail=detail))
+        return _utils.normalize_cluster_templates(cluster_templates)
+    list_baymodels = list_cluster_templates
 
-    def search_baymodels(self, name_or_id=None, filters=None, detail=False):
-        """Search Magnum baymodels.
+    def search_cluster_templates(
+            self, name_or_id=None, filters=None, detail=False):
+        """Search Magnum ClusterTemplates.
 
-        :param name_or_id: baymodel name or ID.
+        ClusterTemplate is the new name for BayModel.
+
+        :param name_or_id: ClusterTemplate name or ID.
         :param filters: a dict containing additional filters to use.
         :param detail: a boolean to control if we need summarized or
             detailed output.
 
-        :returns: a list of dict containing the baymodels
+        :returns: a list of dict containing the ClusterTemplates
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        baymodels = self.list_baymodels(detail=detail)
+        cluster_templates = self.list_cluster_templates(detail=detail)
         return _utils._filter_list(
-            baymodels, name_or_id, filters)
+            cluster_templates, name_or_id, filters)
+    search_baymodels = search_cluster_templates
 
-    def get_baymodel(self, name_or_id, filters=None, detail=False):
-        """Get a baymodel by name or ID.
+    def get_cluster_template(self, name_or_id, filters=None, detail=False):
+        """Get a ClusterTemplate by name or ID.
 
-        :param name_or_id: Name or ID of the baymodel.
+        ClusterTemplate is the new name for BayModel.
+
+        :param name_or_id: Name or ID of the ClusterTemplate.
         :param dict filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
@@ -5814,72 +5823,79 @@ class OpenStackCloud(object):
                   }
                 }
 
-        :returns: A baymodel dict or None if no matching baymodel is
-            found.
-
+        :returns: A ClusterTemplate dict or None if no matching
+            ClusterTemplate is found.
         """
-        return _utils._get_entity(self.search_baymodels, name_or_id,
+        return _utils._get_entity(self.search_cluster_templates, name_or_id,
                                   filters=filters, detail=detail)
+    get_baymodel = get_cluster_template
 
-    def create_baymodel(self, name, image_id=None, keypair_id=None,
-                        coe=None, **kwargs):
-        """Create a Magnum baymodel.
+    def create_cluster_template(
+            self, name, image_id=None, keypair_id=None, coe=None, **kwargs):
+        """Create a Magnum ClusterTemplate.
 
-        :param string name: Name of the baymodel.
+        ClusterTemplate is the new name for BayModel.
+
+        :param string name: Name of the ClusterTemplate.
         :param string image_id: Name or ID of the image to use.
         :param string keypair_id: Name or ID of the keypair to use.
-        :param string coe: Name of the coe for the baymodel.
+        :param string coe: Name of the coe for the ClusterTemplate.
 
         Other arguments will be passed in kwargs.
 
-        :returns: a dict containing the baymodel description
+        :returns: a dict containing the ClusterTemplate description
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the openstack API call
         """
         with _utils.shade_exceptions(
-                "Error creating baymodel of name {baymodel_name}".format(
-                    baymodel_name=name)):
-            baymodel = self.manager.submitTask(
-                _tasks.BaymodelCreate(
+                "Error creating ClusterTemplate of name"
+                " {cluster_template_name}".format(
+                    cluster_template_name=name)):
+            cluster_template = self.manager.submitTask(
+                _tasks.ClusterTemplateCreate(
                     name=name, image_id=image_id,
                     keypair_id=keypair_id, coe=coe, **kwargs))
 
-        self.list_baymodels.invalidate(self)
-        return baymodel
+        self.list_cluster_templates.invalidate(self)
+        return cluster_template
+    create_baymodel = create_cluster_template
 
-    def delete_baymodel(self, name_or_id):
-        """Delete a baymodel.
+    def delete_cluster_template(self, name_or_id):
+        """Delete a ClusterTemplate.
 
-        :param name_or_id: Name or unique ID of the baymodel.
+        ClusterTemplate is the new name for BayModel.
+
+        :param name_or_id: Name or unique ID of the ClusterTemplate.
         :returns: True if the delete succeeded, False if the
-            baymodel was not found.
+            ClusterTemplate was not found.
 
         :raises: OpenStackCloudException on operation error.
         """
 
-        self.list_baymodels.invalidate(self)
-        baymodel = self.get_baymodel(name_or_id)
+        self.list_cluster_templates.invalidate(self)
+        cluster_template = self.get_cluster_template(name_or_id)
 
-        if not baymodel:
+        if not cluster_template:
             self.log.debug(
-                "Baymodel {name_or_id} does not exist".format(
+                "ClusterTemplate {name_or_id} does not exist".format(
                     name_or_id=name_or_id),
                 exc_info=True)
             return False
 
-        with _utils.shade_exceptions("Error in deleting baymodel"):
+        with _utils.shade_exceptions("Error in deleting ClusterTemplate"):
             try:
                 self.manager.submitTask(
-                    _tasks.BaymodelDelete(id=baymodel['id']))
+                    _tasks.ClusterTemplateDelete(id=cluster_template['id']))
             except magnum_exceptions.NotFound:
                 self.log.debug(
-                    "Baymodel {id} not found when deleting. Ignoring.".format(
-                        id=baymodel['id']))
+                    "ClusterTemplate {id} not found when deleting."
+                    " Ignoring.".format(id=cluster_template['id']))
                 return False
 
-        self.list_baymodels.invalidate(self)
+        self.list_cluster_templates.invalidate(self)
         return True
+    delete_baymodel = delete_cluster_template
 
     @_utils.valid_kwargs('name', 'image_id', 'flavor_id', 'master_flavor_id',
                          'keypair_id', 'external_network_id', 'fixed_network',
@@ -5887,23 +5903,25 @@ class OpenStackCloud(object):
                          'coe', 'http_proxy', 'https_proxy', 'no_proxy',
                          'network_driver', 'tls_disabled', 'public',
                          'registry_enabled', 'volume_driver')
-    def update_baymodel(self, name_or_id, operation, **kwargs):
-        """Update a Magnum baymodel.
+    def update_cluster_template(self, name_or_id, operation, **kwargs):
+        """Update a Magnum ClusterTemplate.
 
-        :param name_or_id: Name or ID of the baymodel being updated.
+        ClusterTemplate is the new name for BayModel.
+
+        :param name_or_id: Name or ID of the ClusterTemplate being updated.
         :param operation: Operation to perform - add, remove, replace.
 
         Other arguments will be passed with kwargs.
 
-        :returns: a dict representing the updated baymodel.
+        :returns: a dict representing the updated ClusterTemplate.
 
         :raises: OpenStackCloudException on operation error.
         """
-        self.list_baymodels.invalidate(self)
-        baymodel = self.get_baymodel(name_or_id)
-        if not baymodel:
+        self.list_cluster_templates.invalidate(self)
+        cluster_template = self.get_cluster_template(name_or_id)
+        if not cluster_template:
             raise OpenStackCloudException(
-                "Baymodel %s not found." % name_or_id)
+                "ClusterTemplate %s not found." % name_or_id)
 
         if operation not in ['add', 'replace', 'remove']:
             raise TypeError(
@@ -5912,10 +5930,11 @@ class OpenStackCloud(object):
         patches = _utils.generate_patches_from_kwargs(operation, **kwargs)
 
         with _utils.shade_exceptions(
-                "Error updating baymodel {0}".format(name_or_id)):
+                "Error updating ClusterTemplate {0}".format(name_or_id)):
             self.manager.submitTask(
-                _tasks.BaymodelUpdate(
-                    id=baymodel['id'], patch=patches))
+                _tasks.ClusterTemplateUpdate(
+                    id=cluster_template['id'], patch=patches))
 
-        new_baymodel = self.get_baymodel(name_or_id)
-        return new_baymodel
+        new_cluster_template = self.get_cluster_template(name_or_id)
+        return new_cluster_template
+    update_baymodel = update_cluster_template

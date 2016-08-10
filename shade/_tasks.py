@@ -939,22 +939,22 @@ class NeutronQuotasDelete(task_manager.Task):
         return client.neutron_client.delete_quota(**self.args)
 
 
-class BaymodelList(task_manager.Task):
+class ClusterTemplateList(task_manager.Task):
     def main(self, client):
         return client.magnum_client.baymodels.list(**self.args)
 
 
-class BaymodelCreate(task_manager.Task):
+class ClusterTemplateCreate(task_manager.Task):
     def main(self, client):
         return client.magnum_client.baymodels.create(**self.args)
 
 
-class BaymodelDelete(task_manager.Task):
+class ClusterTemplateDelete(task_manager.Task):
     def main(self, client):
         return client.magnum_client.baymodels.delete(self.args['id'])
 
 
-class BaymodelUpdate(task_manager.Task):
+class ClusterTemplateUpdate(task_manager.Task):
     def main(self, client):
         return client.magnum_client.baymodels.update(
             self.args['id'], self.args['patch'])

@@ -495,11 +495,11 @@ def normalize_flavors(flavors):
     return flavors
 
 
-def normalize_baymodels(baymodels):
-    """Normalize Magnum baymodels."""
-    for baymodel in baymodels:
-        baymodel['id'] = baymodel['uuid']
-    return baymodels
+def normalize_cluster_templates(cluster_templates):
+    """Normalize Magnum cluster_templates."""
+    for cluster_template in cluster_templates:
+        cluster_template['id'] = cluster_template['uuid']
+    return cluster_templates
 
 
 def valid_kwargs(*valid_args):
