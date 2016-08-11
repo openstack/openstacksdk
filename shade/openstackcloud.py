@@ -2548,7 +2548,8 @@ class OpenStackCloud(object):
             md5=None, sha256=None,
             disk_format=None, container_format=None,
             disable_vendor_agent=True,
-            wait=False, timeout=3600, **kwargs):
+            wait=False, timeout=3600,
+            allow_duplicates=False, **kwargs):
         """Upload an image to Glance.
 
         :param str name: Name of the image to create. If it is a pathname
@@ -2580,6 +2581,8 @@ class OpenStackCloud(object):
                           true - however, be aware that one of the upload
                           methods is always synchronous.
         :param timeout: Seconds to wait for image creation. None is forever.
+        :param allow_duplicates: If true, skips checks that enforce unique
+                                 image name. (optional, defaults to False)
 
         Additional kwargs will be passed to the image creation as additional
         metadata for the image.
@@ -2605,12 +2608,15 @@ class OpenStackCloud(object):
                 container_format = 'bare'
         if not md5 or not sha256:
             (md5, sha256) = self._get_file_hashes(filename)
-        current_image = self.get_image(name)
-        if (current_image and current_image.get(IMAGE_MD5_KEY, '') == md5
-                and current_image.get(IMAGE_SHA256_KEY, '') == sha256):
-            self.log.debug(
-                "image {name} exists and is up to date".format(name=name))
-            return current_image
+        if allow_duplicates:
+            current_image = None
+        else:
+            current_image = self.get_image(name)
+            if (current_image and current_image.get(IMAGE_MD5_KEY, '') == md5
+                    and current_image.get(IMAGE_SHA256_KEY, '') == sha256):
+                self.log.debug(
+                    "image {name} exists and is up to date".format(name=name))
+                return current_image
         kwargs[IMAGE_MD5_KEY] = md5
         kwargs[IMAGE_SHA256_KEY] = sha256
         kwargs[IMAGE_OBJECT_KEY] = '/'.join([container, name])
