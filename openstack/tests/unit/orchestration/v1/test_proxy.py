@@ -28,31 +28,51 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
         super(TestOrchestrationProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
-    def test_stack_create_attrs(self):
+    def test_create_stack(self):
         self.verify_create(self.proxy.create_stack, stack.Stack)
 
-    def test_stack_preview_attrs(self):
+    def test_create_stack_preview(self):
         method_kwargs = {"preview": True, "x": 1, "y": 2, "z": 3}
         self.verify_create(self.proxy.create_stack, stack.StackPreview,
                            method_kwargs=method_kwargs)
 
-    def test_stack_find(self):
+    def test_find_stack(self):
         self.verify_find(self.proxy.find_stack, stack.Stack)
 
     def test_stacks(self):
         self.verify_list(self.proxy.stacks, stack.Stack, paginated=False)
 
-    def test_stack_get(self):
+    def test_get_stack(self):
         self.verify_get(self.proxy.get_stack, stack.Stack)
 
-    def test_stack_update(self):
+    def test_update_stack(self):
         self.verify_update(self.proxy.update_stack, stack.Stack)
 
-    def test_stack_delete(self):
+    def test_delete_stack(self):
         self.verify_delete(self.proxy.delete_stack, stack.Stack, False)
 
-    def test_stack_delete_ignore(self):
+    def test_delete_stack_ignore(self):
         self.verify_delete(self.proxy.delete_stack, stack.Stack, True)
+
+    @mock.patch.object(stack.Stack, 'check')
+    def test_check_stack_with_stack_object(self, mock_check):
+        stk = stack.Stack(id='FAKE_ID')
+
+        res = self.proxy.check_stack(stk)
+
+        self.assertIsNone(res)
+        mock_check.assert_called_once_with(self.proxy.session)
+
+    @mock.patch.object(stack.Stack, 'existing')
+    def test_check_stack_with_stack_ID(self, mock_stack):
+        stk = mock.Mock()
+        mock_stack.return_value = stk
+
+        res = self.proxy.check_stack('FAKE_ID')
+
+        self.assertIsNone(res)
+        mock_stack.assert_called_once_with(id='FAKE_ID')
+        stk.check.assert_called_once_with(self.proxy.session)
 
     @mock.patch.object(stack.Stack, 'find')
     def test_resources_with_stack_object(self, mock_find):

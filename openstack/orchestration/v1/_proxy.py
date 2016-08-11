@@ -107,6 +107,23 @@ class Proxy(proxy2.BaseProxy):
         """
         self._delete(_stack.Stack, stack, ignore_missing=ignore_missing)
 
+    def check_stack(self, stack):
+        """Check a stack's status
+
+        Since this is an asynchronous action, the only way to check the result
+        is to track the stack's status.
+
+        :param stack: The value can be either the ID of a stack or an instance
+                      of :class:`~openstack.orchestration.v1.stack.Stack`.
+        :returns: ``None``
+        """
+        if isinstance(stack, _stack.Stack):
+            stk_obj = stack
+        else:
+            stk_obj = _stack.Stack.existing(id=stack)
+
+        stk_obj.check(self.session)
+
     def resources(self, stack, **query):
         """Return a generator of resources
 
