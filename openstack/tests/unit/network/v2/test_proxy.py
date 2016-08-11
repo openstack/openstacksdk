@@ -33,6 +33,7 @@ from openstack.network.v2 import qos_bandwidth_limit_rule
 from openstack.network.v2 import qos_dscp_marking_rule
 from openstack.network.v2 import qos_minimum_bandwidth_rule
 from openstack.network.v2 import qos_policy
+from openstack.network.v2 import qos_rule_type
 from openstack.network.v2 import quota
 from openstack.network.v2 import rbac_policy
 from openstack.network.v2 import router
@@ -555,6 +556,10 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_qos_policy_update(self):
         self.verify_update(self.proxy.update_qos_policy, qos_policy.QoSPolicy)
+
+    def test_qos_rule_types(self):
+        self.verify_list(self.proxy.qos_rule_types, qos_rule_type.QoSRuleType,
+                         paginated=False)
 
     def test_quota_delete(self):
         self.verify_delete(self.proxy.delete_quota, quota.Quota, False)

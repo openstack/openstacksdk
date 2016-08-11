@@ -23,6 +23,7 @@ Network Resources
    v2/qos_dscp_marking_rule
    v2/qos_minimum_bandwidth_rule
    v2/qos_policy
+   v2/qos_rule_type
    v2/quota
    v2/rbac_policy
    v2/router

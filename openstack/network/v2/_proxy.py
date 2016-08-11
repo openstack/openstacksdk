@@ -32,6 +32,7 @@ from openstack.network.v2 import qos_dscp_marking_rule as \
 from openstack.network.v2 import qos_minimum_bandwidth_rule as \
     _qos_minimum_bandwidth_rule
 from openstack.network.v2 import qos_policy as _qos_policy
+from openstack.network.v2 import qos_rule_type as _qos_rule_type
 from openstack.network.v2 import quota as _quota
 from openstack.network.v2 import rbac_policy as _rbac_policy
 from openstack.network.v2 import router as _router
@@ -1607,6 +1608,16 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.qos_policy.QoSPolicy`
         """
         return self._update(_qos_policy.QoSPolicy, qos_policy, **attrs)
+
+    def qos_rule_types(self, **query):
+        """Return a generator of QoS rule types
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
+        :returns: A generator of QoS rule type objects
+        :rtype: :class:`~openstack.network.v2.qos_rule_type.QoSRuleType`
+        """
+        return self._list(_qos_rule_type.QoSRuleType, paginated=False, **query)
 
     def delete_quota(self, quota, ignore_missing=True):
         """Delete a quota (i.e. reset to the default quota)
