@@ -562,6 +562,7 @@ class OpenStackConfig(object):
             for key in possible_values:
                 if target_key in cloud['auth'] and key not in cloud['auth']:
                     cloud['auth'][key] = cloud['auth'][target_key]
+            cloud.pop(target_key, None)
             cloud['auth'].pop(target_key, None)
         return cloud
 

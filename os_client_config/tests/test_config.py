@@ -102,6 +102,7 @@ class TestConfig(base.TestCase):
         self.assertEqual('123456789', cc.auth['project_domain_id'])
         self.assertNotIn('domain_id', cc.auth)
         self.assertNotIn('domain-id', cc.auth)
+        self.assertNotIn('domain_id', cc)
 
     def test_get_one_cloud_domain_scoped(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
@@ -118,6 +119,7 @@ class TestConfig(base.TestCase):
         self.assertEqual('awesome-domain', cc.auth['user_domain_id'])
         self.assertEqual('awesome-domain', cc.auth['project_domain_id'])
         self.assertNotIn('domain_id', cc.auth)
+        self.assertNotIn('domain_id', cc)
 
     def test_get_one_cloud_with_hyphenated_project_id(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
