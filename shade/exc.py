@@ -16,8 +16,6 @@ import sys
 
 from shade import _log
 
-log = _log.setup_logging(__name__)
-
 
 class OpenStackCloudException(Exception):
 
@@ -32,7 +30,9 @@ class OpenStackCloudException(Exception):
         self.inner_exception = sys.exc_info()
         self.orig_message = message
 
-    def log_error(self, logger=log):
+    def log_error(self, logger=None):
+        if not logger:
+            logger = _log.setup_logging(__name__)
         if self.inner_exception and self.inner_exception[1]:
             logger.error(self.orig_message, exc_info=self.inner_exception)
 
