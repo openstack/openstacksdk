@@ -115,7 +115,11 @@ class Session(_session.Session):
         to get the versions the API exposes.
         """
         parts = parse.urlparse(endpoint)
-        root_endpoint = "://".join([parts.scheme, parts.netloc])
+        if ':' in parts.netloc:
+            root_endpoint = "://".join([parts.scheme, parts.netloc])
+        else:
+            root_endpoint = endpoint
+
         response = self.get(root_endpoint)
 
         # Normalize the version response. Identity nests the versions
