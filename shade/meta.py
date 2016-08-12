@@ -289,7 +289,7 @@ def _get_suplemental_addresses(cloud, server):
         for address in network:
             if address['version'] == 6:
                 continue
-            if address['OS-EXT-IPS:type'] == 'floating':
+            if address.get('OS-EXT-IPS:type') == 'floating':
                 # We have a floating IP that nova knows about, do nothing
                 return server['addresses']
             fixed_ip_mapping[address['addr']] = name
