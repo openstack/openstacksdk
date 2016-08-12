@@ -25,7 +25,6 @@ import warnings
 from dogpile import cache
 import requestsexceptions
 
-import cinderclient.client
 import cinderclient.exceptions as cinder_exceptions
 import glanceclient
 import glanceclient.exc
@@ -847,6 +846,9 @@ class OpenStackCloud(object):
     @property
     def cinder_client(self):
 
+        # Import cinderclient late because importing it at the top level
+        # breaks logging for users of shade
+        import cinderclient.client
         if self._cinder_client is None:
             self._cinder_client = self._get_client(
                 'volume', cinderclient.client.Client)
