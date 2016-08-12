@@ -296,10 +296,18 @@ def _get_suplemental_addresses(cloud, server):
                 # We have a floating IP that nova knows about, do nothing
                 return server['addresses']
             fixed_ip_mapping[address['addr']] = name
-    for fip in cloud.list_floating_ips():
-        if fip['fixed_ip_address'] in fixed_ip_mapping:
-            fixed_net = fixed_ip_mapping[fip['fixed_ip_address']]
-            server['addresses'][fixed_net].append(_make_address_dict(fip))
+    try:
+        if cloud._has_floating_ips():
+            for fip in cloud.list_floating_ips():
+                if fip['fixed_ip_address'] in fixed_ip_mapping:
+                    fixed_net = fixed_ip_mapping[fip['fixed_ip_address']]
+                    server['addresses'][fixed_net].append(
+                        _make_address_dict(fip))
+    except exc.OpenStackCloudException:
+        # If something goes wrong with a cloud call, that's cool - this is
+        # an attempt to provide additional data and should not block forward
+        # progress
+        pass
     return server['addresses']
 
 

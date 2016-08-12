@@ -235,6 +235,59 @@ class TestMeta(base.TestCase):
         mock_list_networks.assert_called_once_with()
         mock_list_floating_ips.assert_called_once_with()
 
+    @mock.patch.object(shade.OpenStackCloud, 'list_floating_ips')
+    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
+    @mock.patch.object(shade.OpenStackCloud, 'list_server_security_groups')
+    @mock.patch.object(shade.OpenStackCloud, 'get_volumes')
+    @mock.patch.object(shade.OpenStackCloud, 'get_image_name')
+    @mock.patch.object(shade.OpenStackCloud, 'get_flavor_name')
+    @mock.patch.object(shade.OpenStackCloud, 'has_service')
+    @mock.patch.object(shade.OpenStackCloud, 'list_networks')
+    def test_get_server_private_ip_no_fip(
+            self, mock_list_networks, mock_has_service,
+            mock_get_flavor_name, mock_get_image_name,
+            mock_get_volumes,
+            mock_list_server_security_groups,
+            mock_list_subnets,
+            mock_list_floating_ips):
+        self.cloud._floating_ip_source = 'none'
+        mock_get_image_name.return_value = 'cirros-0.3.4-x86_64-uec'
+        mock_get_flavor_name.return_value = 'm1.tiny'
+        mock_has_service.return_value = True
+        mock_get_volumes.return_value = []
+        mock_list_subnets.return_value = SUBNETS_WITH_NAT
+        mock_list_networks.return_value = [
+            {
+                'id': 'test_pnztt_net',
+                'name': 'test_pnztt_net',
+                'router:external': False,
+            },
+            {
+                'id': 'private',
+                'name': 'private',
+            },
+        ]
+
+        srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
+            id='test-id', name='test-name', status='ACTIVE',
+            flavor={u'id': u'1'},
+            image={
+                'name': u'cirros-0.3.4-x86_64-uec',
+                u'id': u'f93d000b-7c29-4489-b375-3641a1758fe1'},
+            addresses={u'test_pnztt_net': [{
+                u'OS-EXT-IPS:type': u'fixed',
+                u'addr': PRIVATE_V4,
+                u'version': 4,
+                u'OS-EXT-IPS-MAC:mac_addr':
+                u'fa:16:3e:ae:7d:42'
+            }]}
+        )))
+
+        self.assertEqual(PRIVATE_V4, srv['private_v4'])
+        mock_has_service.assert_called_with('volume')
+        mock_list_networks.assert_called_once_with()
+        mock_list_floating_ips.assert_not_called()
+
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
     @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
     @mock.patch.object(shade.OpenStackCloud, 'list_networks')

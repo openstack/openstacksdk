@@ -1772,6 +1772,12 @@ class OpenStackCloud(object):
         self._find_interesting_networks()
         return self._internal_networks
 
+    def _has_floating_ips(self):
+        if not self._floating_ip_source:
+            return False
+        else:
+            return self._floating_ip_source.lower() in ('nova', 'neutron')
+
     def _use_neutron_floating(self):
         return (self.has_service('network')
                 and self._floating_ip_source == 'neutron')
