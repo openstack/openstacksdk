@@ -1416,7 +1416,7 @@ class OpenStackCloud(object):
         """
 
         # Don't even try if we're a cloud that doesn't have them
-        if self.secgroup_source not in ('nova', 'neutron'):
+        if not self._has_secgroups():
             return []
 
         with _utils.shade_exceptions():
@@ -1431,8 +1431,14 @@ class OpenStackCloud(object):
         :returns: A list of security group ``munch.Munch``.
 
         """
+        # Security groups not supported
+        if not self._has_secgroups():
+            raise OpenStackCloudUnavailableFeature(
+                "Unavailable feature: security groups"
+            )
+
         # Handle neutron security groups
-        if self.secgroup_source == 'neutron':
+        if self._use_neutron_secgroups():
             # Neutron returns dicts, so no need to convert objects here.
             with _utils.neutron_exceptions(
                     "Error fetching security group list"):
@@ -1440,17 +1446,11 @@ class OpenStackCloud(object):
                     _tasks.NeutronSecurityGroupList())['security_groups']
 
         # Handle nova security groups
-        elif self.secgroup_source == 'nova':
+        else:
             with _utils.shade_exceptions("Error fetching security group list"):
                 groups = self.manager.submitTask(
                     _tasks.NovaSecurityGroupList())
             return _utils.normalize_nova_secgroups(groups)
-
-        # Security groups not supported
-        else:
-            raise OpenStackCloudUnavailableFeature(
-                "Unavailable feature: security groups"
-            )
 
     def list_servers(self, detailed=False):
         """List all available servers.
@@ -1783,6 +1783,16 @@ class OpenStackCloud(object):
     def _use_neutron_floating(self):
         return (self.has_service('network')
                 and self._floating_ip_source == 'neutron')
+
+    def _has_secgroups(self):
+        if not self.secgroup_source:
+            return False
+        else:
+            return self.secgroup_source.lower() in ('nova', 'neutron')
+
+    def _use_neutron_secgroups(self):
+        return (self.has_service('network')
+                and self.secgroup_source == 'neutron')
 
     def get_keypair(self, name_or_id, filters=None):
         """Get a keypair by name or ID.
@@ -5323,7 +5333,14 @@ class OpenStackCloud(object):
         :raises: OpenStackCloudUnavailableFeature if security groups are
                  not supported on this cloud.
         """
-        if self.secgroup_source == 'neutron':
+
+        # Security groups not supported
+        if not self._has_secgroups():
+            raise OpenStackCloudUnavailableFeature(
+                "Unavailable feature: security groups"
+            )
+
+        if self._use_neutron_secgroups():
             with _utils.neutron_exceptions(
                     "Error creating security group {0}".format(name)):
                 group = self.manager.submitTask(
@@ -5334,7 +5351,7 @@ class OpenStackCloud(object):
                 )
             return group['security_group']
 
-        elif self.secgroup_source == 'nova':
+        else:
             with _utils.shade_exceptions(
                     "Failed to create security group '{name}'".format(
                         name=name)):
@@ -5344,12 +5361,6 @@ class OpenStackCloud(object):
                     )
                 )
             return _utils.normalize_nova_secgroups([group])[0]
-
-        # Security groups not supported
-        else:
-            raise OpenStackCloudUnavailableFeature(
-                "Unavailable feature: security groups"
-            )
 
     def delete_security_group(self, name_or_id):
         """Delete a security group
@@ -5362,13 +5373,19 @@ class OpenStackCloud(object):
         :raises: OpenStackCloudUnavailableFeature if security groups are
                  not supported on this cloud.
         """
+        # Security groups not supported
+        if not self._has_secgroups():
+            raise OpenStackCloudUnavailableFeature(
+                "Unavailable feature: security groups"
+            )
+
         secgroup = self.get_security_group(name_or_id)
         if secgroup is None:
             self.log.debug('Security group %s not found for deleting' %
                            name_or_id)
             return False
 
-        if self.secgroup_source == 'neutron':
+        if self._use_neutron_secgroups():
             with _utils.neutron_exceptions(
                     "Error deleting security group {0}".format(name_or_id)):
                 self.manager.submitTask(
@@ -5378,7 +5395,7 @@ class OpenStackCloud(object):
                 )
             return True
 
-        elif self.secgroup_source == 'nova':
+        else:
             with _utils.shade_exceptions(
                     "Failed to delete security group '{group}'".format(
                         group=name_or_id)):
@@ -5386,12 +5403,6 @@ class OpenStackCloud(object):
                     _tasks.NovaSecurityGroupDelete(group=secgroup['id'])
                 )
             return True
-
-        # Security groups not supported
-        else:
-            raise OpenStackCloudUnavailableFeature(
-                "Unavailable feature: security groups"
-            )
 
     @_utils.valid_kwargs('name', 'description')
     def update_security_group(self, name_or_id, **kwargs):
@@ -5405,13 +5416,19 @@ class OpenStackCloud(object):
 
         :raises: OpenStackCloudException on operation error.
         """
+        # Security groups not supported
+        if not self._has_secgroups():
+            raise OpenStackCloudUnavailableFeature(
+                "Unavailable feature: security groups"
+            )
+
         secgroup = self.get_security_group(name_or_id)
 
         if secgroup is None:
             raise OpenStackCloudException(
                 "Security group %s not found." % name_or_id)
 
-        if self.secgroup_source == 'neutron':
+        if self._use_neutron_secgroups():
             with _utils.neutron_exceptions(
                     "Error updating security group {0}".format(name_or_id)):
                 group = self.manager.submitTask(
@@ -5421,7 +5438,7 @@ class OpenStackCloud(object):
                 )
             return group['security_group']
 
-        elif self.secgroup_source == 'nova':
+        else:
             with _utils.shade_exceptions(
                     "Failed to update security group '{group}'".format(
                         group=name_or_id)):
@@ -5430,12 +5447,6 @@ class OpenStackCloud(object):
                         group=secgroup['id'], **kwargs)
                 )
             return _utils.normalize_nova_secgroups([group])[0]
-
-        # Security groups not supported
-        else:
-            raise OpenStackCloudUnavailableFeature(
-                "Unavailable feature: security groups"
-            )
 
     def create_security_group_rule(self,
                                    secgroup_name_or_id,
@@ -5488,13 +5499,18 @@ class OpenStackCloud(object):
 
         :raises: OpenStackCloudException on operation error.
         """
+        # Security groups not supported
+        if not self._has_secgroups():
+            raise OpenStackCloudUnavailableFeature(
+                "Unavailable feature: security groups"
+            )
 
         secgroup = self.get_security_group(secgroup_name_or_id)
         if not secgroup:
             raise OpenStackCloudException(
                 "Security group %s not found." % secgroup_name_or_id)
 
-        if self.secgroup_source == 'neutron':
+        if self._use_neutron_secgroups():
             # NOTE: Nova accepts -1 port numbers, but Neutron accepts None
             # as the equivalent value.
             rule_def = {
@@ -5518,7 +5534,7 @@ class OpenStackCloud(object):
                 )
             return rule['security_group_rule']
 
-        elif self.secgroup_source == 'nova':
+        else:
             # NOTE: Neutron accepts None for protocol. Nova does not.
             if protocol is None:
                 raise OpenStackCloudException('Protocol must be specified')
@@ -5561,12 +5577,6 @@ class OpenStackCloud(object):
                 )
             return _utils.normalize_nova_secgroup_rules([rule])[0]
 
-        # Security groups not supported
-        else:
-            raise OpenStackCloudUnavailableFeature(
-                "Unavailable feature: security groups"
-            )
-
     def delete_security_group_rule(self, rule_id):
         """Delete a security group rule
 
@@ -5578,8 +5588,13 @@ class OpenStackCloud(object):
         :raises: OpenStackCloudUnavailableFeature if security groups are
                  not supported on this cloud.
         """
+        # Security groups not supported
+        if not self._has_secgroups():
+            raise OpenStackCloudUnavailableFeature(
+                "Unavailable feature: security groups"
+            )
 
-        if self.secgroup_source == 'neutron':
+        if self._use_neutron_secgroups():
             try:
                 with _utils.neutron_exceptions(
                         "Error deleting security group rule "
@@ -5592,7 +5607,7 @@ class OpenStackCloud(object):
                 return False
             return True
 
-        elif self.secgroup_source == 'nova':
+        else:
             try:
                 self.manager.submitTask(
                     _tasks.NovaSecurityGroupRuleDelete(rule=rule_id)
@@ -5606,12 +5621,6 @@ class OpenStackCloud(object):
                     "Failed to delete security group rule {id}: {msg}".format(
                         id=rule_id, msg=str(e)))
             return True
-
-        # Security groups not supported
-        else:
-            raise OpenStackCloudUnavailableFeature(
-                "Unavailable feature: security groups"
-            )
 
     def list_zones(self):
         """List all available zones.
