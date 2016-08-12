@@ -23,6 +23,7 @@ from mock import patch
 import os_client_config
 from shade import OperatorCloud
 from shade.exc import OpenStackCloudException
+from shade.exc import OpenStackCloudUnavailableFeature
 from shade.tests.fakes import FakeEndpoint
 from shade.tests.fakes import FakeEndpointv3
 from shade.tests.unit import base
@@ -169,6 +170,41 @@ class TestCloudEndpoints(base.TestCase):
         for count in range(len(endpoints_2on3)):
             for k, v in self.mock_endpoints_v3[count].items():
                 self.assertEquals(v, endpoints_2on3[count].get(k))
+
+    @patch.object(os_client_config.cloud_config.CloudConfig, 'get_api_version')
+    def test_update_endpoint_v2(self, mock_api_version):
+        mock_api_version.return_value = '2.0'
+        # NOTE(SamYaple): Update endpoint only works with v3 api
+        self.assertRaises(OpenStackCloudUnavailableFeature,
+                          self.client.update_endpoint, 'endpoint_id')
+
+    @patch.object(OperatorCloud, 'keystone_client')
+    @patch.object(os_client_config.cloud_config.CloudConfig, 'get_api_version')
+    def test_update_endpoint_v3(self, mock_api_version, mock_keystone_client):
+        mock_api_version.return_value = '3'
+        mock_keystone_client.endpoints.update.return_value = \
+            self.mock_ks_endpoints_v3[0]
+
+        endpoint = self.client.update_endpoint(
+            'id1',
+            service_name_or_id='service_id1',
+            region='mock_region',
+            url='mock_url',
+            interface='mock_interface',
+            enabled=False
+        )
+        mock_keystone_client.endpoints.update.assert_called_with(
+            endpoint='id1',
+            service='service_id1',
+            region='mock_region',
+            url='mock_url',
+            interface='mock_interface',
+            enabled=False
+        )
+
+        # test keys and values are correct
+        for k, v in self.mock_endpoints_v3[0].items():
+            self.assertEquals(v, endpoint.get(k))
 
     @patch.object(OperatorCloud, 'keystone_client')
     def test_list_endpoints(self, mock_keystone_client):
