@@ -28,10 +28,6 @@ from shade import _log
 from shade import exc
 from shade import meta
 
-
-log = _log.setup_logging(__name__)
-
-
 _decorated_methods = []
 
 
@@ -43,6 +39,7 @@ def _iterate_timeout(timeout, message, wait=2):
     with <message>.
 
     """
+    log = _log.setup_logging(__name__)
 
     try:
         wait = float(wait)

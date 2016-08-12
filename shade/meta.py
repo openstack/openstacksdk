@@ -18,12 +18,9 @@ import ipaddress
 import six
 
 from shade import exc
-from shade import _log
 
 
 NON_CALLABLES = (six.string_types, bool, dict, int, float, list, type(None))
-
-log = _log.setup_logging(__name__)
 
 
 def find_nova_addresses(addresses, ext_tag=None, key_name=None, version=4):
