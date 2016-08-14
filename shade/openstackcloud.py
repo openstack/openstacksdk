@@ -1697,21 +1697,20 @@ class OpenStackCloud(object):
                             default_net=self._default_network))
                 default_network = network
 
-        if (self._external_network_names
-                and len(self._external_network_names)
-                != len(external_networks)):
-            raise OpenStackCloudException(
-                "Networks: {network} were provided for external"
-                " access and those networks could not be found".format(
-                    network=",".join(self._external_network_names)))
+        # Validate config vs. reality
+        for net_name in self._external_network_names:
+            if net_name not in [net['name'] for net in external_networks]:
+                raise OpenStackCloudException(
+                    "Networks: {network} was provided for external"
+                    " access and those networks could not be found".format(
+                        network=net_name))
 
-        if (self._internal_network_names
-                and len(self._internal_network_names)
-                != len(internal_networks)):
-            raise OpenStackCloudException(
-                "Networks: {network} were provided for internal"
-                " access and those networks could not be found".format(
-                    network=",".join(self._internal_network_names)))
+        for net_name in self._internal_network_names:
+            if net_name not in [net['name'] for net in internal_networks]:
+                raise OpenStackCloudException(
+                    "Networks: {network} was provided for internal"
+                    " access and those networks could not be found".format(
+                        network=net_name))
 
         if self._nat_destination and not nat_destination:
             raise OpenStackCloudException(
