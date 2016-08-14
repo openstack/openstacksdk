@@ -1504,7 +1504,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :raises: OpenStackCloudException on operation error.
         """
-        flavor = self.get_flavor(name_or_id)
+        flavor = self.get_flavor(name_or_id, get_extra=False)
         if flavor is None:
             self.log.debug(
                 "Flavor {0} not found for deleting".format(name_or_id))

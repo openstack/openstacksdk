@@ -1079,12 +1079,12 @@ class OpenStackCloud(object):
         return self.region_name
 
     def get_flavor_name(self, flavor_id):
-        flavor = self.get_flavor(flavor_id)
+        flavor = self.get_flavor(flavor_id, get_extra=False)
         if flavor:
             return flavor['name']
         return None
 
-    def get_flavor_by_ram(self, ram, include=None):
+    def get_flavor_by_ram(self, ram, include=None, get_extra=True):
         """Get a flavor based on amount of RAM available.
 
         Finds the flavor with the least amount of RAM that is at least
@@ -1095,7 +1095,7 @@ class OpenStackCloud(object):
         :param string include: If given, will return a flavor whose name
             contains this string as a substring.
         """
-        flavors = self.list_flavors()
+        flavors = self.list_flavors(get_extra=get_extra)
         for flavor in sorted(flavors, key=operator.itemgetter('ram')):
             if (flavor['ram'] >= ram and
                     (not include or include in flavor['name'])):
@@ -1237,8 +1237,8 @@ class OpenStackCloud(object):
         return _utils._filter_list(
             volumesnapshots, name_or_id, filters)
 
-    def search_flavors(self, name_or_id=None, filters=None):
-        flavors = self.list_flavors()
+    def search_flavors(self, name_or_id=None, filters=None, get_extra=True):
+        flavors = self.list_flavors(get_extra=get_extra)
         return _utils._filter_list(flavors, name_or_id, filters)
 
     def search_security_groups(self, name_or_id=None, filters=None):
@@ -1926,7 +1926,7 @@ class OpenStackCloud(object):
         """
         return _utils._get_entity(self.search_volumes, name_or_id, filters)
 
-    def get_flavor(self, name_or_id, filters=None):
+    def get_flavor(self, name_or_id, filters=None, get_extra=True):
         """Get a flavor by name or ID.
 
         :param name_or_id: Name or ID of the flavor.
@@ -1940,12 +1940,18 @@ class OpenStackCloud(object):
                       'gender': 'Female'
                   }
                 }
+        :param get_extra:
+             Whether or not the list_flavors call should get the extra flavor
+             specs.
+
 
         :returns: A flavor ``munch.Munch`` or None if no matching flavor is
         found.
 
         """
-        return _utils._get_entity(self.search_flavors, name_or_id, filters)
+        search_func = functools.partial(
+            self.search_flavors, get_extra=get_extra)
+        return _utils._get_entity(search_func, name_or_id, filters)
 
     def get_security_group(self, name_or_id, filters=None):
         """Get a security group by name or ID.
