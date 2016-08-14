@@ -4284,6 +4284,10 @@ class OpenStackCloud(object):
                         cloud=self.name, region=self.region_name))
 
             kwargs['nics'] = [{'net-id': network_obj['id']}]
+        if not network and ('nics' not in kwargs or not kwargs['nics']):
+            default_network = self.get_default_network()
+            if default_network:
+                kwargs['nics'] = [{'net-id': default_network['id']}]
 
         kwargs['image'] = image
 
