@@ -4194,8 +4194,8 @@ class OpenStackCloud(object):
         """Create a virtual server instance.
 
         :param name: Something to name the server.
-        :param image: Image dict or id to boot with.
-        :param flavor: Flavor dict or id to boot onto.
+        :param image: Image dict, name or id to boot with.
+        :param flavor: Flavor dict, name or id to boot onto.
         :param auto_ip: Whether to take actions to find a routable IP for
                         the server. (defaults to True)
         :param ips: List of IPs to attach to the server (defaults to None)
@@ -4300,7 +4300,15 @@ class OpenStackCloud(object):
             if default_network:
                 kwargs['nics'] = [{'net-id': default_network['id']}]
 
-        kwargs['image'] = image
+        if image:
+            if isinstance(image, dict):
+                kwargs['image'] = image
+            else:
+                kwargs['image'] = self.get_image(image)
+        if flavor and isinstance(flavor, dict):
+            kwargs['flavor'] = flavor
+        else:
+            kwargs['flavor'] = self.get_flavor(flavor, get_extra=False)
 
         kwargs = self._get_boot_from_volume_kwargs(
             image=image, boot_from_volume=boot_from_volume,
@@ -4310,7 +4318,7 @@ class OpenStackCloud(object):
 
         with _utils.shade_exceptions("Error in creating instance"):
             server = self.manager.submitTask(_tasks.ServerCreate(
-                name=name, flavor=flavor, **kwargs))
+                name=name, **kwargs))
             admin_pass = server.get('adminPass') or kwargs.get('admin_pass')
             if not wait:
                 # This is a direct get task call to skip the list_servers
