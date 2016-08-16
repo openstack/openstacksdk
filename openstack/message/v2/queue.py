@@ -47,8 +47,9 @@ class Queue(resource2.Resource):
     #: in case keystone auth is not enabled in Zaqar service.
     project_id = resource2.Header("X-PROJECT-ID")
 
-    def create(self, session):
-        request = self._prepare_request(requires_id=True, prepend_key=True)
+    def create(self, session, prepend_key=True):
+        request = self._prepare_request(requires_id=True,
+                                        prepend_key=prepend_key)
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
             "X-PROJECT-ID": self.project_id or session.get_project_id()
@@ -101,8 +102,8 @@ class Queue(resource2.Resource):
             query_params["limit"] = yielded
             query_params["marker"] = new_marker
 
-    def get(self, session):
-        request = self._prepare_request()
+    def get(self, session, requires_id=True):
+        request = self._prepare_request(requires_id=requires_id)
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
             "X-PROJECT-ID": self.project_id or session.get_project_id()

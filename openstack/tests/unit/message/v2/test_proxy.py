@@ -13,6 +13,7 @@
 import mock
 
 from openstack.message.v2 import _proxy
+from openstack.message.v2 import claim
 from openstack.message.v2 import message
 from openstack.message.v2 import queue
 from openstack.message.v2 import subscription
@@ -130,3 +131,38 @@ class TestMessageProxy(test_proxy_base2.TestProxyBase):
         mock_get_resource.assert_called_once_with(
             subscription.Subscription, "resource_or_id",
             queue_name="test_queue")
+
+    def test_claim_create(self):
+        self._verify("openstack.message.v2.claim.Claim.create",
+                     self.proxy.create_claim,
+                     method_args=["test_queue"])
+
+    def test_claim_get(self):
+        self._verify2("openstack.proxy2.BaseProxy._get",
+                      self.proxy.get_claim,
+                      method_args=["test_queue", "resource_or_id"],
+                      expected_args=[claim.Claim,
+                                     "resource_or_id"],
+                      expected_kwargs={"queue_name": "test_queue"})
+
+    def test_claim_update(self):
+        self._verify2("openstack.proxy2.BaseProxy._update",
+                      self.proxy.update_claim,
+                      method_args=["test_queue", "resource_or_id"],
+                      method_kwargs={"k1": "v1"},
+                      expected_args=[claim.Claim,
+                                     "resource_or_id"],
+                      expected_kwargs={"queue_name": "test_queue",
+                                       "k1": "v1"})
+
+    def test_claim_delete(self):
+        self.verify_delete(self.proxy.delete_claim,
+                           claim.Claim, False,
+                           ["test_queue", "resource_or_id"],
+                           expected_kwargs={"queue_name": "test_queue"})
+
+    def test_claim_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_claim,
+                           claim.Claim, True,
+                           ["test_queue", "resource_or_id"],
+                           expected_kwargs={"queue_name": "test_queue"})
