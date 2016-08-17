@@ -154,7 +154,13 @@ class OpenStackCloud(object):
         self._default_network = cloud_config.get_default_network()
 
         self._floating_ip_source = cloud_config.config.get(
-            'floating_ip_source').lower()
+            'floating_ip_source')
+        if self._floating_ip_source:
+            if self._floating_ip_source.lower() == 'none':
+                self._floating_ip_source = None
+            else:
+                self._floating_ip_source = self._floating_ip_source.lower()
+
         self._use_external_network = cloud_config.config.get(
             'use_external_network', True)
         self._use_internal_network = cloud_config.config.get(
@@ -1780,7 +1786,7 @@ class OpenStackCloud(object):
         if not self._floating_ip_source:
             return False
         else:
-            return self._floating_ip_source.lower() in ('nova', 'neutron')
+            return self._floating_ip_source in ('nova', 'neutron')
 
     def _use_neutron_floating(self):
         return (self.has_service('network')
