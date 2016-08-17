@@ -22,5 +22,6 @@ class OrchestrationService(service_filter.ServiceFilter):
         """Create an orchestration service."""
         super(OrchestrationService, self).__init__(
             service_type='orchestration',
-            version=version
+            version=version,
+            requires_project_id=True,
         )
