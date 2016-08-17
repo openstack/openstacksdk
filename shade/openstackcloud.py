@@ -4032,7 +4032,7 @@ class OpenStackCloud(object):
         """
         server = self._add_auto_ip(
             server, wait=wait, timeout=timeout, reuse=reuse)
-        return self.get_server_public_ip(server)
+        return server['interface_ip'] or None
 
     def _add_auto_ip(self, server, wait=False, timeout=60, reuse=True):
         skip_attach = False
@@ -4095,7 +4095,7 @@ class OpenStackCloud(object):
                 server, ips, wait=wait, timeout=timeout,
                 fixed_address=fixed_address)
         elif auto_ip:
-            if not self.get_server_public_ip(server):
+            if not server['interface_ip']:
                 server = self._add_auto_ip(
                     server, wait=wait, timeout=timeout, reuse=reuse)
         return server
