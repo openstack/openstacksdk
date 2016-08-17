@@ -22,7 +22,7 @@ import threading
 import time
 import warnings
 
-from dogpile import cache
+import dogpile.cache
 import requestsexceptions
 
 import cinderclient.exceptions as cinder_exceptions
@@ -198,7 +198,7 @@ class OpenStackCloud(object):
 
         if cache_class != 'dogpile.cache.null':
             self.cache_enabled = True
-            self._cache = cache.make_region(
+            self._cache = dogpile.cache.make_region(
                 function_key_generator=self._make_cache_key
             ).configure(
                 cache_class,
@@ -287,6 +287,10 @@ class OpenStackCloud(object):
                 [str(name_key), fname, arg_key, kwargs_key])
             return ans
         return generate_key
+
+    def _get_cache(self, resource_name):
+        # TODO(mordred) This will eventually be per-resource
+        return self._cache
 
     def _get_client(
             self, service_key, client_class, interface_key=None,
@@ -2539,7 +2543,7 @@ class OpenStackCloud(object):
             for count in _utils._iterate_timeout(
                     timeout,
                     "Timeout waiting for the image to be deleted."):
-                self._cache.invalidate()
+                self._get_cache(None).invalidate()
                 if self.get_image(image.id) is None:
                     return
 
@@ -2754,6 +2758,7 @@ class OpenStackCloud(object):
             image = self._upload_image_put_v1(
                 name, image_data, meta, **image_kwargs)
         self._cache.invalidate()
+        self._get_cache(None).invalidate()
         return self.get_image(image.id)
 
     def _upload_image_task(
