@@ -28,10 +28,8 @@ class TestQoSBandwidthLimitRule(base.BaseFunctionalTest):
     RULE_MAX_KBPS_NEW = 1800
     RULE_MAX_BURST_KBPS = 1100
     RULE_MAX_BURST_KBPS_NEW = 1300
-    # NOTE(ralonsoh): to be implemented in bug 1560961.
-    # New checks must be added.
-    # RULE_DIRECTION = 'egress'
-    # RULE_DIRECTION_NEW = 'ingress'
+    RULE_DIRECTION = 'egress'
+    RULE_DIRECTION_NEW = 'ingress'
 
     @classmethod
     def setUpClass(cls):
@@ -45,11 +43,13 @@ class TestQoSBandwidthLimitRule(base.BaseFunctionalTest):
         qos_rule = cls.conn.network.create_qos_bandwidth_limit_rule(
             cls.QOS_POLICY_ID, max_kbps=cls.RULE_MAX_KBPS,
             max_burst_kbps=cls.RULE_MAX_BURST_KBPS,
+            direction=cls.RULE_DIRECTION,
         )
         assert isinstance(qos_rule,
                           _qos_bandwidth_limit_rule.QoSBandwidthLimitRule)
         cls.assertIs(cls.RULE_MAX_KBPS, qos_rule.max_kbps)
         cls.assertIs(cls.RULE_MAX_BURST_KBPS, qos_rule.max_burst_kbps)
+        cls.assertIs(cls.RULE_DIRECTION, qos_rule.direction)
         cls.RULE_ID = qos_rule.id
 
     @classmethod
@@ -68,6 +68,7 @@ class TestQoSBandwidthLimitRule(base.BaseFunctionalTest):
         self.assertEqual(self.RULE_ID, sot.id)
         self.assertEqual(self.RULE_MAX_KBPS, sot.max_kbps)
         self.assertEqual(self.RULE_MAX_BURST_KBPS, sot.max_burst_kbps)
+        self.assertEqual(self.RULE_DIRECTION, sot.direction)
 
     def test_get(self):
         sot = self.conn.network.get_qos_bandwidth_limit_rule(
@@ -77,6 +78,7 @@ class TestQoSBandwidthLimitRule(base.BaseFunctionalTest):
         self.assertEqual(self.QOS_POLICY_ID, sot.qos_policy_id)
         self.assertEqual(self.RULE_MAX_KBPS, sot.max_kbps)
         self.assertEqual(self.RULE_MAX_BURST_KBPS, sot.max_burst_kbps)
+        self.assertEqual(self.RULE_DIRECTION, sot.direction)
 
     def test_list(self):
         rule_ids = [o.id for o in
@@ -89,6 +91,8 @@ class TestQoSBandwidthLimitRule(base.BaseFunctionalTest):
             self.RULE_ID,
             self.QOS_POLICY_ID,
             max_kbps=self.RULE_MAX_KBPS_NEW,
-            max_burst_kbps=self.RULE_MAX_BURST_KBPS_NEW)
+            max_burst_kbps=self.RULE_MAX_BURST_KBPS_NEW,
+            direction=self.RULE_DIRECTION_NEW)
         self.assertEqual(self.RULE_MAX_KBPS_NEW, sot.max_kbps)
         self.assertEqual(self.RULE_MAX_BURST_KBPS_NEW, sot.max_burst_kbps)
+        self.assertEqual(self.RULE_DIRECTION_NEW, sot.direction)
