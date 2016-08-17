@@ -196,14 +196,20 @@ class OpenStackCloud(object):
         cache_class = cloud_config.get_cache_class()
         cache_arguments = cloud_config.get_cache_arguments()
 
+        self._resource_caches = {}
+
         if cache_class != 'dogpile.cache.null':
             self.cache_enabled = True
-            self._cache = dogpile.cache.make_region(
-                function_key_generator=self._make_cache_key
-            ).configure(
-                cache_class,
-                expiration_time=cache_expiration_time,
-                arguments=cache_arguments)
+            self._cache = self._make_cache(
+                cache_class, cache_expiration_time, cache_arguments)
+            expirations = cloud_config.get_cache_expiration()
+            for expire_key in expirations.keys():
+                # Only build caches for things we have list operations for
+                if getattr(
+                        self, 'list_{0}'.format(expire_key), None):
+                    self._resource_caches[expire_key] = self._make_cache(
+                        cache_class, expirations[expire_key], cache_arguments)
+
             self._SERVER_AGE = DEFAULT_SERVER_AGE
             self._PORT_AGE = DEFAULT_PORT_AGE
         else:
@@ -271,6 +277,14 @@ class OpenStackCloud(object):
 
         self.cloud_config = cloud_config
 
+    def _make_cache(self, cache_class, expiration_time, arguments):
+        return dogpile.cache.make_region(
+            function_key_generator=self._make_cache_key
+        ).configure(
+            cache_class,
+            expiration_time=expiration_time,
+            arguments=arguments)
+
     def _make_cache_key(self, namespace, fn):
         fname = fn.__name__
         if namespace is None:
@@ -289,8 +303,10 @@ class OpenStackCloud(object):
         return generate_key
 
     def _get_cache(self, resource_name):
-        # TODO(mordred) This will eventually be per-resource
-        return self._cache
+        if resource_name and resource_name in self._resource_caches:
+            return self._resource_caches[resource_name]
+        else:
+            return self._cache
 
     def _get_client(
             self, service_key, client_class, interface_key=None,
