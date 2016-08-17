@@ -63,7 +63,6 @@ DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
 # This halves the current default for Swift
 DEFAULT_MAX_FILE_SIZE = (5 * 1024 * 1024 * 1024 + 2) / 2
 DEFAULT_SERVER_AGE = 5
-DEFAULT_PORT_AGE = 5
 
 
 OBJECT_CONTAINER_ACLS = {
@@ -185,10 +184,6 @@ class OpenStackCloud(object):
         self._servers_time = 0
         self._servers_lock = threading.Lock()
 
-        self._ports = []
-        self._ports_time = 0
-        self._ports_lock = threading.Lock()
-
         self._networks_lock = threading.Lock()
         self._reset_network_caches()
 
@@ -208,10 +203,10 @@ class OpenStackCloud(object):
                 if getattr(
                         self, 'list_{0}'.format(expire_key), None):
                     self._resource_caches[expire_key] = self._make_cache(
-                        cache_class, expirations[expire_key], cache_arguments)
+                        cache_class, expirations[expire_key], cache_arguments,
+                        async_creation_runner=_utils.async_creation_runner)
 
             self._SERVER_AGE = DEFAULT_SERVER_AGE
-            self._PORT_AGE = DEFAULT_PORT_AGE
         else:
             self.cache_enabled = False
 
@@ -226,7 +221,6 @@ class OpenStackCloud(object):
             # Replace this with a more specific cache configuration
             # soon.
             self._SERVER_AGE = 0
-            self._PORT_AGE = 0
             self._cache = _FakeCache()
             # Undecorate cache decorated methods. Otherwise the call stacks
             # wind up being stupidly long and hard to debug
@@ -244,8 +238,6 @@ class OpenStackCloud(object):
         # fall back to whatever it was before
         self._SERVER_AGE = cloud_config.get_cache_resource_expiration(
             'server', self._SERVER_AGE)
-        self._PORT_AGE = cloud_config.get_cache_resource_expiration(
-            'port', self._PORT_AGE)
 
         self._container_cache = dict()
         self._file_hash_cache = dict()
@@ -277,9 +269,12 @@ class OpenStackCloud(object):
 
         self.cloud_config = cloud_config
 
-    def _make_cache(self, cache_class, expiration_time, arguments):
+    def _make_cache(
+            self, cache_class, expiration_time, arguments,
+            async_creation_runner=None):
         return dogpile.cache.make_region(
-            function_key_generator=self._make_cache_key
+            function_key_generator=self._make_cache_key,
+            async_creation_runner=async_creation_runner
         ).configure(
             cache_class,
             expiration_time=expiration_time,
@@ -301,6 +296,10 @@ class OpenStackCloud(object):
                 [str(name_key), fname, arg_key, kwargs_key])
             return ans
         return generate_key
+
+    def _get_cache_time(self, resource_name):
+        return self.cloud_config.get_cache_resource_expiration(
+            resource_name, None)
 
     def _get_cache(self, resource_name):
         if resource_name and resource_name in self._resource_caches:
@@ -1215,7 +1214,7 @@ class OpenStackCloud(object):
         # If port caching is enabled, do not push the filter down to
         # neutron; get all the ports (potentially from the cache) and
         # filter locally.
-        if self._PORT_AGE:
+        if self._get_cache_time('port'):
             pushdown_filters = None
         else:
             pushdown_filters = filters
@@ -1342,6 +1341,7 @@ class OpenStackCloud(object):
             return self.manager.submitTask(
                 _tasks.SubnetList(**filters))['subnets']
 
+    @_utils.cache_on_arguments(resource='ports')
     def list_ports(self, filters=None):
         """List all available ports.
 
@@ -1349,27 +1349,9 @@ class OpenStackCloud(object):
         :returns: A list of port ``munch.Munch``.
 
         """
-        # If pushdown filters are specified, bypass local caching.
-        if filters:
-            return self._list_ports(filters)
         # Translate None from search interface to empty {} for kwargs below
-        filters = {}
-        if (time.time() - self._ports_time) >= self._PORT_AGE:
-            # Since we're using cached data anyway, we don't need to
-            # have more than one thread actually submit the list
-            # ports task.  Let the first one submit it while holding
-            # a lock, and the non-blocking acquire method will cause
-            # subsequent threads to just skip this and use the old
-            # data until it succeeds.
-            if self._ports_lock.acquire(False):
-                try:
-                    self._ports = self._list_ports(filters)
-                    self._ports_time = time.time()
-                finally:
-                    self._ports_lock.release()
-        return self._ports
-
-    def _list_ports(self, filters):
+        if not filters:
+            filters = {}
         with _utils.neutron_exceptions("Error fetching port list"):
             return self.manager.submitTask(
                 _tasks.PortList(**filters))['ports']
@@ -3773,14 +3755,15 @@ class OpenStackCloud(object):
         # If we are caching port lists, we may not find the port for
         # our server if the list is old.  Try for at least 2 cache
         # periods if that is the case.
-        if self._PORT_AGE:
-            timeout = self._PORT_AGE * 2
+        port_expire_time = self._get_cache_time('ports')
+        if port_expire_time:
+            timeout = port_expire_time * 2
         else:
             timeout = None
         for count in _utils._iterate_timeout(
                 timeout,
                 "Timeout waiting for port to show up in list",
-                wait=self._PORT_AGE):
+                wait=port_expire_time):
             try:
                 port_filter = {'device_id': server['id']}
                 ports = self.search_ports(filters=port_filter)

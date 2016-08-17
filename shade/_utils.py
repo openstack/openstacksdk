@@ -42,6 +42,12 @@ def _iterate_timeout(timeout, message, wait=2):
     log = _log.setup_logging(__name__)
 
     try:
+        # None as a wait winds up flowing well in the per-resource cache
+        # flow. We could spread this logic around to all of the calling
+        # points, but just having this treat None as "I don't have a value"
+        # seems friendlier
+        if wait is None:
+            wait = 2
         wait = float(wait)
     except ValueError:
         raise exc.OpenStackCloudException(
@@ -523,6 +529,14 @@ def valid_kwargs(*valid_args):
                     "'{arg}'".format(f=inspect.stack()[1][3], arg=k))
         return func(*args, **kwargs)
     return func_wrapper
+
+
+def async_creation_runner(cache, somekey, creator, mutex):
+    try:
+        value = creator()
+        cache.set(somekey, value)
+    finally:
+        mutex.release()
 
 
 def cache_on_arguments(*cache_on_args, **cache_on_kwargs):
