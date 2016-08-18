@@ -520,6 +520,14 @@ class OpenStackConfig(object):
                 nat_destination=get_boolean(net.get('nat_destination')),
                 default_interface=get_boolean(net.get('default_interface')),
             )
+            # routes_ipv4_externally defaults to the value of routes_externally
+            network['routes_ipv4_externally'] = get_boolean(
+                net.get(
+                    'routes_ipv4_externally', network['routes_externally']))
+            # routes_ipv6_externally defaults to the value of routes_externally
+            network['routes_ipv6_externally'] = get_boolean(
+                net.get(
+                    'routes_ipv6_externally', network['routes_externally']))
             networks.append(network)
 
         for key in ('external_network', 'internal_network'):

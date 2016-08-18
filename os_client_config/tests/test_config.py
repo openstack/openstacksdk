@@ -194,11 +194,19 @@ class TestConfig(base.TestCase):
                                    vendor_files=[self.vendor_yaml])
         cc = c.get_one_cloud('_test-cloud-networks_')
         self.assertEqual(
-            ['a-public', 'another-public'], cc.get_external_networks())
+            ['a-public', 'another-public', 'split-default'],
+            cc.get_external_networks())
         self.assertEqual(
-            ['a-private', 'another-private'], cc.get_internal_networks())
+            ['a-private', 'another-private', 'split-no-default'],
+            cc.get_internal_networks())
         self.assertEqual('another-private', cc.get_nat_destination())
         self.assertEqual('another-public', cc.get_default_network())
+        self.assertEqual(
+            ['a-public', 'another-public', 'split-no-default'],
+            cc.get_external_ipv4_networks())
+        self.assertEqual(
+            ['a-public', 'another-public', 'split-default'],
+            cc.get_external_ipv6_networks())
 
     def test_get_one_cloud_no_networks(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
@@ -875,7 +883,9 @@ class TestBackwardsCompatibility(base.TestCase):
         expected = {
             'networks': [
                 {'name': 'private', 'routes_externally': False,
-                 'nat_destination': False, 'default_interface': False},
+                 'nat_destination': False, 'default_interface': False,
+                 'routes_ipv4_externally': False,
+                 'routes_ipv6_externally': False},
             ]
         }
         self.assertEqual(expected, result)

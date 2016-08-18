@@ -452,11 +452,35 @@ class CloudConfig(object):
             net['name'] for net in self.config['networks']
             if net['routes_externally']]
 
+    def get_external_ipv4_networks(self):
+        """Get list of network names for external IPv4 networks."""
+        return [
+            net['name'] for net in self.config['networks']
+            if net['routes_ipv4_externally']]
+
+    def get_external_ipv6_networks(self):
+        """Get list of network names for external IPv6 networks."""
+        return [
+            net['name'] for net in self.config['networks']
+            if net['routes_ipv6_externally']]
+
     def get_internal_networks(self):
         """Get list of network names for internal networks."""
         return [
             net['name'] for net in self.config['networks']
             if not net['routes_externally']]
+
+    def get_internal_ipv4_networks(self):
+        """Get list of network names for internal IPv4 networks."""
+        return [
+            net['name'] for net in self.config['networks']
+            if not net['routes_ipv4_externally']]
+
+    def get_internal_ipv6_networks(self):
+        """Get list of network names for internal IPv6 networks."""
+        return [
+            net['name'] for net in self.config['networks']
+            if not net['routes_ipv6_externally']]
 
     def get_default_network(self):
         """Get network used for default interactions."""

@@ -19,9 +19,15 @@ allows configuring a list of network metadata.
         default_interface: true
       - name: green
         routes_externally: false
-      - name: purple
+      - name: yellow
         routes_externally: false
         nat_destination: true
+      - name: chartreuse
+        routes_externally: false
+        routes_ipv6_externally: true
+      - name: aubergine
+        routes_ipv4_externally: false
+        routes_ipv6_externally: true
 
 Every entry must have a name field, which can hold either the name or the id
 of the network.
@@ -32,6 +38,11 @@ of as the "public" network, but in private clouds it's possible it might
 be an RFC1918 address. In either case, it's provides IPs to servers that
 things not on the cloud can use. This value defaults to `false`, which
 indicates only servers on the same network can talk to it.
+
+`routes_ipv4_externally` and `routes_ipv6_externally` are boolean fields to
+help handle `routes_externally` in the case where a network has a split stack
+with different values for IPv4 and IPv6. Either entry, if not given, defaults
+to the value of `routes_externally`.
 
 `default_interface` is a boolean field that indicates that the network is the
 one that programs should use. It defaults to false. An example of needing to

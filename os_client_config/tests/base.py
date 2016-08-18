@@ -113,6 +113,14 @@ USER_CONF = {
                 'name': 'another-private',
                 'routes_externally': False,
                 'nat_destination': True,
+            }, {
+                'name': 'split-default',
+                'routes_externally': True,
+                'routes_ipv4_externally': False,
+            }, {
+                'name': 'split-no-default',
+                'routes_ipv6_externally': False,
+                'routes_ipv4_externally': True,
                 }],
             'region_name': 'test-region',
         },
