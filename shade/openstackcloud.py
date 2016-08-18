@@ -2746,7 +2746,8 @@ class OpenStackCloud(object):
         except Exception:
             self.log.debug("Deleting failed upload of image {image}".format(
                 image=image['name']))
-            self.manager.submitTask(_tasks.ImageDelete(image_id=image.id))
+            # Note argument is "image" here, "image_id" in V2
+            self.manager.submitTask(_tasks.ImageDelete(image=image.id))
             raise
         return image
 
