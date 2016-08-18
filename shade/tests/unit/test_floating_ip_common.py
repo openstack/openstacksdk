@@ -214,6 +214,9 @@ class TestFloatingIP(base.TestCase):
 
         mock_nova_client.servers.get.return_value = server
         # TODO(mordred) REMOVE THIS MOCK WHEN THE NEXT PATCH LANDS
+        # SERIOUSLY THIS TIME. NEXT PATCH - WHICH SHOULD ADD MOCKS FOR
+        # list_ports AND list_networks AND list_subnets. BUT THAT WOULD
+        # BE NOT ACTUALLY RELATED TO THIS PATCH. SO DO IT NEXT PATCH
         mock_needs_floating_ip.return_value = True
 
         self.cloud.add_ips_to_server(server_dict)

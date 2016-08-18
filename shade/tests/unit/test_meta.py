@@ -61,6 +61,18 @@ class FakeCloud(object):
     def get_external_networks(self):
         return []
 
+    def get_internal_ipv4_networks(self):
+        return []
+
+    def get_external_ipv4_networks(self):
+        return []
+
+    def get_internal_ipv6_networks(self):
+        return []
+
+    def get_external_ipv6_networks(self):
+        return []
+
     def list_server_security_groups(self, server):
         return []
 
@@ -105,6 +117,116 @@ SUBNETS_WITH_NAT = [
         u'cidr': u'10.10.10.0/24',
         u'id': u'14025a85-436e-4418-b0ee-f5b12a50f9b4'
     },
+]
+
+OSIC_NETWORKS = [
+    {
+        u'admin_state_up': True,
+        u'id': u'7004a83a-13d3-4dcd-8cf5-52af1ace4cae',
+        u'mtu': 0,
+        u'name': u'GATEWAY_NET',
+        u'router:external': True,
+        u'shared': True,
+        u'status': u'ACTIVE',
+        u'subnets': [u'cf785ee0-6cc9-4712-be3d-0bf6c86cf455'],
+        u'tenant_id': u'7a1ca9f7cc4e4b13ac0ed2957f1e8c32'
+    },
+    {
+        u'admin_state_up': True,
+        u'id': u'405abfcc-77dc-49b2-a271-139619ac9b26',
+        u'mtu': 0,
+        u'name': u'openstackjenkins-network1',
+        u'router:external': False,
+        u'shared': False,
+        u'status': u'ACTIVE',
+        u'subnets': [u'a47910bc-f649-45db-98ec-e2421c413f4e'],
+        u'tenant_id': u'7e9c4d5842b3451d94417bd0af03a0f4'
+    },
+    {
+        u'admin_state_up': True,
+        u'id': u'54753d2c-0a58-4928-9b32-084c59dd20a6',
+        u'mtu': 0,
+        u'name': u'GATEWAY_NET_V6',
+        u'router:external': True,
+        u'shared': True,
+        u'status': u'ACTIVE',
+        u'subnets': [u'9c21d704-a8b9-409a-b56d-501cb518d380',
+                     u'7cb0ce07-64c3-4a3d-92d3-6f11419b45b9'],
+        u'tenant_id': u'7a1ca9f7cc4e4b13ac0ed2957f1e8c32'
+    }
+]
+
+OSIC_SUBNETS = [
+    {
+        u'allocation_pools': [{
+            u'end': u'172.99.106.254',
+            u'start': u'172.99.106.5'}],
+        u'cidr': u'172.99.106.0/24',
+        u'dns_nameservers': [u'69.20.0.164', u'69.20.0.196'],
+        u'enable_dhcp': True,
+        u'gateway_ip': u'172.99.106.1',
+        u'host_routes': [],
+        u'id': u'cf785ee0-6cc9-4712-be3d-0bf6c86cf455',
+        u'ip_version': 4,
+        u'ipv6_address_mode': None,
+        u'ipv6_ra_mode': None,
+        u'name': u'GATEWAY_NET',
+        u'network_id': u'7004a83a-13d3-4dcd-8cf5-52af1ace4cae',
+        u'subnetpool_id': None,
+        u'tenant_id': u'7a1ca9f7cc4e4b13ac0ed2957f1e8c32'
+    },
+    {
+        u'allocation_pools': [{
+            u'end': u'10.0.1.254', u'start': u'10.0.1.2'}],
+        u'cidr': u'10.0.1.0/24',
+        u'dns_nameservers': [u'8.8.8.8', u'8.8.4.4'],
+        u'enable_dhcp': True,
+        u'gateway_ip': u'10.0.1.1',
+        u'host_routes': [],
+        u'id': u'a47910bc-f649-45db-98ec-e2421c413f4e',
+        u'ip_version': 4,
+        u'ipv6_address_mode': None,
+        u'ipv6_ra_mode': None,
+        u'name': u'openstackjenkins-subnet1',
+        u'network_id': u'405abfcc-77dc-49b2-a271-139619ac9b26',
+        u'subnetpool_id': None,
+        u'tenant_id': u'7e9c4d5842b3451d94417bd0af03a0f4'
+    },
+    {
+        u'allocation_pools': [{
+            u'end': u'10.255.255.254', u'start': u'10.0.0.2'}],
+        u'cidr': u'10.0.0.0/8',
+        u'dns_nameservers': [u'8.8.8.8', u'8.8.4.4'],
+        u'enable_dhcp': True,
+        u'gateway_ip': u'10.0.0.1',
+        u'host_routes': [],
+        u'id': u'9c21d704-a8b9-409a-b56d-501cb518d380',
+        u'ip_version': 4,
+        u'ipv6_address_mode': None,
+        u'ipv6_ra_mode': None,
+        u'name': u'GATEWAY_SUBNET_V6V4',
+        u'network_id': u'54753d2c-0a58-4928-9b32-084c59dd20a6',
+        u'subnetpool_id': None,
+        u'tenant_id': u'7a1ca9f7cc4e4b13ac0ed2957f1e8c32'
+    },
+    {
+        u'allocation_pools': [{
+            u'end': u'2001:4800:1ae1:18:ffff:ffff:ffff:ffff',
+            u'start': u'2001:4800:1ae1:18::2'}],
+        u'cidr': u'2001:4800:1ae1:18::/64',
+        u'dns_nameservers': [u'2001:4860:4860::8888'],
+        u'enable_dhcp': True,
+        u'gateway_ip': u'2001:4800:1ae1:18::1',
+        u'host_routes': [],
+        u'id': u'7cb0ce07-64c3-4a3d-92d3-6f11419b45b9',
+        u'ip_version': 6,
+        u'ipv6_address_mode': u'dhcpv6-stateless',
+        u'ipv6_ra_mode': None,
+        u'name': u'GATEWAY_SUBNET_V6V6',
+        u'network_id': u'54753d2c-0a58-4928-9b32-084c59dd20a6',
+        u'subnetpool_id': None,
+        u'tenant_id': u'7a1ca9f7cc4e4b13ac0ed2957f1e8c32'
+    }
 ]
 
 
@@ -392,6 +514,61 @@ class TestMeta(base.TestCase):
             "2001:4800:7819:103:be76:4eff:fe05:8525", srv['interface_ip'])
         mock_list_subnets.assert_not_called()
         mock_list_networks.assert_not_called()
+        mock_list_floating_ips.assert_not_called()
+
+    @mock.patch.object(shade.OpenStackCloud, 'list_floating_ips')
+    @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
+    @mock.patch.object(shade.OpenStackCloud, 'list_server_security_groups')
+    @mock.patch.object(shade.OpenStackCloud, 'get_image_name')
+    @mock.patch.object(shade.OpenStackCloud, 'get_flavor_name')
+    @mock.patch.object(shade.OpenStackCloud, 'has_service')
+    @mock.patch.object(shade.OpenStackCloud, 'list_networks')
+    def test_get_server_cloud_osic_split(
+            self, mock_list_networks, mock_has_service,
+            mock_get_flavor_name, mock_get_image_name,
+            mock_list_server_security_groups,
+            mock_list_subnets,
+            mock_list_floating_ips):
+        self.cloud._floating_ip_source = None
+        self.cloud.force_ipv4 = False
+        self.cloud._local_ipv6 = True
+        self.cloud._external_ipv4_names = ['GATEWAY_NET']
+        self.cloud._external_ipv6_names = ['GATEWAY_NET_V6']
+        self.cloud._internal_ipv4_names = ['GATEWAY_NET_V6']
+        self.cloud._internal_ipv6_names = []
+        mock_get_image_name.return_value = 'cirros-0.3.4-x86_64-uec'
+        mock_get_flavor_name.return_value = 'm1.tiny'
+        mock_has_service.return_value = True
+        mock_list_subnets.return_value = OSIC_SUBNETS
+        mock_list_networks.return_value = OSIC_NETWORKS
+
+        srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
+            id='test-id', name='test-name', status='ACTIVE',
+            flavor={u'id': u'1'},
+            image={
+                'name': u'cirros-0.3.4-x86_64-uec',
+                u'id': u'f93d000b-7c29-4489-b375-3641a1758fe1'},
+            addresses={
+                'private': [{
+                    'addr': "10.223.160.141",
+                    'version': 4
+                }],
+                'public': [{
+                    'addr': "104.130.246.91",
+                    'version': 4
+                }, {
+                    'addr': "2001:4800:7819:103:be76:4eff:fe05:8525",
+                    'version': 6
+                }]
+            }
+        )))
+
+        self.assertEqual("10.223.160.141", srv['private_v4'])
+        self.assertEqual("104.130.246.91", srv['public_v4'])
+        self.assertEqual(
+            "2001:4800:7819:103:be76:4eff:fe05:8525", srv['public_v6'])
+        self.assertEqual(
+            "2001:4800:7819:103:be76:4eff:fe05:8525", srv['interface_ip'])
         mock_list_floating_ips.assert_not_called()
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
