@@ -1864,7 +1864,6 @@ class Proxy(proxy.BaseProxy):
         :returns: Router with updated interface
         :rtype: :class: `~openstack.network.v2.router.Router`
         """
-
         body = {}
         if port_id:
             body = {'port_id': port_id}
@@ -1889,6 +1888,28 @@ class Proxy(proxy.BaseProxy):
         else:
             body = {'subnet_id': subnet_id}
         return router.remove_interface(self.session, **body)
+
+    def add_gateway_to_router(self, router, **body):
+        """Add Gateway to a router
+
+        :param router: Either the router ID or an instance of
+                       :class:`~openstack.network.v2.router.Router`
+        :param body: Body with the gateway information
+        :returns: Router with updated interface
+        :rtype: :class: `~openstack.network.v2.router.Router`
+        """
+        return router.add_gateway(self.session, **body)
+
+    def remove_gateway_from_router(self, router, **body):
+        """Remove Gateway from a router
+
+        :param router: Either the router ID or an instance of
+                       :class:`~openstack.network.v2.router.Router`
+        :param body: Body with the gateway information
+        :returns: Router with updated interface
+        :rtype: :class: `~openstack.network.v2.router.Router`
+        """
+        return router.remove_gateway(self.session, **body)
 
     def create_security_group(self, **attrs):
         """Create a new security group from attributes
