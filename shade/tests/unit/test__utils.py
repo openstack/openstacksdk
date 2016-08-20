@@ -36,14 +36,14 @@ class TestUtils(base.TestCase):
         el2 = dict(id=200, name='pluto')
         data = [el1, el2]
         ret = _utils._filter_list(data, 'donald', None)
-        self.assertEquals([el1], ret)
+        self.assertEqual([el1], ret)
 
     def test__filter_list_filter(self):
         el1 = dict(id=100, name='donald', other='duck')
         el2 = dict(id=200, name='donald', other='trump')
         data = [el1, el2]
         ret = _utils._filter_list(data, 'donald', {'other': 'duck'})
-        self.assertEquals([el1], ret)
+        self.assertEqual([el1], ret)
 
     def test__filter_list_dict1(self):
         el1 = dict(id=100, name='donald', last='duck',
@@ -55,7 +55,7 @@ class TestUtils(base.TestCase):
         data = [el1, el2, el3]
         ret = _utils._filter_list(
             data, 'donald', {'other': {'category': 'clown'}})
-        self.assertEquals([el3], ret)
+        self.assertEqual([el3], ret)
 
     def test__filter_list_dict2(self):
         el1 = dict(id=100, name='donald', last='duck',
@@ -70,7 +70,7 @@ class TestUtils(base.TestCase):
             {'other': {
                 'financial': {'status': 'rich'}
                 }})
-        self.assertEquals([el2, el3], ret)
+        self.assertEqual([el2, el3], ret)
 
     def test_normalize_nova_secgroups(self):
         nova_secgroup = dict(

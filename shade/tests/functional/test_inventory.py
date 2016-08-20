@@ -50,9 +50,9 @@ class TestInventory(base.BaseFunctionalTestCase):
                 self.nova.servers.delete(i)
 
     def _test_host_content(self, host):
-        self.assertEquals(host['image']['id'], self.image.id)
+        self.assertEqual(host['image']['id'], self.image.id)
         self.assertNotIn('links', host['image'])
-        self.assertEquals(host['flavor']['id'], self.flavor.id)
+        self.assertEqual(host['flavor']['id'], self.flavor.id)
         self.assertNotIn('links', host['flavor'])
         self.assertNotIn('links', host)
         self.assertIsInstance(host['volumes'], list)
@@ -60,13 +60,13 @@ class TestInventory(base.BaseFunctionalTestCase):
         self.assertIn('interface_ip', host)
 
     def _test_expanded_host_content(self, host):
-        self.assertEquals(host['image']['name'], self.image.name)
-        self.assertEquals(host['flavor']['name'], self.flavor.name)
+        self.assertEqual(host['image']['name'], self.image.name)
+        self.assertEqual(host['flavor']['name'], self.flavor.name)
 
     def test_get_host(self):
         host = self.inventory.get_host(self.server_name)
         self.assertIsNotNone(host)
-        self.assertEquals(host['name'], self.server_name)
+        self.assertEqual(host['name'], self.server_name)
         self._test_host_content(host)
         self._test_expanded_host_content(host)
         host_found = False
@@ -79,12 +79,12 @@ class TestInventory(base.BaseFunctionalTestCase):
     def test_get_host_no_detail(self):
         host = self.inventory.get_host(self.server_name, expand=False)
         self.assertIsNotNone(host)
-        self.assertEquals(host['name'], self.server_name)
+        self.assertEqual(host['name'], self.server_name)
 
-        self.assertEquals(host['image']['id'], self.image.id)
+        self.assertEqual(host['image']['id'], self.image.id)
         self.assertNotIn('links', host['image'])
         self.assertNotIn('name', host['name'])
-        self.assertEquals(host['flavor']['id'], self.flavor.id)
+        self.assertEqual(host['flavor']['id'], self.flavor.id)
         self.assertNotIn('links', host['flavor'])
         self.assertNotIn('name', host['flavor'])
 

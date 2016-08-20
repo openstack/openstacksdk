@@ -48,12 +48,12 @@ class TestZone(base.BaseFunctionalTestCase):
             name=name, zone_type=zone_type, email=email,
             description=description, ttl=ttl,
             masters=masters)
-        self.assertEquals(zone['name'], name)
-        self.assertEquals(zone['type'], zone_type.upper())
-        self.assertEquals(zone['email'], email)
-        self.assertEquals(zone['description'], description)
-        self.assertEquals(zone['ttl'], ttl)
-        self.assertEquals(zone['masters'], [])
+        self.assertEqual(zone['name'], name)
+        self.assertEqual(zone['type'], zone_type.upper())
+        self.assertEqual(zone['email'], email)
+        self.assertEqual(zone['description'], description)
+        self.assertEqual(zone['ttl'], ttl)
+        self.assertEqual(zone['masters'], [])
 
         # Test that we can list zones
         zones = self.demo_cloud.list_zones()
@@ -61,22 +61,22 @@ class TestZone(base.BaseFunctionalTestCase):
 
         # Test we get the same zone with the get_zone method
         zone_get = self.demo_cloud.get_zone(zone['id'])
-        self.assertEquals(zone_get['id'], zone['id'])
+        self.assertEqual(zone_get['id'], zone['id'])
 
         # Test the get method also works by name
         zone_get = self.demo_cloud.get_zone(name)
-        self.assertEquals(zone_get['name'], zone['name'])
+        self.assertEqual(zone_get['name'], zone['name'])
 
         # Test we can update a field on the zone and only that field
         # is updated
         zone_update = self.demo_cloud.update_zone(zone['id'], ttl=7200)
-        self.assertEquals(zone_update['id'], zone['id'])
-        self.assertEquals(zone_update['name'], zone['name'])
-        self.assertEquals(zone_update['type'], zone['type'])
-        self.assertEquals(zone_update['email'], zone['email'])
-        self.assertEquals(zone_update['description'], zone['description'])
-        self.assertEquals(zone_update['ttl'], 7200)
-        self.assertEquals(zone_update['masters'], zone['masters'])
+        self.assertEqual(zone_update['id'], zone['id'])
+        self.assertEqual(zone_update['name'], zone['name'])
+        self.assertEqual(zone_update['type'], zone['type'])
+        self.assertEqual(zone_update['email'], zone['email'])
+        self.assertEqual(zone_update['description'], zone['description'])
+        self.assertEqual(zone_update['ttl'], 7200)
+        self.assertEqual(zone_update['masters'], zone['masters'])
 
         # Test we can delete and get True returned
         zone_delete = self.demo_cloud.delete_zone(zone['id'])

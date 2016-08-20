@@ -513,7 +513,7 @@ class TestShade(base.TestCase):
         mock_response.json.return_value = dict(extra_specs=[])
         mock_compute.get.return_value = mock_response
         flavor = self.cloud.get_flavor_by_ram(ram=150)
-        self.assertEquals(chocolate.id, flavor['id'])
+        self.assertEqual(chocolate.id, flavor['id'])
 
     @mock.patch.object(shade.OpenStackCloud, '_compute_client')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
@@ -528,7 +528,7 @@ class TestShade(base.TestCase):
         mock_nova_client.flavors.list.return_value = [
             vanilla, chocolate, strawberry]
         flavor = self.cloud.get_flavor_by_ram(ram=150, include='strawberry')
-        self.assertEquals(strawberry.id, flavor['id'])
+        self.assertEqual(strawberry.id, flavor['id'])
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_get_flavor_by_ram_not_found(self, mock_nova_client):
@@ -547,9 +547,9 @@ class TestShade(base.TestCase):
         mock_response.json.return_value = dict(extra_specs=[])
         mock_compute.get.return_value = mock_response
         flavor1 = self.cloud.get_flavor('1')
-        self.assertEquals(vanilla.id, flavor1['id'])
+        self.assertEqual(vanilla.id, flavor1['id'])
         flavor2 = self.cloud.get_flavor(1)
-        self.assertEquals(vanilla.id, flavor2['id'])
+        self.assertEqual(vanilla.id, flavor2['id'])
 
     def test__neutron_exceptions_resource_not_found(self):
         with mock.patch.object(
@@ -596,9 +596,9 @@ class TestShade(base.TestCase):
 
         r = self.cloud.list_servers()
 
-        self.assertEquals(1, len(r))
-        self.assertEquals(1, mock_add_srv_int.call_count)
-        self.assertEquals('testserver', r[0]['name'])
+        self.assertEqual(1, len(r))
+        self.assertEqual(1, mock_add_srv_int.call_count)
+        self.assertEqual('testserver', r[0]['name'])
 
     @mock.patch.object(shade._tasks.ServerList, 'main')
     @mock.patch('shade.meta.get_hostvars_from_server')
@@ -619,10 +619,10 @@ class TestShade(base.TestCase):
 
         r = self.cloud.list_servers(detailed=True)
 
-        self.assertEquals(2, len(r))
-        self.assertEquals(len(r), mock_get_hostvars_from_server.call_count)
-        self.assertEquals('server1', r[0]['name'])
-        self.assertEquals('server2', r[1]['name'])
+        self.assertEqual(2, len(r))
+        self.assertEqual(len(r), mock_get_hostvars_from_server.call_count)
+        self.assertEqual('server1', r[0]['name'])
+        self.assertEqual('server2', r[1]['name'])
 
     def test_iterate_timeout_bad_wait(self):
         with testtools.ExpectedException(

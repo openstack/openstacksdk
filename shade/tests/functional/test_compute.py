@@ -151,7 +151,7 @@ class TestCompute(base.BaseFunctionalTestCase):
         # We can either get None (if the volume delete was quick), or a volume
         # that is in the process of being deleted.
         if volume:
-            self.assertEquals('deleting', volume.status)
+            self.assertEqual('deleting', volume.status)
         self.assertIsNone(self.demo_cloud.get_server(self.server_name))
 
     def test_create_boot_from_volume_preexisting(self):
@@ -201,7 +201,7 @@ class TestCompute(base.BaseFunctionalTestCase):
         # We can either get None (if the volume delete was quick), or a volume
         # that is in the process of being deleted.
         if volume:
-            self.assertEquals('deleting', volume.status)
+            self.assertEqual('deleting', volume.status)
         self.assertIsNone(self.demo_cloud.get_server(self.server_name))
 
     def test_create_image_snapshot_wait_active(self):

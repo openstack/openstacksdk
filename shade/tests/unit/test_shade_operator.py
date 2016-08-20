@@ -1116,6 +1116,6 @@ class TestShadeOperator(base.TestCase):
 
         r = self.op_cloud.list_hypervisors()
         mock_nova.hypervisors.list.assert_called_once_with()
-        self.assertEquals(2, len(r))
-        self.assertEquals('testserver1', r[0]['hypervisor_hostname'])
-        self.assertEquals('testserver2', r[1]['hypervisor_hostname'])
+        self.assertEqual(2, len(r))
+        self.assertEqual('testserver1', r[0]['hypervisor_hostname'])
+        self.assertEqual('testserver2', r[1]['hypervisor_hostname'])
