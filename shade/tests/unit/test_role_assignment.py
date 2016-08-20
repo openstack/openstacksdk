@@ -13,10 +13,11 @@
 
 from mock import patch
 import os_client_config as occ
-from shade import OperatorCloud, operator_cloud
+from shade import OperatorCloud
 from shade.exc import OpenStackCloudException, OpenStackCloudTimeout
 from shade.meta import obj_to_dict
-from shade.tests import base, fakes
+from shade.tests import fakes
+from shade.tests.unit import base
 import testtools
 
 
@@ -24,7 +25,6 @@ class TestRoleAssignment(base.TestCase):
 
     def setUp(self):
         super(TestRoleAssignment, self).setUp()
-        self.cloud = operator_cloud(validate=False)
         self.fake_role = obj_to_dict(fakes.FakeRole('12345', 'test'))
         self.fake_user = obj_to_dict(fakes.FakeUser('12345',
                                                     'test@nobody.org',
@@ -102,12 +102,16 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.tenants.list.return_value = [self.fake_project]
         mock_keystone.roles.roles_for_user.return_value = []
         mock_keystone.roles.add_user_role.return_value = self.fake_role
-        self.assertTrue(self.cloud.grant_role(self.fake_role['name'],
-                                              user=self.fake_user['name'],
-                                              project=self.fake_project['id']))
-        self.assertTrue(self.cloud.grant_role(self.fake_role['name'],
-                                              user=self.fake_user['id'],
-                                              project=self.fake_project['id']))
+        self.assertTrue(
+            self.op_cloud.grant_role(
+                self.fake_role['name'],
+                user=self.fake_user['name'],
+                project=self.fake_project['id']))
+        self.assertTrue(
+            self.op_cloud.grant_role(
+                self.fake_role['name'],
+                user=self.fake_user['id'],
+                project=self.fake_project['id']))
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -118,18 +122,26 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.users.list.return_value = [self.fake_user]
         mock_keystone.roles.roles_for_user.return_value = []
         mock_keystone.roles.add_user_role.return_value = self.fake_role
-        self.assertTrue(self.cloud.grant_role(self.fake_role['name'],
-                                              user=self.fake_user['name'],
-                                              project=self.fake_project['id']))
-        self.assertTrue(self.cloud.grant_role(self.fake_role['name'],
-                                              user=self.fake_user['id'],
-                                              project=self.fake_project['id']))
-        self.assertTrue(self.cloud.grant_role(self.fake_role['id'],
-                                              user=self.fake_user['name'],
-                                              project=self.fake_project['id']))
-        self.assertTrue(self.cloud.grant_role(self.fake_role['id'],
-                                              user=self.fake_user['id'],
-                                              project=self.fake_project['id']))
+        self.assertTrue(
+            self.op_cloud.grant_role(
+                self.fake_role['name'],
+                user=self.fake_user['name'],
+                project=self.fake_project['id']))
+        self.assertTrue(
+            self.op_cloud.grant_role(
+                self.fake_role['name'],
+                user=self.fake_user['id'],
+                project=self.fake_project['id']))
+        self.assertTrue(
+            self.op_cloud.grant_role(
+                self.fake_role['id'],
+                user=self.fake_user['name'],
+                project=self.fake_project['id']))
+        self.assertTrue(
+            self.op_cloud.grant_role(
+                self.fake_role['id'],
+                user=self.fake_user['id'],
+                project=self.fake_project['id']))
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -141,7 +153,7 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.tenants.list.return_value = [self.fake_project]
         mock_keystone.users.list.return_value = [self.fake_user]
         mock_keystone.roles.roles_for_user.return_value = [self.fake_role]
-        self.assertFalse(self.cloud.grant_role(
+        self.assertFalse(self.op_cloud.grant_role(
             self.fake_role['name'],
             user=self.fake_user['name'],
             project=self.fake_project['id']))
@@ -154,12 +166,16 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.projects.list.return_value = [self.fake_project]
         mock_keystone.users.list.return_value = [self.fake_user]
         mock_keystone.role_assignments.list.return_value = []
-        self.assertTrue(self.cloud.grant_role(self.fake_role['name'],
-                                              user=self.fake_user['name'],
-                                              project=self.fake_project['id']))
-        self.assertTrue(self.cloud.grant_role(self.fake_role['name'],
-                                              user=self.fake_user['id'],
-                                              project=self.fake_project['id']))
+        self.assertTrue(
+            self.op_cloud.grant_role(
+                self.fake_role['name'],
+                user=self.fake_user['name'],
+                project=self.fake_project['id']))
+        self.assertTrue(
+            self.op_cloud.grant_role(
+                self.fake_role['name'],
+                user=self.fake_user['id'],
+                project=self.fake_project['id']))
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -172,11 +188,11 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.users.list.return_value = [self.fake_user]
         mock_keystone.role_assignments.list.return_value = \
             [self.user_project_assignment]
-        self.assertFalse(self.cloud.grant_role(
+        self.assertFalse(self.op_cloud.grant_role(
             self.fake_role['name'],
             user=self.fake_user['name'],
             project=self.fake_project['id']))
-        self.assertFalse(self.cloud.grant_role(
+        self.assertFalse(self.op_cloud.grant_role(
             self.fake_role['id'],
             user=self.fake_user['id'],
             project=self.fake_project['id']))
@@ -189,11 +205,11 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.projects.list.return_value = [self.fake_project]
         mock_keystone.groups.list.return_value = [self.fake_group]
         mock_keystone.role_assignments.list.return_value = []
-        self.assertTrue(self.cloud.grant_role(
+        self.assertTrue(self.op_cloud.grant_role(
             self.fake_role['name'],
             group=self.fake_group['name'],
             project=self.fake_project['id']))
-        self.assertTrue(self.cloud.grant_role(
+        self.assertTrue(self.op_cloud.grant_role(
             self.fake_role['name'],
             group=self.fake_group['id'],
             project=self.fake_project['id']))
@@ -209,11 +225,11 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.groups.list.return_value = [self.fake_group]
         mock_keystone.role_assignments.list.return_value = \
             [self.group_project_assignment]
-        self.assertFalse(self.cloud.grant_role(
+        self.assertFalse(self.op_cloud.grant_role(
             self.fake_role['name'],
             group=self.fake_group['name'],
             project=self.fake_project['id']))
-        self.assertFalse(self.cloud.grant_role(
+        self.assertFalse(self.op_cloud.grant_role(
             self.fake_role['name'],
             group=self.fake_group['id'],
             project=self.fake_project['id']))
@@ -226,19 +242,19 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.users.list.return_value = [self.fake_user]
         mock_keystone.domains.get.return_value = self.fake_domain
         mock_keystone.role_assignments.list.return_value = []
-        self.assertTrue(self.cloud.grant_role(
+        self.assertTrue(self.op_cloud.grant_role(
             self.fake_role['name'],
             user=self.fake_user['name'],
             domain=self.fake_domain['id']))
-        self.assertTrue(self.cloud.grant_role(
+        self.assertTrue(self.op_cloud.grant_role(
             self.fake_role['name'],
             user=self.fake_user['id'],
             domain=self.fake_domain['id']))
-        self.assertTrue(self.cloud.grant_role(
+        self.assertTrue(self.op_cloud.grant_role(
             self.fake_role['name'],
             user=self.fake_user['name'],
             domain=self.fake_domain['name']))
-        self.assertTrue(self.cloud.grant_role(
+        self.assertTrue(self.op_cloud.grant_role(
             self.fake_role['name'],
             user=self.fake_user['id'],
             domain=self.fake_domain['name']))
@@ -254,19 +270,19 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.domains.get.return_value = self.fake_domain
         mock_keystone.role_assignments.list.return_value = \
             [self.user_domain_assignment]
-        self.assertFalse(self.cloud.grant_role(
+        self.assertFalse(self.op_cloud.grant_role(
             self.fake_role['name'],
             user=self.fake_user['name'],
             domain=self.fake_domain['name']))
-        self.assertFalse(self.cloud.grant_role(
+        self.assertFalse(self.op_cloud.grant_role(
             self.fake_role['name'],
             user=self.fake_user['id'],
             domain=self.fake_domain['name']))
-        self.assertFalse(self.cloud.grant_role(
+        self.assertFalse(self.op_cloud.grant_role(
             self.fake_role['name'],
             user=self.fake_user['name'],
             domain=self.fake_domain['id']))
-        self.assertFalse(self.cloud.grant_role(
+        self.assertFalse(self.op_cloud.grant_role(
             self.fake_role['name'],
             user=self.fake_user['id'],
             domain=self.fake_domain['id']))
@@ -279,19 +295,19 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.roles.list.return_value = [self.fake_role]
         mock_keystone.domains.get.return_value = self.fake_domain
         mock_keystone.role_assignments.list.return_value = []
-        self.assertTrue(self.cloud.grant_role(
+        self.assertTrue(self.op_cloud.grant_role(
             self.fake_role['name'],
             group=self.fake_group['name'],
             domain=self.fake_domain['name']))
-        self.assertTrue(self.cloud.grant_role(
+        self.assertTrue(self.op_cloud.grant_role(
             self.fake_role['name'],
             group=self.fake_group['id'],
             domain=self.fake_domain['name']))
-        self.assertTrue(self.cloud.grant_role(
+        self.assertTrue(self.op_cloud.grant_role(
             self.fake_role['name'],
             group=self.fake_group['name'],
             domain=self.fake_domain['id']))
-        self.assertTrue(self.cloud.grant_role(
+        self.assertTrue(self.op_cloud.grant_role(
             self.fake_role['name'],
             group=self.fake_group['id'],
             domain=self.fake_domain['id']))
@@ -307,19 +323,19 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.domains.get.return_value = self.fake_domain
         mock_keystone.role_assignments.list.return_value = \
             [self.group_domain_assignment]
-        self.assertFalse(self.cloud.grant_role(
+        self.assertFalse(self.op_cloud.grant_role(
             self.fake_role['name'],
             group=self.fake_group['name'],
             domain=self.fake_domain['name']))
-        self.assertFalse(self.cloud.grant_role(
+        self.assertFalse(self.op_cloud.grant_role(
             self.fake_role['name'],
             group=self.fake_group['id'],
             domain=self.fake_domain['name']))
-        self.assertFalse(self.cloud.grant_role(
+        self.assertFalse(self.op_cloud.grant_role(
             self.fake_role['name'],
             group=self.fake_group['name'],
             domain=self.fake_domain['id']))
-        self.assertFalse(self.cloud.grant_role(
+        self.assertFalse(self.op_cloud.grant_role(
             self.fake_role['name'],
             group=self.fake_group['id'],
             domain=self.fake_domain['id']))
@@ -333,11 +349,11 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.tenants.list.return_value = [self.fake_project]
         mock_keystone.roles.roles_for_user.return_value = [self.fake_role]
         mock_keystone.roles.remove_user_role.return_value = self.fake_role
-        self.assertTrue(self.cloud.revoke_role(
+        self.assertTrue(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['name'],
             project=self.fake_project['id']))
-        self.assertTrue(self.cloud.revoke_role(
+        self.assertTrue(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['id'],
             project=self.fake_project['id']))
@@ -352,19 +368,19 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.tenants.list.return_value = [self.fake_project]
         mock_keystone.users.list.return_value = [self.fake_user]
         mock_keystone.roles.roles_for_user.return_value = []
-        self.assertFalse(self.cloud.revoke_role(
+        self.assertFalse(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['name'],
             project=self.fake_project['id']))
-        self.assertFalse(self.cloud.revoke_role(
+        self.assertFalse(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['id'],
             project=self.fake_project['id']))
-        self.assertFalse(self.cloud.revoke_role(
+        self.assertFalse(self.op_cloud.revoke_role(
             self.fake_role['id'],
             user=self.fake_user['name'],
             project=self.fake_project['id']))
-        self.assertFalse(self.cloud.revoke_role(
+        self.assertFalse(self.op_cloud.revoke_role(
             self.fake_role['id'],
             user=self.fake_user['id'],
             project=self.fake_project['id']))
@@ -380,7 +396,7 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.users.list.return_value = [self.fake_user]
         mock_keystone.roles.roles_for_user.return_value = [self.fake_role]
         mock_keystone.roles.remove_user_role.return_value = self.fake_role
-        self.assertTrue(self.cloud.revoke_role(
+        self.assertTrue(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['name'],
             project=self.fake_project['id']))
@@ -393,11 +409,11 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.projects.list.return_value = [self.fake_project]
         mock_keystone.users.list.return_value = [self.fake_user]
         mock_keystone.role_assignments.list.return_value = []
-        self.assertFalse(self.cloud.revoke_role(
+        self.assertFalse(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['name'],
             project=self.fake_project['id']))
-        self.assertFalse(self.cloud.revoke_role(
+        self.assertFalse(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['id'],
             project=self.fake_project['id']))
@@ -413,11 +429,11 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.users.list.return_value = [self.fake_user]
         mock_keystone.role_assignments.list.return_value = \
             [self.user_project_assignment]
-        self.assertTrue(self.cloud.revoke_role(
+        self.assertTrue(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['name'],
             project=self.fake_project['id']))
-        self.assertTrue(self.cloud.revoke_role(
+        self.assertTrue(self.op_cloud.revoke_role(
             self.fake_role['id'],
             user=self.fake_user['id'],
             project=self.fake_project['id']))
@@ -430,11 +446,11 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.projects.list.return_value = [self.fake_project]
         mock_keystone.groups.list.return_value = [self.fake_group]
         mock_keystone.role_assignments.list.return_value = []
-        self.assertFalse(self.cloud.revoke_role(
+        self.assertFalse(self.op_cloud.revoke_role(
             self.fake_role['name'],
             group=self.fake_group['name'],
             project=self.fake_project['id']))
-        self.assertFalse(self.cloud.revoke_role(
+        self.assertFalse(self.op_cloud.revoke_role(
             self.fake_role['name'],
             group=self.fake_group['id'],
             project=self.fake_project['id']))
@@ -450,11 +466,11 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.groups.list.return_value = [self.fake_group]
         mock_keystone.role_assignments.list.return_value = \
             [self.group_project_assignment]
-        self.assertTrue(self.cloud.revoke_role(
+        self.assertTrue(self.op_cloud.revoke_role(
             self.fake_role['name'],
             group=self.fake_group['name'],
             project=self.fake_project['id']))
-        self.assertTrue(self.cloud.revoke_role(
+        self.assertTrue(self.op_cloud.revoke_role(
             self.fake_role['name'],
             group=self.fake_group['id'],
             project=self.fake_project['id']))
@@ -467,19 +483,19 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.users.list.return_value = [self.fake_user]
         mock_keystone.domains.get.return_value = self.fake_domain
         mock_keystone.role_assignments.list.return_value = []
-        self.assertFalse(self.cloud.revoke_role(
+        self.assertFalse(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['name'],
             domain=self.fake_domain['id']))
-        self.assertFalse(self.cloud.revoke_role(
+        self.assertFalse(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['id'],
             domain=self.fake_domain['id']))
-        self.assertFalse(self.cloud.revoke_role(
+        self.assertFalse(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['name'],
             domain=self.fake_domain['name']))
-        self.assertFalse(self.cloud.revoke_role(
+        self.assertFalse(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['id'],
             domain=self.fake_domain['name']))
@@ -495,19 +511,19 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.domains.get.return_value = self.fake_domain
         mock_keystone.role_assignments.list.return_value = \
             [self.user_domain_assignment]
-        self.assertTrue(self.cloud.revoke_role(
+        self.assertTrue(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['name'],
             domain=self.fake_domain['name']))
-        self.assertTrue(self.cloud.revoke_role(
+        self.assertTrue(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['id'],
             domain=self.fake_domain['name']))
-        self.assertTrue(self.cloud.revoke_role(
+        self.assertTrue(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['name'],
             domain=self.fake_domain['id']))
-        self.assertTrue(self.cloud.revoke_role(
+        self.assertTrue(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['id'],
             domain=self.fake_domain['id']))
@@ -520,19 +536,19 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.roles.list.return_value = [self.fake_role]
         mock_keystone.domains.get.return_value = self.fake_domain
         mock_keystone.role_assignments.list.return_value = []
-        self.assertFalse(self.cloud.revoke_role(
+        self.assertFalse(self.op_cloud.revoke_role(
             self.fake_role['name'],
             group=self.fake_group['name'],
             domain=self.fake_domain['name']))
-        self.assertFalse(self.cloud.revoke_role(
+        self.assertFalse(self.op_cloud.revoke_role(
             self.fake_role['name'],
             group=self.fake_group['id'],
             domain=self.fake_domain['name']))
-        self.assertFalse(self.cloud.revoke_role(
+        self.assertFalse(self.op_cloud.revoke_role(
             self.fake_role['name'],
             group=self.fake_group['name'],
             domain=self.fake_domain['id']))
-        self.assertFalse(self.cloud.revoke_role(
+        self.assertFalse(self.op_cloud.revoke_role(
             self.fake_role['name'],
             group=self.fake_group['id'],
             domain=self.fake_domain['id']))
@@ -548,19 +564,19 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.domains.get.return_value = self.fake_domain
         mock_keystone.role_assignments.list.return_value = \
             [self.group_domain_assignment]
-        self.assertTrue(self.cloud.revoke_role(
+        self.assertTrue(self.op_cloud.revoke_role(
             self.fake_role['name'],
             group=self.fake_group['name'],
             domain=self.fake_domain['name']))
-        self.assertTrue(self.cloud.revoke_role(
+        self.assertTrue(self.op_cloud.revoke_role(
             self.fake_role['name'],
             group=self.fake_group['id'],
             domain=self.fake_domain['name']))
-        self.assertTrue(self.cloud.revoke_role(
+        self.assertTrue(self.op_cloud.revoke_role(
             self.fake_role['name'],
             group=self.fake_group['name'],
             domain=self.fake_domain['id']))
-        self.assertTrue(self.cloud.revoke_role(
+        self.assertTrue(self.op_cloud.revoke_role(
             self.fake_role['name'],
             group=self.fake_group['id'],
             domain=self.fake_domain['id']))
@@ -575,9 +591,10 @@ class TestRoleAssignment(base.TestCase):
             OpenStackCloudException,
             'Role {0} not found'.format(self.fake_role['name'])
         ):
-            self.cloud.grant_role(self.fake_role['name'],
-                                  group=self.fake_group['name'],
-                                  domain=self.fake_domain['name'])
+            self.op_cloud.grant_role(
+                self.fake_role['name'],
+                group=self.fake_group['name'],
+                domain=self.fake_domain['name'])
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -588,9 +605,10 @@ class TestRoleAssignment(base.TestCase):
             OpenStackCloudException,
             'Role {0} not found'.format(self.fake_role['name'])
         ):
-            self.cloud.revoke_role(self.fake_role['name'],
-                                   group=self.fake_group['name'],
-                                   domain=self.fake_domain['name'])
+            self.op_cloud.revoke_role(
+                self.fake_role['name'],
+                group=self.fake_group['name'],
+                domain=self.fake_domain['name'])
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -603,7 +621,7 @@ class TestRoleAssignment(base.TestCase):
             OpenStackCloudException,
             'Must specify either a user or a group'
         ):
-            self.cloud.grant_role(self.fake_role['name'])
+            self.op_cloud.grant_role(self.fake_role['name'])
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -616,7 +634,7 @@ class TestRoleAssignment(base.TestCase):
             OpenStackCloudException,
             'Must specify either a user or a group'
         ):
-            self.cloud.revoke_role(self.fake_role['name'])
+            self.op_cloud.revoke_role(self.fake_role['name'])
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -628,8 +646,9 @@ class TestRoleAssignment(base.TestCase):
             OpenStackCloudException,
             'Must specify either a user or a group'
         ):
-            self.cloud.grant_role(self.fake_role['name'],
-                                  user=self.fake_user['name'])
+            self.op_cloud.grant_role(
+                self.fake_role['name'],
+                user=self.fake_user['name'])
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -641,8 +660,9 @@ class TestRoleAssignment(base.TestCase):
             OpenStackCloudException,
             'Must specify either a user or a group'
         ):
-            self.cloud.revoke_role(self.fake_role['name'],
-                                   user=self.fake_user['name'])
+            self.op_cloud.revoke_role(
+                self.fake_role['name'],
+                user=self.fake_user['name'])
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -655,9 +675,10 @@ class TestRoleAssignment(base.TestCase):
             OpenStackCloudException,
             'Specify either a group or a user, not both'
         ):
-            self.cloud.grant_role(self.fake_role['name'],
-                                  user=self.fake_user['name'],
-                                  group=self.fake_group['name'])
+            self.op_cloud.grant_role(
+                self.fake_role['name'],
+                user=self.fake_user['name'],
+                group=self.fake_group['name'])
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -670,9 +691,10 @@ class TestRoleAssignment(base.TestCase):
             OpenStackCloudException,
             'Specify either a group or a user, not both'
         ):
-            self.cloud.revoke_role(self.fake_role['name'],
-                                   user=self.fake_user['name'],
-                                   group=self.fake_group['name'])
+            self.op_cloud.revoke_role(
+                self.fake_role['name'],
+                user=self.fake_user['name'],
+                group=self.fake_group['name'])
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -688,10 +710,12 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.users.list.return_value = [self.fake_user, fake_user2]
         mock_keystone.projects.list.return_value = [self.fake_project]
         mock_keystone.domains.get.return_value = self.fake_domain
-        self.assertTrue(self.cloud.grant_role(self.fake_role['name'],
-                                              user=self.fake_user['name'],
-                                              project=self.fake_project['id'],
-                                              domain=self.fake_domain['name']))
+        self.assertTrue(
+            self.op_cloud.grant_role(
+                self.fake_role['name'],
+                user=self.fake_user['name'],
+                project=self.fake_project['id'],
+                domain=self.fake_domain['name']))
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -709,7 +733,7 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.domains.get.return_value = self.fake_domain
         mock_keystone.role_assignments.list.return_value = \
             [self.user_project_assignment]
-        self.assertTrue(self.cloud.revoke_role(
+        self.assertTrue(self.op_cloud.revoke_role(
             self.fake_role['name'],
             user=self.fake_user['name'],
             project=self.fake_project['id'],
@@ -727,8 +751,9 @@ class TestRoleAssignment(base.TestCase):
             OpenStackCloudException,
             'Must specify either a domain or project'
         ):
-            self.cloud.grant_role(self.fake_role['name'],
-                                  user=self.fake_user['name'])
+            self.op_cloud.grant_role(
+                self.fake_role['name'],
+                user=self.fake_user['name'])
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -746,8 +771,9 @@ class TestRoleAssignment(base.TestCase):
             OpenStackCloudException,
             'Must specify either a domain or project'
         ):
-            self.cloud.revoke_role(self.fake_role['name'],
-                                   user=self.fake_user['name'])
+            self.op_cloud.revoke_role(
+                self.fake_role['name'],
+                user=self.fake_user['name'])
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -761,9 +787,10 @@ class TestRoleAssignment(base.TestCase):
             OpenStackCloudException,
             'Failed to get domain baddomain \(Inner Exception: test\)'
         ):
-            self.cloud.grant_role(self.fake_role['name'],
-                                  user=self.fake_user['name'],
-                                  domain='baddomain')
+            self.op_cloud.grant_role(
+                self.fake_role['name'],
+                user=self.fake_user['name'],
+                domain='baddomain')
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -777,9 +804,10 @@ class TestRoleAssignment(base.TestCase):
             OpenStackCloudException,
             'Failed to get domain baddomain \(Inner Exception: test\)'
         ):
-            self.cloud.revoke_role(self.fake_role['name'],
-                                   user=self.fake_user['name'],
-                                   domain='baddomain')
+            self.op_cloud.revoke_role(
+                self.fake_role['name'],
+                user=self.fake_user['name'],
+                domain='baddomain')
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -793,10 +821,12 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.roles.roles_for_user.side_effect = [
             [], [], [self.fake_role]]
         mock_keystone.roles.add_user_role.return_value = self.fake_role
-        self.assertTrue(self.cloud.grant_role(self.fake_role['name'],
-                                              user=self.fake_user['name'],
-                                              project=self.fake_project['id'],
-                                              wait=True))
+        self.assertTrue(
+            self.op_cloud.grant_role(
+                self.fake_role['name'],
+                user=self.fake_user['name'],
+                project=self.fake_project['id'],
+                wait=True))
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -807,23 +837,21 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.roles.list.return_value = [self.fake_role]
         mock_keystone.tenants.list.return_value = [self.fake_project]
         mock_keystone.users.list.return_value = [self.fake_user]
-        mock_keystone.roles.roles_for_user.side_effect = [
-            [], [], [self.fake_role]]
+        mock_keystone.roles.roles_for_user.return_value = []
         mock_keystone.roles.add_user_role.return_value = self.fake_role
 
         with testtools.ExpectedException(
             OpenStackCloudTimeout,
             'Timeout waiting for role to be granted'
         ):
-            self.assertTrue(self.cloud.grant_role(
+            self.assertTrue(self.op_cloud.grant_role(
                 self.fake_role['name'], user=self.fake_user['name'],
-                project=self.fake_project['id'], wait=True, timeout=1))
+                project=self.fake_project['id'], wait=True, timeout=0.01))
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
-    def test_revoke_role_user_project_v2_wait(self,
-                                              mock_keystone,
-                                              mock_api_version):
+    def test_revoke_role_user_project_v2_wait(
+            self, mock_keystone, mock_api_version):
         mock_api_version.return_value = '2.0'
         mock_keystone.roles.list.return_value = [self.fake_role]
         mock_keystone.tenants.list.return_value = [self.fake_project]
@@ -832,10 +860,12 @@ class TestRoleAssignment(base.TestCase):
             [self.fake_role], [self.fake_role],
             []]
         mock_keystone.roles.remove_user_role.return_value = self.fake_role
-        self.assertTrue(self.cloud.revoke_role(self.fake_role['name'],
-                                               user=self.fake_user['name'],
-                                               project=self.fake_project['id'],
-                                               wait=True))
+        self.assertTrue(
+            self.op_cloud.revoke_role(
+                self.fake_role['name'],
+                user=self.fake_user['name'],
+                project=self.fake_project['id'],
+                wait=True))
 
     @patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -846,14 +876,12 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.roles.list.return_value = [self.fake_role]
         mock_keystone.tenants.list.return_value = [self.fake_project]
         mock_keystone.users.list.return_value = [self.fake_user]
-        mock_keystone.roles.roles_for_user.side_effect = [
-            [self.fake_role], [self.fake_role],
-            []]
+        mock_keystone.roles.roles_for_user.return_value = [self.fake_role]
         mock_keystone.roles.remove_user_role.return_value = self.fake_role
         with testtools.ExpectedException(
             OpenStackCloudTimeout,
             'Timeout waiting for role to be revoked'
         ):
-            self.assertTrue(self.cloud.revoke_role(
+            self.assertTrue(self.op_cloud.revoke_role(
                 self.fake_role['name'], user=self.fake_user['name'],
-                project=self.fake_project['id'], wait=True, timeout=1))
+                project=self.fake_project['id'], wait=True, timeout=0.01))

@@ -27,19 +27,15 @@ from shade.tests.unit import base
 
 class TestShadeOperator(base.TestCase):
 
-    def setUp(self):
-        super(TestShadeOperator, self).setUp()
-        self.cloud = shade.operator_cloud(validate=False)
-
     def test_operator_cloud(self):
-        self.assertIsInstance(self.cloud, shade.OperatorCloud)
+        self.assertIsInstance(self.op_cloud, shade.OperatorCloud)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_get_machine(self, mock_client):
         node = fakes.FakeMachine(id='00000000-0000-0000-0000-000000000000',
                                  name='bigOlFaker')
         mock_client.node.get.return_value = node
-        machine = self.cloud.get_machine('bigOlFaker')
+        machine = self.op_cloud.get_machine('bigOlFaker')
         mock_client.node.get.assert_called_with(node_id='bigOlFaker')
         self.assertEqual(meta.obj_to_dict(node), machine)
 
@@ -57,7 +53,7 @@ class TestShadeOperator(base.TestCase):
 
         mock_client.port.get_by_address.return_value = port_value
         mock_client.node.get.return_value = node_value
-        machine = self.cloud.get_machine_by_mac('00:00:00:00:00:00')
+        machine = self.op_cloud.get_machine_by_mac('00:00:00:00:00:00')
         mock_client.port.get_by_address.assert_called_with(
             address='00:00:00:00:00:00')
         mock_client.node.get.assert_called_with(
@@ -68,14 +64,14 @@ class TestShadeOperator(base.TestCase):
     def test_list_machines(self, mock_client):
         m1 = fakes.FakeMachine(1, 'fake_machine1')
         mock_client.node.list.return_value = [m1]
-        machines = self.cloud.list_machines()
+        machines = self.op_cloud.list_machines()
         self.assertTrue(mock_client.node.list.called)
         self.assertEqual(meta.obj_to_dict(m1), machines[0])
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_validate_node(self, mock_client):
         node_uuid = '123'
-        self.cloud.validate_node(node_uuid)
+        self.op_cloud.validate_node(node_uuid)
         mock_client.node.validate.assert_called_once_with(
             node_uuid=node_uuid
         )
@@ -88,7 +84,7 @@ class TestShadeOperator(base.TestCase):
         port_dict_list = meta.obj_list_to_dict(port_list)
 
         mock_client.port.list.return_value = port_list
-        nics = self.cloud.list_nics()
+        nics = self.op_cloud.list_nics()
 
         self.assertTrue(mock_client.port.list.called)
         self.assertEqual(port_dict_list, nics)
@@ -97,26 +93,26 @@ class TestShadeOperator(base.TestCase):
     def test_list_nics_failure(self, mock_client):
         mock_client.port.list.side_effect = Exception()
         self.assertRaises(exc.OpenStackCloudException,
-                          self.cloud.list_nics)
+                          self.op_cloud.list_nics)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_list_nics_for_machine(self, mock_client):
         mock_client.node.list_ports.return_value = []
-        self.cloud.list_nics_for_machine("123")
+        self.op_cloud.list_nics_for_machine("123")
         mock_client.node.list_ports.assert_called_with(node_id="123")
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_list_nics_for_machine_failure(self, mock_client):
         mock_client.node.list_ports.side_effect = Exception()
         self.assertRaises(exc.OpenStackCloudException,
-                          self.cloud.list_nics_for_machine, None)
+                          self.op_cloud.list_nics_for_machine, None)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_patch_machine(self, mock_client):
         node_id = 'node01'
         patch = []
         patch.append({'op': 'remove', 'path': '/instance_info'})
-        self.cloud.patch_machine(node_id, patch)
+        self.op_cloud.patch_machine(node_id, patch)
         self.assertTrue(mock_client.node.update.called)
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
@@ -132,7 +128,7 @@ class TestShadeOperator(base.TestCase):
         )
         mock_client.node.get.return_value = client_return_value
 
-        update_dict = self.cloud.update_machine('node01')
+        update_dict = self.op_cloud.update_machine('node01')
         self.assertIsNone(update_dict['changes'])
         self.assertFalse(mock_patch.called)
         self.assertDictEqual(expected_machine, update_dict['node'])
@@ -151,7 +147,7 @@ class TestShadeOperator(base.TestCase):
         )
         mock_client.node.get.return_value = client_return_value
 
-        update_dict = self.cloud.update_machine('node01', name='node01')
+        update_dict = self.op_cloud.update_machine('node01', name='node01')
         self.assertIsNone(update_dict['changes'])
         self.assertFalse(mock_patch.called)
         self.assertDictEqual(expected_machine, update_dict['node'])
@@ -168,7 +164,7 @@ class TestShadeOperator(base.TestCase):
 
         mock_client.node.get.return_value = client_return_value
 
-        update_dict = self.cloud.update_machine('evil', name='good')
+        update_dict = self.op_cloud.update_machine('evil', name='good')
         self.assertIsNotNone(update_dict['changes'])
         self.assertEqual('/name', update_dict['changes'][0])
         self.assertTrue(mock_patch.called)
@@ -188,7 +184,7 @@ class TestShadeOperator(base.TestCase):
 
         mock_client.node.get.return_value = client_return_value
 
-        update_dict = self.cloud.update_machine('evil', name='good')
+        update_dict = self.op_cloud.update_machine('evil', name='good')
         self.assertIsNotNone(update_dict['changes'])
         self.assertEqual('/name', update_dict['changes'][0])
         self.assertTrue(mock_patch.called)
@@ -213,7 +209,7 @@ class TestShadeOperator(base.TestCase):
 
         mock_client.node.get.return_value = client_return_value
 
-        update_dict = self.cloud.update_machine(
+        update_dict = self.op_cloud.update_machine(
             '00000000-0000-0000-0000-000000000000',
             chassis_uuid='00000000-0000-0000-0000-000000000001')
         self.assertIsNotNone(update_dict['changes'])
@@ -240,7 +236,7 @@ class TestShadeOperator(base.TestCase):
 
         mock_client.node.get.return_value = client_return_value
 
-        update_dict = self.cloud.update_machine(
+        update_dict = self.op_cloud.update_machine(
             '00000000-0000-0000-0000-000000000000',
             driver='fake'
         )
@@ -268,7 +264,7 @@ class TestShadeOperator(base.TestCase):
 
         mock_client.node.get.return_value = client_return_value
 
-        update_dict = self.cloud.update_machine(
+        update_dict = self.op_cloud.update_machine(
             '00000000-0000-0000-0000-000000000000',
             driver_info=dict(var="fake")
         )
@@ -296,7 +292,7 @@ class TestShadeOperator(base.TestCase):
 
         mock_client.node.get.return_value = client_return_value
 
-        update_dict = self.cloud.update_machine(
+        update_dict = self.op_cloud.update_machine(
             '00000000-0000-0000-0000-000000000000',
             instance_info=dict(var="fake")
         )
@@ -324,7 +320,7 @@ class TestShadeOperator(base.TestCase):
 
         mock_client.node.get.return_value = client_return_value
 
-        update_dict = self.cloud.update_machine(
+        update_dict = self.op_cloud.update_machine(
             '00000000-0000-0000-0000-000000000000',
             instance_uuid='00000000-0000-0000-0000-000000000002'
         )
@@ -352,7 +348,7 @@ class TestShadeOperator(base.TestCase):
 
         mock_client.node.get.return_value = client_return_value
 
-        update_dict = self.cloud.update_machine(
+        update_dict = self.op_cloud.update_machine(
             '00000000-0000-0000-0000-000000000000',
             properties=dict(var="fake")
         )
@@ -375,7 +371,7 @@ class TestShadeOperator(base.TestCase):
         mock_client.node.get.return_value = active_machine
         self.assertRaises(
             shade.OpenStackCloudException,
-            self.cloud.inspect_machine,
+            self.op_cloud.inspect_machine,
             machine_uuid,
             wait=True,
             timeout=1)
@@ -391,7 +387,7 @@ class TestShadeOperator(base.TestCase):
             last_error = "kaboom"
 
         mock_client.node.get.return_value = inspect_failed_machine
-        self.cloud.inspect_machine(machine_uuid)
+        self.op_cloud.inspect_machine(machine_uuid)
         self.assertTrue(mock_client.node.set_provision_state.called)
         self.assertEqual(
             mock_client.node.set_provision_state.call_count, 1)
@@ -406,7 +402,7 @@ class TestShadeOperator(base.TestCase):
             provision_state = "manageable"
 
         mock_client.node.get.return_value = manageable_machine
-        self.cloud.inspect_machine(machine_uuid)
+        self.op_cloud.inspect_machine(machine_uuid)
         self.assertEqual(
             mock_client.node.set_provision_state.call_count, 1)
 
@@ -433,7 +429,7 @@ class TestShadeOperator(base.TestCase):
             manageable_machine,
             manageable_machine,
             inspecting_machine])
-        self.cloud.inspect_machine(machine_uuid)
+        self.op_cloud.inspect_machine(machine_uuid)
         self.assertTrue(mock_client.node.set_provision_state.called)
         self.assertEqual(
             mock_client.node.set_provision_state.call_count, 3)
@@ -468,7 +464,7 @@ class TestShadeOperator(base.TestCase):
             provision_state="available"
         )
 
-        return_value = self.cloud.inspect_machine(
+        return_value = self.op_cloud.inspect_machine(
             machine_uuid, wait=True, timeout=1)
         self.assertTrue(mock_client.node.set_provision_state.called)
         self.assertEqual(
@@ -499,7 +495,7 @@ class TestShadeOperator(base.TestCase):
             manageable_machine,
             manageable_machine])
 
-        return_value = self.cloud.inspect_machine(
+        return_value = self.op_cloud.inspect_machine(
             machine_uuid, wait=True, timeout=1)
         self.assertDictEqual(expected_return_value, return_value)
 
@@ -529,7 +525,7 @@ class TestShadeOperator(base.TestCase):
             inspect_failed_machine])
         self.assertRaises(
             shade.OpenStackCloudException,
-            self.cloud.inspect_machine,
+            self.op_cloud.inspect_machine,
             machine_uuid,
             wait=True,
             timeout=1)
@@ -554,7 +550,7 @@ class TestShadeOperator(base.TestCase):
         mock_client.node.create.return_value = fake_node
         mock_client.node.get.return_value = fake_node
         nics = [{'mac': '00:00:00:00:00:00'}]
-        return_value = self.cloud.register_machine(nics)
+        return_value = self.op_cloud.register_machine(nics)
         self.assertDictEqual(expected_return_value, return_value)
         self.assertTrue(mock_client.node.create.called)
         self.assertTrue(mock_client.port.create.called)
@@ -612,7 +608,7 @@ class TestShadeOperator(base.TestCase):
             fake_node_post_provide])
         mock_client.node.create.return_value = fake_node_init_state
         nics = [{'mac': '00:00:00:00:00:00'}]
-        return_value = self.cloud.register_machine(nics)
+        return_value = self.op_cloud.register_machine(nics)
         self.assertDictEqual(expected_return_value, return_value)
         self.assertTrue(mock_client.node.create.called)
         self.assertTrue(mock_client.port.create.called)
@@ -623,7 +619,7 @@ class TestShadeOperator(base.TestCase):
             fake_node_post_manage,
             fake_node_post_manage_done,
             fake_node_post_provide])
-        return_value = self.cloud.register_machine(nics, wait=True)
+        return_value = self.op_cloud.register_machine(nics, wait=True)
         self.assertDictEqual(expected_return_value, return_value)
         self.assertTrue(mock_client.node.create.called)
         self.assertTrue(mock_client.port.create.called)
@@ -635,11 +631,11 @@ class TestShadeOperator(base.TestCase):
             fake_node_post_enroll_failure])
         self.assertRaises(
             shade.OpenStackCloudException,
-            self.cloud.register_machine,
+            self.op_cloud.register_machine,
             nics)
         self.assertRaises(
             shade.OpenStackCloudException,
-            self.cloud.register_machine,
+            self.op_cloud.register_machine,
             nics,
             wait=True)
 
@@ -662,7 +658,7 @@ class TestShadeOperator(base.TestCase):
         nics = [{'mac': '00:00:00:00:00:00'}]
         self.assertRaises(
             shade.OpenStackCloudException,
-            self.cloud.register_machine,
+            self.op_cloud.register_machine,
             nics,
             lock_timeout=0.001)
         self.assertTrue(mock_client.node.create.called)
@@ -672,7 +668,7 @@ class TestShadeOperator(base.TestCase):
         mock_client.node.create.reset_mock()
         self.assertRaises(
             shade.OpenStackCloudException,
-            self.cloud.register_machine,
+            self.op_cloud.register_machine,
             nics,
             wait=True,
             timeout=0.001)
@@ -693,7 +689,7 @@ class TestShadeOperator(base.TestCase):
         mock_client.port.create.side_effect = (
             exc.OpenStackCloudException("Error"))
         self.assertRaises(exc.OpenStackCloudException,
-                          self.cloud.register_machine,
+                          self.op_cloud.register_machine,
                           nics)
         self.assertTrue(mock_client.node.create.called)
         self.assertTrue(mock_client.port.create.called)
@@ -711,7 +707,7 @@ class TestShadeOperator(base.TestCase):
         mock_client.node.get.return_value = fake_node
         nics = [{'mac': '00:00:00:00:00:00'}]
         uuid = "00000000-0000-0000-0000-000000000000"
-        self.cloud.unregister_machine(nics, uuid)
+        self.op_cloud.unregister_machine(nics, uuid)
         self.assertTrue(mock_client.node.delete.called)
         self.assertTrue(mock_client.port.get_by_address.called)
         self.assertTrue(mock_client.port.delete.called)
@@ -733,7 +729,7 @@ class TestShadeOperator(base.TestCase):
             mock_client.node.get.return_value = fake_node
             self.assertRaises(
                 exc.OpenStackCloudException,
-                self.cloud.unregister_machine,
+                self.op_cloud.unregister_machine,
                 nics,
                 uuid)
             self.assertFalse(mock_client.node.delete.called)
@@ -753,7 +749,7 @@ class TestShadeOperator(base.TestCase):
         uuid = "00000000-0000-0000-0000-000000000000"
         self.assertRaises(
             exc.OpenStackCloudException,
-            self.cloud.unregister_machine,
+            self.op_cloud.unregister_machine,
             nics,
             uuid,
             wait=True,
@@ -768,7 +764,8 @@ class TestShadeOperator(base.TestCase):
         mock_client.node.set_maintenance.return_value = None
         node_id = 'node01'
         reason = 'no reason'
-        self.cloud.set_machine_maintenance_state(node_id, True, reason=reason)
+        self.op_cloud.set_machine_maintenance_state(
+            node_id, True, reason=reason)
         mock_client.node.set_maintenance.assert_called_with(
             node_id='node01',
             state='true',
@@ -778,7 +775,7 @@ class TestShadeOperator(base.TestCase):
     def test_set_machine_maintenace_state_false(self, mock_client):
         mock_client.node.set_maintenance.return_value = None
         node_id = 'node01'
-        self.cloud.set_machine_maintenance_state(node_id, False)
+        self.op_cloud.set_machine_maintenance_state(node_id, False)
         mock_client.node.set_maintenance.assert_called_with(
             node_id='node01',
             state='false')
@@ -787,7 +784,7 @@ class TestShadeOperator(base.TestCase):
     def test_remove_machine_from_maintenance(self, mock_client):
         mock_client.node.set_maintenance.return_value = None
         node_id = 'node01'
-        self.cloud.remove_machine_from_maintenance(node_id)
+        self.op_cloud.remove_machine_from_maintenance(node_id)
         mock_client.node.set_maintenance.assert_called_with(
             node_id='node01',
             state='false')
@@ -796,7 +793,7 @@ class TestShadeOperator(base.TestCase):
     def test_set_machine_power_on(self, mock_client):
         mock_client.node.set_power_state.return_value = None
         node_id = 'node01'
-        return_value = self.cloud.set_machine_power_on(node_id)
+        return_value = self.op_cloud.set_machine_power_on(node_id)
         self.assertEqual(None, return_value)
         mock_client.node.set_power_state.assert_called_with(
             node_id='node01',
@@ -806,7 +803,7 @@ class TestShadeOperator(base.TestCase):
     def test_set_machine_power_off(self, mock_client):
         mock_client.node.set_power_state.return_value = None
         node_id = 'node01'
-        return_value = self.cloud.set_machine_power_off(node_id)
+        return_value = self.op_cloud.set_machine_power_off(node_id)
         self.assertEqual(None, return_value)
         mock_client.node.set_power_state.assert_called_with(
             node_id='node01',
@@ -816,7 +813,7 @@ class TestShadeOperator(base.TestCase):
     def test_set_machine_power_reboot(self, mock_client):
         mock_client.node.set_power_state.return_value = None
         node_id = 'node01'
-        return_value = self.cloud.set_machine_power_reboot(node_id)
+        return_value = self.op_cloud.set_machine_power_reboot(node_id)
         self.assertEqual(None, return_value)
         mock_client.node.set_power_state.assert_called_with(
             node_id='node01',
@@ -826,7 +823,7 @@ class TestShadeOperator(base.TestCase):
     def test_set_machine_power_reboot_failure(self, mock_client):
         mock_client.node.set_power_state.return_value = 'failure'
         self.assertRaises(shade.OpenStackCloudException,
-                          self.cloud.set_machine_power_reboot,
+                          self.op_cloud.set_machine_power_reboot,
                           'node01')
         mock_client.node.set_power_state.assert_called_with(
             node_id='node01',
@@ -844,7 +841,7 @@ class TestShadeOperator(base.TestCase):
         mock_client.node.set_provision_state.return_value = None
         mock_client.node.get.return_value = active_node_state
         node_id = 'node01'
-        return_value = self.cloud.node_set_provision_state(
+        return_value = self.op_cloud.node_set_provision_state(
             node_id,
             'active',
             configdrive='http://127.0.0.1/file.iso')
@@ -874,7 +871,7 @@ class TestShadeOperator(base.TestCase):
         mock_client.node.get.return_value = active_node_state
         mock_client.node.set_provision_state.return_value = None
         node_id = 'node01'
-        return_value = self.cloud.node_set_provision_state(
+        return_value = self.op_cloud.node_set_provision_state(
             node_id,
             'active',
             configdrive='http://127.0.0.1/file.iso',
@@ -890,7 +887,7 @@ class TestShadeOperator(base.TestCase):
         mock_client.node.get.return_value = deploying_node_state
         self.assertRaises(
             shade.OpenStackCloudException,
-            self.cloud.node_set_provision_state,
+            self.op_cloud.node_set_provision_state,
             node_id,
             'active',
             configdrive='http://127.0.0.1/file.iso',
@@ -917,7 +914,7 @@ class TestShadeOperator(base.TestCase):
         mock_client.node.get.side_effect = iter([
             managable_node_state,
             available_node_state])
-        return_value = self.cloud.node_set_provision_state(
+        return_value = self.op_cloud.node_set_provision_state(
             'test_node',
             'provide',
             wait=True)
@@ -929,7 +926,7 @@ class TestShadeOperator(base.TestCase):
     def test_activate_node(self, mock_timeout, mock_client):
         mock_client.node.set_provision_state.return_value = None
         node_id = 'node02'
-        return_value = self.cloud.activate_node(
+        return_value = self.op_cloud.activate_node(
             node_id,
             configdrive='http://127.0.0.1/file.iso')
         self.assertEqual(None, return_value)
@@ -954,7 +951,7 @@ class TestShadeOperator(base.TestCase):
 
         mock_client.node.set_provision_state.return_value = None
         node_id = 'node04'
-        return_value = self.cloud.activate_node(
+        return_value = self.op_cloud.activate_node(
             node_id,
             configdrive='http://127.0.0.1/file.iso',
             wait=True,
@@ -971,7 +968,7 @@ class TestShadeOperator(base.TestCase):
     def test_deactivate_node(self, mock_timeout, mock_client):
         mock_client.node.set_provision_state.return_value = None
         node_id = 'node03'
-        return_value = self.cloud.deactivate_node(
+        return_value = self.op_cloud.deactivate_node(
             node_id, wait=False)
         self.assertEqual(None, return_value)
         mock_client.node.set_provision_state.assert_called_with(
@@ -995,7 +992,7 @@ class TestShadeOperator(base.TestCase):
 
         mock_client.node.set_provision_state.return_value = None
         node_id = 'node03'
-        return_value = self.cloud.deactivate_node(
+        return_value = self.op_cloud.deactivate_node(
             node_id, wait=True, timeout=2)
         self.assertEqual(None, return_value)
         mock_client.node.set_provision_state.assert_called_with(
@@ -1008,7 +1005,7 @@ class TestShadeOperator(base.TestCase):
     def test_set_node_instance_info(self, mock_client):
         uuid = 'aaa'
         patch = [{'op': 'add', 'foo': 'bar'}]
-        self.cloud.set_node_instance_info(uuid, patch)
+        self.op_cloud.set_node_instance_info(uuid, patch)
         mock_client.node.update.assert_called_with(
             node_id=uuid, patch=patch
         )
@@ -1017,7 +1014,7 @@ class TestShadeOperator(base.TestCase):
     def test_purge_node_instance_info(self, mock_client):
         uuid = 'aaa'
         expected_patch = [{'op': 'remove', 'path': '/instance_info'}]
-        self.cloud.purge_node_instance_info(uuid)
+        self.op_cloud.purge_node_instance_info(uuid)
         mock_client.node.update.assert_called_with(
             node_id=uuid, patch=expected_patch
         )
@@ -1031,8 +1028,8 @@ class TestShadeOperator(base.TestCase):
             status = 'success'
         fake_image = Image()
         glance_mock.images.list.return_value = [fake_image]
-        self.assertEqual('22 name', self.cloud.get_image_name('22'))
-        self.assertEqual('22 name', self.cloud.get_image_name('22 name'))
+        self.assertEqual('22 name', self.op_cloud.get_image_name('22'))
+        self.assertEqual('22 name', self.op_cloud.get_image_name('22 name'))
 
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_get_image_id(self, glance_mock):
@@ -1043,14 +1040,14 @@ class TestShadeOperator(base.TestCase):
             status = 'success'
         fake_image = Image()
         glance_mock.images.list.return_value = [fake_image]
-        self.assertEqual('22', self.cloud.get_image_id('22'))
-        self.assertEqual('22', self.cloud.get_image_id('22 name'))
+        self.assertEqual('22', self.op_cloud.get_image_id('22'))
+        self.assertEqual('22', self.op_cloud.get_image_id('22 name'))
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_endpoint')
     def test_get_session_endpoint_provided(self, fake_get_endpoint):
         fake_get_endpoint.return_value = 'http://fake.url'
         self.assertEqual(
-            'http://fake.url', self.cloud.get_session_endpoint('image'))
+            'http://fake.url', self.op_cloud.get_session_endpoint('image'))
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_session')
     def test_get_session_endpoint_session(self, get_session_mock):
@@ -1058,7 +1055,7 @@ class TestShadeOperator(base.TestCase):
         session_mock.get_endpoint.return_value = 'http://fake.url'
         get_session_mock.return_value = session_mock
         self.assertEqual(
-            'http://fake.url', self.cloud.get_session_endpoint('image'))
+            'http://fake.url', self.op_cloud.get_session_endpoint('image'))
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_session')
     def test_get_session_endpoint_exception(self, get_session_mock):
@@ -1070,27 +1067,27 @@ class TestShadeOperator(base.TestCase):
         session_mock = mock.Mock()
         session_mock.get_endpoint.side_effect = side_effect
         get_session_mock.return_value = session_mock
-        self.cloud.name = 'testcloud'
-        self.cloud.region_name = 'testregion'
+        self.op_cloud.name = 'testcloud'
+        self.op_cloud.region_name = 'testregion'
         with testtools.ExpectedException(
                 exc.OpenStackCloudException,
                 "Error getting image endpoint on testcloud:testregion:"
                 " No service"):
-            self.cloud.get_session_endpoint("image")
+            self.op_cloud.get_session_endpoint("image")
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_session')
     def test_get_session_endpoint_unavailable(self, get_session_mock):
         session_mock = mock.Mock()
         session_mock.get_endpoint.return_value = None
         get_session_mock.return_value = session_mock
-        image_endpoint = self.cloud.get_session_endpoint("image")
+        image_endpoint = self.op_cloud.get_session_endpoint("image")
         self.assertIsNone(image_endpoint)
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_session')
     def test_get_session_endpoint_identity(self, get_session_mock):
         session_mock = mock.Mock()
         get_session_mock.return_value = session_mock
-        self.cloud.get_session_endpoint('identity')
+        self.op_cloud.get_session_endpoint('identity')
         session_mock.get_endpoint.assert_called_with(
             interface=ksa_plugin.AUTH_INTERFACE)
 
@@ -1099,14 +1096,14 @@ class TestShadeOperator(base.TestCase):
         session_mock = mock.Mock()
         session_mock.get_endpoint.return_value = None
         get_session_mock.return_value = session_mock
-        self.assertFalse(self.cloud.has_service("image"))
+        self.assertFalse(self.op_cloud.has_service("image"))
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_session')
     def test_has_service_yes(self, get_session_mock):
         session_mock = mock.Mock()
         session_mock.get_endpoint.return_value = 'http://fake.url'
         get_session_mock.return_value = session_mock
-        self.assertTrue(self.cloud.has_service("image"))
+        self.assertTrue(self.op_cloud.has_service("image"))
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_list_hypervisors(self, mock_nova):
@@ -1117,7 +1114,7 @@ class TestShadeOperator(base.TestCase):
             fakes.FakeHypervisor('2', 'testserver2'),
         ]
 
-        r = self.cloud.list_hypervisors()
+        r = self.op_cloud.list_hypervisors()
         mock_nova.hypervisors.list.assert_called_once_with()
         self.assertEquals(2, len(r))
         self.assertEquals('testserver1', r[0]['hypervisor_hostname'])

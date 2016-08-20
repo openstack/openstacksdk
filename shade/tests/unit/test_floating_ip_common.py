@@ -20,7 +20,6 @@ Tests floating IP resource methods for Neutron and Nova-network.
 """
 
 from mock import patch
-import os_client_config
 from shade import meta
 from shade import OpenStackCloud
 from shade.tests.fakes import FakeServer
@@ -28,11 +27,6 @@ from shade.tests.unit import base
 
 
 class TestFloatingIP(base.TestCase):
-    def setUp(self):
-        super(TestFloatingIP, self).setUp()
-        config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(
-            cloud_config=config.get_one_cloud(validate=False))
 
     @patch.object(OpenStackCloud, 'get_floating_ip')
     @patch.object(OpenStackCloud, '_attach_ip_to_server')
@@ -56,7 +50,7 @@ class TestFloatingIP(base.TestCase):
 
         mock_available_floating_ip.return_value = floating_ip_dict
 
-        self.client.add_auto_ip(server=server_dict)
+        self.cloud.add_auto_ip(server=server_dict)
 
         mock_attach_ip_to_server.assert_called_with(
             timeout=60, wait=False, server=server_dict,
@@ -74,7 +68,7 @@ class TestFloatingIP(base.TestCase):
 
         mock_nova_client.servers.get.return_value = server
 
-        self.client.add_ips_to_server(server_dict, ip_pool=pool)
+        self.cloud.add_ips_to_server(server_dict, ip_pool=pool)
 
         mock_add_ip_from_pool.assert_called_with(
             server_dict, pool, reuse=True, wait=False, timeout=60,
@@ -109,7 +103,7 @@ class TestFloatingIP(base.TestCase):
         server_dict = meta.add_server_interfaces(
             self.cloud, meta.obj_to_dict(server))
 
-        new_server = self.client.add_ips_to_server(server=server_dict)
+        new_server = self.cloud.add_ips_to_server(server=server_dict)
         mock_get_floating_ip.assert_not_called()
         mock_add_auto_ip.assert_not_called()
         self.assertEqual(
@@ -150,7 +144,7 @@ class TestFloatingIP(base.TestCase):
         server_dict = meta.add_server_interfaces(
             self.cloud, meta.obj_to_dict(server))
 
-        new_server = self.client.add_ips_to_server(server=server_dict)
+        new_server = self.cloud.add_ips_to_server(server=server_dict)
         mock_get_floating_ip.assert_not_called()
         mock_add_auto_ip.assert_not_called()
         self.assertEqual(
@@ -187,7 +181,7 @@ class TestFloatingIP(base.TestCase):
         server_dict = meta.add_server_interfaces(
             self.cloud, meta.obj_to_dict(server))
 
-        new_server = self.client.add_ips_to_server(server=server_dict)
+        new_server = self.cloud.add_ips_to_server(server=server_dict)
         mock_get_floating_ip.assert_not_called()
         mock_add_auto_ip.assert_not_called()
         self.assertEqual(new_server['interface_ip'], '104.130.246.91')
@@ -203,7 +197,7 @@ class TestFloatingIP(base.TestCase):
         ips = ['203.0.113.29', '172.24.4.229']
         mock_nova_client.servers.get.return_value = server
 
-        self.client.add_ips_to_server(server_dict, ips=ips)
+        self.cloud.add_ips_to_server(server_dict, ips=ips)
 
         mock_add_ip_list.assert_called_with(
             server_dict, ips, wait=False, timeout=60, fixed_address=None)
@@ -219,7 +213,7 @@ class TestFloatingIP(base.TestCase):
 
         mock_nova_client.servers.get.return_value = server
 
-        self.client.add_ips_to_server(server_dict)
+        self.cloud.add_ips_to_server(server_dict)
 
         mock_add_auto_ip.assert_called_with(
             server_dict, wait=False, timeout=60, reuse=True)

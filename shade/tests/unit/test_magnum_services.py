@@ -33,13 +33,9 @@ magnum_service_obj = munch.Munch(
 
 class TestMagnumServices(base.TestCase):
 
-    def setUp(self):
-        super(TestMagnumServices, self).setUp()
-        self.cloud = shade.operator_cloud(validate=False)
-
     @mock.patch.object(shade.OpenStackCloud, 'magnum_client')
     def test_list_magnum_services(self, mock_magnum):
         mock_magnum.mservices.list.return_value = [magnum_service_obj, ]
-        mservices_list = self.cloud.list_magnum_services()
+        mservices_list = self.op_cloud.list_magnum_services()
         mock_magnum.mservices.list.assert_called_with(detail=False)
         self.assertEqual(mservices_list[0], magnum_service_obj)

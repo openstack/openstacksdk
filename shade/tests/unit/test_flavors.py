@@ -24,9 +24,6 @@ from shade.tests.unit import base
 
 class TestFlavors(base.TestCase):
 
-    def setUp(self):
-        super(TestFlavors, self).setUp()
-
     def test_create_flavor(self):
         self.useFixture(keystoneauth_betamax.BetamaxFixture(
             cassette_name='test_create_flavor',
@@ -34,13 +31,13 @@ class TestFlavors(base.TestCase):
             record=self.record_fixtures,
             serializer=serializer.YamlJsonSerializer))
 
-        old_flavors = self.op_cloud.list_flavors()
-        self.op_cloud.create_flavor(
+        old_flavors = self.full_op_cloud.list_flavors()
+        self.full_op_cloud.create_flavor(
             'vanilla', 12345, 4, 100
         )
 
         # test that we have a new flavor added
-        new_flavors = self.op_cloud.list_flavors()
+        new_flavors = self.full_op_cloud.list_flavors()
         self.assertEquals(len(new_flavors) - len(old_flavors), 1)
 
         # test that new flavor is created correctly
@@ -56,7 +53,7 @@ class TestFlavors(base.TestCase):
             self.assertTrue(needed_keys.issubset(flavor.keys()))
 
         # delete created flavor
-        self.op_cloud.delete_flavor('vanilla')
+        self.full_op_cloud.delete_flavor('vanilla')
 
     @mock.patch.object(shade.OpenStackCloud, '_compute_client')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')

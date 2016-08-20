@@ -67,11 +67,24 @@ class TestCase(base.TestCase):
         test_cloud = os.environ.get('SHADE_OS_CLOUD', '_test_cloud_')
         self.config = occ.OpenStackConfig(
             config_files=[config.name],
-            vendor_files=[vendor.name])
-        self.cloud_config = self.config.get_one_cloud(cloud=test_cloud)
+            vendor_files=[vendor.name],
+            secure_files=['non-existant'])
+        self.cloud_config = self.config.get_one_cloud(
+            cloud=test_cloud, validate=False)
         self.cloud = shade.OpenStackCloud(
             cloud_config=self.cloud_config,
             log_inner_exceptions=True)
         self.op_cloud = shade.OperatorCloud(
             cloud_config=self.cloud_config,
+            log_inner_exceptions=True)
+
+        # Any unit tests using betamax directly need a ksa.Session with
+        # an auth dict.
+        self.full_cloud_config = self.config.get_one_cloud(
+            cloud=test_cloud)
+        self.full_cloud = shade.OpenStackCloud(
+            cloud_config=self.full_cloud_config,
+            log_inner_exceptions=True)
+        self.full_op_cloud = shade.OperatorCloud(
+            cloud_config=self.full_cloud_config,
             log_inner_exceptions=True)

@@ -25,17 +25,13 @@ from shade.tests.unit import base
 
 class TestProject(base.TestCase):
 
-    def setUp(self):
-        super(TestProject, self).setUp()
-        self.cloud = shade.operator_cloud(validate=False)
-
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_create_project_v2(self, mock_keystone, mock_api_version):
         mock_api_version.return_value = '2'
         name = 'project_name'
         description = 'Project description'
-        self.cloud.create_project(name=name, description=description)
+        self.op_cloud.create_project(name=name, description=description)
         mock_keystone.tenants.create.assert_called_once_with(
             project_name=name, description=description, enabled=True,
             tenant_name=name
@@ -48,8 +44,8 @@ class TestProject(base.TestCase):
         name = 'project_name'
         description = 'Project description'
         domain_id = '123'
-        self.cloud.create_project(name=name, description=description,
-                                  domain_id=domain_id)
+        self.op_cloud.create_project(
+            name=name, description=description, domain_id=domain_id)
         mock_keystone.projects.create.assert_called_once_with(
             project_name=name, description=description, enabled=True,
             name=name, domain=domain_id
@@ -65,7 +61,7 @@ class TestProject(base.TestCase):
                 "User or project creation requires an explicit"
                 " domain_id argument."
         ):
-            self.cloud.create_project(name='foo', description='bar')
+            self.op_cloud.create_project(name='foo', description='bar')
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'get_project')
@@ -74,7 +70,7 @@ class TestProject(base.TestCase):
                                mock_api_version):
         mock_api_version.return_value = '2'
         mock_get.return_value = dict(id='123')
-        self.assertTrue(self.cloud.delete_project('123'))
+        self.assertTrue(self.op_cloud.delete_project('123'))
         mock_get.assert_called_once_with('123', domain_id=None)
         mock_keystone.tenants.delete.assert_called_once_with(tenant='123')
 
@@ -85,7 +81,7 @@ class TestProject(base.TestCase):
                                mock_api_version):
         mock_api_version.return_value = '3'
         mock_get.return_value = dict(id='123')
-        self.assertTrue(self.cloud.delete_project('123'))
+        self.assertTrue(self.op_cloud.delete_project('123'))
         mock_get.assert_called_once_with('123', domain_id=None)
         mock_keystone.projects.delete.assert_called_once_with(project='123')
 
@@ -96,7 +92,7 @@ class TestProject(base.TestCase):
                 shade.OpenStackCloudException,
                 "Project ABC not found."
         ):
-            self.cloud.update_project('ABC')
+            self.op_cloud.update_project('ABC')
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'get_project')
@@ -105,7 +101,7 @@ class TestProject(base.TestCase):
                                mock_api_version):
         mock_api_version.return_value = '2'
         mock_get_project.return_value = munch.Munch(dict(id='123'))
-        self.cloud.update_project('123', description='new', enabled=False)
+        self.op_cloud.update_project('123', description='new', enabled=False)
         mock_keystone.tenants.update.assert_called_once_with(
             description='new', enabled=False, tenant_id='123')
 
@@ -116,7 +112,7 @@ class TestProject(base.TestCase):
                                mock_api_version):
         mock_api_version.return_value = '3'
         mock_get_project.return_value = munch.Munch(dict(id='123'))
-        self.cloud.update_project('123', description='new', enabled=False)
+        self.op_cloud.update_project('123', description='new', enabled=False)
         mock_keystone.projects.update.assert_called_once_with(
             description='new', enabled=False, project='123')
 
@@ -124,6 +120,6 @@ class TestProject(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_list_projects_v3(self, mock_keystone, mock_api_version):
         mock_api_version.return_value = '3'
-        self.cloud.list_projects('123')
+        self.op_cloud.list_projects('123')
         mock_keystone.projects.list.assert_called_once_with(
             domain='123')

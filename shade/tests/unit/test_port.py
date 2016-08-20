@@ -20,7 +20,6 @@ Test port resource (managed by neutron)
 """
 
 from mock import patch
-import os_client_config
 from shade import OpenStackCloud
 from shade.exc import OpenStackCloudException
 from shade.tests.unit import base
@@ -142,18 +141,12 @@ class TestPort(base.TestCase):
         ]
     }
 
-    def setUp(self):
-        super(TestPort, self).setUp()
-        config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(
-            cloud_config=config.get_one_cloud(validate=False))
-
     @patch.object(OpenStackCloud, 'neutron_client')
     def test_create_port(self, mock_neutron_client):
         mock_neutron_client.create_port.return_value = \
             self.mock_neutron_port_create_rep
 
-        port = self.client.create_port(
+        port = self.cloud.create_port(
             network_id='test-net-id', name='test-port-name',
             admin_state_up=True)
 
@@ -165,7 +158,7 @@ class TestPort(base.TestCase):
     def test_create_port_parameters(self):
         """Test that we detect invalid arguments passed to create_port"""
         self.assertRaises(
-            TypeError, self.client.create_port,
+            TypeError, self.cloud.create_port,
             network_id='test-net-id', nome='test-port-name',
             stato_amministrativo_porta=True)
 
@@ -174,7 +167,7 @@ class TestPort(base.TestCase):
         mock_neutron_client.create_port.side_effect = Exception('blah')
 
         self.assertRaises(
-            OpenStackCloudException, self.client.create_port,
+            OpenStackCloudException, self.cloud.create_port,
             network_id='test-net-id', name='test-port-name',
             admin_state_up=True)
 
@@ -185,7 +178,7 @@ class TestPort(base.TestCase):
         mock_neutron_client.update_port.return_value = \
             self.mock_neutron_port_update_rep
 
-        port = self.client.update_port(
+        port = self.cloud.update_port(
             name_or_id='d80b1a3b-4fc1-49f3-952e-1e2ab7081d8b',
             name='test-port-name-updated')
 
@@ -197,7 +190,7 @@ class TestPort(base.TestCase):
     def test_update_port_parameters(self):
         """Test that we detect invalid arguments passed to update_port"""
         self.assertRaises(
-            TypeError, self.client.update_port,
+            TypeError, self.cloud.update_port,
             name_or_id='test-port-id', nome='test-port-name-updated')
 
     @patch.object(OpenStackCloud, 'neutron_client')
@@ -207,7 +200,7 @@ class TestPort(base.TestCase):
         mock_neutron_client.update_port.side_effect = Exception('blah')
 
         self.assertRaises(
-            OpenStackCloudException, self.client.update_port,
+            OpenStackCloudException, self.cloud.update_port,
             name_or_id='d80b1a3b-4fc1-49f3-952e-1e2ab7081d8b',
             name='test-port-name-updated')
 
@@ -216,7 +209,7 @@ class TestPort(base.TestCase):
         mock_neutron_client.list_ports.return_value = \
             self.mock_neutron_port_list_rep
 
-        ports = self.client.list_ports()
+        ports = self.cloud.list_ports()
 
         mock_neutron_client.list_ports.assert_called_with()
         self.assertItemsEqual(self.mock_neutron_port_list_rep['ports'], ports)
@@ -225,14 +218,14 @@ class TestPort(base.TestCase):
     def test_list_ports_exception(self, mock_neutron_client):
         mock_neutron_client.list_ports.side_effect = Exception('blah')
 
-        self.assertRaises(OpenStackCloudException, self.client.list_ports)
+        self.assertRaises(OpenStackCloudException, self.cloud.list_ports)
 
     @patch.object(OpenStackCloud, 'neutron_client')
     def test_search_ports_by_id(self, mock_neutron_client):
         mock_neutron_client.list_ports.return_value = \
             self.mock_neutron_port_list_rep
 
-        ports = self.client.search_ports(
+        ports = self.cloud.search_ports(
             name_or_id='f71a6703-d6de-4be1-a91a-a570ede1d159')
 
         mock_neutron_client.list_ports.assert_called_with()
@@ -244,7 +237,7 @@ class TestPort(base.TestCase):
         mock_neutron_client.list_ports.return_value = \
             self.mock_neutron_port_list_rep
 
-        ports = self.client.search_ports(name_or_id='first-port')
+        ports = self.cloud.search_ports(name_or_id='first-port')
 
         mock_neutron_client.list_ports.assert_called_with()
         self.assertEquals(1, len(ports))
@@ -255,7 +248,7 @@ class TestPort(base.TestCase):
         mock_neutron_client.list_ports.return_value = \
             self.mock_neutron_port_list_rep
 
-        ports = self.client.search_ports(name_or_id='non-existent')
+        ports = self.cloud.search_ports(name_or_id='non-existent')
 
         mock_neutron_client.list_ports.assert_called_with()
         self.assertEquals(0, len(ports))
@@ -265,7 +258,7 @@ class TestPort(base.TestCase):
         mock_neutron_client.list_ports.return_value = \
             self.mock_neutron_port_list_rep
 
-        self.client.delete_port(name_or_id='first-port')
+        self.cloud.delete_port(name_or_id='first-port')
 
         mock_neutron_client.delete_port.assert_called_with(
             port='d80b1a3b-4fc1-49f3-952e-1e2ab7081d8b')

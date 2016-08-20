@@ -20,19 +20,13 @@ Tests for the `delete_volume_snapshot` command.
 """
 
 from mock import patch
-import os_client_config
 from shade import OpenStackCloud
-from shade.tests import base, fakes
+from shade.tests import fakes
+from shade.tests.unit import base
 from shade.exc import (OpenStackCloudException, OpenStackCloudTimeout)
 
 
 class TestDeleteVolumeSnapshot(base.TestCase):
-
-    def setUp(self):
-        super(TestDeleteVolumeSnapshot, self).setUp()
-        config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(
-            cloud_config=config.get_one_cloud(validate=False))
 
     @patch.object(OpenStackCloud, 'cinder_client')
     def test_delete_volume_snapshot(self, mock_cinder):
@@ -47,7 +41,7 @@ class TestDeleteVolumeSnapshot(base.TestCase):
 
         self.assertEqual(
             True,
-            self.client.delete_volume_snapshot(name_or_id='1234', wait=False)
+            self.cloud.delete_volume_snapshot(name_or_id='1234', wait=False)
         )
 
         mock_cinder.volume_snapshots.list.assert_called_with(detailed=True,
@@ -68,8 +62,7 @@ class TestDeleteVolumeSnapshot(base.TestCase):
 
         self.assertRaises(
             OpenStackCloudException,
-            self.client.delete_volume_snapshot, name_or_id='1234',
-            wait=True, timeout=1)
+            self.cloud.delete_volume_snapshot, name_or_id='1234')
 
         mock_cinder.volume_snapshots.delete.assert_called_with(
             snapshot='1234')
@@ -87,8 +80,8 @@ class TestDeleteVolumeSnapshot(base.TestCase):
 
         self.assertRaises(
             OpenStackCloudTimeout,
-            self.client.delete_volume_snapshot, name_or_id='1234',
-            wait=True, timeout=1)
+            self.cloud.delete_volume_snapshot, name_or_id='1234',
+            wait=True, timeout=0.01)
 
         mock_cinder.volume_snapshots.list.assert_called_with(detailed=True,
                                                              search_opts=None)

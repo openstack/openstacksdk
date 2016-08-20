@@ -20,21 +20,15 @@ Tests for the `rebuild_server` command.
 """
 
 from mock import patch, Mock
-import os_client_config
 from shade import _utils
 from shade import meta
 from shade import OpenStackCloud
 from shade.exc import (OpenStackCloudException, OpenStackCloudTimeout)
-from shade.tests import base, fakes
+from shade.tests import fakes
+from shade.tests.unit import base
 
 
 class TestRebuildServer(base.TestCase):
-
-    def setUp(self):
-        super(TestRebuildServer, self).setUp()
-        config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(
-            cloud_config=config.get_one_cloud(validate=False))
 
     def test_rebuild_server_rebuild_exception(self):
         """
@@ -47,7 +41,7 @@ class TestRebuildServer(base.TestCase):
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
-                OpenStackCloudException, self.client.rebuild_server, "a", "b")
+                OpenStackCloudException, self.cloud.rebuild_server, "a", "b")
 
     def test_rebuild_server_server_error(self):
         """
@@ -68,7 +62,7 @@ class TestRebuildServer(base.TestCase):
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
                 OpenStackCloudException,
-                self.client.rebuild_server, "a", "b", wait=True)
+                self.cloud.rebuild_server, "a", "b", wait=True)
 
     def test_rebuild_server_timeout(self):
         """
@@ -84,7 +78,7 @@ class TestRebuildServer(base.TestCase):
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
                 OpenStackCloudTimeout,
-                self.client.rebuild_server, "a", "b", wait=True, timeout=0.001)
+                self.cloud.rebuild_server, "a", "b", wait=True, timeout=0.001)
 
     def test_rebuild_server_no_wait(self):
         """
@@ -98,7 +92,7 @@ class TestRebuildServer(base.TestCase):
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertEqual(meta.obj_to_dict(rebuild_server),
-                             self.client.rebuild_server("a", "b"))
+                             self.cloud.rebuild_server("a", "b"))
 
     def test_rebuild_server_with_admin_pass_no_wait(self):
         """
@@ -113,8 +107,8 @@ class TestRebuildServer(base.TestCase):
             OpenStackCloud.nova_client = Mock(**config)
             self.assertEqual(
                 meta.obj_to_dict(rebuild_server),
-                self.client.rebuild_server('a', 'b',
-                                           admin_pass='ooBootheiX0edoh'))
+                self.cloud.rebuild_server(
+                    'a', 'b', admin_pass='ooBootheiX0edoh'))
 
     def test_rebuild_server_with_admin_pass_wait(self):
         """
@@ -135,13 +129,13 @@ class TestRebuildServer(base.TestCase):
                 "floating_ips.list.return_value": [fake_floating_ip]
             }
             OpenStackCloud.nova_client = Mock(**config)
-            self.client.name = 'cloud-name'
+            self.cloud.name = 'cloud-name'
             self.assertEqual(
                 _utils.normalize_server(
                     meta.obj_to_dict(ret_active_server),
-                    cloud_name='cloud-name', region_name=''),
-                self.client.rebuild_server("a", "b", wait=True,
-                                           admin_pass='ooBootheiX0edoh'))
+                    cloud_name='cloud-name', region_name='RegionOne'),
+                self.cloud.rebuild_server(
+                    "a", "b", wait=True, admin_pass='ooBootheiX0edoh'))
 
     def test_rebuild_server_wait(self):
         """
@@ -160,9 +154,9 @@ class TestRebuildServer(base.TestCase):
                 "floating_ips.list.return_value": [fake_floating_ip]
             }
             OpenStackCloud.nova_client = Mock(**config)
-            self.client.name = 'cloud-name'
+            self.cloud.name = 'cloud-name'
             self.assertEqual(
                 _utils.normalize_server(
                     meta.obj_to_dict(active_server),
-                    cloud_name='cloud-name', region_name=''),
-                self.client.rebuild_server("a", "b", wait=True))
+                    cloud_name='cloud-name', region_name='RegionOne'),
+                self.cloud.rebuild_server("a", "b", wait=True))

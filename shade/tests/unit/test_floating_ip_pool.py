@@ -20,7 +20,6 @@ Test floating IP pool resource (managed by nova)
 """
 
 from mock import patch
-import os_client_config
 from shade import OpenStackCloud
 from shade import OpenStackCloudException
 from shade.tests.unit import base
@@ -32,12 +31,6 @@ class TestFloatingIPPool(base.TestCase):
         {'id': 'pool1_id', 'name': 'pool1'},
         {'id': 'pool2_id', 'name': 'pool2'}]
 
-    def setUp(self):
-        super(TestFloatingIPPool, self).setUp()
-        config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(
-            cloud_config=config.get_one_cloud(validate=False))
-
     @patch.object(OpenStackCloud, '_has_nova_extension')
     @patch.object(OpenStackCloud, 'nova_client')
     def test_list_floating_ip_pools(
@@ -47,7 +40,7 @@ class TestFloatingIPPool(base.TestCase):
         ]
         mock__has_nova_extension.return_value = True
 
-        floating_ip_pools = self.client.list_floating_ip_pools()
+        floating_ip_pools = self.cloud.list_floating_ip_pools()
 
         self.assertItemsEqual(floating_ip_pools, self.mock_pools)
 
@@ -60,4 +53,4 @@ class TestFloatingIPPool(base.TestCase):
         mock__has_nova_extension.return_value = True
 
         self.assertRaises(
-            OpenStackCloudException, self.client.list_floating_ip_pools)
+            OpenStackCloudException, self.cloud.list_floating_ip_pools)

@@ -21,22 +21,15 @@ Tests for the `create_server` command.
 
 from mock import patch, Mock
 import mock
-import os_client_config
 from shade import _utils
 from shade import meta
 from shade import OpenStackCloud
 from shade.exc import (OpenStackCloudException, OpenStackCloudTimeout)
-from shade.tests import base, fakes
+from shade.tests import fakes
+from shade.tests.unit import base
 
 
 class TestCreateServer(base.TestCase):
-
-    def setUp(self):
-        super(TestCreateServer, self).setUp()
-        config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(
-            cloud_config=config.get_one_cloud(validate=False))
-        self.client._SERVER_AGE = 0
 
     def test_create_server_with_create_exception(self):
         """
@@ -49,7 +42,7 @@ class TestCreateServer(base.TestCase):
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
-                OpenStackCloudException, self.client.create_server,
+                OpenStackCloudException, self.cloud.create_server,
                 'server-name', 'image-id', 'flavor-id')
 
     def test_create_server_with_get_exception(self):
@@ -64,7 +57,7 @@ class TestCreateServer(base.TestCase):
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
-                OpenStackCloudException, self.client.create_server,
+                OpenStackCloudException, self.cloud.create_server,
                 'server-name', 'image-id', 'flavor-id')
 
     def test_create_server_with_server_error(self):
@@ -81,7 +74,7 @@ class TestCreateServer(base.TestCase):
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
-                OpenStackCloudException, self.client.create_server,
+                OpenStackCloudException, self.cloud.create_server,
                 'server-name', 'image-id', 'flavor-id')
 
     def test_create_server_wait_server_error(self):
@@ -105,7 +98,7 @@ class TestCreateServer(base.TestCase):
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
                 OpenStackCloudException,
-                self.client.create_server,
+                self.cloud.create_server,
                 'server-name', 'image-id', 'flavor-id', wait=True)
 
     def test_create_server_with_timeout(self):
@@ -123,8 +116,9 @@ class TestCreateServer(base.TestCase):
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
                 OpenStackCloudTimeout,
-                self.client.create_server,
-                'server-name', 'image-id', 'flavor-id', wait=True, timeout=1)
+                self.cloud.create_server,
+                'server-name', 'image-id', 'flavor-id',
+                wait=True, timeout=0.01)
 
     def test_create_server_no_wait(self):
         """
@@ -145,9 +139,9 @@ class TestCreateServer(base.TestCase):
             self.assertEqual(
                 _utils.normalize_server(
                     meta.obj_to_dict(fake_server),
-                    cloud_name=self.client.name,
-                    region_name=self.client.region_name),
-                self.client.create_server(
+                    cloud_name=self.cloud.name,
+                    region_name=self.cloud.region_name),
+                self.cloud.create_server(
                     name='server-name', image='image=id',
                     flavor='flavor-id'))
 
@@ -171,9 +165,9 @@ class TestCreateServer(base.TestCase):
             self.assertEqual(
                 _utils.normalize_server(
                     meta.obj_to_dict(fake_create_server),
-                    cloud_name=self.client.name,
-                    region_name=self.client.region_name),
-                self.client.create_server(
+                    cloud_name=self.cloud.name,
+                    region_name=self.cloud.region_name),
+                self.cloud.create_server(
                     name='server-name', image='image=id',
                     flavor='flavor-id', admin_pass='ooBootheiX0edoh'))
 
@@ -193,7 +187,7 @@ class TestCreateServer(base.TestCase):
         mock_wait.return_value = _utils.normalize_server(
             meta.obj_to_dict(fake_server), None, None)
 
-        server = self.client.create_server(
+        server = self.cloud.create_server(
             name='server-name', image='image-id',
             flavor='flavor-id', admin_pass='ooBootheiX0edoh', wait=True)
 
@@ -221,7 +215,7 @@ class TestCreateServer(base.TestCase):
         mock_get_active_server.side_effect = iter([
             building_server, active_server])
 
-        server = self.client.wait_for_server(building_server)
+        server = self.cloud.wait_for_server(building_server)
 
         self.assertEqual(2, mock_get_server.call_count)
         mock_get_server.assert_has_calls([
@@ -250,7 +244,7 @@ class TestCreateServer(base.TestCase):
         fake_server = {'id': 'fake_server_id', 'status': 'BUILDING'}
         mock_nova.servers.create.return_value = fake_server
 
-        self.client.create_server(
+        self.cloud.create_server(
             'server-name', 'image-id', 'flavor-id', wait=True),
 
         mock_wait.assert_called_once_with(
@@ -280,11 +274,11 @@ class TestCreateServer(base.TestCase):
                 "floating_ips.list.return_value": [fake_floating_ip]
             }
             OpenStackCloud.nova_client = Mock(**config)
-            self.client._SERVER_AGE = 0
+            self.cloud._SERVER_AGE = 0
             with patch.object(OpenStackCloud, "add_ips_to_server",
                               return_value=fake_server):
                 self.assertRaises(
-                    OpenStackCloudException, self.client.create_server,
+                    OpenStackCloudException, self.cloud.create_server,
                     'server-name', 'image-id', 'flavor-id',
                     wait=True)
 
@@ -296,8 +290,8 @@ class TestCreateServer(base.TestCase):
         Verify that if 'network' is supplied, and 'nics' is not, that we
         attempt to get the network for the server.
         """
-        self.client.create_server('server-name', 'image-id', 'flavor-id',
-                                  network='network-name')
+        self.cloud.create_server(
+            'server-name', 'image-id', 'flavor-id', network='network-name')
         mock_get_network.assert_called_once_with(name_or_id='network-name')
 
     @patch('shade.OpenStackCloud.nova_client')
@@ -309,6 +303,7 @@ class TestCreateServer(base.TestCase):
         Verify that if 'network' is supplied, along with an empty 'nics' list,
         it's treated the same as if 'nics' were not included.
         """
-        self.client.create_server('server-name', 'image-id', 'flavor-id',
-                                  network='network-name', nics=[])
+        self.cloud.create_server(
+            'server-name', 'image-id', 'flavor-id',
+            network='network-name', nics=[])
         mock_get_network.assert_called_once_with(name_or_id='network-name')

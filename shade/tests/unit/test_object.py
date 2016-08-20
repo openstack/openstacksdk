@@ -14,7 +14,6 @@
 # under the License.
 
 import mock
-import os_client_config
 from os_client_config import cloud_config
 from swiftclient import service as swift_service
 from swiftclient import exceptions as swift_exc
@@ -23,17 +22,10 @@ import testtools
 import shade
 import shade.openstackcloud
 from shade import exc
-from shade import OpenStackCloud
 from shade.tests.unit import base
 
 
 class TestObject(base.TestCase):
-
-    def setUp(self):
-        super(TestObject, self).setUp()
-        config = os_client_config.OpenStackConfig()
-        self.cloud = OpenStackCloud(
-            cloud_config=config.get_one_cloud(validate=False))
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_session')
     def test_swift_client_no_endpoint(self, get_session_mock):

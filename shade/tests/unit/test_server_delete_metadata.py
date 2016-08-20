@@ -20,19 +20,12 @@ Tests for the `delete_server_metadata` command.
 """
 
 from mock import patch, Mock
-import os_client_config
 from shade import OpenStackCloud
 from shade.exc import OpenStackCloudException
-from shade.tests import base
+from shade.tests.unit import base
 
 
 class TestServerDeleteMetadata(base.TestCase):
-    def setUp(self):
-        super(TestServerDeleteMetadata, self).setUp()
-        config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(
-            cloud_config=config.get_one_cloud(validate=False))
-        self.client._SERVER_AGE = 0
 
     def test_server_delete_metadata_with_delete_meta_exception(self):
         """
@@ -46,7 +39,7 @@ class TestServerDeleteMetadata(base.TestCase):
             OpenStackCloud.nova_client = Mock(**config)
 
             self.assertRaises(
-                OpenStackCloudException, self.client.delete_server_metadata,
+                OpenStackCloudException, self.cloud.delete_server_metadata,
                 {'id': 'server-id'}, ['key'])
 
     def test_server_delete_metadata_with_exception_reraise(self):
@@ -62,5 +55,5 @@ class TestServerDeleteMetadata(base.TestCase):
             OpenStackCloud.nova_client = Mock(**config)
 
             self.assertRaises(
-                OpenStackCloudException, self.client.delete_server_metadata,
+                OpenStackCloudException, self.cloud.delete_server_metadata,
                 'server-id', ['key'])

@@ -49,9 +49,6 @@ class TestCloudEndpoints(base.TestCase):
 
     def setUp(self):
         super(TestCloudEndpoints, self).setUp()
-        config = os_client_config.OpenStackConfig()
-        self.client = OperatorCloud(cloud_config=config.get_one_cloud(
-            validate=False))
         self.mock_ks_endpoints = \
             [FakeEndpoint(**kwa) for kwa in self.mock_endpoints]
         self.mock_ks_endpoints_v3 = \
@@ -74,7 +71,7 @@ class TestCloudEndpoints(base.TestCase):
         mock_keystone_client.endpoints.create.return_value = \
             self.mock_ks_endpoints[2]
 
-        endpoints = self.client.create_endpoint(
+        endpoints = self.op_cloud.create_endpoint(
             service_name_or_id='service1',
             region='mock_region',
             public_url='mock_public_url',
@@ -99,12 +96,12 @@ class TestCloudEndpoints(base.TestCase):
             self.mock_ks_endpoints[0]
 
         self.assertRaises(OpenStackCloudException,
-                          self.client.create_endpoint,
+                          self.op_cloud.create_endpoint,
                           service_name_or_id='service1',
                           interface='mock_admin_url',
                           url='admin')
 
-        endpoints_3on2 = self.client.create_endpoint(
+        endpoints_3on2 = self.op_cloud.create_endpoint(
             service_name_or_id='service1',
             region='mock_region',
             interface='public',
@@ -132,7 +129,7 @@ class TestCloudEndpoints(base.TestCase):
         mock_keystone_client.endpoints.create.return_value = \
             self.mock_ks_endpoints_v3[0]
 
-        endpoints = self.client.create_endpoint(
+        endpoints = self.op_cloud.create_endpoint(
             service_name_or_id='service1',
             region='mock_region',
             url='mock_url',
@@ -155,7 +152,7 @@ class TestCloudEndpoints(base.TestCase):
         mock_keystone_client.endpoints.create.side_effect = \
             self.mock_ks_endpoints_v3
 
-        endpoints_2on3 = self.client.create_endpoint(
+        endpoints_2on3 = self.op_cloud.create_endpoint(
             service_name_or_id='service1',
             region='mock_region',
             public_url='mock_public_url',
@@ -176,7 +173,7 @@ class TestCloudEndpoints(base.TestCase):
         mock_api_version.return_value = '2.0'
         # NOTE(SamYaple): Update endpoint only works with v3 api
         self.assertRaises(OpenStackCloudUnavailableFeature,
-                          self.client.update_endpoint, 'endpoint_id')
+                          self.op_cloud.update_endpoint, 'endpoint_id')
 
     @patch.object(OperatorCloud, 'keystone_client')
     @patch.object(os_client_config.cloud_config.CloudConfig, 'get_api_version')
@@ -185,7 +182,7 @@ class TestCloudEndpoints(base.TestCase):
         mock_keystone_client.endpoints.update.return_value = \
             self.mock_ks_endpoints_v3[0]
 
-        endpoint = self.client.update_endpoint(
+        endpoint = self.op_cloud.update_endpoint(
             'id1',
             service_name_or_id='service_id1',
             region='mock_region',
@@ -211,7 +208,7 @@ class TestCloudEndpoints(base.TestCase):
         mock_keystone_client.endpoints.list.return_value = \
             self.mock_ks_endpoints
 
-        endpoints = self.client.list_endpoints()
+        endpoints = self.op_cloud.list_endpoints()
         mock_keystone_client.endpoints.list.assert_called_with()
 
         # test we are getting exactly len(self.mock_endpoints) elements
@@ -236,18 +233,18 @@ class TestCloudEndpoints(base.TestCase):
             self.mock_ks_endpoints
 
         # Search by id
-        endpoints = self.client.search_endpoints(id='id3')
+        endpoints = self.op_cloud.search_endpoints(id='id3')
         # # test we are getting exactly 1 element
         self.assertEqual(1, len(endpoints))
         for k, v in self.mock_endpoints[2].items():
             self.assertEquals(v, endpoints[0].get(k))
 
         # Not found
-        endpoints = self.client.search_endpoints(id='blah!')
+        endpoints = self.op_cloud.search_endpoints(id='blah!')
         self.assertEqual(0, len(endpoints))
 
         # Multiple matches
-        endpoints = self.client.search_endpoints(
+        endpoints = self.op_cloud.search_endpoints(
             filters={'region': 'region1'})
         # # test we are getting exactly 2 elements
         self.assertEqual(2, len(endpoints))
@@ -258,5 +255,5 @@ class TestCloudEndpoints(base.TestCase):
             self.mock_ks_endpoints
 
         # Delete by id
-        self.client.delete_endpoint(id='id2')
+        self.op_cloud.delete_endpoint(id='id2')
         mock_keystone_client.endpoints.delete.assert_called_with(id='id2')

@@ -20,21 +20,15 @@ Tests for the `create_volume_snapshot` command.
 """
 
 from mock import patch
-import os_client_config
 from shade import _utils
 from shade import meta
 from shade import OpenStackCloud
-from shade.tests import base, fakes
+from shade.tests import fakes
+from shade.tests.unit import base
 from shade.exc import (OpenStackCloudException, OpenStackCloudTimeout)
 
 
 class TestCreateVolumeSnapshot(base.TestCase):
-
-    def setUp(self):
-        super(TestCreateVolumeSnapshot, self).setUp()
-        config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(
-            cloud_config=config.get_one_cloud(validate=False))
 
     @patch.object(OpenStackCloud, 'cinder_client')
     def test_create_volume_snapshot_wait(self, mock_cinder):
@@ -55,8 +49,7 @@ class TestCreateVolumeSnapshot(base.TestCase):
         self.assertEqual(
             _utils.normalize_volumes(
                 [meta.obj_to_dict(fake_snapshot)])[0],
-            self.client.create_volume_snapshot(volume_id='1234',
-                                               wait=True)
+            self.cloud.create_volume_snapshot(volume_id='1234', wait=True)
         )
 
         mock_cinder.volume_snapshots.create.assert_called_with(
@@ -81,8 +74,8 @@ class TestCreateVolumeSnapshot(base.TestCase):
 
         self.assertRaises(
             OpenStackCloudTimeout,
-            self.client.create_volume_snapshot, volume_id='1234',
-            wait=True, timeout=1)
+            self.cloud.create_volume_snapshot, volume_id='1234',
+            wait=True, timeout=0.01)
 
         mock_cinder.volume_snapshots.create.assert_called_with(
             force=False, volume_id='1234'
@@ -108,7 +101,7 @@ class TestCreateVolumeSnapshot(base.TestCase):
 
         self.assertRaises(
             OpenStackCloudException,
-            self.client.create_volume_snapshot, volume_id='1234',
+            self.cloud.create_volume_snapshot, volume_id='1234',
             wait=True, timeout=5)
 
         mock_cinder.volume_snapshots.create.assert_called_with(

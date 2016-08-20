@@ -20,18 +20,14 @@ from shade.tests import fakes
 
 class TestGroups(base.TestCase):
 
-    def setUp(self):
-        super(TestGroups, self).setUp()
-        self.cloud = shade.operator_cloud(validate=False)
-
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_list_groups(self, mock_keystone):
-        self.cloud.list_groups()
+        self.op_cloud.list_groups()
         mock_keystone.groups.list.assert_called_once_with()
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_get_group(self, mock_keystone):
-        self.cloud.get_group('1234')
+        self.op_cloud.get_group('1234')
         mock_keystone.groups.list.assert_called_once_with()
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
@@ -39,7 +35,7 @@ class TestGroups(base.TestCase):
         mock_keystone.groups.list.return_value = [
             fakes.FakeGroup('1234', 'name', 'desc')
         ]
-        self.assertTrue(self.cloud.delete_group('1234'))
+        self.assertTrue(self.op_cloud.delete_group('1234'))
         mock_keystone.groups.list.assert_called_once_with()
         mock_keystone.groups.delete.assert_called_once_with(
             group='1234'
@@ -47,7 +43,7 @@ class TestGroups(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_create_group(self, mock_keystone):
-        self.cloud.create_group('test-group', 'test desc')
+        self.op_cloud.create_group('test-group', 'test desc')
         mock_keystone.groups.create.assert_called_once_with(
             name='test-group', description='test desc', domain=None
         )
@@ -57,7 +53,7 @@ class TestGroups(base.TestCase):
         mock_keystone.groups.list.return_value = [
             fakes.FakeGroup('1234', 'name', 'desc')
         ]
-        self.cloud.update_group('1234', 'test-group', 'test desc')
+        self.op_cloud.update_group('1234', 'test-group', 'test desc')
         mock_keystone.groups.list.assert_called_once_with()
         mock_keystone.groups.update.assert_called_once_with(
             group='1234', name='test-group', description='test desc'

@@ -32,19 +32,15 @@ domain_obj = fakes.FakeDomain(
 
 class TestDomains(base.TestCase):
 
-    def setUp(self):
-        super(TestDomains, self).setUp()
-        self.cloud = shade.operator_cloud(validate=False)
-
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_list_domains(self, mock_keystone):
-        self.cloud.list_domains()
+        self.op_cloud.list_domains()
         self.assertTrue(mock_keystone.domains.list.called)
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_get_domain(self, mock_keystone):
         mock_keystone.domains.get.return_value = domain_obj
-        domain = self.cloud.get_domain(domain_id='1234')
+        domain = self.op_cloud.get_domain(domain_id='1234')
         self.assertFalse(mock_keystone.domains.list.called)
         self.assertTrue(mock_keystone.domains.get.called)
         self.assertEqual(domain['name'], 'a-domain')
@@ -52,7 +48,7 @@ class TestDomains(base.TestCase):
     @mock.patch.object(shade._utils, '_get_entity')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_get_domain_with_name_or_id(self, mock_keystone, mock_get):
-        self.cloud.get_domain(name_or_id='1234')
+        self.op_cloud.get_domain(name_or_id='1234')
         mock_get.assert_called_once_with(mock.ANY,
                                          None, '1234')
 
@@ -60,8 +56,8 @@ class TestDomains(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_create_domain(self, mock_keystone, mock_normalize):
         mock_keystone.domains.create.return_value = domain_obj
-        self.cloud.create_domain(domain_obj.name,
-                                 domain_obj.description)
+        self.op_cloud.create_domain(
+            domain_obj.name, domain_obj.description)
         mock_keystone.domains.create.assert_called_once_with(
             name=domain_obj.name, description=domain_obj.description,
             enabled=True)
@@ -74,13 +70,13 @@ class TestDomains(base.TestCase):
             shade.OpenStackCloudException,
             "Failed to create domain domain_name"
         ):
-            self.cloud.create_domain('domain_name')
+            self.op_cloud.create_domain('domain_name')
 
     @mock.patch.object(shade.OperatorCloud, 'update_domain')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_delete_domain(self, mock_keystone, mock_update):
         mock_update.return_value = dict(id='update_domain_id')
-        self.cloud.delete_domain('domain_id')
+        self.op_cloud.delete_domain('domain_id')
         mock_update.assert_called_once_with('domain_id', enabled=False)
         mock_keystone.domains.delete.assert_called_once_with(
             domain='update_domain_id')
@@ -88,10 +84,11 @@ class TestDomains(base.TestCase):
     @mock.patch.object(shade.OperatorCloud, 'get_domain')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_delete_domain_name_or_id(self, mock_keystone, mock_get):
-        self.cloud.update_domain(name_or_id='a-domain',
-                                 name='new name',
-                                 description='new description',
-                                 enabled=False)
+        self.op_cloud.update_domain(
+            name_or_id='a-domain',
+            name='new name',
+            description='new description',
+            enabled=False)
         mock_get.assert_called_once_with(None, 'a-domain')
 
     @mock.patch.object(shade.OperatorCloud, 'update_domain')
@@ -102,16 +99,17 @@ class TestDomains(base.TestCase):
             shade.OpenStackCloudException,
             "Failed to delete domain domain_id"
         ):
-            self.cloud.delete_domain('domain_id')
+            self.op_cloud.delete_domain('domain_id')
 
     @mock.patch.object(shade._utils, 'normalize_domains')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_update_domain(self, mock_keystone, mock_normalize):
         mock_keystone.domains.update.return_value = domain_obj
-        self.cloud.update_domain('domain_id',
-                                 name='new name',
-                                 description='new description',
-                                 enabled=False)
+        self.op_cloud.update_domain(
+            'domain_id',
+            name='new name',
+            description='new description',
+            enabled=False)
         mock_keystone.domains.update.assert_called_once_with(
             domain='domain_id', name='new name',
             description='new description', enabled=False)
@@ -121,10 +119,11 @@ class TestDomains(base.TestCase):
     @mock.patch.object(shade.OperatorCloud, 'get_domain')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_update_domain_name_or_id(self, mock_keystone, mock_get):
-        self.cloud.update_domain(name_or_id='a-domain',
-                                 name='new name',
-                                 description='new description',
-                                 enabled=False)
+        self.op_cloud.update_domain(
+            name_or_id='a-domain',
+            name='new name',
+            description='new description',
+            enabled=False)
         mock_get.assert_called_once_with(None, 'a-domain')
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
@@ -134,4 +133,4 @@ class TestDomains(base.TestCase):
             shade.OpenStackCloudException,
             "Error in updating domain domain_id"
         ):
-            self.cloud.delete_domain('domain_id')
+            self.op_cloud.delete_domain('domain_id')

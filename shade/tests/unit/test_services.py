@@ -44,9 +44,6 @@ class CloudServices(base.TestCase):
 
     def setUp(self):
         super(CloudServices, self).setUp()
-        config = os_client_config.OpenStackConfig()
-        self.client = OperatorCloud(cloud_config=config.get_one_cloud(
-            validate=False))
         self.mock_ks_services = [FakeService(**kwa) for kwa in
                                  self.mock_services]
 
@@ -62,7 +59,7 @@ class CloudServices(base.TestCase):
             'description': 'This is a test service'
         }
 
-        self.client.create_service(**kwargs)
+        self.op_cloud.create_service(**kwargs)
         kwargs['service_type'] = kwargs.pop('type')
         mock_keystone_client.services.create.assert_called_with(**kwargs)
         self.assertTrue(mock_norm.called)
@@ -80,7 +77,7 @@ class CloudServices(base.TestCase):
             'enabled': False
         }
 
-        self.client.create_service(**kwargs)
+        self.op_cloud.create_service(**kwargs)
         mock_keystone_client.services.create.assert_called_with(**kwargs)
         self.assertTrue(mock_norm.called)
 
@@ -89,7 +86,7 @@ class CloudServices(base.TestCase):
         mock_api_version.return_value = '2.0'
         # NOTE(SamYaple): Update service only works with v3 api
         self.assertRaises(OpenStackCloudUnavailableFeature,
-                          self.client.update_service,
+                          self.op_cloud.update_service,
                           'service_id', name='new name')
 
     @patch.object(_utils, 'normalize_keystone_services')
@@ -109,7 +106,7 @@ class CloudServices(base.TestCase):
         service_obj = FakeService(id='id1', **kwargs)
         mock_keystone_client.services.update.return_value = service_obj
 
-        self.client.update_service('id1', **kwargs)
+        self.op_cloud.update_service('id1', **kwargs)
         del kwargs['service_type']
         mock_keystone_client.services.update.assert_called_once_with(
             service='id1', **kwargs
@@ -120,7 +117,7 @@ class CloudServices(base.TestCase):
     def test_list_services(self, mock_keystone_client):
         mock_keystone_client.services.list.return_value = \
             self.mock_ks_services
-        services = self.client.list_services()
+        services = self.op_cloud.list_services()
         mock_keystone_client.services.list.assert_called_with()
         self.assertItemsEqual(self.mock_services, services)
 
@@ -130,22 +127,22 @@ class CloudServices(base.TestCase):
             self.mock_ks_services
 
         # Search by id
-        service = self.client.get_service(name_or_id='id4')
+        service = self.op_cloud.get_service(name_or_id='id4')
         # test we are getting exactly 1 element
         self.assertEqual(service, self.mock_services[3])
 
         # Search by name
-        service = self.client.get_service(name_or_id='service2')
+        service = self.op_cloud.get_service(name_or_id='service2')
         # test we are getting exactly 1 element
         self.assertEqual(service, self.mock_services[1])
 
         # Not found
-        service = self.client.get_service(name_or_id='blah!')
+        service = self.op_cloud.get_service(name_or_id='blah!')
         self.assertIs(None, service)
 
         # Multiple matches
         # test we are getting an Exception
-        self.assertRaises(OpenStackCloudException, self.client.get_service,
+        self.assertRaises(OpenStackCloudException, self.op_cloud.get_service,
                           name_or_id=None, filters={'type': 'type2'})
 
     @patch.object(OperatorCloud, 'keystone_client')
@@ -154,23 +151,23 @@ class CloudServices(base.TestCase):
             self.mock_ks_services
 
         # Search by id
-        services = self.client.search_services(name_or_id='id4')
+        services = self.op_cloud.search_services(name_or_id='id4')
         # test we are getting exactly 1 element
         self.assertEqual(1, len(services))
         self.assertEqual(services, [self.mock_services[3]])
 
         # Search by name
-        services = self.client.search_services(name_or_id='service2')
+        services = self.op_cloud.search_services(name_or_id='service2')
         # test we are getting exactly 1 element
         self.assertEqual(1, len(services))
         self.assertEqual(services, [self.mock_services[1]])
 
         # Not found
-        services = self.client.search_services(name_or_id='blah!')
+        services = self.op_cloud.search_services(name_or_id='blah!')
         self.assertEqual(0, len(services))
 
         # Multiple matches
-        services = self.client.search_services(
+        services = self.op_cloud.search_services(
             filters={'type': 'type2'})
         # test we are getting exactly 2 elements
         self.assertEqual(2, len(services))
@@ -183,9 +180,9 @@ class CloudServices(base.TestCase):
             self.mock_ks_services
 
         # Delete by name
-        self.client.delete_service(name_or_id='service3')
+        self.op_cloud.delete_service(name_or_id='service3')
         mock_keystone_client.services.delete.assert_called_with(id='id3')
 
         # Delete by id
-        self.client.delete_service('id1')
+        self.op_cloud.delete_service('id1')
         mock_keystone_client.services.delete.assert_called_with(id='id1')

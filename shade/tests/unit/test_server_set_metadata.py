@@ -20,20 +20,12 @@ Tests for the `set_server_metadata` command.
 """
 
 from mock import patch, Mock
-import os_client_config
 from shade import OpenStackCloud
 from shade.exc import OpenStackCloudException
-from shade.tests import base
+from shade.tests.unit import base
 
 
 class TestServerSetMetadata(base.TestCase):
-
-    def setUp(self):
-        super(TestServerSetMetadata, self).setUp()
-        config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(
-            cloud_config=config.get_one_cloud(validate=False))
-        self.client._SERVER_AGE = 0
 
     def test_server_set_metadata_with_set_meta_exception(self):
         """
@@ -47,7 +39,7 @@ class TestServerSetMetadata(base.TestCase):
             OpenStackCloud.nova_client = Mock(**config)
 
             self.assertRaises(
-                OpenStackCloudException, self.client.set_server_metadata,
+                OpenStackCloudException, self.cloud.set_server_metadata,
                 {'id': 'server-id'}, {'meta': 'data'})
 
     def test_server_set_metadata_with_exception_reraise(self):
@@ -63,5 +55,5 @@ class TestServerSetMetadata(base.TestCase):
             OpenStackCloud.nova_client = Mock(**config)
 
             self.assertRaises(
-                OpenStackCloudException, self.client.set_server_metadata,
+                OpenStackCloudException, self.cloud.set_server_metadata,
                 'server-id', {'meta': 'data'})

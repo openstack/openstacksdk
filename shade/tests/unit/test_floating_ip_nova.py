@@ -21,7 +21,6 @@ Tests Floating IP resource methods for nova-network
 
 from mock import patch
 from novaclient import exceptions as n_exc
-import os_client_config
 
 from shade import _utils
 from shade import meta
@@ -71,9 +70,6 @@ class TestFloatingIP(base.TestCase):
 
     def setUp(self):
         super(TestFloatingIP, self).setUp()
-        config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(
-            cloud_config=config.get_one_cloud(validate=False))
         self.floating_ips = [
             fakes.FakeFloatingIP(**ip) for ip in self.mock_floating_ip_list_rep
         ]
@@ -97,7 +93,7 @@ class TestFloatingIP(base.TestCase):
         mock_has_service.side_effect = has_service_side_effect
         mock_nova_client.floating_ips.list.return_value = self.floating_ips
 
-        floating_ips = self.client.list_floating_ips()
+        floating_ips = self.cloud.list_floating_ips()
 
         mock_nova_client.floating_ips.list.assert_called_with()
         self.assertIsInstance(floating_ips, list)
@@ -110,7 +106,7 @@ class TestFloatingIP(base.TestCase):
         mock_has_service.side_effect = has_service_side_effect
         mock_nova_client.floating_ips.list.return_value = self.floating_ips
 
-        floating_ips = self.client.search_floating_ips(
+        floating_ips = self.cloud.search_floating_ips(
             filters={'attached': False})
 
         mock_nova_client.floating_ips.list.assert_called_with()
@@ -124,7 +120,7 @@ class TestFloatingIP(base.TestCase):
         mock_has_service.side_effect = has_service_side_effect
         mock_nova_client.floating_ips.list.return_value = self.floating_ips
 
-        floating_ip = self.client.get_floating_ip(id='29')
+        floating_ip = self.cloud.get_floating_ip(id='29')
 
         mock_nova_client.floating_ips.list.assert_called_with()
         self.assertIsInstance(floating_ip, dict)
@@ -137,7 +133,7 @@ class TestFloatingIP(base.TestCase):
         mock_has_service.side_effect = has_service_side_effect
         mock_nova_client.floating_ips.list.return_value = self.floating_ips
 
-        floating_ip = self.client.get_floating_ip(id='666')
+        floating_ip = self.cloud.get_floating_ip(id='666')
 
         self.assertIsNone(floating_ip)
 
@@ -148,7 +144,7 @@ class TestFloatingIP(base.TestCase):
         mock_nova_client.floating_ips.create.return_value =\
             fakes.FakeFloatingIP(**self.mock_floating_ip_list_rep[1])
 
-        self.client.create_floating_ip(network='nova')
+        self.cloud.create_floating_ip(network='nova')
 
         mock_nova_client.floating_ips.create.assert_called_with(pool='nova')
 
@@ -160,7 +156,7 @@ class TestFloatingIP(base.TestCase):
         mock__nova_list_floating_ips.return_value = \
             self.mock_floating_ip_list_rep[:1]
 
-        ip = self.client.available_floating_ip(network='nova')
+        ip = self.cloud.available_floating_ip(network='nova')
 
         self.assertEqual(self.mock_floating_ip_list_rep[0]['ip'],
                          ip['floating_ip_address'])
@@ -176,7 +172,7 @@ class TestFloatingIP(base.TestCase):
         mock_nova_client.floating_ips.create.return_value = \
             fakes.FakeFloatingIP(**self.mock_floating_ip_list_rep[0])
 
-        ip = self.client.available_floating_ip(network='nova')
+        ip = self.cloud.available_floating_ip(network='nova')
 
         self.assertEqual(self.mock_floating_ip_list_rep[0]['ip'],
                          ip['floating_ip_address'])
@@ -188,7 +184,7 @@ class TestFloatingIP(base.TestCase):
         mock_has_service.side_effect = has_service_side_effect
         mock_nova_client.floating_ips.delete.return_value = None
 
-        ret = self.client.delete_floating_ip(
+        ret = self.cloud.delete_floating_ip(
             floating_ip_id='a-wild-id-appears')
 
         mock_nova_client.floating_ips.delete.assert_called_with(
@@ -203,7 +199,7 @@ class TestFloatingIP(base.TestCase):
         mock_nova_client.floating_ips.delete.side_effect = n_exc.NotFound(
             code=404)
 
-        ret = self.client.delete_floating_ip(
+        ret = self.cloud.delete_floating_ip(
             floating_ip_id='a-wild-id-appears')
 
         self.assertFalse(ret)
@@ -214,7 +210,7 @@ class TestFloatingIP(base.TestCase):
         mock_has_service.side_effect = has_service_side_effect
         mock_nova_client.floating_ips.list.return_value = self.floating_ips
 
-        self.client._attach_ip_to_server(
+        self.cloud._attach_ip_to_server(
             server=self.fake_server, floating_ip=self.floating_ip,
             fixed_address='192.0.2.129')
 
@@ -230,7 +226,7 @@ class TestFloatingIP(base.TestCase):
             fakes.FakeFloatingIP(**ip) for ip in self.mock_floating_ip_list_rep
         ]
 
-        self.client.detach_ip_from_server(
+        self.cloud.detach_ip_from_server(
             server_id='server-id', floating_ip_id=1)
 
         mock_nova_client.servers.remove_floating_ip.assert_called_with(
@@ -242,7 +238,7 @@ class TestFloatingIP(base.TestCase):
         mock_has_service.side_effect = has_service_side_effect
         mock_nova_client.floating_ips.list.return_value = self.floating_ips
 
-        server = self.client._add_ip_from_pool(
+        server = self.cloud._add_ip_from_pool(
             server=self.fake_server,
             network='nova',
             fixed_address='192.0.2.129')
@@ -257,7 +253,7 @@ class TestFloatingIP(base.TestCase):
             mock_delete_floating_ip):
         mock_use_neutron_floating.return_value = False
 
-        self.client.delete_unattached_floating_ips()
+        self.cloud.delete_unattached_floating_ips()
 
         mock_delete_floating_ip.assert_not_called()
         mock_list_floating_ips.assert_not_called()

@@ -39,7 +39,8 @@ class TestImageSnapshot(base.TestCase):
         mock_get.return_value = {'status': 'saving', 'id': self.image_id}
         self.assertRaises(exc.OpenStackCloudTimeout,
                           self.cloud.create_image_snapshot,
-                          'test-snapshot', 'fake-server', wait=True, timeout=2)
+                          'test-snapshot', 'fake-server',
+                          wait=True, timeout=0.01)
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     @mock.patch.object(shade.OpenStackCloud, 'get_image')

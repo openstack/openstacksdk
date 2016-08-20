@@ -20,20 +20,13 @@ Tests for the `update_server` command.
 """
 
 from mock import patch, Mock
-import os_client_config
 from shade import OpenStackCloud
 from shade.exc import OpenStackCloudException
-from shade.tests import base, fakes
+from shade.tests import fakes
+from shade.tests.unit import base
 
 
 class TestUpdateServer(base.TestCase):
-
-    def setUp(self):
-        super(TestUpdateServer, self).setUp()
-        config = os_client_config.OpenStackConfig()
-        self.client = OpenStackCloud(
-            cloud_config=config.get_one_cloud(validate=False))
-        self.client._SERVER_AGE = 0
 
     def test_update_server_with_update_exception(self):
         """
@@ -46,7 +39,7 @@ class TestUpdateServer(base.TestCase):
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
-                OpenStackCloudException, self.client.update_server,
+                OpenStackCloudException, self.cloud.update_server,
                 'server-name')
 
     def test_update_server_name(self):
@@ -68,5 +61,5 @@ class TestUpdateServer(base.TestCase):
             OpenStackCloud.nova_client = Mock(**config)
             self.assertEqual(
                 'server-name2',
-                self.client.update_server(
+                self.cloud.update_server(
                     'server-name', name='server-name2')['name'])
