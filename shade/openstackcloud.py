@@ -1969,6 +1969,40 @@ class OpenStackCloud(object):
         return _utils._get_entity(
             self.search_security_groups, name_or_id, filters)
 
+    def get_server_console(self, server, length=None):
+        """Get the console log for a server.
+
+        :param server: The server to fetch the console log for. Can be either
+                       a server dict or the Name or ID of the server.
+        :param int length: The number of lines you would like to retrieve from
+                           the end of the log. (optional, defaults to all)
+
+        :returns: A string containing the text of the console log or an
+                  empty string if the cloud does not support console logs.
+        :raises: OpenStackCloudException if an invalid server argument is given
+                 or if something else unforseen happens
+        """
+
+        if not isinstance(server, dict):
+            server = self.get_server(server)
+
+        if not server:
+            raise OpenStackCloudException(
+                "Console log requested for invalid server")
+
+        try:
+            return self.manager.submitTask(
+                _tasks.ServerConsoleGet(server=server['id'], length=length),
+                raw=True)
+        except nova_exceptions.BadRequest:
+            return ""
+        except OpenStackCloudException:
+            raise
+        except Exception as e:
+            raise OpenStackCloudException(
+                "Unable to get console log for {server}: {exception}".format(
+                    server=server['id'], exception=str(e)))
+
     def get_server(self, name_or_id=None, filters=None, detailed=False):
         """Get a server by name or ID.
 

@@ -19,9 +19,12 @@ test_compute
 Functional tests for `shade` compute methods.
 """
 
+import six
+
 from shade import exc
 from shade.tests.functional import base
 from shade.tests.functional.util import pick_flavor, pick_image
+from shade import _utils
 
 
 class TestCompute(base.BaseFunctionalTestCase):
@@ -66,6 +69,40 @@ class TestCompute(base.BaseFunctionalTestCase):
         self.assertTrue(
             self.demo_cloud.delete_server(self.server_name, wait=True))
         self.assertIsNone(self.demo_cloud.get_server(self.server_name))
+
+    def test_get_server_console(self):
+        self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
+        server = self.demo_cloud.create_server(
+            name=self.server_name,
+            image=self.image,
+            flavor=self.flavor,
+            wait=True)
+        for _ in _utils._iterate_timeout(
+                5, "Did not get more than 0 lines in the console log"):
+            log = self.demo_cloud.get_server_console(server=server)
+            self.assertTrue(isinstance(log, six.string_types))
+            if len(log) > 0:
+                break
+
+    def test_get_server_console_name_or_id(self):
+        self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
+        self.demo_cloud.create_server(
+            name=self.server_name,
+            image=self.image,
+            flavor=self.flavor,
+            wait=True)
+        for _ in _utils._iterate_timeout(
+                5, "Did not get more than 0 lines in the console log"):
+            log = self.demo_cloud.get_server_console(server=self.server_name)
+            self.assertTrue(isinstance(log, six.string_types))
+            if len(log) > 0:
+                break
+
+    def test_get_server_console_bad_server(self):
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.demo_cloud.get_server_console,
+            server=self.server_name)
 
     def test_create_and_delete_server_with_admin_pass(self):
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)

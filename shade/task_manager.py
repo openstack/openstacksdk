@@ -92,7 +92,7 @@ class Task(object):
         elif (not isinstance(self._result, bool) and
               not isinstance(self._result, int) and
               not isinstance(self._result, float) and
-              not isinstance(self._result, str) and
+              not isinstance(self._result, six.string_types) and
               not isinstance(self._result, set) and
               not isinstance(self._result, tuple) and
               not isinstance(self._result, types.GeneratorType)):
