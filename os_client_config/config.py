@@ -836,7 +836,7 @@ class OpenStackConfig(object):
             config['auth']['token'] = 'notused'
         return loading.get_plugin_loader(config['auth_type'])
 
-    def _validate_auth_ksc(self, config, cloud, fixed_argparse):
+    def _validate_auth_ksc(self, config, cloud):
         try:
             import keystoneclient.auth as ksc_auth
         except ImportError:
@@ -847,22 +847,19 @@ class OpenStackConfig(object):
             config['auth_type']).get_options()
 
         for p_opt in plugin_options:
-            # if it's in argparse, it was passed on the command line and wins
             # if it's in config.auth, win, kill it from config dict
             # if it's in config and not in config.auth, move it
             # deprecated loses to current
             # provided beats default, deprecated or not
             winning_value = self._find_winning_auth_value(
-                p_opt, fixed_argparse)
-            if winning_value:
-                found_in_argparse = True
-            else:
-                found_in_argparse = False
+                p_opt,
+                config['auth'],
+            )
+            if not winning_value:
                 winning_value = self._find_winning_auth_value(
-                    p_opt, config['auth'])
-                if not winning_value:
-                    winning_value = self._find_winning_auth_value(
-                        p_opt, config)
+                    p_opt,
+                    config,
+                )
 
             # if the plugin tells us that this value is required
             # then error if it's doesn't exist now
@@ -878,12 +875,7 @@ class OpenStackConfig(object):
             # Clean up after ourselves
             for opt in [p_opt.name] + [o.name for o in p_opt.deprecated_opts]:
                 opt = opt.replace('-', '_')
-                # don't do this if the value came from argparse, because we
-                # don't (yet) know if the value in not-auth came from argparse
-                # overlay or from someone passing in a dict to kwargs
-                # TODO(mordred) Fix that data path too
-                if not found_in_argparse:
-                    config.pop(opt, None)
+                config.pop(opt, None)
                 config['auth'].pop(opt, None)
 
             if winning_value:
@@ -897,49 +889,78 @@ class OpenStackConfig(object):
 
         return config
 
-    def _validate_auth(self, config, loader, fixed_argparse):
+    def _validate_auth(self, config, loader):
         # May throw a keystoneauth1.exceptions.NoMatchingPlugin
 
         plugin_options = loader.get_options()
 
         for p_opt in plugin_options:
-            # if it's in argparse, it was passed on the command line and wins
             # if it's in config.auth, win, kill it from config dict
             # if it's in config and not in config.auth, move it
             # deprecated loses to current
             # provided beats default, deprecated or not
             winning_value = self._find_winning_auth_value(
-                p_opt, fixed_argparse)
-            if winning_value:
-                found_in_argparse = True
-            else:
-                found_in_argparse = False
+                p_opt,
+                config['auth'],
+            )
+            if not winning_value:
                 winning_value = self._find_winning_auth_value(
-                    p_opt, config['auth'])
-                if not winning_value:
-                    winning_value = self._find_winning_auth_value(
-                        p_opt, config)
+                    p_opt,
+                    config,
+                )
 
-            # Clean up after ourselves
-            for opt in [p_opt.name] + [o.name for o in p_opt.deprecated]:
-                opt = opt.replace('-', '_')
-                # don't do this if the value came from argparse, because we
-                # don't (yet) know if the value in not-auth came from argparse
-                # overlay or from someone passing in a dict to kwargs
-                # TODO(mordred) Fix that data path too
-                if not found_in_argparse:
-                    config.pop(opt, None)
-                config['auth'].pop(opt, None)
+            config = self._clean_up_after_ourselves(
+                config,
+                p_opt,
+                winning_value,
+            )
 
-            if winning_value:
-                # Prefer the plugin configuration dest value if the value's key
-                # is marked as depreciated.
-                if p_opt.dest is None:
-                    config['auth'][p_opt.name.replace('-', '_')] = (
-                        winning_value)
-                else:
-                    config['auth'][p_opt.dest] = winning_value
+        return config
 
+    def _validate_auth_correctly(self, config, loader):
+        # May throw a keystoneauth1.exceptions.NoMatchingPlugin
+
+        plugin_options = loader.get_options()
+
+        for p_opt in plugin_options:
+            # if it's in config, win, move it and kill it from config dict
+            # if it's in config.auth but not in config it's good
+            # deprecated loses to current
+            # provided beats default, deprecated or not
+            winning_value = self._find_winning_auth_value(
+                p_opt,
+                config,
+            )
+            if not winning_value:
+                winning_value = self._find_winning_auth_value(
+                    p_opt,
+                    config['auth'],
+                )
+
+            config = self._clean_up_after_ourselves(
+                config,
+                p_opt,
+                winning_value,
+            )
+
+        return config
+
+    def _clean_up_after_ourselves(self, config, p_opt, winning_value):
+
+        # Clean up after ourselves
+        for opt in [p_opt.name] + [o.name for o in p_opt.deprecated]:
+            opt = opt.replace('-', '_')
+            config.pop(opt, None)
+            config['auth'].pop(opt, None)
+
+        if winning_value:
+            # Prefer the plugin configuration dest value if the value's key
+            # is marked as depreciated.
+            if p_opt.dest is None:
+                config['auth'][p_opt.name.replace('-', '_')] = (
+                    winning_value)
+            else:
+                config['auth'][p_opt.dest] = winning_value
         return config
 
     def magic_fixes(self, config):
@@ -998,11 +1019,6 @@ class OpenStackConfig(object):
         """
 
         args = self._fix_args(kwargs, argparse=argparse)
-        # Run the fix just for argparse by itself. We need to
-        # have a copy of the argparse options separately from
-        # any merged copied later in validate_auth so that we
-        # can determine precedence
-        fixed_argparse = self._fix_args(argparse=argparse)
 
         if cloud is None:
             if 'cloud' in args:
@@ -1042,7 +1058,7 @@ class OpenStackConfig(object):
         if validate:
             try:
                 loader = self._get_auth_loader(config)
-                config = self._validate_auth(config, loader, fixed_argparse)
+                config = self._validate_auth(config, loader)
                 auth_plugin = loader.load_from_options(**config['auth'])
             except Exception as e:
                 # We WANT the ksa exception normally
@@ -1052,8 +1068,7 @@ class OpenStackConfig(object):
                 self.log.debug("Deferring keystone exception: {e}".format(e=e))
                 auth_plugin = None
                 try:
-                    config = self._validate_auth_ksc(
-                        config, cloud, fixed_argparse)
+                    config = self._validate_auth_ksc(config, cloud)
                 except Exception:
                     raise e
         else:
@@ -1074,12 +1089,105 @@ class OpenStackConfig(object):
         else:
             cloud_name = str(cloud)
         return cloud_config.CloudConfig(
-            name=cloud_name, region=config['region_name'],
+            name=cloud_name,
+            region=config['region_name'],
             config=self._normalize_keys(config),
             force_ipv4=force_ipv4,
             auth_plugin=auth_plugin,
             openstack_config=self
-            )
+        )
+
+    def get_one_cloud_osc(
+        self,
+        cloud=None,
+        validate=True,
+        argparse=None,
+        **kwargs
+    ):
+        """Retrieve a single cloud configuration and merge additional options
+
+        :param string cloud:
+            The name of the configuration to load from clouds.yaml
+        :param boolean validate:
+            Validate the config. Setting this to False causes no auth plugin
+            to be created. It's really only useful for testing.
+        :param Namespace argparse:
+            An argparse Namespace object; allows direct passing in of
+            argparse options to be added to the cloud config.  Values
+            of None and '' will be removed.
+        :param region_name: Name of the region of the cloud.
+        :param kwargs: Additional configuration options
+
+        :raises: keystoneauth1.exceptions.MissingRequiredOptions
+            on missing required auth parameters
+        """
+
+        args = self._fix_args(kwargs, argparse=argparse)
+
+        if cloud is None:
+            if 'cloud' in args:
+                cloud = args['cloud']
+            else:
+                cloud = self.default_cloud
+
+        config = self._get_base_cloud_config(cloud)
+
+        # Get region specific settings
+        if 'region_name' not in args:
+            args['region_name'] = ''
+        region = self._get_region(cloud=cloud, region_name=args['region_name'])
+        args['region_name'] = region['name']
+        region_args = copy.deepcopy(region['values'])
+
+        # Regions is a list that we can use to create a list of cloud/region
+        # objects. It does not belong in the single-cloud dict
+        config.pop('regions', None)
+
+        # Can't just do update, because None values take over
+        for arg_list in region_args, args:
+            for (key, val) in iter(arg_list.items()):
+                if val is not None:
+                    if key == 'auth' and config[key] is not None:
+                        config[key] = _auth_update(config[key], val)
+                    else:
+                        config[key] = val
+
+        config = self.magic_fixes(config)
+
+        # NOTE(dtroyer): OSC needs a hook into the auth args before the
+        #                plugin is loaded in order to maintain backward-
+        #                compatible behaviour
+        config = self.auth_config_hook(config)
+
+        if validate:
+            loader = self._get_auth_loader(config)
+            config = self._validate_auth_correctly(config, loader)
+            auth_plugin = loader.load_from_options(**config['auth'])
+        else:
+            auth_plugin = None
+
+        # If any of the defaults reference other values, we need to expand
+        for (key, value) in config.items():
+            if hasattr(value, 'format'):
+                config[key] = value.format(**config)
+
+        force_ipv4 = config.pop('force_ipv4', self.force_ipv4)
+        prefer_ipv6 = config.pop('prefer_ipv6', True)
+        if not prefer_ipv6:
+            force_ipv4 = True
+
+        if cloud is None:
+            cloud_name = ''
+        else:
+            cloud_name = str(cloud)
+        return cloud_config.CloudConfig(
+            name=cloud_name,
+            region=config['region_name'],
+            config=self._normalize_keys(config),
+            force_ipv4=force_ipv4,
+            auth_plugin=auth_plugin,
+            openstack_config=self,
+        )
 
     @staticmethod
     def set_one_cloud(config_file, cloud, set_config=None):
