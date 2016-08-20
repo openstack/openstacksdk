@@ -20,6 +20,8 @@ import os
 import fixtures
 import testtools
 
+import shade
+
 _TRUE_VALUES = ('true', '1', 'yes')
 
 
@@ -50,4 +52,5 @@ class TestCase(testtools.TestCase):
             stderr = self.useFixture(fixtures.StringStream('stderr')).stream
             self.useFixture(fixtures.MonkeyPatch('sys.stderr', stderr))
 
+        shade.simple_logging(debug=True)
         self.log_fixture = self.useFixture(fixtures.FakeLogger())
