@@ -70,14 +70,14 @@ class TestNetwork(base.BaseFunctionalTestCase):
             name=self.network_name,
             shared=True,
             provider={
-                'physical_network': 'private',
+                'physical_network': 'public',
                 'network_type': 'flat',
             }
         )
         self.assertIn('id', net1)
         self.assertEqual(self.network_name, net1['name'])
         self.assertEqual('flat', net1['provider:network_type'])
-        self.assertEqual('private', net1['provider:physical_network'])
+        self.assertEqual('public', net1['provider:physical_network'])
         self.assertIsNone(net1['provider:segmentation_id'])
 
     def test_list_networks_filtered(self):
