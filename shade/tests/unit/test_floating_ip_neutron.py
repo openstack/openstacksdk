@@ -150,6 +150,21 @@ class TestFloatingIP(base.TestCase):
         self.floating_ip = _utils.normalize_neutron_floating_ips(
             self.mock_floating_ip_list_rep['floatingips'])[0]
 
+    def test_float_no_status(self):
+        floating_ips = [
+            {
+                'fixed_ip_address': '10.0.0.4',
+                'floating_ip_address': '172.24.4.229',
+                'floating_network_id': 'my-network-id',
+                'id': '2f245a7b-796b-4f26-9cf9-9e82d248fda8',
+                'port_id': None,
+                'router_id': None,
+                'tenant_id': '4969c491a3c74ee4af974e6d800c62df'
+            }
+        ]
+        normalized = _utils.normalize_neutron_floating_ips(floating_ips)
+        self.assertEqual('UNKNOWN', normalized[0]['status'])
+
     @patch.object(OpenStackCloud, 'neutron_client')
     @patch.object(OpenStackCloud, 'has_service')
     def test_list_floating_ips(self, mock_has_service, mock_neutron_client):
