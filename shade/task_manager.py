@@ -225,7 +225,7 @@ class TaskManager(object):
         """ This is a direct action passthrough TaskManager """
         pass
 
-    def submitTask(self, task, raw=False):
+    def submit_task(self, task, raw=False):
         """Submit and execute the given task.
 
         :param task: The task to execute.
@@ -241,6 +241,8 @@ class TaskManager(object):
             "Manager %s ran task %s in %ss" % (
                 self.name, task.name, (end - start)))
         return task.wait(raw)
+    # Backwards compatibility
+    submitTask = submit_task
 
     def submit_function(
             self, method, name=None, result_filter_cb=None, **kwargs):
@@ -254,4 +256,4 @@ class TaskManager(object):
 
         task_class = generate_task_class(method, name, result_filter_cb)
 
-        return self.manager.submitTask(task_class(**kwargs))
+        return self.manager.submit_task(task_class(**kwargs))

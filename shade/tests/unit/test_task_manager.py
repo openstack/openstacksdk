@@ -69,24 +69,24 @@ class TestTaskManager(base.TestCase):
         Specifically, we test if we get the same behaviour with all the
         configured interpreters (e.g. py27, p34, pypy, ...)
         """
-        self.assertRaises(TestException, self.manager.submitTask, TestTask())
+        self.assertRaises(TestException, self.manager.submit_task, TestTask())
 
     def test_dont_munchify_int(self):
-        ret = self.manager.submitTask(TestTaskInt())
+        ret = self.manager.submit_task(TestTaskInt())
         self.assertIsInstance(ret, int)
 
     def test_dont_munchify_float(self):
-        ret = self.manager.submitTask(TestTaskFloat())
+        ret = self.manager.submit_task(TestTaskFloat())
         self.assertIsInstance(ret, float)
 
     def test_dont_munchify_str(self):
-        ret = self.manager.submitTask(TestTaskStr())
+        ret = self.manager.submit_task(TestTaskStr())
         self.assertIsInstance(ret, str)
 
     def test_dont_munchify_bool(self):
-        ret = self.manager.submitTask(TestTaskBool())
+        ret = self.manager.submit_task(TestTaskBool())
         self.assertIsInstance(ret, bool)
 
     def test_dont_munchify_set(self):
-        ret = self.manager.submitTask(TestTaskSet())
+        ret = self.manager.submit_task(TestTaskSet())
         self.assertIsInstance(ret, set)

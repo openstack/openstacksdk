@@ -182,6 +182,10 @@ class OpenStackCloud(object):
             self.manager = task_manager.TaskManager(
                 name=':'.join([self.name, self.region_name]), client=self)
 
+        # Work around older TaskManager objects that don't have submit_task
+        if not hasattr(self.manager, 'submit_task'):
+            self.manager.submit_task = self.manager.submitTask
+
         (self.verify, self.cert) = cloud_config.get_requests_verify_args()
         # Turn off urllib3 warnings about insecure certs if we have
         # explicitly configured requests to tell it we do not want
@@ -504,10 +508,10 @@ class OpenStackCloud(object):
         """
         try:
             if self.cloud_config.get_api_version('identity') == '3':
-                projects = self.manager.submitTask(
+                projects = self.manager.submit_task(
                     _tasks.ProjectList(domain=domain_id))
             else:
-                projects = self.manager.submitTask(
+                projects = self.manager.submit_task(
                     _tasks.ProjectList())
         except Exception as e:
             self.log.debug("Failed to list projects", exc_info=True)
@@ -560,7 +564,7 @@ class OpenStackCloud(object):
             else:
                 params['tenant_id'] = proj['id']
 
-            project = self.manager.submitTask(_tasks.ProjectUpdate(
+            project = self.manager.submit_task(_tasks.ProjectUpdate(
                 description=description,
                 enabled=enabled,
                 **params))
@@ -578,7 +582,7 @@ class OpenStackCloud(object):
             else:
                 params['tenant_name'] = name
 
-            project = self.manager.submitTask(_tasks.ProjectCreate(
+            project = self.manager.submit_task(_tasks.ProjectCreate(
                 project_name=name, description=description, enabled=enabled,
                 **params))
         self.list_projects.invalidate(self)
@@ -611,7 +615,7 @@ class OpenStackCloud(object):
                 params['project'] = project['id']
             else:
                 params['tenant'] = project['id']
-            self.manager.submitTask(_tasks.ProjectDelete(**params))
+            self.manager.submit_task(_tasks.ProjectDelete(**params))
 
         return True
 
@@ -625,7 +629,7 @@ class OpenStackCloud(object):
             the openstack API call.
         """
         with _utils.shade_exceptions("Failed to list users"):
-            users = self.manager.submitTask(_tasks.UserList())
+            users = self.manager.submit_task(_tasks.UserList())
         return _utils.normalize_users(users)
 
     def search_users(self, name_or_id=None, filters=None):
@@ -666,7 +670,7 @@ class OpenStackCloud(object):
         with _utils.shade_exceptions(
                 "Error getting user with ID {user_id}".format(
                     user_id=user_id)):
-            user = self.manager.submitTask(_tasks.UserGet(user=user_id))
+            user = self.manager.submit_task(_tasks.UserGet(user=user_id))
         if user and normalize:
             return _utils.normalize_users([user])[0]
         return user
@@ -690,7 +694,7 @@ class OpenStackCloud(object):
                 with _utils.shade_exceptions(
                         "Error updating password for {user}".format(
                             user=name_or_id)):
-                    user = self.manager.submitTask(_tasks.UserPasswordUpdate(
+                    user = self.manager.submit_task(_tasks.UserPasswordUpdate(
                         user=kwargs['user'], password=password))
         elif 'domain_id' in kwargs:
             # The incoming parameter is domain_id in order to match the
@@ -700,7 +704,7 @@ class OpenStackCloud(object):
 
         with _utils.shade_exceptions("Error in updating user {user}".format(
                 user=name_or_id)):
-            user = self.manager.submitTask(_tasks.UserUpdate(**kwargs))
+            user = self.manager.submit_task(_tasks.UserUpdate(**kwargs))
         self.list_users.invalidate(self)
         return _utils.normalize_users([user])[0]
 
@@ -712,7 +716,7 @@ class OpenStackCloud(object):
                 user=name)):
             identity_params = self._get_identity_params(
                 domain_id, default_project)
-            user = self.manager.submitTask(_tasks.UserCreate(
+            user = self.manager.submit_task(_tasks.UserCreate(
                 name=name, password=password, email=email,
                 enabled=enabled, **identity_params))
         self.list_users.invalidate(self)
@@ -730,7 +734,7 @@ class OpenStackCloud(object):
         user = self.get_user_by_id(user['id'], normalize=False)
         with _utils.shade_exceptions("Error in deleting user {user}".format(
                 user=name_or_id)):
-            self.manager.submitTask(_tasks.UserDelete(user=user))
+            self.manager.submit_task(_tasks.UserDelete(user=user))
         self.list_users.invalidate(self)
         return True
 
@@ -762,7 +766,7 @@ class OpenStackCloud(object):
             "Error adding user {user} to group {group}".format(
                 user=name_or_id, group=group_name_or_id)
         ):
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.UserAddToGroup(user=user['id'], group=group['id'])
             )
 
@@ -780,7 +784,7 @@ class OpenStackCloud(object):
         user, group = self._get_user_and_group(name_or_id, group_name_or_id)
 
         try:
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.UserCheckInGroup(user=user['id'], group=group['id'])
             )
         except keystoneauth1.exceptions.http.NotFound:
@@ -810,7 +814,7 @@ class OpenStackCloud(object):
             "Error removing user {user} from group {group}".format(
                 user=name_or_id, group=group_name_or_id)
         ):
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.UserRemoveFromGroup(user=user['id'], group=group['id'])
             )
 
@@ -974,7 +978,7 @@ class OpenStackCloud(object):
         )
         with _utils.heat_exceptions("Error creating stack {name}".format(
                 name=name)):
-            self.manager.submitTask(_tasks.StackCreate(**params))
+            self.manager.submit_task(_tasks.StackCreate(**params))
         if wait:
             event_utils.poll_for_events(self.heat_client, stack_name=name,
                                         action='CREATE')
@@ -1037,7 +1041,7 @@ class OpenStackCloud(object):
 
         with _utils.heat_exceptions("Error updating stack {name}".format(
                 name=name_or_id)):
-            self.manager.submitTask(_tasks.StackUpdate(**params))
+            self.manager.submit_task(_tasks.StackUpdate(**params))
         if wait:
             event_utils.poll_for_events(self.heat_client,
                                         name_or_id,
@@ -1071,7 +1075,7 @@ class OpenStackCloud(object):
 
         with _utils.heat_exceptions("Failed to delete stack {id}".format(
                 id=name_or_id)):
-            self.manager.submitTask(_tasks.StackDelete(id=stack['id']))
+            self.manager.submit_task(_tasks.StackDelete(id=stack['id']))
         if wait:
             try:
                 event_utils.poll_for_events(self.heat_client,
@@ -1165,7 +1169,7 @@ class OpenStackCloud(object):
         extensions = set()
 
         with _utils.shade_exceptions("Error fetching extension list for nova"):
-            for extension in self.manager.submitTask(
+            for extension in self.manager.submit_task(
                     _tasks.NovaListExtensions()):
                 extensions.add(extension['alias'])
 
@@ -1321,7 +1325,7 @@ class OpenStackCloud(object):
 
         """
         with _utils.shade_exceptions("Error fetching keypair list"):
-            return self.manager.submitTask(_tasks.KeypairList())
+            return self.manager.submit_task(_tasks.KeypairList())
 
     def list_networks(self, filters=None):
         """List all available networks.
@@ -1334,7 +1338,7 @@ class OpenStackCloud(object):
         if not filters:
             filters = {}
         with _utils.neutron_exceptions("Error fetching network list"):
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.NetworkList(**filters))['networks']
 
     def list_routers(self, filters=None):
@@ -1348,7 +1352,7 @@ class OpenStackCloud(object):
         if not filters:
             filters = {}
         with _utils.neutron_exceptions("Error fetching router list"):
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.RouterList(**filters))['routers']
 
     def list_subnets(self, filters=None):
@@ -1362,7 +1366,7 @@ class OpenStackCloud(object):
         if not filters:
             filters = {}
         with _utils.neutron_exceptions("Error fetching subnet list"):
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.SubnetList(**filters))['subnets']
 
     @_utils.cache_on_arguments(resource='ports')
@@ -1377,7 +1381,7 @@ class OpenStackCloud(object):
         if not filters:
             filters = {}
         with _utils.neutron_exceptions("Error fetching port list"):
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.PortList(**filters))['ports']
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_volumes)
@@ -1392,7 +1396,7 @@ class OpenStackCloud(object):
                           'invalidate instead.')
         with _utils.shade_exceptions("Error fetching volume list"):
             return _utils.normalize_volumes(
-                self.manager.submitTask(_tasks.VolumeList()))
+                self.manager.submit_task(_tasks.VolumeList()))
 
     @_utils.cache_on_arguments()
     def list_flavors(self, get_extra=True):
@@ -1402,7 +1406,7 @@ class OpenStackCloud(object):
 
         """
         with _utils.shade_exceptions("Error fetching flavor list"):
-            flavors = self.manager.submitTask(
+            flavors = self.manager.submit_task(
                 _tasks.FlavorList(is_public=None))
 
         with _utils.shade_exceptions("Error fetching flavor extra specs"):
@@ -1412,7 +1416,7 @@ class OpenStackCloud(object):
                         'OS-FLV-WITH-EXT-SPECS:extra_specs')
                 elif get_extra:
                     try:
-                        flavor.extra_specs = self.manager.submitTask(
+                        flavor.extra_specs = self.manager.submit_task(
                             _tasks.FlavorGetExtraSpecs(id=flavor.id))
                     except keystoneauth1.exceptions.http.HttpError as e:
                         flavor.extra_specs = []
@@ -1432,7 +1436,7 @@ class OpenStackCloud(object):
             openstack API call.
         """
         with _utils.shade_exceptions("Error fetching stack list"):
-            stacks = self.manager.submitTask(_tasks.StackList())
+            stacks = self.manager.submit_task(_tasks.StackList())
         return _utils.normalize_stacks(stacks)
 
     def list_server_security_groups(self, server):
@@ -1446,7 +1450,7 @@ class OpenStackCloud(object):
             return []
 
         with _utils.shade_exceptions():
-            groups = self.manager.submitTask(
+            groups = self.manager.submit_task(
                 _tasks.ServerListSecurityGroups(server=server['id']))
 
         return _utils.normalize_nova_secgroups(groups)
@@ -1468,13 +1472,13 @@ class OpenStackCloud(object):
             # Neutron returns dicts, so no need to convert objects here.
             with _utils.neutron_exceptions(
                     "Error fetching security group list"):
-                return self.manager.submitTask(
+                return self.manager.submit_task(
                     _tasks.NeutronSecurityGroupList())['security_groups']
 
         # Handle nova security groups
         else:
             with _utils.shade_exceptions("Error fetching security group list"):
-                groups = self.manager.submitTask(
+                groups = self.manager.submit_task(
                     _tasks.NovaSecurityGroupList())
             return _utils.normalize_nova_secgroups(groups)
 
@@ -1490,7 +1494,7 @@ class OpenStackCloud(object):
                     cloud=self.name,
                     region=self.region_name)):
             servers = _utils.normalize_servers(
-                self.manager.submitTask(_tasks.ServerList()),
+                self.manager.submit_task(_tasks.ServerList()),
                 cloud_name=self.name, region_name=self.region_name)
 
             if detailed:
@@ -1511,7 +1515,7 @@ class OpenStackCloud(object):
 
         """
         with _utils.shade_exceptions("Error fetching server group list"):
-            return self.manager.submitTask(_tasks.ServerGroupList())
+            return self.manager.submit_task(_tasks.ServerGroupList())
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_images)
     def list_images(self, filter_deleted=True):
@@ -1529,14 +1533,14 @@ class OpenStackCloud(object):
             # if we want to deal with page size per unit of rate limiting
             image_gen = self.glance_client.images.list(page_size=1000)
             # Deal with the generator to make a list
-            image_list = self.manager.submitTask(
+            image_list = self.manager.submit_task(
                 _tasks.GlanceImageList(image_gen=image_gen))
 
         except glanceclient.exc.HTTPInternalServerError:
             # We didn't have glance, let's try nova
             # If this doesn't work - we just let the exception propagate
             with _utils.shade_exceptions("Error fetching image list"):
-                image_list = self.manager.submitTask(_tasks.NovaImageList())
+                image_list = self.manager.submit_task(_tasks.NovaImageList())
         except OpenStackCloudException:
             raise
         except Exception as e:
@@ -1563,7 +1567,7 @@ class OpenStackCloud(object):
                 'Floating IP pools extension is not available on target cloud')
 
         with _utils.shade_exceptions("Error fetching floating IP pool list"):
-            return self.manager.submitTask(_tasks.FloatingIPPoolList())
+            return self.manager.submit_task(_tasks.FloatingIPPoolList())
 
     @_utils.cache_on_arguments(resource='floating_ip')
     def list_floating_ips(self):
@@ -1587,12 +1591,12 @@ class OpenStackCloud(object):
 
     def _neutron_list_floating_ips(self):
         with _utils.neutron_exceptions("error fetching floating IPs list"):
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.NeutronFloatingIPList())['floatingips']
 
     def _nova_list_floating_ips(self):
         with _utils.shade_exceptions("Error fetching floating IPs list"):
-            return self.manager.submitTask(_tasks.NovaFloatingIPList())
+            return self.manager.submit_task(_tasks.NovaFloatingIPList())
 
     def use_external_network(self):
         return self._use_external_network
@@ -2155,7 +2159,7 @@ class OpenStackCloud(object):
 
     def get_server_by_id(self, id):
         return meta.add_server_interfaces(self, _utils.normalize_server(
-            self.manager.submitTask(_tasks.ServerGet(server=id)),
+            self.manager.submit_task(_tasks.ServerGet(server=id)),
             cloud_name=self.name, region_name=self.region_name))
 
     def get_server_group(self, name_or_id=None, filters=None):
@@ -2277,7 +2281,7 @@ class OpenStackCloud(object):
             # so a StackGet can always be used for name or ID.
             with _utils.shade_exceptions("Error fetching stack"):
                 try:
-                    stack = self.manager.submitTask(
+                    stack = self.manager.submit_task(
                         _tasks.StackGet(stack_id=name_or_id))
                     # Treat DELETE_COMPLETE stacks as a NotFound
                     if stack['stack_status'] == 'DELETE_COMPLETE':
@@ -2301,7 +2305,7 @@ class OpenStackCloud(object):
         """
         with _utils.shade_exceptions("Unable to create keypair {name}".format(
                 name=name)):
-            return self.manager.submitTask(_tasks.KeypairCreate(
+            return self.manager.submit_task(_tasks.KeypairCreate(
                 name=name, public_key=public_key))
 
     def delete_keypair(self, name):
@@ -2314,7 +2318,7 @@ class OpenStackCloud(object):
         :raises: OpenStackCloudException on operation error.
         """
         try:
-            self.manager.submitTask(_tasks.KeypairDelete(key=name))
+            self.manager.submit_task(_tasks.KeypairDelete(key=name))
         except nova_exceptions.NotFound:
             self.log.debug("Keypair %s not found for deleting" % name)
             return False
@@ -2372,7 +2376,7 @@ class OpenStackCloud(object):
 
         with _utils.neutron_exceptions(
                 "Error creating network {0}".format(name)):
-            net = self.manager.submitTask(
+            net = self.manager.submit_task(
                 _tasks.NetworkCreate(body=dict({'network': network})))
 
         # Reset cache so the new network is picked up
@@ -2396,7 +2400,7 @@ class OpenStackCloud(object):
 
         with _utils.neutron_exceptions(
                 "Error deleting network {0}".format(name_or_id)):
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.NetworkDelete(network=network['id']))
 
         # Reset cache so the deleted network is removed
@@ -2444,7 +2448,7 @@ class OpenStackCloud(object):
         with _utils.neutron_exceptions(
             "Error attaching interface to router {0}".format(router['id'])
         ):
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.RouterAddInterface(router=router['id'], body=body)
             )
 
@@ -2472,7 +2476,7 @@ class OpenStackCloud(object):
         with _utils.neutron_exceptions(
             "Error detaching interface from router {0}".format(router['id'])
         ):
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.RouterRemoveInterface(router=router['id'], body=body)
             )
 
@@ -2554,7 +2558,7 @@ class OpenStackCloud(object):
 
         with _utils.neutron_exceptions(
                 "Error creating router {0}".format(name)):
-            new_router = self.manager.submitTask(
+            new_router = self.manager.submit_task(
                 _tasks.RouterCreate(body=dict(router=router)))
         return new_router['router']
 
@@ -2605,7 +2609,7 @@ class OpenStackCloud(object):
 
         with _utils.neutron_exceptions(
                 "Error updating router {0}".format(name_or_id)):
-            new_router = self.manager.submitTask(
+            new_router = self.manager.submit_task(
                 _tasks.RouterUpdate(
                     router=curr_router['id'], body=dict(router=router)))
 
@@ -2631,7 +2635,7 @@ class OpenStackCloud(object):
 
         with _utils.neutron_exceptions(
                 "Error deleting router {0}".format(name_or_id)):
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.RouterDelete(router=router['id']))
 
         return True
@@ -2659,7 +2663,7 @@ class OpenStackCloud(object):
 
     def create_image_snapshot(
             self, name, server, wait=False, timeout=3600, **metadata):
-        image_id = str(self.manager.submitTask(_tasks.ImageSnapshotCreate(
+        image_id = str(self.manager.submit_task(_tasks.ImageSnapshotCreate(
             image_name=name, server=server, metadata=metadata)))
         self.list_images.invalidate(self)
         image = self.get_image(image_id)
@@ -2691,10 +2695,10 @@ class OpenStackCloud(object):
             # it's image_id
             glance_api_version = self.cloud_config.get_api_version('image')
             if glance_api_version == '2':
-                self.manager.submitTask(
+                self.manager.submit_task(
                     _tasks.ImageDelete(image_id=image.id))
             elif glance_api_version == '1':
-                self.manager.submitTask(
+                self.manager.submit_task(
                     _tasks.ImageDelete(image=image.id))
             self.list_images.invalidate(self)
 
@@ -2884,15 +2888,15 @@ class OpenStackCloud(object):
 
         image_kwargs.update(self._make_v2_image_params(meta, properties))
 
-        image = self.manager.submitTask(_tasks.ImageCreate(
+        image = self.manager.submit_task(_tasks.ImageCreate(
             name=name, **image_kwargs))
         try:
-            self.manager.submitTask(_tasks.ImageUpload(
+            self.manager.submit_task(_tasks.ImageUpload(
                 image_id=image.id, image_data=image_data))
         except Exception:
             self.log.debug("Deleting failed upload of image {image}".format(
                 image=image['name']))
-            self.manager.submitTask(_tasks.ImageDelete(image_id=image.id))
+            self.manager.submit_task(_tasks.ImageDelete(image_id=image.id))
             raise
 
         return image
@@ -2901,16 +2905,16 @@ class OpenStackCloud(object):
             self, name, image_data, meta, **image_kwargs):
 
         image_kwargs['properties'].update(meta)
-        image = self.manager.submitTask(_tasks.ImageCreate(
+        image = self.manager.submit_task(_tasks.ImageCreate(
             name=name, **image_kwargs))
         try:
-            self.manager.submitTask(_tasks.ImageUpdate(
+            self.manager.submit_task(_tasks.ImageUpdate(
                 image=image, data=image_data))
         except Exception:
             self.log.debug("Deleting failed upload of image {image}".format(
                 image=image['name']))
             # Note argument is "image" here, "image_id" in V2
-            self.manager.submitTask(_tasks.ImageDelete(image=image.id))
+            self.manager.submit_task(_tasks.ImageDelete(image=image.id))
             raise
         return image
 
@@ -2963,7 +2967,7 @@ class OpenStackCloud(object):
                 import_from='{container}/{name}'.format(
                     container=container, name=name),
                 image_properties=dict(name=name)))
-        glance_task = self.manager.submitTask(
+        glance_task = self.manager.submit_task(
             _tasks.ImageTaskCreate(**task_args))
         self.list_images.invalidate(self)
         if wait:
@@ -2973,7 +2977,7 @@ class OpenStackCloud(object):
                     "Timeout waiting for the image to import."):
                 try:
                     if image_id is None:
-                        status = self.manager.submitTask(
+                        status = self.manager.submit_task(
                             _tasks.ImageTaskGet(task_id=glance_task.id))
                 except glanceclient.exc.HTTPServiceUnavailable:
                     # Intermittent failure - catch and try again
@@ -2993,7 +2997,7 @@ class OpenStackCloud(object):
                     return self.get_image(status.result['image_id'])
                 if status.status == 'failure':
                     if status.message == IMAGE_ERROR_396:
-                        glance_task = self.manager.submitTask(
+                        glance_task = self.manager.submit_task(
                             _tasks.ImageTaskCreate(**task_args))
                         self.list_images.invalidate(self)
                     else:
@@ -3031,7 +3035,7 @@ class OpenStackCloud(object):
                 img_props[k] = v
         if not img_props:
             return False
-        self.manager.submitTask(_tasks.ImageUpdate(
+        self.manager.submit_task(_tasks.ImageUpdate(
             image_id=image.id, **img_props))
         self.list_images.invalidate(self)
         return True
@@ -3044,7 +3048,7 @@ class OpenStackCloud(object):
                 img_props[k] = v
         if not img_props:
             return False
-        self.manager.submitTask(_tasks.ImageUpdate(
+        self.manager.submit_task(_tasks.ImageUpdate(
             image=image, properties=img_props))
         self.list_images.invalidate(self)
         return True
@@ -3079,7 +3083,7 @@ class OpenStackCloud(object):
             kwargs['imageRef'] = image_obj['id']
         kwargs = self._get_volume_kwargs(kwargs)
         with _utils.shade_exceptions("Error in creating volume"):
-            volume = self.manager.submitTask(_tasks.VolumeCreate(
+            volume = self.manager.submit_task(_tasks.VolumeCreate(
                 size=size, **kwargs))
         self.list_volumes.invalidate(self)
 
@@ -3128,7 +3132,7 @@ class OpenStackCloud(object):
 
         with _utils.shade_exceptions("Error in deleting volume"):
             try:
-                self.manager.submitTask(
+                self.manager.submit_task(
                     _tasks.VolumeDelete(volume=volume['id']))
             except cinder_exceptions.NotFound:
                 self.log.debug(
@@ -3201,7 +3205,7 @@ class OpenStackCloud(object):
         with _utils.shade_exceptions(
                 "Error detaching volume {volume} from server {server}".format(
                     volume=volume['id'], server=server['id'])):
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.VolumeDetach(attachment_id=volume['id'],
                                     server_id=server['id']))
 
@@ -3264,7 +3268,7 @@ class OpenStackCloud(object):
                 "Error attaching volume {volume_id} to server "
                 "{server_id}".format(volume_id=volume['id'],
                                      server_id=server['id'])):
-            vol = self.manager.submitTask(
+            vol = self.manager.submit_task(
                 _tasks.VolumeAttach(volume_id=volume['id'],
                                     server_id=server['id'],
                                     device=device))
@@ -3337,7 +3341,7 @@ class OpenStackCloud(object):
         with _utils.shade_exceptions(
                 "Error creating snapshot of volume {volume_id}".format(
                     volume_id=volume_id)):
-            snapshot = self.manager.submitTask(
+            snapshot = self.manager.submit_task(
                 _tasks.VolumeSnapshotCreate(
                     volume_id=volume_id, force=force,
                     **kwargs))
@@ -3371,7 +3375,7 @@ class OpenStackCloud(object):
         with _utils.shade_exceptions(
                 "Error getting snapshot {snapshot_id}".format(
                     snapshot_id=snapshot_id)):
-            snapshot = self.manager.submitTask(
+            snapshot = self.manager.submit_task(
                 _tasks.VolumeSnapshotGet(
                     snapshot_id=snapshot_id
                 )
@@ -3409,7 +3413,7 @@ class OpenStackCloud(object):
         """
         with _utils.shade_exceptions("Error getting a list of snapshots"):
             return _utils.normalize_volumes(
-                self.manager.submitTask(
+                self.manager.submit_task(
                     _tasks.VolumeSnapshotList(
                         detailed=detailed, search_opts=search_opts)))
 
@@ -3432,7 +3436,7 @@ class OpenStackCloud(object):
             return False
 
         with _utils.shade_exceptions("Error in deleting volume snapshot"):
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.VolumeSnapshotDelete(
                     snapshot=volumesnapshot['id']
                 )
@@ -3668,7 +3672,7 @@ class OpenStackCloud(object):
     def _submit_create_fip(self, kwargs):
         # Split into a method to aid in test mocking
         return _utils.normalize_neutron_floating_ips(
-            [self.manager.submitTask(_tasks.NeutronFloatingIPCreate(
+            [self.manager.submit_task(_tasks.NeutronFloatingIPCreate(
                 body={'floatingip': kwargs}))['floatingip']])[0]
 
     def _neutron_create_floating_ip(
@@ -3759,7 +3763,7 @@ class OpenStackCloud(object):
                         "unable to find a floating ip pool")
                 pool = pools[0]['name']
 
-            pool_ip = self.manager.submitTask(
+            pool_ip = self.manager.submit_task(
                 _tasks.NovaFloatingIPCreate(pool=pool))
             return pool_ip
 
@@ -3816,7 +3820,7 @@ class OpenStackCloud(object):
     def _neutron_delete_floating_ip(self, floating_ip_id):
         try:
             with _utils.neutron_exceptions("unable to delete floating IP"):
-                self.manager.submitTask(
+                self.manager.submit_task(
                     _tasks.NeutronFloatingIPDelete(floatingip=floating_ip_id))
         except OpenStackCloudResourceNotFound:
             return False
@@ -3828,7 +3832,7 @@ class OpenStackCloud(object):
 
     def _nova_delete_floating_ip(self, floating_ip_id):
         try:
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.NovaFloatingIPDelete(floating_ip=floating_ip_id))
         except nova_exceptions.NotFound:
             return False
@@ -4046,7 +4050,7 @@ class OpenStackCloud(object):
             if fixed_address is not None:
                 floating_ip_args['fixed_ip_address'] = fixed_address
 
-            return self.manager.submitTask(_tasks.NeutronFloatingIPUpdate(
+            return self.manager.submit_task(_tasks.NeutronFloatingIPUpdate(
                 floatingip=floating_ip['id'],
                 body={'floatingip': floating_ip_args}
             ))['floatingip']
@@ -4057,7 +4061,7 @@ class OpenStackCloud(object):
                 "Error attaching IP {ip} to instance {id}".format(
                     ip=floating_ip_id, id=server_id)):
             f_ip = self.get_floating_ip(id=floating_ip_id)
-            return self.manager.submitTask(_tasks.NovaFloatingIPAttach(
+            return self.manager.submit_task(_tasks.NovaFloatingIPAttach(
                 server=server_id, address=f_ip['floating_ip_address'],
                 fixed_address=fixed_address))
 
@@ -4093,7 +4097,7 @@ class OpenStackCloud(object):
             f_ip = self.get_floating_ip(id=floating_ip_id)
             if f_ip is None or not f_ip['attached']:
                 return False
-            self.manager.submitTask(_tasks.NeutronFloatingIPUpdate(
+            self.manager.submit_task(_tasks.NeutronFloatingIPUpdate(
                 floatingip=floating_ip_id,
                 body={'floatingip': {'port_id': None}}))
 
@@ -4105,7 +4109,7 @@ class OpenStackCloud(object):
             if f_ip is None:
                 raise OpenStackCloudException(
                     "unable to find floating IP {0}".format(floating_ip_id))
-            self.manager.submitTask(_tasks.NovaFloatingIPDetach(
+            self.manager.submit_task(_tasks.NovaFloatingIPDetach(
                 server=server_id, address=f_ip['floating_ip_address']))
         except nova_exceptions.Conflict as e:
             self.log.debug(
@@ -4555,7 +4559,7 @@ class OpenStackCloud(object):
             volumes=volumes, kwargs=kwargs)
 
         with _utils.shade_exceptions("Error in creating instance"):
-            server = self.manager.submitTask(_tasks.ServerCreate(
+            server = self.manager.submit_task(_tasks.ServerCreate(
                 name=name, **kwargs))
             admin_pass = server.get('adminPass') or kwargs.get('admin_pass')
             if not wait:
@@ -4665,7 +4669,7 @@ class OpenStackCloud(object):
     def rebuild_server(self, server_id, image_id, admin_pass=None,
                        wait=False, timeout=180):
         with _utils.shade_exceptions("Error in rebuilding instance"):
-            server = self.manager.submitTask(_tasks.ServerRebuild(
+            server = self.manager.submit_task(_tasks.ServerRebuild(
                 server=server_id, image=image_id, password=admin_pass))
         if wait:
             admin_pass = server.get('adminPass') or admin_pass
@@ -4700,7 +4704,7 @@ class OpenStackCloud(object):
         :raises: OpenStackCloudException on operation error.
         """
         try:
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.ServerSetMetadata(server=self.get_server(name_or_id),
                                          metadata=metadata))
         except OpenStackCloudException:
@@ -4720,7 +4724,7 @@ class OpenStackCloud(object):
         :raises: OpenStackCloudException on operation error.
         """
         try:
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.ServerDeleteMetadata(server=self.get_server(name_or_id),
                                             keys=metadata_keys))
         except OpenStackCloudException:
@@ -4787,7 +4791,7 @@ class OpenStackCloud(object):
                             id=server['id']))
 
         try:
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.ServerDelete(server=server['id']))
         except nova_exceptions.NotFound:
             return False
@@ -4844,7 +4848,7 @@ class OpenStackCloud(object):
 
         with _utils.shade_exceptions(
                 "Error updating server {0}".format(name_or_id)):
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.ServerUpdate(
                     server=server['id'], **kwargs))
 
@@ -4861,7 +4865,7 @@ class OpenStackCloud(object):
         with _utils.shade_exceptions(
                 "Unable to create server group {name}".format(
                     name=name)):
-            return self.manager.submitTask(_tasks.ServerGroupCreate(
+            return self.manager.submit_task(_tasks.ServerGroupCreate(
                 name=name, policies=policies))
 
     def delete_server_group(self, name_or_id):
@@ -4881,14 +4885,14 @@ class OpenStackCloud(object):
 
         with _utils.shade_exceptions(
                 "Error deleting server group {name}".format(name=name_or_id)):
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.ServerGroupDelete(id=server_group['id']))
 
         return True
 
     def list_containers(self, full_listing=True):
         try:
-            return self.manager.submitTask(_tasks.ContainerList(
+            return self.manager.submit_task(_tasks.ContainerList(
                 full_listing=full_listing))
         except swift_exceptions.ClientException as e:
             raise OpenStackCloudException(
@@ -4898,7 +4902,7 @@ class OpenStackCloud(object):
     def get_container(self, name, skip_cache=False):
         if skip_cache or name not in self._container_cache:
             try:
-                container = self.manager.submitTask(
+                container = self.manager.submit_task(
                     _tasks.ContainerGet(container=name))
                 self._container_cache[name] = container
             except swift_exceptions.ClientException as e:
@@ -4914,7 +4918,7 @@ class OpenStackCloud(object):
         if container:
             return container
         try:
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.ContainerCreate(container=name))
             if public:
                 self.set_container_access(name, 'public')
@@ -4926,7 +4930,7 @@ class OpenStackCloud(object):
 
     def delete_container(self, name):
         try:
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.ContainerDelete(container=name))
         except swift_exceptions.ClientException as e:
             if e.http_status == 404:
@@ -4937,7 +4941,7 @@ class OpenStackCloud(object):
 
     def update_container(self, name, headers):
         try:
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.ContainerUpdate(container=name, headers=headers))
         except swift_exceptions.ClientException as e:
             raise OpenStackCloudException(
@@ -4986,7 +4990,7 @@ class OpenStackCloud(object):
 
     @_utils.cache_on_arguments()
     def get_object_capabilities(self):
-        return self.manager.submitTask(_tasks.ObjectCapabilities())
+        return self.manager.submit_task(_tasks.ObjectCapabilities())
 
     def get_object_segment_size(self, segment_size):
         '''get a segment size that will work given capabilities'''
@@ -5100,7 +5104,7 @@ class OpenStackCloud(object):
                     filename=filename, container=container, name=name))
             upload = swiftclient.service.SwiftUploadObject(
                 source=filename, object_name=name)
-            for r in self.manager.submitTask(_tasks.ObjectCreate(
+            for r in self.manager.submit_task(_tasks.ObjectCreate(
                     container=container, objects=[upload],
                     options=dict(
                         header=header_list,
@@ -5133,7 +5137,7 @@ class OpenStackCloud(object):
         headers = dict(headers, **metadata_headers)
 
         try:
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.ObjectUpdate(container=container, obj=name,
                                     headers=headers))
         except swift_exceptions.ClientException as e:
@@ -5143,7 +5147,7 @@ class OpenStackCloud(object):
 
     def list_objects(self, container, full_listing=True):
         try:
-            return self.manager.submitTask(_tasks.ObjectList(
+            return self.manager.submit_task(_tasks.ObjectList(
                 container=container, full_listing=full_listing))
         except swift_exceptions.ClientException as e:
             raise OpenStackCloudException(
@@ -5163,7 +5167,7 @@ class OpenStackCloud(object):
         if not self.get_object_metadata(container, name):
             return False
         try:
-            self.manager.submitTask(_tasks.ObjectDelete(
+            self.manager.submit_task(_tasks.ObjectDelete(
                 container=container, obj=name))
         except swift_exceptions.ClientException as e:
             raise OpenStackCloudException(
@@ -5173,7 +5177,7 @@ class OpenStackCloud(object):
 
     def get_object_metadata(self, container, name):
         try:
-            return self.manager.submitTask(_tasks.ObjectMetadata(
+            return self.manager.submit_task(_tasks.ObjectMetadata(
                 container=container, obj=name))
         except swift_exceptions.ClientException as e:
             if e.http_status == 404:
@@ -5197,7 +5201,7 @@ class OpenStackCloud(object):
         :raises: OpenStackCloudException on operation error.
         """
         try:
-            return self.manager.submitTask(_tasks.ObjectGet(
+            return self.manager.submit_task(_tasks.ObjectGet(
                 container=container, obj=obj, query_string=query_string,
                 resp_chunk_size=resp_chunk_size))
         except swift_exceptions.ClientException as e:
@@ -5320,7 +5324,7 @@ class OpenStackCloud(object):
         with _utils.neutron_exceptions(
                 "Error creating subnet on network "
                 "{0}".format(network_name_or_id)):
-            new_subnet = self.manager.submitTask(
+            new_subnet = self.manager.submit_task(
                 _tasks.SubnetCreate(body=dict(subnet=subnet)))
 
         return new_subnet['subnet']
@@ -5345,7 +5349,7 @@ class OpenStackCloud(object):
 
         with _utils.neutron_exceptions(
                 "Error deleting subnet {0}".format(name_or_id)):
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.SubnetDelete(subnet=subnet['id']))
         return True
 
@@ -5433,7 +5437,7 @@ class OpenStackCloud(object):
 
         with _utils.neutron_exceptions(
                 "Error updating subnet {0}".format(name_or_id)):
-            new_subnet = self.manager.submitTask(
+            new_subnet = self.manager.submit_task(
                 _tasks.SubnetUpdate(
                     subnet=curr_subnet['id'], body=dict(subnet=subnet)))
         return new_subnet['subnet']
@@ -5499,7 +5503,7 @@ class OpenStackCloud(object):
 
         with _utils.neutron_exceptions(
                 "Error creating port for network {0}".format(network_id)):
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.PortCreate(body={'port': kwargs}))['port']
 
     @_utils.valid_kwargs('name', 'admin_state_up', 'fixed_ips',
@@ -5561,7 +5565,7 @@ class OpenStackCloud(object):
 
         with _utils.neutron_exceptions(
                 "Error updating port {0}".format(name_or_id)):
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.PortUpdate(
                     port=port['id'], body={'port': kwargs}))['port']
 
@@ -5581,7 +5585,7 @@ class OpenStackCloud(object):
 
         with _utils.neutron_exceptions(
                 "Error deleting port {0}".format(name_or_id)):
-            self.manager.submitTask(_tasks.PortDelete(port=port['id']))
+            self.manager.submit_task(_tasks.PortDelete(port=port['id']))
         return True
 
     def create_security_group(self, name, description):
@@ -5606,7 +5610,7 @@ class OpenStackCloud(object):
         if self._use_neutron_secgroups():
             with _utils.neutron_exceptions(
                     "Error creating security group {0}".format(name)):
-                group = self.manager.submitTask(
+                group = self.manager.submit_task(
                     _tasks.NeutronSecurityGroupCreate(
                         body=dict(security_group=dict(name=name,
                                                       description=description))
@@ -5618,7 +5622,7 @@ class OpenStackCloud(object):
             with _utils.shade_exceptions(
                     "Failed to create security group '{name}'".format(
                         name=name)):
-                group = self.manager.submitTask(
+                group = self.manager.submit_task(
                     _tasks.NovaSecurityGroupCreate(
                         name=name, description=description
                     )
@@ -5651,7 +5655,7 @@ class OpenStackCloud(object):
         if self._use_neutron_secgroups():
             with _utils.neutron_exceptions(
                     "Error deleting security group {0}".format(name_or_id)):
-                self.manager.submitTask(
+                self.manager.submit_task(
                     _tasks.NeutronSecurityGroupDelete(
                         security_group=secgroup['id']
                     )
@@ -5662,7 +5666,7 @@ class OpenStackCloud(object):
             with _utils.shade_exceptions(
                     "Failed to delete security group '{group}'".format(
                         group=name_or_id)):
-                self.manager.submitTask(
+                self.manager.submit_task(
                     _tasks.NovaSecurityGroupDelete(group=secgroup['id'])
                 )
             return True
@@ -5694,7 +5698,7 @@ class OpenStackCloud(object):
         if self._use_neutron_secgroups():
             with _utils.neutron_exceptions(
                     "Error updating security group {0}".format(name_or_id)):
-                group = self.manager.submitTask(
+                group = self.manager.submit_task(
                     _tasks.NeutronSecurityGroupUpdate(
                         security_group=secgroup['id'],
                         body={'security_group': kwargs})
@@ -5705,7 +5709,7 @@ class OpenStackCloud(object):
             with _utils.shade_exceptions(
                     "Failed to update security group '{group}'".format(
                         group=name_or_id)):
-                group = self.manager.submitTask(
+                group = self.manager.submit_task(
                     _tasks.NovaSecurityGroupUpdate(
                         group=secgroup['id'], **kwargs)
                 )
@@ -5791,7 +5795,7 @@ class OpenStackCloud(object):
 
             with _utils.neutron_exceptions(
                     "Error creating security group rule"):
-                rule = self.manager.submitTask(
+                rule = self.manager.submit_task(
                     _tasks.NeutronSecurityGroupRuleCreate(
                         body={'security_group_rule': rule_def})
                 )
@@ -5828,7 +5832,7 @@ class OpenStackCloud(object):
 
             with _utils.shade_exceptions(
                     "Failed to create security group rule"):
-                rule = self.manager.submitTask(
+                rule = self.manager.submit_task(
                     _tasks.NovaSecurityGroupRuleCreate(
                         parent_group_id=secgroup['id'],
                         ip_protocol=protocol,
@@ -5862,7 +5866,7 @@ class OpenStackCloud(object):
                 with _utils.neutron_exceptions(
                         "Error deleting security group rule "
                         "{0}".format(rule_id)):
-                    self.manager.submitTask(
+                    self.manager.submit_task(
                         _tasks.NeutronSecurityGroupRuleDelete(
                             security_group_rule=rule_id)
                     )
@@ -5872,7 +5876,7 @@ class OpenStackCloud(object):
 
         else:
             try:
-                self.manager.submitTask(
+                self.manager.submit_task(
                     _tasks.NovaSecurityGroupRuleDelete(rule=rule_id)
                 )
             except nova_exceptions.NotFound:
@@ -5892,7 +5896,7 @@ class OpenStackCloud(object):
 
         """
         with _utils.shade_exceptions("Error fetching zones list"):
-            return self.manager.submitTask(_tasks.ZoneList())
+            return self.manager.submit_task(_tasks.ZoneList())
 
     def get_zone(self, name_or_id, filters=None):
         """Get a zone by name or ID.
@@ -5940,7 +5944,7 @@ class OpenStackCloud(object):
 
         with _utils.shade_exceptions("Unable to create zone {name}".format(
                 name=name)):
-            return self.manager.submitTask(_tasks.ZoneCreate(
+            return self.manager.submit_task(_tasks.ZoneCreate(
                 name=name, type_=zone_type, email=email,
                 description=description, ttl=ttl, masters=masters))
 
@@ -5967,7 +5971,7 @@ class OpenStackCloud(object):
 
         with _utils.shade_exceptions(
                 "Error updating zone {0}".format(name_or_id)):
-            new_zone = self.manager.submitTask(
+            new_zone = self.manager.submit_task(
                 _tasks.ZoneUpdate(
                     zone=zone['id'], values=kwargs))
 
@@ -5990,7 +5994,7 @@ class OpenStackCloud(object):
 
         with _utils.shade_exceptions(
                 "Error deleting zone {0}".format(name_or_id)):
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.ZoneDelete(zone=zone['id']))
 
         return True
@@ -6004,7 +6008,7 @@ class OpenStackCloud(object):
 
         """
         with _utils.shade_exceptions("Error fetching recordsets list"):
-            return self.manager.submitTask(_tasks.RecordSetList(zone=zone))
+            return self.manager.submit_task(_tasks.RecordSetList(zone=zone))
 
     def get_recordset(self, zone, name_or_id):
         """Get a recordset by name or ID.
@@ -6017,7 +6021,7 @@ class OpenStackCloud(object):
 
         """
         try:
-            return self.manager.submitTask(_tasks.RecordSetGet(
+            return self.manager.submit_task(_tasks.RecordSetGet(
                 zone=zone,
                 recordset=name_or_id))
         except:
@@ -6052,7 +6056,7 @@ class OpenStackCloud(object):
 
         with _utils.shade_exceptions(
                 "Unable to create recordset {name}".format(name=name)):
-            return self.manager.submitTask(_tasks.RecordSetCreate(
+            return self.manager.submit_task(_tasks.RecordSetCreate(
                 zone=zone, name=name, type_=recordset_type, records=records,
                 description=description, ttl=ttl))
 
@@ -6082,7 +6086,7 @@ class OpenStackCloud(object):
 
         with _utils.shade_exceptions(
                 "Error updating recordset {0}".format(name_or_id)):
-            new_recordset = self.manager.submitTask(
+            new_recordset = self.manager.submit_task(
                 _tasks.RecordSetUpdate(
                     zone=zone, recordset=name_or_id, values=kwargs))
 
@@ -6111,7 +6115,7 @@ class OpenStackCloud(object):
 
         with _utils.shade_exceptions(
                 "Error deleting recordset {0}".format(name_or_id)):
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.RecordSetDelete(zone=zone['id'], recordset=name_or_id))
 
         return True
@@ -6131,7 +6135,7 @@ class OpenStackCloud(object):
             the openstack API call.
         """
         with _utils.shade_exceptions("Error fetching ClusterTemplate list"):
-            cluster_templates = self.manager.submitTask(
+            cluster_templates = self.manager.submit_task(
                 _tasks.ClusterTemplateList(detail=detail))
         return _utils.normalize_cluster_templates(cluster_templates)
     list_baymodels = list_cluster_templates
@@ -6203,7 +6207,7 @@ class OpenStackCloud(object):
                 "Error creating ClusterTemplate of name"
                 " {cluster_template_name}".format(
                     cluster_template_name=name)):
-            cluster_template = self.manager.submitTask(
+            cluster_template = self.manager.submit_task(
                 _tasks.ClusterTemplateCreate(
                     name=name, image_id=image_id,
                     keypair_id=keypair_id, coe=coe, **kwargs))
@@ -6236,7 +6240,7 @@ class OpenStackCloud(object):
 
         with _utils.shade_exceptions("Error in deleting ClusterTemplate"):
             try:
-                self.manager.submitTask(
+                self.manager.submit_task(
                     _tasks.ClusterTemplateDelete(id=cluster_template['id']))
             except magnum_exceptions.NotFound:
                 self.log.debug(
@@ -6282,7 +6286,7 @@ class OpenStackCloud(object):
 
         with _utils.shade_exceptions(
                 "Error updating ClusterTemplate {0}".format(name_or_id)):
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.ClusterTemplateUpdate(
                     id=cluster_template['id'], patch=patches))
 
