@@ -170,6 +170,18 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._update(_profile.Profile, profile, **attrs)
 
+    def validate_profile(self, **attrs):
+        """Validate a profile spec.
+
+        :param dict attrs: Keyword arguments that will be used to create a
+             :class:`~openstack.cluster.v1.profile.ProfileValidate`, it is
+             comprised of the properties on the Profile class.
+
+        :returns: The results of profile validation.
+        :rtype: :class:`~openstack.cluster.v1.profile.ProfileValidate`.
+        """
+        return self._create(_profile.ProfileValidate, **attrs)
+
     def create_cluster(self, **attrs):
         """Create a new cluster from attributes.
 

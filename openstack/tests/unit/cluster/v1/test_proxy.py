@@ -58,6 +58,10 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_profile_create(self):
         self.verify_create(self.proxy.create_profile, profile.Profile)
 
+    def test_profile_validate(self):
+        self.verify_create(self.proxy.validate_profile,
+                           profile.ProfileValidate)
+
     def test_profile_delete(self):
         self.verify_delete(self.proxy.delete_profile, profile.Profile, False)
 

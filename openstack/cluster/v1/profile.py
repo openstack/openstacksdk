@@ -45,3 +45,14 @@ class Profile(resource.Resource):
     created_at = resource.Body('created_at')
     #: Timestamp of when the profile was last updated.
     updated_at = resource.Body('updated_at')
+
+
+class ProfileValidate(Profile):
+    base_path = '/profiles/validate'
+    allow_create = True
+    allow_get = False
+    allow_update = False
+    allow_delete = False
+    allow_list = False
+
+    patch_update = False
