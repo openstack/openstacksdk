@@ -641,6 +641,18 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._update(_policy.Policy, policy, **attrs)
 
+    def validate_policy(self, **attrs):
+        """Validate a policy spec.
+
+        :param dict attrs: Keyword arguments that will be used to create a
+             :class:`~openstack.cluster.v1.policy.PolicyValidate`, it is
+             comprised of the properties on the Policy class.
+
+        :returns: The results of Policy validation.
+        :rtype: :class:`~openstack.cluster.v1.policy.PolicyValidate`.
+        """
+        return self._create(_policy.PolicyValidate, **attrs)
+
     def cluster_policies(self, cluster, **query):
         """Retrieve a generator of cluster-policy bindings.
 
