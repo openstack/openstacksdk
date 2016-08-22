@@ -97,8 +97,8 @@ class TestClusterTemplates(base.TestCase):
             name_or_id='fake-cluster-template')
         mock_magnum.baymodels.list.assert_called_with(detail=False)
 
-        self.assertEquals(1, len(cluster_templates))
-        self.assertEquals('fake-uuid', cluster_templates[0]['uuid'])
+        self.assertEqual(1, len(cluster_templates))
+        self.assertEqual('fake-uuid', cluster_templates[0]['uuid'])
 
     @mock.patch.object(shade.OpenStackCloud, 'magnum_client')
     def test_search_cluster_templates_not_found(self, mock_magnum):
@@ -109,7 +109,7 @@ class TestClusterTemplates(base.TestCase):
             name_or_id='non-existent')
 
         mock_magnum.baymodels.list.assert_called_with(detail=False)
-        self.assertEquals(0, len(cluster_templates))
+        self.assertEqual(0, len(cluster_templates))
 
     @mock.patch.object(shade.OpenStackCloud, 'search_cluster_templates')
     def test_get_cluster_template(self, mock_search):

@@ -643,19 +643,19 @@ class TestMeta(base.TestCase):
         self.assertEqual(PUBLIC_V4, hostvars['public_v4'])
         self.assertEqual(PUBLIC_V6, hostvars['public_v6'])
         self.assertEqual(PUBLIC_V6, hostvars['interface_ip'])
-        self.assertEquals('REGION_NAME', hostvars['region'])
-        self.assertEquals('CLOUD_NAME', hostvars['cloud'])
-        self.assertEquals("test-image-name", hostvars['image']['name'])
-        self.assertEquals(standard_fake_server.image['id'],
-                          hostvars['image']['id'])
+        self.assertEqual('REGION_NAME', hostvars['region'])
+        self.assertEqual('CLOUD_NAME', hostvars['cloud'])
+        self.assertEqual("test-image-name", hostvars['image']['name'])
+        self.assertEqual(
+            standard_fake_server.image['id'], hostvars['image']['id'])
         self.assertNotIn('links', hostvars['image'])
-        self.assertEquals(standard_fake_server.flavor['id'],
-                          hostvars['flavor']['id'])
-        self.assertEquals("test-flavor-name", hostvars['flavor']['name'])
+        self.assertEqual(
+            standard_fake_server.flavor['id'], hostvars['flavor']['id'])
+        self.assertEqual("test-flavor-name", hostvars['flavor']['name'])
         self.assertNotIn('links', hostvars['flavor'])
         # test having volumes
         # test volume exception
-        self.assertEquals([], hostvars['volumes'])
+        self.assertEqual([], hostvars['volumes'])
 
     @mock.patch.object(shade.meta, 'get_server_external_ipv6')
     @mock.patch.object(shade.meta, 'get_server_external_ipv4')
@@ -689,7 +689,7 @@ class TestMeta(base.TestCase):
         server.image = 'fake-image-id'
         hostvars = meta.get_hostvars_from_server(
             FakeCloud(), meta.obj_to_dict(server))
-        self.assertEquals('fake-image-id', hostvars['image']['id'])
+        self.assertEqual('fake-image-id', hostvars['image']['id'])
 
     def test_az(self):
         server = standard_fake_server
@@ -698,7 +698,7 @@ class TestMeta(base.TestCase):
         hostvars = _utils.normalize_server(
             meta.obj_to_dict(server),
             cloud_name='', region_name='')
-        self.assertEquals('az1', hostvars['az'])
+        self.assertEqual('az1', hostvars['az'])
 
     def test_has_volume(self):
         mock_cloud = mock.MagicMock()
@@ -712,15 +712,15 @@ class TestMeta(base.TestCase):
         mock_cloud.get_volumes.return_value = [fake_volume_dict]
         hostvars = meta.get_hostvars_from_server(
             mock_cloud, meta.obj_to_dict(standard_fake_server))
-        self.assertEquals('volume1', hostvars['volumes'][0]['id'])
-        self.assertEquals('/dev/sda0', hostvars['volumes'][0]['device'])
+        self.assertEqual('volume1', hostvars['volumes'][0]['id'])
+        self.assertEqual('/dev/sda0', hostvars['volumes'][0]['device'])
 
     def test_has_no_volume_service(self):
         fake_cloud = FakeCloud()
         fake_cloud.service_val = False
         hostvars = meta.get_hostvars_from_server(
             fake_cloud, meta.obj_to_dict(standard_fake_server))
-        self.assertEquals([], hostvars['volumes'])
+        self.assertEqual([], hostvars['volumes'])
 
     def test_unknown_volume_exception(self):
         mock_cloud = mock.MagicMock()
@@ -746,7 +746,7 @@ class TestMeta(base.TestCase):
         self.assertNotIn('get_flavor_name', cloud_dict)
         self.assertNotIn('server', cloud_dict)
         self.assertTrue(hasattr(cloud_dict, 'name'))
-        self.assertEquals(cloud_dict.name, cloud_dict['name'])
+        self.assertEqual(cloud_dict.name, cloud_dict['name'])
 
     def test_obj_to_dict_subclass(self):
         class FakeObjDict(dict):
@@ -755,8 +755,8 @@ class TestMeta(base.TestCase):
         obj_dict = meta.obj_to_dict(obj)
         self.assertIn('additional', obj_dict)
         self.assertIn('foo', obj_dict)
-        self.assertEquals(obj_dict['additional'], 1)
-        self.assertEquals(obj_dict['foo'], 'bar')
+        self.assertEqual(obj_dict['additional'], 1)
+        self.assertEqual(obj_dict['foo'], 'bar')
 
     def test_warlock_to_dict(self):
         schema = {
@@ -775,4 +775,4 @@ class TestMeta(base.TestCase):
         self.assertNotIn('_unused', test_dict)
         self.assertEqual('test-image', test_dict['name'])
         self.assertTrue(hasattr(test_dict, 'name'))
-        self.assertEquals(test_dict.name, test_dict['name'])
+        self.assertEqual(test_dict.name, test_dict['name'])

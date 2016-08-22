@@ -52,12 +52,12 @@ class TestRecordset(base.BaseFunctionalTestCase):
         created_recordset = self.demo_cloud.create_recordset(zone, name, type_,
                                                              records,
                                                              description, ttl)
-        self.assertEquals(created_recordset['zone_id'], zone_obj['id'])
-        self.assertEquals(created_recordset['name'], name + '.' + zone)
-        self.assertEquals(created_recordset['type'], type_.upper())
-        self.assertEquals(created_recordset['records'], records)
-        self.assertEquals(created_recordset['description'], description)
-        self.assertEquals(created_recordset['ttl'], ttl)
+        self.assertEqual(created_recordset['zone_id'], zone_obj['id'])
+        self.assertEqual(created_recordset['name'], name + '.' + zone)
+        self.assertEqual(created_recordset['type'], type_.upper())
+        self.assertEqual(created_recordset['records'], records)
+        self.assertEqual(created_recordset['description'], description)
+        self.assertEqual(created_recordset['ttl'], ttl)
 
         # Test that we can list recordsets
         recordsets = self.demo_cloud.list_recordsets(zone)
@@ -66,23 +66,23 @@ class TestRecordset(base.BaseFunctionalTestCase):
         # Test we get the same recordset with the get_recordset method
         get_recordset = self.demo_cloud.get_recordset(zone,
                                                       created_recordset['id'])
-        self.assertEquals(get_recordset['id'], created_recordset['id'])
+        self.assertEqual(get_recordset['id'], created_recordset['id'])
 
         # Test the get method also works by name
         get_recordset = self.demo_cloud.get_recordset(zone, name + '.' + zone)
-        self.assertEquals(get_recordset['id'], created_recordset['id'])
+        self.assertEqual(get_recordset['id'], created_recordset['id'])
 
         # Test we can update a field on the recordset and only that field
         # is updated
         updated_recordset = self.demo_cloud.update_recordset(zone_obj['id'],
                                                              name + '.' + zone,
                                                              ttl=7200)
-        self.assertEquals(updated_recordset['id'], created_recordset['id'])
-        self.assertEquals(updated_recordset['name'], name + '.' + zone)
-        self.assertEquals(updated_recordset['type'], type_.upper())
-        self.assertEquals(updated_recordset['records'], records)
-        self.assertEquals(updated_recordset['description'], description)
-        self.assertEquals(updated_recordset['ttl'], 7200)
+        self.assertEqual(updated_recordset['id'], created_recordset['id'])
+        self.assertEqual(updated_recordset['name'], name + '.' + zone)
+        self.assertEqual(updated_recordset['type'], type_.upper())
+        self.assertEqual(updated_recordset['records'], records)
+        self.assertEqual(updated_recordset['description'], description)
+        self.assertEqual(updated_recordset['ttl'], 7200)
 
         # Test we can delete and get True returned
         deleted_recordset = self.demo_cloud.delete_recordset(

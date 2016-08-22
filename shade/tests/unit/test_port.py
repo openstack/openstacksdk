@@ -229,8 +229,8 @@ class TestPort(base.TestCase):
             name_or_id='f71a6703-d6de-4be1-a91a-a570ede1d159')
 
         mock_neutron_client.list_ports.assert_called_with()
-        self.assertEquals(1, len(ports))
-        self.assertEquals('fa:16:3e:bb:3c:e4', ports[0]['mac_address'])
+        self.assertEqual(1, len(ports))
+        self.assertEqual('fa:16:3e:bb:3c:e4', ports[0]['mac_address'])
 
     @patch.object(OpenStackCloud, 'neutron_client')
     def test_search_ports_by_name(self, mock_neutron_client):
@@ -240,8 +240,8 @@ class TestPort(base.TestCase):
         ports = self.cloud.search_ports(name_or_id='first-port')
 
         mock_neutron_client.list_ports.assert_called_with()
-        self.assertEquals(1, len(ports))
-        self.assertEquals('fa:16:3e:58:42:ed', ports[0]['mac_address'])
+        self.assertEqual(1, len(ports))
+        self.assertEqual('fa:16:3e:58:42:ed', ports[0]['mac_address'])
 
     @patch.object(OpenStackCloud, 'neutron_client')
     def test_search_ports_not_found(self, mock_neutron_client):
@@ -251,7 +251,7 @@ class TestPort(base.TestCase):
         ports = self.cloud.search_ports(name_or_id='non-existent')
 
         mock_neutron_client.list_ports.assert_called_with()
-        self.assertEquals(0, len(ports))
+        self.assertEqual(0, len(ports))
 
     @patch.object(OpenStackCloud, 'neutron_client')
     def test_delete_port(self, mock_neutron_client):

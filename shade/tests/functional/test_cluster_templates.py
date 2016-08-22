@@ -66,14 +66,14 @@ class TestClusterTemplate(base.BaseFunctionalTestCase):
         self.ct = self.demo_cloud.create_cluster_template(
             name=name, image_id=image_id,
             keypair_id=keypair_id, coe=coe)
-        self.assertEquals(self.ct['name'], name)
-        self.assertEquals(self.ct['image_id'], image_id)
-        self.assertEquals(self.ct['keypair_id'], keypair_id)
-        self.assertEquals(self.ct['coe'], coe)
-        self.assertEquals(self.ct['registry_enabled'], registry_enabled)
-        self.assertEquals(self.ct['tls_disabled'], tls_disabled)
-        self.assertEquals(self.ct['public'], public)
-        self.assertEquals(self.ct['server_type'], server_type)
+        self.assertEqual(self.ct['name'], name)
+        self.assertEqual(self.ct['image_id'], image_id)
+        self.assertEqual(self.ct['keypair_id'], keypair_id)
+        self.assertEqual(self.ct['coe'], coe)
+        self.assertEqual(self.ct['registry_enabled'], registry_enabled)
+        self.assertEqual(self.ct['tls_disabled'], tls_disabled)
+        self.assertEqual(self.ct['public'], public)
+        self.assertEqual(self.ct['server_type'], server_type)
 
         # Test that we can list cluster_templates
         cluster_templates = self.demo_cloud.list_cluster_templates()
@@ -83,19 +83,19 @@ class TestClusterTemplate(base.BaseFunctionalTestCase):
         # get_cluster_template method
         cluster_template_get = self.demo_cloud.get_cluster_template(
             self.ct['uuid'])
-        self.assertEquals(cluster_template_get['uuid'], self.ct['uuid'])
+        self.assertEqual(cluster_template_get['uuid'], self.ct['uuid'])
 
         # Test the get method also works by name
         cluster_template_get = self.demo_cloud.get_cluster_template(name)
-        self.assertEquals(cluster_template_get['name'], self.ct['name'])
+        self.assertEqual(cluster_template_get['name'], self.ct['name'])
 
         # Test we can update a field on the cluster_template and only that
         # field is updated
         cluster_template_update = self.demo_cloud.update_cluster_template(
             self.ct['uuid'], 'replace', tls_disabled=True)
-        self.assertEquals(cluster_template_update['uuid'],
-                          self.ct['uuid'])
-        self.assertEquals(cluster_template_update['tls_disabled'], True)
+        self.assertEqual(
+            cluster_template_update['uuid'], self.ct['uuid'])
+        self.assertEqual(cluster_template_update['tls_disabled'], True)
 
         # Test we can delete and get True returned
         cluster_template_delete = self.demo_cloud.delete_cluster_template(

@@ -89,7 +89,7 @@ class TestCloudEndpoints(base.TestCase):
 
         # test keys and values are correct
         for k, v in self.mock_endpoints[2].items():
-            self.assertEquals(v, endpoints[0].get(k))
+            self.assertEqual(v, endpoints[0].get(k))
 
         # test v3 semantics on v2.0 endpoint
         mock_keystone_client.endpoints.create.return_value = \
@@ -110,7 +110,7 @@ class TestCloudEndpoints(base.TestCase):
 
         # test keys and values are correct
         for k, v in self.mock_endpoints[0].items():
-            self.assertEquals(v, endpoints_3on2[0].get(k))
+            self.assertEqual(v, endpoints_3on2[0].get(k))
 
     @patch.object(OperatorCloud, 'list_services')
     @patch.object(OperatorCloud, 'keystone_client')
@@ -146,7 +146,7 @@ class TestCloudEndpoints(base.TestCase):
 
         # test keys and values are correct
         for k, v in self.mock_endpoints_v3[0].items():
-            self.assertEquals(v, endpoints[0].get(k))
+            self.assertEqual(v, endpoints[0].get(k))
 
         # test v2.0 semantics on v3 endpoint
         mock_keystone_client.endpoints.create.side_effect = \
@@ -161,12 +161,12 @@ class TestCloudEndpoints(base.TestCase):
         )
 
         # Three endpoints should be returned, public, internal, and admin
-        self.assertEquals(len(endpoints_2on3), 3)
+        self.assertEqual(len(endpoints_2on3), 3)
 
         # test keys and values are correct
         for count in range(len(endpoints_2on3)):
             for k, v in self.mock_endpoints_v3[count].items():
-                self.assertEquals(v, endpoints_2on3[count].get(k))
+                self.assertEqual(v, endpoints_2on3[count].get(k))
 
     @patch.object(os_client_config.cloud_config.CloudConfig, 'get_api_version')
     def test_update_endpoint_v2(self, mock_api_version):
@@ -201,7 +201,7 @@ class TestCloudEndpoints(base.TestCase):
 
         # test keys and values are correct
         for k, v in self.mock_endpoints_v3[0].items():
-            self.assertEquals(v, endpoint.get(k))
+            self.assertEqual(v, endpoint.get(k))
 
     @patch.object(OperatorCloud, 'keystone_client')
     def test_list_endpoints(self, mock_keystone_client):
@@ -221,7 +221,7 @@ class TestCloudEndpoints(base.TestCase):
                 if e['id'] == mock_endpoint['id']:
                     found = True
                     for k, v in mock_endpoint.items():
-                        self.assertEquals(v, e.get(k))
+                        self.assertEqual(v, e.get(k))
                         break
             self.assertTrue(
                 found, msg="endpoint {id} not found!".format(
@@ -237,7 +237,7 @@ class TestCloudEndpoints(base.TestCase):
         # # test we are getting exactly 1 element
         self.assertEqual(1, len(endpoints))
         for k, v in self.mock_endpoints[2].items():
-            self.assertEquals(v, endpoints[0].get(k))
+            self.assertEqual(v, endpoints[0].get(k))
 
         # Not found
         endpoints = self.op_cloud.search_endpoints(id='blah!')

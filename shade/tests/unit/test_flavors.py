@@ -38,7 +38,7 @@ class TestFlavors(base.TestCase):
 
         # test that we have a new flavor added
         new_flavors = self.full_op_cloud.list_flavors()
-        self.assertEquals(len(new_flavors) - len(old_flavors), 1)
+        self.assertEqual(len(new_flavors) - len(old_flavors), 1)
 
         # test that new flavor is created correctly
         found = False
