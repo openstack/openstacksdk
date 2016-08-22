@@ -274,7 +274,6 @@ class TestCreateServer(base.TestCase):
                 "floating_ips.list.return_value": [fake_floating_ip]
             }
             OpenStackCloud.nova_client = Mock(**config)
-            self.cloud._SERVER_AGE = 0
             with patch.object(OpenStackCloud, "add_ips_to_server",
                               return_value=fake_server):
                 self.assertRaises(
