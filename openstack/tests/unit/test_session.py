@@ -99,24 +99,27 @@ class TestSession(testtools.TestCase):
         self.assertIsInstance(os_exc, exceptions.SDKException)
         self.assertEqual(ksa_exc, os_exc.cause)
 
-    def _test__get_endpoint_versions(self, body, versions):
+    def _test__get_endpoint_versions(self, body, versions, endpoint=None):
         sot = session.Session(None)
 
         fake_response = mock.Mock()
         fake_response.json = mock.Mock(return_value=body)
         sot.get = mock.Mock(return_value=fake_response)
 
-        scheme = "https"
-        netloc = "devstack"
-        root = scheme + "://" + netloc
+        if endpoint is None:
+            # default case with port numbers, we strip the path to get base
+            endpoint = 'https://hostname:1234/v2.1/project_id'
+            root = 'https://hostname:1234'
+        else:
+            # otherwise we preserve the whole URI
+            root = endpoint
 
-        rv = sot._get_endpoint_versions(
-            "compute", "%s://%s/v2.1/projectidblahblah" % (scheme, netloc))
+        rv = sot._get_endpoint_versions("compute", endpoint)
 
         sot.get.assert_called_with(root)
 
-        self.assertEqual(rv[0], root)
-        self.assertEqual(rv[1], versions)
+        self.assertEqual(root, rv[0])
+        self.assertEqual(versions, rv[1])
 
     def test__get_endpoint_versions_nested(self):
         versions = [{"id": "v2.0"}, {"id": "v2.1"}]
@@ -127,6 +130,15 @@ class TestSession(testtools.TestCase):
         versions = [{"id": "v2.0"}, {"id": "v2.1"}]
         body = {"versions": versions}
         self._test__get_endpoint_versions(body, versions)
+
+    def test__get_endpoint_versions_apache_case(self):
+        # test for service running in apache, i.e. those that doesn't have a
+        # port number in its endpoint URI but the path in its URI should be
+        # preserved.
+        versions = [{"id": "v2.0"}, {"id": "v2.1"}]
+        body = {"versions": versions}
+        self._test__get_endpoint_versions(
+            body, versions, endpoint='http://hostname/service_path')
 
     def test__get_endpoint_versions_exception(self):
         sot = session.Session(None)
