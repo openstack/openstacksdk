@@ -28,6 +28,7 @@ from openstack.network.v2 import network_ip_availability
 from openstack.network.v2 import pool
 from openstack.network.v2 import pool_member
 from openstack.network.v2 import port
+from openstack.network.v2 import qos_policy
 from openstack.network.v2 import quota
 from openstack.network.v2 import rbac_policy
 from openstack.network.v2 import router
@@ -381,6 +382,30 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_port_update(self):
         self.verify_update(self.proxy.update_port, port.Port)
+
+    def test_qos_policy_create_attrs(self):
+        self.verify_create(self.proxy.create_qos_policy, qos_policy.QoSPolicy)
+
+    def test_qos_policy_delete(self):
+        self.verify_delete(self.proxy.delete_qos_policy, qos_policy.QoSPolicy,
+                           False)
+
+    def test_qos_policy_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_qos_policy, qos_policy.QoSPolicy,
+                           True)
+
+    def test_qos_policy_find(self):
+        self.verify_find(self.proxy.find_qos_policy, qos_policy.QoSPolicy)
+
+    def test_qos_policy_get(self):
+        self.verify_get(self.proxy.get_qos_policy, qos_policy.QoSPolicy)
+
+    def test_qos_policies(self):
+        self.verify_list(self.proxy.qos_policies, qos_policy.QoSPolicy,
+                         paginated=False)
+
+    def test_qos_policy_update(self):
+        self.verify_update(self.proxy.update_qos_policy, qos_policy.QoSPolicy)
 
     def test_quota_delete(self):
         self.verify_delete(self.proxy.delete_quota, quota.Quota, False)
