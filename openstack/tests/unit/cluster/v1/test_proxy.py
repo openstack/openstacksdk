@@ -340,6 +340,9 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_policy_create(self):
         self.verify_create(self.proxy.create_policy, policy.Policy)
 
+    def test_policy_validate(self):
+        self.verify_create(self.proxy.validate_policy, policy.PolicyValidate)
+
     def test_policy_delete(self):
         self.verify_delete(self.proxy.delete_policy, policy.Policy, False)
 

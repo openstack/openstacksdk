@@ -45,3 +45,16 @@ class Policy(resource.Resource):
     spec = resource.Body('spec', type=dict)
     #: A dictionary containing runtime data of the policy.
     data = resource.Body('data', type=dict)
+
+
+class PolicyValidate(Policy):
+    base_path = '/policies/validate'
+
+    # Capabilities
+    allow_list = False
+    allow_get = False
+    allow_create = True
+    allow_delete = False
+    allow_update = False
+
+    patch_update = False
