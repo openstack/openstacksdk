@@ -4753,7 +4753,7 @@ class OpenStackCloud(object):
         try:
             caps = self.get_object_capabilities()
         except swift_exceptions.ClientException as e:
-            if e.http_status == 412:
+            if e.http_status == 404 or e.http_status == 412:
                 server_max_file_size = DEFAULT_MAX_FILE_SIZE
                 self.log.info(
                     "Swift capabilities not supported. "
