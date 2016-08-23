@@ -152,6 +152,11 @@ class ServerListSecurityGroups(task_manager.Task):
         return client.nova_client.servers.list_security_group(**self.args)
 
 
+class ServerConsoleGet(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.servers.get_console_output(**self.args)
+
+
 class ServerGet(task_manager.Task):
     def main(self, client):
         return client.nova_client.servers.get(**self.args)
