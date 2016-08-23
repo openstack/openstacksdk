@@ -65,3 +65,22 @@ class TestProfile(testtools.TestCase):
         self.assertEqual(FAKE['type'], sot.type_name)
         self.assertEqual(FAKE['created_at'], sot.created_at)
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
+
+
+class TestProfileValidate(testtools.TestCase):
+
+    def setUp(self):
+        super(TestProfileValidate, self).setUp()
+
+    def test_basic(self):
+        sot = profile.ProfileValidate()
+        self.assertEqual('profile', sot.resource_key)
+        self.assertEqual('profiles', sot.resources_key)
+        self.assertEqual('/profiles/validate', sot.base_path)
+        self.assertEqual('clustering', sot.service.service_type)
+        self.assertTrue(sot.allow_create)
+        self.assertFalse(sot.allow_get)
+        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_delete)
+        self.assertFalse(sot.allow_list)
+        self.assertFalse(sot.patch_update)
