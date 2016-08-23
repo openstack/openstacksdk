@@ -28,13 +28,13 @@ class RBACPolicy(resource.Resource):
     allow_list = True
 
     # Properties
-    #: The id of RBAC object.
+    #: ID of the object that this RBAC policy affects.
     object_id = resource.prop('object_id')
     #: The ID of the project this RBAC will be enforced.
     target_project_id = resource.prop('target_tenant')
     #: The owner project ID.
     project_id = resource.prop('tenant_id')
-    #: Type of the object that RBAC policy affects.
+    #: Type of the object that this RBAC policy affects.
     object_type = resource.prop('object_type')
     #: Action for the RBAC policy.
     action = resource.prop('action')

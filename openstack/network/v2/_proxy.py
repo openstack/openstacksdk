@@ -1244,10 +1244,10 @@ class Proxy(proxy.BaseProxy):
         self._delete(_rbac_policy.RBACPolicy, rbac_policy,
                      ignore_missing=ignore_missing)
 
-    def find_rbac_policy(self, id, ignore_missing=True):
+    def find_rbac_policy(self, rbac_policy, ignore_missing=True):
         """Find a single RBAC policy
 
-        :param id: The ID of a RBAC policy.
+        :param rbac_policy: The ID of a RBAC policy.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be
             raised when the resource does not exist.
@@ -1256,7 +1256,7 @@ class Proxy(proxy.BaseProxy):
         :returns: One
             :class:`~openstack.network.v2.rbac_policy.RBACPolicy` or None
         """
-        return self._find(_rbac_policy.RBACPolicy, id,
+        return self._find(_rbac_policy.RBACPolicy, rbac_policy,
                           ignore_missing=ignore_missing)
 
     def get_rbac_policy(self, rbac_policy):
