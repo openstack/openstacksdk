@@ -278,7 +278,7 @@ class TestSession(testtools.TestCase):
         sot = session.Session(None)
         endpoint = session.Session._Endpoint(root, versions)
         rv = sot._get_version_match(endpoint, session.Version(2, 0), "service")
-        self.assertEqual(rv, root+match)
+        self.assertEqual(rv, root + match)
 
     def test__get_version_match_project_id(self):
         match = "http://devstack/v2"

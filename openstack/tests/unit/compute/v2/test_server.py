@@ -320,3 +320,247 @@ class TestServer(testtools.TestCase):
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
             url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_add_fixed_ip(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.add_fixed_ip(self.sess, "NETWORK-ID")
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"addFixedIp": {"networkId": "NETWORK-ID"}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_remove_fixed_ip(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.remove_fixed_ip(self.sess, "ADDRESS")
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"removeFixedIp": {"address": "ADDRESS"}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_add_floating_ip(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.add_floating_ip(self.sess, "FLOATING-IP")
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"addFloatingIp": {"address": "FLOATING-IP"}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_add_floating_ip_with_fixed_addr(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.add_floating_ip(self.sess, "FLOATING-IP", "FIXED-ADDR")
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"addFloatingIp": {"address": "FLOATING-IP",
+                                  "fixed_address": "FIXED-ADDR"}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_remove_floating_ip(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.remove_floating_ip(self.sess, "I-AM-FLOATING")
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"removeFloatingIp": {"address": "I-AM-FLOATING"}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_pause(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.pause(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"pause": None}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_unpause(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.unpause(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"unpause": None}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_suspend(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.suspend(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"suspend": None}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_resume(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.resume(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"resume": None}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_lock(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.lock(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"lock": None}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_unlock(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.unlock(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"unlock": None}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_rescue(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.rescue(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"rescue": {}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_rescue_with_options(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.rescue(self.sess, admin_pass='SECRET', image_ref='IMG-ID')
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"rescue": {'adminPass': 'SECRET',
+                           'rescue_image_ref': 'IMG-ID'}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_unrescue(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.unrescue(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"unrescue": None}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_evacuate(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.evacuate(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"evacuate": {}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_evacuate_with_options(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.evacuate(self.sess, host='HOST2', admin_pass='NEW_PASS',
+                           force=True)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"evacuate": {'host': 'HOST2', 'adminPass': 'NEW_PASS',
+                             'force': True}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_start(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.start(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"os-start": None}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_stop(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.stop(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"os-stop": None}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_shelve(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.shelve(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"shelve": None}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_unshelve(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.unshelve(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"unshelve": None}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
