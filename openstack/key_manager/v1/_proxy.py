@@ -13,10 +13,10 @@
 from openstack.key_manager.v1 import container as _container
 from openstack.key_manager.v1 import order as _order
 from openstack.key_manager.v1 import secret as _secret
-from openstack import proxy
+from openstack import proxy2
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy2.BaseProxy):
 
     def create_container(self, **attrs):
         """Create a new container from attributes
