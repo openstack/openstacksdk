@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.message.v2 import claim as _claim
 from openstack.message.v2 import message as _message
 from openstack.message.v2 import queue as _queue
 from openstack.message.v2 import subscription as _subscription
@@ -212,4 +213,63 @@ class Proxy(proxy2.BaseProxy):
         subscription = self._get_resource(_subscription.Subscription, value,
                                           queue_name=queue_name)
         return self._delete(_subscription.Subscription, subscription,
+                            ignore_missing=ignore_missing)
+
+    def create_claim(self, queue_name, **attrs):
+        """Create a new claim from attributes
+
+        :param queue_name: The name of target queue to claim message from.
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.message.v2.claim.Claim`,
+            comprised of the properties on the Claim class.
+
+        :returns: The results of claim creation
+        :rtype: :class:`~openstack.message.v2.claim.Claim`
+        """
+        return self._create(_claim.Claim, queue_name=queue_name, **attrs)
+
+    def get_claim(self, queue_name, claim):
+        """Get a claim
+
+        :param queue_name: The name of target queue to claim message from.
+        :param claim: The value can be either the ID of a claim or a
+            :class:`~openstack.message.v2.claim.Claim` instance.
+
+        :returns: One :class:`~openstack.message.v2.claim.Claim`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            claim matching the criteria could be found.
+        """
+        return self._get(_claim.Claim, claim, queue_name=queue_name)
+
+    def update_claim(self, queue_name, claim, **attrs):
+        """Update an existing claim from attributes
+
+        :param queue_name: The name of target queue to claim message from.
+        :param claim: The value can be either the ID of a claim or a
+            :class:`~openstack.message.v2.claim.Claim` instance.
+        :param dict attrs: Keyword arguments which will be used to update a
+            :class:`~openstack.message.v2.claim.Claim`,
+            comprised of the properties on the Claim class.
+
+        :returns: The results of claim update
+        :rtype: :class:`~openstack.message.v2.claim.Claim`
+        """
+        return self._update(_claim.Claim, claim, queue_name=queue_name,
+                            **attrs)
+
+    def delete_claim(self, queue_name, claim, ignore_missing=True):
+        """Delete a claim
+
+        :param queue_name: The name of target queue to claim messages from.
+        :param claim: The value can be either the ID of a claim or a
+                      :class:`~openstack.message.v2.claim.Claim` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the claim does not exist.
+                    When set to ``True``, no exception will be thrown when
+                    attempting to delete a nonexistent claim.
+
+        :returns: ``None``
+        """
+        return self._delete(_claim.Claim, claim, queue_name=queue_name,
                             ignore_missing=ignore_missing)

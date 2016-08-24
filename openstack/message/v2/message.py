@@ -104,8 +104,8 @@ class Message(resource2.Resource):
             query_params["limit"] = yielded
             query_params["marker"] = new_marker
 
-    def get(self, session):
-        request = self._prepare_request()
+    def get(self, session, requires_id=True):
+        request = self._prepare_request(requires_id=requires_id)
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
             "X-PROJECT-ID": self.project_id or session.get_project_id()
