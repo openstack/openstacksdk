@@ -219,7 +219,7 @@ class Resource(object):
     #: The name of this resource.
     name = Body("name")
     #: The location of this resource.
-    location = Header("location")
+    location = Header("Location")
 
     #: Mapping of accepted query parameter names.
     _query_mapping = QueryParameters()

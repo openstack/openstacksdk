@@ -382,7 +382,7 @@ class TestResource(base.TestCase):
 
     def test_initialize_basic(self):
         body = {"body": 1}
-        header = {"header": 2}
+        header = {"header": 2, "Location": "somewhere"}
         uri = {"uri": 3}
         everything = dict(itertools.chain(body.items(), header.items(),
                                           uri.items()))
@@ -394,6 +394,7 @@ class TestResource(base.TestCase):
                                "_collect_attrs", mock_collect):
             sot = resource2.Resource(synchronized=False, **everything)
             mock_collect.assert_called_once_with(everything)
+        self.assertEqual("somewhere", sot.location)
 
         self.assertIsInstance(sot._body, resource2._ComponentManager)
         self.assertEqual(body, sot._body.dirty)
