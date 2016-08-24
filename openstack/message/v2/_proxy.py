@@ -12,6 +12,7 @@
 
 from openstack.message.v2 import message as _message
 from openstack.message.v2 import queue as _queue
+from openstack.message.v2 import subscription as _subscription
 from openstack import proxy2
 
 
@@ -140,4 +141,75 @@ class Proxy(proxy2.BaseProxy):
         message = self._get_resource(_message.Message, value,
                                      queue_name=queue_name)
         return self._delete(_message.Message, message,
+                            ignore_missing=ignore_missing)
+
+    def create_subscription(self, queue_name, **attrs):
+        """Create a new subscription from attributes
+
+        :param queue_name: The name of target queue to subscribe on.
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.message.v2.subscription.Subscription`,
+            comprised of the properties on the Subscription class.
+
+        :returns: The results of subscription creation
+        :rtype: :class:`~openstack.message.v2.subscription.Subscription`
+        """
+        return self._create(_subscription.Subscription, queue_name=queue_name,
+                            **attrs)
+
+    def subscriptions(self, queue_name, **query):
+        """Retrieve a generator of subscriptions
+
+        :param queue_name: The name of target queue to subscribe on.
+        :param kwargs \*\*query: Optional query parameters to be sent to
+            restrict the subscriptions to be returned. Available parameters
+            include:
+
+            * limit: Requests at most the specified number of items be
+                returned from the query.
+            * marker: Specifies the ID of the last-seen subscription. Use the
+                limit parameter to make an initial limited request and use the
+                ID of the last-seen subscription from the response as the
+                marker parameter value in a subsequent limited request.
+
+        :returns: A generator of subscription instances.
+        """
+        query["queue_name"] = queue_name
+        return self._list(_subscription.Subscription, paginated=True, **query)
+
+    def get_subscription(self, queue_name, subscription):
+        """Get a subscription
+
+        :param queue_name: The name of target queue of subscription.
+        :param message: The value can be the ID of a subscription or a
+            :class:`~openstack.message.v2.subscription.Subscription` instance.
+
+        :returns: One :class:`~openstack.message.v2.subscription.Subscription`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            subscription matching the criteria could be found.
+        """
+        subscription = self._get_resource(_subscription.Subscription,
+                                          subscription,
+                                          queue_name=queue_name)
+        return self._get(_subscription.Subscription, subscription)
+
+    def delete_subscription(self, queue_name, value, ignore_missing=True):
+        """Delete a subscription
+
+        :param queue_name: The name of target queue to delete subscription
+                           from.
+        :param value: The value can be either the name of a subscription or a
+                      :class:`~openstack.message.v2.subscription.Subscription`
+                      instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the subscription does not exist.
+                    When set to ``True``, no exception will be thrown when
+                    attempting to delete a nonexistent subscription.
+
+        :returns: ``None``
+        """
+        subscription = self._get_resource(_subscription.Subscription, value,
+                                          queue_name=queue_name)
+        return self._delete(_subscription.Subscription, subscription,
                             ignore_missing=ignore_missing)
