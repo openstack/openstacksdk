@@ -19,6 +19,7 @@ class TestProfile(base.TestCase):
     def test_init(self):
         prof = profile.Profile()
         expected = [
+            'alarming',
             'clustering',
             'compute',
             'database',
@@ -51,10 +52,12 @@ class TestProfile(base.TestCase):
 
     def test_set(self):
         prof = profile.Profile()
-        prof.set_version('compute', 'v2')
-        self.assertEqual('v2', prof.get_filter('compute').version)
+        prof.set_version('alarming', 'v2')
+        self.assertEqual('v2', prof.get_filter('alarming').version)
         prof.set_version('clustering', 'v1')
         self.assertEqual('v1', prof.get_filter('clustering').version)
+        prof.set_version('compute', 'v2')
+        self.assertEqual('v2', prof.get_filter('compute').version)
         prof.set_version('database', 'v3')
         self.assertEqual('v3', prof.get_filter('database').version)
         prof.set_version('identity', 'v4')

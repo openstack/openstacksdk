@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack import resource
-from openstack.telemetry import telemetry_service
+from openstack.telemetry.alarm import alarm_service
 
 
 class AlarmChange(resource.Resource):
@@ -19,7 +19,7 @@ class AlarmChange(resource.Resource):
     id_attribute = 'event_id'
     resource_key = 'alarm_change'
     base_path = '/alarms/%(alarm_id)s/history'
-    service = telemetry_service.TelemetryService()
+    service = alarm_service.AlarmService()
 
     # Supported Operations
     allow_list = True
@@ -36,6 +36,7 @@ class AlarmChange(resource.Resource):
     #: The project ID of the initiating identity
     project_id = resource.prop('project_id')
     #: The time/date of the alarm change.
+    #: *Type: ISO 8601 formatted string*
     triggered_at = resource.prop('timestamp')
     #: The type of change
     type = resource.prop('type')

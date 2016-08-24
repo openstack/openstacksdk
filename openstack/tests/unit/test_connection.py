@@ -111,6 +111,8 @@ class TestConnection(base.TestCase):
         conn = connection.Connection(authenticator=auth, profile=prof)
         self.assertEqual(auth, conn.authenticator)
         self.assertEqual(prof, conn.profile)
+        self.assertEqual('openstack.telemetry.alarm.v2._proxy',
+                         conn.alarm.__class__.__module__)
         self.assertEqual('openstack.cluster.v1._proxy',
                          conn.cluster.__class__.__module__)
         self.assertEqual('openstack.compute.v2._proxy',

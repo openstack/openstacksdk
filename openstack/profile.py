@@ -68,6 +68,7 @@ from openstack import module_loader
 from openstack.network import network_service
 from openstack.object_store import object_store_service
 from openstack.orchestration import orchestration_service
+from openstack.telemetry.alarm import alarm_service
 from openstack.telemetry import telemetry_service
 
 _logger = logging.getLogger(__name__)
@@ -89,23 +90,22 @@ class Profile(object):
         'compute', etc.
         """
         self._services = {}
+
+        self._add_service(alarm_service.AlarmService(version="v2"))
+        self._add_service(block_store_service.BlockStoreService(version="v2"))
         self._add_service(cluster_service.ClusterService(version="v1"))
         self._add_service(compute_service.ComputeService(version="v2"))
         self._add_service(database_service.DatabaseService(version="v1"))
         self._add_service(identity_service.IdentityService(version="v3"))
         self._add_service(image_service.ImageService(version="v2"))
+        self._add_service(key_manager_service.KeyManagerService(version="v1"))
+        self._add_service(message_service.MessageService(version="v1"))
         self._add_service(network_service.NetworkService(version="v2"))
         self._add_service(
             object_store_service.ObjectStoreService(version="v1"))
         self._add_service(
             orchestration_service.OrchestrationService(version="v1"))
-        self._add_service(key_manager_service.KeyManagerService(version="v1"))
         self._add_service(telemetry_service.TelemetryService(version="v1"))
-        self._add_service(block_store_service.BlockStoreService(version="v2"))
-        self._add_service(message_service.MessageService(version="v1"))
-
-        # NOTE: The Metric service is not added here as it currently
-        # only retrieves the /capabilities API.
 
         if plugins:
             for plugin in plugins:

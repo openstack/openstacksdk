@@ -13,7 +13,7 @@
 import mock
 import testtools
 
-from openstack.telemetry.v2 import alarm_change
+from openstack.telemetry.alarm.v2 import alarm_change
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
@@ -35,7 +35,7 @@ class TestAlarmChange(testtools.TestCase):
         self.assertEqual('alarm_change', sot.resource_key)
         self.assertIsNone(sot.resources_key)
         self.assertEqual('/alarms/%(alarm_id)s/history', sot.base_path)
-        self.assertEqual('metering', sot.service.service_type)
+        self.assertEqual('alarming', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_retrieve)
         self.assertFalse(sot.allow_update)
