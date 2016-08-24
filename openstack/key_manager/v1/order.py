@@ -11,34 +11,45 @@
 # under the License.
 
 from openstack.key_manager import key_manager_service
-from openstack import resource
+from openstack.key_manager.v1 import _format
+from openstack import resource2
 
 
-class Order(resource.Resource):
+class Order(resource2.Resource):
     resources_key = 'orders'
     base_path = '/orders'
     service = key_manager_service.KeyManagerService()
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
-    # Properties
-    # TODO(briancurtin): not documented
-    error_reason = resource.prop('error_reason')
-    # TODO(briancurtin): not documented
-    error_status_code = resource.prop('error_status_code')
-    #: a dictionary containing key-value parameters which specify the
+    #: Timestamp in ISO8601 format of when the order was created
+    created_at = resource2.Body('created')
+    #: Keystone Id of the user who created the order
+    creator_id = resource2.Body('creator_id')
+    #: A dictionary containing key-value parameters which specify the
     #: details of an order request
-    meta = resource.prop('meta')
+    meta = resource2.Body('meta', type=dict)
     #: A URI for this order
-    order_ref = resource.prop('order_ref')
-    #: TODO(briancurtin): not documented
-    secret_ref = resource.prop('secret_ref')
+    order_ref = resource2.Body('order_ref')
+    #: The ID of this order
+    order_id = resource2.Body('order_ref', alternate_id=True,
+                              type=_format.HREFToUUID)
+    #: Secret href associated with the order
+    secret_ref = resource2.Body('secret_ref')
+    #: Secret ID associated with the order
+    secret_id = resource2.Body('secret_ref', type=_format.HREFToUUID)
     # The status of this order
-    status = resource.prop('status')
+    status = resource2.Body('status')
+    #: Metadata associated with the order
+    sub_status = resource2.Body('sub_status')
+    #: Metadata associated with the order
+    sub_status_message = resource2.Body('sub_status_message')
     # The type of order
-    type = resource.prop('type')
+    type = resource2.Body('type')
+    #: 	Timestamp in ISO8601 format of the last time the order was updated.
+    updated_at = resource2.Body('updated')

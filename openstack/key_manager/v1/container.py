@@ -11,34 +11,39 @@
 # under the License.
 
 from openstack.key_manager import key_manager_service
-from openstack import resource
+from openstack.key_manager.v1 import _format
+from openstack import resource2
 
 
-class Container(resource.Resource):
-    id_attribute = 'container_ref'
+class Container(resource2.Resource):
     resources_key = 'containers'
     base_path = '/containers'
     service = key_manager_service.KeyManagerService()
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
     # Properties
     #: A URI for this container
-    container_ref = resource.prop('container_ref')
+    container_ref = resource2.Body('container_ref')
+    #: The ID for this container
+    container_id = resource2.Body('container_ref', alternate_id=True,
+                                  type=_format.HREFToUUID)
     #: The timestamp when this container was created.
-    created_at = resource.prop('created')
+    created_at = resource2.Body('created')
     #: The name of this container
-    name = resource.prop('name')
+    name = resource2.Body('name')
     #: A list of references to secrets in this container
-    secret_refs = resource.prop('secret_refs')
+    secret_refs = resource2.Body('secret_refs', type=list)
     #: The status of this container
-    status = resource.prop('status')
+    status = resource2.Body('status')
     #: The type of this container
-    type = resource.prop('type')
+    type = resource2.Body('type')
     #: The timestamp when this container was updated.
-    updated_at = resource.prop('updated')
+    updated_at = resource2.Body('updated')
+    #: A party interested in this container.
+    consumers = resource2.Body('consumers', type=list)

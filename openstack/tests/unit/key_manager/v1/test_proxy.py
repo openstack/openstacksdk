@@ -14,12 +14,12 @@ from openstack.key_manager.v1 import _proxy
 from openstack.key_manager.v1 import container
 from openstack.key_manager.v1 import order
 from openstack.key_manager.v1 import secret
-from openstack.tests.unit import test_proxy_base
+from openstack.tests.unit import test_proxy_base2
 
 
-class TestKeyManagementProxy(test_proxy_base.TestProxyBase):
+class TestKeyManagerProxy(test_proxy_base2.TestProxyBase):
     def setUp(self):
-        super(TestKeyManagementProxy, self).setUp()
+        super(TestKeyManagerProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_server_create_attrs(self):
