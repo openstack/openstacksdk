@@ -4288,8 +4288,10 @@ class OpenStackCloud(object):
         :param reuse_ips: (optional) Whether to attempt to reuse pre-existing
                                      floating ips should a floating IP be
                                      needed (defaults to True)
-        :param network: (optional) Network name or id to attach the server to.
-                        Mutually exclusive with the nics parameter.
+        :param network: (optional) Network dict or name or id to attach the
+                        server to.  Mutually exclusive with the nics parameter.
+                        Can also be be a list of network names or ids or
+                        network dicts.
         :param boot_from_volume: Whether to boot from volume. 'boot_volume'
                                  implies True, but boot_from_volume=True with
                                  no boot_volume is valid and will create a
@@ -4320,15 +4322,23 @@ class OpenStackCloud(object):
                     'nics parameter to create_server takes a list of dicts.'
                     ' Got: {nics}'.format(nics=kwargs['nics']))
         if network and ('nics' not in kwargs or not kwargs['nics']):
-            network_obj = self.get_network(name_or_id=network)
-            if not network_obj:
-                raise OpenStackCloudException(
-                    'Network {network} is not a valid network in'
-                    ' {cloud}:{region}'.format(
-                        network=network,
-                        cloud=self.name, region=self.region_name))
+            nics = []
+            if not isinstance(network, list):
+                network = [network]
+            for net_name in network:
+                if isinstance(net_name, dict) and 'id' in net_name:
+                    network_obj = net_name
+                else:
+                    network_obj = self.get_network(name_or_id=net_name)
+                if not network_obj:
+                    raise OpenStackCloudException(
+                        'Network {network} is not a valid network in'
+                        ' {cloud}:{region}'.format(
+                            network=network,
+                            cloud=self.name, region=self.region_name))
+                nics.append({'net-id': network_obj['id']})
 
-            kwargs['nics'] = [{'net-id': network_obj['id']}]
+            kwargs['nics'] = nics
         if not network and ('nics' not in kwargs or not kwargs['nics']):
             default_network = self.get_default_network()
             if default_network:
