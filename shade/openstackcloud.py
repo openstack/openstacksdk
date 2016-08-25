@@ -4101,10 +4101,63 @@ class OpenStackCloud(object):
                 server, ips, wait=wait, timeout=timeout,
                 fixed_address=fixed_address)
         elif auto_ip:
-            if not server['interface_ip']:
+            if self._needs_floating_ip(server, nat_destination):
                 server = self._add_auto_ip(
                     server, wait=wait, timeout=timeout, reuse=reuse)
         return server
+
+    def _needs_floating_ip(self, server, nat_destination):
+        """Figure out if auto_ip should add a floating ip to this server.
+
+        If the server has a public_v4 it does not need a floating ip.
+
+        If the server does not have a private_v4 it does not need a
+        floating ip.
+
+        If self.private then the server does not need a floating ip.
+
+        If the cloud runs nova, and the server has a private_v4 and not
+        a public_v4, then the server needs a floating ip.
+
+        If the server has a private_v4 and no public_v4 and the cloud has
+        a network from which floating IPs come that is connected via a
+        router to the network from which the private_v4 address came,
+        then the server needs a floating ip.
+
+        If the server has a private_v4 and no public_v4 and the cloud
+        does not have a network from which floating ips come, or it has
+        one but that network is not connected to the network from which
+        the server's private_v4 address came via a router, then the
+        server does not need a floating ip.
+        """
+        if not self._has_floating_ips():
+            return False
+
+        if server['public_v4']:
+            return False
+
+        if not server['private_v4']:
+            return False
+
+        if self.private:
+            return False
+
+        if not self.has_service('network'):
+            return True
+
+        # No external IPv4 network - no FIPs
+        # TODO(mordred) THIS IS get_external_ipv4_networks IN THE NEXT PATCH
+        networks = self.get_external_networks()
+        if not networks:
+            return False
+
+        (port_obj, fixed_ip_address) = self._get_free_fixed_port(
+            server, nat_destination=nat_destination)
+
+        if not port_obj or not fixed_ip_address:
+            return False
+
+        return True
 
     def _get_boot_from_volume_kwargs(
             self, image, boot_from_volume, boot_volume, volume_size,
