@@ -199,11 +199,11 @@ class OpenStackCloud(object):
 
         self._resource_caches = {}
 
+        expirations = cloud_config.get_cache_expiration()
         if cache_class != 'dogpile.cache.null':
             self.cache_enabled = True
             self._cache = self._make_cache(
                 cache_class, cache_expiration_time, cache_arguments)
-            expirations = cloud_config.get_cache_expiration()
             for expire_key in expirations.keys():
                 # Only build caches for things we have list operations for
                 if getattr(
@@ -213,6 +213,29 @@ class OpenStackCloud(object):
                         async_creation_runner=_utils.async_creation_runner)
 
             self._SERVER_AGE = DEFAULT_SERVER_AGE
+        elif expirations:
+            # We have per-resource expirations configured, but not general
+            # caching. This is a potential common case for things like
+            # nodepool. In this case, we want dogpile.cache.null for the
+            # general cache but dogpile.cache.memory for per-resource. We
+            # can't remove the decorators in this config, but that's just
+            # the price of playing ball
+            cache_class = 'dogpile.cache.memory'
+            self.cache_enabled = False
+            self._cache = self._make_cache(
+                'dogpile.cache.null', cache_expiration_time, cache_arguments)
+            # Don't cache list_servers if we're not caching things.
+            # Replace this with a more specific cache configuration
+            # soon.
+            self._SERVER_AGE = 0
+            for expire_key in expirations.keys():
+                # Only build caches for things we have list operations for
+                if getattr(
+                        self, 'list_{0}'.format(expire_key), None):
+                    self._resource_caches[expire_key] = self._make_cache(
+                        cache_class, expirations[expire_key], cache_arguments,
+                        async_creation_runner=_utils.async_creation_runner)
+
         else:
             self.cache_enabled = False
 
@@ -294,8 +317,8 @@ class OpenStackCloud(object):
             name_key = '%s:%s' % (self.name, namespace)
 
         def generate_key(*args, **kwargs):
-            arg_key = ','.join(args)
-            kw_keys = sorted(kwargs.keys())
+            arg_key = ','.join([str(arg) for arg in args]) if args else ''
+            kw_keys = sorted(kwargs.keys()) if kwargs else []
             kwargs_key = ','.join(
                 ['%s:%s' % (k, kwargs[k]) for k in kw_keys if k != 'cache'])
             ans = "_".join(
