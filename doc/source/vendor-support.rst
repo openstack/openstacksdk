@@ -31,7 +31,7 @@ auro
 https://api.auro.io:5000/v2.0
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
 van1           Vancouver, BC
 ============== ================
@@ -44,7 +44,7 @@ catalyst
 https://api.cloud.catalyst.net.nz:5000/v2.0
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
 nz-por-1       Porirua, NZ
 nz_wlg_2       Wellington, NZ
@@ -60,7 +60,7 @@ citycloud
 https://identity1.citycloud.com:5000/v3/
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
 Buf1           Buffalo, NY
 Fra1           Frankfurt, DE
@@ -80,7 +80,7 @@ conoha
 https://identity.%(region_name)s.conoha.io
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
 tyo1           Tokyo, JP
 sin1           Singapore
@@ -95,7 +95,7 @@ datacentred
 https://compute.datacentred.io:5000
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
 sal01          Manchester, UK
 ============== ================
@@ -108,9 +108,9 @@ dreamcompute
 https://iad2.dream.io:5000
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
-RegionOne      Region One
+RegionOne      Ashburn, VA
 ============== ================
 
 * Identity API Version is 3
@@ -125,9 +125,9 @@ Deprecated, please use dreamcompute
 https://keystone.dream.io/v2.0
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
-RegionOne      Region One
+RegionOne      Ashburn, VA
 ============== ================
 
 * Images must be in `raw` format
@@ -140,9 +140,9 @@ elastx
 https://ops.elastx.net:5000/v2.0
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
-regionOne      Region One
+regionOne      Stockholm, SE
 ============== ================
 
 * Public IPv4 is provided via NAT with Neutron Floating IP
@@ -153,7 +153,7 @@ entercloudsuite
 https://api.entercloudsuite.com/v2.0
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
 nl-ams1        Amsterdam, NL
 it-mil1        Milan, IT
@@ -162,26 +162,13 @@ de-fra1        Frankfurt, DE
 
 * Volume API Version is 1
 
-ibmcloud
---------
-
-https://identity.open.softlayer.com
-
-============== ================
-Region Name    Human Name
-============== ================
-london         London, UK
-============== ================
-
-* Public IPv4 is provided via NAT with Neutron Floating IP
-
 internap
 --------
 
 https://identity.api.cloud.iweb.com/v2.0
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
 ams01          Amsterdam, NL
 da01           Dallas, TX
@@ -192,26 +179,13 @@ sjc01          San Jose, CA
 
 * Floating IPs are not supported
 
-osic
-----
-
-https://cloud1.osic.org:5000
-
-============== =================
-Region Name    Human Name
-============== =================
-RegionOne      RegionOne
-============== =================
-
-* Public IPv4 is provided via NAT with Neutron Floating IP
-
 ovh
 ---
 
 https://auth.cloud.ovh.net/v2.0
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
 BHS1           Beauharnois, QC
 SBG1           Strassbourg, FR
@@ -227,14 +201,14 @@ rackspace
 https://identity.api.rackspacecloud.com/v2.0/
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
-DFW            Dallas
+DFW            Dallas, TX
 HKG            Hong Kong
 IAD            Washington, D.C.
-LON            London
-ORD            Chicago
-SYD            Sydney
+LON            London, UK
+ORD            Chicago, IL
+SYD            Sydney, NSW
 ============== ================
 
 * Database Service Type is `rax:database`
@@ -256,7 +230,7 @@ switchengines
 https://keystone.cloud.switch.ch:5000/v2.0
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
 LS             Lausanne, CH
 ZH             Zurich, CH
@@ -272,9 +246,9 @@ ultimum
 https://console.ultimum-cloud.com:5000/v2.0
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
-RegionOne      Region One
+RegionOne      Prague, CZ
 ============== ================
 
 * Volume API Version is 1
@@ -285,10 +259,10 @@ unitedstack
 https://identity.api.ustack.com/v3
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
-bj1            Beijing
-gd1            Guangdong
+bj1            Beijing, CN
+gd1            Guangdong, CN
 ============== ================
 
 * Identity API Version is 3
@@ -301,9 +275,9 @@ vexxhost
 http://auth.vexxhost.net
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
-ca-ymq-1       Montreal
+ca-ymq-1       Montreal, QC
 ============== ================
 
 * DNS API Version is 1
@@ -315,9 +289,9 @@ zetta
 https://identity.api.zetta.io/v3
 
 ============== ================
-Region Name    Human Name
+Region Name    Location
 ============== ================
-no-osl1        Oslo
+no-osl1        Oslo, NO
 ============== ================
 
 * DNS API Version is 2
