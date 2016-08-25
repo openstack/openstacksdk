@@ -99,7 +99,8 @@ class TestCreateServer(base.TestCase):
             self.assertRaises(
                 OpenStackCloudException,
                 self.cloud.create_server,
-                'server-name', 'image-id', 'flavor-id', wait=True)
+                'server-name', dict(id='image-id'),
+                dict(id='flavor-id'), wait=True)
 
     def test_create_server_with_timeout(self):
         """
@@ -117,7 +118,8 @@ class TestCreateServer(base.TestCase):
             self.assertRaises(
                 OpenStackCloudTimeout,
                 self.cloud.create_server,
-                'server-name', 'image-id', 'flavor-id',
+                'server-name',
+                dict(id='image-id'), dict(id='flavor-id'),
                 wait=True, timeout=0.01)
 
     def test_create_server_no_wait(self):
@@ -142,8 +144,9 @@ class TestCreateServer(base.TestCase):
                     cloud_name=self.cloud.name,
                     region_name=self.cloud.region_name),
                 self.cloud.create_server(
-                    name='server-name', image='image=id',
-                    flavor='flavor-id'))
+                    name='server-name',
+                    image=dict(id='image=id'),
+                    flavor=dict(id='flavor-id')))
 
     def test_create_server_with_admin_pass_no_wait(self):
         """
@@ -168,8 +171,8 @@ class TestCreateServer(base.TestCase):
                     cloud_name=self.cloud.name,
                     region_name=self.cloud.region_name),
                 self.cloud.create_server(
-                    name='server-name', image='image=id',
-                    flavor='flavor-id', admin_pass='ooBootheiX0edoh'))
+                    name='server-name', image=dict(id='image=id'),
+                    flavor=dict(id='flavor-id'), admin_pass='ooBootheiX0edoh'))
 
     @patch.object(OpenStackCloud, "wait_for_server")
     @patch.object(OpenStackCloud, "nova_client")
@@ -188,8 +191,9 @@ class TestCreateServer(base.TestCase):
             meta.obj_to_dict(fake_server), None, None)
 
         server = self.cloud.create_server(
-            name='server-name', image='image-id',
-            flavor='flavor-id', admin_pass='ooBootheiX0edoh', wait=True)
+            name='server-name', image=dict(id='image-id'),
+            flavor=dict(id='flavor-id'),
+            admin_pass='ooBootheiX0edoh', wait=True)
 
         # Assert that we did wait
         self.assertTrue(mock_wait.called)
@@ -245,7 +249,8 @@ class TestCreateServer(base.TestCase):
         mock_nova.servers.create.return_value = fake_server
 
         self.cloud.create_server(
-            'server-name', 'image-id', 'flavor-id', wait=True),
+            'server-name',
+            dict(id='image-id'), dict(id='flavor-id'), wait=True),
 
         mock_wait.assert_called_once_with(
             fake_server, auto_ip=True, ips=None,
@@ -290,7 +295,8 @@ class TestCreateServer(base.TestCase):
         attempt to get the network for the server.
         """
         self.cloud.create_server(
-            'server-name', 'image-id', 'flavor-id', network='network-name')
+            'server-name',
+            dict(id='image-id'), dict(id='flavor-id'), network='network-name')
         mock_get_network.assert_called_once_with(name_or_id='network-name')
 
     @patch('shade.OpenStackCloud.nova_client')
@@ -303,6 +309,15 @@ class TestCreateServer(base.TestCase):
         it's treated the same as if 'nics' were not included.
         """
         self.cloud.create_server(
-            'server-name', 'image-id', 'flavor-id',
+            'server-name', dict(id='image-id'), dict(id='flavor-id'),
             network='network-name', nics=[])
         mock_get_network.assert_called_once_with(name_or_id='network-name')
+
+    @patch('shade.OpenStackCloud.glance_client')
+    @patch('shade.OpenStackCloud.nova_client')
+    def test_create_server_get_flavor_image(
+            self, mock_nova, mock_glance):
+        self.cloud.create_server(
+            'server-name', 'image-id', 'flavor-id')
+        mock_nova.flavors.list.assert_called_once()
+        mock_glance.images.list.assert_called_once()
