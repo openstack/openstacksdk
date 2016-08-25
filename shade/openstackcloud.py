@@ -2573,7 +2573,7 @@ class OpenStackCloud(object):
             # Task API means an image was uploaded to swift
             if self.image_api_use_tasks and IMAGE_OBJECT_KEY in image:
                 (container, objname) = image[IMAGE_OBJECT_KEY].split('/', 1)
-                self.delete_object(container=container, name=name)
+                self.delete_object(container=container, name=objname)
 
         if wait:
             for count in _utils._iterate_timeout(
