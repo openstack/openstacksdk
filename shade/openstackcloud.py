@@ -62,7 +62,6 @@ IMAGE_ERROR_396 = "Image cannot be imported. Error code: '396'"
 DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
 # This halves the current default for Swift
 DEFAULT_MAX_FILE_SIZE = (5 * 1024 * 1024 * 1024 + 2) / 2
-DEFAULT_SERVER_AGE = 5
 
 
 OBJECT_CONTAINER_ACLS = {
@@ -206,13 +205,11 @@ class OpenStackCloud(object):
                 cache_class, cache_expiration_time, cache_arguments)
             for expire_key in expirations.keys():
                 # Only build caches for things we have list operations for
-                if getattr(
-                        self, 'list_{0}'.format(expire_key), None):
+                if getattr(self, 'list_{0}'.format(expire_key), None):
                     self._resource_caches[expire_key] = self._make_cache(
                         cache_class, expirations[expire_key], cache_arguments,
                         async_creation_runner=_utils.async_creation_runner)
 
-            self._SERVER_AGE = DEFAULT_SERVER_AGE
         elif expirations:
             # We have per-resource expirations configured, but not general
             # caching. This is a potential common case for things like
@@ -224,10 +221,6 @@ class OpenStackCloud(object):
             self.cache_enabled = False
             self._cache = self._make_cache(
                 'dogpile.cache.null', cache_expiration_time, cache_arguments)
-            # Don't cache list_servers if we're not caching things.
-            # Replace this with a more specific cache configuration
-            # soon.
-            self._SERVER_AGE = 0
             for expire_key in expirations.keys():
                 # Only build caches for things we have list operations for
                 if getattr(
@@ -246,10 +239,6 @@ class OpenStackCloud(object):
                 def invalidate(self):
                     pass
 
-            # Don't cache list_servers if we're not caching things.
-            # Replace this with a more specific cache configuration
-            # soon.
-            self._SERVER_AGE = 0
             self._cache = _FakeCache()
             # Undecorate cache decorated methods. Otherwise the call stacks
             # wind up being stupidly long and hard to debug
@@ -262,11 +251,6 @@ class OpenStackCloud(object):
                     new_func = functools.partial(meth_obj.func, self)
                     new_func.invalidate = _fake_invalidate
                     setattr(self, method, new_func)
-
-        # If server expiration time is set explicitly, use that. Otherwise
-        # fall back to whatever it was before
-        self._SERVER_AGE = cloud_config.get_cache_resource_expiration(
-            'server', self._SERVER_AGE)
 
         self._container_cache = dict()
         self._file_hash_cache = dict()
@@ -1483,28 +1467,13 @@ class OpenStackCloud(object):
                     _tasks.NovaSecurityGroupList())
             return _utils.normalize_nova_secgroups(groups)
 
+    @_utils.cache_on_arguments(resource='server')
     def list_servers(self, detailed=False):
         """List all available servers.
 
         :returns: A list of server ``munch.Munch``.
 
         """
-        if (time.time() - self._servers_time) >= self._SERVER_AGE:
-            # Since we're using cached data anyway, we don't need to
-            # have more than one thread actually submit the list
-            # servers task.  Let the first one submit it while holding
-            # a lock, and the non-blocking acquire method will cause
-            # subsequent threads to just skip this and use the old
-            # data until it succeeds.
-            if self._servers_lock.acquire(False):
-                try:
-                    self._servers = self._list_servers(detailed=detailed)
-                    self._servers_time = time.time()
-                finally:
-                    self._servers_lock.release()
-        return self._servers
-
-    def _list_servers(self, detailed=False):
         with _utils.shade_exceptions(
                 "Error fetching server list on {cloud}:{region}:".format(
                     cloud=self.name,
@@ -4424,7 +4393,7 @@ class OpenStackCloud(object):
         for count in _utils._iterate_timeout(
                 timeout,
                 timeout_message,
-                wait=self._SERVER_AGE):
+                wait=self._get_cache_time('server')):
             try:
                 # Use the get_server call so that the list_servers
                 # cache can be leveraged
@@ -4641,7 +4610,7 @@ class OpenStackCloud(object):
         for count in _utils._iterate_timeout(
                 timeout,
                 "Timed out waiting for server to get deleted.",
-                wait=self._SERVER_AGE):
+                wait=self._get_cache_time('server')):
             with _utils.shade_exceptions("Error in deleting server"):
                 server = self.get_server(server['id'])
                 if not server:
@@ -4650,9 +4619,6 @@ class OpenStackCloud(object):
         if reset_volume_cache:
             self.list_volumes.invalidate(self)
 
-        # Reset the list servers cache time so that the next list server
-        # call gets a new list
-        self._servers_time = self._servers_time - self._SERVER_AGE
         return True
 
     @_utils.valid_kwargs(
