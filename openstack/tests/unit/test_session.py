@@ -18,6 +18,7 @@ from keystoneauth1 import exceptions as _exceptions
 from openstack import exceptions
 from openstack import profile
 from openstack import session
+from openstack import utils
 
 
 class TestSession(testtools.TestCase):
@@ -166,7 +167,8 @@ class TestSession(testtools.TestCase):
             sot._get_version_match, [], None, "service", "root", False)
 
     def test__get_version_match_fuzzy(self):
-        match = "http://devstack/v2.1/"
+        match = "http://devstack/v2.1"
+        root_endpoint = "http://devstack"
         versions = [{"id": "v2.0",
                      "links": [{"href": "http://devstack/v2/",
                                 "rel": "self"}]},
@@ -178,11 +180,12 @@ class TestSession(testtools.TestCase):
         # Look for a v2 match, which we internally denote as a minor
         # version of -1 so we can find the highest matching minor.
         rv = sot._get_version_match(versions, session.Version(2, -1),
-                                    "service", "root", False)
+                                    "service", root_endpoint, False)
         self.assertEqual(rv, match)
 
     def test__get_version_match_exact(self):
-        match = "http://devstack/v2/"
+        match = "http://devstack/v2"
+        root_endpoint = "http://devstack"
         versions = [{"id": "v2.0",
                      "links": [{"href": match,
                                 "rel": "self"}]},
@@ -192,12 +195,12 @@ class TestSession(testtools.TestCase):
 
         sot = session.Session(None)
         rv = sot._get_version_match(versions, session.Version(2, 0),
-                                    "service", "root", False)
+                                    "service", root_endpoint, False)
         self.assertEqual(rv, match)
 
     def test__get_version_match_fragment(self):
         root = "http://cloud.net"
-        match = "/v2/"
+        match = "/v2"
         versions = [{"id": "v2.0", "links": [{"href": match, "rel": "self"}]}]
 
         sot = session.Session(None)
@@ -206,15 +209,17 @@ class TestSession(testtools.TestCase):
         self.assertEqual(rv, root+match)
 
     def test__get_version_match_project_id(self):
-        match = "http://devstack/v2/"
+        match = "http://devstack/v2"
+        root_endpoint = "http://devstack"
         project_id = "asdf123"
         versions = [{"id": "v2.0", "links": [{"href": match, "rel": "self"}]}]
 
         sot = session.Session(None)
         sot.get_project_id = mock.Mock(return_value=project_id)
         rv = sot._get_version_match(versions, session.Version(2, 0),
-                                    "service", "root", True)
-        self.assertEqual(rv, match + project_id)
+                                    "service", root_endpoint, True)
+        match_endpoint = utils.urljoin(match, project_id)
+        self.assertEqual(rv, match_endpoint)
 
     def test_get_endpoint_cached(self):
         sot = session.Session(None)

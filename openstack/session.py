@@ -169,7 +169,9 @@ class Session(_session.Session):
            * When an exact major/minor is specified, e.g., v2.0,
              it will only match v2.0.
         """
-        match = None
+
+        match_version = None
+
         for version in versions:
             api_version = self._parse_version(version["id"])
             if profile_version.major != api_version.major:
@@ -178,23 +180,22 @@ class Session(_session.Session):
             if profile_version.minor <= api_version.minor:
                 for link in version["links"]:
                     if link["rel"] == "self":
-                        match = link["href"]
+                        resp_link = link['href']
+                        match_version = parse.urlsplit(resp_link).path
 
             # Only break out of the loop on an exact match,
             # otherwise keep trying.
             if profile_version.minor == api_version.minor:
                 break
 
-        if match is None:
+        if match_version is None:
             raise exceptions.EndpointNotFound(
                 "Unable to determine endpoint for %s" % service_type)
 
-        # Some services return only the path fragment of a URI.
-        # If we split and see that we're not given the scheme and netloc,
-        # construct the match with the root from the service catalog.
-        match_split = parse.urlsplit(match)
-        if not all([match_split.scheme, match_split.netloc]):
-            match = root_endpoint + match
+        # Make sure "root_endpoint" has no overlap with match_version
+        root_parts = parse.urlsplit(root_endpoint)
+        match_version = match_version.replace(root_parts.path, "", 1)
+        match = utils.urljoin(root_endpoint, match_version)
 
         # For services that require the project id in the request URI,
         # add them in here.
