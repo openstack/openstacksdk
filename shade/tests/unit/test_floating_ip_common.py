@@ -202,16 +202,19 @@ class TestFloatingIP(base.TestCase):
         mock_add_ip_list.assert_called_with(
             server_dict, ips, wait=False, timeout=60, fixed_address=None)
 
+    @patch.object(OpenStackCloud, '_needs_floating_ip')
     @patch.object(OpenStackCloud, 'nova_client')
     @patch.object(OpenStackCloud, '_add_auto_ip')
     def test_add_ips_to_server_auto_ip(
-            self, mock_add_auto_ip, mock_nova_client):
+            self, mock_add_auto_ip, mock_nova_client, mock_needs_floating_ip):
         server = FakeServer(
             id='server-id', name='test-server', status="ACTIVE", addresses={}
         )
         server_dict = meta.obj_to_dict(server)
 
         mock_nova_client.servers.get.return_value = server
+        # TODO(mordred) REMOVE THIS MOCK WHEN THE NEXT PATCH LANDS
+        mock_needs_floating_ip.return_value = True
 
         self.cloud.add_ips_to_server(server_dict)
 
