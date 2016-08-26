@@ -629,14 +629,14 @@ class TestFloatingIP(base.TestCase):
             floating_ip_id='this-is-a-floating-ip-id', retry=1)
 
     @patch.object(OpenStackCloud, '_submit_create_fip')
-    @patch.object(OpenStackCloud, '_get_free_fixed_port')
+    @patch.object(OpenStackCloud, '_nat_destination_port')
     @patch.object(OpenStackCloud, 'get_external_networks')
     def test_create_floating_ip_no_port(
-            self, mock_get_ext_nets, mock_get_free_fixed_port,
+            self, mock_get_ext_nets, mock_nat_destination_port,
             mock_submit_create_fip):
         fake_port = dict(id='port-id')
         mock_get_ext_nets.return_value = [self.mock_get_network_rep]
-        mock_get_free_fixed_port.return_value = (fake_port, '10.0.0.2')
+        mock_nat_destination_port.return_value = (fake_port, '10.0.0.2')
         mock_submit_create_fip.return_value = dict(port_id=None)
 
         self.assertRaises(

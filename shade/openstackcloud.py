@@ -3532,7 +3532,7 @@ class OpenStackCloud(object):
             }
             if not port:
                 if server:
-                    (port_obj, fixed_ip_address) = self._get_free_fixed_port(
+                    (port_obj, fixed_ip_address) = self._nat_destination_port(
                         server, fixed_address=fixed_address,
                         nat_destination=nat_destination)
                     if port_obj:
@@ -3756,9 +3756,15 @@ class OpenStackCloud(object):
                     return server
         return server
 
-    def _get_free_fixed_port(self, server, fixed_address=None,
-                             nat_destination=None):
-        """Returns server's port.
+    def _nat_destination_port(
+            self, server, fixed_address=None, nat_destination=None):
+        """Returns server port that is on a nat_destination network
+
+        Find a port attached to the server which is on a network which
+        has a subnet which can be the destination of NAT. Such a network
+        is referred to in shade as a "nat_destination" network. So this
+        then is a function which returns a port on such a network that is
+        associated with the given server.
 
         :param server: Server dict.
         :param fixed_address: Fixed ip address of the port
@@ -3859,7 +3865,7 @@ class OpenStackCloud(object):
                 "{0}".format(server['id'])):
 
             # Find an available port
-            (port, fixed_address) = self._get_free_fixed_port(
+            (port, fixed_address) = self._nat_destination_port(
                 server, fixed_address=fixed_address)
             if not port:
                 raise OpenStackCloudException(
@@ -4151,7 +4157,7 @@ class OpenStackCloud(object):
         if not networks:
             return False
 
-        (port_obj, fixed_ip_address) = self._get_free_fixed_port(
+        (port_obj, fixed_ip_address) = self._nat_destination_port(
             server, nat_destination=nat_destination)
 
         if not port_obj or not fixed_ip_address:
