@@ -17,6 +17,7 @@ import munch
 import ipaddress
 import six
 
+from shade import _log
 from shade import exc
 
 
@@ -394,9 +395,23 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     return server_vars
 
 
-def _add_request_id(obj, request_id):
+def _log_request_id(obj, request_id):
+    # Add it, if passed in, even though we're going to pop in a second,
+    # just to make the logic simpler
     if request_id is not None:
         obj['x_openstack_request_ids'] = [request_id]
+
+    request_id = None
+    request_ids = obj.pop('x_openstack_request_ids', None)
+    if request_ids:
+        request_id = request_ids[0]
+    if request_id:
+        log = _log.setup_logging('shade.request_ids')
+        # Log the request id and object id in a specific logger. This way
+        # someone can turn it on if they're interested in this kind of tracing.
+        log.debug("Retreived object {id}. Request ID {request_id}".format(
+            id=obj.get('id', obj.get('uuid')), request_id=request_id))
+
     return obj
 
 
@@ -417,7 +432,7 @@ def obj_to_dict(obj, request_id=None):
         return obj
     elif hasattr(obj, 'schema') and hasattr(obj, 'validate'):
         # It's a warlock
-        return _add_request_id(warlock_to_dict(obj), request_id)
+        return _log_request_id(warlock_to_dict(obj), request_id)
     elif isinstance(obj, dict):
         # The new request-id tracking spec:
         # https://specs.openstack.org/openstack/nova-specs/specs/juno/approved/log-request-id-mappings.html
@@ -440,7 +455,7 @@ def obj_to_dict(obj, request_id=None):
             continue
         if isinstance(value, NON_CALLABLES) and not key.startswith('_'):
             instance[key] = value
-    return _add_request_id(instance, request_id)
+    return _log_request_id(instance, request_id)
 
 
 def obj_list_to_dict(obj_list, request_id=None):
