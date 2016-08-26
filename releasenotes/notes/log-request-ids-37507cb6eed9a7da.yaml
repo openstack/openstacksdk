@@ -1,0 +1,5 @@
+---
+other:
+  - The contents of x-openstack-request-id are no longer
+    added to object returned. Instead, they are logged to
+    a logger named 'shade.request_ids'.

@@ -288,9 +288,7 @@ class TestMemoryCache(base.TestCase):
         mock_compute.get.return_value = mock_response
         self.assertEqual([], self.cloud.list_flavors())
 
-        fake_flavor = fakes.FakeFlavor(
-            '555', 'vanilla', 100, dict(
-                x_openstack_request_ids=['request-id']))
+        fake_flavor = fakes.FakeFlavor('555', 'vanilla', 100)
         fake_flavor_dict = _utils.normalize_flavors(
             [meta.obj_to_dict(fake_flavor)]
         )[0]
