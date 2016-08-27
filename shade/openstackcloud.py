@@ -2855,7 +2855,9 @@ class OpenStackCloud(object):
                     image_kwargs['container_format'] = container_format
 
                 return self._upload_image_put(
-                    name, filename, meta=meta, **image_kwargs)
+                    name, filename, meta=meta,
+                    wait=wait, timeout=timeout,
+                    **image_kwargs)
         except OpenStackCloudException:
             self.log.debug("Image creation failed", exc_info=True)
             raise
@@ -2913,7 +2915,7 @@ class OpenStackCloud(object):
         return image
 
     def _upload_image_put(
-            self, name, filename, meta, **image_kwargs):
+            self, name, filename, meta, wait, timeout, **image_kwargs):
         image_data = open(filename, 'rb')
         # Because reasons and crying bunnies
         if self.cloud_config.get_api_version('image') == '2':
@@ -2922,9 +2924,16 @@ class OpenStackCloud(object):
         else:
             image = self._upload_image_put_v1(
                 name, image_data, meta, **image_kwargs)
-        self._cache.invalidate()
         self._get_cache(None).invalidate()
-        return self.get_image(image.id)
+        if not wait:
+            return image
+        for count in _utils._iterate_timeout(
+                60,
+                "Timeout waiting for the image to finish.",
+                wait=self._get_cache_time('image')):
+            image_obj = self.get_image(image.id)
+            if image_obj and image_obj.status not in ('queued', 'saving'):
+                return image_obj
 
     def _upload_image_task(
             self, name, filename, container, current_image,

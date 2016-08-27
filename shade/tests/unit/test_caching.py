@@ -346,7 +346,8 @@ class TestMemoryCache(base.TestCase):
         imagefile.write(b'\0')
         imagefile.close()
         self.cloud.create_image(
-            name, imagefile.name, wait=True, is_public=False, **kwargs)
+            name, imagefile.name, wait=True, timeout=1,
+            is_public=False, **kwargs)
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
