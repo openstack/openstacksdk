@@ -28,8 +28,28 @@ from shade import _log
 from shade import meta
 
 
+def _is_listlike(obj):
+    # NOTE(Shrews): Since the client API might decide to subclass one
+    # of these result types, we use isinstance() here instead of type().
+    return (
+        isinstance(obj, list) or
+        isinstance(obj, types.GeneratorType))
+
+
+def _is_objlike(obj):
+    # NOTE(Shrews): Since the client API might decide to subclass one
+    # of these result types, we use isinstance() here instead of type().
+    return (
+        not isinstance(obj, bool) and
+        not isinstance(obj, int) and
+        not isinstance(obj, float) and
+        not isinstance(obj, six.string_types) and
+        not isinstance(obj, set) and
+        not isinstance(obj, tuple))
+
+
 @six.add_metaclass(abc.ABCMeta)
-class Task(object):
+class BaseTask(object):
     """Represent a task to be performed on an OpenStack Cloud.
 
     Some consumers need to inject things like rate-limiting or auditing
@@ -53,18 +73,14 @@ class Task(object):
         self._response = None
         self._finished = threading.Event()
         self.args = kw
-        self.requests = False
-        self._request_id = None
+        self.name = type(self).__name__
 
     @abc.abstractmethod
     def main(self, client):
         """ Override this method with the actual workload to be performed """
 
     def done(self, result):
-        if self.requests:
-            self._response, self._result = result
-        else:
-            self._result = result
+        self._result = result
         self._finished.set()
 
     def exception(self, e, tb):
@@ -79,26 +95,7 @@ class Task(object):
             six.reraise(type(self._exception), self._exception,
                         self._traceback)
 
-        if raw:
-            # Do NOT convert the result.
-            return self._result
-
-        # NOTE(Shrews): Since the client API might decide to subclass one
-        # of these result types, we use isinstance() here instead of type().
-        if (isinstance(self._result, list) or
-            isinstance(self._result, types.GeneratorType)):
-            return meta.obj_list_to_dict(
-                self._result, request_id=self._request_id)
-        elif (not isinstance(self._result, bool) and
-              not isinstance(self._result, int) and
-              not isinstance(self._result, float) and
-              not isinstance(self._result, six.string_types) and
-              not isinstance(self._result, set) and
-              not isinstance(self._result, tuple) and
-              not isinstance(self._result, types.GeneratorType)):
-            return meta.obj_to_dict(self._result, request_id=self._request_id)
-        else:
-            return self._result
+        return self._result
 
     def run(self, client):
         self._client = client
@@ -117,7 +114,26 @@ class Task(object):
             self.exception(e, sys.exc_info()[2])
 
 
-class RequestTask(Task):
+class Task(BaseTask):
+    """ Shade specific additions to the BaseTask Interface. """
+
+    def wait(self, raw=False):
+        super(Task, self).wait()
+
+        if raw:
+            # Do NOT convert the result.
+            return self._result
+
+        if _is_listlike(self._result):
+            return meta.obj_list_to_dict(self._result)
+        elif _is_objlike(self._result):
+            return meta.obj_to_dict(self._result)
+        else:
+            return self._result
+
+
+class RequestTask(BaseTask):
+    """ Extensions to the Shade Tasks to handle raw requests """
 
     # It's totally legit for calls to not return things
     result_key = None
@@ -138,12 +154,27 @@ class RequestTask(Task):
             self._result = result_json[self.result_key]
         else:
             self._result = result_json
+
         self._request_id = self._response.headers.get('x-openstack-request-id')
         self._finished.set()
 
+    def wait(self, raw=False):
+        super(RequestTask, self).wait()
+
+        if raw:
+            # Do NOT convert the result.
+            return self._result
+
+        if _is_listlike(self._result):
+            return meta.obj_list_to_dict(
+                self._result, request_id=self._request_id)
+        elif _is_objlike(self._result):
+            return meta.obj_to_dict(self._result, request_id=self._request_id)
+        return self._result
+
 
 class TaskManager(object):
-    log = _log.setup_logging("shade.TaskManager")
+    log = _log.setup_logging(__name__)
 
     def __init__(self, client, name):
         self.name = name
@@ -165,11 +196,11 @@ class TaskManager(object):
             underlying client call.
         """
         self.log.debug(
-            "Manager %s running task %s" % (self.name, type(task).__name__))
+            "Manager %s running task %s" % (self.name, task.name))
         start = time.time()
         task.run(self._client)
         end = time.time()
         self.log.debug(
             "Manager %s ran task %s in %ss" % (
-                self.name, type(task).__name__, (end - start)))
+                self.name, task.name, (end - start)))
         return task.wait(raw)
