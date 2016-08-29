@@ -27,6 +27,11 @@ from os_client_config import exceptions
 from os_client_config.tests import base
 
 
+def prompt_for_password(prompt=None):
+    """Fake prompt function that just returns a constant string"""
+    return 'promptpass'
+
+
 class TestConfig(base.TestCase):
 
     def test_get_all_clouds(self):
@@ -785,6 +790,38 @@ class TestConfigArgparse(base.TestCase):
         self.assertEqual(cloud.config['network_api_version'], '4')
         self.assertNotIn('volume_service_type', cloud.config)
         self.assertNotIn('http_timeout', cloud.config)
+
+
+class TestConfigPrompt(base.TestCase):
+
+    def setUp(self):
+        super(TestConfigPrompt, self).setUp()
+
+        self.args = dict(
+            auth_url='http://example.com/v2',
+            username='user',
+            project_name='project',
+            # region_name='region2',
+            auth_type='password',
+        )
+
+        self.options = argparse.Namespace(**self.args)
+
+    def test_get_one_cloud_prompt(self):
+        c = config.OpenStackConfig(
+            config_files=[self.cloud_yaml],
+            vendor_files=[self.vendor_yaml],
+            pw_func=prompt_for_password,
+        )
+
+        # This needs a cloud definition without a password.
+        # If this starts failing unexpectedly check that the cloud_yaml
+        # and/or vendor_yaml do not have a password in the selected cloud.
+        cc = c.get_one_cloud(
+            cloud='_test_cloud_no_vendor',
+            argparse=self.options,
+        )
+        self.assertEqual('promptpass', cc.auth['password'])
 
 
 class TestConfigDefault(base.TestCase):

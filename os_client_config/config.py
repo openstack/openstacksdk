@@ -173,7 +173,8 @@ class OpenStackConfig(object):
 
     def __init__(self, config_files=None, vendor_files=None,
                  override_defaults=None, force_ipv4=None,
-                 envvar_prefix=None, secure_files=None):
+                 envvar_prefix=None, secure_files=None,
+                 pw_func=None):
         self.log = _log.setup_logging(__name__)
 
         self._config_files = config_files or CONFIG_FILES
@@ -287,6 +288,10 @@ class OpenStackConfig(object):
 
         # Flag location to hold the peeked value of an argparse timeout value
         self._argv_timeout = False
+
+        # Save the password callback
+        # password = self._pw_callback(prompt="Password: ")
+        self._pw_callback = pw_func
 
     def get_extra_config(self, key, defaults=None):
         """Fetch an arbitrary extra chunk of config, laying in defaults.
@@ -924,6 +929,9 @@ class OpenStackConfig(object):
                 winning_value,
             )
 
+            # See if this needs a prompting
+            config = self.option_prompt(config, p_opt)
+
         return config
 
     def _validate_auth_correctly(self, config, loader):
@@ -952,6 +960,19 @@ class OpenStackConfig(object):
                 winning_value,
             )
 
+            # See if this needs a prompting
+            config = self.option_prompt(config, p_opt)
+
+        return config
+
+    def option_prompt(self, config, p_opt):
+        """Prompt user for option that requires a value"""
+        if (
+                p_opt.prompt is not None and
+                p_opt.dest not in config['auth'] and
+                self._pw_callback is not None
+        ):
+            config['auth'][p_opt.dest] = self._pw_callback(p_opt.prompt)
         return config
 
     def _clean_up_after_ourselves(self, config, p_opt, winning_value):
