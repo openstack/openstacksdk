@@ -303,7 +303,7 @@ class TestFloatingIP(base.TestCase):
     @patch.object(_utils, '_filter_list')
     @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
     @patch.object(OpenStackCloud, '_neutron_list_floating_ips')
-    @patch.object(OpenStackCloud, 'get_external_networks')
+    @patch.object(OpenStackCloud, 'get_external_ipv4_networks')
     @patch.object(OpenStackCloud, 'keystone_session')
     def test__neutron_available_floating_ips(
             self,
@@ -340,7 +340,7 @@ class TestFloatingIP(base.TestCase):
     @patch.object(_utils, '_filter_list')
     @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
     @patch.object(OpenStackCloud, '_neutron_list_floating_ips')
-    @patch.object(OpenStackCloud, 'get_external_networks')
+    @patch.object(OpenStackCloud, 'get_external_ipv4_networks')
     @patch.object(OpenStackCloud, 'keystone_session')
     def test__neutron_available_floating_ips_network(
             self,
@@ -375,7 +375,7 @@ class TestFloatingIP(base.TestCase):
             server=None
         )
 
-    @patch.object(OpenStackCloud, 'get_external_networks')
+    @patch.object(OpenStackCloud, 'get_external_ipv4_networks')
     @patch.object(OpenStackCloud, 'keystone_session')
     def test__neutron_available_floating_ips_invalid_network(
             self,
@@ -621,7 +621,7 @@ class TestFloatingIP(base.TestCase):
 
     @patch.object(OpenStackCloud, '_submit_create_fip')
     @patch.object(OpenStackCloud, '_nat_destination_port')
-    @patch.object(OpenStackCloud, 'get_external_networks')
+    @patch.object(OpenStackCloud, 'get_external_ipv4_networks')
     def test_create_floating_ip_no_port(
             self, mock_get_ext_nets, mock_nat_destination_port,
             mock_submit_create_fip):

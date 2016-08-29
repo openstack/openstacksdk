@@ -1,0 +1,8 @@
+---
+features:
+  - Added support for dual stack networks where the IPv4 subnet and the
+    IPv6 subnet have opposite public/private qualities. It is now possible
+    to add configuration to clouds.yaml that will indicate that a network
+    is public for v6 and private for v4, which is otherwise very difficult
+    to correctly infer while setting server attributes like private_v4,
+    public_v4 and public_v6.

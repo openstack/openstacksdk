@@ -81,7 +81,7 @@ def get_server_private_ip(server, cloud=None):
     # Short circuit the ports/networks search below with a heavily cached
     # and possibly pre-configured network name
     if cloud:
-        int_nets = cloud.get_internal_networks()
+        int_nets = cloud.get_internal_ipv4_networks()
         for int_net in int_nets:
             int_ip = get_server_ip(server, key_name=int_net['name'])
             if int_ip is not None:
@@ -123,7 +123,7 @@ def get_server_external_ipv4(cloud, server):
 
     # Short circuit the ports/networks search below with a heavily cached
     # and possibly pre-configured network name
-    ext_nets = cloud.get_external_networks()
+    ext_nets = cloud.get_external_ipv4_networks()
     for ext_net in ext_nets:
         ext_ip = get_server_ip(server, key_name=ext_net['name'])
         if ext_ip is not None:

@@ -147,8 +147,19 @@ class OpenStackCloud(object):
         self.secgroup_source = cloud_config.config['secgroup_source']
         self.force_ipv4 = cloud_config.force_ipv4
 
+        # The first two aren't useful to us anymore, but we still do them
+        # because there are two methods that won't work without them
         self._external_network_names = cloud_config.get_external_networks()
         self._internal_network_names = cloud_config.get_internal_networks()
+
+        # Provide better error message for people with stale OCC
+        if cloud_config.get_external_ipv4_networks is None:
+            raise OpenStackCloudException(
+                "shade requires at least version 1.20.0 of os-client-config")
+        self._external_ipv4_names = cloud_config.get_external_ipv4_networks()
+        self._internal_ipv4_names = cloud_config.get_internal_ipv4_networks()
+        self._external_ipv6_names = cloud_config.get_external_ipv6_networks()
+        self._internal_ipv6_names = cloud_config.get_internal_ipv6_networks()
         self._nat_destination = cloud_config.get_nat_destination()
         self._default_network = cloud_config.get_default_network()
 
@@ -1596,6 +1607,10 @@ class OpenStackCloud(object):
         with self._networks_lock:
             self._external_networks = []
             self._internal_networks = []
+            self._external_ipv4_networks = []
+            self._internal_ipv4_networks = []
+            self._external_ipv6_networks = []
+            self._internal_ipv6_networks = []
             self._nat_destination_network = None
             self._default_network_network = None
             self._network_list_stamp = False
@@ -1603,6 +1618,10 @@ class OpenStackCloud(object):
     def _set_interesting_networks(self):
         external_networks = []
         internal_networks = []
+        external_ipv4_networks = []
+        internal_ipv4_networks = []
+        external_ipv6_networks = []
+        internal_ipv6_networks = []
         nat_destination = None
         default_network = None
 
@@ -1623,7 +1642,7 @@ class OpenStackCloud(object):
             return
 
         for network in all_networks:
-            # External networks
+            # Old External networks
             if (network['name'] in self._external_network_names
                     or network['id'] in self._external_network_names):
                 external_networks.append(network)
@@ -1634,7 +1653,7 @@ class OpenStackCloud(object):
                     network['id'] not in self._internal_network_names):
                 external_networks.append(network)
 
-            # Internal networks
+            # Old Internal networks
             if (network['name'] in self._internal_network_names
                     or network['id'] in self._internal_network_names):
                 internal_networks.append(network)
@@ -1643,6 +1662,45 @@ class OpenStackCloud(object):
                     network['name'] not in self._external_network_names and
                     network['id'] not in self._external_network_names):
                 internal_networks.append(network)
+
+            # External IPv4 networks
+            if (network['name'] in self._external_ipv4_names
+                    or network['id'] in self._external_ipv4_names):
+                external_ipv4_networks.append(network)
+            elif ((('router:external' in network
+                    and network['router:external']) or
+                    network.get('provider:physical_network')) and
+                    network['name'] not in self._internal_ipv4_names and
+                    network['id'] not in self._internal_ipv4_names):
+                external_ipv4_networks.append(network)
+
+            # Internal networks
+            if (network['name'] in self._internal_ipv4_names
+                    or network['id'] in self._internal_ipv4_names):
+                internal_ipv4_networks.append(network)
+            elif (not network.get('router:external', False) and
+                    not network.get('provider:physical_network') and
+                    network['name'] not in self._external_ipv4_names and
+                    network['id'] not in self._external_ipv4_names):
+                internal_ipv4_networks.append(network)
+
+            # External networks
+            if (network['name'] in self._external_ipv6_names
+                    or network['id'] in self._external_ipv6_names):
+                external_ipv6_networks.append(network)
+            elif (network.get('router:external') and
+                    network['name'] not in self._internal_ipv6_names and
+                    network['id'] not in self._internal_ipv6_names):
+                external_ipv6_networks.append(network)
+
+            # Internal networks
+            if (network['name'] in self._internal_ipv6_names
+                    or network['id'] in self._internal_ipv6_names):
+                internal_ipv6_networks.append(network)
+            elif (not network.get('router:external', False) and
+                    network['name'] not in self._external_ipv6_names and
+                    network['id'] not in self._external_ipv6_names):
+                internal_ipv6_networks.append(network)
 
             # NAT Destination
             if self._nat_destination in (
@@ -1707,6 +1765,34 @@ class OpenStackCloud(object):
                     " access and those networks could not be found".format(
                         network=net_name))
 
+        for net_name in self._external_ipv4_names:
+            if net_name not in [net['name'] for net in external_ipv4_networks]:
+                raise OpenStackCloudException(
+                    "Networks: {network} was provided for external IPv4"
+                    " access and those networks could not be found".format(
+                        network=net_name))
+
+        for net_name in self._internal_ipv4_names:
+            if net_name not in [net['name'] for net in internal_ipv4_networks]:
+                raise OpenStackCloudException(
+                    "Networks: {network} was provided for internal IPv4"
+                    " access and those networks could not be found".format(
+                        network=net_name))
+
+        for net_name in self._external_ipv6_names:
+            if net_name not in [net['name'] for net in external_ipv6_networks]:
+                raise OpenStackCloudException(
+                    "Networks: {network} was provided for external IPv6"
+                    " access and those networks could not be found".format(
+                        network=net_name))
+
+        for net_name in self._internal_ipv6_names:
+            if net_name not in [net['name'] for net in internal_ipv6_networks]:
+                raise OpenStackCloudException(
+                    "Networks: {network} was provided for internal IPv6"
+                    " access and those networks could not be found".format(
+                        network=net_name))
+
         if self._nat_destination and not nat_destination:
             raise OpenStackCloudException(
                 'Network {network} was configured to be the'
@@ -1723,6 +1809,10 @@ class OpenStackCloud(object):
 
         self._external_networks = external_networks
         self._internal_networks = internal_networks
+        self._external_ipv4_networks = external_ipv4_networks
+        self._internal_ipv4_networks = internal_ipv4_networks
+        self._external_ipv6_networks = external_ipv6_networks
+        self._internal_ipv6_networks = internal_ipv6_networks
         self._nat_destination_network = nat_destination
         self._default_network_network = default_network
 
@@ -1761,6 +1851,9 @@ class OpenStackCloud(object):
     def get_external_networks(self):
         """Return the networks that are configured to route northbound.
 
+        This should be avoided in favor of the specific ipv4/ipv6 method,
+        but is here for backwards compatibility.
+
         :returns: A list of network ``munch.Munch`` if one is found
         """
         self._find_interesting_networks()
@@ -1769,10 +1862,45 @@ class OpenStackCloud(object):
     def get_internal_networks(self):
         """Return the networks that are configured to not route northbound.
 
+        This should be avoided in favor of the specific ipv4/ipv6 method,
+        but is here for backwards compatibility.
+
         :returns: A list of network ``munch.Munch`` if one is found
         """
         self._find_interesting_networks()
         return self._internal_networks
+
+    def get_external_ipv4_networks(self):
+        """Return the networks that are configured to route northbound.
+
+        :returns: A list of network ``munch.Munch`` if one is found
+        """
+        self._find_interesting_networks()
+        return self._external_ipv4_networks
+
+    def get_internal_ipv4_networks(self):
+        """Return the networks that are configured to not route northbound.
+
+        :returns: A list of network ``munch.Munch`` if one is found
+        """
+        self._find_interesting_networks()
+        return self._internal_ipv4_networks
+
+    def get_external_ipv6_networks(self):
+        """Return the networks that are configured to route northbound.
+
+        :returns: A list of network ``munch.Munch`` if one is found
+        """
+        self._find_interesting_networks()
+        return self._external_ipv6_networks
+
+    def get_internal_ipv6_networks(self):
+        """Return the networks that are configured to not route northbound.
+
+        :returns: A list of network ``munch.Munch`` if one is found
+        """
+        self._find_interesting_networks()
+        return self._internal_ipv6_networks
 
     def _has_floating_ips(self):
         if not self._floating_ip_source:
@@ -3393,7 +3521,7 @@ class OpenStackCloud(object):
                 # Use given list to get first matching external network
                 floating_network_id = None
                 for net in network:
-                    for ext_net in self.get_external_networks():
+                    for ext_net in self.get_external_ipv4_networks():
                         if net in (ext_net['name'], ext_net['id']):
                             floating_network_id = ext_net['id']
                             break
@@ -3406,8 +3534,8 @@ class OpenStackCloud(object):
                             net=network)
                     )
             else:
-                # Get first existing external network
-                networks = self.get_external_networks()
+                # Get first existing external IPv4 network
+                networks = self.get_external_ipv4_networks()
                 if not networks:
                     raise OpenStackCloudResourceNotFound(
                         "unable to find an external network")
@@ -3549,7 +3677,7 @@ class OpenStackCloud(object):
                         "unable to find network for floating ips with id "
                         "{0}".format(network_name_or_id))
             else:
-                networks = self.get_external_networks()
+                networks = self.get_external_ipv4_networks()
                 if not networks:
                     raise OpenStackCloudResourceNotFound(
                         "Unable to find an external network in this cloud"
@@ -4185,8 +4313,7 @@ class OpenStackCloud(object):
             return True
 
         # No external IPv4 network - no FIPs
-        # TODO(mordred) THIS IS get_external_ipv4_networks IN THE NEXT PATCH
-        networks = self.get_external_networks()
+        networks = self.get_external_ipv4_networks()
         if not networks:
             return False
 
