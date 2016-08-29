@@ -191,7 +191,7 @@ def generate_task_class(method, name, result_filter_cb):
             self._method = method
 
         def wait(self, raw=False):
-            super(RequestTask, self).wait()
+            super(RunTask, self).wait()
 
             if raw:
                 # Do NOT convert the result.
@@ -204,6 +204,7 @@ def generate_task_class(method, name, result_filter_cb):
             else:
                 meth = getattr(client, self._method)
                 return meth(**self.args)
+    return RunTask
 
 
 class TaskManager(object):
