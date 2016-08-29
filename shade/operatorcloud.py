@@ -58,24 +58,24 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
     def list_nics(self):
         with _utils.shade_exceptions("Error fetching machine port list"):
-            return self.manager.submitTask(_tasks.MachinePortList())
+            return self.manager.submit_task(_tasks.MachinePortList())
 
     def list_nics_for_machine(self, uuid):
         with _utils.shade_exceptions(
                 "Error fetching port list for node {node_id}".format(
                 node_id=uuid)):
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.MachineNodePortList(node_id=uuid))
 
     def get_nic_by_mac(self, mac):
         try:
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.MachineNodePortGet(port_id=mac))
         except ironic_exceptions.ClientException:
             return None
 
     def list_machines(self):
-        return self.manager.submitTask(_tasks.MachineNodeList())
+        return self.manager.submit_task(_tasks.MachineNodeList())
 
     def get_machine(self, name_or_id):
         """Get Machine by name or uuid
@@ -89,7 +89,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                   nodes are found.
         """
         try:
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.MachineNodeGet(node_id=name_or_id))
         except ironic_exceptions.ClientException:
             return None
@@ -103,9 +103,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                   if the node is not found.
         """
         try:
-            port = self.manager.submitTask(
+            port = self.manager.submit_task(
                 _tasks.MachinePortGetByAddress(address=mac))
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.MachineNodeGet(node_id=port.node_uuid))
         except ironic_exceptions.ClientException:
             return None
@@ -221,12 +221,12 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                   baremetal node.
         """
         with _utils.shade_exceptions("Error registering machine with Ironic"):
-            machine = self.manager.submitTask(_tasks.MachineCreate(**kwargs))
+            machine = self.manager.submit_task(_tasks.MachineCreate(**kwargs))
 
         created_nics = []
         try:
             for row in nics:
-                nic = self.manager.submitTask(
+                nic = self.manager.submit_task(
                     _tasks.MachinePortCreate(address=row['mac'],
                                              node_uuid=machine['uuid']))
                 created_nics.append(nic.uuid)
@@ -237,13 +237,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             try:
                 for uuid in created_nics:
                     try:
-                        self.manager.submitTask(
+                        self.manager.submit_task(
                             _tasks.MachinePortDelete(
                                 port_id=uuid))
                     except:
                         pass
             finally:
-                self.manager.submitTask(
+                self.manager.submit_task(
                     _tasks.MachineDelete(node_id=machine['uuid']))
             raise OpenStackCloudException(
                 "Error registering NICs with the baremetal service: %s"
@@ -344,14 +344,14 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             with _utils.shade_exceptions(
                     "Error removing NIC {nic} from baremetal API for node "
                     "{uuid}".format(nic=nic, uuid=uuid)):
-                port = self.manager.submitTask(
+                port = self.manager.submit_task(
                     _tasks.MachinePortGetByAddress(address=nic['mac']))
-                self.manager.submitTask(
+                self.manager.submit_task(
                     _tasks.MachinePortDelete(port_id=port.uuid))
         with _utils.shade_exceptions(
                 "Error unregistering machine {node_id} from the baremetal "
                 "API".format(node_id=uuid)):
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.MachineDelete(node_id=uuid))
             if wait:
                 for count in _utils._iterate_timeout(
@@ -401,7 +401,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             "Error updating machine via patch operation on node "
             "{node}".format(node=name_or_id)
         ):
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.MachinePatch(node_id=name_or_id,
                                     patch=patch,
                                     http_method='PATCH'))
@@ -517,7 +517,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
     def validate_node(self, uuid):
         with _utils.shade_exceptions():
-            ifaces = self.manager.submitTask(
+            ifaces = self.manager.submit_task(
                 _tasks.MachineNodeValidate(node_uuid=uuid))
 
         if not ifaces.deploy or not ifaces.power:
@@ -563,7 +563,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             "Baremetal machine node failed change provision state to "
             "{state}".format(state=state)
         ):
-            machine = self.manager.submitTask(
+            machine = self.manager.submit_task(
                 _tasks.MachineSetProvision(node_uuid=name_or_id,
                                            state=state,
                                            configdrive=configdrive))
@@ -615,12 +615,12 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             "{node}".format(state=state, node=name_or_id)
         ):
             if state:
-                result = self.manager.submitTask(
+                result = self.manager.submit_task(
                     _tasks.MachineSetMaintenance(node_id=name_or_id,
                                                  state='true',
                                                  maint_reason=reason))
             else:
-                result = self.manager.submitTask(
+                result = self.manager.submit_task(
                     _tasks.MachineSetMaintenance(node_id=name_or_id,
                                                  state='false'))
             if result is not None:
@@ -669,7 +669,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             "Error setting machine power state to {state} on node "
             "{node}".format(state=state, node=name_or_id)
         ):
-            power = self.manager.submitTask(
+            power = self.manager.submit_task(
                 _tasks.MachineSetPower(node_id=name_or_id,
                                        state=state))
             if power is not None:
@@ -737,14 +737,14 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
     def set_node_instance_info(self, uuid, patch):
         with _utils.shade_exceptions():
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.MachineNodeUpdate(node_id=uuid, patch=patch))
 
     def purge_node_instance_info(self, uuid):
         patch = []
         patch.append({'op': 'remove', 'path': '/instance_info'})
         with _utils.shade_exceptions():
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.MachineNodeUpdate(node_id=uuid, patch=patch))
 
     @_utils.valid_kwargs('type', 'service_type', 'description')
@@ -781,7 +781,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions(
             "Failed to create service {name}".format(name=name)
         ):
-            service = self.manager.submitTask(
+            service = self.manager.submit_task(
                 _tasks.ServiceCreate(name=name, **kwargs)
             )
 
@@ -807,7 +807,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions(
             "Error in updating service {service}".format(service=name_or_id)
         ):
-            service = self.manager.submitTask(
+            service = self.manager.submit_task(
                 _tasks.ServiceUpdate(service=name_or_id, **kwargs)
             )
 
@@ -822,7 +822,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             openstack API call.
         """
         with _utils.shade_exceptions():
-            services = self.manager.submitTask(_tasks.ServiceList())
+            services = self.manager.submit_task(_tasks.ServiceList())
         return _utils.normalize_keystone_services(services)
 
     def search_services(self, name_or_id=None, filters=None):
@@ -880,7 +880,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             service_kwargs = {'service': service['id']}
         with _utils.shade_exceptions("Failed to delete service {id}".format(
                 id=service['id'])):
-            self.manager.submitTask(_tasks.ServiceDelete(**service_kwargs))
+            self.manager.submit_task(_tasks.ServiceDelete(**service_kwargs))
 
         return True
 
@@ -974,7 +974,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             for args in endpoint_args:
                 # NOTE(SamYaple): Add shared kwargs to endpoint args
                 args.update(kwargs)
-                endpoint = self.manager.submitTask(
+                endpoint = self.manager.submit_task(
                     _tasks.EndpointCreate(**args)
                 )
                 endpoints.append(endpoint)
@@ -996,7 +996,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions(
             "Failed to update endpoint {}".format(endpoint_id)
         ):
-            return self.manager.submitTask(_tasks.EndpointUpdate(
+            return self.manager.submit_task(_tasks.EndpointUpdate(
                 endpoint=endpoint_id, **kwargs
             ))
 
@@ -1013,7 +1013,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         # large environments is small, we can continue to filter in shade just
         # like the v2 api.
         with _utils.shade_exceptions("Failed to list endpoints"):
-            endpoints = self.manager.submitTask(_tasks.EndpointList())
+            endpoints = self.manager.submit_task(_tasks.EndpointList())
 
         return endpoints
 
@@ -1076,7 +1076,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             endpoint_kwargs = {'endpoint': endpoint['id']}
         with _utils.shade_exceptions("Failed to delete endpoint {id}".format(
                 id=id)):
-            self.manager.submitTask(_tasks.EndpointDelete(**endpoint_kwargs))
+            self.manager.submit_task(_tasks.EndpointDelete(**endpoint_kwargs))
 
         return True
 
@@ -1094,7 +1094,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
         with _utils.shade_exceptions("Failed to create domain {name}".format(
                 name=name)):
-            domain = self.manager.submitTask(_tasks.DomainCreate(
+            domain = self.manager.submit_task(_tasks.DomainCreate(
                 name=name,
                 description=description,
                 enabled=enabled))
@@ -1117,7 +1117,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         with _utils.shade_exceptions(
                 "Error in updating domain {domain}".format(domain=domain_id)):
-            domain = self.manager.submitTask(_tasks.DomainUpdate(
+            domain = self.manager.submit_task(_tasks.DomainUpdate(
                 domain=domain_id, name=name, description=description,
                 enabled=enabled))
         return _utils.normalize_domains([domain])[0]
@@ -1150,7 +1150,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             # Deleting a domain is expensive, so disabling it first increases
             # the changes of success
             domain = self.update_domain(domain_id, enabled=False)
-            self.manager.submitTask(_tasks.DomainDelete(domain=domain['id']))
+            self.manager.submit_task(_tasks.DomainDelete(domain=domain['id']))
 
         return True
 
@@ -1163,7 +1163,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             the openstack API call.
         """
         with _utils.shade_exceptions("Failed to list domains"):
-            domains = self.manager.submitTask(_tasks.DomainList())
+            domains = self.manager.submit_task(_tasks.DomainList())
         return _utils.normalize_domains(domains)
 
     def search_domains(self, filters=None, name_or_id=None):
@@ -1189,7 +1189,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             return _utils._filter_list(domains, name_or_id, filters)
         else:
             with _utils.shade_exceptions("Failed to list domains"):
-                domains = self.manager.submitTask(
+                domains = self.manager.submit_task(
                     _tasks.DomainList(**filters))
             return _utils.normalize_domains(domains)
 
@@ -1218,7 +1218,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "Failed to get domain "
                 "{domain_id}".format(domain_id=domain_id)
             ):
-                domain = self.manager.submitTask(
+                domain = self.manager.submit_task(
                     _tasks.DomainGet(domain=domain_id))
             return _utils.normalize_domains([domain])[0]
 
@@ -1232,7 +1232,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             the openstack API call.
         """
         with _utils.shade_exceptions("Failed to list groups"):
-            groups = self.manager.submitTask(_tasks.GroupList())
+            groups = self.manager.submit_task(_tasks.GroupList())
         return _utils.normalize_groups(groups)
 
     def search_groups(self, name_or_id=None, filters=None):
@@ -1287,7 +1287,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                     )
                 domain_id = dom['id']
 
-            group = self.manager.submitTask(_tasks.GroupCreate(
+            group = self.manager.submit_task(_tasks.GroupCreate(
                 name=name, description=description, domain=domain_id)
             )
         self.list_groups.invalidate(self)
@@ -1314,7 +1314,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions(
             "Unable to update group {name}".format(name=name_or_id)
         ):
-            group = self.manager.submitTask(_tasks.GroupUpdate(
+            group = self.manager.submit_task(_tasks.GroupUpdate(
                 group=group['id'], name=name, description=description))
 
         self.list_groups.invalidate(self)
@@ -1339,7 +1339,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions(
             "Unable to delete group {name}".format(name=name_or_id)
         ):
-            self.manager.submitTask(_tasks.GroupDelete(group=group['id']))
+            self.manager.submit_task(_tasks.GroupDelete(group=group['id']))
 
         self.list_groups.invalidate(self)
         return True
@@ -1353,7 +1353,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             the openstack API call.
         """
         with _utils.shade_exceptions():
-            roles = self.manager.submitTask(_tasks.RoleList())
+            roles = self.manager.submit_task(_tasks.RoleList())
 
         return roles
 
@@ -1397,7 +1397,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
     def _keystone_v2_role_assignments(self, user, project=None,
                                       role=None, **kwargs):
         with _utils.shade_exceptions("Failed to list role assignments"):
-            roles = self.manager.submitTask(
+            roles = self.manager.submit_task(
                 _tasks.RolesForUser(user=user, tenant=project)
             )
         ret = []
@@ -1461,7 +1461,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             assignments = self._keystone_v2_role_assignments(**filters)
         else:
             with _utils.shade_exceptions("Failed to list role assignments"):
-                assignments = self.manager.submitTask(
+                assignments = self.manager.submit_task(
                     _tasks.RoleAssignmentList(**filters)
                 )
         return _utils.normalize_role_assignments(assignments)
@@ -1486,7 +1486,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
         with _utils.shade_exceptions("Failed to create flavor {name}".format(
                 name=name)):
-            flavor = self.manager.submitTask(
+            flavor = self.manager.submit_task(
                 _tasks.FlavorCreate(name=name, ram=ram, vcpus=vcpus, disk=disk,
                                     flavorid=flavorid, ephemeral=ephemeral,
                                     swap=swap, rxtx_factor=rxtx_factor,
@@ -1512,7 +1512,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         with _utils.shade_exceptions("Unable to delete flavor {name}".format(
                 name=name_or_id)):
-            self.manager.submitTask(_tasks.FlavorDelete(flavor=flavor['id']))
+            self.manager.submit_task(_tasks.FlavorDelete(flavor=flavor['id']))
 
         return True
 
@@ -1526,7 +1526,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: OpenStackCloudResourceNotFound if flavor ID is not found.
         """
         try:
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.FlavorSetExtraSpecs(
                     id=flavor_id, json=dict(extra_specs=extra_specs)))
         except Exception as e:
@@ -1545,7 +1545,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
         for key in keys:
             try:
-                self.manager.submitTask(
+                self.manager.submit_task(
                     _tasks.FlavorUnsetExtraSpecs(id=flavor_id, key=key))
             except Exception as e:
                 raise OpenStackCloudException(
@@ -1559,12 +1559,12 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                                      "flavor ID {flavor}".format(
                                          action=action, flavor=flavor_id)):
             if action == 'add':
-                self.manager.submitTask(
+                self.manager.submit_task(
                     _tasks.FlavorAddAccess(flavor=flavor_id,
                                            tenant=project_id)
                 )
             elif action == 'remove':
-                self.manager.submitTask(
+                self.manager.submit_task(
                     _tasks.FlavorRemoveAccess(flavor=flavor_id,
                                               tenant=project_id)
                 )
@@ -1599,7 +1599,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raise OpenStackCloudException: if the role cannot be created
         """
         with _utils.shade_exceptions():
-            role = self.manager.submitTask(
+            role = self.manager.submit_task(
                 _tasks.RoleCreate(name=name)
             )
         return role
@@ -1622,7 +1622,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         with _utils.shade_exceptions("Unable to delete role {name}".format(
                 name=name_or_id)):
-            self.manager.submitTask(_tasks.RoleDelete(role=role['id']))
+            self.manager.submit_task(_tasks.RoleDelete(role=role['id']))
 
         return True
 
@@ -1703,12 +1703,12 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 data)):
             if self.cloud_config.get_api_version('identity').startswith('2'):
                 data['tenant'] = data.pop('project')
-                self.manager.submitTask(_tasks.RoleAddUser(**data))
+                self.manager.submit_task(_tasks.RoleAddUser(**data))
             else:
                 if data.get('project') is None and data.get('domain') is None:
                     raise OpenStackCloudException(
                         'Must specify either a domain or project')
-                self.manager.submitTask(_tasks.RoleGrantUser(**data))
+                self.manager.submit_task(_tasks.RoleGrantUser(**data))
         if wait:
             for count in _utils._iterate_timeout(
                     timeout,
@@ -1766,13 +1766,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 data)):
             if self.cloud_config.get_api_version('identity').startswith('2'):
                 data['tenant'] = data.pop('project')
-                self.manager.submitTask(_tasks.RoleRemoveUser(**data))
+                self.manager.submit_task(_tasks.RoleRemoveUser(**data))
             else:
                 if data.get('project') is None \
                         and data.get('domain') is None:
                     raise OpenStackCloudException(
                         'Must specify either a domain or project')
-                self.manager.submitTask(_tasks.RoleRevokeUser(**data))
+                self.manager.submit_task(_tasks.RoleRevokeUser(**data))
         if wait:
             for count in _utils._iterate_timeout(
                     timeout,
@@ -1788,7 +1788,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
 
         with _utils.shade_exceptions("Error fetching hypervisor list"):
-            return self.manager.submitTask(_tasks.HypervisorList())
+            return self.manager.submit_task(_tasks.HypervisorList())
 
     def search_aggregates(self, name_or_id=None, filters=None):
         """Seach host aggregates.
@@ -1811,7 +1811,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         """
         with _utils.shade_exceptions("Error fetching aggregate list"):
-            return self.manager.submitTask(_tasks.AggregateList())
+            return self.manager.submit_task(_tasks.AggregateList())
 
     def get_aggregate(self, name_or_id, filters=None):
         """Get an aggregate by name or ID.
@@ -1847,7 +1847,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions(
                 "Unable to create host aggregate {name}".format(
                     name=name)):
-            return self.manager.submitTask(_tasks.AggregateCreate(
+            return self.manager.submit_task(_tasks.AggregateCreate(
                 name=name, availability_zone=availability_zone))
 
     @_utils.valid_kwargs('name', 'availability_zone')
@@ -1869,7 +1869,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         with _utils.shade_exceptions(
                 "Error updating aggregate {name}".format(name=name_or_id)):
-            new_aggregate = self.manager.submitTask(
+            new_aggregate = self.manager.submit_task(
                 _tasks.AggregateUpdate(
                     aggregate=aggregate['id'], values=kwargs))
 
@@ -1891,7 +1891,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         with _utils.shade_exceptions(
                 "Error deleting aggregate {name}".format(name=name_or_id)):
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.AggregateDelete(aggregate=aggregate['id']))
 
         return True
@@ -1915,7 +1915,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions(
                 "Unable to set metadata for host aggregate {name}".format(
                     name=name_or_id)):
-            return self.manager.submitTask(_tasks.AggregateSetMetadata(
+            return self.manager.submit_task(_tasks.AggregateSetMetadata(
                 aggregate=aggregate['id'], metadata=metadata))
 
     def add_host_to_aggregate(self, name_or_id, host_name):
@@ -1934,7 +1934,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions(
                 "Unable to add host {host} to aggregate {name}".format(
                     name=name_or_id, host=host_name)):
-            return self.manager.submitTask(_tasks.AggregateAddHost(
+            return self.manager.submit_task(_tasks.AggregateAddHost(
                 aggregate=aggregate['id'], host=host_name))
 
     def remove_host_from_aggregate(self, name_or_id, host_name):
@@ -1953,7 +1953,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions(
                 "Unable to remove host {host} from aggregate {name}".format(
                     name=name_or_id, host=host_name)):
-            return self.manager.submitTask(_tasks.AggregateRemoveHost(
+            return self.manager.submit_task(_tasks.AggregateRemoveHost(
                 aggregate=aggregate['id'], host=host_name))
 
     def set_compute_quotas(self, name_or_id, **kwargs):
@@ -1979,7 +1979,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         #                 if key in quota.VOLUME_QUOTAS}
 
         try:
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.NovaQuotasSet(tenant_id=proj.id,
                                      force=True,
                                      **kwargs))
@@ -1998,7 +1998,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if not proj:
             raise OpenStackCloudException("project does not exist")
         try:
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.NovaQuotasGet(tenant_id=proj.id))
         except nova_exceptions.BadRequest:
             raise OpenStackCloudException("nova client call failed")
@@ -2016,7 +2016,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if not proj:
             raise OpenStackCloudException("project does not exist")
         try:
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.NovaQuotasDelete(tenant_id=proj.id))
         except novaclient.exceptions.BadRequest:
             raise OpenStackCloudException("nova client call failed")
@@ -2036,7 +2036,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise OpenStackCloudException("project does not exist")
 
         try:
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.CinderQuotasSet(tenant_id=proj.id,
                                        **kwargs))
         except cinder_exceptions.BadRequest:
@@ -2054,7 +2054,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if not proj:
             raise OpenStackCloudException("project does not exist")
         try:
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.CinderQuotasGet(tenant_id=proj.id))
         except cinder_exceptions.BadRequest:
             raise OpenStackCloudException("cinder client call failed")
@@ -2072,7 +2072,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if not proj:
             raise OpenStackCloudException("project does not exist")
         try:
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.CinderQuotasDelete(tenant_id=proj.id))
         except cinder_exceptions.BadRequest:
             raise OpenStackCloudException("cinder client call failed")
@@ -2093,7 +2093,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         body = {'quota': kwargs}
         with _utils.neutron_exceptions("network client call failed"):
-            self.manager.submitTask(
+            self.manager.submit_task(
                 _tasks.NeutronQuotasSet(tenant_id=proj.id,
                                         body=body))
 
@@ -2109,7 +2109,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if not proj:
             raise OpenStackCloudException("project does not exist")
         with _utils.neutron_exceptions("network client call failed"):
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.NeutronQuotasGet(tenant_id=proj.id))
 
     def delete_network_quotas(self, name_or_id):
@@ -2125,7 +2125,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if not proj:
             raise OpenStackCloudException("project does not exist")
         with _utils.neutron_exceptions("network client call failed"):
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.NeutronQuotasDelete(tenant_id=proj.id))
 
     def list_magnum_services(self):
@@ -2135,5 +2135,5 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: OpenStackCloudException on operation error.
         """
         with _utils.shade_exceptions("Error fetching Magnum services list"):
-            return self.manager.submitTask(
+            return self.manager.submit_task(
                 _tasks.MagnumServicesList())
