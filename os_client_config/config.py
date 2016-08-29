@@ -388,7 +388,10 @@ class OpenStackConfig(object):
         if 'regions' in config:
             return self._expand_regions(config['regions'])
         elif 'region_name' in config:
-            regions = config['region_name'].split(',')
+            if isinstance(config['region_name'], list):
+                regions = config['region_name']
+            else:
+                regions = config['region_name'].split(',')
             if len(regions) > 1:
                 warnings.warn(
                     "Comma separated lists in region_name are deprecated."
