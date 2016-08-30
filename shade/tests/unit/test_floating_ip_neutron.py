@@ -596,28 +596,37 @@ class TestFloatingIP(base.TestCase):
 
         self.assertEqual(server, self.fake_server)
 
-    @patch.object(OpenStackCloud, 'has_service')
-    @patch.object(OpenStackCloud, 'neutron_client')
+    @patch.object(OpenStackCloud, 'delete_floating_ip')
+    @patch.object(OpenStackCloud, 'list_floating_ips')
     @patch.object(OpenStackCloud, '_use_neutron_floating')
     def test_cleanup_floating_ips(
-            self, mock_use_neutron_floating, mock_neutron_client,
-            mock_has_service):
+            self, mock_use_neutron_floating, mock_list_floating_ips,
+            mock_delete_floating_ip):
         mock_use_neutron_floating.return_value = True
-        mock_has_service.return_value = True
+        floating_ips = [{
+            "id": "this-is-a-floating-ip-id",
+            "fixed_ip_address": None,
+            "internal_network": None,
+            "floating_ip_address": "203.0.113.29",
+            "network": "this-is-a-net-or-pool-id",
+            "attached": False,
+            "status": "ACTIVE"
+        }, {
+            "id": "this-is-an-attached-floating-ip-id",
+            "fixed_ip_address": None,
+            "internal_network": None,
+            "floating_ip_address": "203.0.113.29",
+            "network": "this-is-a-net-or-pool-id",
+            "attached": True,
+            "status": "ACTIVE"
+        }]
 
-        after_delete_rep = dict(
-            floatingips=self.mock_floating_ip_list_rep['floatingips'][:1])
-
-        mock_neutron_client.list_floatingips.side_effect = [
-            self.mock_floating_ip_list_rep,
-            after_delete_rep,
-            after_delete_rep,
-        ]
+        mock_list_floating_ips.return_value = floating_ips
 
         self.cloud.delete_unattached_floating_ips()
 
-        mock_neutron_client.delete_floatingip.assert_called_once_with(
-            floatingip='61cea855-49cb-4846-997d-801b70c71bdd')
+        mock_delete_floating_ip.assert_called_once_with(
+            floating_ip_id='this-is-a-floating-ip-id', retry=1)
 
     @patch.object(OpenStackCloud, '_submit_create_fip')
     @patch.object(OpenStackCloud, '_nat_destination_port')

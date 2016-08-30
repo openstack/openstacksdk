@@ -62,6 +62,8 @@ IMAGE_ERROR_396 = "Image cannot be imported. Error code: '396'"
 DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
 # This halves the current default for Swift
 DEFAULT_MAX_FILE_SIZE = (5 * 1024 * 1024 * 1024 + 2) / 2
+DEFAULT_SERVER_AGE = 5
+DEFAULT_PORT_AGE = 5
 
 
 OBJECT_CONTAINER_ACLS = {
@@ -199,6 +201,10 @@ class OpenStackCloud(object):
         self._servers_time = 0
         self._servers_lock = threading.Lock()
 
+        self._ports = []
+        self._ports_time = 0
+        self._ports_lock = threading.Lock()
+
         self._networks_lock = threading.Lock()
         self._reset_network_caches()
 
@@ -208,37 +214,20 @@ class OpenStackCloud(object):
 
         self._resource_caches = {}
 
-        expirations = cloud_config.get_cache_expiration()
         if cache_class != 'dogpile.cache.null':
             self.cache_enabled = True
             self._cache = self._make_cache(
                 cache_class, cache_expiration_time, cache_arguments)
-            for expire_key in expirations.keys():
-                # Only build caches for things we have list operations for
-                if getattr(self, 'list_{0}'.format(expire_key), None):
-                    self._resource_caches[expire_key] = self._make_cache(
-                        cache_class, expirations[expire_key], cache_arguments,
-                        async_creation_runner=_utils.async_creation_runner)
-
-        elif expirations:
-            # We have per-resource expirations configured, but not general
-            # caching. This is a potential common case for things like
-            # nodepool. In this case, we want dogpile.cache.null for the
-            # general cache but dogpile.cache.memory for per-resource. We
-            # can't remove the decorators in this config, but that's just
-            # the price of playing ball
-            cache_class = 'dogpile.cache.memory'
-            self.cache_enabled = False
-            self._cache = self._make_cache(
-                'dogpile.cache.null', cache_expiration_time, cache_arguments)
+            expirations = cloud_config.get_cache_expiration()
             for expire_key in expirations.keys():
                 # Only build caches for things we have list operations for
                 if getattr(
                         self, 'list_{0}'.format(expire_key), None):
                     self._resource_caches[expire_key] = self._make_cache(
-                        cache_class, expirations[expire_key], cache_arguments,
-                        async_creation_runner=_utils.async_creation_runner)
+                        cache_class, expirations[expire_key], cache_arguments)
 
+            self._SERVER_AGE = DEFAULT_SERVER_AGE
+            self._PORT_AGE = DEFAULT_PORT_AGE
         else:
             self.cache_enabled = False
 
@@ -249,6 +238,11 @@ class OpenStackCloud(object):
                 def invalidate(self):
                     pass
 
+            # Don't cache list_servers if we're not caching things.
+            # Replace this with a more specific cache configuration
+            # soon.
+            self._SERVER_AGE = 0
+            self._PORT_AGE = 0
             self._cache = _FakeCache()
             # Undecorate cache decorated methods. Otherwise the call stacks
             # wind up being stupidly long and hard to debug
@@ -261,6 +255,13 @@ class OpenStackCloud(object):
                     new_func = functools.partial(meth_obj.func, self)
                     new_func.invalidate = _fake_invalidate
                     setattr(self, method, new_func)
+
+        # If server expiration time is set explicitly, use that. Otherwise
+        # fall back to whatever it was before
+        self._SERVER_AGE = cloud_config.get_cache_resource_expiration(
+            'server', self._SERVER_AGE)
+        self._PORT_AGE = cloud_config.get_cache_resource_expiration(
+            'port', self._PORT_AGE)
 
         self._container_cache = dict()
         self._file_hash_cache = dict()
@@ -292,12 +293,9 @@ class OpenStackCloud(object):
 
         self.cloud_config = cloud_config
 
-    def _make_cache(
-            self, cache_class, expiration_time, arguments,
-            async_creation_runner=None):
+    def _make_cache(self, cache_class, expiration_time, arguments):
         return dogpile.cache.make_region(
-            function_key_generator=self._make_cache_key,
-            async_creation_runner=async_creation_runner
+            function_key_generator=self._make_cache_key
         ).configure(
             cache_class,
             expiration_time=expiration_time,
@@ -311,18 +309,14 @@ class OpenStackCloud(object):
             name_key = '%s:%s' % (self.name, namespace)
 
         def generate_key(*args, **kwargs):
-            arg_key = ','.join([str(arg) for arg in args]) if args else ''
-            kw_keys = sorted(kwargs.keys()) if kwargs else []
+            arg_key = ','.join(args)
+            kw_keys = sorted(kwargs.keys())
             kwargs_key = ','.join(
                 ['%s:%s' % (k, kwargs[k]) for k in kw_keys if k != 'cache'])
             ans = "_".join(
                 [str(name_key), fname, arg_key, kwargs_key])
             return ans
         return generate_key
-
-    def _get_cache_time(self, resource_name):
-        return self.cloud_config.get_cache_resource_expiration(
-            resource_name, None)
 
     def _get_cache(self, resource_name):
         if resource_name and resource_name in self._resource_caches:
@@ -1237,7 +1231,7 @@ class OpenStackCloud(object):
         # If port caching is enabled, do not push the filter down to
         # neutron; get all the ports (potentially from the cache) and
         # filter locally.
-        if self._get_cache_time('port'):
+        if self._PORT_AGE:
             pushdown_filters = None
         else:
             pushdown_filters = filters
@@ -1364,7 +1358,6 @@ class OpenStackCloud(object):
             return self.manager.submit_task(
                 _tasks.SubnetList(**filters))['subnets']
 
-    @_utils.cache_on_arguments(resource='ports')
     def list_ports(self, filters=None):
         """List all available ports.
 
@@ -1372,9 +1365,27 @@ class OpenStackCloud(object):
         :returns: A list of port ``munch.Munch``.
 
         """
+        # If pushdown filters are specified, bypass local caching.
+        if filters:
+            return self._list_ports(filters)
         # Translate None from search interface to empty {} for kwargs below
-        if not filters:
-            filters = {}
+        filters = {}
+        if (time.time() - self._ports_time) >= self._PORT_AGE:
+            # Since we're using cached data anyway, we don't need to
+            # have more than one thread actually submit the list
+            # ports task.  Let the first one submit it while holding
+            # a lock, and the non-blocking acquire method will cause
+            # subsequent threads to just skip this and use the old
+            # data until it succeeds.
+            if self._ports_lock.acquire(False):
+                try:
+                    self._ports = self._list_ports(filters)
+                    self._ports_time = time.time()
+                finally:
+                    self._ports_lock.release()
+        return self._ports
+
+    def _list_ports(self, filters):
         with _utils.neutron_exceptions("Error fetching port list"):
             return self.manager.submit_task(
                 _tasks.PortList(**filters))['ports']
@@ -1477,13 +1488,28 @@ class OpenStackCloud(object):
                     _tasks.NovaSecurityGroupList())
             return _utils.normalize_nova_secgroups(groups)
 
-    @_utils.cache_on_arguments(resource='server')
     def list_servers(self, detailed=False):
         """List all available servers.
 
         :returns: A list of server ``munch.Munch``.
 
         """
+        if (time.time() - self._servers_time) >= self._SERVER_AGE:
+            # Since we're using cached data anyway, we don't need to
+            # have more than one thread actually submit the list
+            # servers task.  Let the first one submit it while holding
+            # a lock, and the non-blocking acquire method will cause
+            # subsequent threads to just skip this and use the old
+            # data until it succeeds.
+            if self._servers_lock.acquire(False):
+                try:
+                    self._servers = self._list_servers(detailed=detailed)
+                    self._servers_time = time.time()
+                finally:
+                    self._servers_lock.release()
+        return self._servers
+
+    def _list_servers(self, detailed=False):
         with _utils.shade_exceptions(
                 "Error fetching server list on {cloud}:{region}:".format(
                     cloud=self.name,
@@ -1564,7 +1590,6 @@ class OpenStackCloud(object):
         with _utils.shade_exceptions("Error fetching floating IP pool list"):
             return self.manager.submit_task(_tasks.FloatingIPPoolList())
 
-    @_utils.cache_on_arguments(resource='floating_ip')
     def list_floating_ips(self):
         """List all available floating IPs.
 
@@ -2892,8 +2917,7 @@ class OpenStackCloud(object):
             return image
         for count in _utils._iterate_timeout(
                 60,
-                "Timeout waiting for the image to finish.",
-                wait=self._get_cache_time('image')):
+                "Timeout waiting for the image to finish."):
             image_obj = self.get_image(image.id)
             if image_obj and image_obj.status not in ('queued', 'saving'):
                 return image_obj
@@ -3691,8 +3715,7 @@ class OpenStackCloud(object):
                         for count in _utils._iterate_timeout(
                                 timeout,
                                 "Timeout waiting for the floating IP"
-                                " to be ACTIVE",
-                                wait=self._get_cache_time('floating_ip')):
+                                " to be ACTIVE"):
                             fip = self.get_floating_ip(fip_id)
                             if fip['status'] == 'ACTIVE':
                                 break
@@ -3745,11 +3768,6 @@ class OpenStackCloud(object):
 
             if (retry == 0) or not result:
                 return result
-
-            # Wait for the cached floating ip list to be regenerated
-            float_expire_time = self._get_cache_time('floating_ip')
-            if float_expire_time:
-                time.sleep(float_expire_time)
 
             # neutron sometimes returns success when deleating a floating
             # ip. That's awesome. SO - verify that the delete actually
@@ -3906,15 +3924,14 @@ class OpenStackCloud(object):
         # If we are caching port lists, we may not find the port for
         # our server if the list is old.  Try for at least 2 cache
         # periods if that is the case.
-        port_expire_time = self._get_cache_time('ports')
-        if port_expire_time:
-            timeout = port_expire_time * 2
+        if self._PORT_AGE:
+            timeout = self._PORT_AGE * 2
         else:
             timeout = None
         for count in _utils._iterate_timeout(
                 timeout,
                 "Timeout waiting for port to show up in list",
-                wait=port_expire_time):
+                wait=self._PORT_AGE):
             try:
                 port_filter = {'device_id': server['id']}
                 ports = self.search_ports(filters=port_filter)
@@ -4559,7 +4576,7 @@ class OpenStackCloud(object):
         for count in _utils._iterate_timeout(
                 timeout,
                 timeout_message,
-                wait=self._get_cache_time('server')):
+                wait=self._SERVER_AGE):
             try:
                 # Use the get_server call so that the list_servers
                 # cache can be leveraged
@@ -4776,7 +4793,7 @@ class OpenStackCloud(object):
         for count in _utils._iterate_timeout(
                 timeout,
                 "Timed out waiting for server to get deleted.",
-                wait=self._get_cache_time('server')):
+                wait=self._SERVER_AGE):
             with _utils.shade_exceptions("Error in deleting server"):
                 server = self.get_server(server['id'])
                 if not server:
@@ -4785,6 +4802,9 @@ class OpenStackCloud(object):
         if reset_volume_cache:
             self.list_volumes.invalidate(self)
 
+        # Reset the list servers cache time so that the next list server
+        # call gets a new list
+        self._servers_time = self._servers_time - self._SERVER_AGE
         return True
 
     @_utils.valid_kwargs(

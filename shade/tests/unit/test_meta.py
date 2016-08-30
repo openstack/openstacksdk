@@ -355,13 +355,7 @@ class TestMeta(base.TestCase):
         self.assertEqual(PRIVATE_V4, srv['private_v4'])
         mock_has_service.assert_called_with('volume')
         mock_list_networks.assert_called_once_with()
-        # TODO(mordred) empirical testing shows that list_floating_ips IS
-        # called, but with the caching decorator mock doesn't see it. I care
-        # less about fixing the mock as mocking out at this level is the
-        # wrong idea anyway
-        # To fix this, we should rewrite this to mock neutron_client - not
-        # shade's list_floating_ips method
-        # mock_list_floating_ips.assert_called_once_with()
+        mock_list_floating_ips.assert_called_once_with()
 
     @mock.patch.object(shade.OpenStackCloud, 'list_floating_ips')
     @mock.patch.object(shade.OpenStackCloud, 'list_subnets')
