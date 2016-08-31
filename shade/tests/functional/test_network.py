@@ -66,6 +66,10 @@ class TestNetwork(base.BaseFunctionalTestCase):
         self.assertFalse(net1['admin_state_up'])
 
     def test_create_network_provider_flat(self):
+        existing_public = self.operator_cloud.search_networks(
+            filters={'provider:network_type': 'flat'})
+        if existing_public:
+            self.skipTest('Physical network already allocated')
         net1 = self.operator_cloud.create_network(
             name=self.network_name,
             shared=True,
