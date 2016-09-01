@@ -373,6 +373,29 @@ class TestShade(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'search_networks')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_create_subnet_string_ip_version(self, mock_client, mock_search):
+        '''Allow ip_version as a string'''
+        net1 = dict(id='123', name='donald')
+        mock_search.return_value = [net1]
+        self.cloud.create_subnet('donald', '192.168.199.0/24', ip_version='4')
+        self.assertTrue(mock_client.create_subnet.called)
+
+    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_create_subnet_bad_ip_version(self, mock_client, mock_search):
+        '''String ip_versions must be convertable to int'''
+        net1 = dict(id='123', name='donald')
+        mock_search.return_value = [net1]
+
+        with testtools.ExpectedException(
+                exc.OpenStackCloudException,
+                "ip_version must be an integer"
+        ):
+            self.cloud.create_subnet('donald', '192.168.199.0/24',
+                                     ip_version='4x')
+
+    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     def test_create_subnet_without_gateway_ip(self, mock_client, mock_search):
         net1 = dict(id='123', name='donald')
         mock_search.return_value = [net1]

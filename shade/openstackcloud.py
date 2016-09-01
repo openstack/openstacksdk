@@ -5271,6 +5271,13 @@ class OpenStackCloud(object):
             raise OpenStackCloudException(
                 'arg:disable_gateway_ip is not allowed with arg:gateway_ip')
 
+        # Be friendly on ip_version and allow strings
+        if isinstance(ip_version, six.string_types):
+            try:
+                ip_version = int(ip_version)
+            except ValueError:
+                raise OpenStackCloudException('ip_version must be an integer')
+
         # The body of the neutron message for the subnet we wish to create.
         # This includes attributes that are required or have defaults.
         subnet = {
