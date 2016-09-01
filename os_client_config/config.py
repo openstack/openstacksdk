@@ -174,8 +174,9 @@ class OpenStackConfig(object):
     def __init__(self, config_files=None, vendor_files=None,
                  override_defaults=None, force_ipv4=None,
                  envvar_prefix=None, secure_files=None,
-                 pw_func=None):
+                 pw_func=None, session_constructor=None):
         self.log = _log.setup_logging(__name__)
+        self._session_constructor = session_constructor
 
         self._config_files = config_files or CONFIG_FILES
         self._secure_files = secure_files or SECURE_FILES
@@ -1127,7 +1128,8 @@ class OpenStackConfig(object):
             config=self._normalize_keys(config),
             force_ipv4=force_ipv4,
             auth_plugin=auth_plugin,
-            openstack_config=self
+            openstack_config=self,
+            session_constructor=self._session_constructor,
         )
 
     def get_one_cloud_osc(

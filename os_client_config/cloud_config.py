@@ -70,7 +70,7 @@ def _make_key(key, service_type):
 class CloudConfig(object):
     def __init__(self, name, region, config,
                  force_ipv4=False, auth_plugin=None,
-                 openstack_config=None):
+                 openstack_config=None, session_constructor=None):
         self.name = name
         self.region = region
         self.config = config
@@ -79,6 +79,7 @@ class CloudConfig(object):
         self._auth = auth_plugin
         self._openstack_config = openstack_config
         self._keystone_session = None
+        self._session_constructor = session_constructor or session.Session
 
     def __getattr__(self, key):
         """Return arbitrary attributes."""
@@ -196,7 +197,7 @@ class CloudConfig(object):
                     " since verify=False".format(
                         cloud=self.name, region=self.region))
             requestsexceptions.squelch_warnings(insecure_requests=not verify)
-            self._keystone_session = session.Session(
+            self._keystone_session = self._session_constructor(
                 auth=self._auth,
                 verify=verify,
                 cert=cert,
