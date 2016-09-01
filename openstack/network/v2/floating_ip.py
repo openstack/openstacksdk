@@ -32,8 +32,7 @@ class FloatingIP(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'description', 'fixed_ip_address', 'floating_ip_address',
         'floating_network_id', 'port_id', 'router_id', 'status',
-        project_id='tenant_id',
-        revision_number='revision')
+        project_id='tenant_id')
 
     # Properties
     #: Timestamp at which the floating IP was created.

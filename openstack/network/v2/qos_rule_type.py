@@ -27,6 +27,8 @@ class QoSRuleType(resource.Resource):
     allow_delete = False
     allow_list = True
 
+    _query_mapping = resource.QueryParameters('type')
+
     # Properties
     #: QoS rule type name.
     type = resource.Body('type')

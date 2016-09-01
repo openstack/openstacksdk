@@ -28,9 +28,11 @@ class SecurityGroupRule(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'direction', 'ethertype', 'protocol',
+        'description', 'direction', 'protocol',
         'remote_group_id', 'security_group_id',
+        ether_type='ethertype',
         project_id='tenant_id',
+
     )
 
     # Properties

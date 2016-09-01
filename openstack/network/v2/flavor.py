@@ -40,4 +40,4 @@ class Flavor(resource.Resource):
     #: Service type to which the flavor applies
     service_type = resource.Body('service_type')
     #: IDs of service profiles associated with this flavor
-    service_profile_ids = resource.Body('service_profiles')
+    service_profile_ids = resource.Body('service_profiles', type=list)

@@ -27,6 +27,12 @@ class QoSPolicy(resource.Resource):
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'name', 'description',
+        project_id='tenant_id',
+        is_shared='shared'
+    )
+
     # Properties
     #: QoS policy name.
     name = resource.Body('name')

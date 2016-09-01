@@ -27,7 +27,10 @@ class RBACPolicy(resource.Resource):
     allow_delete = True
     allow_list = True
 
-    # NOTE: This resource doesn't support query parameters
+    _query_mapping = resource.QueryParameters(
+        'action', 'object_id', 'object_type', 'project_id',
+        'target_project_id',
+    )
 
     # Properties
     #: ID of the object that this RBAC policy affects.

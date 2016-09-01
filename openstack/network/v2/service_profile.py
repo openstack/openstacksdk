@@ -35,7 +35,7 @@ class ServiceProfile(resource.Resource):
     # Properties
     #: Description of the service flavor profile.
     description = resource.Body('description')
-    #: Provider Driver for the service flavor profile
+    #: Provider driver for the service flavor profile
     driver = resource.Body('driver')
     #: Sets enabled flag
     is_enabled = resource.Body('enabled', type=bool)

@@ -28,8 +28,8 @@ class Pool(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'health_monitor_id', 'lb_algorithm', 'name',
-        'protocol', 'provider', 'subnet_id', 'vip_id',
+        'description', 'lb_algorithm', 'name',
+        'protocol', 'provider', 'subnet_id', 'virtual_ip_id',
         is_admin_state_up='admin_state_up',
         project_id='tenant_id',
     )
@@ -69,7 +69,7 @@ class Pool(resource.Resource):
     status = resource.Body('status')
     #: The status of the network.
     status_description = resource.Body('status_description')
-    #: The subnet on whic the members of the pool will be located.
+    #: The subnet on which the members of the pool will be located.
     subnet_id = resource.Body('subnet_id')
     #: Session persistence algorithm that should be used (if any).
     #: *Type: dict with keys ``type`` and ``cookie_name``*
