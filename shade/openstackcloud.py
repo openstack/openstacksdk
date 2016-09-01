@@ -4550,11 +4550,11 @@ class OpenStackCloud(object):
 
         if image:
             if isinstance(image, dict):
-                kwargs['image'] = image
+                kwargs['image'] = image['id']
             else:
                 kwargs['image'] = self.get_image(image)
         if flavor and isinstance(flavor, dict):
-            kwargs['flavor'] = flavor
+            kwargs['flavor'] = flavor['id']
         else:
             kwargs['flavor'] = self.get_flavor(flavor, get_extra=False)
 

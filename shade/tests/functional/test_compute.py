@@ -70,6 +70,21 @@ class TestCompute(base.BaseFunctionalTestCase):
             self.demo_cloud.delete_server(self.server_name, wait=True))
         self.assertIsNone(self.demo_cloud.get_server(self.server_name))
 
+    def test_create_server_image_flavor_dict(self):
+        self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
+        server = self.demo_cloud.create_server(
+            name=self.server_name,
+            image={'id': self.image.id},
+            flavor={'id': self.flavor.id},
+            wait=True)
+        self.assertEqual(self.server_name, server['name'])
+        self.assertEqual(self.image.id, server['image']['id'])
+        self.assertEqual(self.flavor.id, server['flavor']['id'])
+        self.assertIsNotNone(server['adminPass'])
+        self.assertTrue(
+            self.demo_cloud.delete_server(self.server_name, wait=True))
+        self.assertIsNone(self.demo_cloud.get_server(self.server_name))
+
     def test_get_server_console(self):
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
         server = self.demo_cloud.create_server(
