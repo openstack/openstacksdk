@@ -16,11 +16,11 @@ from openstack.network.v2 import rbac_policy
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
-    'object_id': IDENTIFIER,
-    'tenant_id': '5',
-    'object_type': 'network',
     'action': 'access_as_shared',
+    'object_id': IDENTIFIER,
+    'object_type': 'network',
     'target_tenant': '10',
+    'tenant_id': '5',
 }
 
 
@@ -33,16 +33,15 @@ class TestRBACPolicy(testtools.TestCase):
         self.assertEqual('/rbac-policies', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = rbac_policy.RBACPolicy(EXAMPLE)
-        self.assertEqual(EXAMPLE['object_id'],
-                         sot.object_id)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
-        self.assertEqual(EXAMPLE['object_type'], sot.object_type)
+        sot = rbac_policy.RBACPolicy(**EXAMPLE)
         self.assertEqual(EXAMPLE['action'], sot.action)
+        self.assertEqual(EXAMPLE['object_id'], sot.object_id)
+        self.assertEqual(EXAMPLE['object_type'], sot.object_type)
         self.assertEqual(EXAMPLE['target_tenant'], sot.target_project_id)
+        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)

@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Subnet(resource.Resource):
@@ -22,49 +22,62 @@ class Subnet(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
+    # NOTE: Query on list or datetime fields are currently not supported.
+    _query_mapping = resource.QueryParameters(
+        'cidr', 'description', 'gateway_ip', 'ip_version',
+        'ipv6_address_mode', 'ipv6_ra_mode', 'name', 'network_id',
+        'segment_id',
+        is_dhcp_enabled='enable_dhcp',
+        project_id='tenant_id',
+        subnet_pool_id='subnetpool_id',
+    )
+
     # Properties
-    #: The start and end addresses for the allocation pools.
-    allocation_pools = resource.prop('allocation_pools')
+    #: List of allocation pools each of which has a start and an end address
+    #: for this subnet
+    allocation_pools = resource.Body('allocation_pools', type=list)
     #: The CIDR.
-    cidr = resource.prop('cidr')
+    cidr = resource.Body('cidr')
     #: Timestamp when the subnet was created.
-    created_at = resource.prop('created_at')
+    created_at = resource.Body('created_at')
     #: The subnet description.
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: A list of DNS nameservers.
-    dns_nameservers = resource.prop('dns_nameservers')
+    dns_nameservers = resource.Body('dns_nameservers', type=list)
     #: The gateway IP address.
-    gateway_ip = resource.prop('gateway_ip')
+    gateway_ip = resource.Body('gateway_ip')
     #: A list of host routes.
-    host_routes = resource.prop('host_routes')
-    #: The IP version, which is ``4`` or ``6``.
-    ip_version = resource.prop('ip_version')
-    #: The IPv6 address modes which are 'dhcpv6-stateful', 'dhcpv6-stateless',
-    #: or 'SLAAC'
-    ipv6_address_mode = resource.prop('ipv6_address_mode')
-    #: The IPv6 router advertisements modes
-    ipv6_ra_mode = resource.prop('ipv6_ra_mode')
+    host_routes = resource.Body('host_routes', type=list)
+    #: The IP version, which is 4 or 6.
+    #: *Type: int*
+    ip_version = resource.Body('ip_version', type=int)
+    #: The IPv6 address modes which are 'dhcpv6-stateful', 'dhcpv6-stateless'
+    #: or 'slacc'.
+    ipv6_address_mode = resource.Body('ipv6_address_mode')
+    #: The IPv6 router advertisements modes which can be 'slaac',
+    #: 'dhcpv6-stateful', 'dhcpv6-stateless'.
+    ipv6_ra_mode = resource.Body('ipv6_ra_mode')
     #: Set to ``True`` if DHCP is enabled and ``False`` if DHCP is disabled.
     #: *Type: bool*
-    is_dhcp_enabled = resource.prop('enable_dhcp', type=bool)
+    is_dhcp_enabled = resource.Body('enable_dhcp', type=bool)
     #: The subnet name.
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: The ID of the attached network.
-    network_id = resource.prop('network_id')
+    network_id = resource.Body('network_id')
     #: The ID of the project this subnet is associated with.
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')
     #: Revision number of the subnet. *Type: int*
-    revision_number = resource.prop('revision_number', type=int)
+    revision_number = resource.Body('revision_number', type=int)
     #: The ID of the segment this subnet is associated with.
-    segment_id = resource.prop('segment_id')
+    segment_id = resource.Body('segment_id')
     #: Service types for this subnet
-    service_types = resource.prop('service_types', type=list)
+    service_types = resource.Body('service_types', type=list)
     #: The subnet pool ID from which to obtain a CIDR.
-    subnet_pool_id = resource.prop('subnetpool_id')
+    subnet_pool_id = resource.Body('subnetpool_id')
     #: Timestamp when the subnet was last updated.
-    updated_at = resource.prop('updated_at')
+    updated_at = resource.Body('updated_at')

@@ -48,12 +48,16 @@ RULES = [
         "revision_number": 7,
     },
 ]
+
 EXAMPLE = {
+    'created_at': '2016-10-04T12:14:57.233772',
     'description': '1',
     'id': IDENTIFIER,
-    'name': '3',
-    'tenant_id': '4',
+    'name': '2',
+    'revision_number': 3,
     'security_group_rules': RULES,
+    'tenant_id': '4',
+    'updated_at': '2016-10-14T12:16:57.233772',
 }
 
 
@@ -66,20 +70,20 @@ class TestSecurityGroup(testtools.TestCase):
         self.assertEqual('/security-groups', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = security_group.SecurityGroup(EXAMPLE)
+        sot = security_group.SecurityGroup(**EXAMPLE)
+        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertEqual(EXAMPLE['security_group_rules'],
                          sot.security_group_rules)
-        # TODO(briancurtin): Reevaluate this test upon fixing
-        # https://bugs.launchpad.net/python-openstacksdk/+bug/1423620
-        # Should be able to test that a rule is a SecurityGroupRule.
         self.assertEqual(dict, type(sot.security_group_rules[0]))
+        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)

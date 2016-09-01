@@ -16,20 +16,20 @@ from openstack.network.v2 import security_group_rule
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
-    'direction': '1',
-    'ethertype': '2',
+    'created_at': '0',
+    'description': '1',
+    'direction': '2',
+    'ethertype': '3',
     'id': IDENTIFIER,
-    'port_range_max': '4',
-    'port_range_min': '5',
-    'tenant_id': '6',
-    'protocol': '7',
-    'remote_group_id': '8',
-    'remote_ip_prefix': '9',
+    'port_range_max': 4,
+    'port_range_min': 5,
+    'protocol': '6',
+    'remote_group_id': '7',
+    'remote_ip_prefix': '8',
+    'revision_number': 9,
     'security_group_id': '10',
-    'description': '11',
-    'created_at': '2016-10-04T12:14:57.233772',
-    'updated_at': '2016-10-12T12:15:34.233222',
-    'revision_number': 14,
+    'tenant_id': '11',
+    'updated_at': '12'
 }
 
 
@@ -42,24 +42,24 @@ class TestSecurityGroupRule(testtools.TestCase):
         self.assertEqual('/security-group-rules', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = security_group_rule.SecurityGroupRule(EXAMPLE)
+        sot = security_group_rule.SecurityGroupRule(**EXAMPLE)
+        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
+        self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['direction'], sot.direction)
-        self.assertEqual(EXAMPLE['ethertype'], sot.ethertype)
+        self.assertEqual(EXAMPLE['ethertype'], sot.ether_type)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['port_range_max'], sot.port_range_max)
         self.assertEqual(EXAMPLE['port_range_min'], sot.port_range_min)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['protocol'], sot.protocol)
         self.assertEqual(EXAMPLE['remote_group_id'], sot.remote_group_id)
         self.assertEqual(EXAMPLE['remote_ip_prefix'], sot.remote_ip_prefix)
-        self.assertEqual(EXAMPLE['security_group_id'], sot.security_group_id)
-        self.assertEqual(EXAMPLE['description'], sot.description)
-        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
-        self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
+        self.assertEqual(EXAMPLE['security_group_id'], sot.security_group_id)
+        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)

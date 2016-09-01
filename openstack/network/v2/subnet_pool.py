@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class SubnetPool(resource.Resource):
@@ -22,51 +22,58 @@ class SubnetPool(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'address_scope_id', 'description', 'ip_version', 'is_default',
+        'name',
+        is_shared='shared',
+        project_id='tenant_id',
+    )
+
     # Properties
     #: The ID of the address scope associated with the subnet pool.
-    address_scope_id = resource.prop('address_scope_id')
+    address_scope_id = resource.Body('address_scope_id')
     #: Timestamp when the subnet pool was created.
-    created_at = resource.prop('created_at')
+    created_at = resource.Body('created_at')
     #: The length of the prefix to allocate when the cidr or prefixlen
     #: attributes are omitted when creating a subnet. *Type: int*
-    default_prefix_length = resource.prop('default_prefixlen', type=int)
+    default_prefix_length = resource.Body('default_prefixlen', type=int)
     #: A per-project quota on the prefix space that can be allocated
     #: from the subnet pool for project subnets. For IPv4 subnet pools,
     #: default_quota is measured in units of /32. For IPv6 subnet pools,
     #: default_quota is measured units of /64. All projects that use the
     #: subnet pool have the same prefix quota applied. *Type: int*
-    default_quota = resource.prop('default_quota', type=int)
+    default_quota = resource.Body('default_quota', type=int)
     #: The subnet pool description.
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: Read-only. The IP address family of the list of prefixes.
     #: *Type: int*
-    ip_version = resource.prop('ip_version', type=int)
+    ip_version = resource.Body('ip_version', type=int)
     #: Whether or not this is the default subnet pool.
     #: *Type: bool*
-    is_default = resource.prop('is_default', type=bool)
+    is_default = resource.Body('is_default', type=bool)
     #: Indicates whether this subnet pool is shared across all projects.
     #: *Type: bool*
-    is_shared = resource.prop('shared', type=bool)
+    is_shared = resource.Body('shared', type=bool)
     #: The maximum prefix length that can be allocated from the
     #: subnet pool. *Type: int*
-    maximum_prefix_length = resource.prop('max_prefixlen', type=int)
+    maximum_prefix_length = resource.Body('max_prefixlen', type=int)
     #: The minimum prefix length that can be allocated from the
     #: subnet pool. *Type: int*
-    minimum_prefix_length = resource.prop('min_prefixlen', type=int)
+    minimum_prefix_length = resource.Body('min_prefixlen', type=int)
     #: The subnet pool name.
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: The ID of the project that owns the subnet pool.
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')
     #: A list of subnet prefixes that are assigned to the subnet pool.
     #: The adjacent prefixes are merged and treated as a single prefix.
     #: *Type: list*
-    prefixes = resource.prop('prefixes', type=list)
+    prefixes = resource.Body('prefixes', type=list)
     #: Revision number of the subnet pool. *Type: int*
-    revision_number = resource.prop('revision_number', type=int)
+    revision_number = resource.Body('revision_number', type=int)
     #: Timestamp when the subnet pool was last updated.
-    updated_at = resource.prop('updated_at')
+    updated_at = resource.Body('updated_at')

@@ -95,7 +95,7 @@ class Network(resource.Resource):
     #: The ID of the QoS policy attached to the port.
     qos_policy_id = resource.Body('qos_policy_id')
     #: Revision number of the network. *Type: int*
-    revision_number = resource.Body('revision', type=int)
+    revision_number = resource.Body('revision_number', type=int)
     #: A list of provider segment objects.
     #: Available for multiple provider extensions.
     segments = resource.Body('segments')

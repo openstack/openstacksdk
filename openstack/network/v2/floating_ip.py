@@ -36,6 +36,8 @@ class FloatingIP(resource.Resource):
         revision_number='revision')
 
     # Properties
+    #: Timestamp at which the floating IP was created.
+    created_at = resource.Body('created_at')
     #: The floating IP description.
     description = resource.Body('description')
     #: The fixed IP address associated with the floating IP. If you
@@ -54,11 +56,13 @@ class FloatingIP(resource.Resource):
     #: The ID of the project this floating IP is associated with.
     project_id = resource.Body('tenant_id')
     #: Revision number of the floating IP. *Type: int*
-    revision_number = resource.Body('revision', type=int)
+    revision_number = resource.Body('revision_number', type=int)
     #: The ID of an associated router.
     router_id = resource.Body('router_id')
     #: The floating IP status. Value is ``ACTIVE`` or ``DOWN``.
     status = resource.Body('status')
+    #: Timestamp at which the floating IP was last updated.
+    updated_at = resource.Body('updated_at')
 
     @classmethod
     def find_available(cls, session):

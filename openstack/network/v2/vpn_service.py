@@ -11,8 +11,10 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
+
+# NOTE: The VPN service is unmaintained, need to consider remove it
 
 class VPNService(resource.Resource):
     resource_key = 'vpnservice'
@@ -22,26 +24,28 @@ class VPNService(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
     # Properties
     #: Human-readable description for the vpnservice.
-    description = resource.prop('description')
-    #: The unique ID for the vpnservice.
-    id = resource.prop('id')
+    description = resource.Body('description')
+    #: The external IPv4 address that is used for the VPN service.
+    external_v4_ip = resource.Body('external_v4_ip')
+    #: The external IPv6 address that is used for the VPN service.
+    external_v6_ip = resource.Body('external_v6_ip')
     #: The administrative state of the vpnservice, which is up ``True`` or
     #: down ``False``. *Type: bool*
-    is_admin_state_up = resource.prop('admin_state_up', type=bool)
+    is_admin_state_up = resource.Body('admin_state_up', type=bool)
     #: The vpnservice name.
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: ID of the router into which the VPN service is inserted.
-    router_id = resource.prop('router_id')
+    router_id = resource.Body('router_id')
     #: The ID of the project this vpnservice is associated with.
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')
     #: The vpnservice status.
-    status = resource.prop('status')
+    status = resource.Body('status')
     #: The ID of the subnet on which the tenant wants the vpnservice.
-    subnet_id = resource.prop('subnet_id')
+    subnet_id = resource.Body('subnet_id')

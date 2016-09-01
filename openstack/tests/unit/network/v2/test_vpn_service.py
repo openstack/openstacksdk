@@ -16,14 +16,16 @@ from openstack.network.v2 import vpn_service
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
-    "router_id": "1",
-    "status": "PENDING_CREATE",
-    "name": "2",
     "admin_state_up": True,
-    "subnet_id": "3",
-    "tenant_id": "4",
+    "description": "1",
+    "external_v4_ip": "2",
+    "external_v6_ip": "3",
     "id": IDENTIFIER,
-    "description": "5"
+    "name": "4",
+    "router_id": "5",
+    "status": "6",
+    "subnet_id": "7",
+    "tenant_id": "8",
 }
 
 
@@ -36,18 +38,20 @@ class TestVPNService(testtools.TestCase):
         self.assertEqual('/vpn/vpnservices', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = vpn_service.VPNService(EXAMPLE)
+        sot = vpn_service.VPNService(**EXAMPLE)
         self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['description'], sot.description)
+        self.assertEqual(EXAMPLE['external_v4_ip'], sot.external_v4_ip)
+        self.assertEqual(EXAMPLE['external_v6_ip'], sot.external_v6_ip)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['router_id'], sot.router_id)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['subnet_id'], sot.subnet_id)
+        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)

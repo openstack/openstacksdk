@@ -34,7 +34,7 @@ EXAMPLE = {
     'provider:physical_network': '12',
     'provider:segmentation_id': '13',
     'qos_policy_id': '14',
-    'revision': 15,
+    'revision_number': 15,
     'router:external': True,
     'segments': '16',
     'shared': True,
@@ -85,7 +85,7 @@ class TestNetwork(testtools.TestCase):
         self.assertEqual(EXAMPLE['provider:segmentation_id'],
                          sot.provider_segmentation_id)
         self.assertEqual(EXAMPLE['qos_policy_id'], sot.qos_policy_id)
-        self.assertEqual(EXAMPLE['revision'], sot.revision_number)
+        self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertTrue(sot.is_router_external)
         self.assertEqual(EXAMPLE['segments'], sot.segments)
         self.assertTrue(sot.is_shared)

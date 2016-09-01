@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class RBACPolicy(resource.Resource):
@@ -22,19 +22,21 @@ class RBACPolicy(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
+    # NOTE: This resource doesn't support query parameters
+
     # Properties
     #: ID of the object that this RBAC policy affects.
-    object_id = resource.prop('object_id')
+    object_id = resource.Body('object_id')
     #: The ID of the project this RBAC will be enforced.
-    target_project_id = resource.prop('target_tenant')
+    target_project_id = resource.Body('target_tenant')
     #: The owner project ID.
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')
     #: Type of the object that this RBAC policy affects.
-    object_type = resource.prop('object_type')
+    object_type = resource.Body('object_type')
     #: Action for the RBAC policy.
-    action = resource.prop('action')
+    action = resource.Body('action')

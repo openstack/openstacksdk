@@ -18,35 +18,43 @@ from openstack.network.v2 import router
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     'admin_state_up': True,
-    'external_gateway_info': {'2': '3'},
+    'availability_zone_hints': ['1'],
+    'availability_zones': ['2'],
+    'created_at': 'timestamp1',
+    'description': '3',
+    'distributed': False,
+    'external_gateway_info': {'4': 4},
+    'flavor_id': '5',
+    'ha': False,
     'id': IDENTIFIER,
-    'name': '4',
-    'tenant_id': '5',
-    'status': '6',
-    'routes': [],
-    'availability_zone_hints': [],
-    'availability_zones': [],
-    'description': '10',
-    'created_at': '2016-10-04T12:14:57.233772',
-    'updated_at': '2016-10-12T12:15:34.233222',
-    'revision_number': 13,
+    'name': '6',
+    'revision': 7,
+    'routes': ['8'],
+    'status': '9',
+    'tenant_id': '10',
+    'updated_at': 'timestamp2',
 }
 
 EXAMPLE_WITH_OPTIONAL = {
     'admin_state_up': False,
-    'external_gateway_info': {'network_id': '1',
-                              'enable_snat': True,
-                              'external_fixed_ips': []},
-    'id': IDENTIFIER,
-    'name': 'router1',
-    'tenant_id': '2',
-    'status': 'ACTIVE',
-    'routes': [{'nexthop': '172.24.4.20', 'destination': '10.0.3.1/24'}],
-    'ha': True,
-    'distributed': True,
     'availability_zone_hints': ['zone-1', 'zone-2'],
     'availability_zones': ['zone-2'],
     'description': 'description',
+    'distributed': True,
+    'external_gateway_info': {
+        'network_id': '1',
+        'enable_snat': True,
+        'external_fixed_ips': []
+    },
+    'ha': True,
+    'id': IDENTIFIER,
+    'name': 'router1',
+    'routes': [{
+        'nexthop': '172.24.4.20',
+        'destination': '10.0.3.1/24'
+    }],
+    'status': 'ACTIVE',
+    'tenant_id': '2',
 }
 
 
@@ -59,54 +67,55 @@ class TestRouter(testtools.TestCase):
         self.assertEqual('/routers', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = router.Router(EXAMPLE)
+        sot = router.Router(**EXAMPLE)
         self.assertTrue(sot.is_admin_state_up)
-        self.assertEqual(EXAMPLE['external_gateway_info'],
-                         sot.external_gateway_info)
-        self.assertEqual(EXAMPLE['id'], sot.id)
-        self.assertEqual(EXAMPLE['name'], sot.name)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
-        self.assertEqual(EXAMPLE['status'], sot.status)
-        self.assertFalse(sot.is_ha)
-        self.assertFalse(sot.is_distributed)
-        self.assertEqual(EXAMPLE['routes'], sot.routes)
         self.assertEqual(EXAMPLE['availability_zone_hints'],
                          sot.availability_zone_hints)
         self.assertEqual(EXAMPLE['availability_zones'],
                          sot.availability_zones)
-        self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['created_at'], sot.created_at)
+        self.assertEqual(EXAMPLE['description'], sot.description)
+        self.assertFalse(sot.is_distributed)
+        self.assertEqual(EXAMPLE['external_gateway_info'],
+                         sot.external_gateway_info)
+        self.assertEqual(EXAMPLE['flavor_id'], sot.flavor_id)
+        self.assertFalse(sot.is_ha)
+        self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['name'], sot.name)
+        self.assertEqual(EXAMPLE['revision'], sot.revision_number)
+        self.assertEqual(EXAMPLE['routes'], sot.routes)
+        self.assertEqual(EXAMPLE['status'], sot.status)
+        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
-        self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
 
     def test_make_it_with_optional(self):
-        sot = router.Router(EXAMPLE_WITH_OPTIONAL)
+        sot = router.Router(**EXAMPLE_WITH_OPTIONAL)
         self.assertFalse(sot.is_admin_state_up)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['external_gateway_info'],
-                         sot.external_gateway_info)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['id'], sot.id)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['name'], sot.name)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['tenant_id'], sot.project_id)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['status'], sot.status)
-        self.assertTrue(sot.is_ha)
-        self.assertTrue(sot.is_distributed)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['routes'], sot.routes)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['availability_zone_hints'],
                          sot.availability_zone_hints)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['availability_zones'],
                          sot.availability_zones)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['description'],
                          sot.description)
+        self.assertTrue(sot.is_distributed)
+        self.assertEqual(EXAMPLE_WITH_OPTIONAL['external_gateway_info'],
+                         sot.external_gateway_info)
+        self.assertTrue(sot.is_ha)
+        self.assertEqual(EXAMPLE_WITH_OPTIONAL['id'], sot.id)
+        self.assertEqual(EXAMPLE_WITH_OPTIONAL['name'], sot.name)
+        self.assertEqual(EXAMPLE_WITH_OPTIONAL['routes'], sot.routes)
+        self.assertEqual(EXAMPLE_WITH_OPTIONAL['status'], sot.status)
+        self.assertEqual(EXAMPLE_WITH_OPTIONAL['tenant_id'], sot.project_id)
 
     def test_add_interface_subnet(self):
         # Add subnet to a router
-        sot = router.Router(EXAMPLE)
+        sot = router.Router(**EXAMPLE)
         response = mock.Mock()
         response.body = {"subnet_id": "3", "port_id": "2"}
         response.json = mock.Mock(return_value=response.body)
@@ -121,7 +130,7 @@ class TestRouter(testtools.TestCase):
 
     def test_add_interface_port(self):
         # Add port to a router
-        sot = router.Router(EXAMPLE)
+        sot = router.Router(**EXAMPLE)
         response = mock.Mock()
         response.body = {"subnet_id": "3", "port_id": "3"}
         response.json = mock.Mock(return_value=response.body)
@@ -137,7 +146,7 @@ class TestRouter(testtools.TestCase):
 
     def test_remove_interface_subnet(self):
         # Remove subnet from a router
-        sot = router.Router(EXAMPLE)
+        sot = router.Router(**EXAMPLE)
         response = mock.Mock()
         response.body = {"subnet_id": "3", "port_id": "2"}
         response.json = mock.Mock(return_value=response.body)
@@ -152,7 +161,7 @@ class TestRouter(testtools.TestCase):
 
     def test_remove_interface_port(self):
         # Remove port from a router
-        sot = router.Router(EXAMPLE)
+        sot = router.Router(**EXAMPLE)
         response = mock.Mock()
         response.body = {"subnet_id": "3", "port_id": "3"}
         response.json = mock.Mock(return_value=response.body)
@@ -167,7 +176,7 @@ class TestRouter(testtools.TestCase):
 
     def test_add_router_gateway(self):
         # Add gateway to a router
-        sot = router.Router(EXAMPLE_WITH_OPTIONAL)
+        sot = router.Router(**EXAMPLE_WITH_OPTIONAL)
         response = mock.Mock()
         response.body = {"network_id": "3", "enable_snat": True}
         response.json = mock.Mock(return_value=response.body)
@@ -182,7 +191,7 @@ class TestRouter(testtools.TestCase):
 
     def test_remove_router_gateway(self):
         # Remove gateway to a router
-        sot = router.Router(EXAMPLE_WITH_OPTIONAL)
+        sot = router.Router(**EXAMPLE_WITH_OPTIONAL)
         response = mock.Mock()
         response.body = {"network_id": "3", "enable_snat": True}
         response.json = mock.Mock(return_value=response.body)

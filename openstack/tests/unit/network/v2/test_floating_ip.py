@@ -17,16 +17,18 @@ from openstack.network.v2 import floating_ip
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
-    'id': IDENTIFIER,
+    'created_at': '0',
     'fixed_ip_address': '1',
     'floating_ip_address': '127.0.0.1',
     'floating_network_id': '3',
+    'id': IDENTIFIER,
     'port_id': '5',
     'tenant_id': '6',
     'router_id': '7',
     'description': '8',
     'status': 'ACTIVE',
     'revision_number': 12,
+    'updated_at': '13',
 }
 
 
@@ -46,6 +48,7 @@ class TestFloatingIP(testtools.TestCase):
 
     def test_make_it(self):
         sot = floating_ip.FloatingIP(**EXAMPLE)
+        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
         self.assertEqual(EXAMPLE['fixed_ip_address'], sot.fixed_ip_address)
         self.assertEqual(EXAMPLE['floating_ip_address'],
                          sot.floating_ip_address)
@@ -58,6 +61,7 @@ class TestFloatingIP(testtools.TestCase):
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
+        self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
 
     def test_find_available(self):
         mock_session = mock.Mock()

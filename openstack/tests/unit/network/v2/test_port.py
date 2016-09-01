@@ -40,7 +40,7 @@ EXAMPLE = {
     'opt_value': '20',
     'port_security_enabled': True,
     'qos_policy_id': '21',
-    'revision': 22,
+    'revision_number': 22,
     'security_groups': ['23'],
     'subnet_id': '24',
     'status': '25',
@@ -91,7 +91,7 @@ class TestPort(testtools.TestCase):
         self.assertEqual(EXAMPLE['opt_value'], sot.option_value)
         self.assertTrue(sot.is_port_security_enabled)
         self.assertEqual(EXAMPLE['qos_policy_id'], sot.qos_policy_id)
-        self.assertEqual(EXAMPLE['revision'], sot.revision_number)
+        self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertEqual(EXAMPLE['security_groups'], sot.security_group_ids)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['subnet_id'], sot.subnet_id)

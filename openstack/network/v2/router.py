@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 from openstack import utils
 
 
@@ -23,45 +23,57 @@ class Router(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
+    # NOTE: We don't support query on datetime, list or dict fields
+    _query_mapping = resource.QueryParameters(
+        'description', 'flavor_id', 'name', 'status',
+        is_admin_state_up='admin_state_up',
+        is_distributed='distributed',
+        is_ha='ha',
+        project_id='tenant_id',
+    )
+
     # Properties
     #: Availability zone hints to use when scheduling the router.
     #: *Type: list of availability zone names*
-    availability_zone_hints = resource.prop('availability_zone_hints')
+    availability_zone_hints = resource.Body('availability_zone_hints',
+                                            type=list)
     #: Availability zones for the router.
     #: *Type: list of availability zone names*
-    availability_zones = resource.prop('availability_zones')
+    availability_zones = resource.Body('availability_zones', type=list)
     #: Timestamp when the router was created.
-    created_at = resource.prop('created_at')
+    created_at = resource.Body('created_at')
     #: The router description.
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: The ``network_id``, for the external gateway. *Type: dict*
-    external_gateway_info = resource.prop('external_gateway_info', type=dict)
+    external_gateway_info = resource.Body('external_gateway_info', type=dict)
+    #: The ID of the flavor.
+    flavor_id = resource.Body('flavor_id')
     #: The administrative state of the router, which is up ``True``
     #: or down ``False``. *Type: bool*
-    is_admin_state_up = resource.prop('admin_state_up', type=bool)
+    is_admin_state_up = resource.Body('admin_state_up', type=bool)
     #: The distributed state of the router, which is distributed ``True``
     #: or not ``False``. *Type: bool* *Default: False*
-    is_distributed = resource.prop('distributed', type=bool, default=False)
+    is_distributed = resource.Body('distributed', type=bool, default=False)
     #: The highly-available state of the router, which is highly available
     #: ``True`` or not ``False``. *Type: bool* *Default: False*
-    is_ha = resource.prop('ha', type=bool, default=False)
+    is_ha = resource.Body('ha', type=bool, default=False)
     #: The router name.
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: The ID of the project this router is associated with.
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')
     #: Revision number of the router. *Type: int*
-    revision_number = resource.prop('revision_number', type=int)
+    revision_number = resource.Body('revision', type=int)
     #: The extra routes configuration for the router.
-    routes = resource.prop('routes', type=list)
+    routes = resource.Body('routes', type=list)
     #: The router status.
-    status = resource.prop('status')
-    #: Timestamp when the router was last updated.
-    updated_at = resource.prop('updated_at')
+    status = resource.Body('status')
+    #: Timestamp when the router was created.
+    updated_at = resource.Body('updated_at')
 
     def add_interface(self, session, **body):
         """Add an internal interface to a logical router.

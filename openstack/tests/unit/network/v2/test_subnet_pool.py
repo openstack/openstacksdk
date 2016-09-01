@@ -16,22 +16,22 @@ from openstack.network.v2 import subnet_pool
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
-    'min_prefixlen': 8,
-    'default_prefixlen': 24,
+    'address_scope_id': '1',
+    'created_at': '2',
+    'default_prefixlen': 3,
+    'default_quota': 4,
+    'description': '5',
     'id': IDENTIFIER,
-    'max_prefixlen': 32,
-    'name': 'private-subnet_pool',
-    'default_quota': 24,
-    'tenant_id': '10',
-    'prefixes': ['10.0.2.0/24', '10.0.4.0/24'],
-    'ip_version': 4,
-    'shared': True,
-    'address_scope_id': '11',
-    'description': '12',
-    'created_at': '2016-03-09T12:14:57.233772',
-    'updated_at': '2016-07-09T12:14:57.233772',
+    'ip_version': 6,
     'is_default': True,
-    'revision_number': 16,
+    'max_prefixlen': 7,
+    'min_prefixlen': 8,
+    'name': '9',
+    'prefixes': ['10', '11'],
+    'revision_number': 12,
+    'shared': True,
+    'tenant_id': '13',
+    'updated_at': '14',
 }
 
 
@@ -44,29 +44,27 @@ class TestSubnetpool(testtools.TestCase):
         self.assertEqual('/subnetpools', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = subnet_pool.SubnetPool(EXAMPLE)
-        self.assertEqual(EXAMPLE['min_prefixlen'],
-                         sot.minimum_prefix_length)
+        sot = subnet_pool.SubnetPool(**EXAMPLE)
+        self.assertEqual(EXAMPLE['address_scope_id'], sot.address_scope_id)
+        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
         self.assertEqual(EXAMPLE['default_prefixlen'],
                          sot.default_prefix_length)
-        self.assertEqual(EXAMPLE['id'], sot.id)
-        self.assertEqual(EXAMPLE['max_prefixlen'],
-                         sot.maximum_prefix_length)
-        self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['default_quota'], sot.default_quota)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
-        self.assertEqual(EXAMPLE['prefixes'], sot.prefixes)
-        self.assertEqual(EXAMPLE['ip_version'], sot.ip_version)
-        self.assertTrue(sot.is_shared)
-        self.assertEqual(EXAMPLE['address_scope_id'], sot.address_scope_id)
         self.assertEqual(EXAMPLE['description'], sot.description)
-        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
-        self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
+        self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['ip_version'], sot.ip_version)
         self.assertTrue(sot.is_default)
+        self.assertEqual(EXAMPLE['max_prefixlen'], sot.maximum_prefix_length)
+        self.assertEqual(EXAMPLE['min_prefixlen'], sot.minimum_prefix_length)
+        self.assertEqual(EXAMPLE['name'], sot.name)
+        self.assertEqual(EXAMPLE['prefixes'], sot.prefixes)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
+        self.assertTrue(sot.is_shared)
+        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)

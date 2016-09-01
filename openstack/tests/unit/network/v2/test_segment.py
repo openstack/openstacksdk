@@ -20,9 +20,9 @@ EXAMPLE = {
     'id': IDENTIFIER,
     'name': '2',
     'network_id': '3',
-    'network_type': 'geneve',
-    'physical_network': None,
-    'segmentation_id': 4,
+    'network_type': '4',
+    'physical_network': '5',
+    'segmentation_id': 6,
 }
 
 
@@ -34,14 +34,15 @@ class TestSegment(testtools.TestCase):
         self.assertEqual('segments', sot.resources_key)
         self.assertEqual('/segments', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
+
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = segment.Segment(EXAMPLE)
+        sot = segment.Segment(**EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)

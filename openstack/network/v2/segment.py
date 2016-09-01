@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Segment(resource.Resource):
@@ -22,25 +22,30 @@ class Segment(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'description', 'name', 'network_id', 'network_type',
+        'physical_network', 'segmentation_id',
+    )
+
     # Properties
     #: The segment description.
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: The segment name.
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: The ID of the network associated with this segment.
-    network_id = resource.prop('network_id')
+    network_id = resource.Body('network_id')
     #: The type of network associated with this segment, such as
     #: ``flat``, ``geneve``, ``gre``, ``local``, ``vlan`` or ``vxlan``.
-    network_type = resource.prop('network_type')
+    network_type = resource.Body('network_type')
     #: The name of the physical network associated with this segment.
-    physical_network = resource.prop('physical_network')
+    physical_network = resource.Body('physical_network')
     #: The segmentation ID for this segment. The network type
     #: defines the segmentation model, VLAN ID for ``vlan`` network type
     #: and tunnel ID for ``geneve``, ``gre`` and ``vxlan`` network types.
     #: *Type: int*
-    segmentation_id = resource.prop('segmentation_id', type=int)
+    segmentation_id = resource.Body('segmentation_id', type=int)

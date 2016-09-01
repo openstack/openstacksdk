@@ -16,26 +16,26 @@ from openstack.network.v2 import subnet
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
-    'allocation_pools': '1',
+    'allocation_pools': [{'1': 1}],
     'cidr': '2',
-    'dns_nameservers': '3',
+    'created_at': '3',
+    'description': '4',
+    'dns_nameservers': ['5'],
     'enable_dhcp': True,
-    'gateway_ip': '5',
-    'host_routes': '6',
+    'gateway_ip': '6',
+    'host_routes': ['7'],
     'id': IDENTIFIER,
-    'ip_version': '8',
-    'ipv6_address_mode': 'dhcpv6-stateless',
-    'ipv6_ra_mode': 'radvd',
-    'name': '9',
-    'network_id': '10',
-    'tenant_id': '11',
-    'subnetpool_id': '12',
-    'description': '13',
-    'service_types': ['VPN'],
-    'created_at': '2016-03-09T12:14:57.233772',
-    'updated_at': '2016-07-09T12:14:57.233772',
-    'segment_id': '16',
-    'revision_number': 17,
+    'ip_version': 8,
+    'ipv6_address_mode': '9',
+    'ipv6_ra_mode': '10',
+    'name': '11',
+    'network_id': '12',
+    'revision_number': 13,
+    'segment_id': '14',
+    'service_types': ['15'],
+    'subnetpool_id': '16',
+    'tenant_id': '17',
+    'updated_at': '18',
 }
 
 
@@ -48,15 +48,17 @@ class TestSubnet(testtools.TestCase):
         self.assertEqual('/subnets', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = subnet.Subnet(EXAMPLE)
+        sot = subnet.Subnet(**EXAMPLE)
         self.assertEqual(EXAMPLE['allocation_pools'], sot.allocation_pools)
         self.assertEqual(EXAMPLE['cidr'], sot.cidr)
+        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
+        self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['dns_nameservers'], sot.dns_nameservers)
         self.assertTrue(sot.is_dhcp_enabled)
         self.assertEqual(EXAMPLE['gateway_ip'], sot.gateway_ip)
@@ -67,11 +69,9 @@ class TestSubnet(testtools.TestCase):
         self.assertEqual(EXAMPLE['ipv6_ra_mode'], sot.ipv6_ra_mode)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['network_id'], sot.network_id)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
-        self.assertEqual(EXAMPLE['subnetpool_id'], sot.subnet_pool_id)
-        self.assertEqual(EXAMPLE['description'], sot.description)
-        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
-        self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
+        self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertEqual(EXAMPLE['segment_id'], sot.segment_id)
         self.assertEqual(EXAMPLE['service_types'], sot.service_types)
-        self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
+        self.assertEqual(EXAMPLE['subnetpool_id'], sot.subnet_pool_id)
+        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)

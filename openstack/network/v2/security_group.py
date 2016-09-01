@@ -11,8 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack.network.v2 import security_group_rule as group_rules
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class SecurityGroup(resource.Resource):
@@ -23,34 +22,30 @@ class SecurityGroup(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'description', 'name',
+        project_id='tenant_id',
+    )
+
     # Properties
     #: Timestamp when the security group was created.
-    created_at = resource.prop('created_at')
+    created_at = resource.Body('created_at')
     #: The security group description.
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: The security group name.
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: The ID of the project this security group is associated with.
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')
     #: Revision number of the security group. *Type: int*
-    revision_number = resource.prop('revision_number', type=int)
+    revision_number = resource.Body('revision_number', type=int)
     #: A list of
     #: :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
     #: objects. *Type: list*
-    security_group_rules = resource.prop('security_group_rules')
+    security_group_rules = resource.Body('security_group_rules', type=list)
     #: Timestamp when the security group was last updated.
-    updated_at = resource.prop('updated_at')
-
-    def __init__(self, attrs=None, loaded=False):
-        super(SecurityGroup, self).__init__(attrs=attrs, loaded=loaded)
-        # Convert any raw rules to SecurityGroupRule objects.
-        if self.security_group_rules:
-            rules = []
-            for rule in self.security_group_rules:
-                rules.append(group_rules.SecurityGroupRule.existing(**rule))
-            self.security_group_rules = rules
+    updated_at = resource.Body('updated_at')

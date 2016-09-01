@@ -106,7 +106,7 @@ class Port(resource.Resource):
     #: The ID of the QoS policy attached to the port.
     qos_policy_id = resource.Body('qos_policy_id')
     #: Revision number of the port. *Type: int*
-    revision_number = resource.Body('revision', type=int)
+    revision_number = resource.Body('revision_number', type=int)
     #: The IDs of any attached security groups.
     #: *Type: list of strs of the security group IDs*
     security_group_ids = resource.Body('security_groups', type=list)
