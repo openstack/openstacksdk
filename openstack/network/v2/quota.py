@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Quota(resource.Resource):
@@ -21,42 +21,42 @@ class Quota(resource.Resource):
     service = network_service.NetworkService()
 
     # capabilities
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
     # Properties
     #: The maximum amount of floating IPs you can have. *Type: int*
-    floating_ips = resource.prop('floatingip', type=int)
+    floating_ips = resource.Body('floatingip', type=int)
     #: The maximum amount of health monitors you can create. *Type: int*
-    health_monitors = resource.prop('healthmonitor', type=int)
+    health_monitors = resource.Body('healthmonitor', type=int)
     #: The maximum amount of listeners you can create. *Type: int*
-    listeners = resource.prop('listener', type=int)
+    listeners = resource.Body('listener', type=int)
     #: The maximum amount of load balancers you can create. *Type: int*
-    load_balancers = resource.prop('loadbalancer', type=int)
+    load_balancers = resource.Body('loadbalancer', type=int)
     #: The maximum amount of L7 policies you can create. *Type: int*
-    l7_policies = resource.prop('l7policy', type=int)
+    l7_policies = resource.Body('l7policy', type=int)
     #: The maximum amount of networks you can create. *Type: int*
-    networks = resource.prop('network', type=int)
+    networks = resource.Body('network', type=int)
     #: The maximum amount of pools you can create. *Type: int*
-    pools = resource.prop('pool', type=int)
+    pools = resource.Body('pool', type=int)
     #: The maximum amount of ports you can create. *Type: int*
-    ports = resource.prop('port', type=int)
+    ports = resource.Body('port', type=int)
     #: The ID of the project these quota values are for.
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')
     #: The maximum amount of RBAC policies you can create. *Type: int*
-    rbac_policies = resource.prop('rbac_policy', type=int)
+    rbac_policies = resource.Body('rbac_policy', type=int)
     #: The maximum amount of routers you can create. *Type: int*
-    routers = resource.prop('router', type=int)
+    routers = resource.Body('router', type=int)
     #: The maximum amount of subnets you can create. *Type: int*
-    subnets = resource.prop('subnet', type=int)
+    subnets = resource.Body('subnet', type=int)
     #: The maximum amount of subnet pools you can create. *Type: int*
-    subnet_pools = resource.prop('subnetpool', type=int)
+    subnet_pools = resource.Body('subnetpool', type=int)
     #: The maximum amount of security group rules you can create. *Type: int*
-    security_group_rules = resource.prop('security_group_rule', type=int)
+    security_group_rules = resource.Body('security_group_rule', type=int)
     #: The maximum amount of security groups you can create. *Type: int*
-    security_groups = resource.prop('security_group', type=int)
+    security_groups = resource.Body('security_group', type=int)
 
 
 class QuotaDefault(Quota):
@@ -67,3 +67,7 @@ class QuotaDefault(Quota):
     allow_update = False
     allow_delete = False
     allow_list = False
+
+    # Properties
+    #: The ID of the project.
+    project = resource.URI('project')

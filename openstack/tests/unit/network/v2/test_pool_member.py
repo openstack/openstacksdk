@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import copy
-
 import testtools
 
 from openstack.network.v2 import pool_member
@@ -26,6 +24,7 @@ EXAMPLE = {
     'subnet_id': '6',
     'weight': 7,
     'name': '8',
+    'pool_id': 'FAKE_POOL',
 }
 
 
@@ -38,13 +37,13 @@ class TestPoolMember(testtools.TestCase):
         self.assertEqual('/lbaas/pools/%(pool_id)s/members', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = pool_member.PoolMember(EXAMPLE)
+        sot = pool_member.PoolMember(**EXAMPLE)
         self.assertEqual(EXAMPLE['address'], sot.address)
         self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['id'], sot.id)
@@ -53,9 +52,4 @@ class TestPoolMember(testtools.TestCase):
         self.assertEqual(EXAMPLE['subnet_id'], sot.subnet_id)
         self.assertEqual(EXAMPLE['weight'], sot.weight)
         self.assertEqual(EXAMPLE['name'], sot.name)
-
-    def test_create_body(self):
-        params = copy.deepcopy(EXAMPLE)
-        params['pool_id'] = {'POOL1_ID'}
-        body = pool_member.PoolMember._get_create_body(params)
-        self.assertEqual(EXAMPLE, body['member'])
+        self.assertEqual(EXAMPLE['pool_id'], sot.pool_id)

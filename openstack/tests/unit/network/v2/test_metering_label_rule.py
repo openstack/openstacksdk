@@ -20,7 +20,8 @@ EXAMPLE = {
     'excluded': False,
     'id': IDENTIFIER,
     'metering_label_id': '4',
-    'remote_ip_prefix': '5',
+    'tenant_id': '5',
+    'remote_ip_prefix': '6',
 }
 
 
@@ -33,15 +34,16 @@ class TestMeteringLabelRule(testtools.TestCase):
         self.assertEqual('/metering/metering-label-rules', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = metering_label_rule.MeteringLabelRule(EXAMPLE)
+        sot = metering_label_rule.MeteringLabelRule(**EXAMPLE)
         self.assertEqual(EXAMPLE['direction'], sot.direction)
         self.assertFalse(sot.is_excluded)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['metering_label_id'], sot.metering_label_id)
+        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['remote_ip_prefix'], sot.remote_ip_prefix)

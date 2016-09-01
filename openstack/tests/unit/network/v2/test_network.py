@@ -17,30 +17,30 @@ from openstack.network.v2 import network
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     'admin_state_up': True,
-    'id': IDENTIFIER,
-    'name': '3',
-    'tenant_id': '4',
-    'provider:network_type': '5',
-    'provider:physical_network': '6',
-    'provider:segmentation_id': '7',
-    'router:external': True,
-    'segments': '9',
-    'shared': True,
-    'status': '11',
-    'subnets': ['12a', '12b'],
-    'mtu': 1400,
-    'port_security_enabled': True,
-    'availability_zone_hints': ['15', '16'],
-    'availability_zones': ['16'],
-    'ipv4_address_scope': '17',
-    'ipv6_address_scope': '18',
-    'description': '19',
-    'qos_policy_id': '20',
+    'availability_zone_hints': ['1', '2'],
+    'availability_zones': ['3'],
     'created_at': '2016-03-09T12:14:57.233772',
-    'updated_at': '2016-07-09T12:14:57.233772',
+    'description': '4',
+    'dns_domain': '5',
+    'id': IDENTIFIER,
+    'ipv4_address_scope': '6',
+    'ipv6_address_scope': '7',
     'is_default': False,
-    'revision_number': 23,
-    'dns_domain': 24,
+    'mtu': 8,
+    'name': '9',
+    'port_security_enabled': True,
+    'project_id': '10',
+    'provider:network_type': '11',
+    'provider:physical_network': '12',
+    'provider:segmentation_id': '13',
+    'qos_policy_id': '14',
+    'revision': 15,
+    'router:external': True,
+    'segments': '16',
+    'shared': True,
+    'status': '17',
+    'subnets': ['18', '19'],
+    'updated_at': '2016-07-09T12:14:57.233772',
 }
 
 
@@ -53,45 +53,45 @@ class TestNetwork(testtools.TestCase):
         self.assertEqual('/networks', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = network.Network(EXAMPLE)
+        sot = network.Network(**EXAMPLE)
         self.assertTrue(sot.is_admin_state_up)
+        self.assertEqual(EXAMPLE['availability_zone_hints'],
+                         sot.availability_zone_hints)
+        self.assertEqual(EXAMPLE['availability_zones'],
+                         sot.availability_zones)
+        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
+        self.assertEqual(EXAMPLE['description'], sot.description)
+        self.assertEqual(EXAMPLE['dns_domain'], sot.dns_domain)
         self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['ipv4_address_scope'],
+                         sot.ipv4_address_scope_id)
+        self.assertEqual(EXAMPLE['ipv6_address_scope'],
+                         sot.ipv6_address_scope_id)
+        self.assertFalse(sot.is_default)
+        self.assertEqual(EXAMPLE['mtu'], sot.mtu)
         self.assertEqual(EXAMPLE['name'], sot.name)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertTrue(sot.is_port_security_enabled)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['provider:network_type'],
                          sot.provider_network_type)
         self.assertEqual(EXAMPLE['provider:physical_network'],
                          sot.provider_physical_network)
         self.assertEqual(EXAMPLE['provider:segmentation_id'],
                          sot.provider_segmentation_id)
+        self.assertEqual(EXAMPLE['qos_policy_id'], sot.qos_policy_id)
+        self.assertEqual(EXAMPLE['revision'], sot.revision_number)
         self.assertTrue(sot.is_router_external)
         self.assertEqual(EXAMPLE['segments'], sot.segments)
         self.assertTrue(sot.is_shared)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['subnets'], sot.subnet_ids)
-        self.assertEqual(EXAMPLE['mtu'], sot.mtu)
-        self.assertTrue(sot.is_port_security_enabled)
-        self.assertEqual(EXAMPLE['availability_zone_hints'],
-                         sot.availability_zone_hints)
-        self.assertEqual(EXAMPLE['availability_zones'],
-                         sot.availability_zones)
-        self.assertEqual(EXAMPLE['ipv4_address_scope'],
-                         sot.ipv4_address_scope_id)
-        self.assertEqual(EXAMPLE['ipv6_address_scope'],
-                         sot.ipv6_address_scope_id)
-        self.assertEqual(EXAMPLE['description'], sot.description)
-        self.assertEqual(EXAMPLE['qos_policy_id'], sot.qos_policy_id)
-        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
-        self.assertFalse(sot.is_default)
-        self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
-        self.assertEqual(EXAMPLE['dns_domain'], sot.dns_domain)
 
 
 class TestNetworkHostingDHCPAgent(testtools.TestCase):
@@ -104,7 +104,7 @@ class TestNetworkHostingDHCPAgent(testtools.TestCase):
         self.assertEqual('dhcp-agent', net.resource_name)
         self.assertEqual('network', net.service.service_type)
         self.assertFalse(net.allow_create)
-        self.assertTrue(net.allow_retrieve)
+        self.assertTrue(net.allow_get)
         self.assertFalse(net.allow_update)
         self.assertFalse(net.allow_delete)
         self.assertTrue(net.allow_list)

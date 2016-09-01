@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class MeteringLabelRule(resource.Resource):
@@ -22,21 +22,28 @@ class MeteringLabelRule(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'direction', 'metering_label_id', 'remote_ip_prefix',
+        project_id='tenant_id',
+    )
+
     # Properties
     #: ingress or egress: The direction in which metering label rule is
     #: applied. Default: ``"ingress"``
-    direction = resource.prop('direction')
+    direction = resource.Body('direction')
     #: Specify whether the ``remote_ip_prefix`` will be excluded or not
     #: from traffic counters of the metering label, ie: to not count the
     #: traffic of a specific IP address of a range. Default: ``False``,
     #: *Type: bool*
-    is_excluded = resource.prop('excluded', type=bool)
+    is_excluded = resource.Body('excluded', type=bool)
     #: The metering label ID to associate with this metering label rule.
-    metering_label_id = resource.prop('metering_label_id')
+    metering_label_id = resource.Body('metering_label_id')
+    #: The ID of the project this metering label rule is associated with.
+    project_id = resource.Body('tenant_id')
     #: The remote IP prefix to be associated with this metering label rule.
-    remote_ip_prefix = resource.prop('remote_ip_prefix')
+    remote_ip_prefix = resource.Body('remote_ip_prefix')

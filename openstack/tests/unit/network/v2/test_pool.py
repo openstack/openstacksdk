@@ -18,7 +18,8 @@ IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     'admin_state_up': True,
     'description': '2',
-    'healthmonitor_id': '3',
+    'health_monitors': ['3'],
+    'health_monitor_status': ['4'],
     'id': IDENTIFIER,
     'lb_algorithm': '5',
     'listeners': [{'id': '6'}],
@@ -26,8 +27,13 @@ EXAMPLE = {
     'name': '8',
     'tenant_id': '9',
     'protocol': '10',
-    'session_persistence': '11',
-    'loadbalancers': [{'id': '12'}],
+    'provider': '11',
+    'session_persistence': '12',
+    'status': '13',
+    'status_description': '14',
+    'subnet_id': '15',
+    'loadbalancers': [{'id': '16'}],
+    'vip_id': '17',
 }
 
 
@@ -40,16 +46,18 @@ class TestPool(testtools.TestCase):
         self.assertEqual('/lbaas/pools', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = pool.Pool(EXAMPLE)
+        sot = pool.Pool(**EXAMPLE)
         self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['description'], sot.description)
-        self.assertEqual(EXAMPLE['healthmonitor_id'], sot.health_monitor_id)
+        self.assertEqual(EXAMPLE['health_monitors'], sot.health_monitor_ids)
+        self.assertEqual(EXAMPLE['health_monitor_status'],
+                         sot.health_monitor_status)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['lb_algorithm'], sot.lb_algorithm)
         self.assertEqual(EXAMPLE['listeners'], sot.listener_ids)
@@ -57,6 +65,11 @@ class TestPool(testtools.TestCase):
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['protocol'], sot.protocol)
+        self.assertEqual(EXAMPLE['provider'], sot.provider)
         self.assertEqual(EXAMPLE['session_persistence'],
                          sot.session_persistence)
+        self.assertEqual(EXAMPLE['status'], sot.status)
+        self.assertEqual(EXAMPLE['status_description'], sot.status_description)
+        self.assertEqual(EXAMPLE['subnet_id'], sot.subnet_id)
         self.assertEqual(EXAMPLE['loadbalancers'], sot.load_balancer_ids)
+        self.assertEqual(EXAMPLE['vip_id'], sot.virtual_ip_id)

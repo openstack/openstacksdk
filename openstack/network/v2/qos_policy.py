@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class QoSPolicy(resource.Resource):
@@ -22,21 +22,21 @@ class QoSPolicy(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
     # Properties
     #: QoS policy name.
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: The ID of the project who owns the network. Only administrative
     #: users can specify a project ID other than their own.
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')
     #: The QoS policy description.
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: Indicates whether this QoS policy is shared across all projects.
     #: *Type: bool*
-    is_shared = resource.prop('shared', type=bool)
+    is_shared = resource.Body('shared', type=bool)
     #: List of QoS rules applied to this QoS policy.
-    rules = resource.prop('rules')
+    rules = resource.Body('rules')

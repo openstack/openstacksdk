@@ -33,15 +33,15 @@ class TestMeteringLabel(testtools.TestCase):
         self.assertEqual('/metering/metering-labels', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = metering_label.MeteringLabel(EXAMPLE)
+        sot = metering_label.MeteringLabel(**EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
-        self.assertEqual(EXAMPLE['shared'], sot.shared)
+        self.assertEqual(EXAMPLE['shared'], sot.is_shared)
