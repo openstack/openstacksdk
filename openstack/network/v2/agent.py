@@ -11,11 +11,12 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 from openstack import utils
 
 
 class Agent(resource.Resource):
+    """Neutron agent extension."""
     resource_key = 'agent'
     resources_key = 'agents'
     base_path = '/agents'
@@ -23,38 +24,45 @@ class Agent(resource.Resource):
 
     # capabilities
     allow_create = False
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
+    # NOTE: We skip query for JSON fields and datetime fields
+    _query_mapping = resource.QueryParameters(
+        'agent_type', 'availability_zone', 'binary', 'description', 'host',
+        'topic',
+        is_admin_state_up='admin_state_up', is_alive='alive',
+    )
+
     # Properties
     #: The type of network agent.
-    agent_type = resource.prop('agent_type')
+    agent_type = resource.Body('agent_type')
     #: Availability zone for the network agent.
-    availability_zone = resource.prop('availability_zone')
+    availability_zone = resource.Body('availability_zone')
     #: The name of the network agent's application binary.
-    binary = resource.prop('binary')
+    binary = resource.Body('binary')
     #: Network agent configuration data specific to the agent_type.
-    configuration = resource.prop('configurations')
+    configuration = resource.Body('configurations')
     #: Timestamp when the network agent was created.
-    created_at = resource.prop('created_at')
+    created_at = resource.Body('created_at')
     #: The network agent description.
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: Timestamp when the network agent's heartbeat was last seen.
-    last_heartbeat_at = resource.prop('heartbeat_timestamp')
+    last_heartbeat_at = resource.Body('heartbeat_timestamp')
     #: The host the agent is running on.
-    host = resource.prop('host')
+    host = resource.Body('host')
     #: The administrative state of the network agent, which is up
     #: ``True`` or down ``False``. *Type: bool*
-    is_admin_state_up = resource.prop('admin_state_up', type=bool)
+    is_admin_state_up = resource.Body('admin_state_up', type=bool)
     #: Whether or not the network agent is alive.
     #: *Type: bool*
-    is_alive = resource.prop('alive', type=bool)
+    is_alive = resource.Body('alive', type=bool)
     #: Timestamp when the network agent was last started.
-    started_at = resource.prop('started_at')
+    started_at = resource.Body('started_at')
     #: The messaging queue topic the network agent subscribes to.
-    topic = resource.prop('topic')
+    topic = resource.Body('topic')
 
     def add_agent_to_network(self, session, **body):
         url = utils.urljoin(self.base_path, self.id, 'dhcp-networks')
@@ -77,7 +85,9 @@ class DHCPAgentHostingNetwork(resource.Resource):
 
     # capabilities
     allow_create = False
-    allow_retrieve = True
+    allow_get = True
     allow_update = False
     allow_delete = False
     allow_list = True
+
+    # NOTE: No query parameter is supported

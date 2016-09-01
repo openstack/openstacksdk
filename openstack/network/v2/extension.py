@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Extension(resource.Resource):
@@ -19,22 +19,21 @@ class Extension(resource.Resource):
     resources_key = 'extensions'
     base_path = '/extensions'
     service = network_service.NetworkService()
-    id_attribute = "alias"
 
     # capabilities
-    allow_retrieve = True
+    allow_get = True
     allow_list = True
+
+    # NOTE: No query parameters supported
 
     # Properties
     #: An alias the extension is known under.
-    alias = resource.prop('alias')
+    alias = resource.Body('alias', alternate_id=True)
     #: Text describing what the extension does.
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: Links pertaining to this extension.
-    links = resource.prop('links')
+    links = resource.Body('links')
     #: The name of this extension.
-    name = resource.prop('name')
-    #: A URL pointing to the namespace for this extension.
-    namespace = resource.prop('namespace')
+    name = resource.Body('name')
     #: Timestamp when the extension was last updated.
-    updated_at = resource.prop('updated')
+    updated_at = resource.Body('updated')

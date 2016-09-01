@@ -40,13 +40,13 @@ class TestHealthMonitor(testtools.TestCase):
         self.assertEqual('/lbaas/healthmonitors', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = health_monitor.HealthMonitor(EXAMPLE)
+        sot = health_monitor.HealthMonitor(**EXAMPLE)
         self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['delay'], sot.delay)
         self.assertEqual(EXAMPLE['expected_codes'], sot.expected_codes)

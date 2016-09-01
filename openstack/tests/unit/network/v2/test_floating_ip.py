@@ -26,8 +26,6 @@ EXAMPLE = {
     'router_id': '7',
     'description': '8',
     'status': 'ACTIVE',
-    'created_at': '2016-10-04T12:14:57.233772',
-    'updated_at': '2016-10-12T12:15:34.233222',
     'revision_number': 12,
 }
 
@@ -41,13 +39,13 @@ class TestFloatingIP(testtools.TestCase):
         self.assertEqual('/floatingips', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = floating_ip.FloatingIP(EXAMPLE)
+        sot = floating_ip.FloatingIP(**EXAMPLE)
         self.assertEqual(EXAMPLE['fixed_ip_address'], sot.fixed_ip_address)
         self.assertEqual(EXAMPLE['floating_ip_address'],
                          sot.floating_ip_address)
@@ -59,38 +57,31 @@ class TestFloatingIP(testtools.TestCase):
         self.assertEqual(EXAMPLE['router_id'], sot.router_id)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['status'], sot.status)
-        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
-        self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
 
     def test_find_available(self):
         mock_session = mock.Mock()
-        mock_get = mock.Mock()
-        mock_session.get = mock_get
         mock_session.get_filter = mock.Mock(return_value={})
         data = {'id': 'one', 'floating_ip_address': '10.0.0.1'}
         fake_response = mock.Mock()
         body = {floating_ip.FloatingIP.resources_key: [data]}
         fake_response.json = mock.Mock(return_value=body)
-        mock_get.return_value = fake_response
+        mock_session.get = mock.Mock(return_value=fake_response)
 
         result = floating_ip.FloatingIP.find_available(mock_session)
 
         self.assertEqual('one', result.id)
-        p = {'fields': 'id', 'port_id': ''}
-        mock_get.assert_called_with(
+        mock_session.get.assert_called_with(
             floating_ip.FloatingIP.base_path,
             endpoint_filter=floating_ip.FloatingIP.service,
             headers={'Accept': 'application/json'},
-            params=p)
+            params={'port_id': ''})
 
     def test_find_available_nada(self):
         mock_session = mock.Mock()
-        mock_get = mock.Mock()
-        mock_session.get = mock_get
         fake_response = mock.Mock()
         body = {floating_ip.FloatingIP.resources_key: []}
         fake_response.json = mock.Mock(return_value=body)
-        mock_get.return_value = fake_response
+        mock_session.get = mock.Mock(return_value=fake_response)
 
         self.assertIsNone(floating_ip.FloatingIP.find_available(mock_session))

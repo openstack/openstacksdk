@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Flavor(resource.Resource):
@@ -22,19 +22,22 @@ class Flavor(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'description', 'name', 'service_type', is_enabled='enabled')
+
     # properties
     #: description for the flavor
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: Sets enabled flag
-    is_enabled = resource.prop('enabled', type=bool)
+    is_enabled = resource.Body('enabled', type=bool)
     #: The name of the flavor
-    name = resource.prop('name')
-    #: The owner project ID
-    project_id = resource.prop('tenant_id')
+    name = resource.Body('name')
     #: Service type to which the flavor applies
-    service_type = resource.prop('service_type')
+    service_type = resource.Body('service_type')
+    #: IDs of service profiles associated with this flavor
+    service_profile_ids = resource.Body('service_profiles')
