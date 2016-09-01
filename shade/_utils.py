@@ -531,14 +531,6 @@ def valid_kwargs(*valid_args):
     return func_wrapper
 
 
-def async_creation_runner(cache, somekey, creator, mutex):
-    try:
-        value = creator()
-        cache.set(somekey, value)
-    finally:
-        mutex.release()
-
-
 def cache_on_arguments(*cache_on_args, **cache_on_kwargs):
     _cache_name = cache_on_kwargs.pop('resource', None)
 
