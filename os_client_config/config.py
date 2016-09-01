@@ -1031,6 +1031,24 @@ class OpenStackConfig(object):
 
         return config
 
+    def load_auth_plugin(self, config, cloud):
+        try:
+            loader = self._get_auth_loader(config)
+            config = self._validate_auth(config, loader)
+            auth_plugin = loader.load_from_options(**config['auth'])
+        except Exception as e:
+            # We WANT the ksa exception normally
+            # but OSC can't handle it right now, so we try deferring
+            # to ksc. If that ALSO fails, it means there is likely
+            # a deeper issue, so we assume the ksa error was correct
+            self.log.debug("Deferring keystone exception: {e}".format(e=e))
+            auth_plugin = None
+            try:
+                config = self._validate_auth_ksc(config, cloud)
+            except Exception:
+                raise e
+        return auth_plugin
+
     def get_one_cloud(self, cloud=None, validate=True,
                       argparse=None, **kwargs):
         """Retrieve a single cloud configuration and merge additional options
@@ -1089,21 +1107,7 @@ class OpenStackConfig(object):
         config = self.auth_config_hook(config)
 
         if validate:
-            try:
-                loader = self._get_auth_loader(config)
-                config = self._validate_auth(config, loader)
-                auth_plugin = loader.load_from_options(**config['auth'])
-            except Exception as e:
-                # We WANT the ksa exception normally
-                # but OSC can't handle it right now, so we try deferring
-                # to ksc. If that ALSO fails, it means there is likely
-                # a deeper issue, so we assume the ksa error was correct
-                self.log.debug("Deferring keystone exception: {e}".format(e=e))
-                auth_plugin = None
-                try:
-                    config = self._validate_auth_ksc(config, cloud)
-                except Exception:
-                    raise e
+            auth_plugin = self.load_auth_plugin(config, cloud)
         else:
             auth_plugin = None
 
