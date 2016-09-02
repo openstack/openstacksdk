@@ -36,7 +36,7 @@ class Profile(resource.Resource):
     #: The name of the profile
     name = resource.Body('name')
     #: The type of the profile.
-    type_name = resource.Body('type')
+    type = resource.Body('type')
     #: The spec of the profile.
     spec = resource.Body('spec', type=dict)
     #: A collection of key-value pairs that are attached to the profile.
