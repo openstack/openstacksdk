@@ -532,16 +532,16 @@ class TestFloatingIP(base.TestCase):
         )
 
     @patch.object(OpenStackCloud, 'delete_floating_ip')
-    @patch.object(OpenStackCloud, 'get_server_by_id')
+    @patch.object(OpenStackCloud, 'get_server')
     @patch.object(OpenStackCloud, 'create_floating_ip')
     @patch.object(OpenStackCloud, 'has_service')
     def test_add_ip_refresh_timeout(
             self, mock_has_service, mock_create_floating_ip,
-            mock_get_server_by_id, mock_delete_floating_ip):
+            mock_get_server, mock_delete_floating_ip):
         mock_has_service.return_value = True
 
         mock_create_floating_ip.return_value = self.floating_ip
-        mock_get_server_by_id.return_value = self.fake_server
+        mock_get_server.return_value = self.fake_server
 
         self.assertRaises(
             exc.OpenStackCloudTimeout,

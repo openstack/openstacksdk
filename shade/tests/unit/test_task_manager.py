@@ -21,37 +21,37 @@ class TestException(Exception):
     pass
 
 
-class TestTask(task_manager.Task):
+class TaskTest(task_manager.Task):
     def main(self, client):
         raise TestException("This is a test exception")
 
 
-class TestTaskGenerator(task_manager.Task):
+class TaskTestGenerator(task_manager.Task):
     def main(self, client):
         yield 1
 
 
-class TestTaskInt(task_manager.Task):
+class TaskTestInt(task_manager.Task):
     def main(self, client):
         return int(1)
 
 
-class TestTaskFloat(task_manager.Task):
+class TaskTestFloat(task_manager.Task):
     def main(self, client):
         return float(2.0)
 
 
-class TestTaskStr(task_manager.Task):
+class TaskTestStr(task_manager.Task):
     def main(self, client):
         return "test"
 
 
-class TestTaskBool(task_manager.Task):
+class TaskTestBool(task_manager.Task):
     def main(self, client):
         return True
 
 
-class TestTaskSet(task_manager.Task):
+class TaskTestSet(task_manager.Task):
     def main(self, client):
         return set([1, 2])
 
@@ -69,24 +69,24 @@ class TestTaskManager(base.TestCase):
         Specifically, we test if we get the same behaviour with all the
         configured interpreters (e.g. py27, p34, pypy, ...)
         """
-        self.assertRaises(TestException, self.manager.submit_task, TestTask())
+        self.assertRaises(TestException, self.manager.submit_task, TaskTest())
 
     def test_dont_munchify_int(self):
-        ret = self.manager.submit_task(TestTaskInt())
+        ret = self.manager.submit_task(TaskTestInt())
         self.assertIsInstance(ret, int)
 
     def test_dont_munchify_float(self):
-        ret = self.manager.submit_task(TestTaskFloat())
+        ret = self.manager.submit_task(TaskTestFloat())
         self.assertIsInstance(ret, float)
 
     def test_dont_munchify_str(self):
-        ret = self.manager.submit_task(TestTaskStr())
+        ret = self.manager.submit_task(TaskTestStr())
         self.assertIsInstance(ret, str)
 
     def test_dont_munchify_bool(self):
-        ret = self.manager.submit_task(TestTaskBool())
+        ret = self.manager.submit_task(TaskTestBool())
         self.assertIsInstance(ret, bool)
 
     def test_dont_munchify_set(self):
-        ret = self.manager.submit_task(TestTaskSet())
+        ret = self.manager.submit_task(TaskTestSet())
         self.assertIsInstance(ret, set)

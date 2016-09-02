@@ -3930,8 +3930,9 @@ class OpenStackCloud(object):
             server_id = server['id']
             for _ in _utils._iterate_timeout(
                     timeout,
-                    "Timeout waiting for the floating IP to be attached."):
-                server = self.get_server_by_id(server_id)
+                    "Timeout waiting for the floating IP to be attached.",
+                    wait=self._SERVER_AGE):
+                server = self.get_server(server_id)
                 ext_ip = meta.get_server_ip(server, ext_tag='floating')
                 if ext_ip == floating_ip['floating_ip_address']:
                     return server
@@ -4682,10 +4683,13 @@ class OpenStackCloud(object):
             for count in _utils._iterate_timeout(
                     timeout,
                     "Timeout waiting for server {0} to "
-                    "rebuild.".format(server_id)):
+                    "rebuild.".format(server_id),
+                    wait=self._SERVER_AGE):
                 try:
-                    server = self.get_server_by_id(server_id)
+                    server = self.get_server(server_id)
                 except Exception:
+                    continue
+                if not server:
                     continue
 
                 if server['status'] == 'ACTIVE':

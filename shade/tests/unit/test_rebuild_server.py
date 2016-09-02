@@ -56,13 +56,13 @@ class TestRebuildServer(base.TestCase):
         with patch("shade.OpenStackCloud"):
             config = {
                 "servers.rebuild.return_value": rebuild_server,
-                "servers.get.return_value": error_server,
+                "servers.list.return_value": [error_server],
                 "floating_ips.list.return_value": [fake_floating_ip]
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
                 OpenStackCloudException,
-                self.cloud.rebuild_server, "a", "b", wait=True)
+                self.cloud.rebuild_server, "1234", "b", wait=True)
 
     def test_rebuild_server_timeout(self):
         """
@@ -73,7 +73,7 @@ class TestRebuildServer(base.TestCase):
         with patch("shade.OpenStackCloud"):
             config = {
                 "servers.rebuild.return_value": rebuild_server,
-                "servers.get.return_value": rebuild_server,
+                "servers.list.return_value": [rebuild_server],
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
@@ -125,7 +125,7 @@ class TestRebuildServer(base.TestCase):
                                                     '5678')
             config = {
                 "servers.rebuild.return_value": rebuild_server,
-                "servers.get.return_value": active_server,
+                "servers.list.return_value": [active_server],
                 "floating_ips.list.return_value": [fake_floating_ip]
             }
             OpenStackCloud.nova_client = Mock(**config)
@@ -135,7 +135,7 @@ class TestRebuildServer(base.TestCase):
                     meta.obj_to_dict(ret_active_server),
                     cloud_name='cloud-name', region_name='RegionOne'),
                 self.cloud.rebuild_server(
-                    "a", "b", wait=True, admin_pass='ooBootheiX0edoh'))
+                    "1234", "b", wait=True, admin_pass='ooBootheiX0edoh'))
 
     def test_rebuild_server_wait(self):
         """
@@ -150,7 +150,7 @@ class TestRebuildServer(base.TestCase):
                                                     '5678')
             config = {
                 "servers.rebuild.return_value": rebuild_server,
-                "servers.get.return_value": active_server,
+                "servers.list.return_value": [active_server],
                 "floating_ips.list.return_value": [fake_floating_ip]
             }
             OpenStackCloud.nova_client = Mock(**config)
@@ -159,4 +159,4 @@ class TestRebuildServer(base.TestCase):
                 _utils.normalize_server(
                     meta.obj_to_dict(active_server),
                     cloud_name='cloud-name', region_name='RegionOne'),
-                self.cloud.rebuild_server("a", "b", wait=True))
+                self.cloud.rebuild_server("1234", "b", wait=True))
