@@ -21,10 +21,10 @@ from openstack.identity.v3 import region
 from openstack.identity.v3 import service
 from openstack.identity.v3 import trust
 from openstack.identity.v3 import user
-from openstack.tests.unit import test_proxy_base
+from openstack.tests.unit import test_proxy_base2
 
 
-class TestIdentityProxy(test_proxy_base.TestProxyBase):
+class TestIdentityProxy(test_proxy_base2.TestProxyBase):
     def setUp(self):
         super(TestIdentityProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
