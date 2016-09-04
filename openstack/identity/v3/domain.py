@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.identity import identity_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Domain(resource.Resource):
@@ -22,7 +22,7 @@ class Domain(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
@@ -30,7 +30,7 @@ class Domain(resource.Resource):
 
     # Properties
     #: The description of this domain. *Type: string*
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: Setting this attribute to ``False`` prevents users from authorizing
     #: against this domain or any projects owned by this domain, and prevents
     #: users owned by this domain from authenticating or receiving any other
@@ -38,6 +38,8 @@ class Domain(resource.Resource):
     #: to the above entities are immediately invalidated.
     #: Re-enabling a domain does not re-enable pre-existing tokens.
     #: *Type: bool*
-    is_enabled = resource.prop('enabled', type=bool)
+    is_enabled = resource.Body('enabled', type=bool)
     #: The globally unique name of this domain. *Type: string*
-    name = resource.prop('name')
+    name = resource.Body('name')
+    #: The links related to the domain resource.
+    links = resource.Body('links')

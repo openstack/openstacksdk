@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.identity import identity_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Group(resource.Resource):
@@ -22,7 +22,7 @@ class Group(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
@@ -30,11 +30,11 @@ class Group(resource.Resource):
 
     # Properties
     #: The description of this group. *Type: string*
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: References the domain ID which owns the group; if a domain ID is not
     #: specified by the client, the Identity service implementation will
     #: default it to the domain ID to which the client's token is scoped.
     #: *Type: string*
-    domain_id = resource.prop('domain_id')
+    domain_id = resource.Body('domain_id')
     #: Unique group name, within the owning domain. *Type: string*
-    name = resource.prop('name')
+    name = resource.Body('name')

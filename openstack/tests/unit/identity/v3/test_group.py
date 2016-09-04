@@ -32,13 +32,14 @@ class TestGroup(testtools.TestCase):
         self.assertEqual('/groups', sot.base_path)
         self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
+        self.assertTrue(sot.patch_update)
 
     def test_make_it(self):
-        sot = group.Group(EXAMPLE)
+        sot = group.Group(**EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['domain_id'], sot.domain_id)
         self.assertEqual(EXAMPLE['id'], sot.id)

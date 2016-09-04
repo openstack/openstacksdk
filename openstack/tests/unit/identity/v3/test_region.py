@@ -18,6 +18,7 @@ IDENTIFIER = 'RegionOne'
 EXAMPLE = {
     'description': '1',
     'id': IDENTIFIER,
+    'links': {'self': 'http://example.com/region1'},
     'parent_region_id': 'FAKE_PARENT',
 }
 
@@ -31,13 +32,15 @@ class TestRegion(testtools.TestCase):
         self.assertEqual('/regions', sot.base_path)
         self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
+        self.assertTrue(sot.patch_update)
 
     def test_make_it(self):
-        sot = region.Region(EXAMPLE)
+        sot = region.Region(**EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['parent_region_id'], sot.parent_region_id)

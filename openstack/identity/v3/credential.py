@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.identity import identity_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Credential(resource.Resource):
@@ -22,7 +22,7 @@ class Credential(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
@@ -31,14 +31,14 @@ class Credential(resource.Resource):
     # Properties
     #: Arbitrary blob of the credential data, to be parsed according to the
     #: ``type``. *Type: string*
-    blob = resource.prop('blob')
+    blob = resource.Body('blob')
     #: References a project ID which limits the scope the credential applies
     #: to. This attribute is **mandatory** if the credential type is ``ec2``.
     #: *Type: string*
-    project_id = resource.prop('project_id')
+    project_id = resource.Body('project_id')
     #: Representing the credential type, such as ``ec2`` or ``cert``.
     #: A specific implementation may determine the list of supported types.
     #: *Type: string*
-    type = resource.prop('type')
+    type = resource.Body('type')
     #: References the user ID which owns the credential. *Type: string*
-    user_id = resource.prop('user_id')
+    user_id = resource.Body('user_id')

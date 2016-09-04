@@ -19,6 +19,7 @@ EXAMPLE = {
     'description': '1',
     'enabled': True,
     'id': IDENTIFIER,
+    'links': {'self': 'http://example.com/service1'},
     'name': '4',
     'type': '5',
 }
@@ -33,15 +34,17 @@ class TestService(testtools.TestCase):
         self.assertEqual('/services', sot.base_path)
         self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
+        self.assertTrue(sot.patch_update)
 
     def test_make_it(self):
-        sot = service.Service(EXAMPLE)
+        sot = service.Service(**EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertTrue(sot.is_enabled)
         self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['type'], sot.type)

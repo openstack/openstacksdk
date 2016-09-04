@@ -33,13 +33,14 @@ class TestCredential(testtools.TestCase):
         self.assertEqual('/credentials', sot.base_path)
         self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
+        self.assertTrue(sot.patch_update)
 
     def test_make_it(self):
-        sot = credential.Credential(EXAMPLE)
+        sot = credential.Credential(**EXAMPLE)
         self.assertEqual(EXAMPLE['blob'], sot.blob)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)

@@ -20,7 +20,9 @@ EXAMPLE = {
     'domain_id': '2',
     'enabled': True,
     'id': IDENTIFIER,
+    'is_domain': False,
     'name': '5',
+    'parent_id': '6',
 }
 
 
@@ -33,15 +35,18 @@ class TestProject(testtools.TestCase):
         self.assertEqual('/projects', sot.base_path)
         self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
+        self.assertTrue(sot.patch_update)
 
     def test_make_it(self):
-        sot = project.Project(EXAMPLE)
+        sot = project.Project(**EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['domain_id'], sot.domain_id)
+        self.assertFalse(sot.is_domain)
         self.assertTrue(sot.is_enabled)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
+        self.assertEqual(EXAMPLE['parent_id'], sot.parent_id)

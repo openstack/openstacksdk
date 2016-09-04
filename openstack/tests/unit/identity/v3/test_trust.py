@@ -16,14 +16,19 @@ from openstack.identity.v3 import trust
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
-    'project_id': '1',
+    'allow_redelegation': False,
     'expires_at': '2016-03-09T12:14:57.233772',
     'id': IDENTIFIER,
     'impersonation': True,
+    'links': {'self': 'fake_link'},
+    'project_id': '1',
+    'redelegated_trust_id': None,
+    'redelegation_count': '0',
+    'remaining_uses': 10,
+    'role_links': {'self': 'other_fake_link'},
     'trustee_user_id': '2',
     'trustor_user_id': '3',
     'roles': [{'name': 'test-role'}],
-    'redelegation_count': '0',
 }
 
 
@@ -36,17 +41,22 @@ class TestTrust(testtools.TestCase):
         self.assertEqual('/OS-TRUST/trusts', sot.base_path)
         self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = trust.Trust(EXAMPLE)
-        self.assertEqual(EXAMPLE['project_id'],
-                         sot.project_id)
+        sot = trust.Trust(**EXAMPLE)
+        self.assertEqual(EXAMPLE['allow_redelegation'], sot.allow_redelegation)
         self.assertEqual(EXAMPLE['expires_at'], sot.expires_at)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertTrue(sot.is_impersonation)
+        self.assertEqual(EXAMPLE['links'], sot.links)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['role_links'], sot.role_links)
+        self.assertEqual(EXAMPLE['redelegated_trust_id'],
+                         sot.redelegated_trust_id)
+        self.assertEqual(EXAMPLE['remaining_uses'], sot.remaining_uses)
         self.assertEqual(EXAMPLE['trustee_user_id'], sot.trustee_user_id)
         self.assertEqual(EXAMPLE['trustor_user_id'], sot.trustor_user_id)
         self.assertEqual(EXAMPLE['roles'], sot.roles)

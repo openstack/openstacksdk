@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.identity import identity_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Service(resource.Resource):
@@ -22,7 +22,7 @@ class Service(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
@@ -30,15 +30,17 @@ class Service(resource.Resource):
 
     # Properties
     #: User-facing description of the service. *Type: string*
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: Setting this value to ``False`` prevents the service and
     #: its endpoints from appearing in the service catalog. *Type: bool*
-    is_enabled = resource.prop('enabled', type=bool)
+    is_enabled = resource.Body('enabled', type=bool)
+    #: The links for the service resource.
+    links = resource.Body('links')
     #: User-facing name of the service. *Type: string*
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: Describes the API implemented by the service. The following values are
     #: recognized within the OpenStack ecosystem: ``compute``, ``image``,
     #: ``ec2``, ``identity``, ``volume``, ``network``. To support non-core and
     #: future projects, the value should not be validated against this list.
     #: *Type: string*
-    type = resource.prop('type')
+    type = resource.Body('type')

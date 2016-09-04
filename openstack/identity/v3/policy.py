@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.identity import identity_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Policy(resource.Resource):
@@ -22,7 +22,7 @@ class Policy(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
@@ -30,6 +30,12 @@ class Policy(resource.Resource):
 
     # Properties
     #: The policy rule set itself, as a serialized blob. *Type: string*
-    blob = resource.prop('blob')
+    blob = resource.Body('blob')
+    #: The links for the policy resource.
+    links = resource.Body('links')
+    #: The ID for the project.
+    project_id = resource.Body('project_id')
     #: The MIME Media Type of the serialized policy blob. *Type: string*
-    type = resource.prop('type')
+    type = resource.Body('type')
+    #: The ID of the user who owns the policy
+    user_id = resource.Body('user_id')

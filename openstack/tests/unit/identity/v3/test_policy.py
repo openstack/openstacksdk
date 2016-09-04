@@ -18,7 +18,10 @@ IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     'blob': '1',
     'id': IDENTIFIER,
+    'links': {'self': 'a-pointer'},
+    'project_id': '2',
     'type': '3',
+    'user_id': '4',
 }
 
 
@@ -31,13 +34,17 @@ class TestPolicy(testtools.TestCase):
         self.assertEqual('/policies', sot.base_path)
         self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
+        self.assertTrue(sot.patch_update)
 
     def test_make_it(self):
-        sot = policy.Policy(EXAMPLE)
+        sot = policy.Policy(**EXAMPLE)
         self.assertEqual(EXAMPLE['blob'], sot.blob)
         self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['links'], sot.links)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['type'], sot.type)
+        self.assertEqual(EXAMPLE['user_id'], sot.user_id)
