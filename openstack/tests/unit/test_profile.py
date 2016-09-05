@@ -46,7 +46,7 @@ class TestProfile(base.TestCase):
         self.assertEqual('v1', prof.get_filter('object-store').version)
         self.assertEqual('v1', prof.get_filter('orchestration').version)
         self.assertEqual('v1', prof.get_filter('key-manager').version)
-        self.assertEqual('v1', prof.get_filter('metering').version)
+        self.assertEqual('v2', prof.get_filter('metering').version)
         self.assertEqual('v2', prof.get_filter('volume').version)
         self.assertEqual('v1', prof.get_filter('messaging').version)
 

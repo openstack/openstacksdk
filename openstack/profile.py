@@ -105,7 +105,7 @@ class Profile(object):
             object_store_service.ObjectStoreService(version="v1"))
         self._add_service(
             orchestration_service.OrchestrationService(version="v1"))
-        self._add_service(telemetry_service.TelemetryService(version="v1"))
+        self._add_service(telemetry_service.TelemetryService(version="v2"))
 
         if plugins:
             for plugin in plugins:
