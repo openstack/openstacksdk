@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import proxy
+from openstack import proxy2
 from openstack.telemetry.v2 import capability
 from openstack.telemetry.v2 import meter as _meter
 from openstack.telemetry.v2 import resource as _resource
@@ -18,7 +18,7 @@ from openstack.telemetry.v2 import sample
 from openstack.telemetry.v2 import statistics
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy2.BaseProxy):
     """.. caution:: This API is a work in progress and is subject to change."""
 
     def find_capability(self, name_or_id, ignore_missing=True):
@@ -147,9 +147,8 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of sample objects
         :rtype: :class:`~openstack.telemetry.v2.sample.Sample`
         """
-        meter_name = _meter.Meter.from_name(meter).name
         return self._list(sample.Sample, paginated=False,
-                          path_args={'counter_name': meter_name}, **query)
+                          counter_name=meter, **query)
 
     def find_statistics(self, name_or_id, ignore_missing=True):
         """Find a single statistics
@@ -176,6 +175,5 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of statistics objects
         :rtype: :class:`~openstack.telemetry.v2.statistics.Statistics`
         """
-        meter_name = _meter.Meter.from_name(meter).name
         return self._list(statistics.Statistics, paginated=False,
-                          path_args={'meter_name': meter_name}, **query)
+                          meter_name=meter, **query)

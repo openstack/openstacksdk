@@ -10,36 +10,35 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import resource
+from openstack import resource2 as resource
 from openstack.telemetry import telemetry_service
 
 
 class Resource(resource.Resource):
     """.. caution:: This API is a work in progress and is subject to change."""
-    id_attribute = 'resource_id'
     base_path = '/resources'
     service = telemetry_service.TelemetryService()
 
     # Supported Operations
-    allow_retrieve = True
+    allow_get = True
     allow_list = True
 
     # Properties
     #: UTC date & time not later than the first sample known
     #: for this resource.
-    first_sample_at = resource.prop('first_sample_timestamp')
+    first_sample_at = resource.Body('first_sample_timestamp')
     #: UTC date & time not earlier than the last sample known
     #: for this resource.
-    last_sample_at = resource.prop('last_sample_timestamp')
+    last_sample_at = resource.Body('last_sample_timestamp')
     #: A list containing a self link and associated meter links
-    links = resource.prop('links')
+    links = resource.Body('links')
     #: Arbitrary metadata associated with the resource
-    metadata = resource.prop('metadata')
+    metadata = resource.Body('metadata')
     #: The ID of the owning project
-    project_id = resource.prop('project_id')
+    project_id = resource.Body('project_id')
     #: The ID for the resource
-    resource_id = resource.prop('resource_id')
+    resource_id = resource.Body('resource_id', alternate_id=True)
     #: The name of the source where the resource comes from
-    source = resource.prop('source')
+    source = resource.Body('source')
     #: The ID of the user who created the resource or updated it last
-    user_id = resource.prop('user_id')
+    user_id = resource.Body('user_id')

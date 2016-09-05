@@ -10,60 +10,43 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import resource
+from openstack import resource2 as resource
 from openstack.telemetry import telemetry_service
 
 
 class Sample(resource.Resource):
     """.. caution:: This API is a work in progress and is subject to change."""
-    id_attribute = 'sample_id'
     base_path = '/meters/%(counter_name)s'
     service = telemetry_service.TelemetryService()
 
     # Supported Operations
-    allow_create = True
+    allow_get = True
     allow_list = True
 
     # Properties
-    #: The meter name this sample is for
-    counter_name = resource.prop('meter', alias='counter_name')
     #: When the sample has been generated.
-    generated_at = resource.prop('timestamp')
+    generated_at = resource.Body('timestamp')
+    #: The message ID
+    message_id = resource.Body('message_id', alternate_id=True)
     #: Arbitrary metadata associated with the sample
-    metadata = resource.prop('metadata', alias='resource_metadata')
+    metadata = resource.Body('metadata')
+    #: The meter name this sample is for
+    counter_name = resource.Body('counter_name')
+    #: The meter name this sample is for
+    counter_type = resource.Body('counter_type')
     #: The ID of the project this sample was taken for
-    project_id = resource.prop('project_id')
+    project_id = resource.Body('project_id')
     #: When the sample has been recorded.
-    recorded_at = resource.prop('recorded_at')
+    recorded_at = resource.Body('recorded_at')
     #: The ID of the resource this sample was taken for
-    resource_id = resource.prop('resource_id')
+    resource_id = resource.Body('resource_id')
     #: The name of the source that identifies where the sample comes from
-    source = resource.prop('source')
+    source = resource.Body('source')
     #: The meter type
-    type = resource.prop('type', alias='counter_type')
+    type = resource.Body('type')
     #: The unit of measure
-    unit = resource.prop('unit', alias='counter_unit')
+    unit = resource.Body('unit')
     #: The ID of the user this sample was taken for
-    user_id = resource.prop('user_id')
+    user_id = resource.Body('user_id')
     #: The metered value
-    volume = resource.prop('volume', alias='counter_volume')
-
-    @classmethod
-    def list(cls, session, limit=None, marker=None, path_args=None,
-             paginated=False, **params):
-        url = cls._get_url(path_args)
-        resp = session.get(url, endpoint_filter=cls.service, params=params)
-        for item in resp.json():
-            yield cls.existing(**item)
-
-    def create(self, session):
-        url = self._get_url(self)
-        # telemetry expects a list of samples
-        attrs = self._attrs.copy()
-        attrs.pop('meter', None)
-        resp = session.post(url, endpoint_filter=self.service,
-                            json=[attrs])
-        resp = resp.json()
-        self.update_attrs(**resp.pop())
-        self._reset_dirty()
-        return self
+    volume = resource.Body('volume')

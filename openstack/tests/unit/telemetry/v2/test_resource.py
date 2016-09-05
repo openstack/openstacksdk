@@ -32,20 +32,21 @@ EXAMPLE = {
 class TestResource(testtools.TestCase):
 
     def test_basic(self):
-        sot = resource.Resource(EXAMPLE)
+        sot = resource.Resource()
         self.assertIsNone(sot.resource_key)
         self.assertIsNone(sot.resources_key)
         self.assertEqual('/resources', sot.base_path)
         self.assertEqual('metering', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = resource.Resource(EXAMPLE)
+        sot = resource.Resource(**EXAMPLE)
         self.assertEqual(EXAMPLE['resource_id'], sot.id)
+        self.assertEqual(EXAMPLE['resource_id'], sot.resource_id)
         self.assertEqual(EXAMPLE['first_sample_timestamp'],
                          sot.first_sample_at)
         self.assertEqual(EXAMPLE['last_sample_timestamp'],

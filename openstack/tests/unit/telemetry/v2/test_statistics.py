@@ -42,14 +42,14 @@ class TestStatistics(testtools.TestCase):
         self.assertEqual('/meters/%(meter_name)s/statistics', sot.base_path)
         self.assertEqual('metering', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_retrieve)
+        self.assertFalse(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = statistics.Statistics(EXAMPLE)
-        self.assertIsNone(sot.id)
+        sot = statistics.Statistics(**EXAMPLE)
+        self.assertEqual(EXAMPLE['unit'], sot.id)
         self.assertEqual(EXAMPLE['aggregate'], sot.aggregate)
         self.assertEqual(EXAMPLE['avg'], sot.avg)
         self.assertEqual(EXAMPLE['count'], sot.count)
@@ -70,13 +70,24 @@ class TestStatistics(testtools.TestCase):
         resp = mock.Mock()
         resp.json = mock.Mock(return_value=[EXAMPLE])
         sess.get = mock.Mock(return_value=resp)
-
-        args = {'meter_name': 'example'}
-        reply = statistics.Statistics.list(sess, path_args=args)
+        reply = statistics.Statistics.list(sess, meter_name='example')
 
         url = '/meters/example/statistics'
         stat = next(reply)
         sess.get.assert_called_with(url, endpoint_filter=stat.service,
                                     params={})
-        self.assertEqual(EXAMPLE, stat)
+        self.assertEqual(EXAMPLE['aggregate'], stat.aggregate)
+        self.assertEqual(EXAMPLE['avg'], stat.avg)
+        self.assertEqual(EXAMPLE['count'], stat.count)
+        self.assertEqual(EXAMPLE['duration'], stat.duration)
+        self.assertEqual(EXAMPLE['duration_end'], stat.duration_end_at)
+        self.assertEqual(EXAMPLE['duration_start'], stat.duration_start_at)
+        self.assertEqual(EXAMPLE['groupby'], stat.group_by)
+        self.assertEqual(EXAMPLE['max'], stat.max)
+        self.assertEqual(EXAMPLE['min'], stat.min)
+        self.assertEqual(EXAMPLE['period'], stat.period)
+        self.assertEqual(EXAMPLE['period_end'], stat.period_end_at)
+        self.assertEqual(EXAMPLE['period_start'], stat.period_start_at)
+        self.assertEqual(EXAMPLE['sum'], stat.sum)
+        self.assertEqual(EXAMPLE['unit'], stat.unit)
         self.assertRaises(StopIteration, next, reply)

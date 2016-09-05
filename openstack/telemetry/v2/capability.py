@@ -12,7 +12,7 @@
 
 import six
 
-from openstack import resource
+from openstack import resource2 as resource
 from openstack.telemetry import telemetry_service
 
 
@@ -27,11 +27,10 @@ class Capability(resource.Resource):
     allow_list = True
 
     # Properties
-    is_enabled = resource.prop('enabled', type=bool)
+    is_enabled = resource.Body('enabled', type=bool)
 
     @classmethod
-    def list(cls, session, limit=None, marker=None, path_args=None,
-             paginated=False, **params):
+    def list(cls, session, paginated=False, **params):
         resp = session.get(cls.base_path, endpoint_filter=cls.service,
                            params=params)
         resp = resp.json()

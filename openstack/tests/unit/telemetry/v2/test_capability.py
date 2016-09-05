@@ -38,13 +38,13 @@ class TestCapability(testtools.TestCase):
         self.assertEqual('/capabilities', sot.base_path)
         self.assertEqual('metering', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_retrieve)
+        self.assertFalse(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = capability.Capability(EXAMPLE)
+        sot = capability.Capability(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['enabled'], sot.is_enabled)
 

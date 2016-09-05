@@ -16,10 +16,10 @@ from openstack.telemetry.v2 import meter
 from openstack.telemetry.v2 import resource
 from openstack.telemetry.v2 import sample
 from openstack.telemetry.v2 import statistics
-from openstack.tests.unit import test_proxy_base
+from openstack.tests.unit import test_proxy_base2
 
 
-class TestTelemetryProxy(test_proxy_base.TestProxyBase):
+class TestTelemetryProxy(test_proxy_base2.TestProxyBase):
     def setUp(self):
         super(TestTelemetryProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
@@ -54,18 +54,16 @@ class TestTelemetryProxy(test_proxy_base.TestProxyBase):
         self.verify_find(self.proxy.find_sample, sample.Sample)
 
     def test_samples(self):
-        met = meter.Meter.existing(name='meterone')
-        expected_kwargs = {'path_args': {'counter_name': 'meterone'}}
+        expected_kwargs = {'counter_name': 'meterone'}
         self.verify_list(self.proxy.samples, sample.Sample,
-                         method_args=[met],
+                         method_args=['meterone'],
                          paginated=False, expected_kwargs=expected_kwargs)
 
     def test_statistics_find(self):
         self.verify_find(self.proxy.find_statistics, statistics.Statistics)
 
     def test_statistics(self):
-        met = meter.Meter.existing(name='meterone')
-        expected_kwargs = {'path_args': {'meter_name': 'meterone'}}
+        expected_kwargs = {'meter_name': 'meterone'}
         self.verify_list(self.proxy.statistics, statistics.Statistics,
-                         method_args=[met],
+                         method_args=['meterone'],
                          paginated=False, expected_kwargs=expected_kwargs)

@@ -36,13 +36,13 @@ class TestMeter(testtools.TestCase):
         self.assertEqual('/meters', sot.base_path)
         self.assertEqual('metering', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_retrieve)
+        self.assertFalse(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = meter.Meter(EXAMPLE)
+        sot = meter.Meter(**EXAMPLE)
         self.assertEqual(EXAMPLE['meter_id'], sot.id)
         self.assertEqual(EXAMPLE['meter_id'], sot.meter_id)
         self.assertEqual(EXAMPLE['name'], sot.name)
