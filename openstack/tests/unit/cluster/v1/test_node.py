@@ -27,6 +27,7 @@ FAKE = {
     'profile_id': 'myserver',
     'index': 1,
     'role': 'master',
+    'dependents': {},
     'created_at': '2015-10-10T12:46:36.000000',
     'updated_at': '2016-10-10T12:46:36.000000',
     'init_at': '2015-10-10T12:46:36.000000',
@@ -50,6 +51,7 @@ FAKE_CREATE_RESP = {
         'project': '333acb15a43242f4a609a27cb097a8f2',
         'status': 'INIT',
         'status_reason': 'Initializing',
+        'dependents': {},
     }
 }
 
@@ -81,6 +83,7 @@ class TestNode(testtools.TestCase):
         self.assertEqual(FAKE['init_at'], sot.init_at)
         self.assertEqual(FAKE['created_at'], sot.created_at)
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
+        self.assertEqual(FAKE['dependents'], sot.dependents)
 
     def test_check(self):
         sot = node.Node(**FAKE)
