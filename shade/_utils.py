@@ -14,6 +14,7 @@
 
 import contextlib
 import inspect
+import jmespath
 import munch
 import netifaces
 import re
@@ -73,7 +74,7 @@ def _filter_list(data, name_or_id, filters):
         key if a value for name_or_id is given.
     :param string name_or_id:
         The name or ID of the entity being filtered.
-    :param dict filters:
+    :param filters:
         A dictionary of meta data to use for further filtering. Elements
         of this dictionary may, themselves, be dictionaries. Example::
 
@@ -83,6 +84,8 @@ def _filter_list(data, name_or_id, filters):
                   'gender': 'Female'
               }
             }
+        OR
+        A string containing a jmespath expression for further filtering.
     """
     if name_or_id:
         identifier_matches = []
@@ -95,6 +98,9 @@ def _filter_list(data, name_or_id, filters):
 
     if not filters:
         return data
+
+    if isinstance(filters, six.string_types):
+        return jmespath.search(filters, data)
 
     def _dict_filter(f, d):
         if not d:
@@ -129,8 +135,11 @@ def _get_entity(func, name_or_id, filters, **kwargs):
         and returns a list of entities to filter.
     :param string name_or_id:
         The name or ID of the entity being filtered or a dict
-    :param dict filters:
+    :param filters:
         A dictionary of meta data to use for further filtering.
+        OR
+        A string containing a jmespath expression for further filtering.
+        Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
     """
     # Sometimes in the control flow of shade, we already have an object
     # fetched. Rather than then needing to pull the name or id out of that

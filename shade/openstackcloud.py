@@ -464,7 +464,7 @@ class OpenStackCloud(object):
         operators are one of: <,>,<=,>=
 
         :param list data: List of dictionaries to be searched.
-        :param dict filters: Dict describing the one or more range searches to
+        :param filters: Dict describing the one or more range searches to
             perform. If more than one search is given, the result will be the
             members of the original data set that match ALL searches. An
             example of filtering by multiple ranges::
@@ -634,7 +634,10 @@ class OpenStackCloud(object):
         """Seach Keystone users.
 
         :param string name: user name or id.
-        :param dict filters: a dict containing additional filters to use.
+        :param filters: a dict containing additional filters to use.
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: a list of ``munch.Munch`` containing the users
 
@@ -648,7 +651,10 @@ class OpenStackCloud(object):
         """Get exactly one Keystone user.
 
         :param string name_or_id: user name or id.
-        :param dict filters: a dict containing additional filters to use.
+        :param filters: a dict containing additional filters to use.
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: a single ``munch.Munch`` containing the user description.
 
@@ -1939,7 +1945,7 @@ class OpenStackCloud(object):
         """Get a keypair by name or ID.
 
         :param name_or_id: Name or ID of the keypair.
-        :param dict filters:
+        :param filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
@@ -1949,6 +1955,9 @@ class OpenStackCloud(object):
                       'gender': 'Female'
                   }
                 }
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A keypair ``munch.Munch`` or None if no matching keypair is
         found.
@@ -1960,7 +1969,7 @@ class OpenStackCloud(object):
         """Get a network by name or ID.
 
         :param name_or_id: Name or ID of the network.
-        :param dict filters:
+        :param filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
@@ -1970,6 +1979,9 @@ class OpenStackCloud(object):
                       'gender': 'Female'
                   }
                 }
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A network ``munch.Munch`` or None if no matching network is
         found.
@@ -1981,7 +1993,7 @@ class OpenStackCloud(object):
         """Get a router by name or ID.
 
         :param name_or_id: Name or ID of the router.
-        :param dict filters:
+        :param filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
@@ -1991,6 +2003,9 @@ class OpenStackCloud(object):
                       'gender': 'Female'
                   }
                 }
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A router ``munch.Munch`` or None if no matching router is
         found.
@@ -2002,7 +2017,7 @@ class OpenStackCloud(object):
         """Get a subnet by name or ID.
 
         :param name_or_id: Name or ID of the subnet.
-        :param dict filters:
+        :param filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
@@ -2023,7 +2038,7 @@ class OpenStackCloud(object):
         """Get a port by name or ID.
 
         :param name_or_id: Name or ID of the port.
-        :param dict filters:
+        :param filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
@@ -2033,6 +2048,9 @@ class OpenStackCloud(object):
                       'gender': 'Female'
                   }
                 }
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A port ``munch.Munch`` or None if no matching port is found.
 
@@ -2043,7 +2061,7 @@ class OpenStackCloud(object):
         """Get a volume by name or ID.
 
         :param name_or_id: Name or ID of the volume.
-        :param dict filters:
+        :param filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
@@ -2053,6 +2071,9 @@ class OpenStackCloud(object):
                       'gender': 'Female'
                   }
                 }
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A volume ``munch.Munch`` or None if no matching volume is
         found.
@@ -2064,7 +2085,7 @@ class OpenStackCloud(object):
         """Get a flavor by name or ID.
 
         :param name_or_id: Name or ID of the flavor.
-        :param dict filters:
+        :param filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
@@ -2074,6 +2095,9 @@ class OpenStackCloud(object):
                       'gender': 'Female'
                   }
                 }
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
         :param get_extra:
              Whether or not the list_flavors call should get the extra flavor
              specs.
@@ -2091,7 +2115,7 @@ class OpenStackCloud(object):
         """Get a security group by name or ID.
 
         :param name_or_id: Name or ID of the security group.
-        :param dict filters:
+        :param filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
@@ -2101,6 +2125,9 @@ class OpenStackCloud(object):
                       'gender': 'Female'
                   }
                 }
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A security group ``munch.Munch`` or None if no matching
                   security group is found.
@@ -2147,7 +2174,7 @@ class OpenStackCloud(object):
         """Get a server by name or ID.
 
         :param name_or_id: Name or ID of the server.
-        :param dict filters:
+        :param filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
@@ -2157,6 +2184,9 @@ class OpenStackCloud(object):
                       'gender': 'Female'
                   }
                 }
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A server ``munch.Munch`` or None if no matching server is
         found.
@@ -2175,13 +2205,16 @@ class OpenStackCloud(object):
         """Get a server group by name or ID.
 
         :param name_or_id: Name or ID of the server group.
-        :param dict filters:
+        :param filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
                 {
                   'policy': 'affinity',
                 }
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A server groups dict or None if no matching server group
         is found.
@@ -2194,7 +2227,7 @@ class OpenStackCloud(object):
         """Get an image by name or ID.
 
         :param name_or_id: Name or ID of the image.
-        :param dict filters:
+        :param filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
@@ -2204,6 +2237,9 @@ class OpenStackCloud(object):
                       'gender': 'Female'
                   }
                 }
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: An image ``munch.Munch`` or None if no matching image
                   is found
@@ -2255,7 +2291,7 @@ class OpenStackCloud(object):
         """Get a floating IP by ID
 
         :param id: ID of the floating IP.
-        :param dict filters:
+        :param filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
@@ -2265,6 +2301,9 @@ class OpenStackCloud(object):
                       'gender': 'Female'
                   }
                 }
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A floating IP ``munch.Munch`` or None if no matching floating
         IP is found.
@@ -3395,7 +3434,7 @@ class OpenStackCloud(object):
         """Get a volume by name or ID.
 
         :param name_or_id: Name or ID of the volume snapshot.
-        :param dict filters:
+        :param filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
@@ -3405,6 +3444,9 @@ class OpenStackCloud(object):
                       'gender': 'Female'
                   }
                 }
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A volume ``munch.Munch`` or None if no matching volume is
         found.
@@ -5922,8 +5964,11 @@ class OpenStackCloud(object):
         """Get a zone by name or ID.
 
         :param name_or_id: Name or ID of the zone
-        :param dict filters:
+        :param filters:
             A dictionary of meta data to use for further filtering
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns:  A zone dict or None if no matching zone is
         found.
@@ -6187,7 +6232,7 @@ class OpenStackCloud(object):
         ClusterTemplate is the new name for BayModel.
 
         :param name_or_id: Name or ID of the ClusterTemplate.
-        :param dict filters:
+        :param filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
@@ -6197,6 +6242,9 @@ class OpenStackCloud(object):
                       'gender': 'Female'
                   }
                 }
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A ClusterTemplate dict or None if no matching
             ClusterTemplate is found.

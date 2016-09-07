@@ -67,6 +67,10 @@ class TestUsers(base.BaseFunctionalTestCase):
         users = self.operator_cloud.search_users(filters={'enabled': True})
         self.assertIsNotNone(users)
 
+    def test_search_users_jmespath(self):
+        users = self.operator_cloud.search_users(filters="[?enabled]")
+        self.assertIsNotNone(users)
+
     def test_create_user(self):
         user_name = self.user_prefix + '_create'
         user_email = 'nobody@nowhere.com'
