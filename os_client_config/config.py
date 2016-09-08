@@ -935,6 +935,15 @@ class OpenStackConfig(object):
                 winning_value,
             )
 
+            if winning_value:
+                # Prefer the plugin configuration dest value if the value's key
+                # is marked as deprecated.
+                if p_opt.dest is None:
+                    good_name = p_opt.name.replace('-', '_')
+                    config['auth'][good_name] = winning_value
+                else:
+                    config['auth'][p_opt.dest] = winning_value
+
             # See if this needs a prompting
             config = self.option_prompt(config, p_opt)
 
