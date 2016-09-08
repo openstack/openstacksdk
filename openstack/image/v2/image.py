@@ -11,11 +11,14 @@
 # under the License.
 
 import hashlib
+import logging
 
 from openstack import exceptions
 from openstack.image import image_service
 from openstack import resource2
 from openstack import utils
+
+_logger = logging.getLogger(__name__)
 
 
 class Image(resource2.Resource):
@@ -162,9 +165,25 @@ class Image(resource2.Resource):
         url = utils.urljoin(self.base_path, self.id, 'file')
         resp = session.get(url, endpoint_filter=self.service)
 
-        checksum = resp.headers["Content-MD5"]
-        digest = hashlib.md5(resp.content).hexdigest()
-        if digest != checksum:
-            raise exceptions.InvalidResponse("checksum mismatch")
+        # See the following bug report for details on why the checksum
+        # code may sometimes depend on a second GET call.
+        # https://bugs.launchpad.net/python-openstacksdk/+bug/1619675
+        checksum = resp.headers.get("Content-MD5")
+
+        if checksum is None:
+            # If we don't receive the Content-MD5 header with the download,
+            # make an additional call to get the image details and look at
+            # the checksum attribute.
+            details = self.get(session)
+            checksum = details.checksum
+
+        if checksum is not None:
+            digest = hashlib.md5(resp.content).hexdigest()
+            if digest != checksum:
+                raise exceptions.InvalidResponse(
+                    "checksum mismatch: %s != %s" % (checksum, digest))
+        else:
+            _logger.warn(
+                "Unable to verify the integrity of image %s" % (self.id))
 
         return resp.content
