@@ -73,6 +73,8 @@ class Node(resource.Resource):
     #: A map containing the details of the physical object this node
     #: represents
     details = resource.Body('details', type=dict)
+    #: A map containing the dependency of nodes
+    dependents = resource.Body('dependents', type=dict)
 
     def _action(self, session, body):
         """Procedure the invoke an action API.

@@ -74,6 +74,8 @@ class Cluster(resource.Resource):
     node_ids = resource.Body('nodes')
     #: Name of the profile used by the cluster.
     profile_name = resource.Body('profile_name')
+    #: A dictionary with dependency information of the cluster
+    dependents = resource.Body('dependents', type=dict)
 
     def action(self, session, body):
         url = utils.urljoin(self.base_path, self._get_id(self), 'actions')
