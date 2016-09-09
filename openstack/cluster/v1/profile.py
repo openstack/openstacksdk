@@ -30,7 +30,7 @@ class Profile(resource.Resource):
     patch_update = True
 
     _query_mapping = resource.QueryParameters(
-        'name', 'type', 'metadata')
+        'sort', 'global_project', 'type', 'name')
 
     # Bodyerties
     #: The name of the profile
