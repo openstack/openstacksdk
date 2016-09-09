@@ -1854,7 +1854,7 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(_router.Router, router, **attrs)
 
-    def router_add_interface(self, router, subnet_id=None, port_id=None):
+    def add_interface_to_router(self, router, subnet_id=None, port_id=None):
         """Add Interface to a router
 
         :param router: Either the router ID or an instance of
@@ -1871,7 +1871,8 @@ class Proxy(proxy.BaseProxy):
             body = {'subnet_id': subnet_id}
         return router.add_interface(self.session, **body)
 
-    def router_remove_interface(self, router, subnet_id=None, port_id=None):
+    def remove_interface_from_router(self, router, subnet_id=None,
+                                     port_id=None):
         """Remove Interface from a router
 
         :param router: Either the router ID or an instance of
