@@ -62,7 +62,7 @@ class TestProfile(testtools.TestCase):
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['metadata'], sot.metadata)
         self.assertEqual(FAKE['spec'], sot.spec)
-        self.assertEqual(FAKE['type'], sot.type_name)
+        self.assertEqual(FAKE['type'], sot.type)
         self.assertEqual(FAKE['created_at'], sot.created_at)
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
 
