@@ -19,6 +19,7 @@ EXAMPLE = {
     'enabled': True,
     'id': IDENTIFIER,
     'interface': '3',
+    'links': {'self': 'http://example.com/endpoint1'},
     'region_id': '4',
     'service_id': '5',
     'url': '6',
@@ -34,16 +35,18 @@ class TestEndpoint(testtools.TestCase):
         self.assertEqual('/endpoints', sot.base_path)
         self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
+        self.assertTrue(sot.patch_update)
 
     def test_make_it(self):
-        sot = endpoint.Endpoint(EXAMPLE)
+        sot = endpoint.Endpoint(**EXAMPLE)
         self.assertTrue(sot.is_enabled)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['interface'], sot.interface)
+        self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['region_id'], sot.region_id)
         self.assertEqual(EXAMPLE['service_id'], sot.service_id)
         self.assertEqual(EXAMPLE['url'], sot.url)

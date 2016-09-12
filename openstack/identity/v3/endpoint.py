@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.identity import identity_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Endpoint(resource.Resource):
@@ -22,7 +22,7 @@ class Endpoint(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
@@ -40,14 +40,16 @@ class Endpoint(resource.Resource):
     #:     access to the service, generally on a secure network interface
     #:
     #: *Type: string*
-    interface = resource.prop('interface')
+    interface = resource.Body('interface')
     #: Setting this value to ``False`` prevents the endpoint from appearing
     #: in the service catalog. *Type: bool*
-    is_enabled = resource.prop('enabled', type=bool)
+    is_enabled = resource.Body('enabled', type=bool)
+    #: The links for the region resource.
+    links = resource.Body('links')
     #: Represents the containing region ID of the service endpoint.
     #: *New in v3.2* *Type: string*
-    region_id = resource.prop('region_id')
+    region_id = resource.Body('region_id')
     #: References the service ID to which the endpoint belongs. *Type: string*
-    service_id = resource.prop('service_id')
+    service_id = resource.Body('service_id')
     #: Fully qualified URL of the service endpoint. *Type: string*
-    url = resource.prop('url')
+    url = resource.Body('url')

@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.identity import identity_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class User(resource.Resource):
@@ -22,7 +22,7 @@ class User(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
@@ -39,23 +39,30 @@ class User(resource.Resource):
     #: *New in version 3.1* If the user does not have authorization to
     #: their default project, the default project will be ignored at token
     #: creation. *Type: string*
-    default_project_id = resource.prop('default_project_id')
+    default_project_id = resource.Body('default_project_id')
     #: The description of this user. *Type: string*
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: References the domain ID which owns the user; if a domain ID is not
     #: specified by the client, the Identity service implementation will
     #: default it to the domain ID to which the client's token is scoped.
     #: *Type: string*
-    domain_id = resource.prop('domain_id')
+    domain_id = resource.Body('domain_id')
     #: The email of this user. *Type: string*
-    email = resource.prop('email')
+    email = resource.Body('email')
     #: Setting this value to ``False`` prevents the user from authenticating or
     #: receiving authorization. Additionally, all pre-existing tokens held by
     #: the user are immediately invalidated. Re-enabling a user does not
     #: re-enable pre-existing tokens. *Type: bool*
-    is_enabled = resource.prop('enabled', type=bool)
+    is_enabled = resource.Body('enabled', type=bool)
+    #: The links for the user resource.
+    links = resource.Body('links')
     #: Unique user name, within the owning domain. *Type: string*
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: The default form of credential used during authentication.
     #: *Type: string*
-    password = resource.prop('password')
+    password = resource.Body('password')
+    #: The date and time when the pasword expires. The time zone is UTC.
+    #: A None value means the password never expires.
+    #: This is a response object attribute, not valid for requests.
+    #: *New in version 3.7*
+    password_expires_at = resource.Body('password_expires_at')

@@ -22,8 +22,10 @@ EXAMPLE = {
     'email': '4',
     'enabled': True,
     'id': IDENTIFIER,
+    'links': {'self': 'http://example.com/user1'},
     'name': '6',
     'password': '7',
+    'password_expires_at': '8',
 }
 
 
@@ -36,13 +38,14 @@ class TestUser(testtools.TestCase):
         self.assertEqual('/users', sot.base_path)
         self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
+        self.assertTrue(sot.patch_update)
 
     def test_make_it(self):
-        sot = user.User(EXAMPLE)
+        sot = user.User(**EXAMPLE)
         self.assertEqual(EXAMPLE['default_project_id'],
                          sot.default_project_id)
         self.assertEqual(EXAMPLE['description'], sot.description)
@@ -50,5 +53,8 @@ class TestUser(testtools.TestCase):
         self.assertEqual(EXAMPLE['email'], sot.email)
         self.assertTrue(sot.is_enabled)
         self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['password'], sot.password)
+        self.assertEqual(EXAMPLE['password_expires_at'],
+                         sot.password_expires_at)

@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.identity import identity_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Region(resource.Resource):
@@ -22,7 +22,7 @@ class Region(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
@@ -30,6 +30,8 @@ class Region(resource.Resource):
 
     # Properties
     #: User-facing description of the region. *Type: string*
-    description = resource.prop('description')
+    description = resource.Body('description')
+    #: The links for the region resource.
+    links = resource.Body('links')
     #: ID of parent region, if any. *Type: string*
-    parent_region_id = resource.prop('parent_region_id')
+    parent_region_id = resource.Body('parent_region_id')
