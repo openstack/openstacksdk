@@ -139,7 +139,7 @@ class TestImage(testtools.TestCase):
                                                   "application/octet-stream",
                                                   "Accept": ""})
 
-    def test_upload_checksum_match(self):
+    def test_download_checksum_match(self):
         sot = image.Image(**EXAMPLE)
 
         resp = mock.Mock()
@@ -153,7 +153,7 @@ class TestImage(testtools.TestCase):
 
         self.assertEqual(rv, resp.content)
 
-    def test_upload_checksum_mismatch(self):
+    def test_download_checksum_mismatch(self):
         sot = image.Image(**EXAMPLE)
 
         resp = mock.Mock()
@@ -162,3 +162,52 @@ class TestImage(testtools.TestCase):
         self.sess.get.return_value = resp
 
         self.assertRaises(exceptions.InvalidResponse, sot.download, self.sess)
+
+    def test_download_no_checksum_header(self):
+        sot = image.Image(**EXAMPLE)
+
+        resp1 = mock.Mock()
+        resp1.content = b"abc"
+        resp1.headers = {"no_checksum_here": ""}
+
+        resp2 = mock.Mock()
+        resp2.json = mock.Mock(
+            return_value={"checksum": "900150983cd24fb0d6963f7d28e17f72"})
+        resp2.headers = {"": ""}
+
+        self.sess.get.side_effect = [resp1, resp2]
+
+        rv = sot.download(self.sess)
+        self.sess.get.assert_has_calls(
+            [mock.call('images/IDENTIFIER/file', endpoint_filter=sot.service),
+             mock.call('images/IDENTIFIER', endpoint_filter=sot.service)])
+
+        self.assertEqual(rv, resp1.content)
+
+    def test_download_no_checksum_at_all2(self):
+        sot = image.Image(**EXAMPLE)
+
+        resp1 = mock.Mock()
+        resp1.content = b"abc"
+        resp1.headers = {"no_checksum_here": ""}
+
+        resp2 = mock.Mock()
+        resp2.json = mock.Mock(return_value={"checksum": None})
+        resp2.headers = {"": ""}
+
+        self.sess.get.side_effect = [resp1, resp2]
+
+        with self.assertLogs(logger=image.__name__, level="WARNING") as log:
+            rv = sot.download(self.sess)
+
+            self.assertEqual(len(log.records), 1,
+                             "Too many warnings were logged")
+            self.assertEqual(
+                "Unable to verify the integrity of image IDENTIFIER",
+                log.records[0].msg)
+
+        self.sess.get.assert_has_calls(
+            [mock.call('images/IDENTIFIER/file', endpoint_filter=sot.service),
+             mock.call('images/IDENTIFIER', endpoint_filter=sot.service)])
+
+        self.assertEqual(rv, resp1.content)
