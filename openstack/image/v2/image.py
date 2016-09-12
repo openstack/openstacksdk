@@ -121,6 +121,94 @@ class Image(resource2.Resource):
     #: The location metadata.
     metadata = resource2.Body('metadata', type=dict)
 
+    # Additional Image Properties
+    # http://docs.openstack.org/developer/glance/common-image-properties.html
+    # http://docs.openstack.org/cli-reference/glance-property-keys.html
+    #: The CPU architecture that must be supported by the hypervisor.
+    architecture = resource2.Body("architecture")
+    #: The hypervisor type. Note that qemu is used for both QEMU and
+    #: KVM hypervisor types.
+    hypervisor_type = resource2.Body("hypervisor-type")
+    #: Optional property allows created servers to have a different bandwidth
+    #: cap than that defined in the network they are attached to.
+    instance_type_rxtx_factor = resource2.Body("instance_type_rxtx_factor",
+                                               type=float)
+    # For snapshot images, this is the UUID of the server used to
+    #: create this image.
+    instance_uuid = resource2.Body('instance_uuid')
+    #: Specifies whether the image needs a config drive.
+    #: `mandatory` or `optional` (default if property is not used).
+    needs_config_drive = resource2.Body('img_config_drive')
+    #: The ID of an image stored in the Image service that should be used
+    #: as the kernel when booting an AMI-style image.
+    kernel_id = resource2.Body('kernel_id')
+    #: The common name of the operating system distribution in lowercase
+    os_distro = resource2.Body('os_distro')
+    #: The operating system version as specified by the distributor.
+    os_version = resource2.Body('os_version')
+    #: Secure Boot is a security standard. When the instance starts,
+    #: Secure Boot first examines software such as firmware and OS by
+    #: their signature and only allows them to run if the signatures are valid.
+    needs_secure_boot = resource2.Body('os_secure_boot')
+    #: The ID of image stored in the Image service that should be used as
+    #: the ramdisk when booting an AMI-style image.
+    ramdisk_id = resource2.Body('ramdisk_id')
+    #: The virtual machine mode. This represents the host/guest ABI
+    #: (application binary interface) used for the virtual machine.
+    vm_mode = resource2.Body('vm_mode')
+    #: The preferred number of sockets to expose to the guest.
+    hw_cpu_sockets = resource2.Body('hw_cpu_sockets', type=int)
+    #: The preferred number of cores to expose to the guest.
+    hw_cpu_cores = resource2.Body('hw_cpu_cores', type=int)
+    #: The preferred number of threads to expose to the guest.
+    hw_cpu_threads = resource2.Body('hw_cpu_threads', type=int)
+    #: Specifies the type of disk controller to attach disk devices to.
+    #: One of scsi, virtio, uml, xen, ide, or usb.
+    hw_disk_bus = resource2.Body('hw_disk_bus')
+    #: Adds a random-number generator device to the image's instances.
+    hw_rng_model = resource2.Body('hw_rng_model')
+    #: For libvirt: Enables booting an ARM system using the specified
+    #: machine type.
+    #: For Hyper-V: Specifies whether the Hyper-V instance will be a
+    #: generation 1 or generation 2 VM.
+    hw_machine_type = resource2.Body('hw_machine_type')
+    #: Enables the use of VirtIO SCSI (virtio-scsi) to provide block device
+    #: access for compute instances; by default, instances use VirtIO Block
+    #: (virtio-blk).
+    hw_scsi_model = resource2.Body('hw_scsi_model')
+    #: Specifies the count of serial ports that should be provided.
+    hw_serial_port_count = resource2.Body('hw_serial_port_count', type=int)
+    #: The video image driver used.
+    hw_video_model = resource2.Body('hw_video_model')
+    #: Maximum RAM for the video image.
+    hw_video_ram = resource2.Body('hw_video_ram', type=int)
+    #: Enables a virtual hardware watchdog device that carries out the
+    #: specified action if the server hangs.
+    hw_watchdog_action = resource2.Body('hw_watchdog_action')
+    #: The kernel command line to be used by the libvirt driver, instead
+    #: of the default.
+    os_command_line = resource2.Body('os_command_line')
+    #: Specifies the model of virtual network interface device to use.
+    hw_vif_model = resource2.Body('hw_vif_model')
+    #: If true, this enables the virtio-net multiqueue feature.
+    #: In this case, the driver sets the number of queues equal to the
+    #: number of guest vCPUs. This makes the network performance scale
+    #: across a number of vCPUs.
+    is_hw_vif_multiqueue_enabled = resource2.Body('hw_vif_multiqueue_enabled',
+                                                  type=bool)
+    #: If true, enables the BIOS bootmenu.
+    is_hw_boot_menu_enabled = resource2.Body('hw_boot_menu', type=bool)
+    #: The virtual SCSI or IDE controller used by the hypervisor.
+    vmware_adaptertype = resource2.Body('vmware_adaptertype')
+    #: A VMware GuestID which describes the operating system installed
+    #: in the image.
+    vmware_ostype = resource2.Body('vmware_ostype')
+    #: If true, the root partition on the disk is automatically resized
+    #: before the instance boots.
+    has_auto_disk_config = resource2.Body('auto_disk_config', type=bool)
+    #: The operating system installed on the image.
+    os_type = resource2.Body('os_type')
+
     def _action(self, session, action):
         """Call an action on an image ID."""
         url = utils.urljoin(self.base_path, self.id, 'actions', action)
