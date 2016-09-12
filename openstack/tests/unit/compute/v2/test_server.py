@@ -20,6 +20,7 @@ EXAMPLE = {
     'accessIPv4': '1',
     'accessIPv6': '2',
     'addresses': {'region': '3'},
+    'config_drive': True,
     'created': '2015-03-09T12:14:57.233772',
     'flavorRef': '5',
     'flavor': {'id': 'FLAVOR_ID', 'links': {}},
@@ -29,6 +30,7 @@ EXAMPLE = {
     'image': {'id': 'IMAGE_ID', 'links': {}},
     'links': '9',
     'metadata': {'key': '10'},
+    'networks': 'auto',
     'name': '11',
     'progress': 12,
     'tenant_id': '13',
@@ -89,6 +91,7 @@ class TestServer(testtools.TestCase):
         self.assertEqual(EXAMPLE['accessIPv6'], sot.access_ipv6)
         self.assertEqual(EXAMPLE['addresses'], sot.addresses)
         self.assertEqual(EXAMPLE['created'], sot.created_at)
+        self.assertEqual(EXAMPLE['config_drive'], sot.has_config_drive)
         self.assertEqual(EXAMPLE['flavorRef'], sot.flavor_id)
         self.assertEqual(EXAMPLE['flavor'], sot.flavor)
         self.assertEqual(EXAMPLE['hostId'], sot.host_id)
@@ -97,6 +100,7 @@ class TestServer(testtools.TestCase):
         self.assertEqual(EXAMPLE['image'], sot.image)
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['metadata'], sot.metadata)
+        self.assertEqual(EXAMPLE['networks'], sot.networks)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['progress'], sot.progress)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
@@ -135,7 +139,7 @@ class TestServer(testtools.TestCase):
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
-    def test_change_passowrd(self):
+    def test_change_password(self):
         sot = server.Server(**EXAMPLE)
 
         self.assertIsNone(sot.change_password(self.sess, 'a'))

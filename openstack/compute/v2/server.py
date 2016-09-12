@@ -80,6 +80,9 @@ class Server(resource2.Resource, metadata.MetadataMixin):
     key_name = resource2.Body('key_name')
     #: The disk configuration. Either AUTO or MANUAL.
     disk_config = resource2.Body('OS-DCF:diskConfig')
+    #: Indicates whether a configuration drive enables metadata injection.
+    #: Not all cloud providers enable this feature.
+    has_config_drive = resource2.Body('config_drive')
     #: The name of the availability zone this server is a part of.
     availability_zone = resource2.Body('OS-EXT-AZ:availability_zone')
     #: The power state of this server.
@@ -118,7 +121,7 @@ class Server(resource2.Resource, metadata.MetadataMixin):
     #: networks defined for the tenant. When you do not specify the
     #: networks parameter, the server attaches to the only network
     #: created for the current tenant.
-    networks = resource2.Body('networks', type=dict)
+    networks = resource2.Body('networks')
 
     def _action(self, session, body):
         """Preform server actions given the message body."""
