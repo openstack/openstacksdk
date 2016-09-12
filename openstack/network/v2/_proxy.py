@@ -2099,6 +2099,40 @@ class Proxy(proxy.BaseProxy):
         return self._list(_security_group_rule.SecurityGroupRule,
                           paginated=False, **query)
 
+    def create_segment(self, **attrs):
+        """Create a new segment from attributes
+
+        .. caution::
+           BETA: This API is a work in progress and is subject to change.
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.network.v2.segment.Segment`,
+                           comprised of the properties on the Segment class.
+
+        :returns: The results of segment creation
+        :rtype: :class:`~openstack.network.v2.segment.Segment`
+        """
+        return self._create(_segment.Segment, **attrs)
+
+    def delete_segment(self, segment, ignore_missing=True):
+        """Delete a segment
+
+        .. caution::
+           BETA: This API is a work in progress and is subject to change.
+
+        :param segment: The value can be either the ID of a segment or a
+                        :class:`~openstack.network.v2.segment.Segment`
+                        instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the segment does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent segment.
+
+        :returns: ``None``
+        """
+        self._delete(_segment.Segment, segment, ignore_missing=ignore_missing)
+
     def find_segment(self, name_or_id, ignore_missing=True):
         """Find a single segment
 
@@ -2141,6 +2175,7 @@ class Proxy(proxy.BaseProxy):
         :param kwargs \*\*query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
+            * name: Name of the segments
             * network_id: ID of the network that owns the segments
             * network_type: Network type for the segments
             * physical_network: Physical network name for the segments
@@ -2150,6 +2185,23 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.segment.Segment`
         """
         return self._list(_segment.Segment, paginated=False, **query)
+
+    def update_segment(self, segment, **attrs):
+        """Update a segment
+
+        .. caution::
+           BETA: This API is a work in progress and is subject to change.
+
+        :param segment: Either the id of a segment or a
+                        :class:`~openstack.network.v2.segment.Segment`
+                        instance.
+        :attrs kwargs: The attributes to update on the segment represented
+                       by ``value``.
+
+        :returns: The update segment
+        :rtype: :class:`~openstack.network.v2.segment.Segment`
+        """
+        return self._update(_segment.Segment, segment, **attrs)
 
     def create_subnet(self, **attrs):
         """Create a new subnet from attributes
