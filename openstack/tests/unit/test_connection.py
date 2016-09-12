@@ -69,6 +69,15 @@ class TestConnection(base.TestCase):
         mock_session_init.assert_called_with(mock_profile, **args)
         self.assertEqual(mock_session_init, conn.session)
 
+    def test_session_provided(self):
+        mock_session = mock.Mock()
+        mock_profile = mock.Mock()
+        mock_profile.get_services = mock.Mock(return_value=[])
+        conn = connection.Connection(session=mock_session,
+                                     profile=mock_profile,
+                                     user_agent='1')
+        self.assertEqual(mock_session, conn.session)
+
     @mock.patch("keystoneauth1.loading.base.get_plugin_loader")
     def test_create_authenticator(self, mock_get_plugin):
         mock_plugin = mock.Mock()
