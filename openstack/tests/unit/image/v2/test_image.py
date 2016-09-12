@@ -43,7 +43,37 @@ EXAMPLE = {
     'path': '18',
     'value': '19',
     'url': '20',
-    'metadata': {'21': '22'}
+    'metadata': {'21': '22'},
+    'architecture': '23',
+    'hypervisor-type': '24',
+    'instance_type_rxtx_factor': 25.1,
+    'instance_uuid': '26',
+    'img_config_drive': '27',
+    'kernel_id': '28',
+    'os_distro': '29',
+    'os_version': '30',
+    'os_secure_boot': '31',
+    'ramdisk_id': '32',
+    'vm_mode': '33',
+    'hw_cpu_sockets': 34,
+    'hw_cpu_cores': 35,
+    'hw_cpu_threads': 36,
+    'hw_disk_bus': '37',
+    'hw_rng_model': '38',
+    'hw_machine_type': '39',
+    'hw_scsi_model': '40',
+    'hw_serial_port_count': 41,
+    'hw_video_model': '42',
+    'hw_video_ram': 43,
+    'hw_watchdog_action': '44',
+    'os_command_line': '45',
+    'hw_vif_model': '46',
+    'hw_vif_multiqueue_enabled': True,
+    'hw_boot_menu': True,
+    'vmware_adaptertype': '47',
+    'vmware_ostype': '48',
+    'auto_disk_config': True,
+    'os_type': '49',
 }
 
 
@@ -95,6 +125,39 @@ class TestImage(testtools.TestCase):
         self.assertEqual(EXAMPLE['value'], sot.value)
         self.assertEqual(EXAMPLE['url'], sot.url)
         self.assertEqual(EXAMPLE['metadata'], sot.metadata)
+        self.assertEqual(EXAMPLE['architecture'], sot.architecture)
+        self.assertEqual(EXAMPLE['hypervisor-type'], sot.hypervisor_type)
+        self.assertEqual(EXAMPLE['instance_type_rxtx_factor'],
+                         sot.instance_type_rxtx_factor)
+        self.assertEqual(EXAMPLE['instance_uuid'], sot.instance_uuid)
+        self.assertEqual(EXAMPLE['img_config_drive'], sot.needs_config_drive)
+        self.assertEqual(EXAMPLE['kernel_id'], sot.kernel_id)
+        self.assertEqual(EXAMPLE['os_distro'], sot.os_distro)
+        self.assertEqual(EXAMPLE['os_version'], sot.os_version)
+        self.assertEqual(EXAMPLE['os_secure_boot'], sot.needs_secure_boot)
+        self.assertEqual(EXAMPLE['ramdisk_id'], sot.ramdisk_id)
+        self.assertEqual(EXAMPLE['vm_mode'], sot.vm_mode)
+        self.assertEqual(EXAMPLE['hw_cpu_sockets'], sot.hw_cpu_sockets)
+        self.assertEqual(EXAMPLE['hw_cpu_cores'], sot.hw_cpu_cores)
+        self.assertEqual(EXAMPLE['hw_cpu_threads'], sot.hw_cpu_threads)
+        self.assertEqual(EXAMPLE['hw_disk_bus'], sot.hw_disk_bus)
+        self.assertEqual(EXAMPLE['hw_rng_model'], sot.hw_rng_model)
+        self.assertEqual(EXAMPLE['hw_machine_type'], sot.hw_machine_type)
+        self.assertEqual(EXAMPLE['hw_scsi_model'], sot.hw_scsi_model)
+        self.assertEqual(EXAMPLE['hw_serial_port_count'],
+                         sot.hw_serial_port_count)
+        self.assertEqual(EXAMPLE['hw_video_model'], sot.hw_video_model)
+        self.assertEqual(EXAMPLE['hw_video_ram'], sot.hw_video_ram)
+        self.assertEqual(EXAMPLE['hw_watchdog_action'], sot.hw_watchdog_action)
+        self.assertEqual(EXAMPLE['os_command_line'], sot.os_command_line)
+        self.assertEqual(EXAMPLE['hw_vif_model'], sot.hw_vif_model)
+        self.assertEqual(EXAMPLE['hw_vif_multiqueue_enabled'],
+                         sot.is_hw_vif_multiqueue_enabled)
+        self.assertEqual(EXAMPLE['hw_boot_menu'], sot.is_hw_boot_menu_enabled)
+        self.assertEqual(EXAMPLE['vmware_adaptertype'], sot.vmware_adaptertype)
+        self.assertEqual(EXAMPLE['vmware_ostype'], sot.vmware_ostype)
+        self.assertEqual(EXAMPLE['auto_disk_config'], sot.has_auto_disk_config)
+        self.assertEqual(EXAMPLE['os_type'], sot.os_type)
 
     def test_deactivate(self):
         sot = image.Image(**EXAMPLE)
