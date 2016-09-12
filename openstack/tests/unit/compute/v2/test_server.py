@@ -82,6 +82,7 @@ class TestServer(testtools.TestCase):
                               "name": "name",
                               "status": "status",
                               "host": "host",
+                              "all_tenants": "all_tenants",
                               "changes_since": "changes-since"},
                              sot._query_mapping._mapping)
 

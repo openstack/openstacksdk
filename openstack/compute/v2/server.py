@@ -30,7 +30,7 @@ class Server(resource2.Resource, metadata.MetadataMixin):
     allow_list = True
 
     _query_mapping = resource2.QueryParameters("image", "flavor", "name",
-                                               "status", "host",
+                                               "status", "host", "all_tenants",
                                                changes_since="changes-since")
 
     #: A list of dictionaries holding links relevant to this server.
