@@ -204,13 +204,17 @@ class Connection(object):
             authentication arguments that are used by the authentication
             plugin.
         """
-        self.authenticator = self._create_authenticator(authenticator,
-                                                        auth_plugin,
-                                                        **auth_args)
         self.profile = profile if profile else _profile.Profile()
-        self.session = session if session else _session.Session(
-            self.profile, auth=self.authenticator, verify=verify, cert=cert,
-            user_agent=user_agent)
+        if session:
+            self.session = session
+        else:
+            self.authenticator = self._create_authenticator(authenticator,
+                                                            auth_plugin,
+                                                            **auth_args)
+            self.session = _session.Session(
+                self.profile, auth=self.authenticator, verify=verify,
+                cert=cert, user_agent=user_agent)
+
         self._open()
 
     def _create_authenticator(self, authenticator, auth_plugin, **args):
