@@ -89,10 +89,10 @@ class TestNode(testtools.TestCase):
         sot = node.Node(**FAKE)
 
         resp = mock.Mock()
-        resp.json = {'action': '1234-5678-abcd'}
+        resp.json = mock.Mock(return_value='')
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
-        self.assertEqual(resp.json, sot.check(sess))
+        self.assertEqual('', sot.check(sess))
         url = 'nodes/%s/actions' % sot.id
         body = {'check': {}}
         sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
@@ -102,10 +102,10 @@ class TestNode(testtools.TestCase):
         sot = node.Node(**FAKE)
 
         resp = mock.Mock()
-        resp.json = {'action': '2345-6789-bbbb'}
+        resp.json = mock.Mock(return_value='')
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
-        self.assertEqual(resp.json, sot.recover(sess))
+        self.assertEqual('', sot.recover(sess))
         url = 'nodes/%s/actions' % sot.id
         body = {'recover': {}}
         sess.post.assert_called_once_with(url, endpoint_filter=sot.service,

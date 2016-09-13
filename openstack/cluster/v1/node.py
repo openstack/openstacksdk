@@ -84,7 +84,7 @@ class Node(resource.Resource):
         """
         url = utils.urljoin(self.base_path, self.id, 'actions')
         resp = session.post(url, endpoint_filter=self.service, json=body)
-        return resp.json
+        return resp.json()
 
     def check(self, session, **params):
         """An action procedure for the node to check its health status.
