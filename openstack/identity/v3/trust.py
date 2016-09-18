@@ -27,6 +27,9 @@ class Trust(resource.Resource):
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'trustor_user_id', 'trustee_user_id')
+
     # Properties
     #: A boolean indicating whether the trust can be issued by the trustee as
     #: a regulart trust. Default is ``False``.
