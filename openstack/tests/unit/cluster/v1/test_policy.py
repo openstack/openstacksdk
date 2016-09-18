@@ -31,6 +31,7 @@ FAKE = {
             'destroy_after_deletion': True,
         }
     },
+    'project': '42d9e9663331431f97b75e25136307ff',
     'type': 'senlin.policy.deletion-1.0',
     'created_at': '2015-10-10T12:46:36.000000',
     'updated_at': '2016-10-10T12:46:36.000000',
@@ -60,6 +61,7 @@ class TestPolicy(testtools.TestCase):
         self.assertEqual(FAKE['id'], sot.id)
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['spec'], sot.spec)
+        self.assertEqual(FAKE['project'], sot.project_id)
         self.assertEqual(FAKE['data'], sot.data)
         self.assertEqual(FAKE['created_at'], sot.created_at)
         self.assertEqual(FAKE['updated_at'], sot.updated_at)

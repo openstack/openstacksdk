@@ -37,6 +37,8 @@ class Profile(resource.Resource):
     name = resource.Body('name')
     #: The type of the profile.
     type = resource.Body('type')
+    #: The ID of the project this profile belongs to.
+    project_id = resource.Body('project')
     #: The spec of the profile.
     spec = resource.Body('spec', type=dict)
     #: A collection of key-value pairs that are attached to the profile.

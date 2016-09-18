@@ -37,6 +37,8 @@ class Policy(resource.Resource):
     name = resource.Body('name')
     #: The type name of the policy.
     type = resource.Body('type')
+    #: The ID of the project this policy belongs to.
+    project_id = resource.Body('project')
     #: The timestamp when the policy is created.
     created_at = resource.Body('created_at')
     #: The timestamp when the policy was last updated.
