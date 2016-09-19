@@ -31,7 +31,7 @@ class Event(resource.Resource):
 
     # Properties
     #: Timestamp string (in ISO8601 format) when the event was generated.
-    generated_at = resource.Body('timestamp')
+    timestamp = resource.Body('timestamp')
     #: The UUID of the object related to this event.
     obj_id = resource.Body('oid')
     #: The name of the object related to this event.

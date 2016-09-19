@@ -57,5 +57,5 @@ class TestEvent(testtools.TestCase):
         self.assertEqual(FAKE['project'], sot.project_id)
         self.assertEqual(FAKE['status'], sot.status)
         self.assertEqual(FAKE['status_reason'], sot.status_reason)
-        self.assertEqual(FAKE['timestamp'], sot.generated_at)
+        self.assertEqual(FAKE['timestamp'], sot.timestamp)
         self.assertEqual(FAKE['user'], sot.user_id)
