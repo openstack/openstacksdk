@@ -78,6 +78,8 @@ class Network(resource.Resource):
     #: An isolated segment ID on the physical network. The provider
     #: network type defines the segmentation model.
     provider_segmentation_id = resource.prop('provider:segmentation_id')
+    #: The ID of the QoS policy attached to the port.
+    qos_policy_id = resource.prop('qos_policy_id')
     #: Revision number of the network. *Type: int*
     revision_number = resource.prop('revision_number', type=int)
     segments = resource.prop('segments')

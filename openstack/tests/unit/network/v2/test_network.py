@@ -35,6 +35,7 @@ EXAMPLE = {
     'ipv4_address_scope': '17',
     'ipv6_address_scope': '18',
     'description': '19',
+    'qos_policy_id': '20',
     'created_at': '2016-03-09T12:14:57.233772',
     'updated_at': '2016-07-09T12:14:57.233772',
     'is_default': False,
@@ -85,6 +86,7 @@ class TestNetwork(testtools.TestCase):
         self.assertEqual(EXAMPLE['ipv6_address_scope'],
                          sot.ipv6_address_scope_id)
         self.assertEqual(EXAMPLE['description'], sot.description)
+        self.assertEqual(EXAMPLE['qos_policy_id'], sot.qos_policy_id)
         self.assertEqual(EXAMPLE['created_at'], sot.created_at)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
         self.assertFalse(sot.is_default)
