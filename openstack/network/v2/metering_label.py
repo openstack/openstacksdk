@@ -34,3 +34,6 @@ class MeteringLabel(resource.Resource):
     name = resource.prop('name')
     #: The ID of the project this metering label is associated with.
     project_id = resource.prop('tenant_id')
+    #: Indicates whether this label is shared across all tenants.
+    #: *Type: bool*
+    is_shared = resource.prop('shared', type=bool)
