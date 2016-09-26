@@ -641,7 +641,7 @@ class OpenStackConfig(object):
         # completely broken
         return cloud
 
-    def register_argparse_arguments(self, parser, argv, service_keys=[]):
+    def register_argparse_arguments(self, parser, argv, service_keys=None):
         """Register all of the common argparse options needed.
 
         Given an argparse parser, register the keystoneauth Session arguments,
@@ -659,6 +659,9 @@ class OpenStackConfig(object):
         :raises exceptions.OpenStackConfigException if an invalid auth-type
                                                     is requested
         """
+
+        if service_keys is None:
+            service_keys = []
 
         # Fix argv in place - mapping any keys with embedded _ in them to -
         _fix_argv(argv)
