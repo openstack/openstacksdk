@@ -17,7 +17,7 @@ from openstack import resource
 class MeteringLabelRule(resource.Resource):
     resource_key = 'metering_label_rule'
     resources_key = 'metering_label_rules'
-    base_path = '/metering-label-rules'
+    base_path = '/metering/metering-label-rules'
     service = network_service.NetworkService()
 
     # capabilities
