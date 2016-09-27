@@ -1623,7 +1623,7 @@ class OpenStackCloud(object):
             # While that's cute and all, that's an implementation detail.
             if not filter_deleted:
                 images.append(image)
-            elif image.status != 'DELETED':
+            elif image.status.lower() != 'deleted':
                 images.append(image)
         return _utils.normalize_images(images, cloud=self)
 
