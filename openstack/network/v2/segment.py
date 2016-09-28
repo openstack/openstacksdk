@@ -15,7 +15,6 @@ from openstack import resource
 
 
 class Segment(resource.Resource):
-    """.. caution:: This API is a work in progress and is subject to change."""
     resource_key = 'segment'
     resources_key = 'segments'
     base_path = '/segments'

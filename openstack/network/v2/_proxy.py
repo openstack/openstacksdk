@@ -2102,9 +2102,6 @@ class Proxy(proxy.BaseProxy):
     def create_segment(self, **attrs):
         """Create a new segment from attributes
 
-        .. caution::
-           BETA: This API is a work in progress and is subject to change.
-
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.network.v2.segment.Segment`,
                            comprised of the properties on the Segment class.
@@ -2116,9 +2113,6 @@ class Proxy(proxy.BaseProxy):
 
     def delete_segment(self, segment, ignore_missing=True):
         """Delete a segment
-
-        .. caution::
-           BETA: This API is a work in progress and is subject to change.
 
         :param segment: The value can be either the ID of a segment or a
                         :class:`~openstack.network.v2.segment.Segment`
@@ -2136,9 +2130,6 @@ class Proxy(proxy.BaseProxy):
     def find_segment(self, name_or_id, ignore_missing=True):
         """Find a single segment
 
-        .. caution::
-           BETA: This API is a work in progress and is subject to change.
-
         :param name_or_id: The name or ID of a segment.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
@@ -2153,9 +2144,6 @@ class Proxy(proxy.BaseProxy):
     def get_segment(self, segment):
         """Get a single segment
 
-        .. caution::
-           BETA: This API is a work in progress and is subject to change.
-
         :param segment: The value can be the ID of a segment or a
                         :class:`~openstack.network.v2.segment.Segment`
                         instance.
@@ -2168,9 +2156,6 @@ class Proxy(proxy.BaseProxy):
 
     def segments(self, **query):
         """Return a generator of segments
-
-        .. caution::
-           BETA: This API is a work in progress and is subject to change.
 
         :param kwargs \*\*query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
@@ -2188,9 +2173,6 @@ class Proxy(proxy.BaseProxy):
 
     def update_segment(self, segment, **attrs):
         """Update a segment
-
-        .. caution::
-           BETA: This API is a work in progress and is subject to change.
 
         :param segment: Either the id of a segment or a
                         :class:`~openstack.network.v2.segment.Segment`
