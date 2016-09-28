@@ -31,7 +31,8 @@ class Node(resource.Resource):
     patch_update = True
 
     _query_mapping = resource.QueryParameters(
-        'show_details', 'name', 'sort', 'global_project', 'cluster_id')
+        'show_details', 'name', 'sort', 'global_project', 'cluster_id',
+        'status')
 
     # Properties
     #: The name of the node.
