@@ -290,7 +290,10 @@ class Resource(object):
             if name in self._body:
                 return self._body[name]
             else:
-                return self._body[self._alternate_id()]
+                try:
+                    return self._body[self._alternate_id()]
+                except KeyError:
+                    return None
         else:
             return object.__getattribute__(self, name)
 
