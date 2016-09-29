@@ -403,10 +403,7 @@ class Resource(object):
         be a string already representing an ID, it is returned.
         """
         if isinstance(value, Resource):
-            # Don't check _alternate_id unless we need to. It's an uncommon
-            # case and it involves looping through the class' dict.
-            id = value.id or getattr(value, value._alternate_id(), None)
-            return id
+            return value.id
         else:
             return value
 
