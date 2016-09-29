@@ -40,6 +40,7 @@ from openstack.network.v2 import router as _router
 from openstack.network.v2 import security_group as _security_group
 from openstack.network.v2 import security_group_rule as _security_group_rule
 from openstack.network.v2 import segment as _segment
+from openstack.network.v2 import service_profile as _service_profile
 from openstack.network.v2 import service_provider as _service_provider
 from openstack.network.v2 import subnet as _subnet
 from openstack.network.v2 import subnet_pool as _subnet_pool
@@ -2306,6 +2307,95 @@ class Proxy(proxy.BaseProxy):
 
         return self._list(_service_provider.ServiceProvider,
                           paginated=False, **query)
+
+    def create_service_profile(self, **attrs):
+        """Create a new network service flavor profile from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                       a :class:`~openstack.network.v2.service_profile
+                       .ServiceProfile`,
+                       comprised of the properties on the ServiceProfile
+                       class.
+
+        :returns: The results of service profile creation
+        :rtype: :class:`~openstack.network.v2.service_profile.ServiceProfile`
+        """
+        return self._create(_service_profile.ServiceProfile, **attrs)
+
+    def delete_service_profile(self, service_profile, ignore_missing=True):
+        """Delete a network service flavor profile
+
+        :param service_profile: The value can be either the ID of a service
+                       profile or a
+                       :class:`~openstack.network.v2.service_profile
+                       .ServiceProfile` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the service profile does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent service profile.
+
+        :returns: ``None``
+        """
+        self._delete(_service_profile.ServiceProfile, service_profile,
+                     ignore_missing=ignore_missing)
+
+    def find_service_profile(self, name_or_id, ignore_missing=True):
+        """Find a single network service flavor profile
+
+        :param name_or_id: The name or ID of a service profile.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :returns: One :class:`~openstack.network.v2.service_profile
+                      .ServiceProfile` or None
+        """
+        return self._find(_service_profile.ServiceProfile, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def get_service_profile(self, service_profile):
+        """Get a single network service flavor profile
+
+        :param service_profile: The value can be the ID of a service_profile or
+                                a
+                       :class:`~openstack.network.v2.service_profile
+                       .ServiceProfile` instance.
+
+        :returns: One :class:`~openstack.network.v2.service_profile
+                      .ServiceProfile`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_service_profile.ServiceProfile, service_profile)
+
+    def service_profiles(self, **query):
+        """Return a generator of network service flavor profiles
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
+
+        :returns: A generator of service profile objects
+        :rtype: :class:`~openstack.network.v2.service_profile.ServiceProfile`
+        """
+        return self._list(_service_profile.ServiceProfile, paginated=True,
+                          **query)
+
+    def update_service_profile(self, service_profile, **attrs):
+        """Update a network flavor service profile
+
+        :param service_profile: Either the id of a service profile or a
+                       :class:`~openstack.network.v2.service_profile
+                       .ServiceProfile` instance.
+        :attrs kwargs: The attributes to update on the service profile
+                       represented by ``value``.
+
+        :returns: The updated service profile
+        :rtype: :class:`~openstack.network.v2.service_profile.ServiceProfile`
+        """
+        return self._update(_service_profile.ServiceProfile, service_profile,
+                            **attrs)
 
     def create_subnet(self, **attrs):
         """Create a new subnet from attributes

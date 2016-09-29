@@ -41,6 +41,7 @@ from openstack.network.v2 import router
 from openstack.network.v2 import security_group
 from openstack.network.v2 import security_group_rule
 from openstack.network.v2 import segment
+from openstack.network.v2 import service_profile
 from openstack.network.v2 import service_provider
 from openstack.network.v2 import subnet
 from openstack.network.v2 import subnet_pool
@@ -317,6 +318,30 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_flavors(self):
         self.verify_list(self.proxy.flavors, flavor.Flavor,
                          paginated=True)
+
+    def test_service_profile_create_attrs(self):
+        self.verify_create(self.proxy.create_service_profile,
+                           service_profile.ServiceProfile)
+
+    def test_service_profile_delete(self):
+        self.verify_delete(self.proxy.delete_service_profile,
+                           service_profile.ServiceProfile, True)
+
+    def test_service_profile_find(self):
+        self.verify_find(self.proxy.find_service_profile,
+                         service_profile.ServiceProfile)
+
+    def test_service_profile_get(self):
+        self.verify_get(self.proxy.get_service_profile,
+                        service_profile.ServiceProfile)
+
+    def test_service_profiles(self):
+        self.verify_list(self.proxy.service_profiles,
+                         service_profile.ServiceProfile, paginated=True)
+
+    def test_service_profile_update(self):
+        self.verify_update(self.proxy.update_service_profile,
+                           service_profile.ServiceProfile)
 
     def test_network_ip_availability_find(self):
         self.verify_find(self.proxy.find_network_ip_availability,
