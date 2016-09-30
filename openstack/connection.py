@@ -63,6 +63,7 @@ import sys
 from keystoneauth1.loading import base as ksa_loader
 import os_client_config
 
+from openstack import exceptions
 from openstack import profile as _profile
 from openstack import proxy
 from openstack import proxy2
@@ -207,6 +208,20 @@ class Connection(object):
         """
         self.profile = profile if profile else _profile.Profile()
         if session:
+            # Make sure it is the right kind of session. A keystoneauth1
+            # session would work in some ways but show strange errors in
+            # others. E.g. a Resource.find would work with an id but fail when
+            # given a name because it attempts to catch
+            # openstack.exceptions.NotFoundException to signal that a search by
+            # ID failed before trying a search by name, but with a
+            # keystoneauth1 session the lookup by ID raises
+            # keystoneauth1.exceptions.NotFound instead. We need to ensure our
+            # Session class gets used so that our implementation of various
+            # methods always works as we expect.
+            if not isinstance(session, _session.Session):
+                raise exceptions.SDKException(
+                    'Session instance is from %s but must be from %s' %
+                    (session.__module__, _session.__name__))
             self.session = session
         else:
             self.authenticator = self._create_authenticator(authenticator,

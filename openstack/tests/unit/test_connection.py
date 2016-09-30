@@ -13,11 +13,14 @@
 import os
 
 import fixtures
+from keystoneauth1 import session as ksa_session
 import mock
 import os_client_config
 
 from openstack import connection
+from openstack import exceptions
 from openstack import profile
+from openstack import session
 from openstack.tests.unit import base
 
 
@@ -70,13 +73,21 @@ class TestConnection(base.TestCase):
         self.assertEqual(mock_session_init, conn.session)
 
     def test_session_provided(self):
-        mock_session = mock.Mock()
+        mock_session = mock.Mock(spec=session.Session)
         mock_profile = mock.Mock()
         mock_profile.get_services = mock.Mock(return_value=[])
         conn = connection.Connection(session=mock_session,
                                      profile=mock_profile,
                                      user_agent='1')
         self.assertEqual(mock_session, conn.session)
+
+    def test_ksa_session_provided(self):
+        mock_session = mock.Mock(spec=ksa_session.Session)
+        mock_profile = mock.Mock()
+        mock_profile.get_services = mock.Mock(return_value=[])
+        self.assertRaises(exceptions.SDKException, connection.Connection,
+                          session=mock_session, profile=mock_profile,
+                          user_agent='1')
 
     @mock.patch("keystoneauth1.loading.base.get_plugin_loader")
     def test_create_authenticator(self, mock_get_plugin):
@@ -209,7 +220,7 @@ class TestConnection(base.TestCase):
         self.assertEqual(CONFIG_CACERT, sot.session.verify)
 
     def test_authorize_works(self):
-        fake_session = mock.Mock()
+        fake_session = mock.Mock(spec=session.Session)
         fake_headers = {'X-Auth-Token': 'FAKE_TOKEN'}
         fake_session.get_auth_headers.return_value = fake_headers
 
@@ -219,8 +230,9 @@ class TestConnection(base.TestCase):
         self.assertEqual('FAKE_TOKEN', res)
 
     def test_authorize_silent_failure(self):
-        fake_session = mock.Mock()
+        fake_session = mock.Mock(spec=session.Session)
         fake_session.get_auth_headers.return_value = None
+        fake_session.__module__ = 'openstack.session'
 
         sot = connection.Connection(session=fake_session,
                                     authenticator=mock.Mock())
