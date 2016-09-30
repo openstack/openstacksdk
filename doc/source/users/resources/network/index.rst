@@ -8,6 +8,7 @@ Network Resources
    v2/agent
    v2/availability_zone
    v2/extension
+   v2/flavor
    v2/floating_ip
    v2/health_monitor
    v2/listener

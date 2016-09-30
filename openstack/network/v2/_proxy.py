@@ -14,6 +14,7 @@ from openstack.network.v2 import address_scope as _address_scope
 from openstack.network.v2 import agent as _agent
 from openstack.network.v2 import availability_zone
 from openstack.network.v2 import extension
+from openstack.network.v2 import flavor as _flavor
 from openstack.network.v2 import floating_ip as _floating_ip
 from openstack.network.v2 import health_monitor as _health_monitor
 from openstack.network.v2 import listener as _listener
@@ -821,6 +822,86 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.network.Network`
         """
         return self._update(_network.Network, network, **attrs)
+
+    def create_flavor(self, **attrs):
+        """Create a new network service flavor from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.network.v2.flavor.Flavor`,
+                           comprised of the properties on the Flavor class.
+
+        :returns: The results of flavor creation
+        :rtype: :class:`~openstack.network.v2.flavor.Flavor`
+        """
+        return self._create(_flavor.Flavor, **attrs)
+
+    def delete_flavor(self, flavor, ignore_missing=True):
+        """Delete a network service flavor
+
+        :param flavor:
+            The value can be either the ID of a flavor or a
+            :class:`~openstack.network.v2.flavor.Flavor` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the flavor does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent flavor.
+
+        :returns: ``None``
+        """
+        self._delete(_flavor.Flavor, flavor, ignore_missing=ignore_missing)
+
+    def find_flavor(self, name_or_id, ignore_missing=True):
+        """Find a single network service flavor
+
+        :param name_or_id: The name or ID of a flavor.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :returns: One :class:`~openstack.network.v2.flavor.Flavor` or None
+        """
+        return self._find(_flavor.Flavor, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def get_flavor(self, flavor):
+        """Get a single network service flavor
+
+        :param flavor:
+            The value can be the ID of a flavor or a
+            :class:`~openstack.network.v2.flavor.Flavor` instance.
+
+        :returns: One :class:`~openstack.network.v2.flavor.Flavor`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_flavor.Flavor, flavor)
+
+    def update_flavor(self, flavor, **attrs):
+        """Update a network service flavor
+
+        :param flavor:
+            Either the id of a flavor or a
+            :class:`~openstack.network.v2.flavor.Flavor` instance.
+        :attrs kwargs: The attributes to update on the flavor represented
+                       by ``value``.
+
+        :returns: The updated flavor
+        :rtype: :class:`~openstack.network.v2.flavor.Flavor`
+        """
+        return self._update(_flavor.Flavor, flavor, **attrs)
+
+    def flavors(self, **query):
+        """Return a generator of network service flavors
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
+
+        :returns: A generator of flavor objects
+        :rtype: :class:`~openstack.network.v2.flavor.Flavor`
+        """
+        return self._list(_flavor.Flavor, paginated=True, **query)
 
     def find_network_ip_availability(self, name_or_id, ignore_missing=True):
         """Find IP availability of a network

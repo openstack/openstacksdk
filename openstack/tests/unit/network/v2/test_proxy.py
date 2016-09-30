@@ -18,6 +18,7 @@ from openstack.network.v2 import address_scope
 from openstack.network.v2 import agent
 from openstack.network.v2 import availability_zone
 from openstack.network.v2 import extension
+from openstack.network.v2 import flavor
 from openstack.network.v2 import floating_ip
 from openstack.network.v2 import health_monitor
 from openstack.network.v2 import listener
@@ -296,6 +297,25 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_network_update(self):
         self.verify_update(self.proxy.update_network, network.Network)
+
+    def test_flavor_create_attrs(self):
+        self.verify_create(self.proxy.create_flavor, flavor.Flavor)
+
+    def test_flavor_delete(self):
+        self.verify_delete(self.proxy.delete_flavor, flavor.Flavor, True)
+
+    def test_flavor_find(self):
+        self.verify_find(self.proxy.find_flavor, flavor.Flavor)
+
+    def test_flavor_get(self):
+        self.verify_get(self.proxy.get_flavor, flavor.Flavor)
+
+    def test_flavor_update(self):
+        self.verify_update(self.proxy.update_flavor, flavor.Flavor)
+
+    def test_flavors(self):
+        self.verify_list(self.proxy.flavors, flavor.Flavor,
+                         paginated=True)
 
     def test_network_ip_availability_find(self):
         self.verify_find(self.proxy.find_network_ip_availability,
