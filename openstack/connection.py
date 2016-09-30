@@ -86,10 +86,11 @@ def from_config(cloud_name=None, cloud_config=None, options=None):
                          determining which cloud's configuration details
                          will be used in creation of the
                          `Connection` instance.
-    :param options: An argparse Namespace object; allows direct passing
-                    in of argparse options to be added to the cloud config.
-                    This value is passed to the `argparse` argument of
-                    `os_client_config.config.OpenStackConfig.get_one_cloud`.
+    :param options: A namespace object; allows direct passing in of options to
+                    be added to the cloud config. This does not have to be an
+                    instance of argparse.Namespace, despite the naming of the
+                    the `os_client_config.config.OpenStackConfig.get_one_cloud`
+                    argument to which it is passed.
 
     :rtype: :class:`~openstack.connection.Connection`
     """

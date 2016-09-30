@@ -32,12 +32,13 @@ locations:
 * /etc/openstack
 
 call :py:func:`~openstack.connection.from_config`. The ``from_config``
-function takes three optional arguments, such as **cloud_name**,
-which allows you to specify one set of cloud credentials in your
-``clouds.yaml`` file. Additionally, **cloud_config** and **options**
-allow you to pass in configiration data you may have already received
-from ``os-client-config``, as well as additional options that the
-``os-client-config`` library may need.
+function takes three optional arguments:
+
+* **cloud_name** allows you to specify a cloud from your ``clouds.yaml`` file.
+* **cloud_config** allows you to pass in an existing
+``os_client_config.config.OpenStackConfig``` object.
+* **options** allows you to specify a namespace object with options to be
+added to the cloud config.
 
 .. literalinclude:: ../examples/connect.py
    :pyobject: Opts
@@ -45,7 +46,10 @@ from ``os-client-config``, as well as additional options that the
 .. literalinclude:: ../examples/connect.py
    :pyobject: create_connection_from_config
 
-.. note:: To enable logging, set ``debug=True`` in the ``Opts`` object.
+.. literalinclude:: ../examples/connect.py
+   :pyobject: create_connection_from_args
+
+.. note:: To enable logging, set ``debug=True`` in the ``options`` object.
 
 User Defined Location
 *********************
