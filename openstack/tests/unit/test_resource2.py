@@ -569,6 +569,31 @@ class TestResource(base.TestCase):
         self.assertIn("y", Test._uri_mapping())
         self.assertIn("z", Test._uri_mapping())
 
+    def test__getattribute__id_in_body(self):
+        id = "lol"
+        sot = resource2.Resource(id=id)
+
+        result = getattr(sot, "id")
+        self.assertEqual(result, id)
+
+    def test__getattribute__id_with_alternate(self):
+        id = "lol"
+
+        class Test(resource2.Resource):
+            blah = resource2.Body("blah", alternate_id=True)
+
+        sot = Test(blah=id)
+
+        result = getattr(sot, "id")
+        self.assertEqual(result, id)
+
+    def test__getattribute__id_without_alternate(self):
+        class Test(resource2.Resource):
+            id = None
+
+        sot = Test()
+        self.assertIsNone(sot.id)
+
     def test__alternate_id_None(self):
         self.assertEqual("", resource2.Resource._alternate_id())
 
