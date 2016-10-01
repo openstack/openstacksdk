@@ -26,7 +26,7 @@ __version__ = pbr.version.VersionInfo('os_client_config').version_string()
 def get_config(service_key=None, options=None, **kwargs):
     config = OpenStackConfig()
     if options:
-        config.register_argparse_options(options, sys.argv, service_key)
+        config.register_argparse_arguments(options, sys.argv, service_key)
         parsed_options = options.parse_known_args(sys.argv)
     else:
         parsed_options = None
