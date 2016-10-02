@@ -193,8 +193,10 @@ class TestFloatingIP(base.TestCase):
 
     @patch.object(OpenStackCloud, 'nova_client')
     @patch.object(OpenStackCloud, 'get_floating_ip')
+    @patch.object(OpenStackCloud, '_use_neutron_floating')
     def test_delete_floating_ip_not_found(
-            self, mock_get_floating_ip, mock_nova_client):
+            self, mock_use_floating, mock_get_floating_ip, mock_nova_client):
+        mock_use_floating.return_value = False
         mock_get_floating_ip.return_value = None
         mock_nova_client.floating_ips.delete.side_effect = n_exc.NotFound(
             code=404)

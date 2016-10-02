@@ -877,6 +877,26 @@ class TestMeta(base.TestCase):
             cloud_name='', region_name='')
         self.assertEqual('az1', hostvars['az'])
 
+    def test_current_location(self):
+        self.assertEqual({
+            'cloud': '_test_cloud_',
+            'project': {
+                'id': mock.ANY,
+                'name': 'admin',
+                'domain_id': None,
+                'domain_name': None
+            },
+            'region_name': u'RegionOne'},
+            self.cloud.current_location)
+
+    def test_current_project(self):
+        self.assertEqual({
+            'id': mock.ANY,
+            'name': 'admin',
+            'domain_id': None,
+            'domain_name': None},
+            self.cloud.current_project)
+
     def test_has_volume(self):
         mock_cloud = mock.MagicMock()
 

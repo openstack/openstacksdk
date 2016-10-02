@@ -22,7 +22,7 @@ from shade.tests import fakes
 from shade.tests.unit import base
 
 
-class TestFlavors(base.TestCase):
+class TestFlavors(base.BaseTestCase):
 
     def test_create_flavor(self):
         self.useFixture(keystoneauth_betamax.BetamaxFixture(

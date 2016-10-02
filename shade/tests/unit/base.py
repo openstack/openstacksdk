@@ -18,6 +18,7 @@
 import time
 
 import fixtures
+import mock
 import os
 import os_client_config as occ
 import tempfile
@@ -26,12 +27,12 @@ import shade.openstackcloud
 from shade.tests import base
 
 
-class TestCase(base.TestCase):
+class BaseTestCase(base.TestCase):
 
     def setUp(self, cloud_config_fixture='clouds.yaml'):
         """Run before each test method to initialize test environment."""
 
-        super(TestCase, self).setUp()
+        super(BaseTestCase, self).setUp()
 
         # Sleeps are for real testing, but unit tests shouldn't need them
         realsleep = time.sleep
@@ -88,3 +89,13 @@ class TestCase(base.TestCase):
         self.full_op_cloud = shade.OperatorCloud(
             cloud_config=self.full_cloud_config,
             log_inner_exceptions=True)
+
+
+class TestCase(BaseTestCase):
+
+    def setUp(self, cloud_config_fixture='clouds.yaml'):
+
+        super(TestCase, self).setUp(cloud_config_fixture=cloud_config_fixture)
+        self.session_fixture = self.useFixture(fixtures.MonkeyPatch(
+            'os_client_config.cloud_config.CloudConfig.get_session',
+            mock.Mock()))
