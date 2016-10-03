@@ -21,7 +21,6 @@ Tests for the `create_server` command.
 
 from mock import patch, Mock
 import mock
-from shade import _utils
 from shade import meta
 from shade import OpenStackCloud
 from shade.exc import (OpenStackCloudException, OpenStackCloudTimeout)
@@ -139,10 +138,8 @@ class TestCreateServer(base.TestCase):
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertEqual(
-                _utils.normalize_server(
-                    meta.obj_to_dict(fake_server),
-                    cloud_name=self.cloud.name,
-                    region_name=self.cloud.region_name),
+                self.cloud._normalize_server(
+                    meta.obj_to_dict(fake_server)),
                 self.cloud.create_server(
                     name='server-name',
                     image=dict(id='image=id'),
@@ -166,10 +163,8 @@ class TestCreateServer(base.TestCase):
             }
             OpenStackCloud.nova_client = Mock(**config)
             self.assertEqual(
-                _utils.normalize_server(
-                    meta.obj_to_dict(fake_create_server),
-                    cloud_name=self.cloud.name,
-                    region_name=self.cloud.region_name),
+                self.cloud._normalize_server(
+                    meta.obj_to_dict(fake_create_server)),
                 self.cloud.create_server(
                     name='server-name', image=dict(id='image=id'),
                     flavor=dict(id='flavor-id'), admin_pass='ooBootheiX0edoh'))
@@ -187,8 +182,8 @@ class TestCreateServer(base.TestCase):
         mock_nova.servers.create.return_value = fake_server
         mock_nova.servers.get.return_value = fake_server
         # The wait returns non-password server
-        mock_wait.return_value = _utils.normalize_server(
-            meta.obj_to_dict(fake_server), None, None)
+        mock_wait.return_value = self.cloud._normalize_server(
+            meta.obj_to_dict(fake_server))
 
         server = self.cloud.create_server(
             name='server-name', image=dict(id='image-id'),
@@ -201,8 +196,8 @@ class TestCreateServer(base.TestCase):
         # Even with the wait, we should still get back a passworded server
         self.assertEqual(
             server,
-            _utils.normalize_server(meta.obj_to_dict(fake_server_with_pass),
-                                    None, None)
+            self.cloud._normalize_server(
+                meta.obj_to_dict(fake_server_with_pass))
         )
 
     @patch.object(OpenStackCloud, "get_active_server")

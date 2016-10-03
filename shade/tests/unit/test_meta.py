@@ -18,7 +18,6 @@ import warlock
 from neutronclient.common import exceptions as neutron_exceptions
 
 import shade
-from shade import _utils
 from shade import meta
 from shade.tests import fakes
 from shade.tests.unit import base
@@ -811,17 +810,15 @@ class TestMeta(base.TestCase):
         mock_get_server_external_ipv6.return_value = PUBLIC_V6
 
         hostvars = meta.get_hostvars_from_server(
-            FakeCloud(), _utils.normalize_server(
-                meta.obj_to_dict(standard_fake_server),
-                cloud_name='CLOUD_NAME',
-                region_name='REGION_NAME'))
+            FakeCloud(), self.cloud._normalize_server(
+                meta.obj_to_dict(standard_fake_server)))
         self.assertNotIn('links', hostvars)
         self.assertEqual(PRIVATE_V4, hostvars['private_v4'])
         self.assertEqual(PUBLIC_V4, hostvars['public_v4'])
         self.assertEqual(PUBLIC_V6, hostvars['public_v6'])
         self.assertEqual(PUBLIC_V6, hostvars['interface_ip'])
-        self.assertEqual('REGION_NAME', hostvars['region'])
-        self.assertEqual('CLOUD_NAME', hostvars['cloud'])
+        self.assertEqual('RegionOne', hostvars['region'])
+        self.assertEqual('_test_cloud_', hostvars['cloud'])
         self.assertEqual("test-image-name", hostvars['image']['name'])
         self.assertEqual(
             standard_fake_server.image['id'], hostvars['image']['id'])
@@ -872,9 +869,7 @@ class TestMeta(base.TestCase):
         server = standard_fake_server
         server.__dict__['OS-EXT-AZ:availability_zone'] = 'az1'
 
-        hostvars = _utils.normalize_server(
-            meta.obj_to_dict(server),
-            cloud_name='', region_name='')
+        hostvars = self.cloud._normalize_server(meta.obj_to_dict(server))
         self.assertEqual('az1', hostvars['az'])
 
     def test_current_location(self):
