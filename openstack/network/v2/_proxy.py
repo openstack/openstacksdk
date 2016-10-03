@@ -40,6 +40,7 @@ from openstack.network.v2 import router as _router
 from openstack.network.v2 import security_group as _security_group
 from openstack.network.v2 import security_group_rule as _security_group_rule
 from openstack.network.v2 import segment as _segment
+from openstack.network.v2 import service_provider as _service_provider
 from openstack.network.v2 import subnet as _subnet
 from openstack.network.v2 import subnet_pool as _subnet_pool
 from openstack.network.v2 import vpn_service as _vpn_service
@@ -2265,6 +2266,19 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.segment.Segment`
         """
         return self._update(_segment.Segment, segment, **attrs)
+
+    def service_providers(self, **query):
+        """Return a generator of service providers
+
+        :param kwargs \*\* query: Optional query parameters to be sent to limit
+                                  the resources being returned.
+
+        :returns: A generator of service provider objects
+        :rtype: :class:`~openstack.network.v2.service_provider.ServiceProvider`
+        """
+
+        return self._list(_service_provider.ServiceProvider,
+                          paginated=False, **query)
 
     def create_subnet(self, **attrs):
         """Create a new subnet from attributes
