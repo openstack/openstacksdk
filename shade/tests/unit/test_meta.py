@@ -819,6 +819,10 @@ class TestMeta(base.TestCase):
         self.assertEqual(PUBLIC_V6, hostvars['interface_ip'])
         self.assertEqual('RegionOne', hostvars['region'])
         self.assertEqual('_test_cloud_', hostvars['cloud'])
+        self.assertIn('location', hostvars)
+        self.assertEqual('_test_cloud_', hostvars['location']['cloud'])
+        self.assertEqual('RegionOne', hostvars['location']['region_name'])
+        self.assertEqual('admin', hostvars['location']['project']['name'])
         self.assertEqual("test-image-name", hostvars['image']['name'])
         self.assertEqual(
             standard_fake_server.image['id'], hostvars['image']['id'])
