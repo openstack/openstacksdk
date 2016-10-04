@@ -1510,7 +1510,7 @@ class OpenStackCloud(_normalize.Normalizer):
             groups = self.manager.submit_task(
                 _tasks.ServerListSecurityGroups(server=server['id']))
 
-        return _utils.normalize_nova_secgroups(groups)
+        return self._normalize_secgroups(groups)
 
     def list_security_groups(self):
         """List all available security groups.
@@ -1524,12 +1524,13 @@ class OpenStackCloud(_normalize.Normalizer):
                 "Unavailable feature: security groups"
             )
 
+        groups = []
         # Handle neutron security groups
         if self._use_neutron_secgroups():
             # Neutron returns dicts, so no need to convert objects here.
             with _utils.neutron_exceptions(
                     "Error fetching security group list"):
-                return self.manager.submit_task(
+                groups = self.manager.submit_task(
                     _tasks.NeutronSecurityGroupList())['security_groups']
 
         # Handle nova security groups
@@ -1537,7 +1538,7 @@ class OpenStackCloud(_normalize.Normalizer):
             with _utils.shade_exceptions("Error fetching security group list"):
                 groups = self.manager.submit_task(
                     _tasks.NovaSecurityGroupList())
-            return _utils.normalize_nova_secgroups(groups)
+        return self._normalize_secgroups(groups)
 
     def list_servers(self, detailed=False):
         """List all available servers.
@@ -5703,6 +5704,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 "Unavailable feature: security groups"
             )
 
+        group = None
         if self._use_neutron_secgroups():
             with _utils.neutron_exceptions(
                     "Error creating security group {0}".format(name)):
@@ -5710,9 +5712,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     _tasks.NeutronSecurityGroupCreate(
                         body=dict(security_group=dict(name=name,
                                                       description=description))
-                    )
-                )
-            return group['security_group']
+                    ))['security_group']
 
         else:
             with _utils.shade_exceptions(
@@ -5723,7 +5723,7 @@ class OpenStackCloud(_normalize.Normalizer):
                         name=name, description=description
                     )
                 )
-            return _utils.normalize_nova_secgroups([group])[0]
+        return self._normalize_secgroup(group)
 
     def delete_security_group(self, name_or_id):
         """Delete a security group
@@ -5785,9 +5785,9 @@ class OpenStackCloud(_normalize.Normalizer):
                 "Unavailable feature: security groups"
             )
 
-        secgroup = self.get_security_group(name_or_id)
+        group = self.get_security_group(name_or_id)
 
-        if secgroup is None:
+        if group is None:
             raise OpenStackCloudException(
                 "Security group %s not found." % name_or_id)
 
@@ -5796,10 +5796,9 @@ class OpenStackCloud(_normalize.Normalizer):
                     "Error updating security group {0}".format(name_or_id)):
                 group = self.manager.submit_task(
                     _tasks.NeutronSecurityGroupUpdate(
-                        security_group=secgroup['id'],
+                        security_group=group['id'],
                         body={'security_group': kwargs})
-                )
-            return group['security_group']
+                )['security_group']
 
         else:
             with _utils.shade_exceptions(
@@ -5807,9 +5806,9 @@ class OpenStackCloud(_normalize.Normalizer):
                         group=name_or_id)):
                 group = self.manager.submit_task(
                     _tasks.NovaSecurityGroupUpdate(
-                        group=secgroup['id'], **kwargs)
+                        group=group['id'], **kwargs)
                 )
-            return _utils.normalize_nova_secgroups([group])[0]
+        return self._normalize_secgroup(group)
 
     def create_security_group_rule(self,
                                    secgroup_name_or_id,
@@ -5895,7 +5894,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     _tasks.NeutronSecurityGroupRuleCreate(
                         body={'security_group_rule': rule_def})
                 )
-            return rule['security_group_rule']
+            return self._normalize_secgroup_rule(rule['security_group_rule'])
 
         else:
             # NOTE: Neutron accepts None for protocol. Nova does not.
@@ -5938,7 +5937,7 @@ class OpenStackCloud(_normalize.Normalizer):
                         group_id=remote_group_id
                     )
                 )
-            return _utils.normalize_nova_secgroup_rules([rule])[0]
+            return self._normalize_secgroup_rule(rule)
 
     def delete_security_group_rule(self, rule_id):
         """Delete a security group rule

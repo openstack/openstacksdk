@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 import testtools
 
 from shade import _utils
@@ -79,7 +80,7 @@ class TestUtils(base.TestCase):
                 }})
         self.assertEqual([el2, el3], ret)
 
-    def test_normalize_nova_secgroups(self):
+    def test_normalize_secgroups(self):
         nova_secgroup = dict(
             id='abc123',
             name='nova_secgroup',
@@ -94,17 +95,38 @@ class TestUtils(base.TestCase):
             id='abc123',
             name='nova_secgroup',
             description='A Nova security group',
+            tenant_id='',
+            project_id='',
+            location=dict(
+                region_name='RegionOne',
+                project=dict(
+                    domain_name=None,
+                    id=mock.ANY,
+                    domain_id=None,
+                    name='admin'),
+                cloud='_test_cloud_'),
             security_group_rules=[
                 dict(id='123', direction='ingress', ethertype='IPv4',
                      port_range_min=80, port_range_max=81, protocol='tcp',
-                     remote_ip_prefix='0.0.0.0/0', security_group_id='xyz123')
+                     remote_ip_prefix='0.0.0.0/0', security_group_id='xyz123',
+                     tenant_id='',
+                     project_id='',
+                     remote_group_id=None,
+                     location=dict(
+                         region_name='RegionOne',
+                         project=dict(
+                             domain_name=None,
+                             id=mock.ANY,
+                             domain_id=None,
+                             name='admin'),
+                         cloud='_test_cloud_'))
             ]
         )
 
-        retval = _utils.normalize_nova_secgroups([nova_secgroup])[0]
+        retval = self.cloud._normalize_secgroup(nova_secgroup)
         self.assertEqual(expected, retval)
 
-    def test_normalize_nova_secgroups_negone_port(self):
+    def test_normalize_secgroups_negone_port(self):
         nova_secgroup = dict(
             id='abc123',
             name='nova_secgroup',
@@ -115,11 +137,11 @@ class TestUtils(base.TestCase):
             ]
         )
 
-        retval = _utils.normalize_nova_secgroups([nova_secgroup])[0]
+        retval = self.cloud._normalize_secgroup(nova_secgroup)
         self.assertIsNone(retval['security_group_rules'][0]['port_range_min'])
         self.assertIsNone(retval['security_group_rules'][0]['port_range_max'])
 
-    def test_normalize_nova_secgroup_rules(self):
+    def test_normalize_secgroup_rules(self):
         nova_rules = [
             dict(id='123', from_port=80, to_port=81, ip_protocol='tcp',
                  ip_range={'cidr': '0.0.0.0/0'}, parent_group_id='xyz123')
@@ -127,9 +149,18 @@ class TestUtils(base.TestCase):
         expected = [
             dict(id='123', direction='ingress', ethertype='IPv4',
                  port_range_min=80, port_range_max=81, protocol='tcp',
-                 remote_ip_prefix='0.0.0.0/0', security_group_id='xyz123')
+                 remote_ip_prefix='0.0.0.0/0', security_group_id='xyz123',
+                 tenant_id='', project_id='', remote_group_id=None,
+                 location=dict(
+                     region_name='RegionOne',
+                     project=dict(
+                         domain_name=None,
+                         id=mock.ANY,
+                         domain_id=None,
+                         name='admin'),
+                     cloud='_test_cloud_'))
         ]
-        retval = _utils.normalize_nova_secgroup_rules(nova_rules)
+        retval = self.cloud._normalize_secgroup_rules(nova_rules)
         self.assertEqual(expected, retval)
 
     def test_normalize_volumes_v1(self):
