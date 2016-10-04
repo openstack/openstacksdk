@@ -1625,7 +1625,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 images.append(image)
             elif image.status.lower() != 'deleted':
                 images.append(image)
-        return _utils.normalize_images(images, cloud=self)
+        return self._normalize_images(images)
 
     def list_floating_ip_pools(self):
         """List all available floating IP pools.
