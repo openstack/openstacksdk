@@ -802,7 +802,14 @@ class Proxy(proxy.BaseProxy):
         """Return a generator of networks
 
         :param kwargs \*\*query: Optional query parameters to be sent to limit
-                                 the resources being returned.
+            the resources being returned. Available parameters include:
+
+            * ``admin_state_up``: Network administrative state is up (boolean)
+            * ``name``: Network name
+            * ``router:external``: Network is external (boolean)
+            * ``shared``: Network is shared (boolean)
+            * ``status``: Network status
+            * ``tenant_id``: Owner tenant ID
 
         :returns: A generator of network objects
         :rtype: :class:`~openstack.network.v2.network.Network`
@@ -938,7 +945,10 @@ class Proxy(proxy.BaseProxy):
         """Return a generator of network ip availabilities
 
         :param kwargs \*\*query: Optional query parameters to be sent to limit
-                                 the resources being returned.
+            the resources being returned. Available parameters include:
+
+            * ``ip_version``: IP version of the network
+            * ``tenant_id``: Owner tenant ID
 
         :returns: A generator of network ip availability objects
         :rtype: :class:`~openstack.network.v2.network_ip_availability.
@@ -1195,7 +1205,11 @@ class Proxy(proxy.BaseProxy):
         """Return a generator of ports
 
         :param kwargs \*\*query: Optional query parameters to be sent to limit
-                                 the resources being returned.
+            the resources being returned. Available parameters include:
+
+            * ``device_id``: Port device ID
+            * ``device_owner``: Port device owner (e.g. ``network:dhcp``)
+            * ``network_id``: ID of network that owns the ports
 
         :returns: A generator of port objects
         :rtype: :class:`~openstack.network.v2.port.Port`
@@ -1834,11 +1848,10 @@ class Proxy(proxy.BaseProxy):
         :param kwargs \*\*query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
-            * tenant_id: The owner tenant ID.
-            * target_tenant: ID of the tenant to which the RBAC policy
-                will be enforced.
-            * object_type: Type of the object that RBAC policy affects.
-            * action: Action for the RBAC policy.
+            * ``action``: RBAC policy action
+            * ``object_type``: Type of the object that the RBAC policy affects
+            * ``target_tenant``: ID of the tenant that the RBAC policy affects
+            * ``tenant_id``: Owner tenant ID
 
         :returns: A generator of rbac objects
         :rtype: :class:`~openstack.network.v2.rbac_policy.RBACPolicy`
@@ -2171,7 +2184,11 @@ class Proxy(proxy.BaseProxy):
         """Return a generator of security group rules
 
         :param kwargs \*\*query: Optional query parameters to be sent to limit
-                                 the resources being returned.
+            the resources being returned. Available parameters include:
+
+            * ``direction``: Security group rule direction
+            * ``protocol``: Security group rule protocol
+            * ``security_group_id``: ID of security group that owns the rules
 
         :returns: A generator of security group rule objects
         :rtype: :class:`~openstack.network.v2.security_group_rule.
@@ -2241,11 +2258,11 @@ class Proxy(proxy.BaseProxy):
         :param kwargs \*\*query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
-            * name: Name of the segments
-            * network_id: ID of the network that owns the segments
-            * network_type: Network type for the segments
-            * physical_network: Physical network name for the segments
-            * segmentation_id: Segmentation ID for the segments
+            * ``name``: Name of the segments
+            * ``network_id``: ID of the network that owns the segments
+            * ``network_type``: Network type for the segments
+            * ``physical_network``: Physical network name for the segments
+            * ``segmentation_id``: Segmentation ID for the segments
 
         :returns: A generator of segment objects
         :rtype: :class:`~openstack.network.v2.segment.Segment`
@@ -2323,7 +2340,16 @@ class Proxy(proxy.BaseProxy):
         """Return a generator of subnets
 
         :param kwargs \*\*query: Optional query parameters to be sent to limit
-                                 the resources being returned.
+            the resources being returned. Available parameters include:
+
+            * ``cidr``: Subnet CIDR
+            * ``enable_dhcp``: Subnet has DHCP enabled (boolean)
+            * ``gateway_ip``: Subnet gateway IP address
+            * ``ip_version``: Subnet IP address version
+            * ``name``: Subnet name
+            * ``network_id``: ID of network that owns the subnets
+            * ``service_types``: Subnet service types
+            * ``tenant_id``: Owner tenant ID
 
         :returns: A generator of subnet objects
         :rtype: :class:`~openstack.network.v2.subnet.Subnet`
@@ -2402,7 +2428,13 @@ class Proxy(proxy.BaseProxy):
         """Return a generator of subnet pools
 
         :param kwargs \*\*query: Optional query parameters to be sent to limit
-                                 the resources being returned.
+            the resources being returned. Available parameters include:
+
+            * ``address_scope_id``: Subnet pool address scope ID
+            * ``is_default``: Subnet pool is the default (boolean)
+            * ``name``: Subnet pool name
+            * ``shared``: Subnet pool is shared (boolean)
+            * ``tenant_id``: Owner tenant ID
 
         :returns: A generator of subnet pool objects
         :rtype: :class:`~openstack.network.v2.subnet_pool.SubnetPool`
