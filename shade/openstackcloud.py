@@ -2503,6 +2503,8 @@ class OpenStackCloud(object):
     def remove_router_interface(self, router, subnet_id=None, port_id=None):
         """Detach a subnet from an internal router interface.
 
+        At least one of subnet_id or port_id must be supplied.
+
         If you specify both subnet and port ID, the subnet ID must
         correspond to the subnet ID of the first IP address on the port
         specified by the port ID. Otherwise an error occurs.
@@ -2520,6 +2522,10 @@ class OpenStackCloud(object):
             body['subnet_id'] = subnet_id
         if port_id:
             body['port_id'] = port_id
+
+        if not body:
+            raise ValueError(
+                "At least one of subnet_id or port_id must be supplied.")
 
         with _utils.neutron_exceptions(
             "Error detaching interface from router {0}".format(router['id'])

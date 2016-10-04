@@ -214,6 +214,11 @@ class TestShade(base.TestCase):
             router='123', body={'subnet_id': 'abc'}
         )
 
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_remove_router_interface_missing_argument(self, mock_client):
+        self.assertRaises(ValueError, self.cloud.remove_router_interface,
+                          {'id': '123'})
+
     @mock.patch.object(shade.OpenStackCloud, 'get_router')
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     def test_update_router(self, mock_client, mock_get):
