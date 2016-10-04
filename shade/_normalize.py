@@ -42,6 +42,34 @@ class Normalizer(object):
     reasons.
     '''
 
+    def _normalize_flavors(self, flavors):
+        """ Normalize a list of flavor objects """
+        ret = []
+        for flavor in flavors:
+            ret.append(self._normalize_flavor(flavor))
+        return ret
+
+    def _normalize_flavor(self, flavor):
+        """ Normalize a flavor object """
+        flavor.pop('links', None)
+        flavor.pop('NAME_ATTR', None)
+        flavor.pop('HUMAN_ID', None)
+        flavor.pop('human_id', None)
+        if 'extra_specs' not in flavor:
+            flavor['extra_specs'] = {}
+        ephemeral = flavor.pop('OS-FLV-EXT-DATA:ephemeral', 0)
+        is_public = flavor.pop('os-flavor-access:is_public', True)
+        disabled = flavor.pop('OS-FLV-DISABLED:disabled', False)
+        # Make sure both the extension version and a sane version are present
+        flavor['OS-FLV-DISABLED:disabled'] = disabled
+        flavor['disabled'] = disabled
+        flavor['OS-FLV-EXT-DATA:ephemeral'] = ephemeral
+        flavor['ephemeral'] = ephemeral
+        flavor['os-flavor-access:is_public'] = is_public
+        flavor['is_public'] = is_public
+
+        return flavor
+
     def _normalize_images(self, images):
         ret = []
         for image in images:
