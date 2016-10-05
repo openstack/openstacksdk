@@ -91,6 +91,8 @@ class Port(resource.Resource):
     project_id = resource.prop('tenant_id')
     #: The ID of the QoS policy attached to the port.
     qos_policy_id = resource.prop('qos_policy_id')
+    #: Revision number of the port. *Type: int*
+    revision_number = resource.prop('revision_number', type=int)
     #: The IDs of any attached security groups.
     #: *Type: list of strs of the security group IDs*
     security_group_ids = resource.prop('security_groups', type=list)

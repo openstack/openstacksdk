@@ -35,6 +35,8 @@ class Router(resource.Resource):
     #: Availability zones for the router.
     #: *Type: list of availability zone names*
     availability_zones = resource.prop('availability_zones')
+    #: Timestamp when the router was created.
+    created_at = resource.prop('created_at')
     #: The router description.
     description = resource.prop('description')
     #: The ``network_id``, for the external gateway. *Type: dict*
@@ -52,10 +54,14 @@ class Router(resource.Resource):
     name = resource.prop('name')
     #: The ID of the project this router is associated with.
     project_id = resource.prop('tenant_id')
+    #: Revision number of the router. *Type: int*
+    revision_number = resource.prop('revision_number', type=int)
     #: The extra routes configuration for the router.
     routes = resource.prop('routes', type=list)
     #: The router status.
     status = resource.prop('status')
+    #: Timestamp when the router was last updated.
+    updated_at = resource.prop('updated_at')
 
     def add_interface(self, session, **body):
         """Add an internal interface to a logical router.

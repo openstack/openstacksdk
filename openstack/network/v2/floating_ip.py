@@ -30,6 +30,8 @@ class FloatingIP(resource.Resource):
     allow_list = True
 
     # Properties
+    #: Timestamp when the floating IP was created.
+    created_at = resource.prop('created_at')
     #: The floating IP description.
     description = resource.prop('description')
     #: The fixed IP address associated with the floating IP. If you
@@ -47,10 +49,14 @@ class FloatingIP(resource.Resource):
     port_id = resource.prop('port_id')
     #: The ID of the project this floating IP is associated with.
     project_id = resource.prop('tenant_id')
+    #: Revision number of the floating IP. *Type: int*
+    revision_number = resource.prop('revision_number', type=int)
     #: The ID of an associated router.
     router_id = resource.prop('router_id')
     #: The floating IP status. Value is ``ACTIVE`` or ``DOWN``.
     status = resource.prop('status')
+    #: Timestamp when the floating IP was last updated.
+    updated_at = resource.prop('updated_at')
 
     @classmethod
     def find_available(cls, session):

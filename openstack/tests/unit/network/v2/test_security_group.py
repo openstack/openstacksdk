@@ -28,6 +28,9 @@ RULES = [
         "port_range_min": None,
         "id": "5",
         "security_group_id": IDENTIFIER,
+        "created_at": "2016-10-04T12:14:57.233772",
+        "updated_at": "2016-10-12T12:15:34.233222",
+        "revision_number": 6,
     },
     {
         "remote_group_id": "9",
@@ -40,6 +43,9 @@ RULES = [
         "port_range_min": None,
         "id": "6",
         "security_group_id": IDENTIFIER,
+        "created_at": "2016-10-04T12:14:57.233772",
+        "updated_at": "2016-10-12T12:15:34.233222",
+        "revision_number": 7,
     },
 ]
 EXAMPLE = {

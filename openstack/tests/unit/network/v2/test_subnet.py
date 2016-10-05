@@ -35,6 +35,7 @@ EXAMPLE = {
     'created_at': '2016-03-09T12:14:57.233772',
     'updated_at': '2016-07-09T12:14:57.233772',
     'segment_id': '16',
+    'revision_number': 17,
 }
 
 
@@ -73,3 +74,4 @@ class TestSubnet(testtools.TestCase):
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
         self.assertEqual(EXAMPLE['segment_id'], sot.segment_id)
         self.assertEqual(EXAMPLE['service_types'], sot.service_types)
+        self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
