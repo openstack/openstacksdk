@@ -6,6 +6,7 @@ Network Resources
 
    v2/address_scope
    v2/agent
+   v2/auto_allocated_topology
    v2/availability_zone
    v2/extension
    v2/flavor
