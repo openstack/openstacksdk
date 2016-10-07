@@ -1526,9 +1526,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: OpenStackCloudResourceNotFound if flavor ID is not found.
         """
         try:
-            self.manager.submit_task(
-                _tasks.FlavorSetExtraSpecs(
-                    id=flavor_id, json=dict(extra_specs=extra_specs)))
+            self._compute_client.post(
+                "/flavors/{id}/os-extra_specs".format(id=flavor_id),
+                json=dict(extra_specs=extra_specs))
         except Exception as e:
             raise OpenStackCloudException(
                 "Unable to set flavor specs: {0}".format(str(e))
@@ -1545,8 +1545,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
         for key in keys:
             try:
-                self.manager.submit_task(
-                    _tasks.FlavorUnsetExtraSpecs(id=flavor_id, key=key))
+                self._compute_client.delete(
+                    "/flavors/{id}/os-extra_specs/{key}".format(
+                        id=flavor_id, key=key))
             except Exception as e:
                 raise OpenStackCloudException(
                     "Unable to delete flavor spec {0}: {1}".format(

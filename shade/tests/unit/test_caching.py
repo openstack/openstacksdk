@@ -317,12 +317,10 @@ class TestMemoryCache(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, '_compute_client')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_list_flavors(self, nova_mock, mock_compute):
+        # TODO(mordred) Change this to request_mock
         nova_mock.flavors.list.return_value = []
         nova_mock.flavors.api.client.get.return_value = {}
-        mock_response = mock.Mock()
-        mock_response.json.return_value = dict(extra_specs={})
-        mock_response.headers.get.return_value = 'request-id'
-        mock_compute.get.return_value = mock_response
+        mock_compute.get.return_value = {}
         self.assertEqual([], self.cloud.list_flavors())
 
         fake_flavor = fakes.FakeFlavor('555', 'vanilla', 100)
