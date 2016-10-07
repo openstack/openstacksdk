@@ -29,13 +29,16 @@ class TestCase(testtools.TestCase):
 
     """Test case base class for all tests."""
 
+    # A way to adjust slow test classes
+    TIMEOUT_SCALING_FACTOR = 1.0
+
     def setUp(self):
         """Run before each test method to initialize test environment."""
 
         super(TestCase, self).setUp()
-        test_timeout = os.environ.get('OS_TEST_TIMEOUT', 0)
+        test_timeout = int(os.environ.get('OS_TEST_TIMEOUT', 0))
         try:
-            test_timeout = int(test_timeout)
+            test_timeout = int(test_timeout * self.TIMEOUT_SCALING_FACTOR)
         except ValueError:
             # If timeout value is invalid do not set a timeout.
             test_timeout = 0

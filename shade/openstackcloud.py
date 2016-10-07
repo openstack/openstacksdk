@@ -1321,6 +1321,11 @@ class OpenStackCloud(_normalize.Normalizer):
         return _utils._filter_list(
             volumesnapshots, name_or_id, filters)
 
+    def search_volume_backups(self, name_or_id=None, filters=None):
+        volume_backups = self.list_volume_backups()
+        return _utils._filter_list(
+            volume_backups, name_or_id, filters)
+
     def search_flavors(self, name_or_id=None, filters=None, get_extra=True):
         flavors = self.list_flavors(get_extra=get_extra)
         return _utils._filter_list(flavors, name_or_id, filters)
@@ -3520,6 +3525,63 @@ class OpenStackCloud(_normalize.Normalizer):
         return _utils._get_entity(self.search_volume_snapshots, name_or_id,
                                   filters)
 
+    def create_volume_backup(self, volume_id, name=None, description=None,
+                             force=False, wait=True, timeout=None):
+        """Create a volume backup.
+
+        :param volume_id: the id of the volume to backup.
+        :param name: name of the backup, one will be generated if one is
+                     not provided
+        :param description: description of the backup, one will be generated
+                            if one is not provided
+        :param force: If set to True the backup will be created even if the
+                      volume is attached to an instance, if False it will not
+        :param wait: If true, waits for volume backup to be created.
+        :param timeout: Seconds to wait for volume backup creation. None is
+                        forever.
+
+        :returns: The created volume backup object.
+
+        :raises: OpenStackCloudTimeout if wait time exceeded.
+        :raises: OpenStackCloudException on operation error.
+        """
+        with _utils.shade_exceptions(
+                "Error creating backup of volume {volume_id}".format(
+                    volume_id=volume_id)):
+            backup = self.manager.submit_task(
+                _tasks.VolumeBackupCreate(
+                    volume_id=volume_id, name=name, description=description,
+                    force=force
+                )
+            )
+
+        if wait:
+            backup_id = backup['id']
+            msg = ("Timeout waiting for the volume backup {} to be "
+                   "available".format(backup_id))
+            for _ in _utils._iterate_timeout(timeout, msg):
+                backup = self.get_volume_backup(backup_id)
+
+                if backup['status'] == 'available':
+                    break
+
+                if backup['status'] == 'error':
+                    msg = ("Error in creating volume "
+                           "backup {}, please check logs".format(backup_id))
+                    raise OpenStackCloudException(msg)
+
+        return backup
+
+    def get_volume_backup(self, name_or_id, filters=None):
+        """Get a volume backup by name or ID.
+
+        :returns: A backup ``munch.Munch`` or None if no matching backup is
+        found.
+
+        """
+        return _utils._get_entity(self.search_volume_backups, name_or_id,
+                                  filters)
+
     def list_volume_snapshots(self, detailed=True, search_opts=None):
         """List all volume snapshots.
 
@@ -3531,6 +3593,59 @@ class OpenStackCloud(_normalize.Normalizer):
                 self.manager.submit_task(
                     _tasks.VolumeSnapshotList(
                         detailed=detailed, search_opts=search_opts)))
+
+    def list_volume_backups(self, detailed=True, search_opts=None):
+        """
+        List all volume backups.
+
+        :param bool detailed: Also list details for each entry
+        :param dict search_opts: Search options
+            A dictionary of meta data to use for further filtering. Example::
+                {
+                    'name': 'my-volume-backup',
+                    'status': 'available',
+                    'volume_id': 'e126044c-7b4c-43be-a32a-c9cbbc9ddb56',
+                    'all_tenants': 1
+                }
+        :returns: A list of volume backups ``munch.Munch``.
+        """
+        with _utils.shade_exceptions("Error getting a list of backups"):
+            return self.manager.submit_task(
+                _tasks.VolumeBackupList(
+                    detailed=detailed, search_opts=search_opts))
+
+    def delete_volume_backup(self, name_or_id=None, force=False, wait=False,
+                             timeout=None):
+        """Delete a volume backup.
+
+        :param name_or_id: Name or unique ID of the volume backup.
+        :param force: Allow delete in state other than error or available.
+        :param wait: If true, waits for volume backup to be deleted.
+        :param timeout: Seconds to wait for volume backup deletion. None is
+                        forever.
+
+        :raises: OpenStackCloudTimeout if wait time exceeded.
+        :raises: OpenStackCloudException on operation error.
+        """
+
+        volume_backup = self.get_volume_backup(name_or_id)
+
+        if not volume_backup:
+            return False
+
+        with _utils.shade_exceptions("Error in deleting volume backup"):
+            self.manager.submit_task(
+                _tasks.VolumeBackupDelete(
+                    backup=volume_backup['id'], force=force
+                )
+            )
+        if wait:
+            msg = "Timeout waiting for the volume backup to be deleted."
+            for count in _utils._iterate_timeout(timeout, msg):
+                if not self.get_volume_backup(volume_backup['id']):
+                    break
+
+        return True
 
     def delete_volume_snapshot(self, name_or_id=None, wait=False,
                                timeout=None):
