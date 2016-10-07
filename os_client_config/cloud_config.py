@@ -102,6 +102,10 @@ class CloudConfig(object):
     def __ne__(self, other):
         return not self == other
 
+    def set_session_constructor(self, session_constructor):
+        """Sets the Session constructor."""
+        self._session_constructor = session_constructor
+
     def get_requests_verify_args(self):
         """Return the verify and cert values for the requests library."""
         if self.config['verify'] and self.config['cacert']:
