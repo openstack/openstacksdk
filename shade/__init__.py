@@ -44,6 +44,9 @@ def simple_logging(debug=False, http_debug=False):
         log = _log.setup_logging('keystoneauth')
         log.addHandler(logging.StreamHandler())
         log.setLevel(log_level)
+    # Simple case - we do not care about request id log
+    log = _log.setup_logging('shade.request_ids')
+    log.setLevel(logging.INFO)
     log = _log.setup_logging('shade')
     log.addHandler(logging.StreamHandler())
     log.setLevel(log_level)
