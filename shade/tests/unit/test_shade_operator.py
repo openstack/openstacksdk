@@ -15,6 +15,7 @@
 from keystoneauth1 import plugin as ksa_plugin
 
 import mock
+import munch
 import testtools
 
 from os_client_config import cloud_config
@@ -1019,27 +1020,25 @@ class TestShadeOperator(base.TestCase):
             node_id=uuid, patch=expected_patch
         )
 
-    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
+    @mock.patch.object(shade.OpenStackCloud, '_image_client')
     def test_get_image_name(self, glance_mock):
 
-        class Image(object):
-            id = '22'
-            name = '22 name'
-            status = 'success'
-        fake_image = Image()
-        glance_mock.images.list.return_value = [fake_image]
+        fake_image = munch.Munch(
+            id='22',
+            name='22 name',
+            status='success')
+        glance_mock.get.return_value = [fake_image]
         self.assertEqual('22 name', self.op_cloud.get_image_name('22'))
         self.assertEqual('22 name', self.op_cloud.get_image_name('22 name'))
 
-    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
+    @mock.patch.object(shade.OpenStackCloud, '_image_client')
     def test_get_image_id(self, glance_mock):
 
-        class Image(object):
-            id = '22'
-            name = '22 name'
-            status = 'success'
-        fake_image = Image()
-        glance_mock.images.list.return_value = [fake_image]
+        fake_image = munch.Munch(
+            id='22',
+            name='22 name',
+            status='success')
+        glance_mock.get.return_value = [fake_image]
         self.assertEqual('22', self.op_cloud.get_image_id('22'))
         self.assertEqual('22', self.op_cloud.get_image_id('22 name'))
 

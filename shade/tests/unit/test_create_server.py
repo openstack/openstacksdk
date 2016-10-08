@@ -42,13 +42,14 @@ class TestCreateServer(base.TestCase):
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
                 OpenStackCloudException, self.cloud.create_server,
-                'server-name', 'image-id', 'flavor-id')
+                'server-name', {'id': 'image-id'}, {'id': 'flavor-id'})
 
     def test_create_server_with_get_exception(self):
         """
         Test that an exception when attempting to get the server instance via
         the novaclient raises an exception in create_server.
         """
+
         with patch("shade.OpenStackCloud.nova_client"):
             config = {
                 "servers.create.return_value": Mock(status="BUILD"),
@@ -57,7 +58,7 @@ class TestCreateServer(base.TestCase):
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
                 OpenStackCloudException, self.cloud.create_server,
-                'server-name', 'image-id', 'flavor-id')
+                'server-name', {'id': 'image-id'}, {'id': 'flavor-id'})
 
     def test_create_server_with_server_error(self):
         """
@@ -74,7 +75,7 @@ class TestCreateServer(base.TestCase):
             OpenStackCloud.nova_client = Mock(**config)
             self.assertRaises(
                 OpenStackCloudException, self.cloud.create_server,
-                'server-name', 'image-id', 'flavor-id')
+                'server-name', {'id': 'image-id'}, {'id': 'flavor-id'})
 
     def test_create_server_wait_server_error(self):
         """
@@ -279,7 +280,7 @@ class TestCreateServer(base.TestCase):
                               return_value=fake_server):
                 self.assertRaises(
                     OpenStackCloudException, self.cloud.create_server,
-                    'server-name', 'image-id', 'flavor-id',
+                    'server-name', {'id': 'image-id'}, {'id': 'flavor-id'},
                     wait=True)
 
     @patch('shade.OpenStackCloud.nova_client')
@@ -309,11 +310,12 @@ class TestCreateServer(base.TestCase):
             network='network-name', nics=[])
         mock_get_network.assert_called_once_with(name_or_id='network-name')
 
-    @patch('shade.OpenStackCloud.glance_client')
-    @patch('shade.OpenStackCloud.nova_client')
+    @mock.patch.object(OpenStackCloud, 'get_image')
+    @mock.patch.object(OpenStackCloud, 'nova_client')
     def test_create_server_get_flavor_image(
-            self, mock_nova, mock_glance):
+            self, mock_nova, mock_image):
+        print(self.cloud.list_images)
         self.cloud.create_server(
             'server-name', 'image-id', 'flavor-id')
         mock_nova.flavors.list.assert_called_once()
-        mock_glance.images.list.assert_called_once()
+        mock_image.assert_called_once()

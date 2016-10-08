@@ -170,6 +170,9 @@ class Normalizer(object):
         new_image = munch.Munch(
             location=self._get_current_location(project_id=image.get('owner')))
 
+        # This copy is to keep things from getting epically weird in tests
+        image = image.copy()
+
         image.pop('links', None)
         image.pop('NAME_ATTR', None)
         image.pop('HUMAN_ID', None)

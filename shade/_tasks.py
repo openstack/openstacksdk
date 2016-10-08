@@ -286,11 +286,6 @@ class RouterRemoveInterface(task_manager.Task):
         client.neutron_client.remove_interface_router(**self.args)
 
 
-class GlanceImageList(task_manager.Task):
-    def main(self, client):
-        return [image for image in self.args['image_gen']]
-
-
 class NovaImageList(task_manager.Task):
     def main(self, client):
         return client.nova_client.images.list()
