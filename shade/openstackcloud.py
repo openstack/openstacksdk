@@ -3211,12 +3211,25 @@ class OpenStackCloud(_normalize.Normalizer):
             self, name, image_data, meta, **image_kwargs):
 
         image_kwargs['properties'].update(meta)
-        image = self.manager.submit_task(_tasks.ImageCreate(
-            name=name, **image_kwargs))
+        image_kwargs['name'] = name
+
+        image = self._image_client.post('/images', data=image_kwargs)
+        checksum = image_kwargs['properties'].get(IMAGE_MD5_KEY, '')
+
         try:
-            self.manager.submit_task(_tasks.ImageUpdate(
-                image=image, data=image_data))
-        except Exception:
+            # Let us all take a brief moment to be grateful that this
+            # is not actually how OpenStack APIs work anymore
+            headers = {
+                'x-glance-registry-purge-props': 'false',
+            }
+            if checksum:
+                headers['x-image-meta-checksum'] = checksum
+
+            image = self._image_client.put(
+                '/images/{id}'.format(id=image.id),
+                headers=headers, data=image_data)
+
+        except OpenStackCloudHTTPError:
             self.log.debug("Deleting failed upload of image %s", name)
             try:
                 # Note argument is "image" here, "image_id" in V2

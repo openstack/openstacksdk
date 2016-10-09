@@ -386,16 +386,15 @@ class TestMemoryCache(base.TestCase):
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
-    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
-    def test_create_image_put_v1(
-            self, glance_mock, mock_image_client, mock_api_version):
+    def test_create_image_put_v1(self, mock_image_client, mock_api_version):
         mock_api_version.return_value = '1'
         mock_image_client.get.return_value = []
         self.assertEqual([], self.cloud.list_images())
 
         fake_image = fakes.FakeImage('42', '42 name', 'success')
         mock_image_client.get.return_value = [self._image_dict(fake_image)]
-        glance_mock.images.create.return_value = fake_image
+        mock_image_client.post.return_value = self._image_dict(fake_image)
+        mock_image_client.put.return_value = self._image_dict(fake_image)
         self._call_create_image('42 name')
         args = {'name': '42 name',
                 'container_format': 'bare', 'disk_format': 'qcow2',
@@ -405,9 +404,13 @@ class TestMemoryCache(base.TestCase):
                     'owner_specified.shade.object': 'images/42 name',
                     'is_public': False}}
         fake_image_dict = self._image_dict(fake_image)
-        glance_mock.images.create.assert_called_with(**args)
-        glance_mock.images.update.assert_called_with(
-            data=mock.ANY, image=meta.obj_to_dict(fake_image))
+        mock_image_client.post.assert_called_with('/images', data=args)
+        mock_image_client.put.assert_called_with(
+            '/images/42', data=mock.ANY,
+            headers={
+                'x-image-meta-checksum': mock.ANY,
+                'x-glance-registry-purge-props': 'false'
+            })
         mock_image_client.get.assert_called_with('/images/detail')
         self.assertEqual(
             self._munch_images(fake_image_dict), self.cloud.list_images())
