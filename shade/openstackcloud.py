@@ -2966,15 +2966,8 @@ class OpenStackCloud(_normalize.Normalizer):
         if not image:
             return False
         with _utils.shade_exceptions("Error in deleting image"):
-            # Note that in v1, the param name is image, but in v2,
-            # it's image_id
-            glance_api_version = self.cloud_config.get_api_version('image')
-            if glance_api_version == '2':
-                self.manager.submit_task(
-                    _tasks.ImageDelete(image_id=image.id))
-            elif glance_api_version == '1':
-                self.manager.submit_task(
-                    _tasks.ImageDelete(image=image.id))
+            self._image_client.delete(
+                '/images/{id}'.format(id=image.id))
             self.list_images.invalidate(self)
 
             # Task API means an image was uploaded to swift
@@ -3188,17 +3181,22 @@ class OpenStackCloud(_normalize.Normalizer):
         properties = image_kwargs.pop('properties', {})
 
         image_kwargs.update(self._make_v2_image_params(meta, properties))
+        image_kwargs['name'] = name
 
-        image = self.manager.submit_task(_tasks.ImageCreate(
-            name=name, **image_kwargs))
+        image = self._image_client.post('/images', json=image_kwargs)
+
         try:
-            self.manager.submit_task(_tasks.ImageUpload(
-                image_id=image.id, image_data=image_data))
+            self._image_client.put(
+                '/images/{id}/file'.format(id=image.id),
+                headers={'Content-Type': 'application/octet-stream'},
+                data=image_data)
+
         except Exception:
             self.log.debug("Deleting failed upload of image %s", name)
             try:
-                self.manager.submit_task(_tasks.ImageDelete(image_id=image.id))
-            except Exception:
+                self._image_client.delete(
+                    '/images/{id}'.format(id=image.id))
+            except OpenStackCloudHTTPError:
                 # We're just trying to clean up - if it doesn't work - shrug
                 self.log.debug(
                     "Failed deleting image after we failed uploading it.",
@@ -3213,7 +3211,7 @@ class OpenStackCloud(_normalize.Normalizer):
         image_kwargs['properties'].update(meta)
         image_kwargs['name'] = name
 
-        image = self._image_client.post('/images', data=image_kwargs)
+        image = self._image_client.post('/images', json=image_kwargs)
         checksum = image_kwargs['properties'].get(IMAGE_MD5_KEY, '')
 
         try:
@@ -3232,9 +3230,8 @@ class OpenStackCloud(_normalize.Normalizer):
         except OpenStackCloudHTTPError:
             self.log.debug("Deleting failed upload of image %s", name)
             try:
-                # Note argument is "image" here, "image_id" in V2
-                self.manager.submit_task(_tasks.ImageDelete(image=image.id))
-            except Exception:
+                self._image_client.delete('/images/{id}'.format(id=image.id))
+            except OpenStackCloudHTTPError:
                 # We're just trying to clean up - if it doesn't work - shrug
                 self.log.debug(
                     "Failed deleting image after we failed uploading it.",
