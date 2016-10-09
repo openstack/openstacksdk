@@ -498,7 +498,10 @@ def normalize_flavors(flavors):
             flavor['extra_specs'] = {}
         ephemeral = flavor.pop('OS-FLV-EXT-DATA:ephemeral', 0)
         is_public = flavor.pop('os-flavor-access:is_public', True)
+        disabled = flavor.pop('OS-FLV-DISABLED:disabled', False)
         # Make sure both the extension version and a sane version are present
+        flavor['OS-FLV-DISABLED:disabled'] = disabled
+        flavor['disabled'] = disabled
         flavor['OS-FLV-EXT-DATA:ephemeral'] = ephemeral
         flavor['ephemeral'] = ephemeral
         flavor['os-flavor-access:is_public'] = is_public
