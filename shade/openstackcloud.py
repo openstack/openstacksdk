@@ -416,21 +416,43 @@ class OpenStackCloud(_normalize.Normalizer):
     @property
     def current_project(self):
         '''Return a ``munch.Munch`` describing the current project'''
-        auth_args = self.cloud_config.config.get('auth', {})
-        return munch.Munch(
-            id=self.current_project_id,
-            name=auth_args.get('project_name'),
-            domain_id=auth_args.get('domain_id'),
-            domain_name=auth_args.get('domain_name'),
+        return self._get_project_info()
+
+    def _get_project_info(self, project_id=None):
+        project_info = munch.Munch(
+            id=project_id,
+            name=None,
+            domain_id=None,
+            domain_name=None,
         )
+        if not project_id or project_id == self.current_project_id:
+            # If we don't have a project_id parameter, it means a user is
+            # directly asking what the current state is.
+            # Alternately, if we have one, that means we're calling this
+            # from within a normalize function, which means the object has
+            # a project_id associated with it. If the project_id matches
+            # the project_id of our current token, that means we can supplement
+            # the info with human readable info about names if we have them.
+            # If they don't match, that means we're an admin who has pulled
+            # an object from a different project, so adding info from the
+            # current token would be wrong.
+            auth_args = self.cloud_config.config.get('auth', {})
+            project_info['id'] = self.current_project_id
+            project_info['name'] = auth_args.get('project_name')
+            project_info['domain_id'] = auth_args.get('project_domain_id')
+            project_info['domain_name'] = auth_args.get('project_domain_name')
+        return project_info
 
     @property
     def current_location(self):
         '''Return a ``munch.Munch`` explaining the current cloud location.'''
+        return self._get_current_location()
+
+    def _get_current_location(self, project_id=None):
         return munch.Munch(
             cloud=self.name,
             region_name=self.region_name,
-            project=self.current_project,
+            project=self._get_project_info(project_id),
         )
 
     @property

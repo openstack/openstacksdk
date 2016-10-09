@@ -78,7 +78,8 @@ class Normalizer(object):
         return ret
 
     def _normalize_image(self, image):
-        new_image = munch.Munch(location=self.current_location)
+        new_image = munch.Munch(
+            location=self._get_current_location(project_id=image.get('owner')))
         properties = image.pop('properties', {})
         visibility = image.pop('visibility', None)
         if visibility:
@@ -119,11 +120,11 @@ class Normalizer(object):
         if not rules and 'rules' in group:
             rules = group.pop('rules')
         group['security_group_rules'] = self._normalize_secgroup_rules(rules)
-        # neutron sets these. we don't care about it, but let's be the same
         project_id = group.get('project_id', group.get('tenant_id', ''))
+        group['location'] = self._get_current_location(project_id=project_id)
+        # neutron sets these. we don't care about it, but let's be the same
         group['tenant_id'] = project_id
         group['project_id'] = project_id
-        group['location'] = self.current_location
         return munch.Munch(group)
 
     def _normalize_secgroup_rules(self, rules):
@@ -144,7 +145,6 @@ class Normalizer(object):
     def _normalize_secgroup_rule(self, rule):
         ret = munch.Munch()
         ret['id'] = rule['id']
-        ret['location'] = self.current_location
         ret['direction'] = rule.get('direction', 'ingress')
         ret['ethertype'] = rule.get('ethertype', 'IPv4')
         port_range_min = rule.get(
@@ -164,9 +164,10 @@ class Normalizer(object):
             'security_group_id', rule.get('parent_group_id'))
         ret['remote_group_id'] = rule.get('remote_group_id')
         project_id = rule.get('project_id', rule.get('tenant_id', ''))
+        ret['location'] = self._get_current_location(project_id=project_id)
+        # neutron sets these. we don't care about it, but let's be the same
         ret['tenant_id'] = project_id
         ret['project_id'] = project_id
-        ret['remote_group_id'] = rule.get('remote_group_id')
         return ret
 
     def _normalize_servers(self, servers):
@@ -187,7 +188,8 @@ class Normalizer(object):
 
         server['region'] = self.region_name
         server['cloud'] = self.name
-        server['location'] = self.current_location
+        server['location'] = self._get_current_location(
+            project_id=server.get('tenant_id'))
 
         az = server.get('OS-EXT-AZ:availability_zone', None)
         if az:
