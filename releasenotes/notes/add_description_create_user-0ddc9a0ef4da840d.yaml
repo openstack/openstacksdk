@@ -1,0 +1,3 @@
+---
+features:
+  - Add description parameter to create_user, available on Keystone v3
