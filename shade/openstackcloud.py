@@ -2931,6 +2931,8 @@ class OpenStackCloud(object):
             else:
                 if v is None:
                     ret[k] = None
+                elif isinstance(v, bool):
+                    ret[k] = v
                 else:
                     ret[k] = str(v)
         ret.update(meta)
