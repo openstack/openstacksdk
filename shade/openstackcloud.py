@@ -3293,8 +3293,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 import_from='{container}/{name}'.format(
                     container=container, name=name),
                 image_properties=dict(name=name)))
-        glance_task = self.manager.submit_task(
-            _tasks.ImageTaskCreate(**task_args))
+        glance_task = self._image_client.post('/tasks', data=task_args)
         self.list_images.invalidate(self)
         if wait:
             image_id = None
@@ -3303,8 +3302,8 @@ class OpenStackCloud(_normalize.Normalizer):
                     "Timeout waiting for the image to import."):
                 try:
                     if image_id is None:
-                        status = self.manager.submit_task(
-                            _tasks.ImageTaskGet(task_id=glance_task.id))
+                        status = self._image_client.get(
+                            '/tasks/{id}'.format(id=glance_task.id))
                 except glanceclient.exc.HTTPServiceUnavailable:
                     # Intermittent failure - catch and try again
                     continue
@@ -3313,9 +3312,11 @@ class OpenStackCloud(_normalize.Normalizer):
                     image_id = status.result['image_id']
                     try:
                         image = self.get_image(image_id)
-                    except glanceclient.exc.HTTPServiceUnavailable:
-                        # Intermittent failure - catch and try again
-                        continue
+                    except OpenStackCloudHTTPError as e:
+                        if e.response.status_code == 503:
+                            # Intermittent failure - catch and try again
+                            continue
+                        raise
                     if image is None:
                         continue
                     self.update_image_properties(
@@ -3323,8 +3324,8 @@ class OpenStackCloud(_normalize.Normalizer):
                     return self.get_image(status.result['image_id'])
                 if status.status == 'failure':
                     if status.message == IMAGE_ERROR_396:
-                        glance_task = self.manager.submit_task(
-                            _tasks.ImageTaskCreate(**task_args))
+                        glance_task = self._image_client.post(
+                            '/tasks', data=task_args)
                         self.list_images.invalidate(self)
                     else:
                         raise OpenStackCloudException(

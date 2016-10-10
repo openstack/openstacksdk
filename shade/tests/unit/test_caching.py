@@ -19,7 +19,6 @@ import mock
 import munch
 import os_client_config as occ
 import testtools
-import warlock
 
 import shade.openstackcloud
 from shade import exc
@@ -693,8 +692,6 @@ class TestMemoryCache(base.TestCase):
         }
         swift_mock.put_container.return_value = fake_container
         swift_mock.head_object.return_value = {}
-        mock_image_client.get.return_value = []
-        self.assertEqual([], self.cloud.list_images())
 
         fake_md5 = "fake-md5"
         fake_sha256 = "fake-sha256"
@@ -703,19 +700,23 @@ class TestMemoryCache(base.TestCase):
         fake_image = munch.Munch(
             id='a35e8afc-cae9-4e38-8441-2cd465f79f7b', name='name-99',
             status='active', visibility='private')
-        mock_image_client.get.return_value = [fake_image]
 
-        FakeTask = warlock.model_factory(_TASK_SCHEMA)
-        args = {
-            'id': '21FBD9A7-85EC-4E07-9D58-72F1ACF7CB1F',
-            'status': 'success',
-            'type': 'import',
-            'result': {
+        args = munch.Munch(
+            id='21FBD9A7-85EC-4E07-9D58-72F1ACF7CB1F',
+            status='success',
+            type='import',
+            result={
                 'image_id': 'a35e8afc-cae9-4e38-8441-2cd465f79f7b',
             },
-        }
-        fake_task = FakeTask(**args)
-        glance_mock.tasks.get.return_value = fake_task
+        )
+
+        mock_image_client.get.side_effect = [
+            [],
+            args,
+            [fake_image],
+            [fake_image],
+            [fake_image],
+        ]
         self._call_create_image(name='name-99',
                                 container='image_upload_v2_test_container')
         args = {'header': ['x-object-meta-x-shade-md5:fake-md5',
@@ -727,9 +728,12 @@ class TestMemoryCache(base.TestCase):
             objects=mock.ANY,
             options=args)
 
-        glance_mock.tasks.create.assert_called_with(type='import', input={
-            'import_from': 'image_upload_v2_test_container/name-99',
-            'image_properties': {'name': 'name-99'}})
+        mock_image_client.post.assert_called_with(
+            '/tasks',
+            data=dict(
+                type='import', input={
+                    'import_from': 'image_upload_v2_test_container/name-99',
+                    'image_properties': {'name': 'name-99'}}))
         object_path = 'image_upload_v2_test_container/name-99'
         args = {'owner_specified.shade.md5': fake_md5,
                 'owner_specified.shade.sha256': fake_sha256,

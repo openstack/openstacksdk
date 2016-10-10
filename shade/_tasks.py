@@ -296,16 +296,6 @@ class ImageSnapshotCreate(task_manager.Task):
         return client.nova_client.servers.create_image(**self.args)
 
 
-class ImageTaskCreate(task_manager.Task):
-    def main(self, client):
-        return client.glance_client.tasks.create(**self.args)
-
-
-class ImageTaskGet(task_manager.Task):
-    def main(self, client):
-        return client.glance_client.tasks.get(**self.args)
-
-
 class ImageUpdate(task_manager.Task):
     def main(self, client):
         client.glance_client.images.update(**self.args)
