@@ -47,7 +47,9 @@ class TestFlavor(testtools.TestCase):
         self.assertDictEqual({"sort_key": "sort_key",
                               "sort_dir": "sort_dir",
                               "min_disk": "minDisk",
-                              "min_ram": "minRam"},
+                              "min_ram": "minRam",
+                              "limit": "limit",
+                              "marker": "marker"},
                              sot._query_mapping._mapping)
 
     def test_make_basic(self):

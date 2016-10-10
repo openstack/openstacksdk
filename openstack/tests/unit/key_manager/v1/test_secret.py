@@ -58,7 +58,9 @@ class TestSecret(testtools.TestCase):
                               "updated": "updated",
                               "expiration": "expiration",
                               "sort": "sort",
-                              "algorithm": "alg"},
+                              "algorithm": "alg",
+                              "limit": "limit",
+                              "marker": "marker"},
                              sot._query_mapping._mapping)
 
     def test_make_it(self):

@@ -37,7 +37,8 @@ class TestServerGroup(testtools.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
-        self.assertDictEqual({"all_projects": "all_projects"},
+        self.assertDictEqual({"all_projects": "all_projects",
+                              "limit": "limit", "marker": "marker"},
                              sot._query_mapping._mapping)
 
     def test_make_it(self):

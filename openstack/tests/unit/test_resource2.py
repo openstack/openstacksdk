@@ -350,7 +350,10 @@ class TestQueryParameters(base.TestCase):
 
         sot = resource2.QueryParameters(location, **mapping)
 
-        self.assertEqual({"location": "location", "first_name": "first-name"},
+        self.assertEqual({"location": "location",
+                          "first_name": "first-name",
+                          "limit": "limit",
+                          "marker": "marker"},
                          sot._mapping)
 
     def test_transpose_unmapped(self):

@@ -56,7 +56,9 @@ class TestImage(testtools.TestCase):
                               "type": "type",
                               "min_disk": "minDisk",
                               "min_ram": "minRam",
-                              "changes_since": "changes-since"},
+                              "changes_since": "changes-since",
+                              "limit": "limit",
+                              "marker": "marker"},
                              sot._query_mapping._mapping)
 
     def test_make_basic(self):
