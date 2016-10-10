@@ -599,9 +599,8 @@ class TestMemoryCache(base.TestCase):
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
-    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_create_image_put_meta_int(
-            self, glance_mock, mock_image_client, mock_api_version):
+            self, mock_image_client, mock_api_version):
         mock_api_version.return_value = '2'
         self.cloud.image_api_use_tasks = False
 
@@ -663,9 +662,8 @@ class TestMemoryCache(base.TestCase):
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
-    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_create_image_put_user_prop(
-            self, glance_mock, mock_image_client, mock_api_version):
+            self, mock_image_client, mock_api_version):
         mock_api_version.return_value = '2'
         self.cloud.image_api_use_tasks = False
 
