@@ -190,8 +190,12 @@ class QueryParameters(object):
         :param mappings: Key-value pairs where the key is the client-side
                          name we'll accept here and the value is the name
                          the server expects, e.g, changes_since=changes-since
+
+        By default, both limit and marker are included in the initial mapping
+        as they're the most common query parameters used for listing resources.
         """
-        self._mapping = dict({name: name for name in names}, **mappings)
+        self._mapping = {"limit": "limit", "marker": "marker"}
+        self._mapping.update(dict({name: name for name in names}, **mappings))
 
     def _transpose(self, query):
         """Transpose the keys in query based on the mapping

@@ -83,7 +83,9 @@ class TestServer(testtools.TestCase):
                               "status": "status",
                               "host": "host",
                               "all_tenants": "all_tenants",
-                              "changes_since": "changes-since"},
+                              "changes_since": "changes-since",
+                              "limit": "limit",
+                              "marker": "marker"},
                              sot._query_mapping._mapping)
 
     def test_make_it(self):
