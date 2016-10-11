@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import mock
-import warlock
 
 from neutronclient.common import exceptions as neutron_exceptions
 
@@ -954,22 +953,3 @@ class TestMeta(base.TestCase):
         self.assertIn('foo', obj_dict)
         self.assertEqual(obj_dict['additional'], 1)
         self.assertEqual(obj_dict['foo'], 'bar')
-
-    def test_warlock_to_dict(self):
-        schema = {
-            'name': 'Test',
-            'properties': {
-                'id': {'type': 'string'},
-                'name': {'type': 'string'},
-                '_unused': {'type': 'string'},
-            }
-        }
-        test_model = warlock.model_factory(schema)
-        test_obj = test_model(
-            id='471c2475-da2f-47ac-aba5-cb4aa3d546f5',
-            name='test-image')
-        test_dict = meta.obj_to_dict(test_obj)
-        self.assertNotIn('_unused', test_dict)
-        self.assertEqual('test-image', test_dict['name'])
-        self.assertTrue(hasattr(test_dict, 'name'))
-        self.assertEqual(test_dict.name, test_dict['name'])

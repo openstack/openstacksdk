@@ -29,7 +29,6 @@ import requestsexceptions
 from six.moves import urllib
 
 import cinderclient.exceptions as cinder_exceptions
-import glanceclient
 import heatclient.client
 import magnumclient.exceptions as magnum_exceptions
 from heatclient.common import event_utils
@@ -959,6 +958,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @property
     def glance_client(self):
+        import glanceclient
         if self._glance_client is None:
             self._glance_client = self._get_client(
                 'image', glanceclient.Client)
