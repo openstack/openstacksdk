@@ -17,6 +17,7 @@ import time
 
 import mock
 import munch
+import operator
 import os_client_config as occ
 import testtools
 
@@ -490,6 +491,32 @@ class TestMemoryCache(base.TestCase):
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
+    def test_update_image_no_patch(self, mock_image_client, mock_api_version):
+        mock_api_version.return_value = '2'
+        self.cloud.image_api_use_tasks = False
+
+        mock_image_client.get.return_value = []
+        self.assertEqual([], self.cloud.list_images())
+
+        args = {'name': '42 name',
+                'container_format': 'bare', 'disk_format': 'qcow2',
+                'owner_specified.shade.md5': mock.ANY,
+                'owner_specified.shade.sha256': mock.ANY,
+                'owner_specified.shade.object': 'images/42 name',
+                'visibility': 'private',
+                'min_disk': 0, 'min_ram': 0}
+        ret = munch.Munch(args.copy())
+        ret['id'] = '42'
+        ret['status'] = 'success'
+        mock_image_client.get.return_value = [ret]
+        self.cloud.update_image_properties(
+            image=self._image_dict(ret),
+            **{'owner_specified.shade.object': 'images/42 name'})
+        mock_image_client.get.assert_called_with('/images')
+        mock_image_client.patch.assert_not_called()
+
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, '_image_client')
     def test_create_image_put_v2_bad_delete(
             self, mock_image_client, mock_api_version):
         mock_api_version.return_value = '2'
@@ -668,13 +695,11 @@ class TestMemoryCache(base.TestCase):
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_get_file_hashes')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
-    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     @mock.patch.object(shade.OpenStackCloud, 'swift_client')
     @mock.patch.object(shade.OpenStackCloud, 'swift_service')
     def test_create_image_task(self,
                                swift_service_mock,
                                swift_mock,
-                               glance_mock,
                                mock_image_client,
                                get_file_hashes,
                                mock_api_version):
@@ -739,7 +764,25 @@ class TestMemoryCache(base.TestCase):
                 'owner_specified.shade.sha256': fake_sha256,
                 'owner_specified.shade.object': object_path,
                 'image_id': 'a35e8afc-cae9-4e38-8441-2cd465f79f7b'}
-        glance_mock.images.update.assert_called_with(**args)
+        mock_image_client.patch.assert_called_with(
+            '/images/a35e8afc-cae9-4e38-8441-2cd465f79f7b',
+            json=sorted([
+                {
+                    u'op': u'add',
+                    u'value': 'image_upload_v2_test_container/name-99',
+                    u'path': u'/owner_specified.shade.object'
+                }, {
+                    u'op': u'add',
+                    u'value': 'fake-md5',
+                    u'path': u'/owner_specified.shade.md5'
+                }, {
+                    u'op': u'add', u'value': 'fake-sha256',
+                    u'path': u'/owner_specified.shade.sha256'
+                }], key=operator.itemgetter('value')),
+            headers={
+                'Content-Type': 'application/openstack-images-v2.1-json-patch'
+            })
+
         self.assertEqual(
             self._munch_images(fake_image), self.cloud.list_images())
 

@@ -15,7 +15,6 @@
 import mock
 import munch
 
-import glanceclient
 from heatclient import client as heat_client
 from neutronclient.common import exceptions as n_exc
 import testtools
@@ -76,20 +75,6 @@ class TestShade(base.TestCase):
         mock_client.servers.list.side_effect = Exception()
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.list_servers)
-
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
-    @mock.patch.object(cloud_config.CloudConfig, 'get_legacy_client')
-    def test_glance_args(self, get_legacy_client_mock, get_session_mock):
-        session_mock = mock.Mock()
-        session_mock.get_endpoint.return_value = 'http://example.com/v2'
-        get_session_mock.return_value = session_mock
-        self.cloud.glance_client
-        get_legacy_client_mock.assert_called_once_with(
-            service_key='image',
-            client_class=glanceclient.Client,
-            interface_key=None,
-            pass_version_arg=True,
-        )
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_session')
     @mock.patch.object(cloud_config.CloudConfig, 'get_legacy_client')

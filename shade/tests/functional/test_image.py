@@ -127,3 +127,27 @@ class TestImage(base.BaseFunctionalTestCase):
                 self.demo_cloud.delete_image(first_image.id, wait=True)
             if second_image:
                 self.demo_cloud.delete_image(second_image.id, wait=True)
+
+    def test_create_image_update_properties(self):
+        test_image = tempfile.NamedTemporaryFile(delete=False)
+        test_image.write('\0' * 1024 * 1024)
+        test_image.close()
+        image_name = self.getUniqueString('image')
+        try:
+            image = self.demo_cloud.create_image(
+                name=image_name,
+                filename=test_image.name,
+                disk_format='raw',
+                container_format='bare',
+                min_disk=10,
+                min_ram=1024,
+                wait=True)
+            self.demo_cloud.update_image_properties(
+                image=image,
+                name=image_name,
+                foo='bar')
+            image = self.demo_cloud.get_image(image_name)
+            self.assertIn('foo', image.properties)
+            self.assertEqual(image.properties['foo'], 'bar')
+        finally:
+            self.demo_cloud.delete_image(image_name, wait=True)
