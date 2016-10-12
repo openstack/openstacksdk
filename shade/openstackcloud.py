@@ -23,6 +23,7 @@ import time
 import warnings
 
 import dogpile.cache
+import munch
 import requestsexceptions
 
 import cinderclient.exceptions as cinder_exceptions
@@ -396,6 +397,40 @@ class OpenStackCloud(object):
         # Keystone's session will reuse a token if it is still valid.
         # We don't need to track validity here, just get_token() each time.
         return self.keystone_session.get_token()
+
+    @property
+    def current_project_id(self):
+        '''Get the current project id.
+
+        Returns the project_id of the current token scope. None means that
+        the token is domain scoped or unscoped.
+
+        :raises keystoneauth1.exceptions.auth.AuthorizationFailure:
+            if a new token fetch fails.
+        :raises keystoneauth1.exceptions.auth_plugins.MissingAuthPlugin:
+            if a plugin is not available.
+        '''
+        return self.keystone_session.get_project_id()
+
+    @property
+    def current_project(self):
+        '''Return a ``munch.Munch`` describing the current project'''
+        auth_args = self.cloud_config.config.get('auth', {})
+        return munch.Munch(
+            id=self.current_project_id,
+            name=auth_args.get('project_name'),
+            domain_id=auth_args.get('domain_id'),
+            domain_name=auth_args.get('domain_name'),
+        )
+
+    @property
+    def current_location(self):
+        '''Return a ``munch.Munch`` explaining the current cloud location.'''
+        return munch.Munch(
+            cloud=self.name,
+            region_name=self.region_name,
+            project=self.current_project,
+        )
 
     @property
     def _project_manager(self):
@@ -3580,7 +3615,7 @@ class OpenStackCloud(object):
         if project_id is None:
             # Make sure we are only listing floatingIPs allocated the current
             # tenant. This is the default behaviour of Nova
-            project_id = self.keystone_session.get_project_id()
+            project_id = self.current_project_id
 
         with _utils.neutron_exceptions("unable to get available floating IPs"):
             if network:
