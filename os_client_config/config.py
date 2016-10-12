@@ -105,12 +105,11 @@ def _get_os_environ(envvar_prefix=None):
     for k in environkeys:
         newkey = k.split('_', 1)[-1].lower()
         ret[newkey] = os.environ[k]
-    # If the only environ key is region name, don't make a cloud, because
-    # it's being used as a cloud selector
-    if not environkeys or (
-            len(environkeys) == 1 and 'region_name' in ret):
-        return None
-    return ret
+    # If the only environ keys are cloud and region_name, don't return anything
+    # because they are cloud selectors
+    if set(environkeys) - set(['OS_CLOUD', 'OS_REGION_NAME']):
+        return ret
+    return None
 
 
 def _merge_clouds(old_dict, new_dict):
