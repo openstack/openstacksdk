@@ -12,6 +12,27 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import munch
+
+_IMAGE_FIELDS = (
+    'checksum',
+    'container_format',
+    'created_at',
+    'disk_format',
+    'file',
+    'id',
+    'min_disk',
+    'min_ram',
+    'name',
+    'owner',
+    'protected',
+    'schema',
+    'size',
+    'status',
+    'tags',
+    'updated_at',
+    'virtual_size',
+)
 
 
 class Normalizer(object):
@@ -20,6 +41,32 @@ class Normalizer(object):
     This is in a separate class just for on-disk source code organization
     reasons.
     '''
+
+    def _normalize_images(self, images):
+        ret = []
+        for image in images:
+            ret.append(self._normalize_image(image))
+        return ret
+
+    def _normalize_image(self, image):
+        new_image = munch.Munch(location=self.current_location)
+        properties = image.pop('properties', {})
+        visibility = image.pop('visibility', None)
+        if visibility:
+            is_public = (visibility == 'public')
+        else:
+            is_public = image.pop('is_public', False)
+            visibility = 'public' if is_public else 'private'
+
+        for field in _IMAGE_FIELDS:
+            new_image[field] = image.pop(field, None)
+        for key, val in image.items():
+            properties[key] = val
+            new_image[key] = val
+        new_image['properties'] = properties
+        new_image['visibility'] = visibility
+        new_image['is_public'] = is_public
+        return new_image
 
     def _normalize_servers(self, servers):
         # Here instead of _utils because we need access to region and cloud

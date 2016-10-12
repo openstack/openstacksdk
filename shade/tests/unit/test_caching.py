@@ -102,7 +102,7 @@ class TestMemoryCache(base.TestCase):
             cloud_config_fixture='clouds_cache.yaml')
 
     def _image_dict(self, fake_image):
-        return _utils.normalize_image(meta.obj_to_dict(fake_image), self.cloud)
+        return self.cloud._normalize_image(meta.obj_to_dict(fake_image))
 
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, shade.OpenStackCloud)
