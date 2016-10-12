@@ -457,29 +457,6 @@ def normalize_stacks(stacks):
     return stacks
 
 
-def normalize_flavors(flavors):
-    """ Normalize a list of flavor objects """
-    for flavor in flavors:
-        flavor.pop('links', None)
-        flavor.pop('NAME_ATTR', None)
-        flavor.pop('HUMAN_ID', None)
-        flavor.pop('human_id', None)
-        if 'extra_specs' not in flavor:
-            flavor['extra_specs'] = {}
-        ephemeral = flavor.pop('OS-FLV-EXT-DATA:ephemeral', 0)
-        is_public = flavor.pop('os-flavor-access:is_public', True)
-        disabled = flavor.pop('OS-FLV-DISABLED:disabled', False)
-        # Make sure both the extension version and a sane version are present
-        flavor['OS-FLV-DISABLED:disabled'] = disabled
-        flavor['disabled'] = disabled
-        flavor['OS-FLV-EXT-DATA:ephemeral'] = ephemeral
-        flavor['ephemeral'] = ephemeral
-        flavor['os-flavor-access:is_public'] = is_public
-        flavor['is_public'] = is_public
-
-    return flavors
-
-
 def normalize_cluster_templates(cluster_templates):
     """Normalize Magnum cluster_templates."""
     for cluster_template in cluster_templates:

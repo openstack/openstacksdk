@@ -1481,7 +1481,7 @@ class OpenStackCloud(_normalize.Normalizer):
                             'Fetching extra specs for flavor failed:'
                             ' {msg}'.format(msg=str(e)))
 
-        return _utils.normalize_flavors(flavors)
+        return self._normalize_flavors(flavors)
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_stacks)
     def list_stacks(self):

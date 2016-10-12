@@ -1493,7 +1493,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                                     is_public=is_public)
             )
 
-        return _utils.normalize_flavors([flavor])[0]
+        return self._normalize_flavor(flavor)
 
     def delete_flavor(self, name_or_id):
         """Delete a flavor
