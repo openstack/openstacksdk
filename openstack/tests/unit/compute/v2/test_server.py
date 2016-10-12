@@ -309,3 +309,14 @@ class TestServer(testtools.TestCase):
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
             url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_reset_state(self):
+        sot = server.Server(**EXAMPLE)
+
+        self.assertIsNone(sot.reset_state(self.sess, 'active'))
+
+        url = 'servers/IDENTIFIER/action'
+        body = {"os-resetState": {"state": 'active'}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
