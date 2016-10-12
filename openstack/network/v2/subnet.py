@@ -58,6 +58,8 @@ class Subnet(resource.Resource):
     network_id = resource.prop('network_id')
     #: The ID of the project this subnet is associated with.
     project_id = resource.prop('tenant_id')
+    #: Revision number of the subnet. *Type: int*
+    revision_number = resource.prop('revision_number', type=int)
     #: The ID of the segment this subnet is associated with.
     segment_id = resource.prop('segment_id')
     #: Service types for this subnet

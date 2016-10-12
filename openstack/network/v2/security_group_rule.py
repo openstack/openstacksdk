@@ -28,6 +28,8 @@ class SecurityGroupRule(resource.Resource):
     allow_list = True
 
     # Properties
+    #: Timestamp when the security group rule was created.
+    created_at = resource.prop('created_at')
     #: ``ingress`` or ``egress``: The direction in which the security group
     #: rule is applied. For a compute instance, an ingress security group
     #: rule is applied to incoming ingress traffic for that instance.
@@ -62,5 +64,9 @@ class SecurityGroupRule(resource.Resource):
     #: in the request body. This attribute matches the specified IP prefix
     #: as the source IP address of the IP packet.
     remote_ip_prefix = resource.prop('remote_ip_prefix')
+    #: Revision number of the security group rule. *Type: int*
+    revision_number = resource.prop('revision_number', type=int)
     #: The security group ID to associate with this security group rule.
     security_group_id = resource.prop('security_group_id')
+    #: Timestamp when the security group rule was last updated.
+    updated_at = resource.prop('updated_at')

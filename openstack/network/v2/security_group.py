@@ -29,16 +29,22 @@ class SecurityGroup(resource.Resource):
     allow_list = True
 
     # Properties
+    #: Timestamp when the security group was created.
+    created_at = resource.prop('created_at')
     #: The security group description.
     description = resource.prop('description')
     #: The security group name.
     name = resource.prop('name')
     #: The ID of the project this security group is associated with.
     project_id = resource.prop('tenant_id')
+    #: Revision number of the security group. *Type: int*
+    revision_number = resource.prop('revision_number', type=int)
     #: A list of
     #: :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
     #: objects. *Type: list*
     security_group_rules = resource.prop('security_group_rules')
+    #: Timestamp when the security group was last updated.
+    updated_at = resource.prop('updated_at')
 
     def __init__(self, attrs=None, loaded=False):
         super(SecurityGroup, self).__init__(attrs=attrs, loaded=loaded)

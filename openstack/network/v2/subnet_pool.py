@@ -66,5 +66,7 @@ class SubnetPool(resource.Resource):
     #: The adjacent prefixes are merged and treated as a single prefix.
     #: *Type: list*
     prefixes = resource.prop('prefixes', type=list)
+    #: Revision number of the subnet pool. *Type: int*
+    revision_number = resource.prop('revision_number', type=int)
     #: Timestamp when the subnet pool was last updated.
     updated_at = resource.prop('updated_at')

@@ -27,6 +27,9 @@ EXAMPLE = {
     'availability_zone_hints': [],
     'availability_zones': [],
     'description': '10',
+    'created_at': '2016-10-04T12:14:57.233772',
+    'updated_at': '2016-10-12T12:15:34.233222',
+    'revision_number': 13,
 }
 
 EXAMPLE_WITH_OPTIONAL = {
@@ -78,6 +81,9 @@ class TestRouter(testtools.TestCase):
         self.assertEqual(EXAMPLE['availability_zones'],
                          sot.availability_zones)
         self.assertEqual(EXAMPLE['description'], sot.description)
+        self.assertEqual(EXAMPLE['created_at'], sot.created_at)
+        self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
+        self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
 
     def test_make_it_with_optional(self):
         sot = router.Router(EXAMPLE_WITH_OPTIONAL)

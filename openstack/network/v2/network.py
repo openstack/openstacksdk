@@ -76,6 +76,8 @@ class Network(resource.Resource):
     #: An isolated segment ID on the physical network. The provider
     #: network type defines the segmentation model.
     provider_segmentation_id = resource.prop('provider:segmentation_id')
+    #: Revision number of the network. *Type: int*
+    revision_number = resource.prop('revision_number', type=int)
     segments = resource.prop('segments')
     #: The network status.
     status = resource.prop('status')
