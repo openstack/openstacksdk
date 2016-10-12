@@ -20,7 +20,6 @@ Tests for the `rebuild_server` command.
 """
 
 from mock import patch, Mock
-from shade import _utils
 from shade import meta
 from shade import OpenStackCloud
 from shade.exc import (OpenStackCloudException, OpenStackCloudTimeout)
@@ -131,9 +130,8 @@ class TestRebuildServer(base.TestCase):
             OpenStackCloud.nova_client = Mock(**config)
             self.cloud.name = 'cloud-name'
             self.assertEqual(
-                _utils.normalize_server(
-                    meta.obj_to_dict(ret_active_server),
-                    cloud_name='cloud-name', region_name='RegionOne'),
+                self.cloud._normalize_server(
+                    meta.obj_to_dict(ret_active_server)),
                 self.cloud.rebuild_server(
                     "1234", "b", wait=True, admin_pass='ooBootheiX0edoh'))
 
@@ -156,7 +154,6 @@ class TestRebuildServer(base.TestCase):
             OpenStackCloud.nova_client = Mock(**config)
             self.cloud.name = 'cloud-name'
             self.assertEqual(
-                _utils.normalize_server(
-                    meta.obj_to_dict(active_server),
-                    cloud_name='cloud-name', region_name='RegionOne'),
+                self.cloud._normalize_server(
+                    meta.obj_to_dict(active_server)),
                 self.cloud.rebuild_server("1234", "b", wait=True))

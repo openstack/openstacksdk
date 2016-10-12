@@ -176,36 +176,6 @@ def _get_entity(func, name_or_id, filters, **kwargs):
     return entities[0]
 
 
-def normalize_servers(servers, cloud_name, region_name):
-    # Here instead of _utils because we need access to region and cloud
-    # name from the cloud object
-    ret = []
-    for server in servers:
-        ret.append(normalize_server(server, cloud_name, region_name))
-    return ret
-
-
-def normalize_server(server, cloud_name, region_name):
-    server.pop('links', None)
-    server['flavor'].pop('links', None)
-    # OpenStack can return image as a string when you've booted
-    # from volume
-    if str(server['image']) != server['image']:
-        server['image'].pop('links', None)
-
-    server['region'] = region_name
-    server['cloud'] = cloud_name
-
-    az = server.get('OS-EXT-AZ:availability_zone', None)
-    if az:
-        server['az'] = az
-
-    # Ensure volumes is always in the server dict, even if empty
-    server['volumes'] = []
-
-    return server
-
-
 def normalize_images(images, cloud):
     ret = []
     for image in images:

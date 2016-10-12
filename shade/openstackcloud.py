@@ -48,6 +48,7 @@ import designateclient.client
 
 from shade.exc import *  # noqa
 from shade import _log
+from shade import _normalize
 from shade import meta
 from shade import task_manager
 from shade import _tasks
@@ -99,7 +100,7 @@ def _no_pending_stacks(stacks):
     return True
 
 
-class OpenStackCloud(object):
+class OpenStackCloud(_normalize.Normalizer):
     """Represent a connection to an OpenStack Cloud.
 
     OpenStackCloud is the entry point for all cloud operations, regardless
@@ -1564,9 +1565,8 @@ class OpenStackCloud(object):
                 "Error fetching server list on {cloud}:{region}:".format(
                     cloud=self.name,
                     region=self.region_name)):
-            servers = _utils.normalize_servers(
-                self.manager.submit_task(_tasks.ServerList()),
-                cloud_name=self.name, region_name=self.region_name)
+            servers = self._normalize_servers(
+                self.manager.submit_task(_tasks.ServerList()))
 
             if detailed:
                 return [
@@ -2232,9 +2232,8 @@ class OpenStackCloud(object):
         return _utils._get_entity(searchfunc, name_or_id, filters)
 
     def get_server_by_id(self, id):
-        return meta.add_server_interfaces(self, _utils.normalize_server(
-            self.manager.submit_task(_tasks.ServerGet(server=id)),
-            cloud_name=self.name, region_name=self.region_name))
+        return meta.add_server_interfaces(self, self._normalize_server(
+            self.manager.submit_task(_tasks.ServerGet(server=id))))
 
     def get_server_group(self, name_or_id=None, filters=None):
         """Get a server group by name or ID.
