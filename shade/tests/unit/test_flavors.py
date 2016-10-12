@@ -22,7 +22,7 @@ from shade.tests import fakes
 from shade.tests.unit import base
 
 
-class TestFlavors(base.BaseTestCase):
+class TestFlavorsBetamax(base.BaseTestCase):
 
     def test_create_flavor(self):
         self.useFixture(keystoneauth_betamax.BetamaxFixture(
@@ -54,6 +54,9 @@ class TestFlavors(base.BaseTestCase):
 
         # delete created flavor
         self.full_op_cloud.delete_flavor('vanilla')
+
+
+class TestFlavors(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, '_compute_client')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')

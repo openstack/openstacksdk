@@ -67,6 +67,7 @@ class Normalizer(object):
         flavor['ephemeral'] = ephemeral
         flavor['os-flavor-access:is_public'] = is_public
         flavor['is_public'] = is_public
+        flavor['location'] = self.current_location
 
         return flavor
 
