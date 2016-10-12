@@ -39,6 +39,7 @@ class Normalizer(object):
 
         server['region'] = self.region_name
         server['cloud'] = self.name
+        server['location'] = self.current_location
 
         az = server.get('OS-EXT-AZ:availability_zone', None)
         if az:
