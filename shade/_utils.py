@@ -30,6 +30,25 @@ from shade import exc
 from shade import meta
 
 _decorated_methods = []
+_IMAGE_FIELDS = (
+    'checksum',
+    'container_format',
+    'created_at',
+    'disk_format',
+    'file',
+    'id',
+    'min_disk',
+    'min_ram',
+    'name',
+    'owner',
+    'protected',
+    'schema',
+    'size',
+    'status',
+    'tags',
+    'updated_at',
+    'virtual_size',
+)
 
 
 def _iterate_timeout(timeout, message, wait=2):
@@ -185,6 +204,34 @@ def normalize_server(server, cloud_name, region_name):
     server['volumes'] = []
 
     return server
+
+
+def normalize_images(images, cloud):
+    ret = []
+    for image in images:
+        ret.append(normalize_image(image, cloud))
+    return ret
+
+
+def normalize_image(image, cloud):
+    new_image = munch.Munch(location=cloud.current_location)
+    properties = image.pop('properties', {})
+    visibility = image.pop('visibility', None)
+    if visibility:
+        is_public = (visibility == 'public')
+    else:
+        is_public = image.pop('is_public', False)
+        visibility = 'public' if is_public else 'private'
+
+    for field in _IMAGE_FIELDS:
+        new_image[field] = image.pop(field, None)
+    for key, val in image.items():
+        properties[key] = val
+        new_image[key] = val
+    new_image['properties'] = properties
+    new_image['visibility'] = visibility
+    new_image['is_public'] = is_public
+    return new_image
 
 
 def normalize_keystone_services(services):

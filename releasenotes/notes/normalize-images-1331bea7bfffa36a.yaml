@@ -1,0 +1,6 @@
+---
+features:
+  - Image dicts that are returned are now normalized across glance v1
+    and glance v2. Extra key/value properties are now both in the root
+    dict and in a properties dict. Additionally, cloud and region have
+    been added like they are for server.
