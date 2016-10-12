@@ -12,6 +12,7 @@
 
 import copy
 
+from keystoneauth1 import exceptions as ksa_exceptions
 from keystoneauth1 import plugin as ksa_plugin
 from keystoneauth1 import session as ksa_session
 import mock
@@ -234,6 +235,14 @@ class TestCloudConfig(base.TestCase):
             service_name=None,
             region_name='region-al',
             service_type='orchestration')
+
+    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    def test_session_endpoint_not_found(self, mock_get_session):
+        exc_to_raise = ksa_exceptions.catalog.EndpointNotFound
+        mock_get_session.return_value.get_endpoint.side_effect = exc_to_raise
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", {}, auth_plugin=mock.Mock())
+        self.assertIsNone(cc.get_session_endpoint('notfound'))
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(cloud_config.CloudConfig, 'get_auth_args')

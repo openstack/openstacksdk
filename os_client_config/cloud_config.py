@@ -16,6 +16,7 @@ import importlib
 import warnings
 
 from keystoneauth1 import adapter
+import keystoneauth1.exceptions.catalog
 from keystoneauth1 import plugin
 from keystoneauth1 import session
 import requestsexceptions
@@ -251,11 +252,18 @@ class CloudConfig(object):
         if service_key == 'identity':
             endpoint = session.get_endpoint(interface=plugin.AUTH_INTERFACE)
         else:
-            endpoint = session.get_endpoint(
-                service_type=self.get_service_type(service_key),
-                service_name=self.get_service_name(service_key),
-                interface=self.get_interface(service_key),
-                region_name=self.region)
+            args = {
+                'service_type': self.get_service_type(service_key),
+                'service_name': self.get_service_name(service_key),
+                'interface': self.get_interface(service_key),
+                'region_name': self.region
+            }
+            try:
+                endpoint = session.get_endpoint(**args)
+            except keystoneauth1.exceptions.catalog.EndpointNotFound:
+                self.log.warning("Keystone catalog entry not found (%s)",
+                                 args)
+                endpoint = None
         return endpoint
 
     def get_legacy_client(
