@@ -97,6 +97,78 @@ class Normalizer(object):
         new_image['is_public'] = is_public
         return new_image
 
+    def _normalize_secgroups(self, groups):
+        """Normalize the structure of security groups
+
+        This makes security group dicts, as returned from nova, look like the
+        security group dicts as returned from neutron. This does not make them
+        look exactly the same, but it's pretty close.
+
+        :param list groups: A list of security group dicts.
+
+        :returns: A list of normalized dicts.
+        """
+        ret = []
+        for group in groups:
+            ret.append(self._normalize_secgroup(group))
+        return ret
+
+    def _normalize_secgroup(self, group):
+
+        rules = group.pop('security_group_rules', None)
+        if not rules and 'rules' in group:
+            rules = group.pop('rules')
+        group['security_group_rules'] = self._normalize_secgroup_rules(rules)
+        # neutron sets these. we don't care about it, but let's be the same
+        project_id = group.get('project_id', group.get('tenant_id', ''))
+        group['tenant_id'] = project_id
+        group['project_id'] = project_id
+        group['location'] = self.current_location
+        return munch.Munch(group)
+
+    def _normalize_secgroup_rules(self, rules):
+        """Normalize the structure of nova security group rules
+
+        Note that nova uses -1 for non-specific port values, but neutron
+        represents these with None.
+
+        :param list rules: A list of security group rule dicts.
+
+        :returns: A list of normalized dicts.
+        """
+        ret = []
+        for rule in rules:
+            ret.append(self._normalize_secgroup_rule(rule))
+        return ret
+
+    def _normalize_secgroup_rule(self, rule):
+        ret = munch.Munch()
+        ret['id'] = rule['id']
+        ret['location'] = self.current_location
+        ret['direction'] = rule.get('direction', 'ingress')
+        ret['ethertype'] = rule.get('ethertype', 'IPv4')
+        port_range_min = rule.get(
+            'port_range_min', rule.get('from_port', None))
+        if port_range_min == -1:
+            port_range_min = None
+        ret['port_range_min'] = port_range_min
+        port_range_max = rule.get(
+            'port_range_max', rule.get('to_port', None))
+        if port_range_max == -1:
+            port_range_max = None
+        ret['port_range_max'] = port_range_max
+        ret['protocol'] = rule.get('protocol', rule.get('ip_protocol'))
+        ret['remote_ip_prefix'] = rule.get(
+            'remote_ip_prefix', rule.get('ip_range', {}).get('cidr', None))
+        ret['security_group_id'] = rule.get(
+            'security_group_id', rule.get('parent_group_id'))
+        ret['remote_group_id'] = rule.get('remote_group_id')
+        project_id = rule.get('project_id', rule.get('tenant_id', ''))
+        ret['tenant_id'] = project_id
+        ret['project_id'] = project_id
+        ret['remote_group_id'] = rule.get('remote_group_id')
+        return ret
+
     def _normalize_servers(self, servers):
         # Here instead of _utils because we need access to region and cloud
         # name from the cloud object
