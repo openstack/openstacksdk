@@ -21,6 +21,7 @@ import fixtures
 import mock
 import os
 import os_client_config as occ
+from requests_mock.contrib import fixture as rm_fixture
 import tempfile
 
 import shade.openstackcloud
@@ -103,3 +104,41 @@ class TestCase(BaseTestCase):
         self.session_fixture = self.useFixture(fixtures.MonkeyPatch(
             'os_client_config.cloud_config.CloudConfig.get_session',
             mock.Mock()))
+
+
+class RequestsMockTestCase(BaseTestCase):
+
+    def setUp(self, cloud_config_fixture='clouds.yaml'):
+
+        super(RequestsMockTestCase, self).setUp(
+            cloud_config_fixture=cloud_config_fixture)
+
+        self.adapter = self.useFixture(rm_fixture.Fixture())
+        self.adapter.register_uri(
+            'GET', 'http://192.168.0.19:35357/',
+            text=open(
+                os.path.join(
+                    self.fixtures_directory,
+                    'discovery.json'),
+                'r').read())
+        self.adapter.register_uri(
+            'POST', 'http://example.com/v2.0/tokens',
+            text=open(
+                os.path.join(
+                    self.fixtures_directory,
+                    'catalog.json'),
+                'r').read())
+        self.adapter.register_uri(
+            'GET', 'http://image.example.com/',
+            text=open(
+                os.path.join(
+                    self.fixtures_directory,
+                    'image-version.json'),
+                'r').read())
+
+        test_cloud = os.environ.get('SHADE_OS_CLOUD', '_test_cloud_')
+        self.cloud_config = self.config.get_one_cloud(
+            cloud=test_cloud, validate=True)
+        self.cloud = shade.OpenStackCloud(
+            cloud_config=self.cloud_config,
+            log_inner_exceptions=True)
