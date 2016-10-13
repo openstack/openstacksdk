@@ -223,53 +223,6 @@ def normalize_nova_floating_ips(ips):
     return meta.obj_list_to_dict(ret)
 
 
-def normalize_neutron_floating_ips(ips):
-    """Normalize the structure of Neutron floating IPs
-
-    Unfortunately, not all the Neutron floating_ip attributes are available
-    with Nova and not all Nova floating_ip attributes are available with
-    Neutron.
-    This function extract attributes that are common to Nova and Neutron
-    floating IP resource.
-    If the whole structure is needed inside shade, shade provides private
-    methods that returns "original" objects (e.g.
-    _neutron_allocate_floating_ip)
-
-    :param list ips: A list of Neutron floating IPs.
-
-    :returns:
-        A list of normalized dicts with the following attributes::
-
-        [
-          {
-            "id": "this-is-a-floating-ip-id",
-            "fixed_ip_address": "192.0.2.10",
-            "floating_ip_address": "198.51.100.10",
-            "network": "this-is-a-net-or-pool-id",
-            "attached": True,
-            "status": "ACTIVE"
-          }, ...
-        ]
-
-    """
-    ret = []
-    for ip in ips:
-        network_id = ip.get('floating_network_id', ip.get('network'))
-        ret.append(dict(
-            id=ip['id'],
-            fixed_ip_address=ip.get('fixed_ip_address'),
-            floating_ip_address=ip['floating_ip_address'],
-            network=network_id,
-            floating_network_id=network_id,
-            port_id=ip.get('port_id'),
-            router_id=ip.get('router_id'),
-            attached=(ip.get('port_id') is not None and
-                      ip.get('port_id') != ''),
-            status=ip.get('status', 'UNKNOWN')
-        ))
-    return meta.obj_list_to_dict(ret)
-
-
 def localhost_supports_ipv6():
     """Determine whether the local host supports IPv6
 

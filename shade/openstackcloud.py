@@ -1666,7 +1666,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def _list_floating_ips(self):
         if self._use_neutron_floating():
             try:
-                return _utils.normalize_neutron_floating_ips(
+                return self._normalize_neutron_floating_ips(
                     self._neutron_list_floating_ips())
             except OpenStackCloudURINotFound as e:
                 self.log.debug(
@@ -3606,7 +3606,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         if self._use_neutron_floating():
             try:
-                f_ips = _utils.normalize_neutron_floating_ips(
+                f_ips = self._normalize_neutron_floating_ips(
                     self._neutron_available_floating_ips(
                         network=network, server=server))
                 return f_ips[0]
@@ -3786,7 +3786,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def _submit_create_fip(self, kwargs):
         # Split into a method to aid in test mocking
-        return _utils.normalize_neutron_floating_ips(
+        return self._normalize_neutron_floating_ips(
             [self.manager.submit_task(_tasks.NeutronFloatingIPCreate(
                 body={'floatingip': kwargs}))['floatingip']])[0]
 
