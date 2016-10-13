@@ -89,6 +89,33 @@ class TestAgent(testtools.TestCase):
         sess.delete.assert_called_with('agents/IDENTIFIER/dhcp-networks/',
                                        endpoint_filter=net.service, json=body)
 
+    def test_add_router_to_agent(self):
+        # Add router to agent
+        sot = agent.Agent(**EXAMPLE)
+        response = mock.Mock()
+        response.body = {'router_id': '1'}
+        response.json = mock.Mock(return_value=response.body)
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=response)
+        router_id = '1'
+        self.assertEqual(response.body,
+                         sot.add_router_to_agent(sess, router_id))
+        body = {'router_id': router_id}
+        url = 'agents/IDENTIFIER/l3-routers'
+        sess.post.assert_called_with(url, endpoint_filter=sot.service,
+                                     json=body)
+
+    def test_remove_router_from_agent(self):
+        # Remove router from agent
+        sot = agent.Agent(**EXAMPLE)
+        sess = mock.Mock()
+        router_id = {}
+        self.assertIsNone(sot.remove_router_from_agent(sess, router_id))
+        body = {'router_id': {}}
+
+        sess.delete.assert_called_with('agents/IDENTIFIER/l3-routers/',
+                                       endpoint_filter=sot.service, json=body)
+
 
 class TestNetworkHostingDHCPAgent(testtools.TestCase):
 
@@ -104,3 +131,19 @@ class TestNetworkHostingDHCPAgent(testtools.TestCase):
         self.assertFalse(net.allow_update)
         self.assertFalse(net.allow_delete)
         self.assertTrue(net.allow_list)
+
+
+class TestRouterL3Agent(testtools.TestCase):
+
+    def test_basic(self):
+        sot = agent.RouterL3Agent()
+        self.assertEqual('agent', sot.resource_key)
+        self.assertEqual('agents', sot.resources_key)
+        self.assertEqual('/routers/%(router_id)s/l3-agents', sot.base_path)
+        self.assertEqual('l3-agent', sot.resource_name)
+        self.assertEqual('network', sot.service.service_type)
+        self.assertFalse(sot.allow_create)
+        self.assertTrue(sot.allow_retrieve)
+        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_delete)
+        self.assertTrue(sot.allow_list)

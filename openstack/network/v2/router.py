@@ -128,3 +128,20 @@ class Router(resource.Resource):
                             'remove_gateway_router')
         resp = session.put(url, endpoint_filter=self.service, json=body)
         return resp.json()
+
+
+class L3AgentRouter(Router):
+    resource_key = 'router'
+    resources_key = 'routers'
+    base_path = '/agents/%(agent_id)s/l3-routers'
+    resource_name = 'l3-router'
+    service = network_service.NetworkService()
+
+    # capabilities
+    allow_create = False
+    allow_retrieve = True
+    allow_update = False
+    allow_delete = False
+    allow_list = True
+
+# NOTE: No query parameter is supported

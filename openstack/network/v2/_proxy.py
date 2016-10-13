@@ -2255,6 +2255,62 @@ class Proxy(proxy2.BaseProxy):
         """
         return router.remove_gateway(self.session, **body)
 
+    def routers_hosting_l3_agents(self, router, **query):
+        """Return a generator of L3 agent hosting a router
+
+        :param router: Either the router id or an instance of
+                        :class:`~openstack.network.v2.router.Router`
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources returned
+
+        :returns: A generator of Router L3 Agents
+        :rtype: :class:`~openstack.network.v2.router.RouterL3Agents`
+        """
+        router = self._get_resource(_router.Router, router)
+        return self._list(_agent.RouterL3Agent, paginated=False,
+                          router_id=router.id, **query)
+
+    def agent_hosted_routers(self, agent, **query):
+        """Return a generator of routers hosted by a L3 agent
+
+        :param agent: Either the agent id of an instance of
+                      :class:`~openstack.network.v2.network_agent.Agent`
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources returned
+
+        :returns: A generator of routers
+        :rtype: :class:`~openstack.network.v2.agent.L3AgentRouters`
+        """
+        agent = self._get_resource(_agent.Agent, agent)
+        return self._list(_router.L3AgentRouter, paginated=False,
+                          agent_id=agent.id, **query)
+
+    def add_router_to_agent(self, agent, router):
+        """Add router to L3 agent
+
+        :param agent: Either the id of an agent
+                      :class:`~openstack.network.v2.agent.Agent` instance
+        :param router: A router instance
+        :returns: Agent with attached router
+        :rtype: :class:`~openstack.network.v2.agent.Agent`
+        """
+        agent = self._get_resource(_agent.Agent, agent)
+        router = self._get_resource(_router.Router, router)
+        return agent.add_router_to_agent(self.session, router.id)
+
+    def remove_router_from_agent(self, agent, router):
+        """Remove router from L3 agent
+
+        :param agent: Either the id of an agent or an
+                      :class:`~openstack.network.v2.agent.Agent` instance
+        :param router: A router instance
+        :returns: Agent with removed router
+        :rtype: :class:`~openstack.network.v2.agent.Agent`
+        """
+        agent = self._get_resource(_agent.Agent, agent)
+        router = self._get_resource(_router.Router, router)
+        return agent.remove_router_from_agent(self.session, router.id)
+
     def create_security_group(self, **attrs):
         """Create a new security group from attributes
 

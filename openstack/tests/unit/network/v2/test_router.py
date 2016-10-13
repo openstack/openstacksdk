@@ -203,3 +203,19 @@ class TestRouter(testtools.TestCase):
         url = 'routers/IDENTIFIER/remove_gateway_router'
         sess.put.assert_called_with(url, endpoint_filter=sot.service,
                                     json=body)
+
+
+class TestL3AgentRouters(testtools.TestCase):
+
+    def test_basic(self):
+        sot = router.L3AgentRouter()
+        self.assertEqual('router', sot.resource_key)
+        self.assertEqual('routers', sot.resources_key)
+        self.assertEqual('/agents/%(agent_id)s/l3-routers', sot.base_path)
+        self.assertEqual('l3-router', sot.resource_name)
+        self.assertEqual('network', sot.service.service_type)
+        self.assertFalse(sot.allow_create)
+        self.assertTrue(sot.allow_retrieve)
+        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_delete)
+        self.assertTrue(sot.allow_list)

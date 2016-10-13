@@ -55,6 +55,7 @@ QOS_POLICY_ID = 'qos-policy-id-' + uuid.uuid4().hex
 QOS_RULE_ID = 'qos-rule-id-' + uuid.uuid4().hex
 NETWORK_ID = 'network-id-' + uuid.uuid4().hex
 AGENT_ID = 'agent-id-' + uuid.uuid4().hex
+ROUTER_ID = 'router-id-' + uuid.uuid4().hex
 
 
 class TestNetworkProxy(test_proxy_base2.TestProxyBase):
@@ -738,6 +739,24 @@ class TestNetworkProxy(test_proxy_base2.TestProxyBase):
 
     def test_router_update(self):
         self.verify_update(self.proxy.update_router, router.Router)
+
+    def test_router_hosting_l3_agents_list(self):
+        self.verify_list(
+            self.proxy.routers_hosting_l3_agents,
+            agent.RouterL3Agent,
+            paginated=False,
+            method_kwargs={'router': ROUTER_ID},
+            expected_kwargs={'router_id': ROUTER_ID},
+        )
+
+    def test_agent_hosted_routers_list(self):
+        self.verify_list(
+            self.proxy.agent_hosted_routers,
+            router.L3AgentRouter,
+            paginated=False,
+            method_kwargs={'agent': AGENT_ID},
+            expected_kwargs={'agent_id': AGENT_ID},
+        )
 
     def test_security_group_create_attrs(self):
         self.verify_create(self.proxy.create_security_group,

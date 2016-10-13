@@ -75,6 +75,17 @@ class Agent(resource.Resource):
                             network_id)
         session.delete(url, endpoint_filter=self.service, json=body)
 
+    def add_router_to_agent(self, session, router):
+        body = {'router_id': router}
+        url = utils.urljoin(self.base_path, self.id, 'l3-routers')
+        resp = session.post(url, endpoint_filter=self.service, json=body)
+        return resp.json()
+
+    def remove_router_from_agent(self, session, router):
+        body = {'router_id': router}
+        url = utils.urljoin(self.base_path, self.id, 'l3-routers', router)
+        session.delete(url, endpoint_filter=self.service, json=body)
+
 
 class NetworkHostingDHCPAgent(Agent):
     resource_key = 'agent'
@@ -91,3 +102,20 @@ class NetworkHostingDHCPAgent(Agent):
     allow_list = True
 
     # NOTE: Doesn't support query yet.
+
+
+class RouterL3Agent(Agent):
+    resource_key = 'agent'
+    resources_key = 'agents'
+    base_path = '/routers/%(router_id)s/l3-agents'
+    resource_name = 'l3-agent'
+    service = network_service.NetworkService()
+
+    # capabilities
+    allow_create = False
+    allow_retrieve = True
+    allow_update = False
+    allow_delete = False
+    allow_list = True
+
+    # NOTE: No query parameter is supported
