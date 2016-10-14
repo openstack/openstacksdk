@@ -76,7 +76,7 @@ OBJECT_CONTAINER_ACLS = {
 
 
 def _no_pending_volumes(volumes):
-    '''If there are any volumes not in a steady state, don't cache'''
+    """If there are any volumes not in a steady state, don't cache"""
     for volume in volumes:
         if volume['status'] not in ('available', 'error', 'in-use'):
             return False
@@ -84,7 +84,7 @@ def _no_pending_volumes(volumes):
 
 
 def _no_pending_images(images):
-    '''If there are any images not in a steady state, don't cache'''
+    """If there are any images not in a steady state, don't cache"""
     for image in images:
         if image.status not in ('active', 'deleted', 'killed'):
             return False
@@ -92,7 +92,7 @@ def _no_pending_images(images):
 
 
 def _no_pending_stacks(stacks):
-    '''If there are any stacks not in a steady state, don't cache'''
+    """If there are any stacks not in a steady state, don't cache"""
     for stack in stacks:
         status = stack['stack_status']
         if '_COMPLETE' not in status and '_FAILED' not in status:
@@ -401,7 +401,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @property
     def current_project_id(self):
-        '''Get the current project id.
+        """Get the current project id.
 
         Returns the project_id of the current token scope. None means that
         the token is domain scoped or unscoped.
@@ -410,12 +410,12 @@ class OpenStackCloud(_normalize.Normalizer):
             if a new token fetch fails.
         :raises keystoneauth1.exceptions.auth_plugins.MissingAuthPlugin:
             if a plugin is not available.
-        '''
+        """
         return self.keystone_session.get_project_id()
 
     @property
     def current_project(self):
-        '''Return a ``munch.Munch`` describing the current project'''
+        """Return a ``munch.Munch`` describing the current project"""
         return self._get_project_info()
 
     def _get_project_info(self, project_id=None):
@@ -445,7 +445,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @property
     def current_location(self):
-        '''Return a ``munch.Munch`` explaining the current cloud location.'''
+        """Return a ``munch.Munch`` explaining the current cloud location."""
         return self._get_current_location()
 
     def _get_current_location(self, project_id=None):
@@ -577,7 +577,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def search_projects(self, name_or_id=None, filters=None, domain_id=None):
         """Seach Keystone projects.
 
-        :param name: project name or id.
+        :param name_or_id: project name or id.
         :param filters: a dict containing additional filters to use.
         :param domain_id: domain id to scope the searched projects.
 
@@ -592,7 +592,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def get_project(self, name_or_id, filters=None, domain_id=None):
         """Get exactly one Keystone project.
 
-        :param id: project name or id.
+        :param name_or_id: project name or id.
         :param filters: a dict containing additional filters to use.
         :param domain_id: domain id (keystone v3 only)
 
@@ -691,7 +691,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def search_users(self, name_or_id=None, filters=None):
         """Seach Keystone users.
 
-        :param string name: user name or id.
+        :param string name_or_id: user name or id.
         :param filters: a dict containing additional filters to use.
             OR
             A string containing a jmespath expression for further filtering.
@@ -3916,7 +3916,7 @@ class OpenStackCloud(_normalize.Normalizer):
             if self._FLOAT_AGE:
                 time.sleep(self._FLOAT_AGE)
 
-            # neutron sometimes returns success when deleating a floating
+            # neutron sometimes returns success when deleting a floating
             # ip. That's awesome. SO - verify that the delete actually
             # worked.
             f_ip = self.get_floating_ip(id=floating_ip_id)
@@ -4356,7 +4356,7 @@ class OpenStackCloud(_normalize.Normalizer):
             timeout = timeout - (time.time() - start_time)
             if server:
                 # This gets passed in for both nova and neutron
-                # but is only meaninful for the neutron logic branch
+                # but is only meaningful for the neutron logic branch
                 skip_attach = True
             created = True
 
@@ -4865,6 +4865,7 @@ class OpenStackCloud(_normalize.Normalizer):
             delete_ip_retry=1):
         """Delete a server instance.
 
+        :param name_or_id: name or ID of the server to delete
         :param bool wait: If true, waits for server to be deleted.
         :param int timeout: Seconds to wait for server deletion.
         :param bool delete_ips: If true, deletes any floating IPs
@@ -5123,7 +5124,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return self.manager.submit_task(_tasks.ObjectCapabilities())
 
     def get_object_segment_size(self, segment_size):
-        '''get a segment size that will work given capabilities'''
+        """Get a segment size that will work given capabilities"""
         if segment_size is None:
             segment_size = DEFAULT_OBJECT_SEGMENT_SIZE
         min_segment_size = 0
@@ -5201,7 +5202,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :param headers: These will be passed through to the object creation
             API as HTTP Headers.
         :param use_slo: If the object is large enough to need to be a Large
-            Object, use a static rather than dyanmic object. Static Objects
+            Object, use a static rather than dynamic object. Static Objects
             will delete segment objects when the manifest object is deleted.
             (optional, defaults to True)
         :param metadata: This dict will get changed into headers that set
