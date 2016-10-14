@@ -20,6 +20,8 @@ Tests floating IP resource methods for Neutron and Nova-network.
 """
 
 from mock import patch
+
+from shade import exc
 from shade import meta
 from shade import OpenStackCloud
 from shade.tests.fakes import FakeServer
@@ -223,3 +225,12 @@ class TestFloatingIP(base.TestCase):
 
         mock_add_auto_ip.assert_called_with(
             server_dict, wait=False, timeout=60, reuse=True)
+
+    @patch.object(OpenStackCloud, 'search_ports', return_value=[{}])
+    def test_nat_destination_port_when_no_free_fixed_ip(
+            self, mock_search_ports):
+        server = {'id': 42}
+        self.assertRaisesRegexp(
+            exc.OpenStackCloudException, 'server 42$',
+            self.cloud._nat_destination_port, server
+        )
