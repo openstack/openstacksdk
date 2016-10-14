@@ -313,7 +313,7 @@ class TestFloatingIP(base.TestCase):
     @patch.object(_utils, '_filter_list')
     @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
     @patch.object(OpenStackCloud, '_neutron_list_floating_ips')
-    @patch.object(OpenStackCloud, 'get_external_ipv4_networks')
+    @patch.object(OpenStackCloud, 'get_external_ipv4_floating_networks')
     @patch.object(OpenStackCloud, 'keystone_session')
     def test__neutron_available_floating_ips(
             self,
@@ -350,7 +350,7 @@ class TestFloatingIP(base.TestCase):
     @patch.object(_utils, '_filter_list')
     @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
     @patch.object(OpenStackCloud, '_neutron_list_floating_ips')
-    @patch.object(OpenStackCloud, 'get_external_ipv4_networks')
+    @patch.object(OpenStackCloud, 'get_external_ipv4_floating_networks')
     @patch.object(OpenStackCloud, 'keystone_session')
     def test__neutron_available_floating_ips_network(
             self,
