@@ -292,6 +292,7 @@ def normalize_users(users):
                                         user.get('tenantId')),
             domain_id=user.get('domain_id'),
             enabled=user.get('enabled'),
+            description=user.get('description')
         ) for user in users
     ]
     return meta.obj_list_to_dict(ret)

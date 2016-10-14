@@ -36,9 +36,11 @@ class TestUsers(base.TestCase):
         fake_user = fakes.FakeUser('1', email, name)
         mock_keystone.users.create.return_value = fake_user
         user = self.op_cloud.create_user(
-            name=name, email=email, password=password)
+            name=name, email=email, password=password,
+        )
         mock_keystone.users.create.assert_called_once_with(
-            name=name, password=password, email=email, enabled=True,
+            name=name, password=password, email=email,
+            enabled=True,
         )
         self.assertEqual(name, user.name)
         self.assertEqual(email, user.email)
@@ -51,18 +53,22 @@ class TestUsers(base.TestCase):
         email = 'mickey@disney.com'
         password = 'mice-rule'
         domain_id = '456'
-        fake_user = fakes.FakeUser('1', email, name)
+        description = 'fake-description'
+        fake_user = fakes.FakeUser('1', email, name, description=description)
         mock_keystone.users.create.return_value = fake_user
         user = self.op_cloud.create_user(
             name=name, email=email,
             password=password,
+            description=description,
             domain_id=domain_id)
         mock_keystone.users.create.assert_called_once_with(
-            name=name, password=password, email=email, enabled=True,
+            name=name, password=password, email=email,
+            description=description, enabled=True,
             domain=domain_id
         )
         self.assertEqual(name, user.name)
         self.assertEqual(email, user.email)
+        self.assertEqual(description, user.description)
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
@@ -72,7 +78,7 @@ class TestUsers(base.TestCase):
         email = 'mickey@disney.com'
         password = 'mice-rule'
         domain_id = '1'
-        user = {'id': '1', 'name': name, 'email': email}
+        user = {'id': '1', 'name': name, 'email': email, 'description': None}
         fake_user = fakes.FakeUser(**user)
         munch_fake_user = munch.Munch(user)
         mock_keystone.users.list.return_value = [fake_user]

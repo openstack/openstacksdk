@@ -772,15 +772,25 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def create_user(
             self, name, password=None, email=None, default_project=None,
-            enabled=True, domain_id=None):
+            enabled=True, domain_id=None, description=None):
         """Create a user."""
         with _utils.shade_exceptions("Error in creating user {user}".format(
                 user=name)):
             identity_params = self._get_identity_params(
                 domain_id, default_project)
-            user = self.manager.submit_task(_tasks.UserCreate(
-                name=name, password=password, email=email,
-                enabled=enabled, **identity_params))
+            if self.cloud_config.get_api_version('identity') != '3':
+                if description is not None:
+                    self.log.info(
+                        "description parameter is not supported on Keystone v2"
+                    )
+                user = self.manager.submit_task(_tasks.UserCreate(
+                    name=name, password=password, email=email,
+                    enabled=enabled, **identity_params))
+            else:
+                user = self.manager.submit_task(_tasks.UserCreate(
+                    name=name, password=password, email=email,
+                    enabled=enabled, description=description,
+                    **identity_params))
         self.list_users.invalidate(self)
         return _utils.normalize_users([user])[0]
 

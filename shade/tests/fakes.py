@@ -147,10 +147,11 @@ class FakeService(object):
 
 
 class FakeUser(object):
-    def __init__(self, id, email, name, domain_id=None):
+    def __init__(self, id, email, name, domain_id=None, description=None):
         self.id = id
         self.email = email
         self.name = name
+        self.description = description
         if domain_id is not None:
             self.domain_id = domain_id
 
