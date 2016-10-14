@@ -14,8 +14,10 @@
 
 
 import mock
+from novaclient import exceptions as nova_exceptions
 
 import shade
+from shade import exc
 from shade.tests.unit import base
 from shade.tests import fakes
 
@@ -31,6 +33,10 @@ class TestQuotas(base.TestCase):
 
         mock_nova.quotas.update.assert_called_once_with(
             cores=1, force=True, tenant_id='project_a')
+
+        mock_nova.quotas.update.side_effect = nova_exceptions.BadRequest(400)
+        self.assertRaises(exc.OpenStackCloudException,
+                          self.op_cloud.set_compute_quotas, project)
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
@@ -49,6 +55,10 @@ class TestQuotas(base.TestCase):
         self.op_cloud.delete_compute_quotas(project)
 
         mock_nova.quotas.delete.assert_called_once_with(tenant_id='project_a')
+
+        mock_nova.quotas.delete.side_effect = nova_exceptions.BadRequest(400)
+        self.assertRaises(exc.OpenStackCloudException,
+                          self.op_cloud.delete_compute_quotas, project)
 
     @mock.patch.object(shade.OpenStackCloud, 'cinder_client')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')

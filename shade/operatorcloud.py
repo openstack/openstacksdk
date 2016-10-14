@@ -1983,7 +1983,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 _tasks.NovaQuotasSet(tenant_id=proj.id,
                                      force=True,
                                      **kwargs))
-        except novaclient.exceptions.BadRequest:
+        except nova_exceptions.BadRequest:
             raise OpenStackCloudException("No valid quota or resource")
 
     def get_compute_quotas(self, name_or_id):
@@ -2018,7 +2018,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         try:
             return self.manager.submit_task(
                 _tasks.NovaQuotasDelete(tenant_id=proj.id))
-        except novaclient.exceptions.BadRequest:
+        except nova_exceptions.BadRequest:
             raise OpenStackCloudException("nova client call failed")
 
     def set_volume_quotas(self, name_or_id, **kwargs):
