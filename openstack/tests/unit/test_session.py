@@ -82,6 +82,28 @@ class TestSession(testtools.TestCase):
         self.assertEqual(ksa_exc.http_status, os_exc.http_status)
         self.assertEqual(ksa_exc, os_exc.cause)
 
+    def test_map_exceptions_neutron_exception(self):
+        fake_response = mock.Mock()
+        message = "neutron error message"
+        detail = "neutron detailed message"
+        body = {
+            "NeutronError": {
+                "message": message,
+                "detail": detail,
+            }
+        }
+
+        fake_response.json = mock.Mock(return_value=body)
+
+        ksa_exc = _exceptions.HttpError(response=fake_response)
+        func = mock.Mock(side_effect=ksa_exc)
+
+        os_exc = self.assertRaises(
+            exceptions.HttpException, session.map_exceptions(func))
+
+        self.assertEqual(message, os_exc.message)
+        self.assertEqual(detail, os_exc.details)
+
     def test_map_exceptions_sdk_exception_1(self):
         ksa_exc = _exceptions.ClientException()
         func = mock.Mock(side_effect=ksa_exc)

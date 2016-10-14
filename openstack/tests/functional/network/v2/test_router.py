@@ -12,6 +12,7 @@
 
 import uuid
 
+from openstack import exceptions
 from openstack.network.v2 import router
 from openstack.tests.functional import base
 
@@ -54,3 +55,20 @@ class TestRouter(base.BaseFunctionalTest):
     def test_update(self):
         sot = self.conn.network.update_router(self.ID, name=self.UPDATE_NAME)
         self.assertEqual(self.UPDATE_NAME, sot.name)
+
+    def test_error(self):
+        destination = "10.10.10.0/24"
+        nexthop = "192.168.0.13"
+        message = "Invalid input for routes. Reason: Invalid data format " \
+                  "for hostroute: '{u'destination': u'%s', " \
+                  "u'nexthop': u'%s'}'." % (destination, nexthop)
+
+        with self.assertRaises(exceptions.HttpException) as cm:
+            routes = {
+                "destination": destination,
+                "nexthop": nexthop,
+            }
+
+            self.conn.network.update_router(self.ID, routes=routes)
+
+        self.assertEqual(message, cm.exception.message)
