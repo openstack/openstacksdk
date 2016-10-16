@@ -4137,7 +4137,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     return port, fixed_address
             raise OpenStackCloudException(
                 "unable to find a free fixed IPv4 address for server "
-                "{0}".format(server_id))
+                "{0}".format(server['id']))
         # unfortunately a port can have more than one fixed IP:
         # we can't use the search_ports filtering for fixed_address as
         # they are contained in a list. e.g.
