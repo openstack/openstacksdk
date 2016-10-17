@@ -409,6 +409,21 @@ class VolumeSnapshotList(task_manager.Task):
         return client.cinder_client.volume_snapshots.list(**self.args)
 
 
+class VolumeBackupList(task_manager.Task):
+    def main(self, client):
+        return client.cinder_client.backups.list(**self.args)
+
+
+class VolumeBackupCreate(task_manager.Task):
+    def main(self, client):
+        return client.cinder_client.backups.create(**self.args)
+
+
+class VolumeBackupDelete(task_manager.Task):
+    def main(self, client):
+        return client.cinder_client.backups.delete(**self.args)
+
+
 class VolumeSnapshotDelete(task_manager.Task):
     def main(self, client):
         return client.cinder_client.volume_snapshots.delete(**self.args)
