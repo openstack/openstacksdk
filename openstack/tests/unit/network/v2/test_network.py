@@ -39,6 +39,7 @@ EXAMPLE = {
     'updated_at': '2016-07-09T12:14:57.233772',
     'is_default': False,
     'revision_number': 23,
+    'dns_domain': 24,
 }
 
 
@@ -88,3 +89,4 @@ class TestNetwork(testtools.TestCase):
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
         self.assertFalse(sot.is_default)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
+        self.assertEqual(EXAMPLE['dns_domain'], sot.dns_domain)
