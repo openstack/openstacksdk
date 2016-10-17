@@ -88,3 +88,18 @@ class Network(resource.Resource):
     subnet_ids = resource.prop('subnets', type=list)
     #: Timestamp when the network was last updated.
     updated_at = resource.prop('updated_at')
+
+
+class NetworkHostingDHCPAgent(resource.Resource):
+    resource_key = 'agent'
+    resources_key = 'agents'
+    resource_name = 'dhcp-agent'
+    base_path = '/networks/%(network_id)s/dhcp-agents'
+    service = network_service.NetworkService()
+
+    # capabilities
+    allow_create = False
+    allow_retrieve = True
+    allow_update = False
+    allow_delete = False
+    allow_list = True

@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 import testtools
 
 from openstack.network.v2 import agent
@@ -62,3 +63,44 @@ class TestAgent(testtools.TestCase):
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['started_at'], sot.started_at)
         self.assertEqual(EXAMPLE['topic'], sot.topic)
+
+    def test_add_agent_to_network(self):
+        # Add agent to network
+        net = agent.Agent(EXAMPLE)
+        response = mock.Mock()
+        response.body = {'network_id': '1'}
+        response.json = mock.Mock(return_value=response.body)
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=response)
+        body = {'network_id': '1'}
+        self.assertEqual(response.body, net.add_agent_to_network(sess, **body))
+
+        url = 'agents/IDENTIFIER/dhcp-networks'
+        sess.post.assert_called_with(url, endpoint_filter=net.service,
+                                     json=body)
+
+    def test_remove_agent_from_network(self):
+        # Remove agent from agent
+        net = agent.Agent(EXAMPLE)
+        sess = mock.Mock()
+        self.assertIsNone(net.remove_agent_from_network(sess))
+        body = {}
+
+        sess.delete.assert_called_with('agents/IDENTIFIER/dhcp-networks/',
+                                       endpoint_filter=net.service, json=body)
+
+
+class TestDHCPAgentHostingNetwork(testtools.TestCase):
+
+    def test_basic(self):
+        net = agent.DHCPAgentHostingNetwork()
+        self.assertEqual('network', net.resource_key)
+        self.assertEqual('networks', net.resources_key)
+        self.assertEqual('/agents/%(agent_id)s/dhcp-networks', net.base_path)
+        self.assertEqual('dhcp-network', net.resource_name)
+        self.assertEqual('network', net.service.service_type)
+        self.assertFalse(net.allow_create)
+        self.assertTrue(net.allow_retrieve)
+        self.assertFalse(net.allow_update)
+        self.assertFalse(net.allow_delete)
+        self.assertTrue(net.allow_list)
