@@ -1,0 +1,8 @@
+---
+features:
+  - Explicit data model contracts are now defined for
+    Flavors, Images, Security Groups, Security Group Rules,
+    and Servers.
+  - Resources with data model contracts are now being returned with
+    'location' attribute. The location carries cloud name, region
+    name and information about the project that owns the resource.

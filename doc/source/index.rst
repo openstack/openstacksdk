@@ -13,6 +13,7 @@ Contents:
 
    installation
    usage
+   model
    contributing
    coding
    future
