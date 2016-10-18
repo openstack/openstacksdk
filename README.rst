@@ -185,6 +185,19 @@ Client certs are also configurable. `cert` will be the client cert file
 location. In case the cert key is not included within the client cert file,
 its file location needs to be set via `key`.
 
+.. code-block:: yaml
+
+  # clouds.yaml
+  clouds:
+    secure:
+      auth: ...
+      key: /home/myhome/client-cert.key
+      cert: /home/myhome/client-cert.crt
+      cacert: /home/myhome/ca.crt
+    insecure:
+      auth: ...
+      verify: False
+
 Cache Settings
 --------------
 
