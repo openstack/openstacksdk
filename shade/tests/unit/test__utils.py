@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
 import testtools
 
 from shade import _utils
@@ -79,131 +78,6 @@ class TestUtils(base.TestCase):
                 'financial': {'status': 'rich'}
                 }})
         self.assertEqual([el2, el3], ret)
-
-    def test_normalize_secgroups(self):
-        nova_secgroup = dict(
-            id='abc123',
-            name='nova_secgroup',
-            description='A Nova security group',
-            rules=[
-                dict(id='123', from_port=80, to_port=81, ip_protocol='tcp',
-                     ip_range={'cidr': '0.0.0.0/0'}, parent_group_id='xyz123')
-            ]
-        )
-
-        expected = dict(
-            id='abc123',
-            name='nova_secgroup',
-            description='A Nova security group',
-            tenant_id='',
-            project_id='',
-            properties={},
-            location=dict(
-                region_name='RegionOne',
-                zone=None,
-                project=dict(
-                    domain_name=None,
-                    id=mock.ANY,
-                    domain_id=None,
-                    name='admin'),
-                cloud='_test_cloud_'),
-            security_group_rules=[
-                dict(id='123', direction='ingress', ethertype='IPv4',
-                     port_range_min=80, port_range_max=81, protocol='tcp',
-                     remote_ip_prefix='0.0.0.0/0', security_group_id='xyz123',
-                     properties={},
-                     tenant_id='',
-                     project_id='',
-                     remote_group_id=None,
-                     location=dict(
-                         region_name='RegionOne',
-                         zone=None,
-                         project=dict(
-                             domain_name=None,
-                             id=mock.ANY,
-                             domain_id=None,
-                             name='admin'),
-                         cloud='_test_cloud_'))
-            ]
-        )
-
-        retval = self.cloud._normalize_secgroup(nova_secgroup)
-        self.assertEqual(expected, retval)
-
-    def test_normalize_secgroups_negone_port(self):
-        nova_secgroup = dict(
-            id='abc123',
-            name='nova_secgroup',
-            description='A Nova security group with -1 ports',
-            rules=[
-                dict(id='123', from_port=-1, to_port=-1, ip_protocol='icmp',
-                     ip_range={'cidr': '0.0.0.0/0'}, parent_group_id='xyz123')
-            ]
-        )
-
-        retval = self.cloud._normalize_secgroup(nova_secgroup)
-        self.assertIsNone(retval['security_group_rules'][0]['port_range_min'])
-        self.assertIsNone(retval['security_group_rules'][0]['port_range_max'])
-
-    def test_normalize_secgroup_rules(self):
-        nova_rules = [
-            dict(id='123', from_port=80, to_port=81, ip_protocol='tcp',
-                 ip_range={'cidr': '0.0.0.0/0'}, parent_group_id='xyz123')
-        ]
-        expected = [
-            dict(id='123', direction='ingress', ethertype='IPv4',
-                 port_range_min=80, port_range_max=81, protocol='tcp',
-                 remote_ip_prefix='0.0.0.0/0', security_group_id='xyz123',
-                 tenant_id='', project_id='', remote_group_id=None,
-                 properties={},
-                 location=dict(
-                     region_name='RegionOne',
-                     zone=None,
-                     project=dict(
-                         domain_name=None,
-                         id=mock.ANY,
-                         domain_id=None,
-                         name='admin'),
-                     cloud='_test_cloud_'))
-        ]
-        retval = self.cloud._normalize_secgroup_rules(nova_rules)
-        self.assertEqual(expected, retval)
-
-    def test_normalize_volumes_v1(self):
-        vol = dict(
-            display_name='test',
-            display_description='description',
-            bootable=u'false',   # unicode type
-            multiattach='true',  # str type
-        )
-        expected = dict(
-            name=vol['display_name'],
-            display_name=vol['display_name'],
-            description=vol['display_description'],
-            display_description=vol['display_description'],
-            bootable=False,
-            multiattach=True,
-        )
-        retval = _utils.normalize_volumes([vol])
-        self.assertEqual([expected], retval)
-
-    def test_normalize_volumes_v2(self):
-        vol = dict(
-            display_name='test',
-            display_description='description',
-            bootable=False,
-            multiattach=True,
-        )
-        expected = dict(
-            name=vol['display_name'],
-            display_name=vol['display_name'],
-            description=vol['display_description'],
-            display_description=vol['display_description'],
-            bootable=False,
-            multiattach=True,
-        )
-        retval = _utils.normalize_volumes([vol])
-        self.assertEqual([expected], retval)
 
     def test_safe_dict_min_ints(self):
         """Test integer comparison"""

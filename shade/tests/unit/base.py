@@ -75,6 +75,10 @@ class BaseTestCase(base.TestCase):
         self.cloud = shade.OpenStackCloud(
             cloud_config=self.cloud_config,
             log_inner_exceptions=True)
+        self.strict_cloud = shade.OpenStackCloud(
+            cloud_config=self.cloud_config,
+            log_inner_exceptions=True,
+            strict=True)
         self.op_cloud = shade.OperatorCloud(
             cloud_config=self.cloud_config,
             log_inner_exceptions=True)
