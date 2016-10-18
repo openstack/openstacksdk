@@ -200,15 +200,15 @@ class OpenStackCloud(_normalize.Normalizer):
 
         self._disable_warnings = {}
 
-        self._servers = []
+        self._servers = None
         self._servers_time = 0
         self._servers_lock = threading.Lock()
 
-        self._ports = []
+        self._ports = None
         self._ports_time = 0
         self._ports_lock = threading.Lock()
 
-        self._floating_ips = []
+        self._floating_ips = None
         self._floating_ips_time = 0
         self._floating_ips_lock = threading.Lock()
 
@@ -1470,10 +1470,13 @@ class OpenStackCloud(_normalize.Normalizer):
             # a lock, and the non-blocking acquire method will cause
             # subsequent threads to just skip this and use the old
             # data until it succeeds.
-            if self._ports_lock.acquire(False):
+            # Initially when we never got data, block to retrieve some data.
+            first_run = self._ports is None
+            if self._ports_lock.acquire(first_run):
                 try:
-                    self._ports = self._list_ports(filters)
-                    self._ports_time = time.time()
+                    if not (first_run and self._ports is not None):
+                        self._ports = self._list_ports(filters)
+                        self._ports_time = time.time()
                 finally:
                     self._ports_lock.release()
         return self._ports
@@ -1595,10 +1598,13 @@ class OpenStackCloud(_normalize.Normalizer):
             # a lock, and the non-blocking acquire method will cause
             # subsequent threads to just skip this and use the old
             # data until it succeeds.
-            if self._servers_lock.acquire(False):
+            # Initially when we never got data, block to retrieve some data.
+            first_run = self._servers is None
+            if self._servers_lock.acquire(first_run):
                 try:
-                    self._servers = self._list_servers(detailed=detailed)
-                    self._servers_time = time.time()
+                    if not (first_run and self._servers is not None):
+                        self._servers = self._list_servers(detailed=detailed)
+                        self._servers_time = time.time()
                 finally:
                     self._servers_lock.release()
         return self._servers
@@ -1710,10 +1716,13 @@ class OpenStackCloud(_normalize.Normalizer):
             # a lock, and the non-blocking acquire method will cause
             # subsequent threads to just skip this and use the old
             # data until it succeeds.
-            if self._floating_ips_lock.acquire(False):
+            # Initially when we never got data, block to retrieve some data.
+            first_run = self._floating_ips is None
+            if self._floating_ips_lock.acquire(first_run):
                 try:
-                    self._floating_ips = self._list_floating_ips()
-                    self._floating_ips_time = time.time()
+                    if not (first_run and self._floating_ips is not None):
+                        self._floating_ips = self._list_floating_ips()
+                        self._floating_ips_time = time.time()
                 finally:
                     self._floating_ips_lock.release()
         return self._floating_ips
