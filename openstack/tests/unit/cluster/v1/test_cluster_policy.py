@@ -41,6 +41,13 @@ class TestClusterPolicy(testtools.TestCase):
         self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_list)
 
+        self.assertDictEqual({"policy_name": "policy_name",
+                              "policy_type": "policy_type",
+                              "is_enabled": "enabled",
+                              "limit": "limit",
+                              "marker": "marker"},
+                             sot._query_mapping._mapping)
+
     def test_instantiate(self):
         sot = cluster_policy.ClusterPolicy(**FAKE)
         self.assertEqual(FAKE['policy_id'], sot.id)

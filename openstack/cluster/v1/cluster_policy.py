@@ -24,7 +24,8 @@ class ClusterPolicy(resource.Resource):
     allow_list = True
     allow_get = True
 
-    _query_mapping = resource.QueryParameters(is_enabled='enabled')
+    _query_mapping = resource.QueryParameters(
+        'policy_name', 'policy_type', is_enabled='enabled')
 
     # Properties
     #: ID of the policy object.
