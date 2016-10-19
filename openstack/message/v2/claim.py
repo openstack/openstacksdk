@@ -17,6 +17,11 @@ from openstack import resource2
 
 
 class Claim(resource2.Resource):
+    # FIXME(anyone): The name string of `location` field of Zaqar API response
+    # is lower case. That is inconsistent with the guide from API-WG. This is
+    # a workaround for this issue.
+    location = resource2.Header("location")
+
     resources_key = 'claims'
     base_path = '/queues/%(queue_name)s/claims'
     service = message_service.MessageService()
