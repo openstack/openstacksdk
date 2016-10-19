@@ -38,6 +38,8 @@ class Network(resource.Resource):
     created_at = resource.prop('created_at')
     #: The network description.
     description = resource.prop('description')
+    #: DNS Domain for the network
+    dns_domain = resource.prop('dns_domain')
     #: The ID of the IPv4 address scope for the network.
     ipv4_address_scope_id = resource.prop('ipv4_address_scope')
     #: The ID of the IPv6 address scope for the network.
