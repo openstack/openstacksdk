@@ -1210,6 +1210,7 @@ class Proxy(proxy.BaseProxy):
             * ``device_id``: Port device ID
             * ``device_owner``: Port device owner (e.g. ``network:dhcp``)
             * ``network_id``: ID of network that owns the ports
+            * ``mac_address``: Port MAC address
 
         :returns: A generator of port objects
         :rtype: :class:`~openstack.network.v2.port.Port`
