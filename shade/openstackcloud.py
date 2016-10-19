@@ -2620,7 +2620,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         if interface_type:
             filtered_ports = []
-            if ('external_gateway_info' in router and
+            if (router.get('external_gateway_info') and
                 'external_fixed_ips' in router['external_gateway_info']):
                 ext_fixed = \
                     router['external_gateway_info']['external_fixed_ips']
