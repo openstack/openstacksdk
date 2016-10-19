@@ -1,0 +1,6 @@
+---
+fixes:
+  - delete_image used to fail with an AttributeError if an invalid image
+    name or id was passed, rather than returning False which was the
+    intent. This is worthy of note because it's a behavior change, but the
+    previous behavior was a bug.
