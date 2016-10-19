@@ -134,6 +134,21 @@ RegionOne      Ashburn, VA
 * Public IPv4 is provided via NAT with Neutron Floating IP
 * IPv6 is provided to every server
 
+otc
+---
+
+https://iam.%(region_name)s.otc.t-systems.com/v3
+
+============== ================
+Region Name    Location
+============== ================
+eu-de          Germany
+============== ================
+
+* Identity API Version is 3
+* Images must be in `vhd` format
+* Public IPv4 is provided via NAT with Neutron Floating IP
+
 elastx
 ------
 
