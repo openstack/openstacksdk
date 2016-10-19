@@ -212,6 +212,10 @@ class OpenStackCloud(_normalize.Normalizer):
         self._floating_ips_time = 0
         self._floating_ips_lock = threading.Lock()
 
+        self._floating_network_by_subnet = None
+        self._floating_network_by_subnet_run = False
+        self._floating_network_by_subnet_lock = threading.Lock()
+
         self._networks_lock = threading.Lock()
         self._reset_network_caches()
 
@@ -3718,6 +3722,26 @@ class OpenStackCloud(_normalize.Normalizer):
         # actually want the API to be.
         return meta.expand_server_vars(self, server)
 
+    def _find_floating_network_by_subnet(self):
+        """Find the network providing floating ips by looking at routers."""
+
+        if self._floating_network_by_subnet_lock.acquire(
+                not self._floating_network_by_subnet_run):
+            if self._floating_network_by_subnet_run:
+                self._floating_network_by_subnet_lock.release()
+                return self._floating_network_by_subnet
+            try:
+                for router in self.list_routers():
+                    if router['admin_state_up']:
+                        network_id = router.get(
+                            'external_gateway_info', {}).get('network_id')
+                        if network:
+                            self._floating_network_by_subnet = network_id
+            finally:
+                self._floating_network_by_subnet_run = True
+                self._floating_network_by_subnet_lock.release()
+        return self._floating_network_by_subnet
+
     def available_floating_ip(self, network=None, server=None):
         """Get a floating IP from a network or a pool.
 
@@ -3931,10 +3955,14 @@ class OpenStackCloud(_normalize.Normalizer):
                         "{0}".format(network_name_or_id))
             else:
                 networks = self.get_external_ipv4_networks()
-                if not networks:
-                    raise OpenStackCloudResourceNotFound(
-                        "Unable to find an external network in this cloud"
-                        " which makes getting a floating IP impossible")
+                if networks:
+                    network_id = networks[0]['id']
+                else:
+                    network_id = self._find_floating_network_by_router()
+                    if not network_id:
+                        raise OpenStackCloudResourceNotFound(
+                            "Unable to find an external network in this cloud"
+                            " which makes getting a floating IP impossible")
             kwargs = {
                 'floating_network_id': networks[0]['id'],
             }
