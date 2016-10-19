@@ -15,6 +15,7 @@ from openstack.message.v2 import message as _message
 from openstack.message.v2 import queue as _queue
 from openstack.message.v2 import subscription as _subscription
 from openstack import proxy2
+from openstack import resource2
 
 
 class Proxy(proxy2.BaseProxy):
@@ -125,12 +126,17 @@ class Proxy(proxy2.BaseProxy):
                                      queue_name=queue_name)
         return self._get(_message.Message, message)
 
-    def delete_message(self, queue_name, value, ignore_missing=True):
+    def delete_message(self, queue_name, value, claim=None,
+                       ignore_missing=True):
         """Delete a message
 
         :param queue_name: The name of target queue to delete message from.
         :param value: The value can be either the name of a message or a
                       :class:`~openstack.message.v2.message.Message` instance.
+        :param claim: The value can be the ID or a
+                      :class:`~openstack.message.v2.claim.Claim` instance of
+                      the claim seizing the message. If None, the message has
+                      not been claimed.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the message does not exist.
@@ -141,6 +147,7 @@ class Proxy(proxy2.BaseProxy):
         """
         message = self._get_resource(_message.Message, value,
                                      queue_name=queue_name)
+        message.claim_id = resource2.Resource._get_id(claim)
         return self._delete(_message.Message, message,
                             ignore_missing=ignore_missing)
 

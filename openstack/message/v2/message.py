@@ -131,6 +131,11 @@ class Message(resource2.Resource):
         }
 
         request.headers.update(headers)
+        # For Zaqar v2 API requires client to specify claim_id as query
+        # parameter when deleting a message that has been claimed, we
+        # rebuild the request URI if claim_id is not None.
+        if self.claim_id:
+            request.uri += '?claim_id=%s' % self.claim_id
         response = session.delete(request.uri, endpoint_filter=self.service,
                                   headers=headers)
 
