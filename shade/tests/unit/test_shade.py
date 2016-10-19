@@ -214,8 +214,7 @@ class TestShade(base.TestCase):
             router='123', body={'subnet_id': 'abc'}
         )
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_remove_router_interface_missing_argument(self, mock_client):
+    def test_remove_router_interface_missing_argument(self):
         self.assertRaises(ValueError, self.cloud.remove_router_interface,
                           {'id': '123'})
 
@@ -264,8 +263,7 @@ class TestShade(base.TestCase):
         self.assertTrue(mock_client.delete_router.called)
 
     @mock.patch.object(shade.OpenStackCloud, 'search_ports')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_list_router_interfaces_no_gw(self, mock_client, mock_search):
+    def test_list_router_interfaces_no_gw(self, mock_search):
         """
         If a router does not have external_gateway_info, do not fail.
         """
@@ -286,8 +284,7 @@ class TestShade(base.TestCase):
         self.assertEqual([], ret)
 
     @mock.patch.object(shade.OpenStackCloud, 'search_ports')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_list_router_interfaces_all(self, mock_client, mock_search):
+    def test_list_router_interfaces_all(self, mock_search):
         internal_port = {'id': 'internal_port_id',
                          'fixed_ips': [
                              ('internal_subnet_id', 'ip_address'),
@@ -311,8 +308,7 @@ class TestShade(base.TestCase):
         self.assertEqual(port_list, ret)
 
     @mock.patch.object(shade.OpenStackCloud, 'search_ports')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_list_router_interfaces_internal(self, mock_client, mock_search):
+    def test_list_router_interfaces_internal(self, mock_search):
         internal_port = {'id': 'internal_port_id',
                          'fixed_ips': [
                              ('internal_subnet_id', 'ip_address'),
@@ -337,8 +333,7 @@ class TestShade(base.TestCase):
         self.assertEqual([internal_port], ret)
 
     @mock.patch.object(shade.OpenStackCloud, 'search_ports')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_list_router_interfaces_external(self, mock_client, mock_search):
+    def test_list_router_interfaces_external(self, mock_search):
         internal_port = {'id': 'internal_port_id',
                          'fixed_ips': [
                              ('internal_subnet_id', 'ip_address'),
@@ -386,8 +381,7 @@ class TestShade(base.TestCase):
         self.assertTrue(mock_client.create_subnet.called)
 
     @mock.patch.object(shade.OpenStackCloud, 'search_networks')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_create_subnet_bad_ip_version(self, mock_client, mock_search):
+    def test_create_subnet_bad_ip_version(self, mock_search):
         '''String ip_versions must be convertable to int'''
         net1 = dict(id='123', name='donald')
         mock_search.return_value = [net1]
@@ -427,8 +421,7 @@ class TestShade(base.TestCase):
         self.assertTrue(mock_client.create_subnet.called)
 
     @mock.patch.object(shade.OpenStackCloud, 'search_networks')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_create_subnet_conflict_gw_ops(self, mock_client, mock_search):
+    def test_create_subnet_conflict_gw_ops(self, mock_search):
         net1 = dict(id='123', name='donald')
         mock_search.return_value = [net1]
         gateway = '192.168.200.3'
@@ -522,8 +515,7 @@ class TestShade(base.TestCase):
         self.assertTrue(mock_client.update_subnet.called)
 
     @mock.patch.object(shade.OpenStackCloud, 'get_subnet')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_update_subnet_conflict_gw_ops(self, mock_client, mock_get):
+    def test_update_subnet_conflict_gw_ops(self, mock_get):
         subnet1 = dict(id='456', name='kooky')
         mock_get.return_value = subnet1
         gateway = '192.168.200.3'
