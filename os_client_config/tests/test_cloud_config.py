@@ -158,6 +158,11 @@ class TestCloudConfig(base.TestCase):
         cc.config['volume_api_version'] = '2'
         self.assertEqual('volumev2', cc.get_service_type('volume'))
 
+    def test_volume_override_v3(self):
+        cc = cloud_config.CloudConfig("test1", "region-al", fake_services_dict)
+        cc.config['volume_api_version'] = '3'
+        self.assertEqual('volumev3', cc.get_service_type('volume'))
+
     def test_get_session_no_auth(self):
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
