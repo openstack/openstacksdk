@@ -333,7 +333,7 @@ class TestFloatingIP(base.TestCase):
                      'tenant_id': 'proj-id'}
         )
         mock__neutron_create_fip.assert_called_once_with(
-            network_name_or_id=self.mock_get_network_rep['id'],
+            network_id=self.mock_get_network_rep['id'],
             server=None
         )
 
@@ -371,7 +371,7 @@ class TestFloatingIP(base.TestCase):
                      'tenant_id': 'proj-id'}
         )
         mock__neutron_create_fip.assert_called_once_with(
-            network_name_or_id=self.mock_get_network_rep['id'],
+            network_id=self.mock_get_network_rep['id'],
             server=None
         )
 
