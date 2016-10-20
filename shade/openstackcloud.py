@@ -349,8 +349,8 @@ class OpenStackCloud(_normalize.Normalizer):
                 **kwargs)
         except Exception:
             self.log.debug(
-                "Couldn't construct {service} object".format(
-                    service=service_key), exc_info=True)
+                "Couldn't construct %(service)s object",
+                {'service': service_key}, exc_info=True)
             raise
         if client is None:
             raise OpenStackCloudException(
@@ -667,7 +667,7 @@ class OpenStackCloud(_normalize.Normalizer):
             project = self.get_project(name_or_id, domain_id=domain_id)
             if project is None:
                 self.log.debug(
-                    "Project {0} not found for deleting".format(name_or_id))
+                    "Project %s not found for deleting", name_or_id)
                 return False
 
             params = {}
@@ -1138,7 +1138,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         stack = self.get_stack(name_or_id)
         if stack is None:
-            self.log.debug("Stack %s not found for deleting" % name_or_id)
+            self.log.debug("Stack %s not found for deleting", name_or_id)
             return False
 
         if wait:
@@ -1227,8 +1227,8 @@ class OpenStackCloud(_normalize.Normalizer):
             if not (service_key in self._disable_warnings
                     and self._disable_warnings[service_key]):
                 self.log.debug(
-                    "Disabling {service_key} entry in catalog"
-                    " per config".format(service_key=service_key))
+                    "Disabling %(service_key)s entry in catalog"
+                    " per config", {'service_key': service_key})
                 self._disable_warnings[service_key] = True
             return False
         try:
@@ -1520,7 +1520,7 @@ class OpenStackCloud(_normalize.Normalizer):
                         flavor.extra_specs = []
                         self.log.debug(
                             'Fetching extra specs for flavor failed:'
-                            ' {msg}'.format(msg=str(e)))
+                            ' %(msg)s', {'msg': str(e)})
 
         return self._normalize_flavors(flavors)
 
@@ -1690,7 +1690,7 @@ class OpenStackCloud(_normalize.Normalizer):
             except OpenStackCloudURINotFound as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
-                    "'{msg}'. Trying with Nova.".format(msg=str(e)))
+                    "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
                 # Fall-through, trying with Nova
 
         floating_ips = self._nova_list_floating_ips()
@@ -2444,7 +2444,7 @@ class OpenStackCloud(_normalize.Normalizer):
         try:
             self.manager.submit_task(_tasks.KeypairDelete(key=name))
         except nova_exceptions.NotFound:
-            self.log.debug("Keypair %s not found for deleting" % name)
+            self.log.debug("Keypair %s not found for deleting", name)
             return False
         except OpenStackCloudException:
             raise
@@ -2519,7 +2519,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         network = self.get_network(name_or_id)
         if not network:
-            self.log.debug("Network %s not found for deleting" % name_or_id)
+            self.log.debug("Network %s not found for deleting", name_or_id)
             return False
 
         with _utils.neutron_exceptions(
@@ -2760,7 +2760,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         router = self.get_router(name_or_id)
         if not router:
-            self.log.debug("Router %s not found for deleting" % name_or_id)
+            self.log.debug("Router %s not found for deleting", name_or_id)
             return False
 
         with _utils.neutron_exceptions(
@@ -2948,7 +2948,7 @@ class OpenStackCloud(_normalize.Normalizer):
             if (current_image and current_image.get(IMAGE_MD5_KEY, '') == md5
                     and current_image.get(IMAGE_SHA256_KEY, '') == sha256):
                 self.log.debug(
-                    "image {name} exists and is up to date".format(name=name))
+                    "image %(name)s exists and is up to date", {'name': name})
                 return current_image
         kwargs[IMAGE_MD5_KEY] = md5
         kwargs[IMAGE_SHA256_KEY] = sha256
@@ -3026,8 +3026,8 @@ class OpenStackCloud(_normalize.Normalizer):
             self.manager.submit_task(_tasks.ImageUpload(
                 image_id=image.id, image_data=image_data))
         except Exception:
-            self.log.debug("Deleting failed upload of image {image}".format(
-                image=image['name']))
+            self.log.debug("Deleting failed upload of image %(image)s",
+                           {'image': image['name']})
             self.manager.submit_task(_tasks.ImageDelete(image_id=image.id))
             raise
 
@@ -3043,8 +3043,8 @@ class OpenStackCloud(_normalize.Normalizer):
             self.manager.submit_task(_tasks.ImageUpdate(
                 image=image, data=image_data))
         except Exception:
-            self.log.debug("Deleting failed upload of image {image}".format(
-                image=image['name']))
+            self.log.debug("Deleting failed upload of image %(image)s",
+                           {'image': image['name']})
             # Note argument is "image" here, "image_id" in V2
             self.manager.submit_task(_tasks.ImageDelete(image=image.id))
             raise
@@ -3256,8 +3256,8 @@ class OpenStackCloud(_normalize.Normalizer):
 
         if not volume:
             self.log.debug(
-                "Volume {name_or_id} does not exist".format(
-                    name_or_id=name_or_id),
+                "Volume %(name_or_id)s does not exist",
+                {'name_or_id': name_or_id},
                 exc_info=True)
             return False
 
@@ -3348,7 +3348,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     vol = self.get_volume(volume['id'])
                 except Exception:
                     self.log.debug(
-                        "Error getting volume info %s" % volume['id'],
+                        "Error getting volume info %s", volume['id'],
                         exc_info=True)
                     continue
 
@@ -3413,7 +3413,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     vol = self.get_volume(volume['id'])
                 except Exception:
                     self.log.debug(
-                        "Error getting volume info %s" % volume['id'],
+                        "Error getting volume info %s", volume['id'],
                         exc_info=True)
                     continue
 
@@ -3762,7 +3762,7 @@ class OpenStackCloud(_normalize.Normalizer):
             except OpenStackCloudURINotFound as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
-                    "'{msg}'. Trying with Nova.".format(msg=str(e)))
+                    "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
                 # Fall-through, trying with Nova
 
         f_ips = _utils.normalize_nova_floating_ips(
@@ -3918,7 +3918,7 @@ class OpenStackCloud(_normalize.Normalizer):
             except OpenStackCloudURINotFound as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
-                    "'{msg}'. Trying with Nova.".format(msg=str(e)))
+                    "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
                 # Fall-through, trying with Nova
 
         if port:
@@ -4007,16 +4007,16 @@ class OpenStackCloud(_normalize.Normalizer):
                                 break
                     except OpenStackCloudTimeout:
                         self.log.error(
-                            "Timed out on floating ip {fip} becoming active."
-                            " Deleting".format(fip=fip_id))
+                            "Timed out on floating ip %(fip)s becoming active."
+                            " Deleting", {'fip': fip_id})
                         try:
                             self.delete_floating_ip(fip_id)
                         except Exception as e:
                             self.log.error(
                                 "FIP LEAK: Attempted to delete floating ip "
-                                "{fip} but received {exc} exception: "
-                                "{err}".format(fip=fip_id, exc=e.__class__,
-                                               err=str(e)))
+                                "%(fip)s but received %(exc)s exception: "
+                                "%(err)s", {'fip': fip_id, 'exc': e.__class__,
+                                            'err': str(e)})
                         raise
             return fip
 
@@ -4081,7 +4081,7 @@ class OpenStackCloud(_normalize.Normalizer):
             except OpenStackCloudURINotFound as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
-                    "'{msg}'. Trying with Nova.".format(msg=str(e)))
+                    "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
         return self._nova_delete_floating_ip(floating_ip_id)
 
     def _neutron_delete_floating_ip(self, floating_ip_id):
@@ -4177,7 +4177,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 except OpenStackCloudURINotFound as e:
                     self.log.debug(
                         "Something went wrong talking to neutron API: "
-                        "'{msg}'. Trying with Nova.".format(msg=str(e)))
+                        "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
                     # Fall-through, trying with Nova
         else:
             # Nova network
@@ -4350,7 +4350,7 @@ class OpenStackCloud(_normalize.Normalizer):
             except OpenStackCloudURINotFound as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
-                    "'{msg}'. Trying with Nova.".format(msg=str(e)))
+                    "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
                 # Fall-through, trying with Nova
 
         # Nova network
@@ -4380,7 +4380,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 server=server_id, address=f_ip['floating_ip_address']))
         except nova_exceptions.Conflict as e:
             self.log.debug(
-                "nova floating IP detach failed: {msg}".format(msg=str(e)),
+                "nova floating IP detach failed: %(msg)s", {'msg': str(e)},
                 exc_info=True)
             return False
         except OpenStackCloudException:
@@ -4519,19 +4519,19 @@ class OpenStackCloud(_normalize.Normalizer):
                 # resource
                 self.log.error(
                     "Timeout waiting for floating IP to become"
-                    " active. Floating IP {ip}:{id} was created for"
-                    " server {server} but is being deleted due to"
-                    " activation failure.".format(
-                        ip=f_ip['floating_ip_address'],
-                        id=f_ip['id'],
-                        server=server['id']))
+                    " active. Floating IP %(ip)s:%(id)s was created for"
+                    " server %(server)s but is being deleted due to"
+                    " activation failure.", {
+                        'ip': f_ip['floating_ip_address'],
+                        'id': f_ip['id'],
+                        'server': server['id']})
                 try:
                     self.delete_floating_ip(f_ip['id'])
                 except Exception as e:
                     self.log.error(
                         "FIP LEAK: Attempted to delete floating ip "
-                        "{fip} but received {exc} exception: {err}".format(
-                            fip=f_ip['id'], exc=e.__class__, err=str(e)))
+                        "%(fip)s but received %(exc)s exception: %(err)s",
+                        {'fip': f_ip['id'], 'exc': e.__class__, 'err': str(e)})
                     raise e
             raise
 
@@ -4915,9 +4915,9 @@ class OpenStackCloud(_normalize.Normalizer):
                     wait=wait, timeout=timeout)
 
             self.log.debug(
-                'Server {server} reached ACTIVE state without'
+                'Server %(server)s reached ACTIVE state without'
                 ' being allocated an IP address.'
-                ' Deleting server.'.format(server=server['id']))
+                ' Deleting server.', {'server': server['id']})
             try:
                 self._delete_server(
                     server=server, wait=wait, timeout=timeout)
@@ -5153,7 +5153,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         server_group = self.get_server_group(name_or_id)
         if not server_group:
-            self.log.debug("Server group %s not found for deleting" %
+            self.log.debug("Server group %s not found for deleting",
                            name_or_id)
             return False
 
@@ -5245,7 +5245,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def _get_file_hashes(self, filename):
         if filename not in self._file_hash_cache:
             self.log.debug(
-                'Calculating hashes for {filename}'.format(filename=filename))
+                'Calculating hashes for %(filename)s', {'filename': filename})
             md5 = hashlib.md5()
             sha256 = hashlib.sha256()
             with open(filename, 'rb') as file_obj:
@@ -5255,10 +5255,10 @@ class OpenStackCloud(_normalize.Normalizer):
             self._file_hash_cache[filename] = dict(
                 md5=md5.hexdigest(), sha256=sha256.hexdigest())
             self.log.debug(
-                "Image file {filename} md5:{md5} sha256:{sha256}".format(
-                    filename=filename,
-                    md5=self._file_hash_cache[filename]['md5'],
-                    sha256=self._file_hash_cache[filename]['sha256']))
+                "Image file %(filename)s md5:%(md5)s sha256:%(sha256)s",
+                {'filename': filename,
+                 'md5': self._file_hash_cache[filename]['md5'],
+                 'sha256': self._file_hash_cache[filename]['sha256']})
         return (self._file_hash_cache[filename]['md5'],
                 self._file_hash_cache[filename]['sha256'])
 
@@ -5308,18 +5308,18 @@ class OpenStackCloud(_normalize.Normalizer):
 
         if metadata.get(OBJECT_MD5_KEY, '') != file_md5:
             self.log.debug(
-                "swift md5 mismatch: {filename}!={container}/{name}".format(
-                    filename=filename, container=container, name=name))
+                "swift md5 mismatch: %(filename)s!=%(container)s/%(name)s",
+                {'filename': filename, 'container': container, 'name': name})
             return True
         if metadata.get(OBJECT_SHA256_KEY, '') != file_sha256:
             self.log.debug(
-                "swift sha256 mismatch: {filename}!={container}/{name}".format(
-                    filename=filename, container=container, name=name))
+                "swift sha256 mismatch: %(filename)s!=%(container)s/%(name)s",
+                {'filename': filename, 'container': container, 'name': name})
             return True
 
         self.log.debug(
-            "swift object up to date: {container}/{name}".format(
-                container=container, name=name))
+            "swift object up to date: %(container)s/%(name)s",
+            {'container': container, 'name': name})
         return False
 
     def create_object(
@@ -5374,8 +5374,8 @@ class OpenStackCloud(_normalize.Normalizer):
 
         if self.is_object_stale(container, name, filename, md5, sha256):
             self.log.debug(
-                "swift uploading {filename} to {container}/{name}".format(
-                    filename=filename, container=container, name=name))
+                "swift uploading %(filename)s to %(container)s/%(name)s",
+                {'filename': filename, 'container': container, 'name': name})
             upload = swiftclient.service.SwiftUploadObject(
                 source=filename, object_name=name)
             for r in self.manager.submit_task(_tasks.ObjectCreate(
@@ -5625,7 +5625,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         subnet = self.get_subnet(name_or_id)
         if not subnet:
-            self.log.debug("Subnet %s not found for deleting" % name_or_id)
+            self.log.debug("Subnet %s not found for deleting", name_or_id)
             return False
 
         with _utils.neutron_exceptions(
@@ -5861,7 +5861,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         port = self.get_port(name_or_id=name_or_id)
         if port is None:
-            self.log.debug("Port %s not found for deleting" % name_or_id)
+            self.log.debug("Port %s not found for deleting", name_or_id)
             return False
 
         with _utils.neutron_exceptions(
@@ -5928,7 +5928,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         secgroup = self.get_security_group(name_or_id)
         if secgroup is None:
-            self.log.debug('Security group %s not found for deleting' %
+            self.log.debug('Security group %s not found for deleting',
                            name_or_id)
             return False
 
@@ -6271,7 +6271,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         zone = self.get_zone(name_or_id)
         if zone is None:
-            self.log.debug("Zone %s not found for deleting" % name_or_id)
+            self.log.debug("Zone %s not found for deleting", name_or_id)
             return False
 
         with _utils.shade_exceptions(
@@ -6387,12 +6387,12 @@ class OpenStackCloud(_normalize.Normalizer):
 
         zone = self.get_zone(zone)
         if zone is None:
-            self.log.debug("Zone %s not found for deleting" % zone)
+            self.log.debug("Zone %s not found for deleting", zone)
             return False
 
         recordset = self.get_recordset(zone['id'], name_or_id)
         if recordset is None:
-            self.log.debug("Recordset %s not found for deleting" % name_or_id)
+            self.log.debug("Recordset %s not found for deleting", name_or_id)
             return False
 
         with _utils.shade_exceptions(
@@ -6518,8 +6518,8 @@ class OpenStackCloud(_normalize.Normalizer):
 
         if not cluster_template:
             self.log.debug(
-                "ClusterTemplate {name_or_id} does not exist".format(
-                    name_or_id=name_or_id),
+                "ClusterTemplate %(name_or_id)s does not exist",
+                {'name_or_id': name_or_id},
                 exc_info=True)
             return False
 
@@ -6529,8 +6529,8 @@ class OpenStackCloud(_normalize.Normalizer):
                     _tasks.ClusterTemplateDelete(id=cluster_template['id']))
             except magnum_exceptions.NotFound:
                 self.log.debug(
-                    "ClusterTemplate {id} not found when deleting."
-                    " Ignoring.".format(id=cluster_template['id']))
+                    "ClusterTemplate %(id)s not found when deleting."
+                    " Ignoring.", {'id': cluster_template['id']})
                 return False
 
         self.list_cluster_templates.invalidate(self)

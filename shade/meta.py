@@ -409,8 +409,9 @@ def _log_request_id(obj, request_id):
         log = _log.setup_logging('shade.request_ids')
         # Log the request id and object id in a specific logger. This way
         # someone can turn it on if they're interested in this kind of tracing.
-        log.debug("Retreived object {id}. Request ID {request_id}".format(
-            id=obj.get('id', obj.get('uuid')), request_id=request_id))
+        log.debug("Retreived object %(id)s. Request ID %(request_id)s",
+                  {'id': obj.get('id', obj.get('uuid')),
+                   'request_id': request_id})
 
     return obj
 

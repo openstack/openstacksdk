@@ -105,8 +105,8 @@ class BaseTask(object):
                 self.done(self.main(client))
             except keystoneauth1.exceptions.RetriableConnectionFailure:
                 client.log.debug(
-                    "Connection failure for {name}, retrying".format(
-                        name=type(self).__name__))
+                    "Connection failure for %(name)s, retrying",
+                    {'name': type(self).__name__})
                 self.done(self.main(client))
             except Exception:
                 raise
@@ -147,7 +147,7 @@ class RequestTask(BaseTask):
         except (simplejson.scanner.JSONDecodeError, ValueError) as e:
             result_json = self._response.text
             self._client.log.debug(
-                'Could not decode json in response: {e}'.format(e=str(e)))
+                'Could not decode json in response: %(e)s', {'e': str(e)})
             self._client.log.debug(result_json)
 
         if self.result_key:
@@ -234,13 +234,13 @@ class TaskManager(object):
             underlying client call.
         """
         self.log.debug(
-            "Manager %s running task %s" % (self.name, task.name))
+            "Manager %s running task %s", self.name, task.name)
         start = time.time()
         task.run(self._client)
         end = time.time()
         self.log.debug(
-            "Manager %s ran task %s in %ss" % (
-                self.name, task.name, (end - start)))
+            "Manager %s ran task %s in %ss",
+            self.name, task.name, (end - start))
         return task.wait(raw)
     # Backwards compatibility
     submitTask = submit_task

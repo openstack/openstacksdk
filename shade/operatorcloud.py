@@ -481,8 +481,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 new_config['properties'] = properties
         except KeyError as e:
             self.log.debug(
-                "Unexpected machine response missing key %s [%s]" % (
-                    e.args[0], name_or_id))
+                "Unexpected machine response missing key %s [%s]",
+                e.args[0], name_or_id)
             raise OpenStackCloudException(
                 "Machine update failed - machine [%s] missing key %s. "
                 "Potential API issue."
@@ -871,7 +871,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
         service = self.get_service(name_or_id=name_or_id)
         if service is None:
-            self.log.debug("Service %s not found for deleting" % name_or_id)
+            self.log.debug("Service %s not found for deleting", name_or_id)
             return False
 
         if self.cloud_config.get_api_version('identity').startswith('2'):
@@ -1067,7 +1067,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
         endpoint = self.get_endpoint(id=id)
         if endpoint is None:
-            self.log.debug("Endpoint %s not found for deleting" % id)
+            self.log.debug("Endpoint %s not found for deleting", id)
             return False
 
         if self.cloud_config.get_api_version('identity').startswith('2'):
@@ -1141,7 +1141,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             dom = self.get_domain(None, name_or_id)
             if dom is None:
                 self.log.debug(
-                    "Domain {0} not found for deleting".format(name_or_id))
+                    "Domain %s not found for deleting", name_or_id)
                 return False
             domain_id = dom['id']
 
@@ -1333,7 +1333,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         group = self.get_group(name_or_id)
         if group is None:
             self.log.debug(
-                "Group {0} not found for deleting".format(name_or_id))
+                "Group %s not found for deleting", name_or_id)
             return False
 
         with _utils.shade_exceptions(
@@ -1507,7 +1507,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         flavor = self.get_flavor(name_or_id, get_extra=False)
         if flavor is None:
             self.log.debug(
-                "Flavor {0} not found for deleting".format(name_or_id))
+                "Flavor %s not found for deleting", name_or_id)
             return False
 
         with _utils.shade_exceptions("Unable to delete flavor {name}".format(
@@ -1617,7 +1617,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         role = self.get_role(name_or_id)
         if role is None:
             self.log.debug(
-                "Role {0} not found for deleting".format(name_or_id))
+                "Role %s not found for deleting", name_or_id)
             return False
 
         with _utils.shade_exceptions("Unable to delete role {name}".format(
@@ -1886,7 +1886,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
         aggregate = self.get_aggregate(name_or_id)
         if not aggregate:
-            self.log.debug("Aggregate %s not found for deleting" % name_or_id)
+            self.log.debug("Aggregate %s not found for deleting", name_or_id)
             return False
 
         with _utils.shade_exceptions(
