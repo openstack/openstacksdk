@@ -9,6 +9,7 @@
     - { role: group, tags: group }
     - { role: image, tags: image }
     - { role: keypair, tags: keypair }
+    - { role: keystone_domain, tags: keystone_domain }
     - { role: network, tags: network }
     - { role: nova_flavor, tags: nova_flavor }
     - { role: object, tags: object }
