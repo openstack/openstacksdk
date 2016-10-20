@@ -19,12 +19,20 @@ util
 Util methods for functional tests
 """
 import operator
+import os
 
 
 def pick_flavor(flavors):
     """Given a flavor list pick the smallest one."""
     # Enable running functional tests against rax - which requires
     # performance flavors be used for boot from volume
+    flavor_name = os.environ.get('SHADE_FLAVOR')
+    if flavor_name:
+        for flavor in flavors:
+            if flavor.name == flavor_name:
+                return flavor
+        return None
+
     for flavor in sorted(
             flavors,
             key=operator.attrgetter('ram')):
@@ -37,6 +45,13 @@ def pick_flavor(flavors):
 
 
 def pick_image(images):
+    image_name = os.environ.get('SHADE_IMAGE')
+    if image_name:
+        for image in images:
+            if image.name == image_name:
+                return image
+        return None
+
     for image in images:
         if image.name.startswith('cirros') and image.name.endswith('-uec'):
             return image
