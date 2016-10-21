@@ -160,9 +160,12 @@ class CloudConfig(object):
         # atrocity from the as-yet-unsullied eyes of our users.
         # Of course, if the user requests a volumev2, that structure should
         # still work.
-        if (service_type == 'volume' and
-                self.get_api_version(service_type).startswith('2')):
-            service_type = 'volumev2'
+        # What's even more amazing is that they did it AGAIN with cinder v3
+        if service_type == 'volume':
+            if self.get_api_version(service_type).startswith('2'):
+                service_type = 'volumev2'
+            elif self.get_api_version(service_type).startswith('3'):
+                service_type = 'volumev3'
         return self.config.get(key, service_type)
 
     def get_service_name(self, service_type):
