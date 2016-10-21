@@ -810,6 +810,10 @@ class Proxy(proxy.BaseProxy):
             * ``shared``: Network is shared (boolean)
             * ``status``: Network status
             * ``tenant_id``: Owner tenant ID
+            * ``provider:network_type``: Network physical mechanism
+            * ``provider:physical_network``: Physical network
+            * ``provider:segmentation_id``: VLAN ID for VLAN networks or Tunnel
+                                            ID for GENEVE/GRE/VXLAN networks
 
         :returns: A generator of network objects
         :rtype: :class:`~openstack.network.v2.network.Network`
