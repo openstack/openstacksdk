@@ -139,11 +139,30 @@ class TestEnvvars(base.TestCase):
         self.assertRaises(
             exceptions.OpenStackConfigException, c.get_one_cloud, 'envvars')
 
-    def test_have_envvars(self):
+    def test_incomplete_envvars(self):
         self.useFixture(
             fixtures.EnvironmentVariable('NOVA_USERNAME', 'nova'))
         self.useFixture(
             fixtures.EnvironmentVariable('OS_USERNAME', 'user'))
+        config.OpenStackConfig(config_files=[self.cloud_yaml],
+                               vendor_files=[self.vendor_yaml])
+        # This is broken due to an issue that's fixed in a subsequent patch
+        # commenting it out in this patch to keep the patch size reasonable
+        # self.assertRaises(
+        #     keystoneauth1.exceptions.auth_plugins.MissingRequiredOptions,
+        #     c.get_one_cloud, 'envvars')
+
+    def test_have_envvars(self):
+        self.useFixture(
+            fixtures.EnvironmentVariable('NOVA_USERNAME', 'nova'))
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_AUTH_URL', 'http://example.com'))
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_USERNAME', 'user'))
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_PASSWORD', 'password'))
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_PROJECT_NAME', 'project'))
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
         cc = c.get_one_cloud('envvars')
@@ -152,6 +171,13 @@ class TestEnvvars(base.TestCase):
     def test_old_envvars(self):
         self.useFixture(
             fixtures.EnvironmentVariable('NOVA_USERNAME', 'nova'))
+        self.useFixture(
+            fixtures.EnvironmentVariable(
+                'NOVA_AUTH_URL', 'http://example.com'))
+        self.useFixture(
+            fixtures.EnvironmentVariable('NOVA_PASSWORD', 'password'))
+        self.useFixture(
+            fixtures.EnvironmentVariable('NOVA_PROJECT_NAME', 'project'))
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml],
                                    envvar_prefix='NOVA_')

@@ -735,7 +735,7 @@ class TestConfigArgparse(base.TestCase):
         self.assertEqual(opts.http_timeout, '20')
         with testtools.ExpectedException(AttributeError):
             opts.os_network_service_type
-        cloud = c.get_one_cloud(argparse=opts, verify=False)
+        cloud = c.get_one_cloud(argparse=opts, validate=False)
         self.assertEqual(cloud.config['service_type'], 'network')
         self.assertEqual(cloud.config['interface'], 'admin')
         self.assertEqual(cloud.config['api_timeout'], '20')
@@ -756,7 +756,7 @@ class TestConfigArgparse(base.TestCase):
         self.assertIsNone(opts.os_network_service_type)
         self.assertIsNone(opts.os_network_api_version)
         self.assertEqual(opts.network_api_version, '4')
-        cloud = c.get_one_cloud(argparse=opts, verify=False)
+        cloud = c.get_one_cloud(argparse=opts, validate=False)
         self.assertEqual(cloud.config['service_type'], 'network')
         self.assertEqual(cloud.config['interface'], 'admin')
         self.assertEqual(cloud.config['network_api_version'], '4')
@@ -783,7 +783,7 @@ class TestConfigArgparse(base.TestCase):
         self.assertEqual(opts.os_endpoint_type, 'admin')
         self.assertIsNone(opts.os_network_api_version)
         self.assertEqual(opts.network_api_version, '4')
-        cloud = c.get_one_cloud(argparse=opts, verify=False)
+        cloud = c.get_one_cloud(argparse=opts, validate=False)
         self.assertEqual(cloud.config['service_type'], 'compute')
         self.assertEqual(cloud.config['network_service_type'], 'badtype')
         self.assertEqual(cloud.config['interface'], 'admin')
