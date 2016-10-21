@@ -1085,6 +1085,7 @@ class OpenStackConfig(object):
                         config[key] = val
 
         config = self.magic_fixes(config)
+        config = self._normalize_keys(config)
 
         # NOTE(dtroyer): OSC needs a hook into the auth args before the
         #                plugin is loaded in order to maintain backward-
@@ -1127,7 +1128,7 @@ class OpenStackConfig(object):
         return cloud_config.CloudConfig(
             name=cloud_name,
             region=config['region_name'],
-            config=self._normalize_keys(config),
+            config=config,
             force_ipv4=force_ipv4,
             auth_plugin=auth_plugin,
             openstack_config=self,
