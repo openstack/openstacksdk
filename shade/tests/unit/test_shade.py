@@ -283,6 +283,12 @@ class TestShade(base.TestCase):
         )
         self.assertEqual([], ret)
 
+        # A router can have its external_gateway_info set to None
+        router['external_gateway_info'] = None
+        ret = self.cloud.list_router_interfaces(router,
+                                                interface_type='external')
+        self.assertEqual([], ret)
+
     @mock.patch.object(shade.OpenStackCloud, 'search_ports')
     def test_list_router_interfaces_all(self, mock_search):
         internal_port = {'id': 'internal_port_id',
