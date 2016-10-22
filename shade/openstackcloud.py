@@ -1738,6 +1738,7 @@ class OpenStackCloud(_normalize.Normalizer):
         # the cached value, since "None" is a valid value to find.
         with self._networks_lock:
             self._external_ipv4_networks = []
+            self._external_ipv4_floating_networks = []
             self._internal_ipv4_networks = []
             self._external_ipv6_networks = []
             self._internal_ipv6_networks = []
@@ -1747,6 +1748,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def _set_interesting_networks(self):
         external_ipv4_networks = []
+        external_ipv4_floating_networks = []
         internal_ipv4_networks = []
         external_ipv6_networks = []
         internal_ipv6_networks = []
@@ -1781,6 +1783,11 @@ class OpenStackCloud(_normalize.Normalizer):
                     network['name'] not in self._internal_ipv4_names and
                     network['id'] not in self._internal_ipv4_names):
                 external_ipv4_networks.append(network)
+
+            # External Floating IPv4 networks
+            if ('router:external' in network
+                and network['router:external']):
+                external_ipv4_floating_networks.append(network)
 
             # Internal networks
             if (network['name'] in self._internal_ipv4_names
@@ -1902,6 +1909,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     network=self._default_network))
 
         self._external_ipv4_networks = external_ipv4_networks
+        self._external_ipv4_floating_networks = external_ipv4_floating_networks
         self._internal_ipv4_networks = internal_ipv4_networks
         self._external_ipv6_networks = external_ipv6_networks
         self._internal_ipv6_networks = internal_ipv6_networks
@@ -1973,6 +1981,14 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         self._find_interesting_networks()
         return self._external_ipv4_networks
+
+    def get_external_ipv4_floating_networks(self):
+        """Return the networks that are configured to route northbound.
+
+        :returns: A list of network ``munch.Munch`` if one is found
+        """
+        self._find_interesting_networks()
+        return self._external_ipv4_floating_networks
 
     def get_internal_ipv4_networks(self):
         """Return the networks that are configured to not route northbound.
@@ -3798,7 +3814,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 # Use given list to get first matching external network
                 floating_network_id = None
                 for net in network:
-                    for ext_net in self.get_external_ipv4_networks():
+                    for ext_net in self.get_external_ipv4_floating_networks():
                         if net in (ext_net['name'], ext_net['id']):
                             floating_network_id = ext_net['id']
                             break
@@ -3812,7 +3828,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     )
             else:
                 # Get first existing external IPv4 network
-                networks = self.get_external_ipv4_networks()
+                networks = self.get_external_ipv4_floating_networks()
                 if not networks:
                     raise OpenStackCloudResourceNotFound(
                         "unable to find an external network")
@@ -3954,7 +3970,7 @@ class OpenStackCloud(_normalize.Normalizer):
                         "unable to find network for floating ips with id "
                         "{0}".format(network_name_or_id))
             else:
-                networks = self.get_external_ipv4_networks()
+                networks = self.get_external_ipv4_floating_networks()
                 if networks:
                     network_id = networks[0]['id']
                 else:
