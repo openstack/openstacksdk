@@ -295,7 +295,9 @@ def _get_suplemental_addresses(cloud, server):
                 return server['addresses']
             fixed_ip_mapping[address['addr']] = name
     try:
-        if cloud._has_floating_ips():
+        # Don't bother doing this before the server is active, it's a waste
+        # of an API call while polling for a server to come up
+        if cloud._has_floating_ips() and server['status'] == 'ACTIVE':
             for fip in cloud.list_floating_ips():
                 if fip['fixed_ip_address'] in fixed_ip_mapping:
                     fixed_net = fixed_ip_mapping[fip['fixed_ip_address']]

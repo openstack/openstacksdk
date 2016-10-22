@@ -4064,16 +4064,6 @@ class OpenStackCloud(_normalize.Normalizer):
             fip_id = fip['id']
 
             if port:
-                if fip['port_id'] != port:
-                    if server:
-                        raise OpenStackCloudException(
-                            "Attempted to create FIP on port {port} for server"
-                            " {server} but something went wrong".format(
-                                port=port, server=server['id']))
-                    else:
-                        raise OpenStackCloudException(
-                            "Attempted to create FIP on port {port}"
-                            " but something went wrong".format(port=port))
                 # The FIP is only going to become active in this context
                 # when we've attached it to something, which only occurs
                 # if we've provided a port as a parameter
@@ -4100,6 +4090,16 @@ class OpenStackCloud(_normalize.Normalizer):
                                 "%(err)s", {'fip': fip_id, 'exc': e.__class__,
                                             'err': str(e)})
                         raise
+                if fip['port_id'] != port:
+                    if server:
+                        raise OpenStackCloudException(
+                            "Attempted to create FIP on port {port} for server"
+                            " {server} but something went wrong".format(
+                                port=port, server=server['id']))
+                    else:
+                        raise OpenStackCloudException(
+                            "Attempted to create FIP on port {port}"
+                            " but something went wrong".format(port=port))
             return fip
 
     def _nova_create_floating_ip(self, pool=None):
@@ -4143,9 +4143,10 @@ class OpenStackCloud(_normalize.Normalizer):
 
             # neutron sometimes returns success when deleting a floating
             # ip. That's awesome. SO - verify that the delete actually
-            # worked.
+            # worked. Some clouds will set the status to DOWN rather than
+            # deleting the IP immediately. This is, of course, a bit absurd.
             f_ip = self.get_floating_ip(id=floating_ip_id)
-            if not f_ip:
+            if not f_ip or f_ip['status'] == 'DOWN':
                 return True
 
         raise OpenStackCloudException(

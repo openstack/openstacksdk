@@ -451,6 +451,7 @@ class TestFloatingIP(base.TestCase):
         fake_fip = {
             'id': '2f245a7b-796b-4f26-9cf9-9e82d248fda7',
             'floating_ip_address': '172.99.106.167',
+            'status': 'ACTIVE',
         }
 
         mock_get_floating_ip.side_effect = [fake_fip, fake_fip, None]
@@ -469,12 +470,43 @@ class TestFloatingIP(base.TestCase):
     @patch.object(OpenStackCloud, 'get_floating_ip')
     @patch.object(OpenStackCloud, 'neutron_client')
     @patch.object(OpenStackCloud, 'has_service')
+    def test_delete_floating_ip_existing_down(
+            self, mock_has_service, mock_neutron_client, mock_get_floating_ip):
+        mock_has_service.return_value = True
+        fake_fip = {
+            'id': '2f245a7b-796b-4f26-9cf9-9e82d248fda7',
+            'floating_ip_address': '172.99.106.167',
+            'status': 'ACTIVE',
+        }
+        down_fip = {
+            'id': '2f245a7b-796b-4f26-9cf9-9e82d248fda7',
+            'floating_ip_address': '172.99.106.167',
+            'status': 'DOWN',
+        }
+
+        mock_get_floating_ip.side_effect = [fake_fip, down_fip, None]
+        mock_neutron_client.delete_floatingip.return_value = None
+
+        ret = self.cloud.delete_floating_ip(
+            floating_ip_id='2f245a7b-796b-4f26-9cf9-9e82d248fda7',
+            retry=2)
+
+        mock_neutron_client.delete_floatingip.assert_called_with(
+            floatingip='2f245a7b-796b-4f26-9cf9-9e82d248fda7'
+        )
+        self.assertEqual(mock_get_floating_ip.call_count, 2)
+        self.assertTrue(ret)
+
+    @patch.object(OpenStackCloud, 'get_floating_ip')
+    @patch.object(OpenStackCloud, 'neutron_client')
+    @patch.object(OpenStackCloud, 'has_service')
     def test_delete_floating_ip_existing_no_delete(
             self, mock_has_service, mock_neutron_client, mock_get_floating_ip):
         mock_has_service.return_value = True
         fake_fip = {
             'id': '2f245a7b-796b-4f26-9cf9-9e82d248fda7',
             'floating_ip_address': '172.99.106.167',
+            'status': 'ACTIVE',
         }
 
         mock_get_floating_ip.side_effect = [fake_fip, fake_fip, fake_fip]
