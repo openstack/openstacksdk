@@ -854,6 +854,11 @@ class OpenStackConfig(object):
             # Set to notused rather than None because validate_auth will
             # strip the value if it's actually python None
             config['auth']['token'] = 'notused'
+        elif config['auth_type'] == 'token_endpoint':
+            # Humans have been trained to use a thing called token_endpoint
+            # That it does not exist in keystoneauth is irrelvant- it not
+            # doing what they want causes them sorrow.
+            config['auth_type'] = 'admin_token'
         return loading.get_plugin_loader(config['auth_type'])
 
     def _validate_auth_ksc(self, config, cloud):
