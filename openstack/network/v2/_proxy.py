@@ -112,6 +112,11 @@ class Proxy(proxy.BaseProxy):
         :param kwargs \*\*query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
+            * ``name``: Address scope name
+            * ``ip_version``: Address scope IP address version
+            * ``tenant_id``: Owner tenant ID
+            * ``shared``: Address scope is shared (boolean)
+
         :returns: A generator of address scope objects
         :rtype: :class:`~openstack.network.v2.address_scope.AddressScope`
         """
