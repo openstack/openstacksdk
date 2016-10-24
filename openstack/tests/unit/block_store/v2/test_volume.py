@@ -58,16 +58,23 @@ class TestVolume(testtools.TestCase):
         sot = volume.Volume(VOLUME)
         self.assertEqual("volume", sot.resource_key)
         self.assertEqual("volumes", sot.resources_key)
-        self.assertEqual("id", sot.id_attribute)
         self.assertEqual("/volumes", sot.base_path)
         self.assertEqual("volume", sot.service.service_type)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
-        self.assertFalse(sot.allow_list)
+        self.assertTrue(sot.allow_list)
+
+        self.assertDictEqual({"name": "name",
+                              "status": "status",
+                              "all_tenants": "all_tenants",
+                              "limit": "limit",
+                              "marker": "marker"},
+                             sot._query_mapping._mapping)
 
     def test_create(self):
-        sot = volume.Volume(VOLUME)
+        sot = volume.Volume(**VOLUME)
         self.assertEqual(VOLUME["id"], sot.id)
         self.assertEqual(VOLUME["status"], sot.status)
         self.assertEqual(VOLUME["attachments"], sot.attachments)
@@ -91,7 +98,7 @@ class TestVolumeDetail(testtools.TestCase):
         self.assertEqual("/volumes/detail", sot.base_path)
 
     def test_create(self):
-        sot = volume.VolumeDetail(VOLUME_DETAIL)
+        sot = volume.VolumeDetail(**VOLUME_DETAIL)
         self.assertEqual(VOLUME_DETAIL["os-vol-host-attr:host"], sot.host)
         self.assertEqual(VOLUME_DETAIL["os-vol-tenant-attr:tenant_id"],
                          sot.project_id)

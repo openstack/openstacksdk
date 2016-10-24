@@ -44,17 +44,24 @@ class TestSnapshot(testtools.TestCase):
         sot = snapshot.Snapshot(SNAPSHOT)
         self.assertEqual("snapshot", sot.resource_key)
         self.assertEqual("snapshots", sot.resources_key)
-        self.assertEqual("id", sot.id_attribute)
         self.assertEqual("/snapshots", sot.base_path)
         self.assertEqual("volume", sot.service.service_type)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
         self.assertTrue(sot.allow_delete)
-        self.assertFalse(sot.allow_list)
+        self.assertTrue(sot.allow_list)
+
+        self.assertDictEqual({"name": "name",
+                              "status": "status",
+                              "all_tenants": "all_tenants",
+                              "volume_id": "volume_id",
+                              "limit": "limit",
+                              "marker": "marker"},
+                             sot._query_mapping._mapping)
 
     def test_create_basic(self):
-        sot = snapshot.Snapshot(SNAPSHOT)
+        sot = snapshot.Snapshot(**SNAPSHOT)
         self.assertEqual(SNAPSHOT["id"], sot.id)
         self.assertEqual(SNAPSHOT["status"], sot.status)
         self.assertEqual(SNAPSHOT["created_at"], sot.created_at)
@@ -73,7 +80,7 @@ class TestSnapshotDetail(testtools.TestCase):
         self.assertEqual("/snapshots/detail", sot.base_path)
 
     def test_create_detailed(self):
-        sot = snapshot.SnapshotDetail(DETAILED_SNAPSHOT)
+        sot = snapshot.SnapshotDetail(**DETAILED_SNAPSHOT)
 
         self.assertEqual(
             DETAILED_SNAPSHOT["os-extended-snapshot-attributes:progress"],
