@@ -17,6 +17,29 @@ mapping KSA exceptions to SDK exceptions.
 
 """
 from collections import namedtuple
+import logging
+
+try:
+    from itertools import accumulate
+except ImportError:
+    # itertools.accumulate was added to Python 3.2, and since we have to
+    # support Python 2 for some reason, we include this equivalent from
+    # the 3.x docs. While it's stated that it's a rough equivalent, it's
+    # good enough for the purposes we're using it for.
+    # https://docs.python.org/dev/library/itertools.html#itertools.accumulate
+    def accumulate(iterable, func=None):
+        """Return running totals"""
+        # accumulate([1,2,3,4,5]) --> 1 3 6 10 15
+        # accumulate([1,2,3,4,5], operator.mul) --> 1 2 6 24 120
+        it = iter(iterable)
+        try:
+            total = next(it)
+        except StopIteration:
+            return
+        yield total
+        for element in it:
+            total = func(total, element)
+            yield total
 
 from keystoneauth1 import exceptions as _exceptions
 from keystoneauth1 import session as _session
@@ -31,6 +54,8 @@ DEFAULT_USER_AGENT = "openstacksdk/%s" % openstack_version.__version__
 API_REQUEST_HEADER = "openstack-api-version"
 
 Version = namedtuple("Version", ["major", "minor"])
+
+_logger = logging.getLogger(__name__)
 
 
 def map_exceptions(func):
@@ -107,29 +132,111 @@ class Session(_session.Session):
 
         return None
 
+    class _Endpoint(object):
+
+        def __init__(self, uri, versions,
+                     needs_project_id=False, project_id=None):
+            self.uri = uri
+            self.versions = versions
+            self.needs_project_id = needs_project_id
+            self.project_id = project_id
+
+        def __eq__(self, other):
+            return all([self.uri == other.uri,
+                        self.versions == other.versions,
+                        self.needs_project_id == other.needs_project_id,
+                        self.project_id == other.project_id])
+
+    def _parse_versions_response(self, uri):
+        """Look for a "versions" JSON response at `uri`
+
+        Return versions if we get them, otherwise return None.
+        """
+        _logger.debug("Looking for versions at %s", uri)
+
+        try:
+            response = self.get(uri)
+        except exceptions.HttpException:
+            return None
+
+        try:
+            response_body = response.json()
+        except Exception:
+            # This could raise a number of things, all of which are bad.
+            # ValueError, JSONDecodeError, etc. Rather than pick and choose
+            # a bunch of things that might happen, catch 'em all.
+            return None
+
+        if "versions" in response_body:
+            versions = response_body["versions"]
+            # Normalize the version response. Identity nests the versions
+            # a level deeper than others, inside of a "values" dictionary.
+            if "values" in versions:
+                versions = versions["values"]
+            return self._Endpoint(uri, versions)
+
+        return None
+
     def _get_endpoint_versions(self, service_type, endpoint):
         """Get available endpoints from the remote service
 
-        Take the endpoint that the Service Catalog gives us, then split off
-        anything and just take the root. We need to make a request there
-        to get the versions the API exposes.
+        Take the endpoint that the Service Catalog gives us as a base
+        and then work from there. In most cases, the path-less 'root'
+        of the URI is the base of the service which contains the versions.
+        In other cases, we need to discover it by trying the paths that
+        eminate from that root. Generally this is achieved in one roundtrip
+        request/response, but depending on how the service is installed,
+        it may require multiple requests.
         """
         parts = parse.urlparse(endpoint)
-        if ':' in parts.netloc:
-            root_endpoint = "://".join([parts.scheme, parts.netloc])
+
+        just_root = "://".join([parts.scheme, parts.netloc])
+
+        # If we need to try using a portion of the parts,
+        # the project id won't be one worth asking for so remove it.
+        # However, we do need to know that the project id was
+        # previously there, so keep it.
+        project_id = self.get_project_id()
+        project_id_location = parts.path.find(project_id)
+        if project_id_location > -1:
+            usable_path = parts.path[slice(0, project_id_location)]
+            needs_project_id = True
         else:
-            root_endpoint = endpoint
+            usable_path = parts.path
+            needs_project_id = False
 
-        response = self.get(root_endpoint)
+        # Generate a series of paths that might contain our version
+        # information. This will build successively longer paths from
+        # the split, so /nova/v2 would return "", "/nova",
+        # "/nova/v2" out of it. Based on what we've normally seen,
+        # the match will be found early on within those.
+        paths = accumulate(usable_path.split("/"),
+                           func=lambda *fragments: "/".join(fragments))
 
-        # Normalize the version response. Identity nests the versions
-        # a level deeper than others, inside of a "values" dictionary.
-        response_body = response.json()
-        if "versions" in response_body:
-            versions = response_body["versions"]
-            if "values" in versions:
-                versions = versions["values"]
-            return root_endpoint, versions
+        result = None
+
+        # If we have paths, try them from the root outwards.
+        # NOTE: Both the body of the for loop and the else clause
+        # cover the request for `just_root`. The else clause is explicit
+        # in only testing it because there are no path parts. In the for
+        # loop, it gets requested in the first iteration.
+        for path in paths:
+            response = self._parse_versions_response(just_root + path)
+            if response is not None:
+                result = response
+                break
+        else:
+            # If we didn't have paths, root is all we can do anyway.
+            response = self._parse_versions_response(just_root)
+            if response is not None:
+                result = response
+
+        if result is not None:
+            if needs_project_id:
+                result.needs_project_id = True
+                result.project_id = project_id
+
+            return result
 
         raise exceptions.EndpointNotFound(
             "Unable to parse endpoints for %s" % service_type)
@@ -154,8 +261,7 @@ class Session(_session.Session):
 
         return rv
 
-    def _get_version_match(self, versions, profile_version, service_type,
-                           root_endpoint, requires_project_id):
+    def _get_version_match(self, endpoint, profile_version, service_type):
         """Return the best matching version
 
         Look through each version trying to find the best match for
@@ -172,7 +278,7 @@ class Session(_session.Session):
 
         match_version = None
 
-        for version in versions:
+        for version in endpoint.versions:
             api_version = self._parse_version(version["id"])
             if profile_version.major != api_version.major:
                 continue
@@ -192,15 +298,15 @@ class Session(_session.Session):
             raise exceptions.EndpointNotFound(
                 "Unable to determine endpoint for %s" % service_type)
 
-        # Make sure "root_endpoint" has no overlap with match_version
-        root_parts = parse.urlsplit(root_endpoint)
+        # Make sure the root endpoint has no overlap with match_version
+        root_parts = parse.urlsplit(endpoint.uri)
         match_version = match_version.replace(root_parts.path, "", 1)
-        match = utils.urljoin(root_endpoint, match_version)
+        match = utils.urljoin(endpoint.uri, match_version)
 
         # For services that require the project id in the request URI,
         # add them in here.
-        if requires_project_id:
-            match = utils.urljoin(match, self.get_project_id())
+        if endpoint.needs_project_id:
+            match = utils.urljoin(match, endpoint.project_id)
 
         return match
 
@@ -234,12 +340,14 @@ class Session(_session.Session):
             self.endpoint_cache[key] = sc_endpoint
             return sc_endpoint
 
-        root_endpoint, versions = self._get_endpoint_versions(service_type,
-                                                              sc_endpoint)
+        endpoint = self._get_endpoint_versions(service_type, sc_endpoint)
+
         profile_version = self._parse_version(filt.version)
-        match = self._get_version_match(versions, profile_version,
-                                        service_type, root_endpoint,
-                                        filt.requires_project_id)
+        match = self._get_version_match(endpoint, profile_version,
+                                        service_type)
+
+        _logger.debug("Using %s as %s %s endpoint",
+                      match, interface, service_type)
 
         self.endpoint_cache[key] = match
         return match

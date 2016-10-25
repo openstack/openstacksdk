@@ -100,56 +100,124 @@ class TestSession(testtools.TestCase):
         self.assertIsInstance(os_exc, exceptions.SDKException)
         self.assertEqual(ksa_exc, os_exc.cause)
 
-    def _test__get_endpoint_versions(self, body, versions, endpoint=None):
+    def test__parse_versions_response_exception(self):
+        uri = "http://www.openstack.org"
+        level = "DEBUG"
         sot = session.Session(None)
+        sot.get = mock.Mock(side_effect=exceptions.NotFoundException)
 
-        fake_response = mock.Mock()
-        fake_response.json = mock.Mock(return_value=body)
-        sot.get = mock.Mock(return_value=fake_response)
+        with self.assertLogs(logger=session.__name__, level=level) as log:
+            self.assertIsNone(sot._parse_versions_response(uri))
 
-        if endpoint is None:
-            # default case with port numbers, we strip the path to get base
-            endpoint = 'https://hostname:1234/v2.1/project_id'
-            root = 'https://hostname:1234'
-        else:
-            # otherwise we preserve the whole URI
-            root = endpoint
+            self.assertEqual(len(log.output), 1,
+                             "Too many warnings were logged")
+            self.assertEqual(
+                log.output[0],
+                "%s:%s:Looking for versions at %s" % (level, session.__name__,
+                                                      uri))
 
-        rv = sot._get_endpoint_versions("compute", endpoint)
-
-        sot.get.assert_called_with(root)
-
-        self.assertEqual(root, rv[0])
-        self.assertEqual(versions, rv[1])
-
-    def test__get_endpoint_versions_nested(self):
-        versions = [{"id": "v2.0"}, {"id": "v2.1"}]
-        body = {"versions": {"values": versions}}
-        self._test__get_endpoint_versions(body, versions)
-
-    def test__get_endpoint_versions(self):
-        versions = [{"id": "v2.0"}, {"id": "v2.1"}]
-        body = {"versions": versions}
-        self._test__get_endpoint_versions(body, versions)
-
-    def test__get_endpoint_versions_apache_case(self):
-        # test for service running in apache, i.e. those that doesn't have a
-        # port number in its endpoint URI but the path in its URI should be
-        # preserved.
-        versions = [{"id": "v2.0"}, {"id": "v2.1"}]
-        body = {"versions": versions}
-        self._test__get_endpoint_versions(
-            body, versions, endpoint='http://hostname/service_path')
-
-    def test__get_endpoint_versions_exception(self):
+    def test__parse_versions_response_no_json(self):
         sot = session.Session(None)
+        retval = mock.Mock()
+        retval.json = mock.Mock(side_effect=ValueError)
+        sot.get = mock.Mock(return_value=retval)
 
-        fake_response = mock.Mock()
-        fake_response.json = mock.Mock(return_value={})
-        sot.get = mock.Mock(return_value=fake_response)
+        self.assertIsNone(sot._parse_versions_response("test"))
 
-        self.assertRaises(exceptions.EndpointNotFound,
-                          sot._get_endpoint_versions, "service", "endpoint")
+    def test__parse_versions_response_no_versions(self):
+        sot = session.Session(None)
+        retval = mock.Mock()
+        retval.json = mock.Mock(return_value={"no_versions_here": "blarga"})
+        sot.get = mock.Mock(return_value=retval)
+
+        self.assertIsNone(sot._parse_versions_response("test"))
+
+    def test__parse_versions_response_with_versions(self):
+        uri = "http://openstack.org"
+        versions = [1, 2, 3]
+
+        sot = session.Session(None)
+        retval = mock.Mock()
+        retval.json = mock.Mock(return_value={"versions": versions})
+        sot.get = mock.Mock(return_value=retval)
+
+        expected = session.Session._Endpoint(uri, versions)
+        self.assertEqual(expected, sot._parse_versions_response(uri))
+
+    def test__parse_versions_response_with_nested_versions(self):
+        uri = "http://openstack.org"
+        versions = [1, 2, 3]
+
+        sot = session.Session(None)
+        retval = mock.Mock()
+        retval.json = mock.Mock(return_value={"versions":
+                                              {"values": versions}})
+        sot.get = mock.Mock(return_value=retval)
+
+        expected = session.Session._Endpoint(uri, versions)
+        self.assertEqual(expected, sot._parse_versions_response(uri))
+
+    def test__get_endpoint_versions_at_subdomain(self):
+        # This test covers a common case of services deployed under
+        # subdomains. Additionally, it covers the case of a service
+        # deployed at the root, which will be the first request made
+        # for versions.
+        sc_uri = "https://service.cloud.com/v1/"
+        versions_uri = "https://service.cloud.com"
+
+        sot = session.Session(None)
+        sot.get_project_id = mock.Mock(return_value="project_id")
+
+        responses = [session.Session._Endpoint(versions_uri, "versions")]
+        sot._parse_versions_response = mock.Mock(side_effect=responses)
+
+        result = sot._get_endpoint_versions("type", sc_uri)
+
+        sot._parse_versions_response.assert_called_once_with(versions_uri)
+        self.assertEqual(result, responses[0])
+        self.assertFalse(result.needs_project_id)
+
+    def test__get_endpoint_versions_at_path(self):
+        # This test covers a common case of services deployed under
+        # a path. Additionally, it covers the case of a service
+        # deployed at a path deeper than the root, which will mean
+        # more than one request will need to be made.
+        sc_uri = "https://cloud.com/api/service/v2/project_id"
+        versions_uri = "https://cloud.com/api/service"
+
+        sot = session.Session(None)
+        sot.get_project_id = mock.Mock(return_value="project_id")
+
+        responses = [None, None,
+                     session.Session._Endpoint(versions_uri, "versions")]
+        sot._parse_versions_response = mock.Mock(side_effect=responses)
+
+        result = sot._get_endpoint_versions("type", sc_uri)
+
+        sot._parse_versions_response.assert_has_calls(
+            [mock.call("https://cloud.com"),
+             mock.call("https://cloud.com/api"),
+             mock.call(versions_uri)])
+        self.assertEqual(result, responses[2])
+        self.assertTrue(result.needs_project_id)
+
+    def test__get_endpoint_versions_at_port(self):
+        # This test covers a common case of services deployed under
+        # a port.
+        sc_uri = "https://cloud.com:1234/v3"
+        versions_uri = "https://cloud.com:1234"
+
+        sot = session.Session(None)
+        sot.get_project_id = mock.Mock(return_value="project_id")
+
+        responses = [session.Session._Endpoint(versions_uri, "versions")]
+        sot._parse_versions_response = mock.Mock(side_effect=responses)
+
+        result = sot._get_endpoint_versions("type", sc_uri)
+
+        sot._parse_versions_response.assert_called_once_with(versions_uri)
+        self.assertEqual(result, responses[0])
+        self.assertFalse(result.needs_project_id)
 
     def test__parse_version(self):
         sot = session.Session(None)
@@ -162,9 +230,10 @@ class TestSession(testtools.TestCase):
     def test__get_version_match_none(self):
         sot = session.Session(None)
 
+        endpoint = session.Session._Endpoint("root", [])
         self.assertRaises(
             exceptions.EndpointNotFound,
-            sot._get_version_match, [], None, "service", "root", False)
+            sot._get_version_match, endpoint, None, "service")
 
     def test__get_version_match_fuzzy(self):
         match = "http://devstack/v2.1"
@@ -177,10 +246,12 @@ class TestSession(testtools.TestCase):
                                 "rel": "self"}]}]
 
         sot = session.Session(None)
+
+        endpoint = session.Session._Endpoint(root_endpoint, versions)
         # Look for a v2 match, which we internally denote as a minor
         # version of -1 so we can find the highest matching minor.
-        rv = sot._get_version_match(versions, session.Version(2, -1),
-                                    "service", root_endpoint, False)
+        rv = sot._get_version_match(endpoint, session.Version(2, -1),
+                                    "service")
         self.assertEqual(rv, match)
 
     def test__get_version_match_exact(self):
@@ -194,8 +265,9 @@ class TestSession(testtools.TestCase):
                                 "rel": "self"}]}]
 
         sot = session.Session(None)
-        rv = sot._get_version_match(versions, session.Version(2, 0),
-                                    "service", root_endpoint, False)
+        endpoint = session.Session._Endpoint(root_endpoint, versions)
+        rv = sot._get_version_match(endpoint, session.Version(2, 0),
+                                    "service")
         self.assertEqual(rv, match)
 
     def test__get_version_match_fragment(self):
@@ -204,8 +276,8 @@ class TestSession(testtools.TestCase):
         versions = [{"id": "v2.0", "links": [{"href": match, "rel": "self"}]}]
 
         sot = session.Session(None)
-        rv = sot._get_version_match(versions, session.Version(2, 0),
-                                    "service", root, False)
+        endpoint = session.Session._Endpoint(root, versions)
+        rv = sot._get_version_match(endpoint, session.Version(2, 0), "service")
         self.assertEqual(rv, root+match)
 
     def test__get_version_match_project_id(self):
@@ -216,8 +288,11 @@ class TestSession(testtools.TestCase):
 
         sot = session.Session(None)
         sot.get_project_id = mock.Mock(return_value=project_id)
-        rv = sot._get_version_match(versions, session.Version(2, 0),
-                                    "service", root_endpoint, True)
+        endpoint = session.Session._Endpoint(root_endpoint, versions,
+                                             project_id=project_id,
+                                             needs_project_id=True)
+        rv = sot._get_version_match(endpoint, session.Version(2, 0),
+                                    "service")
         match_endpoint = utils.urljoin(match, project_id)
         self.assertEqual(rv, match_endpoint)
 
