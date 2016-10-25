@@ -11,24 +11,25 @@
 # under the License.
 
 from openstack.block_store import block_store_service
-from openstack import resource
+from openstack import resource2
 
 
-class Type(resource.Resource):
+class Type(resource2.Resource):
     resource_key = "volume_type"
     resources_key = "volume_types"
     base_path = "/types"
     service = block_store_service.BlockStoreService()
 
     # capabilities
-    allow_retrieve = True
+    allow_get = True
     allow_create = True
     allow_delete = True
+    allow_list = True
 
     # Properties
     #: A ID representing this type.
-    id = resource.prop("id")
+    id = resource2.Body("id")
     #: Name of the type.
-    name = resource.prop("name")
+    name = resource2.Body("name")
     #: A dict of extra specifications. "capabilities" is a usual key.
-    extra_specs = resource.prop("extra_specs", type=dict)
+    extra_specs = resource2.Body("extra_specs", type=dict)

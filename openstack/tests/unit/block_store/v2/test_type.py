@@ -27,23 +27,23 @@ TYPE = {
 class TestType(testtools.TestCase):
 
     def test_basic(self):
-        sot = type.Type(TYPE)
+        sot = type.Type(**TYPE)
         self.assertEqual("volume_type", sot.resource_key)
         self.assertEqual("volume_types", sot.resources_key)
-        self.assertEqual("id", sot.id_attribute)
         self.assertEqual("/types", sot.base_path)
         self.assertEqual("volume", sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_delete)
-        self.assertFalse(sot.allow_list)
+        self.assertTrue(sot.allow_list)
+        self.assertFalse(sot.allow_update)
 
     def test_new(self):
         sot = type.Type.new(id=FAKE_ID)
         self.assertEqual(FAKE_ID, sot.id)
 
     def test_create(self):
-        sot = type.Type(TYPE)
+        sot = type.Type(**TYPE)
         self.assertEqual(TYPE["id"], sot.id)
         self.assertEqual(TYPE["extra_specs"], sot.extra_specs)
         self.assertEqual(TYPE["name"], sot.name)

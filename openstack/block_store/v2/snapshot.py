@@ -12,43 +12,47 @@
 
 from openstack.block_store import block_store_service
 from openstack import format
-from openstack import resource
+from openstack import resource2
 
 
-class Snapshot(resource.Resource):
+class Snapshot(resource2.Resource):
     resource_key = "snapshot"
     resources_key = "snapshots"
     base_path = "/snapshots"
     service = block_store_service.BlockStoreService()
 
+    _query_mapping = resource2.QueryParameters('all_tenants', 'name', 'status',
+                                               'volume_id')
+
     # capabilities
-    allow_retrieve = True
+    allow_get = True
     allow_create = True
     allow_delete = True
     allow_update = True
+    allow_list = True
 
     # Properties
     #: A ID representing this snapshot.
-    id = resource.prop("id")
+    id = resource2.Body("id")
     #: Name of the snapshot. Default is None.
-    name = resource.prop("name")
+    name = resource2.Body("name")
 
     #: The current status of this snapshot. Potential values are creating,
     #: available, deleting, error, and error_deleting.
-    status = resource.prop("status")
+    status = resource2.Body("status")
     #: Description of snapshot. Default is None.
-    description = resource.prop("description")
+    description = resource2.Body("description")
     #: The timestamp of this snapshot creation.
-    created_at = resource.prop("created_at")
+    created_at = resource2.Body("created_at")
     #: Metadata associated with this snapshot.
-    metadata = resource.prop("metadata", type=dict)
+    metadata = resource2.Body("metadata", type=dict)
     #: The ID of the volume this snapshot was taken of.
-    volume_id = resource.prop("volume_id")
+    volume_id = resource2.Body("volume_id")
     #: The size of the volume, in GBs.
-    size = resource.prop("size", type=int)
+    size = resource2.Body("size", type=int)
     #: Indicate whether to create snapshot, even if the volume is attached.
     #: Default is ``False``. *Type: bool*
-    is_forced = resource.prop("force", type=format.BoolStr)
+    is_forced = resource2.Body("force", type=format.BoolStr)
 
 
 class SnapshotDetail(Snapshot):
@@ -56,6 +60,6 @@ class SnapshotDetail(Snapshot):
     base_path = "/snapshots/detail"
 
     #: The percentage of completeness the snapshot is currently at.
-    progress = resource.prop("os-extended-snapshot-attributes:progress")
+    progress = resource2.Body("os-extended-snapshot-attributes:progress")
     #: The project ID this snapshot is associated with.
-    project_id = resource.prop("os-extended-snapshot-attributes:project_id")
+    project_id = resource2.Body("os-extended-snapshot-attributes:project_id")

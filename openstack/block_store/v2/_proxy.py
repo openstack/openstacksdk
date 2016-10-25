@@ -13,10 +13,10 @@
 from openstack.block_store.v2 import snapshot as _snapshot
 from openstack.block_store.v2 import type as _type
 from openstack.block_store.v2 import volume as _volume
-from openstack import proxy
+from openstack import proxy2
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy2.BaseProxy):
 
     def get_snapshot(self, snapshot):
         """Get a single snapshot
@@ -30,6 +30,28 @@ class Proxy(proxy.BaseProxy):
                  when no resource can be found.
         """
         return self._get(_snapshot.Snapshot, snapshot)
+
+    def snapshots(self, details=True, **query):
+        """Retrieve a generator of snapshots
+
+        :param bool details: When set to ``False``
+                    :class:`~openstack.block_store.v2.snapshot.Snapshot`
+                    objects will be returned. The default, ``True``, will cause
+                    :class:`~openstack.block_store.v2.snapshot.SnapshotDetail`
+                    objects to be returned.
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+            the snapshots being returned.  Available parameters include:
+
+            * name: Name of the snapshot as a string.
+            * all_tenants: Whether return the snapshots of all tenants.
+            * volume_id: volume id of a snapshot.
+            * status: Value of the status of the snapshot so that you can
+                      filter on "available" for example.
+
+        :returns: A generator of snapshot objects.
+        """
+        snapshot = _snapshot.SnapshotDetail if details else _snapshot.Snapshot
+        return self._list(snapshot, paginated=True, **query)
 
     def create_snapshot(self, **attrs):
         """Create a new snapshot from attributes
@@ -72,6 +94,13 @@ class Proxy(proxy.BaseProxy):
         """
         return self._get(_type.Type, type)
 
+    def types(self):
+        """Retrieve a generator of volume types
+
+        :returns: A generator of volume type objects.
+        """
+        return self._list(_type.Type, paginated=False)
+
     def create_type(self, **attrs):
         """Create a new type from attributes
 
@@ -110,6 +139,27 @@ class Proxy(proxy.BaseProxy):
                  when no resource can be found.
         """
         return self._get(_volume.Volume, volume)
+
+    def volumes(self, details=True, **query):
+        """Retrieve a generator of volumes
+
+        :param bool details: When set to ``False``
+                    :class:`~openstack.block_store.v2.volume.Volume` objects
+                    will be returned. The default, ``True``, will cause
+                    :class:`~openstack.block_store.v2.volume.VolumeDetail`
+                    objects to be returned.
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+            the volumes being returned.  Available parameters include:
+
+            * name: Name of the volume as a string.
+            * all_tenants: Whether return the volumes of all tenants
+            * status: Value of the status of the volume so that you can filter
+                    on "available" for example.
+
+        :returns: A generator of volume objects.
+        """
+        volume = _volume.VolumeDetail if details else _volume.Volume
+        return self._list(volume, paginated=True, **query)
 
     def create_volume(self, **attrs):
         """Create a new volume from attributes

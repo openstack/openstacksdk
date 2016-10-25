@@ -14,16 +14,28 @@ from openstack.block_store.v2 import _proxy
 from openstack.block_store.v2 import snapshot
 from openstack.block_store.v2 import type
 from openstack.block_store.v2 import volume
-from openstack.tests.unit import test_proxy_base
+from openstack.tests.unit import test_proxy_base2
 
 
-class TestVolumeProxy(test_proxy_base.TestProxyBase):
+class TestVolumeProxy(test_proxy_base2.TestProxyBase):
     def setUp(self):
         super(TestVolumeProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_snapshot_get(self):
         self.verify_get(self.proxy.get_snapshot, snapshot.Snapshot)
+
+    def test_snapshots_detailed(self):
+        self.verify_list(self.proxy.snapshots, snapshot.SnapshotDetail,
+                         paginated=True,
+                         method_kwargs={"details": True, "query": 1},
+                         expected_kwargs={"query": 1})
+
+    def test_snapshots_not_detailed(self):
+        self.verify_list(self.proxy.snapshots, snapshot.Snapshot,
+                         paginated=True,
+                         method_kwargs={"details": False, "query": 1},
+                         expected_kwargs={"query": 1})
 
     def test_snapshot_create_attrs(self):
         self.verify_create(self.proxy.create_snapshot, snapshot.Snapshot)
@@ -39,6 +51,9 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def test_type_get(self):
         self.verify_get(self.proxy.get_type, type.Type)
 
+    def test_types(self):
+        self.verify_list(self.proxy.types, type.Type, paginated=False)
+
     def test_type_create_attrs(self):
         self.verify_create(self.proxy.create_type, type.Type)
 
@@ -50,6 +65,18 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
 
     def test_volume_get(self):
         self.verify_get(self.proxy.get_volume, volume.Volume)
+
+    def test_volumes_detailed(self):
+        self.verify_list(self.proxy.volumes, volume.VolumeDetail,
+                         paginated=True,
+                         method_kwargs={"details": True, "query": 1},
+                         expected_kwargs={"query": 1})
+
+    def test_volumes_not_detailed(self):
+        self.verify_list(self.proxy.volumes, volume.Volume,
+                         paginated=True,
+                         method_kwargs={"details": False, "query": 1},
+                         expected_kwargs={"query": 1})
 
     def test_volume_create_attrs(self):
         self.verify_create(self.proxy.create_volume, volume.Volume)
