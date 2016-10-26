@@ -22,7 +22,7 @@ FAKE_NAME = 'test_node'
 FAKE = {
     'id': FAKE_ID,
     'cluster_id': 'clusterA',
-    'metadata': {},
+    'metadata': {'key1': 'value1'},
     'name': FAKE_NAME,
     'profile_id': 'myserver',
     'index': 1,
@@ -31,28 +31,6 @@ FAKE = {
     'created_at': '2015-10-10T12:46:36.000000',
     'updated_at': '2016-10-10T12:46:36.000000',
     'init_at': '2015-10-10T12:46:36.000000',
-}
-
-FAKE_CREATE_RESP = {
-    'node': {
-        'id': FAKE_ID,
-        'name': FAKE_NAME,
-        'cluster_id': '99001122-aabb-ccdd-ffff-efdcab124567',
-        'action': '1122aabb-eeff-7755-2222-00991234dcba',
-        'created_at': '2015-10-10T12:46:36.000000',
-        'updated_at': '2016-10-10T12:46:36.000000',
-        'data': {},
-        'role': 'master',
-        'index': 1,
-        'init_at': '2015-10-10T12:46:36.000000',
-        'metadata': {},
-        'profile_id': '560a8f9d-7596-4a32-85e8-03645fa7be13',
-        'profile_name': 'myserver',
-        'project': '333acb15a43242f4a609a27cb097a8f2',
-        'status': 'INIT',
-        'status_reason': 'Initializing',
-        'dependents': {},
-    }
 }
 
 
@@ -73,7 +51,6 @@ class TestNode(testtools.TestCase):
     def test_instantiate(self):
         sot = node.Node(**FAKE)
         self.assertEqual(FAKE['id'], sot.id)
-        self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['profile_id'], sot.profile_id)
         self.assertEqual(FAKE['cluster_id'], sot.cluster_id)
         self.assertEqual(FAKE['name'], sot.name)

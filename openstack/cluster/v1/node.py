@@ -68,7 +68,7 @@ class Node(resource.Resource):
     #: A string describing why the node entered its current status.
     status_reason = resource.Body('status_reason')
     #: A map containing key-value pairs attached to the node.
-    metadata = resource.Body('tags', type=dict)
+    metadata = resource.Body('metadata', type=dict)
     #: A map containing some runtime data for this node.
     data = resource.Body('data', type=dict)
     #: A map containing the details of the physical object this node
