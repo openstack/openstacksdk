@@ -41,6 +41,7 @@ from openstack.network.v2 import router
 from openstack.network.v2 import security_group
 from openstack.network.v2 import security_group_rule
 from openstack.network.v2 import segment
+from openstack.network.v2 import service_provider
 from openstack.network.v2 import subnet
 from openstack.network.v2 import subnet_pool
 from openstack.network.v2 import vpn_service
@@ -842,3 +843,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_vpn_service_update(self):
         self.verify_update(self.proxy.update_vpn_service,
                            vpn_service.VPNService)
+
+    def test_service_provider(self):
+        self.verify_list(self.proxy.service_providers,
+                         service_provider.ServiceProvider,
+                         paginated=False)
