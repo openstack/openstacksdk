@@ -72,20 +72,51 @@ class TestMessageProxy(test_proxy_base2.TestProxyBase):
 
     @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
     def test_message_delete(self, mock_get_resource):
-        mock_get_resource.return_value = "resource_or_id"
-        self.verify_delete(self.proxy.delete_message,
-                           message.Message, False,
-                           ["test_queue", "resource_or_id"])
+        fake_message = mock.Mock()
+        fake_message.id = "message_id"
+        mock_get_resource.return_value = fake_message
+        self._verify2("openstack.proxy2.BaseProxy._delete",
+                      self.proxy.delete_message,
+                      method_args=["test_queue", "resource_or_id", None,
+                                   False],
+                      expected_args=[message.Message,
+                                     fake_message],
+                      expected_kwargs={"ignore_missing": False})
+        self.assertIsNone(fake_message.claim_id)
+        mock_get_resource.assert_called_once_with(message.Message,
+                                                  "resource_or_id",
+                                                  queue_name="test_queue")
+
+    @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
+    def test_message_delete_claimed(self, mock_get_resource):
+        fake_message = mock.Mock()
+        fake_message.id = "message_id"
+        mock_get_resource.return_value = fake_message
+        self._verify2("openstack.proxy2.BaseProxy._delete",
+                      self.proxy.delete_message,
+                      method_args=["test_queue", "resource_or_id", "claim_id",
+                                   False],
+                      expected_args=[message.Message,
+                                     fake_message],
+                      expected_kwargs={"ignore_missing": False})
+        self.assertEqual("claim_id", fake_message.claim_id)
         mock_get_resource.assert_called_once_with(message.Message,
                                                   "resource_or_id",
                                                   queue_name="test_queue")
 
     @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
     def test_message_delete_ignore(self, mock_get_resource):
-        mock_get_resource.return_value = "resource_or_id"
-        self.verify_delete(self.proxy.delete_message,
-                           message.Message, True,
-                           ["test_queue", "resource_or_id"])
+        fake_message = mock.Mock()
+        fake_message.id = "message_id"
+        mock_get_resource.return_value = fake_message
+        self._verify2("openstack.proxy2.BaseProxy._delete",
+                      self.proxy.delete_message,
+                      method_args=["test_queue", "resource_or_id", None,
+                                   True],
+                      expected_args=[message.Message,
+                                     fake_message],
+                      expected_kwargs={"ignore_missing": True})
+        self.assertIsNone(fake_message.claim_id)
         mock_get_resource.assert_called_once_with(message.Message,
                                                   "resource_or_id",
                                                   queue_name="test_queue")
