@@ -1345,7 +1345,10 @@ class OpenStackCloud(_normalize.Normalizer):
         return _utils._filter_list(flavors, name_or_id, filters)
 
     def search_security_groups(self, name_or_id=None, filters=None):
-        groups = self.list_security_groups()
+        # `filters` could be a dict or a jmespath (str)
+        groups = self.list_security_groups(
+            filters=filters if isinstance(filters, dict) else None
+        )
         return _utils._filter_list(groups, name_or_id, filters)
 
     def search_servers(self, name_or_id=None, filters=None, detailed=False):
@@ -1412,7 +1415,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """List all available networks.
 
         :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of ``munch.Munc`` containing network info.
+        :returns: A list of ``munch.Munch`` containing network info.
 
         """
         # Translate None from search interface to empty {} for kwargs below
@@ -1553,9 +1556,10 @@ class OpenStackCloud(_normalize.Normalizer):
 
         return self._normalize_secgroups(groups)
 
-    def list_security_groups(self):
+    def list_security_groups(self, filters=None):
         """List all available security groups.
 
+        :param filters: (optional) dict of filter conditions to push down
         :returns: A list of security group ``munch.Munch``.
 
         """
@@ -1565,6 +1569,9 @@ class OpenStackCloud(_normalize.Normalizer):
                 "Unavailable feature: security groups"
             )
 
+        if not filters:
+            filters = {}
+
         groups = []
         # Handle neutron security groups
         if self._use_neutron_secgroups():
@@ -1572,13 +1579,14 @@ class OpenStackCloud(_normalize.Normalizer):
             with _utils.neutron_exceptions(
                     "Error fetching security group list"):
                 groups = self.manager.submit_task(
-                    _tasks.NeutronSecurityGroupList())['security_groups']
+                    _tasks.NeutronSecurityGroupList(**filters)
+                )['security_groups']
 
         # Handle nova security groups
         else:
             with _utils.shade_exceptions("Error fetching security group list"):
                 groups = self.manager.submit_task(
-                    _tasks.NovaSecurityGroupList())
+                    _tasks.NovaSecurityGroupList(search_opts=filters))
         return self._normalize_secgroups(groups)
 
     def list_servers(self, detailed=False):

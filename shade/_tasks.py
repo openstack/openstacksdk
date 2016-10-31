@@ -431,7 +431,7 @@ class VolumeSnapshotDelete(task_manager.Task):
 
 class NeutronSecurityGroupList(task_manager.Task):
     def main(self, client):
-        return client.neutron_client.list_security_groups()
+        return client.neutron_client.list_security_groups(**self.args)
 
 
 class NeutronSecurityGroupCreate(task_manager.Task):
@@ -461,7 +461,7 @@ class NeutronSecurityGroupRuleDelete(task_manager.Task):
 
 class NovaSecurityGroupList(task_manager.Task):
     def main(self, client):
-        return client.nova_client.security_groups.list()
+        return client.nova_client.security_groups.list(**self.args)
 
 
 class NovaSecurityGroupCreate(task_manager.Task):

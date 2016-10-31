@@ -24,9 +24,6 @@ from shade.tests.functional import base
 
 class TestServerGroup(base.BaseFunctionalTestCase):
 
-    def setUp(self):
-        super(TestServerGroup, self).setUp()
-
     def test_server_group(self):
         server_group_name = self.getUniqueString()
         self.addCleanup(self.cleanup, server_group_name)

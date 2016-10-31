@@ -24,9 +24,6 @@ from shade.tests.functional import base
 
 class TestAggregate(base.BaseFunctionalTestCase):
 
-    def setUp(self):
-        super(TestAggregate, self).setUp()
-
     def test_aggregates(self):
         aggregate_name = self.getUniqueString()
         availability_zone = self.getUniqueString()
