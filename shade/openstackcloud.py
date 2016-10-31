@@ -1685,7 +1685,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def _list_floating_ips(self):
         if self._use_neutron_floating():
             try:
-                return self._normalize_neutron_floating_ips(
+                return self._normalize_floating_ips(
                     self._neutron_list_floating_ips())
             except OpenStackCloudURINotFound as e:
                 self.log.debug(
@@ -1694,7 +1694,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 # Fall-through, trying with Nova
 
         floating_ips = self._nova_list_floating_ips()
-        return _utils.normalize_nova_floating_ips(floating_ips)
+        return self._normalize_floating_ips(floating_ips)
 
     def list_floating_ips(self):
         """List all available floating IPs.
@@ -3771,7 +3771,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         if self._use_neutron_floating():
             try:
-                f_ips = self._normalize_neutron_floating_ips(
+                f_ips = self._normalize_floating_ips(
                     self._neutron_available_floating_ips(
                         network=network, server=server))
                 return f_ips[0]
@@ -3781,7 +3781,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
                 # Fall-through, trying with Nova
 
-        f_ips = _utils.normalize_nova_floating_ips(
+        f_ips = self._normalize_floating_ips(
             self._nova_available_floating_ips(pool=network)
         )
         return f_ips[0]
@@ -3840,7 +3840,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 'tenant_id': project_id
             }
 
-            floating_ips = self._neutron_list_floating_ips()
+            floating_ips = self._list_floating_ips()
             available_ips = _utils._filter_list(
                 floating_ips, name_or_id=None, filters=filters)
             if available_ips:
@@ -3945,13 +3945,13 @@ class OpenStackCloud(_normalize.Normalizer):
                 " to neutron, or alternately provide the server,"
                 " fixed_address and nat_destination arguments as appropriate")
         # Else, we are using Nova network
-        f_ips = _utils.normalize_nova_floating_ips(
+        f_ips = self._normalize_floating_ips(
             [self._nova_create_floating_ip(pool=network)])
         return f_ips[0]
 
     def _submit_create_fip(self, kwargs):
         # Split into a method to aid in test mocking
-        return self._normalize_neutron_floating_ips(
+        return self._normalize_floating_ips(
             [self.manager.submit_task(_tasks.NeutronFloatingIPCreate(
                 body={'floatingip': kwargs}))['floatingip']])[0]
 

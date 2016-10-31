@@ -200,8 +200,8 @@ class Normalizer(object):
 
         return server
 
-    def _normalize_neutron_floating_ips(self, ips):
-        """Normalize the structure of Neutron floating IPs
+    def _normalize_floating_ips(self, ips):
+        """Normalize the structure of floating IPs
 
         Unfortunately, not all the Neutron floating_ip attributes are available
         with Nova and not all Nova floating_ip attributes are available with
@@ -230,16 +230,28 @@ class Normalizer(object):
 
         """
         return [
-            self._normalize_neutron_floating_ip(ip) for ip in ips
+            self._normalize_floating_ip(ip) for ip in ips
         ]
 
-    def _normalize_neutron_floating_ip(self, ip):
-        network_id = ip.get('floating_network_id', ip.get('network'))
+    def _normalize_floating_ip(self, ip):
+        fixed_ip_address = ip.get('fixed_ip_address', ip.get('fixed_ip'))
+        floating_ip_address = ip.get('floating_ip_address', ip.get('ip'))
+        network_id = ip.get(
+            'floating_network_id', ip.get('network', ip.get('pool')))
         project_id = ip.get('project_id', ip.get('tenant_id', ''))
+        if self._use_neutron_floating():
+            attached = (ip.get('port_id') is not None and ip['port_id'] != '')
+            status = ip.get('status', 'UNKNOWN')
+        else:
+            instance_id = ip.get('instance_id')
+            attached = instance_id is not None and instance_id != ''
+            # In neutron's terms, Nova floating IPs are always ACTIVE
+            status = 'ACTIVE'
+
         return munch.Munch(
-            attached=ip.get('port_id') is not None and ip.get('port_id') != '',
-            fixed_ip_address=ip.get('fixed_ip_address'),
-            floating_ip_address=ip['floating_ip_address'],
+            attached=attached,
+            fixed_ip_address=fixed_ip_address,
+            floating_ip_address=floating_ip_address,
             floating_network_id=network_id,
             id=ip['id'],
             location=self._get_current_location(project_id=project_id),
@@ -247,6 +259,6 @@ class Normalizer(object):
             port_id=ip.get('port_id'),
             project_id=project_id,
             router_id=ip.get('router_id'),
-            status=ip.get('status', 'UNKNOWN'),
+            status=status,
             tenant_id=project_id
         )

@@ -22,7 +22,6 @@ Tests Floating IP resource methods for nova-network
 from mock import patch
 from novaclient import exceptions as n_exc
 
-from shade import _utils
 from shade import meta
 from shade import OpenStackCloud
 from shade.tests import fakes
@@ -84,7 +83,7 @@ class TestFloatingIP(base.TestCase):
                     u'OS-EXT-IPS-MAC:mac_addr':
                     u'fa:16:3e:ae:7d:42'}]}))
 
-        self.floating_ip = _utils.normalize_nova_floating_ips(
+        self.floating_ip = self.cloud._normalize_floating_ips(
             meta.obj_list_to_dict(self.floating_ips))[0]
 
     @patch.object(OpenStackCloud, 'nova_client')

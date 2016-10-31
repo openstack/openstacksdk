@@ -24,7 +24,6 @@ from mock import patch
 
 from neutronclient.common import exceptions as n_exc
 
-from shade import _normalize
 from shade import _utils
 from shade import exc
 from shade import meta
@@ -148,7 +147,7 @@ class TestFloatingIP(base.TestCase):
                     u'version': 4,
                     u'OS-EXT-IPS-MAC:mac_addr':
                     u'fa:16:3e:ae:7d:42'}]}))
-        self.floating_ip = self.cloud._normalize_neutron_floating_ips(
+        self.floating_ip = self.cloud._normalize_floating_ips(
             self.mock_floating_ip_list_rep['floatingips'])[0]
 
     def test_float_no_status(self):
@@ -163,7 +162,7 @@ class TestFloatingIP(base.TestCase):
                 'tenant_id': '4969c491a3c74ee4af974e6d800c62df'
             }
         ]
-        normalized = self.cloud._normalize_neutron_floating_ips(floating_ips)
+        normalized = self.cloud._normalize_floating_ips(floating_ips)
         self.assertEqual('UNKNOWN', normalized[0]['status'])
 
     @patch.object(OpenStackCloud, 'neutron_client')
@@ -287,29 +286,6 @@ class TestFloatingIP(base.TestCase):
             self.mock_floating_ip_new_rep['floatingip']['floating_ip_address'],
             ip['floating_ip_address'])
 
-    @patch.object(_normalize.Normalizer, '_normalize_neutron_floating_ips')
-    @patch.object(OpenStackCloud, '_neutron_available_floating_ips')
-    @patch.object(OpenStackCloud, 'has_service')
-    @patch.object(OpenStackCloud, 'keystone_session')
-    def test_available_floating_ip_neutron(self,
-                                           mock_keystone,
-                                           mock_has_service,
-                                           mock__neutron_call,
-                                           mock_normalize):
-        """
-        Test the correct path is taken when using neutron.
-        """
-        # force neutron path
-        mock_has_service.return_value = True
-        mock__neutron_call.return_value = []
-
-        self.cloud.available_floating_ip(network='netname')
-
-        mock_has_service.assert_called_once_with('network')
-        mock__neutron_call.assert_called_once_with(network='netname',
-                                                   server=None)
-        mock_normalize.assert_called_once_with([])
-
     @patch.object(_utils, '_filter_list')
     @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
     @patch.object(OpenStackCloud, '_neutron_list_floating_ips')
@@ -412,7 +388,7 @@ class TestFloatingIP(base.TestCase):
             mock_keystone_session,
             mock_nova_client):
         mock_has_service.return_value = True
-        fip = self.cloud._normalize_neutron_floating_ips(
+        fip = self.cloud._normalize_floating_ips(
             self.mock_floating_ip_list_rep['floatingips'])[0]
         mock__neutron_create_floating_ip.return_value = fip
         mock_keystone_session.get_project_id.return_value = \
@@ -571,7 +547,7 @@ class TestFloatingIP(base.TestCase):
             mock_get_floating_ip):
         mock_has_service.return_value = True
         mock_get_floating_ip.return_value = \
-            self.cloud._normalize_neutron_floating_ips(
+            self.cloud._normalize_floating_ips(
                 self.mock_floating_ip_list_rep['floatingips'])[0]
 
         self.cloud.detach_ip_from_server(
@@ -595,7 +571,7 @@ class TestFloatingIP(base.TestCase):
             mock_attach_ip_to_server):
         mock_has_service.return_value = True
         mock_available_floating_ip.return_value = \
-            self.cloud._normalize_neutron_floating_ips([
+            self.cloud._normalize_floating_ips([
                 self.mock_floating_ip_new_rep['floatingip']])[0]
         mock_attach_ip_to_server.return_value = self.fake_server
 
