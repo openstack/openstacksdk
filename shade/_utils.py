@@ -60,7 +60,7 @@ def _iterate_timeout(timeout, message, wait=2):
     while (timeout is None) or (time.time() < start + timeout):
         count += 1
         yield count
-        log.debug('Waiting {wait} seconds'.format(wait=wait))
+        log.debug('Waiting %s seconds', wait)
         time.sleep(wait)
     raise exc.OpenStackCloudTimeout(message)
 
