@@ -885,7 +885,8 @@ class TestMeta(base.TestCase):
                 'domain_id': None,
                 'domain_name': None
             },
-            'region_name': u'RegionOne'},
+            'region_name': u'RegionOne',
+            'zone': None},
             self.cloud.current_location)
 
     def test_current_project(self):

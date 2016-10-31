@@ -97,8 +97,10 @@ class TestUtils(base.TestCase):
             description='A Nova security group',
             tenant_id='',
             project_id='',
+            properties={},
             location=dict(
                 region_name='RegionOne',
+                zone=None,
                 project=dict(
                     domain_name=None,
                     id=mock.ANY,
@@ -109,11 +111,13 @@ class TestUtils(base.TestCase):
                 dict(id='123', direction='ingress', ethertype='IPv4',
                      port_range_min=80, port_range_max=81, protocol='tcp',
                      remote_ip_prefix='0.0.0.0/0', security_group_id='xyz123',
+                     properties={},
                      tenant_id='',
                      project_id='',
                      remote_group_id=None,
                      location=dict(
                          region_name='RegionOne',
+                         zone=None,
                          project=dict(
                              domain_name=None,
                              id=mock.ANY,
@@ -151,8 +155,10 @@ class TestUtils(base.TestCase):
                  port_range_min=80, port_range_max=81, protocol='tcp',
                  remote_ip_prefix='0.0.0.0/0', security_group_id='xyz123',
                  tenant_id='', project_id='', remote_group_id=None,
+                 properties={},
                  location=dict(
                      region_name='RegionOne',
+                     zone=None,
                      project=dict(
                          domain_name=None,
                          id=mock.ANY,

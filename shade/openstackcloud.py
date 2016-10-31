@@ -452,10 +452,11 @@ class OpenStackCloud(_normalize.Normalizer):
         """Return a ``munch.Munch`` explaining the current cloud location."""
         return self._get_current_location()
 
-    def _get_current_location(self, project_id=None):
+    def _get_current_location(self, project_id=None, zone=None):
         return munch.Munch(
             cloud=self.name,
             region_name=self.region_name,
+            zone=zone,
             project=self._get_project_info(project_id),
         )
 
