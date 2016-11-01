@@ -11,7 +11,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import concurrent
 import tempfile
+import time
 
 from glanceclient.v2 import shell
 import mock
@@ -138,6 +140,32 @@ class TestMemoryCache(base.TestCase):
         self.assertEqual(
             meta.obj_list_to_dict([project, project_b]),
             self.cloud.list_projects())
+
+    @mock.patch('shade.OpenStackCloud.nova_client')
+    def test_list_servers_herd(self, nova_mock):
+        self.cloud._SERVER_AGE = 0
+        fake_server = fakes.FakeServer('1234', '', 'ACTIVE')
+        nova_mock.servers.list.return_value = [fake_server]
+        with concurrent.futures.ThreadPoolExecutor(16) as pool:
+            for i in range(16):
+                pool.submit(lambda: self.cloud.list_servers())
+                # It's possible to race-condition 16 threads all in the
+                # single initial lock without a tiny sleep
+                time.sleep(0.001)
+        self.assertGreater(nova_mock.servers.list.call_count, 1)
+
+    @mock.patch('shade.OpenStackCloud.nova_client')
+    def test_list_servers_no_herd(self, nova_mock):
+        self.cloud._SERVER_AGE = 2
+        fake_server = fakes.FakeServer('1234', '', 'ACTIVE')
+        nova_mock.servers.list.return_value = [fake_server]
+        with concurrent.futures.ThreadPoolExecutor(16) as pool:
+            for i in range(16):
+                pool.submit(lambda: self.cloud.list_servers())
+                # It's possible to race-condition 16 threads all in the
+                # single initial lock without a tiny sleep
+                time.sleep(0.001)
+        self.assertEqual(1, nova_mock.servers.list.call_count)
 
     @mock.patch('shade.OpenStackCloud.cinder_client')
     def test_list_volumes(self, cinder_mock):
