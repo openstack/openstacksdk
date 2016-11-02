@@ -1942,6 +1942,9 @@ class Proxy(proxy.BaseProxy):
         :param kwargs \*\*query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
+            * ``name``: Router name
+            * ``admin_state_up``: Router administrative state is up (boolean)
+
         :returns: A generator of router objects
         :rtype: :class:`~openstack.network.v2.router.Router`
         """
