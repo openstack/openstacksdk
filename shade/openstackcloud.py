@@ -3060,9 +3060,14 @@ class OpenStackCloud(_normalize.Normalizer):
             self.manager.submit_task(_tasks.ImageUpload(
                 image_id=image.id, image_data=image_data))
         except Exception:
-            self.log.debug("Deleting failed upload of image %(image)s",
-                           {'image': image['name']})
-            self.manager.submit_task(_tasks.ImageDelete(image_id=image.id))
+            self.log.debug("Deleting failed upload of image %s", name)
+            try:
+                self.manager.submit_task(_tasks.ImageDelete(image_id=image.id))
+            except Exception:
+                # We're just trying to clean up - if it doesn't work - shrug
+                self.log.debug(
+                    "Failed deleting image after we failed uploading it.",
+                    exc_info=True)
             raise
 
         return image
@@ -3077,10 +3082,15 @@ class OpenStackCloud(_normalize.Normalizer):
             self.manager.submit_task(_tasks.ImageUpdate(
                 image=image, data=image_data))
         except Exception:
-            self.log.debug("Deleting failed upload of image %(image)s",
-                           {'image': image['name']})
-            # Note argument is "image" here, "image_id" in V2
-            self.manager.submit_task(_tasks.ImageDelete(image=image.id))
+            self.log.debug("Deleting failed upload of image %s", name)
+            try:
+                # Note argument is "image" here, "image_id" in V2
+                self.manager.submit_task(_tasks.ImageDelete(image=image.id))
+            except Exception:
+                # We're just trying to clean up - if it doesn't work - shrug
+                self.log.debug(
+                    "Failed deleting image after we failed uploading it.",
+                    exc_info=True)
             raise
         return image
 
