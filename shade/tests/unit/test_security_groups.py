@@ -67,8 +67,9 @@ class TestSecurityGroups(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_list_security_groups_neutron(self, mock_nova, mock_neutron):
         self.cloud.secgroup_source = 'neutron'
-        self.cloud.list_security_groups()
-        self.assertTrue(mock_neutron.list_security_groups.called)
+        self.cloud.list_security_groups(filters={'project_id': 42})
+        mock_neutron.list_security_groups.assert_called_once_with(
+            project_id=42)
         self.assertFalse(mock_nova.security_groups.list.called)
 
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
@@ -76,9 +77,11 @@ class TestSecurityGroups(base.TestCase):
     def test_list_security_groups_nova(self, mock_nova, mock_neutron):
         self.cloud.secgroup_source = 'nova'
         self.has_neutron = False
-        self.cloud.list_security_groups()
+        self.cloud.list_security_groups(filters={'project_id': 42})
         self.assertFalse(mock_neutron.list_security_groups.called)
-        self.assertTrue(mock_nova.security_groups.list.called)
+        mock_nova.security_groups.list.assert_called_once_with(
+            search_opts={'project_id': 42}
+        )
 
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
