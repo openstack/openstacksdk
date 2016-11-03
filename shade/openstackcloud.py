@@ -1516,15 +1516,13 @@ class OpenStackCloud(_normalize.Normalizer):
 
         """
         with _utils.shade_exceptions("Error fetching flavor list"):
-            flavors = self.manager.submit_task(
-                _tasks.FlavorList(is_public=None))
+            flavors = self._normalize_flavors(
+                self.manager.submit_task(
+                    _tasks.FlavorList(is_public=None)))
 
         with _utils.shade_exceptions("Error fetching flavor extra specs"):
             for flavor in flavors:
-                if 'OS-FLV-WITH-EXT-SPECS:extra_specs' in flavor:
-                    flavor.extra_specs = flavor.get(
-                        'OS-FLV-WITH-EXT-SPECS:extra_specs')
-                elif get_extra:
+                if not flavor.extra_specs and get_extra:
                     try:
                         flavor.extra_specs = self.manager.submit_task(
                             _tasks.FlavorGetExtraSpecs(id=flavor.id))
@@ -1534,7 +1532,7 @@ class OpenStackCloud(_normalize.Normalizer):
                             'Fetching extra specs for flavor failed:'
                             ' %(msg)s', {'msg': str(e)})
 
-        return self._normalize_flavors(flavors)
+        return flavors
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_stacks)
     def list_stacks(self):
