@@ -12,8 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import ast
-
 import munch
 import six
 
@@ -57,10 +55,10 @@ _SERVER_FIELDS = (
 
 def _to_bool(value):
     if isinstance(value, six.string_types):
-        # ast.literal_eval becomes VERY unhappy on empty strings
         if not value:
             return False
-        return ast.literal_eval(value.lower().capitalize())
+        prospective = value.lower().capitalize()
+        return prospective == 'True'
     return bool(value)
 
 
@@ -70,6 +68,13 @@ def _pop_int(resource, key):
 
 def _pop_float(resource, key):
     return float(resource.pop(key, 0) or 0)
+
+
+def _pop_or_get(resource, key, default, strict):
+    if strict:
+        return resource.pop(key, default)
+    else:
+        return resource.get(key, default)
 
 
 class Normalizer(object):
@@ -99,11 +104,14 @@ class Normalizer(object):
         flavor.pop('HUMAN_ID', None)
         flavor.pop('human_id', None)
 
-        ephemeral = int(flavor.pop('OS-FLV-EXT-DATA:ephemeral', 0))
+        ephemeral = int(_pop_or_get(
+            flavor, 'OS-FLV-EXT-DATA:ephemeral', 0, self.strict_mode))
         ephemeral = flavor.pop('ephemeral', ephemeral)
-        is_public = _to_bool(flavor.pop('os-flavor-access:is_public', True))
-        is_public = _to_bool(flavor.pop('is_public', True))
-        is_disabled = _to_bool(flavor.pop('OS-FLV-DISABLED:disabled', False))
+        is_public = _to_bool(_pop_or_get(
+            flavor, 'os-flavor-access:is_public', True, self.strict_mode))
+        is_public = _to_bool(flavor.pop('is_public', is_public))
+        is_disabled = _to_bool(_pop_or_get(
+            flavor, 'OS-FLV-DISABLED:disabled', False, self.strict_mode))
         extra_specs = flavor.pop('extra_specs', {})
 
         new_flavor['location'] = self.current_location
@@ -122,11 +130,9 @@ class Normalizer(object):
         new_flavor['extra_specs'] = extra_specs
 
         # Backwards compat with nova - passthrough values
-        for (k, v) in new_flavor['properties'].items():
-            new_flavor.setdefault(k, v)
-        new_flavor['OS-FLV-DISABLED:disabled'] = is_disabled
-        new_flavor['OS-FLV-EXT-DATA:ephemeral'] = ephemeral
-        new_flavor['os-flavor-access:is_public'] = is_public
+        if not self.strict_mode:
+            for (k, v) in new_flavor['properties'].items():
+                new_flavor.setdefault(k, v)
 
         return new_flavor
 
@@ -164,9 +170,10 @@ class Normalizer(object):
         new_image['is_public'] = is_public
 
         # Backwards compat with glance
-        for key, val in properties.items():
-            new_image[key] = val
-        new_image['protected'] = protected
+        if not self.strict_mode:
+            for key, val in properties.items():
+                new_image[key] = val
+            new_image['protected'] = protected
         return new_image
 
     def _normalize_secgroups(self, groups):
@@ -204,10 +211,11 @@ class Normalizer(object):
         ret['properties'] = group
 
         # Backwards compat with Neutron
-        ret['tenant_id'] = project_id
-        ret['project_id'] = project_id
-        for key, val in ret['properties'].items():
-            ret.setdefault(key, val)
+        if not self.strict_mode:
+            ret['tenant_id'] = project_id
+            ret['project_id'] = project_id
+            for key, val in ret['properties'].items():
+                ret.setdefault(key, val)
 
         return ret
 
@@ -260,10 +268,11 @@ class Normalizer(object):
         ret['properties'] = rule
 
         # Backwards compat with Neutron
-        ret['tenant_id'] = project_id
-        ret['project_id'] = project_id
-        for key, val in ret['properties'].items():
-            ret.setdefault(key, val)
+        if not self.strict_mode:
+            ret['tenant_id'] = project_id
+            ret['project_id'] = project_id
+            for key, val in ret['properties'].items():
+                ret.setdefault(key, val)
         return ret
 
     def _normalize_servers(self, servers):
@@ -299,12 +308,15 @@ class Normalizer(object):
         project_id = server.pop('tenant_id', '')
         project_id = server.pop('project_id', project_id)
 
-        az = server.get('OS-EXT-AZ:availability_zone', None)
+        az = _pop_or_get(
+            server, 'OS-EXT-AZ:availability_zone', None, self.strict_mode)
         ret['location'] = self._get_current_location(
             project_id=project_id, zone=az)
 
         # Ensure volumes is always in the server dict, even if empty
-        ret['volumes'] = []
+        ret['volumes'] = _pop_or_get(
+            server, 'os-extended-volumes:volumes_attached',
+            [], self.strict_mode)
 
         config_drive = server.pop('config_drive', False)
         ret['has_config_drive'] = _to_bool(config_drive)
@@ -315,7 +327,8 @@ class Normalizer(object):
         ret['progress'] = _pop_int(server, 'progress')
 
         # Leave these in so that the general properties handling works
-        ret['disk_config'] = server.get('OS-DCF:diskConfig')
+        ret['disk_config'] = _pop_or_get(
+            server, 'OS-DCF:diskConfig', None, self.strict_mode)
         for key in (
                 'OS-EXT-STS:power_state',
                 'OS-EXT-STS:task_state',
@@ -323,24 +336,25 @@ class Normalizer(object):
                 'OS-SRV-USG:launched_at',
                 'OS-SRV-USG:terminated_at'):
             short_key = key.split(':')[1]
-            ret[short_key] = server.get(key)
+            ret[short_key] = _pop_or_get(server, key, None, self.strict_mode)
 
         for field in _SERVER_FIELDS:
             ret[field] = server.pop(field, None)
         ret['interface_ip'] = ''
 
         ret['properties'] = server.copy()
-        for key, val in ret['properties'].items():
-            ret.setdefault(key, val)
 
         # Backwards compat
-        ret['hostId'] = host_id
-        ret['config_drive'] = config_drive
-        ret['project_id'] = project_id
-        ret['tenant_id'] = project_id
-        ret['region'] = self.region_name
-        ret['cloud'] = self.name
-        ret['az'] = az
+        if not self.strict_mode:
+            ret['hostId'] = host_id
+            ret['config_drive'] = config_drive
+            ret['project_id'] = project_id
+            ret['tenant_id'] = project_id
+            ret['region'] = self.region_name
+            ret['cloud'] = self.name
+            ret['az'] = az
+            for key, val in ret['properties'].items():
+                ret.setdefault(key, val)
         return ret
 
     def _normalize_floating_ips(self, ips):
@@ -406,18 +420,22 @@ class Normalizer(object):
             attached=attached,
             fixed_ip_address=fixed_ip_address,
             floating_ip_address=floating_ip_address,
-            floating_network_id=network_id,
             id=id,
             location=self._get_current_location(project_id=project_id),
             network=network_id,
-            port_id=port_id,
-            project_id=project_id,
-            router_id=router_id,
+            port=port_id,
+            router=router_id,
             status=status,
-            tenant_id=project_id,
             properties=ip.copy(),
         )
-        for key, val in ret['properties'].items():
-            ret.setdefault(key, val)
+        # Backwards compat
+        if not self.strict_mode:
+            ret['port_id'] = port_id
+            ret['router_id'] = router_id
+            ret['project_id'] = project_id
+            ret['tenant_id'] = project_id
+            ret['floating_network_id'] = network_id,
+            for key, val in ret['properties'].items():
+                ret.setdefault(key, val)
 
         return ret

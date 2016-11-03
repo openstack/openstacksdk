@@ -22,6 +22,16 @@ into an attribute called 'properties'. The contents of properties are
 defined to be an arbitrary collection of key value pairs with no promises as
 to any particular key ever existing.
 
+If a user passes `strict=True` to the shade constructor, shade will not pass
+through arbitrary objects to the root of the resource, and will instead only
+put them in the properties dict. If a user is worried about accidentally
+writing code that depends on an attribute that is not part of the API contract,
+this can be a useful tool. Keep in mind all data can still be accessed via
+the properties dict, but any code touching anything in the properties dict
+should be aware that the keys found there are highly user/cloud specific.
+Any key that is transformed as part of the shade data model contract will
+not wind up with an entry in properties - only keys that are unknown.
+
 Location
 --------
 
@@ -154,21 +164,20 @@ A Server from Nova
     name=str(),
     image=dict() or str(),
     flavor=dict(),
-    volumes=list(),
+    volumes=list(),  # Volume
     interface_ip=str(),
     has_config_drive=bool(),
     accessIPv4=str(),
     accessIPv6=str(),
-    addresses=dict(),
+    addresses=dict(),  # string, list(Address)
     created=str(),
     key_name=str(),
-    metadata=dict(),
-    networks=dict(),
+    metadata=dict(),  # string, string
     private_v4=str(),
     progress=int(),
     public_v4=str(),
     public_v6=str(),
-    security_groups=list(),
+    security_groups=list(),  # SecurityGroup
     status=str(),
     updated=str(),
     user_id=str(),
@@ -195,9 +204,8 @@ A Floating IP from Neutron or Nova
     attached=bool(),
     fixed_ip_address=str() or None,
     floating_ip_address=str() or None,
-    floating_network_id=str() or None,
-    network=str(),
-    port_id=str() or None,
-    router_id=str(),
+    network=str() or None,
+    port=str() or None,
+    router=str(),
     status=str(),
     properties=dict())

@@ -123,6 +123,8 @@ class OpenStackCloud(_normalize.Normalizer):
                                       have all of the wrapped exceptions be
                                       emitted to the error log. This flag
                                       will enable that behavior.
+    :param bool strict: Only return documented attributes for each resource
+                        as per the shade Data Model contract. (Default False)
     :param CloudConfig cloud_config: Cloud config object from os-client-config
                                      In the future, this will be the only way
                                      to pass in cloud configuration, but is
@@ -132,7 +134,9 @@ class OpenStackCloud(_normalize.Normalizer):
     def __init__(
             self,
             cloud_config=None,
-            manager=None, log_inner_exceptions=False, **kwargs):
+            manager=None, log_inner_exceptions=False,
+            strict=False,
+            **kwargs):
 
         if log_inner_exceptions:
             OpenStackCloudException.log_inner_exceptions = True
@@ -151,6 +155,7 @@ class OpenStackCloud(_normalize.Normalizer):
         self.image_api_use_tasks = cloud_config.config['image_api_use_tasks']
         self.secgroup_source = cloud_config.config['secgroup_source']
         self.force_ipv4 = cloud_config.force_ipv4
+        self.strict_mode = strict
 
         # Provide better error message for people with stale OCC
         if cloud_config.get_external_ipv4_networks is None:

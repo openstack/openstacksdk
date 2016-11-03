@@ -1,0 +1,6 @@
+---
+features:
+  - Added 'strict' mode, which is set by passing strict=True
+    to the OpenStackCloud constructor. strict mode tells shade
+    to only return values in resources that are part of shade's
+    declared data model contract.

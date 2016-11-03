@@ -55,7 +55,7 @@ def simple_logging(debug=False, http_debug=False):
     log = _log.setup_logging('keystoneauth.identity.generic.base')
 
 
-def openstack_clouds(config=None, debug=False, cloud=None):
+def openstack_clouds(config=None, debug=False, cloud=None, strict=False):
     if not config:
         config = os_client_config.OpenStackConfig()
     try:
@@ -64,6 +64,7 @@ def openstack_clouds(config=None, debug=False, cloud=None):
                 OpenStackCloud(
                     cloud=f.name, debug=debug,
                     cloud_config=f,
+                    strict=strict,
                     **f.config)
                 for f in config.get_all_clouds()
             ]
@@ -72,6 +73,7 @@ def openstack_clouds(config=None, debug=False, cloud=None):
                 OpenStackCloud(
                     cloud=f.name, debug=debug,
                     cloud_config=f,
+                    strict=strict,
                     **f.config)
                 for f in config.get_all_clouds()
                 if f.name == cloud
@@ -81,7 +83,7 @@ def openstack_clouds(config=None, debug=False, cloud=None):
             "Invalid cloud configuration: {exc}".format(exc=str(e)))
 
 
-def openstack_cloud(config=None, **kwargs):
+def openstack_cloud(config=None, strict=False, **kwargs):
     if not config:
         config = os_client_config.OpenStackConfig()
     try:
@@ -89,10 +91,10 @@ def openstack_cloud(config=None, **kwargs):
     except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin as e:
         raise OpenStackCloudException(
             "Invalid cloud configuration: {exc}".format(exc=str(e)))
-    return OpenStackCloud(cloud_config=cloud_config)
+    return OpenStackCloud(cloud_config=cloud_config, strict=strict)
 
 
-def operator_cloud(config=None, **kwargs):
+def operator_cloud(config=None, strict=False, **kwargs):
     if 'interface' not in kwargs:
         kwargs['interface'] = 'admin'
     if not config:
@@ -102,4 +104,4 @@ def operator_cloud(config=None, **kwargs):
     except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin as e:
         raise OpenStackCloudException(
             "Invalid cloud configuration: {exc}".format(exc=str(e)))
-    return OperatorCloud(cloud_config=cloud_config)
+    return OperatorCloud(cloud_config=cloud_config, strict=strict)
