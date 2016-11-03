@@ -18,19 +18,12 @@ import six
 _IMAGE_FIELDS = (
     'checksum',
     'container_format',
-    'created_at',
     'direct_url',
     'disk_format',
     'file',
     'id',
-    'min_disk',
-    'min_ram',
     'name',
     'owner',
-    'size',
-    'status',
-    'tags',
-    'updated_at',
     'virtual_size',
 )
 
@@ -112,7 +105,9 @@ class Normalizer(object):
         is_public = _to_bool(flavor.pop('is_public', is_public))
         is_disabled = _to_bool(_pop_or_get(
             flavor, 'OS-FLV-DISABLED:disabled', False, self.strict_mode))
-        extra_specs = flavor.pop('extra_specs', {})
+        extra_specs = _pop_or_get(
+            flavor, 'OS-FLV-WITH-EXT-SPECS:extra_specs', {}, self.strict_mode)
+        extra_specs = flavor.pop('extra_specs', extra_specs)
 
         new_flavor['location'] = self.current_location
         new_flavor['id'] = flavor.pop('id')
@@ -146,6 +141,11 @@ class Normalizer(object):
         new_image = munch.Munch(
             location=self._get_current_location(project_id=image.get('owner')))
 
+        image.pop('links', None)
+        image.pop('NAME_ATTR', None)
+        image.pop('HUMAN_ID', None)
+        image.pop('human_id', None)
+
         properties = image.pop('properties', {})
         visibility = image.pop('visibility', None)
         protected = _to_bool(image.pop('protected', False))
@@ -156,17 +156,40 @@ class Normalizer(object):
             is_public = image.pop('is_public', False)
             visibility = 'public' if is_public else 'private'
 
+        new_image['size'] = image.pop('OS-EXT-IMG-SIZE:size', 0)
+        new_image['size'] = image.pop('size', new_image['size'])
+
+        new_image['min_ram'] = image.pop('minRam', 0)
+        new_image['min_ram'] = image.pop('min_ram', new_image['min_ram'])
+
+        new_image['min_disk'] = image.pop('minDisk', 0)
+        new_image['min_disk'] = image.pop('min_disk', new_image['min_disk'])
+
+        new_image['created_at'] = image.pop('created', '')
+        new_image['created_at'] = image.pop(
+            'created_at', new_image['created_at'])
+
+        new_image['updated_at'] = image.pop('updated', '')
+        new_image['updated_at'] = image.pop(
+            'updated_at', new_image['updated_at'])
+
         for field in _IMAGE_FIELDS:
             new_image[field] = image.pop(field, None)
+
+        new_image['tags'] = image.pop('tags', [])
+        new_image['status'] = image.pop('status').lower()
         for field in ('min_ram', 'min_disk', 'size', 'virtual_size'):
             new_image[field] = _pop_int(new_image, field)
         new_image['is_protected'] = protected
         new_image['locations'] = image.pop('locations', [])
 
+        metadata = image.pop('metadata', {})
+        for key, val in metadata.items():
+            properties.setdefault(key, val)
+
         for key, val in image.items():
             properties.setdefault(key, val)
         new_image['properties'] = properties
-        new_image['visibility'] = visibility
         new_image['is_public'] = is_public
 
         # Backwards compat with glance
@@ -174,6 +197,11 @@ class Normalizer(object):
             for key, val in properties.items():
                 new_image[key] = val
             new_image['protected'] = protected
+            new_image['created'] = new_image['created_at']
+            new_image['updated'] = new_image['updated_at']
+            new_image['minDisk'] = new_image['min_disk']
+            new_image['minRam'] = new_image['min_ram']
+            new_image['visibility'] = visibility
         return new_image
 
     def _normalize_secgroups(self, groups):
