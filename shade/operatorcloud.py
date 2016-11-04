@@ -2022,6 +2022,29 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         except nova_exceptions.BadRequest:
             raise OpenStackCloudException("nova client call failed")
 
+    def get_compute_usage(self, name_or_id, start, end):
+        """ Get usage for a specific project
+
+        :param name_or_id: project name or id
+        :param start: :class:`datetime.datetime` Start date in UTC
+        :param end: :class:`datetime.datetime` End date in UTCs
+        :raises: OpenStackCloudException if it's not a valid project
+
+        :returns: Munch object with the usage
+        """
+        proj = self.get_project(name_or_id)
+        if not proj:
+            raise OpenStackCloudException("project does not exist: {}".format(
+                name=proj.id))
+
+        with _utils.shade_exceptions(
+                "Unable to get resources usage for project: {name}".format(
+                    name=proj.id)):
+            usage = self.manager.submit_task(
+                _tasks.NovaUsageGet(tenant_id=proj.id, start=start, end=end))
+
+        return self._normalize_usage(usage)
+
     def set_volume_quotas(self, name_or_id, **kwargs):
         """ Set a volume quota in a project
 

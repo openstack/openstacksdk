@@ -891,6 +891,11 @@ class NovaQuotasDelete(task_manager.Task):
         return client.nova_client.quotas.delete(**self.args)
 
 
+class NovaUsageGet(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.usage.get(**self.args)
+
+
 class CinderQuotasSet(task_manager.Task):
     def main(self, client):
         return client.cinder_client.quotas.update(**self.args)
