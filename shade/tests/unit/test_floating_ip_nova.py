@@ -101,6 +101,17 @@ class TestFloatingIP(base.TestCase):
 
     @patch.object(OpenStackCloud, 'nova_client')
     @patch.object(OpenStackCloud, 'has_service')
+    def test_list_floating_ips_with_filters(self, mock_has_service,
+                                            mock_nova_client):
+        mock_has_service.side_effect = has_service_side_effect
+
+        self.assertRaisesRegex(
+            ValueError, "Nova-network don't support server-side",
+            self.cloud.list_floating_ips, filters={'Foo': 42}
+        )
+
+    @patch.object(OpenStackCloud, 'nova_client')
+    @patch.object(OpenStackCloud, 'has_service')
     def test_search_floating_ips(self, mock_has_service, mock_nova_client):
         mock_has_service.side_effect = has_service_side_effect
         mock_nova_client.floating_ips.list.return_value = self.floating_ips
