@@ -44,6 +44,7 @@ class TestClusterPolicy(testtools.TestCase):
         self.assertDictEqual({"policy_name": "policy_name",
                               "policy_type": "policy_type",
                               "is_enabled": "enabled",
+                              "sort": "sort",
                               "limit": "limit",
                               "marker": "marker"},
                              sot._query_mapping._mapping)
