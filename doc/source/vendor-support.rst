@@ -163,6 +163,20 @@ de-fra1        Frankfurt, DE
 * Image API Version is 1
 * Volume API Version is 1
 
+fuga
+----
+
+https://identity.api.fuga.io:5000
+
+============== ================
+Region Name    Location
+============== ================
+cystack        Netherlands
+============== ================
+
+* Identity API Version is 3
+* Volume API Version is 3
+
 internap
 --------
 

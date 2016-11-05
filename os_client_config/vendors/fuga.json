@@ -1,0 +1,15 @@
+{
+  "name": "fuga",
+  "profile": {
+    "auth": {
+      "auth_url": "https://identity.api.fuga.io:5000",
+      "user_domain_name": "Default",
+      "project_domain_name": "Default"
+    },
+    "regions": [
+      "cystack"
+    ],
+    "identity_api_version": "3",
+    "volume_api_version": "3"
+  }
+}
