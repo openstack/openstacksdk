@@ -3110,12 +3110,18 @@ class OpenStackCloud(_normalize.Normalizer):
         self._get_cache(None).invalidate()
         if not wait:
             return image
-        for count in _utils._iterate_timeout(
-                60,
-                "Timeout waiting for the image to finish."):
-            image_obj = self.get_image(image.id)
-            if image_obj and image_obj.status not in ('queued', 'saving'):
-                return image_obj
+        try:
+            for count in _utils._iterate_timeout(
+                    60,
+                    "Timeout waiting for the image to finish."):
+                image_obj = self.get_image(image.id)
+                if image_obj and image_obj.status not in ('queued', 'saving'):
+                    return image_obj
+        except OpenStackCloudTimeout:
+            self.log.debug(
+                "Timeout waiting for image to become ready. Deleting.")
+            self.delete_image(image.id, wait=True)
+            raise
 
     def _upload_image_task(
             self, name, filename, container, current_image,
