@@ -243,3 +243,52 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
             id=None, filters={'floating_ip_address': ip})
         self.demo_cloud.detach_ip_from_server(
             server_id=new_server.id, floating_ip_id=f_ip['id'])
+
+    def test_list_floating_ips(self):
+        fip_admin = self.operator_cloud.create_floating_ip()
+        self.addCleanup(self.operator_cloud.delete_floating_ip, fip_admin.id)
+        fip_user = self.demo_cloud.create_floating_ip()
+        self.addCleanup(self.demo_cloud.delete_floating_ip, fip_user.id)
+
+        # Get all the floating ips.
+        fip_id_list = [
+            fip.id for fip in self.operator_cloud.list_floating_ips()
+        ]
+        if self.demo_cloud.has_service('network'):
+            # Neutron returns all FIP for all projects by default
+            self.assertIn(fip_admin.id, fip_id_list)
+            self.assertIn(fip_user.id, fip_id_list)
+
+            # Ask Neutron for only a subset of all the FIPs.
+            filtered_fip_id_list = [
+                fip.id for fip in self.operator_cloud.list_floating_ips(
+                    {'tenant_id': self.demo_cloud.current_project_id}
+                )
+            ]
+            self.assertNotIn(fip_admin.id, filtered_fip_id_list)
+            self.assertIn(fip_user.id, filtered_fip_id_list)
+
+        else:
+            self.assertIn(fip_admin.id, fip_id_list)
+            # By default, Nova returns only the FIPs that belong to the
+            # project which made the listing request.
+            self.assertNotIn(fip_user.id, fip_id_list)
+            self.assertRaisesRegex(
+                ValueError, "Nova-network don't support server-side.*",
+                self.operator_cloud.list_floating_ips, filters={'foo': 'bar'}
+            )
+
+    def test_search_floating_ips(self):
+        fip_user = self.demo_cloud.create_floating_ip()
+        self.addCleanup(self.demo_cloud.delete_floating_ip, fip_user.id)
+
+        self.assertIn(
+            fip_user['id'],
+            [fip.id for fip in self.demo_cloud.search_floating_ips(
+                filters={"attached": False})]
+        )
+        self.assertNotIn(
+            fip_user['id'],
+            [fip.id for fip in self.demo_cloud.search_floating_ips(
+                filters={"attached": True})]
+        )

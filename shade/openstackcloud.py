@@ -1383,14 +1383,18 @@ class OpenStackCloud(_normalize.Normalizer):
         pools = self.list_floating_ip_pools()
         return _utils._filter_list(pools, name, filters)
 
-    # Note (dguerri): when using Neutron, this can be optimized using
-    # server-side search.
-    # There are some cases in which such optimization is not possible (e.g.
-    # nested attributes or list of objects) so we need to use the client-side
-    # filtering when we can't do otherwise.
+    # With Neutron, there are some cases in which full server side filtering is
+    # not possible (e.g. nested attributes or list of objects) so we also need
+    # to use the client-side filtering
     # The same goes for all neutron-related search/get methods!
     def search_floating_ips(self, id=None, filters=None):
-        floating_ips = self.list_floating_ips()
+        # `filters` could be a jmespath expression which Neutron server doesn't
+        # understand, obviously.
+        if self._use_neutron_floating() and isinstance(filters, dict):
+            kwargs = {'filters': filters}
+        else:
+            kwargs = {}
+        floating_ips = self.list_floating_ips(**kwargs)
         return _utils._filter_list(floating_ips, id, filters)
 
     def search_stacks(self, name_or_id=None, filters=None):
@@ -1700,26 +1704,47 @@ class OpenStackCloud(_normalize.Normalizer):
         with _utils.shade_exceptions("Error fetching floating IP pool list"):
             return self.manager.submit_task(_tasks.FloatingIPPoolList())
 
-    def _list_floating_ips(self):
+    def _list_floating_ips(self, filters=None):
         if self._use_neutron_floating():
             try:
                 return self._normalize_floating_ips(
-                    self._neutron_list_floating_ips())
+                    self._neutron_list_floating_ips(filters))
             except OpenStackCloudURINotFound as e:
+                # Nova-network don't support server-side floating ips
+                # filtering, so it's safer to die hard than to fallback to Nova
+                # which may return more results that expected.
+                if filters:
+                    self.log.error(
+                        "Something went wrong talking to neutron API. Can't "
+                        "fallback to Nova since it doesn't support server-side"
+                        " filtering when listing floating ips."
+                    )
+                    raise
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
                     "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
                 # Fall-through, trying with Nova
+        else:
+            if filters:
+                raise ValueError(
+                    "Nova-network don't support server-side floating ips "
+                    "filtering. Use the search_floatting_ips method instead"
+                )
 
         floating_ips = self._nova_list_floating_ips()
         return self._normalize_floating_ips(floating_ips)
 
-    def list_floating_ips(self):
+    def list_floating_ips(self, filters=None):
         """List all available floating IPs.
 
+        :param filters: (optional) dict of filter conditions to push down
         :returns: A list of floating IP ``munch.Munch``.
 
         """
+        # If pushdown filters are specified, bypass local caching.
+        if filters:
+            return self._list_floating_ips(filters)
+
         if (time.time() - self._floating_ips_time) >= self._FLOAT_AGE:
             # Since we're using cached data anyway, we don't need to
             # have more than one thread actually submit the list
@@ -1738,10 +1763,12 @@ class OpenStackCloud(_normalize.Normalizer):
                     self._floating_ips_lock.release()
         return self._floating_ips
 
-    def _neutron_list_floating_ips(self):
+    def _neutron_list_floating_ips(self, filters=None):
+        if not filters:
+            filters = {}
         with _utils.neutron_exceptions("error fetching floating IPs list"):
             return self.manager.submit_task(
-                _tasks.NeutronFloatingIPList())['floatingips']
+                _tasks.NeutronFloatingIPList(**filters))['floatingips']
 
     def _nova_list_floating_ips(self):
         with _utils.shade_exceptions("Error fetching floating IPs list"):

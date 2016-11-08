@@ -166,9 +166,8 @@ class TestFloatingIP(base.TestCase):
         self.assertEqual('UNKNOWN', normalized[0]['status'])
 
     @patch.object(OpenStackCloud, 'neutron_client')
-    @patch.object(OpenStackCloud, 'has_service')
+    @patch.object(OpenStackCloud, 'has_service', return_value=True)
     def test_list_floating_ips(self, mock_has_service, mock_neutron_client):
-        mock_has_service.return_value = True
         mock_neutron_client.list_floatingips.return_value = \
             self.mock_floating_ip_list_rep
 
@@ -180,6 +179,21 @@ class TestFloatingIP(base.TestCase):
         self.assertEqual(2, len(floating_ips))
 
     @patch.object(OpenStackCloud, 'neutron_client')
+    @patch.object(OpenStackCloud, 'has_service', return_value=True)
+    def test_list_floating_ips_with_filters(self, mock_has_service,
+                                            mock_neutron_client):
+        mock_neutron_client.list_floatingips.side_effect = \
+            exc.OpenStackCloudURINotFound("")
+
+        try:
+            self.cloud.list_floating_ips(filters={'Foo': 42})
+        except exc.OpenStackCloudException as e:
+            self.assertIsInstance(
+                e.inner_exception[1], exc.OpenStackCloudURINotFound)
+
+        mock_neutron_client.list_floatingips.assert_called_once_with(Foo=42)
+
+    @patch.object(OpenStackCloud, 'neutron_client')
     @patch.object(OpenStackCloud, 'has_service')
     def test_search_floating_ips(self, mock_has_service, mock_neutron_client):
         mock_has_service.return_value = True
@@ -189,7 +203,7 @@ class TestFloatingIP(base.TestCase):
         floating_ips = self.cloud.search_floating_ips(
             filters={'attached': False})
 
-        mock_neutron_client.list_floatingips.assert_called_with()
+        mock_neutron_client.list_floatingips.assert_called_with(attached=False)
         self.assertIsInstance(floating_ips, list)
         self.assertAreInstances(floating_ips, dict)
         self.assertEqual(1, len(floating_ips))
@@ -311,7 +325,7 @@ class TestFloatingIP(base.TestCase):
 
         mock_keystone_session.get_project_id.assert_called_once_with()
         mock_get_ext_nets.assert_called_once_with()
-        mock__neutron_list_fips.assert_called_once_with()
+        mock__neutron_list_fips.assert_called_once_with(None)
         mock__filter_list.assert_called_once_with(
             [], name_or_id=None,
             filters={'port_id': None,
@@ -349,7 +363,7 @@ class TestFloatingIP(base.TestCase):
 
         mock_keystone_session.get_project_id.assert_called_once_with()
         mock_get_ext_nets.assert_called_once_with()
-        mock__neutron_list_fips.assert_called_once_with()
+        mock__neutron_list_fips.assert_called_once_with(None)
         mock__filter_list.assert_called_once_with(
             [], name_or_id=None,
             filters={'port_id': None,
