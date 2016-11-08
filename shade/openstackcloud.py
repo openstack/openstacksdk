@@ -3853,6 +3853,20 @@ class OpenStackCloud(_normalize.Normalizer):
         )
         return f_ips[0]
 
+    def _get_floating_network_id(self):
+        # Get first existing external IPv4 network
+        networks = self.get_external_ipv4_floating_networks()
+        if networks:
+            floating_network_id = networks[0]['id']
+        else:
+            floating_network = self._find_floating_network_by_router()
+            if floating_network:
+                floating_network_id = floating_network
+            else:
+                raise OpenStackCloudResourceNotFound(
+                    "unable to find an external network")
+        return floating_network_id
+
     def _neutron_available_floating_ips(
             self, network=None, project_id=None, server=None):
         """Get a floating IP from a Neutron network.
@@ -3894,17 +3908,7 @@ class OpenStackCloud(_normalize.Normalizer):
                             net=network)
                     )
             else:
-                # Get first existing external IPv4 network
-                networks = self.get_external_ipv4_floating_networks()
-                if networks:
-                    floating_network_id = networks[0]['id']
-                else:
-                    floating_network = self._find_floating_network_by_router()
-                    if floating_network:
-                        floating_network_id = floating_network
-                    else:
-                        raise OpenStackCloudResourceNotFound(
-                            "unable to find an external network")
+                floating_network_id = self._get_floating_network_id()
 
             filters = {
                 'port_id': None,
@@ -4044,16 +4048,7 @@ class OpenStackCloud(_normalize.Normalizer):
                             "{0}".format(network_name_or_id))
                     network_id = network['id']
                 else:
-                    networks = self.get_external_ipv4_floating_networks()
-                    if networks:
-                        network_id = networks[0]['id']
-                    else:
-                        network_id = self._find_floating_network_by_router()
-                        if not network_id:
-                            raise OpenStackCloudResourceNotFound(
-                                "Unable to find an external network in this"
-                                " cloud which makes getting a floating IP"
-                                " impossible")
+                    network_id = self._get_floating_network_id()
             kwargs = {
                 'floating_network_id': network_id,
             }
@@ -4684,12 +4679,11 @@ class OpenStackCloud(_normalize.Normalizer):
         if not self.has_service('network'):
             return True
 
-        # No external IPv4 network - no FIPs
-        networks = self.get_external_ipv4_networks()
-        if not networks:
-            network = self._find_floating_network_by_router()
-            if not network:
-                return False
+        # No floating ip network - no FIPs
+        try:
+            self._get_floating_network_id()
+        except OpenStackCloudException:
+            return False
 
         (port_obj, fixed_ip_address) = self._nat_destination_port(
             server, nat_destination=nat_destination)
