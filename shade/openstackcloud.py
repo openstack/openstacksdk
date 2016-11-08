@@ -2857,6 +2857,8 @@ class OpenStackCloud(_normalize.Normalizer):
             self, name_or_id, wait=False, timeout=3600,
             delete_objects=True):
         image = self.get_image(name_or_id)
+        if not image:
+            return False
         with _utils.shade_exceptions("Error in deleting image"):
             # Note that in v1, the param name is image, but in v2,
             # it's image_id
@@ -2880,7 +2882,8 @@ class OpenStackCloud(_normalize.Normalizer):
                     "Timeout waiting for the image to be deleted."):
                 self._get_cache(None).invalidate()
                 if self.get_image(image.id) is None:
-                    return
+                    break
+        return True
 
     def _get_name_and_filename(self, name):
         # See if name points to an existing file
