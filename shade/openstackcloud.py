@@ -562,42 +562,48 @@ class OpenStackCloud(_normalize.Normalizer):
         return filtered
 
     @_utils.cache_on_arguments()
-    def list_projects(self, domain_id=None):
-        """List Keystone Projects.
+    def list_projects(self, domain_id=None, name_or_id=None, filters=None):
+        """List Keystone projects.
 
-        :param string domain_id: domain id to scope the listed projects.
+        With no parameters, returns a full listing of all visible projects.
 
-        :returns: a list of ``munch.Munch`` containing the project description.
-
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
-        """
-        try:
-            if self.cloud_config.get_api_version('identity') == '3':
-                projects = self.manager.submit_task(
-                    _tasks.ProjectList(domain=domain_id))
-            else:
-                projects = self.manager.submit_task(
-                    _tasks.ProjectList())
-        except Exception as e:
-            self.log.debug("Failed to list projects", exc_info=True)
-            raise OpenStackCloudException(str(e))
-        return projects
-
-    def search_projects(self, name_or_id=None, filters=None, domain_id=None):
-        """Seach Keystone projects.
-
-        :param name_or_id: project name or id.
-        :param filters: a dict containing additional filters to use.
         :param domain_id: domain id to scope the searched projects.
+        :param name_or_id: project name or id.
+        :param filters: a dict containing additional filters to use
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: a list of ``munch.Munch`` containing the projects
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        projects = self.list_projects(domain_id=domain_id)
+        kwargs = dict(
+            filters=filters,
+            domain=domain_id)
+        if self.cloud_config.get_api_version('identity') == '3':
+            kwargs['obj_name'] = 'project'
+
+        pushdown, filters = _normalize._split_filters(**kwargs)
+
+        try:
+            projects = self.manager.submit_task(_tasks.ProjectList(**pushdown))
+        except Exception as e:
+            self.log.debug("Failed to list projects", exc_info=True)
+            raise OpenStackCloudException(str(e))
         return _utils._filter_list(projects, name_or_id, filters)
+
+    def search_projects(self, name_or_id=None, filters=None, domain_id=None):
+        '''Backwards compatibility method for search_projects
+
+        search_projects originally had a parameter list that was name_or_id,
+        filters and list had domain_id first. This method exists in this form
+        to allow code written with positional parameter to still work. But
+        really, use keyword arguments.
+        '''
+        return self.list_projects(
+            domain_id=domain_id, name_or_id=name_or_id, filters=filters)
 
     def get_project(self, name_or_id, filters=None, domain_id=None):
         """Get exactly one Keystone project.

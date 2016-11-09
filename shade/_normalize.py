@@ -46,6 +46,35 @@ _SERVER_FIELDS = (
 )
 
 
+_pushdown_fields = {
+    'project': [
+        'domain'
+    ]
+}
+
+
+def _split_filters(obj_name='', filters=None, **kwargs):
+    # Handle jmsepath filters
+    if not filters:
+        filters = {}
+    if not isinstance(filters, dict):
+        return {}, filters
+    # Filter out None values from extra kwargs, because those are
+    # defaults. If you want to search for things with None values,
+    # they're going to need to go into the filters dict
+    for (key, value) in kwargs.items():
+        if value is not None:
+            filters[key] = value
+    pushdown = {}
+    client = {}
+    for (key, value) in filters.items():
+        if key in _pushdown_fields.get(obj_name, {}):
+            pushdown[key] = value
+        else:
+            client[key] = value
+    return pushdown, client
+
+
 def _to_bool(value):
     if isinstance(value, six.string_types):
         if not value:

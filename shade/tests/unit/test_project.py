@@ -20,6 +20,7 @@ import os_client_config as occ
 import testtools
 
 import shade
+import shade._utils
 from shade.tests.unit import base
 
 
@@ -123,3 +124,29 @@ class TestProject(base.TestCase):
         self.op_cloud.list_projects('123')
         mock_keystone.projects.list.assert_called_once_with(
             domain='123')
+
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_list_projects_v3_kwarg(self, mock_keystone, mock_api_version):
+        mock_api_version.return_value = '3'
+        self.op_cloud.list_projects(domain_id='123')
+        mock_keystone.projects.list.assert_called_once_with(
+            domain='123')
+
+    @mock.patch.object(shade._utils, '_filter_list')
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_list_projects_search_compat(
+            self, mock_keystone, mock_api_version, mock_filter_list):
+        mock_api_version.return_value = '3'
+        self.op_cloud.search_projects('123')
+        mock_keystone.projects.list.assert_called_once_with()
+        mock_filter_list.assert_called_once_with(mock.ANY, '123', mock.ANY)
+
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
+    def test_list_projects_search_compat_v3(
+            self, mock_keystone, mock_api_version):
+        mock_api_version.return_value = '3'
+        self.op_cloud.search_projects(domain_id='123')
+        mock_keystone.projects.list.assert_called_once_with(domain='123')
