@@ -2464,7 +2464,7 @@ class OpenStackCloud(_normalize.Normalizer):
             openstack API call or if multiple matches are found.
         """
 
-        def search_one_stack(name_or_id=None, filters=None):
+        def _search_one_stack(name_or_id=None, filters=None):
             # stack names are mandatory and enforced unique in the project
             # so a StackGet can always be used for name or ID.
             with _utils.shade_exceptions("Error fetching stack"):
@@ -2481,7 +2481,7 @@ class OpenStackCloud(_normalize.Normalizer):
             return _utils._filter_list(nstacks, name_or_id, filters)
 
         return _utils._get_entity(
-            search_one_stack, name_or_id, filters)
+            _search_one_stack, name_or_id, filters)
 
     def create_keypair(self, name, public_key):
         """Create a new keypair.
