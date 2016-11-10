@@ -1,0 +1,5 @@
+---
+upgrade:
+  - shade will now only generate file hashes for glance
+    images if both hashes are empty. If only one is given,
+    the other will be treated as an empty string.

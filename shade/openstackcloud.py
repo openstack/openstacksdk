@@ -3015,19 +3015,27 @@ class OpenStackCloud(_normalize.Normalizer):
                 container_format = 'ovf'
             else:
                 container_format = 'bare'
-        if not md5 or not sha256:
+        if not (md5 or sha256):
             (md5, sha256) = self._get_file_hashes(filename)
         if allow_duplicates:
             current_image = None
         else:
             current_image = self.get_image(name)
-            if (current_image and current_image.get(IMAGE_MD5_KEY, '') == md5
-                    and current_image.get(IMAGE_SHA256_KEY, '') == sha256):
-                self.log.debug(
-                    "image %(name)s exists and is up to date", {'name': name})
-                return current_image
-        kwargs[IMAGE_MD5_KEY] = md5
-        kwargs[IMAGE_SHA256_KEY] = sha256
+            if current_image:
+                md5_key = current_image.get(IMAGE_MD5_KEY, '')
+                sha256_key = current_image.get(IMAGE_SHA256_KEY, '')
+                up_to_date = False
+                if md5 and md5_key == md5:
+                    up_to_date = True
+                if sha256 and sha256_key == sha256:
+                    up_to_date = True
+                if up_to_date:
+                    self.log.debug(
+                        "image %(name)s exists and is up to date",
+                        {'name': name})
+                    return current_image
+        kwargs[IMAGE_MD5_KEY] = md5 or ''
+        kwargs[IMAGE_SHA256_KEY] = sha256 or ''
         kwargs[IMAGE_OBJECT_KEY] = '/'.join([container, name])
 
         if disable_vendor_agent:
@@ -5400,15 +5408,15 @@ class OpenStackCloud(_normalize.Normalizer):
                     container=container, name=name))
             return True
 
-        if file_md5 is None or file_sha256 is None:
+        if not (file_md5 or file_sha256):
             (file_md5, file_sha256) = self._get_file_hashes(filename)
 
-        if metadata.get(OBJECT_MD5_KEY, '') != file_md5:
+        if file_md5 and metadata.get(OBJECT_MD5_KEY, '') != file_md5:
             self.log.debug(
                 "swift md5 mismatch: %(filename)s!=%(container)s/%(name)s",
                 {'filename': filename, 'container': container, 'name': name})
             return True
-        if metadata.get(OBJECT_SHA256_KEY, '') != file_sha256:
+        if file_sha256 and metadata.get(OBJECT_SHA256_KEY, '') != file_sha256:
             self.log.debug(
                 "swift sha256 mismatch: %(filename)s!=%(container)s/%(name)s",
                 {'filename': filename, 'container': container, 'name': name})
@@ -5458,10 +5466,10 @@ class OpenStackCloud(_normalize.Normalizer):
 
         segment_size = self.get_object_segment_size(segment_size)
 
-        if not md5 or not sha256:
+        if not (md5 or sha256):
             (md5, sha256) = self._get_file_hashes(filename)
-        headers[OBJECT_MD5_KEY] = md5
-        headers[OBJECT_SHA256_KEY] = sha256
+        headers[OBJECT_MD5_KEY] = md5 or ''
+        headers[OBJECT_SHA256_KEY] = sha256 or ''
         header_list = sorted([':'.join([k, v]) for (k, v) in headers.items()])
         for (k, v) in metadata.items():
             header_list.append(':'.join(['x-object-meta-' + k, v]))
