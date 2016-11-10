@@ -496,3 +496,70 @@ class Normalizer(object):
                 ret.setdefault(key, val)
 
         return ret
+
+    def _normalize_projects(self, projects):
+        """Normalize the structure of projects
+
+        This makes tenants from keystone v2 look like projects from v3.
+
+        :param list projects: A list of projects to normalize
+
+        :returns: A list of normalized dicts.
+        """
+        ret = []
+        for project in projects:
+            ret.append(self._normalize_project(project))
+        return ret
+
+    def _normalize_project(self, project):
+
+        ret = munch.Munch()
+        # Copy incoming project because of shared dicts in unittests
+        project = project.copy()
+
+        # Discard noise
+        project.pop('links', None)
+        project.pop('NAME_ATTR', None)
+        project.pop('HUMAN_ID', None)
+        project.pop('human_id', None)
+
+        # In both v2 and v3
+        project_id = project.pop('id')
+        name = project.pop('name', '')
+        description = project.pop('description', '')
+        is_enabled = project.pop('enabled', True)
+
+        # Projects are global - strip region
+        location = self._get_current_location(project_id=project_id)
+        location['region_name'] = None
+
+        # v3 additions
+        domain_id = project.pop('domain_id', 'default')
+        parent_id = project.pop('parent_id', None)
+        is_domain = project.pop('is_domain', False)
+
+        # Projects have a special relationship with location
+        location['project']['domain_id'] = domain_id
+        location['project']['domain_name'] = None
+        location['project']['name'] = None
+        location['project']['id'] = parent_id
+
+        ret = munch.Munch(
+            location=location,
+            id=project_id,
+            name=name,
+            description=description,
+            is_enabled=is_enabled,
+            is_domain=is_domain,
+            properties=project.copy()
+        )
+
+        # Backwards compat
+        if not self.strict_mode:
+            ret['enabled'] = is_enabled
+            ret['domain_id'] = domain_id
+            ret['parent_id'] = parent_id
+            for key, val in ret['properties'].items():
+                ret.setdefault(key, val)
+
+        return ret

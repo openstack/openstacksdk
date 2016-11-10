@@ -209,3 +209,31 @@ A Floating IP from Neutron or Nova
     router=str(),
     status=str(),
     properties=dict())
+
+Project
+-------
+
+A Project from Keystone (or a tenant if Keystone v2)
+
+Location information for Project has some specific semantics.
+
+If the project has a parent project, that will be in location.project.id,
+and if it doesn't that should be None. If the Project is associated with
+a domain that will be in location.project.domain_id regardless of the current
+user's token scope. location.project.name and location.project.domain_name
+will always be None. Finally, location.region_name will always be None as
+Projects are global to a cloud. If a deployer happens to deploy OpenStack
+in such a way that users and projects are not shared amongst regions, that
+necessitates treating each of those regions as separate clouds from shade's
+POV.
+
+.. code-block:: python
+
+  Project = dict(
+    location=Location(),
+    id=str(),
+    name=str(),
+    description=str(),
+    is_enabled=bool(),
+    is_domain=bool(),
+    properties=dict())

@@ -588,7 +588,8 @@ class OpenStackCloud(_normalize.Normalizer):
         pushdown, filters = _normalize._split_filters(**kwargs)
 
         try:
-            projects = self.manager.submit_task(_tasks.ProjectList(**pushdown))
+            projects = self._normalize_projects(
+                self.manager.submit_task(_tasks.ProjectList(**pushdown)))
         except Exception as e:
             self.log.debug("Failed to list projects", exc_info=True)
             raise OpenStackCloudException(str(e))
@@ -636,10 +637,11 @@ class OpenStackCloud(_normalize.Normalizer):
             else:
                 params['tenant_id'] = proj['id']
 
-            project = self.manager.submit_task(_tasks.ProjectUpdate(
-                description=description,
-                enabled=enabled,
-                **params))
+            project = self._normalize_project(
+                self.manager.submit_task(_tasks.ProjectUpdate(
+                    description=description,
+                    enabled=enabled,
+                    **params)))
         self.list_projects.invalidate(self)
         return project
 
@@ -654,9 +656,10 @@ class OpenStackCloud(_normalize.Normalizer):
             else:
                 params['tenant_name'] = name
 
-            project = self.manager.submit_task(_tasks.ProjectCreate(
-                project_name=name, description=description, enabled=enabled,
-                **params))
+            project = self._normalize_project(
+                self.manager.submit_task(_tasks.ProjectCreate(
+                    project_name=name, description=description,
+                    enabled=enabled, **params)))
         self.list_projects.invalidate(self)
         return project
 

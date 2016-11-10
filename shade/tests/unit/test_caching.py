@@ -115,14 +115,17 @@ class TestMemoryCache(base.TestCase):
         keystone_mock.projects.list.return_value = [project]
         self.cloud.cloud_config.config['identity_api_version'] = '3'
         self.assertEqual(
-            meta.obj_list_to_dict([project]), self.cloud.list_projects())
+            self.cloud._normalize_projects(meta.obj_list_to_dict([project])),
+            self.cloud.list_projects())
         project_b = fakes.FakeProject('project_b')
         keystone_mock.projects.list.return_value = [project, project_b]
         self.assertEqual(
-            meta.obj_list_to_dict([project]), self.cloud.list_projects())
+            self.cloud._normalize_projects(meta.obj_list_to_dict([project])),
+            self.cloud.list_projects())
         self.cloud.list_projects.invalidate(self.cloud)
         self.assertEqual(
-            meta.obj_list_to_dict([project, project_b]),
+            self.cloud._normalize_projects(
+                meta.obj_list_to_dict([project, project_b])),
             self.cloud.list_projects())
 
     @mock.patch('shade.OpenStackCloud.keystone_client')
@@ -131,14 +134,17 @@ class TestMemoryCache(base.TestCase):
         keystone_mock.tenants.list.return_value = [project]
         self.cloud.cloud_config.config['identity_api_version'] = '2'
         self.assertEqual(
-            meta.obj_list_to_dict([project]), self.cloud.list_projects())
+            self.cloud._normalize_projects(meta.obj_list_to_dict([project])),
+            self.cloud.list_projects())
         project_b = fakes.FakeProject('project_b')
         keystone_mock.tenants.list.return_value = [project, project_b]
         self.assertEqual(
-            meta.obj_list_to_dict([project]), self.cloud.list_projects())
+            self.cloud._normalize_projects(meta.obj_list_to_dict([project])),
+            self.cloud.list_projects())
         self.cloud.list_projects.invalidate(self.cloud)
         self.assertEqual(
-            meta.obj_list_to_dict([project, project_b]),
+            self.cloud._normalize_projects(
+                meta.obj_list_to_dict([project, project_b])),
             self.cloud.list_projects())
 
     @mock.patch('shade.OpenStackCloud.nova_client')
