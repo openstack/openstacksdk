@@ -2930,6 +2930,23 @@ class OpenStackCloud(_normalize.Normalizer):
             ' Please provide either a path to an existing file'
             ' or a name and a filename'.format(name=name))
 
+    def _hashes_up_to_date(self, md5, sha256, md5_key, sha256_key):
+        '''Compare md5 and sha256 hashes for being up to date
+
+        md5 and sha256 are the current values.
+        md5_key and sha256_key are the previous values.
+        '''
+        up_to_date = False
+        if md5 and md5_key == md5:
+            up_to_date = True
+        if sha256 and sha256_key == sha256:
+            up_to_date = True
+        if md5 and md5_key != md5:
+            up_to_date = False
+        if sha256 and sha256_key != sha256:
+            up_to_date = False
+        return up_to_date
+
     def create_image(
             self, name, filename=None, container='images',
             md5=None, sha256=None,
@@ -3015,11 +3032,9 @@ class OpenStackCloud(_normalize.Normalizer):
             if current_image:
                 md5_key = current_image.get(IMAGE_MD5_KEY, '')
                 sha256_key = current_image.get(IMAGE_SHA256_KEY, '')
-                up_to_date = False
-                if md5 and md5_key == md5:
-                    up_to_date = True
-                if sha256 and sha256_key == sha256:
-                    up_to_date = True
+                up_to_date = self._hashes_up_to_date(
+                    md5=md5, sha256=sha256,
+                    md5_key=md5_key, sha256_key=sha256_key)
                 if up_to_date:
                     self.log.debug(
                         "image %(name)s exists and is up to date",
@@ -5404,15 +5419,16 @@ class OpenStackCloud(_normalize.Normalizer):
 
         if not (file_md5 or file_sha256):
             (file_md5, file_sha256) = self._get_file_hashes(filename)
+        md5_key = metadata.get(OBJECT_MD5_KEY, '')
+        sha256_key = metadata.get(OBJECT_SHA256_KEY, '')
+        up_to_date = self._hashes_up_to_date(
+            md5=file_md5, sha256=file_sha256,
+            md5_key=md5_key, sha256_key=sha256_key)
 
-        if file_md5 and metadata.get(OBJECT_MD5_KEY, '') != file_md5:
+        if not up_to_date:
             self.log.debug(
-                "swift md5 mismatch: %(filename)s!=%(container)s/%(name)s",
-                {'filename': filename, 'container': container, 'name': name})
-            return True
-        if file_sha256 and metadata.get(OBJECT_SHA256_KEY, '') != file_sha256:
-            self.log.debug(
-                "swift sha256 mismatch: %(filename)s!=%(container)s/%(name)s",
+                "swift checksum mismatch: "
+                " %(filename)s!=%(container)s/%(name)s",
                 {'filename': filename, 'container': container, 'name': name})
             return True
 
