@@ -19,6 +19,7 @@ from os_client_config import exceptions
 from os_client_config.tests import base
 
 import fixtures
+import keystoneauth1.exceptions
 
 
 class TestEnviron(base.TestCase):
@@ -144,13 +145,11 @@ class TestEnvvars(base.TestCase):
             fixtures.EnvironmentVariable('NOVA_USERNAME', 'nova'))
         self.useFixture(
             fixtures.EnvironmentVariable('OS_USERNAME', 'user'))
-        config.OpenStackConfig(config_files=[self.cloud_yaml],
-                               vendor_files=[self.vendor_yaml])
-        # This is broken due to an issue that's fixed in a subsequent patch
-        # commenting it out in this patch to keep the patch size reasonable
-        # self.assertRaises(
-        #     keystoneauth1.exceptions.auth_plugins.MissingRequiredOptions,
-        #     c.get_one_cloud, 'envvars')
+        c = config.OpenStackConfig(
+            config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml])
+        self.assertRaises(
+            keystoneauth1.exceptions.auth_plugins.MissingRequiredOptions,
+            c.get_one_cloud, 'envvars')
 
     def test_have_envvars(self):
         self.useFixture(
@@ -165,7 +164,7 @@ class TestEnvvars(base.TestCase):
             fixtures.EnvironmentVariable('OS_PROJECT_NAME', 'project'))
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
-        cc = c.get_one_cloud('envvars')
+        cc = c.get_one_cloud('envvars', validate=False)
         self.assertEqual(cc.config['auth']['username'], 'user')
 
     def test_old_envvars(self):
@@ -181,5 +180,5 @@ class TestEnvvars(base.TestCase):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml],
                                    envvar_prefix='NOVA_')
-        cc = c.get_one_cloud('envvars')
+        cc = c.get_one_cloud('envvars', validate=False)
         self.assertEqual(cc.config['auth']['username'], 'nova')
