@@ -5348,7 +5348,10 @@ class OpenStackCloud(_normalize.Normalizer):
                 "Could not determine container access for ACL: %s." % acl)
 
     def _get_file_hashes(self, filename):
-        if filename not in self._file_hash_cache:
+        file_key = "{filename}:{mtime}".format(
+            filename=filename,
+            mtime=os.stat(filename).st_mtime)
+        if file_key not in self._file_hash_cache:
             self.log.debug(
                 'Calculating hashes for %(filename)s', {'filename': filename})
             md5 = hashlib.md5()
@@ -5357,15 +5360,15 @@ class OpenStackCloud(_normalize.Normalizer):
                 for chunk in iter(lambda: file_obj.read(8192), b''):
                     md5.update(chunk)
                     sha256.update(chunk)
-            self._file_hash_cache[filename] = dict(
+            self._file_hash_cache[file_key] = dict(
                 md5=md5.hexdigest(), sha256=sha256.hexdigest())
             self.log.debug(
                 "Image file %(filename)s md5:%(md5)s sha256:%(sha256)s",
                 {'filename': filename,
-                 'md5': self._file_hash_cache[filename]['md5'],
-                 'sha256': self._file_hash_cache[filename]['sha256']})
-        return (self._file_hash_cache[filename]['md5'],
-                self._file_hash_cache[filename]['sha256'])
+                 'md5': self._file_hash_cache[file_key]['md5'],
+                 'sha256': self._file_hash_cache[file_key]['sha256']})
+        return (self._file_hash_cache[file_key]['md5'],
+                self._file_hash_cache[file_key]['sha256'])
 
     @_utils.cache_on_arguments()
     def get_object_capabilities(self):
