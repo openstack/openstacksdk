@@ -14,7 +14,6 @@
 
 import mock
 
-from shade import _utils
 from shade.tests.unit import base
 
 RAW_SERVER_DICT = {
@@ -803,36 +802,204 @@ class TestUtils(base.TestCase):
 
     def test_normalize_volumes_v1(self):
         vol = dict(
+            id='55db9e89-9cb4-4202-af88-d8c4a174998e',
             display_name='test',
             display_description='description',
             bootable=u'false',   # unicode type
             multiattach='true',  # str type
+            status='in-use',
+            created_at='2015-08-27T09:49:58-05:00',
         )
-        expected = dict(
-            name=vol['display_name'],
-            display_name=vol['display_name'],
-            description=vol['display_description'],
-            display_description=vol['display_description'],
-            bootable=False,
-            multiattach=True,
-        )
-        retval = _utils.normalize_volumes([vol])
-        self.assertEqual([expected], retval)
+        expected = {
+            'attachments': [],
+            'availability_zone': None,
+            'bootable': False,
+            'can_multiattach': True,
+            'consistencygroup_id': None,
+            'created_at': vol['created_at'],
+            'description': vol['display_description'],
+            'display_description': vol['display_description'],
+            'display_name': vol['display_name'],
+            'encrypted': False,
+            'host': None,
+            'id': '55db9e89-9cb4-4202-af88-d8c4a174998e',
+            'is_bootable': False,
+            'is_encrypted': False,
+            'location': {
+                'cloud': '_test_cloud_',
+                'project': {
+                    'domain_id': None,
+                    'domain_name': None,
+                    'id': mock.ANY,
+                    'name': 'admin'},
+                'region_name': u'RegionOne',
+                'zone': None},
+            'metadata': {},
+            'migration_status': None,
+            'multiattach': True,
+            'name': vol['display_name'],
+            'properties': {},
+            'replication_driver': None,
+            'replication_extended_status': None,
+            'replication_status': None,
+            'size': 0,
+            'snapshot_id': None,
+            'source_volume_id': None,
+            'status': vol['status'],
+            'updated_at': None,
+            'volume_type': None,
+        }
+        retval = self.cloud._normalize_volume(vol)
+        self.assertEqual(expected, retval.toDict())
 
     def test_normalize_volumes_v2(self):
         vol = dict(
+            id='55db9e89-9cb4-4202-af88-d8c4a174998e',
+            name='test',
+            description='description',
+            bootable=False,
+            multiattach=True,
+            status='in-use',
+            created_at='2015-08-27T09:49:58-05:00',
+            availability_zone='my-zone',
+        )
+        vol['os-vol-tenant-attr:tenant_id'] = 'my-project'
+        expected = {
+            'attachments': [],
+            'availability_zone': vol['availability_zone'],
+            'bootable': False,
+            'can_multiattach': True,
+            'consistencygroup_id': None,
+            'created_at': vol['created_at'],
+            'description': vol['description'],
+            'display_description': vol['description'],
+            'display_name': vol['name'],
+            'encrypted': False,
+            'host': None,
+            'id': '55db9e89-9cb4-4202-af88-d8c4a174998e',
+            'is_bootable': False,
+            'is_encrypted': False,
+            'location': {
+                'cloud': '_test_cloud_',
+                'project': {
+                    'domain_id': None,
+                    'domain_name': None,
+                    'id': vol['os-vol-tenant-attr:tenant_id'],
+                    'name': None},
+                'region_name': u'RegionOne',
+                'zone': vol['availability_zone']},
+            'metadata': {},
+            'migration_status': None,
+            'multiattach': True,
+            'name': vol['name'],
+            'os-vol-tenant-attr:tenant_id': vol[
+                'os-vol-tenant-attr:tenant_id'],
+            'properties': {
+                'os-vol-tenant-attr:tenant_id': vol[
+                    'os-vol-tenant-attr:tenant_id']},
+            'replication_driver': None,
+            'replication_extended_status': None,
+            'replication_status': None,
+            'size': 0,
+            'snapshot_id': None,
+            'source_volume_id': None,
+            'status': vol['status'],
+            'updated_at': None,
+            'volume_type': None,
+        }
+        retval = self.cloud._normalize_volume(vol)
+        self.assertEqual(expected, retval.toDict())
+
+    def test_normalize_volumes_v1_strict(self):
+        vol = dict(
+            id='55db9e89-9cb4-4202-af88-d8c4a174998e',
             display_name='test',
             display_description='description',
+            bootable=u'false',   # unicode type
+            multiattach='true',  # str type
+            status='in-use',
+            created_at='2015-08-27T09:49:58-05:00',
+        )
+        expected = {
+            'attachments': [],
+            'can_multiattach': True,
+            'consistencygroup_id': None,
+            'created_at': vol['created_at'],
+            'description': vol['display_description'],
+            'host': None,
+            'id': '55db9e89-9cb4-4202-af88-d8c4a174998e',
+            'is_bootable': False,
+            'is_encrypted': False,
+            'location': {
+                'cloud': '_test_cloud_',
+                'project': {
+                    'domain_id': None,
+                    'domain_name': None,
+                    'id': mock.ANY,
+                    'name': 'admin'},
+                'region_name': u'RegionOne',
+                'zone': None},
+            'metadata': {},
+            'migration_status': None,
+            'name': vol['display_name'],
+            'properties': {},
+            'replication_driver': None,
+            'replication_extended_status': None,
+            'replication_status': None,
+            'size': 0,
+            'snapshot_id': None,
+            'source_volume_id': None,
+            'status': vol['status'],
+            'updated_at': None,
+            'volume_type': None,
+        }
+        retval = self.strict_cloud._normalize_volume(vol)
+        self.assertEqual(expected, retval.toDict())
+
+    def test_normalize_volumes_v2_strict(self):
+        vol = dict(
+            id='55db9e89-9cb4-4202-af88-d8c4a174998e',
+            name='test',
+            description='description',
             bootable=False,
             multiattach=True,
+            status='in-use',
+            created_at='2015-08-27T09:49:58-05:00',
+            availability_zone='my-zone',
         )
-        expected = dict(
-            name=vol['display_name'],
-            display_name=vol['display_name'],
-            description=vol['display_description'],
-            display_description=vol['display_description'],
-            bootable=False,
-            multiattach=True,
-        )
-        retval = _utils.normalize_volumes([vol])
-        self.assertEqual([expected], retval)
+        vol['os-vol-tenant-attr:tenant_id'] = 'my-project'
+        expected = {
+            'attachments': [],
+            'can_multiattach': True,
+            'consistencygroup_id': None,
+            'created_at': vol['created_at'],
+            'description': vol['description'],
+            'host': None,
+            'id': '55db9e89-9cb4-4202-af88-d8c4a174998e',
+            'is_bootable': False,
+            'is_encrypted': False,
+            'location': {
+                'cloud': '_test_cloud_',
+                'project': {
+                    'domain_id': None,
+                    'domain_name': None,
+                    'id': vol['os-vol-tenant-attr:tenant_id'],
+                    'name': None},
+                'region_name': u'RegionOne',
+                'zone': vol['availability_zone']},
+            'metadata': {},
+            'migration_status': None,
+            'name': vol['name'],
+            'properties': {},
+            'replication_driver': None,
+            'replication_extended_status': None,
+            'replication_status': None,
+            'size': 0,
+            'snapshot_id': None,
+            'source_volume_id': None,
+            'status': vol['status'],
+            'updated_at': None,
+            'volume_type': None,
+        }
+        retval = self.strict_cloud._normalize_volume(vol)
+        self.assertEqual(expected, retval.toDict())

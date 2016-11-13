@@ -238,3 +238,35 @@ POV.
     is_enabled=bool(),
     is_domain=bool(),
     properties=dict())
+
+Volume
+------
+
+A volume from cinder.
+
+.. code-block:: python
+
+  Volume = dict(
+    location=Location(),
+    id=str(),
+    name=str(),
+    description=str(),
+    size=int(),
+    attachments=list(),
+    status=str(),
+    migration_status=str() or None,
+    host=str() or None,
+    replication_driver=str() or None,
+    replication_status=str() or None,
+    replication_extended_status=str() or None,
+    snapshot_id=str() or None,
+    created_at=str(),
+    updated_at=str() or None,
+    source_volume_id=str() or None,
+    consistencygroup_id=str() or None,
+    volume_type=str() or None,
+    metadata=dict(),
+    is_bootable=bool(),
+    is_encrypted=bool(),
+    can_multiattach=bool(),
+    properties=dict())
