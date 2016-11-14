@@ -509,6 +509,36 @@ class TestMemoryCache(base.TestCase):
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'glance_client')
+    def test_create_image_put_protected(self, glance_mock, mock_api_version):
+        mock_api_version.return_value = '2'
+        self.cloud.image_api_use_tasks = False
+
+        glance_mock.images.list.return_value = []
+        self.assertEqual([], self.cloud.list_images())
+
+        fake_image = fakes.FakeImage('42', '42 name', 'success')
+        glance_mock.images.create.return_value = fake_image
+        glance_mock.images.list.return_value = [fake_image]
+        self._call_create_image(
+            '42 name', min_disk='0', min_ram=0, properties={'int_v': 12345},
+            protected=False)
+        args = {'name': '42 name',
+                'container_format': 'bare', 'disk_format': u'qcow2',
+                'owner_specified.shade.md5': mock.ANY,
+                'owner_specified.shade.sha256': mock.ANY,
+                'owner_specified.shade.object': 'images/42 name',
+                'protected': False,
+                'int_v': '12345',
+                'visibility': 'private',
+                'min_disk': 0, 'min_ram': 0}
+        glance_mock.images.create.assert_called_with(**args)
+        glance_mock.images.upload.assert_called_with(
+            image_data=mock.ANY, image_id=fake_image.id)
+        fake_image_dict = self._image_dict(fake_image)
+        self.assertEqual([fake_image_dict], self.cloud.list_images())
+
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_create_image_put_user_prop(self, glance_mock, mock_api_version):
         mock_api_version.return_value = '2'
         self.cloud.image_api_use_tasks = False
@@ -520,13 +550,15 @@ class TestMemoryCache(base.TestCase):
         glance_mock.images.create.return_value = fake_image
         glance_mock.images.list.return_value = [fake_image]
         self._call_create_image(
-            '42 name', min_disk='0', min_ram=0, properties={'int_v': 12345})
+            '42 name', min_disk='0', min_ram=0, properties={'int_v': 12345},
+            xenapi_use_agent=False)
         args = {'name': '42 name',
                 'container_format': 'bare', 'disk_format': u'qcow2',
                 'owner_specified.shade.md5': mock.ANY,
                 'owner_specified.shade.sha256': mock.ANY,
                 'owner_specified.shade.object': 'images/42 name',
                 'int_v': '12345',
+                'xenapi_use_agent': 'False',
                 'visibility': 'private',
                 'min_disk': 0, 'min_ram': 0}
         glance_mock.images.create.assert_called_with(**args)

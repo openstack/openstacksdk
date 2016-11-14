@@ -3088,11 +3088,11 @@ class OpenStackCloud(_normalize.Normalizer):
         for k, v in iter(properties.items()):
             if k in ('min_disk', 'min_ram', 'size', 'virtual_size'):
                 ret[k] = int(v)
+            elif k == 'protected':
+                ret[k] = v
             else:
                 if v is None:
                     ret[k] = None
-                elif isinstance(v, bool):
-                    ret[k] = v
                 else:
                     ret[k] = str(v)
         ret.update(meta)
