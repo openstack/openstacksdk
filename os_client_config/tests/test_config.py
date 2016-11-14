@@ -226,7 +226,7 @@ class TestConfig(base.TestCase):
         c = config.OpenStackConfig(config_files=['nonexistent'],
                                    vendor_files=['nonexistent'],
                                    secure_files=[self.secure_yaml])
-        cc = c.get_one_cloud(cloud='_test_cloud_no_vendor', validate=False)
+        cc = c.get_one_cloud(cloud='_test_cloud_no_vendor')
         self.assertEqual('testpass', cc.auth['password'])
 
     def test_get_cloud_names(self):
@@ -366,6 +366,7 @@ class TestConfigArgparse(base.TestCase):
             project_name='project',
             region_name='region2',
             snack_type='cookie',
+            os_auth_token='no-good-things',
         )
 
         self.options = argparse.Namespace(**self.args)
@@ -416,7 +417,7 @@ class TestConfigArgparse(base.TestCase):
         cc = c.get_one_cloud(
             argparse=options, **kwargs)
         self.assertEqual(cc.region_name, 'region2')
-        self.assertEqual(cc.auth['password'], 'argpass')
+        self.assertEqual(cc.auth['password'], 'authpass')
         self.assertEqual(cc.snack_type, 'cookie')
 
     def test_get_one_cloud_precedence_osc(self):
@@ -473,7 +474,7 @@ class TestConfigArgparse(base.TestCase):
 
         cc = c.get_one_cloud(**kwargs)
         self.assertEqual(cc.region_name, 'kwarg_region')
-        self.assertEqual(cc.auth['password'], 'ansible_password')
+        self.assertEqual(cc.auth['password'], 'authpass')
         self.assertIsNone(cc.password)
 
     def test_get_one_cloud_just_argparse(self):
@@ -648,29 +649,10 @@ class TestConfigArgparse(base.TestCase):
         parser.add_argument('--os-auth-token')
         opts, _remain = parser.parse_known_args(
             ['--os-auth-token', 'very-bad-things',
-             '--os-auth-type', 'token',
-             '--os-auth-url', 'http://example.com/v2',
-             '--os-project-name', 'project'])
+             '--os-auth-type', 'token'])
         cc = c.get_one_cloud(argparse=opts)
         self.assertEqual(cc.config['auth_type'], 'token')
         self.assertEqual(cc.config['auth']['token'], 'very-bad-things')
-
-    def test_argparse_username_token(self):
-        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
-                                   vendor_files=[self.vendor_yaml])
-
-        parser = argparse.ArgumentParser()
-        c.register_argparse_arguments(parser, [])
-        # novaclient will add this
-        parser.add_argument('--os-auth-token')
-        opts, _remain = parser.parse_known_args(
-            ['--os-auth-token', 'very-bad-things',
-             '--os-auth-type', 'token',
-             '--os-auth-url', 'http://example.com/v2',
-             '--os-username', 'user',
-             '--os-project-name', 'project'])
-        self.assertRaises(
-            TypeError, c.get_one_cloud, argparse=opts)
 
     def test_argparse_underscores(self):
         c = config.OpenStackConfig(config_files=[self.no_yaml],
