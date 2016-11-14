@@ -70,18 +70,8 @@ def map_exceptions(func):
                     url=e.url, method=e.method,
                     http_status=e.http_status, cause=e)
             else:
-                message = e.message
-                details = e.details
-
-                if e.response is not None:
-                    body = e.response.json()
-                    if 'NeutronError' in body:
-                        err_dict = body['NeutronError']
-                        message = err_dict.get('message') or message
-                        details = err_dict.get('detail') or details
-
                 raise exceptions.HttpException(
-                    message=message, details=details,
+                    message=e.message, details=e.details,
                     response=e.response, request_id=e.request_id,
                     url=e.url, method=e.method,
                     http_status=e.http_status, cause=e)
