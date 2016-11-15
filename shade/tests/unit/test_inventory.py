@@ -145,9 +145,3 @@ class TestInventory(base.TestCase):
 
         ret = inv.get_host('server_id')
         self.assertEqual(server, ret)
-
-    @mock.patch("shade.inventory.OpenStackInventory.search_hosts")
-    def test_get_host_no_detail(self, mock_search):
-        inv = inventory.OpenStackInventory()
-        inv.get_host('server_id', expand=False)
-        mock_search.assert_called_once_with('server_id', None, expand=False)
