@@ -220,6 +220,7 @@ class Normalizer(object):
             properties.setdefault(key, val)
         new_image['properties'] = properties
         new_image['is_public'] = is_public
+        new_image['visibility'] = visibility
 
         # Backwards compat with glance
         if not self.strict_mode:
@@ -230,7 +231,6 @@ class Normalizer(object):
             new_image['updated'] = new_image['updated_at']
             new_image['minDisk'] = new_image['min_disk']
             new_image['minRam'] = new_image['min_ram']
-            new_image['visibility'] = visibility
         return new_image
 
     def _normalize_secgroups(self, groups):

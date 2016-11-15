@@ -390,7 +390,8 @@ class TestUtils(base.TestCase):
             'status': u'active',
             'tags': [],
             'updated_at': u'2015-02-15T23:04:34Z',
-            'virtual_size': 0}
+            'virtual_size': 0,
+            'visibility': 'private'}
         retval = self.strict_cloud._normalize_image(raw_image).toDict()
         self.assertEqual(sorted(expected.keys()), sorted(retval.keys()))
         self.assertEqual(expected, retval)
@@ -515,7 +516,8 @@ class TestUtils(base.TestCase):
             'status': u'active',
             'tags': [],
             'updated_at': u'2015-02-15T23:04:34Z',
-            'virtual_size': 0}
+            'virtual_size': 0,
+            'visibility': 'private'}
         retval = self.strict_cloud._normalize_image(raw_image).toDict()
         self.assertEqual(sorted(expected.keys()), sorted(retval.keys()))
         self.assertEqual(expected, retval)

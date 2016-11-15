@@ -110,6 +110,7 @@ A Glance Image.
     owner=str(),
     is_public=bool(),
     is_protected=bool(),
+    visibility=str(),
     status=str(),
     locations=list(),
     direct_url=str() or None,
