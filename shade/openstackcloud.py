@@ -2883,7 +2883,7 @@ class OpenStackCloud(_normalize.Normalizer):
             server_obj = self.get_server(server)
             if not server_obj:
                 raise OpenStackCloudException(
-                    "Server {server} could not be found and therefor"
+                    "Server {server} could not be found and therefore"
                     " could not be snapshotted.".format(server=server))
             server = server_obj
         image_id = str(self.manager.submit_task(_tasks.ImageSnapshotCreate(
