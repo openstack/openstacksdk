@@ -2869,7 +2869,8 @@ class OpenStackCloud(_normalize.Normalizer):
         """Create a glance image by snapshotting an existing server.
 
         :param name: Name of the image to be created
-        :param server: Server dict representing the server to be snapshotted
+        :param server: Server name or id or dict representing the server
+                       to be snapshotted
         :param wait: If true, waits for image to be created.
         :param timeout: Seconds to wait for image creation. None is forever.
         :param metadata: Metadata to give newly-created image entity
@@ -2878,6 +2879,13 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :raises: OpenStackCloudException if there are problems uploading
         """
+        if not isinstance(server, dict):
+            server_obj = self.get_server(server)
+            if not server_obj:
+                raise OpenStackCloudException(
+                    "Server {server} could not be found and therefor"
+                    " could not be snapshotted.".format(server=server))
+            server = server_obj
         image_id = str(self.manager.submit_task(_tasks.ImageSnapshotCreate(
             image_name=name, server=server, metadata=metadata)))
         self.list_images.invalidate(self)
