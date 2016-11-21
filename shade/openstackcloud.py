@@ -2866,6 +2866,18 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def create_image_snapshot(
             self, name, server, wait=False, timeout=3600, **metadata):
+        """Create a glance image by snapshotting an existing server.
+
+        :param name: Name of the image to be created
+        :param server: Server dict representing the server to be snapshotted
+        :param wait: If true, waits for image to be created.
+        :param timeout: Seconds to wait for image creation. None is forever.
+        :param metadata: Metadata to give newly-created image entity
+
+        :returns: A ``munch.Munch`` of the Image object
+
+        :raises: OpenStackCloudException if there are problems uploading
+        """
         image_id = str(self.manager.submit_task(_tasks.ImageSnapshotCreate(
             image_name=name, server=server, metadata=metadata)))
         self.list_images.invalidate(self)
