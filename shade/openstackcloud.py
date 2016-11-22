@@ -2902,8 +2902,18 @@ class OpenStackCloud(_normalize.Normalizer):
                     'Image {image} hit error state'.format(image=image_id))
 
     def delete_image(
-            self, name_or_id, wait=False, timeout=3600,
-            delete_objects=True):
+            self, name_or_id, wait=False, timeout=3600, delete_objects=True):
+        """Delete an existing glance image.
+
+        :param name_or_id: Name of the image to be deleted.
+        :param wait: If True, waits for image to be deleted.
+        :param timeout: Seconds to wait for image deletion. None is forever.
+        :param delete_objects: If True, also deletes uploaded swift objects.
+
+        :returns: True if delete succeeded, False otherwise.
+
+        :raises: OpenStackCloudException if there are problems deleting.
+        """
         image = self.get_image(name_or_id)
         if not image:
             return False
