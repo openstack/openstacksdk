@@ -16,6 +16,7 @@
 import munch
 import ipaddress
 import six
+import socket
 
 from shade import _log
 from shade import exc
@@ -55,9 +56,7 @@ def find_nova_addresses(addresses, ext_tag=None, key_name=None, version=4):
 
 def get_server_ip(server, **kwargs):
     addrs = find_nova_addresses(server['addresses'], **kwargs)
-    if not addrs:
-        return None
-    return addrs[0]
+    return find_best_address(addrs, socket.AF_INET)
 
 
 def get_server_private_ip(server, cloud=None):
@@ -162,6 +161,30 @@ def get_server_external_ipv4(cloud, server):
     return None
 
 
+def find_best_address(addresses, family):
+    if not addresses:
+        return None
+    if len(addresses) == 1:
+        return addresses[0]
+    if len(addresses) > 1:
+        for address in addresses:
+            # Return the first one that is reachable
+            try:
+                connect_socket = socket.socket(family, socket.SOCK_STREAM, 0)
+                connect_socket.settimeout(1)
+                connect_socket.connect((address, 22, 0, 0))
+                return address
+            except Exception:
+                pass
+    # Give up and return the first - none work as far as we can tell
+    log = _log.setup_logging('shade')
+    log.debug(
+        'The cloud returned multiple addresses, and none of them seem'
+        ' to work. That might be what you wanted, but we have no clue'
+        " what's going on, so we just picked one at random")
+    return addresses[0]
+
+
 def get_server_external_ipv6(server):
     """ Get an IPv6 address reachable from outside the cloud.
 
@@ -174,9 +197,7 @@ def get_server_external_ipv6(server):
     if server['accessIPv6']:
         return server['accessIPv6']
     addresses = find_nova_addresses(addresses=server['addresses'], version=6)
-    if addresses:
-        return addresses[0]
-    return None
+    return find_best_address(addresses, socket.AF_INET6)
 
 
 def get_server_default_ip(cloud, server):
