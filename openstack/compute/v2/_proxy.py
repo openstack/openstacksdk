@@ -231,7 +231,7 @@ class Proxy(proxy2.BaseProxy):
                        :class:`~openstack.compute.v2.image.Image` or
                        :class:`~openstack.compute.v2.image.ImageDetail`
                        instance.
-        :param list keys: The keys to delete.
+        :param keys: The keys to delete.
 
         :rtype: ``None``
         """
@@ -465,10 +465,10 @@ class Proxy(proxy2.BaseProxy):
                                 *Default: None*
         :param dict metadata: A dictionary of metadata to rebuild with.
                                *Default: None*
-        :param list personality: A list of dictionaries, each including a
-                                 **path** and **contents** key, to be injected
-                                 into the rebuilt server at launch.
-                                 *Default: None*
+        :param personality: A list of dictionaries, each including a
+                            **path** and **contents** key, to be injected
+                            into the rebuilt server at launch.
+                            *Default: None*
 
         :returns: The rebuilt :class:`~openstack.compute.v2.server.Server`
                   instance.
@@ -723,7 +723,7 @@ class Proxy(proxy2.BaseProxy):
                        :class:`~openstack.compute.v2.server.Server` or
                        :class:`~openstack.compute.v2.server.ServerDetail`
                        instance.
-        :param list keys: The keys to delete
+        :param keys: The keys to delete
 
         :rtype: ``None``
         """

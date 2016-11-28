@@ -82,7 +82,7 @@ class Profile(object):
     def __init__(self, plugins=None):
         """User preference for each service.
 
-        :param list plugins: List of entry point namespaces to load.
+        :param plugins: List of entry point namespaces to load.
 
         Create a new :class:`~openstack.profile.Profile`
         object with no preferences defined, but knowledge of the services.
