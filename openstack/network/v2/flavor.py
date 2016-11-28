@@ -12,6 +12,7 @@
 
 from openstack.network import network_service
 from openstack import resource2 as resource
+from openstack import utils
 
 
 class Flavor(resource.Resource):
@@ -41,3 +42,18 @@ class Flavor(resource.Resource):
     service_type = resource.Body('service_type')
     #: IDs of service profiles associated with this flavor
     service_profile_ids = resource.Body('service_profiles', type=list)
+
+    def associate_flavor_with_service_profile(
+            self, session, service_profile_id=None):
+        flavor_id = self.id
+        url = utils.urljoin(self.base_path, flavor_id, 'service_profiles')
+        body = {"service_profile": {"id": service_profile_id}}
+        resp = session.post(url, endpoint_filter=self.service, json=body)
+        return resp.json()
+
+    def disassociate_flavor_from_service_profile(
+            self, session, service_profile_id=None):
+        flavor_id = self.id
+        url = utils.urljoin(
+            self.base_path, flavor_id, 'service_profiles', service_profile_id)
+        session.delete(url, endpoint_filter=self.service)

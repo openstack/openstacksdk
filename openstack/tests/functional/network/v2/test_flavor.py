@@ -23,6 +23,9 @@ class TestFlavor(base.BaseFunctionalTest):
     SERVICE_TYPE = "FLAVORS"
     ID = None
 
+    SERVICE_PROFILE_DESCRIPTION = "DESCRIPTION"
+    METAINFO = "FlAVOR_PROFILE_METAINFO"
+
     @classmethod
     def setUpClass(cls):
         super(TestFlavor, cls).setUpClass()
@@ -34,10 +37,18 @@ class TestFlavor(base.BaseFunctionalTest):
 
         cls.ID = flavors.id
 
+        cls.service_profiles = cls.conn.network.create_service_profile(
+            description=cls.SERVICE_PROFILE_DESCRIPTION,
+            metainfo=cls.METAINFO,)
+
     @classmethod
     def tearDownClass(cls):
         flavors = cls.conn.network.delete_flavor(cls.ID, ignore_missing=True)
         cls.assertIs(None, flavors)
+
+        service_profiles = cls.conn.network.delete_service_profile(
+            cls.ID, ignore_missing=True)
+        cls.assertIs(None, service_profiles)
 
     def test_find(self):
         flavors = self.conn.network.find_flavor(self.FLAVOR_NAME)
@@ -56,3 +67,15 @@ class TestFlavor(base.BaseFunctionalTest):
         flavor = self.conn.network.update_flavor(self.ID,
                                                  name=self.UPDATE_NAME)
         self.assertEqual(self.UPDATE_NAME, flavor.name)
+
+    def test_associate_flavor_with_service_profile(self):
+        response = \
+            self.conn.network.associate_flavor_with_service_profile(
+                self.ID, self.service_profiles.id)
+        self.assertIsNotNone(response)
+
+    def test_disassociate_flavor_from_service_profile(self):
+        response = \
+            self.conn.network.disassociate_flavor_from_service_profile(
+                self.ID, self.service_profiles.id)
+        self.assertIsNotNone(response)

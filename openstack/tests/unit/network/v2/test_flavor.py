@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 import testtools
 
 from openstack.network.v2 import flavor
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE_WITH_OPTIONAL = {
+    'id': IDENTIFIER,
     'name': 'test-flavor',
     'service_type': 'VPN',
     'description': 'VPN flavor',
@@ -24,6 +26,7 @@ EXAMPLE_WITH_OPTIONAL = {
 }
 
 EXAMPLE = {
+    'id': IDENTIFIER,
     'name': 'test-flavor',
     'service_type': 'VPN',
 }
@@ -57,3 +60,35 @@ class TestFlavor(testtools.TestCase):
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['enabled'], flavors.is_enabled)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['service_profiles'],
                          flavors.service_profile_ids)
+
+    def test_associate_flavor_with_service_profile(self):
+        flav = flavor.Flavor(EXAMPLE)
+        response = mock.Mock()
+        response.body = {
+            'service_profile': {'id': '1'},
+        }
+        response.json = mock.Mock(return_value=response.body)
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=response)
+        flav.id = 'IDENTIFIER'
+        self.assertEqual(
+            response.body, flav.associate_flavor_with_service_profile(
+                sess, '1'))
+
+        url = 'flavors/IDENTIFIER/service_profiles'
+        sess.post.assert_called_with(url, endpoint_filter=flav.service,
+                                     json=response.body)
+
+    def test_disassociate_flavor_from_service_profile(self):
+        flav = flavor.Flavor(EXAMPLE)
+        response = mock.Mock()
+        response.json = mock.Mock(return_value=response.body)
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=response)
+        flav.id = 'IDENTIFIER'
+        self.assertEqual(
+            None, flav.disassociate_flavor_from_service_profile(
+                sess, '1'))
+
+        url = 'flavors/IDENTIFIER/service_profiles/1'
+        sess.delete.assert_called_with(url, endpoint_filter=flav.service)

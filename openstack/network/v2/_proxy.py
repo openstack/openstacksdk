@@ -436,6 +436,43 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._list(_flavor.Flavor, paginated=True, **query)
 
+    def associate_flavor_with_service_profile(self, flavor, service_profile):
+        """Associate network flavor with service profile.
+
+        :param flavor:
+            Either the id of a flavor or a
+            :class:`~openstack.network.v2.flavor.Flavor` instance.
+        :param service_profile:
+            The value can be either the ID of a service profile or a
+            :class:`~openstack.network.v2.service_profile.ServiceProfile`
+            instance.
+        :return:
+        """
+        flavor = self._get_resource(_flavor.Flavor, flavor)
+        service_profile = self._get_resource(
+            _service_profile.ServiceProfile, service_profile)
+        return flavor.associate_flavor_with_service_profile(
+            self._session, service_profile.id)
+
+    def disassociate_flavor_from_service_profile(
+            self, flavor, service_profile):
+        """Disassociate network flavor from service profile.
+
+        :param flavor:
+            Either the id of a flavor or a
+            :class:`~openstack.network.v2.flavor.Flavor` instance.
+        :param service_profile:
+            The value can be either the ID of a service profile or a
+            :class:`~openstack.network.v2.service_profile.ServiceProfile`
+            instance.
+        :return:
+        """
+        flavor = self._get_resource(_flavor.Flavor, flavor)
+        service_profile = self._get_resource(
+            _service_profile.ServiceProfile, service_profile)
+        return flavor.disassociate_flavor_from_service_profile(
+            self._session, service_profile.id)
+
     def create_ip(self, **attrs):
         """Create a new floating ip from attributes
 
