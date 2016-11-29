@@ -226,6 +226,7 @@ class Normalizer(object):
             for key, val in properties.items():
                 new_image[key] = val
             new_image['protected'] = protected
+            new_image['metadata'] = properties
             new_image['created'] = new_image['created_at']
             new_image['updated'] = new_image['updated_at']
             new_image['minDisk'] = new_image['min_disk']
