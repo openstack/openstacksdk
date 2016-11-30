@@ -14,6 +14,8 @@
 
 import sys
 
+from requests import exceptions as _rex
+
 from shade import _log
 
 
@@ -21,11 +23,11 @@ class OpenStackCloudException(Exception):
 
     log_inner_exceptions = False
 
-    def __init__(self, message, extra_data=None):
+    def __init__(self, message, extra_data=None, **kwargs):
         args = [message]
         if extra_data:
             args.append(extra_data)
-        super(OpenStackCloudException, self).__init__(*args)
+        super(OpenStackCloudException, self).__init__(*args, **kwargs)
         self.extra_data = extra_data
         self.inner_exception = sys.exc_info()
         self.orig_message = message
@@ -63,11 +65,11 @@ class OpenStackCloudUnavailableFeature(OpenStackCloudException):
     pass
 
 
-class OpenStackCloudHTTPError(OpenStackCloudException):
+class OpenStackCloudHTTPError(OpenStackCloudException, _rex.HTTPError):
 
-    def __init__(self, message, response=None):
-        super(OpenStackCloudHTTPError, self).__init__(message)
-        self.response = response
+    def __init__(self, *args, **kwargs):
+        OpenStackCloudException.__init__(self, *args, **kwargs)
+        _rex.HTTPError.__init__(self, *args, **kwargs)
 
 
 class OpenStackCloudURINotFound(OpenStackCloudHTTPError):
