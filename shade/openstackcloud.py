@@ -25,6 +25,7 @@ import warnings
 import dogpile.cache
 import munch
 import requestsexceptions
+from six.moves import urllib
 
 import cinderclient.exceptions as cinder_exceptions
 import glanceclient
@@ -383,6 +384,42 @@ class OpenStackCloud(_normalize.Normalizer):
         if 'compute' not in self._raw_clients:
             self._raw_clients['compute'] = self._get_raw_client('compute')
         return self._raw_clients['compute']
+
+    @property
+    def _image_client(self):
+        if 'image' not in self._raw_clients:
+            image_client = self._get_raw_client('image')
+            try:
+                # Version discovery
+                versions = image_client.get('/')
+                current_version = [
+                    version for version in versions
+                    if version['status'] == 'CURRENT'][0]
+                image_url = current_version['links'][0]['href']
+            except (keystoneauth1.exceptions.connection.ConnectFailure,
+                    OpenStackCloudURINotFound) as e:
+                # A 404 or a connection error is a likely thing to get
+                # either with a misconfgured glance. or we've already
+                # gotten a versioned endpoint from the catalog
+                self.log.debug(
+                    "Glance version discovery failed, assuming endpoint in"
+                    " the catalog is already versioned. {e}".format(e=str(e)))
+                image_url = image_client.get_endpoint()
+
+            service_url = image_client.get_endpoint()
+            parsed_image_url = urllib.parse.urlparse(image_url)
+            parsed_service_url = urllib.parse.urlparse(service_url)
+
+            image_url = urllib.parse.ParseResult(
+                parsed_service_url.scheme,
+                parsed_image_url.netloc,
+                parsed_image_url.path,
+                parsed_image_url.params,
+                parsed_image_url.query,
+                parsed_image_url.fragment).geturl()
+            image_client.endpoint_override = image_url
+            self._raw_clients['image'] = image_client
+        return self._raw_clients['image']
 
     @property
     def nova_client(self):
@@ -1682,25 +1719,17 @@ class OpenStackCloud(_normalize.Normalizer):
         # First, try to actually get images from glance, it's more efficient
         images = []
         try:
+            if self.cloud_config.get_api_version('image') == '2':
+                endpoint = '/images'
+            else:
+                endpoint = '/images/detail'
 
-            # Creates a generator - does not actually talk to the cloud API
-            # hardcoding page size for now. We'll have to get MUCH smarter
-            # if we want to deal with page size per unit of rate limiting
-            image_gen = self.glance_client.images.list(page_size=1000)
-            # Deal with the generator to make a list
-            image_list = self.manager.submit_task(
-                _tasks.GlanceImageList(image_gen=image_gen))
+            image_list = self._image_client.get(endpoint)
 
-        except glanceclient.exc.HTTPInternalServerError:
+        except keystoneauth1.exceptions.catalog.EndpointNotFound:
             # We didn't have glance, let's try nova
             # If this doesn't work - we just let the exception propagate
-            with _utils.shade_exceptions("Error fetching image list"):
-                image_list = self.manager.submit_task(_tasks.NovaImageList())
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error fetching image list: %s" % e)
+            image_list = self._compute_client.get('/images/detail')
 
         for image in image_list:
             # The cloud might return DELETED for invalid images.
