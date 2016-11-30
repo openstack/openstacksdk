@@ -205,6 +205,10 @@ class Server(resource2.Resource, metadata.MetadataMixin):
         body = {"removeSecurityGroup": {"name": security_group}}
         self._action(session, body)
 
+    def reset_state(self, session, state):
+        body = {"os-resetState": {"state": state}}
+        self._action(session, body)
+
 
 class ServerDetail(Server):
     base_path = '/servers/detail'

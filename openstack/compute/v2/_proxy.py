@@ -435,6 +435,19 @@ class Proxy(proxy2.BaseProxy):
         server = self._get_resource(_server.Server, server)
         server.change_password(self.session, new_password)
 
+    def reset_server_state(self, server, state):
+        """Reset the state of server
+
+        :param server: The server can be either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server`.
+        :param state: The state of the server to be set, `active` or
+                      `error` are valid.
+
+        :returns: None
+        """
+        res = self._get_base_resource(server, _server.Server)
+        res.reset_state(self.session, state)
+
     def reboot_server(self, server, reboot_type):
         """Reboot a server
 
