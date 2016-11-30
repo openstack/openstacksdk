@@ -63,9 +63,37 @@ class OpenStackCloudUnavailableFeature(OpenStackCloudException):
     pass
 
 
-class OpenStackCloudResourceNotFound(OpenStackCloudException):
-    pass
+class OpenStackCloudHTTPError(OpenStackCloudException):
+
+    def __init__(self, message, response=None):
+        super(OpenStackCloudHTTPError, self).__init__(message)
+        self.response = response
 
 
-class OpenStackCloudURINotFound(OpenStackCloudException):
+class OpenStackCloudURINotFound(OpenStackCloudHTTPError):
     pass
+
+# Backwards compat
+OpenStackCloudResourceNotFound = OpenStackCloudURINotFound
+
+
+# Logic shamelessly stolen from requests
+def raise_from_response(response):
+    msg = ''
+    if 400 <= response.status_code < 500:
+        msg = '({code}) Client Error: {reason} for url: {url}'.format(
+            code=response.status_code,
+            reason=response.reason,
+            url=response.url)
+    elif 500 <= response.status_code < 600:
+        msg = '({code}) Server Error: {reason} for url: {url}'.format(
+            code=response.status_code,
+            reason=response.reason,
+            url=response.url)
+
+    # Special case 404 since we raised a specific one for neutron exceptions
+    # before
+    if response.status_code == 404:
+        raise OpenStackCloudURINotFound(msg, response=response)
+    if msg:
+        raise OpenStackCloudHTTPError(msg, response=response)

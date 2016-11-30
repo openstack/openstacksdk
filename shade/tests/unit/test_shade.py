@@ -686,29 +686,25 @@ class TestShade(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, '_compute_client')
     def test__nova_extensions(self, mock_compute):
-        body = {
-            'extensions': [
-                {
-                    "updated": "2014-12-03T00:00:00Z",
-                    "name": "Multinic",
-                    "links": [],
-                    "namespace": "http://openstack.org/compute/ext/fake_xml",
-                    "alias": "NMN",
-                    "description": "Multiple network support."
-                },
-                {
-                    "updated": "2014-12-03T00:00:00Z",
-                    "name": "DiskConfig",
-                    "links": [],
-                    "namespace": "http://openstack.org/compute/ext/fake_xml",
-                    "alias": "OS-DCF",
-                    "description": "Disk Management Extension."
-                },
-            ]
-        }
-        mock_response = mock.Mock()
-        mock_response.json.return_value = body
-        mock_compute.get.return_value = mock_response
+        body = [
+            {
+                "updated": "2014-12-03T00:00:00Z",
+                "name": "Multinic",
+                "links": [],
+                "namespace": "http://openstack.org/compute/ext/fake_xml",
+                "alias": "NMN",
+                "description": "Multiple network support."
+            },
+            {
+                "updated": "2014-12-03T00:00:00Z",
+                "name": "DiskConfig",
+                "links": [],
+                "namespace": "http://openstack.org/compute/ext/fake_xml",
+                "alias": "OS-DCF",
+                "description": "Disk Management Extension."
+            },
+        ]
+        mock_compute.get.return_value = body
         extensions = self.cloud._nova_extensions()
         mock_compute.get.assert_called_once_with('/extensions')
         self.assertEqual(set(['NMN', 'OS-DCF']), extensions)
@@ -724,29 +720,25 @@ class TestShade(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, '_compute_client')
     def test__has_nova_extension(self, mock_compute):
-        body = {
-            'extensions': [
-                {
-                    "updated": "2014-12-03T00:00:00Z",
-                    "name": "Multinic",
-                    "links": [],
-                    "namespace": "http://openstack.org/compute/ext/fake_xml",
-                    "alias": "NMN",
-                    "description": "Multiple network support."
-                },
-                {
-                    "updated": "2014-12-03T00:00:00Z",
-                    "name": "DiskConfig",
-                    "links": [],
-                    "namespace": "http://openstack.org/compute/ext/fake_xml",
-                    "alias": "OS-DCF",
-                    "description": "Disk Management Extension."
-                },
-            ]
-        }
-        mock_response = mock.Mock()
-        mock_response.json.return_value = body
-        mock_compute.get.return_value = mock_response
+        body = [
+            {
+                "updated": "2014-12-03T00:00:00Z",
+                "name": "Multinic",
+                "links": [],
+                "namespace": "http://openstack.org/compute/ext/fake_xml",
+                "alias": "NMN",
+                "description": "Multiple network support."
+            },
+            {
+                "updated": "2014-12-03T00:00:00Z",
+                "name": "DiskConfig",
+                "links": [],
+                "namespace": "http://openstack.org/compute/ext/fake_xml",
+                "alias": "OS-DCF",
+                "description": "Disk Management Extension."
+            },
+        ]
+        mock_compute.get.return_value = body
         self.assertTrue(self.cloud._has_nova_extension('NMN'))
         self.assertFalse(self.cloud._has_nova_extension('invalid'))
 

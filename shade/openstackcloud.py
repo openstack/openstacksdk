@@ -47,6 +47,7 @@ import troveclient.client
 import designateclient.client
 
 from shade.exc import *  # noqa
+from shade import _adapter
 from shade import _log
 from shade import _normalize
 from shade import meta
@@ -142,8 +143,10 @@ class OpenStackCloud(_normalize.Normalizer):
             OpenStackCloudException.log_inner_exceptions = True
 
         self.log = _log.setup_logging('shade')
+
         if not cloud_config:
             config = os_client_config.OpenStackConfig()
+
             cloud_config = config.get_one_cloud(**kwargs)
 
         self.name = cloud_config.name
@@ -157,10 +160,17 @@ class OpenStackCloud(_normalize.Normalizer):
         self.force_ipv4 = cloud_config.force_ipv4
         self.strict_mode = strict
 
+        if manager is not None:
+            self.manager = manager
+        else:
+            self.manager = task_manager.TaskManager(
+                name=':'.join([self.name, self.region_name]), client=self)
+
         # Provide better error message for people with stale OCC
-        if cloud_config.get_external_ipv4_networks is None:
+        if cloud_config.set_session_constructor is None:
             raise OpenStackCloudException(
-                "shade requires at least version 1.20.0 of os-client-config")
+                "shade requires at least version 1.22.0 of os-client-config")
+
         self._external_ipv4_names = cloud_config.get_external_ipv4_networks()
         self._internal_ipv4_names = cloud_config.get_internal_ipv4_networks()
         self._external_ipv6_names = cloud_config.get_external_ipv6_networks()
@@ -180,12 +190,6 @@ class OpenStackCloud(_normalize.Normalizer):
             'use_external_network', True)
         self._use_internal_network = cloud_config.config.get(
             'use_internal_network', True)
-
-        if manager is not None:
-            self.manager = manager
-        else:
-            self.manager = task_manager.TaskManager(
-                name=':'.join([self.name, self.region_name]), client=self)
 
         # Work around older TaskManager objects that don't have submit_task
         if not hasattr(self.manager, 'submit_task'):
@@ -365,7 +369,14 @@ class OpenStackCloud(_normalize.Normalizer):
         return client
 
     def _get_raw_client(self, service_key):
-        return self.cloud_config.get_session_client(service_key)
+        return _adapter.ShadeAdapter(
+            manager=self.manager,
+            session=self.cloud_config.get_session(),
+            service_type=self.cloud_config.get_service_type(service_key),
+            service_name=self.cloud_config.get_service_name(service_key),
+            interface=self.cloud_config.get_interface(service_key),
+            region_name=self.cloud_config.region,
+            shade_logger=self.log)
 
     @property
     def _compute_client(self):
@@ -1260,8 +1271,7 @@ class OpenStackCloud(_normalize.Normalizer):
         extensions = set()
 
         with _utils.shade_exceptions("Error fetching extension list for nova"):
-            for extension in self.manager.submit_task(
-                    _tasks.NovaListExtensions()):
+            for extension in self._compute_client.get('/extensions'):
                 extensions.add(extension['alias'])
 
         return extensions
@@ -1536,10 +1546,11 @@ class OpenStackCloud(_normalize.Normalizer):
         with _utils.shade_exceptions("Error fetching flavor extra specs"):
             for flavor in flavors:
                 if not flavor.extra_specs and get_extra:
+                    endpoint = "/flavors/{id}/os-extra_specs".format(
+                        id=flavor.id)
                     try:
-                        flavor.extra_specs = self.manager.submit_task(
-                            _tasks.FlavorGetExtraSpecs(id=flavor.id))
-                    except keystoneauth1.exceptions.http.HttpError as e:
+                        flavor.extra_specs = self._compute_client.get(endpoint)
+                    except OpenStackCloudHttpError as e:
                         flavor.extra_specs = []
                         self.log.debug(
                             'Fetching extra specs for flavor failed:'
