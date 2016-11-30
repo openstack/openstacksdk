@@ -517,7 +517,6 @@ class Normalizer(object):
 
     def _normalize_project(self, project):
 
-        ret = munch.Munch()
         # Copy incoming project because of shared dicts in unittests
         project = project.copy()
 
@@ -566,4 +565,100 @@ class Normalizer(object):
             for key, val in ret['properties'].items():
                 ret.setdefault(key, val)
 
+        return ret
+
+    def _normalize_volumes(self, volumes):
+        """Normalize the structure of volumes
+
+        This makes tenants from cinder v1 look like volumes from v2.
+
+        :param list projects: A list of volumes to normalize
+
+        :returns: A list of normalized dicts.
+        """
+        ret = []
+        for volume in volumes:
+            ret.append(self._normalize_volume(volume))
+        return ret
+
+    def _normalize_volume(self, volume):
+
+        volume = volume.copy()
+
+        # Discard noise
+        volume.pop('links', None)
+        volume.pop('NAME_ATTR', None)
+        volume.pop('HUMAN_ID', None)
+        volume.pop('human_id', None)
+
+        volume_id = volume.pop('id')
+
+        name = volume.pop('display_name', None)
+        name = volume.pop('name', name)
+
+        description = volume.pop('display_description', None)
+        description = volume.pop('description', description)
+
+        is_bootable = _to_bool(volume.pop('bootable', True))
+        is_encrypted = _to_bool(volume.pop('encrypted', False))
+        can_multiattach = _to_bool(volume.pop('multiattach', False))
+
+        project_id = _pop_or_get(
+            volume, 'os-vol-tenant-attr:tenant_id', None, self.strict_mode)
+        az = volume.pop('availability_zone', None)
+
+        location = self._get_current_location(project_id=project_id, zone=az)
+
+        host = _pop_or_get(
+            volume, 'os-vol-host-attr:host', None, self.strict_mode)
+        replication_extended_status = _pop_or_get(
+            volume, 'os-volume-replication:extended_status',
+            None, self.strict_mode)
+
+        migration_status = _pop_or_get(
+            volume, 'os-vol-mig-status-attr:migstat', None, self.strict_mode)
+        migration_status = volume.pop('migration_status', migration_status)
+        _pop_or_get(volume, 'user_id', None, self.strict_mode)
+        source_volume_id = _pop_or_get(
+            volume, 'source_volid', None, self.strict_mode)
+        replication_driver = _pop_or_get(
+            volume, 'os-volume-replication:driver_data',
+            None, self.strict_mode)
+
+        ret = munch.Munch(
+            location=location,
+            id=volume_id,
+            name=name,
+            description=description,
+            size=_pop_int(volume, 'size'),
+            attachments=volume.pop('attachments', []),
+            status=volume.pop('status'),
+            migration_status=migration_status,
+            host=host,
+            replication_driver=replication_driver,
+            replication_status=volume.pop('replication_status', None),
+            replication_extended_status=replication_extended_status,
+            snapshot_id=volume.pop('snapshot_id', None),
+            created_at=volume.pop('created_at'),
+            updated_at=volume.pop('updated_at', None),
+            source_volume_id=source_volume_id,
+            consistencygroup_id=volume.pop('consistencygroup_id', None),
+            volume_type=volume.pop('volume_type', None),
+            metadata=volume.pop('metadata', {}),
+            is_bootable=is_bootable,
+            is_encrypted=is_encrypted,
+            can_multiattach=can_multiattach,
+            properties=volume.copy(),
+        )
+
+        # Backwards compat
+        if not self.strict_mode:
+            ret['display_name'] = name
+            ret['display_description'] = description
+            ret['bootable'] = is_bootable
+            ret['encrypted'] = is_encrypted
+            ret['multiattach'] = can_multiattach
+            ret['availability_zone'] = az
+            for key, val in ret['properties'].items():
+                ret.setdefault(key, val)
         return ret

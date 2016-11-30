@@ -210,30 +210,6 @@ def normalize_users(users):
     return meta.obj_list_to_dict(ret)
 
 
-def normalize_volumes(volumes):
-    ret = []
-    for vol in volumes:
-        new_vol = vol.copy()
-        name = vol.get('name', vol.get('display_name'))
-        description = vol.get('description', vol.get('display_description'))
-        new_vol['name'] = name
-        new_vol['display_name'] = name
-        new_vol['description'] = description
-        new_vol['display_description'] = description
-        # For some reason, cinder v1 uses strings for bools for these fields.
-        # Cinder v2 uses booleans.
-        for field in ('bootable', 'multiattach'):
-            if field in new_vol and isinstance(new_vol[field],
-                                               six.string_types):
-                if new_vol[field] is not None:
-                    if new_vol[field].lower() == 'true':
-                        new_vol[field] = True
-                    elif new_vol[field].lower() == 'false':
-                        new_vol[field] = False
-        ret.append(new_vol)
-    return meta.obj_list_to_dict(ret)
-
-
 def normalize_domains(domains):
     ret = [
         dict(

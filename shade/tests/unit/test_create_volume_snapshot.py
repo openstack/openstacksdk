@@ -20,7 +20,6 @@ Tests for the `create_volume_snapshot` command.
 """
 
 from mock import patch
-from shade import _utils
 from shade import meta
 from shade import OpenStackCloud
 from shade.tests import fakes
@@ -47,8 +46,8 @@ class TestCreateVolumeSnapshot(base.TestCase):
             build_snapshot, fake_snapshot]
 
         self.assertEqual(
-            _utils.normalize_volumes(
-                [meta.obj_to_dict(fake_snapshot)])[0],
+            self.cloud._normalize_volume(
+                meta.obj_to_dict(fake_snapshot)),
             self.cloud.create_volume_snapshot(volume_id='1234', wait=True)
         )
 

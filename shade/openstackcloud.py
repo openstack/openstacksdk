@@ -1565,7 +1565,7 @@ class OpenStackCloud(_normalize.Normalizer):
             warnings.warn('cache argument to list_volumes is deprecated. Use '
                           'invalidate instead.')
         with _utils.shade_exceptions("Error fetching volume list"):
-            return _utils.normalize_volumes(
+            return self._normalize_volumes(
                 self.manager.submit_task(_tasks.VolumeList()))
 
     @_utils.cache_on_arguments()
@@ -3423,7 +3423,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     raise OpenStackCloudException(
                         "Error in creating volume, please check logs")
 
-        return _utils.normalize_volumes([volume])[0]
+        return self._normalize_volume(volume)
 
     def delete_volume(self, name_or_id=None, wait=True, timeout=None):
         """Delete a volume.
@@ -3677,7 +3677,10 @@ class OpenStackCloud(_normalize.Normalizer):
                     raise OpenStackCloudException(
                         "Error in creating volume snapshot, please check logs")
 
-        return _utils.normalize_volumes([snapshot])[0]
+        # TODO(mordred) need to normalize snapshots. We were normalizing them
+        # as volumes, which is an error. They need to be normalized as
+        # volume snapshots, which are completely different objects
+        return snapshot
 
     def get_volume_snapshot_by_id(self, snapshot_id):
         """Takes a snapshot_id and gets a dict of the snapshot
@@ -3697,7 +3700,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 )
             )
 
-        return _utils.normalize_volumes([snapshot])[0]
+        return self._normalize_volume(snapshot)
 
     def get_volume_snapshot(self, name_or_id, filters=None):
         """Get a volume by name or ID.
@@ -3788,7 +3791,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         """
         with _utils.shade_exceptions("Error getting a list of snapshots"):
-            return _utils.normalize_volumes(
+            return self._normalize_volumes(
                 self.manager.submit_task(
                     _tasks.VolumeSnapshotList(
                         detailed=detailed, search_opts=search_opts)))
