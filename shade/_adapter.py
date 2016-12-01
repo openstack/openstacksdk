@@ -137,11 +137,8 @@ class ShadeAdapter(adapter.Adapter):
         return result
 
     def request(self, url, method, *args, **kwargs):
-        service_type = kwargs.get(
-            'endpoint_filter', {}).get('service_type', 'auth')
-
         name_parts = extract_name(url)
-        name = '.'.join([service_type, method] + name_parts)
+        name = '.'.join([self.service_type, method] + name_parts)
         class_name = "".join([
             part.lower().capitalize() for part in name.split('.')])
 
