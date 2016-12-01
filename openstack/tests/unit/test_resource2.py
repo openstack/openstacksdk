@@ -395,7 +395,7 @@ class TestResource(base.TestCase):
 
         with mock.patch.object(resource2.Resource,
                                "_collect_attrs", mock_collect):
-            sot = resource2.Resource(synchronized=False, **everything)
+            sot = resource2.Resource(_synchronized=False, **everything)
             mock_collect.assert_called_once_with(everything)
         self.assertEqual("somewhere", sot.location)
 
@@ -787,7 +787,7 @@ class TestResource(base.TestCase):
         body_value = "body"
         header_value = "header"
         sot = Test(id=the_id, body_attr=body_value, header_attr=header_value,
-                   synchronized=False)
+                   _synchronized=False)
 
         result = sot._prepare_request(requires_id=True)
 
@@ -813,7 +813,7 @@ class TestResource(base.TestCase):
         body_value = "body"
         header_value = "header"
         sot = Test(body_attr=body_value, header_attr=header_value,
-                   synchronized=False)
+                   _synchronized=False)
 
         result = sot._prepare_request(requires_id=False, prepend_key=True)
 

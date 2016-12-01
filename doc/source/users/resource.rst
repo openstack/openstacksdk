@@ -1,3 +1,7 @@
+**NOTE: This module is being phased out in favor of**
+:mod:`openstack.resource2`. **Once all services have been moved over to use
+resource2, that module will take this `resource` name.**
+
 Resource
 ========
 .. automodule:: openstack.resource

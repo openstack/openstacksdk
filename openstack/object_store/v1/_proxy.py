@@ -40,7 +40,7 @@ class Proxy(proxy.BaseProxy):
     def delete_account_metadata(self, keys):
         """Delete metadata for this account.
 
-        :param list keys: The keys of metadata to be deleted.
+        :param keys: The keys of metadata to be deleted.
         """
         account = self._get_resource(_account.Account, None)
         account.delete_metadata(self.session, keys)
@@ -129,7 +129,7 @@ class Proxy(proxy.BaseProxy):
         :param container: The value can be the ID of a container or a
                :class:`~openstack.object_store.v1.container.Container`
                instance.
-        :param list keys: The keys of metadata to be deleted.
+        :param keys: The keys of metadata to be deleted.
         """
         res = self._get_resource(_container.Container, container)
         res.delete_metadata(self.session, keys)
@@ -310,7 +310,7 @@ class Proxy(proxy.BaseProxy):
         :param container: The value can be the ID of a container or a
                :class:`~openstack.object_store.v1.container.Container`
                instance.
-        :param list keys: The keys of metadata to be deleted.
+        :param keys: The keys of metadata to be deleted.
         """
         container_name = self._get_container_name(obj, container)
         res = self._get_resource(_obj.Object, obj,

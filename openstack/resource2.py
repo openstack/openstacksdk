@@ -251,7 +251,14 @@ class Resource(object):
     #: Use PUT for create operations on this resource.
     put_create = False
 
-    def __init__(self, synchronized=False, **attrs):
+    def __init__(self, _synchronized=False, **attrs):
+        """The base resource
+
+        :param bool _synchronized: This is not intended to be used directly.
+                    See :meth:`~openstack.resource2.Resource.new` and
+                    :meth:`~openstack.resource2.Resource.existing`.
+        """
+
         # NOTE: _collect_attrs modifies **attrs in place, removing
         # items as they match up with any of the body, header,
         # or uri mappings.
@@ -261,11 +268,11 @@ class Resource(object):
         # How strict should we be here? Should strict be an option?
 
         self._body = _ComponentManager(attributes=body,
-                                       synchronized=synchronized)
+                                       synchronized=_synchronized)
         self._header = _ComponentManager(attributes=header,
-                                         synchronized=synchronized)
+                                         synchronized=_synchronized)
         self._uri = _ComponentManager(attributes=uri,
-                                      synchronized=synchronized)
+                                      synchronized=_synchronized)
 
     def __repr__(self):
         pairs = ["%s=%s" % (k, v) for k, v in dict(itertools.chain(
@@ -418,24 +425,32 @@ class Resource(object):
     def new(cls, **kwargs):
         """Create a new instance of this resource.
 
-        Internally set flags such that it is marked as not present on the
-        server.
+        When creating the instance set the ``_synchronized`` parameter
+        of :class:`Resource` to ``False`` to indicate that the resource does
+        not yet exist on the server side. This marks all attributes passed
+        in ``**kwargs`` as "dirty" on the resource, and thusly tracked
+        as necessary in subsequent calls such as :meth:`update`.
 
         :param dict kwargs: Each of the named arguments will be set as
                             attributes on the resulting Resource object.
         """
-        return cls(synchronized=False, **kwargs)
+        return cls(_synchronized=False, **kwargs)
 
     @classmethod
     def existing(cls, **kwargs):
         """Create an instance of an existing remote resource.
 
-        It is marked as an exact replication of a resource present on a server.
+        When creating the instance set the ``_synchronized`` parameter
+        of :class:`Resource` to ``True`` to indicate that it represents the
+        state of an existing server-side resource. As such, all attributes
+        passed in ``**kwargs`` are considered "clean", such that an immediate
+        :meth:`update` call would not generate a body of attributes to be
+        modified on the server.
 
         :param dict kwargs: Each of the named arguments will be set as
                             attributes on the resulting Resource object.
         """
-        return cls(synchronized=True, **kwargs)
+        return cls(_synchronized=True, **kwargs)
 
     def to_dict(self, body=True, headers=True, ignore_none=False):
         """Return a dictionary of this resource's contents

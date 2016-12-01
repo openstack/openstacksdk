@@ -122,5 +122,6 @@ can be customized.
 
    session
    resource
+   resource2
    service_filter
    utils
