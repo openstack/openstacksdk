@@ -92,3 +92,19 @@ class TestNetwork(testtools.TestCase):
         self.assertFalse(sot.is_default)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertEqual(EXAMPLE['dns_domain'], sot.dns_domain)
+
+
+class TestNetworkHostingDHCPAgent(testtools.TestCase):
+
+    def test_basic(self):
+        net = network.NetworkHostingDHCPAgent()
+        self.assertEqual('agent', net.resource_key)
+        self.assertEqual('agents', net.resources_key)
+        self.assertEqual('/networks/%(network_id)s/dhcp-agents', net.base_path)
+        self.assertEqual('dhcp-agent', net.resource_name)
+        self.assertEqual('network', net.service.service_type)
+        self.assertFalse(net.allow_create)
+        self.assertTrue(net.allow_retrieve)
+        self.assertFalse(net.allow_update)
+        self.assertFalse(net.allow_delete)
+        self.assertTrue(net.allow_list)

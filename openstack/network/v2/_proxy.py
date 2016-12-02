@@ -203,6 +203,63 @@ class Proxy(proxy.BaseProxy):
         """
         return self._list(availability_zone.AvailabilityZone, paginated=False)
 
+    def dhcp_agent_hosting_networks(self, agent, **query):
+        """A generator of networks hosted by a DHCP agent.
+
+        :param agent: Either the agent id of an instance of
+                      :class:`~openstack.network.v2.network_agent.Agent`
+        :param query: kwargs \*\*query: Optional query parameters to be sent
+                                        to limit the resources being returned.
+        :return: A generator of networks
+        """
+        agent_id = resource.Resource.get_id(agent)
+        return self._list(_agent.DHCPAgentHostingNetwork,
+                          paginated=False,
+                          path_args={'agent_id': agent_id},
+                          **query)
+
+    def add_dhcp_agent_to_network(self, agent, network):
+        """Add a DHCP Agent to a network
+
+        :param agent: Either the agent id of an instance of
+                      :class:`~openstack.network.v2.network_agent.Agent`
+        :param network: Network instance
+        :return:
+        """
+        network = self._get_resource(_network.Network, network)
+        agent = self._get_resource(_agent.Agent, agent)
+        body = {'network_id': network.id}
+        return agent.add_agent_to_network(self.session, **body)
+
+    def remove_dhcp_agent_from_network(self, agent, network):
+        """Remove a DHCP Agent from a network
+
+        :param agent: Either the agent id of an instance of
+                      :class:`~openstack.network.v2.network_agent.Agent`
+        :param network: Network instance
+        :return:
+        """
+        # network_id = resource.Resource.get_id(network)
+        network = self._get_resource(_network.Network, network)
+        agent = self._get_resource(_agent.Agent, agent)
+        body = {'network_id': network.id}
+        return agent.remove_agent_from_network(self.session, **body)
+
+    def network_hosting_dhcp_agents(self, network, **query):
+        """A generator of DHCP agents hosted on a network.
+
+        :param network: The instance of
+                        :class:`~openstack.network.v2.network.Network`
+        :param query: kwargs \*\*query: Optional query parameters to be sent
+                                        to limit the resources being returned.
+        :return: A generator of hosted DHCP agents
+        """
+        network_id = resource.Resource.get_id(network)
+        return self._list(_network.NetworkHostingDHCPAgent,
+                          paginated=False,
+                          path_args={'network_id': network_id},
+                          **query)
+
     def find_extension(self, name_or_id, ignore_missing=True):
         """Find a single extension
 

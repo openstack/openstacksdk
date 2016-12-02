@@ -12,6 +12,7 @@
 
 from openstack.network import network_service
 from openstack import resource
+from openstack import utils
 
 
 class Agent(resource.Resource):
@@ -54,3 +55,29 @@ class Agent(resource.Resource):
     started_at = resource.prop('started_at')
     #: The messaging queue topic the network agent subscribes to.
     topic = resource.prop('topic')
+
+    def add_agent_to_network(self, session, **body):
+        url = utils.urljoin(self.base_path, self.id, 'dhcp-networks')
+        resp = session.post(url, endpoint_filter=self.service, json=body)
+        return resp.json()
+
+    def remove_agent_from_network(self, session, **body):
+        network_id = body.get('network_id')
+        url = utils.urljoin(self.base_path, self.id, 'dhcp-networks',
+                            network_id)
+        session.delete(url, endpoint_filter=self.service, json=body)
+
+
+class DHCPAgentHostingNetwork(resource.Resource):
+    resource_key = 'network'
+    resources_key = 'networks'
+    base_path = '/agents/%(agent_id)s/dhcp-networks'
+    resource_name = 'dhcp-network'
+    service = network_service.NetworkService()
+
+    # capabilities
+    allow_create = False
+    allow_retrieve = True
+    allow_update = False
+    allow_delete = False
+    allow_list = True

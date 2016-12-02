@@ -51,6 +51,8 @@ from openstack.tests.unit import test_proxy_base
 
 QOS_POLICY_ID = 'qos-policy-id-' + uuid.uuid4().hex
 QOS_RULE_ID = 'qos-rule-id-' + uuid.uuid4().hex
+NETWORK_ID = 'network-id-' + uuid.uuid4().hex
+AGENT_ID = 'agent-id-' + uuid.uuid4().hex
 
 
 class TestNetworkProxy(test_proxy_base.TestProxyBase):
@@ -106,6 +108,24 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_list_no_kwargs(self.proxy.availability_zones,
                                    availability_zone.AvailabilityZone,
                                    paginated=False)
+
+    def test_dhcp_agent_hosting_networks(self):
+        self.verify_list(
+            self.proxy.dhcp_agent_hosting_networks,
+            agent.DHCPAgentHostingNetwork,
+            paginated=False,
+            method_kwargs={'agent': AGENT_ID},
+            expected_kwargs={'path_args': {'agent_id': AGENT_ID}},
+        )
+
+    def test_network_hosting_dhcp_agents(self):
+        self.verify_list(
+            self.proxy.network_hosting_dhcp_agents,
+            network.NetworkHostingDHCPAgent,
+            paginated=False,
+            method_kwargs={'network': NETWORK_ID},
+            expected_kwargs={'path_args': {'network_id': NETWORK_ID}},
+        )
 
     def test_extension_find(self):
         self.verify_find(self.proxy.find_extension, extension.Extension)
