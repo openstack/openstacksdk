@@ -150,19 +150,6 @@ class TestMemoryCache(base.TestCase):
             self.cloud.list_projects())
 
     @mock.patch('shade.OpenStackCloud.nova_client')
-    def test_list_servers_herd(self, nova_mock):
-        self.cloud._SERVER_AGE = 0
-        fake_server = fakes.FakeServer('1234', '', 'ACTIVE')
-        nova_mock.servers.list.return_value = [fake_server]
-        with concurrent.futures.ThreadPoolExecutor(16) as pool:
-            for i in range(16):
-                pool.submit(lambda: self.cloud.list_servers())
-                # It's possible to race-condition 16 threads all in the
-                # single initial lock without a tiny sleep
-                time.sleep(0.001)
-        self.assertGreater(nova_mock.servers.list.call_count, 1)
-
-    @mock.patch('shade.OpenStackCloud.nova_client')
     def test_list_servers_no_herd(self, nova_mock):
         self.cloud._SERVER_AGE = 2
         fake_server = fakes.FakeServer('1234', '', 'ACTIVE')
