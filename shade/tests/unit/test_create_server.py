@@ -314,7 +314,6 @@ class TestCreateServer(base.TestCase):
     @mock.patch.object(OpenStackCloud, 'nova_client')
     def test_create_server_get_flavor_image(
             self, mock_nova, mock_image):
-        print(self.cloud.list_images)
         self.cloud.create_server(
             'server-name', 'image-id', 'flavor-id')
         mock_nova.flavors.list.assert_called_once()
