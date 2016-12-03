@@ -15,20 +15,18 @@
 import tempfile
 import uuid
 
-import mock
 import six
 
-import shade
 from shade import exc
 from shade.tests.unit import base
 
 
-class TestImage(base.TestCase):
+class TestImage(base.RequestsMockTestCase):
 
     def setUp(self):
         super(TestImage, self).setUp()
         self.image_id = str(uuid.uuid4())
-        self.fake_search_return = [{
+        self.fake_search_return = {'images': [{
             u'image_state': u'available',
             u'container_format': u'bare',
             u'min_ram': 0,
@@ -51,10 +49,8 @@ class TestImage(base.TestCase):
             u'name': u'fake_image',
             u'checksum': u'ee36e35a297980dee1b514de9803ec6d',
             u'created_at': u'2016-02-10T05:03:11Z',
-            u'protected': False}]
-        self.output = six.BytesIO()
-        self.output.write(uuid.uuid4().bytes)
-        self.output.seek(0)
+            u'protected': False}]}
+        self.output = uuid.uuid4().bytes
 
     def test_download_image_no_output(self):
         self.assertRaises(exc.OpenStackCloudException,
@@ -66,33 +62,36 @@ class TestImage(base.TestCase):
                           self.cloud.download_image, 'fake_image',
                           output_path='fake_path', output_file=fake_fd)
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_images', return_value=[])
-    def test_download_image_no_images_found(self, mock_search):
+    def test_download_image_no_images_found(self):
+        self.adapter.register_uri(
+            'GET', 'http://image.example.com/v2/images',
+            json=dict(images=[]))
         self.assertRaises(exc.OpenStackCloudResourceNotFound,
                           self.cloud.download_image, 'fake_image',
                           output_path='fake_path')
 
-    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
-    @mock.patch.object(shade.OpenStackCloud, 'search_images')
-    def test_download_image_with_fd(self, mock_search, mock_glance):
-        output_file = six.BytesIO()
-        mock_glance.images.data.return_value = self.output
-        mock_search.return_value = self.fake_search_return
-        self.cloud.download_image('fake_image', output_file=output_file)
-        mock_glance.images.data.assert_called_once_with(self.image_id)
-        output_file.seek(0)
-        self.output.seek(0)
-        self.assertEqual(output_file.read(), self.output.read())
+    def _register_image_mocks(self):
+        self.adapter.register_uri(
+            'GET', 'http://image.example.com/v2/images',
+            json=self.fake_search_return)
+        self.adapter.register_uri(
+            'GET', 'http://image.example.com/v2/images/{id}/file'.format(
+                id=self.image_id),
+            content=self.output,
+            headers={
+                'Content-Type': 'application/octet-stream'
+            })
 
-    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
-    @mock.patch.object(shade.OpenStackCloud, 'search_images')
-    def test_download_image_with_path(self, mock_search, mock_glance):
-        output_file = tempfile.NamedTemporaryFile()
-        mock_glance.images.data.return_value = self.output
-        mock_search.return_value = self.fake_search_return
-        self.cloud.download_image('fake_image',
-                                  output_path=output_file.name)
-        mock_glance.images.data.assert_called_once_with(self.image_id)
+    def test_download_image_with_fd(self):
+        self._register_image_mocks()
+        output_file = six.BytesIO()
+        self.cloud.download_image('fake_image', output_file=output_file)
         output_file.seek(0)
-        self.output.seek(0)
-        self.assertEqual(output_file.read(), self.output.read())
+        self.assertEqual(output_file.read(), self.output)
+
+    def test_download_image_with_path(self):
+        self._register_image_mocks()
+        output_file = tempfile.NamedTemporaryFile()
+        self.cloud.download_image('fake_image', output_path=output_file.name)
+        output_file.seek(0)
+        self.assertEqual(output_file.read(), self.output)
