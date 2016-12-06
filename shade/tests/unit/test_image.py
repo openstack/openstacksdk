@@ -105,10 +105,6 @@ class TestImage(base.RequestsMockTestCase):
 
 class TestMockImage(base.TestCase):
 
-    def setUp(self):
-        super(TestMockImage, self).setUp(
-            cloud_config_fixture='clouds_cache.yaml')
-
     def _image_dict(self, fake_image):
         return self.cloud._normalize_image(meta.obj_to_dict(fake_image))
 
@@ -140,7 +136,11 @@ class TestMockImage(base.TestCase):
         ret = munch.Munch(args.copy())
         ret['id'] = '42'
         ret['status'] = 'success'
-        mock_image_client.get.return_value = [ret]
+        mock_image_client.get.side_effect = [
+            [],
+            [ret],
+            [ret],
+        ]
         mock_image_client.post.return_value = ret
         mock_image_client.put.return_value = ret
         self._call_create_image('42 name')
@@ -173,7 +173,10 @@ class TestMockImage(base.TestCase):
         ret = munch.Munch(args.copy())
         ret['id'] = '42'
         ret['status'] = 'success'
-        mock_image_client.get.return_value = [ret]
+        mock_image_client.get.side_effect = [
+            [],
+            [ret],
+        ]
         mock_image_client.post.return_value = ret
         mock_image_client.put.side_effect = exc.OpenStackCloudHTTPError(
             "Some error", {})
@@ -209,7 +212,11 @@ class TestMockImage(base.TestCase):
         ret = munch.Munch(args.copy())
         ret['id'] = '42'
         ret['status'] = 'success'
-        mock_image_client.get.return_value = [ret]
+        mock_image_client.get.side_effect = [
+            [],
+            [ret],
+            [ret],
+        ]
         mock_image_client.post.return_value = ret
         self._call_create_image('42 name', min_disk='0', min_ram=0)
         mock_image_client.post.assert_called_with('/images', json=args)
@@ -240,7 +247,11 @@ class TestMockImage(base.TestCase):
         ret = munch.Munch(args.copy())
         ret['id'] = '42'
         ret['status'] = 'success'
-        mock_image_client.get.return_value = [ret]
+        mock_image_client.get.side_effect = [
+            [],
+            [ret],
+            [ret],
+        ]
         self.cloud.update_image_properties(
             image=self._image_dict(ret),
             **{'owner_specified.shade.object': 'images/42 name'})
@@ -267,7 +278,11 @@ class TestMockImage(base.TestCase):
         ret = munch.Munch(args.copy())
         ret['id'] = '42'
         ret['status'] = 'success'
-        mock_image_client.get.return_value = [ret]
+        mock_image_client.get.side_effect = [
+            [],
+            [ret],
+            [ret],
+        ]
         mock_image_client.post.return_value = ret
         mock_image_client.put.side_effect = exc.OpenStackCloudHTTPError(
             "Some error", {})
@@ -380,7 +395,11 @@ class TestMockImage(base.TestCase):
         ret = munch.Munch(args.copy())
         ret['id'] = '42'
         ret['status'] = 'success'
-        mock_image_client.get.return_value = [ret]
+        mock_image_client.get.side_effect = [
+            [],
+            [ret],
+            [ret],
+        ]
         mock_image_client.put.return_value = ret
         mock_image_client.post.return_value = ret
         self._call_create_image(
@@ -468,6 +487,7 @@ class TestMockImage(base.TestCase):
         # TODO(mordred): When we move this to requests_mock, we need to
         # add a test that throwing a 503 response causes a retry
         mock_image_client.get.side_effect = [
+            [],
             [],
             args,
             [fake_image],
