@@ -147,6 +147,9 @@ class Proxy(proxy.BaseProxy):
         :param kwargs \*\*query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
+            * ``agent_type``: Agent type
+            * ``host``: Host(host name or host address)
+
         :returns: A generator of agents
         :rtype: :class:`~openstack.network.v2.agent.Agent`
         """
