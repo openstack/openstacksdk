@@ -80,19 +80,19 @@ class TestImage(base.RequestsMockTestCase):
                           output_path='fake_path', output_file=fake_fd)
 
     def test_download_image_no_images_found(self):
-        self.adapter.register_uri(
-            'GET', 'http://image.example.com/v2/images',
+        self.adapter.get(
+            'http://image.example.com/v2/images',
             json=dict(images=[]))
         self.assertRaises(exc.OpenStackCloudResourceNotFound,
                           self.cloud.download_image, 'fake_image',
                           output_path='fake_path')
 
     def _register_image_mocks(self):
-        self.adapter.register_uri(
-            'GET', 'http://image.example.com/v2/images',
+        self.adapter.get(
+            'http://image.example.com/v2/images',
             json=self.fake_search_return)
-        self.adapter.register_uri(
-            'GET', 'http://image.example.com/v2/images/{id}/file'.format(
+        self.adapter.get(
+            'http://image.example.com/v2/images/{id}/file'.format(
                 id=self.image_id),
             content=self.output,
             headers={
