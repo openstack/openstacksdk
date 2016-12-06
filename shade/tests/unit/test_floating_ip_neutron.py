@@ -413,11 +413,12 @@ class TestFloatingIP(base.TestCase):
             fake_server, ip_pool='my-network', reuse=False)
 
         mock__neutron_create_floating_ip.assert_called_once_with(
-            network_name_or_id='my-network', server=None, port=None,
+            network_name_or_id='my-network', server=fake_server, port=None,
             fixed_address=None, nat_destination=None, wait=False, timeout=60)
         mock_attach_ip_to_server.assert_called_once_with(
             server=fake_server, fixed_address=None,
-            floating_ip=fip, wait=False, timeout=mock.ANY)
+            floating_ip=fip, wait=False, timeout=mock.ANY,
+            nat_destination=None)
 
     @patch.object(OpenStackCloud, 'keystone_session')
     @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
