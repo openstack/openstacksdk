@@ -124,9 +124,9 @@ class ShadeAdapter(adapter.Adapter):
                       and object_type[3:] in json_keys):
                     result = result_json[object_type[3:]]
                 else:
-                    raise exc.OpenStackCloudException(
-                        "Cannot find the resource value in the returned json."
-                        " This is a bug in shade. Please report it.")
+                    # Passthrough the whole body - sometimes (hi glance) things
+                    # come through without a top-level container
+                    result = result_json
 
         request_id = response.headers.get('x-openstack-request-id')
 

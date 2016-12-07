@@ -69,27 +69,6 @@ class FakeFloatingIPPool(object):
         self.name = name
 
 
-class FakeImage(object):
-    def __init__(self, id, name, status):
-        self.id = id
-        self.name = name
-        self.status = status
-        self.checksum = ''
-        self.container_format = 'bare'
-        self.created_at = ''
-        self.disk_format = 'raw'
-        self.file = ''
-        self.min_disk = 0
-        self.min_ram = 0
-        self.owner = ''
-        self.protected = False
-        self.schema = ''
-        self.size = 0
-        self.tags = []
-        self.updated_at = ''
-        self.virtual_size = 0
-
-
 class FakeProject(object):
     def __init__(self, id, domain_id=None):
         self.id = id

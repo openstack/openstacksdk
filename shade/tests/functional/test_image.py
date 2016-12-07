@@ -101,6 +101,7 @@ class TestImage(base.BaseFunctionalTestCase):
         test_image.write('\0' * 1024 * 1024)
         test_image.close()
         image_name = self.getUniqueString('image')
+        first_image = None
         second_image = None
         try:
             first_image = self.demo_cloud.create_image(

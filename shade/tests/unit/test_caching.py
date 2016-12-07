@@ -324,51 +324,58 @@ class TestMemoryCache(base.TestCase):
         mock_image_client.get.return_value = []
         self.assertEqual([], self.cloud.list_images())
 
-        fake_image = fakes.FakeImage('22', '22 name', 'success')
-        fake_image_dict = self._image_dict(fake_image)
-        mock_image_client.get.return_value = [fake_image_dict]
+        fake_image = munch.Munch(
+            id='42', status='success', name='42 name',
+            container_format='bare',
+            disk_format='qcow2',
+            properties={
+                'owner_specified.shade.md5': mock.ANY,
+                'owner_specified.shade.sha256': mock.ANY,
+                'owner_specified.shade.object': 'images/42 name',
+                'is_public': False})
+        mock_image_client.get.return_value = [fake_image]
+        self.assertEqual([], self.cloud.list_images())
         self.cloud.list_images.invalidate(self.cloud)
-        mock_image_client.get.assert_called_with('/images')
         self.assertEqual(
-            self._munch_images(fake_image_dict), self.cloud.list_images())
+            self._munch_images(fake_image), self.cloud.list_images())
+        mock_image_client.get.assert_called_with('/images')
 
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
     def test_list_images_ignores_unsteady_status(self, mock_image_client):
-        steady_image = fakes.FakeImage('68', 'Jagr', 'active')
-        steady_image_dict = self._image_dict(steady_image)
+        steady_image = munch.Munch(id='68', name='Jagr', status='active')
         for status in ('queued', 'saving', 'pending_delete'):
-            active_image = fakes.FakeImage(self.getUniqueString(),
-                                           self.getUniqueString(), status)
-            active_image_dict = self._image_dict(active_image)
-            mock_image_client.get.return_value = [active_image_dict]
+            active_image = munch.Munch(
+                id=self.getUniqueString(), name=self.getUniqueString(),
+                status=status)
+            mock_image_client.get.return_value = [active_image]
 
             self.assertEqual(
-                self._munch_images(active_image_dict),
+                self._munch_images(active_image),
                 self.cloud.list_images())
             mock_image_client.get.return_value = [
-                active_image_dict, steady_image_dict]
+                active_image, steady_image]
             # Should expect steady_image to appear if active wasn't cached
             self.assertEqual(
-                [active_image_dict, steady_image_dict],
+                [self._image_dict(active_image),
+                 self._image_dict(steady_image)],
                 self.cloud.list_images())
 
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
     def test_list_images_caches_steady_status(self, mock_image_client):
-        steady_image = fakes.FakeImage('91', 'Federov', 'active')
-        steady_image_dict = self._image_dict(steady_image)
+        steady_image = munch.Munch(id='91', name='Federov', status='active')
         first_image = None
         for status in ('active', 'deleted', 'killed'):
-            active_image = fakes.FakeImage(self.getUniqueString(),
-                                           self.getUniqueString(), status)
-            active_image_dict = self._image_dict(active_image)
-            mock_image_client.get.return_value = [active_image_dict]
+            active_image = munch.Munch(
+                id=self.getUniqueString(), name=self.getUniqueString(),
+                status=status)
+            mock_image_client.get.return_value = [active_image]
             if not first_image:
-                first_image = active_image_dict
+                first_image = active_image
             self.assertEqual(
                 self._munch_images(first_image),
                 self.cloud.list_images())
             mock_image_client.get.return_value = [
-                active_image_dict, steady_image_dict]
+                active_image, steady_image]
             # because we skipped the create_image code path, no invalidation
             # was done, so we _SHOULD_ expect steady state images to cache and
             # therefore we should _not_ expect to see the new one here
@@ -391,11 +398,6 @@ class TestMemoryCache(base.TestCase):
         mock_image_client.get.return_value = []
         self.assertEqual([], self.cloud.list_images())
 
-        fake_image = fakes.FakeImage('42', '42 name', 'success')
-        mock_image_client.get.return_value = [self._image_dict(fake_image)]
-        mock_image_client.post.return_value = self._image_dict(fake_image)
-        mock_image_client.put.return_value = self._image_dict(fake_image)
-        self._call_create_image('42 name')
         args = {'name': '42 name',
                 'container_format': 'bare', 'disk_format': 'qcow2',
                 'properties': {
@@ -403,8 +405,14 @@ class TestMemoryCache(base.TestCase):
                     'owner_specified.shade.sha256': mock.ANY,
                     'owner_specified.shade.object': 'images/42 name',
                     'is_public': False}}
-        fake_image_dict = self._image_dict(fake_image)
-        mock_image_client.post.assert_called_with('/images', data=args)
+        ret = munch.Munch(args.copy())
+        ret['id'] = '42'
+        ret['status'] = 'success'
+        mock_image_client.get.return_value = [ret]
+        mock_image_client.post.return_value = ret
+        mock_image_client.put.return_value = ret
+        self._call_create_image('42 name')
+        mock_image_client.post.assert_called_with('/images', json=args)
         mock_image_client.put.assert_called_with(
             '/images/42', data=mock.ANY,
             headers={
@@ -413,23 +421,52 @@ class TestMemoryCache(base.TestCase):
             })
         mock_image_client.get.assert_called_with('/images/detail')
         self.assertEqual(
-            self._munch_images(fake_image_dict), self.cloud.list_images())
+            self._munch_images(ret), self.cloud.list_images())
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
-    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
-    def test_create_image_put_v2(
-            self, glance_mock, mock_image_client, mock_api_version):
+    def test_create_image_put_v1_bad_delete(
+            self, mock_image_client, mock_api_version):
+        mock_api_version.return_value = '1'
+        mock_image_client.get.return_value = []
+        self.assertEqual([], self.cloud.list_images())
+
+        args = {'name': '42 name',
+                'container_format': 'bare', 'disk_format': 'qcow2',
+                'properties': {
+                    'owner_specified.shade.md5': mock.ANY,
+                    'owner_specified.shade.sha256': mock.ANY,
+                    'owner_specified.shade.object': 'images/42 name',
+                    'is_public': False}}
+        ret = munch.Munch(args.copy())
+        ret['id'] = '42'
+        ret['status'] = 'success'
+        mock_image_client.get.return_value = [ret]
+        mock_image_client.post.return_value = ret
+        mock_image_client.put.side_effect = exc.OpenStackCloudHTTPError(
+            "Some error", {})
+        self.assertRaises(
+            exc.OpenStackCloudHTTPError,
+            self._call_create_image,
+            '42 name')
+        mock_image_client.post.assert_called_with('/images', json=args)
+        mock_image_client.put.assert_called_with(
+            '/images/42', data=mock.ANY,
+            headers={
+                'x-image-meta-checksum': mock.ANY,
+                'x-glance-registry-purge-props': 'false'
+            })
+        mock_image_client.delete.assert_called_with('/images/42')
+
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, '_image_client')
+    def test_create_image_put_v2(self, mock_image_client, mock_api_version):
         mock_api_version.return_value = '2'
         self.cloud.image_api_use_tasks = False
 
         mock_image_client.get.return_value = []
         self.assertEqual([], self.cloud.list_images())
 
-        fake_image = fakes.FakeImage('42', '42 name', 'success')
-        glance_mock.images.create.return_value = fake_image
-        mock_image_client.get.return_value = [self._image_dict(fake_image)]
-        self._call_create_image('42 name', min_disk='0', min_ram=0)
         args = {'name': '42 name',
                 'container_format': 'bare', 'disk_format': 'qcow2',
                 'owner_specified.shade.md5': mock.ANY,
@@ -437,48 +474,75 @@ class TestMemoryCache(base.TestCase):
                 'owner_specified.shade.object': 'images/42 name',
                 'visibility': 'private',
                 'min_disk': 0, 'min_ram': 0}
-        glance_mock.images.create.assert_called_with(**args)
-        glance_mock.images.upload.assert_called_with(
-            image_data=mock.ANY, image_id=fake_image.id)
-        fake_image_dict = self._image_dict(fake_image)
+        ret = munch.Munch(args.copy())
+        ret['id'] = '42'
+        ret['status'] = 'success'
+        mock_image_client.get.return_value = [ret]
+        mock_image_client.post.return_value = ret
+        self._call_create_image('42 name', min_disk='0', min_ram=0)
+        mock_image_client.post.assert_called_with('/images', json=args)
+        mock_image_client.put.assert_called_with(
+            '/images/42/file',
+            headers={'Content-Type': 'application/octet-stream'},
+            data=mock.ANY)
         mock_image_client.get.assert_called_with('/images')
         self.assertEqual(
-            self._munch_images(fake_image_dict), self.cloud.list_images())
+            self._munch_images(ret), self.cloud.list_images())
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
-    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
-    def test_create_image_put_bad_int(
-            self, glance_mock, mock_image_client, mock_api_version):
+    def test_create_image_put_v2_bad_delete(
+            self, mock_image_client, mock_api_version):
         mock_api_version.return_value = '2'
         self.cloud.image_api_use_tasks = False
 
         mock_image_client.get.return_value = []
         self.assertEqual([], self.cloud.list_images())
 
-        fake_image = fakes.FakeImage('42', '42 name', 'success')
-        glance_mock.images.create.return_value = fake_image
-        mock_image_client.get.return_value = [self._image_dict(fake_image)]
+        args = {'name': '42 name',
+                'container_format': 'bare', 'disk_format': 'qcow2',
+                'owner_specified.shade.md5': mock.ANY,
+                'owner_specified.shade.sha256': mock.ANY,
+                'owner_specified.shade.object': 'images/42 name',
+                'visibility': 'private',
+                'min_disk': 0, 'min_ram': 0}
+        ret = munch.Munch(args.copy())
+        ret['id'] = '42'
+        ret['status'] = 'success'
+        mock_image_client.get.return_value = [ret]
+        mock_image_client.post.return_value = ret
+        mock_image_client.put.side_effect = exc.OpenStackCloudHTTPError(
+            "Some error", {})
+        self.assertRaises(
+            exc.OpenStackCloudHTTPError,
+            self._call_create_image,
+            '42 name', min_disk='0', min_ram=0)
+        mock_image_client.post.assert_called_with('/images', json=args)
+        mock_image_client.put.assert_called_with(
+            '/images/42/file',
+            headers={'Content-Type': 'application/octet-stream'},
+            data=mock.ANY)
+        mock_image_client.delete.assert_called_with('/images/42')
+
+    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, '_image_client')
+    def test_create_image_put_bad_int(
+            self, mock_image_client, mock_api_version):
+        mock_api_version.return_value = '2'
+        self.cloud.image_api_use_tasks = False
+
         self.assertRaises(
             exc.OpenStackCloudException,
             self._call_create_image, '42 name', min_disk='fish', min_ram=0)
+        mock_image_client.post.assert_not_called()
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
-    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_create_image_put_user_int(
-            self, glance_mock, mock_image_client, mock_api_version):
+            self, mock_image_client, mock_api_version):
         mock_api_version.return_value = '2'
         self.cloud.image_api_use_tasks = False
 
-        mock_image_client.get.return_value = []
-        self.assertEqual([], self.cloud.list_images())
-
-        fake_image = fakes.FakeImage('42', '42 name', 'success')
-        glance_mock.images.create.return_value = fake_image
-        mock_image_client.get.return_value = [self._image_dict(fake_image)]
-        self._call_create_image(
-            '42 name', min_disk='0', min_ram=0, int_v=12345)
         args = {'name': '42 name',
                 'container_format': 'bare', 'disk_format': u'qcow2',
                 'owner_specified.shade.md5': mock.ANY,
@@ -487,13 +551,25 @@ class TestMemoryCache(base.TestCase):
                 'int_v': '12345',
                 'visibility': 'private',
                 'min_disk': 0, 'min_ram': 0}
-        glance_mock.images.create.assert_called_with(**args)
-        glance_mock.images.upload.assert_called_with(
-            image_data=mock.ANY, image_id=fake_image.id)
-        fake_image_dict = self._image_dict(fake_image)
+        ret = munch.Munch(args.copy())
+        ret['id'] = '42'
+        ret['status'] = 'success'
+        mock_image_client.get.side_effect = [
+            [],
+            [ret],
+            [ret]
+        ]
+        mock_image_client.post.return_value = ret
+        self._call_create_image(
+            '42 name', min_disk='0', min_ram=0, int_v=12345)
+        mock_image_client.post.assert_called_with('/images', json=args)
+        mock_image_client.put.assert_called_with(
+            '/images/42/file',
+            headers={'Content-Type': 'application/octet-stream'},
+            data=mock.ANY)
         mock_image_client.get.assert_called_with('/images')
         self.assertEqual(
-            self._munch_images(fake_image_dict), self.cloud.list_images())
+            self._munch_images(ret), self.cloud.list_images())
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
@@ -506,9 +582,6 @@ class TestMemoryCache(base.TestCase):
         mock_image_client.get.return_value = []
         self.assertEqual([], self.cloud.list_images())
 
-        fake_image = fakes.FakeImage('42', '42 name', 'success')
-        glance_mock.images.create.return_value = fake_image
-        mock_image_client.get.return_value = [self._image_dict(fake_image)]
         self._call_create_image(
             '42 name', min_disk='0', min_ram=0, meta={'int_v': 12345})
         args = {'name': '42 name',
@@ -519,33 +592,25 @@ class TestMemoryCache(base.TestCase):
                 'int_v': 12345,
                 'visibility': 'private',
                 'min_disk': 0, 'min_ram': 0}
-        glance_mock.images.create.assert_called_with(**args)
-        glance_mock.images.upload.assert_called_with(
-            image_data=mock.ANY, image_id=fake_image.id)
-        fake_image_dict = self._image_dict(fake_image)
+        ret = munch.Munch(args.copy())
+        ret['id'] = '42'
+        ret['status'] = 'success'
+        mock_image_client.get.return_value = [ret]
+        mock_image_client.post.return_value = ret
         mock_image_client.get.assert_called_with('/images')
         self.assertEqual(
-            self._munch_images(fake_image_dict), self.cloud.list_images())
+            self._munch_images(ret), self.cloud.list_images())
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
-    @mock.patch.object(shade.OpenStackCloud, 'glance_client')
     def test_create_image_put_protected(
-            self, glance_mock, mock_image_client, mock_api_version):
+            self, mock_image_client, mock_api_version):
         mock_api_version.return_value = '2'
         self.cloud.image_api_use_tasks = False
 
         mock_image_client.get.return_value = []
         self.assertEqual([], self.cloud.list_images())
 
-        fake_image = fakes.FakeImage('42', '42 name', 'success')
-        fake_image_dict = self._image_dict(fake_image)
-
-        glance_mock.images.create.return_value = fake_image
-        mock_image_client.get.return_value = [fake_image_dict]
-        self._call_create_image(
-            '42 name', min_disk='0', min_ram=0, properties={'int_v': 12345},
-            protected=False)
         args = {'name': '42 name',
                 'container_format': 'bare', 'disk_format': u'qcow2',
                 'owner_specified.shade.md5': mock.ANY,
@@ -555,10 +620,20 @@ class TestMemoryCache(base.TestCase):
                 'int_v': '12345',
                 'visibility': 'private',
                 'min_disk': 0, 'min_ram': 0}
-        glance_mock.images.create.assert_called_with(**args)
-        glance_mock.images.upload.assert_called_with(
-            image_data=mock.ANY, image_id=fake_image.id)
-        self.assertEqual([fake_image_dict], self.cloud.list_images())
+        ret = munch.Munch(args.copy())
+        ret['id'] = '42'
+        ret['status'] = 'success'
+        mock_image_client.get.return_value = [ret]
+        mock_image_client.put.return_value = ret
+        mock_image_client.post.return_value = ret
+        self._call_create_image(
+            '42 name', min_disk='0', min_ram=0, properties={'int_v': 12345},
+            protected=False)
+        mock_image_client.post.assert_called_with('/images', json=args)
+        mock_image_client.put.assert_called_with(
+            '/images/42/file', data=mock.ANY,
+            headers={'Content-Type': 'application/octet-stream'})
+        self.assertEqual(self._munch_images(ret), self.cloud.list_images())
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
@@ -571,12 +646,6 @@ class TestMemoryCache(base.TestCase):
         mock_image_client.get.return_value = []
         self.assertEqual([], self.cloud.list_images())
 
-        fake_image = fakes.FakeImage('42', '42 name', 'success')
-        glance_mock.images.create.return_value = fake_image
-        mock_image_client.get.return_value = [self._image_dict(fake_image)]
-        self._call_create_image(
-            '42 name', min_disk='0', min_ram=0, properties={'int_v': 12345},
-            xenapi_use_agent=False)
         args = {'name': '42 name',
                 'container_format': 'bare', 'disk_format': u'qcow2',
                 'owner_specified.shade.md5': mock.ANY,
@@ -586,13 +655,16 @@ class TestMemoryCache(base.TestCase):
                 'xenapi_use_agent': 'False',
                 'visibility': 'private',
                 'min_disk': 0, 'min_ram': 0}
-        glance_mock.images.create.assert_called_with(**args)
-        glance_mock.images.upload.assert_called_with(
-            image_data=mock.ANY, image_id=fake_image.id)
-        fake_image_dict = self._image_dict(fake_image)
+        ret = munch.Munch(args.copy())
+        ret['id'] = '42'
+        ret['status'] = 'success'
+        mock_image_client.get.return_value = [ret]
+        mock_image_client.post.return_value = ret
+        self._call_create_image(
+            '42 name', min_disk='0', min_ram=0, properties={'int_v': 12345})
         mock_image_client.get.assert_called_with('/images')
         self.assertEqual(
-            self._munch_images(fake_image_dict), self.cloud.list_images())
+            self._munch_images(ret), self.cloud.list_images())
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_get_file_hashes')
@@ -671,22 +743,26 @@ class TestMemoryCache(base.TestCase):
     def test_cache_no_cloud_name(self, mock_image_client):
 
         self.cloud.name = None
-        fi = fakes.FakeImage(id=1, name='None Test Image', status='active')
-        fi_dict = self._image_dict(fi)
-        mock_image_client.get.return_value = [fi_dict]
+        fi = munch.Munch(
+            id='1', name='None Test Image',
+            status='active', visibility='private')
+        mock_image_client.get.return_value = [fi]
         self.assertEqual(
-            self._munch_images(fi_dict),
+            self._munch_images(fi),
             self.cloud.list_images())
         # Now test that the list was cached
-        fi2 = fakes.FakeImage(id=2, name='None Test Image', status='active')
-        fi2_dict = self._image_dict(fi2)
-        mock_image_client.get.return_value = [fi_dict, fi2_dict]
+        fi2 = munch.Munch(
+            id='2', name='None Test Image',
+            status='active', visibility='private')
+        mock_image_client.get.return_value = [fi, fi2]
         self.assertEqual(
-            self._munch_images(fi_dict),
+            self._munch_images(fi),
             self.cloud.list_images())
         # Invalidation too
         self.cloud.list_images.invalidate(self.cloud)
-        self.assertEqual([fi_dict, fi2_dict], self.cloud.list_images())
+        self.assertEqual(
+            [self._image_dict(fi), self._image_dict(fi2)],
+            self.cloud.list_images())
 
 
 class TestBogusAuth(base.TestCase):
