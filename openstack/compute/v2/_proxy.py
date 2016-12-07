@@ -568,6 +568,211 @@ class Proxy(proxy2.BaseProxy):
         security_group_id = resource2.Resource._get_id(security_group)
         server.remove_security_group(self.session, security_group_id)
 
+    def add_fixed_ip_to_server(self, server, network_id):
+        """Adds a fixed IP address to a server instance.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :param network_id: The ID of the network from which a fixed IP address
+                           is about to be allocated.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.add_fixed_ip(self.session, network_id)
+
+    def remove_fixed_ip_from_server(self, server, address):
+        """Removes a fixed IP address from a server instance.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :param address: The fixed IP address to be disassociated from the
+                        server.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.remove_fixed_ip(self.session, address)
+
+    def add_floating_ip_to_server(self, server, address, fixed_address=None):
+        """Adds a floating IP address to a server instance.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :param address: The floating IP address to be added to the server.
+        :param fixed_address: The fixed IP address to be associated with the
+                              floating IP address. Used when the server is
+                              connected to multiple networks.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.add_floating_ip(self.session, address,
+                               fixed_address=fixed_address)
+
+    def remove_floating_ip_from_server(self, server, address):
+        """Removes a floating IP address from a server instance.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :param address: The floating IP address to be disassociated from the
+                        server.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.remove_floating_ip(self.session, address)
+
+    def pause_server(self, server):
+        """Pauses a server and changes its status to ``PAUSED``.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.pause(self.session)
+
+    def unpause_server(self, server):
+        """Unpauses a paused server and changes its status to ``ACTIVE``.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.unpause(self.session)
+
+    def suspend_server(self, server):
+        """Suspends a server and changes its status to ``SUSPENDED``.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.suspend(self.session)
+
+    def resume_server(self, server):
+        """Resumes a suspended server and changes its status to ``ACTIVE``.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.resume(self.session)
+
+    def lock_server(self, server):
+        """Locks a server.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.lock(self.session)
+
+    def unlock_server(self, server):
+        """Unlocks a locked server.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.unlock(self.session)
+
+    def rescue_server(self, server, admin_pass=None, image_ref=None):
+        """Puts a server in rescue mode and changes it status to ``RESCUE``.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :param admin_pass: The password for the rescued server. If you omit
+                           this parameter, the operation generates a new
+                           password.
+        :param image_ref: The image reference to use to rescue your server.
+                          This can be the image ID or its full URL. If you
+                          omit this parameter, the base image reference will
+                          be used.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.rescue(self.session, admin_pass=admin_pass, image_ref=image_ref)
+
+    def unrescue_server(self, server):
+        """Unrescues a server and changes its status to ``ACTIVE``.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.unrescue(self.session)
+
+    def evacuate_server(self, server, host=None, admin_pass=None, force=None):
+        """Evacuates a server from a failed host to a new host.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :param host: An optional parameter specifying the name or ID of the
+                     host to which the server is evacuated.
+        :param admin_pass: An optional parameter specifying the administrative
+                           password to access the evacuated or rebuilt server.
+        :param force: Force an evacuation by not verifying the provided
+                      destination host by the scheduler. (New in API version
+                      2.29).
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.evacuate(self.session, host=host, admin_pass=admin_pass,
+                        force=force)
+
+    def start_server(self, server):
+        """Starts a stopped server and changes its state to ``ACTIVE``.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.start(self.session)
+
+    def stop_server(self, server):
+        """Stops a running server and changes its state to ``SHUTOFF``.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.stop(self.session)
+
+    def shelve_server(self, server):
+        """Shelves a server.
+
+        All associated data and resources are kept but anything still in
+        memory is not retained. Policy defaults enable only users with
+        administrative role or the owner of the server to perform this
+        operation. Cloud provides could change this permission though.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.shelve(self.session)
+
+    def unshelve_server(self, server):
+        """Unselves or restores a shelved server.
+
+        Policy defaults enable only users with administrative role or the
+        owner of the server to perform this operation. Cloud provides could
+        change this permission though.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.unshelve(self.session)
+
     def wait_for_server(self, server, status='ACTIVE', failures=['ERROR'],
                         interval=2, wait=120):
         return resource2.wait_for_status(self.session, server, status,

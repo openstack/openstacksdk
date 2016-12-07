@@ -286,6 +286,121 @@ class TestComputeProxy(test_proxy_base2.TestProxyBase):
                      expected_kwargs={"metadata": {"k1": "v1"},
                                       "image": id})
 
+    def test_add_fixed_ip_to_server(self):
+        self._verify("openstack.compute.v2.server.Server.add_fixed_ip",
+                     self.proxy.add_fixed_ip_to_server,
+                     method_args=["value", "network-id"],
+                     expected_args=["network-id"])
+
+    def test_fixed_ip_from_server(self):
+        self._verify("openstack.compute.v2.server.Server.remove_fixed_ip",
+                     self.proxy.remove_fixed_ip_from_server,
+                     method_args=["value", "address"],
+                     expected_args=["address"])
+
+    def test_floating_ip_to_server(self):
+        self._verify("openstack.compute.v2.server.Server.add_floating_ip",
+                     self.proxy.add_floating_ip_to_server,
+                     method_args=["value", "floating-ip"],
+                     expected_args=["floating-ip"],
+                     expected_kwargs={'fixed_address': None})
+
+    def test_add_floating_ip_to_server_with_fixed_addr(self):
+        self._verify("openstack.compute.v2.server.Server.add_floating_ip",
+                     self.proxy.add_floating_ip_to_server,
+                     method_args=["value", "floating-ip", 'fixed-addr'],
+                     expected_args=["floating-ip"],
+                     expected_kwargs={'fixed_address': 'fixed-addr'})
+
+    def test_remove_floating_ip_from_server(self):
+        self._verify("openstack.compute.v2.server.Server.remove_floating_ip",
+                     self.proxy.remove_floating_ip_from_server,
+                     method_args=["value", "address"],
+                     expected_args=["address"])
+
+    def test_server_pause(self):
+        self._verify("openstack.compute.v2.server.Server.pause",
+                     self.proxy.pause_server,
+                     method_args=["value"])
+
+    def test_server_unpause(self):
+        self._verify("openstack.compute.v2.server.Server.unpause",
+                     self.proxy.unpause_server,
+                     method_args=["value"])
+
+    def test_server_suspend(self):
+        self._verify("openstack.compute.v2.server.Server.suspend",
+                     self.proxy.suspend_server,
+                     method_args=["value"])
+
+    def test_server_resume(self):
+        self._verify("openstack.compute.v2.server.Server.resume",
+                     self.proxy.resume_server,
+                     method_args=["value"])
+
+    def test_server_lock(self):
+        self._verify("openstack.compute.v2.server.Server.lock",
+                     self.proxy.lock_server,
+                     method_args=["value"])
+
+    def test_server_unlock(self):
+        self._verify("openstack.compute.v2.server.Server.unlock",
+                     self.proxy.unlock_server,
+                     method_args=["value"])
+
+    def test_server_rescue(self):
+        self._verify("openstack.compute.v2.server.Server.rescue",
+                     self.proxy.rescue_server,
+                     method_args=["value"],
+                     expected_kwargs={"admin_pass": None, "image_ref": None})
+
+    def test_server_rescue_with_options(self):
+        self._verify("openstack.compute.v2.server.Server.rescue",
+                     self.proxy.rescue_server,
+                     method_args=["value", 'PASS', 'IMG'],
+                     expected_kwargs={"admin_pass": 'PASS',
+                                      "image_ref": 'IMG'})
+
+    def test_server_unrescue(self):
+        self._verify("openstack.compute.v2.server.Server.unrescue",
+                     self.proxy.unrescue_server,
+                     method_args=["value"])
+
+    def test_server_evacuate(self):
+        self._verify("openstack.compute.v2.server.Server.evacuate",
+                     self.proxy.evacuate_server,
+                     method_args=["value"],
+                     expected_kwargs={"host": None, "admin_pass": None,
+                                      "force": None})
+
+    def test_server_evacuate_with_options(self):
+        self._verify("openstack.compute.v2.server.Server.evacuate",
+                     self.proxy.evacuate_server,
+                     method_args=["value", 'HOST2', 'NEW_PASS', True],
+                     expected_kwargs={"host": "HOST2",
+                                      "admin_pass": 'NEW_PASS',
+                                      "force": True})
+
+    def test_server_start(self):
+        self._verify("openstack.compute.v2.server.Server.start",
+                     self.proxy.start_server,
+                     method_args=["value"])
+
+    def test_server_stop(self):
+        self._verify("openstack.compute.v2.server.Server.stop",
+                     self.proxy.stop_server,
+                     method_args=["value"])
+
+    def test_server_shelve(self):
+        self._verify("openstack.compute.v2.server.Server.shelve",
+                     self.proxy.shelve_server,
+                     method_args=["value"])
+
+    def test_server_unshelve(self):
+        self._verify("openstack.compute.v2.server.Server.unshelve",
+                     self.proxy.unshelve_server,
+                     method_args=["value"])
+
     def test_availability_zones(self):
         self.verify_list_no_kwargs(self.proxy.availability_zones,
                                    az.AvailabilityZone,

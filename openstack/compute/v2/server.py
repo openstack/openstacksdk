@@ -209,6 +209,86 @@ class Server(resource2.Resource, metadata.MetadataMixin):
         body = {"os-resetState": {"state": state}}
         self._action(session, body)
 
+    def add_fixed_ip(self, session, network_id):
+        body = {"addFixedIp": {"networkId": network_id}}
+        self._action(session, body)
+
+    def remove_fixed_ip(self, session, address):
+        body = {"removeFixedIp": {"address": address}}
+        self._action(session, body)
+
+    def add_floating_ip(self, session, address, fixed_address=None):
+        body = {"addFloatingIp": {"address": address}}
+        if fixed_address is not None:
+            body['addFloatingIp']['fixed_address'] = fixed_address
+        self._action(session, body)
+
+    def remove_floating_ip(self, session, address):
+        body = {"removeFloatingIp": {"address": address}}
+        self._action(session, body)
+
+    def pause(self, session):
+        body = {"pause": None}
+        self._action(session, body)
+
+    def unpause(self, session):
+        body = {"unpause": None}
+        self._action(session, body)
+
+    def suspend(self, session):
+        body = {"suspend": None}
+        self._action(session, body)
+
+    def resume(self, session):
+        body = {"resume": None}
+        self._action(session, body)
+
+    def lock(self, session):
+        body = {"lock": None}
+        self._action(session, body)
+
+    def unlock(self, session):
+        body = {"unlock": None}
+        self._action(session, body)
+
+    def rescue(self, session, admin_pass=None, image_ref=None):
+        body = {"rescue": {}}
+        if admin_pass is not None:
+            body["rescue"]["adminPass"] = admin_pass
+        if image_ref is not None:
+            body["rescue"]["rescue_image_ref"] = image_ref
+        self._action(session, body)
+
+    def unrescue(self, session):
+        body = {"unrescue": None}
+        self._action(session, body)
+
+    def evacuate(self, session, host=None, admin_pass=None, force=None):
+        body = {"evacuate": {}}
+        if host is not None:
+            body["evacuate"]["host"] = host
+        if admin_pass is not None:
+            body["evacuate"]["adminPass"] = admin_pass
+        if force is not None:
+            body["evacuate"]["force"] = force
+        self._action(session, body)
+
+    def start(self, session):
+        body = {"os-start": None}
+        self._action(session, body)
+
+    def stop(self, session):
+        body = {"os-stop": None}
+        self._action(session, body)
+
+    def shelve(self, session):
+        body = {"shelve": None}
+        self._action(session, body)
+
+    def unshelve(self, session):
+        body = {"unshelve": None}
+        self._action(session, body)
+
 
 class ServerDetail(Server):
     base_path = '/servers/detail'
