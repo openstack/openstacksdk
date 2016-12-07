@@ -16,6 +16,7 @@ import uuid
 from openstack.network.v2 import _proxy
 from openstack.network.v2 import address_scope
 from openstack.network.v2 import agent
+from openstack.network.v2 import auto_allocated_topology
 from openstack.network.v2 import availability_zone
 from openstack.network.v2 import extension
 from openstack.network.v2 import flavor
@@ -893,3 +894,26 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.service_providers,
                          service_provider.ServiceProvider,
                          paginated=False)
+
+    def test_auto_allocated_topology_get(self):
+        self.verify_get(self.proxy.get_auto_allocated_topology,
+                        auto_allocated_topology.AutoAllocatedTopology)
+
+    def test_auto_allocated_topology_delete(self):
+        self.verify_delete(self.proxy.delete_auto_allocated_topology,
+                           auto_allocated_topology.AutoAllocatedTopology,
+                           False)
+
+    def test_auto_allocated_topology_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_auto_allocated_topology,
+                           auto_allocated_topology.AutoAllocatedTopology,
+                           True)
+
+    def test_validate_topology(self):
+        self.verify_get(self.proxy.validate_auto_allocated_topology,
+                        auto_allocated_topology.ValidateTopology,
+                        value=[mock.sentinel.project_id],
+                        expected_args=[
+                            auto_allocated_topology.ValidateTopology],
+                        expected_kwargs={"path_args": {
+                            "project": mock.sentinel.project_id}})

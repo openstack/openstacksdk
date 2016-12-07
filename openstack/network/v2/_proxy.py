@@ -12,6 +12,8 @@
 
 from openstack.network.v2 import address_scope as _address_scope
 from openstack.network.v2 import agent as _agent
+from openstack.network.v2 import auto_allocated_topology as \
+    _auto_allocated_topology
 from openstack.network.v2 import availability_zone
 from openstack.network.v2 import extension
 from openstack.network.v2 import flavor as _flavor
@@ -196,6 +198,61 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.network.v2.agent.Agent`
         """
         return self._update(_agent.Agent, agent, **attrs)
+
+    def get_auto_allocated_topology(self, project=None):
+        """Get the auto-allocated topology of a given tenant
+
+        :param project:
+               The value is the ID or name of a project
+
+        :returns: The auto-allocated topology
+        :rtype: :class:`~openstack.network.v2.\
+                auto_allocated_topology.AutoAllocatedTopology`
+        """
+
+        # If project option is not given, grab project id from session
+        if project is None:
+            project = self.session.get_project_id()
+        return self._get(_auto_allocated_topology.AutoAllocatedTopology,
+                         project)
+
+    def delete_auto_allocated_topology(self, project=None,
+                                       ignore_missing=False):
+        """Delete auto-allocated topology
+
+        :param project:
+            The value is the ID or name of a project
+        :param ignore_missing: When set to ``False``
+               :class:`~openstack.exceptions.ResourceNotFound` will be
+               raised when the topology does not exist.
+               When set to ``True``, no exception will be raised when
+               attempting to delete nonexistant topology
+
+        :returns: ``None``
+        """
+
+        # If project option is not given, grab project id from session
+        if project is None:
+            project = self.session.get_project_id()
+        self._delete(_auto_allocated_topology.AutoAllocatedTopology,
+                     project, ignore_missing=ignore_missing)
+
+    def validate_auto_allocated_topology(self, project=None):
+        """Validate the resources for auto allocation
+
+        :param project:
+               The value is the ID or name of a project
+
+        :returns: Whether all resources are correctly configured or not
+        :rtype: :class:`~openstack.network.v2.\
+                auto_allocated_topology.ValidateTopology`
+        """
+
+        # If project option is not given, grab project id from session
+        if project is None:
+            project = self.session.get_project_id()
+        return self._get(_auto_allocated_topology.ValidateTopology,
+                         path_args={'project': project})
 
     def availability_zones(self):
         """Return a generator of availability zones
