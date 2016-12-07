@@ -69,6 +69,7 @@ class TestVolume(testtools.TestCase):
         self.assertDictEqual({"name": "name",
                               "status": "status",
                               "all_tenants": "all_tenants",
+                              "project_id": "project_id",
                               "limit": "limit",
                               "marker": "marker"},
                              sot._query_mapping._mapping)

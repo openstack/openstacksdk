@@ -21,7 +21,8 @@ class Volume(resource2.Resource):
     base_path = "/volumes"
     service = block_store_service.BlockStoreService()
 
-    _query_mapping = resource2.QueryParameters('all_tenants', 'name', 'status')
+    _query_mapping = resource2.QueryParameters('all_tenants', 'name',
+                                               'status', 'project_id')
 
     # capabilities
     allow_get = True
