@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class QoSBandwidthLimitRule(resource.Resource):
@@ -22,28 +22,18 @@ class QoSBandwidthLimitRule(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
     # Properties
-    #: QoS bandwidth limit rule id.
-    id = resource.prop('id')
     #: The ID of the QoS policy who owns rule.
-    qos_policy_id = resource.prop('qos_policy_id')
+    qos_policy_id = resource.URI('qos_policy_id')
     #: Maximum bandwidth in kbps.
-    max_kbps = resource.prop('max_kbps')
+    max_kbps = resource.Body('max_kbps')
     #: Maximum burst bandwidth in kbps.
-    max_burst_kbps = resource.prop('max_burst_kbps')
+    max_burst_kbps = resource.Body('max_burst_kbps')
     # NOTE(ralonsoh): to be implemented in bug 1560961
     #: Traffic direction from the tenant point of view ('egress', 'ingress').
     # direction = resource.prop('direction')
-
-    @classmethod
-    def _get_create_body(cls, attrs):
-        # Exclude qos_policy_id from attrs since it is not expected by QoS API.
-        if 'qos_policy_id' in attrs:
-            attrs.pop('qos_policy_id')
-
-        return {cls.resource_key: attrs}

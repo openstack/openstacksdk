@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class ServiceProvider(resource.Resource):
@@ -21,15 +21,20 @@ class ServiceProvider(resource.Resource):
 
     # Capabilities
     allow_create = False
-    allow_retrieve = False
+    allow_get = False
     allow_update = False
     allow_delete = False
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'service_type', 'name',
+        is_default='default'
+    )
+
     # Properties
     #: Service type (FIREWALL, FLAVORS, METERING, QOS, etc..)
-    service_type = resource.prop('service_type')
+    service_type = resource.Body('service_type')
     #: Name of the service type
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: The default value of service type
-    is_default = resource.prop('default', type=bool)
+    is_default = resource.Body('default', type=bool)

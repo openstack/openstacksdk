@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import copy
-
 import testtools
 import uuid
 
@@ -36,22 +34,14 @@ class TestQoSMinimumBandwidthRule(testtools.TestCase):
             sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule(EXAMPLE)
+        sot = qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['qos_policy_id'], sot.qos_policy_id)
         self.assertEqual(EXAMPLE['min_kbps'], sot.min_kbps)
         self.assertEqual(EXAMPLE['direction'], sot.direction)
-
-    def test_create_body(self):
-        params = copy.deepcopy(EXAMPLE)
-        body = (qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule.
-                _get_create_body(params))
-        reference = copy.deepcopy(EXAMPLE)
-        reference.pop('qos_policy_id')
-        self.assertEqual(reference, body['minimum_bandwidth_rule'])

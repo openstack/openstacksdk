@@ -36,13 +36,13 @@ class TestQoSBandwidthLimitRule(testtools.TestCase):
             sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = qos_bandwidth_limit_rule.QoSBandwidthLimitRule(EXAMPLE)
+        sot = qos_bandwidth_limit_rule.QoSBandwidthLimitRule(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['qos_policy_id'], sot.qos_policy_id)
         self.assertEqual(EXAMPLE['max_kbps'], sot.max_kbps)

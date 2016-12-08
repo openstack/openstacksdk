@@ -35,18 +35,18 @@ class TestServiceProfile(testtools.TestCase):
         self.assertEqual('service_profiles', service_profiles.resources_key)
         self.assertEqual('/service_profiles', service_profiles.base_path)
         self.assertTrue(service_profiles.allow_create)
-        self.assertTrue(service_profiles.allow_retrieve)
+        self.assertTrue(service_profiles.allow_get)
         self.assertTrue(service_profiles.allow_update)
         self.assertTrue(service_profiles.allow_delete)
         self.assertTrue(service_profiles.allow_list)
 
     def test_make_it(self):
-        service_profiles = service_profile.ServiceProfile(EXAMPLE)
+        service_profiles = service_profile.ServiceProfile(**EXAMPLE)
         self.assertEqual(EXAMPLE['driver'], service_profiles.driver)
 
     def test_make_it_with_optional(self):
         service_profiles = service_profile.ServiceProfile(
-            EXAMPLE_WITH_OPTIONAL)
+            **EXAMPLE_WITH_OPTIONAL)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['description'],
                          service_profiles.description)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['driver'],
@@ -54,6 +54,6 @@ class TestServiceProfile(testtools.TestCase):
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['enabled'],
                          service_profiles.is_enabled)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['metainfo'],
-                         service_profiles.metainfo)
+                         service_profiles.meta_info)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['tenant_id'],
-                         service_profiles.tenant_id)
+                         service_profiles.project_id)

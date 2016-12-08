@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class QoSMinimumBandwidthRule(resource.Resource):
@@ -22,25 +22,15 @@ class QoSMinimumBandwidthRule(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
     # Properties
-    #: QoS minimum bandwidth rule id.
-    id = resource.prop('id')
     #: The ID of the QoS policy who owns rule.
-    qos_policy_id = resource.prop('qos_policy_id')
+    qos_policy_id = resource.URI('qos_policy_id')
     #: Minimum bandwidth in kbps.
-    min_kbps = resource.prop('min_kbps')
+    min_kbps = resource.Body('min_kbps')
     #: Traffic direction from the tenant point of view. Valid values: 'egress'
-    direction = resource.prop('direction')
-
-    @classmethod
-    def _get_create_body(cls, attrs):
-        # Exclude qos_policy_id from attrs since it is not expected by QoS API.
-        if 'qos_policy_id' in attrs:
-            attrs.pop('qos_policy_id')
-
-        return {cls.resource_key: attrs}
+    direction = resource.Body('direction')

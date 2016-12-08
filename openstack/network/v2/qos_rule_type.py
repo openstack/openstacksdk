@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class QoSRuleType(resource.Resource):
@@ -22,11 +22,11 @@ class QoSRuleType(resource.Resource):
 
     # capabilities
     allow_create = False
-    allow_retrieve = False
+    allow_get = False
     allow_update = False
     allow_delete = False
     allow_list = True
 
     # Properties
     #: QoS rule type name.
-    type = resource.prop('type')
+    type = resource.Body('type')

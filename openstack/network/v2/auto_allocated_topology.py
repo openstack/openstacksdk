@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class AutoAllocatedTopology(resource.Resource):
@@ -22,10 +22,12 @@ class AutoAllocatedTopology(resource.Resource):
 
     # Capabilities
     allow_create = False
-    allow_retrieve = True
+    allow_get = True
     allow_update = False
     allow_delete = True
     allow_list = False
+
+    # NOTE: this resource doesn't support list or query
 
     # Properties
     #: Project ID
@@ -34,7 +36,7 @@ class AutoAllocatedTopology(resource.Resource):
     #: Will return in error if resources have not been configured correctly
     #: To use this feature auto-allocated-topology, subnet_allocation,
     #: external-net and router extensions must be enabled and set up.
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')
 
 
 class ValidateTopology(AutoAllocatedTopology):
@@ -43,4 +45,5 @@ class ValidateTopology(AutoAllocatedTopology):
     #: Validate requirements before running (Does not return topology)
     #: Will return "Deployment error:" if the resources required have not
     #: been correctly set up.
-    dry_run = resource.prop('dry_run')
+    dry_run = resource.Body('dry_run')
+    project_id = resource.URI('project')

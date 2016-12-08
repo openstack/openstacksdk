@@ -31,13 +31,13 @@ class TestServiceProvider(testtools.TestCase):
         self.assertEqual('/service-providers', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_retrieve)
+        self.assertFalse(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = service_provider.ServiceProvider(EXAMPLE)
+        sot = service_provider.ServiceProvider(**EXAMPLE)
         self.assertEqual(EXAMPLE['service_type'], sot.service_type)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['default'], sot.is_default)

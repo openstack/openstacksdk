@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class ServiceProfile(resource.Resource):
@@ -22,19 +22,24 @@ class ServiceProfile(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'description', 'driver',
+        is_enabled='enabled',
+        project_id='tenant_id'
+    )
     # Properties
     #: Description of the service flavor profile.
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: Provider Driver for the service flavor profile
-    driver = resource.prop('driver')
+    driver = resource.Body('driver')
     #: Sets enabled flag
-    is_enabled = resource.prop('enabled', type=bool)
+    is_enabled = resource.Body('enabled', type=bool)
     #: Metainformation of the service flavor profile
-    metainfo = resource.prop('metainfo')
+    meta_info = resource.Body('metainfo')
     #: The owner project ID
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')

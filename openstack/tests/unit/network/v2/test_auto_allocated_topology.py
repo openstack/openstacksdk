@@ -15,7 +15,7 @@ import testtools
 from openstack.network.v2 import auto_allocated_topology
 
 EXAMPLE = {
-    'project_id': '1',
+    'tenant_id': '1',
     'dry_run': False,
 }
 
@@ -27,11 +27,11 @@ class TestAutoAllocatedTopology(testtools.TestCase):
         self.assertEqual('auto_allocated_topology', topo.resource_key)
         self.assertEqual('/auto-allocated-topology', topo.base_path)
         self.assertFalse(topo.allow_create)
-        self.assertTrue(topo.allow_retrieve)
+        self.assertTrue(topo.allow_get)
         self.assertFalse(topo.allow_update)
         self.assertTrue(topo.allow_delete)
         self.assertFalse(topo.allow_list)
 
     def test_make_it(self):
-        topo = auto_allocated_topology.AutoAllocatedTopology(EXAMPLE)
-        self.assertEqual(EXAMPLE['project_id'], topo.project_id)
+        topo = auto_allocated_topology.AutoAllocatedTopology(**EXAMPLE)
+        self.assertEqual(EXAMPLE['tenant_id'], topo.project_id)
