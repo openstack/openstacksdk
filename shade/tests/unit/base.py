@@ -126,14 +126,14 @@ class RequestsMockTestCase(BaseTestCase):
                     discovery_json),
                 'r').read())
         self.adapter.post(
-            'http://example.com/v2.0/tokens',
+            'https://example.com/v2.0/tokens',
             text=open(
                 os.path.join(
                     self.fixtures_directory,
                     'catalog.json'),
                 'r').read())
         self.adapter.get(
-            'http://image.example.com/',
+            'https://image.example.com/',
             text=open(
                 os.path.join(
                     self.fixtures_directory,

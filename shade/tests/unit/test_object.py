@@ -315,7 +315,7 @@ class TestRESTObject(base.RequestsMockTestCase):
 
     def test_get_object_segment_size(self):
         self.adapter.get(
-            'http://object-store.example.com/info',
+            'https://object-store.example.com/info',
             json=dict(
                 swift={'max_file_size': 1000},
                 slo={'min_segment_size': 500}))
@@ -326,7 +326,7 @@ class TestRESTObject(base.RequestsMockTestCase):
 
     def test_get_object_segment_size_http_404(self):
         self.adapter.get(
-            'http://object-store.example.com/info',
+            'https://object-store.example.com/info',
             status_code=404,
             reason='Not Found')
         self.assertEqual(shade.openstackcloud.DEFAULT_OBJECT_SEGMENT_SIZE,
@@ -334,7 +334,7 @@ class TestRESTObject(base.RequestsMockTestCase):
 
     def test_get_object_segment_size_http_412(self):
         self.adapter.get(
-            'http://object-store.example.com/info',
+            'https://object-store.example.com/info',
             status_code=412,
             reason='Precondition failed')
         self.assertEqual(shade.openstackcloud.DEFAULT_OBJECT_SEGMENT_SIZE,

@@ -19,10 +19,10 @@
         "endpoints_links": [],
         "endpoints": [
           {
-            "adminURL": "http://compute.example.com/v2.1/1c36b64c840a42cd9e9b931a369337f0",
+            "adminURL": "https://compute.example.com/v2.1/1c36b64c840a42cd9e9b931a369337f0",
             "region": "RegionOne",
-            "publicURL": "http://compute.example.com/v2.1/1c36b64c840a42cd9e9b931a369337f0",
-            "internalURL": "http://compute.example.com/v2.1/1c36b64c840a42cd9e9b931a369337f0",
+            "publicURL": "https://compute.example.com/v2.1/1c36b64c840a42cd9e9b931a369337f0",
+            "internalURL": "https://compute.example.com/v2.1/1c36b64c840a42cd9e9b931a369337f0",
             "id": "32466f357f3545248c47471ca51b0d3a"
           }
         ],
@@ -33,10 +33,10 @@
         "endpoints_links": [],
         "endpoints": [
           {
-            "adminURL": "http://volume.example.com/v2/1c36b64c840a42cd9e9b931a369337f0",
+            "adminURL": "https://volume.example.com/v2/1c36b64c840a42cd9e9b931a369337f0",
             "region": "RegionOne",
-            "publicURL": "http://volume.example.com/v2/1c36b64c840a42cd9e9b931a369337f0",
-            "internalURL": "http://volume.example.com/v2/1c36b64c840a42cd9e9b931a369337f0",
+            "publicURL": "https://volume.example.com/v2/1c36b64c840a42cd9e9b931a369337f0",
+            "internalURL": "https://volume.example.com/v2/1c36b64c840a42cd9e9b931a369337f0",
             "id": "1e875ca2225b408bbf3520a1b8e1a537"
           }
         ],
@@ -47,10 +47,10 @@
         "endpoints_links": [],
         "endpoints": [
           {
-            "adminURL": "http://image.example.com",
+            "adminURL": "https://image.example.com",
             "region": "RegionOne",
-            "publicURL": "http://image.example.com",
-            "internalURL": "http://image.example.com",
+            "publicURL": "https://image.example.com",
+            "internalURL": "https://image.example.com",
             "id": "5a64de3c4a614d8d8f8d1ba3dee5f45f"
           }
         ],
@@ -61,10 +61,10 @@
         "endpoints_links": [],
         "endpoints": [
           {
-            "adminURL": "http://volume.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
+            "adminURL": "https://volume.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
             "region": "RegionOne",
-            "publicURL": "http://volume.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
-            "internalURL": "http://volume.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
+            "publicURL": "https://volume.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
+            "internalURL": "https://volume.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
             "id": "3d15fdfc7d424f3c8923324417e1a3d1"
           }
         ],
@@ -75,10 +75,10 @@
         "endpoints_links": [],
         "endpoints": [
           {
-            "adminURL": "http://identity.example.com/v2.0",
+            "adminURL": "https://identity.example.com/v2.0",
             "region": "RegionOne",
-            "publicURL": "http://identity.example.comv2.0",
-            "internalURL": "http://identity.example.comv2.0",
+            "publicURL": "https://identity.example.comv2.0",
+            "internalURL": "https://identity.example.comv2.0",
             "id": "4deb4d0504a044a395d4480741ba628c"
           }
         ],
@@ -89,10 +89,10 @@
         "endpoints_links": [],
         "endpoints": [
           {
-            "adminURL": "http://object-store.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
+            "adminURL": "https://object-store.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
             "region": "RegionOne",
-            "publicURL": "http://object-store.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
-            "internalURL": "http://object-store.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
+            "publicURL": "https://object-store.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
+            "internalURL": "https://object-store.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
             "id": "4deb4d0504a044a395d4480741ba628c"
           }
         ],

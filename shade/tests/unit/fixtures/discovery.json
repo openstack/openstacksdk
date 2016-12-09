@@ -13,7 +13,7 @@
         "id": "v3.6",
         "links": [
           {
-            "href": "http://example.com/v3/",
+            "href": "https://example.com/v3/",
             "rel": "self"
           }
         ]
@@ -30,7 +30,7 @@
         "id": "v2.0",
         "links": [
           {
-            "href": "http://example.com/v2.0/",
+            "href": "https://example.com/v2.0/",
             "rel": "self"
           },
           {
