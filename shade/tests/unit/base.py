@@ -108,7 +108,11 @@ class TestCase(BaseTestCase):
 
 class RequestsMockTestCase(BaseTestCase):
 
-    def setUp(self, cloud_config_fixture='clouds.yaml'):
+    def setUp(
+            self,
+            cloud_config_fixture='clouds.yaml',
+            discovery_json='discovery.json',
+            image_version_json='image-version.json'):
 
         super(RequestsMockTestCase, self).setUp(
             cloud_config_fixture=cloud_config_fixture)
@@ -119,7 +123,7 @@ class RequestsMockTestCase(BaseTestCase):
             text=open(
                 os.path.join(
                     self.fixtures_directory,
-                    'discovery.json'),
+                    discovery_json),
                 'r').read())
         self.adapter.post(
             'http://example.com/v2.0/tokens',
@@ -133,7 +137,7 @@ class RequestsMockTestCase(BaseTestCase):
             text=open(
                 os.path.join(
                     self.fixtures_directory,
-                    'image-version.json'),
+                    image_version_json),
                 'r').read())
 
         test_cloud = os.environ.get('SHADE_OS_CLOUD', '_test_cloud_')
