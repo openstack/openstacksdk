@@ -84,6 +84,20 @@
         ],
         "type": "identity",
         "name": "keystone"
+      },
+      {
+        "endpoints_links": [],
+        "endpoints": [
+          {
+            "adminURL": "http://object-store.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
+            "region": "RegionOne",
+            "publicURL": "http://object-store.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
+            "internalURL": "http://object-store.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
+            "id": "4deb4d0504a044a395d4480741ba628c"
+          }
+        ],
+        "type": "object-store",
+        "name": "swift"
       }
     ],
     "user": {

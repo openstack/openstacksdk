@@ -55,23 +55,6 @@ class TestObject(base.TestCase):
             'Error constructing swift client', str(e))
 
     @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_get_object_segment_size(self, swift_mock):
-        swift_mock.get_capabilities.return_value = {
-            'swift': {'max_file_size': 1000},
-            'slo': {'min_segment_size': 500}}
-        self.assertEqual(500, self.cloud.get_object_segment_size(400))
-        self.assertEqual(900, self.cloud.get_object_segment_size(900))
-        self.assertEqual(1000, self.cloud.get_object_segment_size(1000))
-        self.assertEqual(1000, self.cloud.get_object_segment_size(1100))
-
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_get_object_segment_size_http_412(self, swift_mock):
-        swift_mock.get_capabilities.side_effect = swift_exc.ClientException(
-            "Precondition failed", http_status=412)
-        self.assertEqual(shade.openstackcloud.DEFAULT_OBJECT_SEGMENT_SIZE,
-                         self.cloud.get_object_segment_size(None))
-
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
     def test_create_container(self, mock_swift):
         """Test creating a (private) container"""
         name = 'test_container'
@@ -326,3 +309,33 @@ class TestObject(base.TestCase):
         self.assertRaises(shade.OpenStackCloudException,
                           self.cloud.get_object,
                           container_name, object_name)
+
+
+class TestRESTObject(base.RequestsMockTestCase):
+
+    def test_get_object_segment_size(self):
+        self.adapter.get(
+            'http://object-store.example.com/info',
+            json=dict(
+                swift={'max_file_size': 1000},
+                slo={'min_segment_size': 500}))
+        self.assertEqual(500, self.cloud.get_object_segment_size(400))
+        self.assertEqual(900, self.cloud.get_object_segment_size(900))
+        self.assertEqual(1000, self.cloud.get_object_segment_size(1000))
+        self.assertEqual(1000, self.cloud.get_object_segment_size(1100))
+
+    def test_get_object_segment_size_http_404(self):
+        self.adapter.get(
+            'http://object-store.example.com/info',
+            status_code=404,
+            reason='Not Found')
+        self.assertEqual(shade.openstackcloud.DEFAULT_OBJECT_SEGMENT_SIZE,
+                         self.cloud.get_object_segment_size(None))
+
+    def test_get_object_segment_size_http_412(self):
+        self.adapter.get(
+            'http://object-store.example.com/info',
+            status_code=412,
+            reason='Precondition failed')
+        self.assertEqual(shade.openstackcloud.DEFAULT_OBJECT_SEGMENT_SIZE,
+                         self.cloud.get_object_segment_size(None))

@@ -385,6 +385,13 @@ class OpenStackCloud(_normalize.Normalizer):
         return self._raw_clients['compute']
 
     @property
+    def _object_store_client(self):
+        if 'object-store' not in self._raw_clients:
+            raw_client = self._get_raw_client('object-store')
+            self._raw_clients['object-store'] = raw_client
+        return self._raw_clients['object-store']
+
+    @property
     def _image_client(self):
         if 'image' not in self._raw_clients:
             image_client = self._get_raw_client('image')
@@ -5497,7 +5504,15 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @_utils.cache_on_arguments()
     def get_object_capabilities(self):
-        return self.manager.submit_task(_tasks.ObjectCapabilities())
+        # The endpoint in the catalog has version and project-id in it
+        # To get capabilities, we have to disassemble and reassemble the URL
+        # This logic is taken from swiftclient
+        endpoint = urllib.parse.urlparse(
+            self._object_store_client.get_endpoint())
+        url = "{scheme}://{netloc}/info".format(
+            scheme=endpoint.scheme, netloc=endpoint.netloc)
+
+        return self._object_store_client.get(url)
 
     def get_object_segment_size(self, segment_size):
         """Get a segment size that will work given capabilities"""
@@ -5506,15 +5521,14 @@ class OpenStackCloud(_normalize.Normalizer):
         min_segment_size = 0
         try:
             caps = self.get_object_capabilities()
-        except swift_exceptions.ClientException as e:
-            if e.http_status == 404 or e.http_status == 412:
+        except OpenStackCloudHTTPError as e:
+            if e.response.status_code in (404, 412):
                 server_max_file_size = DEFAULT_MAX_FILE_SIZE
                 self.log.info(
                     "Swift capabilities not supported. "
                     "Using default max file size.")
             else:
-                raise OpenStackCloudException(
-                    "Could not determine capabilities")
+                raise
         else:
             server_max_file_size = caps.get('swift', {}).get('max_file_size',
                                                              0)

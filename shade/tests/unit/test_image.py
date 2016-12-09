@@ -176,6 +176,101 @@ class TestImage(base.RequestsMockTestCase):
             })
         self.assertEqual(self.adapter.request_history[5].text.read(), b'\x00')
 
+    @mock.patch.object(shade.OpenStackCloud, '_image_client')
+    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
+    @mock.patch.object(shade.OpenStackCloud, 'swift_service')
+    def test_create_image_task(self,
+                               swift_service_mock,
+                               swift_mock,
+                               mock_image_client):
+        self.cloud.image_api_use_tasks = True
+
+        self.adapter.get(
+            'http://object-store.example.com/info',
+            json=dict(
+                swift={'max_file_size': 1000},
+                slo={'min_segment_size': 500}))
+
+        class Container(object):
+            name = 'image_upload_v2_test_container'
+
+        fake_container = Container()
+        swift_mock.put_container.return_value = fake_container
+        swift_mock.head_object.return_value = {}
+
+        fake_image = munch.Munch(
+            id='a35e8afc-cae9-4e38-8441-2cd465f79f7b', name='name-99',
+            status='active', visibility='private')
+
+        args = munch.Munch(
+            id='21FBD9A7-85EC-4E07-9D58-72F1ACF7CB1F',
+            status='success',
+            type='import',
+            result={
+                'image_id': 'a35e8afc-cae9-4e38-8441-2cd465f79f7b',
+            },
+        )
+
+        # TODO(mordred): When we move this to requests_mock, we need to
+        # add a test that throwing a 503 response causes a retry
+        mock_image_client.get.side_effect = [
+            [],
+            [],
+            args,
+            [fake_image],
+            [fake_image],
+            [fake_image],
+        ]
+        self.cloud.create_image(
+            'name-99', self.imagefile.name, wait=True, timeout=1,
+            is_public=False, container='image_upload_v2_test_container')
+
+        args = {
+            'header': [
+                'x-object-meta-x-shade-md5:{md5}'.format(md5=NO_MD5),
+                'x-object-meta-x-shade-sha256:{sha}'.format(sha=NO_SHA256),
+            ],
+            'segment_size': 1000,
+            'use_slo': True}
+        swift_service_mock.upload.assert_called_with(
+            container='image_upload_v2_test_container',
+            objects=mock.ANY,
+            options=args)
+
+        mock_image_client.post.assert_called_with(
+            '/tasks',
+            data=dict(
+                type='import', input={
+                    'import_from': 'image_upload_v2_test_container/name-99',
+                    'image_properties': {'name': 'name-99'}}))
+        object_path = 'image_upload_v2_test_container/name-99'
+        args = {'owner_specified.shade.md5': NO_MD5,
+                'owner_specified.shade.sha256': NO_SHA256,
+                'owner_specified.shade.object': object_path,
+                'image_id': 'a35e8afc-cae9-4e38-8441-2cd465f79f7b'}
+        mock_image_client.patch.assert_called_with(
+            '/images/a35e8afc-cae9-4e38-8441-2cd465f79f7b',
+            json=sorted([
+                {
+                    u'op': u'add',
+                    u'value': 'image_upload_v2_test_container/name-99',
+                    u'path': u'/owner_specified.shade.object'
+                }, {
+                    u'op': u'add',
+                    u'value': NO_MD5,
+                    u'path': u'/owner_specified.shade.md5'
+                }, {
+                    u'op': u'add', u'value': NO_SHA256,
+                    u'path': u'/owner_specified.shade.sha256'
+                }], key=operator.itemgetter('value')),
+            headers={
+                'Content-Type': 'application/openstack-images-v2.1-json-patch'
+            })
+
+        self.assertEqual(
+            self.cloud._normalize_images([fake_image]),
+            self.cloud.list_images())
+
 
 class TestMockImage(base.TestCase):
 
@@ -479,100 +574,3 @@ class TestMockImage(base.TestCase):
         mock_image_client.get.assert_called_with('/images')
         self.assertEqual(
             self._munch_images(ret), self.cloud.list_images())
-
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, '_get_file_hashes')
-    @mock.patch.object(shade.OpenStackCloud, '_image_client')
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    @mock.patch.object(shade.OpenStackCloud, 'swift_service')
-    def test_create_image_task(self,
-                               swift_service_mock,
-                               swift_mock,
-                               mock_image_client,
-                               get_file_hashes,
-                               mock_api_version):
-        mock_api_version.return_value = '2'
-        self.cloud.image_api_use_tasks = True
-
-        class Container(object):
-            name = 'image_upload_v2_test_container'
-
-        fake_container = Container()
-        swift_mock.get_capabilities.return_value = {
-            'swift': {
-                'max_file_size': 1000
-            }
-        }
-        swift_mock.put_container.return_value = fake_container
-        swift_mock.head_object.return_value = {}
-
-        fake_md5 = "fake-md5"
-        fake_sha256 = "fake-sha256"
-        get_file_hashes.return_value = (fake_md5, fake_sha256)
-
-        fake_image = munch.Munch(
-            id='a35e8afc-cae9-4e38-8441-2cd465f79f7b', name='name-99',
-            status='active', visibility='private')
-
-        args = munch.Munch(
-            id='21FBD9A7-85EC-4E07-9D58-72F1ACF7CB1F',
-            status='success',
-            type='import',
-            result={
-                'image_id': 'a35e8afc-cae9-4e38-8441-2cd465f79f7b',
-            },
-        )
-
-        # TODO(mordred): When we move this to requests_mock, we need to
-        # add a test that throwing a 503 response causes a retry
-        mock_image_client.get.side_effect = [
-            [],
-            [],
-            args,
-            [fake_image],
-            [fake_image],
-            [fake_image],
-        ]
-        self._call_create_image(name='name-99',
-                                container='image_upload_v2_test_container')
-        args = {'header': ['x-object-meta-x-shade-md5:fake-md5',
-                           'x-object-meta-x-shade-sha256:fake-sha256'],
-                'segment_size': 1000,
-                'use_slo': True}
-        swift_service_mock.upload.assert_called_with(
-            container='image_upload_v2_test_container',
-            objects=mock.ANY,
-            options=args)
-
-        mock_image_client.post.assert_called_with(
-            '/tasks',
-            data=dict(
-                type='import', input={
-                    'import_from': 'image_upload_v2_test_container/name-99',
-                    'image_properties': {'name': 'name-99'}}))
-        object_path = 'image_upload_v2_test_container/name-99'
-        args = {'owner_specified.shade.md5': fake_md5,
-                'owner_specified.shade.sha256': fake_sha256,
-                'owner_specified.shade.object': object_path,
-                'image_id': 'a35e8afc-cae9-4e38-8441-2cd465f79f7b'}
-        mock_image_client.patch.assert_called_with(
-            '/images/a35e8afc-cae9-4e38-8441-2cd465f79f7b',
-            json=sorted([
-                {
-                    u'op': u'add',
-                    u'value': 'image_upload_v2_test_container/name-99',
-                    u'path': u'/owner_specified.shade.object'
-                }, {
-                    u'op': u'add',
-                    u'value': 'fake-md5',
-                    u'path': u'/owner_specified.shade.md5'
-                }, {
-                    u'op': u'add', u'value': 'fake-sha256',
-                    u'path': u'/owner_specified.shade.sha256'
-                }], key=operator.itemgetter('value')),
-            headers={
-                'Content-Type': 'application/openstack-images-v2.1-json-patch'
-            })
-
-        self.assertEqual(
-            self._munch_images(fake_image), self.cloud.list_images())
