@@ -2436,7 +2436,9 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         return _utils._get_entity(self.search_images, name_or_id, filters)
 
-    def download_image(self, name_or_id, output_path=None, output_file=None):
+    def download_image(
+            self, name_or_id, output_path=None, output_file=None,
+            chunk_size=1024):
         """Download an image from glance by name or ID
 
         :param str name_or_id: Name or ID of the image.
@@ -2445,6 +2447,8 @@ class OpenStackCloud(_normalize.Normalizer):
         :param output_file: a file object (or file-like object) to write the
             image data to. Only write() will be called on this object. Either
             this or output_path must be specified
+        :param int chunk_size: size in bytes to read from the wire and buffer
+            at one time. Defaults to 1024
 
         :raises: OpenStackCloudException in the event download_image is called
             without exactly one of either output_path or output_file
@@ -2463,16 +2467,22 @@ class OpenStackCloud(_normalize.Normalizer):
         image = self.search_images(name_or_id)
         if len(image) == 0:
             raise OpenStackCloudResourceNotFound(
-                "No images with name or id %s were found" % name_or_id)
-        image_contents = self.glance_client.images.data(image[0]['id'])
+                "No images with name or id %s were found" % name_or_id, None)
+        if self.cloud_config.get_api_version('image') == '2':
+            endpoint = '/images/{id}/file'.format(id=image[0]['id'])
+        else:
+            endpoint = '/images/{id}'.format(id=image[0]['id'])
+
+        response = self._image_client.get(endpoint, stream=True)
+
         with _utils.shade_exceptions("Unable to download image"):
             if output_path:
                 with open(output_path, 'wb') as fd:
-                    for chunk in image_contents:
+                    for chunk in response.iter_content(chunk_size=chunk_size):
                         fd.write(chunk)
                 return
             elif output_file:
-                for chunk in image_contents:
+                for chunk in response.iter_content(chunk_size=chunk_size):
                     output_file.write(chunk)
                 return
 
