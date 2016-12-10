@@ -98,6 +98,14 @@ class Cluster(resource.Resource):
         }
         return self.action(session, body)
 
+    def replace_nodes(self, session, nodes):
+        body = {
+            'replace_nodes': {
+                'nodes': nodes,
+            }
+        }
+        return self.action(session, body)
+
     def scale_out(self, session, count=None):
         body = {
             'scale_out': {

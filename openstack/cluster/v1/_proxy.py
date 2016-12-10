@@ -303,6 +303,20 @@ class Proxy(proxy2.BaseProxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.del_nodes(self.session, nodes)
 
+    def cluster_replace_nodes(self, cluster, nodes):
+        """Replace the nodes in a cluster with specified nodes.
+
+        :param cluster: Either the name or the ID of the cluster, or an
+            instance of :class:`~openstack.cluster.v1.cluster.Cluster`.
+        :param nodes: List of nodes to be deleted/added to the cluster.
+        :returns: A dict containing the action initiated by this operation.
+        """
+        if isinstance(cluster, _cluster.Cluster):
+            obj = cluster
+        else:
+            obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
+        return obj.replace_nodes(self.session, nodes)
+
     def cluster_scale_out(self, cluster, count=None):
         """Inflate the size of a cluster.
 
