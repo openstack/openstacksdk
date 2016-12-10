@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class MeteringLabel(resource.Resource):
@@ -22,18 +22,24 @@ class MeteringLabel(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'description', 'name',
+        is_shared='shared',
+        project_id='tenant_id'
+    )
+
     # Properties
     #: Description of the metering label.
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: Name of the metering label.
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: The ID of the project this metering label is associated with.
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')
     #: Indicates whether this label is shared across all tenants.
     #: *Type: bool*
-    is_shared = resource.prop('shared', type=bool)
+    is_shared = resource.Body('shared', type=bool)

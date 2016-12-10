@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class NetworkIPAvailability(resource.Resource):
@@ -23,24 +23,29 @@ class NetworkIPAvailability(resource.Resource):
 
     # capabilities
     allow_create = False
-    allow_retrieve = True
+    allow_get = True
     allow_update = False
     allow_delete = False
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'network_id', 'network_name',
+        project_id='tenant_id'
+    )
+
     # Properties
     #: Network ID to use when listing network IP availability.
-    network_id = resource.prop('network_id')
+    network_id = resource.Body('network_id')
     #: Network Name for the particular network IP availability.
-    network_name = resource.prop('network_name')
+    network_name = resource.Body('network_name')
     #: The Subnet IP Availability of all subnets of a network.
     #: *Type: list*
-    subnet_ip_availability = resource.prop('subnet_ip_availability', type=list)
+    subnet_ip_availability = resource.Body('subnet_ip_availability', type=list)
     #: The ID of the project this network IP availability is associated with.
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')
     #: The total ips of a network.
     #: *Type: int*
-    total_ips = resource.prop('total_ips', type=int)
+    total_ips = resource.Body('total_ips', type=int)
     #: The used or consumed ip of a network
     #: *Type: int*
-    used_ips = resource.prop('used_ips', type=int)
+    used_ips = resource.Body('used_ips', type=int)

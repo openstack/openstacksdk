@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Port(resource.Resource):
@@ -22,29 +22,38 @@ class Port(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
+    # NOTE: we skip query on list or datetime fields for now
+    _query_mapping = resource.QueryParameters(
+        'description', 'device_id', 'device_owner', 'ip_address',
+        'mac_address', 'name', 'network_id', 'status', 'subnet_id',
+        is_admin_state_up='admin_state_up',
+        is_port_security_enabled='port_security_enabled',
+        project_id='tenant_id',
+    )
+
     # Properties
     #: Allowed address pairs.
-    allowed_address_pairs = resource.prop('allowed_address_pairs')
+    allowed_address_pairs = resource.Body('allowed_address_pairs', type=list)
     #: The ID of the host where the port is allocated. In some cases,
     #: different implementations can run on different hosts.
-    binding_host_id = resource.prop('binding:host_id')
+    binding_host_id = resource.Body('binding:host_id')
     #: A dictionary the enables the application running on the specified
     #: host to pass and receive vif port-specific information to the plug-in.
     #: *Type: dict*
-    binding_profile = resource.prop('binding:profile', type=dict)
+    binding_profile = resource.Body('binding:profile', type=dict)
     #: Read-only. A dictionary that enables the application to pass
     #: information about functions that the Networking API provides.
     #: To enable or disable port filtering features such as security group
     #: and anti-MAC/IP spoofing, specify ``port_filter: True`` or
     #: ``port_filter: False``. *Type: dict*
-    binding_vif_details = resource.prop('binding:vif_details', type=dict)
+    binding_vif_details = resource.Body('binding:vif_details', type=dict)
     #: Read-only. The vif type for the specified port.
-    binding_vif_type = resource.prop('binding:vif_type')
+    binding_vif_type = resource.Body('binding:vif_type')
     #: The vnic type that is bound to the neutron port.
     #:
     #: In POST and PUT operations, specify a value of ``normal`` (virtual nic),
@@ -55,48 +64,58 @@ class Port(resource.Resource):
     #:
     #: In GET operations, the binding:vnic_type extended attribute is
     #: visible to only port owners and administrative users.
-    binding_vnic_type = resource.prop('binding:vnic_type')
+    binding_vnic_type = resource.Body('binding:vnic_type')
     #: Timestamp when the port was created.
-    created_at = resource.prop('created_at')
+    created_at = resource.Body('created_at')
     #: The port description.
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: Device ID of this port.
-    device_id = resource.prop('device_id')
+    device_id = resource.Body('device_id')
     #: Device owner of this port (e.g. ``network:dhcp``).
-    device_owner = resource.prop('device_owner')
+    device_owner = resource.Body('device_owner')
     #: DNS assignment for the port.
-    dns_assignment = resource.prop('dns_assignment')
+    dns_assignment = resource.Body('dns_assignment')
     #: DNS name for the port.
-    dns_name = resource.prop('dns_name')
+    dns_name = resource.Body('dns_name')
     #: Extra DHCP options.
-    extra_dhcp_opts = resource.prop('extra_dhcp_opts')
+    extra_dhcp_opts = resource.Body('extra_dhcp_opts', type=list)
+    #: IP addresses of an allowed address pair.
+    ip_address = resource.Body('ip_address')
     #: IP addresses for the port. Includes the IP address and subnet ID.
-    fixed_ips = resource.prop('fixed_ips')
+    fixed_ips = resource.Body('fixed_ips', type=list)
     #: The administrative state of the port, which is up ``True`` or
     #: down ``False``. *Type: bool*
-    is_admin_state_up = resource.prop('admin_state_up', type=bool)
+    is_admin_state_up = resource.Body('admin_state_up', type=bool)
     #: The port security status, which is enabled ``True`` or disabled
     #: ``False``. *Type: bool* *Default: False*
-    is_port_security_enabled = resource.prop('port_security_enabled',
-                                             type=bool,
-                                             default=False)
-    #: The MAC address of the port.
-    mac_address = resource.prop('mac_address')
+    is_port_security_enabled = resource.Body('port_security_enabled',
+                                             type=bool, default=False)
+    #: The MAC address of an allowed address pair.
+    mac_address = resource.Body('mac_address')
     #: The port name.
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: The ID of the attached network.
-    network_id = resource.prop('network_id')
+    network_id = resource.Body('network_id')
     #: The ID of the project who owns the network. Only administrative
     #: users can specify a project ID other than their own.
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')
+    #: The extra DHCP option name.
+    option_name = resource.Body('opt_name')
+    #: The extra DHCP option value.
+    option_value = resource.Body('opt_value')
     #: The ID of the QoS policy attached to the port.
-    qos_policy_id = resource.prop('qos_policy_id')
+    qos_policy_id = resource.Body('qos_policy_id')
     #: Revision number of the port. *Type: int*
-    revision_number = resource.prop('revision_number', type=int)
+    revision_number = resource.Body('revision', type=int)
     #: The IDs of any attached security groups.
     #: *Type: list of strs of the security group IDs*
-    security_group_ids = resource.prop('security_groups', type=list)
+    security_group_ids = resource.Body('security_groups', type=list)
     #: The port status. Value is ``ACTIVE`` or ``DOWN``.
-    status = resource.prop('status')
+    status = resource.Body('status')
+    #: The ID of the subnet. If you specify only a subnet UUID, OpenStack
+    #: networking allocates an available IP from that subnet to the port.
+    #: If you specify both a subnet ID and an IP address, OpenStack networking
+    #: tries to allocate the address to the port.
+    subnet_id = resource.Body('subnet_id')
     #: Timestamp when the port was last updated.
-    updated_at = resource.prop('updated_at')
+    updated_at = resource.Body('updated_at')

@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class PoolMember(resource.Resource):
@@ -22,35 +22,35 @@ class PoolMember(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'address', 'name', 'protocol_port', 'subnet_id', 'weight',
+        is_admin_state_up='admin_state_up',
+        project_id='tenant_id',
+    )
+
     # Properties
+    #: The ID of the owning pool
+    pool_id = resource.URI('pool_id')
     #: The IP address of the pool member.
-    address = resource.prop('address')
+    address = resource.Body('address')
     #: The administrative state of the pool member, which is up ``True`` or
     #: down ``False``. *Type: bool*
-    is_admin_state_up = resource.prop('admin_state_up', type=bool)
+    is_admin_state_up = resource.Body('admin_state_up', type=bool)
     #: Name of the pool member.
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: The ID of the project this pool member is associated with.
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')
     #: The port on which the application is hosted.
-    protocol_port = resource.prop('protocol_port', type=int)
+    protocol_port = resource.Body('protocol_port', type=int)
     #: Subnet ID in which to access this pool member.
-    subnet_id = resource.prop('subnet_id')
+    subnet_id = resource.Body('subnet_id')
     #: A positive integer value that indicates the relative portion of traffic
     #: that this member should receive from the pool. For example, a member
     #: with a weight of 10 receives five times as much traffic as a member
     #: with weight of 2.
-    weight = resource.prop('weight', type=int)
-
-    @classmethod
-    def _get_create_body(cls, attrs):
-        # Exclude pool_id from attrs since it is not expected by LBaaS service
-        if 'pool_id' in attrs:
-            attrs.pop('pool_id')
-
-        return {cls.resource_key: attrs}
+    weight = resource.Body('weight', type=int)
