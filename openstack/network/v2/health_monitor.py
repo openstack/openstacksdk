@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class HealthMonitor(resource.Resource):
@@ -22,36 +22,43 @@ class HealthMonitor(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'delay', 'expected_codes', 'http_method', 'max_retries',
+        'timeout', 'type', 'url_path',
+        is_admin_state_up='adminstate_up',
+        project_id='tenant_id',
+    )
+
     # Properties
     #: The time, in milliseconds, between sending probes to members.
-    delay = resource.prop('delay')
+    delay = resource.Body('delay')
     #: Expected HTTP codes for a passing HTTP(S) monitor.
-    expected_codes = resource.prop('expected_codes')
+    expected_codes = resource.Body('expected_codes')
     #: The HTTP method that the monitor uses for requests.
-    http_method = resource.prop('http_method')
+    http_method = resource.Body('http_method')
     #: The administrative state of the health monitor, which is up
     #: ``True`` or down ``False``. *Type: bool*
-    is_admin_state_up = resource.prop('admin_state_up', type=bool)
+    is_admin_state_up = resource.Body('admin_state_up', type=bool)
     #: Maximum consecutive health probe tries.
-    max_retries = resource.prop('max_retries')
+    max_retries = resource.Body('max_retries')
     #: Name of the health monitor.
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: List of pools associated with this health monitor
     #: *Type: list of dicts which contain the pool IDs*
-    pool_ids = resource.prop('pools', type=list)
+    pool_ids = resource.Body('pools', type=list)
     #: The ID of the project this health monitor is associated with.
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')
     #: The maximum number of milliseconds for a monitor to wait for a
     #: connection to be established before it times out. This value must
     #: be less than the delay value.
-    timeout = resource.prop('timeout')
+    timeout = resource.Body('timeout')
     #: The type of probe sent by the load balancer to verify the member
     #: state, which is PING, TCP, HTTP, or HTTPS.
-    type = resource.prop('type')
+    type = resource.Body('type')
     #: Path portion of URI that will be probed if type is HTTP(S).
-    url_path = resource.prop('url_path')
+    url_path = resource.Body('url_path')

@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class LoadBalancer(resource.Resource):
@@ -22,36 +22,36 @@ class LoadBalancer(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
     # Properties
     #: Description for the load balancer.
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: The administrative state of the load balancer, which is up
     #: ``True`` or down ``False``. *Type: bool*
-    is_admin_state_up = resource.prop('admin_state_up', type=bool)
+    is_admin_state_up = resource.Body('admin_state_up', type=bool)
     #: List of listeners associated with this load balancer.
     #: *Type: list of dicts which contain the listener IDs*
-    listener_ids = resource.prop('listeners', type=list)
+    listener_ids = resource.Body('listeners', type=list)
     #: Name of the load balancer
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: Status of load_balancer operating, e.g. ONLINE, OFFLINE.
-    operating_status = resource.prop('operating_status')
+    operating_status = resource.Body('operating_status')
     #: List of pools associated with this load balancer.
     #: *Type: list of dicts which contain the pool IDs*
-    pool_ids = resource.prop('pools', type=list)
+    pool_ids = resource.Body('pools', type=list)
     #: The ID of the project this load balancer is associated with.
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')
     #: The name of the provider.
-    provider = resource.prop('provider')
+    provider = resource.Body('provider')
     #: Status of load balancer provisioning, e.g. ACTIVE, INACTIVE.
-    provisioning_status = resource.prop('provisioning_status')
+    provisioning_status = resource.Body('provisioning_status')
     #: The IP address of the VIP.
-    vip_address = resource.prop('vip_address')
+    vip_address = resource.Body('vip_address')
     #: The ID of the port for the VIP.
-    vip_port_id = resource.prop('vip_port_id')
+    vip_port_id = resource.Body('vip_port_id')
     #: The ID of the subnet on which to allocate the VIP address.
-    vip_subnet_id = resource.prop('vip_subnet_id')
+    vip_subnet_id = resource.Body('vip_subnet_id')

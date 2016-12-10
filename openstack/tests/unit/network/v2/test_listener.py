@@ -23,7 +23,7 @@ EXAMPLE = {
     'id': IDENTIFIER,
     'loadbalancers': [{'id': '6'}],
     'name': '7',
-    'tenant_id': '8',
+    'project_id': '8',
     'protocol': '9',
     'protocol_port': '10',
     'default_tls_container_ref': '11',
@@ -40,13 +40,13 @@ class TestListener(testtools.TestCase):
         self.assertEqual('/lbaas/listeners', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = listener.Listener(EXAMPLE)
+        sot = listener.Listener(**EXAMPLE)
         self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['connection_limit'], sot.connection_limit)
         self.assertEqual(EXAMPLE['default_pool_id'], sot.default_pool_id)
@@ -54,7 +54,7 @@ class TestListener(testtools.TestCase):
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['loadbalancers'], sot.load_balancer_ids)
         self.assertEqual(EXAMPLE['name'], sot.name)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['protocol'], sot.protocol)
         self.assertEqual(EXAMPLE['protocol_port'], sot.protocol_port)
         self.assertEqual(EXAMPLE['default_tls_container_ref'],

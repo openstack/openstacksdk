@@ -33,13 +33,13 @@ class TestAddressScope(testtools.TestCase):
         self.assertEqual('/address-scopes', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = address_scope.AddressScope(EXAMPLE)
+        sot = address_scope.AddressScope(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['ip_version'], sot.ip_version)
         self.assertEqual(EXAMPLE['name'], sot.name)

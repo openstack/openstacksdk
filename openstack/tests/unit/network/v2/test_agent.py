@@ -42,13 +42,13 @@ class TestAgent(testtools.TestCase):
         self.assertEqual('/agents', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = agent.Agent(EXAMPLE)
+        sot = agent.Agent(**EXAMPLE)
         self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['agent_type'], sot.agent_type)
         self.assertTrue(sot.is_alive)
@@ -66,7 +66,7 @@ class TestAgent(testtools.TestCase):
 
     def test_add_agent_to_network(self):
         # Add agent to network
-        net = agent.Agent(EXAMPLE)
+        net = agent.Agent(**EXAMPLE)
         response = mock.Mock()
         response.body = {'network_id': '1'}
         response.json = mock.Mock(return_value=response.body)
@@ -81,7 +81,7 @@ class TestAgent(testtools.TestCase):
 
     def test_remove_agent_from_network(self):
         # Remove agent from agent
-        net = agent.Agent(EXAMPLE)
+        net = agent.Agent(**EXAMPLE)
         sess = mock.Mock()
         self.assertIsNone(net.remove_agent_from_network(sess))
         body = {}
@@ -100,7 +100,7 @@ class TestDHCPAgentHostingNetwork(testtools.TestCase):
         self.assertEqual('dhcp-network', net.resource_name)
         self.assertEqual('network', net.service.service_type)
         self.assertFalse(net.allow_create)
-        self.assertTrue(net.allow_retrieve)
+        self.assertTrue(net.allow_get)
         self.assertFalse(net.allow_update)
         self.assertFalse(net.allow_delete)
         self.assertTrue(net.allow_list)

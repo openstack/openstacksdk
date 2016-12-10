@@ -18,9 +18,9 @@ IDENTIFIER = 'IDENTIFIER'
 EXAMPLE_WITH_OPTIONAL = {
     'name': 'test-flavor',
     'service_type': 'VPN',
-    'tenant_id': '5',
     'description': 'VPN flavor',
     'enabled': True,
+    'service_profiles': ['1', '2'],
 }
 
 EXAMPLE = {
@@ -37,23 +37,23 @@ class TestFlavor(testtools.TestCase):
         self.assertEqual('/flavors', flavors.base_path)
         self.assertEqual('network', flavors.service.service_type)
         self.assertTrue(flavors.allow_create)
-        self.assertTrue(flavors.allow_retrieve)
+        self.assertTrue(flavors.allow_get)
         self.assertTrue(flavors.allow_update)
         self.assertTrue(flavors.allow_delete)
         self.assertTrue(flavors.allow_list)
 
     def test_make_it(self):
-        flavors = flavor.Flavor(EXAMPLE)
+        flavors = flavor.Flavor(**EXAMPLE)
         self.assertEqual(EXAMPLE['name'], flavors.name)
         self.assertEqual(EXAMPLE['service_type'], flavors.service_type)
 
     def test_make_it_with_optional(self):
-        flavors = flavor.Flavor(EXAMPLE_WITH_OPTIONAL)
+        flavors = flavor.Flavor(**EXAMPLE_WITH_OPTIONAL)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['name'], flavors.name)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['service_type'],
                          flavors.service_type)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['tenant_id'],
-                         flavors.tenant_id)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['description'],
                          flavors.description)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['enabled'], flavors.is_enabled)
+        self.assertEqual(EXAMPLE_WITH_OPTIONAL['service_profiles'],
+                         flavors.service_profile_ids)

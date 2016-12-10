@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource as _resource
+from openstack import resource2 as _resource
 
 
 class AvailabilityZone(_resource.Resource):
@@ -22,16 +22,21 @@ class AvailabilityZone(_resource.Resource):
 
     # capabilities
     allow_create = False
-    allow_retrieve = False
+    allow_get = False
     allow_update = False
     allow_delete = False
     allow_list = True
 
+    # NOTE: We don't support query by state yet because there is a mapping
+    #       at neutron side difficult to map.
+    _query_mapping = _resource.QueryParameters(
+        name='availability_zone', resource='agent_type')
+
     # Properties
     #: Name of the availability zone.
-    name = _resource.prop('name')
+    name = _resource.Body('name')
     #: Type of resource for the availability zone, such as ``network``.
-    resource = _resource.prop('resource')
+    resource = _resource.Body('resource')
     #: State of the availability zone, either ``available`` or
     #: ``unavailable``.
-    state = _resource.prop('state')
+    state = _resource.Body('state')

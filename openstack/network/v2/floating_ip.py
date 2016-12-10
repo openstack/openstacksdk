@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class FloatingIP(resource.Resource):
@@ -24,47 +24,45 @@ class FloatingIP(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'description', 'fixed_ip_address', 'floating_ip_address',
+        'floating_network_id', 'port_id', 'router_id', 'status',
+        project_id='tenant_id',
+        revision_number='revision')
+
     # Properties
-    #: Timestamp when the floating IP was created.
-    created_at = resource.prop('created_at')
     #: The floating IP description.
-    description = resource.prop('description')
+    description = resource.Body('description')
     #: The fixed IP address associated with the floating IP. If you
     #: intend to associate the floating IP with a fixed IP at creation
     #: time, then you must indicate the identifier of the internal port.
     #: If an internal port has multiple associated IP addresses, the
     #: service chooses the first IP unless you explicitly specify the
     #: parameter fixed_ip_address to select a specific IP.
-    fixed_ip_address = resource.prop('fixed_ip_address')
+    fixed_ip_address = resource.Body('fixed_ip_address')
     #: The floating IP address.
-    floating_ip_address = resource.prop('floating_ip_address')
+    floating_ip_address = resource.Body('floating_ip_address')
     #: The ID of the network associated with the floating IP.
-    floating_network_id = resource.prop('floating_network_id')
+    floating_network_id = resource.Body('floating_network_id')
     #: The port ID.
-    port_id = resource.prop('port_id')
+    port_id = resource.Body('port_id')
     #: The ID of the project this floating IP is associated with.
-    project_id = resource.prop('tenant_id')
+    project_id = resource.Body('tenant_id')
     #: Revision number of the floating IP. *Type: int*
-    revision_number = resource.prop('revision_number', type=int)
+    revision_number = resource.Body('revision', type=int)
     #: The ID of an associated router.
-    router_id = resource.prop('router_id')
+    router_id = resource.Body('router_id')
     #: The floating IP status. Value is ``ACTIVE`` or ``DOWN``.
-    status = resource.prop('status')
-    #: Timestamp when the floating IP was last updated.
-    updated_at = resource.prop('updated_at')
+    status = resource.Body('status')
 
     @classmethod
     def find_available(cls, session):
-        params = {
-            'port_id': '',
-            'fields': cls.id_attribute,
-        }
-        info = cls.list(session, params=params)
+        info = cls.list(session, fields='id', port_id='')
         try:
             return next(info)
         except StopIteration:
