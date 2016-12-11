@@ -495,7 +495,7 @@ class Normalizer(object):
             ret['router_id'] = router_id
             ret['project_id'] = project_id
             ret['tenant_id'] = project_id
-            ret['floating_network_id'] = network_id,
+            ret['floating_network_id'] = network_id
             for key, val in ret['properties'].items():
                 ret.setdefault(key, val)
 
