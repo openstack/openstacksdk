@@ -328,9 +328,9 @@ class TestFloatingIP(base.TestCase):
         mock__neutron_list_fips.assert_called_once_with(None)
         mock__filter_list.assert_called_once_with(
             [], name_or_id=None,
-            filters={'port_id': None,
-                     'floating_network_id': self.mock_get_network_rep['id'],
-                     'tenant_id': 'proj-id'}
+            filters={'port': None,
+                     'network': self.mock_get_network_rep['id'],
+                     'location': {'project': {'id': 'proj-id'}}}
         )
         mock__neutron_create_fip.assert_called_once_with(
             network_id=self.mock_get_network_rep['id'],
@@ -366,9 +366,9 @@ class TestFloatingIP(base.TestCase):
         mock__neutron_list_fips.assert_called_once_with(None)
         mock__filter_list.assert_called_once_with(
             [], name_or_id=None,
-            filters={'port_id': None,
-                     'floating_network_id': self.mock_get_network_rep['id'],
-                     'tenant_id': 'proj-id'}
+            filters={'port': None,
+                     'network': self.mock_get_network_rep['id'],
+                     'location': {'project': {'id': 'proj-id'}}}
         )
         mock__neutron_create_fip.assert_called_once_with(
             network_id=self.mock_get_network_rep['id'],
