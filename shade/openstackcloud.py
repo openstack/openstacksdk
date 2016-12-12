@@ -3441,8 +3441,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     return volume
 
                 if volume['status'] == 'error':
-                    raise OpenStackCloudException(
-                        "Error in creating volume, please check logs")
+                    raise OpenStackCloudException("Error in creating volume")
 
         return self._normalize_volume(volume)
 
@@ -3696,7 +3695,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
                 if snapshot['status'] == 'error':
                     raise OpenStackCloudException(
-                        "Error in creating volume snapshot, please check logs")
+                        "Error in creating volume snapshot")
 
         # TODO(mordred) need to normalize snapshots. We were normalizing them
         # as volumes, which is an error. They need to be normalized as
@@ -3789,9 +3788,9 @@ class OpenStackCloud(_normalize.Normalizer):
                     break
 
                 if backup['status'] == 'error':
-                    msg = ("Error in creating volume "
-                           "backup {}, please check logs".format(backup_id))
-                    raise OpenStackCloudException(msg)
+                    raise OpenStackCloudException(
+                        "Error in creating volume backup {id}".format(
+                            id=backup_id))
 
         return backup
 
