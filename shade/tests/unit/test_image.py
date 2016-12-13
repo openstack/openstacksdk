@@ -27,12 +27,19 @@ from shade import meta
 from shade.tests.unit import base
 
 
+NO_MD5 = '93b885adfe0da089cdf634904fd59f71'
+NO_SHA256 = '6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d'
+
+
 class TestImage(base.RequestsMockTestCase):
 
     def setUp(self):
         super(TestImage, self).setUp()
         self.image_id = str(uuid.uuid4())
-        self.fake_search_return = {'images': [{
+        self.imagefile = tempfile.NamedTemporaryFile(delete=False)
+        self.imagefile.write(b'\0')
+        self.imagefile.close()
+        self.fake_image_dict = {
             u'image_state': u'available',
             u'container_format': u'bare',
             u'min_ram': 0,
@@ -55,7 +62,11 @@ class TestImage(base.RequestsMockTestCase):
             u'name': u'fake_image',
             u'checksum': u'ee36e35a297980dee1b514de9803ec6d',
             u'created_at': u'2016-02-10T05:03:11Z',
-            u'protected': False}]}
+            u'owner_specified.shade.md5': NO_MD5,
+            u'owner_specified.shade.sha256': NO_SHA256,
+            u'owner_specified.shade.object': 'images/fake_image',
+            u'protected': False}
+        self.fake_search_return = {'images': [self.fake_image_dict]}
         self.output = uuid.uuid4().bytes
 
     def test_download_image_no_output(self):
@@ -101,6 +112,69 @@ class TestImage(base.RequestsMockTestCase):
         self.cloud.download_image('fake_image', output_path=output_file.name)
         output_file.seek(0)
         self.assertEqual(output_file.read(), self.output)
+
+    def test_empty_list_images(self):
+        self.adapter.register_uri(
+            'GET', 'http://image.example.com/v2/images', json={'images': []})
+        self.assertEqual([], self.cloud.list_images())
+
+    def test_list_images(self):
+        self.adapter.register_uri(
+            'GET', 'http://image.example.com/v2/images',
+            json=self.fake_search_return)
+        self.assertEqual(
+            self.cloud._normalize_images([self.fake_image_dict]),
+            self.cloud.list_images())
+
+    def test_create_image_put_v2(self):
+        self.cloud.image_api_use_tasks = False
+
+        self.adapter.register_uri(
+            'GET', 'http://image.example.com/v2/images', [
+                dict(json={'images': []}),
+                dict(json=self.fake_search_return),
+            ])
+        self.adapter.register_uri(
+            'POST', 'http://image.example.com/v2/images',
+            json=self.fake_image_dict,
+        )
+        self.adapter.register_uri(
+            'PUT', 'http://image.example.com/v2/images/{id}/file'.format(
+                id=self.image_id),
+            request_headers={'Content-Type': 'application/octet-stream'})
+
+        self.cloud.create_image(
+            'fake_image', self.imagefile.name, wait=True, timeout=1,
+            is_public=False)
+
+        calls = [
+            dict(method='GET', url='http://192.168.0.19:35357/'),
+            dict(method='POST', url='http://example.com/v2.0/tokens'),
+            dict(method='GET', url='http://image.example.com/'),
+            dict(method='GET', url='http://image.example.com/v2/images'),
+            dict(method='POST', url='http://image.example.com/v2/images'),
+            dict(
+                method='PUT',
+                url='http://image.example.com/v2/images/{id}/file'.format(
+                    id=self.image_id)),
+            dict(method='GET', url='http://image.example.com/v2/images'),
+        ]
+        for x in range(0, len(calls)):
+            self.assertEqual(
+                calls[x]['method'], self.adapter.request_history[x].method)
+            self.assertEqual(
+                calls[x]['url'], self.adapter.request_history[x].url)
+        self.assertEqual(
+            self.adapter.request_history[4].json(), {
+                u'container_format': u'bare',
+                u'disk_format': u'qcow2',
+                u'name': u'fake_image',
+                u'owner_specified.shade.md5': NO_MD5,
+                u'owner_specified.shade.object': u'images/fake_image',
+                u'owner_specified.shade.sha256': NO_SHA256,
+                u'visibility': u'private'
+            })
+        self.assertEqual(self.adapter.request_history[5].text.read(), b'\x00')
 
 
 class TestMockImage(base.TestCase):
@@ -192,41 +266,6 @@ class TestMockImage(base.TestCase):
                 'x-glance-registry-purge-props': 'false'
             })
         mock_image_client.delete.assert_called_with('/images/42')
-
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, '_image_client')
-    def test_create_image_put_v2(self, mock_image_client, mock_api_version):
-        mock_api_version.return_value = '2'
-        self.cloud.image_api_use_tasks = False
-
-        mock_image_client.get.return_value = []
-        self.assertEqual([], self.cloud.list_images())
-
-        args = {'name': '42 name',
-                'container_format': 'bare', 'disk_format': 'qcow2',
-                'owner_specified.shade.md5': mock.ANY,
-                'owner_specified.shade.sha256': mock.ANY,
-                'owner_specified.shade.object': 'images/42 name',
-                'visibility': 'private',
-                'min_disk': 0, 'min_ram': 0}
-        ret = munch.Munch(args.copy())
-        ret['id'] = '42'
-        ret['status'] = 'success'
-        mock_image_client.get.side_effect = [
-            [],
-            [ret],
-            [ret],
-        ]
-        mock_image_client.post.return_value = ret
-        self._call_create_image('42 name', min_disk='0', min_ram=0)
-        mock_image_client.post.assert_called_with('/images', json=args)
-        mock_image_client.put.assert_called_with(
-            '/images/42/file',
-            headers={'Content-Type': 'application/octet-stream'},
-            data=mock.ANY)
-        mock_image_client.get.assert_called_with('/images')
-        self.assertEqual(
-            self._munch_images(ret), self.cloud.list_images())
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
