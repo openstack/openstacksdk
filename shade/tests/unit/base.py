@@ -114,22 +114,22 @@ class RequestsMockTestCase(BaseTestCase):
             cloud_config_fixture=cloud_config_fixture)
 
         self.adapter = self.useFixture(rm_fixture.Fixture())
-        self.adapter.register_uri(
-            'GET', 'http://192.168.0.19:35357/',
+        self.adapter.get(
+            'http://192.168.0.19:35357/',
             text=open(
                 os.path.join(
                     self.fixtures_directory,
                     'discovery.json'),
                 'r').read())
-        self.adapter.register_uri(
-            'POST', 'http://example.com/v2.0/tokens',
+        self.adapter.post(
+            'http://example.com/v2.0/tokens',
             text=open(
                 os.path.join(
                     self.fixtures_directory,
                     'catalog.json'),
                 'r').read())
-        self.adapter.register_uri(
-            'GET', 'http://image.example.com/',
+        self.adapter.get(
+            'http://image.example.com/',
             text=open(
                 os.path.join(
                     self.fixtures_directory,
