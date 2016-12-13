@@ -468,6 +468,13 @@ class Normalizer(object):
         router_id = ip.pop('router_id', None)
         id = ip.pop('id')
         port_id = ip.pop('port_id', None)
+        created_at = ip.pop('created_at', None)
+        updated_at = ip.pop('updated_at', None)
+        # Note - description may not always be on the underlying cloud.
+        # Normalizing it here is easy - what do we do when people want to
+        # set a description?
+        description = ip.pop('description', '')
+        revision_number = ip.pop('revision_number', None)
 
         if self._use_neutron_floating():
             attached = bool(port_id)
@@ -487,6 +494,10 @@ class Normalizer(object):
             port=port_id,
             router=router_id,
             status=status,
+            created_at=created_at,
+            updated_at=updated_at,
+            description=description,
+            revision_number=revision_number,
             properties=ip.copy(),
         )
         # Backwards compat
