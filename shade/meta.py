@@ -454,9 +454,6 @@ def obj_to_dict(obj, request_id=None):
         # If we obj_to_dict twice, don't fail, just return the munch
         # Also, don't try to modify Mock objects - that way lies madness
         return obj
-    elif hasattr(obj, 'schema') and hasattr(obj, 'validate'):
-        # It's a warlock
-        return _log_request_id(warlock_to_dict(obj), request_id)
     elif isinstance(obj, dict):
         # The new request-id tracking spec:
         # https://specs.openstack.org/openstack/nova-specs/specs/juno/approved/log-request-id-mappings.html
@@ -496,6 +493,10 @@ def obj_list_to_dict(obj_list, request_id=None):
 
 
 def warlock_to_dict(obj):
+    # This function is unused in shade - but it is a public function, so
+    # removing it would be rude. We don't actually have to depend on warlock
+    # ourselves to keep this - so just leave it here.
+    #
     # glanceclient v2 uses warlock to construct its objects. Warlock does
     # deep black magic to attribute look up to support validation things that
     # means we cannot use normal obj_to_dict
