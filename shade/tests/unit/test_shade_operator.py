@@ -1021,24 +1021,24 @@ class TestShadeOperator(base.TestCase):
         )
 
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
-    def test_get_image_name(self, glance_mock):
+    def test_get_image_name(self, mock_client):
 
         fake_image = munch.Munch(
             id='22',
             name='22 name',
             status='success')
-        glance_mock.get.return_value = [fake_image]
+        mock_client.get.return_value = [fake_image]
         self.assertEqual('22 name', self.op_cloud.get_image_name('22'))
         self.assertEqual('22 name', self.op_cloud.get_image_name('22 name'))
 
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
-    def test_get_image_id(self, glance_mock):
+    def test_get_image_id(self, mock_client):
 
         fake_image = munch.Munch(
             id='22',
             name='22 name',
             status='success')
-        glance_mock.get.return_value = [fake_image]
+        mock_client.get.return_value = [fake_image]
         self.assertEqual('22', self.op_cloud.get_image_id('22'))
         self.assertEqual('22', self.op_cloud.get_image_id('22 name'))
 
