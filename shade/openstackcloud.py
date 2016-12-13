@@ -13,6 +13,7 @@
 import functools
 import hashlib
 import ipaddress
+import jsonpatch
 import operator
 import os
 import os_client_config
@@ -29,7 +30,6 @@ from six.moves import urllib
 
 import cinderclient.exceptions as cinder_exceptions
 import glanceclient
-import glanceclient.exc
 import heatclient.client
 import magnumclient.exceptions as magnum_exceptions
 from heatclient.common import event_utils
@@ -3297,7 +3297,6 @@ class OpenStackCloud(_normalize.Normalizer):
         # TODO(mordred): Can we do something similar to what nodepool does
         # using glance properties to not delete then upload but instead make a
         # new "good" image and then mark the old one as "bad"
-        # self.glance_client.images.delete(current_image)
         task_args = dict(
             type='import', input=dict(
                 import_from='{container}/{name}'.format(
@@ -3314,9 +3313,11 @@ class OpenStackCloud(_normalize.Normalizer):
                     if image_id is None:
                         status = self._image_client.get(
                             '/tasks/{id}'.format(id=glance_task.id))
-                except glanceclient.exc.HTTPServiceUnavailable:
-                    # Intermittent failure - catch and try again
-                    continue
+                except OpenStackCloudHTTPError as e:
+                    if e.response.status_code == 503:
+                        # Intermittent failure - catch and try again
+                        continue
+                    raise
 
                 if status.status == 'success':
                     image_id = status.result['image_id']
@@ -3349,6 +3350,7 @@ class OpenStackCloud(_normalize.Normalizer):
             self, image=None, name_or_id=None, meta=None, **properties):
         if image is None:
             image = self.get_image(name_or_id)
+
         if not meta:
             meta = {}
 
@@ -3366,14 +3368,24 @@ class OpenStackCloud(_normalize.Normalizer):
             return self._update_image_properties_v1(image, meta, img_props)
 
     def _update_image_properties_v2(self, image, meta, properties):
-        img_props = {}
+        img_props = image.properties.copy()
         for k, v in iter(self._make_v2_image_params(meta, properties).items()):
             if image.get(k, None) != v:
                 img_props[k] = v
         if not img_props:
             return False
-        self.manager.submit_task(_tasks.ImageUpdate(
-            image_id=image.id, **img_props))
+        headers = {
+            'Content-Type': 'application/openstack-images-v2.1-json-patch'}
+        patch = sorted(list(jsonpatch.JsonPatch.from_diff(
+            image.properties, img_props)), key=operator.itemgetter('value'))
+
+        # No need to fire an API call if there is an empty patch
+        if patch:
+            self._image_client.patch(
+                '/images/{id}'.format(id=image.id),
+                headers=headers,
+                json=patch)
+
         self.list_images.invalidate(self)
         return True
 
@@ -3382,11 +3394,11 @@ class OpenStackCloud(_normalize.Normalizer):
         img_props = {}
         for k, v in iter(properties.items()):
             if image.properties.get(k, None) != v:
-                img_props[k] = v
+                img_props['x-image-meta-{key}'.format(key=k)] = v
         if not img_props:
             return False
-        self.manager.submit_task(_tasks.ImageUpdate(
-            image=image, properties=img_props))
+        self._image_client.put(
+            '/images/{id}'.format(image.id), headers=img_props)
         self.list_images.invalidate(self)
         return True
 

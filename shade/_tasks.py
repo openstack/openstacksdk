@@ -296,11 +296,6 @@ class ImageSnapshotCreate(task_manager.Task):
         return client.nova_client.servers.create_image(**self.args)
 
 
-class ImageUpdate(task_manager.Task):
-    def main(self, client):
-        client.glance_client.images.update(**self.args)
-
-
 class VolumeCreate(task_manager.Task):
     def main(self, client):
         return client.cinder_client.volumes.create(**self.args)
