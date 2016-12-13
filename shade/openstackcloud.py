@@ -3337,7 +3337,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 import_from='{container}/{name}'.format(
                     container=container, name=name),
                 image_properties=dict(name=name)))
-        glance_task = self._image_client.post('/tasks', data=task_args)
+        glance_task = self._image_client.post('/tasks', json=task_args)
         self.list_images.invalidate(self)
         if wait:
             image_id = None
