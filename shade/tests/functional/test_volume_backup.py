@@ -23,6 +23,9 @@ class TestVolume(base.BaseFunctionalTestCase):
         if not self.demo_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
 
+        if not self.demo_cloud.has_service('object-store'):
+            self.skipTest('volume backups require swift')
+
     def test_create_get_delete_volume_backup(self):
         volume = self.demo_cloud.create_volume(
             display_name=self.getUniqueString(), size=1)
