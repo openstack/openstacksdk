@@ -491,11 +491,6 @@ class ContainerList(task_manager.Task):
         return client.swift_client.get_account(**self.args)[1]
 
 
-class ObjectCapabilities(task_manager.Task):
-    def main(self, client):
-        return client.swift_client.get_capabilities(**self.args)
-
-
 class ObjectDelete(task_manager.Task):
     def main(self, client):
         return client.swift_client.delete_object(**self.args)
