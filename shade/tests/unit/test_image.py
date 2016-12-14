@@ -74,7 +74,7 @@ class TestImage(base.RequestsMockTestCase):
         # We override the scheme of the endpoint with the scheme of the service
         # because glance has a bug where it doesn't return https properly.
         self.assertEqual(
-            'http://image.example.com/v1/',
+            'https://image.example.com/v1/',
             self.cloud._image_client.get_endpoint())
         self.assertEqual(
             '1', self.cloud_config.get_api_version('image'))
@@ -84,7 +84,7 @@ class TestImage(base.RequestsMockTestCase):
         # We override the scheme of the endpoint with the scheme of the service
         # because glance has a bug where it doesn't return https properly.
         self.assertEqual(
-            'http://image.example.com/v2/',
+            'https://image.example.com/v2/',
             self.cloud._image_client.get_endpoint())
         self.assertEqual(
             '2', self.cloud_config.get_api_version('image'))
@@ -101,7 +101,7 @@ class TestImage(base.RequestsMockTestCase):
 
     def test_download_image_no_images_found(self):
         self.adapter.get(
-            'http://image.example.com/v2/images',
+            'https://image.example.com/v2/images',
             json=dict(images=[]))
         self.assertRaises(exc.OpenStackCloudResourceNotFound,
                           self.cloud.download_image, 'fake_image',
@@ -109,10 +109,10 @@ class TestImage(base.RequestsMockTestCase):
 
     def _register_image_mocks(self):
         self.adapter.get(
-            'http://image.example.com/v2/images',
+            'https://image.example.com/v2/images',
             json=self.fake_search_return)
         self.adapter.get(
-            'http://image.example.com/v2/images/{id}/file'.format(
+            'https://image.example.com/v2/images/{id}/file'.format(
                 id=self.image_id),
             content=self.output,
             headers={
@@ -135,12 +135,12 @@ class TestImage(base.RequestsMockTestCase):
 
     def test_empty_list_images(self):
         self.adapter.register_uri(
-            'GET', 'http://image.example.com/v2/images', json={'images': []})
+            'GET', 'https://image.example.com/v2/images', json={'images': []})
         self.assertEqual([], self.cloud.list_images())
 
     def test_list_images(self):
         self.adapter.register_uri(
-            'GET', 'http://image.example.com/v2/images',
+            'GET', 'https://image.example.com/v2/images',
             json=self.fake_search_return)
         self.assertEqual(
             self.cloud._normalize_images([self.fake_image_dict]),
@@ -150,16 +150,16 @@ class TestImage(base.RequestsMockTestCase):
         self.cloud.image_api_use_tasks = False
 
         self.adapter.register_uri(
-            'GET', 'http://image.example.com/v2/images', [
+            'GET', 'https://image.example.com/v2/images', [
                 dict(json={'images': []}),
                 dict(json=self.fake_search_return),
             ])
         self.adapter.register_uri(
-            'POST', 'http://image.example.com/v2/images',
+            'POST', 'https://image.example.com/v2/images',
             json=self.fake_image_dict,
         )
         self.adapter.register_uri(
-            'PUT', 'http://image.example.com/v2/images/{id}/file'.format(
+            'PUT', 'https://image.example.com/v2/images/{id}/file'.format(
                 id=self.image_id),
             request_headers={'Content-Type': 'application/octet-stream'})
 
@@ -169,15 +169,15 @@ class TestImage(base.RequestsMockTestCase):
 
         calls = [
             dict(method='GET', url='http://192.168.0.19:35357/'),
-            dict(method='POST', url='http://example.com/v2.0/tokens'),
-            dict(method='GET', url='http://image.example.com/'),
-            dict(method='GET', url='http://image.example.com/v2/images'),
-            dict(method='POST', url='http://image.example.com/v2/images'),
+            dict(method='POST', url='https://example.com/v2.0/tokens'),
+            dict(method='GET', url='https://image.example.com/'),
+            dict(method='GET', url='https://image.example.com/v2/images'),
+            dict(method='POST', url='https://image.example.com/v2/images'),
             dict(
                 method='PUT',
-                url='http://image.example.com/v2/images/{id}/file'.format(
+                url='https://image.example.com/v2/images/{id}/file'.format(
                     id=self.image_id)),
-            dict(method='GET', url='http://image.example.com/v2/images'),
+            dict(method='GET', url='https://image.example.com/v2/images'),
         ]
         for x in range(0, len(calls)):
             self.assertEqual(
@@ -206,7 +206,7 @@ class TestImage(base.RequestsMockTestCase):
         self.cloud.image_api_use_tasks = True
 
         self.adapter.get(
-            'http://object-store.example.com/info',
+            'https://object-store.example.com/info',
             json=dict(
                 swift={'max_file_size': 1000},
                 slo={'min_segment_size': 500}))
@@ -607,7 +607,7 @@ class TestImageV1Only(base.RequestsMockTestCase):
         # We override the scheme of the endpoint with the scheme of the service
         # because glance has a bug where it doesn't return https properly.
         self.assertEqual(
-            'http://image.example.com/v1/',
+            'https://image.example.com/v1/',
             self.cloud._image_client.get_endpoint())
         self.assertEqual(
             '1', self.cloud_config.get_api_version('image'))
@@ -617,7 +617,7 @@ class TestImageV1Only(base.RequestsMockTestCase):
         # We override the scheme of the endpoint with the scheme of the service
         # because glance has a bug where it doesn't return https properly.
         self.assertEqual(
-            'http://image.example.com/v1/',
+            'https://image.example.com/v1/',
             self.cloud._image_client.get_endpoint())
         self.assertEqual(
             '1', self.cloud_config.get_api_version('image'))
@@ -634,7 +634,7 @@ class TestImageV2Only(base.RequestsMockTestCase):
         # We override the scheme of the endpoint with the scheme of the service
         # because glance has a bug where it doesn't return https properly.
         self.assertEqual(
-            'http://image.example.com/v2/',
+            'https://image.example.com/v2/',
             self.cloud._image_client.get_endpoint())
         self.assertEqual(
             '2', self.cloud_config.get_api_version('image'))
@@ -644,7 +644,7 @@ class TestImageV2Only(base.RequestsMockTestCase):
         # We override the scheme of the endpoint with the scheme of the service
         # because glance has a bug where it doesn't return https properly.
         self.assertEqual(
-            'http://image.example.com/v2/',
+            'https://image.example.com/v2/',
             self.cloud._image_client.get_endpoint())
         self.assertEqual(
             '2', self.cloud_config.get_api_version('image'))
