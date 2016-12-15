@@ -28,6 +28,7 @@ approach, this is where you'll want to begin.
    Connect to an OpenStack Cloud <guides/connect>
    Connect to an OpenStack Cloud Using a Config File <guides/connect_from_config>
    Logging <guides/logging>
+   Bare Metal <guides/bare_metal>
    Block Store <guides/block_store>
    Cluster <guides/cluster>
    Compute <guides/compute>
@@ -69,6 +70,7 @@ but listed below are the ones provided by this SDK by default.
 .. toctree::
    :maxdepth: 1
 
+   Bare Metal <proxies/bare_metal>
    Block Store <proxies/block_store>
    Cluster <proxies/cluster>
    Compute <proxies/compute>
@@ -96,6 +98,7 @@ The following services have exposed *Resource* classes.
 .. toctree::
    :maxdepth: 1
 
+   Bare Metal <resources/bare_metal/index>
    Block Store <resources/block_store/index>
    Cluster <resources/cluster/index>
    Compute <resources/compute/index>
