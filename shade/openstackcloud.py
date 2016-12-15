@@ -3340,6 +3340,7 @@ class OpenStackCloud(_normalize.Normalizer):
         glance_task = self._image_client.post('/tasks', json=task_args)
         self.list_images.invalidate(self)
         if wait:
+            start = time.time()
             image_id = None
             for count in _utils._iterate_timeout(
                     timeout,
@@ -3373,7 +3374,10 @@ class OpenStackCloud(_normalize.Normalizer):
                         continue
                     self.update_image_properties(
                         image=image, meta=meta, **image_kwargs)
-                    return self.get_image(status.result['image_id'])
+                    self.log.debug(
+                        "Image Task %s imported %s in %s",
+                        glance_task.id, image_id, (time.time() - start))
+                    return self.get_image(image_id)
                 if status.status == 'failure':
                     if status.message == IMAGE_ERROR_396:
                         glance_task = self._image_client.post(
