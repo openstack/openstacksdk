@@ -202,6 +202,7 @@ A Floating IP from Neutron or Nova
   FloatingIP = dict(
     location=Location(),
     id=str(),
+    description=str(),
     attached=bool(),
     fixed_ip_address=str() or None,
     floating_ip_address=str() or None,
@@ -209,6 +210,9 @@ A Floating IP from Neutron or Nova
     port=str() or None,
     router=str(),
     status=str(),
+    created_at=str() or None,
+    updated_at=str() or None,
+    revision_number=int() or None,
     properties=dict())
 
 Project
