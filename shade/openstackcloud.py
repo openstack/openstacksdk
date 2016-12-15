@@ -4403,7 +4403,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def _attach_ip_to_server(
             self, server, floating_ip,
             fixed_address=None, wait=False,
-            timeout=60, skip_attach=False):
+            timeout=60, skip_attach=False, nat_destination=None):
         """Attach a floating IP to a server.
 
         :param server: Server dict
@@ -4416,6 +4416,8 @@ class OpenStackCloud(_normalize.Normalizer):
                         See the ``wait`` parameter.
         :param skip_attach: (optional) Skip the actual attach and just do
                             the wait. Defaults to False.
+        :param nat_destination: The fixed network the server's port for the
+                                FIP to attach to will come from.
 
         :returns: The server ``munch.Munch``
 
@@ -4432,7 +4434,8 @@ class OpenStackCloud(_normalize.Normalizer):
                 try:
                     self._neutron_attach_ip_to_server(
                         server=server, floating_ip=floating_ip,
-                        fixed_address=fixed_address)
+                        fixed_address=fixed_address,
+                        nat_destination=nat_destination)
                 except OpenStackCloudURINotFound as e:
                     self.log.debug(
                         "Something went wrong talking to neutron API: "
@@ -4559,14 +4562,16 @@ class OpenStackCloud(_normalize.Normalizer):
         return (None, None)
 
     def _neutron_attach_ip_to_server(
-            self, server, floating_ip, fixed_address=None):
+            self, server, floating_ip, fixed_address=None,
+            nat_destination=None):
         with _utils.neutron_exceptions(
                 "unable to bind a floating ip to server "
                 "{0}".format(server['id'])):
 
             # Find an available port
             (port, fixed_address) = self._nat_destination_port(
-                server, fixed_address=fixed_address)
+                server, fixed_address=fixed_address,
+                nat_destination=nat_destination)
             if not port:
                 raise OpenStackCloudException(
                     "unable to find a port for server {0}".format(
@@ -4679,6 +4684,7 @@ class OpenStackCloud(_normalize.Normalizer):
         else:
             start_time = time.time()
             f_ip = self.create_floating_ip(
+                server=server,
                 network=network, nat_destination=nat_destination,
                 wait=wait, timeout=timeout)
             timeout = timeout - (time.time() - start_time)
@@ -4690,7 +4696,7 @@ class OpenStackCloud(_normalize.Normalizer):
         # with the FIP information.
         return self._attach_ip_to_server(
             server=server, floating_ip=f_ip, fixed_address=fixed_address,
-            wait=wait, timeout=timeout)
+            wait=wait, timeout=timeout, nat_destination=nat_destination)
 
     def add_ip_list(
             self, server, ips, wait=False, timeout=60,
