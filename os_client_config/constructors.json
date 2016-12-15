@@ -1,5 +1,6 @@
 {
     "compute": "novaclient.client.Client",
+    "container-infra": "magnumclient.client.Client",
     "database": "troveclient.client.Client",
     "identity": "keystoneclient.client.Client",
     "image": "glanceclient.Client",
