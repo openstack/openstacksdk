@@ -19,6 +19,7 @@ import munch
 import netifaces
 import re
 import six
+import sys
 import time
 
 from decorator import decorator
@@ -30,6 +31,12 @@ from shade import exc
 from shade import meta
 
 _decorated_methods = []
+
+
+def _exc_clear():
+    """Because sys.exc_clear is gone in py3 and is not in six."""
+    if sys.version_info[0] == 2:
+        sys.exc_clear()
 
 
 def _iterate_timeout(timeout, message, wait=2):
