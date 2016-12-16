@@ -511,11 +511,6 @@ class ObjectList(task_manager.Task):
         return client.swift_client.get_container(**self.args)[1]
 
 
-class ObjectMetadata(task_manager.Task):
-    def main(self, client):
-        return client.swift_client.head_object(**self.args)
-
-
 class ObjectGet(task_manager.Task):
     def main(self, client):
         return client.swift_client.get_object(**self.args)

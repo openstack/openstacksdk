@@ -5745,14 +5745,13 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def get_object_metadata(self, container, name):
         try:
-            return self.manager.submit_task(_tasks.ObjectMetadata(
-                container=container, obj=name))
-        except swift_exceptions.ClientException as e:
-            if e.http_status == 404:
+            return self._object_store_client.head(
+                '/{container}/{object}'.format(
+                    container=container, object=name)).headers
+        except OpenStackCloudException as e:
+            if e.response.status_code == 404:
                 return None
-            raise OpenStackCloudException(
-                "Object metadata fetch failed: %s (%s/%s)" % (
-                    e.http_reason, e.http_host, e.http_path))
+            raise
 
     def get_object(self, container, obj, query_string=None,
                    resp_chunk_size=None):
