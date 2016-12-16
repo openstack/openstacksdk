@@ -3350,6 +3350,9 @@ class OpenStackCloud(_normalize.Normalizer):
                             '/tasks/{id}'.format(id=glance_task.id))
                 except OpenStackCloudHTTPError as e:
                     if e.response.status_code == 503:
+                        # Clear the exception so that it doesn't linger
+                        # and get reported as an Inner Exception later
+                        _utils._exc_clear()
                         # Intermittent failure - catch and try again
                         continue
                     raise
@@ -3360,6 +3363,9 @@ class OpenStackCloud(_normalize.Normalizer):
                         image = self.get_image(image_id)
                     except OpenStackCloudHTTPError as e:
                         if e.response.status_code == 503:
+                            # Clear the exception so that it doesn't linger
+                            # and get reported as an Inner Exception later
+                            _utils._exc_clear()
                             # Intermittent failure - catch and try again
                             continue
                         raise
@@ -5556,6 +5562,9 @@ class OpenStackCloud(_normalize.Normalizer):
             caps = self.get_object_capabilities()
         except OpenStackCloudHTTPError as e:
             if e.response.status_code in (404, 412):
+                # Clear the exception so that it doesn't linger
+                # and get reported as an Inner Exception later
+                _utils._exc_clear()
                 server_max_file_size = DEFAULT_MAX_FILE_SIZE
                 self.log.info(
                     "Swift capabilities not supported. "
