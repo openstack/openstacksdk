@@ -3183,6 +3183,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     name, filename, container,
                     current_image=current_image,
                     wait=wait, timeout=timeout,
+                    md5=md5, sha256=sha256,
                     meta=meta, **kwargs)
             else:
                 # If a user used the v1 calling format, they will have
@@ -3312,7 +3313,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def _upload_image_task(
             self, name, filename, container, current_image,
-            wait, timeout, meta, **image_kwargs):
+            wait, timeout, meta, md5=None, sha256=None, **image_kwargs):
 
         parameters = image_kwargs.pop('parameters', {})
         image_kwargs.update(parameters)
@@ -3325,8 +3326,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         self.create_object(
             container, name, filename,
-            md5=image_kwargs.get('md5', None),
-            sha256=image_kwargs.get('sha256', None))
+            md5=md5, sha256=sha256)
         if not current_image:
             current_image = self.get_image(name)
         # TODO(mordred): Can we do something similar to what nodepool does
