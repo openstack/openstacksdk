@@ -14,6 +14,7 @@
 
 import sys
 
+import munch
 from requests import exceptions as _rex
 
 from shade import _log
@@ -26,7 +27,9 @@ class OpenStackCloudException(Exception):
     def __init__(self, message, extra_data=None, **kwargs):
         args = [message]
         if extra_data:
-            args.append(extra_data)
+            if isinstance(extra_data, munch.Munch):
+                extra_data = extra_data.toDict()
+            args.append("Extra: {0}".format(str(extra_data)))
         super(OpenStackCloudException, self).__init__(*args, **kwargs)
         self.extra_data = extra_data
         self.inner_exception = sys.exc_info()
@@ -40,8 +43,6 @@ class OpenStackCloudException(Exception):
 
     def __str__(self):
         message = Exception.__str__(self)
-        if self.extra_data is not None:
-            message = "%s (Extra: %s)" % (message, self.extra_data)
         if (self.inner_exception and self.inner_exception[1]
                 and not self.orig_message.endswith(
                     str(self.inner_exception[1]))):
