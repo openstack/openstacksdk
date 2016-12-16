@@ -196,12 +196,13 @@ class TestImage(base.RequestsMockTestCase):
             })
         self.assertEqual(self.adapter.request_history[5].text.read(), b'\x00')
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
     @mock.patch.object(shade.OpenStackCloud, 'swift_service')
     def test_create_image_task(self,
-                               swift_service_mock,
-                               swift_mock):
+                               swift_service_mock):
         self.cloud.image_api_use_tasks = True
+        image_name = 'name-99'
+        container_name = 'image_upload_v2_test_container'
+        endpoint = self.cloud._object_store_client.get_endpoint()
 
         self.adapter.get(
             'https://object-store.example.com/info',
@@ -209,12 +210,38 @@ class TestImage(base.RequestsMockTestCase):
                 swift={'max_file_size': 1000},
                 slo={'min_segment_size': 500}))
 
-        class Container(object):
-            name = 'image_upload_v2_test_container'
-
-        fake_container = Container()
-        swift_mock.put_container.return_value = fake_container
-        swift_mock.head_object.return_value = {}
+        self.adapter.put(
+            '{endpoint}/{container}'.format(
+                endpoint=endpoint,
+                container=container_name,),
+            status_code=201,
+            headers={
+                'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
+                'Content-Length': '0',
+                'Content-Type': 'text/html; charset=UTF-8',
+            })
+        self.adapter.head(
+            '{endpoint}/{container}'.format(
+                endpoint=endpoint,
+                container=container_name),
+            [
+                dict(status_code=404),
+                dict(headers={
+                    'Content-Length': '0',
+                    'X-Container-Object-Count': '0',
+                    'Accept-Ranges': 'bytes',
+                    'X-Storage-Policy': 'Policy-0',
+                    'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                    'X-Timestamp': '1481912480.41664',
+                    'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                    'X-Container-Bytes-Used': '0',
+                    'Content-Type': 'text/plain; charset=utf-8'}),
+            ])
+        self.adapter.head(
+            '{endpoint}/{container}/{object}'.format(
+                endpoint=endpoint,
+                container=container_name, object=image_name),
+            status_code=404)
 
         task_id = str(uuid.uuid4())
         args = dict(
@@ -255,8 +282,8 @@ class TestImage(base.RequestsMockTestCase):
         )
 
         self.cloud.create_image(
-            'name-99', self.imagefile.name, wait=True, timeout=1,
-            is_public=False, container='image_upload_v2_test_container')
+            image_name, self.imagefile.name, wait=True, timeout=1,
+            is_public=False, container=container_name)
 
         args = {
             'header': [
@@ -276,6 +303,26 @@ class TestImage(base.RequestsMockTestCase):
             dict(method='GET', url='https://image.example.com/'),
             dict(method='GET', url='https://image.example.com/v2/images'),
             dict(method='GET', url='https://object-store.example.com/info'),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}'.format(
+                    endpoint=endpoint,
+                    container=container_name)),
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}'.format(
+                    endpoint=endpoint,
+                    container=container_name)),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}'.format(
+                    endpoint=endpoint,
+                    container=container_name)),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}/{object}'.format(
+                    endpoint=endpoint,
+                    container=container_name, object=image_name)),
             dict(method='GET', url='https://image.example.com/v2/images'),
             dict(method='POST', url='https://image.example.com/v2/tasks'),
             dict(
@@ -300,17 +347,19 @@ class TestImage(base.RequestsMockTestCase):
             self.assertEqual(
                 calls[x]['url'], self.adapter.request_history[x].url)
         self.assertEqual(
-            self.adapter.request_history[6].json(),
+            self.adapter.request_history[10].json(),
             dict(
                 type='import', input={
-                    'import_from': 'image_upload_v2_test_container/name-99',
-                    'image_properties': {'name': 'name-99'}}))
+                    'import_from': '{container}/{object}'.format(
+                        container=container_name, object=image_name),
+                    'image_properties': {'name': image_name}}))
         self.assertEqual(
-            self.adapter.request_history[10].json(),
+            self.adapter.request_history[14].json(),
             sorted([
                 {
                     u'op': u'add',
-                    u'value': 'image_upload_v2_test_container/name-99',
+                    u'value': '{container}/{object}'.format(
+                        container=container_name, object=image_name),
                     u'path': u'/owner_specified.shade.object'
                 }, {
                     u'op': u'add',
@@ -321,7 +370,7 @@ class TestImage(base.RequestsMockTestCase):
                     u'path': u'/owner_specified.shade.sha256'
                 }], key=operator.itemgetter('value')))
         self.assertEqual(
-            self.adapter.request_history[10].headers['Content-Type'],
+            self.adapter.request_history[14].headers['Content-Type'],
             'application/openstack-images-v2.1-json-patch')
 
     def _image_dict(self, fake_image):
