@@ -993,7 +993,17 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @property
     def glance_client(self):
-        import glanceclient
+        warnings.warn(
+            'Using shade to get a glance_client object is deprecated. If you'
+            ' need a raw glanceclient.Client object, please use'
+            ' make_legacy_client in os-client-config instead')
+        try:
+            import glanceclient
+        except ImportError:
+            self.log.error(
+                'glanceclient is no longer a dependency of shade. You need to'
+                ' install python-glanceclient directly.')
+            raise
         if self._glance_client is None:
             self._glance_client = self._get_client(
                 'image', glanceclient.Client)
