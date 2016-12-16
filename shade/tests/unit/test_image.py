@@ -196,13 +196,11 @@ class TestImage(base.RequestsMockTestCase):
             })
         self.assertEqual(self.adapter.request_history[5].text.read(), b'\x00')
 
-    @mock.patch.object(shade.OpenStackCloud, '_image_client')
     @mock.patch.object(shade.OpenStackCloud, 'swift_client')
     @mock.patch.object(shade.OpenStackCloud, 'swift_service')
     def test_create_image_task(self,
                                swift_service_mock,
-                               swift_mock,
-                               mock_image_client):
+                               swift_mock):
         self.cloud.image_api_use_tasks = True
 
         self.adapter.get(
@@ -218,29 +216,44 @@ class TestImage(base.RequestsMockTestCase):
         swift_mock.put_container.return_value = fake_container
         swift_mock.head_object.return_value = {}
 
-        fake_image = munch.Munch(
-            id='a35e8afc-cae9-4e38-8441-2cd465f79f7b', name='name-99',
-            status='active', visibility='private')
-
-        args = munch.Munch(
-            id='21FBD9A7-85EC-4E07-9D58-72F1ACF7CB1F',
+        task_id = str(uuid.uuid4())
+        args = dict(
+            id=task_id,
             status='success',
             type='import',
             result={
-                'image_id': 'a35e8afc-cae9-4e38-8441-2cd465f79f7b',
+                'image_id': self.image_id,
             },
         )
 
-        # TODO(mordred): When we move this to requests_mock, we need to
-        # add a test that throwing a 503 response causes a retry
-        mock_image_client.get.side_effect = [
-            [],
-            [],
-            args,
-            [fake_image],
-            [fake_image],
-            [fake_image],
-        ]
+        image_no_checksums = self.fake_image_dict.copy()
+        del(image_no_checksums['owner_specified.shade.md5'])
+        del(image_no_checksums['owner_specified.shade.sha256'])
+        del(image_no_checksums['owner_specified.shade.object'])
+
+        self.adapter.register_uri(
+            'GET', 'https://image.example.com/v2/images', [
+                dict(json={'images': []}),
+                dict(json={'images': []}),
+                dict(json={'images': [image_no_checksums]}),
+                dict(json=self.fake_search_return),
+            ])
+        self.adapter.register_uri(
+            'POST', 'https://image.example.com/v2/tasks',
+            json=args)
+        self.adapter.register_uri(
+            'PATCH',
+            'https://image.example.com/v2/images/{id}'.format(
+                id=self.image_id))
+        self.adapter.register_uri(
+            'GET',
+            'https://image.example.com/v2/tasks/{id}'.format(id=task_id),
+            [
+                dict(status_code=503, text='Random error'),
+                dict(json={'images': args}),
+            ]
+        )
+
         self.cloud.create_image(
             'name-99', self.imagefile.name, wait=True, timeout=1,
             is_public=False, container='image_upload_v2_test_container')
@@ -257,20 +270,44 @@ class TestImage(base.RequestsMockTestCase):
             objects=mock.ANY,
             options=args)
 
-        mock_image_client.post.assert_called_with(
-            '/tasks',
-            data=dict(
+        calls = [
+            dict(method='GET', url='http://192.168.0.19:35357/'),
+            dict(method='POST', url='https://example.com/v2.0/tokens'),
+            dict(method='GET', url='https://image.example.com/'),
+            dict(method='GET', url='https://image.example.com/v2/images'),
+            dict(method='GET', url='https://object-store.example.com/info'),
+            dict(method='GET', url='https://image.example.com/v2/images'),
+            dict(method='POST', url='https://image.example.com/v2/tasks'),
+            dict(
+                method='GET',
+                url='https://image.example.com/v2/tasks/{id}'.format(
+                    id=task_id)),
+            dict(
+                method='GET',
+                url='https://image.example.com/v2/tasks/{id}'.format(
+                    id=task_id)),
+            dict(method='GET', url='https://image.example.com/v2/images'),
+            dict(
+                method='PATCH',
+                url='https://image.example.com/v2/images/{id}'.format(
+                    id=self.image_id)),
+            dict(method='GET', url='https://image.example.com/v2/images'),
+        ]
+
+        for x in range(0, len(calls)):
+            self.assertEqual(
+                calls[x]['method'], self.adapter.request_history[x].method)
+            self.assertEqual(
+                calls[x]['url'], self.adapter.request_history[x].url)
+        self.assertEqual(
+            self.adapter.request_history[6].json(),
+            dict(
                 type='import', input={
                     'import_from': 'image_upload_v2_test_container/name-99',
                     'image_properties': {'name': 'name-99'}}))
-        object_path = 'image_upload_v2_test_container/name-99'
-        args = {'owner_specified.shade.md5': NO_MD5,
-                'owner_specified.shade.sha256': NO_SHA256,
-                'owner_specified.shade.object': object_path,
-                'image_id': 'a35e8afc-cae9-4e38-8441-2cd465f79f7b'}
-        mock_image_client.patch.assert_called_with(
-            '/images/a35e8afc-cae9-4e38-8441-2cd465f79f7b',
-            json=sorted([
+        self.assertEqual(
+            self.adapter.request_history[10].json(),
+            sorted([
                 {
                     u'op': u'add',
                     u'value': 'image_upload_v2_test_container/name-99',
@@ -282,14 +319,10 @@ class TestImage(base.RequestsMockTestCase):
                 }, {
                     u'op': u'add', u'value': NO_SHA256,
                     u'path': u'/owner_specified.shade.sha256'
-                }], key=operator.itemgetter('value')),
-            headers={
-                'Content-Type': 'application/openstack-images-v2.1-json-patch'
-            })
-
+                }], key=operator.itemgetter('value')))
         self.assertEqual(
-            self.cloud._normalize_images([fake_image]),
-            self.cloud.list_images())
+            self.adapter.request_history[10].headers['Content-Type'],
+            'application/openstack-images-v2.1-json-patch')
 
     def _image_dict(self, fake_image):
         return self.cloud._normalize_image(meta.obj_to_dict(fake_image))
