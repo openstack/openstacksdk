@@ -32,7 +32,7 @@ class TestDevstack(base.BaseFunctionalTestCase):
     scenarios = [
         ('designate', dict(env='DESIGNATE', service='dns')),
         ('heat', dict(env='HEAT', service='orchestration')),
-        ('magnum', dict(env='MAGNUM', service='container')),
+        ('magnum', dict(env='MAGNUM', service='container-infra')),
         ('neutron', dict(env='NEUTRON', service='network')),
         ('swift', dict(env='SWIFT', service='object-store')),
     ]

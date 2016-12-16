@@ -1086,7 +1086,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def magnum_client(self):
         if self._magnum_client is None:
             self._magnum_client = self._get_client(
-                'container', magnumclient.client.Client)
+                'container-infra', magnumclient.client.Client)
         return self._magnum_client
 
     @property

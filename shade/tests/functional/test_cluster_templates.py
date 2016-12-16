@@ -31,7 +31,7 @@ class TestClusterTemplate(base.BaseFunctionalTestCase):
 
     def setUp(self):
         super(TestClusterTemplate, self).setUp()
-        if not self.demo_cloud.has_service('container'):
+        if not self.demo_cloud.has_service('container-infra'):
             self.skipTest('Container service not supported by cloud')
         self.ct = None
 
