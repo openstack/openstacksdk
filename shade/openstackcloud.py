@@ -1085,8 +1085,15 @@ class OpenStackCloud(_normalize.Normalizer):
     @property
     def magnum_client(self):
         if self._magnum_client is None:
+            # Workaround for os-client-config <=1.24.0 which thought of
+            # this as container rather than container-infra (so did we all)
+            version = self.cloud_config.get_api_version('container-infra')
+            if not version:
+                version = self.cloud_config.get_api_version('container')
             self._magnum_client = self._get_client(
-                'container-infra', magnumclient.client.Client)
+                service_key='container-infra',
+                client_class=magnumclient.client.Client,
+                version=version)
         return self._magnum_client
 
     @property
