@@ -5,6 +5,15 @@ clouds:
       password: password
       project_name: admin
       username: admin
+      user_domain_name: default
+      project_domain_name: default
+    region_name: RegionOne
+  _test_cloud_v2_:
+    auth:
+      auth_url: http://192.168.0.19:35357
+      password: password
+      project_name: admin
+      username: admin
     identity_api_version: '2.0'
     region_name: RegionOne
   _bogus_test_:

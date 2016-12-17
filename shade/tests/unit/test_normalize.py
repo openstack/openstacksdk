@@ -207,7 +207,7 @@ class TestUtils(base.TestCase):
                 'cloud': '_test_cloud_',
                 'project': {
                     'domain_id': None,
-                    'domain_name': None,
+                    'domain_name': 'default',
                     'id': mock.ANY,
                     'name': 'admin'},
                 'region_name': u'RegionOne',
@@ -248,7 +248,7 @@ class TestUtils(base.TestCase):
                 'cloud': '_test_cloud_',
                 'project': {
                     'domain_id': None,
-                    'domain_name': None,
+                    'domain_name': 'default',
                     'id': mock.ANY,
                     'name': 'admin'},
                 'region_name': u'RegionOne',
@@ -296,7 +296,7 @@ class TestUtils(base.TestCase):
                 'cloud': '_test_cloud_',
                 'project': {
                     'domain_id': None,
-                    'domain_name': None,
+                    'domain_name': 'default',
                     'id': mock.ANY,
                     'name': 'admin'},
                 'region_name': u'RegionOne',
@@ -375,7 +375,7 @@ class TestUtils(base.TestCase):
                 'cloud': '_test_cloud_',
                 'project': {
                     'domain_id': None,
-                    'domain_name': None,
+                    'domain_name': 'default',
                     'id': mock.ANY,
                     'name': 'admin'},
                 'region_name': u'RegionOne',
@@ -721,7 +721,7 @@ class TestUtils(base.TestCase):
                 region_name='RegionOne',
                 zone=None,
                 project=dict(
-                    domain_name=None,
+                    domain_name='default',
                     id=mock.ANY,
                     domain_id=None,
                     name='admin'),
@@ -736,7 +736,7 @@ class TestUtils(base.TestCase):
                          region_name='RegionOne',
                          zone=None,
                          project=dict(
-                             domain_name=None,
+                             domain_name='default',
                              id=mock.ANY,
                              domain_id=None,
                              name='admin'),
@@ -769,7 +769,7 @@ class TestUtils(base.TestCase):
                 region_name='RegionOne',
                 zone=None,
                 project=dict(
-                    domain_name=None,
+                    domain_name='default',
                     id=mock.ANY,
                     domain_id=None,
                     name='admin'),
@@ -786,7 +786,7 @@ class TestUtils(base.TestCase):
                          region_name='RegionOne',
                          zone=None,
                          project=dict(
-                             domain_name=None,
+                             domain_name='default',
                              id=mock.ANY,
                              domain_id=None,
                              name='admin'),
@@ -827,7 +827,7 @@ class TestUtils(base.TestCase):
                      region_name='RegionOne',
                      zone=None,
                      project=dict(
-                         domain_name=None,
+                         domain_name='default',
                          id=mock.ANY,
                          domain_id=None,
                          name='admin'),
@@ -865,7 +865,7 @@ class TestUtils(base.TestCase):
                 'cloud': '_test_cloud_',
                 'project': {
                     'domain_id': None,
-                    'domain_name': None,
+                    'domain_name': 'default',
                     'id': mock.ANY,
                     'name': 'admin'},
                 'region_name': u'RegionOne',
@@ -970,7 +970,7 @@ class TestUtils(base.TestCase):
                 'cloud': '_test_cloud_',
                 'project': {
                     'domain_id': None,
-                    'domain_name': None,
+                    'domain_name': 'default',
                     'id': mock.ANY,
                     'name': 'admin'},
                 'region_name': u'RegionOne',

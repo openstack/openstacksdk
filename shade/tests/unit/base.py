@@ -85,9 +85,9 @@ class BaseTestCase(base.TestCase):
             log_inner_exceptions=True)
 
         # Any unit tests using betamax directly need a ksa.Session with
-        # an auth dict.
+        # an auth dict. The cassette is currently written with v2 as well
         self.full_cloud_config = self.config.get_one_cloud(
-            cloud=test_cloud)
+            cloud='_test_cloud_v2_')
         self.full_cloud = shade.OpenStackCloud(
             cloud_config=self.full_cloud_config,
             log_inner_exceptions=True)
@@ -108,48 +108,67 @@ class TestCase(BaseTestCase):
 
 class RequestsMockTestCase(BaseTestCase):
 
-    def setUp(
-            self,
-            cloud_config_fixture='clouds.yaml',
-            discovery_json='discovery.json',
-            image_version_json='image-version.json'):
+    def setUp(self, cloud_config_fixture='clouds.yaml'):
 
         super(RequestsMockTestCase, self).setUp(
             cloud_config_fixture=cloud_config_fixture)
 
+        self.discovery_json = os.path.join(
+            self.fixtures_directory, 'discovery.json')
+        self.use_keystone_v3()
+
+    def use_keystone_v3(self):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.adapter.get(
             'http://192.168.0.19:35357/',
+            text=open(self.discovery_json, 'r').read())
+        self.adapter.post(
+            'https://example.com/v3/auth/tokens',
+            headers={
+                'X-Subject-Token': self.getUniqueString()},
             text=open(
                 os.path.join(
                     self.fixtures_directory,
-                    discovery_json),
+                    'catalog-v3.json'),
                 'r').read())
+        self.calls = [
+            dict(method='GET', url='http://192.168.0.19:35357/'),
+            dict(method='POST', url='https://example.com/v3/auth/tokens'),
+        ]
+        self._make_test_cloud(identity_api_version='3')
+
+    def use_keystone_v2(self):
+        self.adapter = self.useFixture(rm_fixture.Fixture())
+        self.adapter.get(
+            'http://192.168.0.19:35357/',
+            text=open(self.discovery_json, 'r').read())
         self.adapter.post(
             'https://example.com/v2.0/tokens',
             text=open(
                 os.path.join(
                     self.fixtures_directory,
-                    'catalog.json'),
+                    'catalog-v2.json'),
                 'r').read())
-        self.adapter.get(
-            'https://image.example.com/',
-            text=open(
-                os.path.join(
-                    self.fixtures_directory,
-                    image_version_json),
-                'r').read())
-
-        test_cloud = os.environ.get('SHADE_OS_CLOUD', '_test_cloud_')
-        self.cloud_config = self.config.get_one_cloud(
-            cloud=test_cloud, validate=True)
-        self.cloud = shade.OpenStackCloud(
-            cloud_config=self.cloud_config,
-            log_inner_exceptions=True)
         self.calls = [
             dict(method='GET', url='http://192.168.0.19:35357/'),
             dict(method='POST', url='https://example.com/v2.0/tokens'),
         ]
+        self._make_test_cloud(identity_api_version='2.0')
+
+    def _make_test_cloud(self, **kwargs):
+        test_cloud = os.environ.get('SHADE_OS_CLOUD', '_test_cloud_')
+        self.cloud_config = self.config.get_one_cloud(
+            cloud=test_cloud, validate=True, **kwargs)
+        self.cloud = shade.OpenStackCloud(
+            cloud_config=self.cloud_config,
+            log_inner_exceptions=True)
+
+    def use_glance(self, image_version_json='image-version.json'):
+        discovery_fixture = os.path.join(
+            self.fixtures_directory, image_version_json)
+        self.adapter.get(
+            'https://image.example.com/',
+            text=open(discovery_fixture, 'r').read())
 
     def assert_calls(self):
         self.assertEqual(len(self.calls), len(self.adapter.request_history))

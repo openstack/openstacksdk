@@ -68,6 +68,7 @@ class TestImage(base.RequestsMockTestCase):
             u'protected': False}
         self.fake_search_return = {'images': [self.fake_image_dict]}
         self.output = uuid.uuid4().bytes
+        self.use_glance()
 
     def test_config_v1(self):
         self.cloud.cloud_config.config['image_api_version'] = '1'
@@ -666,10 +667,11 @@ class TestImage(base.RequestsMockTestCase):
 class TestImageV1Only(base.RequestsMockTestCase):
 
     def setUp(self):
-        super(TestImageV1Only, self).setUp(
-            image_version_json='image-version-v1.json')
+        super(TestImageV1Only, self).setUp()
+        self.use_glance(image_version_json='image-version-v1.json')
 
     def test_config_v1(self):
+
         self.cloud.cloud_config.config['image_api_version'] = '1'
         # We override the scheme of the endpoint with the scheme of the service
         # because glance has a bug where it doesn't return https properly.
@@ -693,8 +695,8 @@ class TestImageV1Only(base.RequestsMockTestCase):
 class TestImageV2Only(base.RequestsMockTestCase):
 
     def setUp(self):
-        super(TestImageV2Only, self).setUp(
-            image_version_json='image-version-v2.json')
+        super(TestImageV2Only, self).setUp()
+        self.use_glance(image_version_json='image-version-v2.json')
 
     def test_config_v1(self):
         self.cloud.cloud_config.config['image_api_version'] = '1'
