@@ -55,6 +55,7 @@ import copy
 import logging
 import six
 
+from openstack.bare_metal import bare_metal_service
 from openstack.block_store import block_store_service
 from openstack.cluster import cluster_service
 from openstack.compute import compute_service
@@ -92,6 +93,7 @@ class Profile(object):
         self._services = {}
 
         self._add_service(alarm_service.AlarmService(version="v2"))
+        self._add_service(bare_metal_service.BareMetalService(version="v1"))
         self._add_service(block_store_service.BlockStoreService(version="v2"))
         self._add_service(cluster_service.ClusterService(version="v1"))
         self._add_service(compute_service.ComputeService(version="v2"))
