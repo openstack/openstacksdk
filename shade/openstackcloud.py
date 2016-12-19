@@ -5479,9 +5479,10 @@ class OpenStackCloud(_normalize.Normalizer):
     def delete_container(self, name):
         try:
             self._object_store_client.delete(name)
+            return True
         except OpenStackCloudHTTPError as e:
             if e.response.status_code == 404:
-                return
+                return False
             if e.response.status_code == 409:
                 raise OpenStackCloudException(
                     'Attempt to delete container {container} failed. The'

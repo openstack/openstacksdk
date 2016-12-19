@@ -140,26 +140,26 @@ class TestObject(base.RequestsMockTestCase):
 
     def test_delete_container(self):
         self.adapter.delete(self.container_endpoint)
-        deleted = self.cloud.delete_container(self.container)
+
+        self.assertTrue(self.cloud.delete_container(self.container))
+
         self.calls += [
             dict(method='DELETE', url=self.container_endpoint),
         ]
         self.assert_calls()
-        # TODO(mordred) This should be True/False not None all the time
-        self.assertIsNone(deleted)
 
     def test_delete_container_404(self):
         """No exception when deleting a container that does not exist"""
         self.adapter.delete(
             self.container_endpoint,
             status_code=404)
-        deleted = self.cloud.delete_container(self.container)
+
+        self.assertFalse(self.cloud.delete_container(self.container))
+
         self.calls += [
             dict(method='DELETE', url=self.container_endpoint),
         ]
         self.assert_calls()
-        # TODO(mordred) This should be True/False not None all the time
-        self.assertIsNone(deleted)
 
     def test_delete_container_error(self):
         """Non-404 swift error re-raised as OSCE"""
