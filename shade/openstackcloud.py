@@ -5445,9 +5445,16 @@ class OpenStackCloud(_normalize.Normalizer):
         return True
 
     def list_containers(self, full_listing=True):
+        """List containers.
+
+        :param full_listing: Ignored. Present for backwards compat
+
+        :returns: list of Munch of the container objects
+
+        :raises: OpenStackCloudException on operation error.
+        """
         try:
-            return self.manager.submit_task(_tasks.ContainerList(
-                full_listing=full_listing))
+            return self.manager.submit_task(_tasks.ContainerList())
         except swift_exceptions.ClientException as e:
             raise OpenStackCloudException(
                 "Container list failed: %s (%s/%s)" % (
@@ -5716,9 +5723,18 @@ class OpenStackCloud(_normalize.Normalizer):
                     e.http_reason, e.http_host, e.http_path))
 
     def list_objects(self, container, full_listing=True):
+        """List objects.
+
+        :param container: Name of the container to list objects in.
+        :param full_listing: Ignored. Present for backwards compat
+
+        :returns: list of Munch of the objects
+
+        :raises: OpenStackCloudException on operation error.
+        """
         try:
             return self.manager.submit_task(_tasks.ObjectList(
-                container=container, full_listing=full_listing))
+                container=container))
         except swift_exceptions.ClientException as e:
             raise OpenStackCloudException(
                 "Object list failed: %s (%s/%s)" % (

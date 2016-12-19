@@ -278,33 +278,6 @@ class TestObject(base.RequestsMockTestCase):
             self.cloud.get_container_access(self.container)
 
     def test_list_containers(self):
-        # TODO(mordred) swiftclient sends format=json in the query string
-        # we'll want to send it in the accept header. Also, swiftclient
-        # always sends a second GET with marker set to the name of the last
-        # element returned previously. We should be able to infer if this is
-        # needed by checking swfit.account_listing_limit in the capabilities
-        # OR by looking at the value of 'X-Account-Container-Count' in the
-        # returned headers and seeing if it's larger than the number of
-        # containers returned.
-        first = '{endpoint}?format=json'.format(
-            endpoint=self.endpoint)
-        second = '{endpoint}?format=json&marker={first}'.format(
-            endpoint=self.endpoint, first=self.container)
-        containers = [
-            {u'count': 0, u'bytes': 0, u'name': self.container}]
-
-        self.adapter.get(first, complete_qs=True, json=containers)
-        self.adapter.get(second, complete_qs=True, status_code=204)
-
-        ret = self.cloud.list_containers()
-        self.calls += [
-            dict(method='GET', url=first),
-            dict(method='GET', url=second),
-        ]
-        self.assert_calls()
-        self.assertEqual(containers, ret)
-
-    def test_list_containers_not_full(self):
         endpoint = '{endpoint}?format=json'.format(
             endpoint=self.endpoint)
         containers = [
@@ -312,7 +285,7 @@ class TestObject(base.RequestsMockTestCase):
 
         self.adapter.get(endpoint, complete_qs=True, json=containers)
 
-        ret = self.cloud.list_containers(full_listing=False)
+        ret = self.cloud.list_containers()
 
         self.calls += [
             dict(method='GET', url=endpoint),
@@ -330,31 +303,6 @@ class TestObject(base.RequestsMockTestCase):
             exc.OpenStackCloudException, self.cloud.list_containers)
 
     def test_list_objects(self):
-        first = '{endpoint}?format=json'.format(
-            endpoint=self.container_endpoint)
-        second = '{endpoint}?format=json&marker={first}'.format(
-            endpoint=self.container_endpoint, first=self.object)
-
-        objects = [{
-            u'bytes': 20304400896,
-            u'last_modified': u'2016-12-15T13:34:13.650090',
-            u'hash': u'daaf9ed2106d09bba96cf193d866445e',
-            u'name': self.object,
-            u'content_type': u'application/octet-stream'}]
-
-        self.adapter.get(first, complete_qs=True, json=objects)
-        self.adapter.get(second, complete_qs=True, status_code=204)
-
-        ret = self.cloud.list_objects(self.container)
-
-        self.calls += [
-            dict(method='GET', url=first),
-            dict(method='GET', url=second),
-        ]
-        self.assert_calls()
-        self.assertEqual(objects, ret)
-
-    def test_list_objects_not_full(self):
         endpoint = '{endpoint}?format=json'.format(
             endpoint=self.container_endpoint)
 
@@ -367,7 +315,7 @@ class TestObject(base.RequestsMockTestCase):
 
         self.adapter.get(endpoint, complete_qs=True, json=objects)
 
-        ret = self.cloud.list_objects(self.container, full_listing=False)
+        ret = self.cloud.list_objects(self.container)
 
         self.calls += [
             dict(method='GET', url=endpoint),
