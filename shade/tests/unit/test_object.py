@@ -384,71 +384,21 @@ class TestObject(base.RequestsMockTestCase):
             self.cloud.list_objects, self.container)
 
     def test_delete_object(self):
-        # TODO(mordred) calling get_object_metadata first is stupid. We should
-        # just make the delete call and if it 404's, then the object didn't
-        # exist.
-        self.adapter.head(
-            self.object_endpoint,
-            headers={
-                'Content-Length': '20304400896',
-                'Content-Type': 'application/octet-stream',
-                'Accept-Ranges': 'bytes',
-                'Last-Modified': 'Thu, 15 Dec 2016 13:34:14 GMT',
-                'Etag': '"b5c454b44fbd5344793e3fb7e3850768"',
-                'X-Timestamp': '1481808853.65009',
-                'X-Trans-Id': 'tx68c2a2278f0c469bb6de1-005857ed80dfw1',
-                'Date': 'Mon, 19 Dec 2016 14:24:00 GMT',
-                'X-Static-Large-Object': 'True',
-                'X-Object-Meta-Mtime': '1481513709.168512',
-            })
         self.adapter.delete(self.object_endpoint, status_code=204)
 
         self.assertTrue(self.cloud.delete_object(self.container, self.object))
 
         self.calls += [
-            dict(method='HEAD', url=self.object_endpoint),
             dict(method='DELETE', url=self.object_endpoint),
         ]
         self.assert_calls()
 
     def test_delete_object_not_found(self):
-        self.adapter.head(self.object_endpoint, status_code=404)
+        self.adapter.delete(self.object_endpoint, status_code=404)
 
         self.assertFalse(self.cloud.delete_object(self.container, self.object))
 
         self.calls += [
-            dict(method='HEAD', url=self.object_endpoint),
-        ]
-        self.assert_calls()
-
-    def test_delete_object_exception(self):
-        self.adapter.head(
-            self.object_endpoint,
-            headers={
-                'Content-Length': '20304400896',
-                'Content-Type': 'application/octet-stream',
-                'Accept-Ranges': 'bytes',
-                'Last-Modified': 'Thu, 15 Dec 2016 13:34:14 GMT',
-                'Etag': '"b5c454b44fbd5344793e3fb7e3850768"',
-                'X-Timestamp': '1481808853.65009',
-                'X-Trans-Id': 'tx68c2a2278f0c469bb6de1-005857ed80dfw1',
-                'Date': 'Mon, 19 Dec 2016 14:24:00 GMT',
-                'X-Static-Large-Object': 'True',
-                'X-Object-Meta-Mtime': '1481513709.168512',
-            })
-
-        # TODO(mordred) This version of the code is prone to race conditions
-        # When we stop doing HEAD first, we can kill this test.
-        self.adapter.delete(self.object_endpoint, status_code=404)
-
-        self.assertRaises(
-            shade.OpenStackCloudException,
-            self.cloud.delete_object,
-            self.container,
-            self.object)
-
-        self.calls += [
-            dict(method='HEAD', url=self.object_endpoint),
             dict(method='DELETE', url=self.object_endpoint),
         ]
         self.assert_calls()

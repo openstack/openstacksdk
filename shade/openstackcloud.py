@@ -5734,16 +5734,12 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        if not self.get_object_metadata(container, name):
-            return False
         try:
             self.manager.submit_task(_tasks.ObjectDelete(
                 container=container, obj=name))
-        except swift_exceptions.ClientException as e:
-            raise OpenStackCloudException(
-                "Object deletion failed: %s (%s/%s)" % (
-                    e.http_reason, e.http_host, e.http_path))
-        return True
+            return True
+        except swift_exceptions.ClientException:
+            return False
 
     def get_object_metadata(self, container, name):
         try:
