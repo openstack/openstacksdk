@@ -146,3 +146,17 @@ class RequestsMockTestCase(BaseTestCase):
         self.cloud = shade.OpenStackCloud(
             cloud_config=self.cloud_config,
             log_inner_exceptions=True)
+        self.calls = [
+            dict(method='GET', url='http://192.168.0.19:35357/'),
+            dict(method='POST', url='https://example.com/v2.0/tokens'),
+        ]
+
+    def assert_calls(self):
+        self.assertEqual(len(self.calls), len(self.adapter.request_history))
+        for x in range(0, len(self.calls)):
+            self.assertEqual(
+                self.calls[x]['method'],
+                self.adapter.request_history[x].method)
+            self.assertEqual(
+                self.calls[x]['url'],
+                self.adapter.request_history[x].url)

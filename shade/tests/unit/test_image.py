@@ -167,9 +167,7 @@ class TestImage(base.RequestsMockTestCase):
             'fake_image', self.imagefile.name, wait=True, timeout=1,
             is_public=False)
 
-        calls = [
-            dict(method='GET', url='http://192.168.0.19:35357/'),
-            dict(method='POST', url='https://example.com/v2.0/tokens'),
+        self.calls += [
             dict(method='GET', url='https://image.example.com/'),
             dict(method='GET', url='https://image.example.com/v2/images'),
             dict(method='POST', url='https://image.example.com/v2/images'),
@@ -179,11 +177,7 @@ class TestImage(base.RequestsMockTestCase):
                     id=self.image_id)),
             dict(method='GET', url='https://image.example.com/v2/images'),
         ]
-        for x in range(0, len(calls)):
-            self.assertEqual(
-                calls[x]['method'], self.adapter.request_history[x].method)
-            self.assertEqual(
-                calls[x]['url'], self.adapter.request_history[x].url)
+        self.assert_calls()
         self.assertEqual(
             self.adapter.request_history[4].json(), {
                 u'container_format': u'bare',
@@ -297,9 +291,7 @@ class TestImage(base.RequestsMockTestCase):
             objects=mock.ANY,
             options=args)
 
-        calls = [
-            dict(method='GET', url='http://192.168.0.19:35357/'),
-            dict(method='POST', url='https://example.com/v2.0/tokens'),
+        self.calls += [
             dict(method='GET', url='https://image.example.com/'),
             dict(method='GET', url='https://image.example.com/v2/images'),
             dict(method='GET', url='https://object-store.example.com/info'),
@@ -341,11 +333,7 @@ class TestImage(base.RequestsMockTestCase):
             dict(method='GET', url='https://image.example.com/v2/images'),
         ]
 
-        for x in range(0, len(calls)):
-            self.assertEqual(
-                calls[x]['method'], self.adapter.request_history[x].method)
-            self.assertEqual(
-                calls[x]['url'], self.adapter.request_history[x].url)
+        self.assert_calls()
         self.assertEqual(
             self.adapter.request_history[10].json(),
             dict(
