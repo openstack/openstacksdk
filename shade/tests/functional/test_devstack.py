@@ -40,3 +40,13 @@ class TestDevstack(base.BaseFunctionalTestCase):
     def test_has_service(self):
         if os.environ.get('SHADE_HAS_{env}'.format(env=self.env), '0') == '1':
             self.assertTrue(self.demo_cloud.has_service(self.service))
+
+
+class TestKeystoneVersion(base.BaseFunctionalTestCase):
+
+    def test_keystone_version(self):
+        use_keystone_v2 = os.environ.get('SHADE_USE_KEYSTONE_V2', False)
+        if use_keystone_v2 and use_keystone_v2 != '0':
+            self.assertEqual('2.0', self.identity_version)
+        else:
+            self.assertEqual('3', self.identity_version)

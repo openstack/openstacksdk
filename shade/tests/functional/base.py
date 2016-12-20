@@ -36,3 +36,6 @@ class BaseFunctionalTestCase(base.TestCase):
         self.operator_cloud = shade.OperatorCloud(
             cloud_config=operator_config,
             log_inner_exceptions=True)
+
+        self.identity_version = \
+            self.operator_cloud.cloud_config.get_api_version('identity')

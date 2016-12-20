@@ -35,8 +35,6 @@ class TestIdentity(base.BaseFunctionalTestCase):
         self.group_prefix = self.getUniqueString('group')
 
         self.addCleanup(self._cleanup_users)
-        self.identity_version = \
-            self.operator_cloud.cloud_config.get_api_version('identity')
         if self.identity_version not in ('2', '2.0'):
             self.addCleanup(self._cleanup_groups)
         self.addCleanup(self._cleanup_roles)
