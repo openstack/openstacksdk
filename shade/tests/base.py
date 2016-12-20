@@ -18,6 +18,7 @@
 import os
 
 import fixtures
+import munch
 import testtools
 
 import shade
@@ -57,3 +58,12 @@ class TestCase(testtools.TestCase):
 
         shade.simple_logging(debug=True)
         self.log_fixture = self.useFixture(fixtures.FakeLogger())
+
+    def assertEqual(self, first, second, *args, **kwargs):
+        '''Munch aware wrapper'''
+        if isinstance(first, munch.Munch):
+            first = first.toDict()
+        if isinstance(second, munch.Munch):
+            second = second.toDict()
+        return super(TestCase, self).assertEqual(
+            first, second, *args, **kwargs)

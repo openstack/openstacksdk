@@ -227,7 +227,7 @@ class TestUtils(base.TestCase):
             'rxtx_factor': 1600.0,
             'swap': 0,
             'vcpus': 8}
-        retval = self.cloud._normalize_flavor(raw_flavor).toDict()
+        retval = self.cloud._normalize_flavor(raw_flavor)
         self.assertEqual(expected, retval)
 
     def test_normalize_flavors_strict(self):
@@ -260,7 +260,7 @@ class TestUtils(base.TestCase):
             'rxtx_factor': 1600.0,
             'swap': 0,
             'vcpus': 8}
-        retval = self.strict_cloud._normalize_flavor(raw_flavor).toDict()
+        retval = self.strict_cloud._normalize_flavor(raw_flavor)
         self.assertEqual(expected, retval)
 
     def test_normalize_nova_images(self):
@@ -356,7 +356,7 @@ class TestUtils(base.TestCase):
             'updated_at': u'2015-02-15T23:04:34Z',
             'virtual_size': 0,
             'visibility': 'private'}
-        retval = self.cloud._normalize_image(raw_image).toDict()
+        retval = self.cloud._normalize_image(raw_image)
         self.assertEqual(expected, retval)
 
     def test_normalize_nova_images_strict(self):
@@ -410,7 +410,7 @@ class TestUtils(base.TestCase):
             'updated_at': u'2015-02-15T23:04:34Z',
             'virtual_size': 0,
             'visibility': 'private'}
-        retval = self.strict_cloud._normalize_image(raw_image).toDict()
+        retval = self.strict_cloud._normalize_image(raw_image)
         self.assertEqual(sorted(expected.keys()), sorted(retval.keys()))
         self.assertEqual(expected, retval)
 
@@ -501,7 +501,7 @@ class TestUtils(base.TestCase):
             'visibility': u'private',
             u'vm_mode': u'hvm',
             u'xenapi_use_agent': u'False'}
-        retval = self.cloud._normalize_image(raw_image).toDict()
+        retval = self.cloud._normalize_image(raw_image)
         self.assertEqual(expected, retval)
 
     def test_normalize_glance_images_strict(self):
@@ -553,7 +553,7 @@ class TestUtils(base.TestCase):
             'updated_at': u'2015-02-15T23:04:34Z',
             'virtual_size': 0,
             'visibility': 'private'}
-        retval = self.strict_cloud._normalize_image(raw_image).toDict()
+        retval = self.strict_cloud._normalize_image(raw_image)
         self.assertEqual(sorted(expected.keys()), sorted(retval.keys()))
         self.assertEqual(expected, retval)
 
@@ -614,7 +614,7 @@ class TestUtils(base.TestCase):
             'user_id': u'e9b21dc437d149858faee0898fb08e92',
             'vm_state': u'active',
             'volumes': []}
-        retval = self.strict_cloud._normalize_server(raw_server).toDict()
+        retval = self.strict_cloud._normalize_server(raw_server)
         self.assertEqual(expected, retval)
 
     def test_normalize_servers_normal(self):
@@ -698,7 +698,7 @@ class TestUtils(base.TestCase):
             'user_id': u'e9b21dc437d149858faee0898fb08e92',
             'vm_state': u'active',
             'volumes': []}
-        retval = self.cloud._normalize_server(raw_server).toDict()
+        retval = self.cloud._normalize_server(raw_server)
         self.assertEqual(expected, retval)
 
     def test_normalize_secgroups_strict(self):
@@ -886,7 +886,7 @@ class TestUtils(base.TestCase):
             'volume_type': None,
         }
         retval = self.cloud._normalize_volume(vol)
-        self.assertEqual(expected, retval.toDict())
+        self.assertEqual(expected, retval)
 
     def test_normalize_volumes_v2(self):
         vol = dict(
@@ -944,7 +944,7 @@ class TestUtils(base.TestCase):
             'volume_type': None,
         }
         retval = self.cloud._normalize_volume(vol)
-        self.assertEqual(expected, retval.toDict())
+        self.assertEqual(expected, retval)
 
     def test_normalize_volumes_v1_strict(self):
         vol = dict(
@@ -990,7 +990,7 @@ class TestUtils(base.TestCase):
             'volume_type': None,
         }
         retval = self.strict_cloud._normalize_volume(vol)
-        self.assertEqual(expected, retval.toDict())
+        self.assertEqual(expected, retval)
 
     def test_normalize_volumes_v2_strict(self):
         vol = dict(
@@ -1038,4 +1038,4 @@ class TestUtils(base.TestCase):
             'volume_type': None,
         }
         retval = self.strict_cloud._normalize_volume(vol)
-        self.assertEqual(expected, retval.toDict())
+        self.assertEqual(expected, retval)
