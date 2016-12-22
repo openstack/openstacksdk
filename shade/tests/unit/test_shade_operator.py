@@ -901,6 +901,64 @@ class TestShadeOperator(base.TestCase):
             configdrive='http://127.0.0.1/file.iso')
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
+    def test_node_set_provision_state_wait_failure(self, mock_client):
+        class active_node_state:
+            provision_state = "active"
+
+        class deploy_failed_node_state:
+            provision_state = "deploy failed"
+
+        class clean_failed_node_state:
+            provision_state = "clean failed"
+
+        active_return_value = dict(
+            provision_state="active")
+        mock_client.node.get.return_value = active_node_state
+        mock_client.node.set_provision_state.return_value = None
+        node_id = 'node01'
+        return_value = self.op_cloud.node_set_provision_state(
+            node_id,
+            'active',
+            configdrive='http://127.0.0.1/file.iso',
+            wait=True)
+
+        self.assertEqual(active_return_value, return_value)
+        mock_client.node.set_provision_state.assert_called_with(
+            node_uuid='node01',
+            state='active',
+            configdrive='http://127.0.0.1/file.iso')
+        self.assertTrue(mock_client.node.get.called)
+        mock_client.mock_reset()
+        mock_client.node.get.return_value = deploy_failed_node_state
+        self.assertRaises(
+            shade.OpenStackCloudException,
+            self.op_cloud.node_set_provision_state,
+            node_id,
+            'active',
+            configdrive='http://127.0.0.1/file.iso',
+            wait=True,
+            timeout=300)
+        self.assertTrue(mock_client.node.get.called)
+        mock_client.node.set_provision_state.assert_called_with(
+            node_uuid='node01',
+            state='active',
+            configdrive='http://127.0.0.1/file.iso')
+        mock_client.mock_reset()
+        mock_client.node.get.return_value = clean_failed_node_state
+        self.assertRaises(
+            shade.OpenStackCloudException,
+            self.op_cloud.node_set_provision_state,
+            node_id,
+            'deleted',
+            wait=True,
+            timeout=300)
+        self.assertTrue(mock_client.node.get.called)
+        mock_client.node.set_provision_state.assert_called_with(
+            node_uuid='node01',
+            state='deleted',
+            configdrive=None)
+
+    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_node_set_provision_state_wait_provide(self, mock_client):
 
         class managable_node_state:
