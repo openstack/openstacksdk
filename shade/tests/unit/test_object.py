@@ -13,10 +13,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
-from os_client_config import cloud_config
-from swiftclient import service as swift_service
-from swiftclient import exceptions as swift_exc
 import testtools
 
 import shade
@@ -25,293 +21,503 @@ from shade import exc
 from shade.tests.unit import base
 
 
-class TestObject(base.TestCase):
+class TestObject(base.RequestsMockTestCase):
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
-    def test_swift_client_no_endpoint(self, get_session_mock):
-        session_mock = mock.Mock()
-        session_mock.get_endpoint.return_value = None
-        get_session_mock.return_value = session_mock
-        e = self.assertRaises(
-            exc.OpenStackCloudException, lambda: self.cloud.swift_client)
-        self.assertIn(
-            'Failed to instantiate object-store client.', str(e))
+    def setUp(self):
+        super(TestObject, self).setUp()
 
-    @mock.patch.object(shade.OpenStackCloud, 'auth_token')
-    @mock.patch.object(shade.OpenStackCloud, 'get_session_endpoint')
-    def test_swift_service(self, endpoint_mock, auth_mock):
-        endpoint_mock.return_value = 'slayer'
-        auth_mock.return_value = 'zulu'
-        self.assertIsInstance(self.cloud.swift_service,
-                              swift_service.SwiftService)
-        endpoint_mock.assert_called_with(service_key='object-store')
+        self.container = self.getUniqueString()
+        self.object = self.getUniqueString()
+        self.endpoint = self.cloud._object_store_client.get_endpoint()
+        self.container_endpoint = '{endpoint}/{container}'.format(
+            endpoint=self.endpoint, container=self.container)
+        self.object_endpoint = '{endpoint}/{object}'.format(
+            endpoint=self.container_endpoint, object=self.object)
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_session_endpoint')
-    def test_swift_service_no_endpoint(self, endpoint_mock):
-        endpoint_mock.side_effect = KeyError
-        e = self.assertRaises(exc.OpenStackCloudException, lambda:
-                              self.cloud.swift_service)
-        self.assertIn(
-            'Error constructing swift client', str(e))
-
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_create_container(self, mock_swift):
+    def test_create_container(self):
         """Test creating a (private) container"""
-        name = 'test_container'
-        mock_swift.head_container.return_value = None
+        self.adapter.head(
+            self.container_endpoint,
+            [
+                dict(status_code=404),
+                dict(headers={
+                    'Content-Length': '0',
+                    'X-Container-Object-Count': '0',
+                    'Accept-Ranges': 'bytes',
+                    'X-Storage-Policy': 'Policy-0',
+                    'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                    'X-Timestamp': '1481912480.41664',
+                    'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                    'X-Container-Bytes-Used': '0',
+                    'Content-Type': 'text/plain; charset=utf-8'}),
+            ])
+        self.adapter.put(
+            self.container_endpoint,
+            status_code=201,
+            headers={
+                'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
+                'Content-Length': '0',
+                'Content-Type': 'text/html; charset=UTF-8',
+            })
 
-        self.cloud.create_container(name)
+        self.cloud.create_container(self.container)
 
-        expected_head_container_calls = [
-            # once for exist test
-            mock.call(container=name),
-            # once for the final return
-            mock.call(container=name, skip_cache=True)
+        self.calls += [
+            dict(method='HEAD', url=self.container_endpoint),
+            dict(method='PUT', url=self.container_endpoint),
+            dict(method='HEAD', url=self.container_endpoint),
         ]
-        self.assertTrue(expected_head_container_calls,
-                        mock_swift.head_container.call_args_list)
-        mock_swift.put_container.assert_called_once_with(container=name)
-        # Because the default is 'private', we shouldn't be calling update
-        self.assertFalse(mock_swift.post_container.called)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_create_container_public(self, mock_swift):
+    def test_create_container_public(self):
         """Test creating a public container"""
-        name = 'test_container'
-        mock_swift.head_container.return_value = None
+        self.adapter.head(
+            self.container_endpoint,
+            [
+                dict(status_code=404),
+                dict(headers={
+                    'Content-Length': '0',
+                    'X-Container-Object-Count': '0',
+                    'Accept-Ranges': 'bytes',
+                    'X-Storage-Policy': 'Policy-0',
+                    'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                    'X-Timestamp': '1481912480.41664',
+                    'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                    'X-Container-Bytes-Used': '0',
+                    'Content-Type': 'text/plain; charset=utf-8'}),
+            ])
+        self.adapter.put(
+            self.container_endpoint,
+            status_code=201,
+            headers={
+                'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
+                'Content-Length': '0',
+                'Content-Type': 'text/html; charset=UTF-8',
+            })
+        self.adapter.post(
+            self.container_endpoint,
+            status_code=201)
 
-        self.cloud.create_container(name, public=True)
+        self.cloud.create_container(self.container, public=True)
 
-        expected_head_container_calls = [
-            # once for exist test
-            mock.call(container=name),
-            # once for the final return
-            mock.call(container=name, skip_cache=True)
+        self.calls += [
+            dict(method='HEAD', url=self.container_endpoint),
+            dict(
+                method='PUT',
+                url=self.container_endpoint),
+            dict(
+                method='POST',
+                url=self.container_endpoint,
+                headers={
+                    'x-container-read':
+                    shade.openstackcloud.OBJECT_CONTAINER_ACLS['public']}),
+            dict(method='HEAD', url=self.container_endpoint),
         ]
-        self.assertTrue(expected_head_container_calls,
-                        mock_swift.head_container.call_args_list)
-        mock_swift.put_container.assert_called_once_with(container=name)
-        mock_swift.post_container.assert_called_once_with(
-            container=name,
-            headers={'x-container-read':
-                     shade.openstackcloud.OBJECT_CONTAINER_ACLS['public']}
-        )
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_create_container_exists(self, mock_swift):
-        """Test creating a container that already exists"""
-        name = 'test_container'
-        fake_container = dict(id='1', name='name')
-        mock_swift.head_container.return_value = fake_container
-        container = self.cloud.create_container(name)
-        mock_swift.head_container.assert_called_once_with(container=name)
-        self.assertEqual(fake_container, container)
+    def test_create_container_exists(self):
+        """Test creating a container that exists."""
+        self.adapter.head(
+            self.container_endpoint,
+            headers={
+                'Content-Length': '0',
+                'X-Container-Object-Count': '0',
+                'Accept-Ranges': 'bytes',
+                'X-Storage-Policy': 'Policy-0',
+                'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                'X-Timestamp': '1481912480.41664',
+                'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                'X-Container-Bytes-Used': '0',
+                'Content-Type': 'text/plain; charset=utf-8'})
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_delete_container(self, mock_swift):
-        name = 'test_container'
-        self.cloud.delete_container(name)
-        mock_swift.delete_container.assert_called_once_with(container=name)
+        container = self.cloud.create_container(self.container)
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_delete_container_404(self, mock_swift):
+        self.calls += [
+            dict(method='HEAD', url=self.container_endpoint),
+        ]
+        self.assert_calls()
+        self.assertIsNotNone(container)
+
+    def test_delete_container(self):
+        self.adapter.delete(self.container_endpoint)
+        deleted = self.cloud.delete_container(self.container)
+        self.calls += [
+            dict(method='DELETE', url=self.container_endpoint),
+        ]
+        self.assert_calls()
+        # TODO(mordred) This should be True/False not None all the time
+        self.assertIsNone(deleted)
+
+    def test_delete_container_404(self):
         """No exception when deleting a container that does not exist"""
-        name = 'test_container'
-        mock_swift.delete_container.side_effect = swift_exc.ClientException(
-            'ERROR', http_status=404)
-        self.cloud.delete_container(name)
-        mock_swift.delete_container.assert_called_once_with(container=name)
+        self.adapter.delete(
+            self.container_endpoint,
+            status_code=404)
+        deleted = self.cloud.delete_container(self.container)
+        self.calls += [
+            dict(method='DELETE', url=self.container_endpoint),
+        ]
+        self.assert_calls()
+        # TODO(mordred) This should be True/False not None all the time
+        self.assertIsNone(deleted)
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_delete_container_error(self, mock_swift):
+    def test_delete_container_error(self):
         """Non-404 swift error re-raised as OSCE"""
-        mock_swift.delete_container.side_effect = swift_exc.ClientException(
-            'ERROR')
-        self.assertRaises(shade.OpenStackCloudException,
-                          self.cloud.delete_container, '')
+        self.adapter.delete(
+            self.container_endpoint,
+            status_code=409)
+        self.assertRaises(
+            shade.OpenStackCloudException,
+            self.cloud.delete_container, self.container)
+        self.calls += [
+            dict(method='DELETE', url=self.container_endpoint),
+        ]
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_update_container(self, mock_swift):
-        name = 'test_container'
+    def test_update_container(self):
+        self.adapter.post(
+            self.container_endpoint,
+            status_code=204)
         headers = {'x-container-read':
                    shade.openstackcloud.OBJECT_CONTAINER_ACLS['public']}
-        self.cloud.update_container(name, headers)
-        mock_swift.post_container.assert_called_once_with(
-            container=name, headers=headers)
+        assert_headers = headers.copy()
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_update_container_error(self, mock_swift):
+        self.cloud.update_container(self.container, headers)
+
+        self.calls += [
+            dict(
+                method='POST',
+                url=self.container_endpoint,
+                headers=assert_headers),
+        ]
+        self.assert_calls()
+
+    def test_update_container_error(self):
         """Swift error re-raised as OSCE"""
-        mock_swift.post_container.side_effect = swift_exc.ClientException(
-            'ERROR')
-        self.assertRaises(shade.OpenStackCloudException,
-                          self.cloud.update_container, '', '')
+        # This test is of questionable value - the swift API docs do not
+        # declare error codes (other than 404 for the container) for this
+        # method, and I cannot make a synthetic failure to validate a real
+        # error code. So we're really just testing the shade adapter error
+        # raising logic here, rather than anything specific to swift.
+        self.adapter.post(
+            self.container_endpoint,
+            status_code=409)
+        self.assertRaises(
+            shade.OpenStackCloudException,
+            self.cloud.update_container, self.container, dict(foo='bar'))
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_set_container_access_public(self, mock_swift):
-        name = 'test_container'
-        self.cloud.set_container_access(name, 'public')
-        mock_swift.post_container.assert_called_once_with(
-            container=name,
-            headers={'x-container-read':
-                     shade.openstackcloud.OBJECT_CONTAINER_ACLS['public']})
+    def test_set_container_access_public(self):
+        self.adapter.post(
+            self.container_endpoint,
+            status_code=204)
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_set_container_access_private(self, mock_swift):
-        name = 'test_container'
-        self.cloud.set_container_access(name, 'private')
-        mock_swift.post_container.assert_called_once_with(
-            container=name,
-            headers={'x-container-read':
-                     shade.openstackcloud.OBJECT_CONTAINER_ACLS['private']})
+        self.cloud.set_container_access(self.container, 'public')
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_set_container_access_invalid(self, mock_swift):
-        self.assertRaises(shade.OpenStackCloudException,
-                          self.cloud.set_container_access, '', 'invalid')
+        self.calls += [
+            dict(
+                method='POST',
+                url=self.container_endpoint,
+                headers={
+                    'x-container-read':
+                    shade.openstackcloud.OBJECT_CONTAINER_ACLS['public']}),
+        ]
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_get_container(self, mock_swift):
-        fake_container = {
-            'x-container-read':
-            shade.openstackcloud.OBJECT_CONTAINER_ACLS['public']
-        }
-        mock_swift.head_container.return_value = fake_container
-        access = self.cloud.get_container_access('foo')
+    def test_set_container_access_private(self):
+        self.adapter.post(
+            self.container_endpoint,
+            status_code=204)
+
+        self.cloud.set_container_access(self.container, 'private')
+
+        self.calls += [
+            dict(
+                method='POST',
+                url=self.container_endpoint,
+                headers={
+                    'x-container-read':
+                    shade.openstackcloud.OBJECT_CONTAINER_ACLS['private']}),
+        ]
+        self.assert_calls()
+
+    def test_set_container_access_invalid(self):
+        self.assertRaises(
+            shade.OpenStackCloudException,
+            self.cloud.set_container_access, self.container, 'invalid')
+
+    def test_get_container_access(self):
+        self.adapter.head(
+            self.container_endpoint,
+            headers={
+                'x-container-read':
+                str(shade.openstackcloud.OBJECT_CONTAINER_ACLS['public'])})
+
+        access = self.cloud.get_container_access(self.container)
         self.assertEqual('public', access)
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_get_container_invalid(self, mock_swift):
-        fake_container = {'x-container-read': 'invalid'}
-        mock_swift.head_container.return_value = fake_container
+    def test_get_container_invalid(self):
+        self.adapter.head(
+            self.container_endpoint,
+            headers={
+                'x-container-read': 'invalid'})
+
         with testtools.ExpectedException(
                 exc.OpenStackCloudException,
                 "Could not determine container access for ACL: invalid"
         ):
-            self.cloud.get_container_access('foo')
+            self.cloud.get_container_access(self.container)
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_get_container_access_not_found(self, mock_swift):
-        name = 'invalid_container'
-        mock_swift.head_container.return_value = None
+    def test_get_container_access_not_found(self):
+        self.adapter.head(
+            self.container_endpoint,
+            status_code=404)
         with testtools.ExpectedException(
                 exc.OpenStackCloudException,
-                "Container not found: %s" % name
+                "Container not found: %s" % self.container
         ):
-            self.cloud.get_container_access(name)
+            self.cloud.get_container_access(self.container)
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_list_containers(self, mock_swift):
-        containers = [dict(id='1', name='containter1')]
-        mock_swift.get_account.return_value = ('response_headers', containers)
+    def test_list_containers(self):
+        # TODO(mordred) swiftclient sends format=json in the query string
+        # we'll want to send it in the accept header. Also, swiftclient
+        # always sends a second GET with marker set to the name of the last
+        # element returned previously. We should be able to infer if this is
+        # needed by checking swfit.account_listing_limit in the capabilities
+        # OR by looking at the value of 'X-Account-Container-Count' in the
+        # returned headers and seeing if it's larger than the number of
+        # containers returned.
+        first = '{endpoint}?format=json'.format(
+            endpoint=self.endpoint)
+        second = '{endpoint}?format=json&marker={first}'.format(
+            endpoint=self.endpoint, first=self.container)
+        containers = [
+            {u'count': 0, u'bytes': 0, u'name': self.container}]
+
+        self.adapter.get(first, complete_qs=True, json=containers)
+        self.adapter.get(second, complete_qs=True, status_code=204)
+
         ret = self.cloud.list_containers()
-        mock_swift.get_account.assert_called_once_with(full_listing=True)
+        self.calls += [
+            dict(method='GET', url=first),
+            dict(method='GET', url=second),
+        ]
+        self.assert_calls()
         self.assertEqual(containers, ret)
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_list_containers_not_full(self, mock_swift):
-        containers = [dict(id='1', name='containter1')]
-        mock_swift.get_account.return_value = ('response_headers', containers)
+    def test_list_containers_not_full(self):
+        endpoint = '{endpoint}?format=json'.format(
+            endpoint=self.endpoint)
+        containers = [
+            {u'count': 0, u'bytes': 0, u'name': self.container}]
+
+        self.adapter.get(endpoint, complete_qs=True, json=containers)
+
         ret = self.cloud.list_containers(full_listing=False)
-        mock_swift.get_account.assert_called_once_with(full_listing=False)
+
+        self.calls += [
+            dict(method='GET', url=endpoint),
+        ]
+        self.assert_calls()
         self.assertEqual(containers, ret)
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_list_containers_exception(self, mock_swift):
-        mock_swift.get_account.side_effect = swift_exc.ClientException("ERROR")
-        self.assertRaises(exc.OpenStackCloudException,
-                          self.cloud.list_containers)
+    def test_list_containers_exception(self):
+        # TODO(mordred) There are no error codes I can see. The 409 is fake.
+        endpoint = '{endpoint}?format=json'.format(
+            endpoint=self.endpoint)
+        self.adapter.get(endpoint, complete_qs=True, status_code=409)
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_list_objects(self, mock_swift):
-        objects = [dict(id='1', name='object1')]
-        mock_swift.get_container.return_value = ('response_headers', objects)
-        ret = self.cloud.list_objects('container_name')
-        mock_swift.get_container.assert_called_once_with(
-            container='container_name', full_listing=True)
+        self.assertRaises(
+            exc.OpenStackCloudException, self.cloud.list_containers)
+
+    def test_list_objects(self):
+        first = '{endpoint}?format=json'.format(
+            endpoint=self.container_endpoint)
+        second = '{endpoint}?format=json&marker={first}'.format(
+            endpoint=self.container_endpoint, first=self.object)
+
+        objects = [{
+            u'bytes': 20304400896,
+            u'last_modified': u'2016-12-15T13:34:13.650090',
+            u'hash': u'daaf9ed2106d09bba96cf193d866445e',
+            u'name': self.object,
+            u'content_type': u'application/octet-stream'}]
+
+        self.adapter.get(first, complete_qs=True, json=objects)
+        self.adapter.get(second, complete_qs=True, status_code=204)
+
+        ret = self.cloud.list_objects(self.container)
+
+        self.calls += [
+            dict(method='GET', url=first),
+            dict(method='GET', url=second),
+        ]
+        self.assert_calls()
         self.assertEqual(objects, ret)
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_list_objects_not_full(self, mock_swift):
-        objects = [dict(id='1', name='object1')]
-        mock_swift.get_container.return_value = ('response_headers', objects)
-        ret = self.cloud.list_objects('container_name', full_listing=False)
-        mock_swift.get_container.assert_called_once_with(
-            container='container_name', full_listing=False)
+    def test_list_objects_not_full(self):
+        endpoint = '{endpoint}?format=json'.format(
+            endpoint=self.container_endpoint)
+
+        objects = [{
+            u'bytes': 20304400896,
+            u'last_modified': u'2016-12-15T13:34:13.650090',
+            u'hash': u'daaf9ed2106d09bba96cf193d866445e',
+            u'name': self.object,
+            u'content_type': u'application/octet-stream'}]
+
+        self.adapter.get(endpoint, complete_qs=True, json=objects)
+
+        ret = self.cloud.list_objects(self.container, full_listing=False)
+
+        self.calls += [
+            dict(method='GET', url=endpoint),
+        ]
+        self.assert_calls()
         self.assertEqual(objects, ret)
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_list_objects_exception(self, mock_swift):
-        mock_swift.get_container.side_effect = swift_exc.ClientException(
-            "ERROR")
-        self.assertRaises(exc.OpenStackCloudException,
-                          self.cloud.list_objects, 'container_name')
+    def test_list_objects_exception(self):
+        endpoint = '{endpoint}?format=json'.format(
+            endpoint=self.container_endpoint)
+        self.adapter.get(endpoint, complete_qs=True, status_code=409)
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.cloud.list_objects, self.container)
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_object_metadata')
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_delete_object(self, mock_swift, mock_get_meta):
-        container_name = 'container_name'
-        object_name = 'object_name'
-        mock_get_meta.return_value = {'object': object_name}
-        self.assertTrue(self.cloud.delete_object(container_name, object_name))
-        mock_get_meta.assert_called_once_with(container_name, object_name)
-        mock_swift.delete_object.assert_called_once_with(
-            container=container_name, obj=object_name
-        )
+    def test_delete_object(self):
+        # TODO(mordred) calling get_object_metadata first is stupid. We should
+        # just make the delete call and if it 404's, then the object didn't
+        # exist.
+        self.adapter.head(
+            self.object_endpoint,
+            headers={
+                'Content-Length': '20304400896',
+                'Content-Type': 'application/octet-stream',
+                'Accept-Ranges': 'bytes',
+                'Last-Modified': 'Thu, 15 Dec 2016 13:34:14 GMT',
+                'Etag': '"b5c454b44fbd5344793e3fb7e3850768"',
+                'X-Timestamp': '1481808853.65009',
+                'X-Trans-Id': 'tx68c2a2278f0c469bb6de1-005857ed80dfw1',
+                'Date': 'Mon, 19 Dec 2016 14:24:00 GMT',
+                'X-Static-Large-Object': 'True',
+                'X-Object-Meta-Mtime': '1481513709.168512',
+            })
+        self.adapter.delete(self.object_endpoint, status_code=204)
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_object_metadata')
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_delete_object_not_found(self, mock_swift, mock_get_meta):
-        container_name = 'container_name'
-        object_name = 'object_name'
-        mock_get_meta.return_value = None
-        self.assertFalse(self.cloud.delete_object(container_name, object_name))
-        mock_get_meta.assert_called_once_with(container_name, object_name)
-        self.assertFalse(mock_swift.delete_object.called)
+        self.assertTrue(self.cloud.delete_object(self.container, self.object))
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_object_metadata')
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_delete_object_exception(self, mock_swift, mock_get_meta):
-        container_name = 'container_name'
-        object_name = 'object_name'
-        mock_get_meta.return_value = {'object': object_name}
-        mock_swift.delete_object.side_effect = swift_exc.ClientException(
-            "ERROR")
-        self.assertRaises(shade.OpenStackCloudException,
-                          self.cloud.delete_object,
-                          container_name, object_name)
+        self.calls += [
+            dict(method='HEAD', url=self.object_endpoint),
+            dict(method='DELETE', url=self.object_endpoint),
+        ]
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_get_object(self, mock_swift):
-        fake_resp = ({'headers': 'yup'}, 'test body')
-        mock_swift.get_object.return_value = fake_resp
-        container_name = 'container_name'
-        object_name = 'object_name'
-        resp = self.cloud.get_object(container_name, object_name)
-        self.assertEqual(fake_resp, resp)
+    def test_delete_object_not_found(self):
+        self.adapter.head(self.object_endpoint, status_code=404)
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_get_object_not_found(self, mock_swift):
-        mock_swift.get_object.side_effect = swift_exc.ClientException(
-            'ERROR', http_status=404)
-        container_name = 'container_name'
-        object_name = 'object_name'
-        self.assertIsNone(self.cloud.get_object(container_name, object_name))
-        mock_swift.get_object.assert_called_once_with(
-            container=container_name, obj=object_name,
-            query_string=None, resp_chunk_size=None)
+        self.assertFalse(self.cloud.delete_object(self.container, self.object))
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_client')
-    def test_get_object_exception(self, mock_swift):
-        mock_swift.get_object.side_effect = swift_exc.ClientException("ERROR")
-        container_name = 'container_name'
-        object_name = 'object_name'
-        self.assertRaises(shade.OpenStackCloudException,
-                          self.cloud.get_object,
-                          container_name, object_name)
+        self.calls += [
+            dict(method='HEAD', url=self.object_endpoint),
+        ]
+        self.assert_calls()
 
+    def test_delete_object_exception(self):
+        self.adapter.head(
+            self.object_endpoint,
+            headers={
+                'Content-Length': '20304400896',
+                'Content-Type': 'application/octet-stream',
+                'Accept-Ranges': 'bytes',
+                'Last-Modified': 'Thu, 15 Dec 2016 13:34:14 GMT',
+                'Etag': '"b5c454b44fbd5344793e3fb7e3850768"',
+                'X-Timestamp': '1481808853.65009',
+                'X-Trans-Id': 'tx68c2a2278f0c469bb6de1-005857ed80dfw1',
+                'Date': 'Mon, 19 Dec 2016 14:24:00 GMT',
+                'X-Static-Large-Object': 'True',
+                'X-Object-Meta-Mtime': '1481513709.168512',
+            })
 
-class TestRESTObject(base.RequestsMockTestCase):
+        # TODO(mordred) This version of the code is prone to race conditions
+        # When we stop doing HEAD first, we can kill this test.
+        self.adapter.delete(self.object_endpoint, status_code=404)
+
+        self.assertRaises(
+            shade.OpenStackCloudException,
+            self.cloud.delete_object,
+            self.container,
+            self.object)
+
+        self.calls += [
+            dict(method='HEAD', url=self.object_endpoint),
+            dict(method='DELETE', url=self.object_endpoint),
+        ]
+        self.assert_calls()
+
+    def test_get_object(self):
+        headers = {
+            'Content-Length': '20304400896',
+            'Content-Type': 'application/octet-stream',
+            'Accept-Ranges': 'bytes',
+            'Last-Modified': 'Thu, 15 Dec 2016 13:34:14 GMT',
+            'Etag': '"b5c454b44fbd5344793e3fb7e3850768"',
+            'X-Timestamp': '1481808853.65009',
+            'X-Trans-Id': 'tx68c2a2278f0c469bb6de1-005857ed80dfw1',
+            'Date': 'Mon, 19 Dec 2016 14:24:00 GMT',
+            'X-Static-Large-Object': 'True',
+            'X-Object-Meta-Mtime': '1481513709.168512',
+        }
+        response_headers = {k.lower(): v for k, v in headers.items()}
+        # TODO(mordred) Is this a bug in requests_mock or swiftclient that
+        # I have to mark this as b'test body' ?
+        text = b'test body'
+        self.adapter.get(
+            self.object_endpoint,
+            headers={
+                'Content-Length': '20304400896',
+                'Content-Type': 'application/octet-stream',
+                'Accept-Ranges': 'bytes',
+                'Last-Modified': 'Thu, 15 Dec 2016 13:34:14 GMT',
+                'Etag': '"b5c454b44fbd5344793e3fb7e3850768"',
+                'X-Timestamp': '1481808853.65009',
+                'X-Trans-Id': 'tx68c2a2278f0c469bb6de1-005857ed80dfw1',
+                'Date': 'Mon, 19 Dec 2016 14:24:00 GMT',
+                'X-Static-Large-Object': 'True',
+                'X-Object-Meta-Mtime': '1481513709.168512',
+            },
+            text='test body')
+
+        resp = self.cloud.get_object(self.container, self.object)
+
+        self.calls += [
+            dict(method='GET', url=self.object_endpoint),
+        ]
+        self.assert_calls()
+
+        self.assertEqual((response_headers, text), resp)
+
+    def test_get_object_not_found(self):
+        self.adapter.get(self.object_endpoint, status_code=404)
+
+        self.assertIsNone(self.cloud.get_object(self.container, self.object))
+
+        self.calls += [
+            dict(method='GET', url=self.object_endpoint),
+        ]
+        self.assert_calls()
+
+    def test_get_object_exception(self):
+        # TODO(mordred) Bogus error code - what are we testing here?
+        self.adapter.get(self.object_endpoint, status_code=409)
+
+        self.assertRaises(
+            shade.OpenStackCloudException,
+            self.cloud.get_object,
+            self.container, self.object)
+
+        self.calls += [
+            dict(method='GET', url=self.object_endpoint),
+        ]
+        self.assert_calls()
 
     def test_get_object_segment_size(self):
         self.adapter.get(

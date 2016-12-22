@@ -71,8 +71,8 @@ DEFAULT_FLOAT_AGE = 5
 
 
 OBJECT_CONTAINER_ACLS = {
-    'public': ".r:*,.rlistings",
-    'private': '',
+    'public': b'.r:*,.rlistings',
+    'private': b'',
 }
 
 
@@ -5532,12 +5532,14 @@ class OpenStackCloud(_normalize.Normalizer):
         if not container:
             raise OpenStackCloudException("Container not found: %s" % name)
         acl = container.get('x-container-read', '')
-        try:
-            return [p for p, a in OBJECT_CONTAINER_ACLS.items()
-                    if acl == a].pop()
-        except IndexError:
-            raise OpenStackCloudException(
-                "Could not determine container access for ACL: %s." % acl)
+        for key, value in OBJECT_CONTAINER_ACLS.items():
+            # Convert to string for the comparison because swiftclient
+            # returns byte values as bytes sometimes and apparently ==
+            # on bytes doesn't work like you'd think
+            if str(acl) == str(value):
+                return key
+        raise OpenStackCloudException(
+            "Could not determine container access for ACL: %s." % acl)
 
     def _get_file_hashes(self, filename):
         file_key = "{filename}:{mtime}".format(
