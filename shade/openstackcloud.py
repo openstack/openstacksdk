@@ -1642,7 +1642,7 @@ class OpenStackCloud(_normalize.Normalizer):
                         id=flavor.id)
                     try:
                         flavor.extra_specs = self._compute_client.get(endpoint)
-                    except OpenStackCloudHttpError as e:
+                    except OpenStackCloudHTTPError as e:
                         flavor.extra_specs = []
                         self.log.debug(
                             'Fetching extra specs for flavor failed:'
