@@ -175,21 +175,23 @@ class RequestsMockTestCase(BaseTestCase):
 
     def assert_calls(self):
         self.assertEqual(len(self.calls), len(self.adapter.request_history))
-        for x in range(0, len(self.calls)):
+        for (x, (call, history)) in enumerate(
+                zip(self.calls, self.adapter.request_history)):
             self.assertEqual(
-                self.calls[x]['method'],
-                self.adapter.request_history[x].method)
+                call['method'], history.method,
+                'Method mismatch on call {index}'.format(index=x))
             self.assertEqual(
-                self.calls[x]['url'],
-                self.adapter.request_history[x].url)
-            if 'json' in self.calls[x]:
+                call['url'], history.url,
+                'URL mismatch on call {index}'.format(index=x))
+            if 'json' in call:
                 self.assertEqual(
-                    self.calls[x]['json'],
-                    self.adapter.request_history[x].json())
+                    call['json'], history.json(),
+                    'json content mismatch in call {index}'.format(index=x))
             # headers in a call isn't exhaustive - it's checking to make sure
             # a specific header or headers are there, not that they are the
             # only headers
-            if 'headers' in self.calls[x]:
-                for key, value in self.calls[x]['headers'].items():
+            if 'headers' in call:
+                for key, value in call['headers'].items():
                     self.assertEqual(
-                        value, self.adapter.request_history[x].headers[key])
+                        value, history.headers[key],
+                        'header mismatch in call {index}'.format(index=x))
