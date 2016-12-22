@@ -295,10 +295,9 @@ class TestObject(base.RequestsMockTestCase):
         self.assertEqual(containers, ret)
 
     def test_list_containers_exception(self):
-        # TODO(mordred) There are no error codes I can see. The 409 is fake.
         endpoint = '{endpoint}/?format=json'.format(
             endpoint=self.endpoint)
-        self.adapter.get(endpoint, complete_qs=True, status_code=409)
+        self.adapter.get(endpoint, complete_qs=True, status_code=416)
 
         self.assertRaises(
             exc.OpenStackCloudException, self.cloud.list_containers)
@@ -327,7 +326,7 @@ class TestObject(base.RequestsMockTestCase):
     def test_list_objects_exception(self):
         endpoint = '{endpoint}?format=json'.format(
             endpoint=self.container_endpoint)
-        self.adapter.get(endpoint, complete_qs=True, status_code=409)
+        self.adapter.get(endpoint, complete_qs=True, status_code=416)
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud.list_objects, self.container)
@@ -403,8 +402,7 @@ class TestObject(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_get_object_exception(self):
-        # TODO(mordred) Bogus error code - what are we testing here?
-        self.adapter.get(self.object_endpoint, status_code=409)
+        self.adapter.get(self.object_endpoint, status_code=416)
 
         self.assertRaises(
             shade.OpenStackCloudException,
