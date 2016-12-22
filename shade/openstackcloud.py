@@ -40,9 +40,7 @@ import magnumclient.client
 import neutronclient.neutron.client
 import novaclient.client
 import novaclient.exceptions as nova_exceptions
-import swiftclient.client
 import swiftclient.service
-import swiftclient.exceptions as swift_exceptions
 import troveclient.client
 import designateclient.client
 
@@ -71,8 +69,8 @@ DEFAULT_FLOAT_AGE = 5
 
 
 OBJECT_CONTAINER_ACLS = {
-    'public': b'.r:*,.rlistings',
-    'private': b'',
+    'public': '.r:*,.rlistings',
+    'private': '',
 }
 
 
@@ -299,13 +297,11 @@ class OpenStackCloud(_normalize.Normalizer):
         self._keystone_client = None
         self._neutron_client = None
         self._nova_client = None
-        self._swift_client = None
         self._swift_service = None
         # Lock used to reset swift client.  Since swift client does not
         # support keystone sessions, we we have to make a new client
         # in order to get new auth prior to operations, otherwise
         # long-running sessions will fail.
-        self._swift_client_lock = threading.Lock()
         self._swift_service_lock = threading.Lock()
         self._trove_client = None
         self._designate_client = None
@@ -1029,11 +1025,18 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @property
     def swift_client(self):
-        with self._swift_client_lock:
-            if self._swift_client is None:
-                self._swift_client = self._get_client(
-                    'object-store', swiftclient.client.Connection)
-            return self._swift_client
+        warnings.warn(
+            'Using shade to get a swift object is deprecated. If you'
+            ' need a raw swiftclient.Connection object, please use'
+            ' make_legacy_client in os-client-config instead')
+        try:
+            import swiftclient.client
+        except ImportError:
+            self.log.error(
+                'swiftclient is no longer a dependency of shade. You need to'
+                ' install python-swiftclient directly.')
+        return self._get_client(
+            'object-store', swiftclient.client.Connection)
 
     def _get_swift_kwargs(self):
         auth_version = self.cloud_config.get_api_version('identity')
@@ -3336,8 +3339,6 @@ class OpenStackCloud(_normalize.Normalizer):
         image_kwargs.update(parameters)
 
         # get new client sessions
-        with self._swift_client_lock:
-            self._swift_client = None
         with self._swift_service_lock:
             self._swift_service = None
 
@@ -5470,61 +5471,44 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        try:
-            return self.manager.submit_task(_tasks.ContainerList())
-        except swift_exceptions.ClientException as e:
-            raise OpenStackCloudException(
-                "Container list failed: %s (%s/%s)" % (
-                    e.http_reason, e.http_host, e.http_path))
+        return self._object_store_client.get('/', params=dict(format='json'))
 
     def get_container(self, name, skip_cache=False):
         if skip_cache or name not in self._container_cache:
             try:
-                container = self.manager.submit_task(
-                    _tasks.ContainerGet(container=name))
-                self._container_cache[name] = container
-            except swift_exceptions.ClientException as e:
-                if e.http_status == 404:
+                container = self._object_store_client.head(name)
+                self._container_cache[name] = container.headers
+            except OpenStackCloudHTTPError as e:
+                if e.response.status_code == 404:
                     return None
-                raise OpenStackCloudException(
-                    "Container fetch failed: %s (%s/%s)" % (
-                        e.http_reason, e.http_host, e.http_path))
+                raise
         return self._container_cache[name]
 
     def create_container(self, name, public=False):
         container = self.get_container(name)
         if container:
             return container
-        try:
-            self.manager.submit_task(
-                _tasks.ContainerCreate(container=name))
-            if public:
-                self.set_container_access(name, 'public')
-            return self.get_container(name, skip_cache=True)
-        except swift_exceptions.ClientException as e:
-            raise OpenStackCloudException(
-                "Container creation failed: %s (%s/%s)" % (
-                    e.http_reason, e.http_host, e.http_path))
+        self._object_store_client.put(name)
+        if public:
+            self.set_container_access(name, 'public')
+        return self.get_container(name, skip_cache=True)
 
     def delete_container(self, name):
         try:
-            self.manager.submit_task(
-                _tasks.ContainerDelete(container=name))
-        except swift_exceptions.ClientException as e:
-            if e.http_status == 404:
+            self._object_store_client.delete(name)
+        except OpenStackCloudHTTPError as e:
+            if e.response.status_code == 404:
                 return
-            raise OpenStackCloudException(
-                "Container deletion failed: %s (%s/%s)" % (
-                    e.http_reason, e.http_host, e.http_path))
+            if e.response.status_code == 409:
+                raise OpenStackCloudException(
+                    'Attempt to delete container {container} failed. The'
+                    ' container is not empty. Please delete the objects'
+                    ' inside it before deleting the container'.format(
+                        container=name))
+            raise
 
     def update_container(self, name, headers):
-        try:
-            self.manager.submit_task(
-                _tasks.ContainerUpdate(container=name, headers=headers))
-        except swift_exceptions.ClientException as e:
-            raise OpenStackCloudException(
-                "Container update failed: %s (%s/%s)" % (
-                    e.http_reason, e.http_host, e.http_path))
+        self._object_store_client.post(name, headers=headers)
 
     def set_container_access(self, name, access):
         if access not in OBJECT_CONTAINER_ACLS:
@@ -5730,14 +5714,10 @@ class OpenStackCloud(_normalize.Normalizer):
 
         headers = dict(headers, **metadata_headers)
 
-        try:
-            return self.manager.submit_task(
-                _tasks.ObjectUpdate(container=container, obj=name,
-                                    headers=headers))
-        except swift_exceptions.ClientException as e:
-            raise OpenStackCloudException(
-                "Object update failed: %s (%s/%s)" % (
-                    e.http_reason, e.http_host, e.http_path))
+        return self._object_store_client.post(
+            '{container}/{object}'.format(
+                container=container, object=name),
+            headers=headers)
 
     def list_objects(self, container, full_listing=True):
         """List objects.
@@ -5749,13 +5729,8 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        try:
-            return self.manager.submit_task(_tasks.ObjectList(
-                container=container))
-        except swift_exceptions.ClientException as e:
-            raise OpenStackCloudException(
-                "Object list failed: %s (%s/%s)" % (
-                    e.http_reason, e.http_host, e.http_path))
+        return self._object_store_client.get(
+            container, params=dict(format='json'))
 
     def delete_object(self, container, name):
         """Delete an object from a container.
@@ -5768,16 +5743,17 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         try:
-            self.manager.submit_task(_tasks.ObjectDelete(
-                container=container, obj=name))
+            self._object_store_client.delete(
+                '{container}/{object}'.format(
+                    container=container, object=name))
             return True
-        except swift_exceptions.ClientException:
+        except OpenStackCloudHTTPError:
             return False
 
     def get_object_metadata(self, container, name):
         try:
             return self._object_store_client.head(
-                '/{container}/{object}'.format(
+                '{container}/{object}'.format(
                     container=container, object=name)).headers
         except OpenStackCloudException as e:
             if e.response.status_code == 404:
@@ -5798,16 +5774,21 @@ class OpenStackCloud(_normalize.Normalizer):
                   is not found (404)
         :raises: OpenStackCloudException on operation error.
         """
+        # TODO(mordred) implement resp_chunk_size
         try:
-            return self.manager.submit_task(_tasks.ObjectGet(
-                container=container, obj=obj, query_string=query_string,
-                resp_chunk_size=resp_chunk_size))
-        except swift_exceptions.ClientException as e:
-            if e.http_status == 404:
+            endpoint = '{container}/{object}'.format(
+                container=container, object=obj)
+            if query_string:
+                endpoint = '{endpoint}?{query_string}'.format(
+                    endpoint=endpoint, query_string=query_string)
+            response = self._object_store_client.get(endpoint)
+            response_headers = {
+                k.lower(): v for k, v in response.headers.items()}
+            return (response_headers, response.text)
+        except OpenStackCloudHTTPError as e:
+            if e.response.status_code == 404:
                 return None
-            raise OpenStackCloudException(
-                "Object fetch failed: %s (%s/%s)" % (
-                    e.http_reason, e.http_host, e.http_path))
+            raise
 
     def create_subnet(self, network_name_or_id, cidr, ip_version=4,
                       enable_dhcp=False, subnet_name=None, tenant_id=None,

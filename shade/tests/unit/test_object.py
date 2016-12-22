@@ -163,6 +163,7 @@ class TestObject(base.RequestsMockTestCase):
 
     def test_delete_container_error(self):
         """Non-404 swift error re-raised as OSCE"""
+        # 409 happens if the container is not empty
         self.adapter.delete(
             self.container_endpoint,
             status_code=409)
@@ -278,7 +279,7 @@ class TestObject(base.RequestsMockTestCase):
             self.cloud.get_container_access(self.container)
 
     def test_list_containers(self):
-        endpoint = '{endpoint}?format=json'.format(
+        endpoint = '{endpoint}/?format=json'.format(
             endpoint=self.endpoint)
         containers = [
             {u'count': 0, u'bytes': 0, u'name': self.container}]
@@ -295,7 +296,7 @@ class TestObject(base.RequestsMockTestCase):
 
     def test_list_containers_exception(self):
         # TODO(mordred) There are no error codes I can see. The 409 is fake.
-        endpoint = '{endpoint}?format=json'.format(
+        endpoint = '{endpoint}/?format=json'.format(
             endpoint=self.endpoint)
         self.adapter.get(endpoint, complete_qs=True, status_code=409)
 
@@ -365,9 +366,7 @@ class TestObject(base.RequestsMockTestCase):
             'X-Object-Meta-Mtime': '1481513709.168512',
         }
         response_headers = {k.lower(): v for k, v in headers.items()}
-        # TODO(mordred) Is this a bug in requests_mock or swiftclient that
-        # I have to mark this as b'test body' ?
-        text = b'test body'
+        text = 'test body'
         self.adapter.get(
             self.object_endpoint,
             headers={

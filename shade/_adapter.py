@@ -107,6 +107,12 @@ class ShadeAdapter(adapter.Adapter):
                         reason=response.reason))
                 raise
 
+            request_id = response.headers.get('x-openstack-request-id')
+
+            if task_manager._is_listlike(result_json):
+                return meta.obj_list_to_dict(
+                    result_json, request_id=request_id)
+
             # Wrap the keys() call in list() because in python3 keys returns
             # a "dict_keys" iterator-like object rather than a list
             json_keys = list(result_json.keys())
@@ -128,11 +134,9 @@ class ShadeAdapter(adapter.Adapter):
                     # come through without a top-level container
                     result = result_json
 
-        request_id = response.headers.get('x-openstack-request-id')
-
         if task_manager._is_listlike(result):
             return meta.obj_list_to_dict(result, request_id=request_id)
-        elif task_manager._is_objlike(result):
+        if task_manager._is_objlike(result):
             return meta.obj_to_dict(result, request_id=request_id)
         return result
 

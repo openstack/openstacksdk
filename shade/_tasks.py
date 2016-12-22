@@ -466,54 +466,9 @@ class FloatingIPPoolList(task_manager.Task):
         return client.nova_client.floating_ip_pools.list()
 
 
-class ContainerGet(task_manager.Task):
-    def main(self, client):
-        return client.swift_client.head_container(**self.args)
-
-
-class ContainerCreate(task_manager.Task):
-    def main(self, client):
-        client.swift_client.put_container(**self.args)
-
-
-class ContainerDelete(task_manager.Task):
-    def main(self, client):
-        client.swift_client.delete_container(**self.args)
-
-
-class ContainerUpdate(task_manager.Task):
-    def main(self, client):
-        client.swift_client.post_container(**self.args)
-
-
-class ContainerList(task_manager.Task):
-    def main(self, client):
-        return client.swift_client.get_account(**self.args)[1]
-
-
-class ObjectDelete(task_manager.Task):
-    def main(self, client):
-        return client.swift_client.delete_object(**self.args)
-
-
 class ObjectCreate(task_manager.Task):
     def main(self, client):
         return client.swift_service.upload(**self.args)
-
-
-class ObjectUpdate(task_manager.Task):
-    def main(self, client):
-        return client.swift_client.post_object(**self.args)
-
-
-class ObjectList(task_manager.Task):
-    def main(self, client):
-        return client.swift_client.get_container(**self.args)[1]
-
-
-class ObjectGet(task_manager.Task):
-    def main(self, client):
-        return client.swift_client.get_object(**self.args)
 
 
 class SubnetCreate(task_manager.Task):
