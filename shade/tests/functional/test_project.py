@@ -30,8 +30,6 @@ class TestProject(base.BaseFunctionalTestCase):
     def setUp(self):
         super(TestProject, self).setUp()
         self.new_project_name = self.getUniqueString('project')
-        self.identity_version = \
-            self.operator_cloud.cloud_config.get_api_version('identity')
         self.addCleanup(self._cleanup_projects)
 
     def _cleanup_projects(self):
