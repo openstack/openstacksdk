@@ -169,6 +169,9 @@ class RequestsMockTestCase(BaseTestCase):
         self.adapter.get(
             'https://image.example.com/',
             text=open(discovery_fixture, 'r').read())
+        self.calls += [
+            dict(method='GET', url='https://image.example.com/'),
+        ]
 
     def assert_calls(self):
         self.assertEqual(len(self.calls), len(self.adapter.request_history))

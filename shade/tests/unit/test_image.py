@@ -169,7 +169,6 @@ class TestImage(base.RequestsMockTestCase):
             is_public=False)
 
         self.calls += [
-            dict(method='GET', url='https://image.example.com/'),
             dict(method='GET', url='https://image.example.com/v2/images'),
             dict(
                 method='POST',
@@ -294,7 +293,6 @@ class TestImage(base.RequestsMockTestCase):
             options=args)
 
         self.calls += [
-            dict(method='GET', url='https://image.example.com/'),
             dict(method='GET', url='https://image.example.com/v2/images'),
             dict(method='GET', url='https://object-store.example.com/info'),
             dict(
