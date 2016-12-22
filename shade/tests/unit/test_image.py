@@ -171,7 +171,18 @@ class TestImage(base.RequestsMockTestCase):
         self.calls += [
             dict(method='GET', url='https://image.example.com/'),
             dict(method='GET', url='https://image.example.com/v2/images'),
-            dict(method='POST', url='https://image.example.com/v2/images'),
+            dict(
+                method='POST',
+                url='https://image.example.com/v2/images',
+                json={
+                    u'container_format': u'bare',
+                    u'disk_format': u'qcow2',
+                    u'name': u'fake_image',
+                    u'owner_specified.shade.md5': NO_MD5,
+                    u'owner_specified.shade.object': u'images/fake_image',
+                    u'owner_specified.shade.sha256': NO_SHA256,
+                    u'visibility': u'private'
+                }),
             dict(
                 method='PUT',
                 url='https://image.example.com/v2/images/{id}/file'.format(
@@ -179,16 +190,6 @@ class TestImage(base.RequestsMockTestCase):
             dict(method='GET', url='https://image.example.com/v2/images'),
         ]
         self.assert_calls()
-        self.assertEqual(
-            self.adapter.request_history[4].json(), {
-                u'container_format': u'bare',
-                u'disk_format': u'qcow2',
-                u'name': u'fake_image',
-                u'owner_specified.shade.md5': NO_MD5,
-                u'owner_specified.shade.object': u'images/fake_image',
-                u'owner_specified.shade.sha256': NO_SHA256,
-                u'visibility': u'private'
-            })
         self.assertEqual(self.adapter.request_history[5].text.read(), b'\x00')
 
     @mock.patch.object(shade.OpenStackCloud, 'swift_service')
@@ -317,7 +318,14 @@ class TestImage(base.RequestsMockTestCase):
                     endpoint=endpoint,
                     container=container_name, object=image_name)),
             dict(method='GET', url='https://image.example.com/v2/images'),
-            dict(method='POST', url='https://image.example.com/v2/tasks'),
+            dict(
+                method='POST',
+                url='https://image.example.com/v2/tasks',
+                json=dict(
+                    type='import', input={
+                        'import_from': '{container}/{object}'.format(
+                            container=container_name, object=image_name),
+                        'image_properties': {'name': image_name}})),
             dict(
                 method='GET',
                 url='https://image.example.com/v2/tasks/{id}'.format(
@@ -330,37 +338,29 @@ class TestImage(base.RequestsMockTestCase):
             dict(
                 method='PATCH',
                 url='https://image.example.com/v2/images/{id}'.format(
-                    id=self.image_id)),
+                    id=self.image_id),
+                json=sorted([
+                    {
+                        u'op': u'add',
+                        u'value': '{container}/{object}'.format(
+                            container=container_name, object=image_name),
+                        u'path': u'/owner_specified.shade.object'
+                    }, {
+                        u'op': u'add',
+                        u'value': NO_MD5,
+                        u'path': u'/owner_specified.shade.md5'
+                    }, {
+                        u'op': u'add', u'value': NO_SHA256,
+                        u'path': u'/owner_specified.shade.sha256'
+                    }], key=operator.itemgetter('value')),
+                headers={
+                    'Content-Type':
+                    'application/openstack-images-v2.1-json-patch'
+                }),
             dict(method='GET', url='https://image.example.com/v2/images'),
         ]
 
         self.assert_calls()
-        self.assertEqual(
-            self.adapter.request_history[10].json(),
-            dict(
-                type='import', input={
-                    'import_from': '{container}/{object}'.format(
-                        container=container_name, object=image_name),
-                    'image_properties': {'name': image_name}}))
-        self.assertEqual(
-            self.adapter.request_history[14].json(),
-            sorted([
-                {
-                    u'op': u'add',
-                    u'value': '{container}/{object}'.format(
-                        container=container_name, object=image_name),
-                    u'path': u'/owner_specified.shade.object'
-                }, {
-                    u'op': u'add',
-                    u'value': NO_MD5,
-                    u'path': u'/owner_specified.shade.md5'
-                }, {
-                    u'op': u'add', u'value': NO_SHA256,
-                    u'path': u'/owner_specified.shade.sha256'
-                }], key=operator.itemgetter('value')))
-        self.assertEqual(
-            self.adapter.request_history[14].headers['Content-Type'],
-            'application/openstack-images-v2.1-json-patch')
 
     def _image_dict(self, fake_image):
         return self.cloud._normalize_image(meta.obj_to_dict(fake_image))
