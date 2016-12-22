@@ -574,6 +574,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                         "Timeout waiting for node transition to "
                         "target state of '%s'" % state):
                     machine = self.get_machine(name_or_id)
+                    if 'failed' in machine['provision_state']:
+                        raise OpenStackCloudException(
+                            "Machine encountered a failure.")
                     # NOTE(TheJulia): This performs matching if the requested
                     # end state matches the state the node has reached.
                     if state in machine['provision_state']:
