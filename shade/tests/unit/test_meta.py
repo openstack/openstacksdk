@@ -882,7 +882,7 @@ class TestMeta(base.TestCase):
                 'id': mock.ANY,
                 'name': 'admin',
                 'domain_id': None,
-                'domain_name': None
+                'domain_name': 'default'
             },
             'region_name': u'RegionOne',
             'zone': None},
@@ -893,7 +893,7 @@ class TestMeta(base.TestCase):
             'id': mock.ANY,
             'name': 'admin',
             'domain_id': None,
-            'domain_name': None},
+            'domain_name': 'default'},
             self.cloud.current_project)
 
     def test_has_volume(self):
