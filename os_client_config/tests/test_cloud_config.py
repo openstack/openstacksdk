@@ -272,26 +272,13 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('object-store', mock_client)
         mock_client.assert_called_with(
-            preauthtoken=mock.ANY,
-            auth_version=u'3',
-            authurl='http://example.com',
-            key='testpassword',
+            session=mock.ANY,
             os_options={
-                'auth_token': mock.ANY,
                 'region_name': 'region-al',
-                'object_storage_url': 'http://swift.example.com',
-                'user_id': None,
-                'user_domain_name': None,
-                'project_name': 'testproject',
-                'project_domain_name': None,
-                'project_domain_id': None,
-                'project_id': None,
                 'service_type': 'object-store',
+                'object_storage_url': None,
                 'endpoint_type': 'public',
-                'user_domain_id': None
-            },
-            preauthurl='http://swift.example.com',
-            user='testuser')
+            })
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_auth_args')
     @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
@@ -311,26 +298,13 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('object-store', mock_client)
         mock_client.assert_called_with(
-            preauthtoken=mock.ANY,
-            auth_version=u'2.0',
-            authurl='http://example.com',
-            key='testpassword',
+            session=mock.ANY,
             os_options={
-                'auth_token': mock.ANY,
                 'region_name': 'region-al',
-                'object_storage_url': 'http://swift.example.com',
-                'user_id': None,
-                'user_domain_name': None,
-                'tenant_name': 'testproject',
-                'project_domain_name': None,
-                'project_domain_id': None,
-                'tenant_id': None,
                 'service_type': 'object-store',
+                'object_storage_url': None,
                 'endpoint_type': 'public',
-                'user_domain_id': None
-            },
-            preauthurl='http://swift.example.com',
-            user='testuser')
+            })
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_auth_args')
     @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
@@ -345,26 +319,13 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('object-store', mock_client)
         mock_client.assert_called_with(
-            preauthtoken=mock.ANY,
-            auth_version=u'2.0',
-            authurl=None,
-            key=None,
+            session=mock.ANY,
             os_options={
-                'auth_token': mock.ANY,
                 'region_name': 'region-al',
-                'object_storage_url': 'http://example.com/v2',
-                'user_id': None,
-                'user_domain_name': None,
-                'tenant_name': None,
-                'project_domain_name': None,
-                'project_domain_id': None,
-                'tenant_id': None,
                 'service_type': 'object-store',
+                'object_storage_url': None,
                 'endpoint_type': 'public',
-                'user_domain_id': None
-            },
-            preauthurl='http://example.com/v2',
-            user=None)
+            })
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_auth_args')
     @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
@@ -380,27 +341,13 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('object-store', mock_client)
         mock_client.assert_called_with(
-            preauthtoken=mock.ANY,
-            auth_version=u'2.0',
-            authurl=None,
-            key=None,
+            session=mock.ANY,
             os_options={
-                'auth_token': mock.ANY,
                 'region_name': 'region-al',
-                'object_storage_url': 'http://example.com/v2',
-                'user_id': None,
-                'user_domain_name': None,
-                'tenant_name': None,
-                'project_domain_name': None,
-                'project_domain_id': None,
-                'tenant_id': None,
                 'service_type': 'object-store',
+                'object_storage_url': None,
                 'endpoint_type': 'public',
-                'user_domain_id': None
-            },
-            preauthurl='http://example.com/v2',
-            timeout=9.0,
-            user=None)
+            })
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_auth_args')
     def test_legacy_client_object_store_endpoint(
@@ -414,26 +361,13 @@ class TestCloudConfig(base.TestCase):
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('object-store', mock_client)
         mock_client.assert_called_with(
-            preauthtoken=mock.ANY,
-            auth_version=u'2.0',
-            authurl=None,
-            key=None,
+            session=mock.ANY,
             os_options={
-                'auth_token': mock.ANY,
                 'region_name': 'region-al',
-                'object_storage_url': 'http://example.com/swift',
-                'user_id': None,
-                'user_domain_name': None,
-                'tenant_name': None,
-                'project_domain_name': None,
-                'project_domain_id': None,
-                'tenant_id': None,
                 'service_type': 'object-store',
+                'object_storage_url': 'http://example.com/swift',
                 'endpoint_type': 'public',
-                'user_domain_id': None
-            },
-            preauthurl='http://example.com/swift',
-            user=None)
+            })
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
     def test_legacy_client_image(self, mock_get_session_endpoint):
