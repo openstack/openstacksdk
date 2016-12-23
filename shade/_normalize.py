@@ -578,6 +578,56 @@ class Normalizer(object):
 
         return ret
 
+    def _normalize_volume_type_access(self, volume_type_access):
+
+        volume_type_access = volume_type_access.copy()
+
+        volume_type_id = volume_type_access.pop('volume_type_id')
+        project_id = volume_type_access.pop('project_id')
+        ret = munch.Munch(
+            location=self.current_location,
+            project_id=project_id,
+            volume_type_id=volume_type_id,
+            properties=volume_type_access.copy(),
+        )
+        return ret
+
+    def _normalize_volume_type_accesses(self, volume_type_accesses):
+        ret = []
+        for volume_type_access in volume_type_accesses:
+            ret.append(self._normalize_volume_type_access(volume_type_access))
+        return ret
+
+    def _normalize_volume_type(self, volume_type):
+
+        volume_type = volume_type.copy()
+
+        volume_id = volume_type.pop('id')
+        description = volume_type.pop('description', None)
+        name = volume_type.pop('name', None)
+        old_is_public = volume_type.pop('os-volume-type-access:is_public',
+                                        False)
+        is_public = volume_type.pop('is_public', old_is_public)
+        qos_specs_id = volume_type.pop('qos_specs_id', None)
+        extra_specs = volume_type.pop('extra_specs', {})
+        ret = munch.Munch(
+            location=self.current_location,
+            is_public=is_public,
+            id=volume_id,
+            name=name,
+            description=description,
+            qos_specs_id=qos_specs_id,
+            extra_specs=extra_specs,
+            properties=volume_type.copy(),
+        )
+        return ret
+
+    def _normalize_volume_types(self, volume_types):
+        ret = []
+        for volume in volume_types:
+            ret.append(self._normalize_volume_type(volume))
+        return ret
+
     def _normalize_volumes(self, volumes):
         """Normalize the structure of volumes
 

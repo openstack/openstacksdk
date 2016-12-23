@@ -1457,6 +1457,11 @@ class OpenStackCloud(_normalize.Normalizer):
         return _utils._filter_list(
             volume_backups, name_or_id, filters)
 
+    def search_volume_types(
+            self, name_or_id=None, filters=None, get_extra=True):
+        volume_types = self.list_volume_types(get_extra=get_extra)
+        return _utils._filter_list(volume_types, name_or_id, filters)
+
     def search_flavors(self, name_or_id=None, filters=None, get_extra=True):
         flavors = self.list_flavors(get_extra=get_extra)
         return _utils._filter_list(flavors, name_or_id, filters)
@@ -1622,6 +1627,17 @@ class OpenStackCloud(_normalize.Normalizer):
         with _utils.shade_exceptions("Error fetching volume list"):
             return self._normalize_volumes(
                 self.manager.submit_task(_tasks.VolumeList()))
+
+    @_utils.cache_on_arguments()
+    def list_volume_types(self, get_extra=True):
+        """List all available volume types.
+
+        :returns: A list of volume ``munch.Munch``.
+
+        """
+        with _utils.shade_exceptions("Error fetching volume_type list"):
+            return self._normalize_volume_types(
+                self.manager.submit_task(_tasks.VolumeTypeList()))
 
     @_utils.cache_on_arguments()
     def list_flavors(self, get_extra=True):
@@ -2325,6 +2341,31 @@ class OpenStackCloud(_normalize.Normalizer):
 
         """
         return _utils._get_entity(self.search_volumes, name_or_id, filters)
+
+    def get_volume_type(self, name_or_id, filters=None):
+        """Get a volume type by name or ID.
+
+        :param name_or_id: Name or ID of the volume.
+        :param filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
+        :returns: A volume ``munch.Munch`` or None if no matching volume is
+        found.
+
+        """
+        return _utils._get_entity(
+            self.search_volume_types, name_or_id, filters)
 
     def get_flavor(self, name_or_id, filters=None, get_extra=True):
         """Get a flavor by name or ID.
