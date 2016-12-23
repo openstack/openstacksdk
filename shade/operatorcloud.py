@@ -1593,6 +1593,23 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
         self._mod_flavor_access('remove', flavor_id, project_id)
 
+    def list_flavor_access(self, flavor_id):
+        """List access from a private flavor for a project/tenant.
+
+        :param string flavor_id: ID of the private flavor.
+
+        :returns: a list of ``munch.Munch`` containing the access description
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        with _utils.shade_exceptions("Error trying to list access from "
+                                     "flavor ID {flavor}".format(
+                flavor=flavor_id)):
+            projects = self.manager.submit_task(
+                _tasks.FlavorListAccess(flavor=flavor_id)
+            )
+        return _utils.normalize_flavor_accesses(projects)
+
     def create_role(self, name):
         """Create a Keystone role.
 

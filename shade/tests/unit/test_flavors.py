@@ -14,6 +14,7 @@
 
 
 import mock
+from shade.tests.fakes import FakeFlavor, FakeProject
 
 import shade
 from keystoneauth1.fixture import keystoneauth_betamax
@@ -118,8 +119,34 @@ class TestFlavors(base.TestCase):
         )
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_add_flavor_access_by_flavor(self, mock_nova):
+        flavor = FakeFlavor(id='flavor_id', name='flavor_name', ram=None)
+        tenant = FakeProject('tenant_id')
+        self.op_cloud.add_flavor_access(flavor, tenant)
+        mock_nova.flavor_access.add_tenant_access.assert_called_once_with(
+            flavor=flavor, tenant=tenant
+        )
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_remove_flavor_access(self, mock_nova):
         self.op_cloud.remove_flavor_access('flavor_id', 'tenant_id')
         mock_nova.flavor_access.remove_tenant_access.assert_called_once_with(
             flavor='flavor_id', tenant='tenant_id'
+        )
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_list_flavor_access(self, mock_nova):
+        mock_nova.flavors.list.return_value = [FakeFlavor(
+            id='flavor_id', name='flavor_name', ram=None)]
+        self.op_cloud.list_flavor_access('flavor_id')
+        mock_nova.flavor_access.list.assert_called_once_with(
+            flavor='flavor_id'
+        )
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_list_flavor_access_by_flavor(self, mock_nova):
+        flavor = FakeFlavor(id='flavor_id', name='flavor_name', ram=None)
+        self.op_cloud.list_flavor_access(flavor)
+        mock_nova.flavor_access.list.assert_called_once_with(
+            flavor=flavor
         )

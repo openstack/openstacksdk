@@ -87,6 +87,19 @@ A flavor for a Nova Server.
     extra_specs=dict(),
     properties=dict())
 
+
+Flavor Access
+------
+
+An access entry for a Nova Flavor.
+
+.. code-block:: python
+
+  FlavorAccess = dict(
+    flavor_id=str(),
+    project_id=str())
+
+
 Image
 -----
 
