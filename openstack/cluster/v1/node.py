@@ -44,6 +44,8 @@ class Node(resource.Resource):
     cluster_id = resource.Body('cluster_id')
     #: The ID of the profile used by this node.
     profile_id = resource.Body('profile_id')
+    #: The ID of the user who created this node.
+    user_id = resource.Body('user')
     #: The ID of the project this node belongs to.
     project_id = resource.Body('project')
     #: The name of the profile used by this node.

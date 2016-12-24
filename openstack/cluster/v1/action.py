@@ -39,6 +39,8 @@ class Action(resource.Resource):
     cause = resource.Body('cause')
     #: The owning engine that is currently running the action.
     owner_id = resource.Body('owner')
+    #: The ID of the user who created this action.
+    user_id = resource.Body('user')
     #: The ID of the project this profile belongs to.
     project_id = resource.Body('project')
     #: Interval in seconds between two consecutive executions.

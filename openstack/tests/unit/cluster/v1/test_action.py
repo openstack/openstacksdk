@@ -25,6 +25,7 @@ FAKE = {
     'action': 'NODE_CREATE',
     'cause': 'RPC Request',
     'owner': None,
+    'user': '3747afc360b64702a53bdd64dc1b8976',
     'project': '42d9e9663331431f97b75e25136307ff',
     'interval': -1,
     'start_time': 1453414055.48672,
@@ -63,6 +64,7 @@ class TestAction(testtools.TestCase):
         self.assertEqual(FAKE['action'], sot.action)
         self.assertEqual(FAKE['cause'], sot.cause)
         self.assertEqual(FAKE['owner'], sot.owner_id)
+        self.assertEqual(FAKE['user'], sot.user_id)
         self.assertEqual(FAKE['project'], sot.project_id)
         self.assertEqual(FAKE['interval'], sot.interval)
         self.assertEqual(FAKE['start_time'], sot.start_at)
