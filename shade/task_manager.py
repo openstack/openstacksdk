@@ -15,6 +15,7 @@
 # limitations under the License.
 
 import abc
+import concurrent.futures
 import sys
 import threading
 import time
@@ -72,6 +73,7 @@ class BaseTask(object):
         self._result = None
         self._response = None
         self._finished = threading.Event()
+        self.run_async = False
         self.args = kw
         self.name = type(self).__name__
 
@@ -210,17 +212,23 @@ def generate_task_class(method, name, result_filter_cb):
 class TaskManager(object):
     log = _log.setup_logging(__name__)
 
-    def __init__(self, client, name, result_filter_cb=None):
+    def __init__(
+            self, client, name, result_filter_cb=None, workers=5, **kwargs):
         self.name = name
         self._client = client
+        self._executor = concurrent.futures.ThreadPoolExecutor(
+            max_workers=workers)
         if not result_filter_cb:
             self._result_filter_cb = _result_filter_cb
         else:
             self._result_filter_cb = result_filter_cb
 
+    def set_client(self, client):
+        self._client = client
+
     def stop(self):
         """ This is a direct action passthrough TaskManager """
-        pass
+        self._executor.shutdown(wait=True)
 
     def run(self):
         """ This is a direct action passthrough TaskManager """
@@ -233,15 +241,36 @@ class TaskManager(object):
         :param bool raw: If True, return the raw result as received from the
             underlying client call.
         """
+        return self.run_task(task=task, raw=raw)
+
+    def _run_task_async(self, task, raw=False):
+        self.log.debug(
+            "Manager %s submitting task %s", self.name, task.name)
+        return self._executor.submit(self._run_task, task, raw=raw)
+
+    def run_task(self, task, raw=False):
+        if hasattr(task, 'run_async') and task.run_async:
+            return self._run_task_async(task, raw=raw)
+        else:
+            return self._run_task(task, raw=raw)
+
+    def _run_task(self, task, raw=False):
         self.log.debug(
             "Manager %s running task %s", self.name, task.name)
         start = time.time()
         task.run(self._client)
         end = time.time()
+        dt = end - start
         self.log.debug(
-            "Manager %s ran task %s in %ss",
-            self.name, task.name, (end - start))
+            "Manager %s ran task %s in %ss", self.name, task.name, dt)
+
+        self.post_run_task(dt)
+
         return task.wait(raw)
+
+    def post_run_task(self, elasped_time):
+        pass
+
     # Backwards compatibility
     submitTask = submit_task
 
@@ -257,4 +286,4 @@ class TaskManager(object):
 
         task_class = generate_task_class(method, name, result_filter_cb)
 
-        return self.manager.submit_task(task_class(**kwargs))
+        return self._executor.submit_task(task_class(**kwargs))

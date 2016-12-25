@@ -140,7 +140,7 @@ class ShadeAdapter(adapter.Adapter):
             return meta.obj_to_dict(result, request_id=request_id)
         return result
 
-    def request(self, url, method, *args, **kwargs):
+    def request(self, url, method, run_async=False, *args, **kwargs):
         name_parts = extract_name(url)
         name = '.'.join([self.service_type, method] + name_parts)
         class_name = "".join([
@@ -155,6 +155,7 @@ class ShadeAdapter(adapter.Adapter):
                 super(RequestTask, self).__init__(**kw)
                 self.name = name
                 self.__class__.__name__ = str(class_name)
+                self.run_async = run_async
 
             def main(self, client):
                 self.args.setdefault('raise_exc', False)
