@@ -144,6 +144,24 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
                      expected_args=[["node1"]])
 
     @mock.patch.object(proxy_base.BaseProxy, '_find')
+    def test_cluster_replace_nodes(self, mock_find):
+        mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
+        mock_find.return_value = mock_cluster
+        self._verify("openstack.cluster.v1.cluster.Cluster.replace_nodes",
+                     self.proxy.cluster_replace_nodes,
+                     method_args=["FAKE_CLUSTER", {"node1": "node2"}],
+                     expected_args=[{"node1": "node2"}])
+        mock_find.assert_called_once_with(cluster.Cluster, "FAKE_CLUSTER",
+                                          ignore_missing=False)
+
+    def test_cluster_replace_nodes_with_obj(self):
+        mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
+        self._verify("openstack.cluster.v1.cluster.Cluster.replace_nodes",
+                     self.proxy.cluster_replace_nodes,
+                     method_args=[mock_cluster, {"node1": "node2"}],
+                     expected_args=[{"node1": "node2"}])
+
+    @mock.patch.object(proxy_base.BaseProxy, '_find')
     def test_cluster_scale_out(self, mock_find):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
         mock_find.return_value = mock_cluster
