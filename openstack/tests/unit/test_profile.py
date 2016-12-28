@@ -20,6 +20,7 @@ class TestProfile(base.TestCase):
         prof = profile.Profile()
         expected = [
             'alarming',
+            'baremetal',
             'clustering',
             'compute',
             'database',
@@ -37,6 +38,7 @@ class TestProfile(base.TestCase):
 
     def test_default_versions(self):
         prof = profile.Profile()
+        self.assertEqual('v1', prof.get_filter('baremetal').version)
         self.assertEqual('v1', prof.get_filter('clustering').version)
         self.assertEqual('v2', prof.get_filter('compute').version)
         self.assertEqual('v1', prof.get_filter('database').version)
@@ -54,6 +56,8 @@ class TestProfile(base.TestCase):
         prof = profile.Profile()
         prof.set_version('alarming', 'v2')
         self.assertEqual('v2', prof.get_filter('alarming').version)
+        prof.set_version('baremetal', 'v1')
+        self.assertEqual('v1', prof.get_filter('baremetal').version)
         prof.set_version('clustering', 'v1')
         self.assertEqual('v1', prof.get_filter('clustering').version)
         prof.set_version('compute', 'v2')
