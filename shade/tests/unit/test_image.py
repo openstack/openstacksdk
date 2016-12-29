@@ -215,9 +215,7 @@ class TestImage(BaseTestImage):
         self.assert_calls()
         self.assertEqual(self.adapter.request_history[5].text.read(), b'\x00')
 
-    @mock.patch.object(shade.OpenStackCloud, 'swift_service')
-    def test_create_image_task(self,
-                               swift_service_mock):
+    def test_create_image_task(self):
         self.cloud.image_api_use_tasks = True
         image_name = 'name-99'
         container_name = 'image_upload_v2_test_container'
@@ -262,6 +260,12 @@ class TestImage(BaseTestImage):
                 container=container_name, object=image_name),
             status_code=404)
 
+        self.adapter.put(
+            '{endpoint}/{container}/{object}'.format(
+                endpoint=endpoint,
+                container=container_name, object=image_name),
+            status_code=201)
+
         task_id = str(uuid.uuid4())
         args = dict(
             id=task_id,
@@ -304,18 +308,6 @@ class TestImage(BaseTestImage):
             image_name, self.imagefile.name, wait=True, timeout=1,
             is_public=False, container=container_name)
 
-        args = {
-            'header': [
-                'x-object-meta-x-shade-md5:{md5}'.format(md5=NO_MD5),
-                'x-object-meta-x-shade-sha256:{sha}'.format(sha=NO_SHA256),
-            ],
-            'segment_size': 1000,
-            'use_slo': True}
-        swift_service_mock.upload.assert_called_with(
-            container='image_upload_v2_test_container',
-            objects=mock.ANY,
-            options=args)
-
         self.calls += [
             dict(method='GET', url='https://image.example.com/v2/images'),
             dict(method='GET', url='https://object-store.example.com/info'),
@@ -339,6 +331,15 @@ class TestImage(BaseTestImage):
                 url='{endpoint}/{container}/{object}'.format(
                     endpoint=endpoint,
                     container=container_name, object=image_name)),
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}/{object}'.format(
+                    endpoint=endpoint,
+                    container=container_name, object=image_name),
+                headers={
+                    'x-object-meta-x-shade-md5': NO_MD5,
+                    'x-object-meta-x-shade-sha256': NO_SHA256,
+                }),
             dict(method='GET', url='https://image.example.com/v2/images'),
             dict(
                 method='POST',

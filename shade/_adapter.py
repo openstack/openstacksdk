@@ -91,7 +91,15 @@ class ShadeAdapter(adapter.Adapter):
     def _munch_response(self, response, result_key=None):
         exc.raise_from_response(response)
         # Glance image downloads just return the data in the body
-        if response.headers.get('Content-Type') == 'application/octet-stream':
+        if response.headers.get('Content-Type') in (
+                'text/plain',
+                'application/octet-stream'):
+            return response
+        elif response.headers.get('X-Static-Large-Object'):
+            # Workaround what seems to be a bug in swift where SLO objects
+            # return Content-Type application/json but contain
+            # application/octet-stream
+            # Bug filed: https://bugs.launchpad.net/swift/+bug/1658295
             return response
         else:
             if not response.content:
@@ -100,12 +108,12 @@ class ShadeAdapter(adapter.Adapter):
             try:
                 result_json = response.json()
             except Exception:
-                self.shade_logger.debug(
+                raise exc.OpenStackCloudHTTPError(
                     "Problems decoding json from response."
                     " Reponse: {code} {reason}".format(
                         code=response.status_code,
-                        reason=response.reason))
-                raise
+                        reason=response.reason),
+                    response=response)
 
             request_id = response.headers.get('x-openstack-request-id')
 
@@ -154,4 +162,7 @@ class ShadeAdapter(adapter.Adapter):
                 return request_method(**self.args)
 
         response = self.manager.submit_task(RequestTask(**kwargs))
-        return self._munch_response(response)
+        if run_async:
+            return response
+        else:
+            return self._munch_response(response)

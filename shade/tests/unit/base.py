@@ -171,10 +171,12 @@ class RequestsMockTestCase(BaseTestCase):
             dict(method='GET', url='https://image.example.com/'),
         ]
 
-    def assert_calls(self):
+    def assert_calls(self, stop_after=None):
         self.assertEqual(len(self.calls), len(self.adapter.request_history))
         for (x, (call, history)) in enumerate(
                 zip(self.calls, self.adapter.request_history)):
+            if stop_after and x > stop_after:
+                break
             self.assertEqual(
                 call['method'], history.method,
                 'Method mismatch on call {index}'.format(index=x))

@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections
 import functools
 import hashlib
 import ipaddress
@@ -40,7 +41,6 @@ import magnumclient.client
 import neutronclient.neutron.client
 import novaclient.client
 import novaclient.exceptions as nova_exceptions
-import swiftclient.service
 import troveclient.client
 import designateclient.client
 
@@ -297,12 +297,6 @@ class OpenStackCloud(_normalize.Normalizer):
         self._keystone_client = None
         self._neutron_client = None
         self._nova_client = None
-        self._swift_service = None
-        # Lock used to reset swift client.  Since swift client does not
-        # support keystone sessions, we we have to make a new client
-        # in order to get new auth prior to operations, otherwise
-        # long-running sessions will fail.
-        self._swift_service_lock = threading.Lock()
         self._trove_client = None
         self._designate_client = None
         self._magnum_client = None
@@ -1077,19 +1071,25 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @property
     def swift_service(self):
-        with self._swift_service_lock:
-            if self._swift_service is None:
-                with _utils.shade_exceptions("Error constructing "
-                                             "swift client"):
-                    endpoint = self.get_session_endpoint(
-                        service_key='object-store')
-                    options = dict(os_auth_token=self.auth_token,
-                                   os_storage_url=endpoint,
-                                   os_region_name=self.region_name)
-                    options.update(self._get_swift_kwargs())
-                    self._swift_service = swiftclient.service.SwiftService(
-                        options=options)
-            return self._swift_service
+        warnings.warn(
+            'Using shade to get a swift object is deprecated. If you'
+            ' need a raw swiftclient.service.SwiftService object, please use'
+            ' make_legacy_client in os-client-config instead')
+        try:
+            import swiftclient.service
+        except ImportError:
+            self.log.error(
+                'swiftclient is no longer a dependency of shade. You need to'
+                ' install python-swiftclient directly.')
+        with _utils.shade_exceptions("Error constructing "
+                                     "swift client"):
+            endpoint = self.get_session_endpoint(
+                service_key='object-store')
+            options = dict(os_auth_token=self.auth_token,
+                           os_storage_url=endpoint,
+                           os_region_name=self.region_name)
+            options.update(self._get_swift_kwargs())
+            return swiftclient.service.SwiftService(options=options)
 
     @property
     def cinder_client(self):
@@ -3432,10 +3432,6 @@ class OpenStackCloud(_normalize.Normalizer):
         parameters = image_kwargs.pop('parameters', {})
         image_kwargs.update(parameters)
 
-        # get new client sessions
-        with self._swift_service_lock:
-            self._swift_service = None
-
         self.create_object(
             container, name, filename,
             md5=md5, sha256=sha256)
@@ -5758,34 +5754,148 @@ class OpenStackCloud(_normalize.Normalizer):
         if not filename:
             filename = name
 
+        # segment_size gets used as a step value in a range call, so needs
+        # to be an int
+        if segment_size:
+            segment_size = int(segment_size)
         segment_size = self.get_object_segment_size(segment_size)
+        file_size = os.path.getsize(filename)
 
         if not (md5 or sha256):
             (md5, sha256) = self._get_file_hashes(filename)
         headers[OBJECT_MD5_KEY] = md5 or ''
         headers[OBJECT_SHA256_KEY] = sha256 or ''
-        header_list = sorted([':'.join([k, v]) for (k, v) in headers.items()])
         for (k, v) in metadata.items():
-            header_list.append(':'.join(['x-object-meta-' + k, v]))
+            headers['x-object-meta-' + k] = v
 
         # On some clouds this is not necessary. On others it is. I'm confused.
         self.create_container(container)
 
         if self.is_object_stale(container, name, filename, md5, sha256):
+
+            endpoint = '{container}/{name}'.format(
+                container=container, name=name)
             self.log.debug(
-                "swift uploading %(filename)s to %(container)s/%(name)s",
-                {'filename': filename, 'container': container, 'name': name})
-            upload = swiftclient.service.SwiftUploadObject(
-                source=filename, object_name=name)
-            for r in self.manager.submit_task(_tasks.ObjectCreate(
-                    container=container, objects=[upload],
-                    options=dict(
-                        header=header_list,
-                        segment_size=segment_size,
-                        use_slo=use_slo))):
-                if not r['success']:
-                    raise OpenStackCloudException(
-                        'Failed at action ({action}) [{error}]:'.format(**r))
+                "swift uploading %(filename)s to %(endpoint)s",
+                {'filename': filename, 'endpoint': endpoint})
+
+            if file_size <= segment_size:
+                self._upload_object(endpoint, filename, headers)
+            else:
+                self._upload_large_object(
+                    endpoint, filename, headers,
+                    file_size, segment_size, use_slo)
+
+    def _upload_object(self, endpoint, filename, headers):
+        return self._object_store_client.put(
+            endpoint, headers=headers, data=open(filename, 'r'))
+
+    def _get_file_segments(self, endpoint, filename, file_size, segment_size):
+        # Use an ordered dict here so that testing can replicate things
+        segments = collections.OrderedDict()
+        for (index, offset) in enumerate(range(0, file_size, segment_size)):
+            remaining = file_size - (index * segment_size)
+            segment = _utils.FileSegment(
+                filename, offset,
+                segment_size if segment_size < remaining else remaining)
+            name = '{endpoint}/{index:0>6}'.format(
+                endpoint=endpoint, index=index)
+            segments[name] = segment
+        return segments
+
+    def _object_name_from_url(self, url):
+        '''Get container_name/object_name from the full URL called.
+
+        Remove the Swift endpoint from the front of the URL, and remove
+        the leaving / that will leave behind.'''
+        endpoint = self._object_store_client.get_endpoint()
+        object_name = url.replace(endpoint, '')
+        if object_name.startswith('/'):
+            object_name = object_name[1:]
+        return object_name
+
+    def _add_etag_to_manifest(self, segment_results, manifest):
+        for result in segment_results:
+            if 'Etag' not in result.headers:
+                continue
+            name = self._object_name_from_url(result.url)
+            for entry in manifest:
+                if entry['path'] == '/{name}'.format(name=name):
+                    entry['etag'] = result.headers['Etag']
+
+    def _upload_large_object(
+        self, endpoint, filename, headers, file_size, segment_size, use_slo):
+        # If the object is big, we need to break it up into segments that
+        # are no larger than segment_size, upload each of them individually
+        # and then upload a manifest object. The segments can be uploaded in
+        # parallel, so we'll use the async feature of the TaskManager.
+
+        segment_futures = []
+        segment_results = []
+        retry_results = []
+        retry_futures = []
+        manifest = []
+
+        # Get an OrderedDict with keys being the swift location for the
+        # segment, the value a FileSegment file-like object that is a
+        # slice of the data for the segment.
+        segments = self._get_file_segments(
+            endpoint, filename, file_size, segment_size)
+
+        # Schedule the segments for upload
+        for name, segment in segments.items():
+            # Async call to put - schedules execution and returns a future
+            segment_future = self._object_store_client.put(
+                name, headers=headers, data=segment, run_async=True)
+            segment_futures.append(segment_future)
+            # TODO(mordred) Collect etags from results to add to this manifest
+            # dict. Then sort the list of dicts by path.
+            manifest.append(dict(
+                path='/{name}'.format(name=name),
+                size_bytes=segment.length))
+
+        # Try once and collect failed results to retry
+        segment_results, retry_results = task_manager.wait_for_futures(
+            segment_futures, raise_on_error=False)
+
+        self._add_etag_to_manifest(segment_results, manifest)
+
+        for result in retry_results:
+            # Grab the FileSegment for the failed upload so we can retry
+            name = self._object_name_from_url(result.url)
+            segment = segments[name]
+            segment.seek(0)
+            # Async call to put - schedules execution and returns a future
+            segment_future = self._object_store_client.put(
+                name, headers=headers, data=segment, run_async=True)
+            # TODO(mordred) Collect etags from results to add to this manifest
+            # dict. Then sort the list of dicts by path.
+            retry_futures.append(segment_future)
+
+        # If any segments fail the second time, just throw the error
+        segment_results, retry_results = task_manager.wait_for_futures(
+            retry_futures, raise_on_error=True)
+
+        self._add_etag_to_manifest(segment_results, manifest)
+
+        if use_slo:
+            return self._finish_large_object_slo(endpoint, headers, manifest)
+        else:
+            return self._finish_large_object_dlo(endpoint, headers)
+
+    def _finish_large_object_slo(self, endpoint, headers, manifest):
+        # TODO(mordred) send an etag of the manifest, which is the md5sum
+        # of the concatenation of the etags of the results
+        headers = headers.copy()
+        return self._object_store_client.put(
+            endpoint,
+            params={'multipart-manifest': 'put'},
+            headers=headers, json=manifest)
+
+    def _finish_large_object_dlo(self, endpoint, headers):
+        headers = headers.copy()
+        headers['X-Object-Manifest'] = endpoint
+        return self._object_store_client.put(endpoint, headers=headers)
 
     def update_object(self, container, name, metadata=None, **headers):
         """Update the metadata of an object
@@ -5837,10 +5947,25 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
+        # TODO(mordred) DELETE for swift returns status in text/plain format
+        # like so:
+        #   Number Deleted: 15
+        #   Number Not Found: 0
+        #   Response Body:
+        #   Response Status: 200 OK
+        #   Errors:
+        # We should ultimately do something with that
         try:
+            meta = self.get_object_metadata(container, name)
+            if not meta:
+                return False
+            params = {}
+            if meta.get('X-Static-Large-Object', None) == 'True':
+                params['multipart-manifest'] = 'delete'
             self._object_store_client.delete(
                 '{container}/{object}'.format(
-                    container=container, object=name))
+                    container=container, object=name),
+                params=params)
             return True
         except OpenStackCloudHTTPError:
             return False

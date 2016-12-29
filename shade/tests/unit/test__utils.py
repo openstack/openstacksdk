@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import random
+import string
+import tempfile
+
 import testtools
 
 from shade import _utils
@@ -230,3 +234,26 @@ class TestUtils(base.TestCase):
             "Invalid range value: <>100"
         ):
             _utils.range_filter(RANGE_DATA, "key1", "<>100")
+
+    def test_file_segment(self):
+        file_size = 4200
+        content = ''.join(random.SystemRandom().choice(
+            string.ascii_uppercase + string.digits)
+            for _ in range(file_size)).encode('latin-1')
+        self.imagefile = tempfile.NamedTemporaryFile(delete=False)
+        self.imagefile.write(content)
+        self.imagefile.close()
+
+        segments = self.cloud._get_file_segments(
+            endpoint='test_container/test_image',
+            filename=self.imagefile.name,
+            file_size=file_size,
+            segment_size=1000)
+        self.assertEqual(len(segments), 5)
+        segment_content = b''
+        for (index, (name, segment)) in enumerate(segments.items()):
+            self.assertEqual(
+                'test_container/test_image/{index:0>6}'.format(index=index),
+                name)
+            segment_content += segment.read()
+        self.assertEqual(content, segment_content)

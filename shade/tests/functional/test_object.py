@@ -17,10 +17,13 @@ test_object
 Functional tests for `shade` object methods.
 """
 
+import random
+import string
 import tempfile
 
 from testtools import content
 
+from shade import exc
 from shade.tests.functional import base
 
 
@@ -40,24 +43,29 @@ class TestObject(base.BaseFunctionalTestCase):
         self.assertEqual(container_name,
                          self.demo_cloud.list_containers()[0]['name'])
         sizes = (
-            (64 * 1024, 1),      # 64K, one segment
-            (50 * 1024 ** 2, 5)  # 50MB, 5 segments
+            (64 * 1024, 1),  # 64K, one segment
+            (64 * 1024, 5)   # 64MB, 5 segments
         )
         for size, nseg in sizes:
-            segment_size = round(size / nseg)
-            with tempfile.NamedTemporaryFile() as sparse_file:
-                sparse_file.seek(size)
-                sparse_file.write("\0")
-                sparse_file.flush()
+            segment_size = int(round(size / nseg))
+            with tempfile.NamedTemporaryFile() as fake_file:
+                fake_content = ''.join(random.SystemRandom().choice(
+                    string.ascii_uppercase + string.digits)
+                    for _ in range(size)).encode('latin-1')
+
+                fake_file.write(fake_content)
+                fake_file.flush()
                 name = 'test-%d' % size
+                self.addCleanup(
+                    self.demo_cloud.delete_object, container_name, name)
                 self.demo_cloud.create_object(
                     container_name, name,
-                    sparse_file.name,
+                    fake_file.name,
                     segment_size=segment_size,
                     metadata={'foo': 'bar'})
                 self.assertFalse(self.demo_cloud.is_object_stale(
                     container_name, name,
-                    sparse_file.name
+                    fake_file.name
                     )
                 )
             self.assertEqual(
@@ -70,12 +78,21 @@ class TestObject(base.BaseFunctionalTestCase):
                 'testv', self.demo_cloud.get_object_metadata(
                     container_name, name)['x-object-meta-testk']
             )
-            self.assertIsNotNone(
-                self.demo_cloud.get_object(container_name, name))
+            try:
+                self.assertIsNotNone(
+                    self.demo_cloud.get_object(container_name, name))
+            except exc.OpenStackCloudException as e:
+                self.addDetail(
+                    'failed_response',
+                    content.text_content(str(e.response.headers)))
+                self.addDetail(
+                    'failed_response',
+                    content.text_content(e.response.text))
             self.assertEqual(
                 name,
                 self.demo_cloud.list_objects(container_name)[0]['name'])
-            self.demo_cloud.delete_object(container_name, name)
+            self.assertTrue(
+                self.demo_cloud.delete_object(container_name, name))
         self.assertEqual([], self.demo_cloud.list_objects(container_name))
         self.assertEqual(container_name,
                          self.demo_cloud.list_containers()[0]['name'])

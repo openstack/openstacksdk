@@ -12,6 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import tempfile
+
 import testtools
 
 import shade
@@ -20,10 +22,10 @@ from shade import exc
 from shade.tests.unit import base
 
 
-class TestObject(base.RequestsMockTestCase):
+class BaseTestObject(base.RequestsMockTestCase):
 
     def setUp(self):
-        super(TestObject, self).setUp()
+        super(BaseTestObject, self).setUp()
 
         self.container = self.getUniqueString()
         self.object = self.getUniqueString()
@@ -32,6 +34,9 @@ class TestObject(base.RequestsMockTestCase):
             endpoint=self.endpoint, container=self.container)
         self.object_endpoint = '{endpoint}/{object}'.format(
             endpoint=self.container_endpoint, object=self.object)
+
+
+class TestObject(BaseTestObject):
 
     def test_create_container(self):
         """Test creating a (private) container"""
@@ -331,22 +336,31 @@ class TestObject(base.RequestsMockTestCase):
             self.cloud.list_objects, self.container)
 
     def test_delete_object(self):
+        self.adapter.head(
+            self.object_endpoint, headers={'X-Object-Meta': 'foo'})
         self.adapter.delete(self.object_endpoint, status_code=204)
 
         self.assertTrue(self.cloud.delete_object(self.container, self.object))
 
         self.calls += [
-            dict(method='DELETE', url=self.object_endpoint),
+            dict(
+                method='HEAD',
+                url=self.object_endpoint),
+            dict(
+                method='DELETE',
+                url=self.object_endpoint),
         ]
         self.assert_calls()
 
     def test_delete_object_not_found(self):
-        self.adapter.delete(self.object_endpoint, status_code=404)
+        self.adapter.head(self.object_endpoint, status_code=404)
 
         self.assertFalse(self.cloud.delete_object(self.container, self.object))
 
         self.calls += [
-            dict(method='DELETE', url=self.object_endpoint),
+            dict(
+                method='HEAD',
+                url=self.object_endpoint),
         ]
         self.assert_calls()
 
@@ -439,3 +453,722 @@ class TestObject(base.RequestsMockTestCase):
             reason='Precondition failed')
         self.assertEqual(shade.openstackcloud.DEFAULT_OBJECT_SEGMENT_SIZE,
                          self.cloud.get_object_segment_size(None))
+
+
+class TestObjectUploads(BaseTestObject):
+
+    def setUp(self):
+        super(TestObjectUploads, self).setUp()
+
+        self.content = self.getUniqueString().encode('latin-1')
+        self.object_file = tempfile.NamedTemporaryFile(delete=False)
+        self.object_file.write(self.content)
+        self.object_file.close()
+        (self.md5, self.sha256) = self.cloud._get_file_hashes(
+            self.object_file.name)
+        self.endpoint = self.cloud._object_store_client.get_endpoint()
+
+    def test_create_object(self):
+
+        self.adapter.get(
+            'https://object-store.example.com/info',
+            json=dict(
+                swift={'max_file_size': 1000},
+                slo={'min_segment_size': 500}))
+
+        self.adapter.put(
+            '{endpoint}/{container}'.format(
+                endpoint=self.endpoint,
+                container=self.container,),
+            status_code=201,
+            headers={
+                'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
+                'Content-Length': '0',
+                'Content-Type': 'text/html; charset=UTF-8',
+            })
+        self.adapter.head(
+            '{endpoint}/{container}'.format(
+                endpoint=self.endpoint,
+                container=self.container),
+            [
+                dict(status_code=404),
+                dict(headers={
+                    'Content-Length': '0',
+                    'X-Container-Object-Count': '0',
+                    'Accept-Ranges': 'bytes',
+                    'X-Storage-Policy': 'Policy-0',
+                    'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                    'X-Timestamp': '1481912480.41664',
+                    'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                    'X-Container-Bytes-Used': '0',
+                    'Content-Type': 'text/plain; charset=utf-8'}),
+            ])
+        self.adapter.head(
+            '{endpoint}/{container}/{object}'.format(
+                endpoint=self.endpoint,
+                container=self.container, object=self.object),
+            status_code=404)
+
+        self.adapter.put(
+            '{endpoint}/{container}/{object}'.format(
+                endpoint=self.endpoint,
+                container=self.container, object=self.object),
+            status_code=201)
+
+        self.cloud.create_object(
+            container=self.container, name=self.object,
+            filename=self.object_file.name)
+
+        self.calls += [
+            dict(method='GET', url='https://object-store.example.com/info'),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container)),
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container)),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container)),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}/{object}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container, object=self.object)),
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}/{object}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container, object=self.object),
+                headers={
+                    'x-object-meta-x-shade-md5': self.md5,
+                    'x-object-meta-x-shade-sha256': self.sha256,
+                }),
+        ]
+
+        self.assert_calls()
+
+    def test_create_dynamic_large_object(self):
+
+        max_file_size = 2
+        min_file_size = 1
+
+        self.adapter.get(
+            'https://object-store.example.com/info',
+            json=dict(
+                swift={'max_file_size': max_file_size},
+                slo={'min_segment_size': min_file_size}))
+
+        self.adapter.put(
+            '{endpoint}/{container}'.format(
+                endpoint=self.endpoint,
+                container=self.container,),
+            status_code=201,
+            headers={
+                'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
+                'Content-Length': '0',
+                'Content-Type': 'text/html; charset=UTF-8',
+            })
+        self.adapter.head(
+            '{endpoint}/{container}'.format(
+                endpoint=self.endpoint,
+                container=self.container),
+            [
+                dict(status_code=404),
+                dict(headers={
+                    'Content-Length': '0',
+                    'X-Container-Object-Count': '0',
+                    'Accept-Ranges': 'bytes',
+                    'X-Storage-Policy': 'Policy-0',
+                    'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                    'X-Timestamp': '1481912480.41664',
+                    'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                    'X-Container-Bytes-Used': '0',
+                    'Content-Type': 'text/plain; charset=utf-8'}),
+            ])
+        self.adapter.head(
+            '{endpoint}/{container}/{object}'.format(
+                endpoint=self.endpoint,
+                container=self.container, object=self.object),
+            status_code=404)
+
+        self.adapter.put(
+            '{endpoint}/{container}/{object}'.format(
+                endpoint=self.endpoint,
+                container=self.container, object=self.object),
+            status_code=201)
+
+        self.calls += [
+            dict(method='GET', url='https://object-store.example.com/info'),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container)),
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container)),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container)),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}/{object}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container, object=self.object)),
+        ]
+
+        for index, offset in enumerate(
+                range(0, len(self.content), max_file_size)):
+
+            self.adapter.put(
+                '{endpoint}/{container}/{object}/{index:0>6}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container,
+                    object=self.object,
+                    index=index),
+                status_code=201)
+
+            self.calls += [
+                dict(
+                    method='PUT',
+                    url='{endpoint}/{container}/{object}/{index:0>6}'.format(
+                        endpoint=self.endpoint,
+                        container=self.container,
+                        object=self.object,
+                        index=index))]
+
+        self.calls += [
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}/{object}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container, object=self.object),
+                headers={
+                    'x-object-manifest': '{container}/{object}'.format(
+                        container=self.container, object=self.object),
+                    'x-object-meta-x-shade-md5': self.md5,
+                    'x-object-meta-x-shade-sha256': self.sha256,
+                }),
+        ]
+
+        self.cloud.create_object(
+            container=self.container, name=self.object,
+            filename=self.object_file.name, use_slo=False)
+
+        # After call 6, order become indeterminate because of thread pool
+        self.assert_calls(stop_after=6)
+
+        for key, value in self.calls[-1]['headers'].items():
+            self.assertEqual(
+                value, self.adapter.request_history[-1].headers[key],
+                'header mismatch in manifest call')
+
+    def test_create_static_large_object(self):
+
+        max_file_size = 25
+        min_file_size = 1
+
+        self.adapter.get(
+            'https://object-store.example.com/info',
+            json=dict(
+                swift={'max_file_size': max_file_size},
+                slo={'min_segment_size': min_file_size}))
+
+        self.adapter.put(
+            '{endpoint}/{container}'.format(
+                endpoint=self.endpoint,
+                container=self.container,),
+            status_code=201,
+            headers={
+                'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
+                'Content-Length': '0',
+                'Content-Type': 'text/html; charset=UTF-8',
+            })
+        self.adapter.head(
+            '{endpoint}/{container}'.format(
+                endpoint=self.endpoint,
+                container=self.container),
+            [
+                dict(status_code=404),
+                dict(headers={
+                    'Content-Length': '0',
+                    'X-Container-Object-Count': '0',
+                    'Accept-Ranges': 'bytes',
+                    'X-Storage-Policy': 'Policy-0',
+                    'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                    'X-Timestamp': '1481912480.41664',
+                    'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                    'X-Container-Bytes-Used': '0',
+                    'Content-Type': 'text/plain; charset=utf-8'}),
+            ])
+        self.adapter.head(
+            '{endpoint}/{container}/{object}'.format(
+                endpoint=self.endpoint,
+                container=self.container, object=self.object),
+            status_code=404)
+
+        self.adapter.put(
+            '{endpoint}/{container}/{object}'.format(
+                endpoint=self.endpoint,
+                container=self.container, object=self.object),
+            status_code=201)
+
+        self.calls += [
+            dict(method='GET', url='https://object-store.example.com/info'),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container)),
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container)),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container)),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}/{object}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container, object=self.object)),
+        ]
+
+        for index, offset in enumerate(
+                range(0, len(self.content), max_file_size)):
+
+            self.adapter.put(
+                '{endpoint}/{container}/{object}/{index:0>6}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container,
+                    object=self.object,
+                    index=index),
+                status_code=201,
+                headers=dict(Etag='etag{index}'.format(index=index)))
+
+            self.calls += [
+                dict(
+                    method='PUT',
+                    url='{endpoint}/{container}/{object}/{index:0>6}'.format(
+                        endpoint=self.endpoint,
+                        container=self.container,
+                        object=self.object,
+                        index=index))]
+
+        self.calls += [
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}/{object}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container, object=self.object),
+                params={
+                    'multipart-manifest', 'put'
+                },
+                headers={
+                    'x-object-meta-x-shade-md5': self.md5,
+                    'x-object-meta-x-shade-sha256': self.sha256,
+                }),
+        ]
+
+        self.cloud.create_object(
+            container=self.container, name=self.object,
+            filename=self.object_file.name, use_slo=True)
+
+        # After call 6, order become indeterminate because of thread pool
+        self.assert_calls(stop_after=6)
+
+        for key, value in self.calls[-1]['headers'].items():
+            self.assertEqual(
+                value, self.adapter.request_history[-1].headers[key],
+                'header mismatch in manifest call')
+
+        base_object = '/{container}/{object}'.format(
+            endpoint=self.endpoint,
+            container=self.container,
+            object=self.object)
+
+        self.assertEqual([
+            {
+                'path': "{base_object}/000000".format(
+                    base_object=base_object),
+                'size_bytes': 25,
+                'etag': 'etag0',
+            },
+            {
+                'path': "{base_object}/000001".format(
+                    base_object=base_object),
+                'size_bytes': 25,
+                'etag': 'etag1',
+            },
+            {
+                'path': "{base_object}/000002".format(
+                    base_object=base_object),
+                'size_bytes': 25,
+                'etag': 'etag2',
+            },
+            {
+                'path': "{base_object}/000003".format(
+                    base_object=base_object),
+                'size_bytes': 5,
+                'etag': 'etag3',
+            },
+        ], self.adapter.request_history[-1].json())
+
+    def test_object_segment_retry_failure(self):
+
+        max_file_size = 25
+        min_file_size = 1
+
+        self.adapter.get(
+            'https://object-store.example.com/info',
+            json=dict(
+                swift={'max_file_size': max_file_size},
+                slo={'min_segment_size': min_file_size}))
+
+        self.adapter.put(
+            '{endpoint}/{container}'.format(
+                endpoint=self.endpoint,
+                container=self.container,),
+            status_code=201,
+            headers={
+                'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
+                'Content-Length': '0',
+                'Content-Type': 'text/html; charset=UTF-8',
+            })
+        self.adapter.head(
+            '{endpoint}/{container}'.format(
+                endpoint=self.endpoint,
+                container=self.container),
+            [
+                dict(status_code=404),
+                dict(headers={
+                    'Content-Length': '0',
+                    'X-Container-Object-Count': '0',
+                    'Accept-Ranges': 'bytes',
+                    'X-Storage-Policy': 'Policy-0',
+                    'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                    'X-Timestamp': '1481912480.41664',
+                    'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                    'X-Container-Bytes-Used': '0',
+                    'Content-Type': 'text/plain; charset=utf-8'}),
+            ])
+        self.adapter.head(
+            '{endpoint}/{container}/{object}'.format(
+                endpoint=self.endpoint,
+                container=self.container, object=self.object),
+            status_code=404)
+
+        self.adapter.put(
+            '{endpoint}/{container}/{object}/000000'.format(
+                endpoint=self.endpoint,
+                container=self.container,
+                object=self.object),
+            status_code=201)
+
+        self.adapter.put(
+            '{endpoint}/{container}/{object}/000001'.format(
+                endpoint=self.endpoint,
+                container=self.container,
+                object=self.object),
+            status_code=201)
+
+        self.adapter.put(
+            '{endpoint}/{container}/{object}/000002'.format(
+                endpoint=self.endpoint,
+                container=self.container,
+                object=self.object),
+            status_code=201)
+
+        self.adapter.put(
+            '{endpoint}/{container}/{object}/000003'.format(
+                endpoint=self.endpoint,
+                container=self.container,
+                object=self.object),
+            status_code=501)
+
+        self.adapter.put(
+            '{endpoint}/{container}/{object}'.format(
+                endpoint=self.endpoint,
+                container=self.container, object=self.object),
+            status_code=201)
+
+        self.calls += [
+            dict(method='GET', url='https://object-store.example.com/info'),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container)),
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container)),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container)),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}/{object}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container, object=self.object)),
+
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}/{object}/000000'.format(
+                    endpoint=self.endpoint,
+                    container=self.container,
+                    object=self.object)),
+
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}/{object}/000001'.format(
+                    endpoint=self.endpoint,
+                    container=self.container,
+                    object=self.object)),
+
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}/{object}/000002'.format(
+                    endpoint=self.endpoint,
+                    container=self.container,
+                    object=self.object)),
+
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}/{object}/000003'.format(
+                    endpoint=self.endpoint,
+                    container=self.container,
+                    object=self.object)),
+
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}/{object}/000003'.format(
+                    endpoint=self.endpoint,
+                    container=self.container,
+                    object=self.object)),
+        ]
+
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.cloud.create_object,
+            container=self.container, name=self.object,
+            filename=self.object_file.name, use_slo=True)
+
+        # After call 6, order become indeterminate because of thread pool
+        self.assert_calls(stop_after=6)
+
+    def test_object_segment_retries(self):
+
+        max_file_size = 25
+        min_file_size = 1
+
+        self.adapter.get(
+            'https://object-store.example.com/info',
+            json=dict(
+                swift={'max_file_size': max_file_size},
+                slo={'min_segment_size': min_file_size}))
+
+        self.adapter.put(
+            '{endpoint}/{container}'.format(
+                endpoint=self.endpoint,
+                container=self.container,),
+            status_code=201,
+            headers={
+                'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
+                'Content-Length': '0',
+                'Content-Type': 'text/html; charset=UTF-8',
+            })
+        self.adapter.head(
+            '{endpoint}/{container}'.format(
+                endpoint=self.endpoint,
+                container=self.container),
+            [
+                dict(status_code=404),
+                dict(headers={
+                    'Content-Length': '0',
+                    'X-Container-Object-Count': '0',
+                    'Accept-Ranges': 'bytes',
+                    'X-Storage-Policy': 'Policy-0',
+                    'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                    'X-Timestamp': '1481912480.41664',
+                    'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                    'X-Container-Bytes-Used': '0',
+                    'Content-Type': 'text/plain; charset=utf-8'}),
+            ])
+        self.adapter.head(
+            '{endpoint}/{container}/{object}'.format(
+                endpoint=self.endpoint,
+                container=self.container, object=self.object),
+            status_code=404)
+
+        self.adapter.put(
+            '{endpoint}/{container}/{object}/000000'.format(
+                endpoint=self.endpoint,
+                container=self.container,
+                object=self.object),
+            headers={'etag': 'etag0'},
+            status_code=201)
+
+        self.adapter.put(
+            '{endpoint}/{container}/{object}/000001'.format(
+                endpoint=self.endpoint,
+                container=self.container,
+                object=self.object),
+            headers={'etag': 'etag1'},
+            status_code=201)
+
+        self.adapter.put(
+            '{endpoint}/{container}/{object}/000002'.format(
+                endpoint=self.endpoint,
+                container=self.container,
+                object=self.object),
+            headers={'etag': 'etag2'},
+            status_code=201)
+
+        self.adapter.put(
+            '{endpoint}/{container}/{object}/000003'.format(
+                endpoint=self.endpoint,
+                container=self.container,
+                object=self.object), [
+                    dict(status_code=501),
+                    dict(status_code=201, headers={'etag': 'etag3'}),
+                ])
+
+        self.adapter.put(
+            '{endpoint}/{container}/{object}'.format(
+                endpoint=self.endpoint,
+                container=self.container, object=self.object),
+            status_code=201)
+
+        self.calls += [
+            dict(method='GET', url='https://object-store.example.com/info'),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container)),
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container)),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container)),
+            dict(
+                method='HEAD',
+                url='{endpoint}/{container}/{object}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container, object=self.object)),
+
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}/{object}/000000'.format(
+                    endpoint=self.endpoint,
+                    container=self.container,
+                    object=self.object)),
+
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}/{object}/000001'.format(
+                    endpoint=self.endpoint,
+                    container=self.container,
+                    object=self.object)),
+
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}/{object}/000002'.format(
+                    endpoint=self.endpoint,
+                    container=self.container,
+                    object=self.object)),
+
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}/{object}/000003'.format(
+                    endpoint=self.endpoint,
+                    container=self.container,
+                    object=self.object)),
+
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}/{object}/000003'.format(
+                    endpoint=self.endpoint,
+                    container=self.container,
+                    object=self.object)),
+
+            dict(
+                method='PUT',
+                url='{endpoint}/{container}/{object}'.format(
+                    endpoint=self.endpoint,
+                    container=self.container, object=self.object),
+                params={
+                    'multipart-manifest', 'put'
+                },
+                headers={
+                    'x-object-meta-x-shade-md5': self.md5,
+                    'x-object-meta-x-shade-sha256': self.sha256,
+                }),
+        ]
+
+        self.cloud.create_object(
+            container=self.container, name=self.object,
+            filename=self.object_file.name, use_slo=True)
+
+        # After call 6, order become indeterminate because of thread pool
+        self.assert_calls(stop_after=6)
+
+        for key, value in self.calls[-1]['headers'].items():
+            self.assertEqual(
+                value, self.adapter.request_history[-1].headers[key],
+                'header mismatch in manifest call')
+
+        base_object = '/{container}/{object}'.format(
+            endpoint=self.endpoint,
+            container=self.container,
+            object=self.object)
+
+        self.assertEqual([
+            {
+                'path': "{base_object}/000000".format(
+                    base_object=base_object),
+                'size_bytes': 25,
+                'etag': 'etag0',
+            },
+            {
+                'path': "{base_object}/000001".format(
+                    base_object=base_object),
+                'size_bytes': 25,
+                'etag': 'etag1',
+            },
+            {
+                'path': "{base_object}/000002".format(
+                    base_object=base_object),
+                'size_bytes': 25,
+                'etag': 'etag2',
+            },
+            {
+                'path': "{base_object}/000003".format(
+                    base_object=base_object),
+                'size_bytes': 1,
+                'etag': 'etag3',
+            },
+        ], self.adapter.request_history[-1].json())

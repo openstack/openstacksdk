@@ -493,11 +493,6 @@ class FloatingIPPoolList(task_manager.Task):
         return client.nova_client.floating_ip_pools.list()
 
 
-class ObjectCreate(task_manager.Task):
-    def main(self, client):
-        return client.swift_service.upload(**self.args)
-
-
 class SubnetCreate(task_manager.Task):
     def main(self, client):
         return client.neutron_client.create_subnet(**self.args)

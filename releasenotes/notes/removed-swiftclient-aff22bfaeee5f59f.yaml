@@ -1,0 +1,5 @@
+---
+upgrade:
+  - Removed swiftclient as a dependency. All swift operations
+    are now performed with direct REST calls using keystoneauth
+    Adapter.

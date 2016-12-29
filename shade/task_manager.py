@@ -26,6 +26,7 @@ import simplejson
 import six
 
 from shade import _log
+from shade import exc
 from shade import meta
 
 
@@ -287,3 +288,33 @@ class TaskManager(object):
         task_class = generate_task_class(method, name, result_filter_cb)
 
         return self._executor.submit_task(task_class(**kwargs))
+
+
+def wait_for_futures(futures, raise_on_error=True, log=None):
+    '''Collect results or failures from a list of running future tasks.'''
+
+    results = []
+    retries = []
+
+    # Check on each result as its thread finishes
+    for completed in concurrent.futures.as_completed(futures):
+        try:
+            result = completed.result()
+            # We have to do this here because munch_response doesn't
+            # get called on async job results
+            exc.raise_from_response(result)
+            results.append(result)
+        except (keystoneauth1.exceptions.RetriableConnectionFailure,
+                exc.OpenStackCloudException) as e:
+            if log:
+                log.debug(
+                    "Exception processing async task: {e}".format(
+                        e=str(e)),
+                    exc_info=True)
+            # If we get an exception, put the result into a list so we
+            # can try again
+            if raise_on_error:
+                raise
+            else:
+                retries.append(result)
+    return results, retries
