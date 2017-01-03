@@ -141,7 +141,9 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
         self._verify("openstack.cluster.v1.cluster.Cluster.del_nodes",
                      self.proxy.cluster_del_nodes,
                      method_args=[mock_cluster, ["node1"]],
-                     expected_args=[["node1"]])
+                     method_kwargs={"key": "value"},
+                     expected_args=[["node1"]],
+                     expected_kwargs={"key": "value"})
 
     @mock.patch.object(proxy_base.BaseProxy, '_find')
     def test_cluster_replace_nodes(self, mock_find):

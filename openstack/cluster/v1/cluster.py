@@ -90,11 +90,11 @@ class Cluster(resource.Resource):
         }
         return self.action(session, body)
 
-    def del_nodes(self, session, nodes):
+    def del_nodes(self, session, nodes, **params):
+        data = {'nodes': nodes}
+        data.update(params)
         body = {
-            'del_nodes': {
-                'nodes': nodes,
-            }
+            'del_nodes': data
         }
         return self.action(session, body)
 

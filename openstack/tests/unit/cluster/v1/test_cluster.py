@@ -165,6 +165,27 @@ class TestCluster(testtools.TestCase):
         sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
                                           json=body)
 
+    def test_del_nodes_with_params(self):
+        sot = cluster.Cluster(**FAKE)
+
+        resp = mock.Mock()
+        resp.json = mock.Mock(return_value='')
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=resp)
+        params = {
+            'destroy_after_deletion': True,
+        }
+        self.assertEqual('', sot.del_nodes(sess, ['node-11'], **params))
+        url = 'clusters/%s/actions' % sot.id
+        body = {
+            'del_nodes': {
+                'nodes': ['node-11'],
+                'destroy_after_deletion': True,
+            }
+        }
+        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+                                          json=body)
+
     def test_replace_nodes(self):
         sot = cluster.Cluster(**FAKE)
 
