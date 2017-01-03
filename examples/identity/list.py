@@ -71,3 +71,10 @@ def list_regions(conn):
 
     for region in conn.identity.regions():
         print(region)
+
+
+def list_roles(conn):
+    print("List Roles:")
+
+    for role in conn.identity.roles():
+        print(role)

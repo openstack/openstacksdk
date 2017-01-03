@@ -17,6 +17,7 @@ from openstack.identity.v3 import group as _group
 from openstack.identity.v3 import policy as _policy
 from openstack.identity.v3 import project as _project
 from openstack.identity.v3 import region as _region
+from openstack.identity.v3 import role as _role
 from openstack.identity.v3 import service as _service
 from openstack.identity.v3 import trust as _trust
 from openstack.identity.v3 import user as _user
@@ -797,3 +798,80 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.identity.v3.region.Region`
         """
         return self._update(_region.Region, region, **attrs)
+
+    def create_role(self, **attrs):
+        """Create a new role from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.identity.v3.role.Role`,
+                           comprised of the properties on the Role class.
+
+        :returns: The results of role creation.
+        :rtype: :class:`~openstack.identity.v3.role.Role`
+        """
+        return self._create(_role.Role, **attrs)
+
+    def delete_role(self, role, ignore_missing=True):
+        """Delete a role
+
+        :param role: The value can be either the ID of a role or a
+               :class:`~openstack.identity.v3.role.Role` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the role does not exist.
+                    When set to ``True``, no exception will be thrown when
+                    attempting to delete a nonexistent role.
+
+        :returns: ``None``
+        """
+        self._delete(_role.Role, role, ignore_missing=ignore_missing)
+
+    def find_role(self, name_or_id, ignore_missing=True):
+        """Find a single role
+
+        :param name_or_id: The name or ID of a role.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the role does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent role.
+        :returns: One :class:`~openstack.identity.v3.role.Role` or None
+        """
+        return self._find(_role.Role, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def get_role(self, role):
+        """Get a single role
+
+        :param role: The value can be the ID of a role or a
+                       :class:`~openstack.identity.v3.role.Role` instance.
+
+        :returns: One :class:`~openstack.identity.v3.role.Role`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no matching role can be found.
+        """
+        return self._get(_role.Role, role)
+
+    def roles(self, **query):
+        """Retrieve a generator of roles
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned. The options
+                                 are: domain_id, name.
+        :return: A generator of role instances.
+        :rtype: :class:`~openstack.identity.v3.role.Role`
+        """
+        return self._list(_role.Role, paginated=False, **query)
+
+    def update_role(self, role, **attrs):
+        """Update a role
+
+        :param role: Either the ID of a role or a
+                      :class:`~openstack.identity.v3.role.Role` instance.
+        :param dict kwargs: The attributes to update on the role represented
+                       by ``value``. Only name can be updated
+
+        :returns: The updated role.
+        :rtype: :class:`~openstack.identity.v3.role.Role`
+        """
+        return self._update(_role.Role, role, **attrs)
