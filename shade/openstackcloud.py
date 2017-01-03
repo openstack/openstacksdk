@@ -5791,12 +5791,13 @@ class OpenStackCloud(_normalize.Normalizer):
                 return None
             raise
 
-    def create_subnet(self, network_name_or_id, cidr, ip_version=4,
+    def create_subnet(self, network_name_or_id, cidr=None, ip_version=4,
                       enable_dhcp=False, subnet_name=None, tenant_id=None,
                       allocation_pools=None,
                       gateway_ip=None, disable_gateway_ip=False,
                       dns_nameservers=None, host_routes=None,
-                      ipv6_ra_mode=None, ipv6_address_mode=None):
+                      ipv6_ra_mode=None, ipv6_address_mode=None,
+                      use_default_subnetpool=False):
         """Create a subnet on a specified network.
 
         :param string network_name_or_id:
@@ -5858,6 +5859,10 @@ class OpenStackCloud(_normalize.Normalizer):
         :param string ipv6_address_mode:
            IPv6 address mode. Valid values are: 'dhcpv6-stateful',
            'dhcpv6-stateless', or 'slaac'.
+        :param bool use_default_subnetpool:
+           Use the default subnetpool for ``ip_version`` to obtain a CIDR. It
+           is required to pass ``None`` to the ``cidr`` argument when enabling
+           this option.
 
         :returns: The new subnet object.
         :raises: OpenStackCloudException on operation error.
@@ -5872,6 +5877,15 @@ class OpenStackCloud(_normalize.Normalizer):
             raise OpenStackCloudException(
                 'arg:disable_gateway_ip is not allowed with arg:gateway_ip')
 
+        if not cidr and not use_default_subnetpool:
+            raise OpenStackCloudException(
+                'arg:cidr is required when a subnetpool is not used')
+
+        if cidr and use_default_subnetpool:
+            raise OpenStackCloudException(
+                'arg:cidr must be set to None when use_default_subnetpool == '
+                'True')
+
         # Be friendly on ip_version and allow strings
         if isinstance(ip_version, six.string_types):
             try:
@@ -5883,12 +5897,13 @@ class OpenStackCloud(_normalize.Normalizer):
         # This includes attributes that are required or have defaults.
         subnet = {
             'network_id': network['id'],
-            'cidr': cidr,
             'ip_version': ip_version,
             'enable_dhcp': enable_dhcp
         }
 
         # Add optional attributes to the message.
+        if cidr:
+            subnet['cidr'] = cidr
         if subnet_name:
             subnet['name'] = subnet_name
         if tenant_id:
@@ -5907,6 +5922,8 @@ class OpenStackCloud(_normalize.Normalizer):
             subnet['ipv6_ra_mode'] = ipv6_ra_mode
         if ipv6_address_mode:
             subnet['ipv6_address_mode'] = ipv6_address_mode
+        if use_default_subnetpool:
+            subnet['use_default_subnetpool'] = True
 
         with _utils.neutron_exceptions(
                 "Error creating subnet on network "
