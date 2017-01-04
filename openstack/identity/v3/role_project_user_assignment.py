@@ -14,25 +14,21 @@ from openstack.identity import identity_service
 from openstack import resource2 as resource
 
 
-class Role(resource.Resource):
+class RoleProjectUserAssignment(resource.Resource):
     resource_key = 'role'
     resources_key = 'roles'
-    base_path = '/roles'
+    base_path = '/projects/%(project_id)s/users/%(user_id)s/roles'
     service = identity_service.IdentityService()
 
     # capabilities
-    allow_create = True
-    allow_get = True
-    allow_update = True
-    allow_delete = True
     allow_list = True
-    put_create = True
-
-    _query_mapping = resource.QueryParameters(
-        'name', 'domain_id')
 
     # Properties
-    #: Unique role name, within the owning domain. *Type: string*
+    #: name of the role *Type: string*
     name = resource.Body('name')
     #: The links for the service resource.
     links = resource.Body('links')
+    #: The ID of the project to list assignment from. *Type: string*
+    project_id = resource.URI('project_id')
+    #: The ID of the user to list assignment from. *Type: string*
+    user_id = resource.URI('user_id')

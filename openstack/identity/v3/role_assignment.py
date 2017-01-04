@@ -14,25 +14,28 @@ from openstack.identity import identity_service
 from openstack import resource2 as resource
 
 
-class Role(resource.Resource):
-    resource_key = 'role'
-    resources_key = 'roles'
-    base_path = '/roles'
+class RoleAssignment(resource.Resource):
+    resource_key = 'role_assignment'
+    resources_key = 'role_assignments'
+    base_path = '/role_assignments'
     service = identity_service.IdentityService()
 
     # capabilities
-    allow_create = True
-    allow_get = True
-    allow_update = True
-    allow_delete = True
     allow_list = True
-    put_create = True
 
     _query_mapping = resource.QueryParameters(
-        'name', 'domain_id')
+        'group_id', 'role_id', 'scope_domain_id', 'scope_project_id',
+        'user_id', 'effective', 'include_names', 'include_subtree'
+    )
 
     # Properties
-    #: Unique role name, within the owning domain. *Type: string*
-    name = resource.Body('name')
     #: The links for the service resource.
     links = resource.Body('links')
+    #: The role (dictionary contains only id) *Type: dict*
+    role = resource.Body('role', type=dict)
+    #: The scope (either domain or group dictionary contains id) *Type: dict*
+    scope = resource.Body('scope', type=dict)
+    #: The user (dictionary contains only id) *Type: dict*
+    user = resource.Body('user', type=dict)
+    #: The group (dictionary contains only id) *Type: dict*
+    group = resource.Body('group', type=dict)

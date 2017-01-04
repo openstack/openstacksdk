@@ -14,25 +14,21 @@ from openstack.identity import identity_service
 from openstack import resource2 as resource
 
 
-class Role(resource.Resource):
+class RoleDomainGroupAssignment(resource.Resource):
     resource_key = 'role'
     resources_key = 'roles'
-    base_path = '/roles'
+    base_path = '/domains/%(domain_id)s/groups/%(group_id)s/roles'
     service = identity_service.IdentityService()
 
     # capabilities
-    allow_create = True
-    allow_get = True
-    allow_update = True
-    allow_delete = True
     allow_list = True
-    put_create = True
-
-    _query_mapping = resource.QueryParameters(
-        'name', 'domain_id')
 
     # Properties
-    #: Unique role name, within the owning domain. *Type: string*
+    #: name of the role *Type: string*
     name = resource.Body('name')
     #: The links for the service resource.
     links = resource.Body('links')
+    #: The ID of the domain to list assignment from. *Type: string*
+    domain_id = resource.URI('domain_id')
+    #: The ID of the group to list assignment from. *Type: string*
+    group_id = resource.URI('group_id')

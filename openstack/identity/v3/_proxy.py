@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import openstack.exceptions as exception
 from openstack.identity.v3 import credential as _credential
 from openstack.identity.v3 import domain as _domain
 from openstack.identity.v3 import endpoint as _endpoint
@@ -18,6 +19,15 @@ from openstack.identity.v3 import policy as _policy
 from openstack.identity.v3 import project as _project
 from openstack.identity.v3 import region as _region
 from openstack.identity.v3 import role as _role
+from openstack.identity.v3 import role_assignment as _role_assignment
+from openstack.identity.v3 import role_domain_group_assignment \
+    as _role_domain_group_assignment
+from openstack.identity.v3 import role_domain_user_assignment \
+    as _role_domain_user_assignment
+from openstack.identity.v3 import role_project_group_assignment \
+    as _role_project_group_assignment
+from openstack.identity.v3 import role_project_user_assignment \
+    as _role_project_user_assignment
 from openstack.identity.v3 import service as _service
 from openstack.identity.v3 import trust as _trust
 from openstack.identity.v3 import user as _user
@@ -875,3 +885,75 @@ class Proxy(proxy.BaseProxy):
         :rtype: :class:`~openstack.identity.v3.role.Role`
         """
         return self._update(_role.Role, role, **attrs)
+
+    def role_assignments_filter(self, domain=None, project=None, group=None,
+                                user=None):
+        """Retrieve a generator of roles assigned to user/group
+
+        :param domain: Either the ID of a domain or a
+                      :class:`~openstack.identity.v3.domain.Domain` instance.
+        :param project: Either the ID of a project or a
+                      :class:`~openstack.identity.v3.project.Project`
+                      instance.
+        :param group: Either the ID of a group or a
+                      :class:`~openstack.identity.v3.group.Group` instance.
+        :param user: Either the ID of a user or a
+                     :class:`~openstack.identity.v3.user.User` instance.
+        :return: A generator of role instances.
+        :rtype: :class:`~openstack.identity.v3.role.Role`
+        """
+        if domain and project:
+            raise exception.InvalidRequest(
+                'Only one of domain or project can be specified')
+
+        if domain is None and project is None:
+            raise exception.InvalidRequest(
+                'Either domain or project should be specified')
+
+        if group and user:
+            raise exception.InvalidRequest(
+                'Only one of group or user can be specified')
+
+        if group is None and user is None:
+            raise exception.InvalidRequest(
+                'Either group or user should be specified')
+
+        if domain:
+            domain = self._get_resource(_domain.Domain, domain)
+            if group:
+                group = self._get_resource(_group.Group, group)
+                return self._list(
+                    _role_domain_group_assignment.RoleDomainGroupAssignment,
+                    paginated=False, domain_id=domain.id, group_id=group.id)
+            else:
+                user = self._get_resource(_user.User, user)
+                return self._list(
+                    _role_domain_user_assignment.RoleDomainUserAssignment,
+                    paginated=False, domain_id=domain.id, user_id=user.id)
+        else:
+            project = self._get_resource(_project.Project, project)
+            if group:
+                group = self._get_resource(_group.Group, group)
+                return self._list(
+                    _role_project_group_assignment.RoleProjectGroupAssignment,
+                    paginated=False, project_id=project.id, group_id=group.id)
+            else:
+                user = self._get_resource(_user.User, user)
+                return self._list(
+                    _role_project_user_assignment.RoleProjectUserAssignment,
+                    paginated=False, project_id=project.id, user_id=user.id)
+
+    def role_assignments(self, **query):
+        """Retrieve a generator of role_assignment
+
+                      :class:`~openstack.identity.v3.user.User` instance.
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned. The options
+                                 are: group_id, role_id, scope_domain_id,
+                                 scope_project_id, user_id, include_names,
+                                 include_subtree.
+        :return:
+                :class:`~openstack.identity.v3.role_assignment.RoleAssignment`
+        """
+        return self._list(_role_assignment.RoleAssignment,
+                          paginated=False, **query)

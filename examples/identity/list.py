@@ -78,3 +78,31 @@ def list_roles(conn):
 
     for role in conn.identity.roles():
         print(role)
+
+
+def list_role_domain_group_assignments(conn):
+    print("List Roles assignments for a group on domain:")
+
+    for role in conn.identity.role_domain_group_assignments():
+        print(role)
+
+
+def list_role_domain_user_assignments(conn):
+    print("List Roles assignments for a user on domain:")
+
+    for role in conn.identity.role_project_user_assignments():
+        print(role)
+
+
+def list_role_project_group_assignments(conn):
+    print("List Roles assignments for a group on project:")
+
+    for role in conn.identity.role_project_group_assignments():
+        print(role)
+
+
+def list_role_project_user_assignments(conn):
+    print("List Roles assignments for a user on project:")
+
+    for role in conn.identity.role_project_user_assignments():
+        print(role)
