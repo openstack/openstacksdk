@@ -16,6 +16,8 @@
 Exception definitions.
 """
 
+import re
+
 import six
 
 
@@ -108,3 +110,38 @@ class ResourceTimeout(SDKException):
 class ResourceFailure(SDKException):
     """General resource failure."""
     pass
+
+
+def from_exception(exc):
+    """Return an instance of an HTTPException based on httplib response."""
+    if exc.response.status_code == 404:
+        cls = NotFoundException
+    else:
+        cls = HttpException
+
+    resp = exc.response
+    details = resp.text
+    resp_body = resp.content
+    content_type = resp.headers.get('content-type', '')
+    if resp_body and 'application/json' in content_type:
+        # Iterate over the nested objects to retrieve "message" attribute.
+        messages = [obj.get('message') for obj in resp.json().values()]
+        # Join all of the messages together nicely and filter out any objects
+        # that don't have a "message" attr.
+        details = '\n'.join(msg for msg in messages if msg)
+
+    elif resp_body and 'text/html' in content_type:
+        # Split the lines, strip whitespace and inline HTML from the response.
+        details = [re.sub(r'<.+?>', '', i.strip())
+                   for i in details.splitlines()]
+        details = [msg for msg in details if msg]
+        # Remove duplicates from the list.
+        details_temp = []
+        for detail in details:
+            if detail not in details_temp:
+                details_temp.append(detail)
+        # Return joined string separated by colons.
+        details = ': '.join(details_temp)
+    return cls(details=details, message=exc.message, response=exc.response,
+               request_id=exc.request_id, url=exc.url, method=exc.method,
+               http_status=exc.http_status, cause=exc)
