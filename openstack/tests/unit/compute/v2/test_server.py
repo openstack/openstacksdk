@@ -85,7 +85,18 @@ class TestServer(testtools.TestCase):
                               "all_tenants": "all_tenants",
                               "changes_since": "changes-since",
                               "limit": "limit",
-                              "marker": "marker"},
+                              "marker": "marker",
+                              "sort_key": "sort_key",
+                              "sort_dir": "sort_dir",
+                              "reservation_id": "reservation_id",
+                              "tags": "tags",
+                              "tags_any": "tags-any",
+                              "not_tags": "not-tags",
+                              "not_tags_any": "not-tags-any",
+                              "is_deleted": "deleted",
+                              "ipv4_address": "ip",
+                              "ipv6_address": "ip6",
+                              },
                              sot._query_mapping._mapping)
 
     def test_make_it(self):
