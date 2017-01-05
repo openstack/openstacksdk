@@ -2138,22 +2138,3 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions("Error fetching Magnum services list"):
             return self.manager.submit_task(
                 _tasks.MagnumServicesList())
-
-    def get_limits(self, name_or_id):
-        """ Get limits for a project
-
-        :param name_or_id: project name or id
-        :raises: OpenStackCloudException if it's not a valid project
-
-        :returns: Munch object with the limits
-        """
-        proj = self.get_project(name_or_id)
-        if not proj.id:
-            raise OpenStackCloudException("project does not exist")
-
-        with _utils.shade_exceptions(
-            "Failed to get limits for the project: {} ".format(proj.id)):
-            limits = self.manager.submit_task(
-                _tasks.NovaLimitsGet(tenant_id=proj.id))
-
-        return self._normalize_limits(limits)
