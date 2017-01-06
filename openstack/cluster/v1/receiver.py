@@ -27,7 +27,8 @@ class Receiver(resource.Resource):
     allow_delete = True
 
     _query_mapping = resource.QueryParameters(
-        'name', 'type', 'cluster_id', 'action', 'sort', 'global_project')
+        'name', 'type', 'cluster_id', 'action', 'sort', 'global_project',
+        user_id='user')
 
     # Properties
     #: The name of the receiver.
