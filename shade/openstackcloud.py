@@ -388,6 +388,13 @@ class OpenStackCloud(_normalize.Normalizer):
         return self._raw_clients['object-store']
 
     @property
+    def _raw_image_client(self):
+        if 'raw-image' not in self._raw_clients:
+            image_client = self._get_raw_client('image')
+            self._raw_clients['raw-image'] = image_client
+        return self._raw_clients['raw-image']
+
+    @property
     def _image_client(self):
         if 'image' not in self._raw_clients:
             # Get configured api version for downgrades
@@ -1773,18 +1780,29 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         # First, try to actually get images from glance, it's more efficient
         images = []
+        image_list = []
         try:
             if self.cloud_config.get_api_version('image') == '2':
                 endpoint = '/images'
             else:
                 endpoint = '/images/detail'
 
-            image_list = self._image_client.get(endpoint)
+            response = self._image_client.get(endpoint)
 
         except keystoneauth1.exceptions.catalog.EndpointNotFound:
             # We didn't have glance, let's try nova
             # If this doesn't work - we just let the exception propagate
-            image_list = self._compute_client.get('/images/detail')
+            response = self._compute_client.get('/images/detail')
+        while 'next' in response:
+            image_list.extend(meta.obj_list_to_dict(response['images']))
+            endpoint = response['next']
+            # Use the raw endpoint from the catalog not the one from
+            # version discovery so that the next links will work right
+            response = self._raw_image_client.get(endpoint)
+        if 'images' in response:
+            image_list.extend(meta.obj_list_to_dict(response['images']))
+        else:
+            image_list.extend(response)
 
         for image in image_list:
             # The cloud might return DELETED for invalid images.

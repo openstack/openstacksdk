@@ -121,18 +121,10 @@ class ShadeAdapter(adapter.Adapter):
             elif len(json_keys) == 1:
                 result = result_json[json_keys[0]]
             else:
-                # Yay for inferrence!
-                path = urllib.parse.urlparse(response.url).path.strip()
-                object_type = path.split('/')[-1]
-                if object_type in json_keys:
-                    result = result_json[object_type]
-                elif (object_type.startswith('os-')
-                      and object_type[3:] in json_keys):
-                    result = result_json[object_type[3:]]
-                else:
-                    # Passthrough the whole body - sometimes (hi glance) things
-                    # come through without a top-level container
-                    result = result_json
+                # Passthrough the whole body - sometimes (hi glance) things
+                # come through without a top-level container. Also, sometimes
+                # you need to deal with pagination
+                result = result_json
 
         if task_manager._is_listlike(result):
             return meta.obj_list_to_dict(result, request_id=request_id)

@@ -147,6 +147,24 @@ class TestImage(base.RequestsMockTestCase):
             self.cloud._normalize_images([self.fake_image_dict]),
             self.cloud.list_images())
 
+    def test_list_images_paginated(self):
+        marker = str(uuid.uuid4())
+        self.adapter.register_uri(
+            'GET', 'https://image.example.com/v2/images',
+            json={
+                'images': [self.fake_image_dict],
+                'next': '/v2/images?marker={marker}'.format(marker=marker),
+            })
+        self.adapter.register_uri(
+            'GET',
+            'https://image.example.com/v2/images?marker={marker}'.format(
+                marker=marker),
+            json=self.fake_search_return)
+        self.assertEqual(
+            self.cloud._normalize_images([
+                self.fake_image_dict, self.fake_image_dict]),
+            self.cloud.list_images())
+
     def test_create_image_put_v2(self):
         self.cloud.image_api_use_tasks = False
 
