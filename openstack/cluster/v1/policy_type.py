@@ -29,3 +29,5 @@ class PolicyType(resource.Resource):
     name = resource.Body('name', alternate_id=True)
     #: The schema of the policy type.
     schema = resource.Body('schema')
+    #: The support status of the policy type
+    support_status = resource.Body('support_status')
