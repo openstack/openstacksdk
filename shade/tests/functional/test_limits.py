@@ -23,11 +23,20 @@ from shade.tests.functional import base
 
 class TestUsage(base.BaseFunctionalTestCase):
 
-    def test_get_limits(self):
+    def test_get_our_limits(self):
         '''Test quotas functionality'''
-        limits = self.operator_cloud.get_limits('demo')
+        limits = self.demo_cloud.get_compute_limits()
         self.assertIsNotNone(limits)
-        self.assertTrue(hasattr(limits, 'rate'))
+        self.assertTrue(hasattr(limits, 'max_server_meta'))
 
         # Test normalize limits
-        self.assertFalse(hasattr(limits, 'HUMAN_ID'))
+        self.assertFalse(hasattr(limits, 'maxImageMeta'))
+
+    def test_get_other_limits(self):
+        '''Test quotas functionality'''
+        limits = self.operator_cloud.get_compute_limits('demo')
+        self.assertIsNotNone(limits)
+        self.assertTrue(hasattr(limits, 'max_server_meta'))
+
+        # Test normalize limits
+        self.assertFalse(hasattr(limits, 'maxImageMeta'))

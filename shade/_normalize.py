@@ -45,6 +45,22 @@ _SERVER_FIELDS = (
     'user_id',
 )
 
+_COMPUTE_LIMITS_FIELDS = (
+    ('maxPersonality', 'max_personality'),
+    ('maxPersonalitySize', 'max_personality_size'),
+    ('maxServerGroupMembers', 'max_server_group_members'),
+    ('maxServerGroups', 'max_server_groups'),
+    ('maxServerMeta', 'max_server_meta'),
+    ('maxTotalCores', 'max_total_cores'),
+    ('maxTotalInstances', 'max_total_instances'),
+    ('maxTotalKeypairs', 'max_total_keypairs'),
+    ('maxTotalRAMSize', 'max_total_ram_size'),
+    ('totalCoresUsed', 'total_cores_used'),
+    ('totalInstancesUsed', 'total_instances_used'),
+    ('totalRAMUsed', 'total_ram_used'),
+    ('totalServerGroupsUsed', 'total_server_groups_used'),
+)
+
 
 _pushdown_fields = {
     'project': [
@@ -106,14 +122,23 @@ class Normalizer(object):
     reasons.
     '''
 
-    def _normalize_limits(self, limits):
+    def _normalize_compute_limits(self, limits, project_id=None):
         """ Normalize a limits object.
 
         Limits modified in this method and shouldn't be modified afterwards.
         """
 
-        new_limits = munch.Munch(limits['absolute'])
-        new_limits['rate'] = limits.pop('rate')
+        # Copy incoming limits because of shared dicts in unittests
+        limits = limits['absolute'].copy()
+
+        new_limits = munch.Munch()
+        new_limits['location'] = self._get_current_location(
+            project_id=project_id)
+
+        for field in _COMPUTE_LIMITS_FIELDS:
+            new_limits[field[1]] = limits.pop(field[0], None)
+
+        new_limits['properties'] = limits.copy()
 
         return new_limits
 

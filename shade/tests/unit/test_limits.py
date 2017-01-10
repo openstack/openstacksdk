@@ -21,10 +21,16 @@ from shade.tests import fakes
 class TestLimits(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_get_compute_limits(self, mock_nova):
+        self.cloud.get_compute_limits()
+
+        mock_nova.limits.get.assert_called_once_with()
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_get_limits(self, mock_keystone, mock_nova):
+    def test_other_get_compute_limits(self, mock_keystone, mock_nova):
         project = fakes.FakeProject('project_a')
         mock_keystone.tenants.list.return_value = [project]
-        self.op_cloud.get_limits(project)
+        self.op_cloud.get_compute_limits(project)
 
         mock_nova.limits.get.assert_called_once_with(tenant_id='project_a')

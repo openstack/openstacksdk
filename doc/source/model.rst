@@ -191,6 +191,30 @@ A Server from Nova
     task_state=str() or None,
     properties=dict())
 
+ComputeLimits
+-------------
+
+Limits and current usage for a project in Nova
+
+.. code-block:: python
+
+  ComputeLimits = dict(
+    location=Location(),
+    max_personality=int(),
+    max_personality_size=int(),
+    max_server_group_members=int(),
+    max_server_groups=int(),
+    max_server_meta=int(),
+    max_total_cores=int(),
+    max_total_instances=int(),
+    max_total_keypairs=int(),
+    max_total_ram_size=int(),
+    total_cores_used=int(),
+    total_instances_used=int(),
+    total_ram_used=int(),
+    total_server_groups_used=int(),
+    properties=dict())
+
 Floating IP
 -----------
 

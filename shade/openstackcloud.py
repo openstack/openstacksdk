@@ -1778,6 +1778,34 @@ class OpenStackCloud(_normalize.Normalizer):
         with _utils.shade_exceptions("Error fetching server group list"):
             return self.manager.submit_task(_tasks.ServerGroupList())
 
+    def get_compute_limits(self, name_or_id=None):
+        """ Get compute limits for a project
+
+        :param name_or_id: (optional) project name or id to get limits for
+                           if different from the current project
+        :raises: OpenStackCloudException if it's not a valid project
+
+        :returns: Munch object with the limits
+        """
+        kwargs = {}
+        project_id = None
+        if name_or_id:
+
+            proj = self.get_project(name_or_id)
+            if not proj:
+                raise OpenStackCloudException("project does not exist")
+            project_id = proj.id
+            kwargs['tenant_id'] = project_id
+
+        with _utils.shade_exceptions(
+                "Failed to get limits for the project: {} ".format(
+                    name_or_id)):
+            # TODO(mordred) Before we convert this to REST, we need to add
+            # in support for running calls with a different project context
+            limits = self.manager.submit_task(_tasks.NovaLimitsGet(**kwargs))
+
+        return self._normalize_compute_limits(limits, project_id=project_id)
+
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_images)
     def list_images(self, filter_deleted=True):
         """Get available glance images.
