@@ -106,6 +106,17 @@ class Normalizer(object):
     reasons.
     '''
 
+    def _normalize_limits(self, limits):
+        """ Normalize a limits object.
+
+        Limits modified in this method and shouldn't be modified afterwards.
+        """
+
+        new_limits = munch.Munch(limits['absolute'])
+        new_limits['rate'] = limits.pop('rate')
+
+        return new_limits
+
     def _normalize_flavors(self, flavors):
         """ Normalize a list of flavor objects """
         ret = []

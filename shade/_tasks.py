@@ -860,3 +860,8 @@ class ClusterTemplateUpdate(task_manager.Task):
 class MagnumServicesList(task_manager.Task):
     def main(self, client):
         return client.magnum_client.mservices.list(detail=False)
+
+
+class NovaLimitsGet(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.limits.get(**self.args).to_dict()
