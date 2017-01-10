@@ -31,10 +31,10 @@ NO_MD5 = '93b885adfe0da089cdf634904fd59f71'
 NO_SHA256 = '6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d'
 
 
-class TestImage(base.RequestsMockTestCase):
+class BaseTestImage(base.RequestsMockTestCase):
 
     def setUp(self):
-        super(TestImage, self).setUp()
+        super(BaseTestImage, self).setUp()
         self.image_id = str(uuid.uuid4())
         self.imagefile = tempfile.NamedTemporaryFile(delete=False)
         self.imagefile.write(b'\0')
@@ -68,6 +68,12 @@ class TestImage(base.RequestsMockTestCase):
             u'protected': False}
         self.fake_search_return = {'images': [self.fake_image_dict]}
         self.output = uuid.uuid4().bytes
+
+
+class TestImage(BaseTestImage):
+
+    def setUp(self):
+        super(TestImage, self).setUp()
         self.use_glance()
 
     def test_config_v1(self):
@@ -733,3 +739,24 @@ class TestImageV2Only(base.RequestsMockTestCase):
             self.cloud._image_client.get_endpoint())
         self.assertEqual(
             '2', self.cloud_config.get_api_version('image'))
+
+
+class TestImageVersionDiscovery(BaseTestImage):
+
+    def test_version_discovery_skip(self):
+        self.cloud.cloud_config.config['image_endpoint_override'] = \
+            'https://image.example.com/v2/override'
+
+        self.adapter.register_uri(
+            'GET', 'https://image.example.com/v2/override/images',
+            json={'images': []})
+        self.assertEqual([], self.cloud.list_images())
+        self.assertEqual(
+            self.cloud._image_client.endpoint_override,
+            'https://image.example.com/v2/override')
+        self.calls += [
+            dict(
+                method='GET',
+                url='https://image.example.com/v2/override/images'),
+        ]
+        self.assert_calls()
