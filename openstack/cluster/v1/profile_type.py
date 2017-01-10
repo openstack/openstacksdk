@@ -29,3 +29,5 @@ class ProfileType(resource.Resource):
     name = resource.Body('name', alternate_id=True)
     #: The schema of the profile type.
     schema = resource.Body('schema')
+    #: The support status of the profile type
+    support_status = resource.Body('support_status')

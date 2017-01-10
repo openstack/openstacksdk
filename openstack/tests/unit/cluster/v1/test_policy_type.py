@@ -19,6 +19,12 @@ FAKE = {
     'name': 'FAKE_POLICY_TYPE',
     'schema': {
         'foo': 'bar'
+    },
+    'support_status': {
+        '1.0': [{
+            'status': 'supported',
+            'since': '2016.10'
+        }]
     }
 }
 
@@ -39,3 +45,4 @@ class TestPolicyType(testtools.TestCase):
         self.assertEqual(FAKE['name'], sot._get_id(sot))
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['schema'], sot.schema)
+        self.assertEqual(FAKE['support_status'], sot.support_status)
