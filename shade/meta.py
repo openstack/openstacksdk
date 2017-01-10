@@ -429,12 +429,19 @@ def _log_request_id(obj, request_id):
     if request_ids:
         request_id = request_ids[0]
     if request_id:
-        log = _log.setup_logging('shade.request_ids')
         # Log the request id and object id in a specific logger. This way
         # someone can turn it on if they're interested in this kind of tracing.
-        log.debug("Retreived object %(id)s. Request ID %(request_id)s",
-                  {'id': obj.get('id', obj.get('uuid')),
-                   'request_id': request_id})
+        log = _log.setup_logging('shade.request_ids')
+        obj_id = None
+        if isinstance(obj, dict):
+            obj_id = obj.get('id', obj.get('uuid'))
+        if obj_id:
+            log.debug("Retrieved object %(id)s. Request ID %(request_id)s",
+                      {'id': obj.get('id', obj.get('uuid')),
+                       'request_id': request_id})
+        else:
+            log.debug("Retrieved a response. Request ID %(request_id)s",
+                      {'request_id': request_id})
 
     return obj
 
@@ -487,8 +494,14 @@ def obj_list_to_dict(obj_list, request_id=None):
     the conversion to lists of dictonaries.
     """
     new_list = []
+    if not request_id:
+        request_id = getattr(obj_list, 'request_ids', [None])[0]
+    if request_id:
+        log = _log.setup_logging('shade.request_ids')
+        log.debug("Retrieved a list. Request ID %(request_id)s",
+                  {'request_id': request_id})
     for obj in obj_list:
-        new_list.append(obj_to_dict(obj, request_id=request_id))
+        new_list.append(obj_to_dict(obj))
     return new_list
 
 
