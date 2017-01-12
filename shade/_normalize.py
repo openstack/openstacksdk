@@ -709,3 +709,15 @@ class Normalizer(object):
             for key, val in ret['properties'].items():
                 ret.setdefault(key, val)
         return ret
+
+    def _normalize_usage(self, usage):
+        """ Normalize a usage object """
+
+        # Discard noise
+        usage.pop('links', None)
+        usage.pop('NAME_ATTR', None)
+        usage.pop('HUMAN_ID', None)
+        usage.pop('human_id', None)
+        usage.pop('request_ids', None)
+
+        return munch.Munch(usage)
