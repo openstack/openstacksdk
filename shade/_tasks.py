@@ -102,6 +102,11 @@ class FlavorGet(task_manager.Task):
         return client.nova_client.flavors.get(**self.args)
 
 
+class FlavorListAccess(task_manager.Task):
+    def main(self, client):
+        return client.nova_client.flavor_access.list(**self.args)
+
+
 class FlavorAddAccess(task_manager.Task):
     def main(self, client):
         return client.nova_client.flavor_access.add_tenant_access(

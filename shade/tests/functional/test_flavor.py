@@ -129,6 +129,12 @@ class TestFlavor(base.BaseFunctionalTestCase):
         self.assertEqual(1, len(flavors))
         self.assertEqual(priv_flavor_name, flavors[0]['name'])
 
+        # Now see if the 'demo' user has access to it without needing
+        #  the demo_cloud access.
+        acls = self.operator_cloud.list_flavor_access(new_flavor['id'])
+        self.assertEqual(1, len(acls))
+        self.assertEqual(project['id'], acls[0]['project_id'])
+
         # Now revoke the access and make sure we can't find it
         self.operator_cloud.remove_flavor_access(new_flavor['id'],
                                                  project['id'])

@@ -303,6 +303,17 @@ def normalize_roles(roles):
     return meta.obj_list_to_dict(ret)
 
 
+def normalize_flavor_accesses(flavor_accesses):
+    """Normalize Flavor access list."""
+    return [munch.Munch(
+        dict(
+            flavor_id=acl.get('flavor_id'),
+            project_id=acl.get('project_id') or acl.get('tenant_id'),
+        )
+    ) for acl in flavor_accesses
+    ]
+
+
 def normalize_stacks(stacks):
     """ Normalize Stack Object """
     for stack in stacks:
