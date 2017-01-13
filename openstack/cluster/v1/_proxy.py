@@ -421,11 +421,11 @@ class Proxy(proxy2.BaseProxy):
                           cluster_id=cluster, path=path)
 
     def check_cluster(self, cluster, **params):
-        """check a cluster.
+        """Check a cluster.
 
         :param cluster: The value can be either the ID of a cluster or a
             :class:`~openstack.cluster.v1.cluster.Cluster` instance.
-        :param dict \*\*params: A dictionary providing the parameters for the
+        :param dict params: A dictionary providing the parameters for the
             check action.
 
         :returns: A dictionary containing the action ID.
@@ -434,17 +434,31 @@ class Proxy(proxy2.BaseProxy):
         return obj.check(self.session, **params)
 
     def recover_cluster(self, cluster, **params):
-        """recover a node.
+        """recover a cluster.
 
         :param cluster: The value can be either the ID of a cluster or a
             :class:`~openstack.cluster.v1.cluster.Cluster` instance.
-        :param dict \*\*params: A dictionary providing the parameters for the
-            check action.
+        :param dict params: A dictionary providing the parameters for the
+                            recover action.
 
         :returns: A dictionary containing the action ID.
         """
         obj = self._get_resource(_cluster.Cluster, cluster)
         return obj.recover(self.session, **params)
+
+    def cluster_operation(self, cluster, operation, **params):
+        """Perform an operation on the specified cluster.
+
+        :param cluster: The value can be either the ID of a cluster or a
+            :class:`~openstack.cluster.v1.cluster.Cluster` instance.
+        :param operation: A string specifying the operation to be performed.
+        :param dict params: A dictionary providing the parameters for the
+                            operation.
+
+        :returns: A dictionary containing the action ID.
+        """
+        obj = self._get_resource(_cluster.Cluster, cluster)
+        return obj.op(self.session, operation, **params)
 
     def create_node(self, **attrs):
         """Create a new node from attributes.
@@ -472,28 +486,6 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class:`~openstack.cluster.v1.node.Node`.
         """
         return self._delete(_node.Node, node, ignore_missing=ignore_missing)
-
-    def check_node(self, node, **params):
-        """check a node.
-
-        :param node: The value can be either the ID of a node or a
-            :class:`~openstack.cluster.v1.node.Node` instance.
-
-        :returns: A dictionary containing the action ID.
-        """
-        obj = self._get_resource(_node.Node, node)
-        return obj.check(self.session, **params)
-
-    def recover_node(self, node, **params):
-        """recover a node.
-
-        :param node: The value can be either the ID of a node or a
-            :class:`~openstack.cluster.v1.node.Node` instance.
-
-        :returns: A dictionary containing the action ID.
-        """
-        obj = self._get_resource(_node.Node, node)
-        return obj.recover(self.session, **params)
 
     def find_node(self, name_or_id, ignore_missing=True):
         """Find a single node.
@@ -562,6 +554,45 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class:`~openstack.cluster.v1.node.Node`
         """
         return self._update(_node.Node, node, **attrs)
+
+    def check_node(self, node, **params):
+        """Check the health of the specified node.
+
+        :param node: The value can be either the ID of a node or a
+            :class:`~openstack.cluster.v1.node.Node` instance.
+        :param dict params: A dictionary providing the parametes to the check
+                            action.
+
+        :returns: A dictionary containing the action ID.
+        """
+        obj = self._get_resource(_node.Node, node)
+        return obj.check(self.session, **params)
+
+    def recover_node(self, node, **params):
+        """Recover the specified node into healthy status.
+
+        :param node: The value can be either the ID of a node or a
+            :class:`~openstack.cluster.v1.node.Node` instance.
+        :param dict params: A dict supplying parameters to the recover action.
+
+        :returns: A dictionary containing the action ID.
+        """
+        obj = self._get_resource(_node.Node, node)
+        return obj.recover(self.session, **params)
+
+    def node_operation(self, node, operation, **params):
+        """Perform an operation on the specified node.
+
+        :param cluster: The value can be either the ID of a node or a
+            :class:`~openstack.cluster.v1.node.Node` instance.
+        :param operation: A string specifying the operation to be performed.
+        :param dict params: A dictionary providing the parameters for the
+                            operation.
+
+        :returns: A dictionary containing the action ID.
+        """
+        obj = self._get_resource(_node.Node, node)
+        return obj.op(self.session, operation, **params)
 
     def create_policy(self, **attrs):
         """Create a new policy from attributes.

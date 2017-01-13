@@ -304,6 +304,16 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
                      method_args=["FAKE_CLUSTER"])
         mock_get.assert_called_once_with(cluster.Cluster, "FAKE_CLUSTER")
 
+    @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
+    def test_cluster_operation(self, mock_get):
+        mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
+        mock_get.return_value = mock_cluster
+        self._verify("openstack.cluster.v1.cluster.Cluster.op",
+                     self.proxy.cluster_operation,
+                     method_args=["FAKE_CLUSTER", "dance"],
+                     expected_args=["dance"])
+        mock_get.assert_called_once_with(cluster.Cluster, "FAKE_CLUSTER")
+
     def test_node_create(self):
         self.verify_create(self.proxy.create_node, node.Node)
 
@@ -353,6 +363,16 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
         self._verify("openstack.cluster.v1.node.Node.recover",
                      self.proxy.recover_node,
                      method_args=["FAKE_NODE"])
+        mock_get.assert_called_once_with(node.Node, "FAKE_NODE")
+
+    @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
+    def test_node_operation(self, mock_get):
+        mock_node = node.Node.new(id='FAKE_CLUSTER')
+        mock_get.return_value = mock_node
+        self._verify("openstack.cluster.v1.node.Node.op",
+                     self.proxy.node_operation,
+                     method_args=["FAKE_NODE", "dance"],
+                     expected_args=["dance"])
         mock_get.assert_called_once_with(node.Node, "FAKE_NODE")
 
     def test_policy_create(self):

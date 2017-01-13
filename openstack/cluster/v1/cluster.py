@@ -163,3 +163,17 @@ class Cluster(resource.Resource):
             'recover': params
         }
         return self.action(session, body)
+
+    def op(self, session, operation, **params):
+        """Perform an operation on the cluster.
+
+        :param session: A session object used for sending request.
+        :param operation: A string representing the operation to be performed.
+        :param dict params: An optional dict providing the parameters for the
+                            operation.
+        :returns: A dictionary containing the action ID.
+        """
+        url = utils.urljoin(self.base_path, self.id, 'ops')
+        resp = session.post(url, endpoint_filter=self.service,
+                            json={operation: params})
+        return resp.json()
