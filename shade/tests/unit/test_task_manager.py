@@ -13,6 +13,9 @@
 # limitations under the License.
 
 
+import concurrent.futures
+import mock
+
 from shade import task_manager
 from shade.tests.unit import base
 
@@ -56,6 +59,15 @@ class TaskTestSet(task_manager.Task):
         return set([1, 2])
 
 
+class TaskTestAsync(task_manager.Task):
+    def __init__(self):
+        super(task_manager.Task, self).__init__()
+        self.run_async = True
+
+    def main(self, client):
+        pass
+
+
 class TestTaskManager(base.TestCase):
 
     def setUp(self):
@@ -90,3 +102,8 @@ class TestTaskManager(base.TestCase):
     def test_dont_munchify_set(self):
         ret = self.manager.submit_task(TaskTestSet())
         self.assertIsInstance(ret, set)
+
+    @mock.patch.object(concurrent.futures.ThreadPoolExecutor, 'submit')
+    def test_async(self, mock_submit):
+        self.manager.submit_task(TaskTestAsync())
+        self.assertTrue(mock_submit.called)
