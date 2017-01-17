@@ -311,3 +311,35 @@ A volume from cinder.
     is_encrypted=bool(),
     can_multiattach=bool(),
     properties=dict())
+
+
+VolumeType
+------
+
+A volume type from cinder.
+
+.. code-block:: python
+
+  VolumeType = dict(
+    location=Location(),
+    id=str(),
+    name=str(),
+    description=str() or None,
+    is_public=bool(),
+    qos_specs_id=str() or None,
+    extra_specs=dict(),
+    properties=dict())
+
+
+VolumeTypeAccess
+------
+
+A volume type access from cinder.
+
+.. code-block:: python
+
+  VolumeTypeAccess = dict(
+    location=Location(),
+    volume_type_id=str(),
+    project_id=str(),
+    properties=dict())

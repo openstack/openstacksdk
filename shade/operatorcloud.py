@@ -1977,6 +1977,70 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             return self.manager.submit_task(_tasks.AggregateRemoveHost(
                 aggregate=aggregate['id'], host=host_name))
 
+    def get_volume_type_access(self, name_or_id):
+        """Return a list of volume_type_access.
+
+        :param name_or_id: Name or ID of the volume type.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        volume_type = self.get_volume_type(name_or_id)
+        if not volume_type:
+            raise OpenStackCloudException(
+                "VolumeType not found: %s" % name_or_id)
+
+        with _utils.shade_exceptions(
+                "Unable to get volume type access {name}".format(
+                    name=name_or_id)):
+            return self._normalize_volume_type_accesses(
+                self.manager.submit_task(
+                    _tasks.VolumeTypeAccessList(volume_type=volume_type))
+            )
+
+    def add_volume_type_access(self, name_or_id, project_id):
+        """Grant access on a volume_type to a project.
+
+        :param name_or_id: ID or name of a volume_type
+        :param project_id: A project id
+
+        NOTE: the call works even if the project does not exist.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        volume_type = self.get_volume_type(name_or_id)
+        if not volume_type:
+            raise OpenStackCloudException(
+                "VolumeType not found: %s" % name_or_id)
+        with _utils.shade_exceptions(
+                "Unable to authorize {project} "
+                "to use volume type {name}".format(
+                    name=name_or_id, project=project_id
+                )):
+            self.manager.submit_task(
+                _tasks.VolumeTypeAccessAdd(
+                    volume_type=volume_type, project=project_id))
+
+    def remove_volume_type_access(self, name_or_id, project_id):
+        """Revoke access on a volume_type to a project.
+
+        :param name_or_id: ID or name of a volume_type
+        :param project_id: A project id
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        volume_type = self.get_volume_type(name_or_id)
+        if not volume_type:
+            raise OpenStackCloudException(
+                "VolumeType not found: %s" % name_or_id)
+        with _utils.shade_exceptions(
+                "Unable to revoke {project} "
+                "to use volume type {name}".format(
+                    name=name_or_id, project=project_id
+                )):
+            self.manager.submit_task(
+                _tasks.VolumeTypeAccessRemove(
+                    volume_type=volume_type, project=project_id))
+
     def set_compute_quotas(self, name_or_id, **kwargs):
         """ Set a quota in a project
 
