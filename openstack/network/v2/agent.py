@@ -76,11 +76,11 @@ class Agent(resource.Resource):
         session.delete(url, endpoint_filter=self.service, json=body)
 
 
-class DHCPAgentHostingNetwork(resource.Resource):
-    resource_key = 'network'
-    resources_key = 'networks'
-    base_path = '/agents/%(agent_id)s/dhcp-networks'
-    resource_name = 'dhcp-network'
+class NetworkHostingDHCPAgent(Agent):
+    resource_key = 'agent'
+    resources_key = 'agents'
+    resource_name = 'dhcp-agent'
+    base_path = '/networks/%(network_id)s/dhcp-agents'
     service = network_service.NetworkService()
 
     # capabilities
@@ -90,4 +90,4 @@ class DHCPAgentHostingNetwork(resource.Resource):
     allow_delete = False
     allow_list = True
 
-    # NOTE: No query parameter is supported
+    # NOTE: Doesn't support query yet.

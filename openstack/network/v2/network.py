@@ -110,11 +110,11 @@ class Network(resource.Resource):
     updated_at = resource.Body('updated_at')
 
 
-class NetworkHostingDHCPAgent(resource.Resource):
-    resource_key = 'agent'
-    resources_key = 'agents'
-    resource_name = 'dhcp-agent'
-    base_path = '/networks/%(network_id)s/dhcp-agents'
+class DHCPAgentHostingNetwork(Network):
+    resource_key = 'network'
+    resources_key = 'networks'
+    base_path = '/agents/%(agent_id)s/dhcp-networks'
+    resource_name = 'dhcp-network'
     service = network_service.NetworkService()
 
     # capabilities
@@ -124,4 +124,4 @@ class NetworkHostingDHCPAgent(resource.Resource):
     allow_delete = False
     allow_list = True
 
-    # NOTE: Doesn't support query yet.
+    # NOTE: No query parameter is supported

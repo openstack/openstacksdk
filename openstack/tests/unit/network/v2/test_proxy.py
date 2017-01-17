@@ -114,7 +114,7 @@ class TestNetworkProxy(test_proxy_base2.TestProxyBase):
     def test_dhcp_agent_hosting_networks(self):
         self.verify_list(
             self.proxy.dhcp_agent_hosting_networks,
-            agent.DHCPAgentHostingNetwork,
+            network.DHCPAgentHostingNetwork,
             paginated=False,
             method_kwargs={'agent': AGENT_ID},
             expected_kwargs={'agent_id': AGENT_ID}
@@ -123,7 +123,7 @@ class TestNetworkProxy(test_proxy_base2.TestProxyBase):
     def test_network_hosting_dhcp_agents(self):
         self.verify_list(
             self.proxy.network_hosting_dhcp_agents,
-            network.NetworkHostingDHCPAgent,
+            agent.NetworkHostingDHCPAgent,
             paginated=False,
             method_kwargs={'network': NETWORK_ID},
             expected_kwargs={'network_id': NETWORK_ID}

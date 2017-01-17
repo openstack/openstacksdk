@@ -90,14 +90,14 @@ class TestAgent(testtools.TestCase):
                                        endpoint_filter=net.service, json=body)
 
 
-class TestDHCPAgentHostingNetwork(testtools.TestCase):
+class TestNetworkHostingDHCPAgent(testtools.TestCase):
 
     def test_basic(self):
-        net = agent.DHCPAgentHostingNetwork()
-        self.assertEqual('network', net.resource_key)
-        self.assertEqual('networks', net.resources_key)
-        self.assertEqual('/agents/%(agent_id)s/dhcp-networks', net.base_path)
-        self.assertEqual('dhcp-network', net.resource_name)
+        net = agent.NetworkHostingDHCPAgent()
+        self.assertEqual('agent', net.resource_key)
+        self.assertEqual('agents', net.resources_key)
+        self.assertEqual('/networks/%(network_id)s/dhcp-agents', net.base_path)
+        self.assertEqual('dhcp-agent', net.resource_name)
         self.assertEqual('network', net.service.service_type)
         self.assertFalse(net.allow_create)
         self.assertTrue(net.allow_get)

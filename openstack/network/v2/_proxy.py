@@ -212,7 +212,7 @@ class Proxy(proxy2.BaseProxy):
         :return: A generator of networks
         """
         agent_obj = self._get_resource(_agent.Agent, agent)
-        return self._list(_agent.DHCPAgentHostingNetwork, paginated=False,
+        return self._list(_network.DHCPAgentHostingNetwork, paginated=False,
                           agent_id=agent_obj.id, **query)
 
     def add_dhcp_agent_to_network(self, agent, network):
@@ -252,7 +252,7 @@ class Proxy(proxy2.BaseProxy):
         :return: A generator of hosted DHCP agents
         """
         net = self._get_resource(_network.Network, network)
-        return self._list(_network.NetworkHostingDHCPAgent, paginated=False,
+        return self._list(_agent.NetworkHostingDHCPAgent, paginated=False,
                           network_id=net.id, **query)
 
     def get_auto_allocated_topology(self, project=None):
