@@ -683,7 +683,8 @@ class TestNetworkProxy(test_proxy_base2.TestProxyBase):
                       self.proxy.get_quota_default,
                       method_args=['QUOTA_ID'],
                       expected_args=[quota.QuotaDefault],
-                      expected_kwargs={'project': "PROJECT"})
+                      expected_kwargs={'project': fake_quota.id,
+                                       'requires_id': False})
         mock_get.assert_called_once_with(quota.Quota, 'QUOTA_ID')
 
     def test_quotas(self):
