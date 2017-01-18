@@ -58,6 +58,17 @@ class Quota(resource.Resource):
     #: The maximum amount of security groups you can create. *Type: int*
     security_groups = resource.Body('security_group', type=int)
 
+    def _prepare_request(self, requires_id=True, prepend_key=False):
+        _request = super(Quota, self)._prepare_request(requires_id,
+                                                       prepend_key)
+        if self.resource_key in _request.body:
+            _body = _request.body[self.resource_key]
+        else:
+            _body = _request.body
+        if 'id' in _body:
+            del _body['id']
+        return _request
+
 
 class QuotaDefault(Quota):
     base_path = '/quotas/%(project)s/default'

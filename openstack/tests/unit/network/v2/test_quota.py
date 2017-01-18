@@ -67,6 +67,12 @@ class TestQuota(testtools.TestCase):
         self.assertEqual(EXAMPLE['l7policy'], sot.l7_policies)
         self.assertEqual(EXAMPLE['pool'], sot.pools)
 
+    def test_prepare_request(self):
+        body = {'id': 'ABCDEFGH', 'network': '12345'}
+        quota_obj = quota.Quota(**body)
+        response = quota_obj._prepare_request()
+        self.assertNotIn('id', response)
+
 
 class TestQuotaDefault(testtools.TestCase):
 
