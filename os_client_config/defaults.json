@@ -1,4 +1,5 @@
 {
+  "application_catalog_api_version": "1",
   "auth_type": "password",
   "baremetal_api_version": "1",
   "container_api_version": "1",

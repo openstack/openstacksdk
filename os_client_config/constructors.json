@@ -1,4 +1,5 @@
 {
+    "application-catalog": "muranoclient.client.Client",
     "compute": "novaclient.client.Client",
     "container-infra": "magnumclient.client.Client",
     "database": "troveclient.client.Client",
