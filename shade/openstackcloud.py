@@ -369,17 +369,49 @@ class OpenStackCloud(_normalize.Normalizer):
             shade_logger=self.log)
 
     @property
+    def _application_catalog_client(self):
+        if 'application-catalog' not in self._raw_clients:
+            self._raw_clients['application-catalog'] = self._get_raw_client(
+                'application-catalog')
+        return self._raw_clients['application-catalog']
+
+    @property
+    def _baremetal_client(self):
+        if 'baremetal' not in self._raw_clients:
+            self._raw_clients['baremetal'] = self._get_raw_client('baremetal')
+        return self._raw_clients['baremetal']
+
+    @property
+    def _container_infra_client(self):
+        if 'container-infra' not in self._raw_clients:
+            self._raw_clients['container-infra'] = self._get_raw_client(
+                'container-infra')
+        return self._raw_clients['container-infra']
+
+    @property
     def _compute_client(self):
+        # TODO(mordred) Deal with microversions
         if 'compute' not in self._raw_clients:
             self._raw_clients['compute'] = self._get_raw_client('compute')
         return self._raw_clients['compute']
 
     @property
-    def _object_store_client(self):
-        if 'object-store' not in self._raw_clients:
-            raw_client = self._get_raw_client('object-store')
-            self._raw_clients['object-store'] = raw_client
-        return self._raw_clients['object-store']
+    def _database_client(self):
+        if 'database' not in self._raw_clients:
+            self._raw_clients['database'] = self._get_raw_client('database')
+        return self._raw_clients['database']
+
+    @property
+    def _dns_client(self):
+        if 'dns' not in self._raw_clients:
+            self._raw_clients['dns'] = self._get_raw_client('dns')
+        return self._raw_clients['dns']
+
+    @property
+    def _identity_client(self):
+        if 'identity' not in self._raw_clients:
+            self._raw_clients['identity'] = self._get_raw_client('identity')
+        return self._raw_clients['identity']
 
     @property
     def _raw_image_client(self):
@@ -458,6 +490,32 @@ class OpenStackCloud(_normalize.Normalizer):
             image_client.endpoint_override = image_url
             self._raw_clients['image'] = image_client
         return self._raw_clients['image']
+
+    @property
+    def _network_client(self):
+        if 'network' not in self._raw_clients:
+            self._raw_clients['network'] = self._get_raw_client('network')
+        return self._raw_clients['network']
+
+    @property
+    def _object_store_client(self):
+        if 'object-store' not in self._raw_clients:
+            raw_client = self._get_raw_client('object-store')
+            self._raw_clients['object-store'] = raw_client
+        return self._raw_clients['object-store']
+
+    @property
+    def _orchestration_client(self):
+        if 'orchestration' not in self._raw_clients:
+            raw_client = self._get_raw_client('orchestration')
+            self._raw_clients['orchestration'] = raw_client
+        return self._raw_clients['orchestration']
+
+    @property
+    def _volume_client(self):
+        if 'volume' not in self._raw_clients:
+            self._raw_clients['volume'] = self._get_raw_client('volume')
+        return self._raw_clients['volume']
 
     @property
     def nova_client(self):
