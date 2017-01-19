@@ -157,7 +157,7 @@
           "description": "Object Storage API Service Type",
           "type": "string"
         },
-        "baremetal_api_version": {
+        "baremetal_service_type": {
           "name": "Baremetal API Service Type",
           "description": "Baremetal API Service Type",
           "type": "string"
