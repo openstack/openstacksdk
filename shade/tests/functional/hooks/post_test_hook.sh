@@ -36,9 +36,14 @@ then
     sudo sed -ie '/^.*domain_id.*$/d' $CLOUDS_YAML
 fi
 
+if [ "x$1" = "xtips" ] ; then
+    tox_env=functional-tips
+else
+    tox_env=functional
+fi
 echo "Running shade functional test suite"
 set +e
-sudo -E -H -u jenkins tox -efunctional
+sudo -E -H -u jenkins tox -e$tox_env
 EXIT_CODE=$?
 sudo testr last --subunit > $WORKSPACE/tempest.subunit
 set -e
