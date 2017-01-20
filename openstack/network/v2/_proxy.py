@@ -225,8 +225,7 @@ class Proxy(proxy2.BaseProxy):
         """
         network = self._get_resource(_network.Network, network)
         agent = self._get_resource(_agent.Agent, agent)
-        body = {'network_id': network.id}
-        return agent.add_agent_to_network(self.session, **body)
+        return agent.add_agent_to_network(self.session, network.id)
 
     def remove_dhcp_agent_from_network(self, agent, network):
         """Remove a DHCP Agent from a network
@@ -236,11 +235,9 @@ class Proxy(proxy2.BaseProxy):
         :param network: Network instance
         :return:
         """
-        # network_id = resource.Resource.get_id(network)
         network = self._get_resource(_network.Network, network)
         agent = self._get_resource(_agent.Agent, agent)
-        body = {'network_id': network.id}
-        return agent.remove_agent_from_network(self.session, **body)
+        return agent.remove_agent_from_network(self.session, network.id)
 
     def network_hosting_dhcp_agents(self, network, **query):
         """A generator of DHCP agents hosted on a network.

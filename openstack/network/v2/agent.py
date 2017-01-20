@@ -64,13 +64,14 @@ class Agent(resource.Resource):
     #: The messaging queue topic the network agent subscribes to.
     topic = resource.Body('topic')
 
-    def add_agent_to_network(self, session, **body):
+    def add_agent_to_network(self, session, network_id):
+        body = {'network_id': network_id}
         url = utils.urljoin(self.base_path, self.id, 'dhcp-networks')
         resp = session.post(url, endpoint_filter=self.service, json=body)
         return resp.json()
 
-    def remove_agent_from_network(self, session, **body):
-        network_id = body.get('network_id')
+    def remove_agent_from_network(self, session, network_id):
+        body = {'network_id': network_id}
         url = utils.urljoin(self.base_path, self.id, 'dhcp-networks',
                             network_id)
         session.delete(url, endpoint_filter=self.service, json=body)

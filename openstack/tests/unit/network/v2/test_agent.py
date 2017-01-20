@@ -83,8 +83,9 @@ class TestAgent(testtools.TestCase):
         # Remove agent from agent
         net = agent.Agent(**EXAMPLE)
         sess = mock.Mock()
-        self.assertIsNone(net.remove_agent_from_network(sess))
-        body = {}
+        network_id = {}
+        self.assertIsNone(net.remove_agent_from_network(sess, network_id))
+        body = {'network_id': {}}
 
         sess.delete.assert_called_with('agents/IDENTIFIER/dhcp-networks/',
                                        endpoint_filter=net.service, json=body)
