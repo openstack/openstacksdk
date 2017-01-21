@@ -6063,14 +6063,21 @@ class OpenStackCloud(_normalize.Normalizer):
             raise
 
     def get_object(self, container, obj, query_string=None,
-                   resp_chunk_size=None):
+                   resp_chunk_size=1024, outfile=None):
         """Get the headers and body of an object from swift
 
         :param string container: name of the container.
         :param string obj: name of the object.
         :param string query_string: query args for uri.
                                     (delimiter, prefix, etc.)
-        :param int resp_chunk_size: chunk size of data to read.
+        :param int resp_chunk_size: chunk size of data to read. Only used
+                                    if the results are being written to a
+                                    file. (optional, defaults to 1k)
+        :param outfile: Write the object to a file instead of
+                        returning the contents. If this option is
+                        given, body in the return tuple will be None. outfile
+                        can either be a file path given as a string, or a
+                        File like object.
 
         :returns: Tuple (headers, body) of the object, or None if the object
                   is not found (404)
@@ -6083,10 +6090,25 @@ class OpenStackCloud(_normalize.Normalizer):
             if query_string:
                 endpoint = '{endpoint}?{query_string}'.format(
                     endpoint=endpoint, query_string=query_string)
-            response = self._object_store_client.get(endpoint)
+            response = self._object_store_client.get(
+                endpoint, stream=True)
             response_headers = {
                 k.lower(): v for k, v in response.headers.items()}
-            return (response_headers, response.text)
+            if outfile:
+                if isinstance(outfile, six.string_types):
+                    outfile_handle = open(outfile, 'wb')
+                else:
+                    outfile_handle = outfile
+                for chunk in response.iter_content(
+                        resp_chunk_size, decode_unicode=False):
+                    outfile_handle.write(chunk)
+                if isinstance(outfile, six.string_types):
+                    outfile_handle.close()
+                else:
+                    outfile_handle.flush()
+                return (response_headers, None)
+            else:
+                return (response_headers, response.text)
         except OpenStackCloudHTTPError as e:
             if e.response.status_code == 404:
                 return None
