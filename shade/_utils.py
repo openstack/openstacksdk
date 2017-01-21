@@ -56,6 +56,9 @@ def _iterate_timeout(timeout, message, wait=2):
         # seems friendlier
         if wait is None:
             wait = 2
+        elif wait == 0:
+            # wait should be < timeout, unless timeout is None
+            wait = 0.1 if timeout is None else min(0.1, timeout)
         wait = float(wait)
     except ValueError:
         raise exc.OpenStackCloudException(
