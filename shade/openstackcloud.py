@@ -31,8 +31,6 @@ from six.moves import urllib
 import cinderclient.exceptions as cinder_exceptions
 import heatclient.client
 import magnumclient.exceptions as magnum_exceptions
-from heatclient.common import event_utils
-from heatclient.common import template_utils
 from heatclient import exc as heat_exceptions
 import keystoneauth1.exceptions
 import keystoneclient.client
@@ -46,6 +44,8 @@ import designateclient.client
 
 from shade.exc import *  # noqa
 from shade import _adapter
+from shade._heat import event_utils
+from shade._heat import template_utils
 from shade import _log
 from shade import _normalize
 from shade import meta
