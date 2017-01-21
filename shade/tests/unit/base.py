@@ -164,13 +164,6 @@ class RequestsMockTestCase(BaseTestCase):
             'GET', 'https://image.example.com/',
             text=open(discovery_fixture, 'r').read())
 
-    def use_neutron(self, network_version_json='network-version.json'):
-        discovery_fixture = os.path.join(
-            self.fixtures_directory, network_version_json)
-        self.register_uri(
-            'GET', 'https://network.example.com/',
-            text=open(discovery_fixture, 'r').read())
-
     def register_uri(self, method, uri, **kwargs):
         validate = kwargs.pop('validate', {})
         key = '{method}:{uri}'.format(method=method, uri=uri)
