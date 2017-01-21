@@ -166,15 +166,9 @@ class TestFloatingIP(base.RequestsMockTestCase):
         self.assertEqual('UNKNOWN', normalized[0]['status'])
 
     def test_list_floating_ips(self):
-        self.adapter.get(
-            'https://network.example.com/v2.0/floatingips.json',
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/floatingips.json',
             json=self.mock_floating_ip_list_rep)
-
-        self.calls += [
-            dict(
-                method='GET',
-                url='https://network.example.com/v2.0/floatingips.json'),
-        ]
 
         floating_ips = self.cloud.list_floating_ips()
 

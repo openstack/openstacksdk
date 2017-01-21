@@ -288,23 +288,21 @@ class TestObject(BaseTestObject):
         containers = [
             {u'count': 0, u'bytes': 0, u'name': self.container}]
 
-        self.adapter.get(endpoint, complete_qs=True, json=containers)
+        self.register_uri('GET', endpoint, complete_qs=True, json=containers)
 
         ret = self.cloud.list_containers()
 
-        self.calls += [
-            dict(method='GET', url=endpoint),
-        ]
         self.assert_calls()
         self.assertEqual(containers, ret)
 
     def test_list_containers_exception(self):
         endpoint = '{endpoint}/?format=json'.format(
             endpoint=self.endpoint)
-        self.adapter.get(endpoint, complete_qs=True, status_code=416)
+        self.register_uri('GET', endpoint, complete_qs=True, status_code=416)
 
         self.assertRaises(
             exc.OpenStackCloudException, self.cloud.list_containers)
+        self.assert_calls()
 
     def test_list_objects(self):
         endpoint = '{endpoint}?format=json'.format(
@@ -317,51 +315,37 @@ class TestObject(BaseTestObject):
             u'name': self.object,
             u'content_type': u'application/octet-stream'}]
 
-        self.adapter.get(endpoint, complete_qs=True, json=objects)
+        self.register_uri('GET', endpoint, complete_qs=True, json=objects)
 
         ret = self.cloud.list_objects(self.container)
 
-        self.calls += [
-            dict(method='GET', url=endpoint),
-        ]
         self.assert_calls()
         self.assertEqual(objects, ret)
 
     def test_list_objects_exception(self):
         endpoint = '{endpoint}?format=json'.format(
             endpoint=self.container_endpoint)
-        self.adapter.get(endpoint, complete_qs=True, status_code=416)
+        self.register_uri('GET', endpoint, complete_qs=True, status_code=416)
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud.list_objects, self.container)
+        self.assert_calls()
 
     def test_delete_object(self):
-        self.adapter.head(
-            self.object_endpoint, headers={'X-Object-Meta': 'foo'})
-        self.adapter.delete(self.object_endpoint, status_code=204)
+        self.register_uri(
+            'HEAD', self.object_endpoint,
+            headers={'X-Object-Meta': 'foo'})
+        self.register_uri('DELETE', self.object_endpoint, status_code=204)
 
         self.assertTrue(self.cloud.delete_object(self.container, self.object))
 
-        self.calls += [
-            dict(
-                method='HEAD',
-                url=self.object_endpoint),
-            dict(
-                method='DELETE',
-                url=self.object_endpoint),
-        ]
         self.assert_calls()
 
     def test_delete_object_not_found(self):
-        self.adapter.head(self.object_endpoint, status_code=404)
+        self.register_uri('HEAD', self.object_endpoint, status_code=404)
 
         self.assertFalse(self.cloud.delete_object(self.container, self.object))
 
-        self.calls += [
-            dict(
-                method='HEAD',
-                url=self.object_endpoint),
-        ]
         self.assert_calls()
 
     def test_get_object(self):
@@ -379,8 +363,8 @@ class TestObject(BaseTestObject):
         }
         response_headers = {k.lower(): v for k, v in headers.items()}
         text = 'test body'
-        self.adapter.get(
-            self.object_endpoint,
+        self.register_uri(
+            'GET', self.object_endpoint,
             headers={
                 'Content-Length': '20304400896',
                 'Content-Type': 'application/octet-stream',
@@ -397,39 +381,33 @@ class TestObject(BaseTestObject):
 
         resp = self.cloud.get_object(self.container, self.object)
 
-        self.calls += [
-            dict(method='GET', url=self.object_endpoint),
-        ]
         self.assert_calls()
 
         self.assertEqual((response_headers, text), resp)
 
     def test_get_object_not_found(self):
-        self.adapter.get(self.object_endpoint, status_code=404)
+        self.register_uri('GET', self.object_endpoint, status_code=404)
 
         self.assertIsNone(self.cloud.get_object(self.container, self.object))
 
-        self.calls += [
-            dict(method='GET', url=self.object_endpoint),
-        ]
         self.assert_calls()
 
     def test_get_object_exception(self):
-        self.adapter.get(self.object_endpoint, status_code=416)
+        self.register_uri('GET', self.object_endpoint, status_code=416)
 
         self.assertRaises(
             shade.OpenStackCloudException,
             self.cloud.get_object,
             self.container, self.object)
 
-        self.calls += [
-            dict(method='GET', url=self.object_endpoint),
-        ]
         self.assert_calls()
 
-    def test_get_object_segment_size(self):
-        self.adapter.get(
-            'https://object-store.example.com/info',
+    def test_get_object_segment_size_below_min(self):
+        # Register directly becuase we make multiple calls. The number
+        # of calls we make isn't interesting - what we do with the return
+        # values is. Don't run assert_calls for the same reason.
+        self.adapter.register_uri(
+            'GET', 'https://object-store.example.com/info',
             json=dict(
                 swift={'max_file_size': 1000},
                 slo={'min_segment_size': 500}))
@@ -439,20 +417,22 @@ class TestObject(BaseTestObject):
         self.assertEqual(1000, self.cloud.get_object_segment_size(1100))
 
     def test_get_object_segment_size_http_404(self):
-        self.adapter.get(
-            'https://object-store.example.com/info',
+        self.register_uri(
+            'GET', 'https://object-store.example.com/info',
             status_code=404,
             reason='Not Found')
         self.assertEqual(shade.openstackcloud.DEFAULT_OBJECT_SEGMENT_SIZE,
                          self.cloud.get_object_segment_size(None))
+        self.assert_calls()
 
     def test_get_object_segment_size_http_412(self):
-        self.adapter.get(
-            'https://object-store.example.com/info',
+        self.register_uri(
+            'GET', 'https://object-store.example.com/info',
             status_code=412,
             reason='Precondition failed')
         self.assertEqual(shade.openstackcloud.DEFAULT_OBJECT_SEGMENT_SIZE,
                          self.cloud.get_object_segment_size(None))
+        self.assert_calls()
 
 
 class TestObjectUploads(BaseTestObject):

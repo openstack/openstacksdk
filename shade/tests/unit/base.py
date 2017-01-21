@@ -111,17 +111,20 @@ class RequestsMockTestCase(BaseTestCase):
         super(RequestsMockTestCase, self).setUp(
             cloud_config_fixture=cloud_config_fixture)
 
+        self._uri_registry = {}
+
         self.discovery_json = os.path.join(
             self.fixtures_directory, 'discovery.json')
         self.use_keystone_v3()
 
     def use_keystone_v3(self):
         self.adapter = self.useFixture(rm_fixture.Fixture())
-        self.adapter.get(
-            'http://192.168.0.19:35357/',
+        self.calls = []
+        self.register_uri(
+            'GET', 'http://192.168.0.19:35357/',
             text=open(self.discovery_json, 'r').read())
-        self.adapter.post(
-            'https://example.com/v3/auth/tokens',
+        self.register_uri(
+            'POST', 'https://example.com/v3/auth/tokens',
             headers={
                 'X-Subject-Token': self.getUniqueString()},
             text=open(
@@ -129,28 +132,21 @@ class RequestsMockTestCase(BaseTestCase):
                     self.fixtures_directory,
                     'catalog-v3.json'),
                 'r').read())
-        self.calls = [
-            dict(method='GET', url='http://192.168.0.19:35357/'),
-            dict(method='POST', url='https://example.com/v3/auth/tokens'),
-        ]
         self._make_test_cloud(identity_api_version='3')
 
     def use_keystone_v2(self):
         self.adapter = self.useFixture(rm_fixture.Fixture())
-        self.adapter.get(
-            'http://192.168.0.19:35357/',
+        self.calls = []
+        self.register_uri(
+            'GET', 'http://192.168.0.19:35357/',
             text=open(self.discovery_json, 'r').read())
-        self.adapter.post(
-            'https://example.com/v2.0/tokens',
+        self.register_uri(
+            'POST', 'https://example.com/v2.0/tokens',
             text=open(
                 os.path.join(
                     self.fixtures_directory,
                     'catalog-v2.json'),
                 'r').read())
-        self.calls = [
-            dict(method='GET', url='http://192.168.0.19:35357/'),
-            dict(method='POST', url='https://example.com/v2.0/tokens'),
-        ]
         self._make_test_cloud(identity_api_version='2.0')
 
     def _make_test_cloud(self, **kwargs):
@@ -164,21 +160,31 @@ class RequestsMockTestCase(BaseTestCase):
     def use_glance(self, image_version_json='image-version.json'):
         discovery_fixture = os.path.join(
             self.fixtures_directory, image_version_json)
-        self.adapter.get(
-            'https://image.example.com/',
+        self.register_uri(
+            'GET', 'https://image.example.com/',
             text=open(discovery_fixture, 'r').read())
-        self.calls += [
-            dict(method='GET', url='https://image.example.com/'),
-        ]
 
     def use_neutron(self, network_version_json='network-version.json'):
         discovery_fixture = os.path.join(
             self.fixtures_directory, network_version_json)
-        self.adapter.get(
-            'https://network.example.com/',
+        self.register_uri(
+            'GET', 'https://network.example.com/',
             text=open(discovery_fixture, 'r').read())
+
+    def register_uri(self, method, uri, **kwargs):
+        validate = kwargs.pop('validate', {})
+        key = '{method}:{uri}'.format(method=method, uri=uri)
+        if key in self._uri_registry:
+            self._uri_registry[key].append(kwargs)
+            self.adapter.register_uri(method, uri, self._uri_registry[key])
+        else:
+            self._uri_registry[key] = [kwargs]
+            self.adapter.register_uri(method, uri, **kwargs)
+
         self.calls += [
-            dict(method='GET', url='https://network.example.com/'),
+            dict(
+                method=method,
+                url=uri, **validate)
         ]
 
     def assert_calls(self, stop_after=None):
