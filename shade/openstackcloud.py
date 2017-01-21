@@ -420,6 +420,25 @@ class OpenStackCloud(_normalize.Normalizer):
             self._raw_clients['raw-image'] = image_client
         return self._raw_clients['raw-image']
 
+    def _discover_latest_version(self, client):
+        # Used to get the versioned endpoint for a service with one version
+        try:
+            # Version discovery
+            versions = client.get('/')
+            api_version = [
+                version for version in versions
+                if version['status'] == 'CURRENT'][0]
+            return api_version['links'][0]['href']
+        except (keystoneauth1.exceptions.connection.ConnectFailure,
+                OpenStackCloudURINotFound) as e:
+            # A 404 or a connection error is a likely thing to get
+            # either with a misconfgured glance. or we've already
+            # gotten a versioned endpoint from the catalog
+            self.log.debug(
+                "Version discovery failed, assuming endpoint in"
+                " the catalog is already versioned. {e}".format(e=str(e)))
+            return image_client.get_endpoint()
+
     def _discover_image_endpoint(self, config_version, image_client):
         try:
             # Version discovery
@@ -494,7 +513,9 @@ class OpenStackCloud(_normalize.Normalizer):
     @property
     def _network_client(self):
         if 'network' not in self._raw_clients:
-            self._raw_clients['network'] = self._get_raw_client('network')
+            client = self._get_raw_client('network')
+            client.endpoint_override = self._discover_latest_version(client)
+            self._raw_clients['network'] = client
         return self._raw_clients['network']
 
     @property

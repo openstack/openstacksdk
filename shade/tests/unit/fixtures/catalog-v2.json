@@ -89,6 +89,20 @@
         "endpoints_links": [],
         "endpoints": [
           {
+            "adminURL": "https://network.example.com",
+            "region": "RegionOne",
+            "publicURL": "https://network.example.com",
+            "internalURL": "https://network.example.com",
+            "id": "4deb4d0504a044a395d4480741ba628d"
+          }
+        ],
+        "type": "network",
+        "name": "neutron"
+      },
+      {
+        "endpoints_links": [],
+        "endpoints": [
+          {
             "adminURL": "https://object-store.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
             "region": "RegionOne",
             "publicURL": "https://object-store.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",

@@ -68,6 +68,19 @@
       {
         "endpoints": [
           {
+            "id": "4deb4d0504a044a395d4480741ba628d",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://network.example.com"
+          }
+        ],
+        "endpoints_links": [],
+        "name": "neutron",
+        "type": "network"
+      },
+      {
+        "endpoints": [
+          {
             "id": "4deb4d0504a044a395d4480741ba628c",
             "interface": "public",
             "region": "RegionOne",

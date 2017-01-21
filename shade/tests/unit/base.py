@@ -171,6 +171,16 @@ class RequestsMockTestCase(BaseTestCase):
             dict(method='GET', url='https://image.example.com/'),
         ]
 
+    def use_neutron(self, network_version_json='network-version.json'):
+        discovery_fixture = os.path.join(
+            self.fixtures_directory, network_version_json)
+        self.adapter.get(
+            'https://network.example.com/',
+            text=open(discovery_fixture, 'r').read())
+        self.calls += [
+            dict(method='GET', url='https://network.example.com/'),
+        ]
+
     def assert_calls(self, stop_after=None):
         self.assertEqual(len(self.calls), len(self.adapter.request_history))
         for (x, (call, history)) in enumerate(

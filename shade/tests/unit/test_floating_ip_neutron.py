@@ -32,7 +32,7 @@ from shade.tests import fakes
 from shade.tests.unit import base
 
 
-class TestFloatingIP(base.TestCase):
+class TestFloatingIP(base.RequestsMockTestCase):
     mock_floating_ip_list_rep = {
         'floatingips': [
             {
@@ -165,18 +165,24 @@ class TestFloatingIP(base.TestCase):
         normalized = self.cloud._normalize_floating_ips(floating_ips)
         self.assertEqual('UNKNOWN', normalized[0]['status'])
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    @patch.object(OpenStackCloud, 'has_service', return_value=True)
-    def test_list_floating_ips(self, mock_has_service, mock_neutron_client):
-        mock_neutron_client.list_floatingips.return_value = \
-            self.mock_floating_ip_list_rep
+    def test_list_floating_ips(self):
+        self.adapter.get(
+            'https://network.example.com/v2.0/floatingips.json',
+            json=self.mock_floating_ip_list_rep)
+
+        self.calls += [
+            dict(
+                method='GET',
+                url='https://network.example.com/v2.0/floatingips.json'),
+        ]
 
         floating_ips = self.cloud.list_floating_ips()
 
-        mock_neutron_client.list_floatingips.assert_called_with()
         self.assertIsInstance(floating_ips, list)
         self.assertAreInstances(floating_ips, dict)
         self.assertEqual(2, len(floating_ips))
+
+        self.assert_calls()
 
     @patch.object(OpenStackCloud, 'neutron_client')
     @patch.object(OpenStackCloud, 'has_service', return_value=True)
