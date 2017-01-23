@@ -296,16 +296,14 @@ def expand_server_vars(cloud, server):
     return add_server_interfaces(cloud, server)
 
 
-def _make_address_dict(fip):
+def _make_address_dict(fip, port):
     address = dict(version=4, addr=fip['floating_ip_address'])
     address['OS-EXT-IPS:type'] = 'floating'
-    # MAC address comes from the port, not the FIP. It also doesn't matter
-    # to anyone at the moment, so just make a fake one
-    address['OS-EXT-IPS-MAC:mac_addr'] = 'de:ad:be:ef:be:ef'
+    address['OS-EXT-IPS-MAC:mac_addr'] = port['mac_address']
     return address
 
 
-def _get_suplemental_addresses(cloud, server):
+def _get_supplemental_addresses(cloud, server):
     fixed_ip_mapping = {}
     for name, network in server['addresses'].items():
         for address in network:
@@ -319,11 +317,24 @@ def _get_suplemental_addresses(cloud, server):
         # Don't bother doing this before the server is active, it's a waste
         # of an API call while polling for a server to come up
         if cloud._has_floating_ips() and server['status'] == 'ACTIVE':
-            for fip in cloud.list_floating_ips():
-                if fip['fixed_ip_address'] in fixed_ip_mapping:
+            for port in cloud.search_ports(
+                    filters=dict(device_id=server['id'])):
+                for fip in cloud.search_floating_ips(
+                        filters=dict(port_id=port['id'])):
+                        # This SHOULD return one and only one FIP - but doing
+                        # it as a search/list lets the logic work regardless
+                    if fip['fixed_ip_address'] not in fixed_ip_mapping:
+                        log = _log.setup_logging('shade')
+                        log.debug(
+                            "The cloud returned floating ip %(fip)s attached"
+                            " to server %(server)s but the fixed ip associated"
+                            " with the floating ip in the neutron listing"
+                            " does not exist in the nova listing. Something"
+                            " is exceptionally broken.",
+                            dict(fip=fip['id'], server=server['id']))
                     fixed_net = fixed_ip_mapping[fip['fixed_ip_address']]
                     server['addresses'][fixed_net].append(
-                        _make_address_dict(fip))
+                        _make_address_dict(fip, port))
     except exc.OpenStackCloudException:
         # If something goes wrong with a cloud call, that's cool - this is
         # an attempt to provide additional data and should not block forward
@@ -343,7 +354,7 @@ def add_server_interfaces(cloud, server):
     """
     # First, add an IP address. Set it to '' rather than None if it does
     # not exist to remain consistent with the pre-existing missing values
-    server['addresses'] = _get_suplemental_addresses(cloud, server)
+    server['addresses'] = _get_supplemental_addresses(cloud, server)
     server['public_v4'] = get_server_external_ipv4(cloud, server) or ''
     server['public_v6'] = get_server_external_ipv6(server) or ''
     server['private_v4'] = get_server_private_ip(server, cloud) or ''
