@@ -14,6 +14,7 @@ import collections
 import functools
 import hashlib
 import ipaddress
+import json
 import jsonpatch
 import operator
 import os
@@ -3516,7 +3517,8 @@ class OpenStackCloud(_normalize.Normalizer):
 
         self.create_object(
             container, name, filename,
-            md5=md5, sha256=sha256)
+            md5=md5, sha256=sha256,
+            **{'content-type': 'application/octet-stream'})
         if not current_image:
             current_image = self.get_image(name)
         # TODO(mordred): Can we do something similar to what nodepool does
@@ -5972,7 +5974,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return self._object_store_client.put(
             endpoint,
             params={'multipart-manifest': 'put'},
-            headers=headers, json=manifest)
+            headers=headers, data=json.dumps(manifest))
 
     def _finish_large_object_dlo(self, endpoint, headers):
         headers = headers.copy()

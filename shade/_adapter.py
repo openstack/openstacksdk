@@ -95,12 +95,6 @@ class ShadeAdapter(adapter.Adapter):
                 'text/plain',
                 'application/octet-stream'):
             return response
-        elif response.headers.get('X-Static-Large-Object'):
-            # Workaround what seems to be a bug in swift where SLO objects
-            # return Content-Type application/json but contain
-            # application/octet-stream
-            # Bug filed: https://bugs.launchpad.net/swift/+bug/1658295
-            return response
         else:
             if not response.content:
                 # This doens't have any content
