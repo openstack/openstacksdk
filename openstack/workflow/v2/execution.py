@@ -30,15 +30,26 @@ class Execution(resource.Resource):
         'marker', 'limit', 'sort_keys', 'sort_dirs', 'fields', 'params',
         'include_output')
 
+    #: The name of the workflow
     workflow_name = resource.Body("workflow_name")
+    #: The ID of the workflow
     workflow_id = resource.Body("workflow_id")
+    #: A description of the workflow execution
     description = resource.Body("description")
+    #: A reference to the parent task execution
     task_execution_id = resource.Body("task_execution_id")
+    #: Status can be one of: IDLE, RUNNING, SUCCESS, ERROR, or PAUSED
     status = resource.Body("state")
+    #: An optional information string about the status
     status_info = resource.Body("state_info")
+    #: A JSON structure containing workflow input values
+    # TODO(briancurtin): type=dict
     input = resource.Body("input")
+    #: The output of the workflow
     output = resource.Body("output")
+    #: The time at which the Execution was created
     created_at = resource.Body("created_at")
+    #: The time at which the Execution was updated
     updated_at = resource.Body("updated_at")
 
     def create(self, session, prepend_key=True):

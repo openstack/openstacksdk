@@ -29,13 +29,23 @@ class Workflow(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'marker', 'limit', 'sort_keys', 'sort_dirs', 'fields')
 
+    #: The name of this Workflow
     name = resource.Body("name")
+    #: The inputs for this Workflow
     input = resource.Body("input")
+    #: A Workflow definition using the Mistral v2 DSL
     definition = resource.Body("definition")
+    #: A list of values associated with a workflow that users can use
+    #: to group workflows by some criteria
+    # TODO(briancurtin): type=list
     tags = resource.Body("tags")
+    #: Can be either "private" or "public"
     scope = resource.Body("scope")
+    #: The ID of the associated project
     project_id = resource.Body("project_id")
+    #: The time at which the workflow was created
     created_at = resource.Body("created_at")
+    #: The time at which the workflow was created
     updated_at = resource.Body("updated_at")
 
     def create(self, session, prepend_key=True):
