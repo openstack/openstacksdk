@@ -20,6 +20,17 @@ from openstack import profile
 from openstack import session
 from openstack import utils
 
+HTML_MSG = """<html>
+ <head>
+   <title>404 Entity Not Found</title>
+ </head>
+ <body>
+  <h1>404 Entity Not Found</h1>
+  Entity could not be found
+  <br /><br />
+ </body>
+</html>"""
+
 
 class TestSession(testtools.TestCase):
 
@@ -60,27 +71,104 @@ class TestSession(testtools.TestCase):
 
         self.assertEqual({}, sot.additional_headers)
 
-    def test_map_exceptions_not_found_exception(self):
-        ksa_exc = _exceptions.HttpError(message="test", http_status=404)
-        func = mock.Mock(side_effect=ksa_exc)
-
+    def _assert_map_exceptions(self, expected_exc, ksa_exc, func):
         os_exc = self.assertRaises(
-            exceptions.NotFoundException, session.map_exceptions(func))
-        self.assertIsInstance(os_exc, exceptions.NotFoundException)
+            expected_exc, session.map_exceptions(func))
+        self.assertIsInstance(os_exc, expected_exc)
         self.assertEqual(ksa_exc.message, os_exc.message)
         self.assertEqual(ksa_exc.http_status, os_exc.http_status)
         self.assertEqual(ksa_exc, os_exc.cause)
+        return os_exc
+
+    def test_map_exceptions_not_found_exception(self):
+        response = mock.Mock()
+        response_body = {'NotFoundException': {
+            'message': 'Resource not found'}}
+        response.json = mock.Mock(return_value=response_body)
+        response.headers = {"content-type": "application/json"}
+        response.status_code = 404
+        ksa_exc = _exceptions.HttpError(
+            message="test", http_status=404, response=response)
+        func = mock.Mock(side_effect=ksa_exc)
+        os_exc = self._assert_map_exceptions(
+            exceptions.NotFoundException, ksa_exc, func)
+        self.assertEqual('Resource not found', os_exc.details)
 
     def test_map_exceptions_http_exception(self):
-        ksa_exc = _exceptions.HttpError(message="test", http_status=400)
+        response = mock.Mock()
+        response_body = {'HTTPBadRequest': {
+            'message': 'request is invalid'}}
+        response.json = mock.Mock(return_value=response_body)
+        response.headers = {"content-type": "application/json"}
+        response.status_code = 400
+        ksa_exc = _exceptions.HttpError(
+            message="test", http_status=400, response=response)
         func = mock.Mock(side_effect=ksa_exc)
 
-        os_exc = self.assertRaises(
-            exceptions.HttpException, session.map_exceptions(func))
-        self.assertIsInstance(os_exc, exceptions.HttpException)
-        self.assertEqual(ksa_exc.message, os_exc.message)
-        self.assertEqual(ksa_exc.http_status, os_exc.http_status)
-        self.assertEqual(ksa_exc, os_exc.cause)
+        os_exc = self._assert_map_exceptions(
+            exceptions.HttpException, ksa_exc, func)
+        self.assertEqual('request is invalid', os_exc.details)
+
+    def test_map_exceptions_http_exception_handle_json(self):
+        mock_resp = mock.Mock()
+        mock_resp.status_code = 413
+        mock_resp.json.return_value = {
+            "overLimit": {
+                "message": "OverLimit413...",
+                "retryAt": "2017-01-03T13:33:06Z"
+            },
+            "overLimitRetry": {
+                "message": "OverLimit Retry...",
+                "retryAt": "2017-01-03T13:33:06Z"
+            }
+        }
+        mock_resp.headers = {
+            "content-type": "application/json"
+        }
+        ksa_exc = _exceptions.HttpError(
+            message="test", http_status=413, response=mock_resp)
+        func = mock.Mock(side_effect=ksa_exc)
+
+        os_exc = self._assert_map_exceptions(
+            exceptions.HttpException, ksa_exc, func)
+        # It's not sure that which 'message' will be first so exact checking is
+        # difficult here. It can be 'OverLimit413...\nOverLimit Retry...' or
+        # it can be 'OverLimit Retry...\nOverLimit413...'.
+        self.assertIn('OverLimit413...', os_exc.details)
+        self.assertIn('OverLimit Retry...', os_exc.details)
+
+    def test_map_exceptions_notfound_exception_handle_html(self):
+        mock_resp = mock.Mock()
+        mock_resp.status_code = 404
+        mock_resp.text = HTML_MSG
+        mock_resp.headers = {
+            "content-type": "text/html"
+        }
+        ksa_exc = _exceptions.HttpError(
+            message="test", http_status=404, response=mock_resp)
+        func = mock.Mock(side_effect=ksa_exc)
+
+        os_exc = self._assert_map_exceptions(
+            exceptions.NotFoundException, ksa_exc, func)
+        self.assertEqual('404 Entity Not Found: Entity could not be found',
+                         os_exc.details)
+
+    def test_map_exceptions_notfound_exception_handle_other_content_type(self):
+        mock_resp = mock.Mock()
+        mock_resp.status_code = 404
+        fake_text = ("{'UnknownException': {'message': "
+                     "'UnknownException occurred...'}}")
+        mock_resp.text = fake_text
+        mock_resp.headers = {
+            "content-type": 'application/octet-stream'
+        }
+        ksa_exc = _exceptions.HttpError(
+            message="test", http_status=404, response=mock_resp)
+        func = mock.Mock(side_effect=ksa_exc)
+
+        os_exc = self._assert_map_exceptions(
+            exceptions.NotFoundException, ksa_exc, func)
+        self.assertEqual(fake_text, os_exc.details)
 
     def test_map_exceptions_sdk_exception_1(self):
         ksa_exc = _exceptions.ClientException()

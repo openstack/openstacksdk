@@ -63,18 +63,7 @@ def map_exceptions(func):
         try:
             return func(*args, **kwargs)
         except _exceptions.HttpError as e:
-            if e.http_status == 404:
-                raise exceptions.NotFoundException(
-                    message=e.message, details=e.details,
-                    response=e.response, request_id=e.request_id,
-                    url=e.url, method=e.method,
-                    http_status=e.http_status, cause=e)
-            else:
-                raise exceptions.HttpException(
-                    message=e.message, details=e.details,
-                    response=e.response, request_id=e.request_id,
-                    url=e.url, method=e.method,
-                    http_status=e.http_status, cause=e)
+            raise exceptions.from_exception(e)
         except _exceptions.ClientException as e:
             raise exceptions.SDKException(message=e.message, cause=e)
 
