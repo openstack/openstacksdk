@@ -1992,7 +1992,8 @@ class Proxy(proxy2.BaseProxy):
                  when no resource can be found.
         """
         quota_obj = self._get_resource(_quota.Quota, quota)
-        return self._get(_quota.QuotaDefault, project=quota_obj.project_id)
+        return self._get(_quota.QuotaDefault, project=quota_obj.id,
+                         requires_id=False)
 
     def quotas(self, **query):
         """Return a generator of quotas
