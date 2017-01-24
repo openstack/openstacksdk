@@ -82,6 +82,7 @@ but listed below are the ones provided by this SDK by default.
    Object Store <proxies/object_store>
    Orchestration <proxies/orchestration>
    Telemetry <proxies/telemetry>
+   Workflow <proxies/workflow>
 
 Resource Interface
 ******************
@@ -111,6 +112,7 @@ The following services have exposed *Resource* classes.
    Orchestration <resources/orchestration/index>
    Object Store <resources/object_store/index>
    Telemetry <resources/telemetry/index>
+   Workflow <resources/workflow/index>
 
 Low-Level Classes
 *****************
