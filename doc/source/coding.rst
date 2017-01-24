@@ -56,22 +56,32 @@ Exceptions
 All underlying client exceptions must be captured and converted to an
 `OpenStackCloudException` or one of its derivatives.
 
-Client Calls
+REST Calls
 ============
 
-All underlying client calls (novaclient, swiftclient, etc.) must be
-wrapped by a Task object.
+All interactions with the cloud should be done with direct REST using
+the appropriate `keystoneauth1.adapter.Adapter`. See Glance and Swift
+calls for examples.
 
 Returned Resources
 ==================
 
-Complex objects returned to the caller must be a dict type. The
-methods `obj_to_dict()` or `obj_list_to_dict()` should be used for this.
+Complex objects returned to the caller must be a `munch.Munch` type. The
+`shade._adapter.Adapter` class makes resources into `munch.Munch`.
 
-As of this writing, those two methods are returning Munch objects, which help
-to maintain backward compatibility with a time when shade returned raw
-objects. Munch allows the returned resource to act as *both* an object
-and a dict.
+All objects should be normalized. It is shade's purpose in life to make
+OpenStack consistent for end users, and this means not trusting the clouds
+to return consistent objects. There should be a normalize function in
+`shade/_normalize.py` that is applied to objects before returning them to
+the user. See :doc:`model` for further details on object model requirements.
+
+Fields should not be in the normalization contract if we cannot commit to
+providing them to all users.
+
+Fields should be renamed in normalization to be consistent with
+the rest of shade. For instance, nothing in shade exposes the legacy OpenStack
+concept of "tenant" to a user, but instead uses "project" even if the
+cloud uses tenant.
 
 Nova vs. Neutron
 ================
@@ -89,6 +99,10 @@ Tests
 =====
 
 - New API methods *must* have unit tests!
+
+- New unit tests should only mock at the REST layer using `requests_mock`.
+  Any mocking of shade itself or of legacy client libraries should be
+  considered legacy and to be avoided.
 
 - Functional tests should be added, when possible.
 
