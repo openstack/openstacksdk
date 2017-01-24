@@ -27,3 +27,10 @@ class TestQuota(base.BaseFunctionalTest):
             self.assertIn('security_group', qot)
             self.assertIn('subnetpool', qot)
             self.assertIn('rbac_policy', qot)
+
+    def test_set(self):
+        attrs = {'network': 123456789}
+        self.conn.network.update_quota(**attrs)
+        quota_list = self.conn.network.get_quota()
+        for quota in quota_list:
+            self.assertIn('123456789', quota)
