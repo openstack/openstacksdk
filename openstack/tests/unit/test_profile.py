@@ -33,6 +33,7 @@ class TestProfile(base.TestCase):
             'object-store',
             'orchestration',
             'volume',
+            'workflowv2',
         ]
         self.assertEqual(expected, prof.service_keys)
 

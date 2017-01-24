@@ -151,6 +151,8 @@ class TestConnection(base.TestCase):
                          conn.orchestration.__class__.__module__)
         self.assertEqual('openstack.telemetry.v2._proxy',
                          conn.telemetry.__class__.__module__)
+        self.assertEqual('openstack.workflow.v2._proxy',
+                         conn.workflow.__class__.__module__)
 
     def _prepare_test_config(self):
         # Create a temporary directory where our test config will live
