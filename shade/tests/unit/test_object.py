@@ -40,23 +40,11 @@ class TestObject(BaseTestObject):
 
     def test_create_container(self):
         """Test creating a (private) container"""
-        self.adapter.head(
-            self.container_endpoint,
-            [
-                dict(status_code=404),
-                dict(headers={
-                    'Content-Length': '0',
-                    'X-Container-Object-Count': '0',
-                    'Accept-Ranges': 'bytes',
-                    'X-Storage-Policy': 'Policy-0',
-                    'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                    'X-Timestamp': '1481912480.41664',
-                    'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
-                    'X-Container-Bytes-Used': '0',
-                    'Content-Type': 'text/plain; charset=utf-8'}),
-            ])
-        self.adapter.put(
-            self.container_endpoint,
+        self.register_uri(
+            'HEAD', self.container_endpoint, status_code=404),
+
+        self.register_uri(
+            'PUT', self.container_endpoint,
             status_code=201,
             headers={
                 'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
@@ -64,65 +52,65 @@ class TestObject(BaseTestObject):
                 'Content-Type': 'text/html; charset=UTF-8',
             })
 
-        self.cloud.create_container(self.container)
+        self.register_uri(
+            'HEAD', self.container_endpoint,
+            headers={
+                'Content-Length': '0',
+                'X-Container-Object-Count': '0',
+                'Accept-Ranges': 'bytes',
+                'X-Storage-Policy': 'Policy-0',
+                'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                'X-Timestamp': '1481912480.41664',
+                'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                'X-Container-Bytes-Used': '0',
+                'Content-Type': 'text/plain; charset=utf-8'})
 
-        self.calls += [
-            dict(method='HEAD', url=self.container_endpoint),
-            dict(method='PUT', url=self.container_endpoint),
-            dict(method='HEAD', url=self.container_endpoint),
-        ]
+        self.cloud.create_container(self.container)
         self.assert_calls()
 
     def test_create_container_public(self):
         """Test creating a public container"""
-        self.adapter.head(
-            self.container_endpoint,
-            [
-                dict(status_code=404),
-                dict(headers={
-                    'Content-Length': '0',
-                    'X-Container-Object-Count': '0',
-                    'Accept-Ranges': 'bytes',
-                    'X-Storage-Policy': 'Policy-0',
-                    'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                    'X-Timestamp': '1481912480.41664',
-                    'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
-                    'X-Container-Bytes-Used': '0',
-                    'Content-Type': 'text/plain; charset=utf-8'}),
-            ])
-        self.adapter.put(
-            self.container_endpoint,
+        self.register_uri(
+            'HEAD', self.container_endpoint,
+            status_code=404)
+
+        self.register_uri(
+            'PUT', self.container_endpoint,
             status_code=201,
             headers={
                 'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
                 'Content-Length': '0',
                 'Content-Type': 'text/html; charset=UTF-8',
             })
-        self.adapter.post(
-            self.container_endpoint,
-            status_code=201)
 
-        self.cloud.create_container(self.container, public=True)
-
-        self.calls += [
-            dict(method='HEAD', url=self.container_endpoint),
-            dict(
-                method='PUT',
-                url=self.container_endpoint),
-            dict(
-                method='POST',
-                url=self.container_endpoint,
+        self.register_uri(
+            'POST', self.container_endpoint,
+            status_code=201,
+            validate=dict(
                 headers={
                     'x-container-read':
-                    shade.openstackcloud.OBJECT_CONTAINER_ACLS['public']}),
-            dict(method='HEAD', url=self.container_endpoint),
-        ]
+                    shade.openstackcloud.OBJECT_CONTAINER_ACLS['public']}))
+
+        self.register_uri(
+            'HEAD', self.container_endpoint,
+            headers={
+                'Content-Length': '0',
+                'X-Container-Object-Count': '0',
+                'Accept-Ranges': 'bytes',
+                'X-Storage-Policy': 'Policy-0',
+                'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                'X-Timestamp': '1481912480.41664',
+                'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                'X-Container-Bytes-Used': '0',
+                'Content-Type': 'text/plain; charset=utf-8'})
+
+        self.cloud.create_container(self.container, public=True)
         self.assert_calls()
 
     def test_create_container_exists(self):
         """Test creating a container that exists."""
-        self.adapter.head(
-            self.container_endpoint,
+        self.register_uri(
+            'HEAD', self.container_endpoint,
             headers={
                 'Content-Length': '0',
                 'X-Container-Object-Count': '0',
@@ -136,65 +124,45 @@ class TestObject(BaseTestObject):
 
         container = self.cloud.create_container(self.container)
 
-        self.calls += [
-            dict(method='HEAD', url=self.container_endpoint),
-        ]
         self.assert_calls()
         self.assertIsNotNone(container)
 
     def test_delete_container(self):
-        self.adapter.delete(self.container_endpoint)
+        self.register_uri('DELETE', self.container_endpoint)
 
         self.assertTrue(self.cloud.delete_container(self.container))
-
-        self.calls += [
-            dict(method='DELETE', url=self.container_endpoint),
-        ]
         self.assert_calls()
 
     def test_delete_container_404(self):
         """No exception when deleting a container that does not exist"""
-        self.adapter.delete(
-            self.container_endpoint,
+        self.register_uri(
+            'DELETE', self.container_endpoint,
             status_code=404)
 
         self.assertFalse(self.cloud.delete_container(self.container))
-
-        self.calls += [
-            dict(method='DELETE', url=self.container_endpoint),
-        ]
         self.assert_calls()
 
     def test_delete_container_error(self):
         """Non-404 swift error re-raised as OSCE"""
         # 409 happens if the container is not empty
-        self.adapter.delete(
-            self.container_endpoint,
+        self.register_uri(
+            'DELETE', self.container_endpoint,
             status_code=409)
         self.assertRaises(
             shade.OpenStackCloudException,
             self.cloud.delete_container, self.container)
-        self.calls += [
-            dict(method='DELETE', url=self.container_endpoint),
-        ]
         self.assert_calls()
 
     def test_update_container(self):
-        self.adapter.post(
-            self.container_endpoint,
-            status_code=204)
-        headers = {'x-container-read':
-                   shade.openstackcloud.OBJECT_CONTAINER_ACLS['public']}
-        assert_headers = headers.copy()
+        headers = {
+            'x-container-read':
+            shade.openstackcloud.OBJECT_CONTAINER_ACLS['public']}
+        self.register_uri(
+            'POST', self.container_endpoint,
+            status_code=204,
+            validate=dict(headers=headers))
 
         self.cloud.update_container(self.container, headers)
-
-        self.calls += [
-            dict(
-                method='POST',
-                url=self.container_endpoint,
-                headers=assert_headers),
-        ]
         self.assert_calls()
 
     def test_update_container_error(self):
@@ -204,45 +172,38 @@ class TestObject(BaseTestObject):
         # method, and I cannot make a synthetic failure to validate a real
         # error code. So we're really just testing the shade adapter error
         # raising logic here, rather than anything specific to swift.
-        self.adapter.post(
-            self.container_endpoint,
+        self.register_uri(
+            'POST', self.container_endpoint,
             status_code=409)
         self.assertRaises(
             shade.OpenStackCloudException,
             self.cloud.update_container, self.container, dict(foo='bar'))
+        self.assert_calls()
 
     def test_set_container_access_public(self):
-        self.adapter.post(
-            self.container_endpoint,
-            status_code=204)
+        self.register_uri(
+            'POST', self.container_endpoint,
+            status_code=204,
+            validate=dict(
+                headers={
+                    'x-container-read':
+                    shade.openstackcloud.OBJECT_CONTAINER_ACLS['public']}))
 
         self.cloud.set_container_access(self.container, 'public')
 
-        self.calls += [
-            dict(
-                method='POST',
-                url=self.container_endpoint,
-                headers={
-                    'x-container-read':
-                    shade.openstackcloud.OBJECT_CONTAINER_ACLS['public']}),
-        ]
         self.assert_calls()
 
     def test_set_container_access_private(self):
-        self.adapter.post(
-            self.container_endpoint,
-            status_code=204)
+        self.register_uri(
+            'POST', self.container_endpoint,
+            status_code=204,
+            validate=dict(
+                headers={
+                    'x-container-read':
+                    shade.openstackcloud.OBJECT_CONTAINER_ACLS['private']}))
 
         self.cloud.set_container_access(self.container, 'private')
 
-        self.calls += [
-            dict(
-                method='POST',
-                url=self.container_endpoint,
-                headers={
-                    'x-container-read':
-                    shade.openstackcloud.OBJECT_CONTAINER_ACLS['private']}),
-        ]
         self.assert_calls()
 
     def test_set_container_access_invalid(self):
@@ -251,8 +212,8 @@ class TestObject(BaseTestObject):
             self.cloud.set_container_access, self.container, 'invalid')
 
     def test_get_container_access(self):
-        self.adapter.head(
-            self.container_endpoint,
+        self.register_uri(
+            'HEAD', self.container_endpoint,
             headers={
                 'x-container-read':
                 str(shade.openstackcloud.OBJECT_CONTAINER_ACLS['public'])})
@@ -261,8 +222,8 @@ class TestObject(BaseTestObject):
         self.assertEqual('public', access)
 
     def test_get_container_invalid(self):
-        self.adapter.head(
-            self.container_endpoint,
+        self.register_uri(
+            'HEAD', self.container_endpoint,
             headers={
                 'x-container-read': 'invalid'})
 
@@ -273,8 +234,8 @@ class TestObject(BaseTestObject):
             self.cloud.get_container_access(self.container)
 
     def test_get_container_access_not_found(self):
-        self.adapter.head(
-            self.container_endpoint,
+        self.register_uri(
+            'HEAD', self.container_endpoint,
             status_code=404)
         with testtools.ExpectedException(
                 exc.OpenStackCloudException,
@@ -410,7 +371,8 @@ class TestObject(BaseTestObject):
             'GET', 'https://object-store.example.com/info',
             json=dict(
                 swift={'max_file_size': 1000},
-                slo={'min_segment_size': 500}))
+                slo={'min_segment_size': 500}),
+            headers={'Content-Type': 'application/json'})
         self.assertEqual(500, self.cloud.get_object_segment_size(400))
         self.assertEqual(900, self.cloud.get_object_segment_size(900))
         self.assertEqual(1000, self.cloud.get_object_segment_size(1000))
@@ -450,87 +412,63 @@ class TestObjectUploads(BaseTestObject):
 
     def test_create_object(self):
 
-        self.adapter.get(
-            'https://object-store.example.com/info',
+        self.register_uri(
+            'GET', 'https://object-store.example.com/info',
             json=dict(
                 swift={'max_file_size': 1000},
                 slo={'min_segment_size': 500}))
 
-        self.adapter.put(
-            '{endpoint}/{container}'.format(
+        self.register_uri(
+            'HEAD', '{endpoint}/{container}'.format(
                 endpoint=self.endpoint,
-                container=self.container,),
+                container=self.container),
+            status_code=404)
+
+        self.register_uri(
+            'PUT', '{endpoint}/{container}'.format(
+                endpoint=self.endpoint,
+                container=self.container),
             status_code=201,
             headers={
                 'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
                 'Content-Length': '0',
                 'Content-Type': 'text/html; charset=UTF-8',
             })
-        self.adapter.head(
-            '{endpoint}/{container}'.format(
+        self.register_uri(
+            'HEAD', '{endpoint}/{container}'.format(
                 endpoint=self.endpoint,
                 container=self.container),
-            [
-                dict(status_code=404),
-                dict(headers={
-                    'Content-Length': '0',
-                    'X-Container-Object-Count': '0',
-                    'Accept-Ranges': 'bytes',
-                    'X-Storage-Policy': 'Policy-0',
-                    'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                    'X-Timestamp': '1481912480.41664',
-                    'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
-                    'X-Container-Bytes-Used': '0',
-                    'Content-Type': 'text/plain; charset=utf-8'}),
-            ])
-        self.adapter.head(
-            '{endpoint}/{container}/{object}'.format(
+            headers={
+                'Content-Length': '0',
+                'X-Container-Object-Count': '0',
+                'Accept-Ranges': 'bytes',
+                'X-Storage-Policy': 'Policy-0',
+                'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                'X-Timestamp': '1481912480.41664',
+                'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                'X-Container-Bytes-Used': '0',
+                'Content-Type': 'text/plain; charset=utf-8'})
+
+        self.register_uri(
+            'HEAD', '{endpoint}/{container}/{object}'.format(
                 endpoint=self.endpoint,
                 container=self.container, object=self.object),
             status_code=404)
 
-        self.adapter.put(
-            '{endpoint}/{container}/{object}'.format(
+        self.register_uri(
+            'PUT', '{endpoint}/{container}/{object}'.format(
                 endpoint=self.endpoint,
                 container=self.container, object=self.object),
-            status_code=201)
+            status_code=201,
+            validate=dict(
+                headers={
+                    'x-object-meta-x-shade-md5': self.md5,
+                    'x-object-meta-x-shade-sha256': self.sha256,
+                }))
 
         self.cloud.create_object(
             container=self.container, name=self.object,
             filename=self.object_file.name)
-
-        self.calls += [
-            dict(method='GET', url='https://object-store.example.com/info'),
-            dict(
-                method='HEAD',
-                url='{endpoint}/{container}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container)),
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container)),
-            dict(
-                method='HEAD',
-                url='{endpoint}/{container}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container)),
-            dict(
-                method='HEAD',
-                url='{endpoint}/{container}/{object}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container, object=self.object)),
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}/{object}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container, object=self.object),
-                headers={
-                    'x-object-meta-x-shade-md5': self.md5,
-                    'x-object-meta-x-shade-sha256': self.sha256,
-                }),
-        ]
 
         self.assert_calls()
 
@@ -539,14 +477,20 @@ class TestObjectUploads(BaseTestObject):
         max_file_size = 2
         min_file_size = 1
 
-        self.adapter.get(
-            'https://object-store.example.com/info',
+        self.register_uri(
+            'GET', 'https://object-store.example.com/info',
             json=dict(
                 swift={'max_file_size': max_file_size},
                 slo={'min_segment_size': min_file_size}))
 
-        self.adapter.put(
-            '{endpoint}/{container}'.format(
+        self.register_uri(
+            'HEAD', '{endpoint}/{container}'.format(
+                endpoint=self.endpoint,
+                container=self.container),
+            status_code=404)
+
+        self.register_uri(
+            'PUT', '{endpoint}/{container}'.format(
                 endpoint=self.endpoint,
                 container=self.container,),
             status_code=201,
@@ -555,92 +499,51 @@ class TestObjectUploads(BaseTestObject):
                 'Content-Length': '0',
                 'Content-Type': 'text/html; charset=UTF-8',
             })
-        self.adapter.head(
-            '{endpoint}/{container}'.format(
+
+        self.register_uri(
+            'HEAD', '{endpoint}/{container}'.format(
                 endpoint=self.endpoint,
                 container=self.container),
-            [
-                dict(status_code=404),
-                dict(headers={
-                    'Content-Length': '0',
-                    'X-Container-Object-Count': '0',
-                    'Accept-Ranges': 'bytes',
-                    'X-Storage-Policy': 'Policy-0',
-                    'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                    'X-Timestamp': '1481912480.41664',
-                    'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
-                    'X-Container-Bytes-Used': '0',
-                    'Content-Type': 'text/plain; charset=utf-8'}),
-            ])
-        self.adapter.head(
-            '{endpoint}/{container}/{object}'.format(
+            headers={
+                'Content-Length': '0',
+                'X-Container-Object-Count': '0',
+                'Accept-Ranges': 'bytes',
+                'X-Storage-Policy': 'Policy-0',
+                'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                'X-Timestamp': '1481912480.41664',
+                'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                'X-Container-Bytes-Used': '0',
+                'Content-Type': 'text/plain; charset=utf-8'})
+
+        self.register_uri(
+            'HEAD', '{endpoint}/{container}/{object}'.format(
                 endpoint=self.endpoint,
                 container=self.container, object=self.object),
             status_code=404)
 
-        self.adapter.put(
-            '{endpoint}/{container}/{object}'.format(
-                endpoint=self.endpoint,
-                container=self.container, object=self.object),
-            status_code=201)
-
-        self.calls += [
-            dict(method='GET', url='https://object-store.example.com/info'),
-            dict(
-                method='HEAD',
-                url='{endpoint}/{container}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container)),
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container)),
-            dict(
-                method='HEAD',
-                url='{endpoint}/{container}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container)),
-            dict(
-                method='HEAD',
-                url='{endpoint}/{container}/{object}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container, object=self.object)),
-        ]
-
         for index, offset in enumerate(
                 range(0, len(self.content), max_file_size)):
 
-            self.adapter.put(
-                '{endpoint}/{container}/{object}/{index:0>6}'.format(
+            self.register_uri(
+                'PUT', '{endpoint}/{container}/{object}/{index:0>6}'.format(
                     endpoint=self.endpoint,
                     container=self.container,
                     object=self.object,
                     index=index),
                 status_code=201)
 
-            self.calls += [
-                dict(
-                    method='PUT',
-                    url='{endpoint}/{container}/{object}/{index:0>6}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                        index=index))]
-
-        self.calls += [
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}/{object}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container, object=self.object),
+        self.register_uri(
+            'PUT', '{endpoint}/{container}/{object}'.format(
+                endpoint=self.endpoint,
+                container=self.container, object=self.object),
+            status_code=201,
+            validate=dict(
                 headers={
                     'x-object-manifest': '{container}/{object}'.format(
                         container=self.container, object=self.object),
                     'x-object-meta-x-shade-md5': self.md5,
                     'x-object-meta-x-shade-sha256': self.sha256,
-                }),
-        ]
+                }))
 
         self.cloud.create_object(
             container=self.container, name=self.object,
@@ -659,14 +562,20 @@ class TestObjectUploads(BaseTestObject):
         max_file_size = 25
         min_file_size = 1
 
-        self.adapter.get(
-            'https://object-store.example.com/info',
+        self.register_uri(
+            'GET', 'https://object-store.example.com/info',
             json=dict(
                 swift={'max_file_size': max_file_size},
                 slo={'min_segment_size': min_file_size}))
 
-        self.adapter.put(
-            '{endpoint}/{container}'.format(
+        self.register_uri(
+            'HEAD', '{endpoint}/{container}'.format(
+                endpoint=self.endpoint,
+                container=self.container),
+            status_code=404)
+
+        self.register_uri(
+            'PUT', '{endpoint}/{container}'.format(
                 endpoint=self.endpoint,
                 container=self.container,),
             status_code=201,
@@ -675,64 +584,33 @@ class TestObjectUploads(BaseTestObject):
                 'Content-Length': '0',
                 'Content-Type': 'text/html; charset=UTF-8',
             })
-        self.adapter.head(
-            '{endpoint}/{container}'.format(
+
+        self.register_uri(
+            'HEAD', '{endpoint}/{container}'.format(
                 endpoint=self.endpoint,
                 container=self.container),
-            [
-                dict(status_code=404),
-                dict(headers={
-                    'Content-Length': '0',
-                    'X-Container-Object-Count': '0',
-                    'Accept-Ranges': 'bytes',
-                    'X-Storage-Policy': 'Policy-0',
-                    'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                    'X-Timestamp': '1481912480.41664',
-                    'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
-                    'X-Container-Bytes-Used': '0',
-                    'Content-Type': 'text/plain; charset=utf-8'}),
-            ])
-        self.adapter.head(
-            '{endpoint}/{container}/{object}'.format(
+            headers={
+                'Content-Length': '0',
+                'X-Container-Object-Count': '0',
+                'Accept-Ranges': 'bytes',
+                'X-Storage-Policy': 'Policy-0',
+                'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                'X-Timestamp': '1481912480.41664',
+                'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                'X-Container-Bytes-Used': '0',
+                'Content-Type': 'text/plain; charset=utf-8'}),
+
+        self.register_uri(
+            'HEAD', '{endpoint}/{container}/{object}'.format(
                 endpoint=self.endpoint,
                 container=self.container, object=self.object),
             status_code=404)
 
-        self.adapter.put(
-            '{endpoint}/{container}/{object}'.format(
-                endpoint=self.endpoint,
-                container=self.container, object=self.object),
-            status_code=201)
-
-        self.calls += [
-            dict(method='GET', url='https://object-store.example.com/info'),
-            dict(
-                method='HEAD',
-                url='{endpoint}/{container}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container)),
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container)),
-            dict(
-                method='HEAD',
-                url='{endpoint}/{container}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container)),
-            dict(
-                method='HEAD',
-                url='{endpoint}/{container}/{object}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container, object=self.object)),
-        ]
-
         for index, offset in enumerate(
                 range(0, len(self.content), max_file_size)):
 
-            self.adapter.put(
-                '{endpoint}/{container}/{object}/{index:0>6}'.format(
+            self.register_uri(
+                'PUT', '{endpoint}/{container}/{object}/{index:0>6}'.format(
                     endpoint=self.endpoint,
                     container=self.container,
                     object=self.object,
@@ -740,29 +618,19 @@ class TestObjectUploads(BaseTestObject):
                 status_code=201,
                 headers=dict(Etag='etag{index}'.format(index=index)))
 
-            self.calls += [
-                dict(
-                    method='PUT',
-                    url='{endpoint}/{container}/{object}/{index:0>6}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                        index=index))]
-
-        self.calls += [
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}/{object}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container, object=self.object),
+        self.register_uri(
+            'PUT', '{endpoint}/{container}/{object}'.format(
+                endpoint=self.endpoint,
+                container=self.container, object=self.object),
+            status_code=201,
+            validate=dict(
                 params={
                     'multipart-manifest', 'put'
                 },
                 headers={
                     'x-object-meta-x-shade-md5': self.md5,
                     'x-object-meta-x-shade-sha256': self.sha256,
-                }),
-        ]
+                }))
 
         self.cloud.create_object(
             container=self.container, name=self.object,
@@ -813,14 +681,20 @@ class TestObjectUploads(BaseTestObject):
         max_file_size = 25
         min_file_size = 1
 
-        self.adapter.get(
-            'https://object-store.example.com/info',
+        self.register_uri(
+            'GET', 'https://object-store.example.com/info',
             json=dict(
                 swift={'max_file_size': max_file_size},
                 slo={'min_segment_size': min_file_size}))
 
-        self.adapter.put(
-            '{endpoint}/{container}'.format(
+        self.register_uri(
+            'HEAD', '{endpoint}/{container}'.format(
+                endpoint=self.endpoint,
+                container=self.container),
+            status_code=404)
+
+        self.register_uri(
+            'PUT', '{endpoint}/{container}'.format(
                 endpoint=self.endpoint,
                 container=self.container,),
             status_code=201,
@@ -829,121 +703,61 @@ class TestObjectUploads(BaseTestObject):
                 'Content-Length': '0',
                 'Content-Type': 'text/html; charset=UTF-8',
             })
-        self.adapter.head(
-            '{endpoint}/{container}'.format(
+
+        self.register_uri(
+            'HEAD', '{endpoint}/{container}'.format(
                 endpoint=self.endpoint,
                 container=self.container),
-            [
-                dict(status_code=404),
-                dict(headers={
-                    'Content-Length': '0',
-                    'X-Container-Object-Count': '0',
-                    'Accept-Ranges': 'bytes',
-                    'X-Storage-Policy': 'Policy-0',
-                    'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                    'X-Timestamp': '1481912480.41664',
-                    'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
-                    'X-Container-Bytes-Used': '0',
-                    'Content-Type': 'text/plain; charset=utf-8'}),
-            ])
-        self.adapter.head(
-            '{endpoint}/{container}/{object}'.format(
+            headers={
+                'Content-Length': '0',
+                'X-Container-Object-Count': '0',
+                'Accept-Ranges': 'bytes',
+                'X-Storage-Policy': 'Policy-0',
+                'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                'X-Timestamp': '1481912480.41664',
+                'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                'X-Container-Bytes-Used': '0',
+                'Content-Type': 'text/plain; charset=utf-8'})
+
+        self.register_uri(
+            'HEAD', '{endpoint}/{container}/{object}'.format(
                 endpoint=self.endpoint,
                 container=self.container, object=self.object),
             status_code=404)
 
-        self.adapter.put(
-            '{endpoint}/{container}/{object}/000000'.format(
+        self.register_uri(
+            'PUT', '{endpoint}/{container}/{object}/000000'.format(
                 endpoint=self.endpoint,
                 container=self.container,
                 object=self.object),
             status_code=201)
 
-        self.adapter.put(
-            '{endpoint}/{container}/{object}/000001'.format(
+        self.register_uri(
+            'PUT', '{endpoint}/{container}/{object}/000001'.format(
                 endpoint=self.endpoint,
                 container=self.container,
                 object=self.object),
             status_code=201)
 
-        self.adapter.put(
-            '{endpoint}/{container}/{object}/000002'.format(
+        self.register_uri(
+            'PUT', '{endpoint}/{container}/{object}/000002'.format(
                 endpoint=self.endpoint,
                 container=self.container,
                 object=self.object),
             status_code=201)
 
-        self.adapter.put(
-            '{endpoint}/{container}/{object}/000003'.format(
+        self.register_uri(
+            'PUT', '{endpoint}/{container}/{object}/000003'.format(
                 endpoint=self.endpoint,
                 container=self.container,
                 object=self.object),
             status_code=501)
 
-        self.adapter.put(
-            '{endpoint}/{container}/{object}'.format(
+        self.register_uri(
+            'PUT', '{endpoint}/{container}/{object}'.format(
                 endpoint=self.endpoint,
                 container=self.container, object=self.object),
             status_code=201)
-
-        self.calls += [
-            dict(method='GET', url='https://object-store.example.com/info'),
-            dict(
-                method='HEAD',
-                url='{endpoint}/{container}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container)),
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container)),
-            dict(
-                method='HEAD',
-                url='{endpoint}/{container}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container)),
-            dict(
-                method='HEAD',
-                url='{endpoint}/{container}/{object}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container, object=self.object)),
-
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}/{object}/000000'.format(
-                    endpoint=self.endpoint,
-                    container=self.container,
-                    object=self.object)),
-
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}/{object}/000001'.format(
-                    endpoint=self.endpoint,
-                    container=self.container,
-                    object=self.object)),
-
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}/{object}/000002'.format(
-                    endpoint=self.endpoint,
-                    container=self.container,
-                    object=self.object)),
-
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}/{object}/000003'.format(
-                    endpoint=self.endpoint,
-                    container=self.container,
-                    object=self.object)),
-
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}/{object}/000003'.format(
-                    endpoint=self.endpoint,
-                    container=self.container,
-                    object=self.object)),
-        ]
 
         self.assertRaises(
             exc.OpenStackCloudException,
@@ -959,14 +773,20 @@ class TestObjectUploads(BaseTestObject):
         max_file_size = 25
         min_file_size = 1
 
-        self.adapter.get(
-            'https://object-store.example.com/info',
+        self.register_uri(
+            'GET', 'https://object-store.example.com/info',
             json=dict(
                 swift={'max_file_size': max_file_size},
                 slo={'min_segment_size': min_file_size}))
 
-        self.adapter.put(
-            '{endpoint}/{container}'.format(
+        self.register_uri(
+            'HEAD', '{endpoint}/{container}'.format(
+                endpoint=self.endpoint,
+                container=self.container),
+            status_code=404)
+
+        self.register_uri(
+            'PUT', '{endpoint}/{container}'.format(
                 endpoint=self.endpoint,
                 container=self.container,),
             status_code=201,
@@ -975,139 +795,80 @@ class TestObjectUploads(BaseTestObject):
                 'Content-Length': '0',
                 'Content-Type': 'text/html; charset=UTF-8',
             })
-        self.adapter.head(
-            '{endpoint}/{container}'.format(
+
+        self.register_uri(
+            'HEAD', '{endpoint}/{container}'.format(
                 endpoint=self.endpoint,
                 container=self.container),
-            [
-                dict(status_code=404),
-                dict(headers={
-                    'Content-Length': '0',
-                    'X-Container-Object-Count': '0',
-                    'Accept-Ranges': 'bytes',
-                    'X-Storage-Policy': 'Policy-0',
-                    'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                    'X-Timestamp': '1481912480.41664',
-                    'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
-                    'X-Container-Bytes-Used': '0',
-                    'Content-Type': 'text/plain; charset=utf-8'}),
-            ])
-        self.adapter.head(
-            '{endpoint}/{container}/{object}'.format(
+            headers={
+                'Content-Length': '0',
+                'X-Container-Object-Count': '0',
+                'Accept-Ranges': 'bytes',
+                'X-Storage-Policy': 'Policy-0',
+                'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                'X-Timestamp': '1481912480.41664',
+                'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                'X-Container-Bytes-Used': '0',
+                'Content-Type': 'text/plain; charset=utf-8'})
+
+        self.register_uri(
+            'HEAD', '{endpoint}/{container}/{object}'.format(
                 endpoint=self.endpoint,
                 container=self.container, object=self.object),
             status_code=404)
 
-        self.adapter.put(
-            '{endpoint}/{container}/{object}/000000'.format(
+        self.register_uri(
+            'PUT', '{endpoint}/{container}/{object}/000000'.format(
                 endpoint=self.endpoint,
                 container=self.container,
                 object=self.object),
             headers={'etag': 'etag0'},
             status_code=201)
 
-        self.adapter.put(
-            '{endpoint}/{container}/{object}/000001'.format(
+        self.register_uri(
+            'PUT', '{endpoint}/{container}/{object}/000001'.format(
                 endpoint=self.endpoint,
                 container=self.container,
                 object=self.object),
             headers={'etag': 'etag1'},
             status_code=201)
 
-        self.adapter.put(
-            '{endpoint}/{container}/{object}/000002'.format(
+        self.register_uri(
+            'PUT', '{endpoint}/{container}/{object}/000002'.format(
                 endpoint=self.endpoint,
                 container=self.container,
                 object=self.object),
             headers={'etag': 'etag2'},
             status_code=201)
 
-        self.adapter.put(
-            '{endpoint}/{container}/{object}/000003'.format(
+        self.register_uri(
+            'PUT', '{endpoint}/{container}/{object}/000003'.format(
                 endpoint=self.endpoint,
                 container=self.container,
-                object=self.object), [
-                    dict(status_code=501),
-                    dict(status_code=201, headers={'etag': 'etag3'}),
-                ])
+                object=self.object),
+            status_code=501)
 
-        self.adapter.put(
-            '{endpoint}/{container}/{object}'.format(
+        self.register_uri(
+            'PUT', '{endpoint}/{container}/{object}/000003'.format(
+                endpoint=self.endpoint,
+                container=self.container,
+                object=self.object),
+            status_code=201,
+            headers={'etag': 'etag3'})
+
+        self.register_uri(
+            'PUT', '{endpoint}/{container}/{object}'.format(
                 endpoint=self.endpoint,
                 container=self.container, object=self.object),
-            status_code=201)
-
-        self.calls += [
-            dict(method='GET', url='https://object-store.example.com/info'),
-            dict(
-                method='HEAD',
-                url='{endpoint}/{container}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container)),
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container)),
-            dict(
-                method='HEAD',
-                url='{endpoint}/{container}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container)),
-            dict(
-                method='HEAD',
-                url='{endpoint}/{container}/{object}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container, object=self.object)),
-
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}/{object}/000000'.format(
-                    endpoint=self.endpoint,
-                    container=self.container,
-                    object=self.object)),
-
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}/{object}/000001'.format(
-                    endpoint=self.endpoint,
-                    container=self.container,
-                    object=self.object)),
-
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}/{object}/000002'.format(
-                    endpoint=self.endpoint,
-                    container=self.container,
-                    object=self.object)),
-
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}/{object}/000003'.format(
-                    endpoint=self.endpoint,
-                    container=self.container,
-                    object=self.object)),
-
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}/{object}/000003'.format(
-                    endpoint=self.endpoint,
-                    container=self.container,
-                    object=self.object)),
-
-            dict(
-                method='PUT',
-                url='{endpoint}/{container}/{object}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container, object=self.object),
+            status_code=201,
+            validate=dict(
                 params={
                     'multipart-manifest', 'put'
                 },
                 headers={
                     'x-object-meta-x-shade-md5': self.md5,
                     'x-object-meta-x-shade-sha256': self.sha256,
-                }),
-        ]
+                }))
 
         self.cloud.create_object(
             container=self.container, name=self.object,

@@ -90,43 +90,38 @@ class ShadeAdapter(adapter.Adapter):
 
     def _munch_response(self, response, result_key=None):
         exc.raise_from_response(response)
-        # Glance image downloads just return the data in the body
-        if response.headers.get('Content-Type') in (
-                'text/plain',
-                'application/octet-stream'):
+
+        if not response.content:
+            # This doens't have any content
             return response
+
+        # Some REST calls do not return json content. Don't decode it.
+        if 'application/json' not in response.headers.get('Content-Type'):
+            return response
+
+        try:
+            result_json = response.json()
+        except Exception:
+            return response
+
+        request_id = response.headers.get('x-openstack-request-id')
+
+        if task_manager._is_listlike(result_json):
+            return meta.obj_list_to_dict(
+                result_json, request_id=request_id)
+
+        # Wrap the keys() call in list() because in python3 keys returns
+        # a "dict_keys" iterator-like object rather than a list
+        json_keys = list(result_json.keys())
+        if len(json_keys) > 1 and result_key:
+            result = result_json[result_key]
+        elif len(json_keys) == 1:
+            result = result_json[json_keys[0]]
         else:
-            if not response.content:
-                # This doens't have any content
-                return response
-            try:
-                result_json = response.json()
-            except Exception:
-                raise exc.OpenStackCloudHTTPError(
-                    "Problems decoding json from response."
-                    " Reponse: {code} {reason}".format(
-                        code=response.status_code,
-                        reason=response.reason),
-                    response=response)
-
-            request_id = response.headers.get('x-openstack-request-id')
-
-            if task_manager._is_listlike(result_json):
-                return meta.obj_list_to_dict(
-                    result_json, request_id=request_id)
-
-            # Wrap the keys() call in list() because in python3 keys returns
-            # a "dict_keys" iterator-like object rather than a list
-            json_keys = list(result_json.keys())
-            if len(json_keys) > 1 and result_key:
-                result = result_json[result_key]
-            elif len(json_keys) == 1:
-                result = result_json[json_keys[0]]
-            else:
-                # Passthrough the whole body - sometimes (hi glance) things
-                # come through without a top-level container. Also, sometimes
-                # you need to deal with pagination
-                result = result_json
+            # Passthrough the whole body - sometimes (hi glance) things
+            # come through without a top-level container. Also, sometimes
+            # you need to deal with pagination
+            result = result_json
 
         if task_manager._is_listlike(result):
             return meta.obj_list_to_dict(result, request_id=request_id)

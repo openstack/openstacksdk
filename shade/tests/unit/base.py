@@ -19,6 +19,7 @@ import fixtures
 import mock
 import os
 import os_client_config as occ
+from requests import structures
 from requests_mock.contrib import fixture as rm_fixture
 import tempfile
 
@@ -167,6 +168,11 @@ class RequestsMockTestCase(BaseTestCase):
     def register_uri(self, method, uri, **kwargs):
         validate = kwargs.pop('validate', {})
         key = '{method}:{uri}'.format(method=method, uri=uri)
+        headers = structures.CaseInsensitiveDict(kwargs.pop('headers', {}))
+        if 'content-type' not in headers:
+            headers[u'content-type'] = 'application/json'
+        kwargs['headers'] = headers
+
         if key in self._uri_registry:
             self._uri_registry[key].append(kwargs)
             self.adapter.register_uri(method, uri, self._uri_registry[key])
