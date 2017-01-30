@@ -60,6 +60,8 @@ class Stack(resource.Resource):
     status = resource.Body('stack_status')
     #: A text explaining how the stack transits to its current status.
     status_reason = resource.Body('stack_status_reason')
+    #: A list of strings used as tags on the stack
+    tags = resource.Body('tags')
     #: A dict containing the template use for stack creation.
     template = resource.Body('template', type=dict)
     #: Stack template description text. Currently contains the same text

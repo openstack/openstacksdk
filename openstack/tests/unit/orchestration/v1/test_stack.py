@@ -36,6 +36,7 @@ FAKE = {
     'name': FAKE_NAME,
     'status': '11',
     'status_reason': '12',
+    'tags': ['FOO', 'bar:1'],
     'template_description': '13',
     'template_url': 'http://www.example.com/wordpress.yaml',
     'timeout_mins': '14',
@@ -78,8 +79,8 @@ class TestStack(testtools.TestCase):
         self.assertEqual(FAKE['parameters'], sot.parameters)
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['status'], sot.status)
-        self.assertEqual(FAKE['status_reason'],
-                         sot.status_reason)
+        self.assertEqual(FAKE['status_reason'], sot.status_reason)
+        self.assertEqual(FAKE['tags'], sot.tags)
         self.assertEqual(FAKE['template_description'],
                          sot.template_description)
         self.assertEqual(FAKE['template_url'], sot.template_url)
