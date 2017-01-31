@@ -512,54 +512,6 @@ class TestShade(base.TestCase):
                           self.cloud.update_subnet,
                           '456', gateway_ip=gateway, disable_gateway_ip=True)
 
-    @mock.patch.object(shade.OpenStackCloud, '_compute_client')
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_get_flavor_by_ram(self, mock_nova_client, mock_compute):
-        vanilla = fakes.FakeFlavor('1', 'vanilla ice cream', 100)
-        chocolate = fakes.FakeFlavor('1', 'chocolate ice cream', 200)
-        mock_nova_client.flavors.list.return_value = [vanilla, chocolate]
-        mock_response = mock.Mock()
-        mock_response.json.return_value = dict(extra_specs=[])
-        mock_compute.get.return_value = mock_response
-        flavor = self.cloud.get_flavor_by_ram(ram=150)
-        self.assertEqual(chocolate.id, flavor['id'])
-
-    @mock.patch.object(shade.OpenStackCloud, '_compute_client')
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_get_flavor_by_ram_and_include(
-            self, mock_nova_client, mock_compute):
-        vanilla = fakes.FakeFlavor('1', 'vanilla ice cream', 100)
-        chocolate = fakes.FakeFlavor('2', 'chocoliate ice cream', 200)
-        strawberry = fakes.FakeFlavor('3', 'strawberry ice cream', 250)
-        mock_response = mock.Mock()
-        mock_response.json.return_value = dict(extra_specs=[])
-        mock_compute.get.return_value = mock_response
-        mock_nova_client.flavors.list.return_value = [
-            vanilla, chocolate, strawberry]
-        flavor = self.cloud.get_flavor_by_ram(ram=150, include='strawberry')
-        self.assertEqual(strawberry.id, flavor['id'])
-
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_get_flavor_by_ram_not_found(self, mock_nova_client):
-        mock_nova_client.flavors.list.return_value = []
-        self.assertRaises(shade.OpenStackCloudException,
-                          self.cloud.get_flavor_by_ram,
-                          ram=100)
-
-    @mock.patch.object(shade.OpenStackCloud, '_compute_client')
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_get_flavor_string_and_int(
-            self, mock_nova_client, mock_compute):
-        vanilla = fakes.FakeFlavor('1', 'vanilla ice cream', 100)
-        mock_nova_client.flavors.list.return_value = [vanilla]
-        mock_response = mock.Mock()
-        mock_response.json.return_value = dict(extra_specs=[])
-        mock_compute.get.return_value = mock_response
-        flavor1 = self.cloud.get_flavor('1')
-        self.assertEqual(vanilla.id, flavor1['id'])
-        flavor2 = self.cloud.get_flavor(1)
-        self.assertEqual(vanilla.id, flavor2['id'])
-
     def test__neutron_exceptions_resource_not_found(self):
         with mock.patch.object(
                 shade._tasks, 'NetworkList',

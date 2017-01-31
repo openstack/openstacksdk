@@ -63,7 +63,7 @@ class TestFlavors(base.RequestsMockTestCase):
         self.register_uri(
             'GET', '{endpoint}/flavors/detail?is_public=None'.format(
                 endpoint=fakes.ENDPOINT),
-            json={'flavors': []})
+            json={'flavors': fakes.FAKE_FLAVOR_LIST})
 
         self.assertFalse(self.op_cloud.delete_flavor('invalid'))
 
@@ -86,10 +86,11 @@ class TestFlavors(base.RequestsMockTestCase):
             'GET', '{endpoint}/flavors/detail?is_public=None'.format(
                 endpoint=fakes.ENDPOINT),
             json={'flavors': fakes.FAKE_FLAVOR_LIST})
-        self.register_uri(
-            'GET', '{endpoint}/flavors/{id}/os-extra_specs'.format(
-                endpoint=fakes.ENDPOINT, id=fakes.FLAVOR_ID),
-            json={'extra_specs': {}})
+        for flavor in fakes.FAKE_FLAVOR_LIST:
+            self.register_uri(
+                'GET', '{endpoint}/flavors/{id}/os-extra_specs'.format(
+                    endpoint=fakes.ENDPOINT, id=flavor['id']),
+                json={'extra_specs': {}})
 
         flavors = self.cloud.list_flavors()
 
@@ -105,6 +106,66 @@ class TestFlavors(base.RequestsMockTestCase):
             # check flavor content
             self.assertTrue(needed_keys.issubset(flavor.keys()))
         self.assert_calls()
+
+    def test_get_flavor_by_ram(self):
+        self.register_uri(
+            'GET', '{endpoint}/flavors/detail?is_public=None'.format(
+                endpoint=fakes.ENDPOINT),
+            json={'flavors': fakes.FAKE_FLAVOR_LIST})
+        for flavor in fakes.FAKE_FLAVOR_LIST:
+            self.register_uri(
+                'GET', '{endpoint}/flavors/{id}/os-extra_specs'.format(
+                    endpoint=fakes.ENDPOINT, id=flavor['id']),
+                json={'extra_specs': {}})
+
+        flavor = self.cloud.get_flavor_by_ram(ram=250)
+        self.assertEqual(fakes.STRAWBERRY_FLAVOR_ID, flavor['id'])
+
+    def test_get_flavor_by_ram_and_include(self):
+        self.register_uri(
+            'GET', '{endpoint}/flavors/detail?is_public=None'.format(
+                endpoint=fakes.ENDPOINT),
+            json={'flavors': fakes.FAKE_FLAVOR_LIST})
+        for flavor in fakes.FAKE_FLAVOR_LIST:
+            self.register_uri(
+                'GET', '{endpoint}/flavors/{id}/os-extra_specs'.format(
+                    endpoint=fakes.ENDPOINT, id=flavor['id']),
+                json={'extra_specs': {}})
+        flavor = self.cloud.get_flavor_by_ram(ram=150, include='strawberry')
+        self.assertEqual(fakes.STRAWBERRY_FLAVOR_ID, flavor['id'])
+
+    def test_get_flavor_by_ram_not_found(self):
+        self.register_uri(
+            'GET', '{endpoint}/flavors/detail?is_public=None'.format(
+                endpoint=fakes.ENDPOINT),
+            json={'flavors': []})
+        self.assertRaises(
+            shade.OpenStackCloudException,
+            self.cloud.get_flavor_by_ram,
+            ram=100)
+
+    def test_get_flavor_string_and_int(self):
+        self.register_uri(
+            'GET', '{endpoint}/flavors/detail?is_public=None'.format(
+                endpoint=fakes.ENDPOINT),
+            json={'flavors': [fakes.make_fake_flavor('1', 'vanilla')]})
+        self.register_uri(
+            'GET', '{endpoint}/flavors/1/os-extra_specs'.format(
+                endpoint=fakes.ENDPOINT),
+            json={'extra_specs': {}})
+        self.register_uri(
+            'GET', '{endpoint}/flavors/detail?is_public=None'.format(
+                endpoint=fakes.ENDPOINT),
+            json={'flavors': [fakes.make_fake_flavor('1', 'vanilla')]})
+        self.register_uri(
+            'GET', '{endpoint}/flavors/1/os-extra_specs'.format(
+                endpoint=fakes.ENDPOINT),
+            json={'extra_specs': {}})
+
+        flavor1 = self.cloud.get_flavor('1')
+        self.assertEqual('1', flavor1['id'])
+        flavor2 = self.cloud.get_flavor(1)
+        self.assertEqual('1', flavor2['id'])
 
     def test_set_flavor_specs(self):
         extra_specs = dict(key1='value1')
