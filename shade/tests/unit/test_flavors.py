@@ -37,11 +37,6 @@ class TestFlavors(base.RequestsMockTestCase):
                     "id": None
                 }}))
 
-        self.register_uri(
-            'GET', '{endpoint}/flavors/{id}'.format(
-                endpoint=fakes.ENDPOINT, id=fakes.FLAVOR_ID),
-            json={'flavor': fakes.FAKE_FLAVOR})
-
         self.op_cloud.create_flavor(
             'vanilla', ram=65536, disk=1600, vcpus=24,
         )

@@ -1489,12 +1489,22 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
         with _utils.shade_exceptions("Failed to create flavor {name}".format(
                 name=name)):
-            flavor = self.manager.submit_task(
-                _tasks.FlavorCreate(name=name, ram=ram, vcpus=vcpus, disk=disk,
-                                    flavorid=flavorid, ephemeral=ephemeral,
-                                    swap=swap, rxtx_factor=rxtx_factor,
-                                    is_public=is_public)
-            )
+            payload = {
+                'disk': disk,
+                'OS-FLV-EXT-DATA:ephemeral': ephemeral,
+                'id': flavorid,
+                'os-flavor-access:is_public': is_public,
+                'name': name,
+                'ram': ram,
+                'rxtx_factor': rxtx_factor,
+                'swap': swap,
+                'vcpus': vcpus,
+            }
+            if flavorid == 'auto':
+                payload['id'] = None
+            flavor = self._compute_client.post(
+                '/flavors',
+                json=dict(flavor=payload))
 
         return self._normalize_flavor(flavor)
 
@@ -1515,7 +1525,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         with _utils.shade_exceptions("Unable to delete flavor {name}".format(
                 name=name_or_id)):
-            self.manager.submit_task(_tasks.FlavorDelete(flavor=flavor['id']))
+            self._compute_client.delete(
+                '/flavors/{id}'.format(id=flavor['id']))
 
         return True
 
@@ -1562,16 +1573,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions("Error trying to {action} access from "
                                      "flavor ID {flavor}".format(
                                          action=action, flavor=flavor_id)):
-            if action == 'add':
-                self.manager.submit_task(
-                    _tasks.FlavorAddAccess(flavor=flavor_id,
-                                           tenant=project_id)
-                )
-            elif action == 'remove':
-                self.manager.submit_task(
-                    _tasks.FlavorRemoveAccess(flavor=flavor_id,
-                                              tenant=project_id)
-                )
+            endpoint = '/flavors/{id}/action'.format(id=flavor_id)
+            access = {'tenant': project_id}
+            access_key = '{action}TenantAccess'.format(action=action)
+
+            self._compute_client.post(endpoint, json={access_key: access})
 
     def add_flavor_access(self, flavor_id, project_id):
         """Grant access to a private flavor for a project/tenant.
@@ -1605,9 +1611,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions("Error trying to list access from "
                                      "flavor ID {flavor}".format(
                 flavor=flavor_id)):
-            projects = self.manager.submit_task(
-                _tasks.FlavorListAccess(flavor=flavor_id)
-            )
+            projects = self._compute_client.get(
+                '/flavors/{id}/os-flavor-access'.format(id=flavor_id))
         return _utils.normalize_flavor_accesses(projects)
 
     def create_role(self, name):

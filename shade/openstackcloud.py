@@ -1745,8 +1745,8 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         with _utils.shade_exceptions("Error fetching flavor list"):
             flavors = self._normalize_flavors(
-                self.manager.submit_task(
-                    _tasks.FlavorList(is_public=None)))
+                self._compute_client.get(
+                    '/flavors/detail', params=dict(is_public='None')))
 
         with _utils.shade_exceptions("Error fetching flavor extra specs"):
             for flavor in flavors:
