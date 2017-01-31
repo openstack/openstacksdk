@@ -137,6 +137,27 @@ class TestSession(testtools.TestCase):
         self.assertIn('OverLimit413...', os_exc.details)
         self.assertIn('OverLimit Retry...', os_exc.details)
 
+    def test_map_exceptions_http_exception_handle_json_1(self):
+        # A test for json containing non-dict values
+        mock_resp = mock.Mock()
+        mock_resp.status_code = 404
+        mock_resp.json.return_value = {
+            "code": 404,
+            "error": {
+                "message": "resource not found",
+            },
+        }
+        mock_resp.headers = {
+            "content-type": "application/json"
+        }
+        ksa_exc = _exceptions.HttpError(message="test", http_status=404,
+                                        response=mock_resp)
+        func = mock.Mock(side_effect=ksa_exc)
+
+        os_exc = self._assert_map_exceptions(
+            exceptions.HttpException, ksa_exc, func)
+        self.assertIn('not found', os_exc.details)
+
     def test_map_exceptions_notfound_exception_handle_html(self):
         mock_resp = mock.Mock()
         mock_resp.status_code = 404
