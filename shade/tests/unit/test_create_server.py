@@ -26,7 +26,7 @@ from shade.tests import fakes
 from shade.tests.unit import base
 
 
-class TestCreateServer(base.TestCase):
+class TestCreateServer(base.RequestsMockTestCase):
 
     def test_create_server_with_create_exception(self):
         """
@@ -308,11 +308,16 @@ class TestCreateServer(base.TestCase):
             network='network-name', nics=[])
         mock_get_network.assert_called_once_with(name_or_id='network-name')
 
+    @mock.patch.object(OpenStackCloud, 'get_server_by_id')
     @mock.patch.object(OpenStackCloud, 'get_image')
     @mock.patch.object(OpenStackCloud, 'nova_client')
     def test_create_server_get_flavor_image(
-            self, mock_nova, mock_image):
+            self, mock_nova, mock_image, mock_get_server_by_id):
+        self.register_uri(
+            'GET', '{endpoint}/flavors/detail?is_public=None'.format(
+                endpoint=fakes.ENDPOINT),
+            json={'flavors': fakes.FAKE_FLAVOR_LIST})
         self.cloud.create_server(
-            'server-name', 'image-id', 'flavor-id')
-        mock_nova.flavors.list.assert_called_once()
+            'server-name', 'image-id', 'vanilla',
+            nics=[{'net-id': 'some-network'}])
         mock_image.assert_called_once()
