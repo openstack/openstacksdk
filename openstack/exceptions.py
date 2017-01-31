@@ -125,7 +125,8 @@ def from_exception(exc):
     content_type = resp.headers.get('content-type', '')
     if resp_body and 'application/json' in content_type:
         # Iterate over the nested objects to retrieve "message" attribute.
-        messages = [obj.get('message') for obj in resp.json().values()]
+        messages = [obj.get('message') for obj in resp.json().values()
+                    if isinstance(obj, dict)]
         # Join all of the messages together nicely and filter out any objects
         # that don't have a "message" attr.
         details = '\n'.join(msg for msg in messages if msg)
