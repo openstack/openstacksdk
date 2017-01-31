@@ -29,6 +29,7 @@ from shade.tests.unit import base
 
 NO_MD5 = '93b885adfe0da089cdf634904fd59f71'
 NO_SHA256 = '6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d'
+CINDER_URL = 'https://volume.example.com/v2/1c36b64c840a42cd9e9b931a369337f0'
 
 
 class BaseTestImage(base.RequestsMockTestCase):
@@ -725,4 +726,61 @@ class TestImageVersionDiscovery(BaseTestImage):
         self.assertEqual(
             self.cloud._image_client.endpoint_override,
             'https://image.example.com/v2/override')
+        self.assert_calls()
+
+
+class TestImageVolume(BaseTestImage):
+
+    def test_create_image_volume(self):
+
+        volume_id = 'some-volume'
+
+        self.register_uri(
+            'POST', '{endpoint}/volumes/{id}/action'.format(
+                endpoint=CINDER_URL, id=volume_id),
+            json={'os-volume_upload_image': {'image_id': self.image_id}},
+            validate=dict(json={
+                u'os-volume_upload_image': {
+                    u'container_format': u'bare',
+                    u'disk_format': u'qcow2',
+                    u'force': False,
+                    u'image_name': u'fake_image'}}))
+
+        self.use_glance()
+
+        self.register_uri(
+            'GET', 'https://image.example.com/v2/images',
+            json=self.fake_search_return)
+
+        self.cloud.create_image(
+            'fake_image', self.imagefile.name, wait=True, timeout=1,
+            volume={'id': volume_id})
+
+        self.assert_calls()
+
+    def test_create_image_volume_duplicate(self):
+
+        volume_id = 'some-volume'
+
+        self.register_uri(
+            'POST', '{endpoint}/volumes/{id}/action'.format(
+                endpoint=CINDER_URL, id=volume_id),
+            json={'os-volume_upload_image': {'image_id': self.image_id}},
+            validate=dict(json={
+                u'os-volume_upload_image': {
+                    u'container_format': u'bare',
+                    u'disk_format': u'qcow2',
+                    u'force': True,
+                    u'image_name': u'fake_image'}}))
+
+        self.use_glance()
+
+        self.register_uri(
+            'GET', 'https://image.example.com/v2/images',
+            json=self.fake_search_return)
+
+        self.cloud.create_image(
+            'fake_image', self.imagefile.name, wait=True, timeout=1,
+            volume={'id': volume_id}, allow_duplicates=True)
+
         self.assert_calls()

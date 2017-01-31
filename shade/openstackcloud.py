@@ -3267,7 +3267,7 @@ class OpenStackCloud(_normalize.Normalizer):
             disk_format=None, container_format=None,
             disable_vendor_agent=True,
             wait=False, timeout=3600,
-            allow_duplicates=False, meta=None, **kwargs):
+            allow_duplicates=False, meta=None, volume=None, **kwargs):
         """Upload an image to Glance.
 
         :param str name: Name of the image to create. If it is a pathname
@@ -3303,6 +3303,9 @@ class OpenStackCloud(_normalize.Normalizer):
                                  image name. (optional, defaults to False)
         :param meta: A dict of key/value pairs to use for metadata that
                      bypasses automatic type conversion.
+        :param volume: Name or ID or volume object of a volume to create an
+                       image from. Mutually exclusive with (optional, defaults
+                       to None)
 
         Additional kwargs will be passed to the image creation as additional
         metadata for the image and will have all values converted to string
@@ -3326,10 +3329,6 @@ class OpenStackCloud(_normalize.Normalizer):
         if not meta:
             meta = {}
 
-        # If there is no filename, see if name is actually the filename
-        if not filename:
-            name, filename = self._get_name_and_filename(name)
-
         if not disk_format:
             disk_format = self.cloud_config.config['image_format']
         if not container_format:
@@ -3337,6 +3336,26 @@ class OpenStackCloud(_normalize.Normalizer):
                 container_format = 'ovf'
             else:
                 container_format = 'bare'
+
+        if volume:
+            if 'id' in volume:
+                volume_id = volume['id']
+            else:
+                volume_obj = self.get_volume(volume)
+                if not volume_obj:
+                    raise OpenStackCloudException(
+                        "Volume {volume} given to create_image could"
+                        " not be foud".format(volume=volume))
+                volume_id = volume_obj['id']
+            return self._upload_image_from_volume(
+                name=name, volume_id=volume_id,
+                allow_duplicates=allow_duplicates,
+                container_format=container_format, disk_format=disk_format,
+                wait=wait, timeout=timeout)
+
+        # If there is no filename, see if name is actually the filename
+        if not filename:
+            name, filename = self._get_name_and_filename(name)
         if not (md5 or sha256):
             (md5, sha256) = self._get_file_hashes(filename)
         if allow_duplicates:
@@ -3418,6 +3437,32 @@ class OpenStackCloud(_normalize.Normalizer):
                     ret[k] = str(v)
         ret.update(meta)
         return ret
+
+    def _upload_image_from_volume(
+            self, name, volume_id, allow_duplicates,
+            container_format, disk_format, wait, timeout):
+        response = self._volume_client.post(
+            '/volumes/{id}/action'.format(id=volume_id),
+            json={
+                'os-volume_upload_image': {
+                    'force': allow_duplicates,
+                    'image_name': name,
+                    'container_format': container_format,
+                    'disk_format': disk_format}})
+        if not wait:
+            return self.get_image(response['image_id'])
+        try:
+            for count in _utils._iterate_timeout(
+                    timeout,
+                    "Timeout waiting for the image to finish."):
+                image_obj = self.get_image(response['image_id'])
+                if image_obj and image_obj.status not in ('queued', 'saving'):
+                    return image_obj
+        except OpenStackCloudTimeout:
+            self.log.debug(
+                "Timeout waiting for image to become ready. Deleting.")
+            self.delete_image(response['image_id'], wait=True)
+            raise
 
     def _upload_image_put_v2(self, name, image_data, meta, **image_kwargs):
 
