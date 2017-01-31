@@ -83,17 +83,6 @@ class BaseTestCase(base.TestCase):
             cloud_config=self.cloud_config,
             log_inner_exceptions=True)
 
-        # Any unit tests using betamax directly need a ksa.Session with
-        # an auth dict. The cassette is currently written with v2 as well
-        self.full_cloud_config = self.config.get_one_cloud(
-            cloud='_test_cloud_v2_')
-        self.full_cloud = shade.OpenStackCloud(
-            cloud_config=self.full_cloud_config,
-            log_inner_exceptions=True)
-        self.full_op_cloud = shade.OperatorCloud(
-            cloud_config=self.full_cloud_config,
-            log_inner_exceptions=True)
-
 
 class TestCase(BaseTestCase):
 
@@ -157,6 +146,9 @@ class RequestsMockTestCase(BaseTestCase):
         self.cloud = shade.OpenStackCloud(
             cloud_config=self.cloud_config,
             log_inner_exceptions=True)
+        self.op_cloud = shade.OperatorCloud(
+            cloud_config=self.cloud_config,
+            log_inner_exceptions=True)
 
     def use_glance(self, image_version_json='image-version.json'):
         discovery_fixture = os.path.join(
@@ -187,7 +179,6 @@ class RequestsMockTestCase(BaseTestCase):
         ]
 
     def assert_calls(self, stop_after=None):
-        self.assertEqual(len(self.calls), len(self.adapter.request_history))
         for (x, (call, history)) in enumerate(
                 zip(self.calls, self.adapter.request_history)):
             if stop_after and x > stop_after:
@@ -210,3 +201,4 @@ class RequestsMockTestCase(BaseTestCase):
                     self.assertEqual(
                         value, history.headers[key],
                         'header mismatch in call {index}'.format(index=x))
+        self.assertEqual(len(self.calls), len(self.adapter.request_history))
