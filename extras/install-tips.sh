@@ -21,7 +21,6 @@ for lib in \
         python-keystoneclient \
         python-cinderclient \
         python-neutronclient \
-        python-troveclient \
         python-ironicclient \
         python-heatclient \
         python-designateclient \
