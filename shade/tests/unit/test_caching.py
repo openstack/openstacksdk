@@ -91,7 +91,7 @@ _TASK_SCHEMA = dict(
 )
 
 
-class TestMemoryCache(base.TestCase):
+class TestMemoryCache(base.RequestsMockTestCase):
 
     def setUp(self):
         super(TestMemoryCache, self).setUp(
@@ -255,6 +255,7 @@ class TestMemoryCache(base.TestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
     def test_modify_user_invalidates_cache(self, keystone_mock):
+        self.use_keystone_v2()
         fake_user = fakes.FakeUser('abc123', 'abc123@domain.test',
                                    'abc123 name')
         # first cache an empty list
@@ -298,21 +299,30 @@ class TestMemoryCache(base.TestCase):
         self.assertEqual([], self.cloud.list_users())
         self.assertTrue(keystone_mock.users.delete.was_called)
 
-    @mock.patch.object(shade.OpenStackCloud, '_compute_client')
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_list_flavors(self, nova_mock, mock_compute):
-        # TODO(mordred) Change this to request_mock
-        nova_mock.flavors.list.return_value = []
-        nova_mock.flavors.api.client.get.return_value = {}
-        mock_compute.get.return_value = {}
+    def test_list_flavors(self):
+        self.register_uri(
+            'GET', '{endpoint}/flavors/detail?is_public=None'.format(
+                endpoint=fakes.ENDPOINT),
+            json={'flavors': []})
+
+        self.register_uri(
+            'GET', '{endpoint}/flavors/detail?is_public=None'.format(
+                endpoint=fakes.ENDPOINT),
+            json={'flavors': fakes.FAKE_FLAVOR_LIST})
+        self.register_uri(
+            'GET', '{endpoint}/flavors/{id}/os-extra_specs'.format(
+                endpoint=fakes.ENDPOINT, id=fakes.FLAVOR_ID),
+            json={'extra_specs': {}})
+
         self.assertEqual([], self.cloud.list_flavors())
 
-        fake_flavor = fakes.FakeFlavor('555', 'vanilla', 100)
-        fake_flavor_dict = self.cloud._normalize_flavor(
-            meta.obj_to_dict(fake_flavor))
-        nova_mock.flavors.list.return_value = [fake_flavor]
+        self.assertEqual([], self.cloud.list_flavors())
+
+        fake_flavor_dict = self.cloud._normalize_flavor(fakes.FAKE_FLAVOR)
         self.cloud.list_flavors.invalidate(self.cloud)
         self.assertEqual([fake_flavor_dict], self.cloud.list_flavors())
+
+        self.assert_calls()
 
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
     def test_list_images(self, mock_image_client):

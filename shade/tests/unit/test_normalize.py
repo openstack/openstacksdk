@@ -218,10 +218,8 @@ class TestUtils(base.TestCase):
                     u'disk_io_index': u'40',
                     u'number_of_data_disks': u'1',
                     u'policy_class': u'performance_flavor',
-                    u'resize_policy_class': u'performance_flavor'},
-                'request_ids': []},
+                    u'resize_policy_class': u'performance_flavor'}},
             'ram': 8192,
-            'request_ids': [],
             'rxtx_factor': 1600.0,
             'swap': 0,
             'vcpus': 8}
@@ -252,8 +250,7 @@ class TestUtils(base.TestCase):
                 'region_name': u'RegionOne',
                 'zone': None},
             'name': u'8 GB Performance',
-            'properties': {
-                'request_ids': []},
+            'properties': {},
             'ram': 8192,
             'rxtx_factor': 1600.0,
             'swap': 0,
