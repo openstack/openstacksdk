@@ -1,15 +1,9 @@
-========================
-Team and repository tags
-========================
-
-.. image:: http://governance.openstack.org/badges/os-client-config.svg
-    :target: http://governance.openstack.org/reference/tags/index.html
-
-.. Change things from this point on
-
 ================
 os-client-config
 ================
+
+.. image:: http://governance.openstack.org/badges/os-client-config.svg
+    :target: http://governance.openstack.org/reference/tags/index.html
 
 `os-client-config` is a library for collecting client configuration for
 using an OpenStack cloud in a consistent and comprehensive manner. It
