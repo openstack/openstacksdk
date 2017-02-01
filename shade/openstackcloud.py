@@ -4627,7 +4627,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         # Short circuit if we're asking to attach an IP that's already
         # attached
-        ext_ip = meta.get_server_ip(server, ext_tag='floating')
+        ext_ip = meta.get_server_ip(server, ext_tag='floating', public=True)
         if ext_ip == floating_ip['floating_ip_address']:
             return server
 
@@ -4657,7 +4657,8 @@ class OpenStackCloud(_normalize.Normalizer):
                     "Timeout waiting for the floating IP to be attached.",
                     wait=self._SERVER_AGE):
                 server = self.get_server(server_id)
-                ext_ip = meta.get_server_ip(server, ext_tag='floating')
+                ext_ip = meta.get_server_ip(
+                    server, ext_tag='floating', public=True)
                 if ext_ip == floating_ip['floating_ip_address']:
                     return server
         return server
@@ -5511,6 +5512,8 @@ class OpenStackCloud(_normalize.Normalizer):
             return False
 
         if delete_ips:
+            # Don't pass public=True because we're just deleting. Testing
+            # for connectivity is not useful.
             floating_ip = meta.get_server_ip(server, ext_tag='floating')
             if floating_ip:
                 ips = self.search_floating_ips(filters={
