@@ -40,6 +40,22 @@ class TestUtils(base.TestCase):
         ret = _utils._filter_list(data, 'donald', None)
         self.assertEqual([el1], ret)
 
+    def test__filter_list_name_or_id_glob(self):
+        el1 = dict(id=100, name='donald')
+        el2 = dict(id=200, name='pluto')
+        el3 = dict(id=200, name='pluto-2')
+        data = [el1, el2, el3]
+        ret = _utils._filter_list(data, 'pluto*', None)
+        self.assertEqual([el2, el3], ret)
+
+    def test__filter_list_name_or_id_glob_not_found(self):
+        el1 = dict(id=100, name='donald')
+        el2 = dict(id=200, name='pluto')
+        el3 = dict(id=200, name='pluto-2')
+        data = [el1, el2, el3]
+        ret = _utils._filter_list(data, 'q*', None)
+        self.assertEqual([], ret)
+
     def test__filter_list_filter(self):
         el1 = dict(id=100, name='donald', other='duck')
         el2 = dict(id=200, name='donald', other='trump')
