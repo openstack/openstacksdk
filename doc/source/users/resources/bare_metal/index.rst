@@ -8,4 +8,4 @@ Bare Metal Resources
    v1/chassis
    v1/node
    v1/port
-   v1/portgroup
+   v1/port_group

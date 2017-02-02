@@ -884,8 +884,8 @@ class Proxy(proxy2.BaseProxy):
                              requires extra permission.
 
         :returns: A generator of availability zone
-        :rtype: :class:`~openstack.compute.v2.availability_zone.
-        AvailabilityZone`
+        :rtype: :class:`~openstack.compute.v2.availability_zone.\
+                        AvailabilityZone`
         """
         if details:
             az = availability_zone.AvailabilityZoneDetail

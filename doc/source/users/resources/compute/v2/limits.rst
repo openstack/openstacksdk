@@ -19,10 +19,10 @@ The ``AbsoluteLimits`` class inherits from :class:`~openstack.resource.Resource`
 .. autoclass:: openstack.compute.v2.limits.AbsoluteLimits
    :members:
 
-The RateLimits Class
---------------------
+The RateLimit Class
+-------------------
 
-The ``RateLimits`` class inherits from :class:`~openstack.resource.Resource`.
+The ``RateLimit`` class inherits from :class:`~openstack.resource.Resource`.
 
-.. autoclass:: openstack.compute.v2.limits.RateLimits
+.. autoclass:: openstack.compute.v2.limits.RateLimit
    :members:
