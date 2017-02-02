@@ -1,0 +1,55 @@
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+from openstack.load_balancer import load_balancer_service as lb_service
+from openstack import resource2 as resource
+
+
+class LoadBalancer(resource.Resource):
+    resource_key = 'loadbalancer'
+    resources_key = 'loadbalancers'
+    base_path = '/loadbalancers'
+    service = lb_service.LoadBalancerService()
+
+    # capabilities
+    allow_create = True
+    allow_list = True
+    allow_get = True
+    allow_delete = True
+
+    #: Properties
+    #: Timestamp when the load balancer was created
+    created_at = resource.Body('created_at')
+    #: The load balancer description
+    description = resource.Body('description')
+    #: The administrative state of the load balancer *Type: bool*
+    is_admin_state_up = resource.Body('admin_state_up', type=bool)
+    #: List of listeners associated with this load balancer
+    listeners = resource.Body('listeners', type=list)
+    #: The load balancer name
+    name = resource.Body('name')
+    #: Operating status of the load balancer
+    operating_status = resource.Body('operating_status')
+    #: List of pools associated with this load balancer
+    pools = resource.Body('pools', type=list)
+    #: The ID of the project this load balancer is associated with.
+    project_id = resource.Body('project_id')
+    #: The provisioning status of this load balancer
+    provisioning_status = resource.Body('provisioning_status')
+    #: VIP address of load balancer
+    vip_address = resource.Body('vip_address')
+    #: VIP port ID
+    vip_port_id = resource.Body('vip_port_id')
+    #: VIP subnet ID
+    vip_subnet_id = resource.Body('vip_subnet_id')
+    #: Timestamp when the load balancer was last updated
+    updated_at = resource.Body('updated_at')

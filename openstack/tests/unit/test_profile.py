@@ -27,6 +27,7 @@ class TestProfile(base.TestCase):
             'identity',
             'image',
             'key-manager',
+            'load_balancer',
             'messaging',
             'metering',
             'network',
@@ -45,6 +46,7 @@ class TestProfile(base.TestCase):
         self.assertEqual('v1', prof.get_filter('database').version)
         self.assertEqual('v3', prof.get_filter('identity').version)
         self.assertEqual('v2', prof.get_filter('image').version)
+        self.assertEqual('v2', prof.get_filter('load_balancer').version)
         self.assertEqual('v2', prof.get_filter('network').version)
         self.assertEqual('v1', prof.get_filter('object-store').version)
         self.assertEqual('v1', prof.get_filter('orchestration').version)
