@@ -54,9 +54,9 @@ def find_nova_addresses(addresses, ext_tag=None, key_name=None, version=4):
     return ret
 
 
-def get_server_ip(server, **kwargs):
+def get_server_ip(server, public=False, **kwargs):
     addrs = find_nova_addresses(server['addresses'], **kwargs)
-    return find_best_address(addrs, socket.AF_INET)
+    return find_best_address(addrs, socket.AF_INET, public=public)
 
 
 def get_server_private_ip(server, cloud=None):
@@ -124,14 +124,14 @@ def get_server_external_ipv4(cloud, server):
     # and possibly pre-configured network name
     ext_nets = cloud.get_external_ipv4_networks()
     for ext_net in ext_nets:
-        ext_ip = get_server_ip(server, key_name=ext_net['name'])
+        ext_ip = get_server_ip(server, key_name=ext_net['name'], public=True)
         if ext_ip is not None:
             return ext_ip
 
     # Try to get a floating IP address
     # Much as I might find floating IPs annoying, if it has one, that's
     # almost certainly the one that wants to be used
-    ext_ip = get_server_ip(server, ext_tag='floating')
+    ext_ip = get_server_ip(server, ext_tag='floating', public=True)
     if ext_ip is not None:
         return ext_ip
 
@@ -140,7 +140,7 @@ def get_server_external_ipv4(cloud, server):
     # cloud (e.g. Rax) or have plain ol' floating IPs
 
     # Try to get an address from a network named 'public'
-    ext_ip = get_server_ip(server, key_name='public')
+    ext_ip = get_server_ip(server, key_name='public', public=True)
     if ext_ip is not None:
         return ext_ip
 
@@ -161,12 +161,15 @@ def get_server_external_ipv4(cloud, server):
     return None
 
 
-def find_best_address(addresses, family):
+def find_best_address(addresses, family, public=False):
     if not addresses:
         return None
     if len(addresses) == 1:
         return addresses[0]
-    if len(addresses) > 1:
+    if len(addresses) > 1 and public:
+        # We only want to do this check if the address is supposed to be
+        # reachable. Otherwise we're just debug log spamming on every listing
+        # of private ip addresses
         for address in addresses:
             # Return the first one that is reachable
             try:
@@ -177,11 +180,12 @@ def find_best_address(addresses, family):
             except Exception:
                 pass
     # Give up and return the first - none work as far as we can tell
-    log = _log.setup_logging('shade')
-    log.debug(
-        'The cloud returned multiple addresses, and none of them seem'
-        ' to work. That might be what you wanted, but we have no clue'
-        " what's going on, so we just picked one at random")
+    if public:
+        log = _log.setup_logging('shade')
+        log.debug(
+            'The cloud returned multiple addresses, and none of them seem'
+            ' to work. That might be what you wanted, but we have no clue'
+            " what's going on, so we just picked one at random")
     return addresses[0]
 
 
@@ -197,7 +201,7 @@ def get_server_external_ipv6(server):
     if server['accessIPv6']:
         return server['accessIPv6']
     addresses = find_nova_addresses(addresses=server['addresses'], version=6)
-    return find_best_address(addresses, socket.AF_INET6)
+    return find_best_address(addresses, socket.AF_INET6, public=True)
 
 
 def get_server_default_ip(cloud, server):
@@ -221,7 +225,7 @@ def get_server_default_ip(cloud, server):
             versions = [4]
         for version in versions:
             ext_ip = get_server_ip(
-                server, key_name=ext_net['name'], version=version)
+                server, key_name=ext_net['name'], version=version, public=True)
             if ext_ip is not None:
                 return ext_ip
     return None
