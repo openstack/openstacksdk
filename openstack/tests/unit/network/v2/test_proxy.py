@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import deprecation
 import mock
 import uuid
 
@@ -788,6 +789,7 @@ class TestNetworkProxy(test_proxy_base2.TestProxyBase):
         self.verify_update(self.proxy.update_security_group,
                            security_group.SecurityGroup)
 
+    @deprecation.fail_if_not_removed
     def test_security_group_open_port(self):
         mock_class = 'openstack.network.v2._proxy.Proxy'
         mock_method = mock_class + '.create_security_group_rule'
@@ -809,6 +811,7 @@ class TestNetworkProxy(test_proxy_base2.TestProxyBase):
             }
             mocked.assert_called_with(**expected_args)
 
+    @deprecation.fail_if_not_removed
     def test_security_group_allow_ping(self):
         mock_class = 'openstack.network.v2._proxy.Proxy'
         mock_method = mock_class + '.create_security_group_rule'

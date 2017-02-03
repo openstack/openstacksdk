@@ -101,6 +101,29 @@ same project network.
 
 Full example: `network resource create`_
 
+Open a Port
+-----------
+
+When creating a security group for a network, you will need to open certain
+ports to allow communication via them. For example, you may need to enable
+HTTPS access on port 443.
+
+.. literalinclude:: ../examples/network/security_group_rules.py
+   :pyobject: open_port
+
+Full example: `network security group create`_
+
+Accept Pings
+------------
+
+In order to ping a machine on your network within a security group,
+you will need to create a rule to allow inbound ICMP packets.
+
+.. literalinclude:: ../examples/network/security_group_rules.py
+   :pyobject: allow_ping
+
+Full example: `network security group create`_
+
 Delete Network
 --------------
 
@@ -114,3 +137,4 @@ Full example: `network resource delete`_
 .. _network resource create: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/network/create.py
 .. _network resource delete: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/network/delete.py
 .. _network resource list: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/network/list.py
+.. _network security group create: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/network/security_group_rules.py

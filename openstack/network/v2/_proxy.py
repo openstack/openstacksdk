@@ -48,6 +48,7 @@ from openstack.network.v2 import subnet as _subnet
 from openstack.network.v2 import subnet_pool as _subnet_pool
 from openstack.network.v2 import vpn_service as _vpn_service
 from openstack import proxy2
+from openstack import utils
 
 
 class Proxy(proxy2.BaseProxy):
@@ -2400,6 +2401,8 @@ class Proxy(proxy2.BaseProxy):
         return self._update(_security_group.SecurityGroup, security_group,
                             **attrs)
 
+    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
+                      details="See the Network user guide for an example")
     def security_group_open_port(self, sgid, port, protocol='tcp'):
         rule = {
             'direction': 'ingress',
@@ -2412,6 +2415,8 @@ class Proxy(proxy2.BaseProxy):
         }
         return self.create_security_group_rule(**rule)
 
+    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
+                      details="See the Network user guide for an example")
     def security_group_allow_ping(self, sgid):
         rule = {
             'direction': 'ingress',
