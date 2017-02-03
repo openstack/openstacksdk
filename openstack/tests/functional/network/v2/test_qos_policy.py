@@ -22,6 +22,7 @@ class TestQoSPolicy(base.BaseFunctionalTest):
     QOS_POLICY_NAME = uuid.uuid4().hex
     QOS_POLICY_NAME_UPDATED = uuid.uuid4().hex
     IS_SHARED = False
+    IS_DEFAULT = False
     RULES = []
     QOS_POLICY_DESCRIPTION = "QoS policy description"
 
@@ -32,6 +33,7 @@ class TestQoSPolicy(base.BaseFunctionalTest):
             description=cls.QOS_POLICY_DESCRIPTION,
             name=cls.QOS_POLICY_NAME,
             shared=cls.IS_SHARED,
+            is_default=cls.IS_DEFAULT,
         )
         assert isinstance(qos, _qos_policy.QoSPolicy)
         cls.assertIs(cls.QOS_POLICY_NAME, qos.name)
@@ -52,6 +54,7 @@ class TestQoSPolicy(base.BaseFunctionalTest):
         self.assertEqual(self.IS_SHARED, sot.is_shared)
         self.assertEqual(self.RULES, sot.rules)
         self.assertEqual(self.QOS_POLICY_DESCRIPTION, sot.description)
+        self.assertEqual(self.IS_DEFAULT, sot.is_default)
 
     def test_list(self):
         names = [o.name for o in self.conn.network.qos_policies()]

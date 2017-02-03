@@ -28,9 +28,9 @@ class QoSPolicy(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'name', 'description',
+        'name', 'description', 'is_default',
         project_id='tenant_id',
-        is_shared='shared'
+        is_shared='shared',
     )
 
     # Properties
@@ -41,6 +41,10 @@ class QoSPolicy(resource.Resource):
     project_id = resource.Body('tenant_id')
     #: The QoS policy description.
     description = resource.Body('description')
+    #: Indicates whether this QoS policy is the default policy for this
+    #: project.
+    #: *Type: bool*
+    is_default = resource.Body('is_default', type=bool)
     #: Indicates whether this QoS policy is shared across all projects.
     #: *Type: bool*
     is_shared = resource.Body('shared', type=bool)

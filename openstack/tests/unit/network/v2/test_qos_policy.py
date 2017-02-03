@@ -21,7 +21,8 @@ EXAMPLE = {
     'name': 'qos-policy-name',
     'shared': True,
     'tenant_id': '2',
-    'rules': [uuid.uuid4().hex]
+    'rules': [uuid.uuid4().hex],
+    'is_default': False
 }
 
 
@@ -47,3 +48,4 @@ class TestQoSPolicy(testtools.TestCase):
         self.assertTrue(sot.is_shared)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['rules'], sot.rules)
+        self.assertEqual(EXAMPLE['is_default'], sot.is_default)
