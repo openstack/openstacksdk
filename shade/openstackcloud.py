@@ -4521,8 +4521,9 @@ class OpenStackCloud(_normalize.Normalizer):
                     if server:
                         raise OpenStackCloudException(
                             "Attempted to create FIP on port {port} for server"
-                            " {server} but something went wrong".format(
-                                port=port, server=server['id']))
+                            " {server} but FIP has port {port_id}".format(
+                                port=port, port_id=fip['port_id'],
+                                server=server['id']))
                     else:
                         raise OpenStackCloudException(
                             "Attempted to create FIP on port {port}"
@@ -4940,6 +4941,10 @@ class OpenStackCloud(_normalize.Normalizer):
                 network=network, nat_destination=nat_destination,
                 wait=wait, timeout=timeout)
             timeout = timeout - (time.time() - start_time)
+            # Wait for cache invalidation time so that we don't try
+            # to attach the FIP a second time below
+            time.sleep(self._SERVER_AGE)
+            server = self.get_server(server.id)
 
         # We run attach as a second call rather than in the create call
         # because there are code flows where we will not have an attached

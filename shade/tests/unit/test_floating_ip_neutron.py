@@ -19,12 +19,9 @@ test_floating_ip_neutron
 Tests Floating IP resource methods for Neutron
 """
 
-import mock
 from mock import patch
+import munch
 
-from neutronclient.common import exceptions as n_exc
-
-from shade import _utils
 from shade import exc
 from shade import meta
 from shade import OpenStackCloud
@@ -39,9 +36,9 @@ class TestFloatingIP(base.RequestsMockTestCase):
                 'router_id': 'd23abc8d-2991-4a55-ba98-2aaea84cc72f',
                 'tenant_id': '4969c491a3c74ee4af974e6d800c62de',
                 'floating_network_id': '376da547-b977-4cfe-9cba-275c80debf57',
-                'fixed_ip_address': '192.0.2.29',
-                'floating_ip_address': '203.0.113.29',
-                'port_id': 'ce705c24-c1ef-408a-bda3-7bbd946164ab',
+                'fixed_ip_address': '10.0.0.4',
+                'floating_ip_address': '172.24.4.229',
+                'port_id': 'ce705c24-c1ef-408a-bda3-7bbd946164ac',
                 'id': '2f245a7b-796b-4f26-9cf9-9e82d248fda7',
                 'status': 'ACTIVE'
             },
@@ -77,7 +74,7 @@ class TestFloatingIP(base.RequestsMockTestCase):
             'floating_ip_address': '172.24.4.229',
             'floating_network_id': 'my-network-id',
             'id': '2f245a7b-796b-4f26-9cf9-9e82d248fda8',
-            'port_id': 'ce705c24-c1ef-408a-bda3-7bbd946164ab',
+            'port_id': 'ce705c24-c1ef-408a-bda3-7bbd946164ac',
             'router_id': None,
             'status': 'ACTIVE',
             'tenant_id': '4969c491a3c74ee4af974e6d800c62df'
@@ -127,7 +124,7 @@ class TestFloatingIP(base.RequestsMockTestCase):
             ],
             'id': 'ce705c24-c1ef-408a-bda3-7bbd946164ac',
             'security_groups': [],
-            'device_id': 'server_id'
+            'device_id': 'server-id'
         }
     ]
 
@@ -178,49 +175,40 @@ class TestFloatingIP(base.RequestsMockTestCase):
 
         self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    @patch.object(OpenStackCloud, 'has_service', return_value=True)
-    def test_list_floating_ips_with_filters(self, mock_has_service,
-                                            mock_neutron_client):
-        mock_neutron_client.list_floatingips.side_effect = \
-            exc.OpenStackCloudURINotFound("")
+    def test_list_floating_ips_with_filters(self):
 
-        try:
-            self.cloud.list_floating_ips(filters={'Foo': 42})
-        except exc.OpenStackCloudException as e:
-            self.assertIsInstance(
-                e.inner_exception[1], exc.OpenStackCloudURINotFound)
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/floatingips.json?Foo=42',
+            json={'floatingips': []})
 
-        mock_neutron_client.list_floatingips.assert_called_once_with(Foo=42)
+        self.cloud.list_floating_ips(filters={'Foo': 42})
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_search_floating_ips(self, mock_has_service, mock_neutron_client):
-        mock_has_service.return_value = True
-        mock_neutron_client.list_floatingips.return_value = \
-            self.mock_floating_ip_list_rep
+        self.assert_calls()
+
+    def test_search_floating_ips(self):
+        self.register_uri(
+            'GET',
+            'https://network.example.com/v2.0/floatingips.json?attached=False',
+            json=self.mock_floating_ip_list_rep)
 
         floating_ips = self.cloud.search_floating_ips(
             filters={'attached': False})
 
-        mock_neutron_client.list_floatingips.assert_called_with(attached=False)
         self.assertIsInstance(floating_ips, list)
         self.assertAreInstances(floating_ips, dict)
         self.assertEqual(1, len(floating_ips))
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_get_floating_ip(self, mock_has_service, mock_neutron_client):
-        mock_has_service.return_value = True
-        mock_neutron_client.list_floatingips.return_value = \
-            self.mock_floating_ip_list_rep
+    def test_get_floating_ip(self):
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/floatingips.json',
+            json=self.mock_floating_ip_list_rep)
 
         floating_ip = self.cloud.get_floating_ip(
             id='2f245a7b-796b-4f26-9cf9-9e82d248fda7')
 
-        mock_neutron_client.list_floatingips.assert_called_with()
         self.assertIsInstance(floating_ip, dict)
-        self.assertEqual('203.0.113.29', floating_ip['floating_ip_address'])
+        self.assertEqual('172.24.4.229', floating_ip['floating_ip_address'])
         self.assertEqual(
             self.mock_floating_ip_list_rep['floatingips'][0]['tenant_id'],
             floating_ip['project_id']
@@ -230,195 +218,359 @@ class TestFloatingIP(base.RequestsMockTestCase):
             floating_ip['tenant_id']
         )
         self.assertIn('location', floating_ip)
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_get_floating_ip_not_found(
-            self, mock_has_service, mock_neutron_client):
-        mock_has_service.return_value = True
-        mock_neutron_client.list_floatingips.return_value = \
-            self.mock_floating_ip_list_rep
+    def test_get_floating_ip_not_found(self):
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/floatingips.json',
+            json=self.mock_floating_ip_list_rep)
 
         floating_ip = self.cloud.get_floating_ip(id='non-existent')
 
         self.assertIsNone(floating_ip)
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    @patch.object(OpenStackCloud, 'search_networks')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_create_floating_ip(
-            self, mock_has_service, mock_search_networks, mock_neutron_client):
-        mock_has_service.return_value = True
-        mock_search_networks.return_value = [self.mock_get_network_rep]
-        mock_neutron_client.create_floatingip.return_value = \
-            self.mock_floating_ip_new_rep
-
+    def test_create_floating_ip(self):
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/networks.json',
+            json={'networks': [self.mock_get_network_rep]})
+        self.register_uri(
+            'POST', 'https://network.example.com/v2.0/floatingips.json',
+            json=self.mock_floating_ip_new_rep,
+            validate=dict(
+                json={'floatingip': {'floating_network_id': 'my-network-id'}}))
         ip = self.cloud.create_floating_ip(network='my-network')
 
-        mock_neutron_client.create_floatingip.assert_called_with(
-            body={'floatingip': {'floating_network_id': 'my-network-id'}}
-        )
         self.assertEqual(
             self.mock_floating_ip_new_rep['floatingip']['floating_ip_address'],
             ip['floating_ip_address'])
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    @patch.object(OpenStackCloud, 'search_networks')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_create_floating_ip_port_bad_response(
-            self, mock_has_service, mock_search_networks, mock_neutron_client):
-        mock_has_service.return_value = True
-        mock_search_networks.return_value = [self.mock_get_network_rep]
-        mock_neutron_client.create_floatingip.return_value = \
-            self.mock_floating_ip_new_rep
+    def test_create_floating_ip_port_bad_response(self):
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/networks.json',
+            json={'networks': [self.mock_get_network_rep]})
+        self.register_uri(
+            'POST', 'https://network.example.com/v2.0/floatingips.json',
+            json=self.mock_floating_ip_new_rep,
+            validate=dict(
+                json={'floatingip': {
+                    'floating_network_id': 'my-network-id',
+                    'port_id': u'ce705c24-c1ef-408a-bda3-7bbd946164ab',
+                }}))
 
+        # Fails because we requested a port and the returned FIP has no port
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud.create_floating_ip,
             network='my-network', port='ce705c24-c1ef-408a-bda3-7bbd946164ab')
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    @patch.object(OpenStackCloud, 'search_networks')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_create_floating_ip_port(
-            self, mock_has_service, mock_search_networks, mock_neutron_client):
-        mock_has_service.return_value = True
-        mock_search_networks.return_value = [self.mock_get_network_rep]
-        mock_neutron_client.create_floatingip.return_value = \
-            self.mock_floating_ip_port_rep
+    def test_create_floating_ip_port(self):
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/networks.json',
+            json={'networks': [self.mock_get_network_rep]})
+        self.register_uri(
+            'POST', 'https://network.example.com/v2.0/floatingips.json',
+            json=self.mock_floating_ip_port_rep,
+            validate=dict(
+                json={'floatingip': {
+                    'floating_network_id': 'my-network-id',
+                    'port_id': u'ce705c24-c1ef-408a-bda3-7bbd946164ac',
+                }}))
 
         ip = self.cloud.create_floating_ip(
-            network='my-network', port='ce705c24-c1ef-408a-bda3-7bbd946164ab')
+            network='my-network', port='ce705c24-c1ef-408a-bda3-7bbd946164ac')
 
-        mock_neutron_client.create_floatingip.assert_called_with(
-            body={'floatingip': {
-                'floating_network_id': 'my-network-id',
-                'port_id': 'ce705c24-c1ef-408a-bda3-7bbd946164ab',
-            }}
-        )
         self.assertEqual(
             self.mock_floating_ip_new_rep['floatingip']['floating_ip_address'],
             ip['floating_ip_address'])
+        self.assert_calls()
 
-    @patch.object(_utils, '_filter_list')
-    @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
-    @patch.object(OpenStackCloud, '_neutron_list_floating_ips')
-    @patch.object(OpenStackCloud, 'get_external_ipv4_floating_networks')
-    @patch.object(OpenStackCloud, 'keystone_session')
-    def test__neutron_available_floating_ips(
-            self,
-            mock_keystone_session,
-            mock_get_ext_nets,
-            mock__neutron_list_fips,
-            mock__neutron_create_fip,
-            mock__filter_list):
+    def test__neutron_available_floating_ips(self):
         """
         Test without specifying a network name.
         """
-        mock_keystone_session.get_project_id.return_value = 'proj-id'
-        mock_get_ext_nets.return_value = [self.mock_get_network_rep]
-        mock__neutron_list_fips.return_value = []
-        mock__filter_list.return_value = []
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/networks.json',
+            json={'networks': [self.mock_get_network_rep]})
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/subnets.json',
+            json={'subnets': []})
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/floatingips.json',
+            json={'floatingips': []})
+        self.register_uri(
+            'POST', 'https://network.example.com/v2.0/floatingips.json',
+            json=self.mock_floating_ip_new_rep,
+            validate=dict(json={
+                'floatingip': {
+                    'floating_network_id': self.mock_get_network_rep['id'],
+                }}))
 
         # Test if first network is selected if no network is given
         self.cloud._neutron_available_floating_ips()
+        self.assert_calls()
 
-        mock_keystone_session.get_project_id.assert_called_once_with()
-        mock_get_ext_nets.assert_called_once_with()
-        mock__neutron_list_fips.assert_called_once_with(None)
-        mock__filter_list.assert_called_once_with(
-            [], name_or_id=None,
-            filters={'port': None,
-                     'network': self.mock_get_network_rep['id'],
-                     'location': {'project': {'id': 'proj-id'}}}
-        )
-        mock__neutron_create_fip.assert_called_once_with(
-            network_id=self.mock_get_network_rep['id'],
-            server=None
-        )
-
-    @patch.object(_utils, '_filter_list')
-    @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
-    @patch.object(OpenStackCloud, '_neutron_list_floating_ips')
-    @patch.object(OpenStackCloud, 'get_external_ipv4_floating_networks')
-    @patch.object(OpenStackCloud, 'keystone_session')
-    def test__neutron_available_floating_ips_network(
-            self,
-            mock_keystone_session,
-            mock_get_ext_nets,
-            mock__neutron_list_fips,
-            mock__neutron_create_fip,
-            mock__filter_list):
+    def test__neutron_available_floating_ips_network(self):
         """
         Test with specifying a network name.
         """
-        mock_keystone_session.get_project_id.return_value = 'proj-id'
-        mock_get_ext_nets.return_value = [self.mock_get_network_rep]
-        mock__neutron_list_fips.return_value = []
-        mock__filter_list.return_value = []
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/networks.json',
+            json={'networks': [self.mock_get_network_rep]})
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/subnets.json',
+            json={'subnets': []})
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/floatingips.json',
+            json={'floatingips': []})
+        self.register_uri(
+            'POST', 'https://network.example.com/v2.0/floatingips.json',
+            json=self.mock_floating_ip_new_rep,
+            validate=dict(json={
+                'floatingip': {
+                    'floating_network_id': self.mock_get_network_rep['id'],
+                }}))
 
+        # Test if first network is selected if no network is given
         self.cloud._neutron_available_floating_ips(
             network=self.mock_get_network_rep['name']
         )
+        self.assert_calls()
 
-        mock_keystone_session.get_project_id.assert_called_once_with()
-        mock_get_ext_nets.assert_called_once_with()
-        mock__neutron_list_fips.assert_called_once_with(None)
-        mock__filter_list.assert_called_once_with(
-            [], name_or_id=None,
-            filters={'port': None,
-                     'network': self.mock_get_network_rep['id'],
-                     'location': {'project': {'id': 'proj-id'}}}
-        )
-        mock__neutron_create_fip.assert_called_once_with(
-            network_id=self.mock_get_network_rep['id'],
-            server=None
-        )
-
-    @patch.object(OpenStackCloud, 'get_external_ipv4_networks')
-    @patch.object(OpenStackCloud, 'keystone_session')
-    def test__neutron_available_floating_ips_invalid_network(
-            self,
-            mock_keystone_session,
-            mock_get_ext_nets):
+    def test__neutron_available_floating_ips_invalid_network(self):
         """
         Test with an invalid network name.
         """
-        mock_keystone_session.get_project_id.return_value = 'proj-id'
-        mock_get_ext_nets.return_value = []
-        self.assertRaises(exc.OpenStackCloudException,
-                          self.cloud._neutron_available_floating_ips,
-                          network='INVALID')
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/networks.json',
+            json={'networks': [self.mock_get_network_rep]})
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/subnets.json',
+            json={'subnets': []})
 
-    @patch.object(OpenStackCloud, 'nova_client')
-    @patch.object(OpenStackCloud, 'keystone_session')
-    @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
-    @patch.object(OpenStackCloud, '_attach_ip_to_server')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_auto_ip_pool_no_reuse(
-            self, mock_has_service,
-            mock_attach_ip_to_server,
-            mock__neutron_create_floating_ip,
-            mock_keystone_session,
-            mock_nova_client):
-        mock_has_service.return_value = True
-        fip = self.cloud._normalize_floating_ips(
-            self.mock_floating_ip_list_rep['floatingips'])[0]
-        mock__neutron_create_floating_ip.return_value = fip
-        mock_keystone_session.get_project_id.return_value = \
-            '4969c491a3c74ee4af974e6d800c62df'
-        fake_server = meta.obj_to_dict(fakes.FakeServer('1234', '', 'ACTIVE'))
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.cloud._neutron_available_floating_ips,
+            network='INVALID')
+
+        self.assert_calls()
+
+    def test_auto_ip_pool_no_reuse(self):
+        # payloads taken from citycloud
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/networks.json',
+            json={"networks": [{
+                "status": "ACTIVE",
+                "subnets": [
+                    "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
+                    "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
+                    "fc541f48-fc7f-48c0-a063-18de6ee7bdd7"],
+                "availability_zone_hints": [],
+                "availability_zones": ["nova"],
+                "name": "ext-net",
+                "admin_state_up": True,
+                "tenant_id": "a564613210ee43708b8a7fc6274ebd63",
+                "tags": [],
+                "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",
+                "mtu": 0,
+                "is_default": False,
+                "router:external": True,
+                "ipv4_address_scope": None,
+                "shared": False,
+                "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
+                "description": None
+            }, {
+                "status": "ACTIVE",
+                "subnets": ["f0ad1df5-53ee-473f-b86b-3604ea5591e9"],
+                "availability_zone_hints": [],
+                "availability_zones": ["nova"],
+                "name": "private",
+                "admin_state_up": True,
+                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
+                "created_at": "2016-10-22T13:46:26",
+                "tags": [],
+                "updated_at": "2016-10-22T13:46:26",
+                "ipv6_address_scope": None,
+                "router:external": False,
+                "ipv4_address_scope": None,
+                "shared": False,
+                "mtu": 1450,
+                "id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
+                "description": ""
+            }]})
+        self.register_uri(
+            'GET',
+            'https://network.example.com/v2.0/ports.json'
+            '?device_id=f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7',
+            json={"ports": [{
+                "status": "ACTIVE",
+                "created_at": "2017-02-06T20:59:45",
+                "description": "",
+                "allowed_address_pairs": [],
+                "admin_state_up": True,
+                "network_id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
+                "dns_name": None,
+                "extra_dhcp_opts": [],
+                "mac_address": "fa:16:3e:e8:7f:03",
+                "updated_at": "2017-02-06T20:59:49",
+                "name": "",
+                "device_owner": "compute:None",
+                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
+                "binding:vnic_type": "normal",
+                "fixed_ips": [{
+                    "subnet_id": "f0ad1df5-53ee-473f-b86b-3604ea5591e9",
+                    "ip_address": "10.4.0.16"}],
+                "id": "a767944e-057a-47d1-a669-824a21b8fb7b",
+                "security_groups": ["9fb5ba44-5c46-4357-8e60-8b55526cab54"],
+                "device_id": "f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7",
+            }]})
+
+        self.register_uri(
+            'POST',
+            'https://network.example.com/v2.0/floatingips.json',
+            json={"floatingip": {
+                "router_id": "9de9c787-8f89-4a53-8468-a5533d6d7fd1",
+                "status": "DOWN",
+                "description": "",
+                "dns_domain": "",
+                "floating_network_id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
+                "fixed_ip_address": "10.4.0.16",
+                "floating_ip_address": "89.40.216.153",
+                "port_id": "a767944e-057a-47d1-a669-824a21b8fb7b",
+                "id": "e69179dc-a904-4c9a-a4c9-891e2ecb984c",
+                "dns_name": "",
+                "tenant_id": "65222a4d09ea4c68934fa1028c77f394"
+            }},
+            validate=dict(json={"floatingip": {
+                "floating_network_id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
+                "fixed_ip_address": "10.4.0.16",
+                "port_id": "a767944e-057a-47d1-a669-824a21b8fb7b",
+            }}))
+
+        self.register_uri(
+            'GET',
+            '{endpoint}/servers/detail'.format(endpoint=fakes.ENDPOINT),
+            json={"servers": [{
+                "status": "ACTIVE",
+                "updated": "2017-02-06T20:59:49Z",
+                "addresses": {
+                    "private": [{
+                        "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:e8:7f:03",
+                        "version": 4,
+                        "addr": "10.4.0.16",
+                        "OS-EXT-IPS:type": "fixed"
+                    }, {
+                        "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:e8:7f:03",
+                        "version": 4,
+                        "addr": "89.40.216.153",
+                        "OS-EXT-IPS:type": "floating"
+                    }]},
+                "key_name": None,
+                "image": {"id": "95e4c449-8abf-486e-97d9-dc3f82417d2d"},
+                "OS-EXT-STS:task_state": None,
+                "OS-EXT-STS:vm_state": "active",
+                "OS-SRV-USG:launched_at": "2017-02-06T20:59:48.000000",
+                "flavor": {"id": "2186bd79-a05e-4953-9dde-ddefb63c88d4"},
+                "id": "f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7",
+                "security_groups": [{"name": "default"}],
+                "OS-SRV-USG:terminated_at": None,
+                "OS-EXT-AZ:availability_zone": "nova",
+                "user_id": "c17534835f8f42bf98fc367e0bf35e09",
+                "name": "testmt",
+                "created": "2017-02-06T20:59:44Z",
+                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
+                "OS-DCF:diskConfig": "MANUAL",
+                "os-extended-volumes:volumes_attached": [],
+                "accessIPv4": "",
+                "accessIPv6": "",
+                "progress": 0,
+                "OS-EXT-STS:power_state": 1,
+                "config_drive": "",
+                "metadata": {}
+            }]})
+
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/networks.json',
+            json={"networks": [{
+                "status": "ACTIVE",
+                "subnets": [
+                    "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
+                    "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
+                    "fc541f48-fc7f-48c0-a063-18de6ee7bdd7"],
+                "availability_zone_hints": [],
+                "availability_zones": ["nova"],
+                "name": "ext-net",
+                "admin_state_up": True,
+                "tenant_id": "a564613210ee43708b8a7fc6274ebd63",
+                "tags": [],
+                "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",
+                "mtu": 0,
+                "is_default": False,
+                "router:external": True,
+                "ipv4_address_scope": None,
+                "shared": False,
+                "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
+                "description": None
+            }, {
+                "status": "ACTIVE",
+                "subnets": ["f0ad1df5-53ee-473f-b86b-3604ea5591e9"],
+                "availability_zone_hints": [],
+                "availability_zones": ["nova"],
+                "name": "private",
+                "admin_state_up": True,
+                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
+                "created_at": "2016-10-22T13:46:26",
+                "tags": [],
+                "updated_at": "2016-10-22T13:46:26",
+                "ipv6_address_scope": None,
+                "router:external": False,
+                "ipv4_address_scope": None,
+                "shared": False,
+                "mtu": 1450,
+                "id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
+                "description": ""
+            }]})
+        self.register_uri(
+            'GET', 'https://network.example.com/v2.0/subnets.json',
+            json={"subnets": [{
+                "description": "",
+                "enable_dhcp": True,
+                "network_id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
+                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
+                "created_at": "2016-10-22T13:46:26",
+                "dns_nameservers": [
+                    "89.36.90.101",
+                    "89.36.90.102"],
+                "updated_at": "2016-10-22T13:46:26",
+                "gateway_ip": "10.4.0.1",
+                "ipv6_ra_mode": None,
+                "allocation_pools": [{
+                    "start": "10.4.0.2",
+                    "end": "10.4.0.200"}],
+                "host_routes": [],
+                "ip_version": 4,
+                "ipv6_address_mode": None,
+                "cidr": "10.4.0.0/24",
+                "id": "f0ad1df5-53ee-473f-b86b-3604ea5591e9",
+                "subnetpool_id": None,
+                "name": "private-subnet-ipv4",
+            }]})
 
         self.cloud.add_ips_to_server(
-            fake_server, ip_pool='my-network', reuse=False)
+            munch.Munch(
+                id='f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7',
+                addresses={
+                    "private": [{
+                        "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:e8:7f:03",
+                        "version": 4,
+                        "addr": "10.4.0.16",
+                        "OS-EXT-IPS:type": "fixed"
+                    }]}),
+            ip_pool='ext-net', reuse=False)
 
-        mock__neutron_create_floating_ip.assert_called_once_with(
-            network_name_or_id='my-network', server=fake_server, port=None,
-            fixed_address=None, nat_destination=None, wait=False, timeout=60)
-        mock_attach_ip_to_server.assert_called_once_with(
-            server=fake_server, fixed_address=None,
-            floating_ip=fip, wait=False, timeout=mock.ANY,
-            nat_destination=None)
+        self.assert_calls()
 
     @patch.object(OpenStackCloud, 'keystone_session')
     @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
@@ -524,18 +676,18 @@ class TestFloatingIP(base.RequestsMockTestCase):
         )
         self.assertEqual(mock_get_floating_ip.call_count, 3)
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_delete_floating_ip_not_found(
-            self, mock_has_service, mock_neutron_client):
-        mock_has_service.return_value = True
-        mock_neutron_client.delete_floatingip.side_effect = \
-            n_exc.NotFound()
+    def test_delete_floating_ip_not_found(self):
+        self.register_uri(
+            'DELETE',
+            'https://network.example.com/v2.0/floatingips'
+            '/a-wild-id-appears.json',
+            status_code=404)
 
         ret = self.cloud.delete_floating_ip(
             floating_ip_id='a-wild-id-appears')
 
         self.assertFalse(ret)
+        self.assert_calls()
 
     @patch.object(OpenStackCloud, 'search_ports')
     @patch.object(OpenStackCloud, 'neutron_client')
