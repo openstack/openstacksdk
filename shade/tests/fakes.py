@@ -18,30 +18,40 @@ Fakes used for testing
 """
 
 
-FLAVOR_ID = '0c1d9008-f546-4608-9e8f-f8bdaec8dddd'
+FLAVOR_ID = u'0c1d9008-f546-4608-9e8f-f8bdaec8dddd'
+CHOCOLATE_FLAVOR_ID = u'0c1d9008-f546-4608-9e8f-f8bdaec8ddde'
+STRAWBERRY_FLAVOR_ID = u'0c1d9008-f546-4608-9e8f-f8bdaec8dddf'
 ENDPOINT = 'https://compute.example.com/v2.1/1c36b64c840a42cd9e9b931a369337f0'
-FAKE_FLAVOR = {
-    u'OS-FLV-DISABLED:disabled': False,
-    u'OS-FLV-EXT-DATA:ephemeral': 0,
-    u'disk': 1600,
-    u'id': u'0c1d9008-f546-4608-9e8f-f8bdaec8dddd',
-    u'links': [{
-        u'href': u'{endpoint}/flavors/{id}'.format(
-            endpoint=ENDPOINT, id=FLAVOR_ID),
-        u'rel': u'self'
-    }, {
-        u'href': u'{endpoint}/flavors/{id}'.format(
-            endpoint=ENDPOINT, id=FLAVOR_ID),
-        u'rel': u'bookmark'
-    }],
-    u'name': u'vanilla',
-    u'os-flavor-access:is_public': True,
-    u'ram': 65536,
-    u'rxtx_factor': 1.0,
-    u'swap': u'',
-    u'vcpus': 24
-}
-FAKE_FLAVOR_LIST = [FAKE_FLAVOR]
+
+
+def make_fake_flavor(flavor_id, name, ram=100, disk=1600, vcpus=24):
+    return {
+        u'OS-FLV-DISABLED:disabled': False,
+        u'OS-FLV-EXT-DATA:ephemeral': 0,
+        u'disk': disk,
+        u'id': flavor_id,
+        u'links': [{
+            u'href': u'{endpoint}/flavors/{id}'.format(
+                endpoint=ENDPOINT, id=flavor_id),
+            u'rel': u'self'
+        }, {
+            u'href': u'{endpoint}/flavors/{id}'.format(
+                endpoint=ENDPOINT, id=flavor_id),
+            u'rel': u'bookmark'
+        }],
+        u'name': name,
+        u'os-flavor-access:is_public': True,
+        u'ram': ram,
+        u'rxtx_factor': 1.0,
+        u'swap': u'',
+        u'vcpus': vcpus
+    }
+FAKE_FLAVOR = make_fake_flavor(FLAVOR_ID, 'vanilla')
+FAKE_CHOCOLATE_FLAVOR = make_fake_flavor(
+    CHOCOLATE_FLAVOR_ID, 'chocolate', ram=200)
+FAKE_STRAWBERRY_FLAVOR = make_fake_flavor(
+    STRAWBERRY_FLAVOR_ID, 'strawberry', ram=300)
+FAKE_FLAVOR_LIST = [FAKE_FLAVOR, FAKE_CHOCOLATE_FLAVOR, FAKE_STRAWBERRY_FLAVOR]
 
 
 class FakeEndpoint(object):
