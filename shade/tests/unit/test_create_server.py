@@ -315,7 +315,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             self, mock_nova, mock_image, mock_get_server_by_id):
         self.register_uri(
             'GET', '{endpoint}/flavors/detail?is_public=None'.format(
-                endpoint=fakes.ENDPOINT),
+                endpoint=fakes.COMPUTE_ENDPOINT),
             json={'flavors': fakes.FAKE_FLAVOR_LIST})
         self.cloud.create_server(
             'server-name', 'image-id', 'vanilla',

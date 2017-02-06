@@ -302,17 +302,17 @@ class TestMemoryCache(base.RequestsMockTestCase):
     def test_list_flavors(self):
         self.register_uri(
             'GET', '{endpoint}/flavors/detail?is_public=None'.format(
-                endpoint=fakes.ENDPOINT),
+                endpoint=fakes.COMPUTE_ENDPOINT),
             json={'flavors': []})
 
         self.register_uri(
             'GET', '{endpoint}/flavors/detail?is_public=None'.format(
-                endpoint=fakes.ENDPOINT),
+                endpoint=fakes.COMPUTE_ENDPOINT),
             json={'flavors': fakes.FAKE_FLAVOR_LIST})
         for flavor in fakes.FAKE_FLAVOR_LIST:
             self.register_uri(
                 'GET', '{endpoint}/flavors/{id}/os-extra_specs'.format(
-                    endpoint=fakes.ENDPOINT, id=flavor['id']),
+                    endpoint=fakes.COMPUTE_ENDPOINT, id=flavor['id']),
                 json={'extra_specs': {}})
 
         self.assertEqual([], self.cloud.list_flavors())
