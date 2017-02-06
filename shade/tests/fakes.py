@@ -18,6 +18,32 @@ Fakes used for testing
 """
 
 
+FLAVOR_ID = '0c1d9008-f546-4608-9e8f-f8bdaec8dddd'
+ENDPOINT = 'https://compute.example.com/v2.1/1c36b64c840a42cd9e9b931a369337f0'
+FAKE_FLAVOR = {
+    u'OS-FLV-DISABLED:disabled': False,
+    u'OS-FLV-EXT-DATA:ephemeral': 0,
+    u'disk': 1600,
+    u'id': u'0c1d9008-f546-4608-9e8f-f8bdaec8dddd',
+    u'links': [{
+        u'href': u'{endpoint}/flavors/{id}'.format(
+            endpoint=ENDPOINT, id=FLAVOR_ID),
+        u'rel': u'self'
+    }, {
+        u'href': u'{endpoint}/flavors/{id}'.format(
+            endpoint=ENDPOINT, id=FLAVOR_ID),
+        u'rel': u'bookmark'
+    }],
+    u'name': u'vanilla',
+    u'os-flavor-access:is_public': True,
+    u'ram': 65536,
+    u'rxtx_factor': 1.0,
+    u'swap': u'',
+    u'vcpus': 24
+}
+FAKE_FLAVOR_LIST = [FAKE_FLAVOR]
+
+
 class FakeEndpoint(object):
     def __init__(self, id, service_id, region, publicurl, internalurl=None,
                  adminurl=None):

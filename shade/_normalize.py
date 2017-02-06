@@ -161,6 +161,7 @@ class Normalizer(object):
         flavor.pop('NAME_ATTR', None)
         flavor.pop('HUMAN_ID', None)
         flavor.pop('human_id', None)
+        flavor.pop('request_ids', None)
 
         ephemeral = int(_pop_or_get(
             flavor, 'OS-FLV-EXT-DATA:ephemeral', 0, self.strict_mode))
@@ -173,6 +174,7 @@ class Normalizer(object):
         extra_specs = _pop_or_get(
             flavor, 'OS-FLV-WITH-EXT-SPECS:extra_specs', {}, self.strict_mode)
         extra_specs = flavor.pop('extra_specs', extra_specs)
+        extra_specs = munch.Munch(extra_specs)
 
         new_flavor['location'] = self.current_location
         new_flavor['id'] = flavor.pop('id')
