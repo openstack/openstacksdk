@@ -321,3 +321,5 @@ class TestCreateServer(base.RequestsMockTestCase):
             'server-name', 'image-id', 'vanilla',
             nics=[{'net-id': 'some-network'}])
         mock_image.assert_called_once()
+
+        self.assert_calls()

@@ -1,0 +1,5 @@
+---
+upgrade:
+  - Nova flavor operations are now handled via REST calls
+    instead of via novaclient. There should be no noticable
+    difference.
