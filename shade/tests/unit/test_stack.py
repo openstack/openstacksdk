@@ -14,10 +14,9 @@
 import mock
 import testtools
 
-from heatclient.common import event_utils
-from heatclient.common import template_utils
-
 import shade
+from shade._heat import event_utils
+from shade._heat import template_utils
 from shade import meta
 from shade.tests import fakes
 from shade.tests.unit import base
