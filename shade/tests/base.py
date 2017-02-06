@@ -16,10 +16,11 @@
 import os
 
 import fixtures
+import logging
 import munch
+from six import StringIO
 import testtools
-
-import shade
+import testtools.content
 
 _TRUE_VALUES = ('true', '1', 'yes')
 
@@ -54,8 +55,25 @@ class TestCase(testtools.TestCase):
             stderr = self.useFixture(fixtures.StringStream('stderr')).stream
             self.useFixture(fixtures.MonkeyPatch('sys.stderr', stderr))
 
-        shade.simple_logging(debug=True)
-        self.log_fixture = self.useFixture(fixtures.FakeLogger())
+        self._log_stream = StringIO()
+        if os.environ.get('OS_ALWAYS_LOG') in _TRUE_VALUES:
+            self.addCleanup(self.printLogs)
+        else:
+            self.addOnException(self.attachLogs)
+
+        handler = logging.StreamHandler(self._log_stream)
+        formatter = logging.Formatter('%(asctime)s %(name)-32s %(message)s')
+        handler.setFormatter(formatter)
+
+        logger = logging.getLogger('shade')
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(handler)
+
+        # Enable HTTP level tracing
+        logger = logging.getLogger('keystoneauth')
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(handler)
+        logger.propagate = False
 
     def assertEqual(self, first, second, *args, **kwargs):
         '''Munch aware wrapper'''
@@ -65,3 +83,21 @@ class TestCase(testtools.TestCase):
             second = second.toDict()
         return super(TestCase, self).assertEqual(
             first, second, *args, **kwargs)
+
+    def printLogs(self, *args):
+        self._log_stream.seek(0)
+        print(self._log_stream.read())
+
+    def attachLogs(self, *args):
+        def reader():
+            self._log_stream.seek(0)
+            while True:
+                x = self._log_stream.read(4096)
+                if not x:
+                    break
+                yield x.encode('utf8')
+        content = testtools.content.content_from_reader(
+            reader,
+            testtools.content_type.UTF8_TEXT,
+            False)
+        self.addDetail('logging', content)
