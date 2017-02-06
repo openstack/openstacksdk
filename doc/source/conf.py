@@ -18,6 +18,7 @@ import sys
 import openstackdocstheme
 
 sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath('.'))
 # -- General configuration ----------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -25,7 +26,11 @@ sys.path.insert(0, os.path.abspath('../..'))
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
+    'enforcer'
 ]
+
+# When True, this will raise an exception that kills sphinx-build.
+enforcer_warnings_as_errors = False
 
 # autodoc generation is a bit aggressive and a nuisance when doing heavy
 # text edit cycles.
