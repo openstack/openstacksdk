@@ -40,7 +40,6 @@ import magnumclient.client
 import neutronclient.neutron.client
 import novaclient.client
 import novaclient.exceptions as nova_exceptions
-import troveclient.client
 import designateclient.client
 
 from shade.exc import *  # noqa
@@ -1187,6 +1186,11 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @property
     def trove_client(self):
+        warnings.warn(
+            'Using shade to get a trove_client object is deprecated. If you'
+            ' need a raw troveclient.client.Client object, please use'
+            ' make_legacy_client in os-client-config instead')
+        import troveclient.client
         if self._trove_client is None:
             self._trove_client = self._get_client(
                 'database', troveclient.client.Client)
