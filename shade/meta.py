@@ -54,9 +54,21 @@ def find_nova_addresses(addresses, ext_tag=None, key_name=None, version=4):
     return ret
 
 
-def get_server_ip(server, public=False, **kwargs):
+def get_server_ip(server, public=False, cloud_public=True, **kwargs):
+    """Get an IP from the Nova addresses dict
+
+    :param server: The server to pull the address from
+    :param public: Whether the address we're looking for should be considered
+                   'public' and therefore reachabiliity tests should be
+                   used. (defaults to False)
+    :param cloud_public: Whether the cloud has been configured to use private
+                         IPs from servers as the interface_ip. This inverts the
+                         public reachability logic, as in this case it's the
+                         private ip we expect shade to be able to reach
+    """
     addrs = find_nova_addresses(server['addresses'], **kwargs)
-    return find_best_address(addrs, socket.AF_INET, public=public)
+    return find_best_address(
+        addrs, socket.AF_INET, public=public, cloud_public=cloud_public)
 
 
 def get_server_private_ip(server, cloud=None):
@@ -82,16 +94,20 @@ def get_server_private_ip(server, cloud=None):
     if cloud:
         int_nets = cloud.get_internal_ipv4_networks()
         for int_net in int_nets:
-            int_ip = get_server_ip(server, key_name=int_net['name'])
+            int_ip = get_server_ip(
+                server, key_name=int_net['name'],
+                cloud_public=not cloud.private)
             if int_ip is not None:
                 return int_ip
 
-    ip = get_server_ip(server, ext_tag='fixed', key_name='private')
+    ip = get_server_ip(
+        server, ext_tag='fixed', key_name='private')
     if ip:
         return ip
 
     # Last resort, and Rackspace
-    return get_server_ip(server, key_name='private')
+    return get_server_ip(
+        server, key_name='private')
 
 
 def get_server_external_ipv4(cloud, server):
@@ -124,14 +140,18 @@ def get_server_external_ipv4(cloud, server):
     # and possibly pre-configured network name
     ext_nets = cloud.get_external_ipv4_networks()
     for ext_net in ext_nets:
-        ext_ip = get_server_ip(server, key_name=ext_net['name'], public=True)
+        ext_ip = get_server_ip(
+            server, key_name=ext_net['name'], public=True,
+            cloud_public=not cloud.private)
         if ext_ip is not None:
             return ext_ip
 
     # Try to get a floating IP address
     # Much as I might find floating IPs annoying, if it has one, that's
     # almost certainly the one that wants to be used
-    ext_ip = get_server_ip(server, ext_tag='floating', public=True)
+    ext_ip = get_server_ip(
+        server, ext_tag='floating', public=True,
+        cloud_public=not cloud.private)
     if ext_ip is not None:
         return ext_ip
 
@@ -140,7 +160,9 @@ def get_server_external_ipv4(cloud, server):
     # cloud (e.g. Rax) or have plain ol' floating IPs
 
     # Try to get an address from a network named 'public'
-    ext_ip = get_server_ip(server, key_name='public', public=True)
+    ext_ip = get_server_ip(
+        server, key_name='public', public=True,
+        cloud_public=not cloud.private)
     if ext_ip is not None:
         return ext_ip
 
@@ -161,12 +183,13 @@ def get_server_external_ipv4(cloud, server):
     return None
 
 
-def find_best_address(addresses, family, public=False):
+def find_best_address(addresses, family, public=False, cloud_public=True):
+    do_check = public == cloud_public
     if not addresses:
         return None
     if len(addresses) == 1:
         return addresses[0]
-    if len(addresses) > 1 and public:
+    if len(addresses) > 1 and do_check:
         # We only want to do this check if the address is supposed to be
         # reachable. Otherwise we're just debug log spamming on every listing
         # of private ip addresses
@@ -180,7 +203,7 @@ def find_best_address(addresses, family, public=False):
             except Exception:
                 pass
     # Give up and return the first - none work as far as we can tell
-    if public:
+    if do_check:
         log = _log.setup_logging('shade')
         log.debug(
             'The cloud returned multiple addresses, and none of them seem'
@@ -225,7 +248,8 @@ def get_server_default_ip(cloud, server):
             versions = [4]
         for version in versions:
             ext_ip = get_server_ip(
-                server, key_name=ext_net['name'], version=version, public=True)
+                server, key_name=ext_net['name'], version=version, public=True,
+                cloud_public=not cloud.private)
             if ext_ip is not None:
                 return ext_ip
     return None
