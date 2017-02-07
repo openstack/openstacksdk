@@ -145,9 +145,9 @@ class TestCompute(base.BaseFunctionalTestCase):
         self.assertEqual(
             self.image.name, self.demo_cloud.get_image_name(self.image.name))
 
-    def _assert_volume_attach(self, server, volume_id=None):
+    def _assert_volume_attach(self, server, volume_id=None, image=''):
         self.assertEqual(self.server_name, server['name'])
-        self.assertEqual('', server['image'])
+        self.assertEqual(image, server['image'])
         self.assertEqual(self.flavor.id, server['flavor']['id'])
         volumes = self.demo_cloud.get_volumes(server)
         self.assertEqual(1, len(volumes))
@@ -225,6 +225,32 @@ class TestCompute(base.BaseFunctionalTestCase):
         self.assertIsNotNone(volume)
         self.assertEqual(volume['name'], volume['display_name'])
         self.assertEqual(True, volume['bootable'])
+        self.assertEqual([], volume['attachments'])
+        self.assertTrue(self.demo_cloud.delete_volume(volume_id))
+        self.assertIsNone(self.demo_cloud.get_server(self.server_name))
+        self.assertIsNone(self.demo_cloud.get_volume(volume_id))
+
+    def test_create_boot_attach_volume(self):
+        if not self.demo_cloud.has_service('volume'):
+            self.skipTest('volume service not supported by cloud')
+        self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
+        volume = self.demo_cloud.create_volume(
+            size=1, name=self.server_name, image=self.image, wait=True)
+        self.addCleanup(self.demo_cloud.delete_volume, volume['id'])
+        server = self.demo_cloud.create_server(
+            name=self.server_name,
+            flavor=self.flavor,
+            image=self.image,
+            boot_from_volume=False,
+            volumes=[volume],
+            wait=True)
+        volume_id = self._assert_volume_attach(
+            server, volume_id=volume['id'], image={'id': self.image['id']})
+        self.assertTrue(
+            self.demo_cloud.delete_server(self.server_name, wait=True))
+        volume = self.demo_cloud.get_volume(volume_id)
+        self.assertIsNotNone(volume)
+        self.assertEqual(volume['name'], volume['display_name'])
         self.assertEqual([], volume['attachments'])
         self.assertTrue(self.demo_cloud.delete_volume(volume_id))
         self.assertIsNone(self.demo_cloud.get_server(self.server_name))
