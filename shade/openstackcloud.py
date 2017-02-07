@@ -5182,7 +5182,7 @@ class OpenStackCloud(_normalize.Normalizer):
                         volume=volume,
                         cloud=self.name, region=self.region_name))
             block_mapping = {
-                'boot_index': None,
+                'boot_index': '-1',
                 'delete_on_termination': False,
                 'destination_type': 'volume',
                 'uuid': volume_obj['id'],
