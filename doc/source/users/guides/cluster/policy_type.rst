@@ -42,4 +42,4 @@ it.
 
 Full example: `manage policy type`_
 
-.. _manage profile type: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/cluster/policy_type.py
+.. _manage policy type: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/cluster/policy_type.py

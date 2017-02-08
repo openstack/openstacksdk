@@ -168,8 +168,8 @@ class Proxy(proxy2.BaseProxy):
         :param dict query: Optional query parameters to be sent to limit the
                            software configs returned.
         :returns: A generator of software config objects.
-        :rtype:
-        :class:`~openstack.orchestration.v1.software_config.SoftwareConfig`
+        :rtype: :class:`~openstack.orchestration.v1.software_config.\
+                SoftwareConfig`
         """
         return self._list(_sc.SoftwareConfig, paginated=True, **query)
 
@@ -220,8 +220,8 @@ class Proxy(proxy2.BaseProxy):
         :param dict query: Optional query parameters to be sent to limit the
                            software deployments returned.
         :returns: A generator of software deployment objects.
-        :rtype:
-        :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
+        :rtype: :class:`~openstack.orchestration.v1.software_deployment.\
+                SoftwareDeployment`
         """
         return self._list(_sd.SoftwareDeployment, paginated=False, **query)
 
@@ -263,8 +263,8 @@ class Proxy(proxy2.BaseProxy):
                            represented by ``software_deployment``.
 
         :returns: The updated software deployment
-        :rtype:
-        :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
+        :rtype: :class:`~openstack.orchestration.v1.software_deployment.\
+                SoftwareDeployment`
         """
         return self._update(_sd.SoftwareDeployment, software_deployment,
                             **attrs)

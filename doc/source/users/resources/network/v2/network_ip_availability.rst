@@ -1,5 +1,5 @@
 openstack.network.v2.network_ip_availability
-===========================================
+============================================
 
 .. automodule:: openstack.network.v2.network_ip_availability
 

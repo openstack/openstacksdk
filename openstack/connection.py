@@ -276,10 +276,10 @@ class Connection(object):
 
         :returns: A string token.
 
-        :raises:`~openstack.exceptions.HttpException` if the authorization
-                fails due to reasons like the credentials provided are unable
-                to be authorized or the `auth_plugin` argument is missing,
-                etc.
+        :raises: :class:`~openstack.exceptions.HttpException` if the
+                 authorization fails due to reasons like the credentials
+                 provided are unable to be authorized or the `auth_plugin`
+                 argument is missing, etc.
         """
         headers = self.session.get_auth_headers()
 
