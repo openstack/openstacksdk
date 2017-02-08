@@ -21,6 +21,7 @@ These are the default behaviors unless a cloud is configured differently.
 * Images are uploaded using PUT interface
 * Public IPv4 is directly routable via DHCP from Neutron
 * IPv6 is not provided
+* Floating IPs are not required
 * Floating IPs are provided by Neutron
 * Security groups are provided by Neutron
 * Vendor specific agents are not used

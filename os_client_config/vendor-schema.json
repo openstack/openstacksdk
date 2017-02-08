@@ -60,6 +60,12 @@
           "description": "Optional message with information related to status",
           "type": "string"
         },
+        "requires_floating_ip": {
+          "name": "Requires Floating IP",
+          "description": "Whether the cloud requires a floating IP to route traffic off of the cloud",
+          "default": null,
+          "type": ["boolean", "null"]
+        },
         "secgroup_source": {
           "name": "Security Group Source",
           "description": "Which service provides security groups",

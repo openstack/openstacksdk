@@ -244,7 +244,6 @@ class CloudConfig(object):
         :param service_key: Generic key for service, such as 'compute' or
                             'network'
 
-        :returns: Endpoint for the service, or None if not found
         """
 
         override_endpoint = self.get_endpoint(service_key)
@@ -419,6 +418,18 @@ class CloudConfig(object):
             if resource not in expiration:
                 return default
             return float(expiration[resource])
+
+    def requires_floating_ip(self):
+        """Return whether or not this cloud requires floating ips.
+
+
+        :returns: True of False if know, None if discovery is needed.
+                  If requires_floating_ip is not configured but the cloud is
+                  known to not provide floating ips, will return False.
+        """
+        if self.config['floating_ip_source'] == "None":
+            return False
+        return self.config['requires_floating_ip']
 
     def get_external_networks(self):
         """Get list of network names for external networks."""
