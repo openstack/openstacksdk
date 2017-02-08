@@ -80,7 +80,7 @@ class Router(resource.Resource):
 
         :param session: The session to communicate through.
         :type session: :class:`~openstack.session.Session`
-        :param dict body : The body requested to be updated on the outer
+        :param dict body: The body requested to be updated on the router
 
         :returns: The body of the response as a dictionary.
         """
@@ -93,7 +93,7 @@ class Router(resource.Resource):
 
         :param session: The session to communicate through.
         :type session: :class:`~openstack.session.Session`
-        :param dict body : The body requested to be updated on the outer
+        :param dict body: The body requested to be updated on the router
 
         :returns: The body of the response as a dictionary.
         """
@@ -106,7 +106,7 @@ class Router(resource.Resource):
 
         :param session: The session to communicate through.
         :type session: :class:`~openstack.session.Session`
-        :param dict body : The body requested to be updated on the outer
+        :param dict body: The body requested to be updated on the router
 
         :returns: The body of the response as a dictionary.
         """
@@ -120,7 +120,7 @@ class Router(resource.Resource):
 
         :param session: The session to communicate through.
         :type session: :class:`~openstack.session.Session`
-        :param dict body : The body requested to be updated on the outer
+        :param dict body: The body requested to be updated on the router
 
         :returns: The body of the response as a dictionary.
         """

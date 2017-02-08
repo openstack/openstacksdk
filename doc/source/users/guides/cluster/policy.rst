@@ -27,7 +27,7 @@ List Policies
 To examine the list of policies:
 
 .. literalinclude:: ../../examples/cluster/policy.py
-   :pyobject: list_policys
+   :pyobject: list_policies
 
 When listing policies, you can specify the sorting option using the ``sort``
 parameter and you can do pagination using the ``limit`` and ``marker``

@@ -154,7 +154,7 @@ class Proxy(proxy2.BaseProxy):
                         running on.
             * ``topic``: The message queue topic used.
             * ``is_admin_state_up``: The administrative state of the agent.
-            : ``is_alive``: Whether the agent is alive.
+            * ``is_alive``: Whether the agent is alive.
 
         :returns: A generator of agents
         :rtype: :class:`~openstack.network.v2.agent.Agent`
@@ -2662,9 +2662,8 @@ class Proxy(proxy2.BaseProxy):
         """Get a single network service flavor profile
 
         :param service_profile: The value can be the ID of a service_profile or
-                                a
-                       :class:`~openstack.network.v2.service_profile
-                       .ServiceProfile` instance.
+            a :class:`~openstack.network.v2.service_profile.ServiceProfile`
+            instance.
 
         :returns: One :class:`~openstack.network.v2.service_profile
                       .ServiceProfile`
@@ -2682,7 +2681,7 @@ class Proxy(proxy2.BaseProxy):
             * ``description``: The description of  the service flavor profile
             * ``driver``: Provider driver for the service flavor profile
             * ``is_enabled``: Whether the profile is enabled
-            *  ``project_id``: The owner project ID
+            * ``project_id``: The owner project ID
 
         :returns: A generator of service profile objects
         :rtype: :class:`~openstack.network.v2.service_profile.ServiceProfile`

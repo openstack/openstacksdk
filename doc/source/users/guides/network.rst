@@ -77,7 +77,7 @@ provide external network access for servers on project networks.
 Full example: `network resource list`_
 
 List Network Agents
-------------
+-------------------
 
 A **network agent** is a plugin that handles various tasks used to
 implement virtual networks.  These agents include neutron-dhcp-agent,

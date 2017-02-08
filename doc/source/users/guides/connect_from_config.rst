@@ -36,9 +36,9 @@ function takes three optional arguments:
 
 * **cloud_name** allows you to specify a cloud from your ``clouds.yaml`` file.
 * **cloud_config** allows you to pass in an existing
-``os_client_config.config.OpenStackConfig``` object.
+  ``os_client_config.config.OpenStackConfig``` object.
 * **options** allows you to specify a namespace object with options to be
-added to the cloud config.
+  added to the cloud config.
 
 .. literalinclude:: ../examples/connect.py
    :pyobject: Opts

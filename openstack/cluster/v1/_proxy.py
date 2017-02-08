@@ -297,8 +297,9 @@ class Proxy(proxy2.BaseProxy):
         :param nodes: List of nodes to be removed from the cluster.
         :param kwargs \*\*params: Optional query parameters to be sent to
             restrict the nodes to be returned. Available parameters include:
+
             * destroy_after_deletion: A boolean value indicating whether the
-                       deleted nodes to be destroyed right away.
+                                      deleted nodes to be destroyed right away.
         :returns: A dict containing the action initiated by this operation.
         """
         if isinstance(cluster, _cluster.Cluster):
@@ -709,6 +710,7 @@ class Proxy(proxy2.BaseProxy):
             :class:`~openstack.cluster.v1.cluster.Cluster` instance.
         :param kwargs \*\*query: Optional query parameters to be sent to
             restrict the policies to be returned. Available parameters include:
+
             * enabled: A boolean value indicating whether the policy is
                        enabled on the cluster.
         :returns: A generator of cluster-policy binding instances.
