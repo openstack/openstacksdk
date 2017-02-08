@@ -12,33 +12,34 @@
 
 import testtools
 
-from openstack.identity.v3 import role
+from openstack.identity.v3 import role_domain_group_assignment
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     'id': IDENTIFIER,
     'links': {'self': 'http://example.com/user1'},
     'name': '2',
+    'domain_id': '3',
+    'group_id': '4'
 }
 
 
-class TestRole(testtools.TestCase):
+class TestRoleDomainGroupAssignment(testtools.TestCase):
 
     def test_basic(self):
-        sot = role.Role()
+        sot = role_domain_group_assignment.RoleDomainGroupAssignment()
         self.assertEqual('role', sot.resource_key)
         self.assertEqual('roles', sot.resources_key)
-        self.assertEqual('/roles', sot.base_path)
+        self.assertEqual('/domains/%(domain_id)s/groups/%(group_id)s/roles',
+                         sot.base_path)
         self.assertEqual('identity', sot.service.service_type)
-        self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_get)
-        self.assertTrue(sot.allow_update)
-        self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertTrue(sot.put_create)
 
     def test_make_it(self):
-        sot = role.Role(**EXAMPLE)
+        sot = \
+            role_domain_group_assignment.RoleDomainGroupAssignment(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['name'], sot.name)
+        self.assertEqual(EXAMPLE['domain_id'], sot.domain_id)
+        self.assertEqual(EXAMPLE['group_id'], sot.group_id)

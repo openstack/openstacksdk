@@ -12,33 +12,34 @@
 
 import testtools
 
-from openstack.identity.v3 import role
+from openstack.identity.v3 import role_project_user_assignment
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     'id': IDENTIFIER,
     'links': {'self': 'http://example.com/user1'},
     'name': '2',
+    'project_id': '3',
+    'user_id': '4'
 }
 
 
-class TestRole(testtools.TestCase):
+class TestRoleProjectUserAssignment(testtools.TestCase):
 
     def test_basic(self):
-        sot = role.Role()
+        sot = role_project_user_assignment.RoleProjectUserAssignment()
         self.assertEqual('role', sot.resource_key)
         self.assertEqual('roles', sot.resources_key)
-        self.assertEqual('/roles', sot.base_path)
+        self.assertEqual('/projects/%(project_id)s/users/%(user_id)s/roles',
+                         sot.base_path)
         self.assertEqual('identity', sot.service.service_type)
-        self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_get)
-        self.assertTrue(sot.allow_update)
-        self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertTrue(sot.put_create)
 
     def test_make_it(self):
-        sot = role.Role(**EXAMPLE)
+        sot = \
+            role_project_user_assignment.RoleProjectUserAssignment(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['name'], sot.name)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['user_id'], sot.user_id)
