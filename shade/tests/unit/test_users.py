@@ -31,13 +31,17 @@ _UserData = collections.namedtuple(
 
 class TestUsers(base.RequestsMockTestCase):
 
-    def _get_mock_url(self):
+    def _get_mock_url(self, v3=False, append=None, interface='admin'):
         service_catalog = self.cloud.keystone_session.auth.get_access(
             self.cloud.keystone_session).service_catalog
         endpoint_url = service_catalog.url_for(
             service_type='identity',
-            interface='admin')
-        return '/'.join([endpoint_url, 'users'])
+            interface=interface)
+        to_join = [endpoint_url, 'users']
+        if v3:
+            to_join.insert(1, 'v3')
+        to_join.extend(append or [])
+        return '/'.join(to_join)
 
     def _get_user_data(self, name=None, password=None, **kwargs):
 
@@ -48,7 +52,7 @@ class TestUsers(base.RequestsMockTestCase):
         response = {'name': name, 'id': user_id}
 
         if kwargs.get('domain_id'):
-            kwargs['domain_id'] = uuid.UUID(kwargs['domain_id'])
+            kwargs['domain_id'] = uuid.UUID(kwargs['domain_id']).hex
             response['domain_id'] = kwargs.pop('domain_id')
 
         for item in ('email', 'description', 'enabled'):
@@ -68,7 +72,7 @@ class TestUsers(base.RequestsMockTestCase):
         self.register_uri('POST', self._get_mock_url(), status_code=204,
                           json=user_data.json_response)
         self.register_uri('GET',
-                          '/'.join([self._get_mock_url(), user_data.user_id]),
+                          self._get_mock_url(append=[user_data.user_id]),
                           status_code=200, json=user_data.json_response)
         user = self.op_cloud.create_user(
             name=user_data.name, email=user_data.email,
@@ -79,30 +83,30 @@ class TestUsers(base.RequestsMockTestCase):
         self.assertEqual(user_data.user_id, user.id)
         self.assert_calls()
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_create_user_v3(self, mock_keystone, mock_api_version):
-        mock_api_version.return_value = '3'
-        name = 'Mickey Mouse'
-        email = 'mickey@disney.com'
-        password = 'mice-rule'
-        domain_id = '456'
-        description = 'fake-description'
-        fake_user = fakes.FakeUser('1', email, name, description=description)
-        mock_keystone.users.create.return_value = fake_user
+    def test_create_user_v3(self):
+        self._add_discovery_uri_call()
+        user_data = self._get_user_data(
+            domain_id=uuid.uuid4().hex,
+            description=self.getUniqueString('description'))
+        self.register_uri(
+            'POST',
+            self._get_mock_url(v3=True), status_code=204,
+            json=user_data.json_response)
+        self.register_uri(
+            'GET',
+            self._get_mock_url(v3=True, append=[user_data.user_id]),
+            status_code=200, json=user_data.json_response)
         user = self.op_cloud.create_user(
-            name=name, email=email,
-            password=password,
-            description=description,
-            domain_id=domain_id)
-        mock_keystone.users.create.assert_called_once_with(
-            name=name, password=password, email=email,
-            description=description, enabled=True,
-            domain=domain_id
-        )
-        self.assertEqual(name, user.name)
-        self.assertEqual(email, user.email)
-        self.assertEqual(description, user.description)
+            name=user_data.name, email=user_data.email,
+            password=user_data.password,
+            description=user_data.description,
+            domain_id=user_data.domain_id)
+
+        self.assertEqual(user_data.name, user.name)
+        self.assertEqual(user_data.email, user.email)
+        self.assertEqual(user_data.description, user.description)
+        self.assertEqual(user_data.user_id, user.id)
+        self.assert_calls()
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')

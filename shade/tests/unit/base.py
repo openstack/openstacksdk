@@ -144,6 +144,15 @@ class RequestsMockTestCase(BaseTestCase):
         self._make_test_cloud(cloud_name='_test_cloud_v2_',
                               identity_api_version='2.0')
 
+    def _add_discovery_uri_call(self):
+        # NOTE(notmorgan): Temp workaround for transition to requests
+        # mock for cases keystoneclient is still mocked directly. This allows
+        # us to inject another call to discovery where needed in a test that
+        # no longer mocks out kyestoneclient and performs the extra round
+        # trips.
+        self.register_uri('GET', 'https://identity.example.com/',
+                          text=open(self.discovery_json, 'r').read())
+
     def _make_test_cloud(self, cloud_name='_test_cloud_', **kwargs):
         test_cloud = os.environ.get('SHADE_OS_CLOUD', cloud_name)
         self.cloud_config = self.config.get_one_cloud(

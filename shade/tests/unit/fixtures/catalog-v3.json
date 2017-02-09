@@ -59,6 +59,12 @@
             "interface": "public",
             "region": "RegionOne",
             "url": "https://identity.example.com"
+          },
+          {
+            "id": "012322eeedcd459edabb4933021112bc",
+            "interface": "admin",
+            "region": "RegionOne",
+            "url": "https://identity.example.com"
           }
         ],
         "endpoints_links": [],
