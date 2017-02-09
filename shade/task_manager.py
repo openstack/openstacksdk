@@ -265,11 +265,11 @@ class TaskManager(object):
         self.log.debug(
             "Manager %s ran task %s in %ss", self.name, task.name, dt)
 
-        self.post_run_task(dt)
+        self.post_run_task(dt, task)
 
         return task.wait(raw)
 
-    def post_run_task(self, elasped_time):
+    def post_run_task(self, elasped_time, task):
         pass
 
     # Backwards compatibility
