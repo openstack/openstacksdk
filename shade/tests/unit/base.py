@@ -110,11 +110,10 @@ class RequestsMockTestCase(BaseTestCase):
     def use_keystone_v3(self):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.calls = []
+        self.register_uri('GET', 'https://identity.example.com/',
+                          text=open(self.discovery_json, 'r').read())
         self.register_uri(
-            'GET', 'http://192.168.0.19:35357/',
-            text=open(self.discovery_json, 'r').read())
-        self.register_uri(
-            'POST', 'https://example.com/v3/auth/tokens',
+            'POST', 'https://identity.example.com/v3/auth/tokens',
             headers={
                 'X-Subject-Token': self.getUniqueString()},
             text=open(
@@ -127,20 +126,20 @@ class RequestsMockTestCase(BaseTestCase):
     def use_keystone_v2(self):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.calls = []
+        self.register_uri('GET', 'https://identity.example.com/',
+                          text=open(self.discovery_json, 'r').read())
         self.register_uri(
-            'GET', 'http://192.168.0.19:35357/',
-            text=open(self.discovery_json, 'r').read())
-        self.register_uri(
-            'POST', 'https://example.com/v2.0/tokens',
+            'POST', 'https://identity.example.com/v2.0/tokens',
             text=open(
                 os.path.join(
                     self.fixtures_directory,
                     'catalog-v2.json'),
                 'r').read())
-        self._make_test_cloud(identity_api_version='2.0')
+        self._make_test_cloud(cloud_name='_test_cloud_v2_',
+                              identity_api_version='2.0')
 
-    def _make_test_cloud(self, **kwargs):
-        test_cloud = os.environ.get('SHADE_OS_CLOUD', '_test_cloud_')
+    def _make_test_cloud(self, cloud_name='_test_cloud_', **kwargs):
+        test_cloud = os.environ.get('SHADE_OS_CLOUD', cloud_name)
         self.cloud_config = self.config.get_one_cloud(
             cloud=test_cloud, validate=True, **kwargs)
         self.cloud = shade.OpenStackCloud(

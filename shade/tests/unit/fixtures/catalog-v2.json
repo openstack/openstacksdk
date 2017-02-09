@@ -77,8 +77,8 @@
           {
             "adminURL": "https://identity.example.com/v2.0",
             "region": "RegionOne",
-            "publicURL": "https://identity.example.comv2.0",
-            "internalURL": "https://identity.example.comv2.0",
+            "publicURL": "https://identity.example.com/v2.0",
+            "internalURL": "https://identity.example.com/v2.0",
             "id": "4deb4d0504a044a395d4480741ba628c"
           }
         ],

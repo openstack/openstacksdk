@@ -12,6 +12,7 @@
 
 
 import mock
+import uuid
 
 import munch
 import os_client_config as occ
@@ -22,26 +23,42 @@ from shade.tests import fakes
 from shade.tests.unit import base
 
 
-class TestUsers(base.TestCase):
+class TestUsers(base.RequestsMockTestCase):
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_create_user_v2(self, mock_keystone, mock_api_version):
-        mock_api_version.return_value = '2'
+    def _get_mock_url(self):
+        service_catalog = self.cloud.keystone_session.auth.get_access(
+            self.cloud.keystone_session).service_catalog
+        endpoint_url = service_catalog.url_for(
+            service_type='identity',
+            interface='admin')
+        return '/'.join([endpoint_url, 'users'])
+
+    def test_create_user_v2(self):
+        self.use_keystone_v2()
+
         name = 'Mickey Mouse'
         email = 'mickey@disney.com'
         password = 'mice-rule'
-        fake_user = fakes.FakeUser('1', email, name)
-        mock_keystone.users.create.return_value = fake_user
+        user_id = uuid.uuid4().hex
+
+        response_json = {
+            'user':
+                {'name': name,
+                 'email': email,
+                 'id': user_id
+                 }
+        }
+        self.register_uri('POST', self._get_mock_url(), status_code=204,
+                          json=response_json)
+        self.register_uri('GET', '/'.join([self._get_mock_url(), user_id]),
+                          status_code=200, json=response_json)
         user = self.op_cloud.create_user(
             name=name, email=email, password=password,
         )
-        mock_keystone.users.create.assert_called_once_with(
-            name=name, password=password, email=email,
-            enabled=True,
-        )
+
         self.assertEqual(name, user.name)
         self.assertEqual(email, user.email)
+        self.assertEqual(user_id, user.id)
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
