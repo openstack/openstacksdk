@@ -345,7 +345,7 @@ class TestMeta(base.RequestsMockTestCase):
 
         self.register_uri(
             'GET', '{endpoint}/servers/test-id/os-security-groups'.format(
-                endpoint=fakes.ENDPOINT),
+                endpoint=fakes.COMPUTE_ENDPOINT),
             json={'security_groups': []})
 
         srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
@@ -396,7 +396,7 @@ class TestMeta(base.RequestsMockTestCase):
             json={'subnets': SUBNETS_WITH_NAT})
         self.register_uri(
             'GET', '{endpoint}/servers/test-id/os-security-groups'.format(
-                endpoint=fakes.ENDPOINT),
+                endpoint=fakes.COMPUTE_ENDPOINT),
             json={'security_groups': []})
 
         srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
@@ -445,7 +445,7 @@ class TestMeta(base.RequestsMockTestCase):
             json={'subnets': SUBNETS_WITH_NAT})
         self.register_uri(
             'GET', '{endpoint}/servers/test-id/os-security-groups'.format(
-                endpoint=fakes.ENDPOINT),
+                endpoint=fakes.COMPUTE_ENDPOINT),
             json={'security_groups': []})
 
         srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
@@ -513,7 +513,7 @@ class TestMeta(base.RequestsMockTestCase):
 
         self.register_uri(
             'GET', '{endpoint}/servers/test-id/os-security-groups'.format(
-                endpoint=fakes.ENDPOINT),
+                endpoint=fakes.COMPUTE_ENDPOINT),
             json={'security_groups': []})
 
         srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
@@ -548,7 +548,7 @@ class TestMeta(base.RequestsMockTestCase):
 
         self.register_uri(
             'GET', '{endpoint}/servers/test-id/os-security-groups'.format(
-                endpoint=fakes.ENDPOINT),
+                endpoint=fakes.COMPUTE_ENDPOINT),
             json={'security_groups': []})
 
         srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
@@ -605,7 +605,7 @@ class TestMeta(base.RequestsMockTestCase):
             json={'subnets': OSIC_SUBNETS})
         self.register_uri(
             'GET', '{endpoint}/servers/test-id/os-security-groups'.format(
-                endpoint=fakes.ENDPOINT),
+                endpoint=fakes.COMPUTE_ENDPOINT),
             json={'security_groups': []})
 
         srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(

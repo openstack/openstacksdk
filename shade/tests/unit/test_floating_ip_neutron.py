@@ -451,7 +451,8 @@ class TestFloatingIP(base.RequestsMockTestCase):
 
         self.register_uri(
             'GET',
-            '{endpoint}/servers/detail'.format(endpoint=fakes.ENDPOINT),
+            '{endpoint}/servers/detail'.format(
+                endpoint=fakes.COMPUTE_ENDPOINT),
             json={"servers": [{
                 "status": "ACTIVE",
                 "updated": "2017-02-06T20:59:49Z",
