@@ -110,6 +110,7 @@ class RequestsMockTestCase(BaseTestCase):
     def use_keystone_v3(self):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.calls = []
+        self._uri_registry.clear()
         self.register_uri('GET', 'https://identity.example.com/',
                           text=open(self.discovery_json, 'r').read())
         self.register_uri(
@@ -126,6 +127,7 @@ class RequestsMockTestCase(BaseTestCase):
     def use_keystone_v2(self):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.calls = []
+        self._uri_registry.clear()
         self.register_uri('GET', 'https://identity.example.com/',
                           text=open(self.discovery_json, 'r').read())
         self.register_uri(
@@ -135,6 +137,10 @@ class RequestsMockTestCase(BaseTestCase):
                     self.fixtures_directory,
                     'catalog-v2.json'),
                 'r').read())
+        self.register_uri('GET', 'https://identity.example.com/',
+                          text=open(self.discovery_json, 'r').read())
+        self.register_uri('GET', 'https://identity.example.com/',
+                          text=open(self.discovery_json, 'r').read())
         self._make_test_cloud(cloud_name='_test_cloud_v2_',
                               identity_api_version='2.0')
 

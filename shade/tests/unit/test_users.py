@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
+import collections
 import mock
 import uuid
 
@@ -23,6 +23,12 @@ from shade.tests import fakes
 from shade.tests.unit import base
 
 
+_UserData = collections.namedtuple(
+    'UserData',
+    'user_id, password, name, email, description, domain_id, enabled, '
+    'json_response')
+
+
 class TestUsers(base.RequestsMockTestCase):
 
     def _get_mock_url(self):
@@ -33,32 +39,45 @@ class TestUsers(base.RequestsMockTestCase):
             interface='admin')
         return '/'.join([endpoint_url, 'users'])
 
+    def _get_user_data(self, name=None, password=None, **kwargs):
+
+        name = name or self.getUniqueString('username')
+        password = password or self.getUniqueString('user_password')
+        user_id = uuid.uuid4().hex
+
+        response = {'name': name, 'id': user_id}
+
+        if kwargs.get('domain_id'):
+            kwargs['domain_id'] = uuid.UUID(kwargs['domain_id'])
+            response['domain_id'] = kwargs.pop('domain_id')
+
+        for item in ('email', 'description', 'enabled'):
+            response[item] = kwargs.pop(item, None)
+        self.assertIs(0, len(kwargs), message='extra key-word args received '
+                                              'on _get_user_data')
+
+        return _UserData(user_id, password, name, response['email'],
+                         response['description'], response.get('domain_id'),
+                         response.get('enabled'), {'user': response})
+
     def test_create_user_v2(self):
         self.use_keystone_v2()
 
-        name = 'Mickey Mouse'
-        email = 'mickey@disney.com'
-        password = 'mice-rule'
-        user_id = uuid.uuid4().hex
+        user_data = self._get_user_data()
 
-        response_json = {
-            'user':
-                {'name': name,
-                 'email': email,
-                 'id': user_id
-                 }
-        }
         self.register_uri('POST', self._get_mock_url(), status_code=204,
-                          json=response_json)
-        self.register_uri('GET', '/'.join([self._get_mock_url(), user_id]),
-                          status_code=200, json=response_json)
+                          json=user_data.json_response)
+        self.register_uri('GET',
+                          '/'.join([self._get_mock_url(), user_data.user_id]),
+                          status_code=200, json=user_data.json_response)
         user = self.op_cloud.create_user(
-            name=name, email=email, password=password,
-        )
+            name=user_data.name, email=user_data.email,
+            password=user_data.password)
 
-        self.assertEqual(name, user.name)
-        self.assertEqual(email, user.email)
-        self.assertEqual(user_id, user.id)
+        self.assertEqual(user_data.name, user.name)
+        self.assertEqual(user_data.email, user.email)
+        self.assertEqual(user_data.user_id, user.id)
+        self.assert_calls()
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
