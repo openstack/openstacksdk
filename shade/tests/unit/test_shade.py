@@ -585,6 +585,20 @@ class TestShade(base.TestCase):
         self.assertEqual('server1', r[0]['name'])
         self.assertEqual('server2', r[1]['name'])
 
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_list_servers_all_projects(self, mock_nova_client):
+        '''This test verifies that when list_servers is called with
+        `all_projects=True` that it passes `all_tenants=1` to novaclient.'''
+        mock_nova_client.servers.list.return_value = [
+            fakes.FakeServer('server1', '', 'ACTIVE'),
+            fakes.FakeServer('server2', '', 'ACTIVE'),
+        ]
+
+        self.cloud.list_servers(all_projects=True)
+
+        mock_nova_client.servers.list.assert_called_with(
+            search_opts={'all_tenants': True})
+
     def test_iterate_timeout_bad_wait(self):
         with testtools.ExpectedException(
                 exc.OpenStackCloudException,

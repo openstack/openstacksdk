@@ -68,6 +68,28 @@ class TestCompute(base.BaseFunctionalTestCase):
             self.demo_cloud.delete_server(self.server_name, wait=True))
         self.assertIsNone(self.demo_cloud.get_server(self.server_name))
 
+    def test_list_all_servers(self):
+        self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
+        server = self.demo_cloud.create_server(
+            name=self.server_name,
+            image=self.image,
+            flavor=self.flavor,
+            wait=True)
+        # We're going to get servers from other tests, but that's ok, as long
+        # as we get the server we created with the demo user.
+        found_server = False
+        for s in self.operator_cloud.list_servers(all_projects=True):
+            if s.name == server.name:
+                found_server = True
+        self.assertTrue(found_server)
+
+    def test_list_all_servers_bad_permissions(self):
+        # Normal users are not allowed to pass all_projects=True
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.demo_cloud.list_servers,
+            all_projects=True)
+
     def test_create_server_image_flavor_dict(self):
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
         server = self.demo_cloud.create_server(
