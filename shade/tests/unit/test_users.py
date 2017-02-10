@@ -26,7 +26,7 @@ from shade.tests.unit import base
 _UserData = collections.namedtuple(
     'UserData',
     'user_id, password, name, email, description, domain_id, enabled, '
-    'json_response')
+    'json_response, json_request')
 
 
 class TestUsers(base.RequestsMockTestCase):
@@ -50,19 +50,29 @@ class TestUsers(base.RequestsMockTestCase):
         user_id = uuid.uuid4().hex
 
         response = {'name': name, 'id': user_id}
+        request = {'name': name, 'password': password, 'tenantId': None}
 
         if kwargs.get('domain_id'):
             kwargs['domain_id'] = uuid.UUID(kwargs['domain_id']).hex
             response['domain_id'] = kwargs.pop('domain_id')
 
-        for item in ('email', 'description', 'enabled'):
-            response[item] = kwargs.pop(item, None)
+        response['email'] = kwargs.pop('email', None)
+        request['email'] = response['email']
+
+        response['enabled'] = kwargs.pop('enabled', True)
+        request['enabled'] = response['enabled']
+
+        response['description'] = kwargs.pop('description', None)
+        if response['description']:
+            request['description'] = response['description']
+
         self.assertIs(0, len(kwargs), message='extra key-word args received '
                                               'on _get_user_data')
 
         return _UserData(user_id, password, name, response['email'],
                          response['description'], response.get('domain_id'),
-                         response.get('enabled'), {'user': response})
+                         response.get('enabled'), {'user': response},
+                         {'user': request})
 
     def test_create_user_v2(self):
         self.use_keystone_v2()
@@ -70,7 +80,8 @@ class TestUsers(base.RequestsMockTestCase):
         user_data = self._get_user_data()
 
         self.register_uri('POST', self._get_mock_url(), status_code=204,
-                          json=user_data.json_response)
+                          json=user_data.json_response,
+                          validate=dict(json=user_data.json_request))
         self.register_uri('GET',
                           self._get_mock_url(append=[user_data.user_id]),
                           status_code=200, json=user_data.json_response)
