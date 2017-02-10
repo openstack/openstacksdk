@@ -13,11 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
+import collections
+import uuid
+
 import testtools
+from testtools import matchers
 
 import shade
-from shade import meta
 from shade.tests.unit import base
 from shade.tests import fakes
 
@@ -30,107 +32,267 @@ domain_obj = fakes.FakeDomain(
 )
 
 
-class TestDomains(base.TestCase):
+_DomainData = collections.namedtuple(
+    'DomainData',
+    'domain_id, domain_name, description, json_response, '
+    'json_request')
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_list_domains(self, mock_keystone):
-        self.op_cloud.list_domains()
-        self.assertTrue(mock_keystone.domains.list.called)
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_get_domain(self, mock_keystone):
-        mock_keystone.domains.get.return_value = domain_obj
-        domain = self.op_cloud.get_domain(domain_id='1234')
-        self.assertFalse(mock_keystone.domains.list.called)
-        self.assertTrue(mock_keystone.domains.get.called)
-        self.assertEqual(domain['name'], 'a-domain')
+class TestDomains(base.RequestsMockTestCase):
 
-    @mock.patch.object(shade._utils, '_get_entity')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_get_domain_with_name_or_id(self, mock_keystone, mock_get):
-        self.op_cloud.get_domain(name_or_id='1234')
-        mock_get.assert_called_once_with(mock.ANY,
-                                         None, '1234')
+    def get_mock_url(self, service_type='identity',
+                     interface='admin', resource='domains',
+                     append=None, base_url_append='v3'):
+        return super(TestDomains, self).get_mock_url(
+            service_type=service_type, interface=interface, resource=resource,
+            append=append, base_url_append=base_url_append)
 
-    @mock.patch.object(shade._utils, 'normalize_domains')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_create_domain(self, mock_keystone, mock_normalize):
-        mock_keystone.domains.create.return_value = domain_obj
-        self.op_cloud.create_domain(
-            domain_obj.name, domain_obj.description)
-        mock_keystone.domains.create.assert_called_once_with(
-            name=domain_obj.name, description=domain_obj.description,
-            enabled=True)
-        mock_normalize.assert_called_once_with([meta.obj_to_dict(domain_obj)])
+    def _get_domain_data(self, domain_name=None, description=None,
+                         enabled=None):
+        domain_id = uuid.uuid4().hex
+        domain_name = domain_name or self.getUniqueString('domainName')
+        response = {'id': domain_id, 'name': domain_name}
+        request = {'name': domain_name}
+        if enabled is not None:
+            request['enabled'] = bool(enabled)
+            response['enabled'] = bool(enabled)
+        if description:
+            response['description'] = description
+            request['description'] = description
+        response.setdefault('enabled', True)
+        return _DomainData(domain_id, domain_name, description,
+                           {'domain': response}, {'domain': request})
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_create_domain_exception(self, mock_keystone):
-        mock_keystone.domains.create.side_effect = Exception()
+    def test_list_domains(self):
+        self._add_discovery_uri_call()
+        domain_data = self._get_domain_data()
+        self.register_uri(
+            'GET', self.get_mock_url(), status_code=200,
+            json={'domains': [domain_data.json_response['domain']]})
+        domains = self.op_cloud.list_domains()
+        self.assertThat(len(domains), matchers.Equals(1))
+        self.assertThat(domains[0].name,
+                        matchers.Equals(domain_data.domain_name))
+        self.assertThat(domains[0].id,
+                        matchers.Equals(domain_data.domain_id))
+        self.assert_calls()
+
+    def test_get_domain(self):
+        self._add_discovery_uri_call()
+        domain_data = self._get_domain_data()
+        self.register_uri(
+            'GET', self.get_mock_url(append=[domain_data.domain_id]),
+            status_code=200,
+            json=domain_data.json_response)
+        domain = self.op_cloud.get_domain(domain_id=domain_data.domain_id)
+        self.assertThat(domain.id, matchers.Equals(domain_data.domain_id))
+        self.assertThat(domain.name, matchers.Equals(domain_data.domain_name))
+        self.assert_calls()
+
+    def test_get_domain_with_name_or_id(self):
+        self._add_discovery_uri_call()
+        domain_data = self._get_domain_data()
+        self.register_uri(
+            'GET', self.get_mock_url(), status_code=200,
+            json={'domains': [domain_data.json_response['domain']]})
+        self.register_uri(
+            'GET', self.get_mock_url(), status_code=200,
+            json={'domains': [domain_data.json_response['domain']]})
+        domain = self.op_cloud.get_domain(name_or_id=domain_data.domain_id)
+        domain_by_name = self.op_cloud.get_domain(
+            name_or_id=domain_data.domain_name)
+        self.assertThat(domain.id, matchers.Equals(domain_data.domain_id))
+        self.assertThat(domain.name, matchers.Equals(domain_data.domain_name))
+        self.assertThat(domain_by_name.id,
+                        matchers.Equals(domain_data.domain_id))
+        self.assertThat(domain_by_name.name,
+                        matchers.Equals(domain_data.domain_name))
+        self.assert_calls()
+
+    def test_create_domain(self):
+        self._add_discovery_uri_call()
+        domain_data = self._get_domain_data(description=uuid.uuid4().hex,
+                                            enabled=True)
+        self.register_uri(
+            'POST',
+            self.get_mock_url(),
+            status_code=200,
+            json=domain_data.json_response,
+            validate=dict(json=domain_data.json_request))
+        self.register_uri(
+            'GET',
+            self.get_mock_url(append=[domain_data.domain_id]),
+            status_code=200,
+            json=domain_data.json_response)
+        domain = self.op_cloud.create_domain(
+            domain_data.domain_name, domain_data.description)
+        self.assertThat(domain.id, matchers.Equals(domain_data.domain_id))
+        self.assertThat(domain.name, matchers.Equals(domain_data.domain_name))
+        self.assertThat(
+            domain.description, matchers.Equals(domain_data.description))
+        self.assert_calls()
+
+    def test_create_domain_exception(self):
+        self._add_discovery_uri_call()
         with testtools.ExpectedException(
             shade.OpenStackCloudException,
             "Failed to create domain domain_name"
         ):
+            self.register_uri(
+                'POST',
+                self.get_mock_url(),
+                status_code=409)
             self.op_cloud.create_domain('domain_name')
+        self.assert_calls()
 
-    @mock.patch.object(shade.OperatorCloud, 'update_domain')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_delete_domain(self, mock_keystone, mock_update):
-        mock_update.return_value = dict(id='update_domain_id')
-        self.op_cloud.delete_domain('domain_id')
-        mock_update.assert_called_once_with('domain_id', enabled=False)
-        mock_keystone.domains.delete.assert_called_once_with(
-            domain='update_domain_id')
+    def test_delete_domain(self):
+        self._add_discovery_uri_call()
+        domain_data = self._get_domain_data()
+        new_resp = domain_data.json_response.copy()
+        new_resp['domain']['enabled'] = False
+        self.register_uri(
+            'PATCH',
+            self.get_mock_url(append=[domain_data.domain_id]),
+            status_code=200,
+            json=new_resp,
+            validate={'domain': {'enabled': False}})
+        self.register_uri(
+            'GET',
+            self.get_mock_url(append=[domain_data.domain_id]),
+            status_code=200,
+            json=new_resp)
+        self.register_uri(
+            'DELETE',
+            self.get_mock_url(append=[domain_data.domain_id]),
+            status_code=204)
+        self.op_cloud.delete_domain(domain_data.domain_id)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OperatorCloud, 'get_domain')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_delete_domain_name_or_id(self, mock_keystone, mock_get):
-        self.op_cloud.update_domain(
-            name_or_id='a-domain',
-            name='new name',
-            description='new description',
-            enabled=False)
-        mock_get.assert_called_once_with(None, 'a-domain')
+    def test_delete_domain_name_or_id(self):
+        self._add_discovery_uri_call()
+        domain_data = self._get_domain_data()
+        new_resp = domain_data.json_response.copy()
+        new_resp['domain']['enabled'] = False
+        self.register_uri(
+            'GET',
+            self.get_mock_url(),
+            status_code=200,
+            json={'domains': [domain_data.json_response['domain']]})
+        self.register_uri(
+            'PATCH',
+            self.get_mock_url(append=[domain_data.domain_id]),
+            status_code=200,
+            json=new_resp,
+            validate={'domain': {'enabled': False}})
+        self.register_uri(
+            'GET',
+            self.get_mock_url(append=[domain_data.domain_id]),
+            status_code=200,
+            json=new_resp)
+        self.register_uri(
+            'DELETE',
+            self.get_mock_url(append=[domain_data.domain_id]),
+            status_code=204)
+        self.op_cloud.delete_domain(name_or_id=domain_data.domain_id)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OperatorCloud, 'update_domain')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_delete_domain_exception(self, mock_keystone, mock_update):
-        mock_keystone.domains.delete.side_effect = Exception()
+    def test_delete_domain_exception(self):
+        # NOTE(notmorgan): This test does not reflect the case where the domain
+        # cannot be updated to be disabled, Shade raises that as an unable
+        # to update domain even though it is called via delete_domain. This
+        # should be fixed in shade to catch either a failure on PATCH,
+        # subsequent GET, or DELETE call(s).
+        self._add_discovery_uri_call()
+        domain_data = self._get_domain_data()
+        new_resp = domain_data.json_response.copy()
+        new_resp['domain']['enabled'] = False
+        self.register_uri(
+            'PATCH',
+            self.get_mock_url(append=[domain_data.domain_id]),
+            status_code=200,
+            json=new_resp,
+            validate={'domain': {'enabled': False}})
+        self.register_uri(
+            'GET',
+            self.get_mock_url(append=[domain_data.domain_id]),
+            status_code=200,
+            json=new_resp)
+        self.register_uri(
+            'DELETE',
+            self.get_mock_url(append=[domain_data.domain_id]),
+            status_code=404)
         with testtools.ExpectedException(
             shade.OpenStackCloudException,
-            "Failed to delete domain domain_id"
+            "Failed to delete domain %s" % domain_data.domain_id
         ):
-            self.op_cloud.delete_domain('domain_id')
+            self.op_cloud.delete_domain(domain_data.domain_id)
+        self.assert_calls()
 
-    @mock.patch.object(shade._utils, 'normalize_domains')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_update_domain(self, mock_keystone, mock_normalize):
-        mock_keystone.domains.update.return_value = domain_obj
-        self.op_cloud.update_domain(
-            'domain_id',
-            name='new name',
-            description='new description',
-            enabled=False)
-        mock_keystone.domains.update.assert_called_once_with(
-            domain='domain_id', name='new name',
-            description='new description', enabled=False)
-        mock_normalize.assert_called_once_with(
-            [meta.obj_to_dict(domain_obj)])
+    def test_update_domain(self):
+        self._add_discovery_uri_call()
+        domain_data = self._get_domain_data(
+            description=self.getUniqueString('domainDesc'))
+        self.register_uri(
+            'PATCH',
+            self.get_mock_url(append=[domain_data.domain_id]),
+            status_code=200,
+            json=domain_data.json_response,
+            validate=dict(json=domain_data.json_request))
+        self.register_uri(
+            'GET',
+            self.get_mock_url(append=[domain_data.domain_id]),
+            status_code=200,
+            json=domain_data.json_response)
+        domain = self.op_cloud.update_domain(
+            domain_data.domain_id,
+            name=domain_data.domain_name,
+            description=domain_data.description)
+        self.assertThat(domain.id, matchers.Equals(domain_data.domain_id))
+        self.assertThat(domain.name, matchers.Equals(domain_data.domain_name))
+        self.assertThat(
+            domain.description, matchers.Equals(domain_data.description))
+        self.assert_calls()
 
-    @mock.patch.object(shade.OperatorCloud, 'get_domain')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_update_domain_name_or_id(self, mock_keystone, mock_get):
-        self.op_cloud.update_domain(
-            name_or_id='a-domain',
-            name='new name',
-            description='new description',
-            enabled=False)
-        mock_get.assert_called_once_with(None, 'a-domain')
+    def test_update_domain_name_or_id(self):
+        self._add_discovery_uri_call()
+        domain_data = self._get_domain_data(
+            description=self.getUniqueString('domainDesc'))
+        self.register_uri(
+            'GET',
+            self.get_mock_url(), status_code=200,
+            json={'domains': [domain_data.json_response['domain']]})
+        self.register_uri(
+            'PATCH',
+            self.get_mock_url(append=[domain_data.domain_id]),
+            status_code=200,
+            json=domain_data.json_response,
+            validate=dict(json=domain_data.json_request))
+        self.register_uri(
+            'GET',
+            self.get_mock_url(append=[domain_data.domain_id]),
+            status_code=200,
+            json=domain_data.json_response)
+        domain = self.op_cloud.update_domain(
+            name_or_id=domain_data.domain_id,
+            name=domain_data.domain_name,
+            description=domain_data.description)
+        self.assertThat(domain.id, matchers.Equals(domain_data.domain_id))
+        self.assertThat(domain.name, matchers.Equals(domain_data.domain_name))
+        self.assertThat(
+            domain.description, matchers.Equals(domain_data.description))
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_update_domain_exception(self, mock_keystone):
-        mock_keystone.domains.update.side_effect = Exception()
+    def test_update_domain_exception(self):
+        self._add_discovery_uri_call()
+        domain_data = self._get_domain_data(
+            description=self.getUniqueString('domainDesc'))
+        self.register_uri(
+            'PATCH',
+            self.get_mock_url(append=[domain_data.domain_id]),
+            status_code=409)
         with testtools.ExpectedException(
             shade.OpenStackCloudException,
-            "Error in updating domain domain_id"
+            "Error in updating domain %s" % domain_data.domain_id
         ):
-            self.op_cloud.delete_domain('domain_id')
+            self.op_cloud.delete_domain(domain_data.domain_id)
+        self.assert_calls()
