@@ -13,7 +13,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import collections
 import time
+import uuid
 
 import fixtures
 import mock
@@ -25,6 +27,17 @@ import tempfile
 
 import shade.openstackcloud
 from shade.tests import base
+
+
+_UserData = collections.namedtuple(
+    'UserData',
+    'user_id, password, name, email, description, domain_id, enabled, '
+    'json_response, json_request')
+
+
+_GroupData = collections.namedtuple(
+    'GroupData',
+    'group_id, group_name, domain_id, description, json_response')
 
 
 class BaseTestCase(base.TestCase):
@@ -107,6 +120,63 @@ class RequestsMockTestCase(BaseTestCase):
             self.fixtures_directory, 'discovery.json')
         self.use_keystone_v3()
 
+    def get_mock_url(self, service_type, interface, resource=None,
+                     append=None, base_url_append=None):
+        service_catalog = self.cloud.keystone_session.auth.get_access(
+            self.cloud.keystone_session).service_catalog
+        endpoint_url = service_catalog.url_for(
+            service_type=service_type,
+            interface=interface)
+        to_join = [endpoint_url]
+        if base_url_append:
+            to_join.append(base_url_append)
+        if resource:
+            to_join.append(resource)
+        to_join.extend(append or [])
+        return '/'.join(to_join)
+
+    def _get_group_data(self, name=None, domain_id=None, description=None):
+        group_id = uuid.uuid4().hex
+        name or self.getUniqueString('groupname')
+        domain_id = uuid.UUID(domain_id or uuid.uuid4().hex).hex
+        response = {'id': group_id, 'name': name, 'domain_id': domain_id}
+        if description is not None:
+            response['description'] = description
+
+        return _GroupData(group_id, name, domain_id, description,
+                          {'group': response})
+
+    def _get_user_data(self, name=None, password=None, **kwargs):
+
+        name = name or self.getUniqueString('username')
+        password = password or self.getUniqueString('user_password')
+        user_id = uuid.uuid4().hex
+
+        response = {'name': name, 'id': user_id}
+        request = {'name': name, 'password': password, 'tenantId': None}
+
+        if kwargs.get('domain_id'):
+            kwargs['domain_id'] = uuid.UUID(kwargs['domain_id']).hex
+            response['domain_id'] = kwargs.pop('domain_id')
+
+        response['email'] = kwargs.pop('email', None)
+        request['email'] = response['email']
+
+        response['enabled'] = kwargs.pop('enabled', True)
+        request['enabled'] = response['enabled']
+
+        response['description'] = kwargs.pop('description', None)
+        if response['description']:
+            request['description'] = response['description']
+
+        self.assertIs(0, len(kwargs), message='extra key-word args received '
+                                              'on _get_user_data')
+
+        return _UserData(user_id, password, name, response['email'],
+                         response['description'], response.get('domain_id'),
+                         response.get('enabled'), {'user': response},
+                         {'user': request})
+
     def use_keystone_v3(self):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.calls = []
@@ -141,6 +211,7 @@ class RequestsMockTestCase(BaseTestCase):
                           text=open(self.discovery_json, 'r').read())
         self.register_uri('GET', 'https://identity.example.com/',
                           text=open(self.discovery_json, 'r').read())
+
         self._make_test_cloud(cloud_name='_test_cloud_v2_',
                               identity_api_version='2.0')
 
