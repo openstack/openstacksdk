@@ -122,11 +122,8 @@ class RequestsMockTestCase(BaseTestCase):
 
     def get_mock_url(self, service_type, interface, resource=None,
                      append=None, base_url_append=None):
-        service_catalog = self.cloud.keystone_session.auth.get_access(
-            self.cloud.keystone_session).service_catalog
-        endpoint_url = service_catalog.url_for(
-            service_type=service_type,
-            interface=interface)
+        endpoint_url = self.cloud.endpoint_for(
+            service_type=service_type, interface=interface)
         to_join = [endpoint_url]
         if base_url_append:
             to_join.append(base_url_append)
