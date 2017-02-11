@@ -10,51 +10,116 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import collections
+import uuid
 
-import mock
-
-import munch
-import os_client_config as occ
 import testtools
+from testtools import matchers
 
 import shade
 import shade._utils
 from shade.tests.unit import base
 
 
-class TestProject(base.TestCase):
+_ProjectData = collections.namedtuple(
+    'ProjectData',
+    'project_id, project_name, enabled, domain_id, description, '
+    'json_response, json_request')
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_create_project_v2(self, mock_keystone, mock_api_version):
-        mock_api_version.return_value = '2'
-        name = 'project_name'
-        description = 'Project description'
-        self.op_cloud.create_project(name=name, description=description)
-        mock_keystone.tenants.create.assert_called_once_with(
-            project_name=name, description=description, enabled=True,
-            tenant_name=name
-        )
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_create_project_v3(self, mock_keystone, mock_api_version):
-        mock_api_version.return_value = '3'
-        name = 'project_name'
-        description = 'Project description'
-        domain_id = '123'
-        self.op_cloud.create_project(
-            name=name, description=description, domain_id=domain_id)
-        mock_keystone.projects.create.assert_called_once_with(
-            project_name=name, description=description, enabled=True,
-            name=name, domain=domain_id
-        )
+class TestProject(base.RequestsMockTestCase):
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_create_project_v3_no_domain(self, mock_keystone,
-                                         mock_api_version):
-        mock_api_version.return_value = '3'
+    def get_mock_url(self, service_type='identity', interface='admin',
+                     resource=None, append=None, base_url_append=None,
+                     v3=True):
+        if v3 and resource is None:
+            resource = 'projects'
+        elif not v3 and resource is None:
+            resource = 'tenants'
+        if base_url_append is None and v3:
+            base_url_append = 'v3'
+        return super(TestProject, self).get_mock_url(
+            service_type=service_type, interface=interface, resource=resource,
+            append=append, base_url_append=base_url_append)
+
+    def _get_project_data(self, project_name=None, enabled=None,
+                          description=None, v3=True):
+        project_name = project_name or self.getUniqueString('projectName')
+        project_id = uuid.uuid4().hex
+        response = {'id': project_id, 'name': project_name}
+        request = {'name': project_name}
+        domain_id = None
+        if v3:
+            domain_id = uuid.uuid4().hex
+            request['domain_id'] = domain_id
+            response['domain_id'] = domain_id
+        if enabled is not None:
+            enabled = bool(enabled)
+            response['enabled'] = enabled
+            request['enabled'] = enabled
+        response.setdefault('enabled', True)
+        if description:
+            response['description'] = description
+            request['description'] = description
+        if v3:
+            project_key = 'project'
+        else:
+            project_key = 'tenant'
+        return _ProjectData(project_id, project_name, enabled, domain_id,
+                            description, {project_key: response},
+                            {project_key: request})
+
+    def test_create_project_v2(self):
+        self.use_keystone_v2()
+        project_data = self._get_project_data(v3=False)
+        self.register_uri(
+            'POST',
+            self.get_mock_url(v3=False),
+            status_code=200,
+            json=project_data.json_response,
+            validate=project_data.json_request)
+        self.register_uri(
+            'GET',
+            self.get_mock_url(v3=False, append=[project_data.project_id]),
+            status_code=200,
+            json=project_data.json_response)
+        project = self.op_cloud.create_project(
+            name=project_data.project_name,
+            description=project_data.description)
+        self.assertThat(project.id, matchers.Equals(project_data.project_id))
+        self.assertThat(
+            project.name, matchers.Equals(project_data.project_name))
+        self.assert_calls()
+
+    def test_create_project_v3(self,):
+        self._add_discovery_uri_call()
+        project_data = self._get_project_data(
+            description=self.getUniqueString('projectDesc'))
+        self.register_uri(
+            'POST',
+            self.get_mock_url(),
+            status_code=200,
+            json=project_data.json_response,
+            validate=project_data.json_request)
+        self.register_uri(
+            'GET',
+            self.get_mock_url(append=[project_data.project_id]),
+            status_code=200,
+            json=project_data.json_response)
+        project = self.op_cloud.create_project(
+            name=project_data.project_name,
+            description=project_data.description,
+            domain_id=project_data.domain_id)
+        self.assertThat(project.id, matchers.Equals(project_data.project_id))
+        self.assertThat(
+            project.name, matchers.Equals(project_data.project_name))
+        self.assertThat(
+            project.description, matchers.Equals(project_data.description))
+        self.assertThat(
+            project.domain_id, matchers.Equals(project_data.domain_id))
+        self.assert_calls()
+
+    def test_create_project_v3_no_domain(self):
         with testtools.ExpectedException(
                 shade.OpenStackCloudException,
                 "User or project creation requires an explicit"
@@ -62,89 +127,180 @@ class TestProject(base.TestCase):
         ):
             self.op_cloud.create_project(name='foo', description='bar')
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, 'get_project')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_delete_project_v2(self, mock_keystone, mock_get,
-                               mock_api_version):
-        mock_api_version.return_value = '2'
-        mock_get.return_value = dict(id='123')
-        self.assertTrue(self.op_cloud.delete_project('123'))
-        mock_get.assert_called_once_with('123', domain_id=None)
-        mock_keystone.tenants.delete.assert_called_once_with(tenant='123')
+    def test_delete_project_v2(self):
+        self.use_keystone_v2()
+        project_data = self._get_project_data(v3=False)
+        self.register_uri(
+            'GET',
+            self.get_mock_url(v3=False),
+            status_code=200,
+            json={'tenants': [project_data.json_response['tenant']]})
+        self.register_uri(
+            'DELETE',
+            self.get_mock_url(v3=False, append=[project_data.project_id]),
+            status_code=204)
+        self.op_cloud.delete_project(project_data.project_id)
+        self.assert_calls()
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, 'get_project')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_delete_project_v3(self, mock_keystone, mock_get,
-                               mock_api_version):
-        mock_api_version.return_value = '3'
-        mock_get.return_value = dict(id='123')
-        self.assertTrue(self.op_cloud.delete_project('123'))
-        mock_get.assert_called_once_with('123', domain_id=None)
-        mock_keystone.projects.delete.assert_called_once_with(project='123')
+    def test_delete_project_v3(self):
+        self._add_discovery_uri_call()
+        project_data = self._get_project_data(v3=False)
+        self.register_uri(
+            'GET',
+            self.get_mock_url(),
+            status_code=200,
+            json={'projects': [project_data.json_response['tenant']]})
+        self.register_uri(
+            'DELETE',
+            self.get_mock_url(append=[project_data.project_id]),
+            status_code=204)
+        self.op_cloud.delete_project(project_data.project_id)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_project')
-    def test_update_project_not_found(self, mock_get_project):
-        mock_get_project.return_value = None
+    def test_update_project_not_found(self):
+        self._add_discovery_uri_call()
+        project_data = self._get_project_data()
+        self.register_uri(
+            'GET',
+            self.get_mock_url(),
+            status_code=200,
+            json={'projects': []})
+        # NOTE(notmorgan): This test (and shade) does not represent a case
+        # where the project is in the project list but a 404 is raised when
+        # the PATCH is issued. This is a bug in shade and should be fixed,
+        # shade will raise an attribute error instead of the proper
+        # project not found exception.
         with testtools.ExpectedException(
                 shade.OpenStackCloudException,
-                "Project ABC not found."
+                "Project %s not found." % project_data.project_id
         ):
-            self.op_cloud.update_project('ABC')
+            self.op_cloud.update_project(project_data.project_id)
+        self.assert_calls()
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, 'get_project')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_update_project_v2(self, mock_keystone, mock_get_project,
-                               mock_api_version):
-        mock_api_version.return_value = '2'
-        mock_get_project.return_value = munch.Munch(dict(id='123'))
-        self.op_cloud.update_project('123', description='new', enabled=False)
-        mock_keystone.tenants.update.assert_called_once_with(
-            description='new', enabled=False, tenant_id='123')
+    def test_update_project_v2(self):
+        self.use_keystone_v2()
+        project_data = self._get_project_data(
+            v3=False,
+            description=self.getUniqueString('projectDesc'))
+        self.register_uri(
+            'GET',
+            self.get_mock_url(v3=False),
+            status_code=200,
+            json={'tenants': [project_data.json_response['tenant']]})
+        self.register_uri(
+            'POST',
+            self.get_mock_url(v3=False, append=[project_data.project_id]),
+            status_code=200,
+            json=project_data.json_response,
+            validate=project_data.json_request)
+        self.register_uri(
+            'GET',
+            self.get_mock_url(v3=False, append=[project_data.project_id]),
+            status_code=200,
+            json=project_data.json_response)
+        project = self.op_cloud.update_project(
+            project_data.project_id,
+            description=project_data.description)
+        self.assertThat(project.id, matchers.Equals(project_data.project_id))
+        self.assertThat(
+            project.name, matchers.Equals(project_data.project_name))
+        self.assertThat(
+            project.description, matchers.Equals(project_data.description))
+        self.assert_calls()
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, 'get_project')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_update_project_v3(self, mock_keystone, mock_get_project,
-                               mock_api_version):
-        mock_api_version.return_value = '3'
-        mock_get_project.return_value = munch.Munch(dict(id='123'))
-        self.op_cloud.update_project('123', description='new', enabled=False)
-        mock_keystone.projects.update.assert_called_once_with(
-            description='new', enabled=False, project='123')
+    def test_update_project_v3(self):
+        self._add_discovery_uri_call()
+        project_data = self._get_project_data(
+            description=self.getUniqueString('projectDesc'))
+        self.register_uri(
+            'GET',
+            self.get_mock_url(
+                resource='projects?domain_id=%s' % project_data.domain_id),
+            status_code=200,
+            json={'projects': [project_data.json_response['project']]})
+        self.register_uri(
+            'PATCH',
+            self.get_mock_url(append=[project_data.project_id]),
+            status_code=200,
+            json=project_data.json_response,
+            validate=project_data.json_request)
+        self.register_uri(
+            'GET',
+            self.get_mock_url(append=[project_data.project_id]),
+            status_code=200,
+            json=project_data.json_response)
+        project = self.op_cloud.update_project(
+            project_data.project_id,
+            description=project_data.description,
+            domain_id=project_data.domain_id)
+        self.assertThat(project.id, matchers.Equals(project_data.project_id))
+        self.assertThat(
+            project.name, matchers.Equals(project_data.project_name))
+        self.assertThat(
+            project.description, matchers.Equals(project_data.description))
+        self.assert_calls()
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_list_projects_v3(self, mock_keystone, mock_api_version):
-        mock_api_version.return_value = '3'
-        self.op_cloud.list_projects('123')
-        mock_keystone.projects.list.assert_called_once_with(
-            domain='123')
+    def test_list_projects_v3(self):
+        self._add_discovery_uri_call()
+        project_data = self._get_project_data(
+            description=self.getUniqueString('projectDesc'))
+        self.register_uri(
+            'GET',
+            self.get_mock_url(
+                resource='projects?domain_id=%s' % project_data.domain_id),
+            status_code=200,
+            json={'projects': [project_data.json_response['project']]})
+        projects = self.op_cloud.list_projects(project_data.domain_id)
+        self.assertThat(len(projects), matchers.Equals(1))
+        self.assertThat(
+            projects[0].id, matchers.Equals(project_data.project_id))
+        self.assert_calls()
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_list_projects_v3_kwarg(self, mock_keystone, mock_api_version):
-        mock_api_version.return_value = '3'
-        self.op_cloud.list_projects(domain_id='123')
-        mock_keystone.projects.list.assert_called_once_with(
-            domain='123')
+    def test_list_projects_v3_kwarg(self):
+        self._add_discovery_uri_call()
+        project_data = self._get_project_data(
+            description=self.getUniqueString('projectDesc'))
+        self.register_uri(
+            'GET',
+            self.get_mock_url(
+                resource='projects?domain_id=%s' % project_data.domain_id),
+            status_code=200,
+            json={'projects': [project_data.json_response['project']]})
+        projects = self.op_cloud.list_projects(
+            domain_id=project_data.domain_id)
+        self.assertThat(len(projects), matchers.Equals(1))
+        self.assertThat(
+            projects[0].id, matchers.Equals(project_data.project_id))
+        self.assert_calls()
 
-    @mock.patch.object(shade._utils, '_filter_list')
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_list_projects_search_compat(
-            self, mock_keystone, mock_api_version, mock_filter_list):
-        mock_api_version.return_value = '3'
-        self.op_cloud.search_projects('123')
-        mock_keystone.projects.list.assert_called_once_with()
-        mock_filter_list.assert_called_once_with(mock.ANY, '123', mock.ANY)
+    def test_list_projects_search_compat(self):
+        self._add_discovery_uri_call()
+        project_data = self._get_project_data(
+            description=self.getUniqueString('projectDesc'))
+        self.register_uri(
+            'GET',
+            self.get_mock_url(),
+            status_code=200,
+            json={'projects': [project_data.json_response['project']]})
+        projects = self.op_cloud.search_projects(project_data.project_id)
+        self.assertThat(len(projects), matchers.Equals(1))
+        self.assertThat(
+            projects[0].id, matchers.Equals(project_data.project_id))
+        self.assert_calls()
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_list_projects_search_compat_v3(
-            self, mock_keystone, mock_api_version):
-        mock_api_version.return_value = '3'
-        self.op_cloud.search_projects(domain_id='123')
-        mock_keystone.projects.list.assert_called_once_with(domain='123')
+    def test_list_projects_search_compat_v3(self):
+        self._add_discovery_uri_call()
+        project_data = self._get_project_data(
+            description=self.getUniqueString('projectDesc'))
+        self.register_uri(
+            'GET',
+            self.get_mock_url(
+                resource='projects?domain_id=%s' % project_data.domain_id),
+            status_code=200,
+            json={'projects': [project_data.json_response['project']]})
+        projects = self.op_cloud.search_projects(
+            domain_id=project_data.domain_id)
+        self.assertThat(len(projects), matchers.Equals(1))
+        self.assertThat(
+            projects[0].id, matchers.Equals(project_data.project_id))
+        self.assert_calls()
