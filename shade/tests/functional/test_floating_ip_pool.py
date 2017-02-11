@@ -35,14 +35,14 @@ class TestFloatingIPPool(base.BaseFunctionalTestCase):
     def setUp(self):
         super(TestFloatingIPPool, self).setUp()
 
-        if not self.demo_cloud._has_nova_extension('os-floating-ip-pools'):
+        if not self.user_cloud._has_nova_extension('os-floating-ip-pools'):
             # Skipping this test is floating-ip-pool extension is not
             # available on the testing cloud
             self.skip(
                 'Floating IP pools extension is not available')
 
     def test_list_floating_ip_pools(self):
-        pools = self.demo_cloud.list_floating_ip_pools()
+        pools = self.user_cloud.list_floating_ip_pools()
         if not pools:
             self.assertFalse('no floating-ip pool available')
 

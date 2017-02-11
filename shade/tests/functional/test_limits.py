@@ -23,7 +23,7 @@ class TestUsage(base.BaseFunctionalTestCase):
 
     def test_get_our_limits(self):
         '''Test quotas functionality'''
-        limits = self.demo_cloud.get_compute_limits()
+        limits = self.user_cloud.get_compute_limits()
         self.assertIsNotNone(limits)
         self.assertTrue(hasattr(limits, 'max_server_meta'))
 

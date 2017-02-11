@@ -26,7 +26,7 @@ class TestZone(base.BaseFunctionalTestCase):
 
     def setUp(self):
         super(TestZone, self).setUp()
-        if not self.demo_cloud.has_service('dns'):
+        if not self.user_cloud.has_service('dns'):
             self.skipTest('dns service not supported by cloud')
 
     def test_zones(self):
@@ -42,7 +42,7 @@ class TestZone(base.BaseFunctionalTestCase):
         self.addCleanup(self.cleanup, name)
 
         # Test we can create a zone and we get it returned
-        zone = self.demo_cloud.create_zone(
+        zone = self.user_cloud.create_zone(
             name=name, zone_type=zone_type, email=email,
             description=description, ttl=ttl,
             masters=masters)
@@ -54,20 +54,20 @@ class TestZone(base.BaseFunctionalTestCase):
         self.assertEqual(zone['masters'], [])
 
         # Test that we can list zones
-        zones = self.demo_cloud.list_zones()
+        zones = self.user_cloud.list_zones()
         self.assertIsNotNone(zones)
 
         # Test we get the same zone with the get_zone method
-        zone_get = self.demo_cloud.get_zone(zone['id'])
+        zone_get = self.user_cloud.get_zone(zone['id'])
         self.assertEqual(zone_get['id'], zone['id'])
 
         # Test the get method also works by name
-        zone_get = self.demo_cloud.get_zone(name)
+        zone_get = self.user_cloud.get_zone(name)
         self.assertEqual(zone_get['name'], zone['name'])
 
         # Test we can update a field on the zone and only that field
         # is updated
-        zone_update = self.demo_cloud.update_zone(zone['id'], ttl=7200)
+        zone_update = self.user_cloud.update_zone(zone['id'], ttl=7200)
         self.assertEqual(zone_update['id'], zone['id'])
         self.assertEqual(zone_update['name'], zone['name'])
         self.assertEqual(zone_update['type'], zone['type'])
@@ -77,8 +77,8 @@ class TestZone(base.BaseFunctionalTestCase):
         self.assertEqual(zone_update['masters'], zone['masters'])
 
         # Test we can delete and get True returned
-        zone_delete = self.demo_cloud.delete_zone(zone['id'])
+        zone_delete = self.user_cloud.delete_zone(zone['id'])
         self.assertTrue(zone_delete)
 
     def cleanup(self, name):
-        self.demo_cloud.delete_zone(name)
+        self.user_cloud.delete_zone(name)

@@ -36,9 +36,9 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
 
     def setUp(self):
         super(TestFloatingIP, self).setUp()
-        self.nova = self.demo_cloud.nova_client
-        if self.demo_cloud.has_service('network'):
-            self.neutron = self.demo_cloud.neutron_client
+        self.nova = self.user_cloud.nova_client
+        if self.user_cloud.has_service('network'):
+            self.neutron = self.user_cloud.neutron_client
         self.flavor = pick_flavor(self.nova.flavors.list())
         if self.flavor is None:
             self.assertFalse('no sensible flavor available')
@@ -56,9 +56,9 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
         exception_list = list()
 
         # Delete stale networks as well as networks created for this test
-        if self.demo_cloud.has_service('network'):
+        if self.user_cloud.has_service('network'):
             # Delete routers
-            for r in self.demo_cloud.list_routers():
+            for r in self.user_cloud.list_routers():
                 try:
                     if r['name'].startswith(self.new_item_name):
                         # ToDo: update_router currently won't allow removing
@@ -69,7 +69,7 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
                         self.neutron.update_router(
                             router=r['id'], body={'router': router})
                         # ToDo: Shade currently doesn't have methods for this
-                        for s in self.demo_cloud.list_subnets():
+                        for s in self.user_cloud.list_subnets():
                             if s['name'].startswith(self.new_item_name):
                                 try:
                                     self.neutron.remove_interface_router(
@@ -77,23 +77,23 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
                                         body={'subnet_id': s['id']})
                                 except Exception:
                                     pass
-                        self.demo_cloud.delete_router(name_or_id=r['id'])
+                        self.user_cloud.delete_router(name_or_id=r['id'])
                 except Exception as e:
                     exception_list.append(str(e))
                     continue
             # Delete subnets
-            for s in self.demo_cloud.list_subnets():
+            for s in self.user_cloud.list_subnets():
                 if s['name'].startswith(self.new_item_name):
                     try:
-                        self.demo_cloud.delete_subnet(name_or_id=s['id'])
+                        self.user_cloud.delete_subnet(name_or_id=s['id'])
                     except Exception as e:
                         exception_list.append(str(e))
                         continue
             # Delete networks
-            for n in self.demo_cloud.list_networks():
+            for n in self.user_cloud.list_networks():
                 if n['name'].startswith(self.new_item_name):
                     try:
-                        self.demo_cloud.delete_network(name_or_id=n['id'])
+                        self.user_cloud.delete_network(name_or_id=n['id'])
                     except Exception as e:
                         exception_list.append(str(e))
                         continue
@@ -131,11 +131,11 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
 
         fixed_ip = meta.get_server_private_ip(server)
 
-        for ip in self.demo_cloud.list_floating_ips():
+        for ip in self.user_cloud.list_floating_ips():
             if (ip.get('fixed_ip', None) == fixed_ip
                     or ip.get('fixed_ip_address', None) == fixed_ip):
                 try:
-                    self.demo_cloud.delete_floating_ip(ip['id'])
+                    self.user_cloud.delete_floating_ip(ip['id'])
                 except Exception as e:
                     exception_list.append(str(e))
                     continue
@@ -146,24 +146,24 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
             raise OpenStackCloudException('\n'.join(exception_list))
 
     def _setup_networks(self):
-        if self.demo_cloud.has_service('network'):
+        if self.user_cloud.has_service('network'):
             # Create a network
-            self.test_net = self.demo_cloud.create_network(
+            self.test_net = self.user_cloud.create_network(
                 name=self.new_item_name + '_net')
             # Create a subnet on it
-            self.test_subnet = self.demo_cloud.create_subnet(
+            self.test_subnet = self.user_cloud.create_subnet(
                 subnet_name=self.new_item_name + '_subnet',
                 network_name_or_id=self.test_net['id'],
                 cidr='10.24.4.0/24',
                 enable_dhcp=True
             )
             # Create a router
-            self.test_router = self.demo_cloud.create_router(
+            self.test_router = self.user_cloud.create_router(
                 name=self.new_item_name + '_router')
             # Attach the router to an external network
-            ext_nets = self.demo_cloud.search_networks(
+            ext_nets = self.user_cloud.search_networks(
                 filters={'router:external': True})
-            self.demo_cloud.update_router(
+            self.user_cloud.update_router(
                 name_or_id=self.test_router['id'],
                 ext_gateway_net_id=ext_nets[0]['id'])
             # Attach the router to the internal subnet
@@ -176,10 +176,10 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
             self.addDetail(
                 'networks-neutron',
                 content.text_content(pprint.pformat(
-                    self.demo_cloud.list_networks())))
+                    self.user_cloud.list_networks())))
         else:
             # ToDo: remove once we have list/get methods for nova networks
-            nets = self.demo_cloud.nova_client.networks.list()
+            nets = self.user_cloud.nova_client.networks.list()
             self.addDetail(
                 'networks-nova',
                 content.text_content(pprint.pformat(
@@ -189,8 +189,8 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
     def test_private_ip(self):
         self._setup_networks()
 
-        new_server = self.demo_cloud.get_openstack_vars(
-            self.demo_cloud.create_server(
+        new_server = self.user_cloud.get_openstack_vars(
+            self.user_cloud.create_server(
                 wait=True, name=self.new_item_name + '_server',
                 image=self.image,
                 flavor=self.flavor, nics=[self.nic]))
@@ -202,7 +202,7 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
     def test_add_auto_ip(self):
         self._setup_networks()
 
-        new_server = self.demo_cloud.create_server(
+        new_server = self.user_cloud.create_server(
             wait=True, name=self.new_item_name + '_server',
             image=self.image,
             flavor=self.flavor, nics=[self.nic])
@@ -212,17 +212,17 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
         ip = None
         for _ in _utils._iterate_timeout(
                 self.timeout, "Timeout waiting for IP address to be attached"):
-            ip = meta.get_server_external_ipv4(self.demo_cloud, new_server)
+            ip = meta.get_server_external_ipv4(self.user_cloud, new_server)
             if ip is not None:
                 break
-            new_server = self.demo_cloud.get_server(new_server.id)
+            new_server = self.user_cloud.get_server(new_server.id)
 
         self.addCleanup(self._cleanup_ips, new_server)
 
     def test_detach_ip_from_server(self):
         self._setup_networks()
 
-        new_server = self.demo_cloud.create_server(
+        new_server = self.user_cloud.create_server(
             wait=True, name=self.new_item_name + '_server',
             image=self.image,
             flavor=self.flavor, nics=[self.nic])
@@ -232,29 +232,29 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
         ip = None
         for _ in _utils._iterate_timeout(
                 self.timeout, "Timeout waiting for IP address to be attached"):
-            ip = meta.get_server_external_ipv4(self.demo_cloud, new_server)
+            ip = meta.get_server_external_ipv4(self.user_cloud, new_server)
             if ip is not None:
                 break
-            new_server = self.demo_cloud.get_server(new_server.id)
+            new_server = self.user_cloud.get_server(new_server.id)
 
         self.addCleanup(self._cleanup_ips, new_server)
 
-        f_ip = self.demo_cloud.get_floating_ip(
+        f_ip = self.user_cloud.get_floating_ip(
             id=None, filters={'floating_ip_address': ip})
-        self.demo_cloud.detach_ip_from_server(
+        self.user_cloud.detach_ip_from_server(
             server_id=new_server.id, floating_ip_id=f_ip['id'])
 
     def test_list_floating_ips(self):
         fip_admin = self.operator_cloud.create_floating_ip()
         self.addCleanup(self.operator_cloud.delete_floating_ip, fip_admin.id)
-        fip_user = self.demo_cloud.create_floating_ip()
-        self.addCleanup(self.demo_cloud.delete_floating_ip, fip_user.id)
+        fip_user = self.user_cloud.create_floating_ip()
+        self.addCleanup(self.user_cloud.delete_floating_ip, fip_user.id)
 
         # Get all the floating ips.
         fip_id_list = [
             fip.id for fip in self.operator_cloud.list_floating_ips()
         ]
-        if self.demo_cloud.has_service('network'):
+        if self.user_cloud.has_service('network'):
             # Neutron returns all FIP for all projects by default
             self.assertIn(fip_admin.id, fip_id_list)
             self.assertIn(fip_user.id, fip_id_list)
@@ -262,7 +262,7 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
             # Ask Neutron for only a subset of all the FIPs.
             filtered_fip_id_list = [
                 fip.id for fip in self.operator_cloud.list_floating_ips(
-                    {'tenant_id': self.demo_cloud.current_project_id}
+                    {'tenant_id': self.user_cloud.current_project_id}
                 )
             ]
             self.assertNotIn(fip_admin.id, filtered_fip_id_list)
@@ -279,16 +279,16 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
             )
 
     def test_search_floating_ips(self):
-        fip_user = self.demo_cloud.create_floating_ip()
-        self.addCleanup(self.demo_cloud.delete_floating_ip, fip_user.id)
+        fip_user = self.user_cloud.create_floating_ip()
+        self.addCleanup(self.user_cloud.delete_floating_ip, fip_user.id)
 
         self.assertIn(
             fip_user['id'],
-            [fip.id for fip in self.demo_cloud.search_floating_ips(
+            [fip.id for fip in self.user_cloud.search_floating_ips(
                 filters={"attached": False})]
         )
         self.assertNotIn(
             fip_user['id'],
-            [fip.id for fip in self.demo_cloud.search_floating_ips(
+            [fip.id for fip in self.user_cloud.search_floating_ips(
                 filters={"attached": True})]
         )

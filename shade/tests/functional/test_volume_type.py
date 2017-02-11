@@ -32,7 +32,7 @@ class TestVolumeType(base.BaseFunctionalTestCase):
 
     def setUp(self):
         super(TestVolumeType, self).setUp()
-        if not self.demo_cloud.has_service('volume'):
+        if not self.user_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
         self.operator_cloud.cinder_client.volume_types.create(
             'test-volume-type', is_public=False)

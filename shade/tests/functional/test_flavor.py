@@ -114,7 +114,7 @@ class TestFlavor(base.BaseFunctionalTestCase):
         new_flavor = self.operator_cloud.create_flavor(**private_kwargs)
 
         # Validate the 'demo' user cannot see the new flavor
-        flavors = self.demo_cloud.search_flavors(priv_flavor_name)
+        flavors = self.user_cloud.search_flavors(priv_flavor_name)
         self.assertEqual(0, len(flavors))
 
         # We need the tenant ID for the 'demo' user
@@ -125,7 +125,7 @@ class TestFlavor(base.BaseFunctionalTestCase):
         self.operator_cloud.add_flavor_access(new_flavor['id'], project['id'])
 
         # Now see if the 'demo' user has access to it
-        flavors = self.demo_cloud.search_flavors(priv_flavor_name)
+        flavors = self.user_cloud.search_flavors(priv_flavor_name)
         self.assertEqual(1, len(flavors))
         self.assertEqual(priv_flavor_name, flavors[0]['name'])
 
@@ -138,7 +138,7 @@ class TestFlavor(base.BaseFunctionalTestCase):
         # Now revoke the access and make sure we can't find it
         self.operator_cloud.remove_flavor_access(new_flavor['id'],
                                                  project['id'])
-        flavors = self.demo_cloud.search_flavors(priv_flavor_name)
+        flavors = self.user_cloud.search_flavors(priv_flavor_name)
         self.assertEqual(0, len(flavors))
 
     def test_set_unset_flavor_specs(self):

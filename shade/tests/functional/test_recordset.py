@@ -26,7 +26,7 @@ class TestRecordset(base.BaseFunctionalTestCase):
 
     def setUp(self):
         super(TestRecordset, self).setUp()
-        if not self.demo_cloud.has_service('dns'):
+        if not self.user_cloud.has_service('dns'):
             self.skipTest('dns service not supported by cloud')
 
     def test_recordsets(self):
@@ -44,10 +44,10 @@ class TestRecordset(base.BaseFunctionalTestCase):
         self.addCleanup(self.cleanup, zone, name)
 
         # Create a zone to hold the tested recordset
-        zone_obj = self.demo_cloud.create_zone(name=zone, email=email)
+        zone_obj = self.user_cloud.create_zone(name=zone, email=email)
 
         # Test we can create a recordset and we get it returned
-        created_recordset = self.demo_cloud.create_recordset(zone, name, type_,
+        created_recordset = self.user_cloud.create_recordset(zone, name, type_,
                                                              records,
                                                              description, ttl)
         self.assertEqual(created_recordset['zone_id'], zone_obj['id'])
@@ -58,21 +58,21 @@ class TestRecordset(base.BaseFunctionalTestCase):
         self.assertEqual(created_recordset['ttl'], ttl)
 
         # Test that we can list recordsets
-        recordsets = self.demo_cloud.list_recordsets(zone)
+        recordsets = self.user_cloud.list_recordsets(zone)
         self.assertIsNotNone(recordsets)
 
         # Test we get the same recordset with the get_recordset method
-        get_recordset = self.demo_cloud.get_recordset(zone,
+        get_recordset = self.user_cloud.get_recordset(zone,
                                                       created_recordset['id'])
         self.assertEqual(get_recordset['id'], created_recordset['id'])
 
         # Test the get method also works by name
-        get_recordset = self.demo_cloud.get_recordset(zone, name + '.' + zone)
+        get_recordset = self.user_cloud.get_recordset(zone, name + '.' + zone)
         self.assertEqual(get_recordset['id'], created_recordset['id'])
 
         # Test we can update a field on the recordset and only that field
         # is updated
-        updated_recordset = self.demo_cloud.update_recordset(zone_obj['id'],
+        updated_recordset = self.user_cloud.update_recordset(zone_obj['id'],
                                                              name + '.' + zone,
                                                              ttl=7200)
         self.assertEqual(updated_recordset['id'], created_recordset['id'])
@@ -83,11 +83,11 @@ class TestRecordset(base.BaseFunctionalTestCase):
         self.assertEqual(updated_recordset['ttl'], 7200)
 
         # Test we can delete and get True returned
-        deleted_recordset = self.demo_cloud.delete_recordset(
+        deleted_recordset = self.user_cloud.delete_recordset(
             zone, name + '.' + zone)
         self.assertTrue(deleted_recordset)
 
     def cleanup(self, zone_name, recordset_name):
-        self.demo_cloud.delete_recordset(
+        self.user_cloud.delete_recordset(
             zone_name, recordset_name + '.' + zone_name)
-        self.demo_cloud.delete_zone(zone_name)
+        self.user_cloud.delete_zone(zone_name)

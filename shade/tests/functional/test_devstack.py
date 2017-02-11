@@ -39,7 +39,7 @@ class TestDevstack(base.BaseFunctionalTestCase):
 
     def test_has_service(self):
         if os.environ.get('SHADE_HAS_{env}'.format(env=self.env), '0') == '1':
-            self.assertTrue(self.demo_cloud.has_service(self.service))
+            self.assertTrue(self.user_cloud.has_service(self.service))
 
 
 class TestKeystoneVersion(base.BaseFunctionalTestCase):

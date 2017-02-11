@@ -27,7 +27,7 @@ class BaseFunctionalTestCase(base.TestCase):
 
         self.config = occ.OpenStackConfig()
         demo_config = self.config.get_one_cloud(cloud=demo_name)
-        self.demo_cloud = shade.OpenStackCloud(
+        self.user_cloud = shade.OpenStackCloud(
             cloud_config=demo_config,
             log_inner_exceptions=True)
         operator_config = self.config.get_one_cloud(cloud=op_name)

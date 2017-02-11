@@ -18,56 +18,56 @@ class TestVolume(base.BaseFunctionalTestCase):
 
     def setUp(self):
         super(TestVolume, self).setUp()
-        if not self.demo_cloud.has_service('volume'):
+        if not self.user_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
 
-        if not self.demo_cloud.has_service('object-store'):
+        if not self.user_cloud.has_service('object-store'):
             self.skipTest('volume backups require swift')
 
     def test_create_get_delete_volume_backup(self):
-        volume = self.demo_cloud.create_volume(
+        volume = self.user_cloud.create_volume(
             display_name=self.getUniqueString(), size=1)
-        self.addCleanup(self.demo_cloud.delete_volume, volume['id'])
+        self.addCleanup(self.user_cloud.delete_volume, volume['id'])
 
         backup_name_1 = self.getUniqueString()
         backup_desc_1 = self.getUniqueString()
-        backup = self.demo_cloud.create_volume_backup(
+        backup = self.user_cloud.create_volume_backup(
             volume_id=volume['id'], name=backup_name_1,
             description=backup_desc_1, wait=True)
         self.assertEqual(backup_name_1, backup['name'])
 
-        backup = self.demo_cloud.get_volume_backup(backup['id'])
+        backup = self.user_cloud.get_volume_backup(backup['id'])
         self.assertEqual("available", backup['status'])
         self.assertEqual(backup_desc_1, backup['description'])
 
-        self.demo_cloud.delete_volume_backup(backup['id'], wait=True)
-        self.assertIsNone(self.demo_cloud.get_volume_backup(backup['id']))
+        self.user_cloud.delete_volume_backup(backup['id'], wait=True)
+        self.assertIsNone(self.user_cloud.get_volume_backup(backup['id']))
 
     def test_list_volume_backups(self):
-        vol1 = self.demo_cloud.create_volume(
+        vol1 = self.user_cloud.create_volume(
             display_name=self.getUniqueString(), size=1)
-        self.addCleanup(self.demo_cloud.delete_volume, vol1['id'])
+        self.addCleanup(self.user_cloud.delete_volume, vol1['id'])
 
         # We create 2 volumes to create 2 backups. We could have created 2
         # backups from the same volume but taking 2 successive backups seems
         # to be race-condition prone. And I didn't want to use an ugly sleep()
         # here.
-        vol2 = self.demo_cloud.create_volume(
+        vol2 = self.user_cloud.create_volume(
             display_name=self.getUniqueString(), size=1)
-        self.addCleanup(self.demo_cloud.delete_volume, vol2['id'])
+        self.addCleanup(self.user_cloud.delete_volume, vol2['id'])
 
         backup_name_1 = self.getUniqueString()
-        backup = self.demo_cloud.create_volume_backup(
+        backup = self.user_cloud.create_volume_backup(
             volume_id=vol1['id'], name=backup_name_1)
-        self.addCleanup(self.demo_cloud.delete_volume_backup, backup['id'])
+        self.addCleanup(self.user_cloud.delete_volume_backup, backup['id'])
 
-        backup = self.demo_cloud.create_volume_backup(volume_id=vol2['id'])
-        self.addCleanup(self.demo_cloud.delete_volume_backup, backup['id'])
+        backup = self.user_cloud.create_volume_backup(volume_id=vol2['id'])
+        self.addCleanup(self.user_cloud.delete_volume_backup, backup['id'])
 
-        backups = self.demo_cloud.list_volume_backups()
+        backups = self.user_cloud.list_volume_backups()
         self.assertEqual(2, len(backups))
 
-        backups = self.demo_cloud.list_volume_backups(
+        backups = self.user_cloud.list_volume_backups(
             search_opts={"name": backup_name_1})
         self.assertEqual(1, len(backups))
         self.assertEqual(backup_name_1, backups[0]['name'])
