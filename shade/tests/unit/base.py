@@ -29,6 +29,12 @@ import shade.openstackcloud
 from shade.tests import base
 
 
+_ProjectData = collections.namedtuple(
+    'ProjectData',
+    'project_id, project_name, enabled, domain_id, description, '
+    'json_response, json_request')
+
+
 _UserData = collections.namedtuple(
     'UserData',
     'user_id, password, name, email, description, domain_id, enabled, '
@@ -114,8 +120,15 @@ class RequestsMockTestCase(BaseTestCase):
         super(RequestsMockTestCase, self).setUp(
             cloud_config_fixture=cloud_config_fixture)
 
+        # FIXME(notmorgan): Convert the uri_registry, discovery.json, and
+        # use of keystone_v3/v2 to a proper fixtures.Fixture. For now this
+        # is acceptable, but eventually this should become it's own fixture
+        # that encapsulates the registry, registering the URIs, and
+        # assert_calls (and calling assert_calls every test case that uses
+        # it on cleanup). Subclassing here could be 100% eliminated in the
+        # future allowing any class to simply
+        # self.useFixture(shade.RequestsMockFixture) and get all the benefits.
         self._uri_registry = {}
-
         self.discovery_json = os.path.join(
             self.fixtures_directory, 'discovery.json')
         self.use_keystone_v3()
@@ -134,6 +147,78 @@ class RequestsMockTestCase(BaseTestCase):
             to_join.append(resource)
         to_join.extend(append or [])
         return '/'.join(to_join)
+
+    def mock_for_keystone_projects(self, project=None, v3=True,
+                                   list_get=False, id_get=False,
+                                   project_list=None, project_count=None):
+        if project:
+            assert not (project_list or project_count)
+        elif project_list:
+            assert not (project or project_count)
+        elif project_count:
+            assert not (project or project_list)
+        else:
+            raise Exception('Must specify a project, project_list, '
+                            'or project_count')
+        assert list_get or id_get
+
+        base_url_append = 'v3' if v3 else None
+        if project:
+            project_list = [project]
+        elif project_count:
+            # Generate multiple projects
+            project_list = [self._get_project_data(v3=v3)
+                            for c in range(0, project_count)]
+        if list_get:
+            self.register_uri(
+                'GET',
+                self.get_mock_url(
+                    service_type='identity',
+                    interface='admin',
+                    resource='projects',
+                    base_url_append=base_url_append),
+                status_code=200,
+                json={'projects': [p.json_response['project']
+                                   for p in project_list]})
+        if id_get:
+            for p in project_list:
+                self.register_uri(
+                    'GET',
+                    self.get_mock_url(
+                        service_type='identity',
+                        interface='admin',
+                        resource='projects',
+                        append=[p.project_id],
+                        base_url_append=base_url_append),
+                    status_code=200,
+                    json=p.json_response)
+        return project_list
+
+    def _get_project_data(self, project_name=None, enabled=None,
+                          description=None, v3=True):
+        project_name = project_name or self.getUniqueString('projectName')
+        project_id = uuid.uuid4().hex
+        response = {'id': project_id, 'name': project_name}
+        request = {'name': project_name}
+        domain_id = uuid.uuid4().hex if v3 else None
+        if domain_id:
+            request['domain_id'] = domain_id
+            response['domain_id'] = domain_id
+        if enabled is not None:
+            enabled = bool(enabled)
+            response['enabled'] = enabled
+            request['enabled'] = enabled
+        response.setdefault('enabled', True)
+        if description:
+            response['description'] = description
+            request['description'] = description
+        if v3:
+            project_key = 'project'
+        else:
+            project_key = 'tenant'
+        return _ProjectData(project_id, project_name, enabled, domain_id,
+                            description, {project_key: response},
+                            {project_key: request})
 
     def _get_group_data(self, name=None, domain_id=None, description=None):
         group_id = uuid.uuid4().hex

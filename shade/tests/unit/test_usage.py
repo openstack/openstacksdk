@@ -16,18 +16,18 @@ import mock
 
 import shade
 from shade.tests.unit import base
-from shade.tests import fakes
 
 
-class TestUsage(base.TestCase):
+class TestUsage(base.RequestsMockTestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_get_usage(self, mock_keystone, mock_nova):
-        project = fakes.FakeProject('project_a')
+    def test_get_usage(self, mock_nova):
+        self._add_discovery_uri_call()
+        project = self.mock_for_keystone_projects(project_count=1,
+                                                  list_get=True)[0]
         start = end = datetime.datetime.now()
-        mock_keystone.tenants.list.return_value = [project]
-        self.op_cloud.get_compute_usage(project, start, end)
+        self.op_cloud.get_compute_usage(project.project_id, start, end)
 
-        mock_nova.usage.get.assert_called_once_with(start=start, end=end,
-                                                    tenant_id='project_a')
+        mock_nova.usage.get.assert_called_once_with(
+            start=start, end=end, tenant_id=project.project_id)
+        self.assert_calls()

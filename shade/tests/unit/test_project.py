@@ -10,21 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import collections
-import uuid
-
 import testtools
 from testtools import matchers
 
 import shade
 import shade._utils
 from shade.tests.unit import base
-
-
-_ProjectData = collections.namedtuple(
-    'ProjectData',
-    'project_id, project_name, enabled, domain_id, description, '
-    'json_response, json_request')
 
 
 class TestProject(base.RequestsMockTestCase):
@@ -41,33 +32,6 @@ class TestProject(base.RequestsMockTestCase):
         return super(TestProject, self).get_mock_url(
             service_type=service_type, interface=interface, resource=resource,
             append=append, base_url_append=base_url_append)
-
-    def _get_project_data(self, project_name=None, enabled=None,
-                          description=None, v3=True):
-        project_name = project_name or self.getUniqueString('projectName')
-        project_id = uuid.uuid4().hex
-        response = {'id': project_id, 'name': project_name}
-        request = {'name': project_name}
-        domain_id = None
-        if v3:
-            domain_id = uuid.uuid4().hex
-            request['domain_id'] = domain_id
-            response['domain_id'] = domain_id
-        if enabled is not None:
-            enabled = bool(enabled)
-            response['enabled'] = enabled
-            request['enabled'] = enabled
-        response.setdefault('enabled', True)
-        if description:
-            response['description'] = description
-            request['description'] = description
-        if v3:
-            project_key = 'project'
-        else:
-            project_key = 'tenant'
-        return _ProjectData(project_id, project_name, enabled, domain_id,
-                            description, {project_key: response},
-                            {project_key: request})
 
     def test_create_project_v2(self):
         self.use_keystone_v2()
