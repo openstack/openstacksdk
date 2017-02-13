@@ -106,43 +106,93 @@ class TestMemoryCache(base.RequestsMockTestCase):
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, shade.OpenStackCloud)
 
-    @mock.patch('shade.OpenStackCloud.keystone_client')
-    def test_list_projects_v3(self, keystone_mock):
-        project = fakes.FakeProject('project_a')
-        keystone_mock.projects.list.return_value = [project]
-        self.cloud.cloud_config.config['identity_api_version'] = '3'
-        self.assertEqual(
-            self.cloud._normalize_projects(meta.obj_list_to_dict([project])),
-            self.cloud.list_projects())
-        project_b = fakes.FakeProject('project_b')
-        keystone_mock.projects.list.return_value = [project, project_b]
-        self.assertEqual(
-            self.cloud._normalize_projects(meta.obj_list_to_dict([project])),
-            self.cloud.list_projects())
-        self.cloud.list_projects.invalidate(self.cloud)
-        self.assertEqual(
-            self.cloud._normalize_projects(
-                meta.obj_list_to_dict([project, project_b])),
-            self.cloud.list_projects())
+    def test_list_projects_v3(self):
+        self._add_discovery_uri_call()
+        project_one = self._get_project_data()
+        project_two = self._get_project_data()
+        project_list = [project_one, project_two]
 
-    @mock.patch('shade.OpenStackCloud.keystone_client')
-    def test_list_projects_v2(self, keystone_mock):
-        project = fakes.FakeProject('project_a')
-        keystone_mock.tenants.list.return_value = [project]
-        self.cloud.cloud_config.config['identity_api_version'] = '2'
-        self.assertEqual(
-            self.cloud._normalize_projects(meta.obj_list_to_dict([project])),
-            self.cloud.list_projects())
-        project_b = fakes.FakeProject('project_b')
-        keystone_mock.tenants.list.return_value = [project, project_b]
-        self.assertEqual(
-            self.cloud._normalize_projects(meta.obj_list_to_dict([project])),
-            self.cloud.list_projects())
-        self.cloud.list_projects.invalidate(self.cloud)
+        first_response = {'projects': [project_one.json_response['project']]}
+        second_response = {'projects': [p.json_response['project']
+                                        for p in project_list]}
+
+        self.register_uri(
+            'GET',
+            self.get_mock_url(
+                service_type='identity',
+                interface='admin',
+                resource='projects',
+                base_url_append='v3'),
+            status_code=200,
+            json=first_response)
+        self.register_uri(
+            'GET',
+            self.get_mock_url(
+                service_type='identity',
+                interface='admin',
+                resource='projects',
+                base_url_append='v3'),
+            status_code=200,
+            json=second_response)
         self.assertEqual(
             self.cloud._normalize_projects(
-                meta.obj_list_to_dict([project, project_b])),
+                meta.obj_list_to_dict(first_response['projects'])),
             self.cloud.list_projects())
+        self.assertEqual(
+            self.cloud._normalize_projects(
+                meta.obj_list_to_dict(first_response['projects'])),
+            self.cloud.list_projects())
+        # invalidate the list_projects cache
+        self.cloud.list_projects.invalidate(self.cloud)
+        # ensure the new values are now retrieved
+        self.assertEqual(
+            self.cloud._normalize_projects(
+                meta.obj_list_to_dict(second_response['projects'])),
+            self.cloud.list_projects())
+        self.assert_calls()
+
+    def test_list_projects_v2(self):
+        self.use_keystone_v2()
+        project_one = self._get_project_data(v3=False)
+        project_two = self._get_project_data(v3=False)
+        project_list = [project_one, project_two]
+
+        first_response = {'tenants': [project_one.json_response['tenant']]}
+        second_response = {'tenants': [p.json_response['tenant']
+                                       for p in project_list]}
+
+        self.register_uri(
+            'GET',
+            self.get_mock_url(
+                service_type='identity',
+                interface='admin',
+                resource='tenants'),
+            status_code=200,
+            json=first_response)
+        self.register_uri(
+            'GET',
+            self.get_mock_url(
+                service_type='identity',
+                interface='admin',
+                resource='tenants'),
+            status_code=200,
+            json=second_response)
+        self.assertEqual(
+            self.cloud._normalize_projects(
+                meta.obj_list_to_dict(first_response['tenants'])),
+            self.cloud.list_projects())
+        self.assertEqual(
+            self.cloud._normalize_projects(
+                meta.obj_list_to_dict(first_response['tenants'])),
+            self.cloud.list_projects())
+        # invalidate the list_projects cache
+        self.cloud.list_projects.invalidate(self.cloud)
+        # ensure the new values are now retrieved
+        self.assertEqual(
+            self.cloud._normalize_projects(
+                meta.obj_list_to_dict(second_response['tenants'])),
+            self.cloud.list_projects())
+        self.assert_calls()
 
     @mock.patch('shade.OpenStackCloud.nova_client')
     def test_list_servers_no_herd(self, nova_mock):
