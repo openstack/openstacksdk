@@ -132,6 +132,7 @@ class RequestsMockTestCase(BaseTestCase):
         self.discovery_json = os.path.join(
             self.fixtures_directory, 'discovery.json')
         self.use_keystone_v3()
+        self.__register_uris_called = False
 
     def get_mock_url(self, service_type, interface, resource=None,
                      append=None, base_url_append=None):
@@ -326,6 +327,60 @@ class RequestsMockTestCase(BaseTestCase):
         self.register_uri(
             'GET', 'https://image.example.com/',
             text=open(discovery_fixture, 'r').read())
+
+    def register_uris(self, uri_mock_list):
+        """Mock a list of URIs and responses via requests mock.
+
+        This method may be called only once per test-case to avoid odd
+        and difficult to debug interactions. Discovery and Auth request mocking
+        happens separately from this method.
+
+        :param uri_mock_list: List of dictionaries that template out what is
+                              passed to requests_mock fixture's `register_uri`.
+                              Format is:
+                                  {'method': <HTTP_METHOD>,
+                                   'uri': <URI to be mocked>,
+                                   ...
+                                  }
+
+                              Common keys to pass in the dictionary:
+                                  * json: the json response (dict)
+                                  * status_code: the HTTP status (int)
+                                  * validate: The request body (dict) to
+                                              validate with assert_calls
+                              all key-word arguments that are valid to send to
+                              requests_mock are supported.
+
+                              This list should be in the order in which calls
+                              are made. When `assert_calls` is executed, order
+                              here will be validated. Duplicate URIs and
+                              Methods are allowed and will be collapsed into a
+                              single matcher. Each response will be returned
+                              in order as the URI+Method is hit.
+        :return: None
+        """
+        assert not self.__register_uris_called
+        for to_mock in uri_mock_list:
+            method = to_mock.pop('method')
+            uri = to_mock.pop('uri')
+            key = '{method}:{uri}'.format(method=method, uri=uri)
+            headers = structures.CaseInsensitiveDict(to_mock.pop('headers',
+                                                                 {}))
+            validate = to_mock.pop('validate', {})
+            if 'content-type' not in headers:
+                headers[u'content-type'] = 'application/json'
+
+            self.calls += [
+                dict(
+                    method=method,
+                    url=uri, **validate)
+            ]
+            self._uri_registry.setdefault(key, []).append(to_mock)
+
+        for mock_method_uri, params in self._uri_registry.items():
+            mock_method, mock_uri = mock_method_uri.split(':', 1)
+            self.adapter.register_uri(mock_method, mock_uri, params)
+        self.__register_uris_called = True
 
     def register_uri(self, method, uri, **kwargs):
         validate = kwargs.pop('validate', {})

@@ -293,61 +293,121 @@ class TestMemoryCache(base.RequestsMockTestCase):
         self.cloud.delete_volume('12345')
         self.assertEqual([fake_volb4_dict], self.cloud.list_volumes())
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_list_users(self, keystone_mock):
-        fake_user = fakes.FakeUser('999', '', '')
-        keystone_mock.users.list.return_value = [fake_user]
+    def test_list_users(self):
+        self._add_discovery_uri_call()
+        user_data = self._get_user_data(email='test@example.com')
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     service_type='identity',
+                     interface='admin',
+                     resource='users',
+                     base_url_append='v3'),
+                 status_code=200,
+                 json={'users': [user_data.json_response['user']]})])
         users = self.cloud.list_users()
         self.assertEqual(1, len(users))
-        self.assertEqual('999', users[0]['id'])
-        self.assertEqual('', users[0]['name'])
-        self.assertEqual('', users[0]['email'])
+        self.assertEqual(user_data.user_id, users[0]['id'])
+        self.assertEqual(user_data.name, users[0]['name'])
+        self.assertEqual(user_data.email, users[0]['email'])
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_modify_user_invalidates_cache(self, keystone_mock):
+    def test_modify_user_invalidates_cache(self):
         self.use_keystone_v2()
-        fake_user = fakes.FakeUser('abc123', 'abc123@domain.test',
-                                   'abc123 name')
-        # first cache an empty list
-        keystone_mock.users.list.return_value = []
-        self.assertEqual([], self.cloud.list_users())
-        # now add one
-        keystone_mock.users.list.return_value = [fake_user]
-        keystone_mock.users.create.return_value = fake_user
-        created = self.cloud.create_user(name='abc123 name',
-                                         email='abc123@domain.test')
-        self.assertEqual('abc123', created['id'])
-        self.assertEqual('abc123 name', created['name'])
-        self.assertEqual('abc123@domain.test', created['email'])
 
+        user_data = self._get_user_data(email='test@example.com')
+        new_resp = {'user': user_data.json_response['user'].copy()}
+        new_resp['user']['email'] = 'Nope@Nope.Nope'
+        new_req = {'user': {'email': new_resp['user']['email']}}
+
+        mock_users_url = self.get_mock_url(
+            service_type='identity',
+            interface='admin',
+            resource='users')
+        mock_user_resource_url = self.get_mock_url(
+            service_type='identity',
+            interface='admin',
+            resource='users',
+            append=[user_data.user_id])
+
+        empty_user_list_resp = {'users': []}
+        users_list_resp = {'users': [user_data.json_response['user']]}
+        updated_users_list_resp = {'users': [new_resp['user']]}
+
+        uris_to_mock = [
+            # Inital User List is Empty
+            dict(method='GET', uri=mock_users_url, status_code=200,
+                 json=empty_user_list_resp),
+            # POST to create the user
+            # GET to get the user data after POST
+            dict(method='POST', uri=mock_users_url, status_code=200,
+                 json=user_data.json_response,
+                 validate=user_data.json_request),
+            dict(method='GET', uri=mock_user_resource_url, status_code=200,
+                 json=user_data.json_response),
+            # List Users Call
+            dict(method='GET', uri=mock_users_url, status_code=200,
+                 json=users_list_resp),
+            # List users to get ID for update
+            # Get user using user_id from list
+            # Update user
+            # Get updated user
+            dict(method='GET', uri=mock_users_url, status_code=200,
+                 json=users_list_resp),
+            dict(method='GET', uri=mock_user_resource_url, status_code=200,
+                 json=user_data.json_response),
+            dict(method='PUT', uri=mock_user_resource_url, status_code=200,
+                 json=new_resp, validate=new_req),
+            dict(method='GET', uri=mock_user_resource_url, status_code=200,
+                 json=new_resp),
+            # List Users Call
+            dict(method='GET', uri=mock_users_url, status_code=200,
+                 json=updated_users_list_resp),
+            # List User to get ID for delete
+            # Get user using user_id from list
+            # delete user
+            dict(method='GET', uri=mock_users_url, status_code=200,
+                 json=updated_users_list_resp),
+            dict(method='GET', uri=mock_user_resource_url, status_code=200,
+                 json=new_resp),
+            dict(method='DELETE', uri=mock_user_resource_url, status_code=204),
+            # List Users Call (empty post delete)
+            dict(method='GET', uri=mock_users_url, status_code=200,
+                 json=empty_user_list_resp)
+        ]
+
+        self.register_uris(uris_to_mock)
+
+        # first cache an empty list
+        self.assertEqual([], self.cloud.list_users())
+
+        # now add one
+        created = self.cloud.create_user(name=user_data.name,
+                                         email=user_data.email)
+        self.assertEqual(user_data.user_id, created['id'])
+        self.assertEqual(user_data.name, created['name'])
+        self.assertEqual(user_data.email, created['email'])
         # Cache should have been invalidated
         users = self.cloud.list_users()
-        self.assertEqual(1, len(users))
-        self.assertEqual('abc123', users[0]['id'])
-        self.assertEqual('abc123 name', users[0]['name'])
-        self.assertEqual('abc123@domain.test', users[0]['email'])
+        self.assertEqual(user_data.user_id, users[0]['id'])
+        self.assertEqual(user_data.name, users[0]['name'])
+        self.assertEqual(user_data.email, users[0]['email'])
 
         # Update and check to see if it is updated
-        fake_user2 = fakes.FakeUser('abc123',
-                                    'abc123-changed@domain.test',
-                                    'abc123 name')
-        fake_user2_dict = meta.obj_to_dict(fake_user2)
-        keystone_mock.users.update.return_value = fake_user2
-        keystone_mock.users.list.return_value = [fake_user2]
-        keystone_mock.users.get.return_value = fake_user2_dict
-        self.cloud.update_user('abc123', email='abc123-changed@domain.test')
-        keystone_mock.users.update.assert_called_with(
-            user=fake_user2_dict, email='abc123-changed@domain.test')
+        updated = self.cloud.update_user(user_data.user_id,
+                                         email=new_resp['user']['email'])
+        self.assertEqual(user_data.user_id, updated.id)
+        self.assertEqual(user_data.name, updated.name)
+        self.assertEqual(new_resp['user']['email'], updated.email)
         users = self.cloud.list_users()
         self.assertEqual(1, len(users))
-        self.assertEqual('abc123', users[0]['id'])
-        self.assertEqual('abc123 name', users[0]['name'])
-        self.assertEqual('abc123-changed@domain.test', users[0]['email'])
+        self.assertEqual(user_data.user_id, users[0]['id'])
+        self.assertEqual(user_data.name, users[0]['name'])
+        self.assertEqual(new_resp['user']['email'], users[0]['email'])
         # Now delete and ensure it disappears
-        keystone_mock.users.list.return_value = []
-        self.cloud.delete_user('abc123')
+        self.cloud.delete_user(user_data.user_id)
         self.assertEqual([], self.cloud.list_users())
-        self.assertTrue(keystone_mock.users.delete.was_called)
+        self.assert_calls()
 
     def test_list_flavors(self):
         self.register_uri(
