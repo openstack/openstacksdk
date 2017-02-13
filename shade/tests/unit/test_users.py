@@ -33,18 +33,17 @@ class TestUsers(base.RequestsMockTestCase):
 
         user_data = self._get_user_data()
 
-        self.register_uri('POST',
-                          self._get_keystone_mock_url(resource='users',
-                                                      v3=False),
-                          status_code=204,
-                          json=user_data.json_response,
-                          validate=dict(json=user_data.json_request))
-        self.register_uri('GET',
-                          self._get_keystone_mock_url(
-                              resource='users',
-                              append=[user_data.user_id],
-                              v3=False),
-                          status_code=200, json=user_data.json_response)
+        self.register_uris([
+            dict(method='POST',
+                 uri=self._get_keystone_mock_url(resource='users', v3=False),
+                 status_code=200,
+                 json=user_data.json_response,
+                 validate=user_data.json_request),
+            dict(method='GET',
+                 uri=self._get_keystone_mock_url(resource='users', v3=False,
+                                                 append=[user_data.user_id]),
+                 status_code=200, json=user_data.json_response)])
+
         user = self.op_cloud.create_user(
             name=user_data.name, email=user_data.email,
             password=user_data.password)
@@ -59,17 +58,17 @@ class TestUsers(base.RequestsMockTestCase):
         user_data = self._get_user_data(
             domain_id=uuid.uuid4().hex,
             description=self.getUniqueString('description'))
-        self.register_uri(
-            'POST',
-            self._get_keystone_mock_url(resource='users'),
-            status_code=204,
-            json=user_data.json_response,
-            validate=user_data.json_request)
-        self.register_uri(
-            'GET',
-            self._get_keystone_mock_url(resource='users',
-                                        append=[user_data.user_id]),
-            status_code=200, json=user_data.json_response)
+
+        self.register_uris([
+            dict(method='POST',
+                 uri=self._get_keystone_mock_url(resource='users'),
+                 status_code=200, json=user_data.json_response,
+                 validate=user_data.json_request),
+            dict(method='GET',
+                 uri=self._get_keystone_mock_url(
+                     resource='users', append=[user_data.user_id]),
+                 status_code=200, json=user_data.json_response)])
+
         user = self.op_cloud.create_user(
             name=user_data.name, email=user_data.email,
             password=user_data.password,
@@ -84,47 +83,40 @@ class TestUsers(base.RequestsMockTestCase):
 
     def test_update_user_password_v2(self):
         self.use_keystone_v2()
+
         user_data = self._get_user_data(email='test@example.com')
-        self.register_uri('GET',
-                          self._get_keystone_mock_url(resource='users',
-                                                      v3=False),
-                          status_code=200,
-                          json={'users': [user_data.json_response['user']]})
-        self.register_uri('GET',
-                          self._get_keystone_mock_url(
-                              resource='users',
-                              v3=False,
-                              append=[user_data.user_id]),
-                          json=user_data.json_response)
-        self.register_uri(
-            'PUT',
-            self._get_keystone_mock_url(
-                resource='users', v3=False,
-                append=[user_data.user_id, 'OS-KSADM', 'password']),
-            status_code=204, json=user_data.json_response,
-            validate=dict(json={'user': {'password': user_data.password}}))
-        self.register_uri('GET',
-                          self._get_keystone_mock_url(
-                              resource='users', v3=False,
-                              append=[user_data.user_id]),
-                          json=user_data.json_response)
-        # NOTE(notmorgan): when keystoneclient is dropped, the extra call is
-        # not needed as it is a blank put. Keystoneclient has very limited
-        # logic and does odd things when updates inclue passwords in v2
-        # keystone.
-        self.register_uri(
-            'PUT',
-            self._get_keystone_mock_url(resource='users',
-                                        append=[user_data.user_id],
-                                        v3=False),
-            status_code=204, json=user_data.json_response,
-            validate=dict(json={'user': {}}))
-        self.register_uri('GET',
-                          self._get_keystone_mock_url(
-                              resource='users',
-                              v3=False,
-                              append=[user_data.user_id]),
-                          json=user_data.json_response)
+        mock_user_resource_uri = self._get_keystone_mock_url(
+            resource='users', append=[user_data.user_id], v3=False)
+        mock_users_uri = self._get_keystone_mock_url(
+            resource='users', v3=False)
+
+        self.register_uris([
+            # GET list to find user id
+            # GET user info with user_id from list
+            # PUT user with password update
+            # GET user info with id after update
+            # PUT empty update (password change is different than update)
+            #     but is always chained together [keystoneclient oddity]
+            # GET user info after user update
+            dict(method='GET', uri=mock_users_uri, status_code=200,
+                 json={'users': [user_data.json_response['user']]}),
+            dict(method='GET', uri=mock_user_resource_uri, status_code=200,
+                 json=user_data.json_response),
+            dict(method='PUT',
+                 uri=self._get_keystone_mock_url(
+                     resource='users', v3=False,
+                     append=[user_data.user_id, 'OS-KSADM', 'password']),
+                 status_code=200, json=user_data.json_response,
+                 validate=dict(
+                     json={'user': {'password': user_data.password}})),
+            dict(method='GET', uri=mock_user_resource_uri, status_code=200,
+                 json=user_data.json_response),
+            dict(method='PUT', uri=mock_user_resource_uri, status_code=200,
+                 json=user_data.json_response,
+                 validate=dict(json={'user': {}})),
+            dict(method='GET', uri=mock_user_resource_uri, status_code=200,
+                 json=user_data.json_response)])
+
         user = self.op_cloud.update_user(
             user_data.user_id, password=user_data.password)
         self.assertEqual(user_data.name, user.name)
@@ -146,47 +138,48 @@ class TestUsers(base.RequestsMockTestCase):
     def test_delete_user(self):
         self._add_discovery_uri_call()
         user_data = self._get_user_data(domain_id=uuid.uuid4().hex)
-        self.register_uri('GET', self._get_keystone_mock_url(resource='users'),
-                          status_code=200,
-                          json={'users': [user_data.json_response['user']]})
-        self.register_uri('GET',
-                          self._get_keystone_mock_url(
-                              resource='users', append=[user_data.user_id]),
-                          status_code=200, json=user_data.json_response)
-        self.register_uri('DELETE',
-                          self._get_keystone_mock_url(
-                              resource='users', append=[user_data.user_id]),
-                          status_code=204)
+        user_resource_uri = self._get_keystone_mock_url(
+            resource='users', append=[user_data.user_id])
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self._get_keystone_mock_url(resource='users'),
+                 status_code=200,
+                 json={'users': [user_data.json_response['user']]}),
+            dict(method='GET', uri=user_resource_uri, status_code=200,
+                 json=user_data.json_response),
+            dict(method='DELETE', uri=user_resource_uri, status_code=204)])
+
         self.op_cloud.delete_user(user_data.name)
         self.assert_calls()
 
     def test_delete_user_not_found(self):
         self._add_discovery_uri_call()
-        self.register_uri('GET',
-                          self._get_keystone_mock_url(resource='users'),
-                          status_code=200,
-                          json={'users': []})
+        self.register_uris([
+            dict(method='GET',
+                 uri=self._get_keystone_mock_url(resource='users'),
+                 status_code=200, json={'users': []})])
         self.assertFalse(self.op_cloud.delete_user(self.getUniqueString()))
 
     def test_add_user_to_group(self):
         self._add_discovery_uri_call()
         user_data = self._get_user_data()
         group_data = self._get_group_data()
-        self.register_uri('GET',
-                          self._get_keystone_mock_url(resource='users'),
-                          status_code=200,
-                          json={'users': [user_data.json_response['user']]})
-        self.register_uri(
-            'GET',
-            self._get_keystone_mock_url(resource='groups'),
-            status_code=200,
-            json={'groups': [group_data.json_response['group']]})
-        self.register_uri(
-            'PUT',
-            self._get_keystone_mock_url(
-                resource='groups',
-                append=[group_data.group_id, 'users', user_data.user_id]),
-            status_code=200)
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self._get_keystone_mock_url(resource='users'),
+                 status_code=200,
+                 json={'users': [user_data.json_response['user']]}),
+            dict(method='GET',
+                 uri=self._get_keystone_mock_url(resource='groups'),
+                 status_code=200,
+                 json={'groups': [group_data.json_response['group']]}),
+            dict(method='PUT',
+                 uri=self._get_keystone_mock_url(
+                     resource='groups',
+                     append=[group_data.group_id, 'users', user_data.user_id]),
+                 status_code=200)])
         self.op_cloud.add_user_to_group(user_data.user_id, group_data.group_id)
         self.assert_calls()
 
@@ -194,21 +187,22 @@ class TestUsers(base.RequestsMockTestCase):
         self._add_discovery_uri_call()
         user_data = self._get_user_data()
         group_data = self._get_group_data()
-        self.register_uri('GET',
-                          self._get_keystone_mock_url(resource='users'),
-                          status_code=200,
-                          json={'users': [user_data.json_response['user']]})
-        self.register_uri(
-            'GET',
-            self._get_keystone_mock_url(resource='groups'),
-            status_code=200,
-            json={'groups': [group_data.json_response['group']]})
-        self.register_uri(
-            'HEAD',
-            self._get_keystone_mock_url(
-                resource='groups',
-                append=[group_data.group_id, 'users', user_data.user_id]),
-            status_code=204)
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self._get_keystone_mock_url(resource='users'),
+                 status_code=200,
+                 json={'users': [user_data.json_response['user']]}),
+            dict(method='GET',
+                 uri=self._get_keystone_mock_url(resource='groups'),
+                 status_code=200,
+                 json={'groups': [group_data.json_response['group']]}),
+            dict(method='HEAD',
+                 uri=self._get_keystone_mock_url(
+                     resource='groups',
+                     append=[group_data.group_id, 'users', user_data.user_id]),
+                 status_code=204)])
+
         self.assertTrue(self.op_cloud.is_user_in_group(
             user_data.user_id, group_data.group_id))
         self.assert_calls()
@@ -217,21 +211,21 @@ class TestUsers(base.RequestsMockTestCase):
         self._add_discovery_uri_call()
         user_data = self._get_user_data()
         group_data = self._get_group_data()
-        self.register_uri('GET',
-                          self._get_keystone_mock_url(resource='users'),
-                          status_code=200,
-                          json={'users': [user_data.json_response['user']]})
-        self.register_uri(
-            'GET',
-            self._get_keystone_mock_url(resource='groups'),
-            status_code=200,
-            json={'groups': [group_data.json_response['group']]})
-        self.register_uri(
-            'DELETE',
-            self._get_keystone_mock_url(
-                resource='groups',
-                append=[group_data.group_id, 'users', user_data.user_id]),
-            status_code=204)
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self._get_keystone_mock_url(resource='users'),
+                 json={'users': [user_data.json_response['user']]}),
+            dict(method='GET',
+                 uri=self._get_keystone_mock_url(resource='groups'),
+                 status_code=200,
+                 json={'groups': [group_data.json_response['group']]}),
+            dict(method='DELETE',
+                 uri=self._get_keystone_mock_url(
+                     resource='groups',
+                     append=[group_data.group_id, 'users', user_data.user_id]),
+                 status_code=204)])
+
         self.op_cloud.remove_user_from_group(user_data.user_id,
                                              group_data.group_id)
         self.assert_calls()

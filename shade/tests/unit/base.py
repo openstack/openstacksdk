@@ -364,11 +364,13 @@ class RequestsMockTestCase(BaseTestCase):
             method = to_mock.pop('method')
             uri = to_mock.pop('uri')
             key = '{method}:{uri}'.format(method=method, uri=uri)
+            validate = to_mock.pop('validate', {})
             headers = structures.CaseInsensitiveDict(to_mock.pop('headers',
                                                                  {}))
-            validate = to_mock.pop('validate', {})
             if 'content-type' not in headers:
                 headers[u'content-type'] = 'application/json'
+
+            to_mock['headers'] = headers
 
             self.calls += [
                 dict(

@@ -116,24 +116,16 @@ class TestMemoryCache(base.RequestsMockTestCase):
         second_response = {'projects': [p.json_response['project']
                                         for p in project_list]}
 
-        self.register_uri(
-            'GET',
-            self.get_mock_url(
-                service_type='identity',
-                interface='admin',
-                resource='projects',
-                base_url_append='v3'),
-            status_code=200,
-            json=first_response)
-        self.register_uri(
-            'GET',
-            self.get_mock_url(
-                service_type='identity',
-                interface='admin',
-                resource='projects',
-                base_url_append='v3'),
-            status_code=200,
-            json=second_response)
+        mock_uri = self.get_mock_url(
+            service_type='identity', interface='admin', resource='projects',
+            base_url_append='v3')
+
+        self.register_uris([
+            dict(method='GET', uri=mock_uri, status_code=200,
+                 json=first_response),
+            dict(method='GET', uri=mock_uri, status_code=200,
+                 json=second_response)])
+
         self.assertEqual(
             self.cloud._normalize_projects(
                 meta.obj_list_to_dict(first_response['projects'])),
@@ -161,22 +153,15 @@ class TestMemoryCache(base.RequestsMockTestCase):
         second_response = {'tenants': [p.json_response['tenant']
                                        for p in project_list]}
 
-        self.register_uri(
-            'GET',
-            self.get_mock_url(
-                service_type='identity',
-                interface='admin',
-                resource='tenants'),
-            status_code=200,
-            json=first_response)
-        self.register_uri(
-            'GET',
-            self.get_mock_url(
-                service_type='identity',
-                interface='admin',
-                resource='tenants'),
-            status_code=200,
-            json=second_response)
+        mock_uri = self.get_mock_url(
+            service_type='identity', interface='admin', resource='tenants')
+
+        self.register_uris([
+            dict(method='GET', uri=mock_uri, status_code=200,
+                 json=first_response),
+            dict(method='GET', uri=mock_uri, status_code=200,
+                 json=second_response)])
+
         self.assertEqual(
             self.cloud._normalize_projects(
                 meta.obj_list_to_dict(first_response['tenants'])),
@@ -410,20 +395,22 @@ class TestMemoryCache(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_list_flavors(self):
-        self.register_uri(
-            'GET', '{endpoint}/flavors/detail?is_public=None'.format(
-                endpoint=fakes.COMPUTE_ENDPOINT),
-            json={'flavors': []})
+        mock_uri = '{endpoint}/flavors/detail?is_public=None'.format(
+            endpoint=fakes.COMPUTE_ENDPOINT)
 
-        self.register_uri(
-            'GET', '{endpoint}/flavors/detail?is_public=None'.format(
-                endpoint=fakes.COMPUTE_ENDPOINT),
-            json={'flavors': fakes.FAKE_FLAVOR_LIST})
-        for flavor in fakes.FAKE_FLAVOR_LIST:
-            self.register_uri(
-                'GET', '{endpoint}/flavors/{id}/os-extra_specs'.format(
-                    endpoint=fakes.COMPUTE_ENDPOINT, id=flavor['id']),
-                json={'extra_specs': {}})
+        uris_to_mock = [
+            dict(method='GET', uri=mock_uri, json={'flavors': []}),
+            dict(method='GET', uri=mock_uri,
+                 json={'flavors': fakes.FAKE_FLAVOR_LIST})
+        ]
+        uris_to_mock.extend([
+            dict(method='GET',
+                 uri='{endpoint}/flavors/{id}/os-extra_specs'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT, id=flavor['id']),
+                 json={'extra_specs': {}})
+            for flavor in fakes.FAKE_FLAVOR_LIST])
+
+        self.register_uris(uris_to_mock)
 
         self.assertEqual([], self.cloud.list_flavors())
 

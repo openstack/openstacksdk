@@ -313,10 +313,13 @@ class TestCreateServer(base.RequestsMockTestCase):
     @mock.patch.object(OpenStackCloud, 'nova_client')
     def test_create_server_get_flavor_image(
             self, mock_nova, mock_image, mock_get_server_by_id):
-        self.register_uri(
-            'GET', '{endpoint}/flavors/detail?is_public=None'.format(
-                endpoint=fakes.COMPUTE_ENDPOINT),
-            json={'flavors': fakes.FAKE_FLAVOR_LIST})
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/flavors/detail?is_public=None'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json={'flavors': fakes.FAKE_FLAVOR_LIST})])
+
         self.cloud.create_server(
             'server-name', 'image-id', 'vanilla',
             nics=[{'net-id': 'some-network'}])
