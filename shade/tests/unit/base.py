@@ -128,7 +128,13 @@ class RequestsMockTestCase(BaseTestCase):
         # it on cleanup). Subclassing here could be 100% eliminated in the
         # future allowing any class to simply
         # self.useFixture(shade.RequestsMockFixture) and get all the benefits.
-        self._uri_registry = {}
+
+        # NOTE(notmorgan): use an ordered dict here to ensure we preserve the
+        # order in which items are added to the uri_registry. This makes
+        # the behavior more consistent when dealing with ensuring the
+        # requests_mock uri/query_string matchers are ordered and parse the
+        # request in the correct orders.
+        self._uri_registry = collections.OrderedDict()
         self.discovery_json = os.path.join(
             self.fixtures_directory, 'discovery.json')
         self.use_keystone_v3()
@@ -167,29 +173,33 @@ class RequestsMockTestCase(BaseTestCase):
             # Generate multiple projects
             project_list = [self._get_project_data(v3=v3)
                             for c in range(0, project_count)]
+        uri_mock_list = []
         if list_get:
-            self.register_uri(
-                'GET',
-                self.get_mock_url(
-                    service_type='identity',
-                    interface='admin',
-                    resource='projects',
-                    base_url_append=base_url_append),
-                status_code=200,
-                json={'projects': [p.json_response['project']
-                                   for p in project_list]})
+            uri_mock_list.append(
+                dict(method='GET',
+                     uri=self.get_mock_url(
+                         service_type='identity',
+                         interface='admin',
+                         resource='projects',
+                         base_url_append=base_url_append),
+                     status_code=200,
+                     json={'projects': [p.json_response['project']
+                                        for p in project_list]})
+            )
         if id_get:
             for p in project_list:
-                self.register_uri(
-                    'GET',
-                    self.get_mock_url(
-                        service_type='identity',
-                        interface='admin',
-                        resource='projects',
-                        append=[p.project_id],
-                        base_url_append=base_url_append),
-                    status_code=200,
-                    json=p.json_response)
+                uri_mock_list.append(
+                    dict(method='GET',
+                         uri=self.get_mock_url(
+                             service_type='identity',
+                             interface='admin',
+                             resource='projects',
+                             append=[p.project_id],
+                             base_url_append=base_url_append),
+                         status_code=200,
+                         json=p.json_response)
+                )
+        self.__do_register_uris(uri_mock_list)
         return project_list
 
     def _get_project_data(self, project_name=None, enabled=None,
@@ -264,36 +274,35 @@ class RequestsMockTestCase(BaseTestCase):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.calls = []
         self._uri_registry.clear()
-        self.register_uri('GET', 'https://identity.example.com/',
-                          text=open(self.discovery_json, 'r').read())
-        self.register_uri(
-            'POST', 'https://identity.example.com/v3/auth/tokens',
-            headers={
-                'X-Subject-Token': self.getUniqueString()},
-            text=open(
-                os.path.join(
-                    self.fixtures_directory,
-                    'catalog-v3.json'),
-                'r').read())
+        self.__do_register_uris([
+            dict(method='GET', uri='https://identity.example.com/',
+                 text=open(self.discovery_json, 'r').read()),
+            dict(method='POST',
+                 uri='https://identity.example.com/v3/auth/tokens',
+                 headers={
+                     'X-Subject-Token': self.getUniqueString('KeystoneToken')},
+                 text=open(os.path.join(
+                     self.fixtures_directory, 'catalog-v3.json'), 'r').read()
+                 )
+        ])
         self._make_test_cloud(identity_api_version='3')
 
     def use_keystone_v2(self):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.calls = []
         self._uri_registry.clear()
-        self.register_uri('GET', 'https://identity.example.com/',
-                          text=open(self.discovery_json, 'r').read())
-        self.register_uri(
-            'POST', 'https://identity.example.com/v2.0/tokens',
-            text=open(
-                os.path.join(
-                    self.fixtures_directory,
-                    'catalog-v2.json'),
-                'r').read())
-        self.register_uri('GET', 'https://identity.example.com/',
-                          text=open(self.discovery_json, 'r').read())
-        self.register_uri('GET', 'https://identity.example.com/',
-                          text=open(self.discovery_json, 'r').read())
+        self.__do_register_uris([
+            dict(method='GET', uri='https://identity.example.com/',
+                 text=open(self.discovery_json, 'r').read()),
+            dict(method='POST', uri='https://identity.example.com/v2.0/tokens',
+                 text=open(os.path.join(
+                     self.fixtures_directory, 'catalog-v2.json'), 'r').read()
+                 ),
+            dict(method='GET', uri='https://identity.example.com/',
+                 text=open(self.discovery_json, 'r').read()),
+            dict(method='GET', uri='https://identity.example.com/',
+                 text=open(self.discovery_json, 'r').read())
+        ])
 
         self._make_test_cloud(cloud_name='_test_cloud_v2_',
                               identity_api_version='2.0')
@@ -304,8 +313,9 @@ class RequestsMockTestCase(BaseTestCase):
         # us to inject another call to discovery where needed in a test that
         # no longer mocks out kyestoneclient and performs the extra round
         # trips.
-        self.register_uri('GET', 'https://identity.example.com/',
-                          text=open(self.discovery_json, 'r').read())
+        self.__do_register_uris([
+            dict(method='GET', uri='https://identity.example.com/',
+                 text=open(self.discovery_json, 'r').read())])
 
     def _make_test_cloud(self, cloud_name='_test_cloud_', **kwargs):
         test_cloud = os.environ.get('SHADE_OS_CLOUD', cloud_name)
@@ -318,14 +328,23 @@ class RequestsMockTestCase(BaseTestCase):
             cloud_config=self.cloud_config,
             log_inner_exceptions=True)
 
-    def use_glance(self, image_version_json='image-version.json'):
+    def get_glance_discovery_mock_dict(
+            self, image_version_json='image-version.json'):
         discovery_fixture = os.path.join(
             self.fixtures_directory, image_version_json)
-        self.register_uri(
-            'GET', 'https://image.example.com/',
-            text=open(discovery_fixture, 'r').read())
+        return dict(method='GET', uri='https://image.example.com/',
+                    text=open(discovery_fixture, 'r').read())
 
-    def register_uris(self, uri_mock_list):
+    def use_glance(self, image_version_json='image-version.json'):
+        # NOTE(notmorgan): This method is only meant to be used in "setUp"
+        # where the ordering of the url being registered is tightly controlled
+        # if the functionality of .use_glance is meant to be used during an
+        # actual test case, use .get_glance_discovery_mock and apply to the
+        # right location in the mock_uris when calling .register_uris
+        self.__do_register_uris([
+            self.get_glance_discovery_mock_dict(image_version_json)])
+
+    def register_uris(self, uri_mock_list=None):
         """Mock a list of URIs and responses via requests mock.
 
         This method may be called only once per test-case to avoid odd
@@ -354,13 +373,27 @@ class RequestsMockTestCase(BaseTestCase):
                               Methods are allowed and will be collapsed into a
                               single matcher. Each response will be returned
                               in order as the URI+Method is hit.
+        :type uri_mock_list: list
         :return: None
         """
         assert not self.__register_uris_called
+        self.__do_register_uris(uri_mock_list or [])
+        self.__register_uris_called = True
+
+    def __do_register_uris(self, uri_mock_list=None):
         for to_mock in uri_mock_list:
+            kw_params = {k: to_mock.pop(k)
+                         for k in ('request_headers', 'complete_qs',
+                                   '_real_http')
+                         if k in to_mock}
+
             method = to_mock.pop('method')
             uri = to_mock.pop('uri')
-            key = '{method}:{uri}'.format(method=method, uri=uri)
+            # NOTE(notmorgan): make sure the delimiter is non-url-safe, in this
+            # case "|" is used so that the split can be a bit easier on
+            # maintainers of this code.
+            key = '{method}|{uri}|{params}'.format(
+                method=method, uri=uri, params=kw_params)
             validate = to_mock.pop('validate', {})
             headers = structures.CaseInsensitiveDict(to_mock.pop('headers',
                                                                  {}))
@@ -374,33 +407,27 @@ class RequestsMockTestCase(BaseTestCase):
                     method=method,
                     url=uri, **validate)
             ]
-            self._uri_registry.setdefault(key, []).append(to_mock)
+            self._uri_registry.setdefault(
+                key, {'response_list': [], 'kw_params': kw_params})
+            if self._uri_registry[key]['kw_params'] != kw_params:
+                raise AssertionError(
+                    'PROGRAMMING ERROR: key-word-params '
+                    'should be part of the uri_key and cannot change, '
+                    'it will affect the matcher in requests_mock. '
+                    '%(old)r != %(new)r' %
+                    {'old': self._uri_registry[key]['kw_params'],
+                     'new': kw_params})
+            self._uri_registry[key]['response_list'].append(to_mock)
 
-        for mock_method_uri, params in self._uri_registry.items():
-            mock_method, mock_uri = mock_method_uri.split(':', 1)
-            self.adapter.register_uri(mock_method, mock_uri, params)
-        self.__register_uris_called = True
+        for mocked, params in self._uri_registry.items():
+            mock_method, mock_uri, _ignored = mocked.split('|', 2)
+            self.adapter.register_uri(
+                mock_method, mock_uri, params['response_list'],
+                **params['kw_params'])
 
     def register_uri(self, method, uri, **kwargs):
-        validate = kwargs.pop('validate', {})
-        key = '{method}:{uri}'.format(method=method, uri=uri)
-        headers = structures.CaseInsensitiveDict(kwargs.pop('headers', {}))
-        if 'content-type' not in headers:
-            headers[u'content-type'] = 'application/json'
-        kwargs['headers'] = headers
-
-        if key in self._uri_registry:
-            self._uri_registry[key].append(kwargs)
-            self.adapter.register_uri(method, uri, self._uri_registry[key])
-        else:
-            self._uri_registry[key] = [kwargs]
-            self.adapter.register_uri(method, uri, **kwargs)
-
-        self.calls += [
-            dict(
-                method=method,
-                url=uri, **validate)
-        ]
+        self.__do_register_uris([
+            dict(method=method, uri=uri, **kwargs)])
 
     def assert_calls(self, stop_after=None):
         for (x, (call, history)) in enumerate(

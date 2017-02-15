@@ -108,25 +108,26 @@ class TestImage(BaseTestImage):
                           output_path='fake_path', output_file=fake_fd)
 
     def test_download_image_no_images_found(self):
-        self.register_uri(
-            'GET', 'https://image.example.com/v2/images',
-            json=dict(images=[]))
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json=dict(images=[]))])
         self.assertRaises(exc.OpenStackCloudResourceNotFound,
                           self.cloud.download_image, 'fake_image',
                           output_path='fake_path')
         self.assert_calls()
 
     def _register_image_mocks(self):
-        self.register_uri(
-            'GET', 'https://image.example.com/v2/images',
-            json=self.fake_search_return)
-        self.register_uri(
-            'GET', 'https://image.example.com/v2/images/{id}/file'.format(
-                id=self.image_id),
-            content=self.output,
-            headers={
-                'Content-Type': 'application/octet-stream'
-            })
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json=self.fake_search_return),
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images/{id}/file'.format(
+                     id=self.image_id),
+                 content=self.output,
+                 headers={'Content-Type': 'application/octet-stream'})
+        ])
 
     def test_download_image_with_fd(self):
         self._register_image_mocks()
@@ -145,15 +146,18 @@ class TestImage(BaseTestImage):
         self.assert_calls()
 
     def test_empty_list_images(self):
-        self.register_uri(
-            'GET', 'https://image.example.com/v2/images', json={'images': []})
+        self.register_uris([
+            dict(method='GET', uri='https://image.example.com/v2/images',
+                 json={'images': []})
+        ])
         self.assertEqual([], self.cloud.list_images())
         self.assert_calls()
 
     def test_list_images(self):
-        self.register_uri(
-            'GET', 'https://image.example.com/v2/images',
-            json=self.fake_search_return)
+        self.register_uris([
+            dict(method='GET', uri='https://image.example.com/v2/images',
+                 json=self.fake_search_return)
+        ])
         self.assertEqual(
             self.cloud._normalize_images([self.fake_image_dict]),
             self.cloud.list_images())
@@ -161,17 +165,16 @@ class TestImage(BaseTestImage):
 
     def test_list_images_paginated(self):
         marker = str(uuid.uuid4())
-        self.register_uri(
-            'GET', 'https://image.example.com/v2/images',
-            json={
-                'images': [self.fake_image_dict],
-                'next': '/v2/images?marker={marker}'.format(marker=marker),
-            })
-        self.register_uri(
-            'GET',
-            'https://image.example.com/v2/images?marker={marker}'.format(
-                marker=marker),
-            json=self.fake_search_return)
+        self.register_uris([
+            dict(method='GET', uri='https://image.example.com/v2/images',
+                 json={'images': [self.fake_image_dict],
+                       'next': '/v2/images?marker={marker}'.format(
+                           marker=marker)}),
+            dict(method='GET',
+                 uri=('https://image.example.com/v2/images?'
+                      'marker={marker}'.format(marker=marker)),
+                 json=self.fake_search_return)
+        ])
         self.assertEqual(
             self.cloud._normalize_images([
                 self.fake_image_dict, self.fake_image_dict]),
@@ -181,32 +184,27 @@ class TestImage(BaseTestImage):
     def test_create_image_put_v2(self):
         self.cloud.image_api_use_tasks = False
 
-        self.register_uri(
-            'GET', 'https://image.example.com/v2/images',
-            json={'images': []})
-
-        self.register_uri(
-            'POST', 'https://image.example.com/v2/images',
-            json=self.fake_image_dict,
-            validate=dict(
-                json={
-                    u'container_format': u'bare',
-                    u'disk_format': u'qcow2',
-                    u'name': u'fake_image',
-                    u'owner_specified.shade.md5': NO_MD5,
-                    u'owner_specified.shade.object': u'images/fake_image',
-                    u'owner_specified.shade.sha256': NO_SHA256,
-                    u'visibility': u'private'
-                }),
-        )
-        self.register_uri(
-            'PUT', 'https://image.example.com/v2/images/{id}/file'.format(
-                id=self.image_id),
-            request_headers={'Content-Type': 'application/octet-stream'})
-
-        self.register_uri(
-            'GET', 'https://image.example.com/v2/images',
-            json=self.fake_search_return)
+        self.register_uris([
+            dict(method='GET', uri='https://image.example.com/v2/images',
+                 json={'images': []}),
+            dict(method='POST', uri='https://image.example.com/v2/images',
+                 json=self.fake_image_dict,
+                 validate=dict(
+                     json={u'container_format': u'bare',
+                           u'disk_format': u'qcow2',
+                           u'name': u'fake_image',
+                           u'owner_specified.shade.md5': NO_MD5,
+                           u'owner_specified.shade.object': u'images/fake_image',  # noqa
+                           u'owner_specified.shade.sha256': NO_SHA256,
+                           u'visibility': u'private'})
+                 ),
+            dict(method='PUT',
+                 uri='https://image.example.com/v2/images/{id}/file'.format(
+                     id=self.image_id),
+                 request_headers={'Content-Type': 'application/octet-stream'}),
+            dict(method='GET', uri='https://image.example.com/v2/images',
+                 json=self.fake_search_return)
+        ])
 
         self.cloud.create_image(
             'fake_image', self.imagefile.name, wait=True, timeout=1,
@@ -220,64 +218,6 @@ class TestImage(BaseTestImage):
         image_name = 'name-99'
         container_name = 'image_upload_v2_test_container'
         endpoint = self.cloud._object_store_client.get_endpoint()
-
-        self.register_uri(
-            'GET', 'https://image.example.com/v2/images', json={'images': []})
-
-        self.register_uri(
-            'GET', 'https://object-store.example.com/info',
-            json=dict(
-                swift={'max_file_size': 1000},
-                slo={'min_segment_size': 500}))
-
-        self.register_uri(
-            'HEAD', '{endpoint}/{container}'.format(
-                endpoint=endpoint,
-                container=container_name),
-            status_code=404)
-
-        self.register_uri(
-            'PUT', '{endpoint}/{container}'.format(
-                endpoint=endpoint,
-                container=container_name,),
-            status_code=201,
-            headers={
-                'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
-                'Content-Length': '0',
-                'Content-Type': 'text/html; charset=UTF-8',
-            })
-
-        self.register_uri(
-            'HEAD', '{endpoint}/{container}'.format(
-                endpoint=endpoint,
-                container=container_name),
-            headers={
-                'Content-Length': '0',
-                'X-Container-Object-Count': '0',
-                'Accept-Ranges': 'bytes',
-                'X-Storage-Policy': 'Policy-0',
-                'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                'X-Timestamp': '1481912480.41664',
-                'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
-                'X-Container-Bytes-Used': '0',
-                'Content-Type': 'text/plain; charset=utf-8'})
-
-        self.register_uri(
-            'HEAD', '{endpoint}/{container}/{object}'.format(
-                endpoint=endpoint,
-                container=container_name, object=image_name),
-            status_code=404)
-
-        self.register_uri(
-            'PUT', '{endpoint}/{container}/{object}'.format(
-                endpoint=endpoint,
-                container=container_name, object=image_name),
-            status_code=201,
-            validate=dict(
-                headers={
-                    'x-object-meta-x-shade-md5': NO_MD5,
-                    'x-object-meta-x-shade-sha256': NO_SHA256,
-                }))
 
         task_id = str(uuid.uuid4())
         args = dict(
@@ -294,61 +234,92 @@ class TestImage(BaseTestImage):
         del(image_no_checksums['owner_specified.shade.sha256'])
         del(image_no_checksums['owner_specified.shade.object'])
 
-        self.register_uri(
-            'GET', 'https://image.example.com/v2/images',
-            json={'images': []})
-
-        self.register_uri(
-            'POST', 'https://image.example.com/v2/tasks',
-            json=args,
-            validate=dict(
-                json=dict(
-                    type='import', input={
-                        'import_from': '{container}/{object}'.format(
-                            container=container_name, object=image_name),
-                        'image_properties': {'name': image_name}})))
-
-        self.register_uri(
-            'GET',
-            'https://image.example.com/v2/tasks/{id}'.format(id=task_id),
-            status_code=503, text='Random error')
-
-        self.register_uri(
-            'GET',
-            'https://image.example.com/v2/tasks/{id}'.format(id=task_id),
-            json={'images': args})
-
-        self.register_uri(
-            'GET', 'https://image.example.com/v2/images',
-            json={'images': [image_no_checksums]})
-
-        self.register_uri(
-            'PATCH',
-            'https://image.example.com/v2/images/{id}'.format(
-                id=self.image_id),
-            validate=dict(
-                json=sorted([
-                    {
-                        u'op': u'add',
-                        u'value': '{container}/{object}'.format(
-                            container=container_name, object=image_name),
-                        u'path': u'/owner_specified.shade.object'
-                    }, {
-                        u'op': u'add',
-                        u'value': NO_MD5,
-                        u'path': u'/owner_specified.shade.md5'
-                    }, {
-                        u'op': u'add', u'value': NO_SHA256,
-                        u'path': u'/owner_specified.shade.sha256'
-                    }], key=operator.itemgetter('value')),
-                headers={
-                    'Content-Type':
-                    'application/openstack-images-v2.1-json-patch'
-                }))
-
-        self.register_uri(
-            'GET', 'https://image.example.com/v2/images',
-            json=self.fake_search_return)
+        self.register_uris([
+            dict(method='GET', uri='https://image.example.com/v2/images',
+                 json={'images': []}),
+            dict(method='GET', uri='https://object-store.example.com/info',
+                 json=dict(
+                     swift={'max_file_size': 1000},
+                     slo={'min_segment_size': 500})),
+            dict(method='HEAD',
+                 uri='{endpoint}/{container}'.format(
+                     endpoint=endpoint, container=container_name),
+                 status_code=404),
+            dict(method='PUT',
+                 uri='{endpoint}/{container}'.format(
+                     endpoint=endpoint, container=container_name),
+                 status_code=201,
+                 headers={'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
+                          'Content-Length': '0',
+                          'Content-Type': 'text/html; charset=UTF-8'}),
+            dict(method='HEAD',
+                 uri='{endpoint}/{container}'.format(
+                     endpoint=endpoint, container=container_name),
+                 headers={'Content-Length': '0',
+                          'X-Container-Object-Count': '0',
+                          'Accept-Ranges': 'bytes',
+                          'X-Storage-Policy': 'Policy-0',
+                          'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                          'X-Timestamp': '1481912480.41664',
+                          'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',  # noqa
+                          'X-Container-Bytes-Used': '0',
+                         'Content-Type': 'text/plain; charset=utf-8'}),
+            dict(method='HEAD',
+                 uri='{endpoint}/{container}/{object}'.format(
+                     endpoint=endpoint, container=container_name,
+                     object=image_name),
+                 status_code=404),
+            dict(method='PUT',
+                 uri='{endpoint}/{container}/{object}'.format(
+                     endpoint=endpoint, container=container_name,
+                     object=image_name),
+                 status_code=201,
+                 validate=dict(
+                     headers={'x-object-meta-x-shade-md5': NO_MD5,
+                              'x-object-meta-x-shade-sha256': NO_SHA256})
+                 ),
+            dict(method='GET', uri='https://image.example.com/v2/images',
+                 json={'images': []}),
+            dict(method='POST', uri='https://image.example.com/v2/tasks',
+                 json=args,
+                 validate=dict(
+                     json=dict(
+                         type='import', input={
+                             'import_from': '{container}/{object}'.format(
+                                 container=container_name, object=image_name),
+                             'image_properties': {'name': image_name}}))
+                 ),
+            dict(method='GET',
+                 uri='https://image.example.com/v2/tasks/{id}'.format(
+                     id=task_id),
+                 status_code=503, text='Random error'),
+            dict(method='GET',
+                 uri='https://image.example.com/v2/tasks/{id}'.format(
+                     id=task_id),
+                 json={'images': args}),
+            dict(method='GET', uri='https://image.example.com/v2/images',
+                 json={'images': [image_no_checksums]}),
+            dict(method='PATCH',
+                 uri='https://image.example.com/v2/images/{id}'.format(
+                     id=self.image_id),
+                 validate=dict(
+                     json=sorted([{u'op': u'add',
+                                   u'value': '{container}/{object}'.format(
+                                       container=container_name,
+                                       object=image_name),
+                                   u'path': u'/owner_specified.shade.object'},
+                                  {u'op': u'add', u'value': NO_MD5,
+                                   u'path': u'/owner_specified.shade.md5'},
+                                  {u'op': u'add', u'value': NO_SHA256,
+                                   u'path': u'/owner_specified.shade.sha256'}],
+                                 key=operator.itemgetter('value')),
+                     headers={
+                         'Content-Type':
+                             'application/openstack-images-v2.1-json-patch'})
+                 ),
+            dict(method='GET', uri='https://image.example.com/v2/images',
+                 json=self.fake_search_return)
+        ])
 
         self.cloud.create_image(
             image_name, self.imagefile.name, wait=True, timeout=1,
@@ -719,9 +690,11 @@ class TestImageVersionDiscovery(BaseTestImage):
         self.cloud.cloud_config.config['image_endpoint_override'] = \
             'https://image.example.com/v2/override'
 
-        self.register_uri(
-            'GET', 'https://image.example.com/v2/override/images',
-            json={'images': []})
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/override/images',
+                 json={'images': []})
+        ])
         self.assertEqual([], self.cloud.list_images())
         self.assertEqual(
             self.cloud._image_client.endpoint_override,
@@ -735,22 +708,26 @@ class TestImageVolume(BaseTestImage):
 
         volume_id = 'some-volume'
 
-        self.register_uri(
-            'POST', '{endpoint}/volumes/{id}/action'.format(
-                endpoint=CINDER_URL, id=volume_id),
-            json={'os-volume_upload_image': {'image_id': self.image_id}},
-            validate=dict(json={
-                u'os-volume_upload_image': {
-                    u'container_format': u'bare',
-                    u'disk_format': u'qcow2',
-                    u'force': False,
-                    u'image_name': u'fake_image'}}))
-
-        self.use_glance()
-
-        self.register_uri(
-            'GET', 'https://image.example.com/v2/images',
-            json=self.fake_search_return)
+        self.register_uris([
+            dict(method='POST',
+                 uri='{endpoint}/volumes/{id}/action'.format(
+                     endpoint=CINDER_URL, id=volume_id),
+                 json={'os-volume_upload_image': {'image_id': self.image_id}},
+                 validate=dict(json={
+                     u'os-volume_upload_image': {
+                         u'container_format': u'bare',
+                         u'disk_format': u'qcow2',
+                         u'force': False,
+                         u'image_name': u'fake_image'}})
+                 ),
+            # NOTE(notmorgan): Glance discovery happens here, insert the
+            # glance discovery mock at this point, DO NOT use the
+            # .use_glance() method, that is intended only for use in
+            # .setUp
+            self.get_glance_discovery_mock_dict(),
+            dict(method='GET', uri='https://image.example.com/v2/images',
+                 json=self.fake_search_return)
+        ])
 
         self.cloud.create_image(
             'fake_image', self.imagefile.name, wait=True, timeout=1,
@@ -762,22 +739,26 @@ class TestImageVolume(BaseTestImage):
 
         volume_id = 'some-volume'
 
-        self.register_uri(
-            'POST', '{endpoint}/volumes/{id}/action'.format(
-                endpoint=CINDER_URL, id=volume_id),
-            json={'os-volume_upload_image': {'image_id': self.image_id}},
-            validate=dict(json={
-                u'os-volume_upload_image': {
-                    u'container_format': u'bare',
-                    u'disk_format': u'qcow2',
-                    u'force': True,
-                    u'image_name': u'fake_image'}}))
-
-        self.use_glance()
-
-        self.register_uri(
-            'GET', 'https://image.example.com/v2/images',
-            json=self.fake_search_return)
+        self.register_uris([
+            dict(method='POST',
+                 uri='{endpoint}/volumes/{id}/action'.format(
+                     endpoint=CINDER_URL, id=volume_id),
+                 json={'os-volume_upload_image': {'image_id': self.image_id}},
+                 validate=dict(json={
+                     u'os-volume_upload_image': {
+                         u'container_format': u'bare',
+                         u'disk_format': u'qcow2',
+                         u'force': True,
+                         u'image_name': u'fake_image'}})
+                 ),
+            # NOTE(notmorgan): Glance discovery happens here, insert the
+            # glance discovery mock at this point, DO NOT use the
+            # .use_glance() method, that is intended only for use in
+            # .setUp
+            self.get_glance_discovery_mock_dict(),
+            dict(method='GET', uri='https://image.example.com/v2/images',
+                 json=self.fake_search_return)
+        ])
 
         self.cloud.create_image(
             'fake_image', self.imagefile.name, wait=True, timeout=1,

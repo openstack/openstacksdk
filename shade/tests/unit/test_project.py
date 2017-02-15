@@ -36,17 +36,16 @@ class TestProject(base.RequestsMockTestCase):
     def test_create_project_v2(self):
         self.use_keystone_v2()
         project_data = self._get_project_data(v3=False)
-        self.register_uri(
-            'POST',
-            self.get_mock_url(v3=False),
-            status_code=200,
-            json=project_data.json_response,
-            validate=project_data.json_request)
-        self.register_uri(
-            'GET',
-            self.get_mock_url(v3=False, append=[project_data.project_id]),
-            status_code=200,
-            json=project_data.json_response)
+        self.register_uris([
+            dict(method='POST', uri=self.get_mock_url(v3=False),
+                 status_code=200, json=project_data.json_response,
+                 validate=project_data.json_request),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     v3=False, append=[project_data.project_id]),
+                 status_code=200,
+                 json=project_data.json_response)
+        ])
         project = self.op_cloud.create_project(
             name=project_data.project_name,
             description=project_data.description)
@@ -59,17 +58,17 @@ class TestProject(base.RequestsMockTestCase):
         self._add_discovery_uri_call()
         project_data = self._get_project_data(
             description=self.getUniqueString('projectDesc'))
-        self.register_uri(
-            'POST',
-            self.get_mock_url(),
-            status_code=200,
-            json=project_data.json_response,
-            validate=project_data.json_request)
-        self.register_uri(
-            'GET',
-            self.get_mock_url(append=[project_data.project_id]),
-            status_code=200,
-            json=project_data.json_response)
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json=project_data.json_response,
+                 validate=project_data.json_request),
+            dict(method='GET',
+                 uri=self.get_mock_url(append=[project_data.project_id]),
+                 status_code=200,
+                 json=project_data.json_response)
+        ])
         project = self.op_cloud.create_project(
             name=project_data.project_name,
             description=project_data.description,
@@ -94,41 +93,43 @@ class TestProject(base.RequestsMockTestCase):
     def test_delete_project_v2(self):
         self.use_keystone_v2()
         project_data = self._get_project_data(v3=False)
-        self.register_uri(
-            'GET',
-            self.get_mock_url(v3=False),
-            status_code=200,
-            json={'tenants': [project_data.json_response['tenant']]})
-        self.register_uri(
-            'DELETE',
-            self.get_mock_url(v3=False, append=[project_data.project_id]),
-            status_code=204)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(v3=False),
+                 status_code=200,
+                 json={'tenants': [project_data.json_response['tenant']]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     v3=False, append=[project_data.project_id]),
+                 status_code=204)
+        ])
         self.op_cloud.delete_project(project_data.project_id)
         self.assert_calls()
 
     def test_delete_project_v3(self):
         self._add_discovery_uri_call()
         project_data = self._get_project_data(v3=False)
-        self.register_uri(
-            'GET',
-            self.get_mock_url(),
-            status_code=200,
-            json={'projects': [project_data.json_response['tenant']]})
-        self.register_uri(
-            'DELETE',
-            self.get_mock_url(append=[project_data.project_id]),
-            status_code=204)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'projects': [project_data.json_response['tenant']]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(append=[project_data.project_id]),
+                 status_code=204)
+        ])
         self.op_cloud.delete_project(project_data.project_id)
         self.assert_calls()
 
     def test_update_project_not_found(self):
         self._add_discovery_uri_call()
         project_data = self._get_project_data()
-        self.register_uri(
-            'GET',
-            self.get_mock_url(),
-            status_code=200,
-            json={'projects': []})
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'projects': []})
+        ])
         # NOTE(notmorgan): This test (and shade) does not represent a case
         # where the project is in the project list but a 404 is raised when
         # the PATCH is issued. This is a bug in shade and should be fixed,
@@ -146,22 +147,23 @@ class TestProject(base.RequestsMockTestCase):
         project_data = self._get_project_data(
             v3=False,
             description=self.getUniqueString('projectDesc'))
-        self.register_uri(
-            'GET',
-            self.get_mock_url(v3=False),
-            status_code=200,
-            json={'tenants': [project_data.json_response['tenant']]})
-        self.register_uri(
-            'POST',
-            self.get_mock_url(v3=False, append=[project_data.project_id]),
-            status_code=200,
-            json=project_data.json_response,
-            validate=project_data.json_request)
-        self.register_uri(
-            'GET',
-            self.get_mock_url(v3=False, append=[project_data.project_id]),
-            status_code=200,
-            json=project_data.json_response)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(v3=False),
+                 status_code=200,
+                 json={'tenants': [project_data.json_response['tenant']]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     v3=False, append=[project_data.project_id]),
+                 status_code=200,
+                 json=project_data.json_response,
+                 validate=project_data.json_request),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     v3=False, append=[project_data.project_id]),
+                 status_code=200,
+                 json=project_data.json_response)
+        ])
         project = self.op_cloud.update_project(
             project_data.project_id,
             description=project_data.description)
@@ -176,23 +178,21 @@ class TestProject(base.RequestsMockTestCase):
         self._add_discovery_uri_call()
         project_data = self._get_project_data(
             description=self.getUniqueString('projectDesc'))
-        self.register_uri(
-            'GET',
-            self.get_mock_url(
-                resource='projects?domain_id=%s' % project_data.domain_id),
-            status_code=200,
-            json={'projects': [project_data.json_response['project']]})
-        self.register_uri(
-            'PATCH',
-            self.get_mock_url(append=[project_data.project_id]),
-            status_code=200,
-            json=project_data.json_response,
-            validate=project_data.json_request)
-        self.register_uri(
-            'GET',
-            self.get_mock_url(append=[project_data.project_id]),
-            status_code=200,
-            json=project_data.json_response)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource=('projects?domain_id=%s' %
+                               project_data.domain_id)),
+                 status_code=200,
+                 json={'projects': [project_data.json_response['project']]}),
+            dict(method='PATCH',
+                 uri=self.get_mock_url(append=[project_data.project_id]),
+                 status_code=200, json=project_data.json_response,
+                 validate=project_data.json_request),
+            dict(method='GET',
+                 uri=self.get_mock_url(append=[project_data.project_id]),
+                 status_code=200, json=project_data.json_response)
+        ])
         project = self.op_cloud.update_project(
             project_data.project_id,
             description=project_data.description,
@@ -208,12 +208,14 @@ class TestProject(base.RequestsMockTestCase):
         self._add_discovery_uri_call()
         project_data = self._get_project_data(
             description=self.getUniqueString('projectDesc'))
-        self.register_uri(
-            'GET',
-            self.get_mock_url(
-                resource='projects?domain_id=%s' % project_data.domain_id),
-            status_code=200,
-            json={'projects': [project_data.json_response['project']]})
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource=('projects?domain_id=%s' %
+                               project_data.domain_id)),
+                 status_code=200,
+                 json={'projects': [project_data.json_response['project']]})
+        ])
         projects = self.op_cloud.list_projects(project_data.domain_id)
         self.assertThat(len(projects), matchers.Equals(1))
         self.assertThat(
@@ -224,12 +226,14 @@ class TestProject(base.RequestsMockTestCase):
         self._add_discovery_uri_call()
         project_data = self._get_project_data(
             description=self.getUniqueString('projectDesc'))
-        self.register_uri(
-            'GET',
-            self.get_mock_url(
-                resource='projects?domain_id=%s' % project_data.domain_id),
-            status_code=200,
-            json={'projects': [project_data.json_response['project']]})
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource=('projects?domain_id=%s' %
+                               project_data.domain_id)),
+                 status_code=200,
+                 json={'projects': [project_data.json_response['project']]})
+        ])
         projects = self.op_cloud.list_projects(
             domain_id=project_data.domain_id)
         self.assertThat(len(projects), matchers.Equals(1))
@@ -241,11 +245,12 @@ class TestProject(base.RequestsMockTestCase):
         self._add_discovery_uri_call()
         project_data = self._get_project_data(
             description=self.getUniqueString('projectDesc'))
-        self.register_uri(
-            'GET',
-            self.get_mock_url(),
-            status_code=200,
-            json={'projects': [project_data.json_response['project']]})
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'projects': [project_data.json_response['project']]})
+        ])
         projects = self.op_cloud.search_projects(project_data.project_id)
         self.assertThat(len(projects), matchers.Equals(1))
         self.assertThat(
@@ -256,12 +261,14 @@ class TestProject(base.RequestsMockTestCase):
         self._add_discovery_uri_call()
         project_data = self._get_project_data(
             description=self.getUniqueString('projectDesc'))
-        self.register_uri(
-            'GET',
-            self.get_mock_url(
-                resource='projects?domain_id=%s' % project_data.domain_id),
-            status_code=200,
-            json={'projects': [project_data.json_response['project']]})
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource=('projects?domain_id=%s' %
+                               project_data.domain_id)),
+                 status_code=200,
+                 json={'projects': [project_data.json_response['project']]})
+        ])
         projects = self.op_cloud.search_projects(
             domain_id=project_data.domain_id)
         self.assertThat(len(projects), matchers.Equals(1))
