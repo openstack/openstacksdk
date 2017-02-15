@@ -161,11 +161,15 @@ class CloudConfig(object):
         # Of course, if the user requests a volumev2, that structure should
         # still work.
         # What's even more amazing is that they did it AGAIN with cinder v3
+        # And then I learned that mistral copied it.
         if service_type == 'volume':
             if self.get_api_version(service_type).startswith('2'):
                 service_type = 'volumev2'
             elif self.get_api_version(service_type).startswith('3'):
                 service_type = 'volumev3'
+        elif service_type == 'workflow':
+            if self.get_api_version(service_type).startswith('2'):
+                service_type = 'workflowv2'
         return self.config.get(key, service_type)
 
     def get_service_name(self, service_type):
