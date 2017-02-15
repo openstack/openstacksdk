@@ -21,7 +21,7 @@ import six
 
 from shade import exc
 from shade.tests.functional import base
-from shade.tests.functional.util import pick_flavor, pick_image
+from shade.tests.functional.util import pick_flavor
 from shade import _utils
 
 
@@ -31,9 +31,7 @@ class TestCompute(base.BaseFunctionalTestCase):
         self.flavor = pick_flavor(self.user_cloud.list_flavors())
         if self.flavor is None:
             self.assertFalse('no sensible flavor available')
-        self.image = pick_image(self.user_cloud.list_images())
-        if self.image is None:
-            self.assertFalse('no sensible image available')
+        self.image = self.pick_image()
         self.server_name = self.getUniqueString()
 
     def _cleanup_servers_and_volumes(self, server_name):

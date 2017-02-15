@@ -1,0 +1,5 @@
+---
+upgrade:
+  - Nova microversion is being requested. Since shade is not yet
+    actively microversion aware, but has been dealing with the 2.0 structures
+    anyway, this should not affect anyone.

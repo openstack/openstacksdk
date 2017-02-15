@@ -28,7 +28,7 @@ from shade import _utils
 from shade import meta
 from shade.exc import OpenStackCloudException
 from shade.tests.functional import base
-from shade.tests.functional.util import pick_flavor, pick_image
+from shade.tests.functional.util import pick_flavor
 
 
 class TestFloatingIP(base.BaseFunctionalTestCase):
@@ -42,9 +42,7 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
         self.flavor = pick_flavor(self.nova.flavors.list())
         if self.flavor is None:
             self.assertFalse('no sensible flavor available')
-        self.image = pick_image(self.nova.images.list())
-        if self.image is None:
-            self.assertFalse('no sensible image available')
+        self.image = self.pick_image()
 
         # Generate a random name for these tests
         self.new_item_name = self.getUniqueString()

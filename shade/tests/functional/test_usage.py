@@ -30,5 +30,6 @@ class TestUsage(base.BaseFunctionalTestCase):
         usage = self.operator_cloud.get_compute_usage('demo',
                                                       datetime.datetime.now(),
                                                       datetime.datetime.now())
+        self.add_info_on_exception('usage', usage)
         self.assertIsNotNone(usage)
         self.assertTrue(hasattr(usage, 'total_hours'))

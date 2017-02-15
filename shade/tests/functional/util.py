@@ -40,22 +40,3 @@ def pick_flavor(flavors):
             flavors,
             key=operator.attrgetter('ram')):
         return flavor
-
-
-def pick_image(images):
-    image_name = os.environ.get('SHADE_IMAGE')
-    if image_name:
-        for image in images:
-            if image.name == image_name:
-                return image
-        return None
-
-    for image in images:
-        if image.name.startswith('cirros') and image.name.endswith('-uec'):
-            return image
-    for image in images:
-        if image.name.lower().startswith('ubuntu'):
-            return image
-    for image in images:
-        if image.name.lower().startswith('centos'):
-            return image

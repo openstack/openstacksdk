@@ -37,3 +37,30 @@ class BaseFunctionalTestCase(base.TestCase):
 
         self.identity_version = \
             self.operator_cloud.cloud_config.get_api_version('identity')
+
+    def pick_image(self):
+        images = self.user_cloud.list_images()
+        self.add_info_on_exception('images', images)
+
+        image_name = os.environ.get('SHADE_IMAGE')
+        if image_name:
+            for image in images:
+                if image.name == image_name:
+                    return image
+            self.assertFalse(
+                "Cloud does not have {image}".format(image=image_name))
+
+        for image in images:
+            if image.name.startswith('cirros') and image.name.endswith('-uec'):
+                return image
+        for image in images:
+            if (image.name.startswith('cirros')
+                    and image.disk_format == 'qcow2'):
+                return image
+        for image in images:
+            if image.name.lower().startswith('ubuntu'):
+                return image
+        for image in images:
+            if image.name.lower().startswith('centos'):
+                return image
+        self.assertFalse('no sensible image available')

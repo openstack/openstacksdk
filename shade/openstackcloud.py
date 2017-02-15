@@ -545,7 +545,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def nova_client(self):
         if self._nova_client is None:
             self._nova_client = self._get_client(
-                'compute', novaclient.client.Client)
+                'compute', novaclient.client.Client, version='2.0')
         return self._nova_client
 
     @property

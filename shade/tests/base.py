@@ -18,6 +18,7 @@ import os
 import fixtures
 import logging
 import munch
+import pprint
 from six import StringIO
 import testtools
 import testtools.content
@@ -75,6 +76,12 @@ class TestCase(testtools.TestCase):
         logger.addHandler(handler)
         logger.propagate = False
 
+        # Enable HTTP level tracing
+        logger = logging.getLogger('novaclient')
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(handler)
+        logger.propagate = False
+
     def assertEqual(self, first, second, *args, **kwargs):
         '''Munch aware wrapper'''
         if isinstance(first, munch.Munch):
@@ -101,3 +108,9 @@ class TestCase(testtools.TestCase):
             testtools.content_type.UTF8_TEXT,
             False)
         self.addDetail('logging', content)
+
+    def add_info_on_exception(self, name, text):
+        def add_content(unused):
+            self.addDetail(name, testtools.content.text_content(
+                pprint.pformat(text)))
+        self.addOnException(add_content)

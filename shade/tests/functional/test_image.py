@@ -22,13 +22,12 @@ import os
 import tempfile
 
 from shade.tests.functional import base
-from shade.tests.functional.util import pick_image
 
 
 class TestImage(base.BaseFunctionalTestCase):
     def setUp(self):
         super(TestImage, self).setUp()
-        self.image = pick_image(self.user_cloud.nova_client.images.list())
+        self.image = self.pick_image()
 
     def test_create_image(self):
         test_image = tempfile.NamedTemporaryFile(delete=False)

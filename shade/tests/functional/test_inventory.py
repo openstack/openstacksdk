@@ -22,7 +22,7 @@ Functional tests for `shade` inventory methods.
 from shade import inventory
 
 from shade.tests.functional import base
-from shade.tests.functional.util import pick_flavor, pick_image
+from shade.tests.functional.util import pick_flavor
 
 
 class TestInventory(base.BaseFunctionalTestCase):
@@ -36,9 +36,7 @@ class TestInventory(base.BaseFunctionalTestCase):
         self.flavor = pick_flavor(self.nova.flavors.list())
         if self.flavor is None:
             self.assertTrue(False, 'no sensible flavor available')
-        self.image = pick_image(self.nova.images.list())
-        if self.image is None:
-            self.assertTrue(False, 'no sensible image available')
+        self.image = self.pick_image()
         self.addCleanup(self._cleanup_servers)
         self.operator_cloud.create_server(
             name=self.server_name, image=self.image, flavor=self.flavor,
