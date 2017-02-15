@@ -122,7 +122,7 @@ class Proxy(proxy2.BaseProxy):
         else:
             stk_obj = _stack.Stack.existing(id=stack)
 
-        stk_obj.check(self.session)
+        stk_obj.check(self._session)
 
     def resources(self, stack, **query):
         """Return a generator of resources
@@ -295,6 +295,6 @@ class Proxy(proxy2.BaseProxy):
                 "'template_url' must be specified when template is None")
 
         tmpl = _template.Template.new()
-        return tmpl.validate(self.session, template, environment=environment,
+        return tmpl.validate(self._session, template, environment=environment,
                              template_url=template_url,
                              ignore_errors=ignore_errors)

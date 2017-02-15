@@ -41,7 +41,7 @@ def _check_resource(strict=False):
 class BaseProxy(object):
 
     def __init__(self, session):
-        self.session = session
+        self._session = session
 
     def _get_resource(self, resource_type, value, path_args=None):
         """Get a resource object to work on
@@ -87,7 +87,7 @@ class BaseProxy(object):
 
         :returns: An instance of ``resource_type`` or None
         """
-        return resource_type.find(self.session, name_or_id,
+        return resource_type.find(self._session, name_or_id,
                                   path_args=path_args,
                                   ignore_missing=ignore_missing)
 
@@ -122,7 +122,7 @@ class BaseProxy(object):
         res = self._get_resource(resource_type, value, path_args)
 
         try:
-            rv = res.delete(self.session)
+            rv = res.delete(self._session)
         except exceptions.NotFoundException as e:
             if ignore_missing:
                 return None
@@ -157,7 +157,7 @@ class BaseProxy(object):
         """
         res = self._get_resource(resource_type, value, path_args)
         res.update_attrs(attrs)
-        return res.update(self.session)
+        return res.update(self._session)
 
     def _create(self, resource_type, path_args=None, **attrs):
         """Create a resource from attributes
@@ -176,7 +176,7 @@ class BaseProxy(object):
         res = resource_type.new(**attrs)
         if path_args is not None:
             res.update_attrs(path_args)
-        return res.create(self.session)
+        return res.create(self._session)
 
     @_check_resource(strict=False)
     def _get(self, resource_type, value=None, path_args=None, args=None):
@@ -198,7 +198,7 @@ class BaseProxy(object):
         res = self._get_resource(resource_type, value, path_args)
 
         try:
-            return res.get(self.session, args=args)
+            return res.get(self._session, args=args)
         except exceptions.NotFoundException as e:
             raise exceptions.ResourceNotFound(
                 message="No %s found for %s" %
@@ -235,8 +235,8 @@ class BaseProxy(object):
         res = self._get_resource(resource_type, value, path_args)
 
         query = res.convert_ids(query)
-        return res.list(self.session, path_args=path_args, paginated=paginated,
-                        params=query)
+        return res.list(self._session, path_args=path_args,
+                        paginated=paginated, params=query)
 
     def _head(self, resource_type, value=None, path_args=None):
         """Retrieve a resource's header
@@ -255,7 +255,7 @@ class BaseProxy(object):
         """
         res = self._get_resource(resource_type, value, path_args)
 
-        return res.head(self.session)
+        return res.head(self._session)
 
     def wait_for_status(self, value, status, failures=[], interval=2,
                         wait=120):
@@ -278,7 +278,7 @@ class BaseProxy(object):
         :raises: :class:`~AttributeError` if the resource does not have a
                  status attribute
         """
-        return resource.wait_for_status(self.session, value, status,
+        return resource.wait_for_status(self._session, value, status,
                                         failures, interval, wait)
 
     def wait_for_delete(self, value, interval=2, wait=120):
@@ -293,4 +293,4 @@ class BaseProxy(object):
         :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
                  to delete failed to occur in wait seconds.
         """
-        return resource.wait_for_delete(self.session, value, interval, wait)
+        return resource.wait_for_delete(self._session, value, interval, wait)

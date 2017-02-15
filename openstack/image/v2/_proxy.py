@@ -56,7 +56,7 @@ class Proxy(proxy2.BaseProxy):
         # return anything anyway. Otherwise this blocks while uploading
         # significant amounts of image data.
         img.data = data
-        img.upload(self.session)
+        img.upload(self._session)
 
         return img
 
@@ -69,7 +69,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: The bytes comprising the given Image.
         """
         image = self._get_resource(_image.Image, image)
-        return image.download(self.session)
+        return image.download(self._session)
 
     def delete_image(self, image, ignore_missing=True):
         """Delete an image
@@ -145,7 +145,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         image = self._get_resource(_image.Image, image)
-        image.deactivate(self.session)
+        image.deactivate(self._session)
 
     def reactivate_image(self, image):
         """Deactivate an image
@@ -156,7 +156,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         image = self._get_resource(_image.Image, image)
-        image.reactivate(self.session)
+        image.reactivate(self._session)
 
     def add_tag(self, image, tag):
         """Add a tag to an image
@@ -169,7 +169,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         image = self._get_resource(_image.Image, image)
-        image.add_tag(self.session, tag)
+        image.add_tag(self._session, tag)
 
     def remove_tag(self, image, tag):
         """Remove a tag to an image
@@ -182,7 +182,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         image = self._get_resource(_image.Image, image)
-        image.remove_tag(self.session, tag)
+        image.remove_tag(self._session, tag)
 
     def add_member(self, image, **attrs):
         """Create a new member from attributes

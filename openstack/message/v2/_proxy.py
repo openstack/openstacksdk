@@ -86,7 +86,7 @@ class Proxy(proxy2.BaseProxy):
         """
         message = self._get_resource(_message.Message, None,
                                      queue_name=queue_name)
-        return message.post(self.session, messages)
+        return message.post(self._session, messages)
 
     def messages(self, queue_name, **query):
         """Retrieve a generator of messages

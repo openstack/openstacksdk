@@ -55,7 +55,7 @@ class Proxy(proxy.BaseProxy):
         :rtype: list messages: The list of
                     :class:`~openstack.message.v1.message.Message`s created.
         """
-        return message.Message.create_messages(self.session, values)
+        return message.Message.create_messages(self._session, values)
 
     def claim_messages(self, value):
         """Claims a set of messages.
@@ -67,7 +67,7 @@ class Proxy(proxy.BaseProxy):
         :rtype: list messages: The list of
                     :class:`~openstack.message.v1.message.Message`s claimed.
         """
-        return claim.Claim.claim_messages(self.session, value)
+        return claim.Claim.claim_messages(self._session, value)
 
     def delete_message(self, value):
         """Delete a message
@@ -77,4 +77,4 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        message.Message.delete_by_id(self.session, value)
+        message.Message.delete_by_id(self._session, value)
