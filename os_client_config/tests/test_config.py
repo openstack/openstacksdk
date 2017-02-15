@@ -226,7 +226,7 @@ class TestConfig(base.TestCase):
         c = config.OpenStackConfig(config_files=['nonexistent'],
                                    vendor_files=['nonexistent'],
                                    secure_files=[self.secure_yaml])
-        cc = c.get_one_cloud(cloud='_test_cloud_no_vendor')
+        cc = c.get_one_cloud(cloud='_test_cloud_no_vendor', validate=False)
         self.assertEqual('testpass', cc.auth['password'])
 
     def test_get_cloud_names(self):
@@ -384,7 +384,7 @@ class TestConfigArgparse(base.TestCase):
                                    vendor_files=[self.vendor_yaml])
 
         cc = c.get_one_cloud(
-            cloud='_test_cloud_regions', argparse=self.options)
+            cloud='_test_cloud_regions', argparse=self.options, validate=False)
         self.assertEqual(cc.region_name, 'region2')
         self.assertEqual(cc.snack_type, 'cookie')
 
@@ -481,7 +481,7 @@ class TestConfigArgparse(base.TestCase):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
 
-        cc = c.get_one_cloud(argparse=self.options)
+        cc = c.get_one_cloud(argparse=self.options, validate=False)
         self.assertIsNone(cc.cloud)
         self.assertEqual(cc.region_name, 'region2')
         self.assertEqual(cc.snack_type, 'cookie')
@@ -490,7 +490,7 @@ class TestConfigArgparse(base.TestCase):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
 
-        cc = c.get_one_cloud(**self.args)
+        cc = c.get_one_cloud(validate=False, **self.args)
         self.assertIsNone(cc.cloud)
         self.assertEqual(cc.region_name, 'region2')
         self.assertEqual(cc.snack_type, 'cookie')
@@ -622,7 +622,7 @@ class TestConfigArgparse(base.TestCase):
                                    vendor_files=[self.vendor_yaml])
 
         cc = c.get_one_cloud(
-            cloud='envvars', argparse=self.options)
+            cloud='envvars', argparse=self.options, validate=False)
         self.assertEqual(cc.auth['project_name'], 'project')
 
     def test_argparse_default_no_token(self):
@@ -650,7 +650,7 @@ class TestConfigArgparse(base.TestCase):
         opts, _remain = parser.parse_known_args(
             ['--os-auth-token', 'very-bad-things',
              '--os-auth-type', 'token'])
-        cc = c.get_one_cloud(argparse=opts)
+        cc = c.get_one_cloud(argparse=opts, validate=False)
         self.assertEqual(cc.config['auth_type'], 'token')
         self.assertEqual(cc.config['auth']['token'], 'very-bad-things')
 

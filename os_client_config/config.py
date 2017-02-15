@@ -861,59 +861,6 @@ class OpenStackConfig(object):
             config['auth_type'] = 'admin_token'
         return loading.get_plugin_loader(config['auth_type'])
 
-    def _validate_auth_ksc(self, config, cloud):
-        try:
-            import keystoneclient.auth as ksc_auth
-        except ImportError:
-            return config
-
-        # May throw a keystoneclient.exceptions.NoMatchingPlugin
-        plugin_options = ksc_auth.get_plugin_class(
-            config['auth_type']).get_options()
-
-        for p_opt in plugin_options:
-            # if it's in config.auth, win, kill it from config dict
-            # if it's in config and not in config.auth, move it
-            # deprecated loses to current
-            # provided beats default, deprecated or not
-            winning_value = self._find_winning_auth_value(
-                p_opt,
-                config['auth'],
-            )
-            if not winning_value:
-                winning_value = self._find_winning_auth_value(
-                    p_opt,
-                    config,
-                )
-
-            # if the plugin tells us that this value is required
-            # then error if it's doesn't exist now
-            if not winning_value and p_opt.required:
-                raise exceptions.OpenStackConfigException(
-                    'Unable to find auth information for cloud'
-                    ' {cloud} in config files {files}'
-                    ' or environment variables. Missing value {auth_key}'
-                    ' required for auth plugin {plugin}'.format(
-                        cloud=cloud, files=','.join(self._config_files),
-                        auth_key=p_opt.name, plugin=config.get('auth_type')))
-
-            # Clean up after ourselves
-            for opt in [p_opt.name] + [o.name for o in p_opt.deprecated_opts]:
-                opt = opt.replace('-', '_')
-                config.pop(opt, None)
-                config['auth'].pop(opt, None)
-
-            if winning_value:
-                # Prefer the plugin configuration dest value if the value's key
-                # is marked as depreciated.
-                if p_opt.dest is None:
-                    config['auth'][p_opt.name.replace('-', '_')] = (
-                        winning_value)
-                else:
-                    config['auth'][p_opt.dest] = winning_value
-
-        return config
-
     def _validate_auth(self, config, loader):
         # May throw a keystoneauth1.exceptions.NoMatchingPlugin
 
@@ -1107,21 +1054,9 @@ class OpenStackConfig(object):
         config = self.auth_config_hook(config)
 
         if validate:
-            try:
-                loader = self._get_auth_loader(config)
-                config = self._validate_auth(config, loader)
-                auth_plugin = loader.load_from_options(**config['auth'])
-            except Exception as e:
-                # We WANT the ksa exception normally
-                # but OSC can't handle it right now, so we try deferring
-                # to ksc. If that ALSO fails, it means there is likely
-                # a deeper issue, so we assume the ksa error was correct
-                self.log.debug("Deferring keystone exception: {e}".format(e=e))
-                auth_plugin = None
-                try:
-                    config = self._validate_auth_ksc(config, cloud)
-                except Exception:
-                    raise e
+            loader = self._get_auth_loader(config)
+            config = self._validate_auth(config, loader)
+            auth_plugin = loader.load_from_options(**config['auth'])
         else:
             auth_plugin = None
 
