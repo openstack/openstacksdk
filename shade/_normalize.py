@@ -762,8 +762,10 @@ class Normalizer(object):
                 ret.setdefault(key, val)
         return ret
 
-    def _normalize_usage(self, usage):
-        """ Normalize a usage object """
+    def _normalize_compute_usage(self, usage):
+        """ Normalize a compute usage object """
+
+        usage = usage.copy()
 
         # Discard noise
         usage.pop('links', None)
@@ -771,5 +773,66 @@ class Normalizer(object):
         usage.pop('HUMAN_ID', None)
         usage.pop('human_id', None)
         usage.pop('request_ids', None)
+        project_id = usage.pop('tenant_id', None)
 
-        return munch.Munch(usage)
+        ret = munch.Munch(
+            location=self._get_current_location(project_id=project_id),
+        )
+        for key in (
+                'max_personality',
+                'max_personality_size',
+                'max_server_group_members',
+                'max_server_groups',
+                'max_server_meta',
+                'max_total_cores',
+                'max_total_instances',
+                'max_total_keypairs',
+                'max_total_ram_size',
+                'total_cores_used',
+                'total_hours',
+                'total_instances_used',
+                'total_local_gb_usage',
+                'total_memory_mb_usage',
+                'total_ram_used',
+                'total_server_groups_used',
+                'total_vcpus_usage'):
+            ret[key] = usage.pop(key, 0)
+        ret['started_at'] = usage.pop('start')
+        ret['stopped_at'] = usage.pop('stop')
+        ret['server_usages'] = self._normalize_server_usages(
+            usage.pop('server_usages', []))
+        ret['properties'] = usage
+        return ret
+
+    def _normalize_server_usage(self, server_usage):
+        """ Normalize a server usage object """
+
+        server_usage = server_usage.copy()
+        # TODO(mordred) Right now there is already a location on the usage
+        # object. Including one here seems verbose.
+        server_usage.pop('tenant_id')
+        ret = munch.Munch()
+
+        ret['ended_at'] = server_usage.pop('ended_at', None)
+        ret['started_at'] = server_usage.pop('started_at', None)
+        for key in (
+                'flavor',
+                'instance_id',
+                'name',
+                'state'):
+            ret[key] = server_usage.pop(key, '')
+        for key in (
+                'hours',
+                'local_gb',
+                'memory_mb',
+                'uptime',
+                'vcpus'):
+            ret[key] = server_usage.pop(key, 0)
+        ret['properties'] = server_usage
+        return ret
+
+    def _normalize_server_usages(self, server_usages):
+        ret = []
+        for server_usage in server_usages:
+            ret.append(self._normalize_server_usage(server_usage))
+        return ret

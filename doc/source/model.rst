@@ -228,6 +228,58 @@ Limits and current usage for a project in Nova
     total_server_groups_used=int(),
     properties=dict())
 
+ComputeUsage
+------------
+
+Current usage for a project in Nova
+
+.. code-block:: python
+
+  ComputeUsage = dict(
+    location=Location(),
+    started_at=str(),
+    stopped_at=str(),
+    server_usages=list(),
+    max_personality=int(),
+    max_personality_size=int(),
+    max_server_group_members=int(),
+    max_server_groups=int(),
+    max_server_meta=int(),
+    max_total_cores=int(),
+    max_total_instances=int(),
+    max_total_keypairs=int(),
+    max_total_ram_size=int(),
+    total_cores_used=int(),
+    total_hours=int(),
+    total_instances_used=int(),
+    total_local_gb_usage=int(),
+    total_memory_mb_usage=int(),
+    total_ram_used=int(),
+    total_server_groups_used=int(),
+    total_vcpus_usage=int(),
+    properties=dict())
+
+ServerUsage
+-----------
+
+Current usage for a server in Nova
+
+.. code-block:: python
+
+  ComputeUsage = dict(
+    started_at=str(),
+    ended_at=str(),
+    flavor=str(),
+    hours=int(),
+    instance_id=str(),
+    local_gb=int(),
+    memory_mb=int(),
+    name=str(),
+    state=str(),
+    uptime=int(),
+    vcpus=int(),
+    properties=dict())
+
 Floating IP
 -----------
 
