@@ -944,9 +944,8 @@ class Proxy(proxy.BaseProxy):
                     paginated=False, project_id=project.id, user_id=user.id)
 
     def role_assignments(self, **query):
-        """Retrieve a generator of role_assignment
+        """Retrieve a generator of role assignments
 
-                      :class:`~openstack.identity.v3.user.User` instance.
         :param kwargs \*\*query: Optional query parameters to be sent to limit
                                  the resources being returned. The options
                                  are: group_id, role_id, scope_domain_id,
