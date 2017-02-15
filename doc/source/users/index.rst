@@ -76,7 +76,8 @@ but listed below are the ones provided by this SDK by default.
    Compute <proxies/compute>
    Database <proxies/database>
    Identity <proxies/identity>
-   Image <proxies/image>
+   Image v1 <proxies/image_v1>
+   Image v2 <proxies/image_v2>
    Key Manager <proxies/key_manager>
    Network <proxies/network>
    Object Store <proxies/object_store>
