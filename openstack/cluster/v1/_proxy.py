@@ -312,8 +312,9 @@ class Proxy(proxy2.BaseProxy):
         :param nodes: List of nodes to be removed from the cluster.
         :param kwargs \*\*params: Optional query parameters to be sent to
             restrict the nodes to be returned. Available parameters include:
+
             * destroy_after_deletion: A boolean value indicating whether the
-                       deleted nodes to be destroyed right away.
+                                      deleted nodes to be destroyed right away.
         :returns: A dict containing the action initiated by this operation.
         """
         return self.remove_nodes_from_cluster(cluster, nodes, **params)
