@@ -566,9 +566,17 @@ class OpenStackCloud(_normalize.Normalizer):
         return self._keystone_client
 
     @property
-    def service_catalog(self):
+    def _keystone_catalog(self):
         return self.keystone_session.auth.get_access(
-            self.keystone_session).service_catalog.catalog
+            self.keystone_session).service_catalog
+
+    @property
+    def service_catalog(self):
+        return self._keystone_catalog.catalog
+
+    def endpoint_for(self, service_type, interface='public'):
+        return self._keystone_catalog.url_for(
+            service_type=service_type, interface=interface)
 
     @property
     def auth_token(self):
