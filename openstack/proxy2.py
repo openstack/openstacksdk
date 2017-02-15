@@ -12,6 +12,7 @@
 
 from openstack import exceptions
 from openstack import resource2
+from openstack import utils
 
 
 # The _check_resource decorator is used on BaseProxy methods to ensure that
@@ -269,6 +270,11 @@ class BaseProxy(object):
         res = self._get_resource(resource_type, value, **attrs)
         return res.head(self.session)
 
+    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
+                      details=("This is no longer a part of the proxy base, "
+                               "service-specific subclasses should expose "
+                               "this as needed. See resource2.wait_for_status "
+                               "for this behavior"))
     def wait_for_status(self, value, status, failures=[], interval=2,
                         wait=120):
         """Wait for a resource to be in a particular status.
@@ -293,6 +299,11 @@ class BaseProxy(object):
         return resource2.wait_for_status(self.session, value, status,
                                          failures, interval, wait)
 
+    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
+                      details=("This is no longer a part of the proxy base, "
+                               "service-specific subclasses should expose "
+                               "this as needed. See resource2.wait_for_delete "
+                               "for this behavior"))
     def wait_for_delete(self, value, interval=2, wait=120):
         """Wait for the resource to be deleted.
 
