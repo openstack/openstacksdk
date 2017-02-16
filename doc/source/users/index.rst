@@ -80,6 +80,7 @@ but listed below are the ones provided by this SDK by default.
    Image v2 <proxies/image_v2>
    Key Manager <proxies/key_manager>
    Network <proxies/network>
+   Metric <proxies/metric>
    Object Store <proxies/object_store>
    Orchestration <proxies/orchestration>
    Telemetry <proxies/telemetry>
