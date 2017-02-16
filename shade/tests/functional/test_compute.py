@@ -198,9 +198,24 @@ class TestCompute(base.BaseFunctionalTestCase):
         self.assertEqual(True, volume['bootable'])
         self.assertEqual(server['id'], volume['attachments'][0]['server_id'])
         self.assertTrue(self.user_cloud.delete_server(server.id, wait=True))
+        self._wait_for_detach(volume.id)
         self.assertTrue(self.user_cloud.delete_volume(volume.id, wait=True))
         self.assertIsNone(self.user_cloud.get_server(server.id))
         self.assertIsNone(self.user_cloud.get_volume(volume.id))
+
+    def _wait_for_detach(self, volume_id):
+        # Volumes do not show up as unattached for a bit immediately after
+        # deleting a server that had had a volume attached. Yay for eventual
+        # consistency!
+        for count in _utils._iterate_timeout(
+                60,
+                'Timeout waiting for volume {volume_id} to detach'.format(
+                    volume_id=volume_id)):
+            volume = self.user_cloud.get_volume(volume_id)
+            if volume.status in (
+                    'available', 'error',
+                    'error_restoring', 'error_extending'):
+                return
 
     def test_create_terminate_volume_image(self):
         if not self.user_cloud.has_service('volume'):
@@ -230,6 +245,7 @@ class TestCompute(base.BaseFunctionalTestCase):
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
         volume = self.user_cloud.create_volume(
             size=1, name=self.server_name, image=self.image, wait=True)
+        self.addCleanup(self.user_cloud.delete_volume, volume.id)
         server = self.user_cloud.create_server(
             name=self.server_name,
             image=None,
@@ -240,12 +256,12 @@ class TestCompute(base.BaseFunctionalTestCase):
         volume_id = self._assert_volume_attach(server, volume_id=volume['id'])
         self.assertTrue(
             self.user_cloud.delete_server(self.server_name, wait=True))
-        self.addCleanup(self.user_cloud.delete_volume, volume_id)
         volume = self.user_cloud.get_volume(volume_id)
         self.assertIsNotNone(volume)
         self.assertEqual(volume['name'], volume['display_name'])
         self.assertEqual(True, volume['bootable'])
         self.assertEqual([], volume['attachments'])
+        self._wait_for_detach(volume.id)
         self.assertTrue(self.user_cloud.delete_volume(volume_id))
         self.assertIsNone(self.user_cloud.get_server(self.server_name))
         self.assertIsNone(self.user_cloud.get_volume(volume_id))
@@ -272,6 +288,7 @@ class TestCompute(base.BaseFunctionalTestCase):
         self.assertIsNotNone(volume)
         self.assertEqual(volume['name'], volume['display_name'])
         self.assertEqual([], volume['attachments'])
+        self._wait_for_detach(volume.id)
         self.assertTrue(self.user_cloud.delete_volume(volume_id))
         self.assertIsNone(self.user_cloud.get_server(self.server_name))
         self.assertIsNone(self.user_cloud.get_volume(volume_id))
