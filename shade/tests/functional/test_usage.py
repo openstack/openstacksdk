@@ -25,11 +25,13 @@ from shade.tests.functional import base
 
 class TestUsage(base.BaseFunctionalTestCase):
 
-    def test_get_usage(self):
-        '''Test quotas functionality'''
-        usage = self.operator_cloud.get_compute_usage('demo',
-                                                      datetime.datetime.now(),
-                                                      datetime.datetime.now())
+    def test_get_compute_usage(self):
+        '''Test usage functionality'''
+        start = datetime.datetime.now() - datetime.timedelta(seconds=5)
+        usage = self.operator_cloud.get_compute_usage('demo', start)
         self.add_info_on_exception('usage', usage)
         self.assertIsNotNone(usage)
-        self.assertTrue(hasattr(usage, 'total_hours'))
+        self.assertIn('total_hours', usage)
+        self.assertIn('started_at', usage)
+        self.assertEqual(start.isoformat(), usage['started_at'])
+        self.assertIn('location', usage)

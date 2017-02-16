@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import jsonpatch
 
 from ironicclient import client as ironic_client
@@ -2111,12 +2112,12 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         except nova_exceptions.BadRequest:
             raise OpenStackCloudException("nova client call failed")
 
-    def get_compute_usage(self, name_or_id, start, end):
+    def get_compute_usage(self, name_or_id, start, end=None):
         """ Get usage for a specific project
 
         :param name_or_id: project name or id
         :param start: :class:`datetime.datetime` Start date in UTC
-        :param end: :class:`datetime.datetime` End date in UTCs
+        :param end: :class:`datetime.datetime` End date in UTC. Defaults to now
         :raises: OpenStackCloudException if it's not a valid project
 
         :returns: Munch object with the usage
@@ -2125,6 +2126,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if not proj:
             raise OpenStackCloudException("project does not exist: {}".format(
                 name=proj.id))
+        if not end:
+            end = datetime.datetime.now()
 
         with _utils.shade_exceptions(
                 "Unable to get resources usage for project: {name}".format(
@@ -2132,7 +2135,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             usage = self.manager.submit_task(
                 _tasks.NovaUsageGet(tenant_id=proj.id, start=start, end=end))
 
-        return self._normalize_usage(usage)
+        return self._normalize_compute_usage(usage)
 
     def set_volume_quotas(self, name_or_id, **kwargs):
         """ Set a volume quota in a project
