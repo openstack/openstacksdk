@@ -458,15 +458,6 @@ def get_hostvars_from_server(cloud, server, mounts=None):
 
 
 def _log_request_id(obj, request_id):
-    # Add it, if passed in, even though we're going to pop in a second,
-    # just to make the logic simpler
-    if request_id is not None:
-        obj['x_openstack_request_ids'] = [request_id]
-
-    request_id = None
-    request_ids = obj.pop('x_openstack_request_ids', None)
-    if request_ids:
-        request_id = request_ids[0]
     if request_id:
         # Log the request id and object id in a specific logger. This way
         # someone can turn it on if they're interested in this kind of tracing.
@@ -485,7 +476,7 @@ def _log_request_id(obj, request_id):
     return obj
 
 
-def obj_to_dict(obj, request_id=None):
+def obj_to_dict(obj):
     """ Turn an object with attributes into a dict suitable for serializing.
 
     Some of the things that are returned in OpenStack are objects with
@@ -522,26 +513,17 @@ def obj_to_dict(obj, request_id=None):
             continue
         if isinstance(value, NON_CALLABLES) and not key.startswith('_'):
             instance[key] = value
-    return _log_request_id(instance, request_id)
+    return instance
 
 
-def obj_list_to_dict(obj_list, request_id=None):
+def obj_list_to_dict(obj_list):
     """Enumerate through lists of objects and return lists of dictonaries.
 
     Some of the objects returned in OpenStack are actually lists of objects,
     and in order to expose the data structures as JSON, we need to facilitate
     the conversion to lists of dictonaries.
     """
-    new_list = []
-    if not request_id:
-        request_id = getattr(obj_list, 'request_ids', [None])[0]
-    if request_id:
-        log = _log.setup_logging('shade.request_ids')
-        log.debug("Retrieved a list. Request ID %(request_id)s",
-                  {'request_id': request_id})
-    for obj in obj_list:
-        new_list.append(obj_to_dict(obj))
-    return new_list
+    return [obj_to_dict(obj) for obj in obj_list]
 
 
 def warlock_to_dict(obj):
