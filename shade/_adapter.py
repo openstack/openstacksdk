@@ -18,6 +18,7 @@ import functools
 from keystoneauth1 import adapter
 from six.moves import urllib
 
+from shade import _log
 from shade import exc
 from shade import meta
 from shade import task_manager
@@ -87,46 +88,70 @@ class ShadeAdapter(adapter.Adapter):
         super(ShadeAdapter, self).__init__(*args, **kwargs)
         self.shade_logger = shade_logger
         self.manager = manager
+        self.request_log = _log.setup_logging('shade.request_ids')
+
+    def _log_request_id(self, response, obj=None):
+        # Log the request id and object id in a specific logger. This way
+        # someone can turn it on if they're interested in this kind of tracing.
+        request_id = response.headers.get('x-openstack-request-id')
+        if not request_id:
+            return response
+        tmpl = "{meth} call to {service} for {url} used request id {req}"
+        kwargs = dict(
+            meth=response.request.method,
+            service=self.service_type,
+            url=response.request.url,
+            req=request_id)
+
+        if isinstance(obj, dict):
+            obj_id = obj.get('id', obj.get('uuid'))
+            if obj_id:
+                kwargs['obj_id'] = obj_id
+                tmpl += " returning object {obj_id}"
+        self.request_log.debug(tmpl.format(**kwargs))
+        return response
 
     def _munch_response(self, response, result_key=None):
         exc.raise_from_response(response)
 
         if not response.content:
             # This doens't have any content
-            return response
+            return self._log_request_id(response)
 
         # Some REST calls do not return json content. Don't decode it.
         if 'application/json' not in response.headers.get('Content-Type'):
-            return response
+            return self._log_request_id(response)
 
         try:
             result_json = response.json()
         except Exception:
-            return response
+            return self._log_request_id(response)
 
-        request_id = response.headers.get('x-openstack-request-id')
+        if isinstance(result_json, list):
+            self._log_request_id(response)
+            return meta.obj_list_to_dict(result_json)
 
-        if task_manager._is_listlike(result_json):
-            return meta.obj_list_to_dict(
-                result_json, request_id=request_id)
-
-        # Wrap the keys() call in list() because in python3 keys returns
-        # a "dict_keys" iterator-like object rather than a list
-        json_keys = list(result_json.keys())
-        if len(json_keys) > 1 and result_key:
-            result = result_json[result_key]
-        elif len(json_keys) == 1:
-            result = result_json[json_keys[0]]
-        else:
+        result = None
+        if isinstance(result_json, dict):
+            # Wrap the keys() call in list() because in python3 keys returns
+            # a "dict_keys" iterator-like object rather than a list
+            json_keys = list(result_json.keys())
+            if len(json_keys) > 1 and result_key:
+                result = result_json[result_key]
+            elif len(json_keys) == 1:
+                result = result_json[json_keys[0]]
+        if result is None:
             # Passthrough the whole body - sometimes (hi glance) things
             # come through without a top-level container. Also, sometimes
             # you need to deal with pagination
             result = result_json
 
-        if task_manager._is_listlike(result):
-            return meta.obj_list_to_dict(result, request_id=request_id)
-        if task_manager._is_objlike(result):
-            return meta.obj_to_dict(result, request_id=request_id)
+        self._log_request_id(response, result)
+
+        if isinstance(result, list):
+            return meta.obj_list_to_dict(result)
+        elif isinstance(result, dict):
+            return meta.obj_to_dict(result)
         return result
 
     def request(self, url, method, run_async=False, *args, **kwargs):
