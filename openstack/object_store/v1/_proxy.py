@@ -35,7 +35,7 @@ class Proxy(proxy.BaseProxy):
                                 by the user.
         """
         account = self._get_resource(_account.Account, None)
-        account.set_metadata(self.session, metadata)
+        account.set_metadata(self._session, metadata)
 
     def delete_account_metadata(self, keys):
         """Delete metadata for this account.
@@ -43,7 +43,7 @@ class Proxy(proxy.BaseProxy):
         :param keys: The keys of metadata to be deleted.
         """
         account = self._get_resource(_account.Account, None)
-        account.delete_metadata(self.session, keys)
+        account.delete_metadata(self._session, keys)
 
     def containers(self, **query):
         """Obtain Container objects for this account.
@@ -54,7 +54,7 @@ class Proxy(proxy.BaseProxy):
         :rtype: A generator of
             :class:`~openstack.object_store.v1.container.Container` objects.
         """
-        return _container.Container.list(self.session, **query)
+        return _container.Container.list(self._session, **query)
 
     def create_container(self, **attrs):
         """Create a new container from attributes
@@ -121,7 +121,7 @@ class Proxy(proxy.BaseProxy):
                                 - `sync_key`
         """
         res = self._get_resource(_container.Container, container)
-        res.set_metadata(self.session, metadata)
+        res.set_metadata(self._session, metadata)
 
     def delete_container_metadata(self, container, keys):
         """Delete metadata for a container.
@@ -132,7 +132,7 @@ class Proxy(proxy.BaseProxy):
         :param keys: The keys of metadata to be deleted.
         """
         res = self._get_resource(_container.Container, container)
-        res.delete_metadata(self.session, keys)
+        res.delete_metadata(self._session, keys)
 
     def objects(self, container, **query):
         """Return a generator that yields the Container's objects.
@@ -149,7 +149,7 @@ class Proxy(proxy.BaseProxy):
         """
         container = _container.Container.from_id(container)
 
-        objs = _obj.Object.list(self.session,
+        objs = _obj.Object.list(self._session,
                                 path_args={"container": container.name},
                                 **query)
         for obj in objs:
@@ -300,7 +300,7 @@ class Proxy(proxy.BaseProxy):
         container_name = self._get_container_name(obj, container)
         res = self._get_resource(_obj.Object, obj,
                                  path_args={"container": container_name})
-        res.set_metadata(self.session, metadata)
+        res.set_metadata(self._session, metadata)
 
     def delete_object_metadata(self, obj, container=None, keys=None):
         """Delete metadata for an object.
@@ -315,4 +315,4 @@ class Proxy(proxy.BaseProxy):
         container_name = self._get_container_name(obj, container)
         res = self._get_resource(_obj.Object, obj,
                                  path_args={"container": container_name})
-        res.delete_metadata(self.session, keys)
+        res.delete_metadata(self._session, keys)

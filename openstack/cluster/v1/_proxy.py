@@ -300,7 +300,7 @@ class Proxy(proxy2.BaseProxy):
             obj = cluster
         else:
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
-        return obj.add_nodes(self.session, nodes)
+        return obj.add_nodes(self._session, nodes)
 
     @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
                       details="Use remove_nodes_from_cluster instead")
@@ -336,7 +336,7 @@ class Proxy(proxy2.BaseProxy):
             obj = cluster
         else:
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
-        return obj.del_nodes(self.session, nodes, **params)
+        return obj.del_nodes(self._session, nodes, **params)
 
     @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
                       details="Use replace_nodes_in_cluster instead")
@@ -362,7 +362,7 @@ class Proxy(proxy2.BaseProxy):
             obj = cluster
         else:
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
-        return obj.replace_nodes(self.session, nodes)
+        return obj.replace_nodes(self._session, nodes)
 
     @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
                       details="Use scale_out_cluster instead")
@@ -390,7 +390,7 @@ class Proxy(proxy2.BaseProxy):
             obj = cluster
         else:
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
-        return obj.scale_out(self.session, count)
+        return obj.scale_out(self._session, count)
 
     @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
                       details="Use scale_in_cluster instead")
@@ -418,7 +418,7 @@ class Proxy(proxy2.BaseProxy):
             obj = cluster
         else:
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
-        return obj.scale_in(self.session, count)
+        return obj.scale_in(self._session, count)
 
     @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
                       details="Use resize_cluster instead")
@@ -446,7 +446,7 @@ class Proxy(proxy2.BaseProxy):
             obj = cluster
         else:
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
-        return obj.resize(self.session, **params)
+        return obj.resize(self._session, **params)
 
     @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
                       details="Use attach_policy_to_cluster instead")
@@ -476,7 +476,7 @@ class Proxy(proxy2.BaseProxy):
             obj = cluster
         else:
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
-        return obj.policy_attach(self.session, policy, **params)
+        return obj.policy_attach(self._session, policy, **params)
 
     @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
                       details="Use detach_policy_from_cluster instead")
@@ -502,7 +502,7 @@ class Proxy(proxy2.BaseProxy):
             obj = cluster
         else:
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
-        return obj.policy_detach(self.session, policy)
+        return obj.policy_detach(self._session, policy)
 
     @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
                       details="Use update_cluster_policy instead")
@@ -532,7 +532,7 @@ class Proxy(proxy2.BaseProxy):
             obj = cluster
         else:
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
-        return obj.policy_update(self.session, policy, **params)
+        return obj.policy_update(self._session, policy, **params)
 
     def collect_cluster_attrs(self, cluster, path):
         """Collect attribute values across a cluster.
@@ -557,7 +557,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: A dictionary containing the action ID.
         """
         obj = self._get_resource(_cluster.Cluster, cluster)
-        return obj.check(self.session, **params)
+        return obj.check(self._session, **params)
 
     def recover_cluster(self, cluster, **params):
         """recover a cluster.
@@ -570,7 +570,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: A dictionary containing the action ID.
         """
         obj = self._get_resource(_cluster.Cluster, cluster)
-        return obj.recover(self.session, **params)
+        return obj.recover(self._session, **params)
 
     @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
                       details="Use perform_operation_on_cluster instead")
@@ -599,7 +599,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: A dictionary containing the action ID.
         """
         obj = self._get_resource(_cluster.Cluster, cluster)
-        return obj.op(self.session, operation, **params)
+        return obj.op(self._session, operation, **params)
 
     def create_node(self, **attrs):
         """Create a new node from attributes.
@@ -707,7 +707,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: A dictionary containing the action ID.
         """
         obj = self._get_resource(_node.Node, node)
-        return obj.check(self.session, **params)
+        return obj.check(self._session, **params)
 
     def recover_node(self, node, **params):
         """Recover the specified node into healthy status.
@@ -719,7 +719,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: A dictionary containing the action ID.
         """
         obj = self._get_resource(_node.Node, node)
-        return obj.recover(self.session, **params)
+        return obj.recover(self._session, **params)
 
     @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
                       details="Use perform_operation_on_node instead")
@@ -748,7 +748,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: A dictionary containing the action ID.
         """
         obj = self._get_resource(_node.Node, node)
-        return obj.op(self.session, operation, **params)
+        return obj.op(self._session, operation, **params)
 
     def create_policy(self, **attrs):
         """Create a new policy from attributes.

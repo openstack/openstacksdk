@@ -41,7 +41,7 @@ def _check_resource(strict=False):
 class BaseProxy(object):
 
     def __init__(self, session):
-        self.session = session
+        self._session = session
 
     def _get_resource(self, resource_type, value, **attrs):
         """Get a resource object to work on
@@ -100,7 +100,7 @@ class BaseProxy(object):
 
         :returns: An instance of ``resource_type`` or None
         """
-        return resource_type.find(self.session, name_or_id,
+        return resource_type.find(self._session, name_or_id,
                                   ignore_missing=ignore_missing,
                                   **attrs)
 
@@ -135,7 +135,7 @@ class BaseProxy(object):
         res = self._get_resource(resource_type, value, **attrs)
 
         try:
-            rv = res.delete(self.session)
+            rv = res.delete(self._session)
         except exceptions.NotFoundException as e:
             if ignore_missing:
                 return None
@@ -170,7 +170,7 @@ class BaseProxy(object):
         :rtype: :class:`~openstack.resource2.Resource`
         """
         res = self._get_resource(resource_type, value, **attrs)
-        return res.update(self.session)
+        return res.update(self._session)
 
     def _create(self, resource_type, **attrs):
         """Create a resource from attributes
@@ -190,7 +190,7 @@ class BaseProxy(object):
         :rtype: :class:`~openstack.resource2.Resource`
         """
         res = resource_type.new(**attrs)
-        return res.create(self.session)
+        return res.create(self._session)
 
     @_check_resource(strict=False)
     def _get(self, resource_type, value=None, requires_id=True, **attrs):
@@ -214,7 +214,7 @@ class BaseProxy(object):
         res = self._get_resource(resource_type, value, **attrs)
 
         try:
-            return res.get(self.session, requires_id=requires_id)
+            return res.get(self._session, requires_id=requires_id)
         except exceptions.NotFoundException as e:
             raise exceptions.ResourceNotFound(
                 message="No %s found for %s" %
@@ -247,7 +247,7 @@ class BaseProxy(object):
                  the ``resource_type``.
         """
         res = self._get_resource(resource_type, value, **attrs)
-        return res.list(self.session, paginated=paginated, **attrs)
+        return res.list(self._session, paginated=paginated, **attrs)
 
     def _head(self, resource_type, value=None, **attrs):
         """Retrieve a resource's header
@@ -267,7 +267,7 @@ class BaseProxy(object):
         :rtype: :class:`~openstack.resource2.Resource`
         """
         res = self._get_resource(resource_type, value, **attrs)
-        return res.head(self.session)
+        return res.head(self._session)
 
     def wait_for_status(self, value, status, failures=[], interval=2,
                         wait=120):
@@ -290,7 +290,7 @@ class BaseProxy(object):
         :raises: :class:`~AttributeError` if the resource does not have a
                  status attribute
         """
-        return resource2.wait_for_status(self.session, value, status,
+        return resource2.wait_for_status(self._session, value, status,
                                          failures, interval, wait)
 
     def wait_for_delete(self, value, interval=2, wait=120):
@@ -305,4 +305,4 @@ class BaseProxy(object):
         :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
                  to delete failed to occur in wait seconds.
         """
-        return resource2.wait_for_delete(self.session, value, interval, wait)
+        return resource2.wait_for_delete(self._session, value, interval, wait)

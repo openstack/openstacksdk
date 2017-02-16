@@ -61,7 +61,7 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
         res = self.proxy.check_stack(stk)
 
         self.assertIsNone(res)
-        mock_check.assert_called_once_with(self.proxy.session)
+        mock_check.assert_called_once_with(self.proxy._session)
 
     @mock.patch.object(stack.Stack, 'existing')
     def test_check_stack_with_stack_ID(self, mock_stack):
@@ -72,7 +72,7 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
 
         self.assertIsNone(res)
         mock_stack.assert_called_once_with(id='FAKE_ID')
-        stk.check.assert_called_once_with(self.proxy.session)
+        stk.check.assert_called_once_with(self.proxy._session)
 
     @mock.patch.object(stack.Stack, 'find')
     def test_resources_with_stack_object(self, mock_find):
@@ -163,7 +163,7 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
         res = self.proxy.validate_template(tmpl, env, tmpl_url, ignore_errors)
 
         mock_validate.assert_called_once_with(
-            self.proxy.session, tmpl, environment=env, template_url=tmpl_url,
+            self.proxy._session, tmpl, environment=env, template_url=tmpl_url,
             ignore_errors=ignore_errors)
         self.assertEqual(mock_validate.return_value, res)
 
