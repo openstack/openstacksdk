@@ -25,15 +25,13 @@ class TestVolume(base.TestCase):
     def test_attach_volume(self, mock_nova):
         server = dict(id='server001')
         volume = dict(id='volume001', status='available', attachments=[])
-        rvol = dict(id='volume001', status='attached',
-                    attachments=[
-                        {'server_id': server['id'], 'device': 'device001'}
-                    ])
-        mock_nova.volumes.create_server_volume.return_value = rvol
+        rattach = {'server_id': server['id'], 'device': 'device001',
+                   'volumeId': volume['id'], 'id': 'attachmentId'}
+        mock_nova.volumes.create_server_volume.return_value = rattach
 
         ret = self.cloud.attach_volume(server, volume, wait=False)
 
-        self.assertEqual(rvol, ret)
+        self.assertEqual(rattach, ret)
         mock_nova.volumes.create_server_volume.assert_called_once_with(
             volume_id=volume['id'], server_id=server['id'], device=None
         )
@@ -60,6 +58,7 @@ class TestVolume(base.TestCase):
             id=volume['id'], status='attached',
             attachments=[{'server_id': server['id'], 'device': 'device001'}]
         )
+
         mock_get.side_effect = iter([volume, attached_volume])
 
         # defaults to wait=True
@@ -69,7 +68,8 @@ class TestVolume(base.TestCase):
             volume_id=volume['id'], server_id=server['id'], device=None
         )
         self.assertEqual(2, mock_get.call_count)
-        self.assertEqual(attached_volume, ret)
+        self.assertEqual(mock_nova.volumes.create_server_volume.return_value,
+                         ret)
 
     @mock.patch.object(shade.OpenStackCloud, 'get_volume')
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
@@ -136,20 +136,6 @@ class TestVolume(base.TestCase):
         with testtools.ExpectedException(
             shade.OpenStackCloudException,
             "Error detaching volume %s from server %s" % (
-                volume['id'], server['id'])
-        ):
-            self.cloud.detach_volume(server, volume, wait=False)
-
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_detach_volume_not_attached(self, mock_nova):
-        server = dict(id='server001')
-        volume = dict(id='volume001',
-                      attachments=[
-                          {'server_id': 'server999', 'device': 'device001'}
-                      ])
-        with testtools.ExpectedException(
-            shade.OpenStackCloudException,
-            "Volume %s is not attached to server %s" % (
                 volume['id'], server['id'])
         ):
             self.cloud.detach_volume(server, volume, wait=False)

@@ -3856,12 +3856,6 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudTimeout if wait time exceeded.
         :raises: OpenStackCloudException on operation error.
         """
-        dev = self.get_volume_attach_device(volume, server['id'])
-        if not dev:
-            raise OpenStackCloudException(
-                "Volume %s is not attached to server %s"
-                % (volume['id'], server['id'])
-            )
 
         with _utils.shade_exceptions(
                 "Error detaching volume {volume} from server {server}".format(
@@ -3909,6 +3903,8 @@ class OpenStackCloud(_normalize.Normalizer):
         :param wait: If true, waits for volume to be attached.
         :param timeout: Seconds to wait for volume attachment. None is forever.
 
+        :returns: a volume attachment object.
+
         :raises: OpenStackCloudTimeout if wait time exceeded.
         :raises: OpenStackCloudException on operation error.
         """
@@ -3929,7 +3925,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 "Error attaching volume {volume_id} to server "
                 "{server_id}".format(volume_id=volume['id'],
                                      server_id=server['id'])):
-            vol = self.manager.submit_task(
+            vol_attachment = self.manager.submit_task(
                 _tasks.VolumeAttach(volume_id=volume['id'],
                                     server_id=server['id'],
                                     device=device))
@@ -3957,7 +3953,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     raise OpenStackCloudException(
                         "Error in attaching volume %s" % volume['id']
                     )
-        return vol
+        return vol_attachment
 
     def _get_volume_kwargs(self, kwargs):
         name = kwargs.pop('name', kwargs.pop('display_name', None))

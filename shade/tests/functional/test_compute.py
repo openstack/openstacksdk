@@ -27,6 +27,10 @@ from shade import _utils
 
 class TestCompute(base.BaseFunctionalTestCase):
     def setUp(self):
+        # OS_TEST_TIMEOUT is 60 sec by default
+        # but on a bad day, test_attach_detach_volume can take more time.
+        self.TIMEOUT_SCALING_FACTOR = 1.5
+
         super(TestCompute, self).setUp()
         self.flavor = pick_flavor(self.user_cloud.list_flavors())
         if self.flavor is None:
@@ -65,6 +69,19 @@ class TestCompute(base.BaseFunctionalTestCase):
         self.assertTrue(
             self.user_cloud.delete_server(self.server_name, wait=True))
         self.assertIsNone(self.user_cloud.get_server(self.server_name))
+
+    def test_attach_detach_volume(self):
+        server_name = self.getUniqueString()
+        self.addCleanup(self._cleanup_servers_and_volumes, server_name)
+        server = self.user_cloud.create_server(
+            name=server_name, image=self.image, flavor=self.flavor,
+            wait=True)
+        volume = self.user_cloud.create_volume(1)
+        vol_attachment = self.user_cloud.attach_volume(server, volume)
+        for key in ('device', 'serverId', 'volumeId'):
+            self.assertIn(key, vol_attachment)
+            self.assertTrue(vol_attachment[key])  # assert string is not empty
+        self.assertIsNone(self.user_cloud.detach_volume(server, volume))
 
     def test_list_all_servers(self):
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
