@@ -36,6 +36,7 @@ approach, this is where you'll want to begin.
    Identity <guides/identity>
    Image <guides/image>
    Key Manager <guides/key_manager>
+   Message <guides/message>
    Network <guides/network>
    Object Store <guides/object_store>
    Orchestration <guides/orchestration>
@@ -79,6 +80,8 @@ but listed below are the ones provided by this SDK by default.
    Image v1 <proxies/image_v1>
    Image v2 <proxies/image_v2>
    Key Manager <proxies/key_manager>
+   Message v1 <proxies/message_v1>
+   Message v2 <proxies/message_v2>
    Network <proxies/network>
    Object Store <proxies/object_store>
    Orchestration <proxies/orchestration>
