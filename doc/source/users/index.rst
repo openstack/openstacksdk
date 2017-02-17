@@ -76,7 +76,8 @@ but listed below are the ones provided by this SDK by default.
    Cluster <proxies/cluster>
    Compute <proxies/compute>
    Database <proxies/database>
-   Identity <proxies/identity>
+   Identity v2 <proxies/identity_v2>
+   Identity v3 <proxies/identity_v3>
    Image v1 <proxies/image_v1>
    Image v2 <proxies/image_v2>
    Key Manager <proxies/key_manager>
