@@ -425,10 +425,6 @@ class RequestsMockTestCase(BaseTestCase):
                 mock_method, mock_uri, params['response_list'],
                 **params['kw_params'])
 
-    def register_uri(self, method, uri, **kwargs):
-        self.__do_register_uris([
-            dict(method=method, uri=uri, **kwargs)])
-
     def assert_calls(self, stop_after=None):
         for (x, (call, history)) in enumerate(
                 zip(self.calls, self.adapter.request_history)):
