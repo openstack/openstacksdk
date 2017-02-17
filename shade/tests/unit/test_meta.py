@@ -274,15 +274,17 @@ class TestMeta(base.RequestsMockTestCase):
             PUBLIC_V4, meta.get_server_ip(srv, ext_tag='floating'))
 
     def test_get_server_private_ip(self):
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/networks.json',
-            json={'networks': [{
-                'id': 'test-net-id',
-                'name': 'test-net-name'
-            }]})
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/subnets.json',
-            json={'subnets': SUBNETS_WITH_NAT})
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks.json',
+                 json={'networks': [{
+                     'id': 'test-net-id',
+                     'name': 'test-net-name'}]}
+                 ),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/subnets.json',
+                 json={'subnets': SUBNETS_WITH_NAT})
+        ])
 
         srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
@@ -310,43 +312,39 @@ class TestMeta(base.RequestsMockTestCase):
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_get_volumes.return_value = []
 
-        self.register_uri(
-            'GET',
-            'https://network.example.com/v2.0/ports.json?device_id=test-id',
-            json={'ports': [{
-                'id': 'test_port_id',
-                'mac_address': 'fa:16:3e:ae:7d:42',
-                'device_id': 'test-id',
-            }]})
+        self.register_uris([
+            dict(method='GET',
+                 uri=('https://network.example.com/v2.0/ports.json?'
+                      'device_id=test-id'),
+                 json={'ports': [{
+                     'id': 'test_port_id',
+                     'mac_address': 'fa:16:3e:ae:7d:42',
+                     'device_id': 'test-id'}]}
+                 ),
+            dict(method='GET',
+                 uri=('https://network.example.com/v2.0/'
+                      'floatingips.json?port_id=test_port_id'),
+                 json={'floatingips': []}),
 
-        self.register_uri(
-            'GET',
-            'https://network.example.com/v2.0/floatingips.json'
-            '?port_id=test_port_id',
-            json={'floatingips': []})
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks.json',
+                 json={'networks': [
+                     {'id': 'test_pnztt_net',
+                      'name': 'test_pnztt_net',
+                      'router:external': False
+                      },
+                     {'id': 'private',
+                      'name': 'private'}]}
+                 ),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/subnets.json',
+                 json={'subnets': SUBNETS_WITH_NAT}),
 
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/networks.json',
-            json={'networks': [
-                {
-                    'id': 'test_pnztt_net',
-                    'name': 'test_pnztt_net',
-                    'router:external': False,
-                },
-                {
-                    'id': 'private',
-                    'name': 'private',
-                }
-            ]})
-
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/subnets.json',
-            json={'subnets': SUBNETS_WITH_NAT})
-
-        self.register_uri(
-            'GET', '{endpoint}/servers/test-id/os-security-groups'.format(
-                endpoint=fakes.COMPUTE_ENDPOINT),
-            json={'security_groups': []})
+            dict(method='GET',
+                 uri='{endpoint}/servers/test-id/os-security-groups'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json={'security_groups': []})
+        ])
 
         srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
@@ -378,26 +376,25 @@ class TestMeta(base.RequestsMockTestCase):
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_get_volumes.return_value = []
 
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/networks.json',
-            json={'networks': [
-                {
-                    'id': 'test_pnztt_net',
-                    'name': 'test_pnztt_net',
-                    'router:external': False,
-                },
-                {
-                    'id': 'private',
-                    'name': 'private',
-                }
-            ]})
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/subnets.json',
-            json={'subnets': SUBNETS_WITH_NAT})
-        self.register_uri(
-            'GET', '{endpoint}/servers/test-id/os-security-groups'.format(
-                endpoint=fakes.COMPUTE_ENDPOINT),
-            json={'security_groups': []})
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks.json',
+                 json={'networks': [
+                     {'id': 'test_pnztt_net',
+                      'name': 'test_pnztt_net',
+                      'router:external': False,
+                      },
+                     {'id': 'private',
+                      'name': 'private'}]}
+                 ),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/subnets.json',
+                 json={'subnets': SUBNETS_WITH_NAT}),
+            dict(method='GET',
+                 uri='{endpoint}/servers/test-id/os-security-groups'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json={'security_groups': []})
+        ])
 
         srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
@@ -427,26 +424,27 @@ class TestMeta(base.RequestsMockTestCase):
         mock_get_image_name.return_value = 'cirros-0.3.4-x86_64-uec'
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_get_volumes.return_value = []
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/networks.json',
-            json={'networks': [
-                {
-                    'id': 'test_pnztt_net',
-                    'name': 'test_pnztt_net',
-                    'router:external': False,
-                },
-                {
-                    'id': 'private',
-                    'name': 'private',
-                }
-            ]})
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/subnets.json',
-            json={'subnets': SUBNETS_WITH_NAT})
-        self.register_uri(
-            'GET', '{endpoint}/servers/test-id/os-security-groups'.format(
-                endpoint=fakes.COMPUTE_ENDPOINT),
-            json={'security_groups': []})
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks.json',
+                 json={'networks': [
+                     {
+                         'id': 'test_pnztt_net',
+                         'name': 'test_pnztt_net',
+                         'router:external': False,
+                     },
+                     {
+                         'id': 'private',
+                         'name': 'private'}]}
+                 ),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/subnets.json',
+                 json={'subnets': SUBNETS_WITH_NAT}),
+            dict(method='GET',
+                 uri='{endpoint}/servers/test-id/os-security-groups'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json={'security_groups': []})
+        ])
 
         srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
@@ -474,47 +472,45 @@ class TestMeta(base.RequestsMockTestCase):
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_get_volumes.return_value = []
 
-        self.register_uri(
-            'GET',
-            'https://network.example.com/v2.0/ports.json?device_id=test-id',
-            json={'ports': [{
-                'id': 'test_port_id',
-                'mac_address': 'fa:16:3e:ae:7d:42',
-                'device_id': 'test-id',
-            }]})
-
-        self.register_uri(
-            'GET',
-            'https://network.example.com/v2.0/floatingips.json'
-            '?port_id=test_port_id',
-            json={'floatingips': [{
-                'id': 'floating-ip-id',
-                'port_id': 'test_port_id',
-                'fixed_ip_address': PRIVATE_V4,
-                'floating_ip_address': PUBLIC_V4,
-            }]})
-
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/networks.json',
-            json={'networks': [
-                {
-                    'id': 'test_pnztt_net',
-                    'name': 'test_pnztt_net',
-                    'router:external': False,
-                },
-                {
-                    'id': 'private',
-                    'name': 'private',
-                }
-            ]})
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/subnets.json',
-            json={'subnets': SUBNETS_WITH_NAT})
-
-        self.register_uri(
-            'GET', '{endpoint}/servers/test-id/os-security-groups'.format(
-                endpoint=fakes.COMPUTE_ENDPOINT),
-            json={'security_groups': []})
+        self.register_uris([
+            dict(method='GET',
+                 uri=('https://network.example.com/v2.0/ports.json?'
+                      'device_id=test-id'),
+                 json={'ports': [{
+                     'id': 'test_port_id',
+                     'mac_address': 'fa:16:3e:ae:7d:42',
+                     'device_id': 'test-id'}]}
+                 ),
+            dict(method='GET',
+                 uri=('https://network.example.com/v2.0/floatingips.json'
+                      '?port_id=test_port_id'),
+                 json={'floatingips': [{
+                     'id': 'floating-ip-id',
+                     'port_id': 'test_port_id',
+                     'fixed_ip_address': PRIVATE_V4,
+                     'floating_ip_address': PUBLIC_V4,
+                 }]}),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks.json',
+                 json={'networks': [
+                     {
+                         'id': 'test_pnztt_net',
+                         'name': 'test_pnztt_net',
+                         'router:external': False,
+                     },
+                     {
+                         'id': 'private',
+                         'name': 'private',
+                     }
+                 ]}),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/subnets.json',
+                 json={'subnets': SUBNETS_WITH_NAT}),
+            dict(method='GET',
+                 uri='{endpoint}/servers/test-id/os-security-groups'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json={'security_groups': []})
+        ])
 
         srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
@@ -546,10 +542,12 @@ class TestMeta(base.RequestsMockTestCase):
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_get_volumes.return_value = []
 
-        self.register_uri(
-            'GET', '{endpoint}/servers/test-id/os-security-groups'.format(
-                endpoint=fakes.COMPUTE_ENDPOINT),
-            json={'security_groups': []})
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/servers/test-id/os-security-groups'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json={'security_groups': []})
+        ])
 
         srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
@@ -597,16 +595,18 @@ class TestMeta(base.RequestsMockTestCase):
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_get_volumes.return_value = []
 
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/networks.json',
-            json={'networks': OSIC_NETWORKS})
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/subnets.json',
-            json={'subnets': OSIC_SUBNETS})
-        self.register_uri(
-            'GET', '{endpoint}/servers/test-id/os-security-groups'.format(
-                endpoint=fakes.COMPUTE_ENDPOINT),
-            json={'security_groups': []})
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks.json',
+                 json={'networks': OSIC_NETWORKS}),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/subnets.json',
+                 json={'subnets': OSIC_SUBNETS}),
+            dict(method='GET',
+                 uri='{endpoint}/servers/test-id/os-security-groups'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json={'security_groups': []})
+        ])
 
         srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
@@ -639,17 +639,18 @@ class TestMeta(base.RequestsMockTestCase):
 
     def test_get_server_external_ipv4_neutron(self):
         # Testing Clouds with Neutron
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/networks.json',
-            json={'networks': [{
-                'id': 'test-net-id',
-                'name': 'test-net',
-                'router:external': True,
-            }]})
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/subnets.json',
-            json={'subnets': SUBNETS_WITH_NAT})
-
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks.json',
+                 json={'networks': [{
+                     'id': 'test-net-id',
+                     'name': 'test-net',
+                     'router:external': True
+                 }]}),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/subnets.json',
+                 json={'subnets': SUBNETS_WITH_NAT})
+        ])
         srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             addresses={'test-net': [{
@@ -663,17 +664,19 @@ class TestMeta(base.RequestsMockTestCase):
 
     def test_get_server_external_provider_ipv4_neutron(self):
         # Testing Clouds with Neutron
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/networks.json',
-            json={'networks': [{
-                'id': 'test-net-id',
-                'name': 'test-net',
-                'provider:network_type': 'vlan',
-                'provider:physical_network': 'vlan',
-            }]})
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/subnets.json',
-            json={'subnets': SUBNETS_WITH_NAT})
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks.json',
+                 json={'networks': [{
+                     'id': 'test-net-id',
+                     'name': 'test-net',
+                     'provider:network_type': 'vlan',
+                     'provider:physical_network': 'vlan',
+                 }]}),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/subnets.json',
+                 json={'subnets': SUBNETS_WITH_NAT})
+        ])
 
         srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
@@ -688,19 +691,20 @@ class TestMeta(base.RequestsMockTestCase):
 
     def test_get_server_internal_provider_ipv4_neutron(self):
         # Testing Clouds with Neutron
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/networks.json',
-            json={'networks': [{
-                'id': 'test-net-id',
-                'name': 'test-net',
-                'router:external': False,
-                'provider:network_type': 'vxlan',
-                'provider:physical_network': None,
-            }]})
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/subnets.json',
-            json={'subnets': SUBNETS_WITH_NAT})
-
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks.json',
+                 json={'networks': [{
+                     'id': 'test-net-id',
+                     'name': 'test-net',
+                     'router:external': False,
+                     'provider:network_type': 'vxlan',
+                     'provider:physical_network': None,
+                 }]}),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/subnets.json',
+                 json={'subnets': SUBNETS_WITH_NAT})
+        ])
         srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             addresses={'test-net': [{
@@ -716,16 +720,18 @@ class TestMeta(base.RequestsMockTestCase):
 
     def test_get_server_external_none_ipv4_neutron(self):
         # Testing Clouds with Neutron
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/networks.json',
-            json={'networks': [{
-                'id': 'test-net-id',
-                'name': 'test-net',
-                'router:external': False,
-            }]})
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/subnets.json',
-            json={'subnets': SUBNETS_WITH_NAT})
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks.json',
+                 json={'networks': [{
+                     'id': 'test-net-id',
+                     'name': 'test-net',
+                     'router:external': False,
+                 }]}),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/subnets.json',
+                 json={'subnets': SUBNETS_WITH_NAT})
+        ])
 
         srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
@@ -756,9 +762,10 @@ class TestMeta(base.RequestsMockTestCase):
 
     def test_get_server_external_ipv4_neutron_exception(self):
         # Testing Clouds with a non working Neutron
-        self.register_uri(
-            'GET', 'https://network.example.com/v2.0/networks.json',
-            status_code=404)
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks.json',
+                 status_code=404)])
 
         srv = meta.obj_to_dict(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
