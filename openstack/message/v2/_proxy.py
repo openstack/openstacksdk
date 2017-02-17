@@ -80,7 +80,8 @@ class Proxy(proxy2.BaseProxy):
         """Post messages to given queue
 
         :param queue_name: The name of target queue to post message to.
-        :param list messages: List of messages body and TTL to post.
+        :param messages: List of messages body and TTL to post.
+        :type messages: :py:class:`list`
 
         :returns: A string includes location of messages successfully posted.
         """

@@ -48,12 +48,14 @@ class Proxy(proxy.BaseProxy):
     def create_messages(self, values):
         """Create new messages
 
-        :param list values: The list of
-                    :class:`~openstack.message.v1.message.Message`s to create.
+        :param values: The list of
+                       :class:`~openstack.message.v1.message.Message` objects
+                       to create.
+        :type values: :py:class:`list`
 
-        :returns: The results of message creation
-        :rtype: list messages: The list of
-                    :class:`~openstack.message.v1.message.Message`s created.
+        :returns: The list of
+                  :class:`~openstack.message.v1.message.Message` objects
+                  that were created.
         """
         return message.Message.create_messages(self._session, values)
 
@@ -63,9 +65,9 @@ class Proxy(proxy.BaseProxy):
         :param value: The value must be a
                       :class:`~openstack.message.v1.claim.Claim` instance.
 
-        :returns: The results of a claim
-        :rtype: list messages: The list of
-                    :class:`~openstack.message.v1.message.Message`s claimed.
+        :returns: The list of
+                  :class:`~openstack.message.v1.message.Message` objects
+                  that were claimed.
         """
         return claim.Claim.claim_messages(self._session, value)
 
