@@ -73,13 +73,14 @@ class TestImage(base.BaseFunctionalTest):
         # set empty metadata
         self.conn.compute.set_image_metadata(image, k0='')
         image = self.conn.compute.get_image_metadata(image)
-        self.assertFalse(image.metadata)
+        self.assertIn('k0', image.metadata)
+        self.assertEqual('', image.metadata['k0'])
 
         # set metadata
         self.conn.compute.set_image_metadata(image, k1='v1')
         image = self.conn.compute.get_image_metadata(image)
         self.assertTrue(image.metadata)
-        self.assertEqual(1, len(image.metadata))
+        self.assertEqual(2, len(image.metadata))
         self.assertIn('k1', image.metadata)
         self.assertEqual('v1', image.metadata['k1'])
 
@@ -87,7 +88,7 @@ class TestImage(base.BaseFunctionalTest):
         self.conn.compute.set_image_metadata(image, k2='v2')
         image = self.conn.compute.get_image_metadata(image)
         self.assertTrue(image.metadata)
-        self.assertEqual(2, len(image.metadata))
+        self.assertEqual(3, len(image.metadata))
         self.assertIn('k1', image.metadata)
         self.assertEqual('v1', image.metadata['k1'])
         self.assertIn('k2', image.metadata)
@@ -97,7 +98,7 @@ class TestImage(base.BaseFunctionalTest):
         self.conn.compute.set_image_metadata(image, k1='v1.1')
         image = self.conn.compute.get_image_metadata(image)
         self.assertTrue(image.metadata)
-        self.assertEqual(2, len(image.metadata))
+        self.assertEqual(3, len(image.metadata))
         self.assertIn('k1', image.metadata)
         self.assertEqual('v1.1', image.metadata['k1'])
         self.assertIn('k2', image.metadata)
