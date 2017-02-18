@@ -53,7 +53,7 @@ occ = os_client_config.OpenStackConfig()
 cloud = occ.get_one_cloud(TEST_CLOUD)
 
 SERVER_NAME = 'openstacksdk-example'
-IMAGE_NAME = _get_resource_value('image_name', 'cirros-0.3.4-x86_64-uec')
+IMAGE_NAME = _get_resource_value('image_name', 'cirros-0.3.5-x86_64-disk')
 FLAVOR_NAME = _get_resource_value('flavor_name', 'm1.small')
 NETWORK_NAME = _get_resource_value('network_name', 'private')
 KEYPAIR_NAME = _get_resource_value('keypair_name', 'openstacksdk-example')
