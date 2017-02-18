@@ -19,45 +19,32 @@ from openstack.tests.functional import base
 class TestAgentRouters(base.BaseFunctionalTest):
 
     ROUTER_NAME = 'router-name-' + uuid.uuid4().hex
-    ROUTER_ID = None
+    ROUTER = None
     AGENT = None
-    AGENT_ID = None
 
     @classmethod
     def setUpClass(cls):
         super(TestAgentRouters, cls).setUpClass()
 
-        rot = cls.conn.network.create_router(name=cls.ROUTER_NAME)
-        assert isinstance(rot, router.Router)
-        cls.ROUTER_ID = rot.id
+        cls.ROUTER = cls.conn.network.create_router(name=cls.ROUTER_NAME)
+        assert isinstance(cls.ROUTER, router.Router)
         agent_list = list(cls.conn.network.agents())
         agents = [agent for agent in agent_list
                   if agent.agent_type == 'L3 agent']
         cls.AGENT = agents[0]
-        cls.AGENT_ID = cls.AGENT.id
 
     @classmethod
     def tearDownClass(cls):
-        rot = cls.conn.network.delete_router(cls.ROUTER_ID,
-                                             ignore_missing=False)
-        cls.assertIs(None, rot)
+        cls.conn.network.delete_router(cls.ROUTER)
 
     def test_add_router_to_agent(self):
-        sot = self.AGENT.add_router_to_agent(self.conn.session,
-                                             router_id=self.ROUTER_ID)
-        self._verify_add(sot)
+        self.conn.network.add_router_to_agent(self.AGENT, self.ROUTER)
+        rots = self.conn.network.agent_hosted_routers(self.AGENT)
+        routers = [router.id for router in rots]
+        self.assertIn(self.ROUTER.id, routers)
 
     def test_remove_router_from_agent(self):
-        sot = self.AGENT.remove_router_from_agent(self.conn.session,
-                                                  router_id=self.ROUTER_ID)
-        self._verify_remove(sot)
-
-    def _verify_add(self, sot):
-        rots = self.conn.network.agent_hosted_routers(self.AGENT_ID)
+        self.conn.network.remove_router_from_agent(self.AGENT, self.ROUTER)
+        rots = self.conn.network.agent_hosted_routers(self.AGENT)
         routers = [router.id for router in rots]
-        self.assertIn(self.ROUTER_ID, routers)
-
-    def _verify_remove(self, sot):
-        rots = self.conn.network.agent_hosted_routers(self.AGENT_ID)
-        routers = [router.id for router in rots]
-        self.assertNotIn(self.ROUTER_ID, routers)
+        self.assertNotIn(self.ROUTER.id, routers)
