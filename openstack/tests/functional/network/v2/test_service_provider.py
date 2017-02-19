@@ -10,15 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import six
-
 from openstack.tests.functional import base
 
 
 class TestServiceProvider(base.BaseFunctionalTest):
     def test_list(self):
         providers = list(self.conn.network.service_providers())
-
-        for provide in providers:
-            self.assertIsInstance(provide.name, six.string_type)
-            self.assertIsInstance(provide.service_type, six.string_types)
+        names = [o.name for o in providers]
+        service_types = [o.service_type for o in providers]
+        self.assertIn('ha', names)
+        self.assertIn('L3_ROUTER_NAT', service_types)
