@@ -5,6 +5,7 @@
 #
 mkdir -p ~/.config/openstack/
 FILE=~/.config/openstack/clouds.yaml
+export OS_IDENTITY_API_VERSION=3 # force v3 identity
 echo 'clouds:' >$FILE
 echo '  test_cloud:' >>$FILE
 env | grep OS_ | tr '=' ' ' | while read k v
