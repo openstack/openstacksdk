@@ -36,7 +36,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
     INT_SUB_ID = None
     ROT_ID = None
     PORT_ID = None
-    FIP_ID = None
+    FIP = None
 
     @classmethod
     def setUpClass(cls):
@@ -71,11 +71,11 @@ class TestFloatingIP(base.BaseFunctionalTest):
         # Create Floating IP.
         fip = cls.conn.network.create_ip(floating_network_id=cls.EXT_NET_ID)
         assert isinstance(fip, floating_ip.FloatingIP)
-        cls.FIP_ID = fip.id
+        cls.FIP = fip
 
     @classmethod
     def tearDownClass(cls):
-        sot = cls.conn.network.delete_ip(cls.FIP_ID, ignore_missing=False)
+        sot = cls.conn.network.delete_ip(cls.FIP.id, ignore_missing=False)
         cls.assertIs(None, sot)
         sot = cls.conn.network.delete_port(cls.PORT_ID, ignore_missing=False)
         cls.assertIs(None, sot)
@@ -119,8 +119,8 @@ class TestFloatingIP(base.BaseFunctionalTest):
         return sub
 
     def test_find(self):
-        sot = self.conn.network.find_ip(self.FIP_ID)
-        self.assertEqual(self.FIP_ID, sot.id)
+        sot = self.conn.network.find_ip(self.FIP.id)
+        self.assertEqual(self.FIP.id, sot.id)
 
     def test_find_available_ip(self):
         sot = self.conn.network.find_available_ip()
@@ -128,19 +128,19 @@ class TestFloatingIP(base.BaseFunctionalTest):
         self.assertIsNone(sot.port_id)
 
     def test_get(self):
-        sot = self.conn.network.get_ip(self.FIP_ID)
+        sot = self.conn.network.get_ip(self.FIP.id)
         self.assertEqual(self.EXT_NET_ID, sot.floating_network_id)
-        self.assertEqual(self.FIP_ID, sot.id)
-        self.assertIn('floating_ip_address', sot)
-        self.assertIn('fixed_ip_address', sot)
-        self.assertIn('port_id', sot)
-        self.assertIn('router_id', sot)
+        self.assertEqual(self.FIP.id, sot.id)
+        self.assertEqual(self.FIP.floating_ip_address, sot.floating_ip_address)
+        self.assertEqual(self.FIP.fixed_ip_address, sot.fixed_ip_address)
+        self.assertEqual(self.FIP.port_id, sot.port_id)
+        self.assertEqual(self.FIP.router_id, sot.router_id)
 
     def test_list(self):
         ids = [o.id for o in self.conn.network.ips()]
-        self.assertIn(self.FIP_ID, ids)
+        self.assertIn(self.FIP.id, ids)
 
     def test_update(self):
-        sot = self.conn.network.update_ip(self.FIP_ID, port_id=self.PORT_ID)
+        sot = self.conn.network.update_ip(self.FIP.id, port_id=self.PORT_ID)
         self.assertEqual(self.PORT_ID, sot.port_id)
-        self.assertEqual(self.FIP_ID, sot.id)
+        self.assertEqual(self.FIP.id, sot.id)
