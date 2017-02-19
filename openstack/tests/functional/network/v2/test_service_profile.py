@@ -30,7 +30,7 @@ class TestServiceProfile(base.BaseFunctionalTest):
         assert isinstance(service_profiles, _service_profile.ServiceProfile)
         cls.assertIs(cls.SERVICE_PROFILE_DESCRIPTION,
                      service_profiles.description)
-        cls.assertIs(cls.METAINFO, service_profiles.metainfo)
+        cls.assertIs(cls.METAINFO, service_profiles.meta_info)
 
         cls.ID = service_profiles.id
 
@@ -45,11 +45,11 @@ class TestServiceProfile(base.BaseFunctionalTest):
         service_profiles = self.conn.network.find_service_profile(
             self.ID)
         self.assertEqual(self.METAINFO,
-                         service_profiles.metainfo)
+                         service_profiles.meta_info)
 
     def test_get(self):
         service_profiles = self.conn.network.get_service_profile(self.ID)
-        self.assertEqual(self.METAINFO, service_profiles.metainfo)
+        self.assertEqual(self.METAINFO, service_profiles.meta_info)
         self.assertEqual(self.SERVICE_PROFILE_DESCRIPTION,
                          service_profiles.description)
 
@@ -60,5 +60,5 @@ class TestServiceProfile(base.BaseFunctionalTest):
         self.assertEqual(self.UPDATE_DESCRIPTION, service_profiles.description)
 
     def test_list(self):
-        metainfos = [f.metainfo for f in self.conn.network.service_profiles()]
+        metainfos = [f.meta_info for f in self.conn.network.service_profiles()]
         self.assertIn(self.METAINFO, metainfos)
