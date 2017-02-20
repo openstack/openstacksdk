@@ -18,7 +18,7 @@ from openstack.tests.functional import base
 
 class TestAgentNetworks(base.BaseFunctionalTest):
 
-    NETWORK_NAME = 'network-name'.join(uuid.uuid4().hex)
+    NETWORK_NAME = 'network-' + uuid.uuid4().hex
     NETWORK_ID = None
     AGENT = None
     AGENT_ID = None
@@ -38,9 +38,7 @@ class TestAgentNetworks(base.BaseFunctionalTest):
 
     @classmethod
     def tearDownClass(cls):
-        net = cls.conn.network.delete_router(cls.NETWORK_ID,
-                                             ignore_missing=False)
-        cls.assertIs(None, net)
+        cls.conn.network.delete_network(cls.NETWORK_ID)
 
     def test_add_agent_to_network(self):
         net = self.AGENT.add_agent_to_network(self.conn.session,
@@ -55,9 +53,9 @@ class TestAgentNetworks(base.BaseFunctionalTest):
     def _verify_add(self, network):
         net = self.conn.network.dhcp_agent_hosting_networks(self.AGENT_ID)
         net_ids = [n.id for n in net]
-        self.asserIn(self.NETWORK_ID, net_ids)
+        self.assertIn(self.NETWORK_ID, net_ids)
 
-    def _verify_network(self, network):
+    def _verify_remove(self, network):
         net = self.conn.network.dhcp_agent_hosting_networks(self.AGENT_ID)
         net_ids = [n.id for n in net]
         self.assertNotIn(self.NETWORK_ID, net_ids)
