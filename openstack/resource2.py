@@ -521,12 +521,11 @@ class Resource(object):
 
         uri = self.base_path % self._uri.attributes
         if requires_id:
-            id = self._get_id(self)
-            if id is None:
+            if self.id is None:
                 raise exceptions.InvalidRequest(
                     "Request requires an ID but none was found")
 
-            uri = utils.urljoin(uri, id)
+            uri = utils.urljoin(uri, self.id)
 
         return _Request(uri, body, headers)
 
