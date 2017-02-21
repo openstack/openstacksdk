@@ -22,7 +22,6 @@ class TestCapability(base.BaseFunctionalTest):
     def test_list(self):
         ids = [o.id for o in self.conn.telemetry.capabilities()]
         self.assertIn('resources:query:simple', ids)
-        self.assertIn('events:query:simple', ids)
         self.assertIn('meters:query:simple', ids)
         self.assertIn('statistics:query:simple', ids)
         self.assertIn('samples:query:simple', ids)
