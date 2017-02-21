@@ -980,4 +980,5 @@ class TestNetworkProxy(test_proxy_base2.TestProxyBase):
                         value=[mock.sentinel.project_id],
                         expected_args=[
                             auto_allocated_topology.ValidateTopology],
-                        expected_kwargs={"project": mock.sentinel.project_id})
+                        expected_kwargs={"project": mock.sentinel.project_id,
+                                         "requires_id": False})

@@ -306,7 +306,7 @@ class Proxy(proxy2.BaseProxy):
         if project is None:
             project = self._session.get_project_id()
         return self._get(_auto_allocated_topology.ValidateTopology,
-                         project=project)
+                         project=project, requires_id=False)
 
     def availability_zones(self, **query):
         """Return a generator of availability zones

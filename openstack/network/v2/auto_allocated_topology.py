@@ -46,4 +46,4 @@ class ValidateTopology(AutoAllocatedTopology):
     #: Will return "Deployment error:" if the resources required have not
     #: been correctly set up.
     dry_run = resource.Body('dry_run')
-    project_id = resource.URI('project')
+    project = resource.URI('project')
