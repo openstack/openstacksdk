@@ -30,7 +30,7 @@ class Cluster(resource.Resource):
     patch_update = True
 
     _query_mapping = resource.QueryParameters(
-        'name', 'status', 'sort', 'global_project')
+        'name', 'status', 'sort', 'global_project', 'profile_only')
 
     # Properties
     #: The name of the cluster.
