@@ -644,6 +644,9 @@ class Resource(object):
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
                  :data:`Resource.allow_update` is not set to ``True``.
         """
+        # The id cannot be dirty for an update
+        self._body._dirty.discard("id")
+
         # Only try to update if we actually have anything to update.
         if not any([self._body.dirty, self._header.dirty]):
             return self
