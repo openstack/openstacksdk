@@ -20,25 +20,7 @@ from openstack.tests.functional import base
                      "Metering service does not exist")
 class TestSample(base.BaseFunctionalTest):
 
-    meter = None
-    sample = None
-
-    @classmethod
-    def setUpClass(cls):
-        super(TestSample, cls).setUpClass()
-        cls.meter = next(cls.conn.telemetry.meters())
-        resource = next(cls.conn.telemetry.resources())
-        sot = cls.conn.telemetry.create_sample(
-            counter_name=cls.meter.name,
-            meter=cls.meter.name,
-            counter_type='gauge',
-            counter_unit='instance',
-            counter_volume=1.0,
-            resource_id=resource.id,
-        )
-        assert isinstance(sot, sample.Sample)
-        cls.sample = sot
-
     def test_list(self):
-        ids = [o.id for o in self.conn.telemetry.samples(self.meter)]
-        self.assertIn(self.sample.id, ids)
+        for meter in self.conn.telemetry.meters():
+            sot = next(self.conn.telemetry.samples(meter))
+            assert isinstance(sot, sample.Sample)

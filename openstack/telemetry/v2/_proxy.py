@@ -111,18 +111,6 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._list(_resource.Resource, paginated=False, **query)
 
-    def create_sample(self, **attrs):
-        """Create a new sample from attributes
-
-        :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.telemetry.v2.sample.Sample`,
-                           comprised of the properties on the Sample class.
-
-        :returns: The results of sample creation
-        :rtype: :class:`~openstack.telemetry.v2.sample.Sample`
-        """
-        return self._create(sample.Sample, **attrs)
-
     def find_sample(self, name_or_id, ignore_missing=True):
         """Find a single sample
 

@@ -47,9 +47,6 @@ class TestTelemetryProxy(test_proxy_base2.TestProxyBase):
         self.verify_list(self.proxy.resources, resource.Resource,
                          paginated=False)
 
-    def test_sample_create_attrs(self):
-        self.verify_create(self.proxy.create_sample, sample.Sample)
-
     def test_sample_find(self):
         self.verify_find(self.proxy.find_sample, sample.Sample)
 
