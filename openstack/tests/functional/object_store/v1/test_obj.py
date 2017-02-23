@@ -71,24 +71,13 @@ class TestObject(base.BaseFunctionalTest):
         self.assertEqual('attachment', obj.content_disposition)
         self.assertEqual('deflate', obj.content_encoding)
 
-        # set system metadata and custom metadata
-        self.conn.object_store.set_object_metadata(
-            obj, k0='v0', delete_after=100)
+        # set custom metadata
+        self.conn.object_store.set_object_metadata(obj, k0='v0')
         obj = self.conn.object_store.get_object_metadata(obj)
         self.assertIn('k0', obj.metadata)
         self.assertEqual('v0', obj.metadata['k0'])
         self.assertEqual('attachment', obj.content_disposition)
         self.assertEqual('deflate', obj.content_encoding)
-
-        # unset system metadata
-        self.conn.object_store.delete_object_metadata(
-            obj, keys=['delete_after'])
-        obj = self.conn.object_store.get_object_metadata(obj)
-        self.assertIn('k0', obj.metadata)
-        self.assertEqual('v0', obj.metadata['k0'])
-        self.assertEqual('attachment', obj.content_disposition)
-        self.assertEqual('deflate', obj.content_encoding)
-        self.assertIsNone(obj.delete_at)
 
         # unset more system metadata
         self.conn.object_store.delete_object_metadata(
