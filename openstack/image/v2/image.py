@@ -246,12 +246,12 @@ class Image(resource2.Resource):
                     headers={"Content-Type": "application/octet-stream",
                              "Accept": ""})
 
-    def download(self, session):
+    def download(self, session, stream=False):
         """Download the data contained in an image"""
         # TODO(briancurtin): This method should probably offload the get
         # operation into another thread or something of that nature.
         url = utils.urljoin(self.base_path, self.id, 'file')
-        resp = session.get(url, endpoint_filter=self.service)
+        resp = session.get(url, endpoint_filter=self.service, stream=stream)
 
         # See the following bug report for details on why the checksum
         # code may sometimes depend on a second GET call.
@@ -264,6 +264,14 @@ class Image(resource2.Resource):
             # the checksum attribute.
             details = self.get(session)
             checksum = details.checksum
+
+        # if we are returning the repsonse object, ensure that it
+        # has the content-md5 header so that the caller doesn't
+        # need to jump through the same hoops through which we
+        # just jumped.
+        if stream:
+            resp.headers['content-md5'] = checksum
+            return resp
 
         if checksum is not None:
             digest = hashlib.md5(resp.content).hexdigest()

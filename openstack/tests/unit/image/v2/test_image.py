@@ -212,7 +212,8 @@ class TestImage(testtools.TestCase):
 
         rv = sot.download(self.sess)
         self.sess.get.assert_called_with('images/IDENTIFIER/file',
-                                         endpoint_filter=sot.service)
+                                         endpoint_filter=sot.service,
+                                         stream=False)
 
         self.assertEqual(rv, resp.content)
 
@@ -242,7 +243,8 @@ class TestImage(testtools.TestCase):
 
         rv = sot.download(self.sess)
         self.sess.get.assert_has_calls(
-            [mock.call('images/IDENTIFIER/file', endpoint_filter=sot.service),
+            [mock.call('images/IDENTIFIER/file', endpoint_filter=sot.service,
+                       stream=False),
              mock.call('images/IDENTIFIER', endpoint_filter=sot.service)])
 
         self.assertEqual(rv, resp1.content)
@@ -270,7 +272,23 @@ class TestImage(testtools.TestCase):
                 log.records[0].msg)
 
         self.sess.get.assert_has_calls(
-            [mock.call('images/IDENTIFIER/file', endpoint_filter=sot.service),
+            [mock.call('images/IDENTIFIER/file', endpoint_filter=sot.service,
+                       stream=False),
              mock.call('images/IDENTIFIER', endpoint_filter=sot.service)])
 
         self.assertEqual(rv, resp1.content)
+
+    def test_download_stream(self):
+        sot = image.Image(**EXAMPLE)
+
+        resp = mock.Mock()
+        resp.content = b"abc"
+        resp.headers = {"Content-MD5": "900150983cd24fb0d6963f7d28e17f72"}
+        self.sess.get.return_value = resp
+
+        rv = sot.download(self.sess, stream=True)
+        self.sess.get.assert_called_with('images/IDENTIFIER/file',
+                                         endpoint_filter=sot.service,
+                                         stream=True)
+
+        self.assertEqual(rv, resp)
