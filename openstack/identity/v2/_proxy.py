@@ -80,7 +80,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of role instances.
         :rtype: :class:`~openstack.identity.v2.role.Role`
         """
-        return self._list(_role.Role, paginated=True, **query)
+        return self._list(_role.Role, paginated=False, **query)
 
     def update_role(self, role, **attrs):
         """Update a role
@@ -234,7 +234,7 @@ class Proxy(proxy.BaseProxy):
         :returns: A generator of user instances.
         :rtype: :class:`~openstack.identity.v2.user.User`
         """
-        return self._list(_user.User, paginated=True, **query)
+        return self._list(_user.User, paginated=False, **query)
 
     def update_user(self, user, **attrs):
         """Update a user
