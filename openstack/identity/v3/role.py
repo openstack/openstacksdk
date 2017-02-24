@@ -26,7 +26,6 @@ class Role(resource.Resource):
     allow_update = True
     allow_delete = True
     allow_list = True
-    put_create = True
 
     _query_mapping = resource.QueryParameters(
         'name', 'domain_id')
