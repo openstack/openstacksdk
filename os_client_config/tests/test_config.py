@@ -16,6 +16,7 @@ import argparse
 import copy
 import os
 
+import extras
 import fixtures
 import testtools
 import yaml
@@ -576,6 +577,37 @@ class TestConfigArgparse(base.TestCase):
         self._assert_cloud_details(cc)
         self.assertEqual(cc.region_name, 'region2')
         self.assertEqual('my-network', cc.config['external_network'])
+
+    def test_get_one_cloud_no_yaml_no_cloud(self):
+        c = config.OpenStackConfig(load_yaml_config=False)
+
+        self.assertRaises(
+            exceptions.OpenStackConfigException,
+            c.get_one_cloud,
+            cloud='_test_cloud_regions', region_name='region2', argparse=None)
+
+    def test_get_one_cloud_no_yaml(self):
+        c = config.OpenStackConfig(load_yaml_config=False)
+
+        cc = c.get_one_cloud(
+            region_name='region2', argparse=None,
+            **base.USER_CONF['clouds']['_test_cloud_regions'])
+        # Not using assert_cloud_details because of cache settings which
+        # are not present without the file
+        self.assertIsInstance(cc, cloud_config.CloudConfig)
+        self.assertTrue(extras.safe_hasattr(cc, 'auth'))
+        self.assertIsInstance(cc.auth, dict)
+        self.assertIsNone(cc.cloud)
+        self.assertIn('username', cc.auth)
+        self.assertEqual('testuser', cc.auth['username'])
+        self.assertEqual('testpass', cc.auth['password'])
+        self.assertFalse(cc.config['image_api_use_tasks'])
+        self.assertTrue('project_name' in cc.auth or 'project_id' in cc.auth)
+        if 'project_name' in cc.auth:
+            self.assertEqual('testproject', cc.auth['project_name'])
+        elif 'project_id' in cc.auth:
+            self.assertEqual('testproject', cc.auth['project_id'])
+        self.assertEqual(cc.region_name, 'region2')
 
     def test_fix_env_args(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
