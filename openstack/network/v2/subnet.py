@@ -35,6 +35,7 @@ class Subnet(resource.Resource):
         is_dhcp_enabled='enable_dhcp',
         project_id='tenant_id',
         subnet_pool_id='subnetpool_id',
+        use_default_subnet_pool='use_default_subnetpool',
     )
 
     # Properties
@@ -81,3 +82,8 @@ class Subnet(resource.Resource):
     subnet_pool_id = resource.Body('subnetpool_id')
     #: Timestamp when the subnet was last updated.
     updated_at = resource.Body('updated_at')
+    #: Whether to use the default subnet pool to obtain a CIDR.
+    use_default_subnet_pool = resource.Body(
+        'use_default_subnetpool',
+        type=bool
+    )

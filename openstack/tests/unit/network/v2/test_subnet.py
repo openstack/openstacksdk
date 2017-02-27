@@ -36,6 +36,7 @@ EXAMPLE = {
     'subnetpool_id': '16',
     'tenant_id': '17',
     'updated_at': '18',
+    'use_default_subnetpool': True,
 }
 
 
@@ -75,3 +76,4 @@ class TestSubnet(testtools.TestCase):
         self.assertEqual(EXAMPLE['subnetpool_id'], sot.subnet_pool_id)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
+        self.assertTrue(sot.use_default_subnet_pool)
