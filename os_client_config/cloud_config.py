@@ -13,6 +13,7 @@
 # under the License.
 
 import importlib
+import math
 import warnings
 
 from keystoneauth1 import adapter
@@ -234,7 +235,19 @@ class CloudConfig(object):
             interface=self.get_interface(service_key),
             region_name=self.region)
 
-    def get_session_endpoint(self, service_key):
+    def _get_highest_endpoint(self, service_types, kwargs):
+        session = self.get_session()
+        for service_type in service_types:
+            kwargs['service_type'] = service_type
+            try:
+                # Return the highest version we find that matches
+                # the request
+                return session.get_endpoint(**kwargs)
+            except keystoneauth1.exceptions.catalog.EndpointNotFound:
+                pass
+
+    def get_session_endpoint(
+            self, service_key, min_version=None, max_version=None):
         """Return the endpoint from config or the catalog.
 
         If a configuration lists an explicit endpoint for a service,
@@ -250,27 +263,51 @@ class CloudConfig(object):
         if override_endpoint:
             return override_endpoint
         # keystone is a special case in keystone, because what?
-        session = self.get_session()
+        endpoint = None
+        kwargs = {
+            'service_name': self.get_service_name(service_key),
+            'region_name': self.region
+        }
         if service_key == 'identity':
-            endpoint = session.get_endpoint(interface=plugin.AUTH_INTERFACE)
+            # setting interface in kwargs dict even though we don't use kwargs
+            # dict here just for ease of warning text later
+            kwargs['interface'] = plugin.AUTH_INTERFACE
+            session = self.get_session()
+            endpoint = session.get_endpoint(interface=kwargs['interface'])
         else:
-            args = {
-                'service_type': self.get_service_type(service_key),
-                'service_name': self.get_service_name(service_key),
-                'interface': self.get_interface(service_key),
-                'region_name': self.region
-            }
-            try:
-                endpoint = session.get_endpoint(**args)
-            except keystoneauth1.exceptions.catalog.EndpointNotFound:
-                self.log.warning("Keystone catalog entry not found (%s)",
-                                 args)
-                endpoint = None
+            kwargs['interface'] = self.get_interface(service_key)
+            if service_key == 'volume' and not self.get_api_version('volume'):
+                # If we don't have a configured cinder version, we can't know
+                # to request a different service_type
+                min_version = float(min_version or 1)
+                max_version = float(max_version or 3)
+                min_major = math.trunc(float(min_version))
+                max_major = math.trunc(float(max_version))
+                versions = range(int(max_major) + 1, int(min_major), -1)
+                service_types = []
+                for version in versions:
+                    if version == 1:
+                        service_types.append('volume')
+                    else:
+                        service_types.append('volumev{v}'.format(v=version))
+            else:
+                service_types = [self.get_service_type(service_key)]
+            endpoint = self._get_highest_endpoint(service_types, kwargs)
+        if not endpoint:
+            self.log.warning(
+                "Keystone catalog entry not found ("
+                "service_type=%s,service_name=%s"
+                "interface=%s,region_name=%s)",
+                service_key,
+                kwargs['service_name'],
+                kwargs['interface'],
+                kwargs['region_name'])
         return endpoint
 
     def get_legacy_client(
             self, service_key, client_class=None, interface_key=None,
-            pass_version_arg=True, version=None, **kwargs):
+            pass_version_arg=True, version=None, min_version=None,
+            max_version=None, **kwargs):
         """Return a legacy OpenStack client object for the given config.
 
         Most of the OpenStack python-*client libraries have the same
@@ -304,6 +341,8 @@ class CloudConfig(object):
                                  that case.
         :param version: (optional) Version string to override the configured
                                    version string.
+        :param min_version: (options) Minimum version acceptable.
+        :param max_version: (options) Maximum version acceptable.
         :param kwargs: (optional) keyword args are passed through to the
                        Client constructor, so this is in case anything
                        additional needs to be passed in.
@@ -313,7 +352,8 @@ class CloudConfig(object):
 
         interface = self.get_interface(service_key)
         # trigger exception on lack of service
-        endpoint = self.get_session_endpoint(service_key)
+        endpoint = self.get_session_endpoint(
+            service_key, min_version=min_version, max_version=max_version)
         endpoint_override = self.get_endpoint(service_key)
 
         if not interface_key:
@@ -361,6 +401,9 @@ class CloudConfig(object):
         if pass_version_arg and service_key != 'object-store':
             if not version:
                 version = self.get_api_version(service_key)
+            if not version and service_key == 'volume':
+                from cinderclient import client as cinder_client
+                version = cinder_client.get_volume_api_from_url(endpoint)
             # Temporary workaround while we wait for python-openstackclient
             # to be able to handle 2.0 which is what neutronclient expects
             if service_key == 'network' and version == '2':
@@ -380,6 +423,16 @@ class CloudConfig(object):
                 constructor_kwargs['version'] = version[0]
             else:
                 constructor_kwargs['version'] = version
+            if min_version and min_version > float(version):
+                raise exceptions.OpenStackConfigVersionException(
+                    "Minimum version {min_version} requested but {version}"
+                    " found".format(min_version=min_version, version=version),
+                    version=version)
+            if max_version and max_version < float(version):
+                raise exceptions.OpenStackConfigVersionException(
+                    "Maximum version {max_version} requested but {version}"
+                    " found".format(max_version=max_version, version=version),
+                    version=version)
         if service_key == 'database':
             # TODO(mordred) Remove when https://review.openstack.org/314032
             # has landed and released. We're passing in a Session, but the
