@@ -84,6 +84,7 @@ but listed below are the ones provided by this SDK by default.
    Message v1 <proxies/message_v1>
    Message v2 <proxies/message_v2>
    Network <proxies/network>
+   Metric <proxies/metric>
    Object Store <proxies/object_store>
    Orchestration <proxies/orchestration>
    Telemetry <proxies/telemetry>
