@@ -586,7 +586,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @property
     def current_project_id(self):
-        """Get the current project id.
+        """Get the current project ID.
 
         Returns the project_id of the current token scope. None means that
         the token is domain scoped or unscoped.
@@ -743,8 +743,8 @@ class OpenStackCloud(_normalize.Normalizer):
 
         With no parameters, returns a full listing of all visible projects.
 
-        :param domain_id: domain id to scope the searched projects.
-        :param name_or_id: project name or id.
+        :param domain_id: domain ID to scope the searched projects.
+        :param name_or_id: project name or ID.
         :param filters: a dict containing additional filters to use
             OR
             A string containing a jmespath expression for further filtering.
@@ -753,7 +753,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: a list of ``munch.Munch`` containing the projects
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         kwargs = dict(
             filters=filters,
@@ -785,14 +785,14 @@ class OpenStackCloud(_normalize.Normalizer):
     def get_project(self, name_or_id, filters=None, domain_id=None):
         """Get exactly one project.
 
-        :param name_or_id: project name or id.
+        :param name_or_id: project name or ID.
         :param filters: a dict containing additional filters to use.
-        :param domain_id: domain id (identity v3 only).
+        :param domain_id: domain ID (identity v3 only).
 
         :returns: a list of ``munch.Munch`` containing the project description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         return _utils._get_entity(self.search_projects, name_or_id, filters,
                                   domain_id=domain_id)
@@ -842,14 +842,14 @@ class OpenStackCloud(_normalize.Normalizer):
     def delete_project(self, name_or_id, domain_id=None):
         """Delete a project.
 
-        :param string name_or_id: Project name or id.
-        :param string domain_id: Domain id containing the project (identity v3
+        :param string name_or_id: Project name or ID.
+        :param string domain_id: Domain ID containing the project(identity v3
             only).
 
         :returns: True if delete succeeded, False if the project was not found.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
-            the openstack API call
+            the OpenStack API call
         """
 
         with _utils.shade_exceptions(
@@ -877,7 +877,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: a list of ``munch.Munch`` containing the user description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         with _utils.shade_exceptions("Failed to list users"):
             users = self.manager.submit_task(_tasks.UserList())
@@ -886,7 +886,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def search_users(self, name_or_id=None, filters=None):
         """Search users.
 
-        :param string name_or_id: user name or id.
+        :param string name_or_id: user name or ID.
         :param filters: a dict containing additional filters to use.
             OR
             A string containing a jmespath expression for further filtering.
@@ -895,7 +895,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: a list of ``munch.Munch`` containing the users
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         users = self.list_users()
         return _utils._filter_list(users, name_or_id, filters)
@@ -903,7 +903,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def get_user(self, name_or_id, filters=None):
         """Get exactly one user.
 
-        :param string name_or_id: user name or id.
+        :param string name_or_id: user name or ID.
         :param filters: a dict containing additional filters to use.
             OR
             A string containing a jmespath expression for further filtering.
@@ -912,7 +912,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: a single ``munch.Munch`` containing the user description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         return _utils._get_entity(self.search_users, name_or_id, filters)
 
@@ -1025,7 +1025,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :param string group_name_or_id: Group name or ID
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
-            the openstack API call
+            the OpenStack API call
         """
         user, group = self._get_user_and_group(name_or_id, group_name_or_id)
 
@@ -1046,7 +1046,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: True if user is in the group, False otherwise
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
-            the openstack API call
+            the OpenStack API call
         """
         user, group = self._get_user_and_group(name_or_id, group_name_or_id)
 
@@ -1073,7 +1073,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :param string group_name_or_id: Group name or ID
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
-            the openstack API call
+            the OpenStack API call
         """
         user, group = self._get_user_and_group(name_or_id, group_name_or_id)
 
@@ -1261,7 +1261,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: a dict containing the stack description
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
-            the openstack API call
+            the OpenStack API call
         """
         envfiles, env = template_utils.process_multiple_environments_and_files(
             env_paths=environment_files)
@@ -1297,7 +1297,7 @@ class OpenStackCloud(_normalize.Normalizer):
             **parameters):
         """Update a stack.
 
-        :param string name_or_id: Name or id of the stack to update.
+        :param string name_or_id: Name or ID of the stack to update.
         :param string template_file: Path to the template.
         :param string template_url: URL of template.
         :param string template_object: URL to retrieve template object.
@@ -1316,7 +1316,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: a dict containing the stack description
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
-            the openstack API calls
+            the OpenStack API calls
         """
         envfiles, env = template_utils.process_multiple_environments_and_files(
             env_paths=environment_files)
@@ -1355,13 +1355,13 @@ class OpenStackCloud(_normalize.Normalizer):
     def delete_stack(self, name_or_id, wait=False):
         """Delete a stack
 
-        :param string name_or_id: Stack name or id.
+        :param string name_or_id: Stack name or ID.
         :param boolean wait: Whether to wait for the delete to finish
 
         :returns: True if delete succeeded, False if the stack was not found.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
-            the openstack API call
+            the OpenStack API call
         """
         stack = self.get_stack(name_or_id)
         if stack is None:
@@ -1487,14 +1487,14 @@ class OpenStackCloud(_normalize.Normalizer):
     def search_networks(self, name_or_id=None, filters=None):
         """Search networks
 
-        :param name_or_id: Name or id of the desired network.
+        :param name_or_id: Name or ID of the desired network.
         :param filters: a dict containing additional filters to use. e.g.
                         {'router:external': True}
 
         :returns: a list of ``munch.Munch`` containing the network description.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
-            openstack API call.
+            OpenStack API call.
         """
         networks = self.list_networks(filters)
         return _utils._filter_list(networks, name_or_id, filters)
@@ -1502,14 +1502,14 @@ class OpenStackCloud(_normalize.Normalizer):
     def search_routers(self, name_or_id=None, filters=None):
         """Search routers
 
-        :param name_or_id: Name or id of the desired router.
+        :param name_or_id: Name or ID of the desired router.
         :param filters: a dict containing additional filters to use. e.g.
                         {'admin_state_up': True}
 
         :returns: a list of ``munch.Munch`` containing the router description.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
-            openstack API call.
+            OpenStack API call.
         """
         routers = self.list_routers(filters)
         return _utils._filter_list(routers, name_or_id, filters)
@@ -1517,14 +1517,14 @@ class OpenStackCloud(_normalize.Normalizer):
     def search_subnets(self, name_or_id=None, filters=None):
         """Search subnets
 
-        :param name_or_id: Name or id of the desired subnet.
+        :param name_or_id: Name or ID of the desired subnet.
         :param filters: a dict containing additional filters to use. e.g.
                         {'enable_dhcp': True}
 
         :returns: a list of ``munch.Munch`` containing the subnet description.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
-            openstack API call.
+            OpenStack API call.
         """
         subnets = self.list_subnets(filters)
         return _utils._filter_list(subnets, name_or_id, filters)
@@ -1532,14 +1532,14 @@ class OpenStackCloud(_normalize.Normalizer):
     def search_ports(self, name_or_id=None, filters=None):
         """Search ports
 
-        :param name_or_id: Name or id of the desired port.
+        :param name_or_id: Name or ID of the desired port.
         :param filters: a dict containing additional filters to use. e.g.
                         {'device_id': '2711c67a-b4a7-43dd-ace7-6187b791c3f0'}
 
         :returns: a list of ``munch.Munch`` containing the port description.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
-            openstack API call.
+            OpenStack API call.
         """
         # If port caching is enabled, do not push the filter down to
         # neutron; get all the ports (potentially from the cache) and
@@ -1592,13 +1592,13 @@ class OpenStackCloud(_normalize.Normalizer):
     def search_server_groups(self, name_or_id=None, filters=None):
         """Seach server groups.
 
-        :param name: server group name or id.
+        :param name: server group name or ID.
         :param filters: a dict containing additional filters to use.
 
         :returns: a list of dicts containing the server groups
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         server_groups = self.list_server_groups()
         return _utils._filter_list(server_groups, name_or_id, filters)
@@ -1628,14 +1628,14 @@ class OpenStackCloud(_normalize.Normalizer):
     def search_stacks(self, name_or_id=None, filters=None):
         """Search stacks.
 
-        :param name_or_id: Name or id of the desired stack.
+        :param name_or_id: Name or ID of the desired stack.
         :param filters: a dict containing additional filters to use. e.g.
                 {'stack_status': 'CREATE_COMPLETE'}
 
         :returns: a list of ``munch.Munch`` containing the stack description.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
-            openstack API call.
+            OpenStack API call.
         """
         stacks = self.list_stacks()
         return _utils._filter_list(stacks, name_or_id, filters)
@@ -1785,7 +1785,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: a list of ``munch.Munch`` containing the stack description.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
-            openstack API call.
+            OpenStack API call.
         """
         with _utils.shade_exceptions("Error fetching stack list"):
             stacks = self.manager.submit_task(_tasks.StackList())
@@ -1900,7 +1900,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def get_compute_limits(self, name_or_id=None):
         """ Get compute limits for a project
 
-        :param name_or_id: (optional) project name or id to get limits for
+        :param name_or_id: (optional) project name or ID to get limits for
                            if different from the current project
         :raises: OpenStackCloudException if it's not a valid project
 
@@ -2150,7 +2150,7 @@ class OpenStackCloud(_normalize.Normalizer):
                         ' {nat_net} which is the network configured'
                         ' to be the NAT destination. Please check your'
                         ' cloud resources. It is probably a good idea'
-                        ' to configure this network by id rather than'
+                        ' to configure this network by ID rather than'
                         ' by name.'.format(
                             nat_net=self._nat_destination))
                 nat_destination = network
@@ -2184,7 +2184,7 @@ class OpenStackCloud(_normalize.Normalizer):
                         ' configured to be the default interface'
                         ' network. Please check your cloud resources.'
                         ' It is probably a good idea'
-                        ' to configure this network by id rather than'
+                        ' to configure this network by ID rather than'
                         ' by name.'.format(
                             default_net=self._default_network))
                 default_network = network
@@ -2705,7 +2705,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException in the event download_image is called
             without exactly one of either output_path or output_file
         :raises: OpenStackCloudResourceNotFound if no images are found matching
-            the name or id provided
+            the name or ID provided
         """
         if output_path is None and output_file is None:
             raise OpenStackCloudException('No output specified, an output path'
@@ -2719,7 +2719,7 @@ class OpenStackCloud(_normalize.Normalizer):
         image = self.search_images(name_or_id)
         if len(image) == 0:
             raise OpenStackCloudResourceNotFound(
-                "No images with name or id %s were found" % name_or_id, None)
+                "No images with name or ID %s were found" % name_or_id, None)
         if self.cloud_config.get_api_version('image') == '2':
             endpoint = '/images/{id}/file'.format(id=image[0]['id'])
         else:
@@ -2765,14 +2765,14 @@ class OpenStackCloud(_normalize.Normalizer):
     def get_stack(self, name_or_id, filters=None):
         """Get exactly one stack.
 
-        :param name_or_id: Name or id of the desired stack.
+        :param name_or_id: Name or ID of the desired stack.
         :param filters: a dict containing additional filters to use. e.g.
                 {'stack_status': 'CREATE_COMPLETE'}
 
         :returns: a ``munch.Munch`` containing the stack description
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
-            openstack API call or if multiple matches are found.
+            OpenStack API call or if multiple matches are found.
         """
 
         def _search_one_stack(name_or_id=None, filters=None):
@@ -2933,7 +2933,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :param string subnet_id: The ID of the subnet to use for the interface
         :param string port_id: The ID of the port to use for the interface
 
-        :returns: A ``munch.Munch`` with the router id (id),
+        :returns: A ``munch.Munch`` with the router ID (ID),
             subnet ID (subnet_id), port ID (port_id) and tenant ID (tenant_id).
 
         :raises: OpenStackCloudException on operation error.
@@ -3171,7 +3171,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """Create an image by snapshotting an existing server.
 
         :param name: Name of the image to be created
-        :param server: Server name or id or dict representing the server
+        :param server: Server name or ID or dict representing the server
                        to be snapshotted
         :param wait: If true, waits for image to be created.
         :param timeout: Seconds to wait for image creation. None is forever.
@@ -3714,7 +3714,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :param description: (optional) Name for the volume.
         :param wait: If true, waits for volume to be created.
         :param timeout: Seconds to wait for volume creation. None is forever.
-        :param image: (optional) Image name, id or object from which to create
+        :param image: (optional) Image name, ID or object from which to create
                       the volume
         :param kwargs: Keyword arguments as expected for cinder client.
 
@@ -3970,7 +3970,7 @@ class OpenStackCloud(_normalize.Normalizer):
                                wait=True, timeout=None, **kwargs):
         """Create a volume.
 
-        :param volume_id: the id of the volume to snapshot.
+        :param volume_id: the ID of the volume to snapshot.
         :param force: If set to True the snapshot will be created even if the
                       volume is attached to an instance, if False it will not
         :param name: name of the snapshot, one will be generated if one is
@@ -4018,7 +4018,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def get_volume_snapshot_by_id(self, snapshot_id):
         """Takes a snapshot_id and gets a dict of the snapshot
-        that maches that id.
+        that maches that ID.
 
         Note: This is more efficient than get_volume_snapshot.
 
@@ -4065,7 +4065,7 @@ class OpenStackCloud(_normalize.Normalizer):
                              force=False, wait=True, timeout=None):
         """Create a volume backup.
 
-        :param volume_id: the id of the volume to backup.
+        :param volume_id: the ID of the volume to backup.
         :param name: name of the backup, one will be generated if one is
                      not provided
         :param description: description of the backup, one will be generated
@@ -4313,7 +4313,7 @@ class OpenStackCloud(_normalize.Normalizer):
         Return a list of available floating IPs or allocate a new one and
         return it in a list of 1 element.
 
-        :param network: A single network name or id, or a list of them.
+        :param network: A single network name or ID, or a list of them.
         :param server: (server) Server the Floating IP is for
 
         :returns: a list of floating IP addresses.
@@ -4420,10 +4420,10 @@ class OpenStackCloud(_normalize.Normalizer):
                        the IP for and to which it should be attached.
         :param fixed_address: (optional) Fixed IP to attach the floating
                               ip to.
-        :param nat_destination: (optional) Name or id of the network
+        :param nat_destination: (optional) Name or ID of the network
                                 that the fixed IP to attach the floating
                                 IP to should be on.
-        :param port: (optional) The port id that the floating IP should be
+        :param port: (optional) The port ID that the floating IP should be
                                 attached to. Specifying a port conflicts
                                 with specifying a server, fixed_address or
                                 nat_destination.
@@ -4483,7 +4483,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     network = self.get_network(network_name_or_id)
                     if not network:
                         raise OpenStackCloudResourceNotFound(
-                            "unable to find network for floating ips with id "
+                            "unable to find network for floating ips with ID "
                             "{0}".format(network_name_or_id))
                     network_id = network['id']
                 else:
@@ -4564,7 +4564,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def delete_floating_ip(self, floating_ip_id, retry=1):
         """Deallocate a floating IP from a project.
 
-        :param floating_ip_id: a floating IP address id.
+        :param floating_ip_id: a floating IP address ID.
         :param retry: number of times to retry. Optional, defaults to 1,
                       which is in addition to the initial delete call.
                       A value of 0 will also cause no checking of results to
@@ -4594,7 +4594,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 return True
 
         raise OpenStackCloudException(
-            "Attempted to delete Floating IP {ip} with id {id} a total of"
+            "Attempted to delete Floating IP {ip} with ID {id} a total of"
             " {retry} times. Although the cloud did not indicate any errors"
             " the floating ip is still in existence. Aborting further"
             " operations.".format(
@@ -4620,7 +4620,7 @@ class OpenStackCloud(_normalize.Normalizer):
             return False
         except Exception as e:
             raise OpenStackCloudException(
-                "Unable to delete floating IP id {fip_id}: {msg}".format(
+                "Unable to delete floating IP ID {fip_id}: {msg}".format(
                     fip_id=floating_ip_id, msg=str(e)))
         return True
 
@@ -4634,7 +4634,7 @@ class OpenStackCloud(_normalize.Normalizer):
             raise
         except Exception as e:
             raise OpenStackCloudException(
-                "Unable to delete floating IP id {fip_id}: {msg}".format(
+                "Unable to delete floating IP ID {fip_id}: {msg}".format(
                     fip_id=floating_ip_id, msg=str(e)))
         return True
 
@@ -4868,7 +4868,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def detach_ip_from_server(self, server_id, floating_ip_id):
         """Detach a floating IP from a server.
 
-        :param server_id: id of a server.
+        :param server_id: ID of a server.
         :param floating_ip_id: Id of the floating IP to detach.
 
         :returns: True if the IP has been detached, or False if the IP wasn't
@@ -5232,16 +5232,16 @@ class OpenStackCloud(_normalize.Normalizer):
         """Create a virtual server instance.
 
         :param name: Something to name the server.
-        :param image: Image dict, name or id to boot with.
-        :param flavor: Flavor dict, name or id to boot onto.
+        :param image: Image dict, name or ID to boot with.
+        :param flavor: Flavor dict, name or ID to boot onto.
         :param auto_ip: Whether to take actions to find a routable IP for
                         the server. (defaults to True)
         :param ips: List of IPs to attach to the server (defaults to None)
         :param ip_pool: Name of the network or floating IP pool to get an
                         address from. (defaults to None)
-        :param root_volume: Name or id of a volume to boot from
+        :param root_volume: Name or ID of a volume to boot from
                             (defaults to None - deprecated, use boot_volume)
-        :param boot_volume: Name or id of a volume to boot from
+        :param boot_volume: Name or ID of a volume to boot from
                             (defaults to None)
         :param terminate_volume: If booting from a volume, whether it should
                                  be deleted when the server is destroyed.
@@ -5292,9 +5292,9 @@ class OpenStackCloud(_normalize.Normalizer):
         :param reuse_ips: (optional) Whether to attempt to reuse pre-existing
                                      floating ips should a floating IP be
                                      needed (defaults to True)
-        :param network: (optional) Network dict or name or id to attach the
+        :param network: (optional) Network dict or name or ID to attach the
                         server to.  Mutually exclusive with the nics parameter.
-                        Can also be be a list of network names or ids or
+                        Can also be be a list of network names or IDs or
                         network dicts.
         :param boot_from_volume: Whether to boot from volume. 'boot_volume'
                                  implies True, but boot_from_volume=True with
@@ -5508,7 +5508,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def set_server_metadata(self, name_or_id, metadata):
         """Set metadata in a server instance.
 
-        :param str name_or_id: The name or id of the server instance
+        :param str name_or_id: The name or ID of the server instance
             to update.
         :param dict metadata: A dictionary with the key=value pairs
             to set in the server instance. It only updates the key=value
@@ -5529,7 +5529,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def delete_server_metadata(self, name_or_id, metadata_keys):
         """Delete metadata from a server instance.
 
-        :param str name_or_id: The name or id of the server instance
+        :param str name_or_id: The name or ID of the server instance
             to update.
         :param list metadata_keys: A list with the keys to be deleted
             from the server instance.
@@ -5690,7 +5690,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def delete_server_group(self, name_or_id):
         """Delete a server group.
 
-        :param name_or_id: Name or id of the server group to delete
+        :param name_or_id: Name or ID of the server group to delete
 
         :returns: True if delete succeeded, False otherwise
 
@@ -6517,7 +6517,7 @@ class OpenStackCloud(_normalize.Normalizer):
         Note: to unset an attribute use None value. To leave an attribute
         untouched just omit it.
 
-        :param name_or_id: name or id of the port to update. (Required)
+        :param name_or_id: name or ID of the port to update. (Required)
         :param name: A symbolic name for the port. (Optional)
         :param admin_state_up: The administrative status of the port,
             which is up (true) or down (false). (Optional)
@@ -6574,7 +6574,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def delete_port(self, name_or_id):
         """Delete a port
 
-        :param name_or_id: id or name of the port to delete.
+        :param name_or_id: ID or name of the port to delete.
 
         :returns: True if delete succeeded, False otherwise.
 
@@ -7005,7 +7005,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def list_recordsets(self, zone):
         """List all available recordsets.
 
-        :param zone: Name or id of the zone managing the recordset
+        :param zone: Name or ID of the zone managing the recordset
 
         :returns: A list of recordsets.
 
@@ -7067,7 +7067,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def update_recordset(self, zone, name_or_id, **kwargs):
         """Update a recordset.
 
-        :param zone: Name or id of the zone managing the recordset
+        :param zone: Name or ID of the zone managing the recordset
         :param name_or_id: Name or ID of the recordset being updated.
         :param records: List of the recordset definitions
         :param description: Description of the recordset
@@ -7135,7 +7135,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: a list of dicts containing the cluster template details.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         with _utils.shade_exceptions("Error fetching ClusterTemplate list"):
             cluster_templates = self.manager.submit_task(
@@ -7157,7 +7157,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: a list of dict containing the ClusterTemplates
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         cluster_templates = self.list_cluster_templates(detail=detail)
         return _utils._filter_list(
@@ -7207,7 +7207,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: a dict containing the ClusterTemplate description
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
-            the openstack API call
+            the OpenStack API call
         """
         with _utils.shade_exceptions(
                 "Error creating ClusterTemplate of name"
