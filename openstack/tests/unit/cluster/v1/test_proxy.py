@@ -497,3 +497,41 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
                          paginated=True,
                          method_kwargs={'limit': 2},
                          expected_kwargs={'limit': 2})
+
+    @mock.patch("openstack.resource2.wait_for_status")
+    def test_wait_for(self, mock_wait):
+        mock_resource = mock.Mock()
+        mock_wait.return_value = mock_resource
+
+        self.proxy.wait_for_status(mock_resource, 'ACTIVE')
+
+        mock_wait.assert_called_once_with(self.session, mock_resource,
+                                          'ACTIVE', [], 2, 120)
+
+    @mock.patch("openstack.resource2.wait_for_status")
+    def test_wait_for_params(self, mock_wait):
+        mock_resource = mock.Mock()
+        mock_wait.return_value = mock_resource
+
+        self.proxy.wait_for_status(mock_resource, 'ACTIVE', ['ERROR'], 1, 2)
+
+        mock_wait.assert_called_once_with(self.session, mock_resource,
+                                          'ACTIVE', ['ERROR'], 1, 2)
+
+    @mock.patch("openstack.resource2.wait_for_delete")
+    def test_wait_for_delete(self, mock_wait):
+        mock_resource = mock.Mock()
+        mock_wait.return_value = mock_resource
+
+        self.proxy.wait_for_delete(mock_resource)
+
+        mock_wait.assert_called_once_with(self.session, mock_resource, 2, 120)
+
+    @mock.patch("openstack.resource2.wait_for_delete")
+    def test_wait_for_delete_params(self, mock_wait):
+        mock_resource = mock.Mock()
+        mock_wait.return_value = mock_resource
+
+        self.proxy.wait_for_delete(mock_resource, 1, 2)
+
+        mock_wait.assert_called_once_with(self.session, mock_resource, 1, 2)
