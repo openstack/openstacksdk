@@ -141,7 +141,7 @@ class TestClusterTemplates(base.TestCase):
         mock_magnum.baymodels.create.side_effect = Exception()
         with testtools.ExpectedException(
             shade.OpenStackCloudException,
-            "Error creating ClusterTemplate of name fake-cluster-template"
+            "Error creating cluster template of name fake-cluster-template"
         ):
             self.cloud.create_cluster_template('fake-cluster-template')
 

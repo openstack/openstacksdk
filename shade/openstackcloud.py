@@ -7125,9 +7125,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @_utils.cache_on_arguments()
     def list_cluster_templates(self, detail=False):
-        """List ClusterTemplates.
-
-        ClusterTemplate is the new name for BayModel.
+        """List cluster templates.
 
         :param bool detail. Flag to control if we need summarized or
             detailed output.
@@ -7137,7 +7135,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        with _utils.shade_exceptions("Error fetching ClusterTemplate list"):
+        with _utils.shade_exceptions("Error fetching cluster template list"):
             cluster_templates = self.manager.submit_task(
                 _tasks.ClusterTemplateList(detail=detail))
         return _utils.normalize_cluster_templates(cluster_templates)
@@ -7145,16 +7143,14 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def search_cluster_templates(
             self, name_or_id=None, filters=None, detail=False):
-        """Search ClusterTemplates.
+        """Search cluster templates.
 
-        ClusterTemplate is the new name for BayModel.
-
-        :param name_or_id: ClusterTemplate name or ID.
+        :param name_or_id: cluster template name or ID.
         :param filters: a dict containing additional filters to use.
         :param detail: a boolean to control if we need summarized or
             detailed output.
 
-        :returns: a list of dict containing the ClusterTemplates
+        :returns: a list of dict containing the cluster templates
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
@@ -7165,11 +7161,9 @@ class OpenStackCloud(_normalize.Normalizer):
     search_baymodels = search_cluster_templates
 
     def get_cluster_template(self, name_or_id, filters=None, detail=False):
-        """Get a ClusterTemplate by name or ID.
+        """Get a cluster template by name or ID.
 
-        ClusterTemplate is the new name for BayModel.
-
-        :param name_or_id: Name or ID of the ClusterTemplate.
+        :param name_or_id: Name or ID of the cluster template.
         :param filters:
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
@@ -7184,8 +7178,8 @@ class OpenStackCloud(_normalize.Normalizer):
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
-        :returns: A ClusterTemplate dict or None if no matching
-            ClusterTemplate is found.
+        :returns: A cluster template dict or None if no matching
+            cluster template is found.
         """
         return _utils._get_entity(self.search_cluster_templates, name_or_id,
                                   filters=filters, detail=detail)
@@ -7193,24 +7187,22 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def create_cluster_template(
             self, name, image_id=None, keypair_id=None, coe=None, **kwargs):
-        """Create a ClusterTemplate.
+        """Create a cluster template.
 
-        ClusterTemplate is the new name for BayModel.
-
-        :param string name: Name of the ClusterTemplate.
+        :param string name: Name of the cluster template.
         :param string image_id: Name or ID of the image to use.
         :param string keypair_id: Name or ID of the keypair to use.
-        :param string coe: Name of the coe for the ClusterTemplate.
+        :param string coe: Name of the coe for the cluster template.
 
         Other arguments will be passed in kwargs.
 
-        :returns: a dict containing the ClusterTemplate description
+        :returns: a dict containing the cluster template description
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call
         """
         with _utils.shade_exceptions(
-                "Error creating ClusterTemplate of name"
+                "Error creating cluster template of name"
                 " {cluster_template_name}".format(
                     cluster_template_name=name)):
             cluster_template = self.manager.submit_task(
@@ -7223,13 +7215,11 @@ class OpenStackCloud(_normalize.Normalizer):
     create_baymodel = create_cluster_template
 
     def delete_cluster_template(self, name_or_id):
-        """Delete a ClusterTemplate.
+        """Delete a cluster template.
 
-        ClusterTemplate is the new name for BayModel.
-
-        :param name_or_id: Name or unique ID of the ClusterTemplate.
+        :param name_or_id: Name or unique ID of the cluster template.
         :returns: True if the delete succeeded, False if the
-            ClusterTemplate was not found.
+            cluster template was not found.
 
         :raises: OpenStackCloudException on operation error.
         """
@@ -7239,18 +7229,18 @@ class OpenStackCloud(_normalize.Normalizer):
 
         if not cluster_template:
             self.log.debug(
-                "ClusterTemplate %(name_or_id)s does not exist",
+                "Cluster template %(name_or_id)s does not exist",
                 {'name_or_id': name_or_id},
                 exc_info=True)
             return False
 
-        with _utils.shade_exceptions("Error in deleting ClusterTemplate"):
+        with _utils.shade_exceptions("Error in deleting cluster template"):
             try:
                 self.manager.submit_task(
                     _tasks.ClusterTemplateDelete(id=cluster_template['id']))
             except magnum_exceptions.NotFound:
                 self.log.debug(
-                    "ClusterTemplate %(id)s not found when deleting."
+                    "Cluster template %(id)s not found when deleting."
                     " Ignoring.", {'id': cluster_template['id']})
                 return False
 
@@ -7265,16 +7255,14 @@ class OpenStackCloud(_normalize.Normalizer):
                          'network_driver', 'tls_disabled', 'public',
                          'registry_enabled', 'volume_driver')
     def update_cluster_template(self, name_or_id, operation, **kwargs):
-        """Update a ClusterTemplate.
+        """Update a cluster template.
 
-        ClusterTemplate is the new name for BayModel.
-
-        :param name_or_id: Name or ID of the ClusterTemplate being updated.
+        :param name_or_id: Name or ID of the cluster template being updated.
         :param operation: Operation to perform - add, remove, replace.
 
         Other arguments will be passed with kwargs.
 
-        :returns: a dict representing the updated ClusterTemplate.
+        :returns: a dict representing the updated cluster template.
 
         :raises: OpenStackCloudException on operation error.
         """
@@ -7282,7 +7270,7 @@ class OpenStackCloud(_normalize.Normalizer):
         cluster_template = self.get_cluster_template(name_or_id)
         if not cluster_template:
             raise OpenStackCloudException(
-                "ClusterTemplate %s not found." % name_or_id)
+                "Cluster template %s not found." % name_or_id)
 
         if operation not in ['add', 'replace', 'remove']:
             raise TypeError(
@@ -7291,7 +7279,7 @@ class OpenStackCloud(_normalize.Normalizer):
         patches = _utils.generate_patches_from_kwargs(operation, **kwargs)
 
         with _utils.shade_exceptions(
-                "Error updating ClusterTemplate {0}".format(name_or_id)):
+                "Error updating cluster template {0}".format(name_or_id)):
             self.manager.submit_task(
                 _tasks.ClusterTemplateUpdate(
                     id=cluster_template['id'], patch=patches))
