@@ -739,7 +739,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @_utils.cache_on_arguments()
     def list_projects(self, domain_id=None, name_or_id=None, filters=None):
-        """List Keystone projects.
+        """List projects.
 
         With no parameters, returns a full listing of all visible projects.
 
@@ -783,11 +783,11 @@ class OpenStackCloud(_normalize.Normalizer):
             domain_id=domain_id, name_or_id=name_or_id, filters=filters)
 
     def get_project(self, name_or_id, filters=None, domain_id=None):
-        """Get exactly one Keystone project.
+        """Get exactly one project.
 
         :param name_or_id: project name or id.
         :param filters: a dict containing additional filters to use.
-        :param domain_id: domain id (keystone v3 only)
+        :param domain_id: domain id (identity v3 only).
 
         :returns: a list of ``munch.Munch`` containing the project description.
 
@@ -840,11 +840,11 @@ class OpenStackCloud(_normalize.Normalizer):
         return project
 
     def delete_project(self, name_or_id, domain_id=None):
-        """Delete a project
+        """Delete a project.
 
         :param string name_or_id: Project name or id.
-        :param string domain_id: Domain id containing the project (keystone
-            v3 only).
+        :param string domain_id: Domain id containing the project (identity v3
+            only).
 
         :returns: True if delete succeeded, False if the project was not found.
 
@@ -872,7 +872,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @_utils.cache_on_arguments()
     def list_users(self):
-        """List Keystone Users.
+        """List users.
 
         :returns: a list of ``munch.Munch`` containing the user description.
 
@@ -884,7 +884,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return _utils.normalize_users(users)
 
     def search_users(self, name_or_id=None, filters=None):
-        """Seach Keystone users.
+        """Search users.
 
         :param string name_or_id: user name or id.
         :param filters: a dict containing additional filters to use.
@@ -901,7 +901,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return _utils._filter_list(users, name_or_id, filters)
 
     def get_user(self, name_or_id, filters=None):
-        """Get exactly one Keystone user.
+        """Get exactly one user.
 
         :param string name_or_id: user name or id.
         :param filters: a dict containing additional filters to use.
@@ -917,7 +917,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return _utils._get_entity(self.search_users, name_or_id, filters)
 
     def get_user_by_id(self, user_id, normalize=True):
-        """Get a Keystone user by ID.
+        """Get a user by ID.
 
         :param string user_id: user ID
         :param bool normalize: Flag to control dict normalization
@@ -1240,7 +1240,7 @@ class OpenStackCloud(_normalize.Normalizer):
             wait=False, timeout=3600,
             environment_files=None,
             **parameters):
-        """Create a Heat Stack.
+        """Create a stack.
 
         :param string name: Name of the stack.
         :param string template_file: Path to the template.
@@ -1295,7 +1295,7 @@ class OpenStackCloud(_normalize.Normalizer):
             wait=False, timeout=3600,
             environment_files=None,
             **parameters):
-        """Update a Heat Stack.
+        """Update a stack.
 
         :param string name_or_id: Name or id of the stack to update.
         :param string template_file: Path to the template.
@@ -1353,7 +1353,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return self.get_stack(name_or_id)
 
     def delete_stack(self, name_or_id, wait=False):
-        """Delete a Heat Stack
+        """Delete a stack
 
         :param string name_or_id: Stack name or id.
         :param boolean wait: Whether to wait for the delete to finish
@@ -1485,7 +1485,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return _utils._filter_list(keypairs, name_or_id, filters)
 
     def search_networks(self, name_or_id=None, filters=None):
-        """Search OpenStack networks
+        """Search networks
 
         :param name_or_id: Name or id of the desired network.
         :param filters: a dict containing additional filters to use. e.g.
@@ -1500,7 +1500,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return _utils._filter_list(networks, name_or_id, filters)
 
     def search_routers(self, name_or_id=None, filters=None):
-        """Search OpenStack routers
+        """Search routers
 
         :param name_or_id: Name or id of the desired router.
         :param filters: a dict containing additional filters to use. e.g.
@@ -1515,7 +1515,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return _utils._filter_list(routers, name_or_id, filters)
 
     def search_subnets(self, name_or_id=None, filters=None):
-        """Search OpenStack subnets
+        """Search subnets
 
         :param name_or_id: Name or id of the desired subnet.
         :param filters: a dict containing additional filters to use. e.g.
@@ -1530,7 +1530,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return _utils._filter_list(subnets, name_or_id, filters)
 
     def search_ports(self, name_or_id=None, filters=None):
-        """Search OpenStack ports
+        """Search ports
 
         :param name_or_id: Name or id of the desired port.
         :param filters: a dict containing additional filters to use. e.g.
@@ -1626,7 +1626,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return _utils._filter_list(floating_ips, id, filters)
 
     def search_stacks(self, name_or_id=None, filters=None):
-        """Search Heat stacks.
+        """Search stacks.
 
         :param name_or_id: Name or id of the desired stack.
         :param filters: a dict containing additional filters to use. e.g.
@@ -1780,7 +1780,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_stacks)
     def list_stacks(self):
-        """List all Heat stacks.
+        """List all stacks.
 
         :returns: a list of ``munch.Munch`` containing the stack description.
 
@@ -1927,7 +1927,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_images)
     def list_images(self, filter_deleted=True):
-        """Get available glance images.
+        """Get available images.
 
         :param filter_deleted: Control whether deleted images are returned.
         :returns: A list of glance images.
@@ -2691,7 +2691,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def download_image(
             self, name_or_id, output_path=None, output_file=None,
             chunk_size=1024):
-        """Download an image from glance by name or ID
+        """Download an image by name or ID
 
         :param str name_or_id: Name or ID of the image.
         :param output_path: the output path to write the image to. Either this
@@ -2763,7 +2763,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return _utils._get_entity(self.search_floating_ips, id, filters)
 
     def get_stack(self, name_or_id, filters=None):
-        """Get exactly one Heat stack.
+        """Get exactly one stack.
 
         :param name_or_id: Name or id of the desired stack.
         :param filters: a dict containing additional filters to use. e.g.
@@ -3168,7 +3168,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def create_image_snapshot(
             self, name, server, wait=False, timeout=3600, **metadata):
-        """Create a glance image by snapshotting an existing server.
+        """Create an image by snapshotting an existing server.
 
         :param name: Name of the image to be created
         :param server: Server name or id or dict representing the server
@@ -3213,7 +3213,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def delete_image(
             self, name_or_id, wait=False, timeout=3600, delete_objects=True):
-        """Delete an existing glance image.
+        """Delete an existing image.
 
         :param name_or_id: Name of the image to be deleted.
         :param wait: If True, waits for image to be deleted.
@@ -3288,7 +3288,7 @@ class OpenStackCloud(_normalize.Normalizer):
             disable_vendor_agent=True,
             wait=False, timeout=3600,
             allow_duplicates=False, meta=None, volume=None, **kwargs):
-        """Upload an image to Glance.
+        """Upload an image.
 
         :param str name: Name of the image to create. If it is a pathname
                          of an image, the name will be constructed from the
@@ -4269,7 +4269,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         Return the first available floating IP or allocate a new one.
 
-        :param network: Nova pool name or Neutron network name or id.
+        :param network: Name or ID of the network.
         :param server: Server the IP is for if known
 
         :returns: a (normalized) structure with a floating IP address
@@ -4308,12 +4308,12 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def _neutron_available_floating_ips(
             self, network=None, project_id=None, server=None):
-        """Get a floating IP from a Neutron network.
+        """Get a floating IP from a network.
 
         Return a list of available floating IPs or allocate a new one and
         return it in a list of 1 element.
 
-        :param network: A single Neutron network name or id, or a list of them.
+        :param network: A single network name or id, or a list of them.
         :param server: (server) Server the Floating IP is for
 
         :returns: a list of floating IP addresses.
@@ -4414,7 +4414,7 @@ class OpenStackCloud(_normalize.Normalizer):
                            port=None, wait=False, timeout=60):
         """Allocate a new floating IP from a network or a pool.
 
-        :param network: Nova pool name or Neutron network name or id
+        :param network: Name or ID of the network
                         that the floating IP should come from.
         :param server: (optional) Server dict for the server to create
                        the IP for and to which it should be attached.
@@ -4679,7 +4679,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :param fixed_address: (optional) fixed address to which attach the
                               floating IP to.
         :param wait: (optional) Wait for the address to appear as assigned
-                     to the server in Nova. Defaults to False.
+                     to the server. Defaults to False.
         :param timeout: (optional) Seconds to wait, defaults to 60.
                         See the ``wait`` parameter.
         :param skip_attach: (optional) Skip the actual attach and just do
@@ -4936,11 +4936,11 @@ class OpenStackCloud(_normalize.Normalizer):
         first server port/fixed address
 
         :param server: Server dict
-        :param network: Nova pool name or Neutron network name or id.
+        :param network: Name or ID of the network.
         :param fixed_address: a fixed address
         :param reuse: Try to reuse existing ips. Defaults to True.
         :param wait: (optional) Wait for the address to appear as assigned
-                     to the server in Nova. Defaults to False.
+                     to the server. Defaults to False.
         :param timeout: (optional) Seconds to wait, defaults to 60.
                         See the ``wait`` parameter.
         :param nat_destination: (optional) the name of the network of the
@@ -4979,7 +4979,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :param server: a server object
         :param ips: list of floating IP addresses or a single address
         :param wait: (optional) Wait for the address to appear as assigned
-                     to the server in Nova. Defaults to False.
+                     to the server. Defaults to False.
         :param timeout: (optional) Seconds to wait, defaults to 60.
                         See the ``wait`` parameter.
         :param fixed_address: (optional) Fixed address of the server to
@@ -5013,7 +5013,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :param reuse: Whether or not to attempt to reuse IPs, defaults
                       to True.
         :param wait: (optional) Wait for the address to appear as assigned
-                     to the server in Nova. Defaults to False.
+                     to the server. Defaults to False.
         :param timeout: (optional) Seconds to wait, defaults to 60.
                         See the ``wait`` parameter.
         :param reuse: Try to reuse existing ips. Defaults to True.
@@ -5286,7 +5286,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :param admin_pass: (optional extension) add a user supplied admin
                            password.
         :param wait: (optional) Wait for the address to appear as assigned
-                     to the server in Nova. Defaults to False.
+                     to the server. Defaults to False.
         :param timeout: (optional) Seconds to wait, defaults to 60.
                         See the ``wait`` parameter.
         :param reuse_ips: (optional) Whether to attempt to reuse pre-existing
@@ -6139,7 +6139,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def get_object(self, container, obj, query_string=None,
                    resp_chunk_size=1024, outfile=None):
-        """Get the headers and body of an object from swift
+        """Get the headers and body of an object
 
         :param string container: name of the container.
         :param string obj: name of the object.
@@ -7125,7 +7125,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @_utils.cache_on_arguments()
     def list_cluster_templates(self, detail=False):
-        """List Magnum ClusterTemplates.
+        """List ClusterTemplates.
 
         ClusterTemplate is the new name for BayModel.
 
@@ -7145,7 +7145,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def search_cluster_templates(
             self, name_or_id=None, filters=None, detail=False):
-        """Search Magnum ClusterTemplates.
+        """Search ClusterTemplates.
 
         ClusterTemplate is the new name for BayModel.
 
@@ -7193,7 +7193,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def create_cluster_template(
             self, name, image_id=None, keypair_id=None, coe=None, **kwargs):
-        """Create a Magnum ClusterTemplate.
+        """Create a ClusterTemplate.
 
         ClusterTemplate is the new name for BayModel.
 
@@ -7265,7 +7265,7 @@ class OpenStackCloud(_normalize.Normalizer):
                          'network_driver', 'tls_disabled', 'public',
                          'registry_enabled', 'volume_driver')
     def update_cluster_template(self, name_or_id, operation, **kwargs):
-        """Update a Magnum ClusterTemplate.
+        """Update a ClusterTemplate.
 
         ClusterTemplate is the new name for BayModel.
 
