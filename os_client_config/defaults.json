@@ -22,5 +22,6 @@
   "orchestration_api_version": "1",
   "secgroup_source": "neutron",
   "status": "active",
-  "volume_api_version": "2"
+  "volume_api_version": "2",
+  "workflow_api_version": "2"
 }
