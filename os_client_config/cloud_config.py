@@ -376,6 +376,12 @@ class CloudConfig(object):
                     constructor_kwargs['endpoint'] = endpoint
             if service_key == 'network':
                 constructor_kwargs['api_version'] = version
+            elif service_key == 'baremetal':
+                if version != '1':
+                    # Set Ironic Microversion
+                    constructor_kwargs['os_ironic_api_version'] = version
+                # Version arg is the major version, not the full microstring
+                constructor_kwargs['version'] = version[0]
             else:
                 constructor_kwargs['version'] = version
         if service_key == 'database':
