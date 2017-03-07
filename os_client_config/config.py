@@ -173,13 +173,19 @@ class OpenStackConfig(object):
     def __init__(self, config_files=None, vendor_files=None,
                  override_defaults=None, force_ipv4=None,
                  envvar_prefix=None, secure_files=None,
-                 pw_func=None, session_constructor=None):
+                 pw_func=None, session_constructor=None,
+                 load_yaml_config=True):
         self.log = _log.setup_logging(__name__)
         self._session_constructor = session_constructor
 
-        self._config_files = config_files or CONFIG_FILES
-        self._secure_files = secure_files or SECURE_FILES
-        self._vendor_files = vendor_files or VENDOR_FILES
+        if load_yaml_config:
+            self._config_files = config_files or CONFIG_FILES
+            self._secure_files = secure_files or SECURE_FILES
+            self._vendor_files = vendor_files or VENDOR_FILES
+        else:
+            self._config_files = []
+            self._secure_files = []
+            self._vendor_files = []
 
         config_file_override = os.environ.pop('OS_CLIENT_CONFIG_FILE', None)
         if config_file_override:
