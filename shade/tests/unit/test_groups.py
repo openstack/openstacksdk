@@ -11,50 +11,94 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
-
-import shade
 from shade.tests.unit import base
-from shade.tests import fakes
 
 
-class TestGroups(base.TestCase):
+class TestGroups(base.RequestsMockTestCase):
+    def setUp(self, cloud_config_fixture='clouds.yaml'):
+        super(TestGroups, self).setUp(
+            cloud_config_fixture=cloud_config_fixture)
+        self._add_discovery_uri_call()
+        self.addCleanup(self.assert_calls)
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_list_groups(self, mock_keystone):
+    def get_mock_url(self, service_type='identity', interface='admin',
+                     resource='groups', append=None, base_url_append='v3'):
+        return super(TestGroups, self).get_mock_url(
+            service_type='identity', interface='admin', resource=resource,
+            append=append, base_url_append=base_url_append)
+
+    def test_list_groups(self):
+        group_data = self._get_group_data()
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'groups': [group_data.json_response['group']]})
+        ])
         self.op_cloud.list_groups()
-        mock_keystone.groups.list.assert_called_once_with()
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_get_group(self, mock_keystone):
-        self.op_cloud.get_group('1234')
-        mock_keystone.groups.list.assert_called_once_with()
+    def test_get_group(self):
+        group_data = self._get_group_data()
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'groups': [group_data.json_response['group']]}),
+        ])
+        self.op_cloud.get_group(group_data.group_id)
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_delete_group(self, mock_keystone):
-        mock_keystone.groups.list.return_value = [
-            fakes.FakeGroup('1234', 'name', 'desc')
-        ]
-        self.assertTrue(self.op_cloud.delete_group('1234'))
-        mock_keystone.groups.list.assert_called_once_with()
-        mock_keystone.groups.delete.assert_called_once_with(
-            group='1234'
-        )
+    def test_delete_group(self):
+        group_data = self._get_group_data()
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'groups': [group_data.json_response['group']]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(append=[group_data.group_id]),
+                 status_code=204),
+        ])
+        self.assertTrue(self.op_cloud.delete_group(group_data.group_id))
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_create_group(self, mock_keystone):
-        self.op_cloud.create_group('test-group', 'test desc')
-        mock_keystone.groups.create.assert_called_once_with(
-            name='test-group', description='test desc', domain=None
-        )
+    def test_create_group(self):
+        domain_data = self._get_domain_data()
+        group_data = self._get_group_data(domain_id=domain_data.domain_id)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(resource='domains',
+                                       append=[domain_data.domain_id]),
+                 status_code=200,
+                 json=domain_data.json_response),
+            dict(method='POST',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json=group_data.json_response,
+                 validate=group_data.json_request),
+            dict(method='GET',
+                 uri=self.get_mock_url(append=[group_data.group_id]),
+                 status_code=200,
+                 json=group_data.json_response)
+        ])
+        self.op_cloud.create_group(
+            name=group_data.group_name, description=group_data.description,
+            domain=group_data.domain_id)
 
-    @mock.patch.object(shade.OpenStackCloud, 'keystone_client')
-    def test_update_group(self, mock_keystone):
-        mock_keystone.groups.list.return_value = [
-            fakes.FakeGroup('1234', 'name', 'desc')
-        ]
-        self.op_cloud.update_group('1234', 'test-group', 'test desc')
-        mock_keystone.groups.list.assert_called_once_with()
-        mock_keystone.groups.update.assert_called_once_with(
-            group='1234', name='test-group', description='test desc'
-        )
+    def test_update_group(self):
+        group_data = self._get_group_data()
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'groups': [group_data.json_response['group']]}),
+            dict(method='PATCH',
+                 uri=self.get_mock_url(append=[group_data.group_id]),
+                 status_code=200,
+                 json=group_data.json_response,
+                 validate=group_data.json_request),
+            dict(method='GET',
+                 uri=self.get_mock_url(append=[group_data.group_id]),
+                 status_code=200,
+                 json=group_data.json_response)
+        ])
+        self.op_cloud.update_group(group_data.group_id, group_data.group_name,
+                                   group_data.description)

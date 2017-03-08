@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import collections
 import uuid
 
 import testtools
@@ -21,21 +20,6 @@ from testtools import matchers
 
 import shade
 from shade.tests.unit import base
-from shade.tests import fakes
-
-
-domain_obj = fakes.FakeDomain(
-    id='1',
-    name='a-domain',
-    description='A wonderful keystone domain',
-    enabled=True,
-)
-
-
-_DomainData = collections.namedtuple(
-    'DomainData',
-    'domain_id, domain_name, description, json_response, '
-    'json_request')
 
 
 class TestDomains(base.RequestsMockTestCase):
@@ -46,22 +30,6 @@ class TestDomains(base.RequestsMockTestCase):
         return super(TestDomains, self).get_mock_url(
             service_type=service_type, interface=interface, resource=resource,
             append=append, base_url_append=base_url_append)
-
-    def _get_domain_data(self, domain_name=None, description=None,
-                         enabled=None):
-        domain_id = uuid.uuid4().hex
-        domain_name = domain_name or self.getUniqueString('domainName')
-        response = {'id': domain_id, 'name': domain_name}
-        request = {'name': domain_name}
-        if enabled is not None:
-            request['enabled'] = bool(enabled)
-            response['enabled'] = bool(enabled)
-        if description:
-            response['description'] = description
-            request['description'] = description
-        response.setdefault('enabled', True)
-        return _DomainData(domain_id, domain_name, description,
-                           {'domain': response}, {'domain': request})
 
     def test_list_domains(self):
         self._add_discovery_uri_call()

@@ -43,7 +43,13 @@ _UserData = collections.namedtuple(
 
 _GroupData = collections.namedtuple(
     'GroupData',
-    'group_id, group_name, domain_id, description, json_response')
+    'group_id, group_name, domain_id, description, json_response, '
+    'json_request')
+
+_DomainData = collections.namedtuple(
+    'DomainData',
+    'domain_id, domain_name, description, json_response, '
+    'json_request')
 
 
 class BaseTestCase(base.TestCase):
@@ -233,11 +239,13 @@ class RequestsMockTestCase(BaseTestCase):
         name or self.getUniqueString('groupname')
         domain_id = uuid.UUID(domain_id or uuid.uuid4().hex).hex
         response = {'id': group_id, 'name': name, 'domain_id': domain_id}
+        request = {'name': name}
         if description is not None:
             response['description'] = description
+            request['description'] = description
 
         return _GroupData(group_id, name, domain_id, description,
-                          {'group': response})
+                          {'group': response}, {'group': request})
 
     def _get_user_data(self, name=None, password=None, **kwargs):
 
@@ -269,6 +277,22 @@ class RequestsMockTestCase(BaseTestCase):
                          response['description'], response.get('domain_id'),
                          response.get('enabled'), {'user': response},
                          {'user': request})
+
+    def _get_domain_data(self, domain_name=None, description=None,
+                         enabled=None):
+        domain_id = uuid.uuid4().hex
+        domain_name = domain_name or self.getUniqueString('domainName')
+        response = {'id': domain_id, 'name': domain_name}
+        request = {'name': domain_name}
+        if enabled is not None:
+            request['enabled'] = bool(enabled)
+            response['enabled'] = bool(enabled)
+        if description:
+            response['description'] = description
+            request['description'] = description
+        response.setdefault('enabled', True)
+        return _DomainData(domain_id, domain_name, description,
+                           {'domain': response}, {'domain': request})
 
     def use_keystone_v3(self):
         self.adapter = self.useFixture(rm_fixture.Fixture())
