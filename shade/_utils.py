@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import contextlib
-import fnmatch
 import inspect
 import jmespath
 import munch
@@ -84,8 +83,7 @@ def _filter_list(data, name_or_id, filters):
         each dictionary contains an 'id' and 'name'
         key if a value for name_or_id is given.
     :param string name_or_id:
-        The name or ID of the entity being filtered. Can be a glob pattern,
-        such as 'nb01*'.
+        The name or ID of the entity being filtered.
     :param filters:
         A dictionary of meta data to use for further filtering. Elements
         of this dictionary may, themselves, be dictionaries. Example::
@@ -104,9 +102,8 @@ def _filter_list(data, name_or_id, filters):
         for e in data:
             e_id = e.get('id', None)
             e_name = e.get('name', None)
-            if ((e_id and fnmatch.fnmatch(str(e_id), str(name_or_id))) or
-                    (e_name and fnmatch.fnmatch(
-                        str(e_name), str(name_or_id)))):
+            if ((e_id and str(e_id) == str(name_or_id)) or
+                    (e_name and str(e_name) == str(name_or_id))):
                 identifier_matches.append(e)
         data = identifier_matches
 
