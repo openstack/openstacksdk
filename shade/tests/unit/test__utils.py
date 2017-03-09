@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -45,6 +47,21 @@ class TestUtils(base.TestCase):
         el2 = dict(id=200, name='pluto[2017-01-10]')
         data = [el1, el2]
         ret = _utils._filter_list(data, 'pluto[2017-01-10]', None)
+        self.assertEqual([el2], ret)
+
+    def test__filter_list_unicode(self):
+        el1 = dict(id=100, name=u'中文', last='duck',
+                   other=dict(category='duck', financial=dict(status='poor')))
+        el2 = dict(id=200, name=u'中文', last='trump',
+                   other=dict(category='human', financial=dict(status='rich')))
+        el3 = dict(id=300, name='donald', last='ronald mac',
+                   other=dict(category='clown', financial=dict(status='rich')))
+        data = [el1, el2, el3]
+        ret = _utils._filter_list(
+            data, u'中文',
+            {'other': {
+                'financial': {'status': 'rich'}
+                }})
         self.assertEqual([el2], ret)
 
     def test__filter_list_filter(self):

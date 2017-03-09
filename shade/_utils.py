@@ -75,6 +75,25 @@ def _iterate_timeout(timeout, message, wait=2):
     raise exc.OpenStackCloudTimeout(message)
 
 
+def _make_unicode(input):
+    """Turn an input into unicode unconditionally
+
+    :param input:
+       A unicode, string or other object
+    """
+    try:
+        if isinstance(input, unicode):
+            return input
+        if isinstance(input, str):
+            return input.decode('utf-8')
+        else:
+            # int, for example
+            return unicode(input)
+    except NameError:
+        # python3!
+        return str(input)
+
+
 def _filter_list(data, name_or_id, filters):
     """Filter a list by name/ID and arbitrary meta data.
 
@@ -98,12 +117,14 @@ def _filter_list(data, name_or_id, filters):
         A string containing a jmespath expression for further filtering.
     """
     if name_or_id:
+        # name_or_id might already be unicode
+        name_or_id = _make_unicode(name_or_id)
         identifier_matches = []
         for e in data:
-            e_id = e.get('id', None)
-            e_name = e.get('name', None)
-            if ((e_id and str(e_id) == str(name_or_id)) or
-                    (e_name and str(e_name) == str(name_or_id))):
+            e_id = _make_unicode(e.get('id', None))
+            e_name = _make_unicode(e.get('name', None))
+            if ((e_id and e_id == name_or_id) or
+                    (e_name and e_name == name_or_id)):
                 identifier_matches.append(e)
         data = identifier_matches
 
