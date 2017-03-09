@@ -22,5 +22,5 @@ class TestSample(base.BaseFunctionalTest):
 
     def test_list(self):
         for meter in self.conn.telemetry.meters():
-            sot = next(self.conn.telemetry.samples(meter))
-            assert isinstance(sot, sample.Sample)
+            for sot in self.conn.telemetry.samples(meter):
+                assert isinstance(sot, sample.Sample)
