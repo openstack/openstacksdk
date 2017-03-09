@@ -10,34 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
-
 from openstack.tests.functional import base
 
 
 class TestQuota(base.BaseFunctionalTest):
 
-    PROJECT_NAME = 'project-' + uuid.uuid4().hex
-    PROJECT = None
-
-    @classmethod
-    def setUpClass(cls):
-        super(TestQuota, cls).setUpClass()
-        # Need a project to have a quota
-        cls.PROJECT = cls.conn.identity.create_project(name=cls.PROJECT_NAME)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.conn.identity.delete_project(cls.PROJECT.id)
-
     def test_list(self):
-        qot = self.conn.network.quotas().next()
-        self.assertIsNotNone(qot.project_id)
-        self.assertIsNotNone(qot.networks)
+        for qot in self.conn.network.quotas():
+            self.assertIsNotNone(qot.project_id)
+            self.assertIsNotNone(qot.networks)
 
     def test_set(self):
         attrs = {'networks': 123456789}
-        project_quota = self.conn.network.quotas().next()
-        self.conn.network.update_quota(project_quota, **attrs)
-        new_quota = self.conn.network.get_quota(project_quota.project_id)
-        self.assertEqual(123456789, new_quota.networks)
+        for project_quota in self.conn.network.quotas():
+            self.conn.network.update_quota(project_quota, **attrs)
+            new_quota = self.conn.network.get_quota(project_quota.project_id)
+            self.assertEqual(123456789, new_quota.networks)
