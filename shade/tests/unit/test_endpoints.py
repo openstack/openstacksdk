@@ -19,82 +19,87 @@ test_cloud_endpoints
 Tests Keystone endpoints commands.
 """
 
-from mock import patch
-import os_client_config
-from shade import OperatorCloud
+import uuid
+
 from shade.exc import OpenStackCloudException
 from shade.exc import OpenStackCloudUnavailableFeature
-from shade.tests.fakes import FakeEndpoint
-from shade.tests.fakes import FakeEndpointv3
 from shade.tests.unit import base
+from testtools import matchers
 
 
-class TestCloudEndpoints(base.TestCase):
-    mock_endpoints = [
-        {'id': 'id1', 'service_id': 'sid1', 'region': 'region1',
-         'publicurl': 'purl1', 'internalurl': None, 'adminurl': None},
-        {'id': 'id2', 'service_id': 'sid2', 'region': 'region1',
-         'publicurl': 'purl2', 'internalurl': None, 'adminurl': None},
-        {'id': 'id3', 'service_id': 'sid3', 'region': 'region2',
-         'publicurl': 'purl3', 'internalurl': 'iurl3', 'adminurl': 'aurl3'}
-    ]
-    mock_endpoints_v3 = [
-        {'id': 'id1_v3', 'service_id': 'sid1', 'region': 'region1',
-         'url': 'url1', 'interface': 'public'},
-        {'id': 'id2_v3', 'service_id': 'sid1', 'region': 'region1',
-         'url': 'url2', 'interface': 'admin'},
-        {'id': 'id3_v3', 'service_id': 'sid1', 'region': 'region1',
-         'url': 'url3', 'interface': 'internal'}
-    ]
+class TestCloudEndpoints(base.RequestsMockTestCase):
 
-    def setUp(self):
-        super(TestCloudEndpoints, self).setUp()
-        self.mock_ks_endpoints = \
-            [FakeEndpoint(**kwa) for kwa in self.mock_endpoints]
-        self.mock_ks_endpoints_v3 = \
-            [FakeEndpointv3(**kwa) for kwa in self.mock_endpoints_v3]
+    def get_mock_url(self, service_type='identity', interface='admin',
+                     resource='endpoints', append=None, base_url_append='v3'):
+        return super(TestCloudEndpoints, self).get_mock_url(
+            service_type, interface, resource, append, base_url_append)
 
-    @patch.object(OperatorCloud, 'list_services')
-    @patch.object(OperatorCloud, 'keystone_client')
-    @patch.object(os_client_config.cloud_config.CloudConfig, 'get_api_version')
-    def test_create_endpoint_v2(self, mock_api_version, mock_keystone_client,
-                                mock_list_services):
-        mock_api_version.return_value = '2.0'
-        mock_list_services.return_value = [
-            {
-                'id': 'service_id1',
-                'name': 'service1',
-                'type': 'type1',
-                'description': 'desc1'
-            }
-        ]
-        mock_keystone_client.endpoints.create.return_value = \
-            self.mock_ks_endpoints[2]
+    def _dummy_url(self):
+        return 'https://%s.example.com/' % uuid.uuid4().hex
+
+    def test_create_endpoint_v2(self):
+        self.use_keystone_v2()
+        service_data = self._get_service_data()
+        endpoint_data = self._get_endpoint_v2_data(
+            service_data.service_id, public_url=self._dummy_url(),
+            internal_url=self._dummy_url(), admin_url=self._dummy_url())
+        other_endpoint_data = self._get_endpoint_v2_data(
+            service_data.service_id, public_url=self._dummy_url())
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='services', base_url_append='OS-KSADM'),
+                 status_code=200,
+                 json={'OS-KSADM:services': [
+                     service_data.json_response_v2['OS-KSADM:service']]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(base_url_append=None),
+                 status_code=200,
+                 json=endpoint_data.json_response,
+                 validate=endpoint_data.json_request),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='services', base_url_append='OS-KSADM'),
+                 status_code=200,
+                 json={'OS-KSADM:services': [
+                     service_data.json_response_v2['OS-KSADM:service']]}),
+            # NOTE(notmorgan): There is a stupid happening here, we do two
+            # gets on the services for some insane reason (read: keystoneclient
+            # is bad and should feel bad).
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='services', base_url_append='OS-KSADM'),
+                 status_code=200,
+                 json={'OS-KSADM:services': [
+                     service_data.json_response_v2['OS-KSADM:service']]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(base_url_append=None),
+                 status_code=200,
+                 json=other_endpoint_data.json_response,
+                 validate=other_endpoint_data.json_request)
+        ])
 
         endpoints = self.op_cloud.create_endpoint(
-            service_name_or_id='service1',
-            region='mock_region',
-            public_url='mock_public_url',
-            internal_url='mock_internal_url',
-            admin_url='mock_admin_url'
+            service_name_or_id=service_data.service_id,
+            region=endpoint_data.region,
+            public_url=endpoint_data.public_url,
+            internal_url=endpoint_data.internal_url,
+            admin_url=endpoint_data.admin_url
         )
 
-        mock_keystone_client.endpoints.create.assert_called_with(
-            service_id='service_id1',
-            region='mock_region',
-            publicurl='mock_public_url',
-            internalurl='mock_internal_url',
-            adminurl='mock_admin_url',
-        )
-
-        # test keys and values are correct
-        for k, v in self.mock_endpoints[2].items():
-            self.assertEqual(v, endpoints[0].get(k))
+        self.assertThat(endpoints[0].id,
+                        matchers.Equals(endpoint_data.endpoint_id))
+        self.assertThat(endpoints[0].region,
+                        matchers.Equals(endpoint_data.region))
+        self.assertThat(endpoints[0].publicURL,
+                        matchers.Equals(endpoint_data.public_url))
+        self.assertThat(endpoints[0].internalURL,
+                        matchers.Equals(endpoint_data.internal_url))
+        self.assertThat(endpoints[0].adminURL,
+                        matchers.Equals(endpoint_data.admin_url))
 
         # test v3 semantics on v2.0 endpoint
-        mock_keystone_client.endpoints.create.return_value = \
-            self.mock_ks_endpoints[0]
-
         self.assertRaises(OpenStackCloudException,
                           self.op_cloud.create_endpoint,
                           service_name_or_id='service1',
@@ -102,158 +107,290 @@ class TestCloudEndpoints(base.TestCase):
                           url='admin')
 
         endpoints_3on2 = self.op_cloud.create_endpoint(
-            service_name_or_id='service1',
-            region='mock_region',
+            service_name_or_id=service_data.service_id,
+            region=endpoint_data.region,
             interface='public',
-            url='mock_public_url'
+            url=endpoint_data.public_url
         )
 
         # test keys and values are correct
-        for k, v in self.mock_endpoints[0].items():
-            self.assertEqual(v, endpoints_3on2[0].get(k))
+        self.assertThat(
+            endpoints_3on2[0].region,
+            matchers.Equals(other_endpoint_data.region))
+        self.assertThat(
+            endpoints_3on2[0].publicURL,
+            matchers.Equals(other_endpoint_data.public_url))
+        self.assertThat(endpoints_3on2[0].get('internalURL'),
+                        matchers.Equals(None))
+        self.assertThat(endpoints_3on2[0].get('adminURL'),
+                        matchers.Equals(None))
+        self.assert_calls()
 
-    @patch.object(OperatorCloud, 'list_services')
-    @patch.object(OperatorCloud, 'keystone_client')
-    @patch.object(os_client_config.cloud_config.CloudConfig, 'get_api_version')
-    def test_create_endpoint_v3(self, mock_api_version, mock_keystone_client,
-                                mock_list_services):
-        mock_api_version.return_value = '3'
-        mock_list_services.return_value = [
-            {
-                'id': 'service_id1',
-                'name': 'service1',
-                'type': 'type1',
-                'description': 'desc1'
-            }
-        ]
-        mock_keystone_client.endpoints.create.return_value = \
-            self.mock_ks_endpoints_v3[0]
+    def test_create_endpoint_v3(self):
+        self._add_discovery_uri_call()
+        service_data = self._get_service_data()
+        public_endpoint_data = self._get_endpoint_v3_data(
+            service_id=service_data.service_id, interface='public',
+            url=self._dummy_url())
+        public_endpoint_data_disabled = self._get_endpoint_v3_data(
+            service_id=service_data.service_id, interface='public',
+            url=self._dummy_url(), enabled=False)
+        admin_endpoint_data = self._get_endpoint_v3_data(
+            service_id=service_data.service_id, interface='admin',
+            url=self._dummy_url(), region=public_endpoint_data.region)
+        internal_endpoint_data = self._get_endpoint_v3_data(
+            service_id=service_data.service_id, interface='internal',
+            url=self._dummy_url(), region=public_endpoint_data.region)
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(resource='services'),
+                 status_code=200,
+                 json={'services': [
+                     service_data.json_response_v3['service']]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json=public_endpoint_data_disabled.json_response,
+                 validate=public_endpoint_data_disabled.json_request),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     append=[public_endpoint_data_disabled.endpoint_id]),
+                 status_code=200,
+                 json=public_endpoint_data_disabled.json_response),
+            dict(method='GET',
+                 uri=self.get_mock_url(resource='services'),
+                 status_code=200,
+                 json={'services': [
+                     service_data.json_response_v3['service']]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json=public_endpoint_data.json_response,
+                 validate=public_endpoint_data.json_request),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     append=[public_endpoint_data.endpoint_id]),
+                 status_code=200,
+                 json=public_endpoint_data.json_response),
+            dict(method='POST',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json=internal_endpoint_data.json_response,
+                 validate=internal_endpoint_data.json_request),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     append=[internal_endpoint_data.endpoint_id]),
+                 status_code=200,
+                 json=internal_endpoint_data.json_response),
+            dict(method='POST',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json=admin_endpoint_data.json_response,
+                 validate=admin_endpoint_data.json_request),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     append=[admin_endpoint_data.endpoint_id]),
+                 status_code=200,
+                 json=admin_endpoint_data.json_response),
+        ])
 
         endpoints = self.op_cloud.create_endpoint(
-            service_name_or_id='service1',
-            region='mock_region',
-            url='mock_url',
-            interface='mock_interface',
-            enabled=False
-        )
-        mock_keystone_client.endpoints.create.assert_called_with(
-            service='service_id1',
-            region='mock_region',
-            url='mock_url',
-            interface='mock_interface',
-            enabled=False
-        )
+            service_name_or_id=service_data.service_id,
+            region=public_endpoint_data_disabled.region,
+            url=public_endpoint_data_disabled.url,
+            interface=public_endpoint_data_disabled.interface,
+            enabled=False)
 
-        # test keys and values are correct
-        for k, v in self.mock_endpoints_v3[0].items():
-            self.assertEqual(v, endpoints[0].get(k))
-
-        # test v2.0 semantics on v3 endpoint
-        mock_keystone_client.endpoints.create.side_effect = \
-            self.mock_ks_endpoints_v3
+        # Test endpoint values
+        self.assertThat(
+            endpoints[0].id,
+            matchers.Equals(public_endpoint_data_disabled.endpoint_id))
+        self.assertThat(endpoints[0].url,
+                        matchers.Equals(public_endpoint_data_disabled.url))
+        self.assertThat(
+            endpoints[0].interface,
+            matchers.Equals(public_endpoint_data_disabled.interface))
+        self.assertThat(
+            endpoints[0].region,
+            matchers.Equals(public_endpoint_data_disabled.region))
+        self.assertThat(
+            endpoints[0].region_id,
+            matchers.Equals(public_endpoint_data_disabled.region))
+        self.assertThat(endpoints[0].enabled,
+                        matchers.Equals(public_endpoint_data_disabled.enabled))
 
         endpoints_2on3 = self.op_cloud.create_endpoint(
-            service_name_or_id='service1',
-            region='mock_region',
-            public_url='mock_public_url',
-            internal_url='mock_internal_url',
-            admin_url='mock_admin_url',
-        )
+            service_name_or_id=service_data.service_id,
+            region=public_endpoint_data.region,
+            public_url=public_endpoint_data.url,
+            internal_url=internal_endpoint_data.url,
+            admin_url=admin_endpoint_data.url)
 
         # Three endpoints should be returned, public, internal, and admin
-        self.assertEqual(len(endpoints_2on3), 3)
+        self.assertThat(len(endpoints_2on3), matchers.Equals(3))
 
-        # test keys and values are correct
-        for count in range(len(endpoints_2on3)):
-            for k, v in self.mock_endpoints_v3[count].items():
-                self.assertEqual(v, endpoints_2on3[count].get(k))
+        # test keys and values are correct for each endpoint created
+        for result, reference in zip(
+                endpoints_2on3, [public_endpoint_data,
+                                 internal_endpoint_data,
+                                 admin_endpoint_data]
+        ):
+            self.assertThat(result.id, matchers.Equals(reference.endpoint_id))
+            self.assertThat(result.url, matchers.Equals(reference.url))
+            self.assertThat(result.interface,
+                            matchers.Equals(reference.interface))
+            self.assertThat(result.region,
+                            matchers.Equals(reference.region))
+            self.assertThat(result.enabled, matchers.Equals(reference.enabled))
+        self.assert_calls()
 
-    @patch.object(os_client_config.cloud_config.CloudConfig, 'get_api_version')
-    def test_update_endpoint_v2(self, mock_api_version):
-        mock_api_version.return_value = '2.0'
-        # NOTE(SamYaple): Update endpoint only works with v3 api
+    def test_update_endpoint_v2(self):
+        self.use_keystone_v2()
         self.assertRaises(OpenStackCloudUnavailableFeature,
                           self.op_cloud.update_endpoint, 'endpoint_id')
 
-    @patch.object(OperatorCloud, 'keystone_client')
-    @patch.object(os_client_config.cloud_config.CloudConfig, 'get_api_version')
-    def test_update_endpoint_v3(self, mock_api_version, mock_keystone_client):
-        mock_api_version.return_value = '3'
-        mock_keystone_client.endpoints.update.return_value = \
-            self.mock_ks_endpoints_v3[0]
-
+    def test_update_endpoint_v3(self):
+        self._add_discovery_uri_call()
+        service_data = self._get_service_data()
+        endpoint_data = self._get_endpoint_v3_data(
+            service_id=service_data.service_id, interface='admin',
+            enabled=False)
+        self.register_uris([
+            dict(method='PATCH',
+                 uri=self.get_mock_url(append=[endpoint_data.endpoint_id]),
+                 status_code=200,
+                 json=endpoint_data.json_response,
+                 validate=endpoint_data.json_request),
+            dict(method='GET',
+                 uri=self.get_mock_url(append=[endpoint_data.endpoint_id]),
+                 status_code=200,
+                 json=endpoint_data.json_response)
+        ])
         endpoint = self.op_cloud.update_endpoint(
-            'id1',
-            service_name_or_id='service_id1',
-            region='mock_region',
-            url='mock_url',
-            interface='mock_interface',
-            enabled=False
-        )
-        mock_keystone_client.endpoints.update.assert_called_with(
-            endpoint='id1',
-            service='service_id1',
-            region='mock_region',
-            url='mock_url',
-            interface='mock_interface',
+            endpoint_data.endpoint_id,
+            service_name_or_id=service_data.service_id,
+            region=endpoint_data.region,
+            url=self._dummy_url(),
+            interface=endpoint_data.interface,
             enabled=False
         )
 
         # test keys and values are correct
-        for k, v in self.mock_endpoints_v3[0].items():
-            self.assertEqual(v, endpoint.get(k))
+        self.assertThat(endpoint.id,
+                        matchers.Equals(endpoint_data.endpoint_id))
+        self.assertThat(endpoint.service_id,
+                        matchers.Equals(service_data.service_id))
+        self.assertThat(endpoint.url,
+                        matchers.Equals(endpoint_data.url))
+        self.assertThat(endpoint.interface,
+                        matchers.Equals(endpoint_data.interface))
 
-    @patch.object(OperatorCloud, 'keystone_client')
-    def test_list_endpoints(self, mock_keystone_client):
-        mock_keystone_client.endpoints.list.return_value = \
-            self.mock_ks_endpoints
+        self.assert_calls()
+
+    def test_list_endpoints(self):
+        self._add_discovery_uri_call()
+        endpoints_data = [self._get_endpoint_v3_data() for e in range(1, 10)]
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'endpoints': [e.json_response['endpoint']
+                                     for e in endpoints_data]})
+        ])
 
         endpoints = self.op_cloud.list_endpoints()
-        mock_keystone_client.endpoints.list.assert_called_with()
-
         # test we are getting exactly len(self.mock_endpoints) elements
-        self.assertEqual(len(self.mock_endpoints), len(endpoints))
+        self.assertThat(len(endpoints), matchers.Equals(len(endpoints_data)))
 
         # test keys and values are correct
-        for mock_endpoint in self.mock_endpoints:
-            found = False
-            for e in endpoints:
-                if e['id'] == mock_endpoint['id']:
-                    found = True
-                    for k, v in mock_endpoint.items():
-                        self.assertEqual(v, e.get(k))
-                        break
-            self.assertTrue(
-                found, msg="endpoint {id} not found!".format(
-                    id=mock_endpoint['id']))
+        for i, ep in enumerate(endpoints_data):
+            self.assertThat(endpoints[i].id,
+                            matchers.Equals(ep.endpoint_id))
+            self.assertThat(endpoints[i].service_id,
+                            matchers.Equals(ep.service_id))
+            self.assertThat(endpoints[i].url,
+                            matchers.Equals(ep.url))
+            self.assertThat(endpoints[i].interface,
+                            matchers.Equals(ep.interface))
 
-    @patch.object(OperatorCloud, 'keystone_client')
-    def test_search_endpoints(self, mock_keystone_client):
-        mock_keystone_client.endpoints.list.return_value = \
-            self.mock_ks_endpoints
+        self.assert_calls()
+
+    def test_search_endpoints(self):
+        self._add_discovery_uri_call()
+        endpoints_data = [self._get_endpoint_v3_data(region='region1')
+                          for e in range(0, 2)]
+        endpoints_data.extend([self._get_endpoint_v3_data()
+                               for e in range(1, 8)])
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'endpoints': [e.json_response['endpoint']
+                                     for e in endpoints_data]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'endpoints': [e.json_response['endpoint']
+                                     for e in endpoints_data]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'endpoints': [e.json_response['endpoint']
+                                     for e in endpoints_data]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'endpoints': [e.json_response['endpoint']
+                                     for e in endpoints_data]})
+        ])
 
         # Search by id
-        endpoints = self.op_cloud.search_endpoints(id='id3')
+        endpoints = self.op_cloud.search_endpoints(
+            id=endpoints_data[-1].endpoint_id)
         # # test we are getting exactly 1 element
         self.assertEqual(1, len(endpoints))
-        for k, v in self.mock_endpoints[2].items():
-            self.assertEqual(v, endpoints[0].get(k))
+        self.assertThat(endpoints[0].id,
+                        matchers.Equals(endpoints_data[-1].endpoint_id))
+        self.assertThat(endpoints[0].service_id,
+                        matchers.Equals(endpoints_data[-1].service_id))
+        self.assertThat(endpoints[0].url,
+                        matchers.Equals(endpoints_data[-1].url))
+        self.assertThat(endpoints[0].interface,
+                        matchers.Equals(endpoints_data[-1].interface))
 
         # Not found
-        endpoints = self.op_cloud.search_endpoints(id='blah!')
+        endpoints = self.op_cloud.search_endpoints(id='!invalid!')
         self.assertEqual(0, len(endpoints))
 
         # Multiple matches
         endpoints = self.op_cloud.search_endpoints(
-            filters={'region': 'region1'})
+            filters={'region_id': 'region1'})
         # # test we are getting exactly 2 elements
         self.assertEqual(2, len(endpoints))
 
-    @patch.object(OperatorCloud, 'keystone_client')
-    def test_delete_endpoint(self, mock_keystone_client):
-        mock_keystone_client.endpoints.list.return_value = \
-            self.mock_ks_endpoints
+        # test we are getting the correct response for region/region_id compat
+        endpoints = self.op_cloud.search_endpoints(
+            filters={'region': 'region1'})
+        # # test we are getting exactly 2 elements, this is v3
+        self.assertEqual(2, len(endpoints))
+
+        self.assert_calls()
+
+    def test_delete_endpoint(self):
+        self._add_discovery_uri_call()
+        endpoint_data = self._get_endpoint_v3_data()
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'endpoints': [
+                     endpoint_data.json_response['endpoint']]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(append=[endpoint_data.endpoint_id]),
+                 status_code=204)
+        ])
 
         # Delete by id
-        self.op_cloud.delete_endpoint(id='id2')
-        mock_keystone_client.endpoints.delete.assert_called_with(id='id2')
+        self.op_cloud.delete_endpoint(id=endpoint_data.endpoint_id)
+        self.assert_calls()

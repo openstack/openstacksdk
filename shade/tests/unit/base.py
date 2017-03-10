@@ -58,6 +58,18 @@ _ServiceData = collections.namedtuple(
     'service_id, service_name, service_type, description, enabled, '
     'json_response_v3, json_response_v2, json_request')
 
+_EndpointDataV3 = collections.namedtuple(
+    'EndpointData',
+    'endpoint_id, service_id, interface, region, url, enabled, '
+    'json_response, json_request')
+
+
+_EndpointDataV2 = collections.namedtuple(
+    'EndpointData',
+    'endpoint_id, service_id, region, public_url, internal_url, '
+    'admin_url, v3_endpoint_list, json_response, '
+    'json_request')
+
 
 class BaseTestCase(base.TestCase):
 
@@ -316,6 +328,51 @@ class RequestsMockTestCase(BaseTestCase):
         return _ServiceData(service_id, name, type, description, enabled,
                             {'service': response},
                             {'OS-KSADM:service': response}, request)
+
+    def _get_endpoint_v3_data(self, service_id=None, region=None,
+                              url=None, interface=None, enabled=True):
+        endpoint_id = uuid.uuid4().hex
+        service_id = service_id or uuid.uuid4().hex
+        region = region or uuid.uuid4().hex
+        url = url or 'https://example.com/'
+        interface = interface or uuid.uuid4().hex
+
+        response = {'id': endpoint_id, 'service_id': service_id,
+                    'region': region, 'interface': interface,
+                    'url': url, 'enabled': enabled}
+        request = response.copy()
+        request.pop('id')
+        response['region_id'] = response['region']
+        return _EndpointDataV3(endpoint_id, service_id, interface, region,
+                               url, enabled, {'endpoint': response},
+                               {'endpoint': request})
+
+    def _get_endpoint_v2_data(self, service_id=None, region=None,
+                              public_url=None, admin_url=None,
+                              internal_url=None):
+        endpoint_id = uuid.uuid4().hex
+        service_id = service_id or uuid.uuid4().hex
+        region = region or uuid.uuid4().hex
+        response = {'id': endpoint_id, 'service_id': service_id,
+                    'region': region}
+        v3_endpoints = {}
+        if admin_url:
+            response['adminURL'] = admin_url
+            v3_endpoints['admin'] = self._get_endpoint_v3_data(
+                service_id, region, public_url, interface='admin')
+        if internal_url:
+            response['internalURL'] = internal_url
+            v3_endpoints['internal'] = self._get_endpoint_v3_data(
+                service_id, region, internal_url, interface='internal')
+        if public_url:
+            response['publicURL'] = public_url
+            v3_endpoints['public'] = self._get_endpoint_v3_data(
+                service_id, region, public_url, interface='public')
+        request = response.copy()
+        request.pop('id')
+        return _EndpointDataV2(endpoint_id, service_id, region, public_url,
+                               internal_url, admin_url, v3_endpoints,
+                               {'endpoint': response}, {'endpoint': request})
 
     def use_keystone_v3(self):
         self.adapter = self.useFixture(rm_fixture.Fixture())
