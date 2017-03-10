@@ -127,6 +127,15 @@ def _filter_list(data, name_or_id, filters):
         # name_or_id might already be unicode
         name_or_id = _make_unicode(name_or_id)
         identifier_matches = []
+        bad_pattern = False
+        try:
+            fn_reg = re.compile(fnmatch.translate(name_or_id))
+        except sre_constants.error:
+            # If the fnmatch re doesn't compile, then we don't care,
+            # but log it in case the user DID pass a pattern but did
+            # it poorly and wants to know what went wrong with their
+            # search
+            fn_reg = None
         for e in data:
             e_id = _make_unicode(e.get('id', None))
             e_name = _make_unicode(e.get('name', None))
@@ -136,16 +145,16 @@ def _filter_list(data, name_or_id, filters):
                 identifier_matches.append(e)
             else:
                 # Only try fnmatch if we don't match exactly
-                try:
-                    if ((e_id and fnmatch.fnmatch(e_id, name_or_id)) or
-                            (e_name and fnmatch.fnmatch(e_name, name_or_id))):
-                        identifier_matches.append(e)
-                except sre_constants.error:
-                    # If the fnmatch re doesn't compile, then we don't care,
-                    # but log it in case the user DID pass a pattern but did
-                    # it poorly and wants to know what went wrong with their
-                    # search
-                    log.debug("Bad pattern passed to fnmatch", exc_info=True)
+                if not fn_reg:
+                    # If we don't have a pattern, skip this, but set the flag
+                    # so that we log the bad pattern
+                    bad_pattern = True
+                    continue
+                if ((e_id and fn_reg.match(e_id)) or
+                        (e_name and fn_reg.match(e_name))):
+                    identifier_matches.append(e)
+        if not identifier_matches and bad_pattern:
+            log.debug("Bad pattern passed to fnmatch", exc_info=True)
         data = identifier_matches
 
     if not filters:
