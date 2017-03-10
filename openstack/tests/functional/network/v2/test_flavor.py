@@ -78,4 +78,4 @@ class TestFlavor(base.BaseFunctionalTest):
         response = \
             self.conn.network.disassociate_flavor_from_service_profile(
                 self.ID, self.service_profiles.id)
-        self.assertIsNotNone(response)
+        self.assertIsNone(response)

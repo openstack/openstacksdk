@@ -57,3 +57,4 @@ class Flavor(resource.Resource):
         url = utils.urljoin(
             self.base_path, flavor_id, 'service_profiles', service_profile_id)
         session.delete(url, endpoint_filter=self.service)
+        return None
