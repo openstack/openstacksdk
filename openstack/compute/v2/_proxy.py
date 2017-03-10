@@ -554,7 +554,7 @@ class Proxy(proxy2.BaseProxy):
         server.add_security_group(self._session, security_group_id)
 
     def remove_security_group_from_server(self, server, security_group):
-        """Add a security group to a server
+        """Remove a security group from a server
 
         :param server: Either the ID of a server or a
                        :class:`~openstack.compute.v2.server.Server` instance.
