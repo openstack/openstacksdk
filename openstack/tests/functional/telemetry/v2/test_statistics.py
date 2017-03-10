@@ -20,12 +20,7 @@ from openstack.tests.functional import base
 class TestStatistics(base.BaseFunctionalTest):
 
     def test_list(self):
-        found_something = False
         for met in self.conn.telemetry.meters():
-            try:
-                stat = next(self.conn.telemetry.statistics(met))
-                self.assertIn('period_end', stat)
-                found_something = True
-            except Exception:
-                pass
-        self.assertTrue(found_something)
+            for stat in self.conn.telemetry.statistics(met):
+                self.assertTrue(stat.period_end_at is not None)
+                break
