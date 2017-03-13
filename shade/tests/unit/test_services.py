@@ -19,170 +19,275 @@ test_cloud_services
 Tests Keystone services commands.
 """
 
-from mock import patch
-import os_client_config
-from shade import _utils
-from shade import meta
 from shade import OpenStackCloudException
 from shade.exc import OpenStackCloudUnavailableFeature
-from shade import OperatorCloud
-from shade.tests.fakes import FakeService
 from shade.tests.unit import base
+from testtools import matchers
 
 
-class CloudServices(base.TestCase):
-    mock_services = [
-        {'id': 'id1', 'name': 'service1', 'type': 'type1',
-         'service_type': 'type1', 'description': 'desc1', 'enabled': True},
-        {'id': 'id2', 'name': 'service2', 'type': 'type2',
-         'service_type': 'type2', 'description': 'desc2', 'enabled': True},
-        {'id': 'id3', 'name': 'service3', 'type': 'type2',
-         'service_type': 'type2', 'description': 'desc3', 'enabled': True},
-        {'id': 'id4', 'name': 'service4', 'type': 'type3',
-         'service_type': 'type3', 'description': 'desc4', 'enabled': True}
-    ]
+class CloudServices(base.RequestsMockTestCase):
 
-    def setUp(self):
-        super(CloudServices, self).setUp()
-        self.mock_ks_services = [FakeService(**kwa) for kwa in
-                                 self.mock_services]
+    def setUp(self, cloud_config_fixture='clouds.yaml'):
+        super(CloudServices, self).setUp(cloud_config_fixture)
 
-    @patch.object(_utils, 'normalize_keystone_services')
-    @patch.object(OperatorCloud, 'keystone_client')
-    @patch.object(os_client_config.cloud_config.CloudConfig, 'get_api_version')
-    def test_create_service_v2(self, mock_api_version, mock_keystone_client,
-                               mock_norm):
-        mock_api_version.return_value = '2.0'
-        kwargs = {
-            'name': 'a service',
-            'type': 'network',
-            'description': 'This is a test service'
-        }
+    def get_mock_url(self, service_type='identity', interface='admin',
+                     resource='services', append=None, base_url_append='v3'):
 
-        self.op_cloud.create_service(**kwargs)
-        kwargs['service_type'] = kwargs.pop('type')
-        mock_keystone_client.services.create.assert_called_with(**kwargs)
-        self.assertTrue(mock_norm.called)
+        return super(CloudServices, self).get_mock_url(
+            service_type, interface, resource, append, base_url_append)
 
-    @patch.object(_utils, 'normalize_keystone_services')
-    @patch.object(OperatorCloud, 'keystone_client')
-    @patch.object(os_client_config.cloud_config.CloudConfig, 'get_api_version')
-    def test_create_service_v3(self, mock_api_version, mock_keystone_client,
-                               mock_norm):
-        mock_api_version.return_value = '3'
-        kwargs = {
-            'name': 'a v3 service',
-            'type': 'cinderv2',
-            'description': 'This is a test service',
-            'enabled': False
-        }
+    def test_create_service_v2(self):
+        self.use_keystone_v2()
+        service_data = self._get_service_data(name='a service', type='network',
+                                              description='A test service')
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(base_url_append='OS-KSADM'),
+                 status_code=200,
+                 json=service_data.json_response_v2,
+                 validate=service_data.json_request),
+            dict(method='GET',
+                 uri=self.get_mock_url(base_url_append='OS-KSADM',
+                                       append=[service_data.service_id]),
+                 status_code=200,
+                 json=service_data.json_response_v2)
+        ])
 
-        self.op_cloud.create_service(**kwargs)
-        mock_keystone_client.services.create.assert_called_with(**kwargs)
-        self.assertTrue(mock_norm.called)
+        service = self.op_cloud.create_service(
+            name=service_data.service_name,
+            service_type=service_data.service_type,
+            description=service_data.description)
+        self.assertThat(service.name,
+                        matchers.Equals(service_data.service_name))
+        self.assertThat(service.id, matchers.Equals(service_data.service_id))
+        self.assertThat(service.description,
+                        matchers.Equals(service_data.description))
+        self.assertThat(service.type,
+                        matchers.Equals(service_data.service_type))
+        self.assert_calls()
 
-    @patch.object(os_client_config.cloud_config.CloudConfig, 'get_api_version')
-    def test_update_service_v2(self, mock_api_version):
-        mock_api_version.return_value = '2.0'
+    def test_create_service_v3(self):
+        self._add_discovery_uri_call()
+        service_data = self._get_service_data(name='a service', type='network',
+                                              description='A test service')
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json=service_data.json_response_v3,
+                 validate=service_data.json_request),
+            dict(method='GET',
+                 uri=self.get_mock_url(append=[service_data.service_id]),
+                 status_code=200,
+                 json=service_data.json_response_v3)
+        ])
+
+        service = self.op_cloud.create_service(
+            name=service_data.service_name,
+            service_type=service_data.service_type,
+            description=service_data.description)
+        self.assertThat(service.name,
+                        matchers.Equals(service_data.service_name))
+        self.assertThat(service.id, matchers.Equals(service_data.service_id))
+        self.assertThat(service.description,
+                        matchers.Equals(service_data.description))
+        self.assertThat(service.type,
+                        matchers.Equals(service_data.service_type))
+        self.assert_calls()
+
+    def test_update_service_v2(self):
+        self.use_keystone_v2()
         # NOTE(SamYaple): Update service only works with v3 api
         self.assertRaises(OpenStackCloudUnavailableFeature,
                           self.op_cloud.update_service,
                           'service_id', name='new name')
 
-    @patch.object(_utils, 'normalize_keystone_services')
-    @patch.object(OperatorCloud, 'keystone_client')
-    @patch.object(os_client_config.cloud_config.CloudConfig, 'get_api_version')
-    def test_update_service_v3(self, mock_api_version, mock_keystone_client,
-                               mock_norm):
-        mock_api_version.return_value = '3'
-        kwargs = {
-            'name': 'updated_name',
-            'type': 'updated_type',
-            'service_type': 'updated_type',
-            'description': 'updated_name',
-            'enabled': False
-        }
+    def test_update_service_v3(self):
+        self._add_discovery_uri_call()
+        service_data = self._get_service_data(name='a service', type='network',
+                                              description='A test service')
+        request = service_data.json_request.copy()
+        request['enabled'] = False
+        resp = service_data.json_response_v3.copy()
+        resp['enabled'] = False
+        self.register_uris([
+            dict(method='PATCH',
+                 uri=self.get_mock_url(append=[service_data.service_id]),
+                 status_code=200,
+                 json=resp,
+                 validate=request),
+            dict(method='GET',
+                 uri=self.get_mock_url(append=[service_data.service_id]),
+                 status_code=200,
+                 json=resp),
+        ])
 
-        service_obj = FakeService(id='id1', **kwargs)
-        mock_keystone_client.services.update.return_value = service_obj
+        service = self.op_cloud.update_service(service_data.service_id,
+                                               enabled=False)
+        self.assertThat(service.name,
+                        matchers.Equals(service_data.service_name))
+        self.assertThat(service.id, matchers.Equals(service_data.service_id))
+        self.assertThat(service.description,
+                        matchers.Equals(service_data.description))
+        self.assertThat(service.type,
+                        matchers.Equals(service_data.service_type))
+        self.assert_calls()
 
-        self.op_cloud.update_service('id1', **kwargs)
-        del kwargs['service_type']
-        mock_keystone_client.services.update.assert_called_once_with(
-            service='id1', **kwargs
-        )
-        mock_norm.assert_called_once_with([meta.obj_to_dict(service_obj)])
-
-    @patch.object(OperatorCloud, 'keystone_client')
-    def test_list_services(self, mock_keystone_client):
-        mock_keystone_client.services.list.return_value = \
-            self.mock_ks_services
+    def test_list_services(self):
+        self._add_discovery_uri_call()
+        service_data = self._get_service_data()
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'services': [service_data.json_response_v3['service']]})
+        ])
         services = self.op_cloud.list_services()
-        mock_keystone_client.services.list.assert_called_with()
-        self.assertItemsEqual(self.mock_services, services)
+        self.assertThat(len(services), matchers.Equals(1))
+        self.assertThat(services[0].id,
+                        matchers.Equals(service_data.service_id))
+        self.assertThat(services[0].name,
+                        matchers.Equals(service_data.service_name))
+        self.assertThat(services[0].type,
+                        matchers.Equals(service_data.service_type))
+        self.assert_calls()
 
-    @patch.object(OperatorCloud, 'keystone_client')
-    def test_get_service(self, mock_keystone_client):
-        mock_keystone_client.services.list.return_value = \
-            self.mock_ks_services
+    def test_get_service(self):
+        self._add_discovery_uri_call()
+        service_data = self._get_service_data()
+        service2_data = self._get_service_data()
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'services': [
+                     service_data.json_response_v3['service'],
+                     service2_data.json_response_v3['service']]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'services': [
+                     service_data.json_response_v3['service'],
+                     service2_data.json_response_v3['service']]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'services': [
+                     service_data.json_response_v3['service'],
+                     service2_data.json_response_v3['service']]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=400),
+        ])
 
         # Search by id
-        service = self.op_cloud.get_service(name_or_id='id4')
-        # test we are getting exactly 1 element
-        self.assertEqual(service, self.mock_services[3])
+        service = self.op_cloud.get_service(name_or_id=service_data.service_id)
+        self.assertThat(service.id, matchers.Equals(service_data.service_id))
 
         # Search by name
-        service = self.op_cloud.get_service(name_or_id='service2')
+        service = self.op_cloud.get_service(
+            name_or_id=service_data.service_name)
         # test we are getting exactly 1 element
-        self.assertEqual(service, self.mock_services[1])
+        self.assertThat(service.id, matchers.Equals(service_data.service_id))
 
         # Not found
-        service = self.op_cloud.get_service(name_or_id='blah!')
+        service = self.op_cloud.get_service(name_or_id='INVALID SERVICE')
         self.assertIs(None, service)
 
         # Multiple matches
         # test we are getting an Exception
         self.assertRaises(OpenStackCloudException, self.op_cloud.get_service,
                           name_or_id=None, filters={'type': 'type2'})
+        self.assert_calls()
 
-    @patch.object(OperatorCloud, 'keystone_client')
-    def test_search_services(self, mock_keystone_client):
-        mock_keystone_client.services.list.return_value = \
-            self.mock_ks_services
+    def test_search_services(self):
+        self._add_discovery_uri_call()
+        service_data = self._get_service_data()
+        service2_data = self._get_service_data(type=service_data.service_type)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'services': [
+                     service_data.json_response_v3['service'],
+                     service2_data.json_response_v3['service']]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'services': [
+                     service_data.json_response_v3['service'],
+                     service2_data.json_response_v3['service']]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'services': [
+                     service_data.json_response_v3['service'],
+                     service2_data.json_response_v3['service']]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'services': [
+                     service_data.json_response_v3['service'],
+                     service2_data.json_response_v3['service']]}),
+        ])
 
         # Search by id
-        services = self.op_cloud.search_services(name_or_id='id4')
+        services = self.op_cloud.search_services(
+            name_or_id=service_data.service_id)
         # test we are getting exactly 1 element
-        self.assertEqual(1, len(services))
-        self.assertEqual(services, [self.mock_services[3]])
+        self.assertThat(len(services), matchers.Equals(1))
+        self.assertThat(services[0].id,
+                        matchers.Equals(service_data.service_id))
 
         # Search by name
-        services = self.op_cloud.search_services(name_or_id='service2')
+        services = self.op_cloud.search_services(
+            name_or_id=service_data.service_name)
         # test we are getting exactly 1 element
-        self.assertEqual(1, len(services))
-        self.assertEqual(services, [self.mock_services[1]])
+        self.assertThat(len(services), matchers.Equals(1))
+        self.assertThat(services[0].name,
+                        matchers.Equals(service_data.service_name))
 
         # Not found
-        services = self.op_cloud.search_services(name_or_id='blah!')
-        self.assertEqual(0, len(services))
+        services = self.op_cloud.search_services(name_or_id='!INVALID!')
+        self.assertThat(len(services), matchers.Equals(0))
 
         # Multiple matches
         services = self.op_cloud.search_services(
-            filters={'type': 'type2'})
+            filters={'type': service_data.service_type})
         # test we are getting exactly 2 elements
-        self.assertEqual(2, len(services))
-        self.assertEqual(services, [self.mock_services[1],
-                                    self.mock_services[2]])
+        self.assertThat(len(services), matchers.Equals(2))
+        self.assertThat(services[0].id,
+                        matchers.Equals(service_data.service_id))
+        self.assertThat(services[1].id,
+                        matchers.Equals(service2_data.service_id))
+        self.assert_calls()
 
-    @patch.object(OperatorCloud, 'keystone_client')
-    def test_delete_service(self, mock_keystone_client):
-        mock_keystone_client.services.list.return_value = \
-            self.mock_ks_services
+    def test_delete_service(self):
+        self._add_discovery_uri_call()
+        service_data = self._get_service_data()
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'services': [
+                     service_data.json_response_v3['service']]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(append=[service_data.service_id]),
+                 status_code=204),
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'services': [
+                     service_data.json_response_v3['service']]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(append=[service_data.service_id]),
+                 status_code=204)
+        ])
 
         # Delete by name
-        self.op_cloud.delete_service(name_or_id='service3')
-        mock_keystone_client.services.delete.assert_called_with(id='id3')
+        self.op_cloud.delete_service(name_or_id=service_data.service_name)
 
         # Delete by id
-        self.op_cloud.delete_service('id1')
-        mock_keystone_client.services.delete.assert_called_with(id='id1')
+        self.op_cloud.delete_service(service_data.service_id)
+
+        self.assert_calls()

@@ -46,10 +46,17 @@ _GroupData = collections.namedtuple(
     'group_id, group_name, domain_id, description, json_response, '
     'json_request')
 
+
 _DomainData = collections.namedtuple(
     'DomainData',
     'domain_id, domain_name, description, json_response, '
     'json_request')
+
+
+_ServiceData = collections.namedtuple(
+    'Servicedata',
+    'service_id, service_name, service_type, description, enabled, '
+    'json_response_v3, json_response_v2, json_request')
 
 
 class BaseTestCase(base.TestCase):
@@ -293,6 +300,22 @@ class RequestsMockTestCase(BaseTestCase):
         response.setdefault('enabled', True)
         return _DomainData(domain_id, domain_name, description,
                            {'domain': response}, {'domain': request})
+
+    def _get_service_data(self, type=None, name=None, description=None,
+                          enabled=True):
+        service_id = uuid.uuid4().hex
+        name = name or uuid.uuid4().hex
+        type = type or uuid.uuid4().hex
+
+        response = {'id': service_id, 'name': name, 'type': type,
+                    'enabled': enabled}
+        if description is not None:
+            response['description'] = description
+        request = response.copy()
+        request.pop('id')
+        return _ServiceData(service_id, name, type, description, enabled,
+                            {'service': response},
+                            {'OS-KSADM:service': response}, request)
 
     def use_keystone_v3(self):
         self.adapter = self.useFixture(rm_fixture.Fixture())
