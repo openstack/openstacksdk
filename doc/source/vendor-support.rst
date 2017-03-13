@@ -223,7 +223,7 @@ SBG1           Strassbourg, FR
 GRA1           Gravelines, FR
 ============== ================
 
-* Images must be in `raw` format
+* Images may be in `raw` format. The `qcow2` default is also supported
 * Floating IPs are not supported
 
 rackspace
