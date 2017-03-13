@@ -119,12 +119,12 @@ class Server(resource2.Resource, metadata.MetadataMixin):
     personality = resource2.Body('personality')
     #: Configuration information or scripts to use upon launch.
     #: Must be Base64 encoded.
-    user_data = resource2.Body('user_data')
+    user_data = resource2.Body('OS-EXT-SRV-ATTR:user_data')
     #: Enables fine grained control of the block device mapping for an
     #: instance. This is typically used for booting servers from volumes.
     block_device_mapping = resource2.Body('block_device_mapping_v2', type=dict)
     #: The dictionary of data to send to the scheduler.
-    scheduler_hints = resource2.Body('os:scheduler_hints', type=dict)
+    scheduler_hints = resource2.Body('OS-SCH-HNT:scheduler_hints', type=dict)
     #: A networks object. Required parameter when there are multiple
     #: networks defined for the tenant. When you do not specify the
     #: networks parameter, the server attaches to the only network
@@ -137,6 +137,37 @@ class Server(resource2.Resource, metadata.MetadataMixin):
     #: instance name template. Appears in the response for administrative users
     #: only.
     instance_name = resource2.Body('OS-EXT-SRV-ATTR:instance_name')
+
+    def _prepare_request(self, requires_id=True, prepend_key=True):
+        request = super(Server, self)._prepare_request(requires_id=requires_id,
+                                                       prepend_key=prepend_key)
+
+        server_body = request.body[self.resource_key]
+
+        # Some names exist without prefix on requests but with a prefix
+        # on responses. If we find that we've populated one of these
+        # attributes with something and then go to make a request, swap out
+        # the name to the bare version.
+
+        # Availability Zones exist with a prefix on response, but not request
+        az_key = "OS-EXT-AZ:availability_zone"
+        if az_key in server_body:
+            server_body["availability_zone"] = server_body.pop(az_key)
+
+        # User Data exists with a prefix on response, but not request
+        ud_key = "OS-EXT-SRV-ATTR:user_data"
+        if ud_key in server_body:
+            server_body["user_data"] = server_body.pop(ud_key)
+
+        # Scheduler hints are sent in a top-level scope, not within the
+        # resource_key scope like everything else. If we try to send
+        # scheduler_hints, pop them out of the resource_key scope and into
+        # their own top-level scope.
+        hint_key = "OS-SCH-HNT:scheduler_hints"
+        if hint_key in server_body:
+            request.body[hint_key] = server_body.pop(hint_key)
+
+        return request
 
     def _action(self, session, body):
         """Preform server actions given the message body."""

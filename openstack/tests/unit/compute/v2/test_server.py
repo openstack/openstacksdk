@@ -50,10 +50,10 @@ EXAMPLE = {
     'adminPass': '27',
     'personality': '28',
     'block_device_mapping_v2': {'key': '29'},
-    'os:scheduler_hints': {'key': '30'},
-    'user_data': '31',
     'OS-EXT-SRV-ATTR:hypervisor_hostname': 'hypervisor.example.com',
-    'OS-EXT-SRV-ATTR:instance_name': 'instance-00000001'
+    'OS-EXT-SRV-ATTR:instance_name': 'instance-00000001',
+    'OS-SCH-HNT:scheduler_hints': {'key': '30'},
+    'OS-EXT-SRV-ATTR:user_data': '31'
 }
 
 
@@ -140,12 +140,13 @@ class TestServer(testtools.TestCase):
         self.assertEqual(EXAMPLE['personality'], sot.personality)
         self.assertEqual(EXAMPLE['block_device_mapping_v2'],
                          sot.block_device_mapping)
-        self.assertEqual(EXAMPLE['os:scheduler_hints'], sot.scheduler_hints)
-        self.assertEqual(EXAMPLE['user_data'], sot.user_data)
         self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:hypervisor_hostname'],
                          sot.hypervisor_hostname)
         self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:instance_name'],
                          sot.instance_name)
+        self.assertEqual(EXAMPLE['OS-SCH-HNT:scheduler_hints'],
+                         sot.scheduler_hints)
+        self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:user_data'], sot.user_data)
 
     def test_detail(self):
         sot = server.ServerDetail()
@@ -158,6 +159,29 @@ class TestServer(testtools.TestCase):
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
+
+    def test__prepare_server(self):
+        zone = 1
+        data = 2
+        hints = {"hint": 3}
+
+        sot = server.Server(id=1, availability_zone=zone, user_data=data,
+                            scheduler_hints=hints)
+        request = sot._prepare_request()
+
+        self.assertNotIn("OS-EXT-AZ:availability_zone",
+                         request.body[sot.resource_key])
+        self.assertEqual(request.body[sot.resource_key]["availability_zone"],
+                         zone)
+
+        self.assertNotIn("OS-EXT-SRV-ATTR:user_data",
+                         request.body[sot.resource_key])
+        self.assertEqual(request.body[sot.resource_key]["user_data"],
+                         data)
+
+        self.assertNotIn("OS-SCH-HNT:scheduler_hints",
+                         request.body[sot.resource_key])
+        self.assertEqual(request.body["OS-SCH-HNT:scheduler_hints"], hints)
 
     def test_change_password(self):
         sot = server.Server(**EXAMPLE)
