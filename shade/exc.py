@@ -73,6 +73,14 @@ class OpenStackCloudHTTPError(OpenStackCloudException, _rex.HTTPError):
         _rex.HTTPError.__init__(self, *args, **kwargs)
 
 
+class OpenStackCloudBadRequest(OpenStackCloudHTTPError):
+    """There is something wrong with the request payload.
+
+    Possible reasons can include malformed json or invalid values to parameters
+    such as flavorRef to a server create.
+    """
+
+
 class OpenStackCloudURINotFound(OpenStackCloudHTTPError):
     pass
 
@@ -98,5 +106,7 @@ def raise_from_response(response):
     # before
     if response.status_code == 404:
         raise OpenStackCloudURINotFound(msg, response=response)
+    elif response.status_code == 400:
+        raise OpenStackCloudBadRequest(msg, response=response)
     if msg:
         raise OpenStackCloudHTTPError(msg, response=response)
