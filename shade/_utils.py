@@ -13,12 +13,14 @@
 # limitations under the License.
 
 import contextlib
+import fnmatch
 import inspect
 import jmespath
 import munch
 import netifaces
 import re
 import six
+import sre_constants
 import sys
 import time
 
@@ -102,7 +104,8 @@ def _filter_list(data, name_or_id, filters):
         each dictionary contains an 'id' and 'name'
         key if a value for name_or_id is given.
     :param string name_or_id:
-        The name or ID of the entity being filtered.
+        The name or ID of the entity being filtered. Can be a glob pattern,
+        such as 'nb01*'.
     :param filters:
         A dictionary of meta data to use for further filtering. Elements
         of this dictionary may, themselves, be dictionaries. Example::
@@ -116,6 +119,10 @@ def _filter_list(data, name_or_id, filters):
         OR
         A string containing a jmespath expression for further filtering.
     """
+    # The logger is shade.fmmatch to allow a user/operator to configure logging
+    # not to communicate about fnmatch misses (they shouldn't be too spammy,
+    # but one never knows)
+    log = _log.setup_logging('shade.fnmatch')
     if name_or_id:
         # name_or_id might already be unicode
         name_or_id = _make_unicode(name_or_id)
@@ -123,9 +130,22 @@ def _filter_list(data, name_or_id, filters):
         for e in data:
             e_id = _make_unicode(e.get('id', None))
             e_name = _make_unicode(e.get('name', None))
+
             if ((e_id and e_id == name_or_id) or
                     (e_name and e_name == name_or_id)):
                 identifier_matches.append(e)
+            else:
+                # Only try fnmatch if we don't match exactly
+                try:
+                    if ((e_id and fnmatch.fnmatch(e_id, name_or_id)) or
+                            (e_name and fnmatch.fnmatch(e_name, name_or_id))):
+                        identifier_matches.append(e)
+                except sre_constants.error:
+                    # If the fnmatch re doesn't compile, then we don't care,
+                    # but log it in case the user DID pass a pattern but did
+                    # it poorly and wants to know what went wrong with their
+                    # search
+                    log.debug("Bad pattern passed to fnmatch", exc_info=True)
         data = identifier_matches
 
     if not filters:

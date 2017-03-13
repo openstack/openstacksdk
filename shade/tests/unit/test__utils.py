@@ -49,6 +49,43 @@ class TestUtils(base.TestCase):
         ret = _utils._filter_list(data, 'pluto[2017-01-10]', None)
         self.assertEqual([el2], ret)
 
+    def test__filter_list_name_or_id_partial_bad(self):
+        el1 = dict(id=100, name='donald')
+        el2 = dict(id=200, name='pluto[2017-01-10]')
+        data = [el1, el2]
+        ret = _utils._filter_list(data, 'pluto[2017-01]', None)
+        self.assertEqual([], ret)
+
+    def test__filter_list_name_or_id_partial_glob(self):
+        el1 = dict(id=100, name='donald')
+        el2 = dict(id=200, name='pluto[2017-01-10]')
+        data = [el1, el2]
+        ret = _utils._filter_list(data, 'pluto*', None)
+        self.assertEqual([el2], ret)
+
+    def test__filter_list_name_or_id_non_glob_glob(self):
+        el1 = dict(id=100, name='donald')
+        el2 = dict(id=200, name='pluto[2017-01-10]')
+        data = [el1, el2]
+        ret = _utils._filter_list(data, 'pluto', None)
+        self.assertEqual([], ret)
+
+    def test__filter_list_name_or_id_glob(self):
+        el1 = dict(id=100, name='donald')
+        el2 = dict(id=200, name='pluto')
+        el3 = dict(id=200, name='pluto-2')
+        data = [el1, el2, el3]
+        ret = _utils._filter_list(data, 'pluto*', None)
+        self.assertEqual([el2, el3], ret)
+
+    def test__filter_list_name_or_id_glob_not_found(self):
+        el1 = dict(id=100, name='donald')
+        el2 = dict(id=200, name='pluto')
+        el3 = dict(id=200, name='pluto-2')
+        data = [el1, el2, el3]
+        ret = _utils._filter_list(data, 'q*', None)
+        self.assertEqual([], ret)
+
     def test__filter_list_unicode(self):
         el1 = dict(id=100, name=u'中文', last='duck',
                    other=dict(category='duck', financial=dict(status='poor')))
