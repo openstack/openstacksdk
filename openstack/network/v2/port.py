@@ -117,5 +117,11 @@ class Port(resource.Resource):
     #: If you specify both a subnet ID and an IP address, OpenStack networking
     #: tries to allocate the address to the port.
     subnet_id = resource.Body('subnet_id')
+    #: Read-only. The trunk referring to this parent port and its subports.
+    #: Present for trunk parent ports if ``trunk-details`` extension is loaded.
+    #: *Type: dict with keys: trunk_id, sub_ports.
+    #: sub_ports is a list of dicts with keys:
+    #: port_id, segmentation_type, segmentation_id, mac_address*
+    trunk_details = resource.Body('trunk_details', type=dict)
     #: Timestamp when the port was last updated.
     updated_at = resource.Body('updated_at')

@@ -45,6 +45,13 @@ EXAMPLE = {
     'subnet_id': '24',
     'status': '25',
     'tenant_id': '26',
+    'trunk_details': {
+        'trunk_id': '27',
+        'sub_ports': [{
+            'port_id': '28',
+            'segmentation_id': 29,
+            'segmentation_type': '30',
+            'mac_address': '31'}]},
     'updated_at': '2016-07-09T12:14:57.233772',
 }
 
@@ -96,4 +103,5 @@ class TestPort(testtools.TestCase):
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['subnet_id'], sot.subnet_id)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['trunk_details'], sot.trunk_details)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
