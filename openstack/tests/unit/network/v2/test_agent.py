@@ -29,7 +29,8 @@ EXAMPLE = {
     'host': 'test-host',
     'id': IDENTIFIER,
     'started_at': '2016-07-09T12:14:57.233772',
-    'topic': 'test-topic'
+    'topic': 'test-topic',
+    'ha_state': 'active'
 }
 
 
@@ -63,6 +64,7 @@ class TestAgent(testtools.TestCase):
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['started_at'], sot.started_at)
         self.assertEqual(EXAMPLE['topic'], sot.topic)
+        self.assertEqual(EXAMPLE['ha_state'], sot.ha_state)
 
     def test_add_agent_to_network(self):
         # Add agent to network
