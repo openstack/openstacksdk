@@ -103,8 +103,8 @@ class TestEndpoints(base.BaseFunctionalTestCase):
         self.assertIsNotNone(endpoints[0].get('id'))
 
     def test_update_endpoint(self):
-        if self.operator_cloud.cloud_config.get_api_version(
-            'identity').startswith('2'):
+        ver = self.operator_cloud.cloud_config.get_api_version('identity')
+        if ver.startswith('2'):
             # NOTE(SamYaple): Update endpoint only works with v3 api
             self.assertRaises(OpenStackCloudUnavailableFeature,
                               self.operator_cloud.update_endpoint,

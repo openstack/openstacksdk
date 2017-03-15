@@ -98,7 +98,7 @@ class TestUtils(base.TestCase):
             data, u'中文',
             {'other': {
                 'financial': {'status': 'rich'}
-                }})
+            }})
         self.assertEqual([el2], ret)
 
     def test__filter_list_filter(self):
@@ -139,7 +139,7 @@ class TestUtils(base.TestCase):
             data, 'donald',
             {'other': {
                 'financial': {'status': 'rich'}
-                }})
+            }})
         self.assertEqual([el2, el3], ret)
 
     def test_safe_dict_min_ints(self):

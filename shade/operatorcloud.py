@@ -1150,7 +1150,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             domain_id = dom['id']
 
         with _utils.shade_exceptions(
-            "Failed to delete domain {id}".format(id=domain_id)):
+                "Failed to delete domain {id}".format(id=domain_id)):
             # Deleting a domain is expensive, so disabling it first increases
             # the changes of success
             domain = self.update_domain(domain_id, enabled=False)
