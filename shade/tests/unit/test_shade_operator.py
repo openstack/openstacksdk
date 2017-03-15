@@ -40,11 +40,11 @@ class TestShadeOperator(base.TestCase):
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_get_machine_by_mac(self, mock_client):
-        class port_value:
+        class port_value(object):
             node_uuid = '00000000-0000-0000-0000-000000000000'
             address = '00:00:00:00:00:00'
 
-        class node_value:
+        class node_value(object):
             uuid = '00000000-0000-0000-0000-000000000000'
 
         expected_value = dict(
@@ -117,7 +117,7 @@ class TestShadeOperator(base.TestCase):
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     @mock.patch.object(shade.OperatorCloud, 'patch_machine')
     def test_update_machine_patch_no_action(self, mock_patch, mock_client):
-        class client_return_value:
+        class client_return_value(object):
             uuid = '00000000-0000-0000-0000-000000000000'
             name = 'node01'
 
@@ -136,7 +136,7 @@ class TestShadeOperator(base.TestCase):
     @mock.patch.object(shade.OperatorCloud, 'patch_machine')
     def test_update_machine_patch_no_action_name(self, mock_patch,
                                                  mock_client):
-        class client_return_value:
+        class client_return_value(object):
             uuid = '00000000-0000-0000-0000-000000000000'
             name = 'node01'
 
@@ -155,7 +155,7 @@ class TestShadeOperator(base.TestCase):
     @mock.patch.object(shade.OperatorCloud, 'patch_machine')
     def test_update_machine_patch_action_name(self, mock_patch,
                                               mock_client):
-        class client_return_value:
+        class client_return_value(object):
             uuid = '00000000-0000-0000-0000-000000000000'
             name = 'evil'
 
@@ -175,7 +175,7 @@ class TestShadeOperator(base.TestCase):
     @mock.patch.object(shade.OperatorCloud, 'patch_machine')
     def test_update_machine_patch_update_name(self, mock_patch,
                                               mock_client):
-        class client_return_value:
+        class client_return_value(object):
             uuid = '00000000-0000-0000-0000-000000000000'
             name = 'evil'
 
@@ -195,7 +195,7 @@ class TestShadeOperator(base.TestCase):
     @mock.patch.object(shade.OperatorCloud, 'patch_machine')
     def test_update_machine_patch_update_chassis_uuid(self, mock_patch,
                                                       mock_client):
-        class client_return_value:
+        class client_return_value(object):
             uuid = '00000000-0000-0000-0000-000000000000'
             chassis_uuid = None
 
@@ -222,7 +222,7 @@ class TestShadeOperator(base.TestCase):
     @mock.patch.object(shade.OperatorCloud, 'patch_machine')
     def test_update_machine_patch_update_driver(self, mock_patch,
                                                 mock_client):
-        class client_return_value:
+        class client_return_value(object):
             uuid = '00000000-0000-0000-0000-000000000000'
             driver = None
 
@@ -250,7 +250,7 @@ class TestShadeOperator(base.TestCase):
     @mock.patch.object(shade.OperatorCloud, 'patch_machine')
     def test_update_machine_patch_update_driver_info(self, mock_patch,
                                                      mock_client):
-        class client_return_value:
+        class client_return_value(object):
             uuid = '00000000-0000-0000-0000-000000000000'
             driver_info = None
 
@@ -278,7 +278,7 @@ class TestShadeOperator(base.TestCase):
     @mock.patch.object(shade.OperatorCloud, 'patch_machine')
     def test_update_machine_patch_update_instance_info(self, mock_patch,
                                                        mock_client):
-        class client_return_value:
+        class client_return_value(object):
             uuid = '00000000-0000-0000-0000-000000000000'
             instance_info = None
 
@@ -306,7 +306,7 @@ class TestShadeOperator(base.TestCase):
     @mock.patch.object(shade.OperatorCloud, 'patch_machine')
     def test_update_machine_patch_update_instance_uuid(self, mock_patch,
                                                        mock_client):
-        class client_return_value:
+        class client_return_value(object):
             uuid = '00000000-0000-0000-0000-000000000000'
             instance_uuid = None
 
@@ -334,7 +334,7 @@ class TestShadeOperator(base.TestCase):
     @mock.patch.object(shade.OperatorCloud, 'patch_machine')
     def test_update_machine_patch_update_properties(self, mock_patch,
                                                     mock_client):
-        class client_return_value:
+        class client_return_value(object):
             uuid = '00000000-0000-0000-0000-000000000000'
             properties = None
 
@@ -363,7 +363,7 @@ class TestShadeOperator(base.TestCase):
 
         machine_uuid = '00000000-0000-0000-0000-000000000000'
 
-        class active_machine:
+        class active_machine(object):
             uuid = machine_uuid
             provision_state = "active"
 
@@ -380,7 +380,7 @@ class TestShadeOperator(base.TestCase):
 
         machine_uuid = '00000000-0000-0000-0000-000000000000'
 
-        class inspect_failed_machine:
+        class inspect_failed_machine(object):
             uuid = machine_uuid
             provision_state = "inspect failed"
             last_error = "kaboom"
@@ -396,7 +396,7 @@ class TestShadeOperator(base.TestCase):
 
         machine_uuid = '00000000-0000-0000-0000-000000000000'
 
-        class manageable_machine:
+        class manageable_machine(object):
             uuid = machine_uuid
             provision_state = "manageable"
 
@@ -410,15 +410,15 @@ class TestShadeOperator(base.TestCase):
 
         machine_uuid = '00000000-0000-0000-0000-000000000000'
 
-        class available_machine:
+        class available_machine(object):
             uuid = machine_uuid
             provision_state = "available"
 
-        class manageable_machine:
+        class manageable_machine(object):
             uuid = machine_uuid
             provision_state = "manageable"
 
-        class inspecting_machine:
+        class inspecting_machine(object):
             uuid = machine_uuid
             provision_state = "inspecting"
 
@@ -438,15 +438,15 @@ class TestShadeOperator(base.TestCase):
 
         machine_uuid = '00000000-0000-0000-0000-000000000000'
 
-        class available_machine:
+        class available_machine(object):
             uuid = machine_uuid
             provision_state = "available"
 
-        class manageable_machine:
+        class manageable_machine(object):
             uuid = machine_uuid
             provision_state = "manageable"
 
-        class inspecting_machine:
+        class inspecting_machine(object):
             uuid = machine_uuid
             provision_state = "inspecting"
 
@@ -475,11 +475,11 @@ class TestShadeOperator(base.TestCase):
 
         machine_uuid = '00000000-0000-0000-0000-000000000000'
 
-        class manageable_machine:
+        class manageable_machine(object):
             uuid = machine_uuid
             provision_state = "manageable"
 
-        class inspecting_machine:
+        class inspecting_machine(object):
             uuid = machine_uuid
             provision_state = "inspecting"
 
@@ -503,17 +503,17 @@ class TestShadeOperator(base.TestCase):
 
         machine_uuid = '00000000-0000-0000-0000-000000000000'
 
-        class manageable_machine:
+        class manageable_machine(object):
             uuid = machine_uuid
             provision_state = "manageable"
             last_error = None
 
-        class inspecting_machine:
+        class inspecting_machine(object):
             uuid = machine_uuid
             provision_state = "inspecting"
             last_error = None
 
-        class inspect_failed_machine:
+        class inspect_failed_machine(object):
             uuid = machine_uuid
             provision_state = "inspect failed"
             last_error = "kaboom"
@@ -534,7 +534,7 @@ class TestShadeOperator(base.TestCase):
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_register_machine(self, mock_client):
-        class fake_node:
+        class fake_node(object):
             uuid = "00000000-0000-0000-0000-000000000000"
             provision_state = "available"
             reservation = None
@@ -563,31 +563,31 @@ class TestShadeOperator(base.TestCase):
             mock_client):
         machine_uuid = "00000000-0000-0000-0000-000000000000"
 
-        class fake_node_init_state:
+        class fake_node_init_state(object):
             uuid = machine_uuid
             provision_state = "enroll"
             reservation = None
             last_error = None
 
-        class fake_node_post_manage:
+        class fake_node_post_manage(object):
             uuid = machine_uuid
             provision_state = "enroll"
             reservation = "do you have a flag?"
             last_error = None
 
-        class fake_node_post_manage_done:
+        class fake_node_post_manage_done(object):
             uuid = machine_uuid
             provision_state = "manage"
             reservation = None
             last_error = None
 
-        class fake_node_post_provide:
+        class fake_node_post_provide(object):
             uuid = machine_uuid
             provision_state = "available"
             reservation = None
             last_error = None
 
-        class fake_node_post_enroll_failure:
+        class fake_node_post_enroll_failure(object):
             uuid = machine_uuid
             provision_state = "enroll"
             reservation = None
@@ -646,7 +646,7 @@ class TestShadeOperator(base.TestCase):
             mock_client):
         machine_uuid = "00000000-0000-0000-0000-000000000000"
 
-        class fake_node_init_state:
+        class fake_node_init_state(object):
             uuid = machine_uuid
             provision_state = "enroll"
             reservation = "do you have a flag?"
@@ -677,7 +677,7 @@ class TestShadeOperator(base.TestCase):
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_register_machine_port_create_failed(self, mock_client):
-        class fake_node:
+        class fake_node(object):
             uuid = "00000000-0000-0000-0000-000000000000"
             provision_state = "available"
             resevation = None
@@ -696,10 +696,10 @@ class TestShadeOperator(base.TestCase):
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_unregister_machine(self, mock_client):
-        class fake_node:
+        class fake_node(object):
             provision_state = 'available'
 
-        class fake_port:
+        class fake_port(object):
             uuid = '00000000-0000-0000-0000-000000000001'
 
         mock_client.port.get_by_address.return_value = fake_port
@@ -722,7 +722,7 @@ class TestShadeOperator(base.TestCase):
         nics = [{'mac': '00:00:00:00:00:00'}]
         uuid = "00000000-0000-0000-0000-000000000000"
         for state in invalid_states:
-            class fake_node:
+            class fake_node(object):
                 provision_state = state
 
             mock_client.node.get.return_value = fake_node
@@ -740,7 +740,7 @@ class TestShadeOperator(base.TestCase):
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_unregister_machine_timeout(self, mock_client):
-        class fake_node:
+        class fake_node(object):
             provision_state = 'available'
 
         mock_client.node.get.return_value = fake_node
@@ -831,7 +831,7 @@ class TestShadeOperator(base.TestCase):
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_node_set_provision_state(self, mock_client):
 
-        class active_node_state:
+        class active_node_state(object):
             provision_state = "active"
 
         active_return_value = dict(
@@ -853,16 +853,16 @@ class TestShadeOperator(base.TestCase):
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_node_set_provision_state_wait_timeout(self, mock_client):
-        class deploying_node_state:
+        class deploying_node_state(object):
             provision_state = "deploying"
 
-        class active_node_state:
+        class active_node_state(object):
             provision_state = "active"
 
-        class managable_node_state:
+        class managable_node_state(object):
             provision_state = "managable"
 
-        class available_node_state:
+        class available_node_state(object):
             provision_state = "available"
 
         active_return_value = dict(
@@ -900,13 +900,13 @@ class TestShadeOperator(base.TestCase):
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_node_set_provision_state_wait_failure(self, mock_client):
-        class active_node_state:
+        class active_node_state(object):
             provision_state = "active"
 
-        class deploy_failed_node_state:
+        class deploy_failed_node_state(object):
             provision_state = "deploy failed"
 
-        class clean_failed_node_state:
+        class clean_failed_node_state(object):
             provision_state = "clean failed"
 
         active_return_value = dict(
@@ -959,10 +959,10 @@ class TestShadeOperator(base.TestCase):
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_node_set_provision_state_wait_provide(self, mock_client):
 
-        class managable_node_state:
+        class managable_node_state(object):
             provision_state = "managable"
 
-        class available_node_state:
+        class available_node_state(object):
             provision_state = "available"
 
         node_provide_return_value = dict(
@@ -996,10 +996,10 @@ class TestShadeOperator(base.TestCase):
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_activate_node_timeout(self, mock_client):
 
-        class active_node_state:
+        class active_node_state(object):
             provision_state = 'active'
 
-        class available_node_state:
+        class available_node_state(object):
             provision_state = 'available'
 
         mock_client.node.get.side_effect = iter([
@@ -1037,10 +1037,10 @@ class TestShadeOperator(base.TestCase):
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_deactivate_node_timeout(self, mock_client):
 
-        class active_node_state:
+        class active_node_state(object):
             provision_state = 'active'
 
-        class deactivated_node_state:
+        class deactivated_node_state(object):
             provision_state = 'available'
 
         mock_client.node.get.side_effect = iter([
