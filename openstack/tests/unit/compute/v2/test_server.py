@@ -51,7 +51,9 @@ EXAMPLE = {
     'personality': '28',
     'block_device_mapping_v2': {'key': '29'},
     'os:scheduler_hints': {'key': '30'},
-    'user_data': '31'
+    'user_data': '31',
+    'OS-EXT-SRV-ATTR:hypervisor_hostname': 'hypervisor.example.com',
+    'OS-EXT-SRV-ATTR:instance_name': 'instance-00000001'
 }
 
 
@@ -140,6 +142,10 @@ class TestServer(testtools.TestCase):
                          sot.block_device_mapping)
         self.assertEqual(EXAMPLE['os:scheduler_hints'], sot.scheduler_hints)
         self.assertEqual(EXAMPLE['user_data'], sot.user_data)
+        self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:hypervisor_hostname'],
+                         sot.hypervisor_hostname)
+        self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:instance_name'],
+                         sot.instance_name)
 
     def test_detail(self):
         sot = server.ServerDetail()

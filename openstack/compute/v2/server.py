@@ -130,6 +130,13 @@ class Server(resource2.Resource, metadata.MetadataMixin):
     #: networks parameter, the server attaches to the only network
     #: created for the current tenant.
     networks = resource2.Body('networks')
+    #: The hypervisor host name. Appears in the response for administrative
+    #: users only.
+    hypervisor_hostname = resource2.Body('OS-EXT-SRV-ATTR:hypervisor_hostname')
+    #: The instance name. The Compute API generates the instance name from the
+    #: instance name template. Appears in the response for administrative users
+    #: only.
+    instance_name = resource2.Body('OS-EXT-SRV-ATTR:instance_name')
 
     def _action(self, session, body):
         """Preform server actions given the message body."""
