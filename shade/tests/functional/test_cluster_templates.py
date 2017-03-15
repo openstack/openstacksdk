@@ -104,7 +104,7 @@ class TestClusterTemplate(base.BaseFunctionalTestCase):
         if self.ct:
             try:
                 self.user_cloud.delete_cluster_template(self.ct['name'])
-            except:
+            except Exception:
                 pass
 
         # delete keypair
