@@ -2372,13 +2372,13 @@ class OpenStackCloud(_normalize.Normalizer):
                       'gender': 'Female'
                   }
                 }
+
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A keypair ``munch.Munch`` or None if no matching keypair is
-        found.
-
+                  found.
         """
         return _utils._get_entity(self.search_keypairs, name_or_id, filters)
 
@@ -2396,12 +2396,13 @@ class OpenStackCloud(_normalize.Normalizer):
                       'gender': 'Female'
                   }
                 }
+
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A network ``munch.Munch`` or None if no matching network is
-        found.
+                 found.
 
         """
         return _utils._get_entity(self.search_networks, name_or_id, filters)
@@ -2420,12 +2421,13 @@ class OpenStackCloud(_normalize.Normalizer):
                       'gender': 'Female'
                   }
                 }
+
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A router ``munch.Munch`` or None if no matching router is
-        found.
+                  found.
 
         """
         return _utils._get_entity(self.search_routers, name_or_id, filters)
@@ -2446,7 +2448,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 }
 
         :returns: A subnet ``munch.Munch`` or None if no matching subnet is
-        found.
+                  found.
 
         """
         return _utils._get_entity(self.search_subnets, name_or_id, filters)
@@ -2465,6 +2467,7 @@ class OpenStackCloud(_normalize.Normalizer):
                       'gender': 'Female'
                   }
                 }
+
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
@@ -2488,12 +2491,13 @@ class OpenStackCloud(_normalize.Normalizer):
                       'gender': 'Female'
                   }
                 }
+
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A volume ``munch.Munch`` or None if no matching volume is
-        found.
+                  found.
 
         """
         return _utils._get_entity(self.search_volumes, name_or_id, filters)
@@ -2512,12 +2516,13 @@ class OpenStackCloud(_normalize.Normalizer):
                       'gender': 'Female'
                   }
                 }
+
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A volume ``munch.Munch`` or None if no matching volume is
-        found.
+                  found.
 
         """
         return _utils._get_entity(
@@ -2537,6 +2542,7 @@ class OpenStackCloud(_normalize.Normalizer):
                       'gender': 'Female'
                   }
                 }
+
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
@@ -2544,9 +2550,8 @@ class OpenStackCloud(_normalize.Normalizer):
              Whether or not the list_flavors call should get the extra flavor
              specs.
 
-
         :returns: A flavor ``munch.Munch`` or None if no matching flavor is
-        found.
+            found.
 
         """
         search_func = functools.partial(
@@ -2567,6 +2572,7 @@ class OpenStackCloud(_normalize.Normalizer):
                       'gender': 'Female'
                   }
                 }
+
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
@@ -2626,12 +2632,13 @@ class OpenStackCloud(_normalize.Normalizer):
                       'gender': 'Female'
                   }
                 }
+
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A server ``munch.Munch`` or None if no matching server is
-        found.
+                  found.
 
         """
         searchfunc = functools.partial(self.search_servers,
@@ -2653,12 +2660,13 @@ class OpenStackCloud(_normalize.Normalizer):
                 {
                   'policy': 'affinity',
                 }
+
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A server groups dict or None if no matching server group
-        is found.
+                  is found.
 
         """
         return _utils._get_entity(self.search_server_groups, name_or_id,
@@ -2678,6 +2686,7 @@ class OpenStackCloud(_normalize.Normalizer):
                       'gender': 'Female'
                   }
                 }
+
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
@@ -2752,12 +2761,13 @@ class OpenStackCloud(_normalize.Normalizer):
                       'gender': 'Female'
                   }
                 }
+
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A floating IP ``munch.Munch`` or None if no matching floating
-        IP is found.
+                  IP is found.
 
         """
         return _utils._get_entity(self.search_floating_ips, id, filters)
@@ -2934,7 +2944,8 @@ class OpenStackCloud(_normalize.Normalizer):
         :param string port_id: The ID of the port to use for the interface
 
         :returns: A ``munch.Munch`` with the router ID (ID),
-            subnet ID (subnet_id), port ID (port_id) and tenant ID (tenant_id).
+                  subnet ID (subnet_id), port ID (port_id) and tenant ID
+                  (tenant_id).
 
         :raises: OpenStackCloudException on operation error.
         """
@@ -4050,13 +4061,13 @@ class OpenStackCloud(_normalize.Normalizer):
                       'gender': 'Female'
                   }
                 }
+
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A volume ``munch.Munch`` or None if no matching volume is
-        found.
-
+                  found.
         """
         return _utils._get_entity(self.search_volume_snapshots, name_or_id,
                                   filters)
@@ -4112,8 +4123,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """Get a volume backup by name or ID.
 
         :returns: A backup ``munch.Munch`` or None if no matching backup is
-        found.
-
+                  found.
         """
         return _utils._get_entity(self.search_volume_backups, name_or_id,
                                   filters)
@@ -4137,12 +4147,14 @@ class OpenStackCloud(_normalize.Normalizer):
         :param bool detailed: Also list details for each entry
         :param dict search_opts: Search options
             A dictionary of meta data to use for further filtering. Example::
+
                 {
                     'name': 'my-volume-backup',
                     'status': 'available',
                     'volume_id': 'e126044c-7b4c-43be-a32a-c9cbbc9ddb56',
                     'all_tenants': 1
                 }
+
         :returns: A list of volume backups ``munch.Munch``.
         """
         with _utils.shade_exceptions("Error getting a list of backups"):
@@ -6908,8 +6920,7 @@ class OpenStackCloud(_normalize.Normalizer):
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
-        :returns:  A zone dict or None if no matching zone is
-        found.
+        :returns:  A zone dict or None if no matching zone is found.
 
         """
         return _utils._get_entity(self.search_zones, name_or_id, filters)
@@ -7174,6 +7185,7 @@ class OpenStackCloud(_normalize.Normalizer):
                       'gender': 'Female'
                   }
                 }
+
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"

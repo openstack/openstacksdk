@@ -1426,23 +1426,23 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
     def list_role_assignments(self, filters=None):
         """List Keystone role assignments
 
-        :param dict filters: Dict of filter conditions. Acceptable keys are::
+        :param dict filters: Dict of filter conditions. Acceptable keys are:
 
-            - 'user' (string) - User ID to be used as query filter.
-            - 'group' (string) - Group ID to be used as query filter.
-            - 'project' (string) - Project ID to be used as query filter.
-            - 'domain' (string) - Domain ID to be used as query filter.
-            - 'role' (string) - Role ID to be used as query filter.
-            - 'os_inherit_extension_inherited_to' (string) - Return inherited
+            * 'user' (string) - User ID to be used as query filter.
+            * 'group' (string) - Group ID to be used as query filter.
+            * 'project' (string) - Project ID to be used as query filter.
+            * 'domain' (string) - Domain ID to be used as query filter.
+            * 'role' (string) - Role ID to be used as query filter.
+            * 'os_inherit_extension_inherited_to' (string) - Return inherited
               role assignments for either 'projects' or 'domains'
-            - 'effective' (boolean) - Return effective role assignments.
-            - 'include_subtree' (boolean) - Include subtree
+            * 'effective' (boolean) - Return effective role assignments.
+            * 'include_subtree' (boolean) - Include subtree
 
             'user' and 'group' are mutually exclusive, as are 'domain' and
             'project'.
 
-        NOTE: For keystone v2, only user, project, and role are used.
-              Project and user are both required in filters.
+            NOTE: For keystone v2, only user, project, and role are used.
+                  Project and user are both required in filters.
 
         :returns: a list of ``munch.Munch`` containing the role assignment
             description. Contains the following attributes::
@@ -1856,7 +1856,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 }
 
         :returns: An aggregate dict or None if no matching aggregate is
-        found.
+                  found.
 
         """
         return _utils._get_entity(self.search_aggregates, name_or_id, filters)
@@ -2099,7 +2099,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :param name_or_id: project name or id
         :raises: OpenStackCloudException if it's not a valid project or the
-        nova client call failed
+                 nova client call failed
 
         :returns: dict with the quotas
         """
@@ -2180,7 +2180,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :param name_or_id: project name or id
         :raises: OpenStackCloudException if it's not a valid project or the
-        cinder client call failed
+                 cinder client call failed
 
         :returns: dict with the quotas
         """
@@ -2233,7 +2233,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :param name_or_id: project name or id
         :raises: OpenStackCloudException if it's not a valid project or the
-        network client call failed
+                 network client call failed
 
         :returns: dict with the quotas
         """

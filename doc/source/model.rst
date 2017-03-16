@@ -89,7 +89,7 @@ A flavor for a Nova Server.
 
 
 Flavor Access
-------
+-------------
 
 An access entry for a Nova Flavor.
 
@@ -366,7 +366,7 @@ A volume from cinder.
 
 
 VolumeType
-------
+----------
 
 A volume type from cinder.
 
@@ -384,7 +384,7 @@ A volume type from cinder.
 
 
 VolumeTypeAccess
-------
+----------------
 
 A volume type access from cinder.
 

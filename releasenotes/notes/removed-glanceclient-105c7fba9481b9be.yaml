@@ -1,7 +1,7 @@
 ---
 prelude: >
     This release marks the beginning of the path towards removing all
-    of the 'python-*client' libraries as dependencies. Subsequent releases
+    of the 'python-\*client' libraries as dependencies. Subsequent releases
     should expect to have fewer and fewer library depdencies.
 upgrade:
   - Removed glanceclient as a dependency. All glance operations

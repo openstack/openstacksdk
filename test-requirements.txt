@@ -6,7 +6,7 @@ mock>=1.0
 python-subunit
 oslosphinx>=2.2.0  # Apache-2.0
 requests-mock
-sphinx>=1.1.2,!=1.2.0,!=1.3b1,<1.3
+sphinx>=1.5.0
 testrepository>=0.0.17
 testscenarios>=0.4,<0.5
 testtools>=0.9.32
