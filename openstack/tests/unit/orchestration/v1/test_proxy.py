@@ -19,6 +19,7 @@ from openstack.orchestration.v1 import resource
 from openstack.orchestration.v1 import software_config as sc
 from openstack.orchestration.v1 import software_deployment as sd
 from openstack.orchestration.v1 import stack
+from openstack.orchestration.v1 import stack_environment
 from openstack.orchestration.v1 import stack_template
 from openstack.orchestration.v1 import template
 from openstack.tests.unit import test_proxy_base2
@@ -74,6 +75,36 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
         self.assertIsNone(res)
         mock_stack.assert_called_once_with(id='FAKE_ID')
         stk.check.assert_called_once_with(self.proxy._session)
+
+    @mock.patch.object(stack.Stack, 'find')
+    def test_get_stack_environment_with_stack_identity(self, mock_find):
+        stack_id = '1234'
+        stack_name = 'test_stack'
+        stk = stack.Stack(id=stack_id, name=stack_name)
+        mock_find.return_value = stk
+
+        self._verify2('openstack.proxy2.BaseProxy._get',
+                      self.proxy.get_stack_environment,
+                      method_args=['IDENTITY'],
+                      expected_args=[stack_environment.StackEnvironment],
+                      expected_kwargs={'requires_id': False,
+                                       'stack_name': stack_name,
+                                       'stack_id': stack_id})
+        mock_find.assert_called_once_with(mock.ANY, 'IDENTITY',
+                                          ignore_missing=False)
+
+    def test_get_stack_environment_with_stack_object(self):
+        stack_id = '1234'
+        stack_name = 'test_stack'
+        stk = stack.Stack(id=stack_id, name=stack_name)
+
+        self._verify2('openstack.proxy2.BaseProxy._get',
+                      self.proxy.get_stack_environment,
+                      method_args=[stk],
+                      expected_args=[stack_environment.StackEnvironment],
+                      expected_kwargs={'requires_id': False,
+                                       'stack_name': stack_name,
+                                       'stack_id': stack_id})
 
     @mock.patch.object(stack.Stack, 'find')
     def test_get_stack_template_with_stack_identity(self, mock_find):
