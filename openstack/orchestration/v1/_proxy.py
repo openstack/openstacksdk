@@ -15,6 +15,7 @@ from openstack.orchestration.v1 import resource as _resource
 from openstack.orchestration.v1 import software_config as _sc
 from openstack.orchestration.v1 import software_deployment as _sd
 from openstack.orchestration.v1 import stack as _stack
+from openstack.orchestration.v1 import stack_template as _stack_template
 from openstack.orchestration.v1 import template as _template
 from openstack import proxy2
 
@@ -123,6 +124,24 @@ class Proxy(proxy2.BaseProxy):
             stk_obj = _stack.Stack.existing(id=stack)
 
         stk_obj.check(self._session)
+
+    def get_stack_template(self, stack):
+        """Get a single stack
+
+        :param stack: The value can be the ID of a stack or a
+               :class:`~openstack.orchestration.v1.stack.Stack` instance.
+
+        :returns: One :class:`~openstack.orchestration.v1.stack.Stack`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        if isinstance(stack, _stack.Stack):
+            obj = stack
+        else:
+            obj = self._find(_stack.Stack, stack, ignore_missing=False)
+
+        return self._get(_stack_template.StackTemplate, requires_id=False,
+                         stack_name=obj.name, stack_id=obj.id)
 
     def resources(self, stack, **query):
         """Return a generator of resources
