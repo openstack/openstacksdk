@@ -122,7 +122,7 @@ class Server(resource2.Resource, metadata.MetadataMixin):
     user_data = resource2.Body('OS-EXT-SRV-ATTR:user_data')
     #: Enables fine grained control of the block device mapping for an
     #: instance. This is typically used for booting servers from volumes.
-    block_device_mapping = resource2.Body('block_device_mapping_v2', type=dict)
+    block_device_mapping = resource2.Body('block_device_mapping_v2')
     #: The dictionary of data to send to the scheduler.
     scheduler_hints = resource2.Body('OS-SCH-HNT:scheduler_hints', type=dict)
     #: A networks object. Required parameter when there are multiple
