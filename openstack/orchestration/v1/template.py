@@ -22,7 +22,7 @@ class Template(resource.Resource):
     # capabilities
     allow_create = False
     allow_list = False
-    allow_retrieve = False
+    allow_get = False
     allow_delete = False
     allow_update = False
 
