@@ -16,6 +16,7 @@ from openstack.orchestration.v1 import software_config as _sc
 from openstack.orchestration.v1 import software_deployment as _sd
 from openstack.orchestration.v1 import stack as _stack
 from openstack.orchestration.v1 import stack_environment as _stack_environment
+from openstack.orchestration.v1 import stack_files as _stack_files
 from openstack.orchestration.v1 import stack_template as _stack_template
 from openstack.orchestration.v1 import template as _template
 from openstack import proxy2
@@ -130,7 +131,7 @@ class Proxy(proxy2.BaseProxy):
         """Get template used by a stack
 
         :param stack: The value can be the ID of a stack or an instance of
-            :class:`~openstack.orchestration.v1.stack_template.StackTemplate`
+            :class:`~openstack.orchestration.v1.stack.Stack`
 
         :returns: One object of
             :class:`~openstack.orchestration.v1.stack_template.StackTemplate`
@@ -149,7 +150,7 @@ class Proxy(proxy2.BaseProxy):
         """Get environment used by a stack
 
         :param stack: The value can be the ID of a stack or an instance of
-        :class:`~openstack.orchestration.v1.stack_environment.StackEnvironment`
+            :class:`~openstack.orchestration.v1.stack.Stack`
 
         :returns: One object of
         :class:`~openstack.orchestration.v1.stack_environment.StackEnvironment`
@@ -164,6 +165,25 @@ class Proxy(proxy2.BaseProxy):
         return self._get(_stack_environment.StackEnvironment,
                          requires_id=False, stack_name=obj.name,
                          stack_id=obj.id)
+
+    def get_stack_files(self, stack):
+        """Get files used by a stack
+
+        :param stack: The value can be the ID of a stack or an instance of
+            :class:`~openstack.orchestration.v1.stack.Stack`
+
+        :returns: A dictionary containing the names and contents of all files
+                  used by the stack.
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when the stack cannot be found.
+        """
+        if isinstance(stack, _stack.Stack):
+            stk = stack
+        else:
+            stk = self._find(_stack.Stack, stack, ignore_missing=False)
+
+        obj = _stack_files.StackFiles(stack_name=stk.name, stack_id=stk.id)
+        return obj.get(self._session)
 
     def resources(self, stack, **query):
         """Return a generator of resources

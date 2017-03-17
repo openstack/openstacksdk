@@ -20,6 +20,7 @@ from openstack.orchestration.v1 import software_config as sc
 from openstack.orchestration.v1 import software_deployment as sd
 from openstack.orchestration.v1 import stack
 from openstack.orchestration.v1 import stack_environment
+from openstack.orchestration.v1 import stack_files
 from openstack.orchestration.v1 import stack_template
 from openstack.orchestration.v1 import template
 from openstack.tests.unit import test_proxy_base2
@@ -105,6 +106,34 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
                       expected_kwargs={'requires_id': False,
                                        'stack_name': stack_name,
                                        'stack_id': stack_id})
+
+    @mock.patch.object(stack_files.StackFiles, 'get')
+    @mock.patch.object(stack.Stack, 'find')
+    def test_get_stack_files_with_stack_identity(self, mock_find, mock_get):
+        stack_id = '1234'
+        stack_name = 'test_stack'
+        stk = stack.Stack(id=stack_id, name=stack_name)
+        mock_find.return_value = stk
+        mock_get.return_value = {'file': 'content'}
+
+        res = self.proxy.get_stack_files('IDENTITY')
+
+        self.assertEqual({'file': 'content'}, res)
+        mock_find.assert_called_once_with(mock.ANY, 'IDENTITY',
+                                          ignore_missing=False)
+        mock_get.assert_called_once_with(self.proxy._session)
+
+    @mock.patch.object(stack_files.StackFiles, 'get')
+    def test_get_stack_files_with_stack_object(self, mock_get):
+        stack_id = '1234'
+        stack_name = 'test_stack'
+        stk = stack.Stack(id=stack_id, name=stack_name)
+        mock_get.return_value = {'file': 'content'}
+
+        res = self.proxy.get_stack_files(stk)
+
+        self.assertEqual({'file': 'content'}, res)
+        mock_get.assert_called_once_with(self.proxy._session)
 
     @mock.patch.object(stack.Stack, 'find')
     def test_get_stack_template_with_stack_identity(self, mock_find):
