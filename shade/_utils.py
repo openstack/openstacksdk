@@ -376,14 +376,6 @@ def normalize_stacks(stacks):
     return stacks
 
 
-def normalize_cluster_templates(cluster_templates):
-    """Normalize Magnum cluster_templates."""
-    for cluster_template in cluster_templates:
-        cluster_template.pop('model_name', None)
-        cluster_template['id'] = cluster_template['uuid']
-    return cluster_templates
-
-
 def valid_kwargs(*valid_args):
     # This decorator checks if argument passed as **kwargs to a function are
     # present in valid_args.

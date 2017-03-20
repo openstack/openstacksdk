@@ -7117,8 +7117,8 @@ class OpenStackCloud(_normalize.Normalizer):
     def list_cluster_templates(self, detail=False):
         """List cluster templates.
 
-        :param bool detail. Flag to control if we need summarized or
-            detailed output.
+        :param bool detail. Ignored. Included for backwards compat.
+            ClusterTemplates are always returned with full details.
 
         :returns: a list of dicts containing the cluster template details.
 
@@ -7127,8 +7127,8 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         with _utils.shade_exceptions("Error fetching cluster template list"):
             cluster_templates = self.manager.submit_task(
-                _tasks.ClusterTemplateList(detail=detail))
-        return _utils.normalize_cluster_templates(cluster_templates)
+                _tasks.ClusterTemplateList(detail=True))
+        return self._normalize_cluster_templates(cluster_templates)
     list_baymodels = list_cluster_templates
 
     def search_cluster_templates(

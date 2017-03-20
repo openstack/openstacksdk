@@ -395,3 +395,41 @@ A volume type access from cinder.
     volume_type_id=str(),
     project_id=str(),
     properties=dict())
+
+
+ClusterTemplate
+---------------
+
+A Cluster Template from magnum.
+
+.. code-block:: python
+
+  ClusterTemplate = dict(
+    location=Location(),
+    apiserver_port=int(),
+    cluster_distro=str(),
+    coe=str(),
+    created_at=str(),
+    dns_nameserver=str(),
+    docker_volume_size=int(),
+    external_network_id=str(),
+    fixed_network=str() or None,
+    flavor_id=str(),
+    http_proxy=str() or None,
+    https_proxy=str() or None,
+    id=str(),
+    image_id=str(),
+    insecure_registry=str(),
+    is_public=bool(),
+    is_registry_enabled=bool(),
+    is_tls_disabled=bool(),
+    keypair_id=str(),
+    labels=dict(),
+    master_flavor_id=str() or None,
+    name=str(),
+    network_driver=str(),
+    no_proxy=str() or None,
+    server_type=str(),
+    updated_at=str() or None,
+    volume_driver=str(),
+    properties=dict())
