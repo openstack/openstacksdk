@@ -2252,4 +2252,4 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
         with _utils.shade_exceptions("Error fetching Magnum services list"):
             return self._normalize_magnum_services(
-                self.manager.submit_task(_tasks.MagnumServicesList()))
+                self._container_infra_client.get('/mservices'))

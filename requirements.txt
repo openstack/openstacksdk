@@ -18,6 +18,5 @@ python-neutronclient>=2.3.10
 python-ironicclient>=0.10.0
 python-heatclient>=1.0.0
 python-designateclient>=2.1.0
-python-magnumclient>=2.1.0
 
 dogpile.cache>=0.5.3

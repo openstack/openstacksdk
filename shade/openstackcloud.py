@@ -31,7 +31,6 @@ import requestsexceptions
 from six.moves import urllib
 
 import cinderclient.exceptions as cinder_exceptions
-import magnumclient.exceptions as magnum_exceptions
 from heatclient import exc as heat_exceptions
 import keystoneauth1.exceptions
 import novaclient.exceptions as nova_exceptions
@@ -1192,6 +1191,10 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @property
     def magnum_client(self):
+        warnings.warn(
+            'Using shade to get a magnum object is deprecated. If you'
+            ' need a raw magnumclient.client.Client object, please use'
+            ' make_legacy_client in os-client-config instead')
         if self._magnum_client is None:
             self._magnum_client = self._get_client('container-infra')
         return self._magnum_client
@@ -7126,8 +7129,8 @@ class OpenStackCloud(_normalize.Normalizer):
             the OpenStack API call.
         """
         with _utils.shade_exceptions("Error fetching cluster template list"):
-            cluster_templates = self.manager.submit_task(
-                _tasks.ClusterTemplateList(detail=True))
+            cluster_templates = self._container_infra_client.get(
+                '/baymodels/detail')
         return self._normalize_cluster_templates(cluster_templates)
     list_baymodels = list_cluster_templates
 
@@ -7192,14 +7195,18 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call
         """
-        with _utils.shade_exceptions(
-                "Error creating cluster template of name"
-                " {cluster_template_name}".format(
-                    cluster_template_name=name)):
-            cluster_template = self.manager.submit_task(
-                _tasks.ClusterTemplateCreate(
-                    name=name, image_id=image_id,
-                    keypair_id=keypair_id, coe=coe, **kwargs))
+        error_message = ("Error creating cluster template of name"
+                         " {cluster_template_name}".format(
+                             cluster_template_name=name))
+        with _utils.shade_exceptions(error_message):
+            body = kwargs.copy()
+            body['name'] = name
+            body['image_id'] = image_id
+            body['keypair_id'] = keypair_id
+            body['coe'] = coe
+
+            cluster_template = self._container_infra_client.post(
+                '/baymodels', json=body)
 
         self.list_cluster_templates.invalidate(self)
         return cluster_template
@@ -7215,7 +7222,6 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
 
-        self.list_cluster_templates.invalidate(self)
         cluster_template = self.get_cluster_template(name_or_id)
 
         if not cluster_template:
@@ -7226,16 +7232,10 @@ class OpenStackCloud(_normalize.Normalizer):
             return False
 
         with _utils.shade_exceptions("Error in deleting cluster template"):
-            try:
-                self.manager.submit_task(
-                    _tasks.ClusterTemplateDelete(id=cluster_template['id']))
-            except magnum_exceptions.NotFound:
-                self.log.debug(
-                    "Cluster template %(id)s not found when deleting."
-                    " Ignoring.", {'id': cluster_template['id']})
-                return False
+            self._container_infra_client.delete(
+                '/baymodels/{id}'.format(id=cluster_template['id']))
+            self.list_cluster_templates.invalidate(self)
 
-        self.list_cluster_templates.invalidate(self)
         return True
     delete_baymodel = delete_cluster_template
 
@@ -7268,12 +7268,15 @@ class OpenStackCloud(_normalize.Normalizer):
                 "%s operation not in 'add', 'replace', 'remove'" % operation)
 
         patches = _utils.generate_patches_from_kwargs(operation, **kwargs)
+        # No need to fire an API call if there is an empty patch
+        if not patches:
+            return cluster_template
 
         with _utils.shade_exceptions(
                 "Error updating cluster template {0}".format(name_or_id)):
-            self.manager.submit_task(
-                _tasks.ClusterTemplateUpdate(
-                    id=cluster_template['id'], patch=patches))
+            self._container_infra_client.patch(
+                '/baymodels/{id}'.format(id=cluster_template['id']),
+                json=patches)
 
         new_cluster_template = self.get_cluster_template(name_or_id)
         return new_cluster_template

@@ -664,7 +664,7 @@ def generate_patches_from_kwargs(operation, **kwargs):
                  'value': v,
                  'path': '/%s' % k}
         patches.append(patch)
-    return patches
+    return sorted(patches)
 
 
 class FileSegment(object):

@@ -824,32 +824,6 @@ class NeutronQuotasDelete(task_manager.Task):
         return client.neutron_client.delete_quota(**self.args)
 
 
-class ClusterTemplateList(task_manager.Task):
-    def main(self, client):
-        return client.magnum_client.baymodels.list(**self.args)
-
-
-class ClusterTemplateCreate(task_manager.Task):
-    def main(self, client):
-        return client.magnum_client.baymodels.create(**self.args)
-
-
-class ClusterTemplateDelete(task_manager.Task):
-    def main(self, client):
-        return client.magnum_client.baymodels.delete(self.args['id'])
-
-
-class ClusterTemplateUpdate(task_manager.Task):
-    def main(self, client):
-        return client.magnum_client.baymodels.update(
-            self.args['id'], self.args['patch'])
-
-
-class MagnumServicesList(task_manager.Task):
-    def main(self, client):
-        return client.magnum_client.mservices.list(detail=False)
-
-
 class NovaLimitsGet(task_manager.Task):
     def main(self, client):
         return client.nova_client.limits.get(**self.args).to_dict()
