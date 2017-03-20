@@ -87,6 +87,19 @@
       {
         "endpoints": [
           {
+            "id": "4deb4d0504a044a395d4480741ba628e",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://container-infra.example.com/v1"
+          }
+        ],
+        "endpoints_links": [],
+        "name": "magnum",
+        "type": "container-infra"
+      },
+      {
+        "endpoints": [
+          {
             "id": "4deb4d0504a044a395d4480741ba628c",
             "interface": "public",
             "region": "RegionOne",

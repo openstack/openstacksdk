@@ -15,6 +15,7 @@ import mock
 import munch
 
 import shade
+from shade import _utils
 import testtools
 from shade.tests.unit import base
 
@@ -63,28 +64,31 @@ cluster_template_detail_obj = munch.Munch(
 )
 
 
-class TestClusterTemplates(base.TestCase):
+class TestClusterTemplates(base.RequestsMockTestCase):
 
-    def setUp(self):
-        super(TestClusterTemplates, self).setUp()
-        self.cloud = shade.openstack_cloud(validate=False)
+    def test_list_cluster_templates_without_detail(self):
 
-    @mock.patch.object(shade.OpenStackCloud, 'magnum_client')
-    def test_list_cluster_templates_without_detail(self, mock_magnum):
-        mock_magnum.baymodels.list.return_value = [
-            cluster_template_obj]
+        self.register_uris([dict(
+            method='GET',
+            uri='https://container-infra.example.com/v1/baymodels',
+            json=dict(baymodels=[cluster_template_obj.toDict()]))])
         cluster_templates_list = self.cloud.list_cluster_templates()
-        mock_magnum.baymodels.list.assert_called_with(detail=False)
-        self.assertEqual(cluster_templates_list[0], cluster_template_obj)
-
-    @mock.patch.object(shade.OpenStackCloud, 'magnum_client')
-    def test_list_cluster_templates_with_detail(self, mock_magnum):
-        mock_magnum.baymodels.list.return_value = [
-            cluster_template_detail_obj]
-        cluster_templates_list = self.cloud.list_cluster_templates(detail=True)
-        mock_magnum.baymodels.list.assert_called_with(detail=True)
         self.assertEqual(
-            cluster_templates_list[0], cluster_template_detail_obj)
+            cluster_templates_list[0],
+            _utils.normalize_cluster_templates([cluster_template_obj])[0])
+        self.assert_calls()
+
+    def test_list_cluster_templates_with_detail(self):
+        self.register_uris([dict(
+            method='GET',
+            uri='https://container-infra.example.com/v1/baymodels/detail',
+            json=dict(baymodels=[cluster_template_detail_obj.toDict()]))])
+        cluster_templates_list = self.cloud.list_cluster_templates(detail=True)
+        self.assertEqual(
+            cluster_templates_list[0],
+            _utils.normalize_cluster_templates(
+                [cluster_template_detail_obj])[0])
+        self.assert_calls()
 
     @mock.patch.object(shade.OpenStackCloud, 'magnum_client')
     def test_search_cluster_templates_by_name(self, mock_magnum):

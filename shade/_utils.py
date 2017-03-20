@@ -379,6 +379,7 @@ def normalize_stacks(stacks):
 def normalize_cluster_templates(cluster_templates):
     """Normalize Magnum cluster_templates."""
     for cluster_template in cluster_templates:
+        cluster_template.pop('model_name', None)
         cluster_template['id'] = cluster_template['uuid']
     return cluster_templates
 
