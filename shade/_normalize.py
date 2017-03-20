@@ -905,3 +905,34 @@ class Normalizer(object):
 
         ret['properties'] = cluster_template
         return ret
+
+    def _normalize_magnum_services(self, magnum_services):
+        ret = []
+        for magnum_service in magnum_services:
+            ret.append(self._normalize_magnum_service(magnum_service))
+        return ret
+
+    def _normalize_magnum_service(self, magnum_service):
+        """Normalize Magnum magnum_services."""
+        magnum_service = magnum_service.copy()
+
+        # Discard noise
+        magnum_service.pop('links', None)
+        magnum_service.pop('human_id', None)
+        # model_name is a magnumclient-ism
+        magnum_service.pop('model_name', None)
+
+        ret = munch.Munch(location=self._get_current_location())
+
+        for key in (
+                'binary',
+                'created_at',
+                'disabled_reason',
+                'host',
+                'id',
+                'report_count',
+                'state',
+                'updated_at'):
+            ret[key] = magnum_service.pop(key)
+        ret['properties'] = magnum_service
+        return ret

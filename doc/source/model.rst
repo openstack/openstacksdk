@@ -433,3 +433,21 @@ A Cluster Template from magnum.
     updated_at=str() or None,
     volume_driver=str(),
     properties=dict())
+
+MagnumService
+-------------
+
+A Magnum Service from magnum
+
+.. code-block:: python
+
+  MagnumService = dict(
+    location=Location(),
+    binary=str(),
+    created_at=str(),
+    disabled_reason=str() or None,
+    host=str(),
+    id=str(),
+    report_count=int(),
+    state=str(),
+    properties=dict())

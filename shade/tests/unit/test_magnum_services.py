@@ -10,30 +10,31 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-import mock
-import munch
-
-import shade
 from shade.tests.unit import base
 
 
-magnum_service_obj = munch.Munch(
+magnum_service_obj = dict(
     binary='fake-service',
-    state='up',
-    report_count=1,
-    human_id=None,
+    created_at='2015-08-27T09:49:58-05:00',
+    disabled_reason=None,
     host='fake-host',
+    human_id=None,
     id=1,
-    disabled_reason=None
+    report_count=1,
+    state='up',
+    updated_at=None,
 )
 
 
-class TestMagnumServices(base.TestCase):
+class TestMagnumServices(base.RequestsMockTestCase):
 
-    @mock.patch.object(shade.OpenStackCloud, 'magnum_client')
-    def test_list_magnum_services(self, mock_magnum):
-        mock_magnum.mservices.list.return_value = [magnum_service_obj, ]
+    def test_list_magnum_services(self):
+        self.register_uris([dict(
+            method='GET',
+            uri='https://container-infra.example.com/v1/mservices',
+            json=dict(mservices=[magnum_service_obj]))])
         mservices_list = self.op_cloud.list_magnum_services()
-        mock_magnum.mservices.list.assert_called_with(detail=False)
-        self.assertEqual(mservices_list[0], magnum_service_obj)
+        self.assertEqual(
+            mservices_list[0],
+            self.cloud._normalize_magnum_service(magnum_service_obj))
+        self.assert_calls()
