@@ -63,6 +63,9 @@ class Agent(resource.Resource):
     started_at = resource.Body('started_at')
     #: The messaging queue topic the network agent subscribes to.
     topic = resource.Body('topic')
+    #: The HA state of the L3 agent. This is one of 'active', 'standby' or
+    #: 'fault' for HA routers, or None for other types of routers.
+    ha_state = resource.Body('ha_state')
 
     def add_agent_to_network(self, session, network_id):
         body = {'network_id': network_id}
