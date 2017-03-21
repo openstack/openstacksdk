@@ -58,6 +58,7 @@ _ServiceData = collections.namedtuple(
     'service_id, service_name, service_type, description, enabled, '
     'json_response_v3, json_response_v2, json_request')
 
+
 _EndpointDataV3 = collections.namedtuple(
     'EndpointData',
     'endpoint_id, service_id, interface, region, url, enabled, '
@@ -69,6 +70,13 @@ _EndpointDataV2 = collections.namedtuple(
     'endpoint_id, service_id, region, public_url, internal_url, '
     'admin_url, v3_endpoint_list, json_response, '
     'json_request')
+
+
+# NOTE(notmorgan): Shade does not support domain-specific roles
+# This should eventually be fixed if it becomes a main-stream feature.
+_RoleData = collections.namedtuple(
+    'RoleData',
+    'role_id, role_name, json_response, json_request')
 
 
 class BaseTestCase(base.TestCase):
@@ -166,16 +174,20 @@ class RequestsMockTestCase(BaseTestCase):
         self.__register_uris_called = False
 
     def get_mock_url(self, service_type, interface, resource=None,
-                     append=None, base_url_append=None):
+                     append=None, base_url_append=None,
+                     qs_elements=None):
         endpoint_url = self.cloud.endpoint_for(
             service_type=service_type, interface=interface)
         to_join = [endpoint_url]
+        qs = ''
         if base_url_append:
             to_join.append(base_url_append)
         if resource:
             to_join.append(resource)
         to_join.extend(append or [])
-        return '/'.join(to_join)
+        if qs_elements is not None:
+            qs = '?%s' % '&'.join(qs_elements)
+        return '%(uri)s%(qs)s' % {'uri': '/'.join(to_join), 'qs': qs}
 
     def mock_for_keystone_projects(self, project=None, v3=True,
                                    list_get=False, id_get=False,
@@ -228,12 +240,12 @@ class RequestsMockTestCase(BaseTestCase):
         return project_list
 
     def _get_project_data(self, project_name=None, enabled=None,
-                          description=None, v3=True):
+                          domain_id=None, description=None, v3=True):
         project_name = project_name or self.getUniqueString('projectName')
         project_id = uuid.uuid4().hex
         response = {'id': project_id, 'name': project_name}
         request = {'name': project_name}
-        domain_id = uuid.uuid4().hex if v3 else None
+        domain_id = (domain_id or uuid.uuid4().hex) if v3 else None
         if domain_id:
             request['domain_id'] = domain_id
             response['domain_id'] = domain_id
@@ -373,6 +385,15 @@ class RequestsMockTestCase(BaseTestCase):
         return _EndpointDataV2(endpoint_id, service_id, region, public_url,
                                internal_url, admin_url, v3_endpoints,
                                {'endpoint': response}, {'endpoint': request})
+
+    def _get_role_data(self, role_name=None):
+        role_id = uuid.uuid4().hex
+        role_name = role_name or uuid.uuid4().hex
+        request = {'name': role_name}
+        response = request.copy()
+        response['id'] = role_id
+        return _RoleData(role_id, role_name, {'role': response},
+                         {'role': request})
 
     def use_keystone_v3(self):
         self.adapter = self.useFixture(rm_fixture.Fixture())
