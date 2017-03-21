@@ -5422,7 +5422,9 @@ class OpenStackCloud(_normalize.Normalizer):
         for count in _utils._iterate_timeout(
                 timeout,
                 timeout_message,
-                wait=self._SERVER_AGE):
+                # if _SERVER_AGE is 0 we still want to wait a bit
+                # to be friendly with the server.
+                wait=self._SERVER_AGE or 2):
             try:
                 # Use the get_server call so that the list_servers
                 # cache can be leveraged
