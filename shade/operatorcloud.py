@@ -2251,5 +2251,5 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: OpenStackCloudException on operation error.
         """
         with _utils.shade_exceptions("Error fetching Magnum services list"):
-            return self.manager.submit_task(
-                _tasks.MagnumServicesList())
+            return self._normalize_magnum_services(
+                self.manager.submit_task(_tasks.MagnumServicesList()))
