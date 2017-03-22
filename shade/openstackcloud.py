@@ -5641,7 +5641,9 @@ class OpenStackCloud(_normalize.Normalizer):
         for count in _utils._iterate_timeout(
                 timeout,
                 "Timed out waiting for server to get deleted.",
-                wait=self._SERVER_AGE):
+                # if _SERVER_AGE is 0 we still want to wait a bit
+                # to be friendly with the server.
+                wait=self._SERVER_AGE or 2):
             with _utils.shade_exceptions("Error in deleting server"):
                 server = self.get_server(server['id'])
                 if not server:
