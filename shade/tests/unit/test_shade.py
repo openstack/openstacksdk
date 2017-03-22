@@ -13,7 +13,6 @@
 import mock
 import munch
 
-from heatclient import client as heat_client
 from neutronclient.common import exceptions as n_exc
 import testtools
 
@@ -82,7 +81,7 @@ class TestShade(base.TestCase):
         self.cloud.heat_client
         get_legacy_client_mock.assert_called_once_with(
             service_key='orchestration',
-            client_class=heat_client.Client,
+            client_class=None,
             interface_key=None,
             pass_version_arg=True,
         )

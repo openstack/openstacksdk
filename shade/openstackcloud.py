@@ -31,16 +31,10 @@ import requestsexceptions
 from six.moves import urllib
 
 import cinderclient.exceptions as cinder_exceptions
-import heatclient.client
 import magnumclient.exceptions as magnum_exceptions
 from heatclient import exc as heat_exceptions
 import keystoneauth1.exceptions
-import keystoneclient.client
-import magnumclient.client
-import neutronclient.neutron.client
-import novaclient.client
 import novaclient.exceptions as nova_exceptions
-import designateclient.client
 
 from shade.exc import *  # noqa
 from shade import _adapter
@@ -339,7 +333,7 @@ class OpenStackCloud(_normalize.Normalizer):
             return self._cache
 
     def _get_client(
-            self, service_key, client_class, interface_key=None,
+            self, service_key, client_class=None, interface_key=None,
             pass_version_arg=True, **kwargs):
         try:
             client = self.cloud_config.get_legacy_client(
@@ -544,8 +538,7 @@ class OpenStackCloud(_normalize.Normalizer):
     @property
     def nova_client(self):
         if self._nova_client is None:
-            self._nova_client = self._get_client(
-                'compute', novaclient.client.Client, version='2.0')
+            self._nova_client = self._get_client('compute', version='2.0')
         return self._nova_client
 
     @property
@@ -561,8 +554,7 @@ class OpenStackCloud(_normalize.Normalizer):
     @property
     def keystone_client(self):
         if self._keystone_client is None:
-            self._keystone_client = self._get_client(
-                'identity', keystoneclient.client.Client)
+            self._keystone_client = self._get_client('identity')
         return self._keystone_client
 
     @property
@@ -1092,22 +1084,20 @@ class OpenStackCloud(_normalize.Normalizer):
             ' need a raw glanceclient.Client object, please use'
             ' make_legacy_client in os-client-config instead')
         try:
-            import glanceclient
+            import glanceclient  # flake8: noqa
         except ImportError:
             self.log.error(
                 'glanceclient is no longer a dependency of shade. You need to'
                 ' install python-glanceclient directly.')
             raise
         if self._glance_client is None:
-            self._glance_client = self._get_client(
-                'image', glanceclient.Client)
+            self._glance_client = self._get_client('image')
         return self._glance_client
 
     @property
     def heat_client(self):
         if self._heat_client is None:
-            self._heat_client = self._get_client(
-                'orchestration', heatclient.client.Client)
+            self._heat_client = self._get_client('orchestration')
         return self._heat_client
 
     def get_template_contents(
@@ -1128,13 +1118,12 @@ class OpenStackCloud(_normalize.Normalizer):
             ' need a raw swiftclient.Connection object, please use'
             ' make_legacy_client in os-client-config instead')
         try:
-            import swiftclient.client
+            import swiftclient.client  # flake8: noqa
         except ImportError:
             self.log.error(
                 'swiftclient is no longer a dependency of shade. You need to'
                 ' install python-swiftclient directly.')
-        return self._get_client(
-            'object-store', swiftclient.client.Connection)
+        return self._get_client('object-store')
 
     def _get_swift_kwargs(self):
         auth_version = self.cloud_config.get_api_version('identity')
@@ -1186,10 +1175,9 @@ class OpenStackCloud(_normalize.Normalizer):
 
         # Import cinderclient late because importing it at the top level
         # breaks logging for users of shade
-        import cinderclient.client
+        import cinderclient.client  # flake8: noqa
         if self._cinder_client is None:
-            self._cinder_client = self._get_client(
-                'volume', cinderclient.client.Client)
+            self._cinder_client = self._get_client('volume')
         return self._cinder_client
 
     @property
@@ -1198,35 +1186,26 @@ class OpenStackCloud(_normalize.Normalizer):
             'Using shade to get a trove_client object is deprecated. If you'
             ' need a raw troveclient.client.Client object, please use'
             ' make_legacy_client in os-client-config instead')
-        import troveclient.client
         if self._trove_client is None:
-            self._trove_client = self._get_client(
-                'database', troveclient.client.Client)
+            self._trove_client = self._get_client('database')
         return self._trove_client
 
     @property
     def magnum_client(self):
         if self._magnum_client is None:
-            # Workaround for os-client-config <=1.24.0 which thought of
-            # this as container rather than container-infra (so did we all)
-            version = self.cloud_config.get_api_version('container-infra')
-            if not version:
-                version = self.cloud_config.get_api_version('container')
-            self._magnum_client = self._get_client(
-                service_key='container-infra',
-                client_class=magnumclient.client.Client,
-                version=version)
+            self._magnum_client = self._get_client('container-infra')
         return self._magnum_client
 
     @property
     def neutron_client(self):
         if self._neutron_client is None:
-            self._neutron_client = self._get_client(
-                'network', neutronclient.neutron.client.Client)
+            self._neutron_client = self._get_client('network')
         return self._neutron_client
 
     @property
     def designate_client(self):
+        # Note: Explicit constructor is needed until occ 1.27.0
+        import designateclient.client  # flake8: noqa
         if self._designate_client is None:
             self._designate_client = self._get_client(
                 'dns', designateclient.client.Client)
