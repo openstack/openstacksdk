@@ -836,3 +836,72 @@ class Normalizer(object):
         for server_usage in server_usages:
             ret.append(self._normalize_server_usage(server_usage))
         return ret
+
+    def _normalize_cluster_templates(self, cluster_templates):
+        ret = []
+        for cluster_template in cluster_templates:
+            ret.append(self._normalize_cluster_template(cluster_template))
+        return ret
+
+    def _normalize_cluster_template(self, cluster_template):
+        """Normalize Magnum cluster_templates."""
+        cluster_template = cluster_template.copy()
+
+        # Discard noise
+        cluster_template.pop('links', None)
+        cluster_template.pop('human_id', None)
+        # model_name is a magnumclient-ism
+        cluster_template.pop('model_name', None)
+
+        ct_id = cluster_template.pop('uuid')
+
+        ret = munch.Munch(
+            id=ct_id,
+            location=self._get_current_location(),
+        )
+        ret['is_public'] = cluster_template.pop('public')
+        ret['is_registry_enabled'] = cluster_template.pop('registry_enabled')
+        ret['is_tls_disabled'] = cluster_template.pop('tls_disabled')
+        # pop floating_ip_enabled since we want to hide it in a future patch
+        fip_enabled = cluster_template.pop('floating_ip_enabled', None)
+        if not self.strict_mode:
+            ret['uuid'] = ct_id
+            if fip_enabled is not None:
+                ret['floating_ip_enabled'] = fip_enabled
+            ret['public'] = ret['is_public']
+            ret['registry_enabled'] = ret['is_registry_enabled']
+            ret['tls_disabled'] = ret['is_tls_disabled']
+
+        # Optional keys
+        for (key, default) in (
+                ('fixed_network', None),
+                ('fixed_subnet', None),
+                ('http_proxy', None),
+                ('https_proxy', None),
+                ('labels', {}),
+                ('master_flavor_id', None),
+                ('no_proxy', None)):
+            if key in cluster_template:
+                ret[key] = cluster_template.pop(key, default)
+
+        for key in (
+                'apiserver_port',
+                'cluster_distro',
+                'coe',
+                'created_at',
+                'dns_nameserver',
+                'docker_volume_size',
+                'external_network_id',
+                'flavor_id',
+                'image_id',
+                'insecure_registry',
+                'keypair_id',
+                'name',
+                'network_driver',
+                'server_type',
+                'updated_at',
+                'volume_driver'):
+            ret[key] = cluster_template.pop(key)
+
+        ret['properties'] = cluster_template
+        return ret

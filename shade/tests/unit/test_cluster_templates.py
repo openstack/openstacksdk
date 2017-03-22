@@ -15,52 +15,38 @@ import mock
 import munch
 
 import shade
-from shade import _utils
 import testtools
 from shade.tests.unit import base
 
 
 cluster_template_obj = munch.Munch(
-    apiserver_port=None,
-    uuid='fake-uuid',
-    human_id=None,
-    name='fake-cluster-template',
-    server_type='vm',
-    public=False,
-    image_id='fake-image',
-    tls_disabled=False,
-    registry_enabled=False,
-    coe='fake-coe',
-    keypair_id='fake-key',
-)
-
-cluster_template_detail_obj = munch.Munch(
-    links={},
-    labels={},
-    apiserver_port=None,
-    uuid='fake-uuid',
-    human_id=None,
-    name='fake-cluster-template',
-    server_type='vm',
-    public=False,
-    image_id='fake-image',
-    tls_disabled=False,
-    registry_enabled=False,
+    apiserver_port=12345,
+    cluster_distro='fake-distro',
     coe='fake-coe',
     created_at='fake-date',
-    updated_at=None,
-    master_flavor_id=None,
-    no_proxy=None,
-    https_proxy=None,
-    keypair_id='fake-key',
+    dns_nameserver='8.8.8.8',
     docker_volume_size=1,
     external_network_id='public',
-    cluster_distro='fake-distro',
-    volume_driver=None,
-    network_driver='fake-driver',
     fixed_network=None,
     flavor_id='fake-flavor',
-    dns_nameserver='8.8.8.8',
+    https_proxy=None,
+    human_id=None,
+    image_id='fake-image',
+    insecure_registry='https://192.168.0.10',
+    keypair_id='fake-key',
+    labels={},
+    links={},
+    master_flavor_id=None,
+    name='fake-cluster-template',
+    network_driver='fake-driver',
+    no_proxy=None,
+    public=False,
+    registry_enabled=False,
+    server_type='vm',
+    tls_disabled=False,
+    updated_at=None,
+    uuid='fake-uuid',
+    volume_driver=None,
 )
 
 
@@ -70,24 +56,24 @@ class TestClusterTemplates(base.RequestsMockTestCase):
 
         self.register_uris([dict(
             method='GET',
-            uri='https://container-infra.example.com/v1/baymodels',
+            uri='https://container-infra.example.com/v1/baymodels/detail',
             json=dict(baymodels=[cluster_template_obj.toDict()]))])
         cluster_templates_list = self.cloud.list_cluster_templates()
         self.assertEqual(
             cluster_templates_list[0],
-            _utils.normalize_cluster_templates([cluster_template_obj])[0])
+            self.cloud._normalize_cluster_template(cluster_template_obj))
         self.assert_calls()
 
     def test_list_cluster_templates_with_detail(self):
         self.register_uris([dict(
             method='GET',
             uri='https://container-infra.example.com/v1/baymodels/detail',
-            json=dict(baymodels=[cluster_template_detail_obj.toDict()]))])
+            json=dict(baymodels=[cluster_template_obj.toDict()]))])
         cluster_templates_list = self.cloud.list_cluster_templates(detail=True)
         self.assertEqual(
             cluster_templates_list[0],
-            _utils.normalize_cluster_templates(
-                [cluster_template_detail_obj])[0])
+            self.cloud._normalize_cluster_template(
+                cluster_template_obj))
         self.assert_calls()
 
     @mock.patch.object(shade.OpenStackCloud, 'magnum_client')
@@ -97,7 +83,7 @@ class TestClusterTemplates(base.RequestsMockTestCase):
 
         cluster_templates = self.cloud.search_cluster_templates(
             name_or_id='fake-cluster-template')
-        mock_magnum.baymodels.list.assert_called_with(detail=False)
+        mock_magnum.baymodels.list.assert_called_with(detail=True)
 
         self.assertEqual(1, len(cluster_templates))
         self.assertEqual('fake-uuid', cluster_templates[0]['uuid'])
@@ -110,7 +96,7 @@ class TestClusterTemplates(base.RequestsMockTestCase):
         cluster_templates = self.cloud.search_cluster_templates(
             name_or_id='non-existent')
 
-        mock_magnum.baymodels.list.assert_called_with(detail=False)
+        mock_magnum.baymodels.list.assert_called_with(detail=True)
         self.assertEqual(0, len(cluster_templates))
 
     @mock.patch.object(shade.OpenStackCloud, 'search_cluster_templates')
