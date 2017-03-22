@@ -3679,7 +3679,7 @@ class OpenStackCloud(_normalize.Normalizer):
             self._image_client.patch(
                 '/images/{id}'.format(id=image.id),
                 headers=headers,
-                json=patch)
+                data=json.dumps(patch))
 
         self.list_images.invalidate(self)
         return True
