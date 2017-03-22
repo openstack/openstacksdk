@@ -11,7 +11,6 @@
 # under the License.
 
 
-import mock
 import munch
 
 import shade
@@ -72,86 +71,126 @@ class TestClusterTemplates(base.RequestsMockTestCase):
         cluster_templates_list = self.cloud.list_cluster_templates(detail=True)
         self.assertEqual(
             cluster_templates_list[0],
-            self.cloud._normalize_cluster_template(
-                cluster_template_obj))
+            self.cloud._normalize_cluster_template(cluster_template_obj))
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'magnum_client')
-    def test_search_cluster_templates_by_name(self, mock_magnum):
-        mock_magnum.baymodels.list.return_value = [
-            cluster_template_obj]
+    def test_search_cluster_templates_by_name(self):
+        self.register_uris([dict(
+            method='GET',
+            uri='https://container-infra.example.com/v1/baymodels/detail',
+            json=dict(baymodels=[cluster_template_obj.toDict()]))])
 
         cluster_templates = self.cloud.search_cluster_templates(
             name_or_id='fake-cluster-template')
-        mock_magnum.baymodels.list.assert_called_with(detail=True)
 
         self.assertEqual(1, len(cluster_templates))
         self.assertEqual('fake-uuid', cluster_templates[0]['uuid'])
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'magnum_client')
-    def test_search_cluster_templates_not_found(self, mock_magnum):
-        mock_magnum.baymodels.list.return_value = [
-            cluster_template_obj]
+    def test_search_cluster_templates_not_found(self):
+
+        self.register_uris([dict(
+            method='GET',
+            uri='https://container-infra.example.com/v1/baymodels/detail',
+            json=dict(baymodels=[cluster_template_obj.toDict()]))])
 
         cluster_templates = self.cloud.search_cluster_templates(
             name_or_id='non-existent')
 
-        mock_magnum.baymodels.list.assert_called_with(detail=True)
         self.assertEqual(0, len(cluster_templates))
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_cluster_templates')
-    def test_get_cluster_template(self, mock_search):
-        mock_search.return_value = [cluster_template_obj, ]
+    def test_get_cluster_template(self):
+        self.register_uris([dict(
+            method='GET',
+            uri='https://container-infra.example.com/v1/baymodels/detail',
+            json=dict(baymodels=[cluster_template_obj.toDict()]))])
+
         r = self.cloud.get_cluster_template('fake-cluster-template')
         self.assertIsNotNone(r)
-        self.assertDictEqual(cluster_template_obj, r)
+        self.assertDictEqual(
+            r, self.cloud._normalize_cluster_template(cluster_template_obj))
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_cluster_templates')
-    def test_get_cluster_template_not_found(self, mock_search):
-        mock_search.return_value = []
+    def test_get_cluster_template_not_found(self):
+        self.register_uris([dict(
+            method='GET',
+            uri='https://container-infra.example.com/v1/baymodels/detail',
+            json=dict(baymodels=[]))])
         r = self.cloud.get_cluster_template('doesNotExist')
         self.assertIsNone(r)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'magnum_client')
-    def test_create_cluster_template(self, mock_magnum):
+    def test_create_cluster_template(self):
+        self.register_uris([dict(
+            method='POST',
+            uri='https://container-infra.example.com/v1/baymodels',
+            json=dict(baymodels=[cluster_template_obj.toDict()]),
+            validate=dict(json={
+                'coe': 'fake-coe',
+                'image_id': 'fake-image',
+                'keypair_id': 'fake-key',
+                'name': 'fake-cluster-template'}),
+        )])
         self.cloud.create_cluster_template(
             name=cluster_template_obj.name,
             image_id=cluster_template_obj.image_id,
             keypair_id=cluster_template_obj.keypair_id,
             coe=cluster_template_obj.coe)
-        mock_magnum.baymodels.create.assert_called_once_with(
-            name=cluster_template_obj.name,
-            image_id=cluster_template_obj.image_id,
-            keypair_id=cluster_template_obj.keypair_id,
-            coe=cluster_template_obj.coe
-        )
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'magnum_client')
-    def test_create_cluster_template_exception(self, mock_magnum):
-        mock_magnum.baymodels.create.side_effect = Exception()
+    def test_create_cluster_template_exception(self):
+        self.register_uris([dict(
+            method='POST',
+            uri='https://container-infra.example.com/v1/baymodels',
+            status_code=403)])
         with testtools.ExpectedException(
             shade.OpenStackCloudException,
             "Error creating cluster template of name fake-cluster-template"
         ):
             self.cloud.create_cluster_template('fake-cluster-template')
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'magnum_client')
-    def test_delete_cluster_template(self, mock_magnum):
-        mock_magnum.baymodels.list.return_value = [
-            cluster_template_obj]
+    def test_delete_cluster_template(self):
+        uri = 'https://container-infra.example.com/v1/baymodels/fake-uuid'
+        self.register_uris([
+            dict(
+                method='GET',
+                uri='https://container-infra.example.com/v1/baymodels/detail',
+                json=dict(baymodels=[cluster_template_obj.toDict()])),
+            dict(
+                method='DELETE',
+                uri=uri),
+        ])
         self.cloud.delete_cluster_template('fake-uuid')
-        mock_magnum.baymodels.delete.assert_called_once_with(
-            'fake-uuid'
-        )
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'magnum_client')
-    def test_update_cluster_template(self, mock_magnum):
+    def test_update_cluster_template(self):
+        uri = 'https://container-infra.example.com/v1/baymodels/fake-uuid'
+        self.register_uris([
+            dict(
+                method='GET',
+                uri='https://container-infra.example.com/v1/baymodels/detail',
+                json=dict(baymodels=[cluster_template_obj.toDict()])),
+            dict(
+                method='PATCH',
+                uri=uri,
+                status_code=200,
+                validate=dict(
+                    json=[{
+                        u'op': u'replace',
+                        u'path': u'/name',
+                        u'value': u'new-cluster-template'
+                    }]
+                )),
+            dict(
+                method='GET',
+                uri='https://container-infra.example.com/v1/baymodels/detail',
+                # This json value is not meaningful to the test - it just has
+                # to be valid.
+                json=dict(baymodels=[cluster_template_obj.toDict()])),
+        ])
         new_name = 'new-cluster-template'
-        mock_magnum.baymodels.list.return_value = [
-            cluster_template_obj]
         self.cloud.update_cluster_template(
             'fake-uuid', 'replace', name=new_name)
-        mock_magnum.baymodels.update.assert_called_once_with(
-            'fake-uuid', [{'path': '/name', 'op': 'replace',
-                           'value': 'new-cluster-template'}]
-        )
+        self.assert_calls()
