@@ -12,6 +12,7 @@
 
 from openstack.load_balancer.v2 import listener as _listener
 from openstack.load_balancer.v2 import load_balancer as _lb
+from openstack.load_balancer.v2 import pool as _pool
 from openstack import proxy2
 
 
@@ -176,3 +177,82 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class:`~openstack.load_balancer.v2.listener.Listener`
         """
         return self._update(_listener.Listener, listener, **attrs)
+
+    def create_pool(self, **attrs):
+        """Create a new pool from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.load_balancer.v2.
+                           pool.Pool`,
+                           comprised of the properties on the
+                           Pool class.
+
+        :returns: The results of Pool creation
+        :rtype: :class:`~openstack.load_balancer.v2.pool.Pool`
+        """
+        return self._create(_pool.Pool, **attrs)
+
+    def get_pool(self, *attrs):
+        """Get a pool
+
+        :param pool: Value is
+            :class:`~openstack.load_balancer.v2.pool.Pool`
+            instance.
+
+        :returns: One
+             :class:`~openstack.load_balancer.v2.pool.Pool`
+        """
+        return self._get(_pool.Pool, *attrs)
+
+    def pools(self, **query):
+        """Retrieve a generator of pools
+
+        :returns: A generator of Pool instances
+        """
+        return self._list(_pool.Pool, paginated=True, **query)
+
+    def delete_pool(self, pool, ignore_missing=True):
+        """Delete a pool
+
+        :param pool: The pool is a
+            :class:`~openstack.load_balancer.v2.pool.Pool`
+            instance
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the pool does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent pool.
+
+        :returns: ``None``
+        """
+        return self._delete(_pool.Pool, pool,
+                            ignore_missing=ignore_missing)
+
+    def find_pool(self, name_or_id, ignore_missing=True):
+        """Find a single pool
+
+        :param name_or_id: The name or ID of a pool
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the pool does not exist.
+            When set to ``True``, no exception will be set when attempting
+            to delete a nonexistent pool.
+
+        :returns: ``None``
+        """
+        return self._find(_pool.Pool, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def update_pool(self, pool, **attrs):
+        """Update a pool
+
+        :param pool: Either the id of a pool or a
+                      :class:`~openstack.load_balancer.v2.pool.Pool`
+                      instance.
+        :param dict attrs: The attributes to update on the pool
+                           represented by ``pool``.
+
+        :returns: The updated pool
+        :rtype: :class:`~openstack.load_balancer.v2.pool.Pool`
+        """
+        return self._update(_pool.Pool, pool, **attrs)

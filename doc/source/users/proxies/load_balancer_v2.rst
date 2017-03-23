@@ -33,3 +33,15 @@ Listener Operations
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_listener
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.listeners
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_listener
+
+Pool Operations
+^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.load_balancer.v2._proxy.Proxy
+
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.create_pool
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.delete_pool
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_pool
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_pool
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.pools
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_pool

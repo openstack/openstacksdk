@@ -13,6 +13,7 @@
 from openstack.load_balancer.v2 import _proxy
 from openstack.load_balancer.v2 import listener
 from openstack.load_balancer.v2 import load_balancer as lb
+from openstack.load_balancer.v2 import pool
 from openstack.tests.unit import test_proxy_base2
 
 
@@ -70,3 +71,28 @@ class TestLoadBalancerProxy(test_proxy_base2.TestProxyBase):
     def test_listener_update(self):
         self.verify_update(self.proxy.update_listener,
                            listener.Listener)
+
+    def test_pools(self):
+        self.verify_list(self.proxy.pools,
+                         pool.Pool,
+                         paginated=True)
+
+    def test_pool_get(self):
+        self.verify_get(self.proxy.get_pool,
+                        pool.Pool)
+
+    def test_pool_create(self):
+        self.verify_create(self.proxy.create_pool,
+                           pool.Pool)
+
+    def test_pool_delete(self):
+        self.verify_delete(self.proxy.delete_pool,
+                           pool.Pool, True)
+
+    def test_pool_find(self):
+        self.verify_find(self.proxy.find_pool,
+                         pool.Pool)
+
+    def test_pool_update(self):
+        self.verify_update(self.proxy.update_pool,
+                           pool.Pool)

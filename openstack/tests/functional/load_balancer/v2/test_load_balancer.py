@@ -15,6 +15,7 @@ import uuid
 
 from openstack.load_balancer.v2 import listener
 from openstack.load_balancer.v2 import load_balancer
+from openstack.load_balancer.v2 import pool
 from openstack.tests.functional import base
 from openstack.tests.functional.load_balancer import base as lb_base
 
@@ -25,13 +26,16 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
 
     LB_NAME = uuid.uuid4().hex
     LISTENER_NAME = uuid.uuid4().hex
+    POOL_NAME = uuid.uuid4().hex
     UPDATE_NAME = uuid.uuid4().hex
     LB_ID = None
     LISTENER_ID = None
+    POOL_ID = None
     VIP_SUBNET_ID = None
     PROJECT_ID = None
     PROTOCOL = 'HTTP'
     PROTOCOL_PORT = 80
+    LB_ALGORITHM = 'ROUND_ROBIN'
 
     # Note: Creating load balancers can be slow on some hosts due to nova
     #       instance boot times (up to ten minutes) so we are consolidating
@@ -62,15 +66,27 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         cls.lb_wait_for_status(test_lb, status='ACTIVE',
                                failures=['ERROR'])
 
+        test_pool = cls.conn.load_balancer.create_pool(
+            name=cls.POOL_NAME, protocol=cls.PROTOCOL,
+            lb_algorithm=cls.LB_ALGORITHM, listener_id=cls.LISTENER_ID)
+        assert isinstance(test_pool, pool.Pool)
+        cls.assertIs(cls.POOL_NAME, test_pool.name)
+        cls.POOL_ID = test_pool.id
+        cls.lb_wait_for_status(test_lb, status='ACTIVE',
+                               failures=['ERROR'])
+
     @classmethod
     def tearDownClass(cls):
         test_lb = cls.conn.load_balancer.get_load_balancer(cls.LB_ID)
-        cls.lb_wait_for_status(test_lb, status='ACTIVE',
-                               failures=['ERROR'])
+        cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+
+        cls.conn.load_balancer.delete_pool(cls.POOL_ID, ignore_missing=False)
+        cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+
         cls.conn.load_balancer.delete_listener(cls.LISTENER_ID,
                                                ignore_missing=False)
-        cls.lb_wait_for_status(test_lb, status='ACTIVE',
-                               failures=['ERROR'])
+        cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+
         cls.conn.load_balancer.delete_load_balancer(
             cls.LB_ID, ignore_missing=False)
 
@@ -135,3 +151,32 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
                                 failures=['ERROR'])
         test_listener = self.conn.load_balancer.get_listener(self.LISTENER_ID)
         self.assertEqual(self.LISTENER_NAME, test_listener.name)
+
+    def test_pool_find(self):
+        test_pool = self.conn.load_balancer.find_pool(self.POOL_NAME)
+        self.assertEqual(self.POOL_ID, test_pool.id)
+
+    def test_pool_get(self):
+        test_pool = self.conn.load_balancer.get_pool(self.POOL_ID)
+        self.assertEqual(self.POOL_NAME, test_pool.name)
+        self.assertEqual(self.POOL_ID, test_pool.id)
+        self.assertEqual(self.PROTOCOL, test_pool.protocol)
+
+    def test_pool_list(self):
+        names = [pool.name for pool in self.conn.load_balancer.pools()]
+        self.assertIn(self.POOL_NAME, names)
+
+    def test_pool_update(self):
+        test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
+
+        self.conn.load_balancer.update_pool(self.POOL_ID,
+                                            name=self.UPDATE_NAME)
+        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        test_pool = self.conn.load_balancer.get_pool(self.POOL_ID)
+        self.assertEqual(self.UPDATE_NAME, test_pool.name)
+
+        self.conn.load_balancer.update_pool(self.POOL_ID,
+                                            name=self.POOL_NAME)
+        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        test_pool = self.conn.load_balancer.get_pool(self.POOL_ID)
+        self.assertEqual(self.POOL_NAME, test_pool.name)
