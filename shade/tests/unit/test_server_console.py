@@ -12,48 +12,78 @@
 
 
 import mock
-import novaclient.exceptions as nova_exceptions
+import uuid
 
 import shade
 from shade.tests.unit import base
 from shade.tests import fakes
 
 
-class TestServerConsole(base.TestCase):
+class TestServerConsole(base.RequestsMockTestCase):
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_get_server_console_dict(self, mock_nova):
-        server = dict(id='12345')
-        self.cloud.get_server_console(server)
+    def setUp(self):
+        super(TestServerConsole, self).setUp()
 
-        mock_nova.servers.list.assert_not_called()
-        mock_nova.servers.get_console_output.assert_called_once_with(
-            server='12345', length=None)
+        self.server_id = str(uuid.uuid4())
+        self.server_name = self.getUniqueString('name')
+        self.server = fakes.make_fake_server(
+            server_id=self.server_id, name=self.server_name)
+        self.output = self.getUniqueString('output')
+
+    def test_get_server_console_dict(self):
+        self.register_uris([
+            dict(method='POST',
+                 uri='{endpoint}/servers/{id}/action'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT,
+                     id=self.server_id),
+                 json={"output": self.output},
+                 validate=dict(
+                     json={'os-getConsoleOutput': {'length': None}}))
+        ])
+
+        self.assertEqual(
+            self.output, self.cloud.get_server_console(self.server))
+        self.assert_calls()
 
     @mock.patch.object(shade.OpenStackCloud, 'has_service')
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_get_server_console_name_or_id(self, mock_nova, mock_has_service):
-        server = '12345'
-
-        fake_server = fakes.FakeServer(server, '', 'ACTIVE')
-        mock_nova.servers.get.return_value = fake_server
-        mock_nova.servers.list.return_value = [fake_server]
+    def test_get_server_console_name_or_id(self, mock_has_service):
+        # Turn off neutron for now - we don't _actually_ want to show all
+        # of the nova normalization calls.
+        # TODO(mordred) Tell get_server_console to tell shade to skip
+        #               adding normalization, since we don't consume them
         mock_has_service.return_value = False
 
-        self.cloud.get_server_console(server)
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/servers/detail'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json={"servers": [self.server]}),
+            dict(method='POST',
+                 uri='{endpoint}/servers/{id}/action'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT,
+                     id=self.server_id),
+                 json={"output": self.output},
+                 validate=dict(
+                     json={'os-getConsoleOutput': {'length': None}}))
+        ])
 
-        mock_nova.servers.get_console_output.assert_called_once_with(
-            server='12345', length=None)
+        self.assertEqual(
+            self.output, self.cloud.get_server_console(self.server['id']))
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_get_server_console_no_console(self, mock_nova):
-        server = dict(id='12345')
-        exc = nova_exceptions.BadRequest(
-            'There is no such action: os-getConsoleOutput')
-        mock_nova.servers.get_console_output.side_effect = exc
-        log = self.cloud.get_server_console(server)
+        self.assert_calls()
 
-        self.assertEqual('', log)
-        mock_nova.servers.list.assert_not_called()
-        mock_nova.servers.get_console_output.assert_called_once_with(
-            server='12345', length=None)
+    def test_get_server_console_no_console(self):
+
+        self.register_uris([
+            dict(method='POST',
+                 uri='{endpoint}/servers/{id}/action'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT,
+                     id=self.server_id),
+                 status_code=400,
+                 validate=dict(
+                     json={'os-getConsoleOutput': {'length': None}}))
+        ])
+
+        self.assertEqual('', self.cloud.get_server_console(self.server))
+
+        self.assert_calls()
