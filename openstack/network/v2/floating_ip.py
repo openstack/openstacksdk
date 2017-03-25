@@ -48,6 +48,9 @@ class FloatingIP(resource.Resource):
     fixed_ip_address = resource.Body('fixed_ip_address')
     #: The floating IP address.
     floating_ip_address = resource.Body('floating_ip_address')
+    #: Floating IP object doesn't have name attribute, set ip address to name
+    #: so that user could find floating IP by UUID or IP address using find_ip
+    name = floating_ip_address
     #: The ID of the network associated with the floating IP.
     floating_network_id = resource.Body('floating_network_id')
     #: The port ID.
