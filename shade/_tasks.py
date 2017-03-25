@@ -449,11 +449,6 @@ class NeutronFloatingIPUpdate(task_manager.Task):
         return client.neutron_client.update_floatingip(**self.args)
 
 
-class FloatingIPPoolList(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.floating_ip_pools.list()
-
-
 class SubnetCreate(task_manager.Task):
     def main(self, client):
         return client.neutron_client.create_subnet(**self.args)
