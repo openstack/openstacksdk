@@ -17,7 +17,8 @@ test_server_set_metadata
 Tests for the `set_server_metadata` command.
 """
 
-from mock import patch, Mock
+import mock
+
 from shade import OpenStackCloud
 from shade.exc import OpenStackCloudException
 from shade.tests.unit import base
@@ -25,33 +26,26 @@ from shade.tests.unit import base
 
 class TestServerSetMetadata(base.TestCase):
 
-    def test_server_set_metadata_with_set_meta_exception(self):
+    @mock.patch.object(OpenStackCloud, 'nova_client')
+    def test_server_set_metadata_with_set_meta_exception(self, mock_nova):
         """
         Test that a generic exception in the novaclient set_meta raises
         an exception in set_server_metadata.
         """
-        with patch("shade.OpenStackCloud"):
-            config = {
-                "servers.set_meta.side_effect": Exception("exception"),
-            }
-            OpenStackCloud.nova_client = Mock(**config)
+        mock_nova.servers.set_meta.side_effect = Exception("exception")
 
-            self.assertRaises(
-                OpenStackCloudException, self.cloud.set_server_metadata,
-                {'id': 'server-id'}, {'meta': 'data'})
+        self.assertRaises(
+            OpenStackCloudException, self.cloud.set_server_metadata,
+            {'id': 'server-id'}, {'meta': 'data'})
 
-    def test_server_set_metadata_with_exception_reraise(self):
+    @mock.patch.object(OpenStackCloud, 'nova_client')
+    def test_server_set_metadata_with_exception_reraise(self, mock_nova):
         """
         Test that an OpenStackCloudException exception gets re-raised
         in set_server_metadata.
         """
-        with patch("shade.OpenStackCloud"):
-            config = {
-                "servers.set_meta.side_effect":
-                    OpenStackCloudException("exception"),
-            }
-            OpenStackCloud.nova_client = Mock(**config)
+        mock_nova.servers.set_meta.side_effect = OpenStackCloudException("")
 
-            self.assertRaises(
-                OpenStackCloudException, self.cloud.set_server_metadata,
-                'server-id', {'meta': 'data'})
+        self.assertRaises(
+            OpenStackCloudException, self.cloud.set_server_metadata,
+            'server-id', {'meta': 'data'})
