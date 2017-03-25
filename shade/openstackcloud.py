@@ -1952,6 +1952,11 @@ class OpenStackCloud(_normalize.Normalizer):
     def list_floating_ip_pools(self):
         """List all available floating IP pools.
 
+        NOTE: This function supports the nova-net view of the world. nova-net
+        has been deprecated, so it's highly recommended to switch to using
+        neutron. `get_external_ipv4_floating_networks` is what you should
+        almost certainly be using.
+
         :returns: A list of floating IP pool ``munch.Munch``.
 
         """
@@ -1961,8 +1966,8 @@ class OpenStackCloud(_normalize.Normalizer):
 
         with _utils.shade_exceptions("Error fetching floating IP pool list"):
             return [
-                {'name': p['name']} for p in self.manager.submit_task(
-                    _tasks.FloatingIPPoolList())]
+                {'name': p['name']}
+                for p in self._compute_client.get('os-floating-ip-pools')]
 
     def _list_floating_ips(self, filters=None):
         if self._use_neutron_floating():
