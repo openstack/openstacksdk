@@ -19,38 +19,66 @@ test_floating_ip_pool
 Test floating IP pool resource (managed by nova)
 """
 
-from mock import patch
-from shade import OpenStackCloud
 from shade import OpenStackCloudException
 from shade.tests.unit import base
-from shade.tests.fakes import FakeFloatingIPPool
+from shade.tests import fakes
 
 
-class TestFloatingIPPool(base.TestCase):
-    mock_pools = [
-        {'id': 'pool1_id', 'name': 'pool1'},
-        {'id': 'pool2_id', 'name': 'pool2'}]
+class TestFloatingIPPool(base.RequestsMockTestCase):
+    mock_pools = [{
+        'NAME_ATTR': 'name',
+        'name': u'public',
+        'x_openstack_request_ids': [],
+        'request_ids': [],
+        'HUMAN_ID': False,
+        'human_id': None}]
 
-    @patch.object(OpenStackCloud, '_has_nova_extension')
-    @patch.object(OpenStackCloud, 'nova_client')
-    def test_list_floating_ip_pools(
-            self, mock_nova_client, mock__has_nova_extension):
-        mock_nova_client.floating_ip_pools.list.return_value = [
-            FakeFloatingIPPool(**p) for p in self.mock_pools
-        ]
-        mock__has_nova_extension.return_value = True
+    def test_list_floating_ip_pools(self):
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/extensions'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json={'extensions': [{
+                     u'alias': u'os-floating-ip-pools',
+                     u'updated': u'2014-12-03T00:00:00Z',
+                     u'name': u'FloatingIpPools',
+                     u'links': [],
+                     u'namespace':
+                     u'http://docs.openstack.org/compute/ext/fake_xml',
+                     u'description': u'Floating IPs support.'}]}),
+            dict(method='GET',
+                 uri='{endpoint}/os-floating-ip-pools'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json={"floating_ip_pools": [{"name": "public"}]})
+        ])
 
         floating_ip_pools = self.cloud.list_floating_ip_pools()
 
         self.assertItemsEqual(floating_ip_pools, self.mock_pools)
 
-    @patch.object(OpenStackCloud, '_has_nova_extension')
-    @patch.object(OpenStackCloud, 'nova_client')
-    def test_list_floating_ip_pools_exception(
-            self, mock_nova_client, mock__has_nova_extension):
-        mock_nova_client.floating_ip_pools.list.side_effect = \
-            Exception('whatever')
-        mock__has_nova_extension.return_value = True
+        self.assert_calls()
+
+    def test_list_floating_ip_pools_exception(self):
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/extensions'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json={'extensions': [{
+                     u'alias': u'os-floating-ip-pools',
+                     u'updated': u'2014-12-03T00:00:00Z',
+                     u'name': u'FloatingIpPools',
+                     u'links': [],
+                     u'namespace':
+                     u'http://docs.openstack.org/compute/ext/fake_xml',
+                     u'description': u'Floating IPs support.'}]}),
+            dict(method='GET',
+                 uri='{endpoint}/os-floating-ip-pools'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 status_code=404)])
 
         self.assertRaises(
             OpenStackCloudException, self.cloud.list_floating_ip_pools)
+
+        self.assert_calls()
