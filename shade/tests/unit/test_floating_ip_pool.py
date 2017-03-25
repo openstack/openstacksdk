@@ -25,13 +25,7 @@ from shade.tests import fakes
 
 
 class TestFloatingIPPool(base.RequestsMockTestCase):
-    mock_pools = [{
-        'NAME_ATTR': 'name',
-        'name': u'public',
-        'x_openstack_request_ids': [],
-        'request_ids': [],
-        'HUMAN_ID': False,
-        'human_id': None}]
+    pools = [{'name': u'public'}]
 
     def test_list_floating_ip_pools(self):
 
@@ -55,7 +49,7 @@ class TestFloatingIPPool(base.RequestsMockTestCase):
 
         floating_ip_pools = self.cloud.list_floating_ip_pools()
 
-        self.assertItemsEqual(floating_ip_pools, self.mock_pools)
+        self.assertItemsEqual(floating_ip_pools, self.pools)
 
         self.assert_calls()
 
