@@ -56,6 +56,55 @@ FAKE_STRAWBERRY_FLAVOR = make_fake_flavor(
 FAKE_FLAVOR_LIST = [FAKE_FLAVOR, FAKE_CHOCOLATE_FLAVOR, FAKE_STRAWBERRY_FLAVOR]
 
 
+def make_fake_server(server_id, name, status='ACTIVE'):
+    return {
+        "OS-EXT-STS:task_state": None,
+        "addresses": {
+            "private": [
+                {
+                    "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:df:b0:8d",
+                    "version": 6,
+                    "addr": "fddb:b018:307:0:f816:3eff:fedf:b08d",
+                    "OS-EXT-IPS:type": "fixed"},
+                {
+                    "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:df:b0:8d",
+                    "version": 4,
+                    "addr": "10.1.0.9",
+                    "OS-EXT-IPS:type": "fixed"},
+                {
+                    "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:df:b0:8d",
+                    "version": 4,
+                    "addr": "172.24.5.5",
+                    "OS-EXT-IPS:type": "floating"}]},
+        "links": [],
+        "image": {"id": "217f3ab1-03e0-4450-bf27-63d52b421e9e",
+                  "links": []},
+        "OS-EXT-STS:vm_state": "active",
+        "OS-SRV-USG:launched_at": "2017-03-23T23:57:38.000000",
+        "flavor": {"id": "64",
+                   "links": []},
+        "id": server_id,
+        "security_groups": [{"name": "default"}],
+        "user_id": "9c119f4beaaa438792ce89387362b3ad",
+        "OS-DCF:diskConfig": "MANUAL",
+        "accessIPv4": "",
+        "accessIPv6": "",
+        "progress": 0,
+        "OS-EXT-STS:power_state": 1,
+        "OS-EXT-AZ:availability_zone": "nova",
+        "metadata": {},
+        "status": status,
+        "updated": "2017-03-23T23:57:39Z",
+        "hostId": "89d165f04384e3ffa4b6536669eb49104d30d6ca832bba2684605dbc",
+        "OS-SRV-USG:terminated_at": None,
+        "key_name": None,
+        "name": name,
+        "created": "2017-03-23T23:57:12Z",
+        "tenant_id": "fdbf563e9d474696b35667254e65b45b",
+        "os-extended-volumes:volumes_attached": [],
+        "config_drive": "True"}
+
+
 class FakeEndpoint(object):
     def __init__(self, id, service_id, region, publicurl, internalurl=None,
                  adminurl=None):
