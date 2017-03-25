@@ -2588,17 +2588,11 @@ class OpenStackCloud(_normalize.Normalizer):
                 "Console log requested for invalid server")
 
         try:
-            return self.manager.submitTask(
-                _tasks.ServerConsoleGet(server=server['id'], length=length),
-                raw=True)
-        except nova_exceptions.BadRequest:
+            return self._compute_client.post(
+                '/servers/{server}/action'.format(server=server['id']),
+                json={'os-getConsoleOutput': {'length': length}})
+        except OpenStackCloudBadRequest:
             return ""
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Unable to get console log for {server}: {exception}".format(
-                    server=server['id'], exception=str(e)))
 
     def get_server(self, name_or_id=None, filters=None, detailed=False):
         """Get a server by name or ID.
