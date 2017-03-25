@@ -18,16 +18,16 @@ Tests for the `create_server` command.
 """
 
 import mock
+import shade
+from shade import exc
 from shade import meta
-from shade import OpenStackCloud
-from shade.exc import (OpenStackCloudException, OpenStackCloudTimeout)
 from shade.tests import fakes
 from shade.tests.unit import base
 
 
 class TestCreateServer(base.RequestsMockTestCase):
 
-    @mock.patch.object(OpenStackCloud, 'nova_client')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_server_with_create_exception(self, mock_nova):
         """
         Test that an exception in the novaclient create raises an exception in
@@ -35,10 +35,10 @@ class TestCreateServer(base.RequestsMockTestCase):
         """
         mock_nova.servers.create.side_effect = Exception("exception")
         self.assertRaises(
-            OpenStackCloudException, self.cloud.create_server,
+            exc.OpenStackCloudException, self.cloud.create_server,
             'server-name', {'id': 'image-id'}, {'id': 'flavor-id'})
 
-    @mock.patch.object(OpenStackCloud, 'nova_client')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_server_with_get_exception(self, mock_nova):
         """
         Test that an exception when attempting to get the server instance via
@@ -48,10 +48,10 @@ class TestCreateServer(base.RequestsMockTestCase):
         mock_nova.servers.create.return_value = mock.Mock(status="BUILD")
         mock_nova.servers.get.side_effect = Exception("exception")
         self.assertRaises(
-            OpenStackCloudException, self.cloud.create_server,
+            exc.OpenStackCloudException, self.cloud.create_server,
             'server-name', {'id': 'image-id'}, {'id': 'flavor-id'})
 
-    @mock.patch.object(OpenStackCloud, 'nova_client')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_server_with_server_error(self, mock_nova):
         """
         Test that a server error before we return or begin waiting for the
@@ -62,10 +62,10 @@ class TestCreateServer(base.RequestsMockTestCase):
         mock_nova.servers.create.return_value = build_server
         mock_nova.servers.get.return_value = error_server
         self.assertRaises(
-            OpenStackCloudException, self.cloud.create_server,
+            exc.OpenStackCloudException, self.cloud.create_server,
             'server-name', {'id': 'image-id'}, {'id': 'flavor-id'})
 
-    @mock.patch.object(OpenStackCloud, 'nova_client')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_server_wait_server_error(self, mock_nova):
         """
         Test that a server error while waiting for the server to spawn
@@ -81,12 +81,12 @@ class TestCreateServer(base.RequestsMockTestCase):
         mock_nova.servers.list.side_effect = [[build_server], [error_server]]
         mock_nova.floating_ips.list.return_value = [fake_floating_ip]
         self.assertRaises(
-            OpenStackCloudException,
+            exc.OpenStackCloudException,
             self.cloud.create_server,
             'server-name', dict(id='image-id'),
             dict(id='flavor-id'), wait=True)
 
-    @mock.patch.object(OpenStackCloud, 'nova_client')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_server_with_timeout(self, mock_nova):
         """
         Test that a timeout while waiting for the server to spawn raises an
@@ -97,13 +97,13 @@ class TestCreateServer(base.RequestsMockTestCase):
         mock_nova.servers.get.return_value = fake_server
         mock_nova.servers.list.return_value = [fake_server]
         self.assertRaises(
-            OpenStackCloudTimeout,
+            exc.OpenStackCloudTimeout,
             self.cloud.create_server,
             'server-name',
             dict(id='image-id'), dict(id='flavor-id'),
             wait=True, timeout=0.01)
 
-    @mock.patch.object(OpenStackCloud, 'nova_client')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_server_no_wait(self, mock_nova):
         """
         Test that create_server with no wait and no exception in the
@@ -124,7 +124,7 @@ class TestCreateServer(base.RequestsMockTestCase):
                 image=dict(id='image=id'),
                 flavor=dict(id='flavor-id')))
 
-    @mock.patch.object(OpenStackCloud, 'nova_client')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_server_with_admin_pass_no_wait(self, mock_nova):
         """
         Test that a server with an admin_pass passed returns the password
@@ -145,8 +145,8 @@ class TestCreateServer(base.RequestsMockTestCase):
                 name='server-name', image=dict(id='image=id'),
                 flavor=dict(id='flavor-id'), admin_pass='ooBootheiX0edoh'))
 
-    @mock.patch.object(OpenStackCloud, "wait_for_server")
-    @mock.patch.object(OpenStackCloud, "nova_client")
+    @mock.patch.object(shade.OpenStackCloud, "wait_for_server")
+    @mock.patch.object(shade.OpenStackCloud, "nova_client")
     def test_create_server_with_admin_pass_wait(self, mock_nova, mock_wait):
         """
         Test that a server with an admin_pass passed returns the password
@@ -176,8 +176,8 @@ class TestCreateServer(base.RequestsMockTestCase):
                 meta.obj_to_dict(fake_server_with_pass))
         )
 
-    @mock.patch.object(OpenStackCloud, "get_active_server")
-    @mock.patch.object(OpenStackCloud, "get_server")
+    @mock.patch.object(shade.OpenStackCloud, "get_active_server")
+    @mock.patch.object(shade.OpenStackCloud, "get_server")
     def test_wait_for_server(self, mock_get_server, mock_get_active_server):
         """
         Test that waiting for a server returns the server instance when
@@ -210,8 +210,8 @@ class TestCreateServer(base.RequestsMockTestCase):
 
         self.assertEqual('ACTIVE', server['status'])
 
-    @mock.patch.object(OpenStackCloud, 'wait_for_server')
-    @mock.patch.object(OpenStackCloud, 'nova_client')
+    @mock.patch.object(shade.OpenStackCloud, 'wait_for_server')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_server_wait(self, mock_nova, mock_wait):
         """
         Test that create_server with a wait actually does the wait.
@@ -229,8 +229,8 @@ class TestCreateServer(base.RequestsMockTestCase):
             nat_destination=None,
         )
 
-    @mock.patch.object(OpenStackCloud, 'add_ips_to_server')
-    @mock.patch.object(OpenStackCloud, 'nova_client')
+    @mock.patch.object(shade.OpenStackCloud, 'add_ips_to_server')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     @mock.patch('time.sleep')
     def test_create_server_no_addresses(
             self, mock_sleep, mock_nova, mock_add_ips_to_server):
@@ -252,7 +252,7 @@ class TestCreateServer(base.RequestsMockTestCase):
         self.cloud._SERVER_AGE = 0
 
         self.assertRaises(
-            OpenStackCloudException, self.cloud.create_server,
+            exc.OpenStackCloudException, self.cloud.create_server,
             'server-name', {'id': 'image-id'}, {'id': 'flavor-id'},
             wait=True)
 
@@ -283,9 +283,9 @@ class TestCreateServer(base.RequestsMockTestCase):
             network='network-name', nics=[])
         mock_get_network.assert_called_once_with(name_or_id='network-name')
 
-    @mock.patch.object(OpenStackCloud, 'get_server_by_id')
-    @mock.patch.object(OpenStackCloud, 'get_image')
-    @mock.patch.object(OpenStackCloud, 'nova_client')
+    @mock.patch.object(shade.OpenStackCloud, 'get_server_by_id')
+    @mock.patch.object(shade.OpenStackCloud, 'get_image')
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_server_get_flavor_image(
             self, mock_nova, mock_image, mock_get_server_by_id):
 

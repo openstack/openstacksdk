@@ -14,7 +14,7 @@
 from mock import patch
 import os_client_config as occ
 from shade import OperatorCloud
-from shade.exc import OpenStackCloudException, OpenStackCloudTimeout
+from shade import exc
 from shade.meta import obj_to_dict
 from shade.tests import fakes
 from shade.tests.unit import base
@@ -588,7 +588,7 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.roles.list.return_value = []
 
         with testtools.ExpectedException(
-            OpenStackCloudException,
+            exc.OpenStackCloudException,
             'Role {0} not found'.format(self.fake_role['name'])
         ):
             self.op_cloud.grant_role(
@@ -602,7 +602,7 @@ class TestRoleAssignment(base.TestCase):
         mock_api_version.return_value = '3'
         mock_keystone.roles.list.return_value = []
         with testtools.ExpectedException(
-            OpenStackCloudException,
+            exc.OpenStackCloudException,
             'Role {0} not found'.format(self.fake_role['name'])
         ):
             self.op_cloud.revoke_role(
@@ -618,7 +618,7 @@ class TestRoleAssignment(base.TestCase):
         mock_api_version.return_value = '3'
         mock_keystone.roles.list.return_value = [self.fake_role]
         with testtools.ExpectedException(
-            OpenStackCloudException,
+            exc.OpenStackCloudException,
             'Must specify either a user or a group'
         ):
             self.op_cloud.grant_role(self.fake_role['name'])
@@ -631,7 +631,7 @@ class TestRoleAssignment(base.TestCase):
         mock_api_version.return_value = '3'
         mock_keystone.roles.list.return_value = [self.fake_role]
         with testtools.ExpectedException(
-            OpenStackCloudException,
+            exc.OpenStackCloudException,
             'Must specify either a user or a group'
         ):
             self.op_cloud.revoke_role(self.fake_role['name'])
@@ -643,7 +643,7 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.roles.list.return_value = [self.fake_role]
         mock_keystone.users.list.return_value = []
         with testtools.ExpectedException(
-            OpenStackCloudException,
+            exc.OpenStackCloudException,
             'Must specify either a user or a group'
         ):
             self.op_cloud.grant_role(
@@ -657,7 +657,7 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.roles.list.return_value = [self.fake_role]
         mock_keystone.users.list.return_value = []
         with testtools.ExpectedException(
-            OpenStackCloudException,
+            exc.OpenStackCloudException,
             'Must specify either a user or a group'
         ):
             self.op_cloud.revoke_role(
@@ -672,7 +672,7 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.users.list.return_value = [self.fake_user]
         mock_keystone.groups.list.return_value = [self.fake_group]
         with testtools.ExpectedException(
-            OpenStackCloudException,
+            exc.OpenStackCloudException,
             'Specify either a group or a user, not both'
         ):
             self.op_cloud.grant_role(
@@ -688,7 +688,7 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.users.list.return_value = [self.fake_user]
         mock_keystone.groups.list.return_value = [self.fake_group]
         with testtools.ExpectedException(
-            OpenStackCloudException,
+            exc.OpenStackCloudException,
             'Specify either a group or a user, not both'
         ):
             self.op_cloud.revoke_role(
@@ -748,7 +748,7 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.projects.list.return_value = []
         mock_keystone.domains.get.return_value = None
         with testtools.ExpectedException(
-            OpenStackCloudException,
+            exc.OpenStackCloudException,
             'Must specify either a domain or project'
         ):
             self.op_cloud.grant_role(
@@ -768,7 +768,7 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.role_assignments.list.return_value = \
             [self.user_project_assignment]
         with testtools.ExpectedException(
-            OpenStackCloudException,
+            exc.OpenStackCloudException,
             'Must specify either a domain or project'
         ):
             self.op_cloud.revoke_role(
@@ -784,7 +784,7 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.roles.list.return_value = [self.fake_role]
         mock_keystone.domains.get.side_effect = Exception('test')
         with testtools.ExpectedException(
-            OpenStackCloudException,
+            exc.OpenStackCloudException,
             'Failed to get domain baddomain \(Inner Exception: test\)'
         ):
             self.op_cloud.grant_role(
@@ -801,7 +801,7 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.roles.list.return_value = [self.fake_role]
         mock_keystone.domains.get.side_effect = Exception('test')
         with testtools.ExpectedException(
-            OpenStackCloudException,
+            exc.OpenStackCloudException,
             'Failed to get domain baddomain \(Inner Exception: test\)'
         ):
             self.op_cloud.revoke_role(
@@ -841,7 +841,7 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.roles.add_user_role.return_value = self.fake_role
 
         with testtools.ExpectedException(
-            OpenStackCloudTimeout,
+            exc.OpenStackCloudTimeout,
             'Timeout waiting for role to be granted'
         ):
             self.assertTrue(self.op_cloud.grant_role(
@@ -879,7 +879,7 @@ class TestRoleAssignment(base.TestCase):
         mock_keystone.roles.roles_for_user.return_value = [self.fake_role]
         mock_keystone.roles.remove_user_role.return_value = self.fake_role
         with testtools.ExpectedException(
-            OpenStackCloudTimeout,
+            exc.OpenStackCloudTimeout,
             'Timeout waiting for role to be revoked'
         ):
             self.assertTrue(self.op_cloud.revoke_role(
