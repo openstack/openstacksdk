@@ -1960,7 +1960,9 @@ class OpenStackCloud(_normalize.Normalizer):
                 'Floating IP pools extension is not available on target cloud')
 
         with _utils.shade_exceptions("Error fetching floating IP pool list"):
-            return self.manager.submit_task(_tasks.FloatingIPPoolList())
+            return [
+                {'name': p['name']} for p in self.manager.submit_task(
+                    _tasks.FloatingIPPoolList())]
 
     def _list_floating_ips(self, filters=None):
         if self._use_neutron_floating():
