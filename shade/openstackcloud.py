@@ -1771,7 +1771,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         with _utils.shade_exceptions("Error fetching stack list"):
             stacks = self.manager.submit_task(_tasks.StackList())
-        return _utils.normalize_stacks(stacks)
+        return self._normalize_stacks(stacks)
 
     def list_server_security_groups(self, server):
         """List all security groups associated with the given server.
@@ -2781,7 +2781,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     stacks = [stack]
                 except heat_exceptions.NotFound:
                     return []
-            nstacks = _utils.normalize_stacks(stacks)
+            nstacks = self._normalize_stacks(stacks)
             return _utils._filter_list(nstacks, name_or_id, filters)
 
         return _utils._get_entity(

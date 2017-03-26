@@ -451,3 +451,34 @@ A Magnum Service from magnum
     report_count=int(),
     state=str(),
     properties=dict())
+
+Stack
+-----
+
+A Stack from Heat
+
+.. code-block:: python
+
+  Stack = dict(
+    location=Location(),
+    id=str(),
+    name=str(),
+    created_at=str(),
+    deleted_at=str(),
+    updated_at=str(),
+    description=str(),
+    action=str(),
+    identifier=str(),
+    is_rollback_enabled=bool(),
+    notification_topics=list(),
+    outputs=list(),
+    owner=str(),
+    parameters=dict(),
+    parent=str(),
+    stack_user_project_id=str(),
+    status=str(),
+    status_reason=str(),
+    tags=dict(),
+    tempate_description=str(),
+    timeout_mins=int(),
+    properties=dict())
