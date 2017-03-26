@@ -17,6 +17,9 @@ fakes
 Fakes used for testing
 """
 
+import uuid
+
+from shade._heat import template_format
 
 PROJECT_ID = '1c36b64c840a42cd9e9b931a369337f0'
 FLAVOR_ID = u'0c1d9008-f546-4608-9e8f-f8bdaec8dddd'
@@ -24,6 +27,8 @@ CHOCOLATE_FLAVOR_ID = u'0c1d9008-f546-4608-9e8f-f8bdaec8ddde'
 STRAWBERRY_FLAVOR_ID = u'0c1d9008-f546-4608-9e8f-f8bdaec8dddf'
 COMPUTE_ENDPOINT = 'https://compute.example.com/v2.1/{project_id}'.format(
     project_id=PROJECT_ID)
+ORCHESTRATION_ENDPOINT = 'https://orchestration.example.com/v1/{p}'.format(
+    p=PROJECT_ID)
 
 
 def make_fake_flavor(flavor_id, name, ram=100, disk=1600, vcpus=24):
@@ -54,6 +59,24 @@ FAKE_CHOCOLATE_FLAVOR = make_fake_flavor(
 FAKE_STRAWBERRY_FLAVOR = make_fake_flavor(
     STRAWBERRY_FLAVOR_ID, 'strawberry', ram=300)
 FAKE_FLAVOR_LIST = [FAKE_FLAVOR, FAKE_CHOCOLATE_FLAVOR, FAKE_STRAWBERRY_FLAVOR]
+FAKE_TEMPLATE = '''heat_template_version: 2014-10-16
+
+parameters:
+  length:
+    type: number
+    default: 10
+
+resources:
+  my_rand:
+    type: OS::Heat::RandomString
+    properties:
+      length: {get_param: length}
+outputs:
+  rand:
+    value:
+      get_attr: [my_rand, value]
+'''
+FAKE_TEMPLATE_CONTENT = template_format.parse(FAKE_TEMPLATE)
 
 
 def make_fake_server(server_id, name, status='ACTIVE'):
@@ -103,6 +126,56 @@ def make_fake_server(server_id, name, status='ACTIVE'):
         "tenant_id": "fdbf563e9d474696b35667254e65b45b",
         "os-extended-volumes:volumes_attached": [],
         "config_drive": "True"}
+
+
+def make_fake_stack(id, name, description=None, status='CREATE_COMPLETE'):
+    return {
+        'creation_time': '2017-03-23T23:57:12Z',
+        'deletion_time': '2017-03-23T23:57:12Z',
+        'description': description,
+        'id': id,
+        'links': [],
+        'parent': None,
+        'stack_name': name,
+        'stack_owner': None,
+        'stack_status': status,
+        'stack_user_project_id': PROJECT_ID,
+        'tags': None,
+        'updated_time': '2017-03-23T23:57:12Z',
+    }
+
+
+def make_fake_stack_event(
+        id, name, status='CREATE_COMPLETED', resource_name='id'):
+    event_id = uuid.uuid4().hex
+    self_url = "{endpoint}/stacks/{name}/{id}/resources/{name}/events/{event}"
+    resource_url = "{endpoint}/stacks/{name}/{id}/resources/{name}"
+    return {
+        "resource_name": id if resource_name == 'id' else name,
+        "event_time": "2017-03-26T19:38:18",
+        "links": [
+            {
+                "href": self_url.format(
+                    endpoint=ORCHESTRATION_ENDPOINT,
+                    name=name, id=id, event=event_id),
+                "rel": "self"
+            }, {
+                "href": resource_url.format(
+                    endpoint=ORCHESTRATION_ENDPOINT,
+                    name=name, id=id),
+                "rel": "resource"
+            }, {
+                "href": "{endpoint}/stacks/{name}/{id}".format(
+                    endpoint=ORCHESTRATION_ENDPOINT,
+                    name=name, id=id),
+                "rel": "stack"
+            }],
+        "logical_resource_id": name,
+        "resource_status": status,
+        "resource_status_reason": "",
+        "physical_resource_id": id,
+        "id": event_id,
+    }
 
 
 class FakeEndpoint(object):

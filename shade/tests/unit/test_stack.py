@@ -11,228 +11,481 @@
 # under the License.
 
 
-import mock
+import tempfile
 import testtools
 
 import shade
-from shade._heat import event_utils
-from shade._heat import template_utils
 from shade import meta
 from shade.tests import fakes
 from shade.tests.unit import base
 
 
-class TestStack(base.TestCase):
+class TestStack(base.RequestsMockTestCase):
 
-    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
-    def test_list_stacks(self, mock_heat):
+    def setUp(self):
+        super(TestStack, self).setUp()
+        self.stack_id = self.getUniqueString('id')
+        self.stack_name = self.getUniqueString('name')
+        self.stack = fakes.make_fake_stack(self.stack_id, self.stack_name)
+
+    def test_list_stacks(self):
         fake_stacks = [
-            fakes.FakeStack('001', 'stack1'),
-            fakes.FakeStack('002', 'stack2'),
+            self.stack,
+            fakes.make_fake_stack(
+                self.getUniqueString('id'),
+                self.getUniqueString('name'))
         ]
-        mock_heat.stacks.list.return_value = fake_stacks
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/stacks'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT),
+                 json={"stacks": fake_stacks}),
+        ])
         stacks = self.cloud.list_stacks()
-        mock_heat.stacks.list.assert_called_once_with()
         self.assertEqual(
-            self.cloud._normalize_stacks(meta.obj_list_to_dict(fake_stacks)),
-            stacks)
+            [f.toDict() for f in self.cloud._normalize_stacks(fake_stacks)],
+            [f.toDict() for f in stacks])
 
-    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
-    def test_list_stacks_exception(self, mock_heat):
-        mock_heat.stacks.list.side_effect = Exception()
+        self.assert_calls()
+
+    def test_list_stacks_exception(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/stacks'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT),
+                 status_code=404)
+        ])
         with testtools.ExpectedException(
             shade.OpenStackCloudException,
             "Error fetching stack list"
         ):
             self.cloud.list_stacks()
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
-    def test_search_stacks(self, mock_heat):
+    def test_search_stacks(self):
         fake_stacks = [
-            fakes.FakeStack('001', 'stack1'),
-            fakes.FakeStack('002', 'stack2'),
+            self.stack,
+            fakes.make_fake_stack(
+                self.getUniqueString('id'),
+                self.getUniqueString('name'))
         ]
-        mock_heat.stacks.list.return_value = fake_stacks
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/stacks'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT),
+                 json={"stacks": fake_stacks}),
+        ])
         stacks = self.cloud.search_stacks()
-        mock_heat.stacks.list.assert_called_once_with()
         self.assertEqual(
             self.cloud._normalize_stacks(meta.obj_list_to_dict(fake_stacks)),
             stacks)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
-    def test_search_stacks_filters(self, mock_heat):
+    def test_search_stacks_filters(self):
         fake_stacks = [
-            fakes.FakeStack('001', 'stack1', status='CREATE_COMPLETE'),
-            fakes.FakeStack('002', 'stack2', status='CREATE_FAILED'),
+            self.stack,
+            fakes.make_fake_stack(
+                self.getUniqueString('id'),
+                self.getUniqueString('name'),
+                status='CREATE_FAILED')
         ]
-        mock_heat.stacks.list.return_value = fake_stacks
-        filters = {'status': 'COMPLETE'}
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/stacks'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT),
+                 json={"stacks": fake_stacks}),
+        ])
+        filters = {'status': 'FAILED'}
         stacks = self.cloud.search_stacks(filters=filters)
-        mock_heat.stacks.list.assert_called_once_with()
         self.assertEqual(
             self.cloud._normalize_stacks(
-                meta.obj_list_to_dict(fake_stacks[:1])),
+                meta.obj_list_to_dict(fake_stacks[1:])),
             stacks)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
-    def test_search_stacks_exception(self, mock_heat):
-        mock_heat.stacks.list.side_effect = Exception()
+    def test_search_stacks_exception(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/stacks'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT),
+                 status_code=404)
+        ])
         with testtools.ExpectedException(
             shade.OpenStackCloudException,
             "Error fetching stack list"
         ):
             self.cloud.search_stacks()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_stack')
-    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
-    def test_delete_stack(self, mock_heat, mock_get):
-        stack = {'id': 'stack_id', 'name': 'stack_name'}
-        mock_get.return_value = stack
-        self.assertTrue(self.cloud.delete_stack('stack_name'))
-        mock_get.assert_called_once_with('stack_name')
-        mock_heat.stacks.delete.assert_called_once_with(stack['id'])
+    def test_delete_stack(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{name}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     name=self.stack_name),
+                 json={"stack": self.stack}),
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{name}/{id}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id, name=self.stack_name),
+                 json={"stack": self.stack}),
+            dict(method='DELETE',
+                 uri='{endpoint}/stacks/{id}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id)),
+        ])
+        self.assertTrue(self.cloud.delete_stack(self.stack_name))
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_stack')
-    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
-    def test_delete_stack_not_found(self, mock_heat, mock_get):
-        mock_get.return_value = None
+    def test_delete_stack_not_found(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/stacks/stack_name'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT),
+                 status_code=404),
+        ])
         self.assertFalse(self.cloud.delete_stack('stack_name'))
-        mock_get.assert_called_once_with('stack_name')
-        self.assertFalse(mock_heat.stacks.delete.called)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_stack')
-    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
-    def test_delete_stack_exception(self, mock_heat, mock_get):
-        stack = {'id': 'stack_id', 'name': 'stack_name'}
-        mock_get.return_value = stack
-        mock_heat.stacks.delete.side_effect = Exception('ouch')
-        with testtools.ExpectedException(
-            shade.OpenStackCloudException,
-            "Failed to delete stack stack_name: ouch"
-        ):
-            self.cloud.delete_stack('stack_name')
+    def test_delete_stack_exception(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{id}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id),
+                 json={"stack": self.stack}),
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{name}/{id}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id, name=self.stack_name),
+                 json={"stack": self.stack}),
+            dict(method='DELETE',
+                 uri='{endpoint}/stacks/{id}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id),
+                 status_code=400,
+                 reason="ouch"),
+        ])
+        with testtools.ExpectedException(shade.OpenStackCloudException):
+            self.cloud.delete_stack(self.stack_id)
+        self.assert_calls()
 
-    @mock.patch.object(event_utils, 'poll_for_events')
-    @mock.patch.object(shade.OpenStackCloud, 'get_stack')
-    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
-    def test_delete_stack_wait(self, mock_heat, mock_get, mock_poll):
-        stack = {'id': 'stack_id', 'name': 'stack_name'}
-        mock_get.side_effect = (stack, None)
-        self.assertTrue(self.cloud.delete_stack('stack_name', wait=True))
-        mock_heat.stacks.delete.assert_called_once_with(stack['id'])
-        self.assertEqual(2, mock_get.call_count)
-        self.assertEqual(1, mock_poll.call_count)
+    def test_delete_stack_wait(self):
+        marker_event = fakes.make_fake_stack_event(
+            self.stack_id, self.stack_name, status='CREATE_COMPLETE')
+        marker_qs = 'marker={e_id}&sort_dir=asc'.format(
+            e_id=marker_event['id'])
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{id}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id),
+                 json={"stack": self.stack}),
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{name}/{id}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id, name=self.stack_name),
+                 json={"stack": self.stack}),
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{id}/events?{qs}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id,
+                     qs='limit=1&sort_dir=desc'),
+                 complete_qs=True,
+                 json={"events": [marker_event]}),
+            dict(method='DELETE',
+                 uri='{endpoint}/stacks/{id}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id)),
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{id}/events?{qs}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id,
+                     qs=marker_qs),
+                 complete_qs=True,
+                 json={"events": [
+                     fakes.make_fake_stack_event(
+                         self.stack_id, self.stack_name,
+                         status='DELETE_COMPLETE'),
+                 ]}),
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{id}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id, name=self.stack_name),
+                 status_code=404),
+        ])
 
-    @mock.patch.object(event_utils, 'poll_for_events')
-    @mock.patch.object(shade.OpenStackCloud, 'get_stack')
-    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
-    def test_delete_stack_wait_failed(self, mock_heat, mock_get, mock_poll):
-        stack = {'id': 'stack_id', 'name': 'stack_name'}
-        stack_failed = {'id': 'stack_id', 'name': 'stack_name',
-                        'stack_status': 'DELETE_FAILED',
-                        'stack_status_reason': 'ouch'}
-        mock_get.side_effect = (stack, stack_failed)
-        with testtools.ExpectedException(
-            shade.OpenStackCloudException,
-            "Failed to delete stack stack_name: ouch"
-        ):
-            self.cloud.delete_stack('stack_name', wait=True)
-        mock_heat.stacks.delete.assert_called_once_with(stack['id'])
-        self.assertEqual(2, mock_get.call_count)
-        self.assertEqual(1, mock_poll.call_count)
+        self.assertTrue(self.cloud.delete_stack(self.stack_id, wait=True))
+        self.assert_calls()
 
-    @mock.patch.object(template_utils, 'get_template_contents')
-    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
-    def test_create_stack(self, mock_heat, mock_template):
-        mock_template.return_value = ({}, {})
-        mock_heat.stacks.create.return_value = fakes.FakeStack('001', 'stack1')
-        mock_heat.stacks.get.return_value = fakes.FakeStack('001', 'stack1')
-        self.cloud.create_stack('stack_name')
-        self.assertTrue(mock_template.called)
-        mock_heat.stacks.create.assert_called_once_with(
-            stack_name='stack_name',
-            disable_rollback=False,
-            environment={},
-            parameters={},
-            template={},
-            files={},
-            timeout_mins=60,
+    def test_delete_stack_wait_failed(self):
+        failed_stack = self.stack.copy()
+        failed_stack['stack_status'] = 'DELETE_FAILED'
+        marker_event = fakes.make_fake_stack_event(
+            self.stack_id, self.stack_name, status='CREATE_COMPLETE')
+        marker_qs = 'marker={e_id}&sort_dir=asc'.format(
+            e_id=marker_event['id'])
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{id}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id),
+                 json={"stack": self.stack}),
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{name}/{id}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id, name=self.stack_name),
+                 json={"stack": self.stack}),
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{id}/events?{qs}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id,
+                     qs='limit=1&sort_dir=desc'),
+                 complete_qs=True,
+                 json={"events": [marker_event]}),
+            dict(method='DELETE',
+                 uri='{endpoint}/stacks/{id}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id)),
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{id}/events?{qs}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id,
+                     qs=marker_qs),
+                 complete_qs=True,
+                 json={"events": [
+                     fakes.make_fake_stack_event(
+                         self.stack_id, self.stack_name,
+                         status='DELETE_COMPLETE'),
+                 ]}),
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{id}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id, name=self.stack_name),
+                 json={'stack': failed_stack}),
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{name}/{id}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id, name=self.stack_name),
+                 json={"stack": failed_stack}),
+        ])
+
+        with testtools.ExpectedException(shade.OpenStackCloudException):
+            self.cloud.delete_stack(self.stack_id, wait=True)
+
+        self.assert_calls()
+
+    def test_create_stack(self):
+        test_template = tempfile.NamedTemporaryFile(delete=False)
+        test_template.write(fakes.FAKE_TEMPLATE.encode('utf-8'))
+        test_template.close()
+        self.register_uris([
+            dict(
+                method='POST', uri='{endpoint}/stacks'.format(
+                    endpoint=fakes.ORCHESTRATION_ENDPOINT),
+                json={"stack": self.stack},
+                validate=dict(
+                    json={
+                        'disable_rollback': False,
+                        'environment': {},
+                        'files': {},
+                        'parameters': {},
+                        'stack_name': self.stack_name,
+                        'template': fakes.FAKE_TEMPLATE_CONTENT,
+                        'timeout_mins': 60}
+                )),
+            dict(
+                method='GET',
+                uri='{endpoint}/stacks/{name}'.format(
+                    endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                    name=self.stack_name),
+                json={"stack": self.stack}),
+            dict(
+                method='GET',
+                uri='{endpoint}/stacks/{name}/{id}'.format(
+                    endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                    id=self.stack_id, name=self.stack_name),
+                json={"stack": self.stack}),
+        ])
+
+        self.cloud.create_stack(
+            self.stack_name,
+            template_file=test_template.name
         )
 
-    @mock.patch.object(event_utils, 'poll_for_events')
-    @mock.patch.object(template_utils, 'get_template_contents')
-    @mock.patch.object(shade.OpenStackCloud, 'get_stack')
-    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
-    def test_create_stack_wait(self, mock_heat, mock_get, mock_template,
-                               mock_poll):
-        stack = {'id': 'stack_id', 'name': 'stack_name'}
-        mock_template.return_value = ({}, {})
-        mock_get.return_value = stack
-        mock_heat.stacks.create.return_value = fakes.FakeStack('001', 'stack1')
-        mock_heat.stacks.get.return_value = fakes.FakeStack('001', 'stack1')
-        ret = self.cloud.create_stack('stack_name', wait=True)
-        self.assertTrue(mock_template.called)
-        mock_heat.stacks.create.assert_called_once_with(
-            stack_name='stack_name',
-            disable_rollback=False,
-            environment={},
-            parameters={},
-            template={},
-            files={},
-            timeout_mins=60,
-        )
-        self.assertEqual(1, mock_get.call_count)
-        self.assertEqual(1, mock_poll.call_count)
-        self.assertEqual(stack, ret)
+        self.assert_calls()
 
-    @mock.patch.object(template_utils, 'get_template_contents')
-    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
-    def test_update_stack(self, mock_heat, mock_template):
-        mock_template.return_value = ({}, {})
-        mock_heat.stacks.update.return_value = fakes.FakeStack('001', 'stack1')
-        mock_heat.stacks.get.return_value = fakes.FakeStack('001', 'stack1')
-        self.cloud.update_stack('stack_name')
-        self.assertTrue(mock_template.called)
-        mock_heat.stacks.update.assert_called_once_with(
-            stack_id='stack_name',
-            disable_rollback=False,
-            environment={},
-            parameters={},
-            template={},
-            files={},
-            timeout_mins=60,
-        )
+    def test_create_stack_wait(self):
 
-    @mock.patch.object(event_utils, 'poll_for_events')
-    @mock.patch.object(template_utils, 'get_template_contents')
-    @mock.patch.object(shade.OpenStackCloud, 'get_stack')
-    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
-    def test_update_stack_wait(self, mock_heat, mock_get, mock_template,
-                               mock_poll):
-        stack = {'id': 'stack_id', 'name': 'stack_name'}
-        mock_template.return_value = ({}, {})
-        mock_get.return_value = stack
-        ret = self.cloud.update_stack('stack_name', wait=True)
-        self.assertTrue(mock_template.called)
-        mock_heat.stacks.update.assert_called_once_with(
-            stack_id='stack_name',
-            disable_rollback=False,
-            environment={},
-            parameters={},
-            template={},
-            files={},
-            timeout_mins=60,
-        )
-        self.assertEqual(1, mock_get.call_count)
-        self.assertEqual(1, mock_poll.call_count)
-        self.assertEqual(stack, ret)
+        test_template = tempfile.NamedTemporaryFile(delete=False)
+        test_template.write(fakes.FAKE_TEMPLATE.encode('utf-8'))
+        test_template.close()
 
-    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
-    def test_get_stack(self, mock_heat):
-        stack = fakes.FakeStack('azerty', 'stack',)
-        mock_heat.stacks.get.return_value = stack
-        res = self.cloud.get_stack('stack')
+        self.register_uris([
+            dict(
+                method='POST', uri='{endpoint}/stacks'.format(
+                    endpoint=fakes.ORCHESTRATION_ENDPOINT),
+                json={"stack": self.stack},
+                validate=dict(
+                    json={
+                        'disable_rollback': False,
+                        'environment': {},
+                        'files': {},
+                        'parameters': {},
+                        'stack_name': self.stack_name,
+                        'template': fakes.FAKE_TEMPLATE_CONTENT,
+                        'timeout_mins': 60}
+                )),
+            dict(
+                method='GET',
+                uri='{endpoint}/stacks/{name}/events?sort_dir=asc'.format(
+                    endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                    name=self.stack_name),
+                json={"events": [
+                    fakes.make_fake_stack_event(
+                        self.stack_id, self.stack_name,
+                        status='CREATE_COMPLETE',
+                        resource_name='name'),
+                ]}),
+            dict(
+                method='GET',
+                uri='{endpoint}/stacks/{name}'.format(
+                    endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                    name=self.stack_name),
+                json={"stack": self.stack}),
+            dict(
+                method='GET',
+                uri='{endpoint}/stacks/{name}/{id}'.format(
+                    endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                    id=self.stack_id, name=self.stack_name),
+                json={"stack": self.stack}),
+        ])
+        self.cloud.create_stack(
+            self.stack_name,
+            template_file=test_template.name,
+            wait=True)
+
+        self.assert_calls()
+
+    def test_update_stack(self):
+        test_template = tempfile.NamedTemporaryFile(delete=False)
+        test_template.write(fakes.FAKE_TEMPLATE.encode('utf-8'))
+        test_template.close()
+
+        self.register_uris([
+            dict(
+                method='PUT',
+                uri='{endpoint}/stacks/{name}'.format(
+                    endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                    name=self.stack_name),
+                validate=dict(
+                    json={
+                        'disable_rollback': False,
+                        'environment': {},
+                        'files': {},
+                        'parameters': {},
+                        'template': fakes.FAKE_TEMPLATE_CONTENT,
+                        'timeout_mins': 60})),
+            dict(
+                method='GET',
+                uri='{endpoint}/stacks/{name}'.format(
+                    endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                    name=self.stack_name),
+                json={"stack": self.stack}),
+            dict(
+                method='GET',
+                uri='{endpoint}/stacks/{name}/{id}'.format(
+                    endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                    id=self.stack_id, name=self.stack_name),
+                json={"stack": self.stack}),
+        ])
+        self.cloud.update_stack(
+            self.stack_name,
+            template_file=test_template.name)
+
+        self.assert_calls()
+
+    def test_update_stack_wait(self):
+        marker_event = fakes.make_fake_stack_event(
+            self.stack_id, self.stack_name, status='CREATE_COMPLETE',
+            resource_name='name')
+        marker_qs = 'marker={e_id}&sort_dir=asc'.format(
+            e_id=marker_event['id'])
+        test_template = tempfile.NamedTemporaryFile(delete=False)
+        test_template.write(fakes.FAKE_TEMPLATE.encode('utf-8'))
+        test_template.close()
+
+        self.register_uris([
+            dict(
+                method='GET',
+                uri='{endpoint}/stacks/{name}/events?{qs}'.format(
+                    endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                    name=self.stack_name,
+                    qs='limit=1&sort_dir=desc'),
+                json={"events": [marker_event]}),
+            dict(
+                method='PUT',
+                uri='{endpoint}/stacks/{name}'.format(
+                    endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                    name=self.stack_name),
+                validate=dict(
+                    json={
+                        'disable_rollback': False,
+                        'environment': {},
+                        'files': {},
+                        'parameters': {},
+                        'template': fakes.FAKE_TEMPLATE_CONTENT,
+                        'timeout_mins': 60})),
+            dict(
+                method='GET',
+                uri='{endpoint}/stacks/{name}/events?{qs}'.format(
+                    endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                    name=self.stack_name,
+                    qs=marker_qs),
+                json={"events": [
+                    fakes.make_fake_stack_event(
+                        self.stack_id, self.stack_name,
+                        status='UPDATE_COMPLETE',
+                        resource_name='name'),
+                ]}),
+            dict(
+                method='GET',
+                uri='{endpoint}/stacks/{name}'.format(
+                    endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                    name=self.stack_name),
+                json={"stack": self.stack}),
+            dict(
+                method='GET',
+                uri='{endpoint}/stacks/{name}/{id}'.format(
+                    endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                    id=self.stack_id, name=self.stack_name),
+                json={"stack": self.stack}),
+        ])
+        self.cloud.update_stack(
+            self.stack_name,
+            template_file=test_template.name,
+            wait=True)
+
+        self.assert_calls()
+
+    def test_get_stack(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{name}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     name=self.stack_name),
+                 json={"stack": self.stack}),
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{name}/{id}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id, name=self.stack_name),
+                 json={"stack": self.stack}),
+        ])
+
+        res = self.cloud.get_stack(self.stack_name)
         self.assertIsNotNone(res)
-        self.assertEqual(stack.stack_name, res['stack_name'])
-        self.assertEqual(stack.stack_name, res['name'])
-        self.assertEqual(stack.stack_status, res['stack_status'])
+        self.assertEqual(self.stack['stack_name'], res['stack_name'])
+        self.assertEqual(self.stack['stack_name'], res['name'])
+        self.assertEqual(self.stack['stack_status'], res['stack_status'])
+        self.assertEqual('COMPLETE', res['status'])
+
+        self.assert_calls()
