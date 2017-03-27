@@ -41,6 +41,7 @@ EXAMPLE = {
     'status': '17',
     'subnets': ['18', '19'],
     'updated_at': '2016-07-09T12:14:57.233772',
+    'vlan_transparent': False,
 }
 
 
@@ -92,6 +93,7 @@ class TestNetwork(testtools.TestCase):
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['subnets'], sot.subnet_ids)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
+        self.assertEqual(EXAMPLE['vlan_transparent'], sot.is_vlan_transparent)
 
 
 class TestDHCPAgentHostingNetwork(testtools.TestCase):

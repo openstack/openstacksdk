@@ -108,6 +108,8 @@ class Network(resource.Resource):
     subnet_ids = resource.Body('subnets', type=list)
     #: Timestamp when the network was last updated.
     updated_at = resource.Body('updated_at')
+    #: Indicates the VLAN transparency mode of the network
+    is_vlan_transparent = resource.Body('vlan_transparent', type=bool)
 
 
 class DHCPAgentHostingNetwork(Network):
