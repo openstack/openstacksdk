@@ -699,31 +699,6 @@ class RolesForUser(task_manager.Task):
         return client.keystone_client.roles.roles_for_user(**self.args)
 
 
-class StackList(task_manager.Task):
-    def main(self, client):
-        return client.heat_client.stacks.list()
-
-
-class StackCreate(task_manager.Task):
-    def main(self, client):
-        return client.heat_client.stacks.create(**self.args)
-
-
-class StackUpdate(task_manager.Task):
-    def main(self, client):
-        return client.heat_client.stacks.update(**self.args)
-
-
-class StackDelete(task_manager.Task):
-    def main(self, client):
-        return client.heat_client.stacks.delete(self.args['id'])
-
-
-class StackGet(task_manager.Task):
-    def main(self, client):
-        return client.heat_client.stacks.get(**self.args)
-
-
 class ZoneList(task_manager.Task):
     def main(self, client):
         return client.designate_client.zones.list()
