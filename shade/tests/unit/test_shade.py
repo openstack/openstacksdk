@@ -16,7 +16,6 @@ import munch
 from neutronclient.common import exceptions as n_exc
 import testtools
 
-from os_client_config import cloud_config
 import shade
 from shade import _utils
 from shade import exc
@@ -72,19 +71,6 @@ class TestShade(base.TestCase):
         mock_client.servers.list.side_effect = Exception()
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.list_servers)
-
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
-    @mock.patch.object(cloud_config.CloudConfig, 'get_legacy_client')
-    def test_heat_args(self, get_legacy_client_mock, get_session_mock):
-        session_mock = mock.Mock()
-        get_session_mock.return_value = session_mock
-        self.cloud.heat_client
-        get_legacy_client_mock.assert_called_once_with(
-            service_key='orchestration',
-            client_class=None,
-            interface_key=None,
-            pass_version_arg=True,
-        )
 
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     def test_list_networks(self, mock_neutron):

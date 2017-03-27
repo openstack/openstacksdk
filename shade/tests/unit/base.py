@@ -555,6 +555,7 @@ class RequestsMockTestCase(BaseTestCase):
                 zip(self.calls, self.adapter.request_history)):
             if stop_after and x > stop_after:
                 break
+
             self.assertEqual(
                 (call['method'], call['url']), (history.method, history.url),
                 'REST mismatch on call {index}'.format(index=x))

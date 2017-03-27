@@ -55,10 +55,7 @@ class TestStack(base.RequestsMockTestCase):
                      endpoint=fakes.ORCHESTRATION_ENDPOINT),
                  status_code=404)
         ])
-        with testtools.ExpectedException(
-            shade.OpenStackCloudException,
-            "Error fetching stack list"
-        ):
+        with testtools.ExpectedException(shade.OpenStackCloudURINotFound):
             self.cloud.list_stacks()
         self.assert_calls()
 
@@ -110,10 +107,7 @@ class TestStack(base.RequestsMockTestCase):
                      endpoint=fakes.ORCHESTRATION_ENDPOINT),
                  status_code=404)
         ])
-        with testtools.ExpectedException(
-            shade.OpenStackCloudException,
-            "Error fetching stack list"
-        ):
+        with testtools.ExpectedException(shade.OpenStackCloudURINotFound):
             self.cloud.search_stacks()
 
     def test_delete_stack(self):
@@ -122,7 +116,11 @@ class TestStack(base.RequestsMockTestCase):
                  uri='{endpoint}/stacks/{name}'.format(
                      endpoint=fakes.ORCHESTRATION_ENDPOINT,
                      name=self.stack_name),
-                 json={"stack": self.stack}),
+                 status_code=302,
+                 headers=dict(
+                     location='{endpoint}/stacks/{name}/{id}'.format(
+                         endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                         id=self.stack_id, name=self.stack_name))),
             dict(method='GET',
                  uri='{endpoint}/stacks/{name}/{id}'.format(
                      endpoint=fakes.ORCHESTRATION_ENDPOINT,
@@ -152,7 +150,11 @@ class TestStack(base.RequestsMockTestCase):
                  uri='{endpoint}/stacks/{id}'.format(
                      endpoint=fakes.ORCHESTRATION_ENDPOINT,
                      id=self.stack_id),
-                 json={"stack": self.stack}),
+                 status_code=302,
+                 headers=dict(
+                     location='{endpoint}/stacks/{name}/{id}'.format(
+                         endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                         id=self.stack_id, name=self.stack_name))),
             dict(method='GET',
                  uri='{endpoint}/stacks/{name}/{id}'.format(
                      endpoint=fakes.ORCHESTRATION_ENDPOINT,
@@ -165,7 +167,7 @@ class TestStack(base.RequestsMockTestCase):
                  status_code=400,
                  reason="ouch"),
         ])
-        with testtools.ExpectedException(shade.OpenStackCloudException):
+        with testtools.ExpectedException(shade.OpenStackCloudBadRequest):
             self.cloud.delete_stack(self.stack_id)
         self.assert_calls()
 
@@ -179,7 +181,11 @@ class TestStack(base.RequestsMockTestCase):
                  uri='{endpoint}/stacks/{id}'.format(
                      endpoint=fakes.ORCHESTRATION_ENDPOINT,
                      id=self.stack_id),
-                 json={"stack": self.stack}),
+                 status_code=302,
+                 headers=dict(
+                     location='{endpoint}/stacks/{name}/{id}'.format(
+                         endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                         id=self.stack_id, name=self.stack_name))),
             dict(method='GET',
                  uri='{endpoint}/stacks/{name}/{id}'.format(
                      endpoint=fakes.ORCHESTRATION_ENDPOINT,
@@ -229,7 +235,11 @@ class TestStack(base.RequestsMockTestCase):
                  uri='{endpoint}/stacks/{id}'.format(
                      endpoint=fakes.ORCHESTRATION_ENDPOINT,
                      id=self.stack_id),
-                 json={"stack": self.stack}),
+                 status_code=302,
+                 headers=dict(
+                     location='{endpoint}/stacks/{name}/{id}'.format(
+                         endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                         id=self.stack_id, name=self.stack_name))),
             dict(method='GET',
                  uri='{endpoint}/stacks/{name}/{id}'.format(
                      endpoint=fakes.ORCHESTRATION_ENDPOINT,
@@ -261,7 +271,11 @@ class TestStack(base.RequestsMockTestCase):
                  uri='{endpoint}/stacks/{id}'.format(
                      endpoint=fakes.ORCHESTRATION_ENDPOINT,
                      id=self.stack_id, name=self.stack_name),
-                 json={'stack': failed_stack}),
+                 status_code=302,
+                 headers=dict(
+                     location='{endpoint}/stacks/{name}/{id}'.format(
+                         endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                         id=self.stack_id, name=self.stack_name))),
             dict(method='GET',
                  uri='{endpoint}/stacks/{name}/{id}'.format(
                      endpoint=fakes.ORCHESTRATION_ENDPOINT,
@@ -298,7 +312,11 @@ class TestStack(base.RequestsMockTestCase):
                 uri='{endpoint}/stacks/{name}'.format(
                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
                     name=self.stack_name),
-                json={"stack": self.stack}),
+                status_code=302,
+                headers=dict(
+                    location='{endpoint}/stacks/{name}/{id}'.format(
+                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                        id=self.stack_id, name=self.stack_name))),
             dict(
                 method='GET',
                 uri='{endpoint}/stacks/{name}/{id}'.format(
@@ -351,7 +369,11 @@ class TestStack(base.RequestsMockTestCase):
                 uri='{endpoint}/stacks/{name}'.format(
                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
                     name=self.stack_name),
-                json={"stack": self.stack}),
+                status_code=302,
+                headers=dict(
+                    location='{endpoint}/stacks/{name}/{id}'.format(
+                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                        id=self.stack_id, name=self.stack_name))),
             dict(
                 method='GET',
                 uri='{endpoint}/stacks/{name}/{id}'.format(
@@ -390,7 +412,11 @@ class TestStack(base.RequestsMockTestCase):
                 uri='{endpoint}/stacks/{name}'.format(
                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
                     name=self.stack_name),
-                json={"stack": self.stack}),
+                status_code=302,
+                headers=dict(
+                    location='{endpoint}/stacks/{name}/{id}'.format(
+                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                        id=self.stack_id, name=self.stack_name))),
             dict(
                 method='GET',
                 uri='{endpoint}/stacks/{name}/{id}'.format(
@@ -452,7 +478,11 @@ class TestStack(base.RequestsMockTestCase):
                 uri='{endpoint}/stacks/{name}'.format(
                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
                     name=self.stack_name),
-                json={"stack": self.stack}),
+                status_code=302,
+                headers=dict(
+                    location='{endpoint}/stacks/{name}/{id}'.format(
+                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                        id=self.stack_id, name=self.stack_name))),
             dict(
                 method='GET',
                 uri='{endpoint}/stacks/{name}/{id}'.format(
@@ -473,7 +503,11 @@ class TestStack(base.RequestsMockTestCase):
                  uri='{endpoint}/stacks/{name}'.format(
                      endpoint=fakes.ORCHESTRATION_ENDPOINT,
                      name=self.stack_name),
-                 json={"stack": self.stack}),
+                 status_code=302,
+                 headers=dict(
+                     location='{endpoint}/stacks/{name}/{id}'.format(
+                         endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                         id=self.stack_id, name=self.stack_name))),
             dict(method='GET',
                  uri='{endpoint}/stacks/{name}/{id}'.format(
                      endpoint=fakes.ORCHESTRATION_ENDPOINT,

@@ -31,7 +31,6 @@ import requestsexceptions
 from six.moves import urllib
 
 import cinderclient.exceptions as cinder_exceptions
-from heatclient import exc as heat_exceptions
 import keystoneauth1.exceptions
 import novaclient.exceptions as nova_exceptions
 
@@ -1095,6 +1094,17 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @property
     def heat_client(self):
+        warnings.warn(
+            'Using shade to get a heat_client object is deprecated. If you'
+            ' need a raw heatclient.client.Client object, please use'
+            ' make_legacy_client in os-client-config instead')
+        try:
+            import heatclient  # flake8: noqa
+        except ImportError:
+            self.log.error(
+                'heatclient is no longer a dependency of shade. You need to'
+                ' install python-heatclient directly.')
+            raise
         if self._heat_client is None:
             self._heat_client = self._get_client('orchestration')
         return self._heat_client
@@ -1261,11 +1271,9 @@ class OpenStackCloud(_normalize.Normalizer):
             environment=env,
             timeout_mins=timeout // 60,
         )
-        with _utils.heat_exceptions("Error creating stack {name}".format(
-                name=name)):
-            self.manager.submit_task(_tasks.StackCreate(**params))
+        self._orchestration_client.post('/stacks', json=params)
         if wait:
-            event_utils.poll_for_events(self.heat_client, stack_name=name,
+            event_utils.poll_for_events(self, stack_name=name,
                                         action='CREATE')
         return self.get_stack(name)
 
@@ -1308,7 +1316,6 @@ class OpenStackCloud(_normalize.Normalizer):
             template_object=template_object,
             files=files)
         params = dict(
-            stack_id=name_or_id,
             disable_rollback=not rollback,
             parameters=parameters,
             template=template,
@@ -1318,17 +1325,14 @@ class OpenStackCloud(_normalize.Normalizer):
         )
         if wait:
             # find the last event to use as the marker
-            events = event_utils.get_events(self.heat_client,
-                                            name_or_id,
-                                            event_args={'sort_dir': 'desc',
-                                                        'limit': 1})
+            events = event_utils.get_events(
+                self, name_or_id, event_args={'sort_dir': 'desc', 'limit': 1})
             marker = events[0].id if events else None
 
-        with _utils.heat_exceptions("Error updating stack {name}".format(
-                name=name_or_id)):
-            self.manager.submit_task(_tasks.StackUpdate(**params))
+        self._orchestration_client.put(
+            '/stacks/{name_or_id}'.format(name_or_id=name_or_id), json=params)
         if wait:
-            event_utils.poll_for_events(self.heat_client,
+            event_utils.poll_for_events(self,
                                         name_or_id,
                                         action='UPDATE',
                                         marker=marker)
@@ -1352,24 +1356,20 @@ class OpenStackCloud(_normalize.Normalizer):
 
         if wait:
             # find the last event to use as the marker
-            events = event_utils.get_events(self.heat_client,
-                                            name_or_id,
-                                            event_args={'sort_dir': 'desc',
-                                                        'limit': 1})
+            events = event_utils.get_events(
+                self, name_or_id, event_args={'sort_dir': 'desc', 'limit': 1})
             marker = events[0].id if events else None
 
-        with _utils.heat_exceptions("Failed to delete stack {id}".format(
-                id=name_or_id)):
-            self.manager.submit_task(_tasks.StackDelete(id=stack['id']))
+        self._orchestration_client.delete(
+            '/stacks/{id}'.format(id=stack['id']))
+
         if wait:
             try:
-                event_utils.poll_for_events(self.heat_client,
+                event_utils.poll_for_events(self,
                                             stack_name=name_or_id,
                                             action='DELETE',
                                             marker=marker)
-            except (heat_exceptions.NotFound, heat_exceptions.CommandError):
-                # heatclient might raise NotFound or CommandError on
-                # not found during poll_for_events
+            except OpenStackCloudHTTPError:
                 pass
             stack = self.get_stack(name_or_id)
             if stack and stack['stack_status'] == 'DELETE_FAILED':
@@ -1770,7 +1770,7 @@ class OpenStackCloud(_normalize.Normalizer):
             OpenStack API call.
         """
         with _utils.shade_exceptions("Error fetching stack list"):
-            stacks = self.manager.submit_task(_tasks.StackList())
+            stacks = self._orchestration_client.get('/stacks')
         return self._normalize_stacks(stacks)
 
     def list_server_security_groups(self, server):
@@ -2773,16 +2773,15 @@ class OpenStackCloud(_normalize.Normalizer):
             # so a StackGet can always be used for name or ID.
             with _utils.shade_exceptions("Error fetching stack"):
                 try:
-                    stack = self.manager.submit_task(
-                        _tasks.StackGet(stack_id=name_or_id))
+                    stack = self._orchestration_client.get(
+                        '/stacks/{name_or_id}'.format(name_or_id=name_or_id))
                     # Treat DELETE_COMPLETE stacks as a NotFound
                     if stack['stack_status'] == 'DELETE_COMPLETE':
                         return []
-                    stacks = [stack]
-                except heat_exceptions.NotFound:
+                except OpenStackCloudURINotFound:
                     return []
-            nstacks = self._normalize_stacks(stacks)
-            return _utils._filter_list(nstacks, name_or_id, filters)
+            stack = self._normalize_stack(stack)
+            return _utils._filter_list([stack], name_or_id, filters)
 
         return _utils._get_entity(
             _search_one_stack, name_or_id, filters)
