@@ -369,13 +369,6 @@ def normalize_flavor_accesses(flavor_accesses):
     ]
 
 
-def normalize_stacks(stacks):
-    """ Normalize Stack Object """
-    for stack in stacks:
-        stack['name'] = stack['stack_name']
-    return stacks
-
-
 def valid_kwargs(*valid_args):
     # This decorator checks if argument passed as **kwargs to a function are
     # present in valid_args.

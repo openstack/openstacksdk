@@ -33,7 +33,9 @@ class TestStack(base.TestCase):
         mock_heat.stacks.list.return_value = fake_stacks
         stacks = self.cloud.list_stacks()
         mock_heat.stacks.list.assert_called_once_with()
-        self.assertEqual(meta.obj_list_to_dict(fake_stacks), stacks)
+        self.assertEqual(
+            self.cloud._normalize_stacks(meta.obj_list_to_dict(fake_stacks)),
+            stacks)
 
     @mock.patch.object(shade.OpenStackCloud, 'heat_client')
     def test_list_stacks_exception(self, mock_heat):
@@ -53,19 +55,24 @@ class TestStack(base.TestCase):
         mock_heat.stacks.list.return_value = fake_stacks
         stacks = self.cloud.search_stacks()
         mock_heat.stacks.list.assert_called_once_with()
-        self.assertEqual(meta.obj_list_to_dict(fake_stacks), stacks)
+        self.assertEqual(
+            self.cloud._normalize_stacks(meta.obj_list_to_dict(fake_stacks)),
+            stacks)
 
     @mock.patch.object(shade.OpenStackCloud, 'heat_client')
     def test_search_stacks_filters(self, mock_heat):
         fake_stacks = [
-            fakes.FakeStack('001', 'stack1', status='GOOD'),
-            fakes.FakeStack('002', 'stack2', status='BAD'),
+            fakes.FakeStack('001', 'stack1', status='CREATE_COMPLETE'),
+            fakes.FakeStack('002', 'stack2', status='CREATE_FAILED'),
         ]
         mock_heat.stacks.list.return_value = fake_stacks
-        filters = {'stack_status': 'GOOD'}
+        filters = {'status': 'COMPLETE'}
         stacks = self.cloud.search_stacks(filters=filters)
         mock_heat.stacks.list.assert_called_once_with()
-        self.assertEqual(meta.obj_list_to_dict(fake_stacks[:1]), stacks)
+        self.assertEqual(
+            self.cloud._normalize_stacks(
+                meta.obj_list_to_dict(fake_stacks[:1])),
+            stacks)
 
     @mock.patch.object(shade.OpenStackCloud, 'heat_client')
     def test_search_stacks_exception(self, mock_heat):
@@ -138,6 +145,8 @@ class TestStack(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'heat_client')
     def test_create_stack(self, mock_heat, mock_template):
         mock_template.return_value = ({}, {})
+        mock_heat.stacks.create.return_value = fakes.FakeStack('001', 'stack1')
+        mock_heat.stacks.get.return_value = fakes.FakeStack('001', 'stack1')
         self.cloud.create_stack('stack_name')
         self.assertTrue(mock_template.called)
         mock_heat.stacks.create.assert_called_once_with(
@@ -159,6 +168,8 @@ class TestStack(base.TestCase):
         stack = {'id': 'stack_id', 'name': 'stack_name'}
         mock_template.return_value = ({}, {})
         mock_get.return_value = stack
+        mock_heat.stacks.create.return_value = fakes.FakeStack('001', 'stack1')
+        mock_heat.stacks.get.return_value = fakes.FakeStack('001', 'stack1')
         ret = self.cloud.create_stack('stack_name', wait=True)
         self.assertTrue(mock_template.called)
         mock_heat.stacks.create.assert_called_once_with(
@@ -178,6 +189,8 @@ class TestStack(base.TestCase):
     @mock.patch.object(shade.OpenStackCloud, 'heat_client')
     def test_update_stack(self, mock_heat, mock_template):
         mock_template.return_value = ({}, {})
+        mock_heat.stacks.update.return_value = fakes.FakeStack('001', 'stack1')
+        mock_heat.stacks.get.return_value = fakes.FakeStack('001', 'stack1')
         self.cloud.update_stack('stack_name')
         self.assertTrue(mock_template.called)
         mock_heat.stacks.update.assert_called_once_with(

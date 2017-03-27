@@ -936,3 +936,62 @@ class Normalizer(object):
             ret[key] = magnum_service.pop(key)
         ret['properties'] = magnum_service
         return ret
+
+    def _normalize_stacks(self, stacks):
+        """Normalize Heat Stacks"""
+        ret = []
+        for stack in stacks:
+            ret.append(self._normalize_stack(stack))
+        return ret
+
+    def _normalize_stack(self, stack):
+        """Normalize Heat Stack"""
+        stack = stack.copy()
+
+        # Discard noise
+        stack.pop('HUMAN_ID', None)
+        stack.pop('human_id', None)
+        stack.pop('NAME_ATTR', None)
+        stack.pop('links', None)
+        # Discard things heatclient adds that aren't in the REST
+        stack.pop('action', None)
+        stack.pop('status', None)
+        stack.pop('identifier', None)
+
+        stack_status = stack.pop('stack_status')
+        (action, status) = stack_status.split('_')
+
+        ret = munch.Munch(
+            id=stack.pop('id'),
+            location=self._get_current_location(),
+            action=action,
+            status=status,
+        )
+        if not self.strict_mode:
+            ret['stack_status'] = stack_status
+
+        for (new_name, old_name) in (
+                ('name', 'stack_name'),
+                ('created_at', 'creation_time'),
+                ('deleted_at', 'deletion_time'),
+                ('updated_at', 'updated_time'),
+                ('description', 'description'),
+                ('is_rollback_enabled', 'disable_rollback'),
+                ('parent', 'parent'),
+                ('notification_topics', 'notification_topics'),
+                ('parameters', 'parameters'),
+                ('outputs', 'outputs'),
+                ('owner', 'stack_owner'),
+                ('status_reason', 'stack_status_reason'),
+                ('stack_user_project_id', 'stack_user_project_id'),
+                ('tempate_description', 'template_description'),
+                ('timeout_mins', 'timeout_mins'),
+                ('tags', 'tags')):
+            value = stack.pop(old_name, None)
+            ret[new_name] = value
+            if not self.strict_mode:
+                ret[old_name] = value
+        ret['identifier'] = '{name}/{id}'.format(
+            name=ret['name'], id=ret['id'])
+        ret['properties'] = stack
+        return ret
