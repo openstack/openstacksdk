@@ -148,6 +148,10 @@ class TestCompute(base.BaseFunctionalTestCase):
             if len(log) > 0:
                 break
 
+    def test_list_availability_zone_names(self):
+        self.assertEqual(
+            ['nova'], self.user_cloud.list_availability_zone_names())
+
     def test_get_server_console_bad_server(self):
         self.assertRaises(
             exc.OpenStackCloudException,

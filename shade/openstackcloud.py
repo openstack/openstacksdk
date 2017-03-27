@@ -1734,6 +1734,29 @@ class OpenStackCloud(_normalize.Normalizer):
                 self.manager.submit_task(_tasks.VolumeTypeList()))
 
     @_utils.cache_on_arguments()
+    def list_availability_zone_names(self, unavailable=False):
+        """List names of availability zones.
+
+        :param bool unavailable: Whether or not to include unavailable zones
+                                 in the output. Defaults to False.
+
+        :returns: A list of availability zone names, or an empty list if the
+                  list could not be fetched.
+        """
+        try:
+            zones = self._compute_client.get('/os-availability-zone')
+        except OpenStackCloudHTTPError:
+            self.log.debug(
+                "Availability zone list could not be fetched",
+                exc_info=True)
+            return []
+        ret = []
+        for zone in zones:
+            if zone['zoneState']['available'] or unavailable:
+                ret.append(zone['zoneName'])
+        return ret
+
+    @_utils.cache_on_arguments()
     def list_flavors(self, get_extra=True):
         """List all available flavors.
 
