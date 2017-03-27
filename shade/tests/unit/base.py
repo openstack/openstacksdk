@@ -556,11 +556,8 @@ class RequestsMockTestCase(BaseTestCase):
             if stop_after and x > stop_after:
                 break
             self.assertEqual(
-                call['method'], history.method,
-                'Method mismatch on call {index}'.format(index=x))
-            self.assertEqual(
-                call['url'], history.url,
-                'URL mismatch on call {index}'.format(index=x))
+                (call['method'], call['url']), (history.method, history.url),
+                'REST mismatch on call {index}'.format(index=x))
             if 'json' in call:
                 self.assertEqual(
                     call['json'], history.json(),

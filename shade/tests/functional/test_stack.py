@@ -20,6 +20,7 @@ Functional tests for `shade` stack methods.
 import tempfile
 
 from shade import exc
+from shade.tests import fakes
 from shade.tests.functional import base
 
 simple_template = '''heat_template_version: 2014-10-16
@@ -94,7 +95,7 @@ class TestStack(base.BaseFunctionalTestCase):
 
     def test_stack_simple(self):
         test_template = tempfile.NamedTemporaryFile(delete=False)
-        test_template.write(simple_template)
+        test_template.write(fakes.FAKE_TEMPLATE)
         test_template.close()
         self.stack_name = self.getUniqueString('simple_stack')
         self.addCleanup(self._cleanup_stack)
@@ -151,7 +152,7 @@ class TestStack(base.BaseFunctionalTestCase):
         test_template.close()
 
         simple_tmpl = tempfile.NamedTemporaryFile(suffix='.yaml', delete=False)
-        simple_tmpl.write(simple_template)
+        simple_tmpl.write(fakes.FAKE_TEMPLATE)
         simple_tmpl.close()
 
         env = tempfile.NamedTemporaryFile(suffix='.yaml', delete=False)
