@@ -13,7 +13,6 @@
 import copy
 
 from keystoneauth1 import exceptions as ksa_exceptions
-from keystoneauth1 import plugin as ksa_plugin
 from keystoneauth1 import session as ksa_session
 import mock
 
@@ -218,18 +217,6 @@ class TestCloudConfig(base.TestCase):
         self.assertEqual(
             cc.get_session_endpoint('telemetry'),
             fake_services_dict['telemetry_endpoint'])
-
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
-    def test_session_endpoint_identity(self, mock_get_session):
-        mock_session = mock.Mock()
-        mock_get_session.return_value = mock_session
-        config_dict = defaults.get_defaults()
-        config_dict.update(fake_services_dict)
-        cc = cloud_config.CloudConfig(
-            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
-        cc.get_session_endpoint('identity')
-        mock_session.get_endpoint.assert_called_with(
-            interface=ksa_plugin.AUTH_INTERFACE)
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_session')
     def test_session_endpoint(self, mock_get_session):

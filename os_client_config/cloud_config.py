@@ -18,7 +18,6 @@ import warnings
 
 from keystoneauth1 import adapter
 import keystoneauth1.exceptions.catalog
-from keystoneauth1 import plugin
 from keystoneauth1 import session
 import requestsexceptions
 
@@ -272,31 +271,24 @@ class CloudConfig(object):
             'service_name': self.get_service_name(service_key),
             'region_name': self.region
         }
-        if service_key == 'identity':
-            # setting interface in kwargs dict even though we don't use kwargs
-            # dict here just for ease of warning text later
-            kwargs['interface'] = plugin.AUTH_INTERFACE
-            session = self.get_session()
-            endpoint = session.get_endpoint(interface=kwargs['interface'])
+        kwargs['interface'] = self.get_interface(service_key)
+        if service_key == 'volume' and not self.get_api_version('volume'):
+            # If we don't have a configured cinder version, we can't know
+            # to request a different service_type
+            min_version = float(min_version or 1)
+            max_version = float(max_version or 3)
+            min_major = math.trunc(float(min_version))
+            max_major = math.trunc(float(max_version))
+            versions = range(int(max_major) + 1, int(min_major), -1)
+            service_types = []
+            for version in versions:
+                if version == 1:
+                    service_types.append('volume')
+                else:
+                    service_types.append('volumev{v}'.format(v=version))
         else:
-            kwargs['interface'] = self.get_interface(service_key)
-            if service_key == 'volume' and not self.get_api_version('volume'):
-                # If we don't have a configured cinder version, we can't know
-                # to request a different service_type
-                min_version = float(min_version or 1)
-                max_version = float(max_version or 3)
-                min_major = math.trunc(float(min_version))
-                max_major = math.trunc(float(max_version))
-                versions = range(int(max_major) + 1, int(min_major), -1)
-                service_types = []
-                for version in versions:
-                    if version == 1:
-                        service_types.append('volume')
-                    else:
-                        service_types.append('volumev{v}'.format(v=version))
-            else:
-                service_types = [self.get_service_type(service_key)]
-            endpoint = self._get_highest_endpoint(service_types, kwargs)
+            service_types = [self.get_service_type(service_key)]
+        endpoint = self._get_highest_endpoint(service_types, kwargs)
         if not endpoint:
             self.log.warning(
                 "Keystone catalog entry not found ("
