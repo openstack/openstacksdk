@@ -11,4 +11,3 @@ testrepository>=0.0.17
 testscenarios>=0.4,<0.5
 testtools>=0.9.32
 reno
-futures;python_version<'3.2'

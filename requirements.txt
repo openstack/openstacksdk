@@ -8,6 +8,7 @@ ipaddress
 os-client-config>=1.25.0
 requestsexceptions>=1.1.1
 six
+futures;python_version<'3.2'
 
 keystoneauth1>=2.11.0
 netifaces>=0.10.4
