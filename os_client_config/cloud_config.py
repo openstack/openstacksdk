@@ -265,7 +265,6 @@ class CloudConfig(object):
         override_endpoint = self.get_endpoint(service_key)
         if override_endpoint:
             return override_endpoint
-        # keystone is a special case in keystone, because what?
         endpoint = None
         kwargs = {
             'service_name': self.get_service_name(service_key),
