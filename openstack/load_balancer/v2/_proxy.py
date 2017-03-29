@@ -12,6 +12,7 @@
 
 from openstack.load_balancer.v2 import listener as _listener
 from openstack.load_balancer.v2 import load_balancer as _lb
+from openstack.load_balancer.v2 import member as _member
 from openstack.load_balancer.v2 import pool as _pool
 from openstack import proxy2
 
@@ -256,3 +257,114 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class:`~openstack.load_balancer.v2.pool.Pool`
         """
         return self._update(_pool.Pool, pool, **attrs)
+
+    def create_member(self, pool, **attrs):
+        """Create a new member from attributes
+
+        :param pool: The pool can be either the ID of a pool or a
+                     :class:`~openstack.load_balancer.v2.pool.Pool` instance
+                     that the member will be created in.
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.load_balancer.v2.member.Member`,
+            comprised of the properties on the Member class.
+
+        :returns: The results of member creation
+        :rtype: :class:`~openstack.load_balancer.v2.member.Member`
+        """
+        poolobj = self._get_resource(_pool.Pool, pool)
+        return self._create(_member.Member, pool_id=poolobj.id,
+                            **attrs)
+
+    def delete_member(self, member, pool, ignore_missing=True):
+        """Delete a member
+
+        :param member:
+            The member can be either the ID of a member or a
+            :class:`~openstack.load_balancer.v2.member.Member` instance.
+        :param pool: The pool can be either the ID of a pool or a
+                     :class:`~openstack.load_balancer.v2.pool.Pool` instance
+                     that the member belongs to.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the member does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent member.
+
+        :returns: ``None``
+        """
+        poolobj = self._get_resource(_pool.Pool, pool)
+        self._delete(_member.Member, member,
+                     ignore_missing=ignore_missing, pool_id=poolobj.id)
+
+    def find_member(self, name_or_id, pool, ignore_missing=True):
+        """Find a single member
+
+        :param str name_or_id: The name or ID of a member.
+        :param pool: The pool can be either the ID of a pool or a
+                     :class:`~openstack.load_balancer.v2.pool.Pool` instance
+                     that the member belongs to.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+
+        :returns: One :class:`~openstack.load_balancer.v2.member.Member`
+                  or None
+        """
+        poolobj = self._get_resource(_pool.Pool, pool)
+        return self._find(_member.Member, name_or_id,
+                          ignore_missing=ignore_missing, pool_id=poolobj.id)
+
+    def get_member(self, member, pool):
+        """Get a single member
+
+        :param member: The member can be the ID of a member or a
+                       :class:`~openstack.load_balancer.v2.member.Member`
+                       instance.
+        :param pool: The pool can be either the ID of a pool or a
+                     :class:`~openstack.load_balancer.v2.pool.Pool` instance
+                     that the member belongs to.
+
+        :returns: One :class:`~openstack.load_balancer.v2.member.Member`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        poolobj = self._get_resource(_pool.Pool, pool)
+        return self._get(_member.Member, member,
+                         pool_id=poolobj.id)
+
+    def members(self, pool, **query):
+        """Return a generator of members
+
+        :param pool: The pool can be either the ID of a pool or a
+                     :class:`~openstack.load_balancer.v2.pool.Pool` instance
+                     that the member belongs to.
+        :param dict query: Optional query parameters to be sent to limit
+                           the resources being returned. Valid parameters are:
+
+        :returns: A generator of member objects
+        :rtype: :class:`~openstack.load_balancer.v2.member.Member`
+        """
+        poolobj = self._get_resource(_pool.Pool, pool)
+        return self._list(_member.Member, paginated=True,
+                          pool_id=poolobj.id, **query)
+
+    def update_member(self, member, pool, **attrs):
+        """Update a member
+
+        :param member: Either the ID of a member or a
+                       :class:`~openstack.load_balancer.v2.member.Member`
+                       instance.
+        :param pool: The pool can be either the ID of a pool or a
+                     :class:`~openstack.load_balancer.v2.pool.Pool` instance
+                     that the member belongs to.
+        :param dict attrs: The attributes to update on the member
+                           represented by ``member``.
+
+        :returns: The updated member
+        :rtype: :class:`~openstack.load_balancer.v2.member.Member`
+        """
+        poolobj = self._get_resource(_pool.Pool, pool)
+        return self._update(_member.Member, member,
+                            pool_id=poolobj.id, **attrs)

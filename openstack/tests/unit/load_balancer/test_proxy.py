@@ -10,14 +10,20 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import uuid
+
 from openstack.load_balancer.v2 import _proxy
 from openstack.load_balancer.v2 import listener
 from openstack.load_balancer.v2 import load_balancer as lb
+from openstack.load_balancer.v2 import member
 from openstack.load_balancer.v2 import pool
 from openstack.tests.unit import test_proxy_base2
 
 
 class TestLoadBalancerProxy(test_proxy_base2.TestProxyBase):
+
+    POOL_ID = uuid.uuid4()
+
     def setUp(self):
         super(TestLoadBalancerProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
@@ -96,3 +102,44 @@ class TestLoadBalancerProxy(test_proxy_base2.TestProxyBase):
     def test_pool_update(self):
         self.verify_update(self.proxy.update_pool,
                            pool.Pool)
+
+    def test_members(self):
+        self.verify_list(self.proxy.members,
+                         member.Member,
+                         paginated=True,
+                         method_kwargs={'pool': self.POOL_ID},
+                         expected_kwargs={'pool_id': self.POOL_ID})
+
+    def test_member_get(self):
+        self.verify_get(self.proxy.get_member,
+                        member.Member,
+                        method_kwargs={'pool': self.POOL_ID},
+                        expected_kwargs={'pool_id': self.POOL_ID})
+
+    def test_member_create(self):
+        self.verify_create(self.proxy.create_member,
+                           member.Member,
+                           method_kwargs={'pool': self.POOL_ID},
+                           expected_kwargs={'pool_id': self.POOL_ID})
+
+    def test_member_delete(self):
+        self.verify_delete(self.proxy.delete_member,
+                           member.Member,
+                           True,
+                           method_kwargs={'pool': self.POOL_ID},
+                           expected_kwargs={'pool_id': self.POOL_ID})
+
+    def test_member_find(self):
+        self._verify2('openstack.proxy2.BaseProxy._find',
+                      self.proxy.find_member,
+                      method_args=["MEMBER", self.POOL_ID],
+                      expected_args=[member.Member, "MEMBER"],
+                      expected_kwargs={"pool_id": self.POOL_ID,
+                                       "ignore_missing": True})
+
+    def test_member_update(self):
+        self._verify2('openstack.proxy2.BaseProxy._update',
+                      self.proxy.update_member,
+                      method_args=["MEMBER", self.POOL_ID],
+                      expected_args=[member.Member, "MEMBER"],
+                      expected_kwargs={"pool_id": self.POOL_ID})

@@ -15,6 +15,7 @@ import uuid
 
 from openstack.load_balancer.v2 import listener
 from openstack.load_balancer.v2 import load_balancer
+from openstack.load_balancer.v2 import member
 from openstack.load_balancer.v2 import pool
 from openstack.tests.functional import base
 from openstack.tests.functional.load_balancer import base as lb_base
@@ -26,16 +27,20 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
 
     LB_NAME = uuid.uuid4().hex
     LISTENER_NAME = uuid.uuid4().hex
+    MEMBER_NAME = uuid.uuid4().hex
     POOL_NAME = uuid.uuid4().hex
     UPDATE_NAME = uuid.uuid4().hex
     LB_ID = None
     LISTENER_ID = None
+    MEMBER_ID = None
     POOL_ID = None
     VIP_SUBNET_ID = None
     PROJECT_ID = None
     PROTOCOL = 'HTTP'
     PROTOCOL_PORT = 80
     LB_ALGORITHM = 'ROUND_ROBIN'
+    MEMBER_ADDRESS = '192.0.2.16'
+    WEIGHT = 10
 
     # Note: Creating load balancers can be slow on some hosts due to nova
     #       instance boot times (up to ten minutes) so we are consolidating
@@ -75,9 +80,22 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         cls.lb_wait_for_status(test_lb, status='ACTIVE',
                                failures=['ERROR'])
 
+        test_member = cls.conn.load_balancer.create_member(
+            pool=cls.POOL_ID, name=cls.MEMBER_NAME, address=cls.MEMBER_ADDRESS,
+            protocol_port=cls.PROTOCOL_PORT, weight=cls.WEIGHT)
+        assert isinstance(test_member, member.Member)
+        cls.assertIs(cls.MEMBER_NAME, test_member.name)
+        cls.MEMBER_ID = test_member.id
+        cls.lb_wait_for_status(test_lb, status='ACTIVE',
+                               failures=['ERROR'])
+
     @classmethod
     def tearDownClass(cls):
         test_lb = cls.conn.load_balancer.get_load_balancer(cls.LB_ID)
+        cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+
+        cls.conn.load_balancer.delete_member(
+            cls.MEMBER_ID, cls.POOL_ID, ignore_missing=False)
         cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
 
         cls.conn.load_balancer.delete_pool(cls.POOL_ID, ignore_missing=False)
@@ -180,3 +198,39 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
         test_pool = self.conn.load_balancer.get_pool(self.POOL_ID)
         self.assertEqual(self.POOL_NAME, test_pool.name)
+
+    def test_member_find(self):
+        test_member = self.conn.load_balancer.find_member(self.MEMBER_NAME,
+                                                          self.POOL_ID)
+        self.assertEqual(self.MEMBER_ID, test_member.id)
+
+    def test_member_get(self):
+        test_member = self.conn.load_balancer.get_member(self.MEMBER_ID,
+                                                         self.POOL_ID)
+        self.assertEqual(self.MEMBER_NAME, test_member.name)
+        self.assertEqual(self.MEMBER_ID, test_member.id)
+        self.assertEqual(self.MEMBER_ADDRESS, test_member.address)
+        self.assertEqual(self.PROTOCOL_PORT, test_member.protocol_port)
+        self.assertEqual(self.WEIGHT, test_member.weight)
+
+    def test_member_list(self):
+        names = [mb.name for mb in self.conn.load_balancer.members(
+            self.POOL_ID)]
+        self.assertIn(self.MEMBER_NAME, names)
+
+    def test_member_update(self):
+        test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
+
+        self.conn.load_balancer.update_member(self.MEMBER_ID, self.POOL_ID,
+                                              name=self.UPDATE_NAME)
+        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        test_member = self.conn.load_balancer.get_member(self.MEMBER_ID,
+                                                         self.POOL_ID)
+        self.assertEqual(self.UPDATE_NAME, test_member.name)
+
+        self.conn.load_balancer.update_member(self.MEMBER_ID, self.POOL_ID,
+                                              name=self.MEMBER_NAME)
+        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        test_member = self.conn.load_balancer.get_member(self.MEMBER_ID,
+                                                         self.POOL_ID)
+        self.assertEqual(self.MEMBER_NAME, test_member.name)

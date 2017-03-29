@@ -7,3 +7,4 @@ Load Balancer Resources
    v2/load_balancer
    v2/listener
    v2/pool
+   v2/member

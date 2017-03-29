@@ -45,3 +45,15 @@ Pool Operations
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_pool
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.pools
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_pool
+
+Member Operations
+^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.load_balancer.v2._proxy.Proxy
+
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.create_member
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.delete_member
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_member
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_member
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.members
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_member
