@@ -25,8 +25,7 @@ PROJECT_ID = '1c36b64c840a42cd9e9b931a369337f0'
 FLAVOR_ID = u'0c1d9008-f546-4608-9e8f-f8bdaec8dddd'
 CHOCOLATE_FLAVOR_ID = u'0c1d9008-f546-4608-9e8f-f8bdaec8ddde'
 STRAWBERRY_FLAVOR_ID = u'0c1d9008-f546-4608-9e8f-f8bdaec8dddf'
-COMPUTE_ENDPOINT = 'https://compute.example.com/v2.1/{project_id}'.format(
-    project_id=PROJECT_ID)
+COMPUTE_ENDPOINT = 'https://compute.example.com/v2.1'
 ORCHESTRATION_ENDPOINT = 'https://orchestration.example.com/v1/{p}'.format(
     p=PROJECT_ID)
 

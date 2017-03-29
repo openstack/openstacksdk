@@ -10,7 +10,7 @@
             "id": "32466f357f3545248c47471ca51b0d3a",
             "interface": "public",
             "region": "RegionOne",
-            "url": "https://compute.example.com/v2.1/1c36b64c840a42cd9e9b931a369337f0"
+            "url": "https://compute.example.com/v2.1/"
           }
         ],
         "name": "nova",
