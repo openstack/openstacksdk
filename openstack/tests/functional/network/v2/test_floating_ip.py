@@ -118,9 +118,14 @@ class TestFloatingIP(base.BaseFunctionalTest):
         cls.assertIs(cls.name, sub.name)
         return sub
 
-    def test_find(self):
+    def test_find_by_id(self):
         sot = self.conn.network.find_ip(self.FIP.id)
         self.assertEqual(self.FIP.id, sot.id)
+
+    def test_find_by_ip_address(self):
+        sot = self.conn.network.find_ip(self.FIP.floating_ip_address)
+        self.assertEqual(self.FIP.floating_ip_address, sot.floating_ip_address)
+        self.assertEqual(self.FIP.floating_ip_address, sot.name)
 
     def test_find_available_ip(self):
         sot = self.conn.network.find_available_ip()
