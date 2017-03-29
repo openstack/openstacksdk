@@ -254,6 +254,14 @@ SYD            Sydney, NSW
   :vm_mode: hvm
   :xenapi_use_agent: False
 * Volume API Version is 1
+* While passwords are recommended for use, API keys do work as well.
+  The `rackspaceauth` python package must be installed, and then the following
+  can be added to clouds.yaml::
+
+    auth:
+      username: myusername
+      api_key: myapikey
+    auth_type: rackspace_apikey
 
 switchengines
 -------------
