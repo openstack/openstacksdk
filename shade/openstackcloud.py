@@ -1812,6 +1812,97 @@ class OpenStackCloud(_normalize.Normalizer):
 
         return self._normalize_secgroups(groups)
 
+    def _get_server_security_groups(self, server, security_groups):
+        if not self._has_secgroups():
+            raise OpenStackCloudUnavailableFeature(
+                "Unavailable feature: security groups"
+            )
+
+        if not isinstance(server, dict):
+            server = self.get_server(server, bare=True)
+
+            if server is None:
+                self.log.debug('Server %s not found', server)
+                return None, None
+
+        if not isinstance(security_groups, (list, tuple)):
+            security_groups = [security_groups]
+
+        sec_group_objs = []
+
+        for sg in security_groups:
+            if not isinstance(sg, dict):
+                sg = self.get_security_group(sg)
+
+                if sg is None:
+                    self.log.debug('Security group %s not found for adding',
+                                   sg)
+
+                    return None, None
+
+            sec_group_objs.append(sg)
+
+        return server, sec_group_objs
+
+    def add_server_security_groups(self, server, security_groups):
+        """Add security groups to a server.
+
+        Add existing security groups to an existing server. If the security
+        groups are already present on the server this will continue unaffected.
+
+        :returns: False if server or security groups are undefined, True
+            otherwise.
+
+        :raises: ``OpenStackCloudException``, on operation error.
+        """
+        server, security_groups = self._get_server_security_groups(
+            server, security_groups)
+
+        if not (server and security_groups):
+            return False
+
+        for sg in security_groups:
+            self._compute_client.post(
+                '/servers/%s/action' % server.id,
+                json={'addSecurityGroup': {'name': sg.name}})
+
+        return True
+
+    def remove_server_security_groups(self, server, security_groups):
+        """Remove security groups from a server
+
+        Remove existing security groups from an existing server. If the
+        security groups are not present on the server this will continue
+        unaffected.
+
+        :returns: False if server or security groups are undefined, True
+            otherwise.
+
+        :raises: ``OpenStackCloudException``, on operation error.
+        """
+        server, security_groups = self._get_server_security_groups(
+            server, security_groups)
+
+        if not (server and security_groups):
+            return False
+
+        for sg in security_groups:
+            try:
+                self._compute_client.post(
+                    '/servers/%s/action' % server.id,
+                    json={'removeSecurityGroup': {'name': sg.name}})
+
+            except OpenStackCloudURINotFound as e:
+                # NOTE(jamielennox): Is this ok? If we remove something that
+                # isn't present should we just conclude job done or is that an
+                # error? Nova returns ok if you try to add a group twice.
+                self.log.debug(
+                    "The security group %s was not present on server %s so "
+                    "no action was performed", sg.name, server.name)
+
+        return True
+
+
     def list_security_groups(self, filters=None):
         """List all available security groups.
 

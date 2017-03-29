@@ -372,3 +372,184 @@ class TestSecurityGroups(base.TestCase):
         ret = self.cloud.list_server_security_groups(server)
         self.assertEqual([], ret)
         self.assertFalse(mock_nova.servers.list_security_group.called)
+
+
+class TestServerSecurityGroups(base.RequestsMockTestCase):
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_add_security_group_to_server_nova(self, mock_nova):
+        # fake to get server by name, server-name must match
+        fake_server = fakes.FakeServer('1234', 'server-name', 'ACTIVE')
+        mock_nova.servers.list.return_value = [fake_server]
+
+        # use nova for secgroup list and return an existing fake
+        self.has_neutron = False
+        self.cloud.secgroup_source = 'nova'
+        mock_nova.security_groups.list.return_value = [nova_grp_obj]
+
+        self.register_uris([
+            dict(
+                method='POST',
+                uri='%s/servers/%s/action' % (fakes.COMPUTE_ENDPOINT, '1234'),
+                validate={'addSecurityGroup': {'name': 'nova-sec-group'}},
+                status_code=202,
+            ),
+        ])
+
+        ret = self.cloud.add_server_security_groups('server-name',
+                                                    'nova-sec-group')
+        self.assertTrue(ret)
+
+        self.assertTrue(mock_nova.servers.list.called_once)
+        self.assertTrue(mock_nova.security_groups.list.called_once)
+
+        self.assert_calls()
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_add_security_group_to_server_neutron(self,
+                                                  mock_neutron,
+                                                  mock_nova):
+        # fake to get server by name, server-name must match
+        fake_server = fakes.FakeServer('1234', 'server-name', 'ACTIVE')
+        mock_nova.servers.list.return_value = [fake_server]
+
+        # use neutron for secgroup list and return an existing fake
+        self.cloud.secgroup_source = 'neutron'
+        neutron_return = dict(security_groups=[neutron_grp_dict])
+        mock_neutron.list_security_groups.return_value = neutron_return
+
+        self.register_uris([
+            dict(
+                method='POST',
+                uri='%s/servers/%s/action' % (fakes.COMPUTE_ENDPOINT, '1234'),
+                validate={'addSecurityGroup': {'name': 'neutron-sec-group'}},
+                status_code=202,
+            ),
+        ])
+
+        ret = self.cloud.add_server_security_groups('server-name',
+                                                    'neutron-sec-group')
+        self.assertTrue(ret)
+
+        self.assertTrue(mock_nova.servers.list.called_once)
+        self.assertTrue(mock_neutron.list_securit_groups.called_once)
+
+        self.assert_calls()
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_remove_security_group_from_server_nova(self, mock_nova):
+        # fake to get server by name, server-name must match
+        fake_server = fakes.FakeServer('1234', 'server-name', 'ACTIVE')
+        mock_nova.servers.list.return_value = [fake_server]
+
+        # use nova for secgroup list and return an existing fake
+        self.has_neutron = False
+        self.cloud.secgroup_source = 'nova'
+        mock_nova.security_groups.list.return_value = [nova_grp_obj]
+
+        self.register_uris([
+            dict(
+                method='POST',
+                uri='%s/servers/%s/action' % (fakes.COMPUTE_ENDPOINT, '1234'),
+                validate={'removeSecurityGroup': {'name': 'nova-sec-group'}},
+            ),
+        ])
+
+        ret = self.cloud.remove_server_security_groups('server-name',
+                                                       'nova-sec-group')
+        self.assertTrue(ret)
+
+        self.assertTrue(mock_nova.servers.list.called_once)
+        self.assertTrue(mock_nova.security_groups.list.called_once)
+
+        self.assert_calls()
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_remove_security_group_from_server_neutron(self,
+                                                       mock_neutron,
+                                                       mock_nova):
+        # fake to get server by name, server-name must match
+        fake_server = fakes.FakeServer('1234', 'server-name', 'ACTIVE')
+        mock_nova.servers.list.return_value = [fake_server]
+
+        # use neutron for secgroup list and return an existing fake
+        self.cloud.secgroup_source = 'neutron'
+        neutron_return = dict(security_groups=[neutron_grp_dict])
+        mock_neutron.list_security_groups.return_value = neutron_return
+
+        validate = {'removeSecurityGroup': {'name': 'neutron-sec-group'}}
+        self.register_uris([
+            dict(
+                method='POST',
+                uri='%s/servers/%s/action' % (fakes.COMPUTE_ENDPOINT, '1234'),
+                validate=validate,
+            ),
+        ])
+
+        ret = self.cloud.remove_server_security_groups('server-name',
+                                                       'neutron-sec-group')
+        self.assertTrue(ret)
+
+        self.assertTrue(mock_nova.servers.list.called_once)
+        self.assertTrue(mock_neutron.list_security_groups.called_once)
+
+        self.assert_calls()
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_add_bad_security_group_to_server_nova(self, mock_nova):
+        # fake to get server by name, server-name must match
+        fake_server = fakes.FakeServer('1234', 'server-name', 'ACTIVE')
+        mock_nova.servers.list.return_value = [fake_server]
+
+        # use nova for secgroup list and return an existing fake
+        self.has_neutron = False
+        self.cloud.secgroup_source = 'nova'
+        mock_nova.security_groups.list.return_value = [nova_grp_obj]
+
+        ret = self.cloud.add_server_security_groups('server-name',
+                                                    'unknown-sec-group')
+        self.assertFalse(ret)
+
+        self.assertTrue(mock_nova.servers.list.called_once)
+        self.assertTrue(mock_nova.security_groups.list.called_once)
+
+        self.assert_calls()
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
+    def test_add_bad_security_group_to_server_neutron(self,
+                                                      mock_neutron,
+                                                      mock_nova):
+        # fake to get server by name, server-name must match
+        fake_server = fakes.FakeServer('1234', 'server-name', 'ACTIVE')
+        mock_nova.servers.list.return_value = [fake_server]
+
+        # use neutron for secgroup list and return an existing fake
+        self.cloud.secgroup_source = 'neutron'
+        neutron_return = dict(security_groups=[neutron_grp_dict])
+        mock_neutron.list_security_groups.return_value = neutron_return
+
+        ret = self.cloud.add_server_security_groups('server-name',
+                                                    'unknown-sec-group')
+        self.assertFalse(ret)
+
+        self.assertTrue(mock_nova.servers.list.called_once)
+        self.assertTrue(mock_neutron.list_security_groups.called_once)
+
+        self.assert_calls()
+
+    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
+    def test_add_security_group_to_bad_server(self, mock_nova):
+        # fake to get server by name, server-name must match
+        fake_server = fakes.FakeServer('1234', 'server-name', 'ACTIVE')
+        mock_nova.servers.list.return_value = [fake_server]
+
+        ret = self.cloud.add_server_security_groups('unknown-server-name',
+                                                    'nova-sec-group')
+        self.assertFalse(ret)
+
+        self.assertTrue(mock_nova.servers.list.called_once)
+
+        self.assert_calls()
