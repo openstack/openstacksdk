@@ -21,3 +21,15 @@ Load Balancer Operations
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_load_balancer
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.load_balancers
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_load_balancer
+
+Listener Operations
+^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.load_balancer.v2._proxy.Proxy
+
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.create_listener
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.delete_listener
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_listener
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_listener
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.listeners
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_listener

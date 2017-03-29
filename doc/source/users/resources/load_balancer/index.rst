@@ -5,3 +5,4 @@ Load Balancer Resources
    :maxdepth: 1
 
    v2/load_balancer
+   v2/listener
