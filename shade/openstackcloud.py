@@ -1566,9 +1566,9 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def search_servers(
             self, name_or_id=None, filters=None, detailed=False,
-            all_projects=False):
+            all_projects=False, bare=False):
         servers = self.list_servers(
-            detailed=detailed, all_projects=all_projects)
+            detailed=detailed, all_projects=all_projects, bare=bare)
         return _utils._filter_list(servers, name_or_id, filters)
 
     def search_server_groups(self, name_or_id=None, filters=None):
@@ -1845,8 +1845,17 @@ class OpenStackCloud(_normalize.Normalizer):
                     _tasks.NovaSecurityGroupList(search_opts=filters))
         return self._normalize_secgroups(groups)
 
-    def list_servers(self, detailed=False, all_projects=False):
+    def list_servers(self, detailed=False, all_projects=False, bare=False):
         """List all available servers.
+
+        :param detailed: Whether or not to add detailed additional information.
+                         Defaults to False.
+        :param all_projects: Whether to list servers from all projects or just
+                             the current auth scoped project.
+        :param bare: Whether to skip adding any additional information to the
+                     server record. Defaults to False, meaning the addresses
+                     dict will be populated as needed from neutron. Setting
+                     to True implies detailed = False.
 
         :returns: A list of server ``munch.Munch``.
 
@@ -1865,13 +1874,14 @@ class OpenStackCloud(_normalize.Normalizer):
                     if not (first_run and self._servers is not None):
                         self._servers = self._list_servers(
                             detailed=detailed,
-                            all_projects=all_projects)
+                            all_projects=all_projects,
+                            bare=bare)
                         self._servers_time = time.time()
                 finally:
                     self._servers_lock.release()
         return self._servers
 
-    def _list_servers(self, detailed=False, all_projects=False):
+    def _list_servers(self, detailed=False, all_projects=False, bare=False):
         with _utils.shade_exceptions(
                 "Error fetching server list on {cloud}:{region}:".format(
                     cloud=self.name,
@@ -1882,7 +1892,9 @@ class OpenStackCloud(_normalize.Normalizer):
             servers = self._normalize_servers(
                 self.manager.submit_task(_tasks.ServerList(**kwargs)))
 
-            if detailed:
+            if bare:
+                return servers
+            elif detailed:
                 return [
                     meta.get_hostvars_from_server(self, server)
                     for server in servers
@@ -2611,7 +2623,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
 
         if not isinstance(server, dict):
-            server = self.get_server(server)
+            server = self.get_server(server, bare=True)
 
         if not server:
             raise OpenStackCloudException(
@@ -2624,7 +2636,8 @@ class OpenStackCloud(_normalize.Normalizer):
         except OpenStackCloudBadRequest:
             return ""
 
-    def get_server(self, name_or_id=None, filters=None, detailed=False):
+    def get_server(
+            self, name_or_id=None, filters=None, detailed=False, bare=False):
         """Get a server by name or ID.
 
         :param name_or_id: Name or ID of the server.
@@ -2642,13 +2655,19 @@ class OpenStackCloud(_normalize.Normalizer):
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+        :param detailed: Whether or not to add detailed additional information.
+                         Defaults to False.
+        :param bare: Whether to skip adding any additional information to the
+                     server record. Defaults to False, meaning the addresses
+                     dict will be populated as needed from neutron. Setting
+                     to True implies detailed = False.
 
         :returns: A server ``munch.Munch`` or None if no matching server is
                   found.
 
         """
         searchfunc = functools.partial(self.search_servers,
-                                       detailed=detailed)
+                                       detailed=detailed, bare=bare)
         return _utils._get_entity(searchfunc, name_or_id, filters)
 
     def get_server_by_id(self, id):
@@ -3198,7 +3217,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException if there are problems uploading
         """
         if not isinstance(server, dict):
-            server_obj = self.get_server(server)
+            server_obj = self.get_server(server, bare=True)
             if not server_obj:
                 raise OpenStackCloudException(
                     "Server {server} could not be found and therefore"
@@ -4231,7 +4250,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return True
 
     def get_server_id(self, name_or_id):
-        server = self.get_server(name_or_id)
+        server = self.get_server(name_or_id, bare=True)
         if server:
             return server['id']
         return None
@@ -5533,8 +5552,9 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         try:
             self.manager.submit_task(
-                _tasks.ServerSetMetadata(server=self.get_server(name_or_id),
-                                         metadata=metadata))
+                _tasks.ServerSetMetadata(
+                    server=self.get_server(name_or_id, bare=True),
+                    metadata=metadata))
         except OpenStackCloudException:
             raise
         except Exception as e:
@@ -5553,8 +5573,9 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         try:
             self.manager.submit_task(
-                _tasks.ServerDeleteMetadata(server=self.get_server(name_or_id),
-                                            keys=metadata_keys))
+                _tasks.ServerDeleteMetadata(
+                    server=self.get_server(name_or_id, bare=True),
+                    keys=metadata_keys))
         except OpenStackCloudException:
             raise
         except Exception as e:
@@ -5579,7 +5600,8 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        server = self.get_server(name_or_id)
+        # If delete_ips is True, we need the server to not be bare.
+        server = self.get_server(name_or_id, bare=not delete_ips)
         if not server:
             return False
 
@@ -5652,7 +5674,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 # to be friendly with the server.
                 wait=self._SERVER_AGE or 2):
             with _utils.shade_exceptions("Error in deleting server"):
-                server = self.get_server(server['id'])
+                server = self.get_server(server['id'], bare=True)
                 if not server:
                     break
 
@@ -5677,13 +5699,14 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        server = self.get_server(name_or_id=name_or_id)
+        server = self.get_server(name_or_id=name_or_id, bare=True)
         if server is None:
             raise OpenStackCloudException(
                 "failed to find server '{server}'".format(server=name_or_id))
 
         with _utils.shade_exceptions(
                 "Error updating server {0}".format(name_or_id)):
+            # TODO(mordred) This is not sending back a normalized server
             return self.manager.submit_task(
                 _tasks.ServerUpdate(
                     server=server['id'], **kwargs))

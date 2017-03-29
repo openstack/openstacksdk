@@ -11,10 +11,8 @@
 # under the License.
 
 
-import mock
 import uuid
 
-import shade
 from shade.tests.unit import base
 from shade.tests import fakes
 
@@ -45,13 +43,7 @@ class TestServerConsole(base.RequestsMockTestCase):
             self.output, self.cloud.get_server_console(self.server))
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'has_service')
-    def test_get_server_console_name_or_id(self, mock_has_service):
-        # Turn off neutron for now - we don't _actually_ want to show all
-        # of the nova normalization calls.
-        # TODO(mordred) Tell get_server_console to tell shade to skip
-        #               adding normalization, since we don't consume them
-        mock_has_service.return_value = False
+    def test_get_server_console_name_or_id(self):
 
         self.register_uris([
             dict(method='GET',
