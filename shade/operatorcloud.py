@@ -241,7 +241,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                         self.manager.submit_task(
                             _tasks.MachinePortDelete(
                                 port_id=uuid))
-                    except:
+                    except Exception:
                         pass
             finally:
                 self.manager.submit_task(

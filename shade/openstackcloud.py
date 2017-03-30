@@ -7067,7 +7067,7 @@ class OpenStackCloud(_normalize.Normalizer):
             return self.manager.submit_task(_tasks.RecordSetGet(
                 zone=zone,
                 recordset=name_or_id))
-        except:
+        except Exception:
             return None
 
     def search_recordsets(self, zone, name_or_id=None, filters=None):
