@@ -14,6 +14,7 @@ import uuid
 
 from openstack.load_balancer.v2 import _proxy
 from openstack.load_balancer.v2 import health_monitor
+from openstack.load_balancer.v2 import l7_policy
 from openstack.load_balancer.v2 import listener
 from openstack.load_balancer.v2 import load_balancer as lb
 from openstack.load_balancer.v2 import member
@@ -169,3 +170,28 @@ class TestLoadBalancerProxy(test_proxy_base2.TestProxyBase):
     def test_health_monitor_update(self):
         self.verify_update(self.proxy.update_health_monitor,
                            health_monitor.HealthMonitor)
+
+    def test_l7_policies(self):
+        self.verify_list(self.proxy.l7_policies,
+                         l7_policy.L7Policy,
+                         paginated=True)
+
+    def test_l7_policy_get(self):
+        self.verify_get(self.proxy.get_l7_policy,
+                        l7_policy.L7Policy)
+
+    def test_l7_policy_create(self):
+        self.verify_create(self.proxy.create_l7_policy,
+                           l7_policy.L7Policy)
+
+    def test_l7_policy_delete(self):
+        self.verify_delete(self.proxy.delete_l7_policy,
+                           l7_policy.L7Policy, True)
+
+    def test_l7_policy_find(self):
+        self.verify_find(self.proxy.find_l7_policy,
+                         l7_policy.L7Policy)
+
+    def test_l7_policy_update(self):
+        self.verify_update(self.proxy.update_l7_policy,
+                           l7_policy.L7Policy)

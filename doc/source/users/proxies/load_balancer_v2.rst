@@ -69,3 +69,15 @@ Health Monitor Operations
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_health_monitor
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.health_monitors
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_health_monitor
+
+L7 Policy Operations
+^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.load_balancer.v2._proxy.Proxy
+
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.create_l7_policy
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.delete_l7_policy
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_l7_policy
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_l7_policy
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.l7_policies
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_l7_policy

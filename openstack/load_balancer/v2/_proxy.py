@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.load_balancer.v2 import health_monitor as _hm
+from openstack.load_balancer.v2 import l7_policy as _l7policy
 from openstack.load_balancer.v2 import listener as _listener
 from openstack.load_balancer.v2 import load_balancer as _lb
 from openstack.load_balancer.v2 import member as _member
@@ -471,3 +472,85 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._update(_hm.HealthMonitor, healthmonitor,
                             **attrs)
+
+    def create_l7_policy(self, **attrs):
+        """Create a new l7policy from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create a
+                        :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`,
+                        comprised of the properties on the L7Policy class.
+
+        :returns: The results of l7policy creation
+        :rtype: :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
+        """
+        return self._create(_l7policy.L7Policy, **attrs)
+
+    def delete_l7_policy(self, l7_policy, ignore_missing=True):
+        """Delete a l7policy
+
+        :param l7policy: The value can be either the ID of a l7policy or a
+          :class:`~openstack.load_balancer.v2.l7_policy.L7Policy` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the l7policy does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent l7policy.
+
+        :returns: ``None``
+        """
+        self._delete(_l7policy.L7Policy, l7_policy,
+                     ignore_missing=ignore_missing)
+
+    def find_l7_policy(self, name_or_id, ignore_missing=True):
+        """Find a single l7policy
+
+        :param name_or_id: The name or ID of a l7policy.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+
+        :returns: One :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
+         or None
+        """
+        return self._find(_l7policy.L7Policy, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def get_l7_policy(self, l7_policy):
+        """Get a single l7policy
+
+        :param l7policy: The value can be the ID of a l7policy or a
+               :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
+               instance.
+
+        :returns: One :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_l7policy.L7Policy, l7_policy)
+
+    def l7_policies(self, **query):
+        """Return a generator of l7policies
+
+        :param dict query: Optional query parameters to be sent to limit
+                           the resources being returned. Valid parameters are:
+
+        :returns: A generator of l7policy objects
+        :rtype: :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
+        """
+        return self._list(_l7policy.L7Policy, paginated=True, **query)
+
+    def update_l7_policy(self, l7_policy, **attrs):
+        """Update a l7policy
+
+        :param l7policy: Either the id of a l7policy or a
+                      :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
+                      instance.
+        :param dict attrs: The attributes to update on the l7policy
+                           represented by ``l7policy``.
+
+        :returns: The updated l7policy
+        :rtype: :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
+        """
+        return self._update(_l7policy.L7Policy, l7_policy, **attrs)

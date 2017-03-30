@@ -14,6 +14,7 @@ import unittest
 import uuid
 
 from openstack.load_balancer.v2 import health_monitor
+from openstack.load_balancer.v2 import l7_policy
 from openstack.load_balancer.v2 import listener
 from openstack.load_balancer.v2 import load_balancer
 from openstack.load_balancer.v2 import member
@@ -27,12 +28,14 @@ from openstack.tests.functional.load_balancer import base as lb_base
 class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
 
     HM_NAME = uuid.uuid4().hex
+    L7POLICY_NAME = uuid.uuid4().hex
     LB_NAME = uuid.uuid4().hex
     LISTENER_NAME = uuid.uuid4().hex
     MEMBER_NAME = uuid.uuid4().hex
     POOL_NAME = uuid.uuid4().hex
     UPDATE_NAME = uuid.uuid4().hex
     HM_ID = None
+    L7POLICY_ID = None
     LB_ID = None
     LISTENER_ID = None
     MEMBER_ID = None
@@ -48,6 +51,8 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
     TIMEOUT = 1
     MAX_RETRY = 3
     HM_TYPE = 'HTTP'
+    ACTION = 'REDIRECT_TO_URL'
+    REDIRECT_URL = 'http://www.example.com'
 
     # Note: Creating load balancers can be slow on some hosts due to nova
     #       instance boot times (up to ten minutes) so we are consolidating
@@ -105,9 +110,22 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         cls.lb_wait_for_status(test_lb, status='ACTIVE',
                                failures=['ERROR'])
 
+        test_l7policy = cls.conn.load_balancer.create_l7_policy(
+            listener_id=cls.LISTENER_ID, name=cls.L7POLICY_NAME,
+            action=cls.ACTION, redirect_url=cls.REDIRECT_URL)
+        assert isinstance(test_l7policy, l7_policy.L7Policy)
+        cls.assertIs(cls.L7POLICY_NAME, test_l7policy.name)
+        cls.L7POLICY_ID = test_l7policy.id
+        cls.lb_wait_for_status(test_lb, status='ACTIVE',
+                               failures=['ERROR'])
+
     @classmethod
     def tearDownClass(cls):
         test_lb = cls.conn.load_balancer.get_load_balancer(cls.LB_ID)
+        cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+
+        cls.conn.load_balancer.delete_l7_policy(
+            cls.L7POLICY_ID, ignore_missing=False)
         cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
 
         cls.conn.load_balancer.delete_health_monitor(
@@ -286,3 +304,36 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
         test_hm = self.conn.load_balancer.get_health_monitor(self.HM_ID)
         self.assertEqual(self.HM_NAME, test_hm.name)
+
+    def test_l7_policy_find(self):
+        test_l7_policy = self.conn.load_balancer.find_l7_policy(
+            self.L7POLICY_NAME)
+        self.assertEqual(self.L7POLICY_ID, test_l7_policy.id)
+
+    def test_l7_policy_get(self):
+        test_l7_policy = self.conn.load_balancer.get_l7_policy(
+            self.L7POLICY_ID)
+        self.assertEqual(self.L7POLICY_NAME, test_l7_policy.name)
+        self.assertEqual(self.L7POLICY_ID, test_l7_policy.id)
+        self.assertEqual(self.ACTION, test_l7_policy.action)
+
+    def test_l7_policy_list(self):
+        names = [l7.name for l7 in self.conn.load_balancer.l7_policies()]
+        self.assertIn(self.L7POLICY_NAME, names)
+
+    def test_l7_policy_update(self):
+        test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
+
+        self.conn.load_balancer.update_l7_policy(
+            self.L7POLICY_ID, name=self.UPDATE_NAME)
+        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        test_l7_policy = self.conn.load_balancer.get_l7_policy(
+            self.L7POLICY_ID)
+        self.assertEqual(self.UPDATE_NAME, test_l7_policy.name)
+
+        self.conn.load_balancer.update_l7_policy(self.L7POLICY_ID,
+                                                 name=self.L7POLICY_NAME)
+        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        test_l7_policy = self.conn.load_balancer.get_l7_policy(
+            self.L7POLICY_ID)
+        self.assertEqual(self.L7POLICY_NAME, test_l7_policy.name)
