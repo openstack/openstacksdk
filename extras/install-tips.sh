@@ -16,15 +16,13 @@
 
 for lib in \
         os-client-config \
-        keystoneauth \
         python-novaclient \
         python-keystoneclient \
         python-cinderclient \
         python-neutronclient \
         python-ironicclient \
-        python-heatclient \
         python-designateclient \
-        python-magnumclient
+        keystoneauth
 do
     egg=$(echo $lib | tr '-' '_' | sed 's/python-//')
     if [ -d /opt/stack/new/$lib ] ; then
