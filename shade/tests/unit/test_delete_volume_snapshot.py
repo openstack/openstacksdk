@@ -18,15 +18,15 @@ Tests for the `delete_volume_snapshot` command.
 """
 
 from mock import patch
-from shade import OpenStackCloud
+import shade
+from shade import exc
 from shade.tests import fakes
 from shade.tests.unit import base
-from shade.exc import (OpenStackCloudException, OpenStackCloudTimeout)
 
 
 class TestDeleteVolumeSnapshot(base.TestCase):
 
-    @patch.object(OpenStackCloud, 'cinder_client')
+    @patch.object(shade.OpenStackCloud, 'cinder_client')
     def test_delete_volume_snapshot(self, mock_cinder):
         """
         Test that delete_volume_snapshot without a wait returns True instance
@@ -45,7 +45,7 @@ class TestDeleteVolumeSnapshot(base.TestCase):
         mock_cinder.volume_snapshots.list.assert_called_with(detailed=True,
                                                              search_opts=None)
 
-    @patch.object(OpenStackCloud, 'cinder_client')
+    @patch.object(shade.OpenStackCloud, 'cinder_client')
     def test_delete_volume_snapshot_with_error(self, mock_cinder):
         """
         Test that a exception while deleting a volume snapshot will cause an
@@ -59,13 +59,13 @@ class TestDeleteVolumeSnapshot(base.TestCase):
         mock_cinder.volume_snapshots.list.return_value = [fake_snapshot]
 
         self.assertRaises(
-            OpenStackCloudException,
+            exc.OpenStackCloudException,
             self.cloud.delete_volume_snapshot, name_or_id='1234')
 
         mock_cinder.volume_snapshots.delete.assert_called_with(
             snapshot='1234')
 
-    @patch.object(OpenStackCloud, 'cinder_client')
+    @patch.object(shade.OpenStackCloud, 'cinder_client')
     def test_delete_volume_snapshot_with_timeout(self, mock_cinder):
         """
         Test that a timeout while waiting for the volume snapshot to delete
@@ -77,7 +77,7 @@ class TestDeleteVolumeSnapshot(base.TestCase):
         mock_cinder.volume_snapshots.list.return_value = [fake_snapshot]
 
         self.assertRaises(
-            OpenStackCloudTimeout,
+            exc.OpenStackCloudTimeout,
             self.cloud.delete_volume_snapshot, name_or_id='1234',
             wait=True, timeout=0.01)
 

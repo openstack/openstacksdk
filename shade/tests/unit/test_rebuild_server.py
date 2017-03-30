@@ -21,9 +21,9 @@ Tests for the `rebuild_server` command.
 
 import mock
 
+from shade import exc
 from shade import meta
 from shade import OpenStackCloud
-from shade.exc import (OpenStackCloudException, OpenStackCloudTimeout)
 from shade.tests import fakes
 from shade.tests.unit import base
 
@@ -38,7 +38,7 @@ class TestRebuildServer(base.TestCase):
         """
         mock_nova.servers.rebuild.side_effect = Exception("exception")
         self.assertRaises(
-            OpenStackCloudException, self.cloud.rebuild_server, "a", "b")
+            exc.OpenStackCloudException, self.cloud.rebuild_server, "a", "b")
 
     @mock.patch.object(OpenStackCloud, 'nova_client')
     def test_rebuild_server_server_error(self, mock_nova):
@@ -55,7 +55,7 @@ class TestRebuildServer(base.TestCase):
         mock_nova.servers.list.return_value = [error_server]
         mock_nova.floating_ips.list.return_value = [fake_floating_ip]
         self.assertRaises(
-            OpenStackCloudException,
+            exc.OpenStackCloudException,
             self.cloud.rebuild_server, "1234", "b", wait=True)
 
     @mock.patch.object(OpenStackCloud, 'nova_client')
@@ -68,7 +68,7 @@ class TestRebuildServer(base.TestCase):
         mock_nova.servers.rebuild.return_value = rebuild_server
         mock_nova.servers.list.return_value = [rebuild_server]
         self.assertRaises(
-            OpenStackCloudTimeout,
+            exc.OpenStackCloudTimeout,
             self.cloud.rebuild_server, "a", "b", wait=True, timeout=0.001)
 
     @mock.patch.object(OpenStackCloud, 'nova_client')

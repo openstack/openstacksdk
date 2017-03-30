@@ -18,16 +18,16 @@ Tests for the `create_volume_snapshot` command.
 """
 
 from mock import patch
+import shade
+from shade import exc
 from shade import meta
-from shade import OpenStackCloud
 from shade.tests import fakes
 from shade.tests.unit import base
-from shade.exc import (OpenStackCloudException, OpenStackCloudTimeout)
 
 
 class TestCreateVolumeSnapshot(base.TestCase):
 
-    @patch.object(OpenStackCloud, 'cinder_client')
+    @patch.object(shade.OpenStackCloud, 'cinder_client')
     def test_create_volume_snapshot_wait(self, mock_cinder):
         """
         Test that create_volume_snapshot with a wait returns the volume
@@ -56,7 +56,7 @@ class TestCreateVolumeSnapshot(base.TestCase):
             snapshot_id=meta.obj_to_dict(build_snapshot)['id']
         )
 
-    @patch.object(OpenStackCloud, 'cinder_client')
+    @patch.object(shade.OpenStackCloud, 'cinder_client')
     def test_create_volume_snapshot_with_timeout(self, mock_cinder):
         """
         Test that a timeout while waiting for the volume snapshot to create
@@ -70,7 +70,7 @@ class TestCreateVolumeSnapshot(base.TestCase):
         mock_cinder.volume_snapshots.list.return_value = [build_snapshot]
 
         self.assertRaises(
-            OpenStackCloudTimeout,
+            exc.OpenStackCloudTimeout,
             self.cloud.create_volume_snapshot, volume_id='1234',
             wait=True, timeout=0.01)
 
@@ -81,7 +81,7 @@ class TestCreateVolumeSnapshot(base.TestCase):
             snapshot_id=meta.obj_to_dict(build_snapshot)['id']
         )
 
-    @patch.object(OpenStackCloud, 'cinder_client')
+    @patch.object(shade.OpenStackCloud, 'cinder_client')
     def test_create_volume_snapshot_with_error(self, mock_cinder):
         """
         Test that a error status while waiting for the volume snapshot to
@@ -97,7 +97,7 @@ class TestCreateVolumeSnapshot(base.TestCase):
         mock_cinder.volume_snapshots.list.return_value = [error_snapshot]
 
         self.assertRaises(
-            OpenStackCloudException,
+            exc.OpenStackCloudException,
             self.cloud.create_volume_snapshot, volume_id='1234',
             wait=True, timeout=5)
 

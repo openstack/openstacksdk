@@ -15,8 +15,8 @@ import mock
 import testtools
 
 import shade
-from shade.tests.unit import base
 from shade.tests import fakes
+from shade.tests.unit import base
 
 
 zone_obj = fakes.FakeZone(
