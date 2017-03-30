@@ -2133,8 +2133,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 external_ipv4_networks.append(network)
 
             # External Floating IPv4 networks
-            if ('router:external' in network
-                and network['router:external']):
+            if ('router:external' in network and network['router:external']):
                 external_ipv4_floating_networks.append(network)
 
             # Internal networks
@@ -3035,7 +3034,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if interface_type:
             filtered_ports = []
             if (router.get('external_gateway_info') and
-                'external_fixed_ips' in router['external_gateway_info']):
+                    'external_fixed_ips' in router['external_gateway_info']):
                 ext_fixed = \
                     router['external_gateway_info']['external_fixed_ips']
             else:
@@ -4032,7 +4031,7 @@ class OpenStackCloud(_normalize.Normalizer):
             for count in _utils._iterate_timeout(
                     timeout,
                     "Timeout waiting for the volume snapshot to be available."
-                    ):
+            ):
                 snapshot = self.get_volume_snapshot_by_id(snapshot_id)
 
                 if snapshot['status'] == 'available':
@@ -5885,7 +5884,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return segment_size
 
     def is_object_stale(
-        self, container, name, filename, file_md5=None, file_sha256=None):
+            self, container, name, filename, file_md5=None, file_sha256=None):
 
         metadata = self.get_object_metadata(container, name)
         if not metadata:
@@ -6021,7 +6020,8 @@ class OpenStackCloud(_normalize.Normalizer):
                     entry['etag'] = result.headers['Etag']
 
     def _upload_large_object(
-        self, endpoint, filename, headers, file_size, segment_size, use_slo):
+            self, endpoint, filename,
+            headers, file_size, segment_size, use_slo):
         # If the object is big, we need to break it up into segments that
         # are no larger than segment_size, upload each of them individually
         # and then upload a manifest object. The segments can be uploaded in

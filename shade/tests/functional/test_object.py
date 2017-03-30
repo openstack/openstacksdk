@@ -66,8 +66,7 @@ class TestObject(base.BaseFunctionalTestCase):
                 self.assertFalse(self.user_cloud.is_object_stale(
                     container_name, name,
                     fake_file.name
-                    )
-                )
+                ))
             self.assertEqual(
                 'bar', self.user_cloud.get_object_metadata(
                     container_name, name)['x-object-meta-foo']
@@ -131,8 +130,7 @@ class TestObject(base.BaseFunctionalTestCase):
                 self.assertFalse(self.user_cloud.is_object_stale(
                     container_name, name,
                     fake_file.name
-                    )
-                )
+                ))
             self.assertEqual(
                 'bar', self.user_cloud.get_object_metadata(
                     container_name, name)['x-object-meta-foo']
