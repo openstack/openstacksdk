@@ -13,6 +13,7 @@
 
 import os
 import sys
+import warnings
 
 import openstackdocstheme
 
@@ -67,7 +68,12 @@ release = '1.0'
 # These variables are passed to the logabug code via html_context.
 giturl = u'http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/doc/source'
 git_cmd = "/usr/bin/git log | head -n1 | cut -f2 -d' '"
-gitsha = os.popen(git_cmd).read().strip('\n')
+try:
+    gitsha = os.popen(git_cmd).read().strip('\n')
+except Exception:
+    warnings.warn("Can not get git sha.")
+    gitsha = "unknown"
+
 bug_tag = "docs"
 # source tree
 pwd = os.getcwd()
