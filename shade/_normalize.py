@@ -959,7 +959,7 @@ class Normalizer(object):
         stack.pop('identifier', None)
 
         stack_status = stack.pop('stack_status')
-        (action, status) = stack_status.split('_')
+        (action, status) = stack_status.split('_', 1)
 
         ret = munch.Munch(
             id=stack.pop('id'),
