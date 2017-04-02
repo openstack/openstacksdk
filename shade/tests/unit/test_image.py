@@ -24,11 +24,10 @@ import six
 import shade
 from shade import exc
 from shade import meta
+from shade.tests import fakes
 from shade.tests.unit import base
 
 
-NO_MD5 = '93b885adfe0da089cdf634904fd59f71'
-NO_SHA256 = '6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d'
 CINDER_URL = 'https://volume.example.com/v2/1c36b64c840a42cd9e9b931a369337f0'
 
 
@@ -40,33 +39,7 @@ class BaseTestImage(base.RequestsMockTestCase):
         self.imagefile = tempfile.NamedTemporaryFile(delete=False)
         self.imagefile.write(b'\0')
         self.imagefile.close()
-        self.fake_image_dict = {
-            u'image_state': u'available',
-            u'container_format': u'bare',
-            u'min_ram': 0,
-            u'ramdisk_id': None,
-            u'updated_at': u'2016-02-10T05:05:02Z',
-            u'file': '/v2/images/' + self.image_id + '/file',
-            u'size': 3402170368,
-            u'image_type': u'snapshot',
-            u'disk_format': u'qcow2',
-            u'id': self.image_id,
-            u'schema': u'/v2/schemas/image',
-            u'status': u'active',
-            u'tags': [],
-            u'visibility': u'private',
-            u'locations': [{
-                u'url': u'http://127.0.0.1/images/' + self.image_id,
-                u'metadata': {}}],
-            u'min_disk': 40,
-            u'virtual_size': None,
-            u'name': u'fake_image',
-            u'checksum': u'ee36e35a297980dee1b514de9803ec6d',
-            u'created_at': u'2016-02-10T05:03:11Z',
-            u'owner_specified.shade.md5': NO_MD5,
-            u'owner_specified.shade.sha256': NO_SHA256,
-            u'owner_specified.shade.object': 'images/fake_image',
-            u'protected': False}
+        self.fake_image_dict = fakes.make_fake_image(image_id=self.image_id)
         self.fake_search_return = {'images': [self.fake_image_dict]}
         self.output = uuid.uuid4().bytes
 
@@ -193,9 +166,9 @@ class TestImage(BaseTestImage):
                      json={u'container_format': u'bare',
                            u'disk_format': u'qcow2',
                            u'name': u'fake_image',
-                           u'owner_specified.shade.md5': NO_MD5,
+                           u'owner_specified.shade.md5': fakes.NO_MD5,
                            u'owner_specified.shade.object': u'images/fake_image',  # noqa
-                           u'owner_specified.shade.sha256': NO_SHA256,
+                           u'owner_specified.shade.sha256': fakes.NO_SHA256,
                            u'visibility': u'private'})
                  ),
             dict(method='PUT',
@@ -275,8 +248,8 @@ class TestImage(BaseTestImage):
                      object=image_name),
                  status_code=201,
                  validate=dict(
-                     headers={'x-object-meta-x-shade-md5': NO_MD5,
-                              'x-object-meta-x-shade-sha256': NO_SHA256})
+                     headers={'x-object-meta-x-shade-md5': fakes.NO_MD5,
+                              'x-object-meta-x-shade-sha256': fakes.NO_SHA256})
                  ),
             dict(method='GET', uri='https://image.example.com/v2/images',
                  json={'images': []}),
@@ -308,9 +281,9 @@ class TestImage(BaseTestImage):
                                        container=container_name,
                                        object=image_name),
                                    u'path': u'/owner_specified.shade.object'},
-                                  {u'op': u'add', u'value': NO_MD5,
+                                  {u'op': u'add', u'value': fakes.NO_MD5,
                                    u'path': u'/owner_specified.shade.md5'},
-                                  {u'op': u'add', u'value': NO_SHA256,
+                                  {u'op': u'add', u'value': fakes.NO_SHA256,
                                    u'path': u'/owner_specified.shade.sha256'}],
                                  key=operator.itemgetter('value')),
                      headers={
