@@ -21,6 +21,7 @@ import keystoneauth1.exceptions.catalog
 from keystoneauth1 import session
 import requestsexceptions
 
+import os_client_config
 from os_client_config import _log
 from os_client_config import constructors
 from os_client_config import exceptions
@@ -71,7 +72,8 @@ def _make_key(key, service_type):
 class CloudConfig(object):
     def __init__(self, name, region, config,
                  force_ipv4=False, auth_plugin=None,
-                 openstack_config=None, session_constructor=None):
+                 openstack_config=None, session_constructor=None,
+                 app_name=None, app_version=None):
         self.name = name
         self.region = region
         self.config = config
@@ -81,6 +83,8 @@ class CloudConfig(object):
         self._openstack_config = openstack_config
         self._keystone_session = None
         self._session_constructor = session_constructor or session.Session
+        self._app_name = app_name
+        self._app_version = app_version
 
     def __getattr__(self, key):
         """Return arbitrary attributes."""
@@ -211,9 +215,14 @@ class CloudConfig(object):
             requestsexceptions.squelch_warnings(insecure_requests=not verify)
             self._keystone_session = self._session_constructor(
                 auth=self._auth,
+                app_name=self._app_name,
+                app_version=self._app_version,
                 verify=verify,
                 cert=cert,
                 timeout=self.config['api_timeout'])
+            if hasattr(self._keystone_session, 'additional_user_agent'):
+                self._keystone_session.additional_user_agent.append(
+                    ('os-client-config', os_client_config.__version__))
         return self._keystone_session
 
     def get_session_client(self, service_key):

@@ -23,9 +23,14 @@ from os_client_config.config import OpenStackConfig  # noqa
 __version__ = pbr.version.VersionInfo('os_client_config').version_string()
 
 
-def get_config(service_key=None, options=None, **kwargs):
+def get_config(
+        service_key=None, options=None,
+        app_name=None, app_version=None,
+        **kwargs):
     load_yaml_config = kwargs.pop('load_yaml_config', True)
-    config = OpenStackConfig(load_yaml_config=load_yaml_config)
+    config = OpenStackConfig(
+        load_yaml_config=load_yaml_config,
+        app_name=app_name, app_version=app_version)
     if options:
         config.register_argparse_arguments(options, sys.argv, service_key)
         parsed_options = options.parse_known_args(sys.argv)
@@ -35,7 +40,10 @@ def get_config(service_key=None, options=None, **kwargs):
     return config.get_one_cloud(options=parsed_options, **kwargs)
 
 
-def make_rest_client(service_key, options=None, **kwargs):
+def make_rest_client(
+        service_key, options=None,
+        app_name=None, app_version=None,
+        **kwargs):
     """Simple wrapper function. It has almost no features.
 
     This will get you a raw requests Session Adapter that is mounted
@@ -48,7 +56,10 @@ def make_rest_client(service_key, options=None, **kwargs):
     get_session_client on it. This function is to make it easy to poke
     at OpenStack REST APIs with a properly configured keystone session.
     """
-    cloud = get_config(service_key=service_key, options=options, **kwargs)
+    cloud = get_config(
+        service_key=service_key, options=options,
+        app_name=app_name, app_version=app_version,
+        **kwargs)
     return cloud.get_session_client(service_key)
 # Backwards compat - simple_client was a terrible name
 simple_client = make_rest_client
