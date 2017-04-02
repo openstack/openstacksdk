@@ -149,6 +149,12 @@ class OpenStackCloud(_normalize.Normalizer):
         self.secgroup_source = cloud_config.config['secgroup_source']
         self.force_ipv4 = cloud_config.force_ipv4
         self.strict_mode = strict
+        # TODO(mordred) When os-client-config adds a "get_client_settings()"
+        #               method to CloudConfig - remove this.
+        self._extra_config = cloud_config._openstack_config.get_extra_config(
+            'shade', {
+                'get_flavor_extra_specs': True,
+            })
 
         if manager is not None:
             self.manager = manager
@@ -1757,12 +1763,18 @@ class OpenStackCloud(_normalize.Normalizer):
         return ret
 
     @_utils.cache_on_arguments()
-    def list_flavors(self, get_extra=True):
+    def list_flavors(self, get_extra=None):
         """List all available flavors.
 
+        :param get_extra: Whether or not to fetch extra specs for each flavor.
+                          Defaults to True. Default behavior value can be
+                          overridden in clouds.yaml by setting
+                          shade.get_extra_specs to False.
         :returns: A list of flavor ``munch.Munch``.
 
         """
+        if get_extra is None:
+            get_extra = self._extra_config['get_flavor_extra_specs']
         with _utils.shade_exceptions("Error fetching flavor list"):
             flavors = self._normalize_flavors(
                 self._compute_client.get(
