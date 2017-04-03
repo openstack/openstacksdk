@@ -15,6 +15,7 @@ import uuid
 from openstack.load_balancer.v2 import _proxy
 from openstack.load_balancer.v2 import health_monitor
 from openstack.load_balancer.v2 import l7_policy
+from openstack.load_balancer.v2 import l7_rule
 from openstack.load_balancer.v2 import listener
 from openstack.load_balancer.v2 import load_balancer as lb
 from openstack.load_balancer.v2 import member
@@ -25,6 +26,7 @@ from openstack.tests.unit import test_proxy_base2
 class TestLoadBalancerProxy(test_proxy_base2.TestProxyBase):
 
     POOL_ID = uuid.uuid4()
+    L7_POLICY_ID = uuid.uuid4()
 
     def setUp(self):
         super(TestLoadBalancerProxy, self).setUp()
@@ -195,3 +197,44 @@ class TestLoadBalancerProxy(test_proxy_base2.TestProxyBase):
     def test_l7_policy_update(self):
         self.verify_update(self.proxy.update_l7_policy,
                            l7_policy.L7Policy)
+
+    def test_l7_rules(self):
+        self.verify_list(self.proxy.l7_rules,
+                         l7_rule.L7Rule,
+                         paginated=True,
+                         method_kwargs={'l7_policy': self.L7_POLICY_ID},
+                         expected_kwargs={'l7policy_id': self.L7_POLICY_ID})
+
+    def test_l7_rule_get(self):
+        self.verify_get(self.proxy.get_l7_rule,
+                        l7_rule.L7Rule,
+                        method_kwargs={'l7_policy': self.L7_POLICY_ID},
+                        expected_kwargs={'l7policy_id': self.L7_POLICY_ID})
+
+    def test_l7_rule_create(self):
+        self.verify_create(self.proxy.create_l7_rule,
+                           l7_rule.L7Rule,
+                           method_kwargs={'l7_policy': self.L7_POLICY_ID},
+                           expected_kwargs={'l7policy_id': self.L7_POLICY_ID})
+
+    def test_l7_rule_delete(self):
+        self.verify_delete(self.proxy.delete_l7_rule,
+                           l7_rule.L7Rule,
+                           True,
+                           method_kwargs={'l7_policy': self.L7_POLICY_ID},
+                           expected_kwargs={'l7policy_id': self.L7_POLICY_ID})
+
+    def test_l7_rule_find(self):
+        self._verify2('openstack.proxy2.BaseProxy._find',
+                      self.proxy.find_l7_rule,
+                      method_args=["RULE", self.L7_POLICY_ID],
+                      expected_args=[l7_rule.L7Rule, "RULE"],
+                      expected_kwargs={"l7policy_id": self.L7_POLICY_ID,
+                                       "ignore_missing": True})
+
+    def test_l7_rule_update(self):
+        self._verify2('openstack.proxy2.BaseProxy._update',
+                      self.proxy.update_l7_rule,
+                      method_args=["RULE", self.L7_POLICY_ID],
+                      expected_args=[l7_rule.L7Rule, "RULE"],
+                      expected_kwargs={"l7policy_id": self.L7_POLICY_ID})

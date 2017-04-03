@@ -12,6 +12,7 @@
 
 from openstack.load_balancer.v2 import health_monitor as _hm
 from openstack.load_balancer.v2 import l7_policy as _l7policy
+from openstack.load_balancer.v2 import l7_rule as _l7rule
 from openstack.load_balancer.v2 import listener as _listener
 from openstack.load_balancer.v2 import load_balancer as _lb
 from openstack.load_balancer.v2 import member as _member
@@ -488,7 +489,7 @@ class Proxy(proxy2.BaseProxy):
     def delete_l7_policy(self, l7_policy, ignore_missing=True):
         """Delete a l7policy
 
-        :param l7policy: The value can be either the ID of a l7policy or a
+        :param l7_policy: The value can be either the ID of a l7policy or a
           :class:`~openstack.load_balancer.v2.l7_policy.L7Policy` instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
@@ -520,7 +521,7 @@ class Proxy(proxy2.BaseProxy):
     def get_l7_policy(self, l7_policy):
         """Get a single l7policy
 
-        :param l7policy: The value can be the ID of a l7policy or a
+        :param l7_policy: The value can be the ID of a l7policy or a
                :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
                instance.
 
@@ -544,7 +545,7 @@ class Proxy(proxy2.BaseProxy):
     def update_l7_policy(self, l7_policy, **attrs):
         """Update a l7policy
 
-        :param l7policy: Either the id of a l7policy or a
+        :param l7_policy: Either the id of a l7policy or a
                       :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
                       instance.
         :param dict attrs: The attributes to update on the l7policy
@@ -554,3 +555,115 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
         """
         return self._update(_l7policy.L7Policy, l7_policy, **attrs)
+
+    def create_l7_rule(self, l7_policy, **attrs):
+        """Create a new l7rule from attributes
+
+        :param l7_policy: The l7_policy can be either the ID of a l7policy or
+                     :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
+                     instance that the l7rule will be created in.
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`,
+            comprised of the properties on the L7Rule class.
+
+        :returns: The results of l7rule creation
+        :rtype: :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`
+        """
+        l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
+        return self._create(_l7rule.L7Rule, l7policy_id=l7policyobj.id,
+                            **attrs)
+
+    def delete_l7_rule(self, l7rule, l7_policy, ignore_missing=True):
+        """Delete a l7rule
+
+        :param l7rule:
+            The l7rule can be either the ID of a l7rule or a
+            :class:`~openstack.load_balancer.v2.l7_rule.L7Rule` instance.
+        :param l7_policy: The l7_policy can be either the ID of a l7policy or
+                     :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
+                     instance that the l7rule belongs to.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the l7rule does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent l7rule.
+
+        :returns: ``None``
+        """
+        l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
+        self._delete(_l7rule.L7Rule, l7rule,
+                     ignore_missing=ignore_missing, l7policy_id=l7policyobj.id)
+
+    def find_l7_rule(self, name_or_id, l7_policy, ignore_missing=True):
+        """Find a single l7rule
+
+        :param str name_or_id: The name or ID of a l7rule.
+        :param l7_policy: The l7_policy can be either the ID of a l7policy or
+                     :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
+                     instance that the l7rule belongs to.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+
+        :returns: One :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`
+                  or None
+        """
+        l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
+        return self._find(_l7rule.L7Rule, name_or_id,
+                          ignore_missing=ignore_missing,
+                          l7policy_id=l7policyobj.id)
+
+    def get_l7_rule(self, l7rule, l7_policy):
+        """Get a single l7rule
+
+        :param l7rule: The l7rule can be the ID of a l7rule or a
+                       :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`
+                       instance.
+        :param l7_policy: The l7_policy can be either the ID of a l7policy or
+                     :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
+                     instance that the l7rule belongs to.
+
+        :returns: One :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
+        return self._get(_l7rule.L7Rule, l7rule,
+                         l7policy_id=l7policyobj.id)
+
+    def l7_rules(self, l7_policy, **query):
+        """Return a generator of l7rules
+
+        :param l7_policy: The l7_policy can be either the ID of a l7_policy or
+                     :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
+                     instance that the l7rule belongs to.
+        :param dict query: Optional query parameters to be sent to limit
+                           the resources being returned. Valid parameters are:
+
+        :returns: A generator of l7rule objects
+        :rtype: :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`
+        """
+        l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
+        return self._list(_l7rule.L7Rule, paginated=True,
+                          l7policy_id=l7policyobj.id, **query)
+
+    def update_l7_rule(self, l7rule, l7_policy, **attrs):
+        """Update a l7rule
+
+        :param l7rule: Either the ID of a l7rule or a
+                       :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`
+                       instance.
+        :param l7_policy: The l7_policy can be either the ID of a l7policy or
+                     :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
+                     instance that the l7rule belongs to.
+        :param dict attrs: The attributes to update on the l7rule
+                           represented by ``l7rule``.
+
+        :returns: The updated l7rule
+        :rtype: :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`
+        """
+        l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
+        return self._update(_l7rule.L7Rule, l7rule,
+                            l7policy_id=l7policyobj.id, **attrs)

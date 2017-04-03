@@ -10,3 +10,4 @@ Load Balancer Resources
    v2/member
    v2/health_monitor
    v2/l7_policy
+   v2/l7_rule

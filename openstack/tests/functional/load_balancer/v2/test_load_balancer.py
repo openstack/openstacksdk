@@ -15,6 +15,7 @@ import uuid
 
 from openstack.load_balancer.v2 import health_monitor
 from openstack.load_balancer.v2 import l7_policy
+from openstack.load_balancer.v2 import l7_rule
 from openstack.load_balancer.v2 import listener
 from openstack.load_balancer.v2 import load_balancer
 from openstack.load_balancer.v2 import member
@@ -53,6 +54,9 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
     HM_TYPE = 'HTTP'
     ACTION = 'REDIRECT_TO_URL'
     REDIRECT_URL = 'http://www.example.com'
+    COMPARE_TYPE = 'CONTAINS'
+    L7RULE_TYPE = 'HOST_NAME'
+    L7RULE_VALUE = 'example'
 
     # Note: Creating load balancers can be slow on some hosts due to nova
     #       instance boot times (up to ten minutes) so we are consolidating
@@ -119,9 +123,22 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         cls.lb_wait_for_status(test_lb, status='ACTIVE',
                                failures=['ERROR'])
 
+        test_l7rule = cls.conn.load_balancer.create_l7_rule(
+            l7_policy=cls.L7POLICY_ID, compare_type=cls.COMPARE_TYPE,
+            type=cls.L7RULE_TYPE, value=cls.L7RULE_VALUE)
+        assert isinstance(test_l7rule, l7_rule.L7Rule)
+        cls.assertIs(cls.COMPARE_TYPE, test_l7rule.compare_type)
+        cls.L7RULE_ID = test_l7rule.id
+        cls.lb_wait_for_status(test_lb, status='ACTIVE',
+                               failures=['ERROR'])
+
     @classmethod
     def tearDownClass(cls):
         test_lb = cls.conn.load_balancer.get_load_balancer(cls.LB_ID)
+        cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+
+        cls.conn.load_balancer.delete_l7_rule(
+            cls.L7RULE_ID, ignore_missing=False)
         cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
 
         cls.conn.load_balancer.delete_l7_policy(
@@ -337,3 +354,38 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         test_l7_policy = self.conn.load_balancer.get_l7_policy(
             self.L7POLICY_ID)
         self.assertEqual(self.L7POLICY_NAME, test_l7_policy.name)
+
+    def test_l7_rule_find(self):
+        test_l7_rule = self.conn.load_balancer.find_l7_rule(
+            self.L7RULE_ID)
+        self.assertEqual(self.L7RULE_ID, test_l7_rule.id)
+        self.assertEqual(self.L7RULE_TYPE, test_l7_rule.type)
+
+    def test_l7_rule_get(self):
+        test_l7_rule = self.conn.load_balancer.get_l7_rule(
+            self.L7RULE_ID)
+        self.assertEqual(self.L7RULE_ID, test_l7_rule.id)
+        self.assertEqual(self.COMPARE_TYPE, test_l7_rule.compare_type)
+        self.assertEqual(self.L7RULE_TYPE, test_l7_rule.type)
+        self.assertEqual(self.L7RULE_VALUE, test_l7_rule.value)
+
+    def test_l7_rule_list(self):
+        ids = [l7.id for l7 in self.conn.load_balancer.l7_rules()]
+        self.assertIn(self.L7RULE_ID, ids)
+
+    def test_l7_rule_update(self):
+        test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
+
+        self.conn.load_balancer.update_l7_rule(
+            self.L7RULE_ID, value=self.UPDATE_NAME)
+        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        test_l7_rule = self.conn.load_balancer.get_l7_rule(
+            self.L7RULE_ID)
+        self.assertEqual(self.UPDATE_NAME, test_l7_rule.value)
+
+        self.conn.load_balancer.update_l7_policy(self.L7POLICY_ID,
+                                                 value=self.L7RULE_VALUE)
+        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        test_l7_rule = self.conn.load_balancer.get_l7_rule(
+            self.L7RULE_ID)
+        self.assertEqual(self.L7RULE_VALUE, test_l7_rule.value)

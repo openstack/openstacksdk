@@ -81,3 +81,15 @@ L7 Policy Operations
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_l7_policy
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.l7_policies
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_l7_policy
+
+L7 Rule Operations
+^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.load_balancer.v2._proxy.Proxy
+
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.create_l7_rule
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.delete_l7_rule
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_l7_rule
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_l7_rule
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.l7_rules
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_l7_rule
