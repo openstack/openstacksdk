@@ -8,3 +8,4 @@ Load Balancer Resources
    v2/listener
    v2/pool
    v2/member
+   v2/health_monitor

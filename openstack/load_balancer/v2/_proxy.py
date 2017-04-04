@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.load_balancer.v2 import health_monitor as _hm
 from openstack.load_balancer.v2 import listener as _listener
 from openstack.load_balancer.v2 import load_balancer as _lb
 from openstack.load_balancer.v2 import member as _member
@@ -368,3 +369,105 @@ class Proxy(proxy2.BaseProxy):
         poolobj = self._get_resource(_pool.Pool, pool)
         return self._update(_member.Member, member,
                             pool_id=poolobj.id, **attrs)
+
+    def find_health_monitor(self, name_or_id, ignore_missing=True):
+        """Find a single health monitor
+
+        :param name_or_id: The name or ID of a health monitor
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the health monitor does not exist.
+            When set to ``True``, no exception will be set when attempting
+            to find a nonexistent health monitor.
+
+        :returns: The
+            :class:`openstack.load_balancer.v2.healthmonitor.HealthMonitor`
+            object matching the given name or id or None if nothing matches.
+
+        :raises: :class:`openstack.exceptions.DuplicateResource` if more
+                 than one resource is found for this request.
+        :raises: :class:`openstack.exceptions.ResourceNotFound` if nothing
+                 is found and ignore_missing is ``False``.
+        """
+        return self._find(_hm.HealthMonitor, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def create_health_monitor(self, **attrs):
+        """Create a new health monitor from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.load_balancer.v2.
+                           healthmonitor.HealthMonitor`,
+                           comprised of the properties on the
+                           HealthMonitor class.
+
+        :returns: The results of HealthMonitor creation
+        :rtype: :class:`~openstack.load_balancer.v2.
+            healthmonitor.HealthMonitor`
+        """
+
+        return self._create(_hm.HealthMonitor, **attrs)
+
+    def get_health_monitor(self, healthmonitor):
+        """Get a health monitor
+
+        :param healthmonitor: The value can be the ID of a health monitor or
+            :class:`~openstack.load_balancer.v2.healthmonitor.HealthMonitor`
+            instance.
+
+        :returns: One health monitor
+        :rtype: :class:`~openstack.load_balancer.v2.
+            healthmonitor.HealthMonitor`
+        """
+        return self._get(_hm.HealthMonitor, healthmonitor)
+
+    def health_monitors(self, **query):
+        """Retrieve a generator of health monitors
+
+        :param dict query: Optional query parameters to be sent to limit
+                           the resources being returned. Valid parameters are:
+                           'name', 'created_at', 'updated_at', 'delay',
+                           'expected_codes', 'http_method', 'max_retries',
+                           'max_retries_down', 'pool_id',
+                           'provisioning_status', 'operating_status',
+                           'timeout', 'project_id', 'type', 'url_path',
+                           'is_admin_state_up'.
+
+        :returns: A generator of health monitor instances
+        """
+        return self._list(_hm.HealthMonitor, paginated=True, **query)
+
+    def delete_health_monitor(self, healthmonitor, ignore_missing=True):
+        """Delete a health monitor
+
+        :param healthmonitor: The healthmonitor can be either the ID of the
+            health monitor or a
+            :class:`~openstack.load_balancer.v2.healthmonitor.HealthMonitor`
+            instance
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the healthmonitor does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent healthmonitor.
+
+        :returns: ``None``
+        """
+        return self._delete(_hm.HealthMonitor, healthmonitor,
+                            ignore_missing=ignore_missing)
+
+    def update_health_monitor(self, healthmonitor, **attrs):
+        """Update a health monitor
+
+        :param healthmonitor: The healthmonitor can be either the ID of the
+            health monitor or a
+            :class:`~openstack.load_balancer.v2.healthmonitor.HealthMonitor`
+            instance
+        :param dict attrs: The attributes to update on the health monitor
+                           represented by ``healthmonitor``.
+
+        :returns: The updated health monitor
+        :rtype: :class:`~openstack.load_balancer.v2.
+            healthmonitor.HealthMonitor`
+        """
+        return self._update(_hm.HealthMonitor, healthmonitor,
+                            **attrs)

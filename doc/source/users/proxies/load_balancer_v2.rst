@@ -57,3 +57,15 @@ Member Operations
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_member
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.members
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_member
+
+Health Monitor Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.load_balancer.v2._proxy.Proxy
+
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.create_health_monitor
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.delete_health_monitor
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_health_monitor
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_health_monitor
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.health_monitors
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_health_monitor
