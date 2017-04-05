@@ -153,9 +153,10 @@ class Proxy(proxy2.BaseProxy):
             :class:`~openstack.orchestration.v1.stack.Stack`
 
         :returns: One object of
-        :class:`~openstack.orchestration.v1.stack_environment.StackEnvironment`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+                  :class:`~openstack.orchestration.v1.stack_environment.\
+                  StackEnvironment`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+                 resource can be found.
         """
         if isinstance(stack, _stack.Stack):
             obj = stack
