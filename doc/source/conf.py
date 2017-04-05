@@ -30,7 +30,7 @@ extensions = [
 ]
 
 # When True, this will raise an exception that kills sphinx-build.
-enforcer_warnings_as_errors = False
+enforcer_warnings_as_errors = True
 
 # autodoc generation is a bit aggressive and a nuisance when doing heavy
 # text edit cycles.

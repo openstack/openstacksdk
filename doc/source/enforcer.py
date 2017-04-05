@@ -1,4 +1,5 @@
 import importlib
+import itertools
 import os
 
 from bs4 import BeautifulSoup
@@ -10,6 +11,13 @@ DEBUG = True if os.getenv("ENFORCER_DEBUG") else False
 
 WRITTEN_METHODS = set()
 
+# NOTE: This is temporary! These methods currently exist on the base
+# Proxy class as public methods, but they're deprecated in favor of
+# subclasses actually exposing them if necessary. However, as they're
+# public and purposely undocumented, they cause spurious warnings.
+# Ignore these methods until they're actually removed from the API,
+# and then we can take this special case out.
+IGNORED_METHODS = ("wait_for_delete", "wait_for_status")
 
 class EnforcementError(errors.SphinxError):
     """A mismatch between what exists and what's documented"""
@@ -47,6 +55,11 @@ def get_proxy_methods():
         instance = module.Proxy("")
         # We only document public names
         names = [name for name in dir(instance) if not name.startswith("_")]
+
+        # Remove the wait_for_* names temporarily.
+        for name in IGNORED_METHODS:
+            names.remove(name)
+
         good_names = [module.__name__ + ".Proxy." + name for name in names]
         methods.update(good_names)
 
@@ -94,6 +107,17 @@ def build_finished(app, exception):
     app.info("ENFORCER: %d proxy methods exist" % len(all_methods))
     app.info("ENFORCER: %d proxy methods written" % len(WRITTEN_METHODS))
     missing = all_methods - WRITTEN_METHODS
+
+    def is_ignored(name):
+        for ignored_name in IGNORED_METHODS:
+            if ignored_name in name:
+                return True
+        return False
+
+    # TEMPORARY: Ignore the wait_for names when determining what is missing.
+    app.info("ENFORCER: Ignoring wait_for_* names...")
+    missing = set(itertools.ifilterfalse(is_ignored, missing))
+
     missing_count = len(missing)
     app.info("ENFORCER: Found %d missing proxy methods "
              "in the output" % missing_count)
@@ -101,7 +125,7 @@ def build_finished(app, exception):
     for name in sorted(missing):
         app.warn("ENFORCER: %s was not included in the output" % name)
 
-    if app.config.enforcer_warnings_as_errors:
+    if app.config.enforcer_warnings_as_errors and missing_count > 0:
         raise EnforcementError(
             "There are %d undocumented proxy methods" % missing_count)
 
