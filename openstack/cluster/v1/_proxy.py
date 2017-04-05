@@ -1051,7 +1051,8 @@ class Proxy(proxy2.BaseProxy):
                          The resource must have a ``status`` attribute.
         :type resource: A :class:`~openstack.resource2.Resource` object.
         :param status: Desired status.
-        :param list failures: Statuses that would be interpreted as failures.
+        :param failures: Statuses that would be interpreted as failures.
+        :type failures: :py:class:`list`
         :param interval: Number of seconds to wait before to consecutive
                          checks. Default to 2.
         :param wait: Maximum number of seconds to wait before the change.
