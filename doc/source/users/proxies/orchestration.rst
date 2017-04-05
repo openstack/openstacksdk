@@ -24,6 +24,9 @@ Stack Operations
    .. automethod:: openstack.orchestration.v1._proxy.Proxy.delete_stack
    .. automethod:: openstack.orchestration.v1._proxy.Proxy.find_stack
    .. automethod:: openstack.orchestration.v1._proxy.Proxy.get_stack
+   .. automethod:: openstack.orchestration.v1._proxy.Proxy.get_stack_environment
+   .. automethod:: openstack.orchestration.v1._proxy.Proxy.get_stack_files
+   .. automethod:: openstack.orchestration.v1._proxy.Proxy.get_stack_template
    .. automethod:: openstack.orchestration.v1._proxy.Proxy.stacks
    .. automethod:: openstack.orchestration.v1._proxy.Proxy.validate_template
    .. automethod:: openstack.orchestration.v1._proxy.Proxy.resources
