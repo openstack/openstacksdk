@@ -3307,6 +3307,12 @@ class OpenStackCloud(_normalize.Normalizer):
             self, name, server, wait=False, timeout=3600, **metadata):
         """Create an image by snapshotting an existing server.
 
+        ..note::
+            On most clouds this is a cold snapshot - meaning that the server
+            in question will be shutdown before taking the snapshot. It is
+            possible that it's a live snapshot - but there is no way to know
+            as a user, so caveat emptor.
+
         :param name: Name of the image to be created
         :param server: Server name or ID or dict representing the server
                        to be snapshotted
@@ -3325,8 +3331,33 @@ class OpenStackCloud(_normalize.Normalizer):
                     "Server {server} could not be found and therefore"
                     " could not be snapshotted.".format(server=server))
             server = server_obj
-        image_id = str(self.manager.submit_task(_tasks.ImageSnapshotCreate(
-            image_name=name, server=server['id'], metadata=metadata)))
+        response = self._compute_client.post(
+            '/servers/{server_id}/action'.format(server_id=server['id']),
+            json={
+                "createImage": {
+                    "name": name,
+                    "metadata": metadata,
+                }
+            })
+        # You won't believe it - wait, who am I kidding - of course you will!
+        # Nova returns the URL of the image created in the Location
+        # header of the response. (what?) But, even better, the URL it responds
+        # with has a very good chance of being wrong (it is built from
+        # nova.conf values that point to internal API servers in any cloud
+        # large enough to have both public and internal endpoints.
+        # However, nobody has ever noticed this because novaclient doesn't
+        # actually use that URL - it extracts the id from the end of
+        # the url, then returns the id. This leads us to question:
+        #   a) why Nova is going to return a value in a header
+        #   b) why it's going to return data that probably broken
+        #   c) indeed the very nature of the fabric of reality
+        # Although it fills us with existential dread, we have no choice but
+        # to follow suit like a lemming being forced over a cliff by evil
+        # producers from Disney.
+        # TODO(mordred) Update this to consume json microversion when it is
+        #               available.
+        #               blueprint:remove-create-image-location-header-response
+        image_id = response.headers['Location'].rsplit('/', 1)[1]
         self.list_images.invalidate(self)
         image = self.get_image(image_id)
 
