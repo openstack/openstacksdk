@@ -1,8 +1,6 @@
 Workflow API
 ============
 
-For details on how to use workflow, see :doc:`/users/guides/workflow`
-
 .. automodule:: openstack.workflow.v2._proxy
 
 The Workflow Class

@@ -6,7 +6,7 @@ Telemetry API
 
 For details on how to use telemetry, see :doc:`/users/guides/telemetry`
 
-.. automethod:: openstack.telemetry.v2._proxy
+.. automodule:: openstack.telemetry.v2._proxy
 
 The Telemetry Class
 -------------------
