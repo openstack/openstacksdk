@@ -3326,7 +3326,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     " could not be snapshotted.".format(server=server))
             server = server_obj
         image_id = str(self.manager.submit_task(_tasks.ImageSnapshotCreate(
-            image_name=name, server=server, metadata=metadata)))
+            image_name=name, server=server['id'], metadata=metadata)))
         self.list_images.invalidate(self)
         image = self.get_image(image_id)
 

@@ -550,7 +550,7 @@ class RequestsMockTestCase(BaseTestCase):
                 mock_method, mock_uri, params['response_list'],
                 **params['kw_params'])
 
-    def assert_calls(self, stop_after=None):
+    def assert_calls(self, stop_after=None, do_count=True):
         for (x, (call, history)) in enumerate(
                 zip(self.calls, self.adapter.request_history)):
             if stop_after and x > stop_after:
@@ -571,4 +571,6 @@ class RequestsMockTestCase(BaseTestCase):
                     self.assertEqual(
                         value, history.headers[key],
                         'header mismatch in call {index}'.format(index=x))
-        self.assertEqual(len(self.calls), len(self.adapter.request_history))
+        if do_count:
+            self.assertEqual(
+                len(self.calls), len(self.adapter.request_history))

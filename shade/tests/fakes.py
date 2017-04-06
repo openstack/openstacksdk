@@ -28,6 +28,8 @@ STRAWBERRY_FLAVOR_ID = u'0c1d9008-f546-4608-9e8f-f8bdaec8dddf'
 COMPUTE_ENDPOINT = 'https://compute.example.com/v2.1'
 ORCHESTRATION_ENDPOINT = 'https://orchestration.example.com/v1/{p}'.format(
     p=PROJECT_ID)
+NO_MD5 = '93b885adfe0da089cdf634904fd59f71'
+NO_SHA256 = '6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d'
 
 
 def make_fake_flavor(flavor_id, name, ram=100, disk=1600, vcpus=24):
@@ -175,6 +177,37 @@ def make_fake_stack_event(
         "physical_resource_id": id,
         "id": event_id,
     }
+
+
+def make_fake_image(
+        image_id=None, md5=NO_MD5, sha256=NO_SHA256, status='active'):
+    return {
+        u'image_state': u'available',
+        u'container_format': u'bare',
+        u'min_ram': 0,
+        u'ramdisk_id': None,
+        u'updated_at': u'2016-02-10T05:05:02Z',
+        u'file': '/v2/images/' + image_id + '/file',
+        u'size': 3402170368,
+        u'image_type': u'snapshot',
+        u'disk_format': u'qcow2',
+        u'id': image_id,
+        u'schema': u'/v2/schemas/image',
+        u'status': status,
+        u'tags': [],
+        u'visibility': u'private',
+        u'locations': [{
+            u'url': u'http://127.0.0.1/images/' + image_id,
+            u'metadata': {}}],
+        u'min_disk': 40,
+        u'virtual_size': None,
+        u'name': u'fake_image',
+        u'checksum': u'ee36e35a297980dee1b514de9803ec6d',
+        u'created_at': u'2016-02-10T05:03:11Z',
+        u'owner_specified.shade.md5': NO_MD5,
+        u'owner_specified.shade.sha256': NO_SHA256,
+        u'owner_specified.shade.object': 'images/fake_image',
+        u'protected': False}
 
 
 class FakeEndpoint(object):

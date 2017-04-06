@@ -14,51 +14,100 @@
 
 import uuid
 
-import mock
-
-import shade
 from shade import exc
+from shade.tests import fakes
 from shade.tests.unit import base
 
 
-class TestImageSnapshot(base.TestCase):
+class TestImageSnapshot(base.RequestsMockTestCase):
 
     def setUp(self):
         super(TestImageSnapshot, self).setUp()
+        self.server_id = str(uuid.uuid4())
         self.image_id = str(uuid.uuid4())
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    @mock.patch.object(shade.OpenStackCloud, 'get_image')
-    def test_create_image_snapshot_wait_until_active_never_active(self,
-                                                                  mock_get,
-                                                                  mock_nova):
-        mock_nova.servers.create_image.return_value = {
-            'status': 'queued',
-            'id': self.image_id,
-        }
-        mock_get.return_value = {'status': 'saving', 'id': self.image_id}
-        self.assertRaises(exc.OpenStackCloudTimeout,
-                          self.cloud.create_image_snapshot,
-                          'test-snapshot', dict(id='fake-server'),
-                          wait=True, timeout=0.01)
+    def test_create_image_snapshot_wait_until_active_never_active(self):
+        snapshot_name = 'test-snapshot'
+        fake_image = fakes.make_fake_image(self.image_id, status='pending')
+        self.register_uris([
+            dict(
+                method='POST',
+                uri='{endpoint}/servers/{server_id}/action'.format(
+                    endpoint=fakes.COMPUTE_ENDPOINT,
+                    server_id=self.server_id),
+                headers=dict(
+                    Location='{endpoint}/images/{image_id}'.format(
+                        endpoint='https://images.example.com',
+                        image_id=self.image_id)),
+                validate=dict(
+                    json={
+                        "createImage": {
+                            "name": snapshot_name,
+                            "metadata": {},
+                        }})),
+            self.get_glance_discovery_mock_dict(),
+            dict(
+                method='GET',
+                uri='https://image.example.com/v2/images',
+                json=dict(images=[fake_image])),
+        ])
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    @mock.patch.object(shade.OpenStackCloud, 'get_image')
-    def test_create_image_snapshot_wait_active(self, mock_get, mock_nova):
-        mock_nova.servers.create_image.return_value = {
-            'status': 'queued',
-            'id': self.image_id,
-        }
-        mock_get.return_value = {'status': 'active', 'id': self.image_id}
+        self.assertRaises(
+            exc.OpenStackCloudTimeout,
+            self.cloud.create_image_snapshot,
+            snapshot_name, dict(id=self.server_id),
+            wait=True, timeout=0.01)
+
+        # After the fifth call, we just keep polling get images for status.
+        # Due to mocking sleep, we have no clue how many times we'll call it.
+        self.assert_calls(stop_after=5, do_count=False)
+
+    def test_create_image_snapshot_wait_active(self):
+        snapshot_name = 'test-snapshot'
+        pending_image = fakes.make_fake_image(self.image_id, status='pending')
+        fake_image = fakes.make_fake_image(self.image_id)
+        self.register_uris([
+            dict(
+                method='POST',
+                uri='{endpoint}/servers/{server_id}/action'.format(
+                    endpoint=fakes.COMPUTE_ENDPOINT,
+                    server_id=self.server_id),
+                headers=dict(
+                    Location='{endpoint}/images/{image_id}'.format(
+                        endpoint='https://images.example.com',
+                        image_id=self.image_id)),
+                validate=dict(
+                    json={
+                        "createImage": {
+                            "name": snapshot_name,
+                            "metadata": {},
+                        }})),
+            self.get_glance_discovery_mock_dict(),
+            dict(
+                method='GET',
+                uri='https://image.example.com/v2/images',
+                json=dict(images=[pending_image])),
+            dict(
+                method='GET',
+                uri='https://image.example.com/v2/images',
+                json=dict(images=[fake_image])),
+        ])
         image = self.cloud.create_image_snapshot(
-            'test-snapshot', dict(id='fake-server'), wait=True, timeout=2)
+            'test-snapshot', dict(id=self.server_id), wait=True, timeout=2)
         self.assertEqual(image['id'], self.image_id)
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_server')
-    def test_create_image_snapshot_bad_name_exception(
-            self, mock_get_server):
-        mock_get_server.return_value = None
+        self.assert_calls()
+
+    def test_create_image_snapshot_bad_name_exception(self):
+        self.register_uris([
+            dict(
+                method='POST',
+                uri='{endpoint}/servers/{server_id}/action'.format(
+                    endpoint=fakes.COMPUTE_ENDPOINT,
+                    server_id=self.server_id),
+                json=dict(servers=[])),
+        ])
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud.create_image_snapshot,
-            'test-snapshot', 'missing-server')
+            'test-snapshot', self.server_id)
