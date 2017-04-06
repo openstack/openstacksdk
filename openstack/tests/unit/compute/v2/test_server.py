@@ -91,6 +91,7 @@ class TestServer(testtools.TestCase):
                               "sort_key": "sort_key",
                               "sort_dir": "sort_dir",
                               "reservation_id": "reservation_id",
+                              "project_id": "project_id",
                               "tags": "tags",
                               "tags_any": "tags-any",
                               "not_tags": "not-tags",

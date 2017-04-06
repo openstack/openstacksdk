@@ -33,6 +33,7 @@ class Server(resource2.Resource, metadata.MetadataMixin):
                                                "status", "host", "all_tenants",
                                                "sort_key", "sort_dir",
                                                "reservation_id", "tags",
+                                               "project_id",
                                                tags_any="tags-any",
                                                not_tags="not-tags",
                                                not_tags_any="not-tags-any",
