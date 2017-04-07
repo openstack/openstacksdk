@@ -2169,9 +2169,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def _neutron_list_floating_ips(self, filters=None):
         if not filters:
             filters = {}
-        with _utils.neutron_exceptions("error fetching floating IPs list"):
-            return self.manager.submit_task(
-                _tasks.NeutronFloatingIPList(**filters))['floatingips']
+        return self._network_client.get('/floatingips.json', params=filters)
 
     def _nova_list_floating_ips(self):
         with _utils.shade_exceptions("Error fetching floating IPs list"):
