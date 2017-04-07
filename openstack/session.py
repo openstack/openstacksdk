@@ -330,6 +330,11 @@ class Session(_session.Session):
             self.endpoint_cache[key] = sc_endpoint
             return sc_endpoint
 
+        # We just want what is returned from catalog
+        if service_type == "load-balancer":
+            self.endpoint_cache[key] = sc_endpoint
+            return sc_endpoint
+
         endpoint = self._get_endpoint_versions(service_type, sc_endpoint)
 
         profile_version = self._parse_version(filt.version)

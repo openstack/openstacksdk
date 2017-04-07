@@ -80,3 +80,17 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._find(_lb.LoadBalancer, name_or_id,
                           ignore_missing=ignore_missing)
+
+    def update_load_balancer(self, load_balancer, **attrs):
+        """Update a load balancer
+
+        :param load_balancer: The load_balancer can be either the name or a
+            :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`
+            instance
+        :param dict attrs: The attributes to update on the load balancer
+                           represented by ``load_balancer``.
+
+        :returns: The updated load_balancer
+        :rtype: :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`
+        """
+        return self._update(_lb.LoadBalancer, load_balancer, **attrs)

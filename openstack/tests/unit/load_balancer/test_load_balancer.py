@@ -11,24 +11,29 @@
 # under the License.
 
 import testtools
+import uuid
 
 from openstack.load_balancer.v2 import load_balancer
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     'admin_state_up': True,
-    'created_at': '3',
+    'created_at': '2017-07-17T12:14:57.233772',
     'description': 'fake_description',
+    'flavor': uuid.uuid4(),
     'id': IDENTIFIER,
-    'listeners': [{'id', '4'}],
+    'listeners': [{'id', uuid.uuid4()}],
     'name': 'test_load_balancer',
-    'operating_status': '6',
-    'provisioning_status': '7',
-    'project_id': '8',
-    'vip_address': '9',
-    'vip_subnet_id': '10',
-    'vip_port_id': '11',
-    'pools': [{'id', '13'}],
+    'operating_status': 'ONLINE',
+    'pools': [{'id', uuid.uuid4()}],
+    'project_id': uuid.uuid4(),
+    'provider': 'fake_provider',
+    'provisioning_status': 'ACTIVE',
+    'updated_at': '2017-07-17T12:16:57.233772',
+    'vip_address': '192.0.2.5',
+    'vip_network_id': uuid.uuid4(),
+    'vip_port_id': uuid.uuid4(),
+    'vip_subnet_id': uuid.uuid4(),
 }
 
 
@@ -38,13 +43,15 @@ class TestLoadBalancer(testtools.TestCase):
         test_load_balancer = load_balancer.LoadBalancer()
         self.assertEqual('loadbalancer', test_load_balancer.resource_key)
         self.assertEqual('loadbalancers', test_load_balancer.resources_key)
-        self.assertEqual('/loadbalancers', test_load_balancer.base_path)
-        self.assertEqual('load_balancer',
+        self.assertEqual('/v2.0/lbaas/loadbalancers',
+                         test_load_balancer.base_path)
+        self.assertEqual('load-balancer',
                          test_load_balancer.service.service_type)
         self.assertTrue(test_load_balancer.allow_create)
         self.assertTrue(test_load_balancer.allow_get)
         self.assertTrue(test_load_balancer.allow_delete)
         self.assertTrue(test_load_balancer.allow_list)
+        self.assertTrue(test_load_balancer.allow_update)
 
     def test_make_it(self):
         test_load_balancer = load_balancer.LoadBalancer(**EXAMPLE)
@@ -52,18 +59,23 @@ class TestLoadBalancer(testtools.TestCase):
         self.assertEqual(EXAMPLE['created_at'], test_load_balancer.created_at),
         self.assertEqual(EXAMPLE['description'],
                          test_load_balancer.description)
+        self.assertEqual(EXAMPLE['flavor'], test_load_balancer.flavor)
         self.assertEqual(EXAMPLE['id'], test_load_balancer.id)
         self.assertEqual(EXAMPLE['listeners'], test_load_balancer.listeners)
         self.assertEqual(EXAMPLE['name'], test_load_balancer.name)
         self.assertEqual(EXAMPLE['operating_status'],
                          test_load_balancer.operating_status)
+        self.assertEqual(EXAMPLE['pools'], test_load_balancer.pools)
+        self.assertEqual(EXAMPLE['project_id'], test_load_balancer.project_id)
+        self.assertEqual(EXAMPLE['provider'], test_load_balancer.provider)
         self.assertEqual(EXAMPLE['provisioning_status'],
                          test_load_balancer.provisioning_status)
-        self.assertEqual(EXAMPLE['project_id'], test_load_balancer.project_id)
+        self.assertEqual(EXAMPLE['updated_at'], test_load_balancer.updated_at),
         self.assertEqual(EXAMPLE['vip_address'],
                          test_load_balancer.vip_address)
-        self.assertEqual(EXAMPLE['vip_subnet_id'],
-                         test_load_balancer.vip_subnet_id)
+        self.assertEqual(EXAMPLE['vip_network_id'],
+                         test_load_balancer.vip_network_id)
         self.assertEqual(EXAMPLE['vip_port_id'],
                          test_load_balancer.vip_port_id)
-        self.assertEqual(EXAMPLE['pools'], test_load_balancer.pools)
+        self.assertEqual(EXAMPLE['vip_subnet_id'],
+                         test_load_balancer.vip_subnet_id)

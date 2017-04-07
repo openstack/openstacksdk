@@ -40,3 +40,7 @@ class TestLoadBalancerProxy(test_proxy_base2.TestProxyBase):
     def test_load_balancer_find(self):
         self.verify_find(self.proxy.find_load_balancer,
                          lb.LoadBalancer)
+
+    def test_load_balancer_update(self):
+        self.verify_update(self.proxy.update_load_balancer,
+                           lb.LoadBalancer)
