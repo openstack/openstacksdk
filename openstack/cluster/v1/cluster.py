@@ -30,7 +30,7 @@ class Cluster(resource.Resource):
     patch_update = True
 
     _query_mapping = resource.QueryParameters(
-        'name', 'status', 'sort', 'global_project', 'profile_only')
+        'name', 'status', 'sort', 'global_project')
 
     # Properties
     #: The name of the cluster.
@@ -74,6 +74,8 @@ class Cluster(resource.Resource):
     node_ids = resource.Body('nodes')
     #: Name of the profile used by the cluster.
     profile_name = resource.Body('profile_name')
+    #: Specify whether the cluster update should only pertain to the profile.
+    is_profile_only = resource.Body('profile_only', type=bool)
     #: A dictionary with dependency information of the cluster
     dependents = resource.Body('dependents', type=dict)
 
