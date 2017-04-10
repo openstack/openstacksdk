@@ -1995,18 +1995,10 @@ class OpenStackCloud(_normalize.Normalizer):
             servers = self._normalize_servers(
                 self.manager.submit_task(_tasks.ServerList(**kwargs)))
 
-            if bare:
-                return servers
-            elif detailed:
-                return [
-                    meta.get_hostvars_from_server(self, server)
-                    for server in servers
-                ]
-            else:
-                return [
-                    meta.add_server_interfaces(self, server)
-                    for server in servers
-                ]
+            return [
+                self._expand_server(server, detailed, bare)
+                for server in servers
+            ]
 
     def list_server_groups(self):
         """List all available server groups.
@@ -2767,8 +2759,17 @@ class OpenStackCloud(_normalize.Normalizer):
 
         """
         searchfunc = functools.partial(self.search_servers,
-                                       detailed=detailed, bare=bare)
-        return _utils._get_entity(searchfunc, name_or_id, filters)
+                                       detailed=detailed, bare=True)
+        server = _utils._get_entity(searchfunc, name_or_id, filters)
+        return self._expand_server(server, detailed, bare)
+
+    def _expand_server(self, server, detailed, bare):
+        if bare or not server:
+            return server
+        elif detailed:
+            return meta.get_hostvars_from_server(self, server)
+        else:
+            return meta.add_server_interfaces(self, server)
 
     def get_server_by_id(self, id):
         return meta.add_server_interfaces(self, self._normalize_server(
@@ -5091,7 +5092,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def _add_ip_from_pool(
             self, server, network, fixed_address=None, reuse=True,
             wait=False, timeout=60, nat_destination=None):
-        """Add a floating IP to a sever from a given pool
+        """Add a floating IP to a server from a given pool
 
         This method reuses available IPs, when possible, or allocate new IPs
         to the current tenant.
