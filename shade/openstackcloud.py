@@ -3466,20 +3466,14 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :raises: OpenStackCloudException if there are problems uploading
         """
-
-        if not disk_format:
-            disk_format = self.cloud_config.config['image_format']
-
         if not meta:
             meta = {}
 
         if not disk_format:
             disk_format = self.cloud_config.config['image_format']
         if not container_format:
-            if disk_format == 'vhd':
-                container_format = 'ovf'
-            else:
-                container_format = 'bare'
+            # https://docs.openstack.org/image-guide/image-formats.html
+            container_format = 'bare'
 
         if volume:
             if 'id' in volume:
