@@ -95,6 +95,25 @@ class TestNetwork(testtools.TestCase):
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
         self.assertEqual(EXAMPLE['vlan_transparent'], sot.is_vlan_transparent)
 
+        self.assertDictEqual(
+            {'limit': 'limit',
+             'marker': 'marker',
+             'description': 'description',
+             'name': 'name',
+             'project_id': 'project_id',
+             'status': 'status',
+             'ipv4_address_scope_id': 'ipv4_address_scope',
+             'ipv6_address_scope_id': 'ipv6_address_scope',
+             'is_admin_state_up': 'admin_state_up',
+             'is_port_security_enabled': 'port_security_enabled',
+             'is_router_external': 'router:external',
+             'is_shared': 'shared',
+             'provider_network_type': 'provider:network_type',
+             'provider_physical_network': 'provider:physical_network',
+             'provider_segmentation_id': 'provider:segmentation_id'
+             },
+            sot._query_mapping._mapping)
+
 
 class TestDHCPAgentHostingNetwork(testtools.TestCase):
 
