@@ -32,6 +32,22 @@ if requestsexceptions.SubjectAltNameWarning:
         'ignore', category=requestsexceptions.SubjectAltNameWarning)
 
 
+def _get_openstack_config(app_name=None, app_version=None):
+    # Protect against older versions of os-client-config that don't expose this
+    kwargs = {}
+    try:
+        init = os_client_config.OpenStackConfig.__init__
+        if 'app_name' in init.im_func.func_code.co_varnames:
+            kwargs['app_name'] = app_name
+            kwargs['app_version'] = app_version
+    except AttributeError:
+        # If we get an attribute error, it's actually likely some mocking issue
+        # but basically nothing about this is important enough to break things
+        # for someone.
+        pass
+    return os_client_config.OpenStackConfig(**kwargs)
+
+
 def simple_logging(debug=False, http_debug=False):
     if http_debug:
         debug = True
@@ -55,9 +71,11 @@ def simple_logging(debug=False, http_debug=False):
     log = _log.setup_logging('keystoneauth.identity.generic.base')
 
 
-def openstack_clouds(config=None, debug=False, cloud=None, strict=False):
+def openstack_clouds(
+        config=None, debug=False, cloud=None, strict=False,
+        app_name=None, app_version=None):
     if not config:
-        config = os_client_config.OpenStackConfig()
+        config = _get_openstack_config(app_name, app_version)
     try:
         if cloud is None:
             return [
@@ -83,9 +101,10 @@ def openstack_clouds(config=None, debug=False, cloud=None, strict=False):
             "Invalid cloud configuration: {exc}".format(exc=str(e)))
 
 
-def openstack_cloud(config=None, strict=False, **kwargs):
+def openstack_cloud(
+        config=None, strict=False, app_name=None, app_version=None, **kwargs):
     if not config:
-        config = os_client_config.OpenStackConfig()
+        config = _get_openstack_config(app_name, app_version)
     try:
         cloud_config = config.get_one_cloud(**kwargs)
     except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin as e:
@@ -94,11 +113,12 @@ def openstack_cloud(config=None, strict=False, **kwargs):
     return OpenStackCloud(cloud_config=cloud_config, strict=strict)
 
 
-def operator_cloud(config=None, strict=False, **kwargs):
+def operator_cloud(
+        config=None, strict=False, app_name=None, app_version=None, **kwargs):
     if 'interface' not in kwargs:
         kwargs['interface'] = 'admin'
     if not config:
-        config = os_client_config.OpenStackConfig()
+        config = _get_openstack_config(app_name, app_version)
     try:
         cloud_config = config.get_one_cloud(**kwargs)
     except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin as e:
