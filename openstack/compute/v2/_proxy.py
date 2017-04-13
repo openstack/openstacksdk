@@ -22,6 +22,7 @@ from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import server_ip
 from openstack.compute.v2 import service as _service
+from openstack.compute.v2 import volume_attachment as _volume_attachment
 from openstack import proxy2
 from openstack import resource2
 
@@ -1120,3 +1121,126 @@ class Proxy(proxy2.BaseProxy):
         """
 
         return self._list(_service.Service, paginated=False)
+
+    def create_volume_attachment(self, server, **attrs):
+        """Create a new volume attachment from attributes
+
+        :param server: The server can be either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`,
+            comprised of the properties on the VolumeAttachment class.
+
+        :returns: The results of volume attachment creation
+        :rtype:
+            :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
+        """
+        server_id = resource2.Resource._get_id(server)
+        return self._create(_volume_attachment.VolumeAttachment,
+                            server_id=server_id, **attrs)
+
+    def update_volume_attachment(self, volume_attachment, server,
+                                 **attrs):
+        """update a volume attachment
+
+        :param volume_attachment:
+            The value can be either the ID of a volume attachment or a
+            :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
+            instance.
+        :param server: This parameter need to be specified when
+                       VolumeAttachment ID is given as value. It can be
+                       either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server`
+                       instance that the attachment belongs to.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the volume attachment does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent volume  attachment.
+
+        :returns: ``None``
+        """
+        server_id = self._get_uri_attribute(volume_attachment, server,
+                                            "server_id")
+        volume_attachment = resource2.Resource._get_id(volume_attachment)
+
+        return self._update(_volume_attachment.VolumeAttachment,
+                            attachment_id=volume_attachment,
+                            server_id=server_id)
+
+    def delete_volume_attachment(self, volume_attachment, server,
+                                 ignore_missing=True):
+        """Delete a volume attachment
+
+        :param volume_attachment:
+            The value can be either the ID of a volume attachment or a
+            :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
+            instance.
+        :param server: This parameter need to be specified when
+                       VolumeAttachment ID is given as value. It can be either
+                       the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server`
+                       instance that the attachment belongs to.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the volume attachment does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent volume attachment.
+
+        :returns: ``None``
+        """
+        server_id = self._get_uri_attribute(volume_attachment, server,
+                                            "server_id")
+        volume_attachment = resource2.Resource._get_id(volume_attachment)
+
+        self._delete(_volume_attachment.VolumeAttachment,
+                     attachment_id=volume_attachment,
+                     server_id=server_id,
+                     ignore_missing=ignore_missing)
+
+    def get_volume_attachment(self, volume_attachment, server,
+                              ignore_missing=True):
+        """Get a single volume attachment
+
+        :param volume_attachment:
+            The value can be the ID of a volume attachment or a
+            :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
+            instance.
+        :param server: This parameter need to be specified when
+                       VolumeAttachment ID is given as value. It can be either
+                       the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server`
+                       instance that the attachment belongs to.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the volume attachment does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent volume attachment.
+
+        :returns: One
+            :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        server_id = self._get_uri_attribute(volume_attachment, server,
+                                            "server_id")
+        volume_attachment = resource2.Resource._get_id(volume_attachment)
+
+        return self._get(_volume_attachment.VolumeAttachment,
+                         server_id=server_id,
+                         attachment_id=volume_attachment,
+                         ignore_missing=ignore_missing)
+
+    def volume_attachments(self, server):
+        """Return a generator of volume attachments
+
+        :param server: The server can be either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server`.
+
+        :returns: A generator of VolumeAttachment objects
+        :rtype:
+            :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
+        """
+        server_id = resource2.Resource._get_id(server)
+        return self._list(_volume_attachment.VolumeAttachment, paginated=False,
+                          server_id=server_id)
