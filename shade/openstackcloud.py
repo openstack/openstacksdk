@@ -34,6 +34,7 @@ import cinderclient.exceptions as cinder_exceptions
 import keystoneauth1.exceptions
 import novaclient.exceptions as nova_exceptions
 
+import shade
 from shade.exc import *  # noqa
 from shade import _adapter
 from shade._heat import event_utils
@@ -544,6 +545,9 @@ class OpenStackCloud(_normalize.Normalizer):
         if self._keystone_session is None:
             try:
                 self._keystone_session = self.cloud_config.get_session()
+                if hasattr(self._keystone_session, 'additional_user_agent'):
+                    self._keystone_session.additional_user_agent.append(
+                        ('shade', shade.__version__))
             except Exception as e:
                 raise OpenStackCloudException(
                     "Error authenticating to keystone: %s " % str(e))
