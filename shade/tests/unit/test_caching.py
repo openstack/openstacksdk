@@ -192,91 +192,128 @@ class TestMemoryCache(base.RequestsMockTestCase):
                 time.sleep(0.001)
         self.assertEqual(1, nova_mock.servers.list.call_count)
 
-    @mock.patch('shade.OpenStackCloud.cinder_client')
-    def test_list_volumes(self, cinder_mock):
+    def test_list_volumes(self):
         fake_volume = fakes.FakeVolume('volume1', 'available',
                                        'Volume 1 Display Name')
-        fake_volume_dict = self.cloud._normalize_volume(
-            meta.obj_to_dict(fake_volume))
-        cinder_mock.volumes.list.return_value = [fake_volume]
-        self.assertEqual([fake_volume_dict], self.cloud.list_volumes())
+        fake_volume_dict = meta.obj_to_dict(fake_volume)
         fake_volume2 = fakes.FakeVolume('volume2', 'available',
                                         'Volume 2 Display Name')
-        fake_volume2_dict = self.cloud._normalize_volume(
-            meta.obj_to_dict(fake_volume2))
-        cinder_mock.volumes.list.return_value = [fake_volume, fake_volume2]
-        self.assertEqual([fake_volume_dict], self.cloud.list_volumes())
+        fake_volume2_dict = meta.obj_to_dict(fake_volume2)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [fake_volume_dict]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [fake_volume_dict, fake_volume2_dict]})])
+        self.assertEqual(
+            [self.cloud._normalize_volume(fake_volume_dict)],
+            self.cloud.list_volumes())
+        # this call should hit the cache
+        self.assertEqual(
+            [self.cloud._normalize_volume(fake_volume_dict)],
+            self.cloud.list_volumes())
         self.cloud.list_volumes.invalidate(self.cloud)
-        self.assertEqual([fake_volume_dict, fake_volume2_dict],
-                         self.cloud.list_volumes())
+        self.assertEqual(
+            [self.cloud._normalize_volume(fake_volume_dict),
+             self.cloud._normalize_volume(fake_volume2_dict)],
+            self.cloud.list_volumes())
+        self.assert_calls()
 
-    @mock.patch('shade.OpenStackCloud.cinder_client')
-    def test_list_volumes_creating_invalidates(self, cinder_mock):
+    def test_list_volumes_creating_invalidates(self):
         fake_volume = fakes.FakeVolume('volume1', 'creating',
                                        'Volume 1 Display Name')
-        fake_volume_dict = self.cloud._normalize_volume(
-            meta.obj_to_dict(fake_volume))
-        cinder_mock.volumes.list.return_value = [fake_volume]
-        self.assertEqual([fake_volume_dict], self.cloud.list_volumes())
+        fake_volume_dict = meta.obj_to_dict(fake_volume)
         fake_volume2 = fakes.FakeVolume('volume2', 'available',
                                         'Volume 2 Display Name')
-        fake_volume2_dict = self.cloud._normalize_volume(
-            meta.obj_to_dict(fake_volume2))
-        cinder_mock.volumes.list.return_value = [fake_volume, fake_volume2]
-        self.assertEqual([fake_volume_dict, fake_volume2_dict],
-                         self.cloud.list_volumes())
+        fake_volume2_dict = meta.obj_to_dict(fake_volume2)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [fake_volume_dict]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [fake_volume_dict, fake_volume2_dict]})])
+        self.assertEqual(
+            [self.cloud._normalize_volume(fake_volume_dict)],
+            self.cloud.list_volumes())
+        self.assertEqual(
+            [self.cloud._normalize_volume(fake_volume_dict),
+             self.cloud._normalize_volume(fake_volume2_dict)],
+            self.cloud.list_volumes())
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'cinder_client')
-    def test_create_volume_invalidates(self, cinder_mock):
+    def test_create_volume_invalidates(self):
         fake_volb4 = fakes.FakeVolume('volume1', 'available',
                                       'Volume 1 Display Name')
-        fake_volb4_dict = self.cloud._normalize_volume(
-            meta.obj_to_dict(fake_volb4))
-        cinder_mock.volumes.list.return_value = [fake_volb4]
-        self.assertEqual([fake_volb4_dict], self.cloud.list_volumes())
+        fake_volb4_dict = meta.obj_to_dict(fake_volb4)
+        fake_vol = fakes.FakeVolume('12345', 'creating', '')
+        fake_vol_dict = meta.obj_to_dict(fake_vol)
+
+        def now_available(request, context):
+            fake_vol.status = 'available'
+            fake_vol_dict['status'] = 'available'
+            return {'volume': fake_vol_dict}
+
+        def now_deleting(request, context):
+            fake_vol.status = 'deleting'
+            fake_vol_dict['status'] = 'deleting'
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [fake_volb4_dict]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes']),
+                 json={'volume': fake_vol_dict}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', fake_vol.id]),
+                 json=now_available),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [fake_volb4_dict, fake_vol_dict]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [fake_volb4_dict, fake_vol_dict]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', fake_vol.id]),
+                 json=now_deleting),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [fake_volb4_dict]})])
+
+        self.assertEqual(
+            [self.cloud._normalize_volume(fake_volb4_dict)],
+            self.cloud.list_volumes())
         volume = dict(display_name='junk_vol',
                       size=1,
                       display_description='test junk volume')
-        fake_vol = fakes.FakeVolume('12345', 'creating', '')
-        fake_vol_dict = meta.obj_to_dict(fake_vol)
-        fake_vol_dict = self.cloud._normalize_volume(
-            meta.obj_to_dict(fake_vol))
-        cinder_mock.volumes.create.return_value = fake_vol
-        cinder_mock.volumes.list.return_value = [fake_volb4, fake_vol]
-
-        def creating_available():
-            def now_available():
-                fake_vol.status = 'available'
-                fake_vol_dict['status'] = 'available'
-                return mock.DEFAULT
-            cinder_mock.volumes.list.side_effect = now_available
-            return mock.DEFAULT
-        cinder_mock.volumes.list.side_effect = creating_available
         self.cloud.create_volume(wait=True, timeout=None, **volume)
-        self.assertTrue(cinder_mock.volumes.create.called)
-        self.assertEqual(3, cinder_mock.volumes.list.call_count)
         # If cache was not invalidated, we would not see our own volume here
         # because the first volume was available and thus would already be
         # cached.
-        self.assertEqual([fake_volb4_dict, fake_vol_dict],
-                         self.cloud.list_volumes())
-
+        self.assertEqual(
+            [self.cloud._normalize_volume(fake_volb4_dict),
+             self.cloud._normalize_volume(fake_vol_dict)],
+            self.cloud.list_volumes())
+        self.cloud.delete_volume(fake_vol.id)
         # And now delete and check same thing since list is cached as all
         # available
-        fake_vol.status = 'deleting'
-        fake_vol_dict = meta.obj_to_dict(fake_vol)
-
-        def deleting_gone():
-            def now_gone():
-                cinder_mock.volumes.list.return_value = [fake_volb4]
-                return mock.DEFAULT
-            cinder_mock.volumes.list.side_effect = now_gone
-            return mock.DEFAULT
-        cinder_mock.volumes.list.return_value = [fake_volb4, fake_vol]
-        cinder_mock.volumes.list.side_effect = deleting_gone
-        cinder_mock.volumes.delete.return_value = fake_vol_dict
-        self.cloud.delete_volume('12345')
-        self.assertEqual([fake_volb4_dict], self.cloud.list_volumes())
+        self.assertEqual(
+            [self.cloud._normalize_volume(fake_volb4_dict)],
+            self.cloud.list_volumes())
+        self.assert_calls()
 
     def test_list_users(self):
         self._add_discovery_uri_call()
