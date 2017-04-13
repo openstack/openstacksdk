@@ -109,6 +109,17 @@ Service Operations
    .. automethod:: openstack.compute.v2._proxy.Proxy.disable_service
    .. automethod:: openstack.compute.v2._proxy.Proxy.force_service_down
 
+Volume Attachment Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.compute.v2._proxy.Proxy
+
+   .. automethod:: openstack.compute.v2._proxy.Proxy.create_volume_attachment
+   .. automethod:: openstack.compute.v2._proxy.Proxy.update_volume_attachment
+   .. automethod:: openstack.compute.v2._proxy.Proxy.delete_volume_attachment
+   .. automethod:: openstack.compute.v2._proxy.Proxy.get_volume_attachment
+   .. automethod:: openstack.compute.v2._proxy.Proxy.volume_attachments
+
 Keypair Operations
 ^^^^^^^^^^^^^^^^^^
 
