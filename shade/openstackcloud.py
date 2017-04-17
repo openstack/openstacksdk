@@ -359,7 +359,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def _get_raw_client(self, service_key):
         return _adapter.ShadeAdapter(
             manager=self.manager,
-            session=self.cloud_config.get_session(),
+            session=self.keystone_session,
             service_type=self.cloud_config.get_service_type(service_key),
             service_name=self.cloud_config.get_service_name(service_key),
             interface=self.cloud_config.get_interface(service_key),
