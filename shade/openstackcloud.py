@@ -5475,9 +5475,9 @@ class OpenStackCloud(_normalize.Normalizer):
         if root_volume and not boot_volume:
             boot_volume = root_volume
 
-        if 'security_groups' in kwargs and not isinstance(
-                kwargs['security_groups'], list):
-            kwargs['security_groups'] = [kwargs['security_groups']]
+        security_groups = kwargs.get('security_groups')
+        if security_groups and not isinstance(kwargs['security_groups'], list):
+                kwargs['security_groups'] = [security_groups]
 
         if 'nics' in kwargs and not isinstance(kwargs['nics'], list):
             if isinstance(kwargs['nics'], dict):
