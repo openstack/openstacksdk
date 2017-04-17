@@ -26,6 +26,7 @@ FAKE = {
     'min_size': 0,
     'name': FAKE_NAME,
     'profile_id': 'myserver',
+    'profile_only': True,
     'metadata': {},
     'dependents': {},
     'timeout': None,
@@ -99,6 +100,15 @@ class TestCluster(testtools.TestCase):
         self.assertEqual(FAKE['created_at'], sot.created_at)
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
         self.assertEqual(FAKE['dependents'], sot.dependents)
+        self.assertTrue(sot.is_profile_only)
+
+        self.assertDictEqual({"limit": "limit",
+                              "marker": "marker",
+                              "name": "name",
+                              "status": "status",
+                              "sort": "sort",
+                              "global_project": "global_project"},
+                             sot._query_mapping._mapping)
 
     def test_scale_in(self):
         sot = cluster.Cluster(**FAKE)
