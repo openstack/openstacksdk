@@ -12,10 +12,12 @@
 
 from keystoneauth1 import plugin as ksa_plugin
 
+from distutils import version as du_version
 import mock
 import munch
 import testtools
 
+import os_client_config as occ
 from os_client_config import cloud_config
 import shade
 from shade import exc
@@ -1143,8 +1145,18 @@ class TestShadeOperator(base.TestCase):
         session_mock = mock.Mock()
         get_session_mock.return_value = session_mock
         self.op_cloud.get_session_endpoint('identity')
-        session_mock.get_endpoint.assert_called_with(
-            interface=ksa_plugin.AUTH_INTERFACE)
+        # occ > 1.26.0 fixes keystoneclient construction. Unfortunately, it
+        # breaks our mocking of what keystoneclient does here. Since we're
+        # close to just getting rid of ksc anyway, just put in a version match
+        occ_version = du_version.StrictVersion(occ.__version__)
+        if occ_version > du_version.StrictVersion('1.26.0'):
+            kwargs = dict(
+                interface='public', region_name='RegionOne',
+                service_name=None, service_type='identity')
+        else:
+            kwargs = dict(interface=ksa_plugin.AUTH_INTERFACE)
+
+        session_mock.get_endpoint.assert_called_with(**kwargs)
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_session')
     def test_has_service_no(self, get_session_mock):
