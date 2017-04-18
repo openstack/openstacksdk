@@ -742,6 +742,88 @@ class TestNetworkProxy(test_proxy_base2.TestProxyBase):
     def test_router_update(self):
         self.verify_update(self.proxy.update_router, router.Router)
 
+    @mock.patch.object(proxy_base2.BaseProxy, '_get_resource')
+    @mock.patch.object(router.Router, 'add_interface')
+    def test_add_interface_to_router_with_port(self, mock_add_interface,
+                                               mock_get):
+        x_router = router.Router.new(id="ROUTER_ID")
+        mock_get.return_value = x_router
+
+        self._verify("openstack.network.v2.router.Router.add_interface",
+                     self.proxy.add_interface_to_router,
+                     method_args=["FAKE_ROUTER"],
+                     method_kwargs={"port_id": "PORT"},
+                     expected_kwargs={"port_id": "PORT"})
+        mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
+
+    @mock.patch.object(proxy_base2.BaseProxy, '_get_resource')
+    @mock.patch.object(router.Router, 'add_interface')
+    def test_add_interface_to_router_with_subnet(self, mock_add_interface,
+                                                 mock_get):
+        x_router = router.Router.new(id="ROUTER_ID")
+        mock_get.return_value = x_router
+
+        self._verify("openstack.network.v2.router.Router.add_interface",
+                     self.proxy.add_interface_to_router,
+                     method_args=["FAKE_ROUTER"],
+                     method_kwargs={"subnet_id": "SUBNET"},
+                     expected_kwargs={"subnet_id": "SUBNET"})
+        mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
+
+    @mock.patch.object(proxy_base2.BaseProxy, '_get_resource')
+    @mock.patch.object(router.Router, 'remove_interface')
+    def test_remove_interface_from_router_with_port(self, mock_remove,
+                                                    mock_get):
+        x_router = router.Router.new(id="ROUTER_ID")
+        mock_get.return_value = x_router
+
+        self._verify("openstack.network.v2.router.Router.remove_interface",
+                     self.proxy.remove_interface_from_router,
+                     method_args=["FAKE_ROUTER"],
+                     method_kwargs={"port_id": "PORT"},
+                     expected_kwargs={"port_id": "PORT"})
+        mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
+
+    @mock.patch.object(proxy_base2.BaseProxy, '_get_resource')
+    @mock.patch.object(router.Router, 'remove_interface')
+    def test_remove_interface_from_router_with_subnet(self, mock_remove,
+                                                      mock_get):
+        x_router = router.Router.new(id="ROUTER_ID")
+        mock_get.return_value = x_router
+
+        self._verify("openstack.network.v2.router.Router.remove_interface",
+                     self.proxy.remove_interface_from_router,
+                     method_args=["FAKE_ROUTER"],
+                     method_kwargs={"subnet_id": "SUBNET"},
+                     expected_kwargs={"subnet_id": "SUBNET"})
+        mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
+
+    @mock.patch.object(proxy_base2.BaseProxy, '_get_resource')
+    @mock.patch.object(router.Router, 'add_gateway')
+    def test_add_gateway_to_router(self, mock_add, mock_get):
+        x_router = router.Router.new(id="ROUTER_ID")
+        mock_get.return_value = x_router
+
+        self._verify("openstack.network.v2.router.Router.add_gateway",
+                     self.proxy.add_gateway_to_router,
+                     method_args=["FAKE_ROUTER"],
+                     method_kwargs={"foo": "bar"},
+                     expected_kwargs={"foo": "bar"})
+        mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
+
+    @mock.patch.object(proxy_base2.BaseProxy, '_get_resource')
+    @mock.patch.object(router.Router, 'remove_gateway')
+    def test_remove_gateway_from_router(self, mock_remove, mock_get):
+        x_router = router.Router.new(id="ROUTER_ID")
+        mock_get.return_value = x_router
+
+        self._verify("openstack.network.v2.router.Router.remove_gateway",
+                     self.proxy.remove_gateway_from_router,
+                     method_args=["FAKE_ROUTER"],
+                     method_kwargs={"foo": "bar"},
+                     expected_kwargs={"foo": "bar"})
+        mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
+
     def test_router_hosting_l3_agents_list(self):
         self.verify_list(
             self.proxy.routers_hosting_l3_agents,

@@ -2248,6 +2248,7 @@ class Proxy(proxy2.BaseProxy):
             body = {'port_id': port_id}
         else:
             body = {'subnet_id': subnet_id}
+        router = self._get_resource(_router.Router, router)
         return router.add_interface(self._session, **body)
 
     def remove_interface_from_router(self, router, subnet_id=None,
@@ -2267,6 +2268,7 @@ class Proxy(proxy2.BaseProxy):
             body = {'port_id': port_id}
         else:
             body = {'subnet_id': subnet_id}
+        router = self._get_resource(_router.Router, router)
         return router.remove_interface(self._session, **body)
 
     def add_gateway_to_router(self, router, **body):
@@ -2278,6 +2280,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: Router with updated interface
         :rtype: :class: `~openstack.network.v2.router.Router`
         """
+        router = self._get_resource(_router.Router, router)
         return router.add_gateway(self._session, **body)
 
     def remove_gateway_from_router(self, router, **body):
@@ -2289,6 +2292,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: Router with updated interface
         :rtype: :class: `~openstack.network.v2.router.Router`
         """
+        router = self._get_resource(_router.Router, router)
         return router.remove_gateway(self._session, **body)
 
     def routers_hosting_l3_agents(self, router, **query):
