@@ -34,18 +34,11 @@ if requestsexceptions.SubjectAltNameWarning:
 
 def _get_openstack_config(app_name=None, app_version=None):
     # Protect against older versions of os-client-config that don't expose this
-    kwargs = {}
     try:
-        init = os_client_config.OpenStackConfig.__init__
-        if 'app_name' in init.im_func.func_code.co_varnames:
-            kwargs['app_name'] = app_name
-            kwargs['app_version'] = app_version
-    except AttributeError:
-        # If we get an attribute error, it's actually likely some mocking issue
-        # but basically nothing about this is important enough to break things
-        # for someone.
-        pass
-    return os_client_config.OpenStackConfig(**kwargs)
+        return os_client_config.OpenStackConfig(
+            app_name=app_name, app_version=app_version)
+    except Exception:
+        return os_client_config.OpenStackConfig()
 
 
 def simple_logging(debug=False, http_debug=False):
