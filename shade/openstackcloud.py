@@ -117,6 +117,10 @@ class OpenStackCloud(_normalize.Normalizer):
                                       will enable that behavior.
     :param bool strict: Only return documented attributes for each resource
                         as per the shade Data Model contract. (Default False)
+    :param app_name: Name of the application to be appended to the user-agent
+                     string. Optional, defaults to None.
+    :param app_version: Version of the application to be appended to the
+                        user-agent string. Optional, defaults to None.
     :param CloudConfig cloud_config: Cloud config object from os-client-config
                                      In the future, this will be the only way
                                      to pass in cloud configuration, but is
@@ -128,6 +132,8 @@ class OpenStackCloud(_normalize.Normalizer):
             cloud_config=None,
             manager=None, log_inner_exceptions=False,
             strict=False,
+            app_name=None,
+            app_version=None,
             **kwargs):
 
         if log_inner_exceptions:
@@ -136,7 +142,8 @@ class OpenStackCloud(_normalize.Normalizer):
         self.log = _log.setup_logging('shade')
 
         if not cloud_config:
-            config = os_client_config.OpenStackConfig()
+            config = os_client_config.OpenStackConfig(
+                app_name=app_name, app_version=app_version)
 
             cloud_config = config.get_one_cloud(**kwargs)
 
