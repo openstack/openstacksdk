@@ -689,7 +689,8 @@ class Normalizer(object):
         volume.pop('NAME_ATTR', None)
         volume.pop('HUMAN_ID', None)
         volume.pop('human_id', None)
-
+        volume.pop('request_ids', None)
+        volume.pop('x_openstack_request_ids', None)
         volume_id = volume.pop('id')
 
         name = volume.pop('display_name', None)
