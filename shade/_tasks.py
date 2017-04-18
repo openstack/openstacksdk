@@ -257,11 +257,6 @@ class NovaImageList(task_manager.Task):
         return client.nova_client.images.list()
 
 
-class ImageSnapshotCreate(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.servers.create_image(**self.args)
-
-
 class VolumeTypeList(task_manager.Task):
     def main(self, client):
         return client.cinder_client.volume_types.list()
