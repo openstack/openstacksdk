@@ -173,10 +173,6 @@ class TestSecurityGroups(base.RequestsMockTestCase):
                          'name': group_name,
                          'description': group_desc,
                      }})),
-            dict(method='GET',
-                 uri='{endpoint}/os-security-groups/2'.format(
-                     endpoint=fakes.COMPUTE_ENDPOINT),
-                 json={'security_group': new_group}),
         ])
 
         self.cloud.secgroup_source = 'nova'
@@ -218,10 +214,6 @@ class TestSecurityGroups(base.RequestsMockTestCase):
                      endpoint=fakes.COMPUTE_ENDPOINT),
                  json={'security_groups': nova_return}),
             dict(method='PUT',
-                 uri='{endpoint}/os-security-groups/2'.format(
-                     endpoint=fakes.COMPUTE_ENDPOINT),
-                 json={'security_group': update_return}),
-            dict(method='GET',
                  uri='{endpoint}/os-security-groups/2'.format(
                      endpoint=fakes.COMPUTE_ENDPOINT),
                  json={'security_group': update_return}),
