@@ -1954,9 +1954,8 @@ class OpenStackCloud(_normalize.Normalizer):
 
         # Handle nova security groups
         else:
-            with _utils.shade_exceptions("Error fetching security group list"):
-                groups = self.manager.submit_task(
-                    _tasks.NovaSecurityGroupList(search_opts=filters))
+            groups = self._compute_client.get(
+                '/os-security-groups', params=filters)
         return self._normalize_secgroups(groups)
 
     def list_servers(self, detailed=False, all_projects=False, bare=False):
@@ -6799,14 +6798,15 @@ class OpenStackCloud(_normalize.Normalizer):
                     ))['security_group']
 
         else:
-            with _utils.shade_exceptions(
-                    "Failed to create security group '{name}'".format(
-                        name=name)):
-                group = self.manager.submit_task(
-                    _tasks.NovaSecurityGroupCreate(
-                        name=name, description=description
-                    )
-                )
+            group = self._compute_client.post(
+                '/os-security-groups', json={
+                    'security_group': {
+                        'name': name, 'description': description}
+                })
+            # TODO(mordred) Remove this, it's a waste of a call. It's here for
+            #               now for consistency with novaclient
+            group = self._compute_client.get(
+                '/os-security-groups/{id}'.format(id=group['id']))
         return self._normalize_secgroup(group)
 
     def delete_security_group(self, name_or_id):
@@ -6845,12 +6845,8 @@ class OpenStackCloud(_normalize.Normalizer):
             return True
 
         else:
-            with _utils.shade_exceptions(
-                    "Failed to delete security group '{group}'".format(
-                        group=name_or_id)):
-                self.manager.submit_task(
-                    _tasks.NovaSecurityGroupDelete(group=secgroup['id'])
-                )
+            self._compute_client.delete(
+                '/os-security-groups/{id}'.format(id=secgroup['id']))
             return True
 
     @_utils.valid_kwargs('name', 'description')
@@ -6887,15 +6883,15 @@ class OpenStackCloud(_normalize.Normalizer):
                 )['security_group']
 
         else:
-            with _utils.shade_exceptions(
-                    "Failed to update security group '{group}'".format(
-                        group=name_or_id)):
-                for key in ('name', 'description'):
-                    kwargs.setdefault(key, group[key])
-                group = self.manager.submit_task(
-                    _tasks.NovaSecurityGroupUpdate(
-                        group=group['id'], **kwargs)
-                )
+            for key in ('name', 'description'):
+                kwargs.setdefault(key, group[key])
+            group = self._compute_client.put(
+                '/os-security-groups/{id}'.format(id=group['id']),
+                json={'security-group': kwargs})
+            # TODO(mordred) Remove this, it's a waste of a call. It's here for
+            #               now for consistency with novaclient
+            group = self._compute_client.get(
+                '/os-security-groups/{id}'.format(id=group['id']))
         return self._normalize_secgroup(group)
 
     def create_security_group_rule(self,
@@ -7013,18 +7009,16 @@ class OpenStackCloud(_normalize.Normalizer):
                     port_range_min = 1
                     port_range_max = 65535
 
-            with _utils.shade_exceptions(
-                    "Failed to create security group rule"):
-                rule = self.manager.submit_task(
-                    _tasks.NovaSecurityGroupRuleCreate(
-                        parent_group_id=secgroup['id'],
-                        ip_protocol=protocol,
-                        from_port=port_range_min,
-                        to_port=port_range_max,
-                        cidr=remote_ip_prefix,
-                        group_id=remote_group_id
-                    )
-                )
+            rule = self._compute_client.post(
+                '/os-security-group-rules', json=dict(security_group_rule=dict(
+                    parent_group_id=secgroup['id'],
+                    ip_protocol=protocol,
+                    from_port=port_range_min,
+                    to_port=port_range_max,
+                    cidr=remote_ip_prefix,
+                    group_id=remote_group_id
+                ))
+            )
             return self._normalize_secgroup_rule(rule)
 
     def delete_security_group_rule(self, rule_id):
@@ -7058,18 +7052,8 @@ class OpenStackCloud(_normalize.Normalizer):
             return True
 
         else:
-            try:
-                self.manager.submit_task(
-                    _tasks.NovaSecurityGroupRuleDelete(rule=rule_id)
-                )
-            except nova_exceptions.NotFound:
-                return False
-            except OpenStackCloudException:
-                raise
-            except Exception as e:
-                raise OpenStackCloudException(
-                    "Failed to delete security group rule {id}: {msg}".format(
-                        id=rule_id, msg=str(e)))
+            self._compute_client.delete(
+                '/os-security-group-rules/{id}'.format(id=rule_id))
             return True
 
     def list_zones(self):

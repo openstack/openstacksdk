@@ -369,36 +369,6 @@ class NeutronSecurityGroupRuleDelete(task_manager.Task):
         return client.neutron_client.delete_security_group_rule(**self.args)
 
 
-class NovaSecurityGroupList(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.security_groups.list(**self.args)
-
-
-class NovaSecurityGroupCreate(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.security_groups.create(**self.args)
-
-
-class NovaSecurityGroupDelete(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.security_groups.delete(**self.args)
-
-
-class NovaSecurityGroupUpdate(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.security_groups.update(**self.args)
-
-
-class NovaSecurityGroupRuleCreate(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.security_group_rules.create(**self.args)
-
-
-class NovaSecurityGroupRuleDelete(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.security_group_rules.delete(**self.args)
-
-
 class NeutronFloatingIPList(task_manager.Task):
     def main(self, client):
         return client.neutron_client.list_floatingips(**self.args)
