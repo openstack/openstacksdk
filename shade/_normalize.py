@@ -297,6 +297,14 @@ class Normalizer(object):
         # Copy incoming group because of shared dicts in unittests
         group = group.copy()
 
+        # Remove novaclient artifacts
+        group.pop('links', None)
+        group.pop('NAME_ATTR', None)
+        group.pop('HUMAN_ID', None)
+        group.pop('human_id', None)
+        group.pop('request_ids', None)
+        group.pop('x_openstack_request_ids', None)
+
         rules = self._normalize_secgroup_rules(
             group.pop('security_group_rules', group.pop('rules', [])))
         project_id = group.pop('tenant_id', '')

@@ -1886,7 +1886,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         for sg in security_groups:
             self._compute_client.post(
-                '/servers/%s/action' % server.id,
+                '/servers/%s/action' % server['id'],
                 json={'addSecurityGroup': {'name': sg.name}})
 
         return True
@@ -1912,7 +1912,7 @@ class OpenStackCloud(_normalize.Normalizer):
         for sg in security_groups:
             try:
                 self._compute_client.post(
-                    '/servers/%s/action' % server.id,
+                    '/servers/%s/action' % server['id'],
                     json={'removeSecurityGroup': {'name': sg.name}})
 
             except OpenStackCloudURINotFound as e:
@@ -6826,6 +6826,8 @@ class OpenStackCloud(_normalize.Normalizer):
                 "Unavailable feature: security groups"
             )
 
+        # TODO(mordred): Let's come back and stop doing a GET before we do
+        #                the delete.
         secgroup = self.get_security_group(name_or_id)
         if secgroup is None:
             self.log.debug('Security group %s not found for deleting',
@@ -6888,6 +6890,8 @@ class OpenStackCloud(_normalize.Normalizer):
             with _utils.shade_exceptions(
                     "Failed to update security group '{group}'".format(
                         group=name_or_id)):
+                for key in ('name', 'description'):
+                    kwargs.setdefault(key, group[key])
                 group = self.manager.submit_task(
                     _tasks.NovaSecurityGroupUpdate(
                         group=group['id'], **kwargs)
