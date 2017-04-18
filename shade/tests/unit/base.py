@@ -17,6 +17,7 @@ import collections
 import time
 import uuid
 
+from distutils import version as du_version
 import fixtures
 import mock
 import os
@@ -416,6 +417,16 @@ class RequestsMockTestCase(BaseTestCase):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.calls = []
         self._uri_registry.clear()
+
+        # occ > 1.26.0 fixes keystoneclient construction. Unfortunately, it
+        # breaks our mocking of what keystoneclient does here. Since we're
+        # close to just getting rid of ksc anyway, just put in a version match
+        occ_version = du_version.StrictVersion(occ.__version__)
+        if occ_version > du_version.StrictVersion('1.26.0'):
+            versioned_endpoint = 'https://identity.example.com/v2.0'
+        else:
+            versioned_endpoint = 'https://identity.example.com/'
+
         self.__do_register_uris([
             dict(method='GET', uri='https://identity.example.com/',
                  text=open(self.discovery_json, 'r').read()),
@@ -423,7 +434,7 @@ class RequestsMockTestCase(BaseTestCase):
                  text=open(os.path.join(
                      self.fixtures_directory, 'catalog-v2.json'), 'r').read()
                  ),
-            dict(method='GET', uri='https://identity.example.com/',
+            dict(method='GET', uri=versioned_endpoint,
                  text=open(self.discovery_json, 'r').read()),
             dict(method='GET', uri='https://identity.example.com/',
                  text=open(self.discovery_json, 'r').read())
