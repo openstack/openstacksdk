@@ -423,9 +423,9 @@ class RequestsMockTestCase(BaseTestCase):
         # close to just getting rid of ksc anyway, just put in a version match
         occ_version = du_version.StrictVersion(occ.__version__)
         if occ_version > du_version.StrictVersion('1.26.0'):
-            versioned_endpoint = 'https://identity.example.com/v2.0'
+            endpoint_uri = 'https://identity.example.com/v2.0'
         else:
-            versioned_endpoint = 'https://identity.example.com/'
+            endpoint_uri = 'https://identity.example.com/'
 
         self.__do_register_uris([
             dict(method='GET', uri='https://identity.example.com/',
@@ -434,7 +434,7 @@ class RequestsMockTestCase(BaseTestCase):
                  text=open(os.path.join(
                      self.fixtures_directory, 'catalog-v2.json'), 'r').read()
                  ),
-            dict(method='GET', uri=versioned_endpoint,
+            dict(method='GET', uri=endpoint_uri,
                  text=open(self.discovery_json, 'r').read()),
             dict(method='GET', uri='https://identity.example.com/',
                  text=open(self.discovery_json, 'r').read())
