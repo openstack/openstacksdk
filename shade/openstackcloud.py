@@ -1728,9 +1728,8 @@ class OpenStackCloud(_normalize.Normalizer):
         if not cache:
             warnings.warn('cache argument to list_volumes is deprecated. Use '
                           'invalidate instead.')
-        with _utils.shade_exceptions("Error fetching volume list"):
-            return self._normalize_volumes(
-                self.manager.submit_task(_tasks.VolumeList()))
+        return self._normalize_volumes(
+            self._volume_client.get('/volumes/detail'))
 
     @_utils.cache_on_arguments()
     def list_volume_types(self, get_extra=True):
