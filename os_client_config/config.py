@@ -174,9 +174,12 @@ class OpenStackConfig(object):
                  override_defaults=None, force_ipv4=None,
                  envvar_prefix=None, secure_files=None,
                  pw_func=None, session_constructor=None,
+                 app_name=None, app_version=None,
                  load_yaml_config=True):
         self.log = _log.setup_logging(__name__)
         self._session_constructor = session_constructor
+        self._app_name = app_name
+        self._app_version = app_version
 
         if load_yaml_config:
             self._config_files = config_files or CONFIG_FILES
@@ -1088,6 +1091,8 @@ class OpenStackConfig(object):
             auth_plugin=auth_plugin,
             openstack_config=self,
             session_constructor=self._session_constructor,
+            app_name=self._app_name,
+            app_version=self._app_version,
         )
 
     def get_one_cloud_osc(

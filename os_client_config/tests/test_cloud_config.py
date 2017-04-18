@@ -179,15 +179,25 @@ class TestCloudConfig(base.TestCase):
     def test_get_session(self, mock_session):
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
+        fake_session = mock.Mock()
+        fake_session.additional_user_agent = []
+        mock_session.return_value = fake_session
         cc = cloud_config.CloudConfig(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_session()
         mock_session.assert_called_with(
             auth=mock.ANY,
-            verify=True, cert=None, timeout=None)
+            verify=True, cert=None, timeout=None,
+            app_name=None, app_version=None)
+        self.assertEqual(
+            fake_session.additional_user_agent,
+            [('os-client-config', '1.2.3')])
 
     @mock.patch.object(ksa_session, 'Session')
     def test_get_session_with_timeout(self, mock_session):
+        fake_session = mock.Mock()
+        fake_session.additional_user_agent = []
+        mock_session.return_value = fake_session
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
         config_dict['api_timeout'] = 9
@@ -196,7 +206,11 @@ class TestCloudConfig(base.TestCase):
         cc.get_session()
         mock_session.assert_called_with(
             auth=mock.ANY,
-            verify=True, cert=None, timeout=9)
+            verify=True, cert=None, timeout=9,
+            app_name=None, app_version=None)
+        self.assertEqual(
+            fake_session.additional_user_agent,
+            [('os-client-config', '1.2.3')])
 
     @mock.patch.object(ksa_session, 'Session')
     def test_override_session_endpoint_override(self, mock_session):
