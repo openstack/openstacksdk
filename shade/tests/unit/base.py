@@ -179,6 +179,9 @@ class RequestsMockTestCase(BaseTestCase):
                      qs_elements=None):
         endpoint_url = self.cloud.endpoint_for(
             service_type=service_type, interface=interface)
+        # Strip trailing slashes, so as not to produce double-slashes below
+        if endpoint_url.endswith('/'):
+            endpoint_url = endpoint_url[:-1]
         to_join = [endpoint_url]
         qs = ''
         if base_url_append:
