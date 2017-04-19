@@ -771,6 +771,20 @@ class Normalizer(object):
                 ret.setdefault(key, val)
         return ret
 
+    def _normalize_volume_attachment(self, attachment):
+        """ Normalize a volume attachment object"""
+
+        attachment = attachment.copy()
+
+        # Discard noise
+        attachment.pop('NAME_ATTR', None)
+        attachment.pop('HUMAN_ID', None)
+        attachment.pop('human_id', None)
+        attachment.pop('request_ids', None)
+        attachment.pop('x_openstack_request_ids', None)
+
+        return munch.Munch(**attachment)
+
     def _normalize_compute_usage(self, usage):
         """ Normalize a compute usage object """
 

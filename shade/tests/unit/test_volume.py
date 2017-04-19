@@ -11,82 +11,128 @@
 # under the License.
 
 
-import cinderclient.exceptions as cinder_exc
-import mock
 import testtools
 
 import shade
+from shade import meta
+from shade.tests import fakes
 from shade.tests.unit import base
 
 
-class TestVolume(base.TestCase):
+class TestVolume(base.RequestsMockTestCase):
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_attach_volume(self, mock_nova):
+    def test_attach_volume(self):
         server = dict(id='server001')
-        volume = dict(id='volume001', status='available', attachments=[])
+        vol = {'id': 'volume001', 'status': 'available',
+               'name': '', 'attachments': []}
+        volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
         rattach = {'server_id': server['id'], 'device': 'device001',
                    'volumeId': volume['id'], 'id': 'attachmentId'}
-        mock_nova.volumes.create_server_volume.return_value = rattach
-
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', server['id'],
+                             'os-volume_attachments']),
+                 json={'volumeAttachment': rattach},
+                 validate=dict(json={
+                     'volumeAttachment': {
+                         'volumeId': vol['id']}})
+                 )])
         ret = self.cloud.attach_volume(server, volume, wait=False)
-
         self.assertEqual(rattach, ret)
-        mock_nova.volumes.create_server_volume.assert_called_once_with(
-            volume_id=volume['id'], server_id=server['id'], device=None
-        )
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_attach_volume_exception(self, mock_nova):
+    def test_attach_volume_exception(self):
         server = dict(id='server001')
-        volume = dict(id='volume001', status='available', attachments=[])
-        mock_nova.volumes.create_server_volume.side_effect = Exception()
-
+        vol = {'id': 'volume001', 'status': 'available',
+               'name': '', 'attachments': []}
+        volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', server['id'],
+                             'os-volume_attachments']),
+                 status_code=404,
+                 validate=dict(json={
+                     'volumeAttachment': {
+                         'volumeId': vol['id']}})
+                 )])
         with testtools.ExpectedException(
             shade.OpenStackCloudException,
             "Error attaching volume %s to server %s" % (
                 volume['id'], server['id'])
         ):
             self.cloud.attach_volume(server, volume, wait=False)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_volume')
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_attach_volume_wait(self, mock_nova, mock_get):
+    def test_attach_volume_wait(self):
         server = dict(id='server001')
-        volume = dict(id='volume001', status='available', attachments=[])
-        attached_volume = dict(
-            id=volume['id'], status='attached',
-            attachments=[{'server_id': server['id'], 'device': 'device001'}]
-        )
-
-        mock_get.side_effect = iter([volume, attached_volume])
-
+        vol = {'id': 'volume001', 'status': 'available',
+               'name': '', 'attachments': []}
+        volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        vol['attachments'] = [{'server_id': server['id'],
+                               'device': 'device001'}]
+        vol['status'] = 'attached'
+        attached_volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        rattach = {'server_id': server['id'], 'device': 'device001',
+                   'volumeId': volume['id'], 'id': 'attachmentId'}
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', server['id'],
+                             'os-volume_attachments']),
+                 json={'volumeAttachment': rattach},
+                 validate=dict(json={
+                     'volumeAttachment': {
+                         'volumeId': vol['id']}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [volume]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [attached_volume]})])
         # defaults to wait=True
         ret = self.cloud.attach_volume(server, volume)
+        self.assertEqual(rattach, ret)
+        self.assert_calls()
 
-        mock_nova.volumes.create_server_volume.assert_called_once_with(
-            volume_id=volume['id'], server_id=server['id'], device=None
-        )
-        self.assertEqual(2, mock_get.call_count)
-        self.assertEqual(mock_nova.volumes.create_server_volume.return_value,
-                         ret)
-
-    @mock.patch.object(shade.OpenStackCloud, 'get_volume')
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_attach_volume_wait_error(self, mock_nova, mock_get):
+    def test_attach_volume_wait_error(self):
         server = dict(id='server001')
-        volume = dict(id='volume001', status='available', attachments=[])
-        errored_volume = dict(id=volume['id'], status='error', attachments=[])
-        mock_get.side_effect = iter([volume, errored_volume])
+        vol = {'id': 'volume001', 'status': 'available',
+               'name': '', 'attachments': []}
+        volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        vol['status'] = 'error'
+        errored_volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        rattach = {'server_id': server['id'], 'device': 'device001',
+                   'volumeId': volume['id'], 'id': 'attachmentId'}
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', server['id'],
+                             'os-volume_attachments']),
+                 json={'volumeAttachment': rattach},
+                 validate=dict(json={
+                     'volumeAttachment': {
+                         'volumeId': vol['id']}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [errored_volume]})])
 
         with testtools.ExpectedException(
             shade.OpenStackCloudException,
             "Error in attaching volume %s" % errored_volume['id']
         ):
             self.cloud.attach_volume(server, volume)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_attach_volume_not_available(self, mock_nova):
+    def test_attach_volume_not_available(self):
         server = dict(id='server001')
         volume = dict(id='volume001', status='error', attachments=[])
 
@@ -96,9 +142,9 @@ class TestVolume(base.TestCase):
                 volume['id'], volume['status'])
         ):
             self.cloud.attach_volume(server, volume)
+        self.assertEqual(0, len(self.adapter.request_history))
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_attach_volume_already_attached(self, mock_nova):
+    def test_attach_volume_already_attached(self):
         device_id = 'device001'
         server = dict(id='server001')
         volume = dict(id='volume001',
@@ -112,81 +158,123 @@ class TestVolume(base.TestCase):
                 volume['id'], server['id'], device_id)
         ):
             self.cloud.attach_volume(server, volume)
+        self.assertEqual(0, len(self.adapter.request_history))
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_detach_volume(self, mock_nova):
+    def test_detach_volume(self):
         server = dict(id='server001')
         volume = dict(id='volume001',
                       attachments=[
                           {'server_id': 'server001', 'device': 'device001'}
                       ])
+        self.register_uris([
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', server['id'],
+                             'os-volume_attachments', volume['id']]))])
         self.cloud.detach_volume(server, volume, wait=False)
-        mock_nova.volumes.delete_server_volume.assert_called_once_with(
-            attachment_id=volume['id'], server_id=server['id']
-        )
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_detach_volume_exception(self, mock_nova):
+    def test_detach_volume_exception(self):
         server = dict(id='server001')
         volume = dict(id='volume001',
                       attachments=[
                           {'server_id': 'server001', 'device': 'device001'}
                       ])
-        mock_nova.volumes.delete_server_volume.side_effect = Exception()
+        self.register_uris([
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', server['id'],
+                             'os-volume_attachments', volume['id']]),
+                 status_code=404)])
         with testtools.ExpectedException(
             shade.OpenStackCloudException,
             "Error detaching volume %s from server %s" % (
                 volume['id'], server['id'])
         ):
             self.cloud.detach_volume(server, volume, wait=False)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_volume')
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_detach_volume_wait(self, mock_nova, mock_get):
+    def test_detach_volume_wait(self):
         server = dict(id='server001')
-        volume = dict(id='volume001', status='attached',
-                      attachments=[
-                          {'server_id': 'server001', 'device': 'device001'}
-                      ])
-        avail_volume = dict(id=volume['id'], status='available',
-                            attachments=[])
-        mock_get.side_effect = iter([volume, avail_volume])
+        attachments = [{'server_id': 'server001', 'device': 'device001'}]
+        vol = {'id': 'volume001', 'status': 'attached', 'name': '',
+               'attachments': attachments}
+        volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        vol['status'] = 'available'
+        vol['attachments'] = []
+        avail_volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        self.register_uris([
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', server['id'],
+                             'os-volume_attachments', volume.id])),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [avail_volume]})])
         self.cloud.detach_volume(server, volume)
-        mock_nova.volumes.delete_server_volume.assert_called_once_with(
-            attachment_id=volume['id'], server_id=server['id']
-        )
-        self.assertEqual(2, mock_get.call_count)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_volume')
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_detach_volume_wait_error(self, mock_nova, mock_get):
+    def test_detach_volume_wait_error(self):
         server = dict(id='server001')
-        volume = dict(id='volume001', status='attached',
-                      attachments=[
-                          {'server_id': 'server001', 'device': 'device001'}
-                      ])
-        errored_volume = dict(id=volume['id'], status='error', attachments=[])
-        mock_get.side_effect = iter([volume, errored_volume])
-
+        attachments = [{'server_id': 'server001', 'device': 'device001'}]
+        vol = {'id': 'volume001', 'status': 'attached', 'name': '',
+               'attachments': attachments}
+        volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        vol['status'] = 'error'
+        vol['attachments'] = []
+        errored_volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        self.register_uris([
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', server['id'],
+                             'os-volume_attachments', volume.id])),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [errored_volume]})])
         with testtools.ExpectedException(
             shade.OpenStackCloudException,
             "Error in detaching volume %s" % errored_volume['id']
         ):
             self.cloud.detach_volume(server, volume)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_volume')
-    @mock.patch.object(shade.OpenStackCloud, 'cinder_client')
-    def test_delete_volume_deletes(self, mock_cinder, mock_get):
-        volume = dict(id='volume001', status='attached')
-        mock_get.side_effect = iter([volume, None])
-
+    def test_delete_volume_deletes(self):
+        vol = {'id': 'volume001', 'status': 'attached',
+               'name': '', 'attachments': []}
+        volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [volume]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', volume.id])),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': []})])
         self.assertTrue(self.cloud.delete_volume(volume['id']))
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_volume')
-    @mock.patch.object(shade.OpenStackCloud, 'cinder_client')
-    def test_delete_volume_gone_away(self, mock_cinder, mock_get):
-        volume = dict(id='volume001', status='attached')
-        mock_get.side_effect = iter([volume])
-        mock_cinder.volumes.delete.side_effect = cinder_exc.NotFound('N/A')
-
+    def test_delete_volume_gone_away(self):
+        vol = {'id': 'volume001', 'status': 'attached',
+               'name': '', 'attachments': []}
+        volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [volume]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', volume.id]),
+                 status_code=404)])
         self.assertFalse(self.cloud.delete_volume(volume['id']))
+        self.assert_calls()

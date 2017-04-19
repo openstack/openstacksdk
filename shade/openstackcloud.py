@@ -4094,7 +4094,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     raise OpenStackCloudException(
                         "Error in attaching volume %s" % volume['id']
                     )
-        return vol_attachment
+        return self._normalize_volume_attachment(vol_attachment)
 
     def _get_volume_kwargs(self, kwargs):
         name = kwargs.pop('name', kwargs.pop('display_name', None))
