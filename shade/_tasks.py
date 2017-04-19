@@ -289,11 +289,6 @@ class VolumeDelete(task_manager.Task):
         client.cinder_client.volumes.delete(**self.args)
 
 
-class VolumeList(task_manager.Task):
-    def main(self, client):
-        return client.cinder_client.volumes.list()
-
-
 class VolumeDetach(task_manager.Task):
     def main(self, client):
         client.nova_client.volumes.delete_server_volume(**self.args)
