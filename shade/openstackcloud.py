@@ -489,17 +489,18 @@ class OpenStackCloud(_normalize.Normalizer):
                 " the catalog is already versioned. {e}".format(e=str(e)))
             image_url = image_client.get_endpoint()
 
-        service_url = image_client.get_endpoint()
-        parsed_image_url = urllib.parse.urlparse(image_url)
-        parsed_service_url = urllib.parse.urlparse(service_url)
+        # Sometimes version discovery documents have broken endpoints, but
+        # the catalog has good ones (what?)
+        catalog_endpoint = urllib.parse.urlparse(image_client.get_endpoint())
+        discovered_endpoint = urllib.parse.urlparse(image_url)
 
-        image_url = urllib.parse.ParseResult(
-            parsed_service_url.scheme,
-            parsed_image_url.netloc,
-            parsed_image_url.path,
-            parsed_image_url.params,
-            parsed_image_url.query,
-            parsed_image_url.fragment).geturl()
+        return urllib.parse.ParseResult(
+            catalog_endpoint.scheme,
+            discovered_endpoint.netloc,
+            discovered_endpoint.path,
+            discovered_endpoint.params,
+            discovered_endpoint.query,
+            discovered_endpoint.fragment).geturl()
         return image_url
 
     @property
