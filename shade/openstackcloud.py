@@ -6783,10 +6783,6 @@ class OpenStackCloud(_normalize.Normalizer):
                     'security_group': {
                         'name': name, 'description': description}
                 })
-            # TODO(mordred) Remove this, it's a waste of a call. It's here for
-            #               now for consistency with novaclient
-            group = self._compute_client.get(
-                '/os-security-groups/{id}'.format(id=group['id']))
         return self._normalize_secgroup(group)
 
     def delete_security_group(self, name_or_id):
@@ -6868,10 +6864,6 @@ class OpenStackCloud(_normalize.Normalizer):
             group = self._compute_client.put(
                 '/os-security-groups/{id}'.format(id=group['id']),
                 json={'security-group': kwargs})
-            # TODO(mordred) Remove this, it's a waste of a call. It's here for
-            #               now for consistency with novaclient
-            group = self._compute_client.get(
-                '/os-security-groups/{id}'.format(id=group['id']))
         return self._normalize_secgroup(group)
 
     def create_security_group_rule(self,
