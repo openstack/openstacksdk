@@ -18,7 +18,6 @@ Contents:
    contributing
    coding
    microversions
-   future
    releasenotes
 
 .. include:: ../../README.rst
