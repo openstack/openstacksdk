@@ -67,6 +67,8 @@ class Port(resource.Resource):
     binding_vnic_type = resource.Body('binding:vnic_type')
     #: Timestamp when the port was created.
     created_at = resource.Body('created_at')
+    #: Underlying data plane status of this port.
+    data_plane_status = resource.Body('data_plane_status')
     #: The port description.
     description = resource.Body('description')
     #: Device ID of this port.

@@ -24,6 +24,7 @@ EXAMPLE = {
     'binding:vif_type': '6',
     'binding:vnic_type': '7',
     'created_at': '2016-03-09T12:14:57.233772',
+    'data_plane_status': '32',
     'description': '8',
     'device_id': '9',
     'device_owner': '10',
@@ -82,6 +83,7 @@ class TestPort(testtools.TestCase):
         self.assertEqual(EXAMPLE['binding:vif_type'], sot.binding_vif_type)
         self.assertEqual(EXAMPLE['binding:vnic_type'], sot.binding_vnic_type)
         self.assertEqual(EXAMPLE['created_at'], sot.created_at)
+        self.assertEqual(EXAMPLE['data_plane_status'], sot.data_plane_status)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['device_id'], sot.device_id)
         self.assertEqual(EXAMPLE['device_owner'], sot.device_owner)
