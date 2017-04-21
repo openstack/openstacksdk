@@ -482,7 +482,6 @@ class OpenStackCloud(_normalize.Normalizer):
             discovered_endpoint.params,
             discovered_endpoint.query,
             discovered_endpoint.fragment).geturl()
-        return image_url
 
     @property
     def _image_client(self):
