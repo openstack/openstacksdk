@@ -1,0 +1,9 @@
+---
+fixes:
+  - Added requests and Babel to the direct dependencies list to work around
+    issues with pip installation, entrypoints and transitive dependencies
+    with conflicting exclusion ranges. Packagers of shade do not need to
+    add these two new requirements to shade's dependency list - they are
+    transitive depends and should be satisfied by the other things in the
+    requirements list. Both will be removed from the list again once the
+    python client libraries that pull them in have been removed.
