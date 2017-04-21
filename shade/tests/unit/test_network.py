@@ -14,36 +14,34 @@ import mock
 import testtools
 
 import shade
-from shade import exc
 from shade.tests.unit import base
 
 
-class TestNetwork(base.TestCase):
+class TestNetwork(base.RequestsMockTestCase):
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_list_networks(self, mock_neutron):
+    def test_list_networks(self):
         net1 = {'id': '1', 'name': 'net1'}
         net2 = {'id': '2', 'name': 'net2'}
-        mock_neutron.list_networks.return_value = {
-            'networks': [net1, net2]
-        }
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [net1, net2]})
+        ])
         nets = self.cloud.list_networks()
-        mock_neutron.list_networks.assert_called_once_with()
         self.assertEqual([net1, net2], nets)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_list_networks_filtered(self, mock_neutron):
+    def test_list_networks_filtered(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json'],
+                     qs_elements=["name=test"]),
+                 json={'networks': []})
+        ])
         self.cloud.list_networks(filters={'name': 'test'})
-        mock_neutron.list_networks.assert_called_once_with(name='test')
-
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_list_networks_exception(self, mock_neutron):
-        mock_neutron.list_networks.side_effect = Exception()
-        with testtools.ExpectedException(
-                exc.OpenStackCloudException,
-                "Error fetching network list"
-        ):
-            self.cloud.list_networks()
+        self.assert_calls()
 
     @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
     def test_create_network(self, mock_neutron):
