@@ -5627,33 +5627,36 @@ class OpenStackCloud(_normalize.Normalizer):
         return None
 
     def rebuild_server(self, server_id, image_id, admin_pass=None,
+                       detailed=False, bare=False,
                        wait=False, timeout=180):
         with _utils.shade_exceptions("Error in rebuilding instance"):
             server = self.manager.submit_task(_tasks.ServerRebuild(
                 server=server_id, image=image_id, password=admin_pass))
-        if wait:
-            admin_pass = server.get('adminPass') or admin_pass
-            for count in _utils._iterate_timeout(
-                    timeout,
-                    "Timeout waiting for server {0} to "
-                    "rebuild.".format(server_id),
-                    wait=self._SERVER_AGE):
-                try:
-                    server = self.get_server(server_id)
-                except Exception:
-                    continue
-                if not server:
-                    continue
+        if not wait:
+            return server
+        admin_pass = server.get('adminPass') or admin_pass
+        for count in _utils._iterate_timeout(
+                timeout,
+                "Timeout waiting for server {0} to "
+                "rebuild.".format(server_id),
+                wait=self._SERVER_AGE):
+            try:
+                server = self.get_server(server_id, bare=True)
+            except Exception:
+                continue
+            if not server:
+                continue
 
-                if server['status'] == 'ACTIVE':
-                    server.adminPass = admin_pass
-                    return server
+            if server['status'] == 'ERROR':
+                raise OpenStackCloudException(
+                    "Error in rebuilding the server",
+                    extra_data=dict(server=server))
 
-                if server['status'] == 'ERROR':
-                    raise OpenStackCloudException(
-                        "Error in rebuilding the server",
-                        extra_data=dict(server=server))
-        return server
+            if server['status'] == 'ACTIVE':
+                server.adminPass = admin_pass
+                break
+
+        return self._expand_server(server, detailed=detailed, bare=bare)
 
     def set_server_metadata(self, name_or_id, metadata):
         """Set metadata in a server instance.
