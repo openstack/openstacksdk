@@ -186,7 +186,7 @@ class TestMemoryCache(base.RequestsMockTestCase):
         nova_mock.servers.list.return_value = [fake_server]
         with concurrent.futures.ThreadPoolExecutor(16) as pool:
             for i in range(16):
-                pool.submit(lambda: self.cloud.list_servers())
+                pool.submit(lambda: self.cloud.list_servers(bare=True))
                 # It's possible to race-condition 16 threads all in the
                 # single initial lock without a tiny sleep
                 time.sleep(0.001)

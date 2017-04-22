@@ -28,7 +28,23 @@ from shade.tests import fakes
 from shade.tests.unit import base
 
 
-class TestRebuildServer(base.TestCase):
+class TestRebuildServer(base.RequestsMockTestCase):
+
+    def setUp(self):
+        # This set of tests are not testing neutron, they're testing
+        # rebuilding servers, but we do several network calls in service
+        # of a NORMAL rebuild to find the default_network. Putting
+        # in all of the neutron mocks for that will make the tests harder
+        # to read. SO - we're going mock neutron into the off position
+        # and then turn it back on in the few tests that specifically do.
+        # Maybe we should reorg these into two classes - one with neutron
+        # mocked out - and one with it not mocked out
+        super(TestRebuildServer, self).setUp()
+        self.has_neutron = False
+
+        def fake_has_service(*args, **kwargs):
+            return self.has_neutron
+        self.cloud.has_service = fake_has_service
 
     @mock.patch.object(OpenStackCloud, 'nova_client')
     def test_rebuild_server_rebuild_exception(self, mock_nova):
@@ -53,6 +69,8 @@ class TestRebuildServer(base.TestCase):
                                                 '5678')
         mock_nova.servers.rebuild.return_value = rebuild_server
         mock_nova.servers.list.return_value = [error_server]
+        # TODO(slaweq): change this to neutron floating ips and turn neutron
+        # back on for this test when you get to floating ips
         mock_nova.floating_ips.list.return_value = [fake_floating_ip]
         self.assertRaises(
             exc.OpenStackCloudException,
@@ -110,6 +128,8 @@ class TestRebuildServer(base.TestCase):
                                                 '5678')
         mock_nova.servers.rebuild.return_value = rebuild_server
         mock_nova.servers.list.return_value = [active_server]
+        # TODO(slaweq): change this to neutron floating ips and turn neutron
+        # back on for this test when you get to floating ips
         mock_nova.floating_ips.list.return_value = [fake_floating_ip]
         self.cloud.name = 'cloud-name'
         self.assertEqual(
@@ -131,6 +151,8 @@ class TestRebuildServer(base.TestCase):
                                                 '5678')
         mock_nova.servers.rebuild.return_value = rebuild_server
         mock_nova.servers.list.return_value = [active_server]
+        # TODO(slaweq): change this to neutron floating ips and turn neutron
+        # back on for this test when you get to floating ips
         mock_nova.floating_ips.list.return_value = [fake_floating_ip]
         self.cloud.name = 'cloud-name'
         self.assertEqual(

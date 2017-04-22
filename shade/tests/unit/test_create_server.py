@@ -27,6 +27,22 @@ from shade.tests.unit import base
 
 class TestCreateServer(base.RequestsMockTestCase):
 
+    def setUp(self):
+        # This set of tests are not testing neutron, they're testing
+        # creating servers, but we do several network calls in service
+        # of a NORMAL create_server to find the default_network. Putting
+        # in all of the neutron mocks for that will make the tests harder
+        # to read. SO - we're going mock neutron into the off position
+        # and then turn it back on in the few tests that specifically do.
+        # Maybe we should reorg these into two classes - one with neutron
+        # mocked out - and one with it not mocked out
+        super(TestCreateServer, self).setUp()
+        self.has_neutron = False
+
+        def fake_has_service(*args, **kwargs):
+            return self.has_neutron
+        self.cloud.has_service = fake_has_service
+
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_server_with_create_exception(self, mock_nova):
         """
@@ -44,7 +60,6 @@ class TestCreateServer(base.RequestsMockTestCase):
         Test that an exception when attempting to get the server instance via
         the novaclient raises an exception in create_server.
         """
-
         mock_nova.servers.create.return_value = mock.Mock(status="BUILD")
         mock_nova.servers.get.side_effect = Exception("exception")
         self.assertRaises(
@@ -79,6 +94,8 @@ class TestCreateServer(base.RequestsMockTestCase):
         mock_nova.servers.create.return_value = build_server
         mock_nova.servers.get.return_value = build_server
         mock_nova.servers.list.side_effect = [[build_server], [error_server]]
+        # TODO(slaweq): change this to neutron floating ips and turn neutron
+        # back on for this test when you get to floating ips
         mock_nova.floating_ips.list.return_value = [fake_floating_ip]
         self.assertRaises(
             exc.OpenStackCloudException,
@@ -115,6 +132,8 @@ class TestCreateServer(base.RequestsMockTestCase):
                                                 '5678')
         mock_nova.servers.create.return_value = fake_server
         mock_nova.servers.get.return_value = fake_server
+        # TODO(slaweq): change this to neutron floating ips and turn neutron
+        # back on for this test when you get to floating ips
         mock_nova.floating_ips.list.return_value = [fake_floating_ip]
         self.assertEqual(
             self.cloud._normalize_server(
@@ -137,6 +156,8 @@ class TestCreateServer(base.RequestsMockTestCase):
                                                 '5678')
         mock_nova.servers.create.return_value = fake_create_server
         mock_nova.servers.get.return_value = fake_server
+        # TODO(slaweq): change this to neutron floating ips and turn neutron
+        # back on for this test when you get to floating ips
         mock_nova.floating_ips.list.return_value = [fake_floating_ip]
         self.assertEqual(
             self.cloud._normalize_server(
@@ -247,6 +268,8 @@ class TestCreateServer(base.RequestsMockTestCase):
         mock_nova.servers.get.return_value = [build_server, None]
         mock_nova.servers.list.side_effect = [[build_server], [fake_server]]
         mock_nova.servers.delete.return_value = None
+        # TODO(slaweq): change this to neutron floating ips and turn neutron
+        # back on for this test when you get to floating ips
         mock_nova.floating_ips.list.return_value = [fake_floating_ip]
         mock_add_ips_to_server.return_value = fake_server
         self.cloud._SERVER_AGE = 0
@@ -264,6 +287,10 @@ class TestCreateServer(base.RequestsMockTestCase):
         Verify that if 'network' is supplied, and 'nics' is not, that we
         attempt to get the network for the server.
         """
+        # TODO(slaweq): self.has_neutron = True should be added, the mock of
+        # get_network should be removed, and a register_uris containing
+        # a list with a network dict matching "network-name" should be used
+        # instead.
         self.cloud.create_server(
             'server-name',
             dict(id='image-id'), dict(id='flavor-id'), network='network-name')
@@ -278,6 +305,10 @@ class TestCreateServer(base.RequestsMockTestCase):
         Verify that if 'network' is supplied, along with an empty 'nics' list,
         it's treated the same as if 'nics' were not included.
         """
+        # TODO(slaweq): self.has_neutron = True should be added, the mock of
+        # get_network should be removed, and a register_uris containing
+        # a list with a network dict matching "network-name" should be used
+        # instead.
         self.cloud.create_server(
             'server-name', dict(id='image-id'), dict(id='flavor-id'),
             network='network-name', nics=[])
