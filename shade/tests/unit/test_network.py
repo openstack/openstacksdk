@@ -132,29 +132,49 @@ class TestNetwork(base.RequestsMockTestCase):
         ):
             self.cloud.create_network("netname", provider=provider_opts)
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_network')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_network(self, mock_neutron, mock_get):
-        mock_get.return_value = dict(id='net-id', name='test-net')
-        self.assertTrue(self.cloud.delete_network('test-net'))
-        mock_get.assert_called_once_with('test-net')
-        mock_neutron.delete_network.assert_called_once_with(network='net-id')
+    def test_delete_network(self):
+        network_id = "test-net-id"
+        network_name = "network"
+        network = {'id': network_id, 'name': network_name}
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [network]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'networks', "%s.json" % network_id]),
+                 json={})
+        ])
+        self.assertTrue(self.cloud.delete_network(network_name))
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_network')
-    def test_delete_network_not_found(self, mock_get):
-        mock_get.return_value = None
+    def test_delete_network_not_found(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': []}),
+        ])
         self.assertFalse(self.cloud.delete_network('test-net'))
-        mock_get.assert_called_once_with('test-net')
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_network')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_network_exception(self, mock_neutron, mock_get):
-        mock_get.return_value = dict(id='net-id', name='test-net')
-        mock_neutron.delete_network.side_effect = Exception()
-        with testtools.ExpectedException(
-            shade.OpenStackCloudException,
-            "Error deleting network test-net"
-        ):
-            self.cloud.delete_network('test-net')
-        mock_get.assert_called_once_with('test-net')
-        mock_neutron.delete_network.assert_called_once_with(network='net-id')
+    def test_delete_network_exception(self):
+        network_id = "test-net-id"
+        network_name = "network"
+        network = {'id': network_id, 'name': network_name}
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [network]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'networks', "%s.json" % network_id]),
+                 status_code=503)
+        ])
+        self.assertRaises(shade.OpenStackCloudException,
+                          self.cloud.delete_network, network_name)
+        self.assert_calls()
