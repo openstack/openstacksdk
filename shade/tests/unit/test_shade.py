@@ -13,7 +13,6 @@
 import mock
 import munch
 
-from neutronclient.common import exceptions as n_exc
 import testtools
 
 import shade
@@ -33,7 +32,7 @@ RANGE_DATA = [
 ]
 
 
-class TestShade(base.TestCase):
+class TestShade(base.RequestsMockTestCase):
 
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, shade.OpenStackCloud)
@@ -479,32 +478,26 @@ class TestShade(base.TestCase):
                           '456', gateway_ip=gateway, disable_gateway_ip=True)
 
     def test__neutron_exceptions_resource_not_found(self):
-        with mock.patch.object(
-                shade._tasks, 'NetworkList',
-                side_effect=n_exc.NotFound()):
-            self.assertRaises(exc.OpenStackCloudResourceNotFound,
-                              self.cloud.list_networks)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 status_code=404)
+        ])
+        self.assertRaises(exc.OpenStackCloudResourceNotFound,
+                          self.cloud.list_networks)
+        self.assert_calls()
 
     def test__neutron_exceptions_url_not_found(self):
-        with mock.patch.object(
-                shade._tasks, 'NetworkList',
-                side_effect=n_exc.NeutronClientException(status_code=404)):
-            self.assertRaises(exc.OpenStackCloudURINotFound,
-                              self.cloud.list_networks)
-
-    def test__neutron_exceptions_neutron_client_generic(self):
-        with mock.patch.object(
-                shade._tasks, 'NetworkList',
-                side_effect=n_exc.NeutronClientException()):
-            self.assertRaises(exc.OpenStackCloudException,
-                              self.cloud.list_networks)
-
-    def test__neutron_exceptions_generic(self):
-        with mock.patch.object(
-                shade._tasks, 'NetworkList',
-                side_effect=Exception()):
-            self.assertRaises(exc.OpenStackCloudException,
-                              self.cloud.list_networks)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 status_code=404)
+        ])
+        self.assertRaises(exc.OpenStackCloudURINotFound,
+                          self.cloud.list_networks)
+        self.assert_calls()
 
     @mock.patch.object(shade._tasks.ServerList, 'main')
     @mock.patch('shade.meta.add_server_interfaces')
