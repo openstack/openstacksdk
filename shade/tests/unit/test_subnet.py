@@ -13,186 +13,362 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
+import copy
 import testtools
 
-import shade
 from shade import exc
 from shade.tests.unit import base
 
 
 class TestSubnet(base.RequestsMockTestCase):
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_subnets')
-    def test_get_subnet(self, mock_search):
-        subnet = dict(id='123', name='mickey')
-        mock_search.return_value = [subnet]
-        r = self.cloud.get_subnet('mickey')
-        self.assertIsNotNone(r)
-        self.assertDictEqual(subnet, r)
+    network_name = 'network_name'
+    subnet_name = 'subnet_name'
+    subnet_id = '1f1696eb-7f47-47f6-835c-4889bff88604'
+    subnet_cidr = '192.168.199.0/24'
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_create_subnet(self, mock_client, mock_search):
-        net1 = dict(id='123', name='donald')
-        mock_search.return_value = [net1]
+    mock_network_rep = {
+        'id': '881d1bb7-a663-44c0-8f9f-ee2765b74486',
+        'name': network_name,
+    }
+
+    mock_subnet_rep = {
+        'allocation_pools': [{
+            'start': u'192.168.199.2',
+            'end': u'192.168.199.254'
+        }],
+        'cidr': subnet_cidr,
+        'created_at': '2017-04-24T20:22:23Z',
+        'description': '',
+        'dns_nameservers': [],
+        'enable_dhcp': False,
+        'gateway_ip': '192.168.199.1',
+        'host_routes': [],
+        'id': subnet_id,
+        'ip_version': 4,
+        'ipv6_address_mode': None,
+        'ipv6_ra_mode': None,
+        'name': subnet_name,
+        'network_id': mock_network_rep['id'],
+        'project_id': '861808a93da0484ea1767967c4df8a23',
+        'revision_number': 2,
+        'service_types': [],
+        'subnetpool_id': None,
+        'tags': []
+    }
+
+    def test_get_subnet(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnets': [self.mock_subnet_rep]})
+        ])
+        r = self.cloud.get_subnet(self.subnet_name)
+        self.assertIsNotNone(r)
+        self.assertDictEqual(self.mock_subnet_rep, r)
+        self.assert_calls()
+
+    def test_create_subnet(self):
         pool = [{'start': '192.168.199.2', 'end': '192.168.199.254'}]
         dns = ['8.8.8.8']
         routes = [{"destination": "0.0.0.0/0", "nexthop": "123.456.78.9"}]
-        self.cloud.create_subnet('donald', '192.168.199.0/24',
-                                 allocation_pools=pool,
-                                 dns_nameservers=dns,
-                                 host_routes=routes)
-        self.assertTrue(mock_client.create_subnet.called)
+        mock_subnet_rep = copy.copy(self.mock_subnet_rep)
+        mock_subnet_rep['allocation_pools'] = pool
+        mock_subnet_rep['dns_nameservers'] = dns
+        mock_subnet_rep['host_routes'] = routes
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [self.mock_network_rep]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnet': mock_subnet_rep},
+                 validate=dict(
+                     json={'subnet': {
+                         'cidr': self.subnet_cidr,
+                         'enable_dhcp': False,
+                         'ip_version': 4,
+                         'network_id': self.mock_network_rep['id'],
+                         'allocation_pools': pool,
+                         'dns_nameservers': dns,
+                         'host_routes': routes}}))
+        ])
+        subnet = self.cloud.create_subnet(self.network_name, self.subnet_cidr,
+                                          allocation_pools=pool,
+                                          dns_nameservers=dns,
+                                          host_routes=routes)
+        self.assertDictEqual(mock_subnet_rep, subnet)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_create_subnet_string_ip_version(self, mock_client, mock_search):
+    def test_create_subnet_string_ip_version(self):
         '''Allow ip_version as a string'''
-        net1 = dict(id='123', name='donald')
-        mock_search.return_value = [net1]
-        self.cloud.create_subnet('donald', '192.168.199.0/24', ip_version='4')
-        self.assertTrue(mock_client.create_subnet.called)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [self.mock_network_rep]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnet': self.mock_subnet_rep},
+                 validate=dict(
+                     json={'subnet': {
+                         'cidr': self.subnet_cidr,
+                         'enable_dhcp': False,
+                         'ip_version': 4,
+                         'network_id': self.mock_network_rep['id']}}))
+        ])
+        subnet = self.cloud.create_subnet(
+            self.network_name, self.subnet_cidr, ip_version='4')
+        self.assertDictEqual(self.mock_subnet_rep, subnet)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
-    def test_create_subnet_bad_ip_version(self, mock_search):
+    def test_create_subnet_bad_ip_version(self):
         '''String ip_versions must be convertable to int'''
-        net1 = dict(id='123', name='donald')
-        mock_search.return_value = [net1]
-
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [self.mock_network_rep]})
+        ])
         with testtools.ExpectedException(
                 exc.OpenStackCloudException,
                 "ip_version must be an integer"
         ):
-            self.cloud.create_subnet('donald', '192.168.199.0/24',
-                                     ip_version='4x')
+            self.cloud.create_subnet(
+                self.network_name, self.subnet_cidr, ip_version='4x')
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_create_subnet_without_gateway_ip(self, mock_client, mock_search):
-        net1 = dict(id='123', name='donald')
-        mock_search.return_value = [net1]
-        pool = [{'start': '192.168.200.2', 'end': '192.168.200.254'}]
+    def test_create_subnet_without_gateway_ip(self):
+        pool = [{'start': '192.168.199.2', 'end': '192.168.199.254'}]
         dns = ['8.8.8.8']
-        self.cloud.create_subnet('kooky', '192.168.200.0/24',
-                                 allocation_pools=pool,
-                                 dns_nameservers=dns,
-                                 disable_gateway_ip=True)
-        self.assertTrue(mock_client.create_subnet.called)
+        mock_subnet_rep = copy.copy(self.mock_subnet_rep)
+        mock_subnet_rep['allocation_pools'] = pool
+        mock_subnet_rep['dns_nameservers'] = dns
+        mock_subnet_rep['gateway_ip'] = None
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [self.mock_network_rep]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnet': mock_subnet_rep},
+                 validate=dict(
+                     json={'subnet': {
+                         'cidr': self.subnet_cidr,
+                         'enable_dhcp': False,
+                         'ip_version': 4,
+                         'network_id': self.mock_network_rep['id'],
+                         'allocation_pools': pool,
+                         'gateway_ip': None,
+                         'dns_nameservers': dns}}))
+        ])
+        subnet = self.cloud.create_subnet(self.network_name, self.subnet_cidr,
+                                          allocation_pools=pool,
+                                          dns_nameservers=dns,
+                                          disable_gateway_ip=True)
+        self.assertDictEqual(mock_subnet_rep, subnet)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_create_subnet_with_gateway_ip(self, mock_client, mock_search):
-        net1 = dict(id='123', name='donald')
-        mock_search.return_value = [net1]
-        pool = [{'start': '192.168.200.8', 'end': '192.168.200.254'}]
+    def test_create_subnet_with_gateway_ip(self):
+        pool = [{'start': '192.168.199.8', 'end': '192.168.199.254'}]
+        gateway = '192.168.199.2'
         dns = ['8.8.8.8']
-        gateway = '192.168.200.2'
-        self.cloud.create_subnet('kooky', '192.168.200.0/24',
-                                 allocation_pools=pool,
-                                 dns_nameservers=dns,
-                                 gateway_ip=gateway)
-        self.assertTrue(mock_client.create_subnet.called)
+        mock_subnet_rep = copy.copy(self.mock_subnet_rep)
+        mock_subnet_rep['allocation_pools'] = pool
+        mock_subnet_rep['dns_nameservers'] = dns
+        mock_subnet_rep['gateway_ip'] = gateway
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [self.mock_network_rep]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnet': mock_subnet_rep},
+                 validate=dict(
+                     json={'subnet': {
+                         'cidr': self.subnet_cidr,
+                         'enable_dhcp': False,
+                         'ip_version': 4,
+                         'network_id': self.mock_network_rep['id'],
+                         'allocation_pools': pool,
+                         'gateway_ip': gateway,
+                         'dns_nameservers': dns}}))
+        ])
+        subnet = self.cloud.create_subnet(self.network_name, self.subnet_cidr,
+                                          allocation_pools=pool,
+                                          dns_nameservers=dns,
+                                          gateway_ip=gateway)
+        self.assertDictEqual(mock_subnet_rep, subnet)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
-    def test_create_subnet_conflict_gw_ops(self, mock_search):
-        net1 = dict(id='123', name='donald')
-        mock_search.return_value = [net1]
+    def test_create_subnet_conflict_gw_ops(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [self.mock_network_rep]})
+        ])
         gateway = '192.168.200.3'
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.create_subnet, 'kooky',
-                          '192.168.200.0/24', gateway_ip=gateway,
+                          self.subnet_cidr, gateway_ip=gateway,
                           disable_gateway_ip=True)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'list_networks')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_create_subnet_bad_network(self, mock_client, mock_list):
-        net1 = dict(id='123', name='donald')
-        mock_list.return_value = [net1]
+    def test_create_subnet_bad_network(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [self.mock_network_rep]})
+        ])
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.create_subnet,
-                          'duck', '192.168.199.0/24')
-        self.assertFalse(mock_client.create_subnet.called)
+                          'duck', self.subnet_cidr)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_networks')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_create_subnet_non_unique_network(self, mock_client, mock_search):
-        net1 = dict(id='123', name='donald')
-        net2 = dict(id='456', name='donald')
-        mock_search.return_value = [net1, net2]
+    def test_create_subnet_non_unique_network(self):
+        net1 = dict(id='123', name=self.network_name)
+        net2 = dict(id='456', name=self.network_name)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [net1, net2]})
+        ])
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.create_subnet,
-                          'donald', '192.168.199.0/24')
-        self.assertFalse(mock_client.create_subnet.called)
+                          self.network_name, self.subnet_cidr)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_subnets')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_subnet(self, mock_client, mock_search):
-        subnet1 = dict(id='123', name='mickey')
-        mock_search.return_value = [subnet1]
-        self.cloud.delete_subnet('mickey')
-        self.assertTrue(mock_client.delete_subnet.called)
+    def test_delete_subnet(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnets': [self.mock_subnet_rep]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'subnets', '%s.json' % self.subnet_id]),
+                 json={})
+        ])
+        self.assertTrue(self.cloud.delete_subnet(self.subnet_name))
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_subnets')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_subnet_not_found(self, mock_client, mock_search):
-        mock_search.return_value = []
-        r = self.cloud.delete_subnet('goofy')
-        self.assertFalse(r)
-        self.assertFalse(mock_client.delete_subnet.called)
+    def test_delete_subnet_not_found(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnets': []})
+        ])
+        self.assertFalse(self.cloud.delete_subnet('goofy'))
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_subnet_multiple_found(self, mock_client):
-        subnet1 = dict(id='123', name='mickey')
-        subnet2 = dict(id='456', name='mickey')
-        mock_client.list_subnets.return_value = dict(subnets=[subnet1,
-                                                              subnet2])
+    def test_delete_subnet_multiple_found(self):
+        subnet1 = dict(id='123', name=self.subnet_name)
+        subnet2 = dict(id='456', name=self.subnet_name)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnets': [subnet1, subnet2]})
+        ])
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.delete_subnet,
-                          'mickey')
-        self.assertFalse(mock_client.delete_subnet.called)
+                          self.subnet_name)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_subnet_multiple_using_id(self, mock_client):
-        subnet1 = dict(id='123', name='mickey')
-        subnet2 = dict(id='456', name='mickey')
-        mock_client.list_subnets.return_value = dict(subnets=[subnet1,
-                                                              subnet2])
-        self.cloud.delete_subnet('123')
-        self.assertTrue(mock_client.delete_subnet.called)
+    def test_delete_subnet_multiple_using_id(self):
+        subnet1 = dict(id='123', name=self.subnet_name)
+        subnet2 = dict(id='456', name=self.subnet_name)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnets': [subnet1, subnet2]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'subnets', '%s.json' % subnet1['id']]),
+                 json={})
+        ])
+        self.assertTrue(self.cloud.delete_subnet(subnet1['id']))
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_subnet')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_update_subnet(self, mock_client, mock_get):
-        subnet1 = dict(id='123', name='mickey')
-        mock_get.return_value = subnet1
-        self.cloud.update_subnet('123', subnet_name='goofy')
-        self.assertTrue(mock_client.update_subnet.called)
+    def test_update_subnet(self):
+        expected_subnet = copy.copy(self.mock_subnet_rep)
+        expected_subnet['name'] = 'goofy'
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnets': [self.mock_subnet_rep]}),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'subnets', '%s.json' % self.subnet_id]),
+                 json={'subnet': expected_subnet},
+                 validate=dict(
+                     json={'subnet': {'name': 'goofy'}}))
+        ])
+        subnet = self.cloud.update_subnet(self.subnet_id, subnet_name='goofy')
+        self.assertDictEqual(expected_subnet, subnet)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_subnet')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_update_subnet_gateway_ip(self, mock_client, mock_get):
-        subnet1 = dict(id='456', name='kooky')
-        mock_get.return_value = subnet1
-        gateway = '192.168.200.3'
-        self.cloud.update_subnet(
-            '456', gateway_ip=gateway)
-        self.assertTrue(mock_client.update_subnet.called)
+    def test_update_subnet_gateway_ip(self):
+        expected_subnet = copy.copy(self.mock_subnet_rep)
+        gateway = '192.168.199.3'
+        expected_subnet['gateway_ip'] = gateway
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnets': [self.mock_subnet_rep]}),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'subnets', '%s.json' % self.subnet_id]),
+                 json={'subnet': expected_subnet},
+                 validate=dict(
+                     json={'subnet': {'gateway_ip': gateway}}))
+        ])
+        subnet = self.cloud.update_subnet(self.subnet_id, gateway_ip=gateway)
+        self.assertDictEqual(expected_subnet, subnet)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_subnet')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_update_subnet_disable_gateway_ip(self, mock_client, mock_get):
-        subnet1 = dict(id='456', name='kooky')
-        mock_get.return_value = subnet1
-        self.cloud.update_subnet(
-            '456', disable_gateway_ip=True)
-        self.assertTrue(mock_client.update_subnet.called)
+    def test_update_subnet_disable_gateway_ip(self):
+        expected_subnet = copy.copy(self.mock_subnet_rep)
+        expected_subnet['gateway_ip'] = None
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnets': [self.mock_subnet_rep]}),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'subnets', '%s.json' % self.subnet_id]),
+                 json={'subnet': expected_subnet},
+                 validate=dict(
+                     json={'subnet': {'gateway_ip': None}}))
+        ])
+        subnet = self.cloud.update_subnet(self.subnet_id,
+                                          disable_gateway_ip=True)
+        self.assertDictEqual(expected_subnet, subnet)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_subnet')
-    def test_update_subnet_conflict_gw_ops(self, mock_get):
-        subnet1 = dict(id='456', name='kooky')
-        mock_get.return_value = subnet1
-        gateway = '192.168.200.3'
+    def test_update_subnet_conflict_gw_ops(self):
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.update_subnet,
-                          '456', gateway_ip=gateway, disable_gateway_ip=True)
+                          self.subnet_id, gateway_ip="192.168.199.3",
+                          disable_gateway_ip=True)
