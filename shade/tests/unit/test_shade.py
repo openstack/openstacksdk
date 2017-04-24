@@ -34,6 +34,23 @@ RANGE_DATA = [
 
 class TestShade(base.RequestsMockTestCase):
 
+    def setUp(self):
+        # This set of tests are not testing neutron, they're testing
+        # rebuilding servers, but we do several network calls in service
+        # of a NORMAL rebuild to find the default_network. Putting
+        # in all of the neutron mocks for that will make the tests harder
+        # to read. SO - we're going mock neutron into the off position
+        # and then turn it back on in the few tests that specifically do.
+        # Maybe we should reorg these into two classes - one with neutron
+        # mocked out - and one with it not mocked out
+        super(TestShade, self).setUp()
+        self.has_neutron = False
+
+        def fake_has_service(*args, **kwargs):
+            return self.has_neutron
+
+        self.cloud.has_service = fake_has_service
+
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, shade.OpenStackCloud)
 
