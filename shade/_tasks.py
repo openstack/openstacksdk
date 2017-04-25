@@ -394,26 +394,6 @@ class NeutronFloatingIPUpdate(task_manager.Task):
         return client.neutron_client.update_floatingip(**self.args)
 
 
-class SubnetCreate(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.create_subnet(**self.args)
-
-
-class SubnetList(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.list_subnets()
-
-
-class SubnetDelete(task_manager.Task):
-    def main(self, client):
-        client.neutron_client.delete_subnet(**self.args)
-
-
-class SubnetUpdate(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.update_subnet(**self.args)
-
-
 class PortList(task_manager.Task):
     def main(self, client):
         return client.neutron_client.list_ports(**self.args)
