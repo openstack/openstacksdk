@@ -3,6 +3,7 @@
     "compute": "novaclient.client.Client",
     "container-infra": "magnumclient.client.Client",
     "database": "troveclient.client.Client",
+    "dns": "designateclient.client.Client",
     "identity": "keystoneclient.client.Client",
     "image": "glanceclient.Client",
     "key-manager": "barbicanclient.client.Client",
