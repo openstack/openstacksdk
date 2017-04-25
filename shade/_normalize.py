@@ -142,6 +142,15 @@ class Normalizer(object):
 
         return new_limits
 
+    def _remove_novaclient_artifacts(self, item):
+        # Remove novaclient artifacts
+        item.pop('links', None)
+        item.pop('NAME_ATTR', None)
+        item.pop('HUMAN_ID', None)
+        item.pop('human_id', None)
+        item.pop('request_ids', None)
+        item.pop('x_openstack_request_ids', None)
+
     def _normalize_flavors(self, flavors):
         """ Normalize a list of flavor objects """
         ret = []
@@ -157,11 +166,8 @@ class Normalizer(object):
         flavor = flavor.copy()
 
         # Discard noise
+        self._remove_novaclient_artifacts(flavor)
         flavor.pop('links', None)
-        flavor.pop('NAME_ATTR', None)
-        flavor.pop('HUMAN_ID', None)
-        flavor.pop('human_id', None)
-        flavor.pop('request_ids', None)
 
         ephemeral = int(_pop_or_get(
             flavor, 'OS-FLV-EXT-DATA:ephemeral', 0, self.strict_mode))
@@ -211,10 +217,8 @@ class Normalizer(object):
         # This copy is to keep things from getting epically weird in tests
         image = image.copy()
 
-        image.pop('links', None)
-        image.pop('NAME_ATTR', None)
-        image.pop('HUMAN_ID', None)
-        image.pop('human_id', None)
+        # Discard noise
+        self._remove_novaclient_artifacts(image)
 
         properties = image.pop('properties', {})
         visibility = image.pop('visibility', None)
@@ -297,13 +301,8 @@ class Normalizer(object):
         # Copy incoming group because of shared dicts in unittests
         group = group.copy()
 
-        # Remove novaclient artifacts
-        group.pop('links', None)
-        group.pop('NAME_ATTR', None)
-        group.pop('HUMAN_ID', None)
-        group.pop('human_id', None)
-        group.pop('request_ids', None)
-        group.pop('x_openstack_request_ids', None)
+        # Discard noise
+        self._remove_novaclient_artifacts(group)
 
         rules = self._normalize_secgroup_rules(
             group.pop('security_group_rules', group.pop('rules', [])))
@@ -395,10 +394,7 @@ class Normalizer(object):
         # Copy incoming server because of shared dicts in unittests
         server = server.copy()
 
-        server.pop('links', None)
-        server.pop('NAME_ATTR', None)
-        server.pop('HUMAN_ID', None)
-        server.pop('human_id', None)
+        self._remove_novaclient_artifacts(server)
 
         ret['id'] = server.pop('id')
         ret['name'] = server.pop('name')
@@ -578,10 +574,7 @@ class Normalizer(object):
         project = project.copy()
 
         # Discard noise
-        project.pop('links', None)
-        project.pop('NAME_ATTR', None)
-        project.pop('HUMAN_ID', None)
-        project.pop('human_id', None)
+        self._remove_novaclient_artifacts(project)
 
         # In both v2 and v3
         project_id = project.pop('id')
@@ -693,12 +686,7 @@ class Normalizer(object):
         volume = volume.copy()
 
         # Discard noise
-        volume.pop('links', None)
-        volume.pop('NAME_ATTR', None)
-        volume.pop('HUMAN_ID', None)
-        volume.pop('human_id', None)
-        volume.pop('request_ids', None)
-        volume.pop('x_openstack_request_ids', None)
+        self._remove_novaclient_artifacts(volume)
         volume_id = volume.pop('id')
 
         name = volume.pop('display_name', None)
@@ -777,12 +765,7 @@ class Normalizer(object):
         attachment = attachment.copy()
 
         # Discard noise
-        attachment.pop('NAME_ATTR', None)
-        attachment.pop('HUMAN_ID', None)
-        attachment.pop('human_id', None)
-        attachment.pop('request_ids', None)
-        attachment.pop('x_openstack_request_ids', None)
-
+        self._remove_novaclient_artifacts(attachment)
         return munch.Munch(**attachment)
 
     def _normalize_compute_usage(self, usage):
@@ -791,11 +774,7 @@ class Normalizer(object):
         usage = usage.copy()
 
         # Discard noise
-        usage.pop('links', None)
-        usage.pop('NAME_ATTR', None)
-        usage.pop('HUMAN_ID', None)
-        usage.pop('human_id', None)
-        usage.pop('request_ids', None)
+        self._remove_novaclient_artifacts(usage)
         project_id = usage.pop('tenant_id', None)
 
         ret = munch.Munch(
@@ -972,10 +951,8 @@ class Normalizer(object):
         stack = stack.copy()
 
         # Discard noise
-        stack.pop('HUMAN_ID', None)
-        stack.pop('human_id', None)
-        stack.pop('NAME_ATTR', None)
-        stack.pop('links', None)
+        self._remove_novaclient_artifacts(stack)
+
         # Discard things heatclient adds that aren't in the REST
         stack.pop('action', None)
         stack.pop('status', None)
