@@ -1639,9 +1639,7 @@ class OpenStackCloud(_normalize.Normalizer):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        with _utils.neutron_exceptions("Error fetching network list"):
-            return self.manager.submit_task(
-                _tasks.NetworkList(**filters))['networks']
+        return self._network_client.get("/networks.json", params=filters)
 
     def list_routers(self, filters=None):
         """List all available routers.
@@ -2998,15 +2996,13 @@ class OpenStackCloud(_normalize.Normalizer):
         if external:
             network['router:external'] = True
 
-        with _utils.neutron_exceptions(
-                "Error creating network {0}".format(name)):
-            net = self.manager.submit_task(
-                _tasks.NetworkCreate(body=dict({'network': network})))
+        net = self._network_client.post("/networks.json",
+                                        json={'network': network})
 
         # Reset cache so the new network is picked up
         self._reset_network_caches()
 
-        return net['network']
+        return net
 
     def delete_network(self, name_or_id):
         """Delete a network.
@@ -3022,10 +3018,8 @@ class OpenStackCloud(_normalize.Normalizer):
             self.log.debug("Network %s not found for deleting", name_or_id)
             return False
 
-        with _utils.neutron_exceptions(
-                "Error deleting network {0}".format(name_or_id)):
-            self.manager.submit_task(
-                _tasks.NetworkDelete(network=network['id']))
+        self._network_client.delete(
+            "/networks/{network_id}.json".format(network_id=network['id']))
 
         # Reset cache so the deleted network is removed
         self._reset_network_caches()

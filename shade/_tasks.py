@@ -207,21 +207,6 @@ class KeypairDelete(task_manager.Task):
         return client.nova_client.keypairs.delete(**self.args)
 
 
-class NetworkList(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.list_networks(**self.args)
-
-
-class NetworkCreate(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.create_network(**self.args)
-
-
-class NetworkDelete(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.delete_network(**self.args)
-
-
 class RouterList(task_manager.Task):
     def main(self, client):
         return client.neutron_client.list_routers()
