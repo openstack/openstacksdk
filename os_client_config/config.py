@@ -19,6 +19,7 @@ import collections
 import copy
 import json
 import os
+import re
 import sys
 import warnings
 
@@ -146,7 +147,9 @@ def _fix_argv(argv):
     # over the place.
     processed = collections.defaultdict(list)
     for index in range(0, len(argv)):
-        if argv[index].startswith('--'):
+        # If the value starts with '--' and has '-' or '_' in it, then
+        # it's worth looking at it
+        if re.match('^--.*(_|-)+.*', argv[index]):
             split_args = argv[index].split('=')
             orig = split_args[0]
             new = orig.replace('_', '-')
