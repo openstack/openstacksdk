@@ -1665,9 +1665,7 @@ class OpenStackCloud(_normalize.Normalizer):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        with _utils.neutron_exceptions("Error fetching subnet list"):
-            return self.manager.submit_task(
-                _tasks.SubnetList(**filters))['subnets']
+        return self._network_client.get("/subnets.json", params=filters)
 
     def list_ports(self, filters=None):
         """List all available ports.
@@ -6477,13 +6475,10 @@ class OpenStackCloud(_normalize.Normalizer):
         if use_default_subnetpool:
             subnet['use_default_subnetpool'] = True
 
-        with _utils.neutron_exceptions(
-                "Error creating subnet on network "
-                "{0}".format(network_name_or_id)):
-            new_subnet = self.manager.submit_task(
-                _tasks.SubnetCreate(body=dict(subnet=subnet)))
+        new_subnet = self._network_client.post("/subnets.json",
+                                               json={"subnet": subnet})
 
-        return new_subnet['subnet']
+        return new_subnet
 
     def delete_subnet(self, name_or_id):
         """Delete a subnet.
@@ -6503,10 +6498,8 @@ class OpenStackCloud(_normalize.Normalizer):
             self.log.debug("Subnet %s not found for deleting", name_or_id)
             return False
 
-        with _utils.neutron_exceptions(
-                "Error deleting subnet {0}".format(name_or_id)):
-            self.manager.submit_task(
-                _tasks.SubnetDelete(subnet=subnet['id']))
+        self._network_client.delete(
+            "/subnets/{subnet_id}.json".format(subnet_id=subnet['id']))
         return True
 
     def update_subnet(self, name_or_id, subnet_name=None, enable_dhcp=None,
@@ -6591,12 +6584,10 @@ class OpenStackCloud(_normalize.Normalizer):
             raise OpenStackCloudException(
                 "Subnet %s not found." % name_or_id)
 
-        with _utils.neutron_exceptions(
-                "Error updating subnet {0}".format(name_or_id)):
-            new_subnet = self.manager.submit_task(
-                _tasks.SubnetUpdate(
-                    subnet=curr_subnet['id'], body=dict(subnet=subnet)))
-        return new_subnet['subnet']
+        new_subnet = self._network_client.put(
+            "/subnets/{subnet_id}.json".format(subnet_id=curr_subnet['id']),
+            json={"subnet": subnet})
+        return new_subnet
 
     @_utils.valid_kwargs('name', 'admin_state_up', 'mac_address', 'fixed_ips',
                          'subnet_id', 'ip_address', 'security_groups',
