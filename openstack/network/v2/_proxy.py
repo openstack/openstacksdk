@@ -1475,7 +1475,7 @@ class Proxy(proxy2.BaseProxy):
             * ``description``: The port description.
             * ``device_id``: Port device ID.
             * ``device_owner``: Port device owner (e.g. ``network:dhcp``).
-            * ``ip_adress``: IP addresses of an allowed address pair.
+            * ``ip_address``: IP addresses of an allowed address pair.
             * ``is_admin_state_up``: The administrative state of the port.
             * ``is_port_security_enabled``: The port security status.
             * ``mac_address``: Port MAC address.
