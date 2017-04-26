@@ -45,13 +45,13 @@ class TestImage(testtools.TestCase):
         self.assertEqual('/images', sot.base_path)
         self.assertEqual('image', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = image.Image(EXAMPLE)
+        sot = image.Image(**EXAMPLE)
         self.assertEqual(EXAMPLE['checksum'], sot.checksum)
         self.assertEqual(EXAMPLE['container_format'], sot.container_format)
         self.assertEqual(EXAMPLE['copy_from'], sot.copy_from)
