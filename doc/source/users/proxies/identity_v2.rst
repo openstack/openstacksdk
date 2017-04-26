@@ -12,7 +12,15 @@ The identity high-level interface is available through the ``identity``
 member of a :class:`~openstack.connection.Connection` object.  The
 ``identity`` member will only be added if the service is detected.
 
-User Operations
+Extension Operations
+^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.identity.v2._proxy.Proxy
+
+   .. automethod:: openstack.identity.v2._proxy.Proxy.get_extension
+   .. automethod:: openstack.identity.v2._proxy.Proxy.extensions
+
+ User Operations
 ^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v2._proxy.Proxy

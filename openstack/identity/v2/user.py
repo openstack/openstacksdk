@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.identity import identity_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class User(resource.Resource):
@@ -22,18 +22,18 @@ class User(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
     # Properties
     #: The email of this user. *Type: string*
-    email = resource.prop('email')
+    email = resource.Body('email')
     #: Setting this value to ``False`` prevents the user from authenticating or
     #: receiving authorization. Additionally, all pre-existing tokens held by
     #: the user are immediately invalidated. Re-enabling a user does not
     #: re-enable pre-existing tokens. *Type: bool*
-    is_enabled = resource.prop('enabled', type=bool)
+    is_enabled = resource.Body('enabled', type=bool)
     #: The name of this user. *Type: string*
-    name = resource.prop('name')
+    name = resource.Body('name')
