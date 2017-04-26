@@ -13,237 +13,343 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
+import copy
 
-import shade
 from shade import exc
 from shade.tests.unit import base
 
 
 class TestRouter(base.RequestsMockTestCase):
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_routers')
-    def test_get_router(self, mock_search):
-        router1 = dict(id='123', name='mickey')
-        mock_search.return_value = [router1]
-        r = self.cloud.get_router('mickey')
+    router_name = 'goofy'
+    router_id = '57076620-dcfb-42ed-8ad6-79ccb4a79ed2'
+    subnet_id = '1f1696eb-7f47-47f6-835c-4889bff88604'
+
+    mock_router_rep = {
+        'admin_state_up': True,
+        'availability_zone_hints': [],
+        'availability_zones': [],
+        'description': u'',
+        'distributed': False,
+        'external_gateway_info': None,
+        'flavor_id': None,
+        'ha': False,
+        'id': router_id,
+        'name': router_name,
+        'project_id': u'861808a93da0484ea1767967c4df8a23',
+        'routes': [],
+        'status': u'ACTIVE',
+        'tenant_id': u'861808a93da0484ea1767967c4df8a23'
+    }
+
+    mock_router_interface_rep = {
+        'network_id': '53aee281-b06d-47fc-9e1a-37f045182b8e',
+        'subnet_id': '1f1696eb-7f47-47f6-835c-4889bff88604',
+        'tenant_id': '861808a93da0484ea1767967c4df8a23',
+        'subnet_ids': [subnet_id],
+        'port_id': '23999891-78b3-4a6b-818d-d1b713f67848',
+        'id': '57076620-dcfb-42ed-8ad6-79ccb4a79ed2',
+        'request_ids': ['req-f1b0b1b4-ae51-4ef9-b371-0cc3c3402cf7']
+    }
+
+    def test_get_router(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers.json']),
+                 json={'routers': [self.mock_router_rep]})
+        ])
+        r = self.cloud.get_router(self.router_name)
         self.assertIsNotNone(r)
-        self.assertDictEqual(router1, r)
+        self.assertDictEqual(self.mock_router_rep, r)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_routers')
-    def test_get_router_not_found(self, mock_search):
-        mock_search.return_value = []
-        r = self.cloud.get_router('goofy')
+    def test_get_router_not_found(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers.json']),
+                 json={'routers': []})
+        ])
+        r = self.cloud.get_router('mickey')
         self.assertIsNone(r)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_create_router(self, mock_client):
-        self.cloud.create_router(name='goofy', admin_state_up=True)
-        self.assertTrue(mock_client.create_router.called)
+    def test_create_router(self):
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers.json']),
+                 json={'router': self.mock_router_rep},
+                 validate=dict(
+                     json={'router': {
+                         'name': self.router_name,
+                         'admin_state_up': True}}))
+        ])
+        new_router = self.cloud.create_router(name=self.router_name,
+                                              admin_state_up=True)
+        self.assertDictEqual(self.mock_router_rep, new_router)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_create_router_specific_tenant(self, mock_client):
-        self.cloud.create_router("goofy", project_id="project_id_value")
-        mock_client.create_router.assert_called_once_with(
-            body=dict(
-                router=dict(
-                    name='goofy',
-                    admin_state_up=True,
-                    tenant_id="project_id_value",
-                )
-            )
-        )
+    def test_create_router_specific_tenant(self):
+        new_router_tenant_id = "project_id_value"
+        mock_router_rep = copy.copy(self.mock_router_rep)
+        mock_router_rep['tenant_id'] = new_router_tenant_id
+        mock_router_rep['project_id'] = new_router_tenant_id
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers.json']),
+                 json={'router': mock_router_rep},
+                 validate=dict(
+                     json={'router': {
+                         'name': self.router_name,
+                         'admin_state_up': True,
+                         'tenant_id': new_router_tenant_id}}))
+        ])
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_create_router_with_enable_snat_True(self, mock_client):
+        self.cloud.create_router(self.router_name,
+                                 project_id=new_router_tenant_id)
+        self.assert_calls()
+
+    def test_create_router_with_enable_snat_True(self):
         """Do not send enable_snat when same as neutron default."""
-        self.cloud.create_router(name='goofy', admin_state_up=True,
-                                 enable_snat=True)
-        mock_client.create_router.assert_called_once_with(
-            body=dict(
-                router=dict(
-                    name='goofy',
-                    admin_state_up=True,
-                )
-            )
-        )
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers.json']),
+                 json={'router': self.mock_router_rep},
+                 validate=dict(
+                     json={'router': {
+                         'name': self.router_name,
+                         'admin_state_up': True}}))
+        ])
+        self.cloud.create_router(
+            name=self.router_name, admin_state_up=True, enable_snat=True)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_create_router_with_enable_snat_False(self, mock_client):
+    def test_create_router_with_enable_snat_False(self):
         """Send enable_snat when it is False."""
-        self.cloud.create_router(name='goofy', admin_state_up=True,
-                                 enable_snat=False)
-        mock_client.create_router.assert_called_once_with(
-            body=dict(
-                router=dict(
-                    name='goofy',
-                    admin_state_up=True,
-                    external_gateway_info=dict(
-                        enable_snat=False
-                    )
-                )
-            )
-        )
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers.json']),
+                 json={'router': self.mock_router_rep},
+                 validate=dict(
+                     json={'router': {
+                         'name': self.router_name,
+                         'external_gateway_info': {'enable_snat': False},
+                         'admin_state_up': True}}))
+        ])
+        self.cloud.create_router(
+            name=self.router_name, admin_state_up=True, enable_snat=False)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_add_router_interface(self, mock_client):
-        self.cloud.add_router_interface({'id': '123'}, subnet_id='abc')
-        mock_client.add_interface_router.assert_called_once_with(
-            router='123', body={'subnet_id': 'abc'}
-        )
+    def test_add_router_interface(self):
+        self.register_uris([
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'routers', self.router_id,
+                             'add_router_interface.json']),
+                 json={'port': self.mock_router_interface_rep},
+                 validate=dict(
+                     json={'subnet_id': self.subnet_id}))
+        ])
+        self.cloud.add_router_interface(
+            {'id': self.router_id}, subnet_id=self.subnet_id)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_remove_router_interface(self, mock_client):
-        self.cloud.remove_router_interface({'id': '123'}, subnet_id='abc')
-        mock_client.remove_interface_router.assert_called_once_with(
-            router='123', body={'subnet_id': 'abc'}
-        )
+    def test_remove_router_interface(self):
+        self.register_uris([
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'routers', self.router_id,
+                             'remove_router_interface.json']),
+                 json={'port': self.mock_router_interface_rep},
+                 validate=dict(
+                     json={'subnet_id': self.subnet_id}))
+        ])
+        self.cloud.remove_router_interface(
+            {'id': self.router_id}, subnet_id=self.subnet_id)
+        self.assert_calls()
 
     def test_remove_router_interface_missing_argument(self):
         self.assertRaises(ValueError, self.cloud.remove_router_interface,
                           {'id': '123'})
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_router')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_update_router(self, mock_client, mock_get):
-        router1 = dict(id='123', name='mickey')
-        mock_get.return_value = router1
-        self.cloud.update_router('123', name='goofy')
-        self.assertTrue(mock_client.update_router.called)
+    def test_update_router(self):
+        new_router_name = "mickey"
+        expected_router_rep = copy.copy(self.mock_router_rep)
+        expected_router_rep['name'] = new_router_name
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers.json']),
+                 json={'routers': [self.mock_router_rep]}),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'routers', '%s.json' % self.router_id]),
+                 json={'router': expected_router_rep},
+                 validate=dict(
+                     json={'router': {
+                         'name': new_router_name}}))
+        ])
+        new_router = self.cloud.update_router(
+            self.router_id, name=new_router_name)
+        self.assertDictEqual(expected_router_rep, new_router)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_routers')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_router(self, mock_client, mock_search):
-        router1 = dict(id='123', name='mickey')
-        mock_search.return_value = [router1]
-        self.cloud.delete_router('mickey')
-        self.assertTrue(mock_client.delete_router.called)
+    def test_delete_router(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers.json']),
+                 json={'routers': [self.mock_router_rep]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'routers', '%s.json' % self.router_id]),
+                 json={})
+        ])
+        self.assertTrue(self.cloud.delete_router(self.router_name))
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_routers')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_router_not_found(self, mock_client, mock_search):
-        mock_search.return_value = []
-        r = self.cloud.delete_router('goofy')
-        self.assertFalse(r)
-        self.assertFalse(mock_client.delete_router.called)
+    def test_delete_router_not_found(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers.json']),
+                 json={'routers': []}),
+        ])
+        self.assertFalse(self.cloud.delete_router(self.router_name))
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_router_multiple_found(self, mock_client):
+    def test_delete_router_multiple_found(self):
         router1 = dict(id='123', name='mickey')
         router2 = dict(id='456', name='mickey')
-        mock_client.list_routers.return_value = dict(routers=[router1,
-                                                              router2])
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers.json']),
+                 json={'routers': [router1, router2]}),
+        ])
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.delete_router,
                           'mickey')
-        self.assertFalse(mock_client.delete_router.called)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_router_multiple_using_id(self, mock_client):
+    def test_delete_router_multiple_using_id(self):
         router1 = dict(id='123', name='mickey')
         router2 = dict(id='456', name='mickey')
-        mock_client.list_routers.return_value = dict(routers=[router1,
-                                                              router2])
-        self.cloud.delete_router('123')
-        self.assertTrue(mock_client.delete_router.called)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers.json']),
+                 json={'routers': [router1, router2]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'routers', '123.json']),
+                 json={})
+        ])
+        self.assertTrue(self.cloud.delete_router("123"))
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_ports')
-    def test_list_router_interfaces_no_gw(self, mock_search):
+    def _test_list_router_interfaces(self, router, interface_type,
+                                     expected_result=None):
+        internal_port = {
+            'id': 'internal_port_id',
+            'fixed_ips': [{
+                'subnet_id': 'internal_subnet_id',
+                'ip_address': "10.0.0.1"
+            }],
+            'device_id': self.router_id
+        }
+        external_port = {
+            'id': 'external_port_id',
+            'fixed_ips': [{
+                'subnet_id': 'external_subnet_id',
+                'ip_address': "1.2.3.4"
+            }],
+            'device_id': self.router_id
+        }
+        if expected_result is None:
+            if interface_type == "internal":
+                expected_result = [internal_port]
+            elif interface_type == "external":
+                expected_result = [external_port]
+            else:
+                expected_result = [internal_port, external_port]
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json'],
+                     qs_elements=["device_id=%s" % self.router_id]),
+                 json={'ports': [internal_port, external_port]})
+        ])
+        ret = self.cloud.list_router_interfaces(router, interface_type)
+        self.assertEqual(expected_result, ret)
+        self.assert_calls()
+
+    def test_list_router_interfaces_no_gw(self):
         """
         If a router does not have external_gateway_info, do not fail.
         """
-        external_port = {'id': 'external_port_id',
-                         'fixed_ips': [
-                             ('external_subnet_id', 'ip_address'),
-                         ]}
-        port_list = [external_port]
         router = {
-            'id': 'router_id',
+            'id': self.router_id
         }
-        mock_search.return_value = port_list
-        ret = self.cloud.list_router_interfaces(router,
-                                                interface_type='external')
-        mock_search.assert_called_once_with(
-            filters={'device_id': router['id']}
-        )
-        self.assertEqual([], ret)
+        self._test_list_router_interfaces(router,
+                                          interface_type="external",
+                                          expected_result=[])
 
-        # A router can have its external_gateway_info set to None
-        router['external_gateway_info'] = None
-        ret = self.cloud.list_router_interfaces(router,
-                                                interface_type='external')
-        self.assertEqual([], ret)
-
-    @mock.patch.object(shade.OpenStackCloud, 'search_ports')
-    def test_list_router_interfaces_all(self, mock_search):
-        internal_port = {'id': 'internal_port_id',
-                         'fixed_ips': [
-                             ('internal_subnet_id', 'ip_address'),
-                         ]}
-        external_port = {'id': 'external_port_id',
-                         'fixed_ips': [
-                             ('external_subnet_id', 'ip_address'),
-                         ]}
-        port_list = [internal_port, external_port]
+    def test_list_router_interfaces_gw_none(self):
+        """
+        If a router does have external_gateway_info set to None, do not fail.
+        """
         router = {
-            'id': 'router_id',
+            'id': self.router_id,
+            'external_gateway_info': None
+        }
+        self._test_list_router_interfaces(router,
+                                          interface_type="external",
+                                          expected_result=[])
+
+    def test_list_router_interfaces_all(self):
+        router = {
+            'id': self.router_id,
             'external_gateway_info': {
-                'external_fixed_ips': [('external_subnet_id', 'ip_address')]
+                'external_fixed_ips': [{
+                    'subnet_id': 'external_subnet_id',
+                    'ip_address': '1.2.3.4'}]
             }
         }
-        mock_search.return_value = port_list
-        ret = self.cloud.list_router_interfaces(router)
-        mock_search.assert_called_once_with(
-            filters={'device_id': router['id']}
-        )
-        self.assertEqual(port_list, ret)
+        self._test_list_router_interfaces(router,
+                                          interface_type=None)
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_ports')
-    def test_list_router_interfaces_internal(self, mock_search):
-        internal_port = {'id': 'internal_port_id',
-                         'fixed_ips': [
-                             ('internal_subnet_id', 'ip_address'),
-                         ]}
-        external_port = {'id': 'external_port_id',
-                         'fixed_ips': [
-                             ('external_subnet_id', 'ip_address'),
-                         ]}
-        port_list = [internal_port, external_port]
+    def test_list_router_interfaces_internal(self):
         router = {
-            'id': 'router_id',
+            'id': self.router_id,
             'external_gateway_info': {
-                'external_fixed_ips': [('external_subnet_id', 'ip_address')]
+                'external_fixed_ips': [{
+                    'subnet_id': 'external_subnet_id',
+                    'ip_address': '1.2.3.4'}]
             }
         }
-        mock_search.return_value = port_list
-        ret = self.cloud.list_router_interfaces(router,
-                                                interface_type='internal')
-        mock_search.assert_called_once_with(
-            filters={'device_id': router['id']}
-        )
-        self.assertEqual([internal_port], ret)
+        self._test_list_router_interfaces(router,
+                                          interface_type="internal")
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_ports')
-    def test_list_router_interfaces_external(self, mock_search):
-        internal_port = {'id': 'internal_port_id',
-                         'fixed_ips': [
-                             ('internal_subnet_id', 'ip_address'),
-                         ]}
-        external_port = {'id': 'external_port_id',
-                         'fixed_ips': [
-                             ('external_subnet_id', 'ip_address'),
-                         ]}
-        port_list = [internal_port, external_port]
+    def test_list_router_interfaces_external(self):
         router = {
-            'id': 'router_id',
+            'id': self.router_id,
             'external_gateway_info': {
-                'external_fixed_ips': [('external_subnet_id', 'ip_address')]
+                'external_fixed_ips': [{
+                    'subnet_id': 'external_subnet_id',
+                    'ip_address': '1.2.3.4'}]
             }
         }
-        mock_search.return_value = port_list
-        ret = self.cloud.list_router_interfaces(router,
-                                                interface_type='external')
-        mock_search.assert_called_once_with(
-            filters={'device_id': router['id']}
-        )
-        self.assertEqual([external_port], ret)
+        self._test_list_router_interfaces(router,
+                                          interface_type="external")
