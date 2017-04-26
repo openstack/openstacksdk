@@ -4286,9 +4286,10 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: A list of volume backups ``munch.Munch``.
         """
         with _utils.shade_exceptions("Error getting a list of backups"):
-            return self.manager.submit_task(
-                _tasks.VolumeBackupList(
-                    detailed=detailed, search_opts=search_opts))
+            return self._normalize_volume_backups(
+                self.manager.submit_task(
+                    _tasks.VolumeBackupList(
+                        detailed=detailed, search_opts=search_opts)))
 
     def delete_volume_backup(self, name_or_id=None, force=False, wait=False,
                              timeout=None):
