@@ -14,10 +14,6 @@ from shade.tests.unit import base
 
 
 class TestVolumeBackups(base.RequestsMockTestCase):
-    def _get_normalized_dict_from_object(self, backup):
-        self.cloud._remove_novaclient_artifacts(backup)
-        return meta.obj_to_dict(backup)
-
     def test_search_volume_backups(self):
         name = 'Volume1'
         vol1 = {'name': name, 'availability_zone': 'az1'}
@@ -30,9 +26,10 @@ class TestVolumeBackups(base.RequestsMockTestCase):
                  json={"backups": [vol1, vol2, vol3]})])
         result = self.cloud.search_volume_backups(
             name, {'availability_zone': 'az1'})
-        result = [self._get_normalized_dict_from_object(i) for i in result]
         self.assertEqual(len(result), 2)
-        self.assertEqual([vol1, vol2], result)
+        self.assertEqual(
+            meta.obj_list_to_dict([vol1, vol2]),
+            result)
         self.assert_calls()
 
     def test_get_volume_backup(self):
@@ -47,8 +44,10 @@ class TestVolumeBackups(base.RequestsMockTestCase):
                  json={"backups": [vol1, vol2, vol3]})])
         result = self.cloud.get_volume_backup(
             name, {'availability_zone': 'az1'})
-        result = self._get_normalized_dict_from_object(result)
-        self.assertEqual(vol1, result)
+        result = meta.obj_to_dict(result)
+        self.assertEqual(
+            meta.obj_to_dict(vol1),
+            result)
         self.assert_calls()
 
     def test_list_volume_backups(self):
@@ -62,9 +61,10 @@ class TestVolumeBackups(base.RequestsMockTestCase):
                      qs_elements=['='.join(i) for i in search_opts.items()]),
                  json={"backups": [backup]})])
         result = self.cloud.list_volume_backups(True, search_opts)
-        result = [self._get_normalized_dict_from_object(i) for i in result]
         self.assertEqual(len(result), 1)
-        self.assertEqual([backup], result)
+        self.assertEqual(
+            meta.obj_list_to_dict([backup]),
+            result)
         self.assert_calls()
 
     def test_delete_volume_backup_wait(self):

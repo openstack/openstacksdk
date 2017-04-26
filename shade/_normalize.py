@@ -768,6 +768,20 @@ class Normalizer(object):
         self._remove_novaclient_artifacts(attachment)
         return munch.Munch(**attachment)
 
+    def _normalize_volume_backups(self, backups):
+        ret = []
+        for backup in backups:
+            ret.append(self._normalize_volume_backup(backup))
+        return ret
+
+    def _normalize_volume_backup(self, backup):
+        """ Normalize a valume backup object"""
+
+        backup = backup.copy()
+        # Discard noise
+        self._remove_novaclient_artifacts(backup)
+        return munch.Munch(**backup)
+
     def _normalize_compute_usage(self, usage):
         """ Normalize a compute usage object """
 
