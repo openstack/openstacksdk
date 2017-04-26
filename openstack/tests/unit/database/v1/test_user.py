@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
 import testtools
 
 from openstack.database.v1 import user
@@ -21,10 +20,6 @@ CREATING = {
     'databases': '1',
     'name': '2',
     'password': '3',
-}
-EXISTING = {
-    'databases': '1',
-    'name': '2',
 }
 
 
@@ -37,33 +32,20 @@ class TestUser(testtools.TestCase):
         self.assertEqual('/instances/%(instance_id)s/users', sot.base_path)
         self.assertEqual('database', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertFalse(sot.allow_retrieve)
+        self.assertFalse(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make(self):
-        sot = user.User(CREATING)
+        sot = user.User(**CREATING)
         self.assertEqual(CREATING['name'], sot.id)
         self.assertEqual(CREATING['databases'], sot.databases)
         self.assertEqual(CREATING['name'], sot.name)
+        self.assertEqual(CREATING['name'], sot.id)
         self.assertEqual(CREATING['password'], sot.password)
 
-    def test_existing(self):
-        sot = user.User(EXISTING)
-        self.assertEqual(EXISTING['name'], sot.id)
-        self.assertEqual(EXISTING['databases'], sot.databases)
-        self.assertEqual(EXISTING['name'], sot.name)
-        self.assertIsNone(sot.password)
-
     def test_create(self):
-        sess = mock.Mock()
-        resp = mock.Mock()
-        sess.post = mock.Mock(return_value=resp)
-        path_args = {'instance_id': INSTANCE_ID}
-        url = '/instances/%(instance_id)s/users' % path_args
-        payload = {'users': [CREATING]}
-
-        user.User.create_by_id(sess, CREATING, path_args=path_args)
-        sess.post.assert_called_with(url, endpoint_filter=user.User.service,
-                                     json=payload)
+        sot = user.User(instance_id=INSTANCE_ID, **CREATING)
+        result = sot._prepare_request()
+        self.assertEqual(result.body, {sot.resources_key: CREATING})

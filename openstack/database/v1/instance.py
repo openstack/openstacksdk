@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.database import database_service
-from openstack import resource
+from openstack import resource2 as resource
 from openstack import utils
 
 
@@ -23,22 +23,35 @@ class Instance(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_delete = True
     allow_list = True
 
     # Properties
     #: The flavor of the instance
-    flavor = resource.prop('flavor')
+    flavor = resource.Body('flavor')
     #: Links associated with the instance
-    links = resource.prop('links')
+    links = resource.Body('links')
     #: The name of the instance
-    name = resource.prop('name')
+    name = resource.Body('name')
     #: The status of the instance
-    status = resource.prop('status')
+    status = resource.Body('status')
     #: The size of the volume
-    volume = resource.prop('volume')
+    volume = resource.Body('volume')
+    #: A dictionary of datastore details, often including 'type' and 'version'
+    #: keys
+    datastore = resource.Body('datastore', type=dict)
+    #: The ID of this instance
+    id = resource.Body('id')
+    #: The region this instance resides in
+    region = resource.Body('region')
+    #: The name of the host
+    hostname = resource.Body('hostname')
+    #: The timestamp when this instance was created
+    created_at = resource.Body('created')
+    #: The timestamp when this instance was updated
+    updated_at = resource.Body('updated')
 
     def enable_root_user(self, session):
         """Enable login for the root user.

@@ -36,14 +36,15 @@ class TestDatabase(testtools.TestCase):
         self.assertEqual('database', sot.service.service_type)
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.allow_create)
-        self.assertFalse(sot.allow_retrieve)
+        self.assertFalse(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertTrue(sot.allow_delete)
 
     def test_make_it(self):
-        sot = database.Database(EXAMPLE)
+        sot = database.Database(**EXAMPLE)
         self.assertEqual(IDENTIFIER, sot.id)
         self.assertEqual(EXAMPLE['character_set'], sot.character_set)
         self.assertEqual(EXAMPLE['collate'], sot.collate)
         self.assertEqual(EXAMPLE['instance_id'], sot.instance_id)
         self.assertEqual(IDENTIFIER, sot.name)
+        self.assertEqual(IDENTIFIER, sot.id)

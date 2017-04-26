@@ -23,6 +23,11 @@ EXAMPLE = {
     'name': '4',
     'status': '5',
     'volume': '6',
+    'datastore': {'7': 'seven'},
+    'region': '8',
+    'hostname': '9',
+    'created': '10',
+    'updated': '11',
 }
 
 
@@ -35,22 +40,27 @@ class TestInstance(testtools.TestCase):
         self.assertEqual('/instances', sot.base_path)
         self.assertEqual('database', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = instance.Instance(EXAMPLE)
+        sot = instance.Instance(**EXAMPLE)
         self.assertEqual(EXAMPLE['flavor'], sot.flavor)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['volume'], sot.volume)
+        self.assertEqual(EXAMPLE['datastore'], sot.datastore)
+        self.assertEqual(EXAMPLE['region'], sot.region)
+        self.assertEqual(EXAMPLE['hostname'], sot.hostname)
+        self.assertEqual(EXAMPLE['created'], sot.created_at)
+        self.assertEqual(EXAMPLE['updated'], sot.updated_at)
 
     def test_enable_root_user(self):
-        sot = instance.Instance(EXAMPLE)
+        sot = instance.Instance(**EXAMPLE)
         response = mock.Mock()
         response.body = {'user': {'name': 'root', 'password': 'foo'}}
         response.json = mock.Mock(return_value=response.body)
@@ -63,7 +73,7 @@ class TestInstance(testtools.TestCase):
         sess.post.assert_called_with(url, endpoint_filter=sot.service)
 
     def test_is_root_enabled(self):
-        sot = instance.Instance(EXAMPLE)
+        sot = instance.Instance(**EXAMPLE)
         response = mock.Mock()
         response.body = {'rootEnabled': True}
         response.json = mock.Mock(return_value=response.body)
@@ -76,7 +86,7 @@ class TestInstance(testtools.TestCase):
         sess.get.assert_called_with(url, endpoint_filter=sot.service)
 
     def test_action_restart(self):
-        sot = instance.Instance(EXAMPLE)
+        sot = instance.Instance(**EXAMPLE)
         response = mock.Mock()
         response.json = mock.Mock(return_value='')
         sess = mock.Mock()
@@ -90,7 +100,7 @@ class TestInstance(testtools.TestCase):
                                      json=body)
 
     def test_action_resize(self):
-        sot = instance.Instance(EXAMPLE)
+        sot = instance.Instance(**EXAMPLE)
         response = mock.Mock()
         response.json = mock.Mock(return_value='')
         sess = mock.Mock()
@@ -105,7 +115,7 @@ class TestInstance(testtools.TestCase):
                                      json=body)
 
     def test_action_resize_volume(self):
-        sot = instance.Instance(EXAMPLE)
+        sot = instance.Instance(**EXAMPLE)
         response = mock.Mock()
         response.json = mock.Mock(return_value='')
         sess = mock.Mock()

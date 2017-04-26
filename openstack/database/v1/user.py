@@ -11,11 +11,11 @@
 # under the License.
 
 from openstack.database import database_service
-from openstack import resource
+from openstack import resource2 as resource
+from openstack import utils
 
 
 class User(resource.Resource):
-    id_attribute = 'name'
     resource_key = 'user'
     resources_key = 'users'
     base_path = '/instances/%(instance_id)s/users'
@@ -26,21 +26,25 @@ class User(resource.Resource):
     allow_delete = True
     allow_list = True
 
-    # path args
-    instance_id = resource.prop('instance_id')
+    instance_id = resource.URI('instance_id')
 
     # Properties
     #: Databases the user has access to
-    databases = resource.prop('databases')
+    databases = resource.Body('databases')
     #: The name of the user
-    name = resource.prop('name')
+    name = resource.Body('name', alternate_id=True)
     #: The password of the user
-    password = resource.prop('password')
+    password = resource.Body('password')
 
-    @classmethod
-    def create_by_id(cls, session, attrs, r_id=None, path_args=None):
-        url = cls._get_url(path_args)
-        # Create expects an array of users
-        body = {'users': [attrs]}
-        resp = session.post(url, endpoint_filter=cls.service, json=body)
-        return resp.json()
+    def _prepare_request(self, requires_id=True, prepend_key=True):
+        """Prepare a request for the database service's create call
+
+        User.create calls require the resources_key.
+        The base_prepare_request would insert the resource_key (singular)
+        """
+        body = {self.resources_key: self._body.dirty}
+
+        uri = self.base_path % self._uri.attributes
+        uri = utils.urljoin(uri, self.id)
+
+        return resource._Request(uri, body, None)
