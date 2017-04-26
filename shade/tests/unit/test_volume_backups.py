@@ -9,64 +9,115 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import mock
-
-import shade
+from shade import meta
 from shade.tests.unit import base
 
 
-class TestVolumeBackups(base.TestCase):
-    @mock.patch.object(shade.OpenStackCloud, 'list_volume_backups')
-    @mock.patch("shade._utils._filter_list")
-    def test_search_volume_backups(self, m_filter_list, m_list_volume_backups):
+class TestVolumeBackups(base.RequestsMockTestCase):
+    def _get_normalized_dict_from_object(self, backup):
+        self.cloud._remove_novaclient_artifacts(backup)
+        return meta.obj_to_dict(backup)
+
+    def test_search_volume_backups(self):
+        name = 'Volume1'
+        vol1 = {'name': name, 'availability_zone': 'az1'}
+        vol2 = {'name': name, 'availability_zone': 'az1'}
+        vol3 = {'name': 'Volume2', 'availability_zone': 'az2'}
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['backups', 'detail']),
+                 json={"backups": [vol1, vol2, vol3]})])
         result = self.cloud.search_volume_backups(
-            mock.sentinel.name_or_id, mock.sentinel.filter)
+            name, {'availability_zone': 'az1'})
+        result = [self._get_normalized_dict_from_object(i) for i in result]
+        self.assertEqual(len(result), 2)
+        self.assertEqual([vol1, vol2], result)
+        self.assert_calls()
 
-        m_list_volume_backups.assert_called_once_with()
-        m_filter_list.assert_called_once_with(
-            m_list_volume_backups.return_value, mock.sentinel.name_or_id,
-            mock.sentinel.filter)
-        self.assertIs(m_filter_list.return_value, result)
-
-    @mock.patch("shade._utils._get_entity")
-    def test_get_volume_backup(self, m_get_entity):
+    def test_get_volume_backup(self):
+        name = 'Volume1'
+        vol1 = {'name': name, 'availability_zone': 'az1'}
+        vol2 = {'name': name, 'availability_zone': 'az2'}
+        vol3 = {'name': 'Volume2', 'availability_zone': 'az1'}
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['backups', 'detail']),
+                 json={"backups": [vol1, vol2, vol3]})])
         result = self.cloud.get_volume_backup(
-            mock.sentinel.name_or_id, mock.sentinel.filter)
+            name, {'availability_zone': 'az1'})
+        result = self._get_normalized_dict_from_object(result)
+        self.assertEqual(vol1, result)
+        self.assert_calls()
 
-        self.assertIs(m_get_entity.return_value, result)
-        m_get_entity.assert_called_once_with(
-            self.cloud.search_volume_backups, mock.sentinel.name_or_id,
-            mock.sentinel.filter)
+    def test_list_volume_backups(self):
+        backup = {'id': '6ff16bdf-44d5-4bf9-b0f3-687549c76414',
+                  'status': 'available'}
+        search_opts = {'status': 'available'}
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['backups', 'detail'],
+                     qs_elements=['='.join(i) for i in search_opts.items()]),
+                 json={"backups": [backup]})])
+        result = self.cloud.list_volume_backups(True, search_opts)
+        result = [self._get_normalized_dict_from_object(i) for i in result]
+        self.assertEqual(len(result), 1)
+        self.assertEqual([backup], result)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'cinder_client')
-    def test_list_volume_backups(self, m_cinder_client):
+    def test_delete_volume_backup_wait(self):
         backup_id = '6ff16bdf-44d5-4bf9-b0f3-687549c76414'
-        m_cinder_client.backups.list.return_value = [
-            {'id': backup_id}
-        ]
-        result = self.cloud.list_volume_backups(
-            mock.sentinel.detailed, mock.sentinel.search_opts)
+        backup = {'id': backup_id}
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['backups', 'detail']),
+                 json={"backups": [backup]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['backups', backup_id])),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['backups', 'detail']),
+                 json={"backups": [backup]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['backups', 'detail']),
+                 json={"backups": []})])
+        self.cloud.delete_volume_backup(backup_id, False, True, 1)
+        self.assert_calls()
 
-        m_cinder_client.backups.list.assert_called_once_with(
-            detailed=mock.sentinel.detailed,
-            search_opts=mock.sentinel.search_opts)
-        self.assertEqual(backup_id, result[0]['id'])
-
-    @mock.patch.object(shade.OpenStackCloud, 'cinder_client')
-    @mock.patch("shade._utils._iterate_timeout")
-    @mock.patch.object(shade.OpenStackCloud, 'get_volume_backup')
-    def test_delete_volume_backup(self, m_get_volume_backup,
-                                  m_iterate_timeout, m_cinder_client):
-        m_get_volume_backup.side_effect = [{'id': 42}, True, False]
-        self.cloud.delete_volume_backup(
-            mock.sentinel.name_or_id, mock.sentinel.force, mock.sentinel.wait,
-            mock.sentinel.timeout)
-
-        m_iterate_timeout.assert_called_once_with(
-            mock.sentinel.timeout, mock.ANY)
-        m_cinder_client.backups.delete.assert_called_once_with(
-            backup=42, force=mock.sentinel.force)
-
-        # We expect 3 calls, the last return_value is False which breaks the
-        # wait loop.
-        m_get_volume_backup.call_args_list = [mock.call(42)] * 3
+    def test_delete_volume_backup_force(self):
+        backup_id = '6ff16bdf-44d5-4bf9-b0f3-687549c76414'
+        backup = {'id': backup_id}
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['backups', 'detail']),
+                 json={"backups": [backup]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['backups', backup_id, 'action']),
+                 json={'os-force_delete': {}},
+                 validate=dict(json={u'os-force_delete': None})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['backups', 'detail']),
+                 json={"backups": [backup]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['backups', 'detail']),
+                 json={"backups": []})
+        ])
+        self.cloud.delete_volume_backup(backup_id, True, True, 1)
+        self.assert_calls()
