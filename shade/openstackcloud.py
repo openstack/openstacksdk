@@ -1654,9 +1654,9 @@ class OpenStackCloud(_normalize.Normalizer):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        with _utils.neutron_exceptions("Error fetching router list"):
-            return self.manager.submit_task(
-                _tasks.RouterList(**filters))['routers']
+        return self._network_client.get(
+            "/routers.json", params=filters,
+            error_message="Error fetching router list")
 
     def list_subnets(self, filters=None):
         """List all available subnets.
@@ -3059,18 +3059,18 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        body = {}
+        json_body = {}
         if subnet_id:
-            body['subnet_id'] = subnet_id
+            json_body['subnet_id'] = subnet_id
         if port_id:
-            body['port_id'] = port_id
+            json_body['port_id'] = port_id
 
-        with _utils.neutron_exceptions(
-            "Error attaching interface to router {0}".format(router['id'])
-        ):
-            return self.manager.submit_task(
-                _tasks.RouterAddInterface(router=router['id'], body=body)
-            )
+        return self._network_client.put(
+            "/routers/{router_id}/add_router_interface.json".format(
+                router_id=router['id']),
+            json=json_body,
+            error_message="Error attaching interface to router {0}".format(
+                router['id']))
 
     def remove_router_interface(self, router, subnet_id=None, port_id=None):
         """Detach a subnet from an internal router interface.
@@ -3089,22 +3089,22 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        body = {}
+        json_body = {}
         if subnet_id:
-            body['subnet_id'] = subnet_id
+            json_body['subnet_id'] = subnet_id
         if port_id:
-            body['port_id'] = port_id
+            json_body['port_id'] = port_id
 
-        if not body:
+        if not json_body:
             raise ValueError(
                 "At least one of subnet_id or port_id must be supplied.")
 
-        with _utils.neutron_exceptions(
-            "Error detaching interface from router {0}".format(router['id'])
-        ):
-            return self.manager.submit_task(
-                _tasks.RouterRemoveInterface(router=router['id'], body=body)
-            )
+        self._network_client.put(
+            "/routers/{router_id}/remove_router_interface.json".format(
+                router_id=router['id']),
+            json=json_body,
+            error_message="Error detaching interface from router {0}".format(
+                router['id']))
 
     def list_router_interfaces(self, router, interface_type=None):
         """List all interfaces for a router.
@@ -3182,11 +3182,9 @@ class OpenStackCloud(_normalize.Normalizer):
         if ext_gw_info:
             router['external_gateway_info'] = ext_gw_info
 
-        with _utils.neutron_exceptions(
-                "Error creating router {0}".format(name)):
-            new_router = self.manager.submit_task(
-                _tasks.RouterCreate(body=dict(router=router)))
-        return new_router['router']
+        return self._network_client.post(
+            "/routers.json", json={"router": router},
+            error_message="Error creating router {0}".format(name))
 
     def update_router(self, name_or_id, name=None, admin_state_up=None,
                       ext_gateway_net_id=None, enable_snat=None,
@@ -3233,13 +3231,10 @@ class OpenStackCloud(_normalize.Normalizer):
             raise OpenStackCloudException(
                 "Router %s not found." % name_or_id)
 
-        with _utils.neutron_exceptions(
-                "Error updating router {0}".format(name_or_id)):
-            new_router = self.manager.submit_task(
-                _tasks.RouterUpdate(
-                    router=curr_router['id'], body=dict(router=router)))
-
-        return new_router['router']
+        return self._network_client.put(
+            "/routers/{router_id}.json".format(router_id=curr_router['id']),
+            json={"router": router},
+            error_message="Error updating router {0}".format(name_or_id))
 
     def delete_router(self, name_or_id):
         """Delete a logical router.
@@ -3259,10 +3254,9 @@ class OpenStackCloud(_normalize.Normalizer):
             self.log.debug("Router %s not found for deleting", name_or_id)
             return False
 
-        with _utils.neutron_exceptions(
-                "Error deleting router {0}".format(name_or_id)):
-            self.manager.submit_task(
-                _tasks.RouterDelete(router=router['id']))
+        self._network_client.delete(
+            "/routers/{router_id}.json".format(router_id=router['id']),
+            error_message="Error deleting router {0}".format(name_or_id))
 
         return True
 

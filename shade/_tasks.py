@@ -207,36 +207,6 @@ class KeypairDelete(task_manager.Task):
         return client.nova_client.keypairs.delete(**self.args)
 
 
-class RouterList(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.list_routers()
-
-
-class RouterCreate(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.create_router(**self.args)
-
-
-class RouterUpdate(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.update_router(**self.args)
-
-
-class RouterDelete(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.delete_router(**self.args)
-
-
-class RouterAddInterface(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.add_interface_router(**self.args)
-
-
-class RouterRemoveInterface(task_manager.Task):
-    def main(self, client):
-        client.neutron_client.remove_interface_router(**self.args)
-
-
 class NovaImageList(task_manager.Task):
     def main(self, client):
         return client.nova_client.images.list()
