@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.metric import metric_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Metric(resource.Resource):
@@ -20,20 +20,20 @@ class Metric(resource.Resource):
 
     # Supported Operations
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_delete = True
     allow_list = True
 
     # Properties
     #: The name of the archive policy
-    archive_policy_name = resource.prop('archive_policy_name')
+    archive_policy_name = resource.Body('archive_policy_name')
     #: The archive policy
-    archive_policy = resource.prop('archive_policy')
+    archive_policy = resource.Body('archive_policy')
     #: The ID of the user who created this metric
-    created_by_user_id = resource.prop('created_by_user_id')
+    created_by_user_id = resource.Body('created_by_user_id')
     #: The ID of the project this metric was created under
-    created_by_project_id = resource.prop('created_by_project_id')
+    created_by_project_id = resource.Body('created_by_project_id')
     #: The identifier of this metric
-    resource_id = resource.prop('resource_id')
+    resource_id = resource.Body('resource_id')
     #: The name of this metric
-    name = resource.prop('name')
+    name = resource.Body('name')

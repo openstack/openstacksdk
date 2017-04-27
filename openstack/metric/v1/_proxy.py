@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.metric.v1 import capabilities
-from openstack import proxy
+from openstack import proxy2 as proxy
 
 
 class Proxy(proxy.BaseProxy):
