@@ -212,31 +212,6 @@ class NovaImageList(task_manager.Task):
         return client.nova_client.images.list()
 
 
-class NovaFloatingIPList(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.floating_ips.list()
-
-
-class NovaFloatingIPCreate(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.floating_ips.create(**self.args)
-
-
-class NovaFloatingIPDelete(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.floating_ips.delete(**self.args)
-
-
-class NovaFloatingIPAttach(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.servers.add_floating_ip(**self.args)
-
-
-class NovaFloatingIPDetach(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.servers.remove_floating_ip(**self.args)
-
-
 class MachineCreate(task_manager.Task):
     def main(self, client):
         return client.ironic_client.node.create(**self.args)

@@ -2012,8 +2012,7 @@ class OpenStackCloud(
         return self._network_client.get('/floatingips.json', params=filters)
 
     def _nova_list_floating_ips(self):
-        with _utils.shade_exceptions("Error fetching floating IPs list"):
-            return self.manager.submit_task(_tasks.NovaFloatingIPList())
+        return self._compute_client.get('/os-floating-ips')
 
     def use_external_network(self):
         return self._use_external_network
@@ -4553,8 +4552,11 @@ class OpenStackCloud(
                         "unable to find a floating ip pool")
                 pool = pools[0]['name']
 
-            pool_ip = self.manager.submit_task(
-                _tasks.NovaFloatingIPCreate(pool=pool))
+            pool_ip = self._compute_client.post(
+                '/os-floating-ips', json=dict(pool=pool))
+            # TODO(mordred) Remove this - it's just for compat
+            pool_ip = self._compute_client.get('/os-floating-ips/{id}'.format(
+                id=pool_ip['id']))
             return pool_ip
 
     def delete_floating_ip(self, floating_ip_id, retry=1):
@@ -4622,16 +4624,12 @@ class OpenStackCloud(
 
     def _nova_delete_floating_ip(self, floating_ip_id):
         try:
-            self.manager.submit_task(
-                _tasks.NovaFloatingIPDelete(floating_ip=floating_ip_id))
-        except nova_exceptions.NotFound:
+            self._compute_client.delete(
+                '/os-floating-ips/{id}'.format(id=floating_ip_id),
+                error_message='Unable to delete floating IP {fip_id}'.format(
+                    fip_id=floating_ip_id))
+        except OpenStackCloudURINotFound:
             return False
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Unable to delete floating IP ID {fip_id}: {msg}".format(
-                    fip_id=floating_ip_id, msg=str(e)))
         return True
 
     def delete_unattached_floating_ips(self, retry=1):
@@ -4853,13 +4851,22 @@ class OpenStackCloud(
 
     def _nova_attach_ip_to_server(self, server_id, floating_ip_id,
                                   fixed_address=None):
-        with _utils.shade_exceptions(
-                "Error attaching IP {ip} to instance {id}".format(
-                    ip=floating_ip_id, id=server_id)):
-            f_ip = self.get_floating_ip(id=floating_ip_id)
-            return self.manager.submit_task(_tasks.NovaFloatingIPAttach(
-                server=server_id, address=f_ip['floating_ip_address'],
-                fixed_address=fixed_address))
+        f_ip = self.get_floating_ip(
+            id=floating_ip_id)
+        if f_ip is None:
+            raise OpenStackCloudException(
+                "unable to find floating IP {0}".format(floating_ip_id))
+        error_message = "Error attaching IP {ip} to instance {id}".format(
+            ip=floating_ip_id, id=server_id)
+        body = {
+            'address': f_ip['floating_ip_address']
+        }
+        if fixed_address:
+            body['fixed_address'] = fixed_address
+        return self._compute_client.post(
+            '/servers/{server_id}/action'.format(server_id=server_id),
+            json=dict(addFloatingIp=body),
+            error_message=error_message)
 
     def detach_ip_from_server(self, server_id, floating_ip_id):
         """Detach a floating IP from a server.
@@ -4900,24 +4907,18 @@ class OpenStackCloud(
         return True
 
     def _nova_detach_ip_from_server(self, server_id, floating_ip_id):
-        try:
-            f_ip = self.get_floating_ip(id=floating_ip_id)
-            if f_ip is None:
-                raise OpenStackCloudException(
-                    "unable to find floating IP {0}".format(floating_ip_id))
-            self.manager.submit_task(_tasks.NovaFloatingIPDetach(
-                server=server_id, address=f_ip['floating_ip_address']))
-        except nova_exceptions.Conflict as e:
-            self.log.debug(
-                "nova floating IP detach failed: %(msg)s", {'msg': str(e)},
-                exc_info=True)
-            return False
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
+
+        f_ip = self.get_floating_ip(id=floating_ip_id)
+        if f_ip is None:
             raise OpenStackCloudException(
-                "Error detaching IP {ip} from instance {id}: {msg}".format(
-                    ip=floating_ip_id, id=server_id, msg=str(e)))
+                "unable to find floating IP {0}".format(floating_ip_id))
+        error_message = "Error detaching IP {ip} from instance {id}".format(
+            ip=floating_ip_id, id=server_id)
+        return self._compute_client.post(
+            '/servers/{server_id}/action'.format(server_id=server_id),
+            json=dict(removeFloatingIp=dict(
+                address=f_ip['floating_ip_address'])),
+            error_message=error_message)
 
         return True
 

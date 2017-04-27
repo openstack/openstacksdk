@@ -15,16 +15,21 @@
 # limitations under the License.
 
 for lib in \
-        os-client-config \
         python-novaclient \
         python-keystoneclient \
         python-cinderclient \
         python-ironicclient \
         python-designateclient \
+        os-client-config \
         keystoneauth
 do
     egg=$(echo $lib | tr '-' '_' | sed 's/python-//')
     if [ -d /opt/stack/new/$lib ] ; then
-        pip install -q -U -e "git+file:///opt/stack/new/$lib#egg=$egg"
+        tip_location="git+file:///opt/stack/new/$lib#egg=$egg"
+        echo "$(which pip) install -U -e $tip_location"
+        pip uninstall -y $lib
+        pip install -U -e $tip_location
+    else
+        echo "$lib not found in /opt/stack/new/$lib"
     fi
 done

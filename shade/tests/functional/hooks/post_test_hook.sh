@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -x
 
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -46,6 +46,7 @@ set +e
 sudo -E -H -u jenkins tox -e$tox_env
 EXIT_CODE=$?
 sudo testr last --subunit > $WORKSPACE/tempest.subunit
+.tox/$tox_env/bin/pbr freeze
 set -e
 
 exit $EXIT_CODE

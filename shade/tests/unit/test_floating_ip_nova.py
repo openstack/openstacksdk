@@ -19,22 +19,20 @@ test_floating_ip_nova
 Tests Floating IP resource methods for nova-network
 """
 
-from mock import patch
-from novaclient import exceptions as n_exc
-
 from shade import meta
-from shade import OpenStackCloud
 from shade.tests import fakes
 from shade.tests.unit import base
 
 
-def has_service_side_effect(s):
-    if s == 'network':
-        return False
-    return True
+def get_fake_has_service(has_service):
+    def fake_has_service(s):
+        if s == 'network':
+            return False
+        return has_service(s)
+    return fake_has_service
 
 
-class TestFloatingIP(base.TestCase):
+class TestFloatingIP(base.RequestsMockTestCase):
     mock_floating_ip_list_rep = [
         {
             'fixed_ip': None,
@@ -69,9 +67,6 @@ class TestFloatingIP(base.TestCase):
 
     def setUp(self):
         super(TestFloatingIP, self).setUp()
-        self.floating_ips = [
-            fakes.FakeFloatingIP(**ip) for ip in self.mock_floating_ip_list_rep
-        ]
 
         self.fake_server = meta.obj_to_dict(
             fakes.FakeServer(
@@ -83,172 +78,223 @@ class TestFloatingIP(base.TestCase):
                     u'OS-EXT-IPS-MAC:mac_addr':
                     u'fa:16:3e:ae:7d:42'}]}))
 
-        self.floating_ip = self.cloud._normalize_floating_ips(
-            meta.obj_list_to_dict(self.floating_ips))[0]
+        self.cloud.has_service = get_fake_has_service(self.cloud.has_service)
 
-    @patch.object(OpenStackCloud, 'nova_client')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_list_floating_ips(self, mock_has_service, mock_nova_client):
-        mock_has_service.side_effect = has_service_side_effect
-        mock_nova_client.floating_ips.list.return_value = self.floating_ips
+    def test_list_floating_ips(self):
 
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
+                 json={'floating_ips': self.mock_floating_ip_list_rep}),
+        ])
         floating_ips = self.cloud.list_floating_ips()
 
-        mock_nova_client.floating_ips.list.assert_called_with()
         self.assertIsInstance(floating_ips, list)
         self.assertEqual(3, len(floating_ips))
         self.assertAreInstances(floating_ips, dict)
 
-    @patch.object(OpenStackCloud, 'nova_client')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_list_floating_ips_with_filters(self, mock_has_service,
-                                            mock_nova_client):
-        mock_has_service.side_effect = has_service_side_effect
+        self.assert_calls()
 
+    def test_list_floating_ips_with_filters(self):
         self.assertRaisesRegex(
             ValueError, "Nova-network don't support server-side",
             self.cloud.list_floating_ips, filters={'Foo': 42}
         )
 
-    @patch.object(OpenStackCloud, 'nova_client')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_search_floating_ips(self, mock_has_service, mock_nova_client):
-        mock_has_service.side_effect = has_service_side_effect
-        mock_nova_client.floating_ips.list.return_value = self.floating_ips
+    def test_search_floating_ips(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
+                 json={'floating_ips': self.mock_floating_ip_list_rep}),
+        ])
 
         floating_ips = self.cloud.search_floating_ips(
             filters={'attached': False})
 
-        mock_nova_client.floating_ips.list.assert_called_with()
         self.assertIsInstance(floating_ips, list)
         self.assertEqual(2, len(floating_ips))
         self.assertAreInstances(floating_ips, dict)
 
-    @patch.object(OpenStackCloud, 'nova_client')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_get_floating_ip(self, mock_has_service, mock_nova_client):
-        mock_has_service.side_effect = has_service_side_effect
-        mock_nova_client.floating_ips.list.return_value = self.floating_ips
+        self.assert_calls()
+
+    def test_get_floating_ip(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
+                 json={'floating_ips': self.mock_floating_ip_list_rep}),
+        ])
 
         floating_ip = self.cloud.get_floating_ip(id='29')
 
-        mock_nova_client.floating_ips.list.assert_called_with()
         self.assertIsInstance(floating_ip, dict)
         self.assertEqual('198.51.100.29', floating_ip['floating_ip_address'])
 
-    @patch.object(OpenStackCloud, 'nova_client')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_get_floating_ip_not_found(
-            self, mock_has_service, mock_nova_client):
-        mock_has_service.side_effect = has_service_side_effect
-        mock_nova_client.floating_ips.list.return_value = self.floating_ips
+        self.assert_calls()
+
+    def test_get_floating_ip_not_found(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
+                 json={'floating_ips': self.mock_floating_ip_list_rep}),
+        ])
 
         floating_ip = self.cloud.get_floating_ip(id='666')
 
         self.assertIsNone(floating_ip)
 
-    @patch.object(OpenStackCloud, 'nova_client')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_create_floating_ip(self, mock_has_service, mock_nova_client):
-        mock_has_service.side_effect = has_service_side_effect
-        mock_nova_client.floating_ips.create.return_value =\
-            fakes.FakeFloatingIP(**self.mock_floating_ip_list_rep[1])
+        self.assert_calls()
+
+    def test_create_floating_ip(self):
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
+                 json={'floating_ip': self.mock_floating_ip_list_rep[1]},
+                 validate=dict(
+                     json={'pool': 'nova'})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute',
+                     append=['os-floating-ips', '2']),
+                 json={'floating_ips': self.mock_floating_ip_list_rep[1]}),
+        ])
 
         self.cloud.create_floating_ip(network='nova')
 
-        mock_nova_client.floating_ips.create.assert_called_with(pool='nova')
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, '_nova_list_floating_ips')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_available_floating_ip_existing(
-            self, mock_has_service, mock__nova_list_floating_ips):
-        mock_has_service.side_effect = has_service_side_effect
-        mock__nova_list_floating_ips.return_value = \
-            self.mock_floating_ip_list_rep[:1]
-
-        ip = self.cloud.available_floating_ip(network='nova')
-
-        self.assertEqual(self.mock_floating_ip_list_rep[0]['ip'],
-                         ip['floating_ip_address'])
-
-    @patch.object(OpenStackCloud, 'nova_client')
-    @patch.object(OpenStackCloud, '_nova_list_floating_ips')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_available_floating_ip_new(
-            self, mock_has_service, mock__nova_list_floating_ips,
-            mock_nova_client):
-        mock_has_service.side_effect = has_service_side_effect
-        mock__nova_list_floating_ips.return_value = []
-        mock_nova_client.floating_ips.create.return_value = \
-            fakes.FakeFloatingIP(**self.mock_floating_ip_list_rep[0])
+    def test_available_floating_ip_existing(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
+                 json={'floating_ips': self.mock_floating_ip_list_rep[:1]}),
+        ])
 
         ip = self.cloud.available_floating_ip(network='nova')
 
         self.assertEqual(self.mock_floating_ip_list_rep[0]['ip'],
                          ip['floating_ip_address'])
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'nova_client')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_delete_floating_ip_existing(
-            self, mock_has_service, mock_nova_client):
-        mock_has_service.side_effect = has_service_side_effect
-        mock_nova_client.floating_ips.delete.return_value = None
+    def test_available_floating_ip_new(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
+                 json={'floating_ips': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
+                 json={'floating_ip': self.mock_floating_ip_list_rep[0]},
+                 validate=dict(
+                     json={'pool': 'nova'})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute',
+                     append=['os-floating-ips', '1']),
+                 json={'floating_ip': self.mock_floating_ip_list_rep[0]}),
+        ])
+
+        ip = self.cloud.available_floating_ip(network='nova')
+
+        self.assertEqual(self.mock_floating_ip_list_rep[0]['ip'],
+                         ip['floating_ip_address'])
+        self.assert_calls()
+
+    def test_delete_floating_ip_existing(self):
+
+        self.register_uris([
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute',
+                     append=['os-floating-ips', 'a-wild-id-appears'])),
+            dict(method='GET',
+                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
+                 json={'floating_ips': []}),
+        ])
 
         ret = self.cloud.delete_floating_ip(
             floating_ip_id='a-wild-id-appears')
 
-        mock_nova_client.floating_ips.delete.assert_called_with(
-            floating_ip='a-wild-id-appears')
         self.assertTrue(ret)
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'nova_client')
-    @patch.object(OpenStackCloud, 'get_floating_ip')
-    @patch.object(OpenStackCloud, '_use_neutron_floating')
-    def test_delete_floating_ip_not_found(
-            self, mock_use_floating, mock_get_floating_ip, mock_nova_client):
-        mock_use_floating.return_value = False
-        mock_get_floating_ip.return_value = None
-        mock_nova_client.floating_ips.delete.side_effect = n_exc.NotFound(
-            code=404)
+    def test_delete_floating_ip_not_found(self):
+        self.register_uris([
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute',
+                     append=['os-floating-ips', 'a-wild-id-appears']),
+                 status_code=404),
+        ])
 
         ret = self.cloud.delete_floating_ip(
             floating_ip_id='a-wild-id-appears')
 
         self.assertFalse(ret)
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'nova_client')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_attach_ip_to_server(self, mock_has_service, mock_nova_client):
-        mock_has_service.side_effect = has_service_side_effect
-        mock_nova_client.floating_ips.list.return_value = self.floating_ips
+    def test_attach_ip_to_server(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
+                 json={'floating_ips': self.mock_floating_ip_list_rep}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute',
+                     append=['servers', self.fake_server.id, 'action']),
+                 validate=dict(
+                     json={
+                         "addFloatingIp": {
+                             "address": "203.0.113.1",
+                             "fixed_address": "192.0.2.129",
+                         }})),
+        ])
 
         self.cloud._attach_ip_to_server(
-            server=self.fake_server, floating_ip=self.floating_ip,
+            server=self.fake_server,
+            floating_ip=self.cloud._normalize_floating_ip(
+                self.mock_floating_ip_list_rep[0]),
             fixed_address='192.0.2.129')
 
-        mock_nova_client.servers.add_floating_ip.assert_called_with(
-            server='server-id', address='203.0.113.1',
-            fixed_address='192.0.2.129')
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'nova_client')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_detach_ip_from_server(self, mock_has_service, mock_nova_client):
-        mock_has_service.side_effect = has_service_side_effect
-        mock_nova_client.floating_ips.list.return_value = [
-            fakes.FakeFloatingIP(**ip) for ip in self.mock_floating_ip_list_rep
-        ]
+    def test_detach_ip_from_server(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
+                 json={'floating_ips': self.mock_floating_ip_list_rep}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute',
+                     append=['servers', self.fake_server.id, 'action']),
+                 validate=dict(
+                     json={
+                         "removeFloatingIp": {
+                             "address": "203.0.113.1",
+                         }})),
+        ])
 
         self.cloud.detach_ip_from_server(
             server_id='server-id', floating_ip_id=1)
+        self.assert_calls()
 
-        mock_nova_client.servers.remove_floating_ip.assert_called_with(
-            server='server-id', address='203.0.113.1')
-
-    @patch.object(OpenStackCloud, 'nova_client')
-    @patch.object(OpenStackCloud, 'has_service')
-    def test_add_ip_from_pool(self, mock_has_service, mock_nova_client):
-        mock_has_service.side_effect = has_service_side_effect
-        mock_nova_client.floating_ips.list.return_value = self.floating_ips
+    def test_add_ip_from_pool(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
+                 json={'floating_ips': self.mock_floating_ip_list_rep}),
+            dict(method='GET',
+                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
+                 json={'floating_ips': self.mock_floating_ip_list_rep}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute',
+                     append=['servers', self.fake_server.id, 'action']),
+                 validate=dict(
+                     json={
+                         "addFloatingIp": {
+                             "address": "203.0.113.1",
+                             "fixed_address": "192.0.2.129",
+                         }})),
+        ])
 
         server = self.cloud._add_ip_from_pool(
             server=self.fake_server,
@@ -256,16 +302,8 @@ class TestFloatingIP(base.TestCase):
             fixed_address='192.0.2.129')
 
         self.assertEqual(server, self.fake_server)
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'delete_floating_ip')
-    @patch.object(OpenStackCloud, 'list_floating_ips')
-    @patch.object(OpenStackCloud, '_use_neutron_floating')
-    def test_cleanup_floating_ips(
-            self, mock_use_neutron_floating, mock_list_floating_ips,
-            mock_delete_floating_ip):
-        mock_use_neutron_floating.return_value = False
-
+    def test_cleanup_floating_ips(self):
+        # This should not call anything because it's unsafe on nova.
         self.cloud.delete_unattached_floating_ips()
-
-        mock_delete_floating_ip.assert_not_called()
-        mock_list_floating_ips.assert_not_called()

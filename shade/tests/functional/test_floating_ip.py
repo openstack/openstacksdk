@@ -166,8 +166,8 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
                 content.text_content(pprint.pformat(
                     self.user_cloud.list_networks())))
         else:
-            # ToDo: remove once we have list/get methods for nova networks
-            nets = self.user_cloud.nova_client.networks.list()
+            # Find network names for nova-net
+            nets = self.user_cloud._compute_client.get('/os-tenant-networks')
             self.addDetail(
                 'networks-nova',
                 content.text_content(pprint.pformat(
