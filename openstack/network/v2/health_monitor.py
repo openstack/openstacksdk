@@ -35,7 +35,7 @@ class HealthMonitor(resource.Resource):
     )
 
     # Properties
-    #: The time, in milliseconds, between sending probes to members.
+    #: The time, in seconds, between sending probes to members.
     delay = resource.Body('delay')
     #: Expected HTTP codes for a passing HTTP(S) monitor.
     expected_codes = resource.Body('expected_codes')
@@ -53,7 +53,7 @@ class HealthMonitor(resource.Resource):
     pool_ids = resource.Body('pools', type=list)
     #: The ID of the project this health monitor is associated with.
     project_id = resource.Body('tenant_id')
-    #: The maximum number of milliseconds for a monitor to wait for a
+    #: The maximum number of seconds for a monitor to wait for a
     #: connection to be established before it times out. This value must
     #: be less than the delay value.
     timeout = resource.Body('timeout')
