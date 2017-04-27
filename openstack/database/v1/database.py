@@ -11,11 +11,10 @@
 # under the License.
 
 from openstack.database import database_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Database(resource.Resource):
-    id_attribute = 'name'
     resource_key = 'database'
     resources_key = 'databases'
     base_path = '/instances/%(instance_id)s/databases'
@@ -28,11 +27,11 @@ class Database(resource.Resource):
 
     # Properties
     #: Set of symbols and encodings. The default character set is ``utf8``.
-    character_set = resource.prop('character_set')
+    character_set = resource.Body('character_set')
     #: Set of rules for comparing characters in a character set.
     #: The default value for collate is ``utf8_general_ci``.
-    collate = resource.prop('collate')
+    collate = resource.Body('collate')
     #: The ID of the instance
-    instance_id = resource.prop('instance_id')
+    instance_id = resource.URI('instance_id')
     #: The name of the database
-    name = resource.prop('name')
+    name = resource.Body('name', alternate_id=True)

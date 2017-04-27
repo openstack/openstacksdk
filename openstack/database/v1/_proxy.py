@@ -14,14 +14,16 @@ from openstack.database.v1 import database as _database
 from openstack.database.v1 import flavor as _flavor
 from openstack.database.v1 import instance as _instance
 from openstack.database.v1 import user as _user
-from openstack import proxy
+from openstack import proxy2
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy2.BaseProxy):
 
-    def create_database(self, **attrs):
+    def create_database(self, instance, **attrs):
         """Create a new database from attributes
 
+        :param instance: This can be either the ID of an instance
+                         or a :class:`~openstack.database.v1.instance.Instance`
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.database.v1.database.Database`,
                            comprised of the properties on the Database class.
@@ -29,13 +31,19 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of server creation
         :rtype: :class:`~openstack.database.v1.database.Database`
         """
-        return self._create(_database.Database, **attrs)
+        instance = self._get_resource(_instance.Instance, instance)
+        return self._create(_database.Database, instance_id=instance.id,
+                            **attrs)
 
-    def delete_database(self, database, ignore_missing=True):
+    def delete_database(self, database, instance=None, ignore_missing=True):
         """Delete a database
 
         :param database: The value can be either the ID of a database or a
                :class:`~openstack.database.v1.database.Database` instance.
+        :param instance: This parameter needs to be specified when
+                         an ID is given as `database`.
+                         It can be either the ID of an instance
+                         or a :class:`~openstack.database.v1.instance.Instance`
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the database does not exist.
@@ -44,13 +52,17 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(_database.Database, database,
+        instance_id = self._get_uri_attribute(database, instance,
+                                              "instance_id")
+        self._delete(_database.Database, database, instance_id=instance_id,
                      ignore_missing=ignore_missing)
 
-    def find_database(self, name_or_id, ignore_missing=True):
+    def find_database(self, name_or_id, instance, ignore_missing=True):
         """Find a single database
 
         :param name_or_id: The name or ID of a database.
+        :param instance: This can be either the ID of an instance
+                         or a :class:`~openstack.database.v1.instance.Instance`
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the resource does not exist.
@@ -58,23 +70,34 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.database.v1.database.Database` or None
         """
+        instance = self._get_resource(_instance.Instance, instance)
         return self._find(_database.Database, name_or_id,
+                          instance_id=instance.id,
                           ignore_missing=ignore_missing)
 
-    def databases(self, **query):
+    def databases(self, instance, **query):
         """Return a generator of databases
 
+        :param instance: This can be either the ID of an instance
+                         or a :class:`~openstack.database.v1.instance.Instance`
+                       instance that the interface belongs to.
         :param kwargs \*\*query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of database objects
         :rtype: :class:`~openstack.database.v1.database.Database`
         """
-        return self._list(_database.Database, paginated=False, **query)
+        instance = self._get_resource(_instance.Instance, instance)
+        return self._list(_database.Database, paginated=False,
+                          instance_id=instance.id, **query)
 
-    def get_database(self, database):
+    def get_database(self, database, instance=None):
         """Get a single database
 
+        :param instance: This parameter needs to be specified when
+                         an ID is given as `database`.
+                         It can be either the ID of an instance
+                         or a :class:`~openstack.database.v1.instance.Instance`
         :param database: The value can be the ID of a database or a
                          :class:`~openstack.database.v1.database.Database`
                          instance.
@@ -202,9 +225,11 @@ class Proxy(proxy.BaseProxy):
         """
         return self._update(_instance.Instance, instance, **attrs)
 
-    def create_user(self, **attrs):
+    def create_user(self, instance, **attrs):
         """Create a new user from attributes
 
+        :param instance: This can be either the ID of an instance
+                         or a :class:`~openstack.database.v1.instance.Instance`
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.database.v1.user.User`,
                            comprised of the properties on the User class.
@@ -212,13 +237,18 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of server creation
         :rtype: :class:`~openstack.database.v1.user.User`
         """
-        return self._create(_user.User, **attrs)
+        instance = self._get_resource(_instance.Instance, instance)
+        return self._create(_user.User, instance_id=instance.id, **attrs)
 
-    def delete_user(self, user, ignore_missing=True):
+    def delete_user(self, user, instance=None, ignore_missing=True):
         """Delete a user
 
         :param user: The value can be either the ID of a user or a
                      :class:`~openstack.database.v1.user.User` instance.
+        :param instance: This parameter needs to be specified when
+                         an ID is given as `user`.
+                         It can be either the ID of an instance
+                         or a :class:`~openstack.database.v1.instance.Instance`
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the user does not exist.
@@ -227,12 +257,16 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        self._delete(_user.User, user, ignore_missing=ignore_missing)
+        instance = self._get_resource(_instance.Instance, instance)
+        self._delete(_user.User, user, ignore_missing=ignore_missing,
+                     instance_id=instance.id)
 
-    def find_user(self, name_or_id, ignore_missing=True):
+    def find_user(self, name_or_id, instance, ignore_missing=True):
         """Find a single user
 
         :param name_or_id: The name or ID of a user.
+        :param instance: This can be either the ID of an instance
+                         or a :class:`~openstack.database.v1.instance.Instance`
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the resource does not exist.
@@ -240,28 +274,38 @@ class Proxy(proxy.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.database.v1.user.User` or None
         """
-        return self._find(_user.User, name_or_id,
+        instance = self._get_resource(_instance.Instance, instance)
+        return self._find(_user.User, name_or_id, instance_id=instance.id,
                           ignore_missing=ignore_missing)
 
-    def users(self, **query):
+    def users(self, instance, **query):
         """Return a generator of users
 
+        :param instance: This can be either the ID of an instance
+                         or a :class:`~openstack.database.v1.instance.Instance`
         :param kwargs \*\*query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of user objects
         :rtype: :class:`~openstack.database.v1.user.User`
         """
-        return self._list(_user.User, paginated=False, **query)
+        instance = self._get_resource(_instance.Instance, instance)
+        return self._list(_user.User, instance_id=instance.id,
+                          paginated=False, **query)
 
-    def get_user(self, user):
+    def get_user(self, user, instance=None):
         """Get a single user
 
         :param user: The value can be the ID of a user or a
                      :class:`~openstack.database.v1.user.User` instance.
+        :param instance: This parameter needs to be specified when
+                         an ID is given as `database`.
+                         It can be either the ID of an instance
+                         or a :class:`~openstack.database.v1.instance.Instance`
 
         :returns: One :class:`~openstack.database.v1.user.User`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
+        instance = self._get_resource(_instance.Instance, instance)
         return self._get(_user.User, user)

@@ -33,12 +33,12 @@ class TestFlavor(testtools.TestCase):
         self.assertEqual('database', sot.service.service_type)
         self.assertTrue(sot.allow_list)
         self.assertFalse(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
 
     def test_make_it(self):
-        sot = flavor.Flavor(EXAMPLE)
+        sot = flavor.Flavor(**EXAMPLE)
         self.assertEqual(IDENTIFIER, sot.id)
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['name'], sot.name)
