@@ -248,53 +248,53 @@ class TestMemoryCache(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_create_volume_invalidates(self):
-        fake_volb4 = fakes.FakeVolume('volume1', 'available',
-                                      'Volume 1 Display Name')
-        fake_volb4_dict = meta.obj_to_dict(fake_volb4)
-        fake_vol = fakes.FakeVolume('12345', 'creating', '')
-        fake_vol_dict = meta.obj_to_dict(fake_vol)
-
-        def now_available(request, context):
-            fake_vol.status = 'available'
-            fake_vol_dict['status'] = 'available'
-            return {'volume': fake_vol_dict}
+        fake_volb4 = meta.obj_to_dict(
+            fakes.FakeVolume('volume1', 'available', ''))
+        _id = '12345'
+        fake_vol_creating = meta.obj_to_dict(
+            fakes.FakeVolume(_id, 'creating', ''))
+        fake_vol_avail = meta.obj_to_dict(
+            fakes.FakeVolume(_id, 'available', ''))
 
         def now_deleting(request, context):
-            fake_vol.status = 'deleting'
-            fake_vol_dict['status'] = 'deleting'
+            fake_vol_avail['status'] = 'deleting'
 
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volb4_dict]}),
+                 json={'volumes': [fake_volb4]}),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes']),
-                 json={'volume': fake_vol_dict}),
+                 json={'volume': fake_vol_creating}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', fake_vol.id]),
-                 json=now_available),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volb4_dict, fake_vol_dict]}),
+                     'volumev2', 'public', append=['volumes', _id]),
+                 json={'volume': [fake_volb4, fake_vol_creating]}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volb4_dict, fake_vol_dict]}),
+                 json={'volumes': [fake_volb4, fake_vol_creating]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [fake_volb4, fake_vol_avail]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [fake_volb4, fake_vol_avail]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', fake_vol.id]),
+                     'volumev2', 'public', append=['volumes', _id]),
                  json=now_deleting),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volb4_dict]})])
+                 json={'volumes': [fake_volb4]})])
 
         self.assertEqual(
-            [self.cloud._normalize_volume(fake_volb4_dict)],
+            [self.cloud._normalize_volume(fake_volb4)],
             self.cloud.list_volumes())
         volume = dict(display_name='junk_vol',
                       size=1,
@@ -304,14 +304,14 @@ class TestMemoryCache(base.RequestsMockTestCase):
         # because the first volume was available and thus would already be
         # cached.
         self.assertEqual(
-            [self.cloud._normalize_volume(fake_volb4_dict),
-             self.cloud._normalize_volume(fake_vol_dict)],
+            [self.cloud._normalize_volume(fake_volb4),
+             self.cloud._normalize_volume(fake_vol_avail)],
             self.cloud.list_volumes())
-        self.cloud.delete_volume(fake_vol.id)
+        self.cloud.delete_volume(_id)
         # And now delete and check same thing since list is cached as all
         # available
         self.assertEqual(
-            [self.cloud._normalize_volume(fake_volb4_dict)],
+            [self.cloud._normalize_volume(fake_volb4)],
             self.cloud.list_volumes())
         self.assert_calls()
 
