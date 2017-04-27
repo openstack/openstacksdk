@@ -14,10 +14,13 @@ from openstack.message.v1 import claim
 from openstack.message.v1 import message
 from openstack.message.v1 import queue
 from openstack import proxy
+from openstack import utils
 
 
 class Proxy(proxy.BaseProxy):
 
+    @utils.deprecated(deprecated_in="0.9.16", removed_in="0.9.17",
+                      details="Message v1 is deprecated since 2014. Use v2.")
     def create_queue(self, **attrs):
         """Create a new queue from attributes
 
@@ -30,6 +33,8 @@ class Proxy(proxy.BaseProxy):
         """
         return self._create(queue.Queue, **attrs)
 
+    @utils.deprecated(deprecated_in="0.9.16", removed_in="0.9.17",
+                      details="Message v1 is deprecated since 2014. Use v2.")
     def delete_queue(self, value, ignore_missing=True):
         """Delete a queue
 
@@ -45,6 +50,8 @@ class Proxy(proxy.BaseProxy):
         """
         return self._delete(queue.Queue, value, ignore_missing=ignore_missing)
 
+    @utils.deprecated(deprecated_in="0.9.16", removed_in="0.9.17",
+                      details="Message v1 is deprecated since 2014. Use v2.")
     def create_messages(self, values):
         """Create new messages
 
@@ -59,6 +66,8 @@ class Proxy(proxy.BaseProxy):
         """
         return message.Message.create_messages(self._session, values)
 
+    @utils.deprecated(deprecated_in="0.9.16", removed_in="0.9.17",
+                      details="Message v1 is deprecated since 2014. Use v2.")
     def claim_messages(self, value):
         """Claims a set of messages.
 
@@ -71,6 +80,8 @@ class Proxy(proxy.BaseProxy):
         """
         return claim.Claim.claim_messages(self._session, value)
 
+    @utils.deprecated(deprecated_in="0.9.16", removed_in="0.9.17",
+                      details="Message v1 is deprecated since 2014. Use v2.")
     def delete_message(self, value):
         """Delete a message
 
