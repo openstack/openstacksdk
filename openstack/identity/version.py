@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.identity import identity_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Version(resource.Resource):
@@ -26,12 +26,12 @@ class Version(resource.Resource):
     allow_list = True
 
     # Properties
-    media_types = resource.prop('media-types')
-    status = resource.prop('status')
-    updated = resource.prop('updated')
+    media_types = resource.Body('media-types')
+    status = resource.Body('status')
+    updated = resource.Body('updated')
 
     @classmethod
-    def list(cls, session, **params):
+    def list(cls, session, paginated=False, **params):
         resp = session.get(cls.base_path, endpoint_filter=cls.service,
                            params=params)
         resp = resp.json()

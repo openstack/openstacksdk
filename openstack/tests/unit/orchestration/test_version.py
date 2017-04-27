@@ -31,13 +31,13 @@ class TestVersion(testtools.TestCase):
         self.assertEqual('/', sot.base_path)
         self.assertEqual('orchestration', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_retrieve)
+        self.assertFalse(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = version.Version(EXAMPLE)
+        sot = version.Version(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['status'], sot.status)
