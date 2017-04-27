@@ -10,13 +10,35 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.identity.v2 import extension as _extension
 from openstack.identity.v2 import role as _role
 from openstack.identity.v2 import tenant as _tenant
 from openstack.identity.v2 import user as _user
-from openstack import proxy
+from openstack import proxy2 as proxy
 
 
 class Proxy(proxy.BaseProxy):
+
+    def extensions(self):
+        """Retrieve a generator of extensions
+
+        :returns: A generator of extension instances.
+        :rtype: :class:`~openstack.identity.v2.extension.Extension`
+        """
+        return self._list(_extension.Extension, paginated=False)
+
+    def get_extension(self, extension):
+        """Get a single extension
+
+        :param extension: The value can be the ID of an extension or a
+                          :class:`~openstack.identity.v2.extension.Extension`
+                          instance.
+
+        :returns: One :class:`~openstack.identity.v2.extension.Extension`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no extension can be found.
+        """
+        return self._get(_extension.Extension, extension)
 
     def create_role(self, **attrs):
         """Create a new role from attributes

@@ -32,13 +32,13 @@ class TestUser(testtools.TestCase):
         self.assertEqual('/users', sot.base_path)
         self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = user.User(EXAMPLE)
+        sot = user.User(**EXAMPLE)
         self.assertEqual(EXAMPLE['email'], sot.email)
         self.assertTrue(sot.is_enabled)
         self.assertEqual(EXAMPLE['id'], sot.id)

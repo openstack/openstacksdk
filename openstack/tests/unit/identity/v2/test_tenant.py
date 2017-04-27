@@ -32,13 +32,13 @@ class TestTenant(testtools.TestCase):
         self.assertEqual('/tenants', sot.base_path)
         self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = tenant.Tenant(EXAMPLE)
+        sot = tenant.Tenant(**EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertTrue(sot.is_enabled)
         self.assertEqual(EXAMPLE['id'], sot.id)
