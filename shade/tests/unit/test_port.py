@@ -19,13 +19,11 @@ test_port
 Test port resource (managed by neutron)
 """
 
-from mock import patch
-from shade import OpenStackCloud
 from shade.exc import OpenStackCloudException
 from shade.tests.unit import base
 
 
-class TestPort(base.TestCase):
+class TestPort(base.RequestsMockTestCase):
     mock_neutron_port_create_rep = {
         'port': {
             'status': 'DOWN',
@@ -141,19 +139,23 @@ class TestPort(base.TestCase):
         ]
     }
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    def test_create_port(self, mock_neutron_client):
-        mock_neutron_client.create_port.return_value = \
-            self.mock_neutron_port_create_rep
-
+    def test_create_port(self):
+        self.register_uris([
+            dict(method="POST",
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json']),
+                 json=self.mock_neutron_port_create_rep,
+                 validate=dict(
+                     json={'port': {
+                         'network_id': 'test-net-id',
+                         'name': 'test-port-name',
+                         'admin_state_up': True}}))
+        ])
         port = self.cloud.create_port(
             network_id='test-net-id', name='test-port-name',
             admin_state_up=True)
-
-        mock_neutron_client.create_port.assert_called_with(
-            body={'port': dict(network_id='test-net-id', name='test-port-name',
-                               admin_state_up=True)})
         self.assertEqual(self.mock_neutron_port_create_rep['port'], port)
+        self.assert_calls()
 
     def test_create_port_parameters(self):
         """Test that we detect invalid arguments passed to create_port"""
@@ -162,30 +164,44 @@ class TestPort(base.TestCase):
             network_id='test-net-id', nome='test-port-name',
             stato_amministrativo_porta=True)
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    def test_create_port_exception(self, mock_neutron_client):
-        mock_neutron_client.create_port.side_effect = Exception('blah')
-
+    def test_create_port_exception(self):
+        self.register_uris([
+            dict(method="POST",
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json']),
+                 status_code=500,
+                 validate=dict(
+                     json={'port': {
+                         'network_id': 'test-net-id',
+                         'name': 'test-port-name',
+                         'admin_state_up': True}}))
+        ])
         self.assertRaises(
             OpenStackCloudException, self.cloud.create_port,
             network_id='test-net-id', name='test-port-name',
             admin_state_up=True)
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    def test_update_port(self, mock_neutron_client):
-        mock_neutron_client.list_ports.return_value = \
-            self.mock_neutron_port_list_rep
-        mock_neutron_client.update_port.return_value = \
-            self.mock_neutron_port_update_rep
-
+    def test_update_port(self):
+        port_id = 'd80b1a3b-4fc1-49f3-952e-1e2ab7081d8b'
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json']),
+                 json=self.mock_neutron_port_list_rep),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'ports', '%s.json' % port_id]),
+                 json=self.mock_neutron_port_update_rep,
+                 validate=dict(
+                     json={'port': {'name': 'test-port-name-updated'}}))
+        ])
         port = self.cloud.update_port(
-            name_or_id='d80b1a3b-4fc1-49f3-952e-1e2ab7081d8b',
-            name='test-port-name-updated')
+            name_or_id=port_id, name='test-port-name-updated')
 
-        mock_neutron_client.update_port.assert_called_with(
-            port='d80b1a3b-4fc1-49f3-952e-1e2ab7081d8b',
-            body={'port': dict(name='test-port-name-updated')})
         self.assertEqual(self.mock_neutron_port_update_rep['port'], port)
+        self.assert_calls()
 
     def test_update_port_parameters(self):
         """Test that we detect invalid arguments passed to update_port"""
@@ -193,72 +209,140 @@ class TestPort(base.TestCase):
             TypeError, self.cloud.update_port,
             name_or_id='test-port-id', nome='test-port-name-updated')
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    def test_update_port_exception(self, mock_neutron_client):
-        mock_neutron_client.list_ports.return_value = \
-            self.mock_neutron_port_list_rep
-        mock_neutron_client.update_port.side_effect = Exception('blah')
-
+    def test_update_port_exception(self):
+        port_id = 'd80b1a3b-4fc1-49f3-952e-1e2ab7081d8b'
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json']),
+                 json=self.mock_neutron_port_list_rep),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'ports', '%s.json' % port_id]),
+                 status_code=500,
+                 validate=dict(
+                     json={'port': {'name': 'test-port-name-updated'}}))
+        ])
         self.assertRaises(
             OpenStackCloudException, self.cloud.update_port,
             name_or_id='d80b1a3b-4fc1-49f3-952e-1e2ab7081d8b',
             name='test-port-name-updated')
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    def test_list_ports(self, mock_neutron_client):
-        mock_neutron_client.list_ports.return_value = \
-            self.mock_neutron_port_list_rep
-
+    def test_list_ports(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json']),
+                 json=self.mock_neutron_port_list_rep)
+        ])
         ports = self.cloud.list_ports()
-
-        mock_neutron_client.list_ports.assert_called_with()
         self.assertItemsEqual(self.mock_neutron_port_list_rep['ports'], ports)
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    def test_list_ports_exception(self, mock_neutron_client):
-        mock_neutron_client.list_ports.side_effect = Exception('blah')
-
+    def test_list_ports_exception(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json']),
+                 status_code=500)
+        ])
         self.assertRaises(OpenStackCloudException, self.cloud.list_ports)
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    def test_search_ports_by_id(self, mock_neutron_client):
-        mock_neutron_client.list_ports.return_value = \
-            self.mock_neutron_port_list_rep
+    def test_search_ports_by_id(self):
+        port_id = 'f71a6703-d6de-4be1-a91a-a570ede1d159'
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json']),
+                 json=self.mock_neutron_port_list_rep)
+        ])
+        ports = self.cloud.search_ports(name_or_id=port_id)
 
-        ports = self.cloud.search_ports(
-            name_or_id='f71a6703-d6de-4be1-a91a-a570ede1d159')
-
-        mock_neutron_client.list_ports.assert_called_with()
         self.assertEqual(1, len(ports))
         self.assertEqual('fa:16:3e:bb:3c:e4', ports[0]['mac_address'])
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    def test_search_ports_by_name(self, mock_neutron_client):
-        mock_neutron_client.list_ports.return_value = \
-            self.mock_neutron_port_list_rep
+    def test_search_ports_by_name(self):
+        port_name = "first-port"
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json']),
+                 json=self.mock_neutron_port_list_rep)
+        ])
+        ports = self.cloud.search_ports(name_or_id=port_name)
 
-        ports = self.cloud.search_ports(name_or_id='first-port')
-
-        mock_neutron_client.list_ports.assert_called_with()
         self.assertEqual(1, len(ports))
         self.assertEqual('fa:16:3e:58:42:ed', ports[0]['mac_address'])
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    def test_search_ports_not_found(self, mock_neutron_client):
-        mock_neutron_client.list_ports.return_value = \
-            self.mock_neutron_port_list_rep
-
+    def test_search_ports_not_found(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json']),
+                 json=self.mock_neutron_port_list_rep)
+        ])
         ports = self.cloud.search_ports(name_or_id='non-existent')
-
-        mock_neutron_client.list_ports.assert_called_with()
         self.assertEqual(0, len(ports))
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'neutron_client')
-    def test_delete_port(self, mock_neutron_client):
-        mock_neutron_client.list_ports.return_value = \
-            self.mock_neutron_port_list_rep
+    def test_delete_port(self):
+        port_id = 'd80b1a3b-4fc1-49f3-952e-1e2ab7081d8b'
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json']),
+                 json=self.mock_neutron_port_list_rep),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'ports', '%s.json' % port_id]),
+                 json={})
+        ])
 
-        self.cloud.delete_port(name_or_id='first-port')
+        self.assertTrue(self.cloud.delete_port(name_or_id='first-port'))
 
-        mock_neutron_client.delete_port.assert_called_with(
-            port='d80b1a3b-4fc1-49f3-952e-1e2ab7081d8b')
+    def test_delete_port_not_found(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json']),
+                 json=self.mock_neutron_port_list_rep)
+        ])
+        self.assertFalse(self.cloud.delete_port(name_or_id='non-existent'))
+        self.assert_calls()
+
+    def test_delete_subnet_multiple_found(self):
+        port_name = "port-name"
+        port1 = dict(id='123', name=port_name)
+        port2 = dict(id='456', name=port_name)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json']),
+                 json={'ports': [port1, port2]})
+        ])
+        self.assertRaises(OpenStackCloudException,
+                          self.cloud.delete_port, port_name)
+        self.assert_calls()
+
+    def test_delete_subnet_multiple_using_id(self):
+        port_name = "port-name"
+        port1 = dict(id='123', name=port_name)
+        port2 = dict(id='456', name=port_name)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json']),
+                 json={'ports': [port1, port2]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'ports', '%s.json' % port1['id']]),
+                 json={})
+        ])
+        self.assertTrue(self.cloud.delete_port(name_or_id=port1['id']))
+        self.assert_calls()
