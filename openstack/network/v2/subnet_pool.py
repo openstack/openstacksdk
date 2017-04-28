@@ -11,10 +11,11 @@
 # under the License.
 
 from openstack.network import network_service
+from openstack.network.v2 import tag
 from openstack import resource2 as resource
 
 
-class SubnetPool(resource.Resource):
+class SubnetPool(resource.Resource, tag.TagMixin):
     resource_key = 'subnetpool'
     resources_key = 'subnetpools'
     base_path = '/subnetpools'
@@ -32,6 +33,7 @@ class SubnetPool(resource.Resource):
         'name',
         is_shared='shared',
         project_id='tenant_id',
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties
@@ -77,3 +79,6 @@ class SubnetPool(resource.Resource):
     revision_number = resource.Body('revision_number', type=int)
     #: Timestamp when the subnet pool was last updated.
     updated_at = resource.Body('updated_at')
+    #: A list of assocaited tags
+    #: *Type: list of tag strings*
+    tags = resource.Body('tags', type=list)

@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack.network.v2 import address_scope as _address_scope
 from openstack.network.v2 import agent as _agent
 from openstack.network.v2 import auto_allocated_topology as \
@@ -2926,6 +2927,30 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class:`~openstack.network.v2.subnet_pool.SubnetPool`
         """
         return self._update(_subnet_pool.SubnetPool, subnet_pool, **attrs)
+
+    @staticmethod
+    def _check_tag_support(resource):
+        try:
+            # Check 'tags' attribute exists
+            resource.tags
+        except AttributeError:
+            raise exceptions.InvalidRequest(
+                '%s resource does not support tag' %
+                resource.__class__.__name__)
+
+    def set_tags(self, resource, tags):
+        """Replace tags of a specified resource with specified tags
+
+        :param resource:
+            :class:`~openstack.resource2.Resource` instance.
+        :param tags: New tags to be set.
+        :type tags: "list"
+
+        :returns: The updated resource
+        :rtype: :class:`~openstack.resource2.Resource`
+        """
+        self._check_tag_support(resource)
+        return resource.set_tags(self._session, tags)
 
     def create_vpn_service(self, **attrs):
         """Create a new vpn service from attributes

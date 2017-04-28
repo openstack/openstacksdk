@@ -110,7 +110,11 @@ class TestNetwork(testtools.TestCase):
              'is_shared': 'shared',
              'provider_network_type': 'provider:network_type',
              'provider_physical_network': 'provider:physical_network',
-             'provider_segmentation_id': 'provider:segmentation_id'
+             'provider_segmentation_id': 'provider:segmentation_id',
+             'tags': 'tags',
+             'any_tags': 'tags-any',
+             'not_tags': 'not-tags',
+             'not_any_tags': 'not-tags-any',
              },
             sot._query_mapping._mapping)
 
