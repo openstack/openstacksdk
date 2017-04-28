@@ -22,7 +22,7 @@ from shade import OpenStackCloudException
 from shade.tests.functional import base
 
 
-class TestUsers(base.BaseFunctionalTestCase):
+class TestUsers(base.KeystoneBaseFunctionalTestCase):
     def setUp(self):
         super(TestUsers, self).setUp()
         self.user_prefix = self.getUniqueString('user')

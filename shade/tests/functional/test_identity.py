@@ -24,7 +24,7 @@ from shade import OpenStackCloudException
 from shade.tests.functional import base
 
 
-class TestIdentity(base.BaseFunctionalTestCase):
+class TestIdentity(base.KeystoneBaseFunctionalTestCase):
     def setUp(self):
         super(TestIdentity, self).setUp()
         self.role_prefix = 'test_role' + ''.join(

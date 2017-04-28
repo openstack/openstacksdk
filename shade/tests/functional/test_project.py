@@ -25,7 +25,7 @@ from shade.exc import OpenStackCloudException
 from shade.tests.functional import base
 
 
-class TestProject(base.BaseFunctionalTestCase):
+class TestProject(base.KeystoneBaseFunctionalTestCase):
 
     def setUp(self):
         super(TestProject, self).setUp()

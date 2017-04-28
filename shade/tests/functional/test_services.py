@@ -29,7 +29,7 @@ from shade.exc import OpenStackCloudUnavailableFeature
 from shade.tests.functional import base
 
 
-class TestServices(base.BaseFunctionalTestCase):
+class TestServices(base.KeystoneBaseFunctionalTestCase):
 
     service_attributes = ['id', 'name', 'type', 'description']
 
