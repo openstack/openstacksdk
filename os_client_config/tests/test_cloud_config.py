@@ -187,8 +187,29 @@ class TestCloudConfig(base.TestCase):
         cc.get_session()
         mock_session.assert_called_with(
             auth=mock.ANY,
-            verify=True, cert=None, timeout=None,
-            app_name=None, app_version=None)
+            verify=True, cert=None, timeout=None)
+        self.assertEqual(
+            fake_session.additional_user_agent,
+            [('os-client-config', '1.2.3')])
+
+    @mock.patch.object(ksa_session, 'Session')
+    def test_get_session_with_app_name(self, mock_session):
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        fake_session = mock.Mock()
+        fake_session.additional_user_agent = []
+        fake_session.app_name = None
+        fake_session.app_version = None
+        mock_session.return_value = fake_session
+        cc = cloud_config.CloudConfig(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock(),
+            app_name="test_app", app_version="test_version")
+        cc.get_session()
+        mock_session.assert_called_with(
+            auth=mock.ANY,
+            verify=True, cert=None, timeout=None)
+        self.assertEqual(fake_session.app_name, "test_app")
+        self.assertEqual(fake_session.app_version, "test_version")
         self.assertEqual(
             fake_session.additional_user_agent,
             [('os-client-config', '1.2.3')])
@@ -206,8 +227,7 @@ class TestCloudConfig(base.TestCase):
         cc.get_session()
         mock_session.assert_called_with(
             auth=mock.ANY,
-            verify=True, cert=None, timeout=9,
-            app_name=None, app_version=None)
+            verify=True, cert=None, timeout=9)
         self.assertEqual(
             fake_session.additional_user_agent,
             [('os-client-config', '1.2.3')])

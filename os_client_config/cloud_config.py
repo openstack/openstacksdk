@@ -215,14 +215,20 @@ class CloudConfig(object):
             requestsexceptions.squelch_warnings(insecure_requests=not verify)
             self._keystone_session = self._session_constructor(
                 auth=self._auth,
-                app_name=self._app_name,
-                app_version=self._app_version,
                 verify=verify,
                 cert=cert,
                 timeout=self.config['api_timeout'])
             if hasattr(self._keystone_session, 'additional_user_agent'):
                 self._keystone_session.additional_user_agent.append(
                     ('os-client-config', os_client_config.__version__))
+            # Using old keystoneauth with new os-client-config fails if
+            # we pass in app_name and app_version. Those are not essential,
+            # nor a reason to bump our minimum, so just test for the session
+            # having the attribute post creation and set them then.
+            if hasattr(self._keystone_session, 'app_name'):
+                self._keystone_session.app_name = self._app_name
+            if hasattr(self._keystone_session, 'app_version'):
+                self._keystone_session.app_version = self._app_version
         return self._keystone_session
 
     def get_session_client(self, service_key):

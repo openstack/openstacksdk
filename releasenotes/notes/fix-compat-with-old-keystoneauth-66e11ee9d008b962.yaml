@@ -1,0 +1,7 @@
+---
+issues:
+  - Fixed a regression when using latest os-client-config with
+    the keystoneauth from stable/newton. Although this isn't a
+    super common combination, the added feature that broke the
+    interaction is really not worthy of the incompatibility, so
+    a workaround was added.
