@@ -929,6 +929,9 @@ class OpenStackCloud(_normalize.Normalizer):
         # normalized dict won't work
         kwargs['user'] = self.get_user_by_id(user['id'], normalize=False)
 
+        # TODO(mordred) When this changes to REST, force interface=admin
+        # in the adapter call if it's an admin force call (and figure out how
+        # to make that disctinction)
         if self.cloud_config.get_api_version('identity') != '3':
             # Do not pass v3 args to a v2 keystone.
             kwargs.pop('domain_id', None)

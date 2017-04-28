@@ -776,6 +776,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         type_ = kwargs.pop('type', None)
         service_type = kwargs.pop('service_type', None)
 
+        # TODO(mordred) When this changes to REST, force interface=admin
+        # in the adapter call
         if self.cloud_config.get_api_version('identity').startswith('2'):
             kwargs['service_type'] = type_ or service_type
         else:
@@ -800,6 +802,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 'Unavailable Feature: Service update requires Identity v3'
             )
 
+        # TODO(mordred) When this changes to REST, force interface=admin
+        # in the adapter call
         # NOTE(SamYaple): Keystone v3 only accepts 'type' but shade accepts
         #                 both 'type' and 'service_type' with a preference
         #                 towards 'type'
@@ -825,6 +829,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call.
         """
+        # TODO(mordred) When this changes to REST, force interface=admin
+        # in the adapter call
         with _utils.shade_exceptions():
             services = self.manager.submit_task(_tasks.ServiceList())
         return _utils.normalize_keystone_services(services)
@@ -882,6 +888,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             service_kwargs = {'id': service['id']}
         else:
             service_kwargs = {'service': service['id']}
+        # TODO(mordred) When this changes to REST, force interface=admin
+        # in the adapter call
         with _utils.shade_exceptions("Failed to delete service {id}".format(
                 id=service['id'])):
             self.manager.submit_task(_tasks.ServiceDelete(**service_kwargs))
@@ -971,6 +979,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             if region is not None:
                 kwargs['region'] = region
 
+        # TODO(mordred) When this changes to REST, force interface=admin
+        # in the adapter call
         with _utils.shade_exceptions(
             "Failed to create endpoint for service"
             " {service}".format(service=service['name'])
@@ -997,6 +1007,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if service_name_or_id is not None:
             kwargs['service'] = service_name_or_id
 
+        # TODO(mordred) When this changes to REST, force interface=admin
+        # in the adapter call
         with _utils.shade_exceptions(
             "Failed to update endpoint {}".format(endpoint_id)
         ):
@@ -1016,6 +1028,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         # the keystone api, but since the return of all the endpoints even in
         # large environments is small, we can continue to filter in shade just
         # like the v2 api.
+        # TODO(mordred) When this changes to REST, force interface=admin
+        # in the adapter call
         with _utils.shade_exceptions("Failed to list endpoints"):
             endpoints = self.manager.submit_task(_tasks.EndpointList())
 
@@ -1074,6 +1088,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             self.log.debug("Endpoint %s not found for deleting", id)
             return False
 
+        # TODO(mordred) When this changes to REST, force interface=admin
+        # in the adapter call
         if self.cloud_config.get_api_version('identity').startswith('2'):
             endpoint_kwargs = {'id': endpoint['id']}
         else:
