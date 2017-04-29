@@ -80,7 +80,7 @@ class Proxy(proxy2.BaseProxy):
 
         :param instance: This can be either the ID of an instance
                          or a :class:`~openstack.database.v1.instance.Instance`
-                       instance that the interface belongs to.
+                         instance that the interface belongs to.
         :param kwargs \*\*query: Optional query parameters to be sent to limit
                                  the resources being returned.
 

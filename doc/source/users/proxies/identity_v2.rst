@@ -20,7 +20,7 @@ Extension Operations
    .. automethod:: openstack.identity.v2._proxy.Proxy.get_extension
    .. automethod:: openstack.identity.v2._proxy.Proxy.extensions
 
- User Operations
+User Operations
 ^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v2._proxy.Proxy
