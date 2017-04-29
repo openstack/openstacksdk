@@ -32,11 +32,11 @@ utils.enable_logging(True, stream=sys.stdout)
 #: file, typically in $HOME/.config/openstack/clouds.yaml. That configuration
 #: will determine where the examples will be run and what resource defaults
 #: will be used to run the examples.
-TEST_CLOUD = os.getenv('OS_TEST_CLOUD', 'test_cloud')
+TEST_CLOUD = os.getenv('OS_TEST_CLOUD', 'devstack-admin')
 
 
 class Opts(object):
-    def __init__(self, cloud_name='test_cloud', debug=False):
+    def __init__(self, cloud_name='devstack-admin', debug=False):
         self.cloud = cloud_name
         self.debug = debug
         # Use identity v3 API for examples.
