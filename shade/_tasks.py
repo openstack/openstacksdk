@@ -212,33 +212,6 @@ class NovaImageList(task_manager.Task):
         return client.nova_client.images.list()
 
 
-class VolumeTypeList(task_manager.Task):
-    def main(self, client):
-        return client.cinder_client.volume_types.list()
-
-
-class VolumeTypeAccessList(task_manager.Task):
-    def main(self, client):
-        return client.cinder_client.volume_type_access.list(**self.args)
-
-
-class VolumeTypeAccessAdd(task_manager.Task):
-    def main(self, client):
-        return client.cinder_client.volume_type_access.add_project_access(
-            **self.args)
-
-
-class VolumeTypeAccessRemove(task_manager.Task):
-    def main(self, client):
-        return client.cinder_client.volume_type_access.remove_project_access(
-            **self.args)
-
-
-class VolumeCreate(task_manager.Task):
-    def main(self, client):
-        return client.cinder_client.volumes.create(**self.args)
-
-
 class VolumeDelete(task_manager.Task):
     def main(self, client):
         client.cinder_client.volumes.delete(**self.args)

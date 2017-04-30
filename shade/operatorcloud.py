@@ -2014,9 +2014,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "Unable to get volume type access {name}".format(
                     name=name_or_id)):
             return self._normalize_volume_type_accesses(
-                self.manager.submit_task(
-                    _tasks.VolumeTypeAccessList(volume_type=volume_type))
-            )
+                self._volume_client.get(
+                    '/types/{id}/os-volume-type-access'.format(
+                        id=volume_type.id)))
 
     def add_volume_type_access(self, name_or_id, project_id):
         """Grant access on a volume_type to a project.
@@ -2032,14 +2032,14 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if not volume_type:
             raise OpenStackCloudException(
                 "VolumeType not found: %s" % name_or_id)
-        with _utils.shade_exceptions(
-                "Unable to authorize {project} "
-                "to use volume type {name}".format(
-                    name=name_or_id, project=project_id
-                )):
-            self.manager.submit_task(
-                _tasks.VolumeTypeAccessAdd(
-                    volume_type=volume_type, project=project_id))
+        with _utils.shade_exceptions():
+            payload = {'project': project_id}
+            self._volume_client.post(
+                '/types/{id}/action'.format(id=volume_type.id),
+                json=dict(addProjectAccess=payload),
+                error_message="Unable to authorize {project} "
+                              "to use volume type {name}".format(
+                              name=name_or_id, project=project_id))
 
     def remove_volume_type_access(self, name_or_id, project_id):
         """Revoke access on a volume_type to a project.
@@ -2053,14 +2053,14 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if not volume_type:
             raise OpenStackCloudException(
                 "VolumeType not found: %s" % name_or_id)
-        with _utils.shade_exceptions(
-                "Unable to revoke {project} "
-                "to use volume type {name}".format(
-                    name=name_or_id, project=project_id
-                )):
-            self.manager.submit_task(
-                _tasks.VolumeTypeAccessRemove(
-                    volume_type=volume_type, project=project_id))
+        with _utils.shade_exceptions():
+            payload = {'project': project_id}
+            self._volume_client.post(
+                '/types/{id}/action'.format(id=volume_type.id),
+                json=dict(removeProjectAccess=payload),
+                error_message="Unable to revoke {project} "
+                              "to use volume type {name}".format(
+                              name=name_or_id, project=project_id))
 
     def set_compute_quotas(self, name_or_id, **kwargs):
         """ Set a quota in a project

@@ -270,10 +270,6 @@ class TestMemoryCache(base.RequestsMockTestCase):
                  json={'volume': fake_vol_creating}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', _id]),
-                 json={'volume': [fake_volb4, fake_vol_creating]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volb4, fake_vol_creating]}),
             dict(method='GET',

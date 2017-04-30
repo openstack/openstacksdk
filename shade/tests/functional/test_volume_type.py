@@ -19,7 +19,7 @@ test_volume
 Functional tests for `shade` block storage methods.
 """
 import testtools
-from shade.exc import OpenStackCloudException
+from shade import exc
 from shade.tests.functional import base
 
 
@@ -79,7 +79,7 @@ class TestVolumeType(base.BaseFunctionalTestCase):
 
     def test_add_volume_type_access_missing_volume(self):
         with testtools.ExpectedException(
-                OpenStackCloudException,
+                exc.OpenStackCloudException,
                 "VolumeType not found.*"
         ):
             self.operator_cloud.add_volume_type_access(
@@ -88,7 +88,7 @@ class TestVolumeType(base.BaseFunctionalTestCase):
 
     def test_remove_volume_type_access_missing_volume(self):
         with testtools.ExpectedException(
-                OpenStackCloudException,
+                exc.OpenStackCloudException,
                 "VolumeType not found.*"
         ):
             self.operator_cloud.remove_volume_type_access(
@@ -97,7 +97,7 @@ class TestVolumeType(base.BaseFunctionalTestCase):
 
     def test_add_volume_type_access_bad_project(self):
         with testtools.ExpectedException(
-                OpenStackCloudException,
+                exc.OpenStackCloudBadRequest,
                 "Unable to authorize.*"
         ):
             self.operator_cloud.add_volume_type_access(
@@ -106,7 +106,7 @@ class TestVolumeType(base.BaseFunctionalTestCase):
 
     def test_remove_volume_type_access_missing_project(self):
         with testtools.ExpectedException(
-                OpenStackCloudException,
+                exc.OpenStackCloudURINotFound,
                 "Unable to revoke.*"
         ):
             self.operator_cloud.remove_volume_type_access(

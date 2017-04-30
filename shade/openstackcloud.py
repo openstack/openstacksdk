@@ -1727,7 +1727,8 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         with _utils.shade_exceptions("Error fetching volume_type list"):
             return self._normalize_volume_types(
-                self.manager.submit_task(_tasks.VolumeTypeList()))
+                self._volume_client.get(
+                    '/types', params=dict(is_public='None')))
 
     @_utils.cache_on_arguments()
     def list_availability_zone_names(self, unavailable=False):
@@ -3863,7 +3864,6 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudTimeout if wait time exceeded.
         :raises: OpenStackCloudException on operation error.
         """
-
         if image:
             image_obj = self.get_image(image)
             if not image_obj:
@@ -3873,9 +3873,10 @@ class OpenStackCloud(_normalize.Normalizer):
                         image=image))
             kwargs['imageRef'] = image_obj['id']
         kwargs = self._get_volume_kwargs(kwargs)
+        kwargs['size'] = size
         with _utils.shade_exceptions("Error in creating volume"):
-            volume = self.manager.submit_task(_tasks.VolumeCreate(
-                size=size, **kwargs))
+            volume = self._volume_client.post(
+                '/volumes', json=dict(volume=kwargs))
         self.list_volumes.invalidate(self)
 
         if volume['status'] == 'error':
