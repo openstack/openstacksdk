@@ -11,9 +11,7 @@
 # under the License.
 
 
-import mock
-
-from neutronclient.common import exceptions as neutron_exc
+import copy
 
 import shade
 from shade import meta
@@ -63,12 +61,19 @@ class TestSecurityGroups(base.RequestsMockTestCase):
             return self.has_neutron
         self.cloud.has_service = fake_has_service
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_list_security_groups_neutron(self, mock_neutron):
+    def test_list_security_groups_neutron(self):
+        project_id = 42
         self.cloud.secgroup_source = 'neutron'
-        self.cloud.list_security_groups(filters={'project_id': 42})
-        mock_neutron.list_security_groups.assert_called_once_with(
-            project_id=42)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-groups.json'],
+                     qs_elements=["project_id=%s" % project_id]),
+                 json={'security_groups': [neutron_grp_dict]})
+        ])
+        self.cloud.list_security_groups(filters={'project_id': project_id})
+        self.assert_calls()
 
     def test_list_security_groups_nova(self):
         self.register_uris([
@@ -90,15 +95,23 @@ class TestSecurityGroups(base.RequestsMockTestCase):
         self.assertRaises(shade.OpenStackCloudUnavailableFeature,
                           self.cloud.list_security_groups)
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_security_group_neutron(self, mock_neutron):
+    def test_delete_security_group_neutron(self):
+        sg_id = neutron_grp_dict['id']
         self.cloud.secgroup_source = 'neutron'
-        neutron_return = dict(security_groups=[neutron_grp_dict])
-        mock_neutron.list_security_groups.return_value = neutron_return
-        self.cloud.delete_security_group('1')
-        mock_neutron.delete_security_group.assert_called_once_with(
-            security_group='1'
-        )
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-groups.json']),
+                 json={'security_groups': [neutron_grp_dict]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-groups', '%s.json' % sg_id]),
+                 json={})
+        ])
+        self.assertTrue(self.cloud.delete_security_group('1'))
+        self.assert_calls()
 
     def test_delete_security_group_nova(self):
         self.cloud.secgroup_source = 'nova'
@@ -116,13 +129,17 @@ class TestSecurityGroups(base.RequestsMockTestCase):
         self.cloud.delete_security_group('2')
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_security_group_neutron_not_found(self, mock_neutron):
+    def test_delete_security_group_neutron_not_found(self):
         self.cloud.secgroup_source = 'neutron'
-        neutron_return = dict(security_groups=[neutron_grp_dict])
-        mock_neutron.list_security_groups.return_value = neutron_return
-        self.cloud.delete_security_group('doesNotExist')
-        self.assertFalse(mock_neutron.delete_security_group.called)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-groups.json']),
+                 json={'security_groups': [neutron_grp_dict]})
+        ])
+        self.assertFalse(self.cloud.delete_security_group('10'))
+        self.assert_calls()
 
     def test_delete_security_group_nova_not_found(self):
         self.cloud.secgroup_source = 'nova'
@@ -142,16 +159,34 @@ class TestSecurityGroups(base.RequestsMockTestCase):
                           self.cloud.delete_security_group,
                           'doesNotExist')
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_create_security_group_neutron(self, mock_neutron):
+    def test_create_security_group_neutron(self):
         self.cloud.secgroup_source = 'neutron'
         group_name = self.getUniqueString()
         group_desc = 'security group from test_create_security_group_neutron'
-        self.cloud.create_security_group(group_name, group_desc)
-        mock_neutron.create_security_group.assert_called_once_with(
-            body=dict(security_group=dict(name=group_name,
-                                          description=group_desc))
-        )
+        new_group = meta.obj_to_dict(
+            fakes.FakeSecgroup(
+                id='2',
+                name=group_name,
+                description=group_desc,
+                rules=[]))
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-groups.json']),
+                 json={'security_group': new_group},
+                 validate=dict(
+                     json={'security_group': {
+                         'name': group_name,
+                         'description': group_desc
+                     }}))
+        ])
+
+        r = self.cloud.create_security_group(group_name, group_desc)
+        self.assertEqual(group_name, r['name'])
+        self.assertEqual(group_desc, r['description'])
+
+        self.assert_calls()
 
     def test_create_security_group_nova(self):
         group_name = self.getUniqueString()
@@ -189,16 +224,29 @@ class TestSecurityGroups(base.RequestsMockTestCase):
                           self.cloud.create_security_group,
                           '', '')
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_update_security_group_neutron(self, mock_neutron):
+    def test_update_security_group_neutron(self):
         self.cloud.secgroup_source = 'neutron'
-        neutron_return = dict(security_groups=[neutron_grp_dict])
-        mock_neutron.list_security_groups.return_value = neutron_return
-        self.cloud.update_security_group(neutron_grp_obj.id, name='new_name')
-        mock_neutron.update_security_group.assert_called_once_with(
-            security_group=neutron_grp_dict['id'],
-            body={'security_group': {'name': 'new_name'}}
-        )
+        new_name = self.getUniqueString()
+        sg_id = neutron_grp_obj.id
+        update_return = meta.obj_to_dict(neutron_grp_obj)
+        update_return['name'] = new_name
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-groups.json']),
+                 json={'security_groups': [neutron_grp_dict]}),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-groups', '%s.json' % sg_id]),
+                 json={'security_group': update_return},
+                 validate=dict(json={
+                     'security_group': {'name': new_name}}))
+        ])
+        r = self.cloud.update_security_group(neutron_grp_obj.id, name=new_name)
+        self.assertEqual(r['name'], new_name)
+        self.assert_calls()
 
     def test_update_security_group_nova(self):
         self.has_neutron = False
@@ -228,9 +276,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
                           self.cloud.update_security_group,
                           'doesNotExist', bad_arg='')
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_security_group')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_create_security_group_rule_neutron(self, mock_neutron, mock_get):
+    def test_create_security_group_rule_neutron(self):
         self.cloud.secgroup_source = 'neutron'
         args = dict(
             port_range_min=-1,
@@ -241,17 +287,37 @@ class TestSecurityGroups(base.RequestsMockTestCase):
             direction='egress',
             ethertype='IPv6'
         )
-        mock_get.return_value = {'id': 'abc'}
-        self.cloud.create_security_group_rule(secgroup_name_or_id='abc',
-                                              **args)
-
+        expected_args = copy.copy(args)
         # For neutron, -1 port should be converted to None
-        args['port_range_min'] = None
-        args['security_group_id'] = 'abc'
+        expected_args['port_range_min'] = None
+        expected_args['security_group_id'] = neutron_grp_dict['id']
 
-        mock_neutron.create_security_group_rule.assert_called_once_with(
-            body={'security_group_rule': args}
-        )
+        expected_new_rule = copy.copy(expected_args)
+        expected_new_rule['id'] = '1234'
+        expected_new_rule['project_id'] = ''
+        expected_new_rule['tenant_id'] = expected_new_rule['project_id']
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-groups.json']),
+                 json={'security_groups': [neutron_grp_dict]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-group-rules.json']),
+                 json={'security_group_rule': expected_new_rule},
+                 validate=dict(json={
+                     'security_group_rule': expected_args}))
+        ])
+        new_rule = self.cloud.create_security_group_rule(
+            secgroup_name_or_id=neutron_grp_dict['id'], **args)
+        # NOTE(slaweq): don't check location and properties in new rule
+        new_rule.pop("location")
+        new_rule.pop("properties")
+        self.assertEqual(expected_new_rule, new_rule)
+        self.assert_calls()
 
     def test_create_security_group_rule_nova(self):
         self.has_neutron = False
@@ -335,13 +401,19 @@ class TestSecurityGroups(base.RequestsMockTestCase):
                           self.cloud.create_security_group_rule,
                           '')
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_security_group_rule_neutron(self, mock_neutron):
+    def test_delete_security_group_rule_neutron(self):
+        rule_id = "xyz"
         self.cloud.secgroup_source = 'neutron'
-        r = self.cloud.delete_security_group_rule('xyz')
-        mock_neutron.delete_security_group_rule.assert_called_once_with(
-            security_group_rule='xyz')
-        self.assertTrue(r)
+        self.register_uris([
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-group-rules',
+                             '%s.json' % rule_id]),
+                 json={})
+        ])
+        self.assertTrue(self.cloud.delete_security_group_rule(rule_id))
+        self.assert_calls()
 
     def test_delete_security_group_rule_nova(self):
         self.has_neutron = False
@@ -362,15 +434,18 @@ class TestSecurityGroups(base.RequestsMockTestCase):
                           self.cloud.delete_security_group_rule,
                           '')
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_delete_security_group_rule_not_found(self,
-                                                  mock_neutron):
+    def test_delete_security_group_rule_not_found(self):
+        rule_id = "doesNotExist"
         self.cloud.secgroup_source = 'neutron'
-        mock_neutron.delete_security_group_rule.side_effect = (
-            neutron_exc.NotFound()
-        )
-        r = self.cloud.delete_security_group('doesNotExist')
-        self.assertFalse(r)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-groups.json']),
+                 json={'security_groups': [neutron_grp_dict]})
+        ])
+        self.assertFalse(self.cloud.delete_security_group(rule_id))
+        self.assert_calls()
 
     def test_delete_security_group_rule_not_found_nova(self):
         self.has_neutron = False
@@ -457,36 +532,32 @@ class TestSecurityGroups(base.RequestsMockTestCase):
 
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_add_security_group_to_server_neutron(self,
-                                                  mock_neutron,
-                                                  mock_nova):
+    def test_add_security_group_to_server_neutron(self):
         # fake to get server by name, server-name must match
         fake_server = fakes.FakeServer('1234', 'server-name', 'ACTIVE')
-        mock_nova.servers.list.return_value = [fake_server]
 
         # use neutron for secgroup list and return an existing fake
         self.cloud.secgroup_source = 'neutron'
-        neutron_return = dict(security_groups=[neutron_grp_dict])
-        mock_neutron.list_security_groups.return_value = neutron_return
 
         self.register_uris([
-            dict(
-                method='POST',
-                uri='%s/servers/%s/action' % (fakes.COMPUTE_ENDPOINT, '1234'),
-                validate={'addSecurityGroup': {'name': 'neutron-sec-group'}},
-                status_code=202,
-            ),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', 'detail']),
+                 json={'servers': [meta.obj_to_dict(fake_server)]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-groups.json']),
+                 json={'security_groups': [neutron_grp_dict]}),
+            dict(method='POST',
+                 uri='%s/servers/%s/action' % (fakes.COMPUTE_ENDPOINT, '1234'),
+                 validate={'addSecurityGroup': {'name': 'neutron-sec-group'}},
+                 status_code=202),
         ])
 
-        ret = self.cloud.add_server_security_groups('server-name',
-                                                    'neutron-sec-group')
-        self.assertTrue(ret)
-
-        self.assertTrue(mock_nova.servers.list.called_once)
-        self.assertTrue(mock_neutron.list_securit_groups.called_once)
-
+        self.assertTrue(self.cloud.add_server_security_groups(
+            'server-name', 'neutron-sec-group'))
         self.assert_calls()
 
     def test_remove_security_group_from_server_nova(self):
@@ -513,36 +584,32 @@ class TestSecurityGroups(base.RequestsMockTestCase):
 
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_remove_security_group_from_server_neutron(self,
-                                                       mock_neutron,
-                                                       mock_nova):
+    def test_remove_security_group_from_server_neutron(self):
         # fake to get server by name, server-name must match
         fake_server = fakes.FakeServer('1234', 'server-name', 'ACTIVE')
-        mock_nova.servers.list.return_value = [fake_server]
 
         # use neutron for secgroup list and return an existing fake
         self.cloud.secgroup_source = 'neutron'
-        neutron_return = dict(security_groups=[neutron_grp_dict])
-        mock_neutron.list_security_groups.return_value = neutron_return
 
         validate = {'removeSecurityGroup': {'name': 'neutron-sec-group'}}
         self.register_uris([
-            dict(
-                method='POST',
-                uri='%s/servers/%s/action' % (fakes.COMPUTE_ENDPOINT, '1234'),
-                validate=validate,
-            ),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', 'detail']),
+                 json={'servers': [meta.obj_to_dict(fake_server)]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-groups.json']),
+                 json={'security_groups': [neutron_grp_dict]}),
+            dict(method='POST',
+                 uri='%s/servers/%s/action' % (fakes.COMPUTE_ENDPOINT, '1234'),
+                 validate=validate),
         ])
 
-        ret = self.cloud.remove_server_security_groups('server-name',
-                                                       'neutron-sec-group')
-        self.assertTrue(ret)
-
-        self.assertTrue(mock_nova.servers.list.called_once)
-        self.assertTrue(mock_neutron.list_security_groups.called_once)
-
+        self.assertTrue(self.cloud.remove_server_security_groups(
+            'server-name', 'neutron-sec-group'))
         self.assert_calls()
 
     def test_add_bad_security_group_to_server_nova(self):
@@ -572,27 +639,27 @@ class TestSecurityGroups(base.RequestsMockTestCase):
 
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_add_bad_security_group_to_server_neutron(self,
-                                                      mock_neutron,
-                                                      mock_nova):
+    def test_add_bad_security_group_to_server_neutron(self):
         # fake to get server by name, server-name must match
         fake_server = fakes.FakeServer('1234', 'server-name', 'ACTIVE')
-        mock_nova.servers.list.return_value = [fake_server]
 
         # use neutron for secgroup list and return an existing fake
         self.cloud.secgroup_source = 'neutron'
-        neutron_return = dict(security_groups=[neutron_grp_dict])
-        mock_neutron.list_security_groups.return_value = neutron_return
 
-        ret = self.cloud.add_server_security_groups('server-name',
-                                                    'unknown-sec-group')
-        self.assertFalse(ret)
-
-        self.assertTrue(mock_nova.servers.list.called_once)
-        self.assertTrue(mock_neutron.list_security_groups.called_once)
-
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', 'detail']),
+                 json={'servers': [meta.obj_to_dict(fake_server)]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-groups.json']),
+                 json={'security_groups': [neutron_grp_dict]})
+        ])
+        self.assertFalse(self.cloud.add_server_security_groups(
+            'server-name', 'unknown-sec-group'))
         self.assert_calls()
 
     def test_add_security_group_to_bad_server(self):
