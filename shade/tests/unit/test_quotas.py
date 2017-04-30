@@ -100,32 +100,58 @@ class TestQuotas(base.RequestsMockTestCase):
             tenant_id=project.project_id)
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_neutron_update_quotas(self, mock_neutron):
+    def test_neutron_update_quotas(self):
         project = self.mock_for_keystone_projects(project_count=1,
                                                   list_get=True)[0]
+        self.register_uris([
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'quotas',
+                             '%s.json' % project.project_id]),
+                 json={},
+                 validate=dict(
+                     json={'quota': {'network': 1}}))
+        ])
         self.op_cloud.set_network_quotas(project.project_id, network=1)
-
-        mock_neutron.update_quota.assert_called_once_with(
-            body={'quota': {'network': 1}}, tenant_id=project.project_id)
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_neutron_get_quotas(self, mock_neutron):
+    def test_neutron_get_quotas(self):
+        quota = {
+            'subnet': 100,
+            'network': 100,
+            'floatingip': 50,
+            'subnetpool': -1,
+            'security_group_rule': 100,
+            'security_group': 10,
+            'router': 10,
+            'rbac_policy': 10,
+            'port': 500
+        }
         project = self.mock_for_keystone_projects(project_count=1,
                                                   list_get=True)[0]
-        self.op_cloud.get_network_quotas(project.project_id)
-
-        mock_neutron.show_quota.assert_called_once_with(
-            tenant_id=project.project_id)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'quotas',
+                             '%s.json' % project.project_id]),
+                 json={'quota': quota})
+        ])
+        received_quota = self.op_cloud.get_network_quotas(project.project_id)
+        self.assertDictEqual(quota, received_quota)
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'neutron_client')
-    def test_neutron_delete_quotas(self, mock_neutron):
+    def test_neutron_delete_quotas(self):
         project = self.mock_for_keystone_projects(project_count=1,
                                                   list_get=True)[0]
+        self.register_uris([
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'quotas',
+                             '%s.json' % project.project_id]),
+                 json={})
+        ])
         self.op_cloud.delete_network_quotas(project.project_id)
-
-        mock_neutron.delete_quota.assert_called_once_with(
-            tenant_id=project.project_id)
         self.assert_calls()
