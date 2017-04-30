@@ -91,8 +91,6 @@ OpenStackCloudResourceNotFound = OpenStackCloudURINotFound
 # Logic shamelessly stolen from requests
 def raise_from_response(response, error_message=None):
     msg = ''
-    if error_message:
-        msg = _
     if 400 <= response.status_code < 500:
         source = "Client"
     elif 500 <= response.status_code < 600:
