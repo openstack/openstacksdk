@@ -111,8 +111,8 @@ class ShadeAdapter(adapter.Adapter):
         self.request_log.debug(tmpl.format(**kwargs))
         return response
 
-    def _munch_response(self, response, result_key=None):
-        exc.raise_from_response(response)
+    def _munch_response(self, response, result_key=None, error_message=None):
+        exc.raise_from_response(response, error_message=error_message)
 
         if not response.content:
             # This doens't have any content
@@ -154,7 +154,9 @@ class ShadeAdapter(adapter.Adapter):
             return meta.obj_to_dict(result)
         return result
 
-    def request(self, url, method, run_async=False, *args, **kwargs):
+    def request(
+            self, url, method, run_async=False, error_message=None,
+            *args, **kwargs):
         name_parts = extract_name(url)
         name = '.'.join([self.service_type, method] + name_parts)
         class_name = "".join([
@@ -179,4 +181,4 @@ class ShadeAdapter(adapter.Adapter):
         if run_async:
             return response
         else:
-            return self._munch_response(response)
+            return self._munch_response(response, error_message=error_message)

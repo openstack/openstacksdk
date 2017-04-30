@@ -89,18 +89,36 @@ OpenStackCloudResourceNotFound = OpenStackCloudURINotFound
 
 
 # Logic shamelessly stolen from requests
-def raise_from_response(response):
+def raise_from_response(response, error_message=None):
     msg = ''
+    if error_message:
+        msg = _
     if 400 <= response.status_code < 500:
-        msg = '({code}) Client Error: {reason} for url: {url}'.format(
-            code=response.status_code,
-            reason=response.reason,
-            url=response.url)
+        source = "Client"
     elif 500 <= response.status_code < 600:
-        msg = '({code}) Server Error: {reason} for url: {url}'.format(
-            code=response.status_code,
+        source = "Server"
+    else:
+        source = None
+
+    if response.reason:
+        remote_error = "Error: {reason} for {url}".format(
             reason=response.reason,
             url=response.url)
+    else:
+        remote_error = "Error for url: {url}".format(url=response.url)
+
+    if source:
+        if error_message:
+            msg = '{error_message}. ({code}) {source} {remote_error}'.format(
+                error_message=error_message,
+                source=source,
+                code=response.status_code,
+                remote_error=remote_error)
+        else:
+            msg = '({code}) {source} {remote_error}'.format(
+                code=response.status_code,
+                source=source,
+                remote_error=remote_error)
 
     # Special case 404 since we raised a specific one for neutron exceptions
     # before
