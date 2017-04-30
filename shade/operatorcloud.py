@@ -1811,8 +1811,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 data['tenant'] = data.pop('project')
                 self.manager.submit_task(_tasks.RoleRemoveUser(**data))
             else:
-                if data.get('project') is None \
-                        and data.get('domain') is None:
+                if data.get('project') is None and data.get('domain') is None:
                     raise OpenStackCloudException(
                         'Must specify either a domain or project')
                 self.manager.submit_task(_tasks.RoleRevokeUser(**data))

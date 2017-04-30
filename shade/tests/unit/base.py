@@ -24,6 +24,7 @@ import os
 import os_client_config as occ
 from requests import structures
 from requests_mock.contrib import fixture as rm_fixture
+from six.moves import urllib
 import tempfile
 
 import shade.openstackcloud
@@ -244,9 +245,10 @@ class RequestsMockTestCase(BaseTestCase):
         return project_list
 
     def _get_project_data(self, project_name=None, enabled=None,
-                          domain_id=None, description=None, v3=True):
+                          domain_id=None, description=None, v3=True,
+                          project_id=None):
         project_name = project_name or self.getUniqueString('projectName')
-        project_id = uuid.uuid4().hex
+        project_id = uuid.UUID(project_id or uuid.uuid4().hex).hex
         response = {'id': project_id, 'name': project_name}
         request = {'name': project_name}
         domain_id = (domain_id or uuid.uuid4().hex) if v3 else None
@@ -271,7 +273,7 @@ class RequestsMockTestCase(BaseTestCase):
 
     def _get_group_data(self, name=None, domain_id=None, description=None):
         group_id = uuid.uuid4().hex
-        name or self.getUniqueString('groupname')
+        name = name or self.getUniqueString('groupname')
         domain_id = uuid.UUID(domain_id or uuid.uuid4().hex).hex
         response = {'id': group_id, 'name': name, 'domain_id': domain_id}
         request = {'name': name}
@@ -570,9 +572,27 @@ class RequestsMockTestCase(BaseTestCase):
             if stop_after and x > stop_after:
                 break
 
+            call_uri_parts = urllib.parse.urlparse(call['url'])
+            history_uri_parts = urllib.parse.urlparse(history.url)
             self.assertEqual(
-                (call['method'], call['url']), (history.method, history.url),
-                'REST mismatch on call {index}'.format(index=x))
+                (call['method'], call_uri_parts.scheme, call_uri_parts.netloc,
+                 call_uri_parts.path, call_uri_parts.params,
+                 urllib.parse.parse_qs(call_uri_parts.query)),
+                (history.method, history_uri_parts.scheme,
+                 history_uri_parts.netloc, history_uri_parts.path,
+                 history_uri_parts.params,
+                 urllib.parse.parse_qs(history_uri_parts.query)),
+                ('REST mismatch on call %(index)d. Expected %(call)r. '
+                 'Got %(history)r). '
+                 'NOTE: query string order differences wont cause mismatch' %
+                 {
+                     'index': x,
+                     'call': '{method} {url}'.format(method=call['method'],
+                                                     url=call['url']),
+                     'history': '{method} {url}'.format(
+                         method=history.method,
+                         url=history.url)})
+            )
             if 'json' in call:
                 self.assertEqual(
                     call['json'], history.json(),
