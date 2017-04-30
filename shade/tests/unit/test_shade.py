@@ -209,8 +209,7 @@ class TestShade(base.RequestsMockTestCase):
                 pass
         mock_sleep.assert_called_with(1.0)
 
-    @mock.patch.object(shade.OpenStackCloud, '_compute_client')
-    def test__nova_extensions(self, mock_compute):
+    def test__nova_extensions(self):
         body = [
             {
                 "updated": "2014-12-03T00:00:00Z",
@@ -229,22 +228,33 @@ class TestShade(base.RequestsMockTestCase):
                 "description": "Disk Management Extension."
             },
         ]
-        mock_compute.get.return_value = body
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/extensions'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json=dict(extensions=body))
+        ])
         extensions = self.cloud._nova_extensions()
-        mock_compute.get.assert_called_once_with('/extensions')
         self.assertEqual(set(['NMN', 'OS-DCF']), extensions)
 
-    @mock.patch.object(shade.OpenStackCloud, '_compute_client')
-    def test__nova_extensions_fails(self, mock_compute):
-        mock_compute.get.side_effect = Exception()
+        self.assert_calls()
+
+    def test__nova_extensions_fails(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/extensions'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 status_code=404),
+        ])
         with testtools.ExpectedException(
-            exc.OpenStackCloudException,
+            exc.OpenStackCloudURINotFound,
             "Error fetching extension list for nova"
         ):
             self.cloud._nova_extensions()
 
-    @mock.patch.object(shade.OpenStackCloud, '_compute_client')
-    def test__has_nova_extension(self, mock_compute):
+        self.assert_calls()
+
+    def test__has_nova_extension(self):
         body = [
             {
                 "updated": "2014-12-03T00:00:00Z",
@@ -263,9 +273,44 @@ class TestShade(base.RequestsMockTestCase):
                 "description": "Disk Management Extension."
             },
         ]
-        mock_compute.get.return_value = body
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/extensions'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json=dict(extensions=body))
+        ])
         self.assertTrue(self.cloud._has_nova_extension('NMN'))
+
+        self.assert_calls()
+
+    def test__has_nova_extension_missing(self):
+        body = [
+            {
+                "updated": "2014-12-03T00:00:00Z",
+                "name": "Multinic",
+                "links": [],
+                "namespace": "http://openstack.org/compute/ext/fake_xml",
+                "alias": "NMN",
+                "description": "Multiple network support."
+            },
+            {
+                "updated": "2014-12-03T00:00:00Z",
+                "name": "DiskConfig",
+                "links": [],
+                "namespace": "http://openstack.org/compute/ext/fake_xml",
+                "alias": "OS-DCF",
+                "description": "Disk Management Extension."
+            },
+        ]
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/extensions'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json=dict(extensions=body))
+        ])
         self.assertFalse(self.cloud._has_nova_extension('invalid'))
+
+        self.assert_calls()
 
     def test_range_search(self):
         filters = {"key1": "min", "key2": "20"}
