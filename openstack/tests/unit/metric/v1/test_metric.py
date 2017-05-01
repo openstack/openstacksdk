@@ -52,13 +52,13 @@ class TestMetric(testtools.TestCase):
         self.assertEqual('/metric', m.base_path)
         self.assertEqual('metric', m.service.service_type)
         self.assertTrue(m.allow_create)
-        self.assertTrue(m.allow_retrieve)
+        self.assertTrue(m.allow_get)
         self.assertFalse(m.allow_update)
         self.assertTrue(m.allow_delete)
         self.assertTrue(m.allow_list)
 
     def test_make_it(self):
-        m = metric.Metric(EXAMPLE)
+        m = metric.Metric(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], m.id)
         self.assertEqual(EXAMPLE['archive_policy_name'], m.archive_policy_name)
         self.assertEqual(EXAMPLE['created_by_user_id'], m.created_by_user_id)
@@ -67,7 +67,7 @@ class TestMetric(testtools.TestCase):
         self.assertEqual(EXAMPLE['resource_id'], m.resource_id)
         self.assertEqual(EXAMPLE['name'], m.name)
 
-        m = metric.Metric(EXAMPLE_AP)
+        m = metric.Metric(**EXAMPLE_AP)
         self.assertEqual(EXAMPLE_AP['id'], m.id)
         self.assertEqual(EXAMPLE_AP['archive_policy'], m.archive_policy)
         self.assertEqual(EXAMPLE_AP['created_by_user_id'],

@@ -47,14 +47,15 @@ class TestArchivePolicy(testtools.TestCase):
         self.assertEqual('/archive_policy', m.base_path)
         self.assertEqual('metric', m.service.service_type)
         self.assertTrue(m.allow_create)
-        self.assertTrue(m.allow_retrieve)
+        self.assertTrue(m.allow_get)
         self.assertFalse(m.allow_update)
         self.assertTrue(m.allow_delete)
         self.assertTrue(m.allow_list)
 
     def test_make_it(self):
-        m = archive_policy.ArchivePolicy(EXAMPLE)
+        m = archive_policy.ArchivePolicy(**EXAMPLE)
         self.assertEqual(EXAMPLE['name'], m.name)
+        self.assertEqual(EXAMPLE['name'], m.id)
         self.assertEqual(EXAMPLE['definition'], m.definition)
         self.assertEqual(EXAMPLE['back_window'], m.back_window)
         self.assertEqual(EXAMPLE['aggregation_methods'], m.aggregation_methods)

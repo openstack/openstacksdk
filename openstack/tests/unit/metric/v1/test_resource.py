@@ -36,13 +36,13 @@ class TestResource(testtools.TestCase):
         self.assertEqual('/resource/generic', m.base_path)
         self.assertEqual('metric', m.service.service_type)
         self.assertTrue(m.allow_create)
-        self.assertTrue(m.allow_retrieve)
+        self.assertTrue(m.allow_get)
         self.assertTrue(m.allow_update)
         self.assertTrue(m.allow_delete)
         self.assertTrue(m.allow_list)
 
     def test_make_generic(self):
-        r = resource.Generic(EXAMPLE_GENERIC)
+        r = resource.Generic(**EXAMPLE_GENERIC)
         self.assertEqual(EXAMPLE_GENERIC['created_by_user_id'],
                          r.created_by_user_id)
         self.assertEqual(EXAMPLE_GENERIC['created_by_project_id'],

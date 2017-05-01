@@ -25,12 +25,12 @@ class TestCapabilites(testtools.TestCase):
         self.assertEqual('/capabilities', sot.base_path)
         self.assertEqual('metric', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertFalse(sot.allow_list)
 
     def test_make_it(self):
-        sot = capabilities.Capabilities(BODY)
+        sot = capabilities.Capabilities(**BODY)
         self.assertEqual(BODY['aggregation_methods'],
                          sot.aggregation_methods)

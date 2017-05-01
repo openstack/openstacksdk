@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.metric import metric_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Generic(resource.Resource):
@@ -20,31 +20,27 @@ class Generic(resource.Resource):
 
     # Supported Operations
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_delete = True
     allow_list = True
     allow_update = True
 
     # Properties
     #: The identifier of this resource
-    id = resource.prop('id', alias="resource_id")
+    id = resource.Body('id')
     #: The ID of the user who created this resource
-    created_by_user_id = resource.prop('created_by_user_id')
+    created_by_user_id = resource.Body('created_by_user_id')
     #: The ID of the project this resource was created under
-    created_by_project_id = resource.prop('created_by_project_id')
+    created_by_project_id = resource.Body('created_by_project_id')
     #: The ID of the user
-    user_id = resource.prop('user_id')
+    user_id = resource.Body('user_id')
     #: The ID of the project
-    project_id = resource.prop('project_id')
+    project_id = resource.Body('project_id')
     #: Timestamp when this resource was started
-    started_at = resource.prop('started_at')
+    started_at = resource.Body('started_at')
     #: Timestamp when this resource was ended
-    ended_at = resource.prop('ended_at')
+    ended_at = resource.Body('ended_at')
     #: A dictionary of metrics collected on this resource
-    metrics = resource.prop('metrics', type=dict)
-
-    def create(self, session):
-        resp = self.create_by_id(session, self._attrs)
-        self._attrs[self.id_attribute] = resp[self.id_attribute]
-        self._reset_dirty()
-        return self
+    metrics = resource.Body('metrics', type=dict)
+    #: The type of resource
+    type = resource.Body('type')

@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.metric import metric_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class ArchivePolicy(resource.Resource):
@@ -20,18 +20,16 @@ class ArchivePolicy(resource.Resource):
 
     # Supported Operations
     allow_create = True
-    allow_retrieve = True
+    allow_get = True
     allow_delete = True
     allow_list = True
 
-    id_attribute = "name"
-
     # Properties
     #: The name of this policy
-    name = resource.prop('name')
+    name = resource.Body('name', alternate_id=True)
     #: The definition of this policy
-    definition = resource.prop('definition', type=list)
+    definition = resource.Body('definition', type=list)
     #: The window of time older than the period that archives can be requested
-    back_window = resource.prop('back_window')
+    back_window = resource.Body('back_window')
     #: A list of the aggregation methods supported
-    aggregation_methods = resource.prop("aggregation_methods", type=list)
+    aggregation_methods = resource.Body("aggregation_methods", type=list)

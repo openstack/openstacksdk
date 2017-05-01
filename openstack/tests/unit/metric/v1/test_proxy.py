@@ -12,7 +12,7 @@
 
 from openstack.metric.v1 import _proxy
 from openstack.metric.v1 import capabilities
-from openstack.tests.unit import test_proxy_base
+from openstack.tests.unit import test_proxy_base2 as test_proxy_base
 
 
 class TestMetricProxy(test_proxy_base.TestProxyBase):
