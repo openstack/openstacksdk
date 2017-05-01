@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Version(resource.Resource):
@@ -26,5 +26,5 @@ class Version(resource.Resource):
     allow_list = True
 
     # Properties
-    links = resource.prop('links')
-    status = resource.prop('status')
+    links = resource.Body('links')
+    status = resource.Body('status')
