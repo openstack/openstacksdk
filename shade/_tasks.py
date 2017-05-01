@@ -212,16 +212,6 @@ class NovaImageList(task_manager.Task):
         return client.nova_client.images.list()
 
 
-class VolumeDelete(task_manager.Task):
-    def main(self, client):
-        client.cinder_client.volumes.delete(**self.args)
-
-
-class VolumeDetach(task_manager.Task):
-    def main(self, client):
-        client.nova_client.volumes.delete_server_volume(**self.args)
-
-
 class VolumeAttach(task_manager.Task):
     def main(self, client):
         return client.nova_client.volumes.create_server_volume(**self.args)

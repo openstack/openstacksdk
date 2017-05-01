@@ -3923,9 +3923,9 @@ class OpenStackCloud(_normalize.Normalizer):
 
         with _utils.shade_exceptions("Error in deleting volume"):
             try:
-                self.manager.submit_task(
-                    _tasks.VolumeDelete(volume=volume['id']))
-            except cinder_exceptions.NotFound:
+                self._volume_client.delete(
+                    'volumes/{id}'.format(id=volume['id']))
+            except OpenStackCloudURINotFound:
                 self.log.debug(
                     "Volume {id} not found when deleting. Ignoring.".format(
                         id=volume['id']))
@@ -3987,12 +3987,13 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
 
-        with _utils.shade_exceptions(
-                "Error detaching volume {volume} from server {server}".format(
-                    volume=volume['id'], server=server['id'])):
-            self.manager.submit_task(
-                _tasks.VolumeDetach(attachment_id=volume['id'],
-                                    server_id=server['id']))
+        with _utils.shade_exceptions():
+            self._compute_client.delete(
+                'servers/{server_id}/os-volume_attachments/{volume_id}'.format(
+                server_id=server['id'], volume_id=volume['id']),
+                error_message="Error detaching volume {volume} "
+                              "from server {server}".format(
+                              volume=volume['id'], server=server['id']))
 
         if wait:
             for count in _utils._iterate_timeout(

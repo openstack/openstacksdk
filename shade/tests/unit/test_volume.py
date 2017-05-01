@@ -189,7 +189,7 @@ class TestVolume(base.RequestsMockTestCase):
                              'os-volume_attachments', volume['id']]),
                  status_code=404)])
         with testtools.ExpectedException(
-            shade.OpenStackCloudException,
+            shade.OpenStackCloudURINotFound,
             "Error detaching volume %s from server %s" % (
                 volume['id'], server['id'])
         ):
