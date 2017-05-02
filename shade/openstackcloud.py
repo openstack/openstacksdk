@@ -3987,13 +3987,12 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
 
-        with _utils.shade_exceptions():
-            self._compute_client.delete(
-                'servers/{server_id}/os-volume_attachments/{volume_id}'.format(
-                server_id=server['id'], volume_id=volume['id']),
-                error_message="Error detaching volume {volume} "
-                              "from server {server}".format(
-                              volume=volume['id'], server=server['id']))
+        self._compute_client.delete(
+            '/servers/{server_id}/os-volume_attachments/{volume_id}'.format(
+            server_id=server['id'], volume_id=volume['id']),
+            error_message="Error detaching volume {volume} "
+                          "from server {server}".format(
+                          volume=volume['id'], server=server['id']))
 
         if wait:
             for count in _utils._iterate_timeout(
@@ -4052,14 +4051,16 @@ class OpenStackCloud(_normalize.Normalizer):
                 % (volume['id'], volume['status'])
             )
 
-        with _utils.shade_exceptions(
-                "Error attaching volume {volume_id} to server "
-                "{server_id}".format(volume_id=volume['id'],
-                                     server_id=server['id'])):
-            vol_attachment = self.manager.submit_task(
-                _tasks.VolumeAttach(volume_id=volume['id'],
-                                    server_id=server['id'],
-                                    device=device))
+        payload = {'volumeId': volume['id']}
+        if device:
+            payload['device'] = device
+        vol_attachment = self._compute_client.post(
+            '/servers/{server_id}/os-volume_attachments'.format(
+                server_id=server['id']),
+            json=dict(volumeAttachment=payload),
+            error_message="Error attaching volume {volume_id} to server "
+                          "{server_id}".format(volume_id=volume['id'],
+                                               server_id=server['id']))
 
         if wait:
             for count in _utils._iterate_timeout(
@@ -4219,15 +4220,17 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudTimeout if wait time exceeded.
         :raises: OpenStackCloudException on operation error.
         """
-        with _utils.shade_exceptions(
-                "Error creating backup of volume {volume_id}".format(
-                    volume_id=volume_id)):
-            backup = self.manager.submit_task(
-                _tasks.VolumeBackupCreate(
-                    volume_id=volume_id, name=name, description=description,
-                    force=force
-                )
-            )
+        payload = {
+            'name': name,
+            'volume_id': volume_id,
+            'description': description,
+            'force': force,
+        }
+
+        backup = self._volume_client.post(
+            '/backups', json=dict(backup=payload),
+            error_message="Error creating backup of volume "
+                          "{volume_id}".format(volume_id=volume_id))
 
         if wait:
             backup_id = backup['id']
@@ -4284,11 +4287,10 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :returns: A list of volume backups ``munch.Munch``.
         """
-        with _utils.shade_exceptions("Error getting a list of backups"):
-            return self._normalize_volume_backups(
-                self.manager.submit_task(
-                    _tasks.VolumeBackupList(
-                        detailed=detailed, search_opts=search_opts)))
+        endpoint = '/backups/detail' if detailed else '/backups'
+        return self._volume_client.get(
+            endpoint, params=search_opts,
+            error_message="Error getting a list of backups")
 
     def delete_volume_backup(self, name_or_id=None, force=False, wait=False,
                              timeout=None):
@@ -4309,12 +4311,18 @@ class OpenStackCloud(_normalize.Normalizer):
         if not volume_backup:
             return False
 
-        with _utils.shade_exceptions("Error in deleting volume backup"):
-            self.manager.submit_task(
-                _tasks.VolumeBackupDelete(
-                    backup=volume_backup['id'], force=force
-                )
-            )
+        msg = "Error in deleting volume backup"
+        if force:
+            self._volume_client.post(
+                '/backups/{backup_id}/action'.format(
+                    backup_id=volume_backup['id']),
+                json={'os-force_delete': None},
+                error_message=msg)
+        else:
+            self._volume_client.delete(
+                '/backups/{backup_id}'.format(
+                    backup_id=volume_backup['id']),
+                error_message=msg)
         if wait:
             msg = "Timeout waiting for the volume backup to be deleted."
             for count in _utils._iterate_timeout(timeout, msg):
