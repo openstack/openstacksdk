@@ -210,40 +210,6 @@ def make_fake_image(
         u'protected': False}
 
 
-class FakeEndpoint(object):
-    def __init__(self, id, service_id, region, publicurl, internalurl=None,
-                 adminurl=None):
-        self.id = id
-        self.service_id = service_id
-        self.region = region
-        self.publicurl = publicurl
-        self.internalurl = internalurl
-        self.adminurl = adminurl
-
-
-class FakeEndpointv3(object):
-    def __init__(self, id, service_id, region, url, interface=None):
-        self.id = id
-        self.service_id = service_id
-        self.region = region
-        self.url = url
-        self.interface = interface
-
-
-class FakeFlavor(object):
-    def __init__(self, id, name, ram, extra_specs=None):
-        self.id = id
-        self.name = name
-        self.ram = ram
-        # Leave it unset if we don't pass it in to test that normalize_ works
-        # but we also have to be able to pass one in to deal with mocks
-        if extra_specs:
-            self.extra_specs = extra_specs
-
-    def get_keys(self):
-        return {}
-
-
 class FakeFloatingIP(object):
     def __init__(self, id, pool, ip, fixed_ip, instance_id):
         self.id = id
@@ -251,18 +217,6 @@ class FakeFloatingIP(object):
         self.ip = ip
         self.fixed_ip = fixed_ip
         self.instance_id = instance_id
-
-
-class FakeFloatingIPPool(object):
-    def __init__(self, id, name):
-        self.id = id
-        self.name = name
-
-
-class FakeProject(object):
-    def __init__(self, id, domain_id=None):
-        self.id = id
-        self.domain_id = domain_id or 'default'
 
 
 class FakeServer(object):
@@ -302,27 +256,6 @@ class FakeServerGroup(object):
         self.id = id
         self.name = name
         self.policies = policies
-
-
-class FakeService(object):
-    def __init__(self, id, name, type, service_type, description='',
-                 enabled=True):
-        self.id = id
-        self.name = name
-        self.type = type
-        self.service_type = service_type
-        self.description = description
-        self.enabled = enabled
-
-
-class FakeUser(object):
-    def __init__(self, id, email, name, domain_id=None, description=None):
-        self.id = id
-        self.email = email
-        self.name = name
-        self.description = description
-        if domain_id is not None:
-            self.domain_id = domain_id
 
 
 class FakeVolume(object):
@@ -404,41 +337,10 @@ class FakeKeypair(object):
         self.public_key = public_key
 
 
-class FakeDomain(object):
-    def __init__(self, id, name, description, enabled):
-        self.id = id
-        self.name = name
-        self.description = description
-        self.enabled = enabled
-
-
-class FakeRole(object):
-    def __init__(self, id, name):
-        self.id = id
-        self.name = name
-
-
-class FakeGroup(object):
-    def __init__(self, id, name, description, domain_id=None):
-        self.id = id
-        self.name = name
-        self.description = description
-        self.domain_id = domain_id or 'default'
-
-
 class FakeHypervisor(object):
     def __init__(self, id, hostname):
         self.id = id
         self.hypervisor_hostname = hostname
-
-
-class FakeStack(object):
-    def __init__(self, id, name, description=None, status='CREATE_COMPLETE'):
-        self.id = id
-        self.name = name
-        self.stack_name = name
-        self.stack_description = description
-        self.stack_status = status
 
 
 class FakeZone(object):
