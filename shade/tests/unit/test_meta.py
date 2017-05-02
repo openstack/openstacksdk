@@ -300,17 +300,19 @@ class TestMeta(base.RequestsMockTestCase):
             PRIVATE_V4, meta.get_server_private_ip(srv, self.cloud))
         self.assert_calls()
 
+    @mock.patch.object(shade.OpenStackCloud, 'has_service')
     @mock.patch.object(shade.OpenStackCloud, 'get_volumes')
     @mock.patch.object(shade.OpenStackCloud, 'get_image_name')
     @mock.patch.object(shade.OpenStackCloud, 'get_flavor_name')
     def test_get_server_private_ip_devstack(
             self,
             mock_get_flavor_name, mock_get_image_name,
-            mock_get_volumes):
+            mock_get_volumes, mock_has_service):
 
         mock_get_image_name.return_value = 'cirros-0.3.4-x86_64-uec'
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_get_volumes.return_value = []
+        mock_has_service.return_value = True
 
         self.register_uris([
             dict(method='GET',
@@ -461,16 +463,18 @@ class TestMeta(base.RequestsMockTestCase):
         self.assertEqual(PRIVATE_V4, srv['private_v4'])
         self.assert_calls()
 
+    @mock.patch.object(shade.OpenStackCloud, 'has_service')
     @mock.patch.object(shade.OpenStackCloud, 'get_volumes')
     @mock.patch.object(shade.OpenStackCloud, 'get_image_name')
     @mock.patch.object(shade.OpenStackCloud, 'get_flavor_name')
     def test_get_server_cloud_missing_fips(
             self,
             mock_get_flavor_name, mock_get_image_name,
-            mock_get_volumes):
+            mock_get_volumes, mock_has_service):
         mock_get_image_name.return_value = 'cirros-0.3.4-x86_64-uec'
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_get_volumes.return_value = []
+        mock_has_service.return_value = True
 
         self.register_uris([
             dict(method='GET',

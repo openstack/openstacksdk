@@ -344,7 +344,8 @@ def _get_supplemental_addresses(cloud, server):
     try:
         # Don't bother doing this before the server is active, it's a waste
         # of an API call while polling for a server to come up
-        if cloud._has_floating_ips() and server['status'] == 'ACTIVE':
+        if (cloud.has_service('network') and cloud._has_floating_ips() and
+                server['status'] == 'ACTIVE'):
             for port in cloud.search_ports(
                     filters=dict(device_id=server['id'])):
                 for fip in cloud.search_floating_ips(
