@@ -1701,9 +1701,9 @@ class OpenStackCloud(_normalize.Normalizer):
         return self._ports
 
     def _list_ports(self, filters):
-        with _utils.neutron_exceptions("Error fetching port list"):
-            return self.manager.submit_task(
-                _tasks.PortList(**filters))['ports']
+        return self._network_client.get(
+            "/ports.json", params=filters,
+            error_message="Error fetching port list")
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_volumes)
     def list_volumes(self, cache=True):
@@ -6648,10 +6648,11 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         kwargs['network_id'] = network_id
 
-        with _utils.neutron_exceptions(
-                "Error creating port for network {0}".format(network_id)):
-            return self.manager.submit_task(
-                _tasks.PortCreate(body={'port': kwargs}))['port']
+        return self._network_client.post(
+            "/ports.json", json={'port': kwargs},
+            error_message="Error creating port for network {0}".format(
+                network_id))
+
 
     @_utils.valid_kwargs('name', 'admin_state_up', 'fixed_ips',
                          'security_groups', 'allowed_address_pairs',
@@ -6711,11 +6712,10 @@ class OpenStackCloud(_normalize.Normalizer):
             raise OpenStackCloudException(
                 "failed to find port '{port}'".format(port=name_or_id))
 
-        with _utils.neutron_exceptions(
-                "Error updating port {0}".format(name_or_id)):
-            return self.manager.submit_task(
-                _tasks.PortUpdate(
-                    port=port['id'], body={'port': kwargs}))['port']
+        return self._network_client.put(
+            "/ports/{port_id}.json".format(port_id=port['id']),
+            json={"port": kwargs},
+            error_message="Error updating port {0}".format(name_or_id))
 
     def delete_port(self, name_or_id):
         """Delete a port
@@ -6731,9 +6731,9 @@ class OpenStackCloud(_normalize.Normalizer):
             self.log.debug("Port %s not found for deleting", name_or_id)
             return False
 
-        with _utils.neutron_exceptions(
-                "Error deleting port {0}".format(name_or_id)):
-            self.manager.submit_task(_tasks.PortDelete(port=port['id']))
+        self._network_client.delete(
+            "/ports/{port_id}.json".format(port_id=port['id']),
+            error_message="Error deleting port {0}".format(name_or_id))
         return True
 
     def create_security_group(self, name, description):
