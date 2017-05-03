@@ -13,6 +13,7 @@
 import testtools
 
 from openstack.network.v2 import quota
+from openstack import resource2 as resource
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
@@ -72,6 +73,13 @@ class TestQuota(testtools.TestCase):
         quota_obj = quota.Quota(**body)
         response = quota_obj._prepare_request()
         self.assertNotIn('id', response)
+
+    def test_alternate_id(self):
+        my_tenant_id = 'my-tenant-id'
+        body = {'tenant_id': my_tenant_id, 'network': 12345}
+        quota_obj = quota.Quota(**body)
+        self.assertEqual(my_tenant_id,
+                         resource.Resource._get_id(quota_obj))
 
 
 class TestQuotaDefault(testtools.TestCase):
