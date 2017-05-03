@@ -367,7 +367,7 @@ class CloudConfig(object):
         endpoint_override = self.get_endpoint(service_key)
 
         if not interface_key:
-            if service_key in ('image', 'key-manager', 'identity'):
+            if service_key in ('image', 'key-manager'):
                 interface_key = 'interface'
             else:
                 interface_key = 'endpoint_type'
