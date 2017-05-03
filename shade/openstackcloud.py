@@ -1454,9 +1454,10 @@ class OpenStackCloud(_normalize.Normalizer):
     def _nova_extensions(self):
         extensions = set()
 
-        with _utils.shade_exceptions("Error fetching extension list for nova"):
-            for extension in self._compute_client.get('/extensions'):
-                extensions.add(extension['alias'])
+        for extension in self._compute_client.get(
+                '/extensions',
+                error_message="Error fetching extension list for nova"):
+            extensions.add(extension['alias'])
 
         return extensions
 
@@ -1766,23 +1767,25 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         if get_extra is None:
             get_extra = self._extra_config['get_flavor_extra_specs']
-        with _utils.shade_exceptions("Error fetching flavor list"):
-            flavors = self._normalize_flavors(
-                self._compute_client.get(
-                    '/flavors/detail', params=dict(is_public='None')))
+        flavors = self._normalize_flavors(
+            self._compute_client.get(
+                '/flavors/detail', params=dict(is_public='None'),
+                error_message="Error fetching flavor list"))
 
-        with _utils.shade_exceptions("Error fetching flavor extra specs"):
-            for flavor in flavors:
-                if not flavor.extra_specs and get_extra:
-                    endpoint = "/flavors/{id}/os-extra_specs".format(
-                        id=flavor.id)
-                    try:
-                        flavor.extra_specs = self._compute_client.get(endpoint)
-                    except OpenStackCloudHTTPError as e:
-                        flavor.extra_specs = {}
-                        self.log.debug(
-                            'Fetching extra specs for flavor failed:'
-                            ' %(msg)s', {'msg': str(e)})
+        error_message = "Error fetching flavor extra specs"
+        for flavor in flavors:
+            if not flavor.extra_specs and get_extra:
+                endpoint = "/flavors/{id}/os-extra_specs".format(
+                    id=flavor.id)
+                try:
+                    flavor.extra_specs = self._compute_client.get(
+                        endpoint,
+                        error_message="Error fetching flavor extra specs")
+                except OpenStackCloudHTTPError as e:
+                    flavor.extra_specs = {}
+                    self.log.debug(
+                        'Fetching extra specs for flavor failed:'
+                        ' %(msg)s', {'msg': str(e)})
 
         return flavors
 
@@ -1795,8 +1798,8 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
-        with _utils.shade_exceptions("Error fetching stack list"):
-            stacks = self._orchestration_client.get('/stacks')
+        stacks = self._orchestration_client.get(
+            '/stacks', error_message="Error fetching stack list")
         return self._normalize_stacks(stacks)
 
     def list_server_security_groups(self, server):
@@ -2084,10 +2087,10 @@ class OpenStackCloud(_normalize.Normalizer):
             raise OpenStackCloudUnavailableExtension(
                 'Floating IP pools extension is not available on target cloud')
 
-        with _utils.shade_exceptions("Error fetching floating IP pool list"):
-            return [
-                {'name': p['name']}
-                for p in self._compute_client.get('os-floating-ip-pools')]
+        pools = self._compute_client.get(
+            'os-floating-ip-pools',
+            error_message="Error fetching floating IP pool list")
+        return [{'name': p['name']} for p in pools]
 
     def _list_floating_ips(self, filters=None):
         if self._use_neutron_floating():
@@ -2904,15 +2907,15 @@ class OpenStackCloud(_normalize.Normalizer):
         def _search_one_stack(name_or_id=None, filters=None):
             # stack names are mandatory and enforced unique in the project
             # so a StackGet can always be used for name or ID.
-            with _utils.shade_exceptions("Error fetching stack"):
-                try:
-                    stack = self._orchestration_client.get(
-                        '/stacks/{name_or_id}'.format(name_or_id=name_or_id))
-                    # Treat DELETE_COMPLETE stacks as a NotFound
-                    if stack['stack_status'] == 'DELETE_COMPLETE':
-                        return []
-                except OpenStackCloudURINotFound:
+            try:
+                stack = self._orchestration_client.get(
+                    '/stacks/{name_or_id}'.format(name_or_id=name_or_id),
+                    error_message="Error fetching stack")
+                # Treat DELETE_COMPLETE stacks as a NotFound
+                if stack['stack_status'] == 'DELETE_COMPLETE':
                     return []
+            except OpenStackCloudURINotFound:
+                return []
             stack = self._normalize_stack(stack)
             return _utils._filter_list([stack], name_or_id, filters)
 
@@ -3374,15 +3377,15 @@ class OpenStackCloud(_normalize.Normalizer):
         image = self.get_image(name_or_id)
         if not image:
             return False
-        with _utils.shade_exceptions("Error in deleting image"):
-            self._image_client.delete(
-                '/images/{id}'.format(id=image.id))
-            self.list_images.invalidate(self)
+        self._image_client.delete(
+            '/images/{id}'.format(id=image.id),
+            error_message="Error in deleting image")
+        self.list_images.invalidate(self)
 
-            # Task API means an image was uploaded to swift
-            if self.image_api_use_tasks and IMAGE_OBJECT_KEY in image:
-                (container, objname) = image[IMAGE_OBJECT_KEY].split('/', 1)
-                self.delete_object(container=container, name=objname)
+        # Task API means an image was uploaded to swift
+        if self.image_api_use_tasks and IMAGE_OBJECT_KEY in image:
+            (container, objname) = image[IMAGE_OBJECT_KEY].split('/', 1)
+            self.delete_object(container=container, name=objname)
 
         if wait:
             for count in _utils._iterate_timeout(
