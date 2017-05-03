@@ -2222,11 +2222,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if not proj:
             raise OpenStackCloudException("project does not exist")
 
-        body = {'quota': kwargs}
-        with _utils.neutron_exceptions("network client call failed"):
-            self.manager.submit_task(
-                _tasks.NeutronQuotasSet(tenant_id=proj.id,
-                                        body=body))
+        self._network_client.put(
+            '/quotas/{project_id}.json'.format(project_id=proj.id),
+            json={'quota': kwargs},
+            error_message=("Error setting Neutron's quota for "
+                           "project {0}".format(proj.id)))
 
     def get_network_quotas(self, name_or_id):
         """ Get network quotas for a project
@@ -2239,9 +2239,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         proj = self.get_project(name_or_id)
         if not proj:
             raise OpenStackCloudException("project does not exist")
-        with _utils.neutron_exceptions("network client call failed"):
-            return self.manager.submit_task(
-                _tasks.NeutronQuotasGet(tenant_id=proj.id))
+        return self._network_client.get(
+            '/quotas/{project_id}.json'.format(project_id=proj.id),
+            error_message=("Error fetching Neutron's quota for "
+                           "project {0}".format(proj.id)))
 
     def delete_network_quotas(self, name_or_id):
         """ Delete network quotas for a project
@@ -2255,9 +2256,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         proj = self.get_project(name_or_id)
         if not proj:
             raise OpenStackCloudException("project does not exist")
-        with _utils.neutron_exceptions("network client call failed"):
-            return self.manager.submit_task(
-                _tasks.NeutronQuotasDelete(tenant_id=proj.id))
+        self._network_client.delete(
+            '/quotas/{project_id}.json'.format(project_id=proj.id),
+            error_message=("Error deleting Neutron's quota for "
+                           "project {0}".format(proj.id)))
 
     def list_magnum_services(self):
         """List all Magnum services.
