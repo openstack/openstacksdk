@@ -327,26 +327,6 @@ class NeutronFloatingIPUpdate(task_manager.Task):
         return client.neutron_client.update_floatingip(**self.args)
 
 
-class PortList(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.list_ports(**self.args)
-
-
-class PortCreate(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.create_port(**self.args)
-
-
-class PortUpdate(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.update_port(**self.args)
-
-
-class PortDelete(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.delete_port(**self.args)
-
-
 class MachineCreate(task_manager.Task):
     def main(self, client):
         return client.ironic_client.node.create(**self.args)
