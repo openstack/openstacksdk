@@ -10,12 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import unittest
 import uuid
 
 from openstack.load_balancer.v2 import load_balancer
 from openstack.tests.functional import base
 
 
+@unittest.skipUnless(base.service_exists(service_type='load_balancer'),
+                     'Load-balancing service does not exist')
 class TestLoadBalancer(base.BaseFunctionalTest):
 
     NAME = uuid.uuid4().hex

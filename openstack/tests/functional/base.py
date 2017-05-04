@@ -23,11 +23,11 @@ from openstack import connection
 #: file, typically in $HOME/.config/openstack/clouds.yaml. That configuration
 #: will determine where the functional tests will be run and what resource
 #: defaults will be used to run the functional tests.
-TEST_CLOUD = os.getenv('OS_CLOUD', 'test_cloud')
+TEST_CLOUD = os.getenv('OS_CLOUD', 'devstack-admin')
 
 
 class Opts(object):
-    def __init__(self, cloud_name='test_cloud', debug=False):
+    def __init__(self, cloud_name='devstack-admin', debug=False):
         self.cloud = cloud_name
         self.debug = debug
 

@@ -10,9 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import unittest
+
 from openstack.tests.functional import base
 
 
+@unittest.skipUnless(base.service_exists(service_type='object-store'),
+                     'Object Storage service does not exist')
 class TestAccount(base.BaseFunctionalTest):
 
     @classmethod

@@ -19,6 +19,8 @@ from openstack.tests.functional.network.v2 import test_network
 
 
 @unittest.skip("bug/1525005")
+@unittest.skipUnless(base.service_exists(service_type='orchestration'),
+                     'Orchestration service does not exist')
 class TestStack(base.BaseFunctionalTest):
 
     NAME = 'test_stack'
