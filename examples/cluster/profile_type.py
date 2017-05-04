@@ -14,7 +14,7 @@
 Managing profile types in the Cluster service.
 
 For a full guide see
-http://developer.openstack.org/sdks/python/openstacksdk/users/guides/cluster.html
+https://developer.openstack.org/sdks/python/openstacksdk/users/guides/cluster.html
 """
 
 
