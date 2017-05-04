@@ -60,7 +60,7 @@ class TestVolume(base.RequestsMockTestCase):
                          'volumeId': vol['id']}})
                  )])
         with testtools.ExpectedException(
-            shade.OpenStackCloudException,
+            shade.OpenStackCloudURINotFound,
             "Error attaching volume %s to server %s" % (
                 volume['id'], server['id'])
         ):
