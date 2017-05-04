@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import unittest
-
 from openstack.tests.functional import base
 
 
@@ -22,7 +20,6 @@ class TestQuota(base.BaseFunctionalTest):
             self.assertIsNotNone(qot.project_id)
             self.assertIsNotNone(qot.networks)
 
-    @unittest.skip('bug/1687202')
     def test_set(self):
         attrs = {'networks': 123456789}
         for project_quota in self.conn.network.quotas():
