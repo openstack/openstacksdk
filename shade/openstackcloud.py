@@ -1929,11 +1929,9 @@ class OpenStackCloud(_normalize.Normalizer):
         # Handle neutron security groups
         if self._use_neutron_secgroups():
             # Neutron returns dicts, so no need to convert objects here.
-            with _utils.neutron_exceptions(
-                    "Error fetching security group list"):
-                groups = self.manager.submit_task(
-                    _tasks.NeutronSecurityGroupList(**filters)
-                )['security_groups']
+            groups = self._network_client.get(
+                '/security-groups.json', params=filters,
+                error_message="Error fetching security group list")
 
         # Handle nova security groups
         else:
@@ -6760,13 +6758,11 @@ class OpenStackCloud(_normalize.Normalizer):
 
         group = None
         if self._use_neutron_secgroups():
-            with _utils.neutron_exceptions(
-                    "Error creating security group {0}".format(name)):
-                group = self.manager.submit_task(
-                    _tasks.NeutronSecurityGroupCreate(
-                        body=dict(security_group=dict(name=name,
-                                                      description=description))
-                    ))['security_group']
+            group = self._network_client.post(
+                '/security-groups.json',
+                json={'security_group': 
+                    {'name': name, 'description': description}},
+                error_message="Error creating security group {0}".format(name))
 
         else:
             group = self._compute_client.post(
@@ -6802,13 +6798,11 @@ class OpenStackCloud(_normalize.Normalizer):
             return False
 
         if self._use_neutron_secgroups():
-            with _utils.neutron_exceptions(
-                    "Error deleting security group {0}".format(name_or_id)):
-                self.manager.submit_task(
-                    _tasks.NeutronSecurityGroupDelete(
-                        security_group=secgroup['id']
-                    )
-                )
+            self._network_client.delete(
+                '/security-groups/{sg_id}.json'.format(sg_id=secgroup['id']),
+                error_message="Error deleting security group {0}".format(
+                    name_or_id)
+            )
             return True
 
         else:
@@ -6841,14 +6835,11 @@ class OpenStackCloud(_normalize.Normalizer):
                 "Security group %s not found." % name_or_id)
 
         if self._use_neutron_secgroups():
-            with _utils.neutron_exceptions(
-                    "Error updating security group {0}".format(name_or_id)):
-                group = self.manager.submit_task(
-                    _tasks.NeutronSecurityGroupUpdate(
-                        security_group=group['id'],
-                        body={'security_group': kwargs})
-                )['security_group']
-
+            group = self._network_client.put(
+                '/security-groups/{sg_id}.json'.format(sg_id=group['id']),
+                json={'security_group': kwargs},
+                error_message="Error updating security group {0}".format(
+                    name_or_id))
         else:
             for key in ('name', 'description'):
                 kwargs.setdefault(key, group[key])
@@ -6935,13 +6926,11 @@ class OpenStackCloud(_normalize.Normalizer):
                 'ethertype': ethertype
             }
 
-            with _utils.neutron_exceptions(
-                    "Error creating security group rule"):
-                rule = self.manager.submit_task(
-                    _tasks.NeutronSecurityGroupRuleCreate(
-                        body={'security_group_rule': rule_def})
-                )
-            return self._normalize_secgroup_rule(rule['security_group_rule'])
+            rule = self._network_client.post(
+                '/security-group-rules.json',
+                json={'security_group_rule': rule_def},
+                error_message="Error creating security group rule")
+            return self._normalize_secgroup_rule(rule)
 
         else:
             # NOTE: Neutron accepts None for protocol. Nova does not.
@@ -7003,13 +6992,10 @@ class OpenStackCloud(_normalize.Normalizer):
 
         if self._use_neutron_secgroups():
             try:
-                with _utils.neutron_exceptions(
-                        "Error deleting security group rule "
-                        "{0}".format(rule_id)):
-                    self.manager.submit_task(
-                        _tasks.NeutronSecurityGroupRuleDelete(
-                            security_group_rule=rule_id)
-                    )
+                self._network_client.delete(
+                    '/security-group-rules/{sg_id}.json'.format(sg_id=rule_id),
+                    error_message="Error deleting security group rule "
+                                  "{0}".format(rule_id))
             except OpenStackCloudResourceNotFound:
                 return False
             return True

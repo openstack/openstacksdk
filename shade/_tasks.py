@@ -252,36 +252,6 @@ class VolumeSnapshotDelete(task_manager.Task):
         return client.cinder_client.volume_snapshots.delete(**self.args)
 
 
-class NeutronSecurityGroupList(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.list_security_groups(**self.args)
-
-
-class NeutronSecurityGroupCreate(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.create_security_group(**self.args)
-
-
-class NeutronSecurityGroupDelete(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.delete_security_group(**self.args)
-
-
-class NeutronSecurityGroupUpdate(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.update_security_group(**self.args)
-
-
-class NeutronSecurityGroupRuleCreate(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.create_security_group_rule(**self.args)
-
-
-class NeutronSecurityGroupRuleDelete(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.delete_security_group_rule(**self.args)
-
-
 class NeutronFloatingIPList(task_manager.Task):
     def main(self, client):
         return client.neutron_client.list_floatingips(**self.args)
