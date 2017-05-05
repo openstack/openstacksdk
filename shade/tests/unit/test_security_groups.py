@@ -188,6 +188,44 @@ class TestSecurityGroups(base.RequestsMockTestCase):
 
         self.assert_calls()
 
+    def test_create_security_group_neutron_specific_tenant(self):
+        self.cloud.secgroup_source = 'neutron'
+        project_id = "861808a93da0484ea1767967c4df8a23"
+        group_name = self.getUniqueString()
+        group_desc = 'security group from' \
+                     ' test_create_security_group_neutron_specific_tenant'
+        new_group = meta.obj_to_dict(
+            fakes.FakeSecgroup(
+                id='2',
+                name=group_name,
+                description=group_desc,
+                project_id=project_id,
+                rules=[]))
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-groups.json']),
+                 json={'security_group': new_group},
+                 validate=dict(
+                     json={'security_group': {
+                         'name': group_name,
+                         'description': group_desc,
+                         'tenant_id': project_id
+                     }}))
+        ])
+
+        r = self.cloud.create_security_group(
+            group_name,
+            group_desc,
+            project_id
+        )
+        self.assertEqual(group_name, r['name'])
+        self.assertEqual(group_desc, r['description'])
+        self.assertEqual(project_id, r['tenant_id'])
+
+        self.assert_calls()
+
     def test_create_security_group_nova(self):
         group_name = self.getUniqueString()
         self.has_neutron = False
@@ -206,7 +244,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
                  validate=dict(json={
                      'security_group': {
                          'name': group_name,
-                         'description': group_desc,
+                         'description': group_desc
                      }})),
         ])
 
@@ -294,8 +332,8 @@ class TestSecurityGroups(base.RequestsMockTestCase):
 
         expected_new_rule = copy.copy(expected_args)
         expected_new_rule['id'] = '1234'
-        expected_new_rule['project_id'] = ''
-        expected_new_rule['tenant_id'] = expected_new_rule['project_id']
+        expected_new_rule['tenant_id'] = ''
+        expected_new_rule['project_id'] = expected_new_rule['tenant_id']
 
         self.register_uris([
             dict(method='GET',
@@ -313,6 +351,51 @@ class TestSecurityGroups(base.RequestsMockTestCase):
         ])
         new_rule = self.cloud.create_security_group_rule(
             secgroup_name_or_id=neutron_grp_dict['id'], **args)
+        # NOTE(slaweq): don't check location and properties in new rule
+        new_rule.pop("location")
+        new_rule.pop("properties")
+        self.assertEqual(expected_new_rule, new_rule)
+        self.assert_calls()
+
+    def test_create_security_group_rule_neutron_specific_tenant(self):
+        self.cloud.secgroup_source = 'neutron'
+        args = dict(
+            port_range_min=-1,
+            port_range_max=40000,
+            protocol='tcp',
+            remote_ip_prefix='0.0.0.0/0',
+            remote_group_id='456',
+            direction='egress',
+            ethertype='IPv6',
+            project_id='861808a93da0484ea1767967c4df8a23'
+        )
+        expected_args = copy.copy(args)
+        # For neutron, -1 port should be converted to None
+        expected_args['port_range_min'] = None
+        expected_args['security_group_id'] = neutron_grp_dict['id']
+        expected_args['tenant_id'] = expected_args['project_id']
+        expected_args.pop('project_id')
+
+        expected_new_rule = copy.copy(expected_args)
+        expected_new_rule['id'] = '1234'
+        expected_new_rule['project_id'] = expected_new_rule['tenant_id']
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-groups.json']),
+                 json={'security_groups': [neutron_grp_dict]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-group-rules.json']),
+                 json={'security_group_rule': expected_new_rule},
+                 validate=dict(json={
+                     'security_group_rule': expected_args}))
+        ])
+        new_rule = self.cloud.create_security_group_rule(
+            secgroup_name_or_id=neutron_grp_dict['id'], ** args)
         # NOTE(slaweq): don't check location and properties in new rule
         new_rule.pop("location")
         new_rule.pop("properties")

@@ -311,10 +311,11 @@ class FakeMachinePort(object):
 
 
 class FakeSecgroup(object):
-    def __init__(self, id, name, description='', rules=None):
+    def __init__(self, id, name, description='', project_id=None, rules=None):
         self.id = id
         self.name = name
         self.description = description
+        self.project_id = project_id
         self.rules = rules
 
 
