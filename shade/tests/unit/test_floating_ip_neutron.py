@@ -19,6 +19,7 @@ test_floating_ip_neutron
 Tests Floating IP resource methods for Neutron
 """
 
+import copy
 from mock import patch
 import munch
 
@@ -583,111 +584,163 @@ class TestFloatingIP(base.RequestsMockTestCase):
 
         self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'keystone_session')
-    @patch.object(OpenStackCloud, '_neutron_create_floating_ip')
-    @patch.object(OpenStackCloud, '_neutron_list_floating_ips')
-    @patch.object(OpenStackCloud, 'list_networks')
-    @patch.object(OpenStackCloud, 'list_subnets')
     @patch.object(OpenStackCloud, 'has_service')
-    def test_available_floating_ip_new(
-            self, mock_has_service, mock_list_subnets, mock_list_networks,
-            mock__neutron_list_floating_ips,
-            mock__neutron_create_floating_ip, mock_keystone_session):
+    def test_available_floating_ip_new(self, mock_has_service):
         mock_has_service.return_value = True
-        mock_list_networks.return_value = [self.mock_get_network_rep]
-        mock_list_subnets.return_value = []
-        mock__neutron_list_floating_ips.return_value = []
-        mock__neutron_create_floating_ip.return_value = \
-            self.mock_floating_ip_new_rep['floatingip']
-        mock_keystone_session.get_project_id.return_value = \
-            '4969c491a3c74ee4af974e6d800c62df'
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [self.mock_get_network_rep]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnets': []}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 validate=dict(
+                     json={'floatingip': {
+                         'floating_network_id': 'my-network-id'}}),
+                 json=self.mock_floating_ip_new_rep)
+        ])
 
         ip = self.cloud.available_floating_ip(network='my-network')
 
         self.assertEqual(
             self.mock_floating_ip_new_rep['floatingip']['floating_ip_address'],
             ip['floating_ip_address'])
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'get_floating_ip')
-    @patch.object(OpenStackCloud, 'neutron_client')
     @patch.object(OpenStackCloud, 'has_service')
-    def test_delete_floating_ip_existing(
-            self, mock_has_service, mock_neutron_client, mock_get_floating_ip):
+    def test_delete_floating_ip_existing(self, mock_has_service):
+        fip_id = '2f245a7b-796b-4f26-9cf9-9e82d248fda7'
         mock_has_service.return_value = True
         fake_fip = {
-            'id': '2f245a7b-796b-4f26-9cf9-9e82d248fda7',
+            'id': fip_id,
             'floating_ip_address': '172.99.106.167',
             'status': 'ACTIVE',
         }
+        self.register_uris([
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'floatingips/{0}.json'.format(fip_id)]),
+                 json={}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': [fake_fip]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'floatingips/{0}.json'.format(fip_id)]),
+                 json={}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': [fake_fip]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'floatingips/{0}.json'.format(fip_id)]),
+                 json={}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': []}),
+        ])
 
-        mock_get_floating_ip.side_effect = [fake_fip, fake_fip, None]
-        mock_neutron_client.delete_floatingip.return_value = None
+        self.assertTrue(
+            self.cloud.delete_floating_ip(floating_ip_id=fip_id, retry=2))
+        self.assert_calls()
 
-        ret = self.cloud.delete_floating_ip(
-            floating_ip_id='2f245a7b-796b-4f26-9cf9-9e82d248fda7',
-            retry=2)
-
-        mock_neutron_client.delete_floatingip.assert_called_with(
-            floatingip='2f245a7b-796b-4f26-9cf9-9e82d248fda7'
-        )
-        self.assertEqual(mock_get_floating_ip.call_count, 3)
-        self.assertTrue(ret)
-
-    @patch.object(OpenStackCloud, 'get_floating_ip')
-    @patch.object(OpenStackCloud, 'neutron_client')
     @patch.object(OpenStackCloud, 'has_service')
-    def test_delete_floating_ip_existing_down(
-            self, mock_has_service, mock_neutron_client, mock_get_floating_ip):
+    def test_delete_floating_ip_existing_down(self, mock_has_service):
+        fip_id = '2f245a7b-796b-4f26-9cf9-9e82d248fda7'
         mock_has_service.return_value = True
         fake_fip = {
-            'id': '2f245a7b-796b-4f26-9cf9-9e82d248fda7',
+            'id': fip_id,
             'floating_ip_address': '172.99.106.167',
             'status': 'ACTIVE',
         }
         down_fip = {
-            'id': '2f245a7b-796b-4f26-9cf9-9e82d248fda7',
+            'id': fip_id,
             'floating_ip_address': '172.99.106.167',
             'status': 'DOWN',
         }
+        self.register_uris([
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'floatingips/{0}.json'.format(fip_id)]),
+                 json={}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': [fake_fip]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'floatingips/{0}.json'.format(fip_id)]),
+                 json={}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': [down_fip]}),
+        ])
 
-        mock_get_floating_ip.side_effect = [fake_fip, down_fip, None]
-        mock_neutron_client.delete_floatingip.return_value = None
+        self.assertTrue(
+            self.cloud.delete_floating_ip(floating_ip_id=fip_id, retry=2))
+        self.assert_calls()
 
-        ret = self.cloud.delete_floating_ip(
-            floating_ip_id='2f245a7b-796b-4f26-9cf9-9e82d248fda7',
-            retry=2)
-
-        mock_neutron_client.delete_floatingip.assert_called_with(
-            floatingip='2f245a7b-796b-4f26-9cf9-9e82d248fda7'
-        )
-        self.assertEqual(mock_get_floating_ip.call_count, 2)
-        self.assertTrue(ret)
-
-    @patch.object(OpenStackCloud, 'get_floating_ip')
-    @patch.object(OpenStackCloud, 'neutron_client')
     @patch.object(OpenStackCloud, 'has_service')
-    def test_delete_floating_ip_existing_no_delete(
-            self, mock_has_service, mock_neutron_client, mock_get_floating_ip):
+    def test_delete_floating_ip_existing_no_delete(self, mock_has_service):
+        fip_id = '2f245a7b-796b-4f26-9cf9-9e82d248fda7'
         mock_has_service.return_value = True
         fake_fip = {
-            'id': '2f245a7b-796b-4f26-9cf9-9e82d248fda7',
+            'id': fip_id,
             'floating_ip_address': '172.99.106.167',
             'status': 'ACTIVE',
         }
-
-        mock_get_floating_ip.side_effect = [fake_fip, fake_fip, fake_fip]
-        mock_neutron_client.delete_floatingip.return_value = None
-
+        self.register_uris([
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'floatingips/{0}.json'.format(fip_id)]),
+                 json={}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': [fake_fip]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'floatingips/{0}.json'.format(fip_id)]),
+                 json={}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': [fake_fip]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'floatingips/{0}.json'.format(fip_id)]),
+                 json={}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': [fake_fip]}),
+        ])
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud.delete_floating_ip,
-            floating_ip_id='2f245a7b-796b-4f26-9cf9-9e82d248fda7',
-            retry=2)
-
-        mock_neutron_client.delete_floatingip.assert_called_with(
-            floatingip='2f245a7b-796b-4f26-9cf9-9e82d248fda7'
-        )
-        self.assertEqual(mock_get_floating_ip.call_count, 3)
+            floating_ip_id=fip_id, retry=2)
+        self.assert_calls()
 
     def test_delete_floating_ip_not_found(self):
         self.register_uris([
@@ -702,44 +755,81 @@ class TestFloatingIP(base.RequestsMockTestCase):
         self.assertFalse(ret)
         self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'search_ports')
-    @patch.object(OpenStackCloud, 'neutron_client')
     @patch.object(OpenStackCloud, 'has_service')
-    def test_attach_ip_to_server(
-            self, mock_has_service, mock_neutron_client, mock_search_ports):
+    def test_attach_ip_to_server(self, mock_has_service):
+        fip = self.mock_floating_ip_list_rep['floatingips'][0]
+        device_id = self.fake_server['id']
         mock_has_service.return_value = True
 
-        mock_search_ports.return_value = self.mock_search_ports_rep
-
-        mock_neutron_client.list_floatingips.return_value = \
-            self.mock_floating_ip_list_rep
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json'],
+                     qs_elements=["device_id={0}".format(device_id)]),
+                 json={'ports': self.mock_search_ports_rep}),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'floatingips/{0}.json'.format(
+                         fip['id'])]),
+                 json={'floatingip': fip},
+                 validate=dict(
+                     json={'floatingip': {
+                         'port_id': self.mock_search_ports_rep[0]['id'],
+                         'fixed_ip_address': self.mock_search_ports_rep[0][
+                             'fixed_ips'][0]['ip_address']}})),
+        ])
 
         self.cloud._attach_ip_to_server(
             server=self.fake_server,
             floating_ip=self.floating_ip)
+        self.assert_calls()
 
-        mock_neutron_client.update_floatingip.assert_called_with(
-            floatingip=self.mock_floating_ip_list_rep['floatingips'][0]['id'],
-            body={
-                'floatingip': {
-                    'port_id': self.mock_search_ports_rep[0]['id'],
-                    'fixed_ip_address': self.mock_search_ports_rep[0][
-                        'fixed_ips'][0]['ip_address']
-                }
-            }
-        )
-
-    @patch.object(OpenStackCloud, 'delete_floating_ip')
     @patch.object(OpenStackCloud, 'get_server')
-    @patch.object(OpenStackCloud, 'create_floating_ip')
     @patch.object(OpenStackCloud, 'has_service')
-    def test_add_ip_refresh_timeout(
-            self, mock_has_service, mock_create_floating_ip,
-            mock_get_server, mock_delete_floating_ip):
+    def test_add_ip_refresh_timeout(self, mock_has_service, mock_get_server):
         mock_has_service.return_value = True
-
-        mock_create_floating_ip.return_value = self.floating_ip
+        device_id = self.fake_server['id']
         mock_get_server.return_value = self.fake_server
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'networks.json']),
+                 json={'networks': [self.mock_get_network_rep]}),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/subnets.json',
+                 json={'subnets': []}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json'],
+                     qs_elements=["device_id={0}".format(device_id)]),
+                 json={'ports': self.mock_search_ports_rep}),
+            dict(method='POST',
+                 uri='https://network.example.com/v2.0/floatingips.json',
+                 json={'floatingip': self.floating_ip},
+                 validate=dict(
+                     json={'floatingip': {
+                         'floating_network_id': 'my-network-id',
+                         'fixed_ip_address': self.mock_search_ports_rep[0][
+                             'fixed_ips'][0]['ip_address'],
+                         'port_id': self.mock_search_ports_rep[0]['id']}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': [self.floating_ip]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'floatingips/{0}.json'.format(
+                         self.floating_ip['id'])]),
+                 json={}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': []}),
+        ])
 
         self.assertRaises(
             exc.OpenStackCloudTimeout,
@@ -747,59 +837,88 @@ class TestFloatingIP(base.RequestsMockTestCase):
             server=self.fake_server,
             wait=True, timeout=0.01,
             reuse=False)
+        self.assert_calls()
 
-        mock_delete_floating_ip.assert_called_once_with(
-            self.floating_ip['id'])
-
-    @patch.object(OpenStackCloud, 'get_floating_ip')
-    @patch.object(OpenStackCloud, 'neutron_client')
     @patch.object(OpenStackCloud, 'has_service')
-    def test_detach_ip_from_server(
-            self, mock_has_service, mock_neutron_client,
-            mock_get_floating_ip):
+    def test_detach_ip_from_server(self, mock_has_service):
+        fip = self.mock_floating_ip_new_rep['floatingip']
+        attached_fip = copy.copy(fip)
+        attached_fip['port_id'] = 'server-port-id'
         mock_has_service.return_value = True
-        mock_get_floating_ip.return_value = \
-            self.cloud._normalize_floating_ips(
-                self.mock_floating_ip_list_rep['floatingips'])[0]
-
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': [attached_fip]}),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'floatingips/{0}.json'.format(
+                         fip['id'])]),
+                 json={'floatingip': fip},
+                 validate=dict(
+                     json={'floatingip': {'port_id': None}}))
+        ])
         self.cloud.detach_ip_from_server(
             server_id='server-id',
-            floating_ip_id='2f245a7b-796b-4f26-9cf9-9e82d248fda7')
+            floating_ip_id=fip['id'])
+        self.assert_calls()
 
-        mock_neutron_client.update_floatingip.assert_called_with(
-            floatingip='2f245a7b-796b-4f26-9cf9-9e82d248fda7',
-            body={
-                'floatingip': {
-                    'port_id': None
-                }
-            }
-        )
-
-    @patch.object(OpenStackCloud, '_attach_ip_to_server')
-    @patch.object(OpenStackCloud, 'available_floating_ip')
     @patch.object(OpenStackCloud, 'has_service')
-    def test_add_ip_from_pool(
-            self, mock_has_service, mock_available_floating_ip,
-            mock_attach_ip_to_server):
+    def test_add_ip_from_pool(self, mock_has_service):
+        network = self.mock_get_network_rep
+        fip = self.mock_floating_ip_new_rep['floatingip']
+        fixed_ip = self.mock_search_ports_rep[0]['fixed_ips'][0]['ip_address']
+        port_id = self.mock_search_ports_rep[0]['id']
         mock_has_service.return_value = True
-        mock_available_floating_ip.return_value = \
-            self.cloud._normalize_floating_ips([
-                self.mock_floating_ip_new_rep['floatingip']])[0]
-        mock_attach_ip_to_server.return_value = self.fake_server
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [network]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnets': []}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': [fip]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingip': fip},
+                 validate=dict(
+                     json={'floatingip': {
+                         'floating_network_id': network['id']}})),
+            dict(method="GET",
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json'],
+                     qs_elements=[
+                        "device_id={0}".format(self.fake_server['id'])]),
+                 json={'ports': self.mock_search_ports_rep}),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'floatingips/{0}.json'.format(
+                         fip['id'])]),
+                 json={'floatingip': fip},
+                 validate=dict(
+                     json={'floatingip': {
+                         'fixed_ip_address': fixed_ip,
+                         'port_id': port_id}})),
+        ])
 
         server = self.cloud._add_ip_from_pool(
             server=self.fake_server,
-            network='network-name',
-            fixed_address='192.0.2.129')
+            network=network['id'],
+            fixed_address=fixed_ip)
 
         self.assertEqual(server, self.fake_server)
+        self.assert_calls()
 
-    @patch.object(OpenStackCloud, 'delete_floating_ip')
-    @patch.object(OpenStackCloud, 'list_floating_ips')
     @patch.object(OpenStackCloud, '_use_neutron_floating')
-    def test_cleanup_floating_ips(
-            self, mock_use_neutron_floating, mock_list_floating_ips,
-            mock_delete_floating_ip):
+    def test_cleanup_floating_ips(self, mock_use_neutron_floating):
         mock_use_neutron_floating.return_value = True
         floating_ips = [{
             "id": "this-is-a-floating-ip-id",
@@ -807,7 +926,7 @@ class TestFloatingIP(base.RequestsMockTestCase):
             "internal_network": None,
             "floating_ip_address": "203.0.113.29",
             "network": "this-is-a-net-or-pool-id",
-            "attached": False,
+            "port_id": None,
             "status": "ACTIVE"
         }, {
             "id": "this-is-an-attached-floating-ip-id",
@@ -816,28 +935,51 @@ class TestFloatingIP(base.RequestsMockTestCase):
             "floating_ip_address": "203.0.113.29",
             "network": "this-is-a-net-or-pool-id",
             "attached": True,
+            "port_id": "this-is-id-of-port-with-fip",
             "status": "ACTIVE"
         }]
-
-        mock_list_floating_ips.return_value = floating_ips
-
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': floating_ips}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'floatingips/{0}.json'.format(
+                         floating_ips[0]['id'])]),
+                 json={}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': [floating_ips[1]]}),
+        ])
         self.cloud.delete_unattached_floating_ips()
+        self.assert_calls()
 
-        mock_delete_floating_ip.assert_called_once_with(
-            floating_ip_id='this-is-a-floating-ip-id', retry=1)
-
-    @patch.object(OpenStackCloud, '_submit_create_fip')
-    @patch.object(OpenStackCloud, '_nat_destination_port')
-    @patch.object(OpenStackCloud, 'get_external_ipv4_networks')
-    def test_create_floating_ip_no_port(
-            self, mock_get_ext_nets, mock_nat_destination_port,
-            mock_submit_create_fip):
-        fake_port = dict(id='port-id')
-        mock_get_ext_nets.return_value = [self.mock_get_network_rep]
-        mock_nat_destination_port.return_value = (fake_port, '10.0.0.2')
-        mock_submit_create_fip.return_value = dict(port_id=None)
+    def test_create_floating_ip_no_port(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [self.mock_get_network_rep]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnets': []}),
+            dict(method="GET",
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json'],
+                     qs_elements=['device_id=some-server']),
+                 json={'ports': [dict(id='port-id')]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': [dict(port_id=None)]})
+        ])
 
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud._neutron_create_floating_ip,
             server=dict(id='some-server'))
+        self.assert_calls()
