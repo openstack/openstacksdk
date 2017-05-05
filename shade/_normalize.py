@@ -687,6 +687,11 @@ class Normalizer(object):
 
         # Discard noise
         self._remove_novaclient_artifacts(volume)
+        # TODO(rods) two lines below can be removed as soon as we move
+        # to the REST API calls
+        volume.pop('progress', None)
+        volume.pop('project_id', None)
+
         volume_id = volume.pop('id')
 
         name = volume.pop('display_name', None)
