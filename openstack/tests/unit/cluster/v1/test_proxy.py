@@ -26,6 +26,7 @@ from openstack.cluster.v1 import policy_type
 from openstack.cluster.v1 import profile
 from openstack.cluster.v1 import profile_type
 from openstack.cluster.v1 import receiver
+from openstack.cluster.v1 import service
 from openstack import proxy2 as proxy_base
 from openstack.tests.unit import test_proxy_base2
 
@@ -209,6 +210,11 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
                      self.proxy.cluster_scale_in,
                      method_args=[mock_cluster, 5],
                      expected_args=[5])
+
+    def test_services(self):
+        self.verify_list(self.proxy.services,
+                         service.Service,
+                         paginated=False)
 
     @mock.patch.object(proxy_base.BaseProxy, '_find')
     def test_cluster_resize(self, mock_find):

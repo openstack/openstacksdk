@@ -22,6 +22,7 @@ from openstack.cluster.v1 import policy_type as _policy_type
 from openstack.cluster.v1 import profile as _profile
 from openstack.cluster.v1 import profile_type as _profile_type
 from openstack.cluster.v1 import receiver as _receiver
+from openstack.cluster.v1 import service as _service
 from openstack import proxy2
 from openstack import resource2
 from openstack import utils
@@ -1083,3 +1084,11 @@ class Proxy(proxy2.BaseProxy):
         """
         return resource2.wait_for_delete(self._session, resource, interval,
                                          wait)
+
+    def services(self, **query):
+        """Get a generator of service.
+
+        :returns: A generator of objects that are of type
+                  :class:`~openstack.cluster.v1.service.Service`
+        """
+        return self._list(_service.Service, paginated=False, **query)
