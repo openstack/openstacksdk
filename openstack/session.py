@@ -186,7 +186,8 @@ class Session(_session.Session):
         # However, we do need to know that the project id was
         # previously there, so keep it.
         project_id = self.get_project_id()
-        project_id_location = parts.path.find(project_id)
+        # Domain scope token don't include project id
+        project_id_location = parts.path.find(project_id) if project_id else -1
         if project_id_location > -1:
             usable_path = parts.path[slice(0, project_id_location)]
             needs_project_id = True

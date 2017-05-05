@@ -328,6 +328,27 @@ class TestSession(testtools.TestCase):
         self.assertEqual(result, responses[0])
         self.assertFalse(result.needs_project_id)
 
+    def test__get_endpoint_versions_with_domain_scope(self):
+        # This test covers a common case of services deployed under
+        # subdomains. Additionally, it covers the case of getting endpoint
+        # versions with domain scope token
+        sc_uri = "https://service.cloud.com/identity"
+        versions_uri = "https://service.cloud.com"
+
+        sot = session.Session(None)
+        # Project id is None when domain scope session present
+        sot.get_project_id = mock.Mock(return_value=None)
+
+        responses = [session.Session._Endpoint(versions_uri, "versions")]
+        sot._parse_versions_response = mock.Mock(side_effect=responses)
+
+        result = sot._get_endpoint_versions("type", sc_uri)
+
+        sot._parse_versions_response.assert_called_once_with(versions_uri)
+        self.assertEqual(result, responses[0])
+        self.assertFalse(result.needs_project_id)
+        self.assertIsNone(result.project_id)
+
     def test__parse_version(self):
         sot = session.Session(None)
 
