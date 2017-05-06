@@ -4128,13 +4128,13 @@ class OpenStackCloud(_normalize.Normalizer):
         """
 
         kwargs = self._get_volume_kwargs(kwargs)
-        with _utils.shade_exceptions(
-                "Error creating snapshot of volume {volume_id}".format(
-                    volume_id=volume_id)):
-            snapshot = self.manager.submit_task(
-                _tasks.VolumeSnapshotCreate(
-                    volume_id=volume_id, force=force,
-                    **kwargs))
+        payload = {'volume_id': volume_id, 'force': force}
+        payload.update(kwargs)
+        snapshot = self._volume_client.post(
+            '/snapshots',
+            json=dict(snapshot=payload),
+            error_message="Error creating snapshot of volume "
+                          "{volume_id}".format(volume_id=volume_id))
 
         if wait:
             snapshot_id = snapshot['id']
@@ -4165,15 +4165,10 @@ class OpenStackCloud(_normalize.Normalizer):
         param: snapshot_id: ID of the volume snapshot.
 
         """
-        with _utils.shade_exceptions(
-                "Error getting snapshot {snapshot_id}".format(
-                    snapshot_id=snapshot_id)):
-            snapshot = self.manager.submit_task(
-                _tasks.VolumeSnapshotGet(
-                    snapshot_id=snapshot_id
-                )
-            )
-
+        snapshot = self._volume_client.get(
+            '/snapshots/{snapshot_id}'.format(snapshot_id=snapshot_id),
+            error_message="Error getting snapshot "
+                          "{snapshot_id}".format(snapshot_id=snapshot_id))
         return self._normalize_volume(snapshot)
 
     def get_volume_snapshot(self, name_or_id, filters=None):
@@ -4265,11 +4260,11 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: A list of volume snapshots ``munch.Munch``.
 
         """
-        with _utils.shade_exceptions("Error getting a list of snapshots"):
-            return self._normalize_volumes(
-                self.manager.submit_task(
-                    _tasks.VolumeSnapshotList(
-                        detailed=detailed, search_opts=search_opts)))
+        endpoint = '/snapshots/detail' if detailed else '/snapshots'
+        return self._volume_client.get(
+            endpoint,
+            params=search_opts,
+            error_message="Error getting a list of snapshots")
 
     def list_volume_backups(self, detailed=True, search_opts=None):
         """
@@ -4350,12 +4345,10 @@ class OpenStackCloud(_normalize.Normalizer):
         if not volumesnapshot:
             return False
 
-        with _utils.shade_exceptions("Error in deleting volume snapshot"):
-            self.manager.submit_task(
-                _tasks.VolumeSnapshotDelete(
-                    snapshot=volumesnapshot['id']
-                )
-            )
+        self._volume_client.delete(
+            '/snapshots/{snapshot_id}'.format(
+                snapshot_id=volumesnapshot['id']),
+            error_message="Error in deleting volume snapshot")
 
         if wait:
             for count in _utils._iterate_timeout(
