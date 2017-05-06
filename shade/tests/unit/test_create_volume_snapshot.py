@@ -17,93 +17,122 @@ test_create_volume_snapshot
 Tests for the `create_volume_snapshot` command.
 """
 
-from mock import patch
-import shade
 from shade import exc
 from shade import meta
 from shade.tests import fakes
 from shade.tests.unit import base
 
 
-class TestCreateVolumeSnapshot(base.TestCase):
+class TestCreateVolumeSnapshot(base.RequestsMockTestCase):
 
-    @patch.object(shade.OpenStackCloud, 'cinder_client')
-    def test_create_volume_snapshot_wait(self, mock_cinder):
+    def test_create_volume_snapshot_wait(self):
         """
         Test that create_volume_snapshot with a wait returns the volume
         snapshot when its status changes to "available".
         """
-        build_snapshot = fakes.FakeVolumeSnapshot('1234', 'creating',
+        snapshot_id = '5678'
+        volume_id = '1234'
+        build_snapshot = fakes.FakeVolumeSnapshot(snapshot_id, 'creating',
                                                   'foo', 'derpysnapshot')
-        fake_snapshot = fakes.FakeVolumeSnapshot('1234', 'available',
+        build_snapshot_dict = meta.obj_to_dict(build_snapshot)
+        fake_snapshot = fakes.FakeVolumeSnapshot(snapshot_id, 'available',
                                                  'foo', 'derpysnapshot')
+        fake_snapshot_dict = meta.obj_to_dict(fake_snapshot)
 
-        mock_cinder.volume_snapshots.create.return_value = build_snapshot
-        mock_cinder.volume_snapshots.get.return_value = fake_snapshot
-        mock_cinder.volume_snapshots.list.return_value = [
-            build_snapshot, fake_snapshot]
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['snapshots']),
+                 json={'snapshot': build_snapshot_dict},
+                 validate=dict(
+                     json={'snapshot': {'description': None,
+                                        'force': False,
+                                        'metadata': {},
+                                        'name': None,
+                                        'volume_id': volume_id}})),
+            dict(method='GET',
+                 uri=self.get_mock_url('volumev2', 'public',
+                                       append=['snapshots', snapshot_id]),
+                 json={'snapshot': build_snapshot_dict}),
+            dict(method='GET',
+                 uri=self.get_mock_url('volumev2', 'public',
+                                       append=['snapshots', snapshot_id]),
+                 json={'snapshot': fake_snapshot_dict})])
 
         self.assertEqual(
-            self.cloud._normalize_volume(
-                meta.obj_to_dict(fake_snapshot)),
-            self.cloud.create_volume_snapshot(volume_id='1234', wait=True)
+            self.cloud._normalize_volume(fake_snapshot_dict),
+            self.cloud.create_volume_snapshot(volume_id=volume_id, wait=True)
         )
+        self.assert_calls()
 
-        mock_cinder.volume_snapshots.create.assert_called_with(
-            force=False, volume_id='1234'
-        )
-        mock_cinder.volume_snapshots.get.assert_called_with(
-            snapshot_id=meta.obj_to_dict(build_snapshot)['id']
-        )
-
-    @patch.object(shade.OpenStackCloud, 'cinder_client')
-    def test_create_volume_snapshot_with_timeout(self, mock_cinder):
+    def test_create_volume_snapshot_with_timeout(self):
         """
         Test that a timeout while waiting for the volume snapshot to create
         raises an exception in create_volume_snapshot.
         """
-        build_snapshot = fakes.FakeVolumeSnapshot('1234', 'creating',
+        snapshot_id = '5678'
+        volume_id = '1234'
+        build_snapshot = fakes.FakeVolumeSnapshot(snapshot_id, 'creating',
                                                   'foo', 'derpysnapshot')
+        build_snapshot_dict = meta.obj_to_dict(build_snapshot)
 
-        mock_cinder.volume_snapshots.create.return_value = build_snapshot
-        mock_cinder.volume_snapshots.get.return_value = build_snapshot
-        mock_cinder.volume_snapshots.list.return_value = [build_snapshot]
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['snapshots']),
+                 json={'snapshot': build_snapshot_dict},
+                 validate=dict(
+                     json={'snapshot': {'description': None,
+                                        'force': False,
+                                        'metadata': {},
+                                        'name': None,
+                                        'volume_id': volume_id}})),
+            dict(method='GET',
+                 uri=self.get_mock_url('volumev2', 'public',
+                                       append=['snapshots', snapshot_id]),
+                 json={'snapshot': build_snapshot_dict})])
 
         self.assertRaises(
             exc.OpenStackCloudTimeout,
-            self.cloud.create_volume_snapshot, volume_id='1234',
+            self.cloud.create_volume_snapshot, volume_id=volume_id,
             wait=True, timeout=0.01)
 
-        mock_cinder.volume_snapshots.create.assert_called_with(
-            force=False, volume_id='1234'
-        )
-        mock_cinder.volume_snapshots.get.assert_called_with(
-            snapshot_id=meta.obj_to_dict(build_snapshot)['id']
-        )
-
-    @patch.object(shade.OpenStackCloud, 'cinder_client')
-    def test_create_volume_snapshot_with_error(self, mock_cinder):
+    def test_create_volume_snapshot_with_error(self):
         """
         Test that a error status while waiting for the volume snapshot to
         create raises an exception in create_volume_snapshot.
         """
-        build_snapshot = fakes.FakeVolumeSnapshot('1234', 'creating',
+        snapshot_id = '5678'
+        volume_id = '1234'
+        build_snapshot = fakes.FakeVolumeSnapshot(snapshot_id, 'creating',
                                                   'bar', 'derpysnapshot')
-        error_snapshot = fakes.FakeVolumeSnapshot('1234', 'error',
+        build_snapshot_dict = meta.obj_to_dict(build_snapshot)
+        error_snapshot = fakes.FakeVolumeSnapshot(snapshot_id, 'error',
                                                   'blah', 'derpysnapshot')
+        error_snapshot_dict = meta.obj_to_dict(error_snapshot)
 
-        mock_cinder.volume_snapshots.create.return_value = build_snapshot
-        mock_cinder.volume_snapshots.get.return_value = error_snapshot
-        mock_cinder.volume_snapshots.list.return_value = [error_snapshot]
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['snapshots']),
+                 json={'snapshot': build_snapshot_dict},
+                 validate=dict(
+                     json={'snapshot': {'description': None,
+                                        'force': False,
+                                        'metadata': {},
+                                        'name': None,
+                                        'volume_id': volume_id}})),
+            dict(method='GET',
+                 uri=self.get_mock_url('volumev2', 'public',
+                                       append=['snapshots', snapshot_id]),
+                 json={'snapshot': build_snapshot_dict}),
+            dict(method='GET',
+                 uri=self.get_mock_url('volumev2', 'public',
+                                       append=['snapshots', snapshot_id]),
+                 json={'snapshot': error_snapshot_dict})])
 
         self.assertRaises(
             exc.OpenStackCloudException,
-            self.cloud.create_volume_snapshot, volume_id='1234',
+            self.cloud.create_volume_snapshot, volume_id=volume_id,
             wait=True, timeout=5)
-
-        mock_cinder.volume_snapshots.create.assert_called_with(
-            force=False, volume_id='1234'
-        )
-        mock_cinder.volume_snapshots.get.assert_called_with(
-            snapshot_id=meta.obj_to_dict(build_snapshot)['id']
-        )
+        self.assert_calls()
