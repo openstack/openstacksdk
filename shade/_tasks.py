@@ -232,29 +232,14 @@ class VolumeSnapshotDelete(task_manager.Task):
         return client.cinder_client.volume_snapshots.delete(**self.args)
 
 
-class NeutronFloatingIPList(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.list_floatingips(**self.args)
-
-
 class NovaFloatingIPList(task_manager.Task):
     def main(self, client):
         return client.nova_client.floating_ips.list()
 
 
-class NeutronFloatingIPCreate(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.create_floatingip(**self.args)
-
-
 class NovaFloatingIPCreate(task_manager.Task):
     def main(self, client):
         return client.nova_client.floating_ips.create(**self.args)
-
-
-class NeutronFloatingIPDelete(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.delete_floatingip(**self.args)
 
 
 class NovaFloatingIPDelete(task_manager.Task):
@@ -270,11 +255,6 @@ class NovaFloatingIPAttach(task_manager.Task):
 class NovaFloatingIPDetach(task_manager.Task):
     def main(self, client):
         return client.nova_client.servers.remove_floating_ip(**self.args)
-
-
-class NeutronFloatingIPUpdate(task_manager.Task):
-    def main(self, client):
-        return client.neutron_client.update_floatingip(**self.args)
 
 
 class MachineCreate(task_manager.Task):
