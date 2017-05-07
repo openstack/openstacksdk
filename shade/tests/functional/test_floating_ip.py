@@ -37,8 +37,6 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
     def setUp(self):
         super(TestFloatingIP, self).setUp()
         self.nova = self.user_cloud.nova_client
-        if self.user_cloud.has_service('network'):
-            self.neutron = self.user_cloud.neutron_client
         self.flavor = pick_flavor(self.nova.flavors.list())
         if self.flavor is None:
             self.assertFalse('no sensible flavor available')
@@ -59,20 +57,13 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
             for r in self.user_cloud.list_routers():
                 try:
                     if r['name'].startswith(self.new_item_name):
-                        # ToDo: update_router currently won't allow removing
-                        # external_gateway_info
-                        router = {
-                            'external_gateway_info': None
-                        }
-                        self.neutron.update_router(
-                            router=r['id'], body={'router': router})
-                        # ToDo: Shade currently doesn't have methods for this
+                        self.user_cloud.update_router(
+                            r['id'], ext_gateway_net_id=None)
                         for s in self.user_cloud.list_subnets():
                             if s['name'].startswith(self.new_item_name):
                                 try:
-                                    self.neutron.remove_interface_router(
-                                        router=r['id'],
-                                        body={'subnet_id': s['id']})
+                                    self.user_cloud.remove_router_interface(
+                                        r, subnet_id=s['id'])
                                 except Exception:
                                     pass
                         self.user_cloud.delete_router(name_or_id=r['id'])
@@ -165,9 +156,8 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
                 name_or_id=self.test_router['id'],
                 ext_gateway_net_id=ext_nets[0]['id'])
             # Attach the router to the internal subnet
-            self.neutron.add_interface_router(
-                router=self.test_router['id'],
-                body={'subnet_id': self.test_subnet['id']})
+            self.user_cloud.add_router_interface(
+                self.test_router, subnet_id=self.test_subnet['id'])
 
             # Select the network for creating new servers
             self.nic = {'net-id': self.test_net['id']}
