@@ -1212,6 +1212,17 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @property
     def neutron_client(self):
+        warnings.warn(
+            'Using shade to get a neutron_client object is deprecated. If you'
+            ' need a raw neutronclient.Client object, please use'
+            ' make_legacy_client in os-client-config instead')
+        try:
+            import neutronclient  # flake8: noqa
+        except ImportError:
+            self.log.error(
+                'neutronclient is no longer a dependency of shade. You need to'
+                ' install python-neutronclient directly.')
+            raise
         if self._neutron_client is None:
             self._neutron_client = self._get_client('network')
         return self._neutron_client
@@ -4475,47 +4486,46 @@ class OpenStackCloud(_normalize.Normalizer):
             # tenant. This is the default behaviour of Nova
             project_id = self.current_project_id
 
-        with _utils.neutron_exceptions("unable to get available floating IPs"):
-            if network:
-                if isinstance(network, six.string_types):
-                    network = [network]
+        if network:
+            if isinstance(network, six.string_types):
+                network = [network]
 
-                # Use given list to get first matching external network
-                floating_network_id = None
-                for net in network:
-                    for ext_net in self.get_external_ipv4_floating_networks():
-                        if net in (ext_net['name'], ext_net['id']):
-                            floating_network_id = ext_net['id']
-                            break
-                    if floating_network_id:
+            # Use given list to get first matching external network
+            floating_network_id = None
+            for net in network:
+                for ext_net in self.get_external_ipv4_floating_networks():
+                    if net in (ext_net['name'], ext_net['id']):
+                        floating_network_id = ext_net['id']
                         break
+                if floating_network_id:
+                    break
 
-                if floating_network_id is None:
-                    raise OpenStackCloudResourceNotFound(
-                        "unable to find external network {net}".format(
-                            net=network)
-                    )
-            else:
-                floating_network_id = self._get_floating_network_id()
+            if floating_network_id is None:
+                raise OpenStackCloudResourceNotFound(
+                    "unable to find external network {net}".format(
+                        net=network)
+                )
+        else:
+            floating_network_id = self._get_floating_network_id()
 
-            filters = {
-                'port': None,
-                'network': floating_network_id,
-                'location': {'project': {'id': project_id}},
-            }
+        filters = {
+            'port': None,
+            'network': floating_network_id,
+            'location': {'project': {'id': project_id}},
+        }
 
-            floating_ips = self._list_floating_ips()
-            available_ips = _utils._filter_list(
-                floating_ips, name_or_id=None, filters=filters)
-            if available_ips:
-                return available_ips
+        floating_ips = self._list_floating_ips()
+        available_ips = _utils._filter_list(
+            floating_ips, name_or_id=None, filters=filters)
+        if available_ips:
+            return available_ips
 
-            # No available IP found or we didn't try
-            # allocate a new Floating IP
-            f_ip = self._neutron_create_floating_ip(
-                network_id=floating_network_id, server=server)
+        # No available IP found or we didn't try
+        # allocate a new Floating IP
+        f_ip = self._neutron_create_floating_ip(
+            network_id=floating_network_id, server=server)
 
-            return [f_ip]
+        return [f_ip]
 
     def _nova_available_floating_ips(self, pool=None):
         """Get available floating IPs from a floating IP pool.
@@ -4624,76 +4634,74 @@ class OpenStackCloud(_normalize.Normalizer):
             fixed_address=None, nat_destination=None,
             port=None,
             wait=False, timeout=60, network_id=None):
-        with _utils.neutron_exceptions(
-                "unable to create floating IP for net "
-                "{0}".format(network_name_or_id)):
-            if not network_id:
-                if network_name_or_id:
-                    network = self.get_network(network_name_or_id)
-                    if not network:
-                        raise OpenStackCloudResourceNotFound(
-                            "unable to find network for floating ips with ID "
-                            "{0}".format(network_name_or_id))
-                    network_id = network['id']
-                else:
-                    network_id = self._get_floating_network_id()
-            kwargs = {
-                'floating_network_id': network_id,
-            }
-            if not port:
-                if server:
-                    (port_obj, fixed_ip_address) = self._nat_destination_port(
-                        server, fixed_address=fixed_address,
-                        nat_destination=nat_destination)
-                    if port_obj:
-                        port = port_obj['id']
-                    if fixed_ip_address:
-                        kwargs['fixed_ip_address'] = fixed_ip_address
-            if port:
-                kwargs['port_id'] = port
 
-            fip = self._submit_create_fip(kwargs)
-            fip_id = fip['id']
+        if not network_id:
+            if network_name_or_id:
+                network = self.get_network(network_name_or_id)
+                if not network:
+                    raise OpenStackCloudResourceNotFound(
+                        "unable to find network for floating ips with ID "
+                        "{0}".format(network_name_or_id))
+                network_id = network['id']
+            else:
+                network_id = self._get_floating_network_id()
+        kwargs = {
+            'floating_network_id': network_id,
+        }
+        if not port:
+            if server:
+                (port_obj, fixed_ip_address) = self._nat_destination_port(
+                    server, fixed_address=fixed_address,
+                    nat_destination=nat_destination)
+                if port_obj:
+                    port = port_obj['id']
+                if fixed_ip_address:
+                    kwargs['fixed_ip_address'] = fixed_ip_address
+        if port:
+            kwargs['port_id'] = port
 
-            if port:
-                # The FIP is only going to become active in this context
-                # when we've attached it to something, which only occurs
-                # if we've provided a port as a parameter
-                if wait:
+        fip = self._submit_create_fip(kwargs)
+        fip_id = fip['id']
+
+        if port:
+            # The FIP is only going to become active in this context
+            # when we've attached it to something, which only occurs
+            # if we've provided a port as a parameter
+            if wait:
+                try:
+                    for count in _utils._iterate_timeout(
+                            timeout,
+                            "Timeout waiting for the floating IP"
+                            " to be ACTIVE",
+                            wait=self._FLOAT_AGE):
+                        fip = self.get_floating_ip(fip_id)
+                        if fip and fip['status'] == 'ACTIVE':
+                            break
+                except OpenStackCloudTimeout:
+                    self.log.error(
+                        "Timed out on floating ip %(fip)s becoming active."
+                        " Deleting", {'fip': fip_id})
                     try:
-                        for count in _utils._iterate_timeout(
-                                timeout,
-                                "Timeout waiting for the floating IP"
-                                " to be ACTIVE",
-                                wait=self._FLOAT_AGE):
-                            fip = self.get_floating_ip(fip_id)
-                            if fip and fip['status'] == 'ACTIVE':
-                                break
-                    except OpenStackCloudTimeout:
+                        self.delete_floating_ip(fip_id)
+                    except Exception as e:
                         self.log.error(
-                            "Timed out on floating ip %(fip)s becoming active."
-                            " Deleting", {'fip': fip_id})
-                        try:
-                            self.delete_floating_ip(fip_id)
-                        except Exception as e:
-                            self.log.error(
-                                "FIP LEAK: Attempted to delete floating ip "
-                                "%(fip)s but received %(exc)s exception: "
-                                "%(err)s", {'fip': fip_id, 'exc': e.__class__,
-                                            'err': str(e)})
-                        raise
-                if fip['port_id'] != port:
-                    if server:
-                        raise OpenStackCloudException(
-                            "Attempted to create FIP on port {port} for server"
-                            " {server} but FIP has port {port_id}".format(
-                                port=port, port_id=fip['port_id'],
-                                server=server['id']))
-                    else:
-                        raise OpenStackCloudException(
-                            "Attempted to create FIP on port {port}"
-                            " but something went wrong".format(port=port))
-            return fip
+                            "FIP LEAK: Attempted to delete floating ip "
+                            "%(fip)s but received %(exc)s exception: "
+                            "%(err)s", {'fip': fip_id, 'exc': e.__class__,
+                                        'err': str(e)})
+                    raise
+            if fip['port_id'] != port:
+                if server:
+                    raise OpenStackCloudException(
+                        "Attempted to create FIP on port {port} for server"
+                        " {server} but FIP has port {port_id}".format(
+                            port=port, port_id=fip['port_id'],
+                            server=server['id']))
+                else:
+                    raise OpenStackCloudException(
+                        "Attempted to create FIP on port {port}"
+                        " but something went wrong".format(port=port))
+        return fip
 
     def _nova_create_floating_ip(self, pool=None):
         with _utils.shade_exceptions(
@@ -4982,30 +4990,27 @@ class OpenStackCloud(_normalize.Normalizer):
     def _neutron_attach_ip_to_server(
             self, server, floating_ip, fixed_address=None,
             nat_destination=None):
-        with _utils.neutron_exceptions(
-                "unable to bind a floating ip to server "
-                "{0}".format(server['id'])):
 
-            # Find an available port
-            (port, fixed_address) = self._nat_destination_port(
-                server, fixed_address=fixed_address,
-                nat_destination=nat_destination)
-            if not port:
-                raise OpenStackCloudException(
-                    "unable to find a port for server {0}".format(
-                        server['id']))
+        # Find an available port
+        (port, fixed_address) = self._nat_destination_port(
+            server, fixed_address=fixed_address,
+            nat_destination=nat_destination)
+        if not port:
+            raise OpenStackCloudException(
+                "unable to find a port for server {0}".format(
+                    server['id']))
 
-            floating_ip_args = {'port_id': port['id']}
-            if fixed_address is not None:
-                floating_ip_args['fixed_ip_address'] = fixed_address
+        floating_ip_args = {'port_id': port['id']}
+        if fixed_address is not None:
+            floating_ip_args['fixed_ip_address'] = fixed_address
 
-            return self._network_client.put(
-                "/floatingips/{fip_id}.json".format(fip_id=floating_ip['id']),
-                json={'floatingip': floating_ip_args},
-                error_message=("Error attaching IP {ip} to "
-                               "server {server_id}".format(
-                                   ip=floating_ip['id'],
-                                   server_id=server['id'])))
+        return self._network_client.put(
+            "/floatingips/{fip_id}.json".format(fip_id=floating_ip['id']),
+            json={'floatingip': floating_ip_args},
+            error_message=("Error attaching IP {ip} to "
+                           "server {server_id}".format(
+                               ip=floating_ip['id'],
+                               server_id=server['id'])))
 
     def _nova_attach_ip_to_server(self, server_id, floating_ip_id,
                                   fixed_address=None):
@@ -5043,20 +5048,17 @@ class OpenStackCloud(_normalize.Normalizer):
             server_id=server_id, floating_ip_id=floating_ip_id)
 
     def _neutron_detach_ip_from_server(self, server_id, floating_ip_id):
-        with _utils.neutron_exceptions(
-                "unable to detach a floating ip from server "
-                "{0}".format(server_id)):
-            f_ip = self.get_floating_ip(id=floating_ip_id)
-            if f_ip is None or not f_ip['attached']:
-                return False
-            self._network_client.put(
-                "/floatingips/{fip_id}.json".format(fip_id=floating_ip_id),
-                json={"floatingip": {"port_id": None}},
-                error_message=("Error detaching IP {ip} from "
-                               "server {server_id}".format(
-                                   ip=floating_ip_id, server_id=server_id)))
+        f_ip = self.get_floating_ip(id=floating_ip_id)
+        if f_ip is None or not f_ip['attached']:
+            return False
+        self._network_client.put(
+            "/floatingips/{fip_id}.json".format(fip_id=floating_ip_id),
+            json={"floatingip": {"port_id": None}},
+            error_message=("Error detaching IP {ip} from "
+                           "server {server_id}".format(
+                               ip=floating_ip_id, server_id=server_id)))
 
-            return True
+        return True
 
     def _nova_detach_ip_from_server(self, server_id, floating_ip_id):
         try:

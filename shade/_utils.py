@@ -25,7 +25,6 @@ import sys
 import time
 
 from decorator import decorator
-from neutronclient.common import exceptions as neutron_exc
 from novaclient import exceptions as nova_exc
 
 from shade import _log
@@ -415,25 +414,6 @@ def cache_on_arguments(*cache_on_args, **cache_on_kwargs):
 
         return _cache_decorator
     return _inner_cache_on_arguments
-
-
-@contextlib.contextmanager
-def neutron_exceptions(error_message):
-    try:
-        yield
-    except neutron_exc.NotFound as e:
-        raise exc.OpenStackCloudResourceNotFound(
-            "{msg}: {exc}".format(msg=error_message, exc=str(e)))
-    except neutron_exc.NeutronClientException as e:
-        if e.status_code == 404:
-            raise exc.OpenStackCloudURINotFound(
-                "{msg}: {exc}".format(msg=error_message, exc=str(e)))
-        else:
-            raise exc.OpenStackCloudException(
-                "{msg}: {exc}".format(msg=error_message, exc=str(e)))
-    except Exception as e:
-        raise exc.OpenStackCloudException(
-            "{msg}: {exc}".format(msg=error_message, exc=str(e)))
 
 
 @contextlib.contextmanager

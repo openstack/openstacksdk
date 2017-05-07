@@ -19,7 +19,6 @@ for lib in \
         python-novaclient \
         python-keystoneclient \
         python-cinderclient \
-        python-neutronclient \
         python-ironicclient \
         python-designateclient \
         keystoneauth
