@@ -4615,9 +4615,9 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def _submit_create_fip(self, kwargs):
         # Split into a method to aid in test mocking
-        return self._normalize_floating_ips(
-            [self.manager.submit_task(_tasks.NeutronFloatingIPCreate(
-                body={'floatingip': kwargs}))['floatingip']])[0]
+        fip = self._network_client.post(
+            "/floatingips.json", json={"floatingip": kwargs})
+        return self._normalize_floating_ip(dict(fip))
 
     def _neutron_create_floating_ip(
             self, network_name_or_id=None, server=None,
@@ -4762,9 +4762,9 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def _neutron_delete_floating_ip(self, floating_ip_id):
         try:
-            with _utils.neutron_exceptions("unable to delete floating IP"):
-                self.manager.submit_task(
-                    _tasks.NeutronFloatingIPDelete(floatingip=floating_ip_id))
+            self._network_client.delete(
+                "/floatingips/{fip_id}.json".format(fip_id=floating_ip_id),
+                error_message="unable to delete floating IP")
         except OpenStackCloudResourceNotFound:
             return False
         except Exception as e:
@@ -4999,10 +4999,13 @@ class OpenStackCloud(_normalize.Normalizer):
             if fixed_address is not None:
                 floating_ip_args['fixed_ip_address'] = fixed_address
 
-            return self.manager.submit_task(_tasks.NeutronFloatingIPUpdate(
-                floatingip=floating_ip['id'],
-                body={'floatingip': floating_ip_args}
-            ))['floatingip']
+            return self._network_client.put(
+                "/floatingips/{fip_id}.json".format(fip_id=floating_ip['id']),
+                json={'floatingip': floating_ip_args},
+                error_message=("Error attaching IP {ip} to "
+                               "server {server_id}".format(
+                                   ip=floating_ip['id'],
+                                   server_id=server['id'])))
 
     def _nova_attach_ip_to_server(self, server_id, floating_ip_id,
                                   fixed_address=None):
@@ -5046,9 +5049,12 @@ class OpenStackCloud(_normalize.Normalizer):
             f_ip = self.get_floating_ip(id=floating_ip_id)
             if f_ip is None or not f_ip['attached']:
                 return False
-            self.manager.submit_task(_tasks.NeutronFloatingIPUpdate(
-                floatingip=floating_ip_id,
-                body={'floatingip': {'port_id': None}}))
+            self._network_client.put(
+                "/floatingips/{fip_id}.json".format(fip_id=floating_ip_id),
+                json={"floatingip": {"port_id": None}},
+                error_message=("Error detaching IP {ip} from "
+                               "server {server_id}".format(
+                                   ip=floating_ip_id, server_id=server_id)))
 
             return True
 
