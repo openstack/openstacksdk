@@ -21,6 +21,14 @@ Contents:
 
 .. include:: ../../README.rst
 
+Presentations
+=============
+
+.. toctree::
+   :maxdepth: 1
+
+   multi-cloud-demo
+
 Indices and tables
 ==================
 
