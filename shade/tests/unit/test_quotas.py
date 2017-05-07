@@ -70,34 +70,47 @@ class TestQuotas(base.RequestsMockTestCase):
                           self.op_cloud.delete_compute_quotas, project)
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'cinder_client')
-    def test_cinder_update_quotas(self, mock_cinder):
+    def test_cinder_update_quotas(self):
         project = self.mock_for_keystone_projects(project_count=1,
                                                   list_get=True)[0]
+        self.register_uris([
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['os-quota-sets', project.project_id]),
+                 json=dict(quota_set={'volumes': 1}),
+                 validate=dict(
+                     json={'quota_set': {
+                         'volumes': 1,
+                         'tenant_id': project.project_id}}))])
         self.op_cloud.set_volume_quotas(project.project_id, volumes=1)
-
-        mock_cinder.quotas.update.assert_called_once_with(
-            volumes=1, tenant_id=project.project_id)
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'cinder_client')
-    def test_cinder_get_quotas(self, mock_cinder):
+    def test_cinder_get_quotas(self):
         project = self.mock_for_keystone_projects(project_count=1,
                                                   list_get=True)[0]
+        # TODO(rods) `usage` defaults to False if not set but
+        # cinderclient is explicitly passing it. We'll have to do
+        # the same waiting to switch to the REST API call
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['os-quota-sets', project.project_id],
+                     qs_elements=['usage=False']),
+                 json=dict(quota_set={'snapshots': 10, 'volumes': 20}))])
         self.op_cloud.get_volume_quotas(project.project_id)
-
-        mock_cinder.quotas.get.assert_called_once_with(
-            tenant_id=project.project_id)
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'cinder_client')
-    def test_cinder_delete_quotas(self, mock_cinder):
+    def test_cinder_delete_quotas(self):
         project = self.mock_for_keystone_projects(project_count=1,
                                                   list_get=True)[0]
+        self.register_uris([
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['os-quota-sets', project.project_id]))])
         self.op_cloud.delete_volume_quotas(project.project_id)
-
-        mock_cinder.quotas.delete.assert_called_once_with(
-            tenant_id=project.project_id)
         self.assert_calls()
 
     def test_neutron_update_quotas(self):
