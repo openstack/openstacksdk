@@ -4617,7 +4617,7 @@ class OpenStackCloud(_normalize.Normalizer):
         # Split into a method to aid in test mocking
         fip = self._network_client.post(
             "/floatingips.json", json={"floatingip": kwargs})
-        return self._normalize_floating_ip(dict(fip))
+        return self._normalize_floating_ip(fip)
 
     def _neutron_create_floating_ip(
             self, network_name_or_id=None, server=None,
