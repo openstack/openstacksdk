@@ -96,6 +96,7 @@ class TestCreateVolumeSnapshot(base.RequestsMockTestCase):
             exc.OpenStackCloudTimeout,
             self.cloud.create_volume_snapshot, volume_id=volume_id,
             wait=True, timeout=0.01)
+        self.assert_calls(do_count=False)
 
     def test_create_volume_snapshot_with_error(self):
         """

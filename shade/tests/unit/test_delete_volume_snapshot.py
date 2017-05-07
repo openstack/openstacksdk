@@ -98,3 +98,4 @@ class TestDeleteVolumeSnapshot(base.RequestsMockTestCase):
             exc.OpenStackCloudTimeout,
             self.cloud.delete_volume_snapshot, name_or_id='1234',
             wait=True, timeout=0.01)
+        self.assert_calls(do_count=False)
