@@ -34,13 +34,18 @@ class TestVolumeType(base.BaseFunctionalTestCase):
         super(TestVolumeType, self).setUp()
         if not self.user_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
-        self.operator_cloud.cinder_client.volume_types.create(
-            'test-volume-type', is_public=False)
+        volume_type = {
+            "name": 'test-volume-type',
+            "description": None,
+            "os-volume-type-access:is_public": False}
+        self.operator_cloud._volume_client.post(
+            '/types', json={'volume_type': volume_type})
 
     def tearDown(self):
         ret = self.operator_cloud.get_volume_type('test-volume-type')
         if ret.get('id'):
-            self.operator_cloud.cinder_client.volume_types.delete(ret.id)
+            self.operator_cloud._volume_client.delete(
+                '/types/{volume_type_id}'.format(volume_type_id=ret.id))
         super(TestVolumeType, self).tearDown()
 
     def test_list_volume_types(self):
