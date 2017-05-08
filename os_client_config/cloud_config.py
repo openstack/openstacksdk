@@ -225,6 +225,10 @@ class CloudConfig(object):
                     ('os-client-config', os_client_config.__version__))
         return self._keystone_session
 
+    def get_service_catalog(self):
+        """Helper method to grab the service catalog."""
+        return self._auth.get_access(self.get_session()).service_catalog
+
     def get_session_client(self, service_key):
         """Return a prepped requests adapter for a given service.
 
