@@ -6753,11 +6753,14 @@ class OpenStackCloud(_normalize.Normalizer):
             error_message="Error deleting port {0}".format(name_or_id))
         return True
 
-    def create_security_group(self, name, description):
+    def create_security_group(self, name, description, project_id=None):
         """Create a new security group
 
         :param string name: A name for the security group.
         :param string description: Describes the security group.
+        :param string project_id: 
+            Specify the project ID this security group will be created
+            on (admin-only).
 
         :returns: A ``munch.Munch`` representing the new security group.
 
@@ -6773,19 +6776,17 @@ class OpenStackCloud(_normalize.Normalizer):
             )
 
         group = None
+        security_group_json = {'security_group': {'name': name, 'description': description}}
+        if project_id is not None:
+            security_group_json['security_group']['tenant_id'] = project_id
         if self._use_neutron_secgroups():
             group = self._network_client.post(
                 '/security-groups.json',
-                json={'security_group': 
-                    {'name': name, 'description': description}},
+                json=security_group_json,
                 error_message="Error creating security group {0}".format(name))
-
         else:
             group = self._compute_client.post(
-                '/os-security-groups', json={
-                    'security_group': {
-                        'name': name, 'description': description}
-                })
+                '/os-security-groups', json=security_group_json)
         return self._normalize_secgroup(group)
 
     def delete_security_group(self, name_or_id):
@@ -6872,7 +6873,8 @@ class OpenStackCloud(_normalize.Normalizer):
                                    remote_ip_prefix=None,
                                    remote_group_id=None,
                                    direction='ingress',
-                                   ethertype='IPv4'):
+                                   ethertype='IPv4',
+                                   project_id=None):
         """Create a new security group rule
 
         :param string secgroup_name_or_id:
@@ -6910,6 +6912,9 @@ class OpenStackCloud(_normalize.Normalizer):
         :param string ethertype:
             Must be IPv4 or IPv6, and addresses represented in CIDR must
             match the ingress or egress rules.
+        :param string project_id:
+            Specify the project ID this security group will be created
+            on (admin-only).
 
         :returns: A ``munch.Munch`` representing the new security group rule.
 
@@ -6941,6 +6946,8 @@ class OpenStackCloud(_normalize.Normalizer):
                 'direction': direction,
                 'ethertype': ethertype
             }
+            if project_id is not None:
+                rule_def['tenant_id'] = project_id
 
             rule = self._network_client.post(
                 '/security-group-rules.json',
@@ -6977,15 +6984,18 @@ class OpenStackCloud(_normalize.Normalizer):
                     port_range_min = 1
                     port_range_max = 65535
 
+            security_group_rule_dict = dict(security_group_rule = dict(
+                parent_group_id=secgroup['id'],
+                ip_protocol=protocol,
+                from_port=port_range_min,
+                to_port=port_range_max,
+                cidr=remote_ip_prefix,
+                group_id=remote_group_id
+            ))
+            if project_id is not None:
+                security_group_rule_dict['security_group_rule']['tenant_id'] = project_id
             rule = self._compute_client.post(
-                '/os-security-group-rules', json=dict(security_group_rule=dict(
-                    parent_group_id=secgroup['id'],
-                    ip_protocol=protocol,
-                    from_port=port_range_min,
-                    to_port=port_range_max,
-                    cidr=remote_ip_prefix,
-                    group_id=remote_group_id
-                ))
+                '/os-security-group-rules', json=security_group_rule_dict
             )
             return self._normalize_secgroup_rule(rule)
 
