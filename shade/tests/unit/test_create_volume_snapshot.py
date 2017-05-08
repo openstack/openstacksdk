@@ -44,12 +44,8 @@ class TestCreateVolumeSnapshot(base.RequestsMockTestCase):
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['snapshots']),
                  json={'snapshot': build_snapshot_dict},
-                 validate=dict(
-                     json={'snapshot': {'description': None,
-                                        'force': False,
-                                        'metadata': {},
-                                        'name': None,
-                                        'volume_id': volume_id}})),
+                 validate=dict(json={
+                     'snapshot': {'force': False, 'volume_id': '1234'}})),
             dict(method='GET',
                  uri=self.get_mock_url('volumev2', 'public',
                                        append=['snapshots', snapshot_id]),
@@ -81,12 +77,8 @@ class TestCreateVolumeSnapshot(base.RequestsMockTestCase):
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['snapshots']),
                  json={'snapshot': build_snapshot_dict},
-                 validate=dict(
-                     json={'snapshot': {'description': None,
-                                        'force': False,
-                                        'metadata': {},
-                                        'name': None,
-                                        'volume_id': volume_id}})),
+                 validate=dict(json={
+                     'snapshot': {'force': False, 'volume_id': '1234'}})),
             dict(method='GET',
                  uri=self.get_mock_url('volumev2', 'public',
                                        append=['snapshots', snapshot_id]),
@@ -117,12 +109,8 @@ class TestCreateVolumeSnapshot(base.RequestsMockTestCase):
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['snapshots']),
                  json={'snapshot': build_snapshot_dict},
-                 validate=dict(
-                     json={'snapshot': {'description': None,
-                                        'force': False,
-                                        'metadata': {},
-                                        'name': None,
-                                        'volume_id': volume_id}})),
+                 validate=dict(json={
+                     'snapshot': {'force': False, 'volume_id': '1234'}})),
             dict(method='GET',
                  uri=self.get_mock_url('volumev2', 'public',
                                        append=['snapshots', snapshot_id]),
