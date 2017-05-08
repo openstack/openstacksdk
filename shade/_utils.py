@@ -95,6 +95,16 @@ def _make_unicode(input):
         return str(input)
 
 
+def _dictify_resource(resource):
+    if isinstance(resource, list):
+        return [_dictify_resource(r) for r in resource]
+    else:
+        if hasattr(resource, 'toDict'):
+            return resource.toDict()
+        else:
+            return resource
+
+
 def _filter_list(data, name_or_id, filters):
     """Filter a list by name/ID and arbitrary meta data.
 

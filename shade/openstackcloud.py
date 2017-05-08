@@ -528,6 +528,20 @@ class OpenStackCloud(_normalize.Normalizer):
             self._raw_clients['volume'] = self._get_raw_client('volume')
         return self._raw_clients['volume']
 
+    def pprint(self, resource):
+        """Wrapper aroud pprint that groks munch objects"""
+        # import late since this is a utility function
+        import pprint
+        new_resource = _utils._dictify_resource(resource)
+        pprint.pprint(new_resource)
+
+    def pformat(self, resource):
+        """Wrapper aroud pformat that groks munch objects"""
+        # import late since this is a utility function
+        import pprint
+        new_resource = _utils._dictify_resource(resource)
+        return pprint.pformat(new_resource)
+
     @property
     def nova_client(self):
         if self._nova_client is None:
