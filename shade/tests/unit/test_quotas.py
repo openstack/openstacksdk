@@ -89,15 +89,11 @@ class TestQuotas(base.RequestsMockTestCase):
     def test_cinder_get_quotas(self):
         project = self.mock_for_keystone_projects(project_count=1,
                                                   list_get=True)[0]
-        # TODO(rods) `usage` defaults to False if not set but
-        # cinderclient is explicitly passing it. We'll have to do
-        # the same waiting to switch to the REST API call
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
-                     append=['os-quota-sets', project.project_id],
-                     qs_elements=['usage=False']),
+                     append=['os-quota-sets', project.project_id]),
                  json=dict(quota_set={'snapshots': 10, 'volumes': 20}))])
         self.op_cloud.get_volume_quotas(project.project_id)
         self.assert_calls()
