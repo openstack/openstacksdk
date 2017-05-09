@@ -112,6 +112,20 @@
         ],
         "type": "object-store",
         "name": "swift"
+      },
+      {
+        "endpoints_links": [],
+        "endpoints": [
+          {
+            "adminURL": "https://dns.example.com",
+            "region": "RegionOne",
+            "publicURL": "https://dns.example.com",
+            "internalURL": "https://dns.example.com",
+            "id": "652f0612744042bfbb8a8bb2c777a16d"
+          }
+        ],
+        "type": "dns",
+        "name": "designate"
       }
     ],
     "user": {

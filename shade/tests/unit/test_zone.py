@@ -10,86 +10,178 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-import mock
+import copy
 import testtools
 
 import shade
-from shade.tests import fakes
 from shade.tests.unit import base
 
 
-zone_obj = fakes.FakeZone(
-    id='1',
-    name='example.net.',
-    type_='PRIMARY',
-    email='test@example.net',
-    description='Example zone',
-    ttl=3600,
-    masters=None
-)
+api_versions = {
+    "values": [{
+        "id": "v1",
+        "links": [
+            {
+                "href": "https://dns.example.com/v1",
+                "rel": "self"
+            }
+        ],
+        "status": "DEPRECATED"
+    }, {
+        "id": "v2",
+        "links": [
+            {
+                "href": "https://dns.example.com/v2",
+                "rel": "self"
+            }
+        ],
+        "status": "CURRENT"
+    }]
+}
+
+zone_dict = {
+    'name': 'example.net.',
+    'type': 'PRIMARY',
+    'email': 'test@example.net',
+    'description': 'Example zone',
+    'ttl': 3600,
+}
+
+new_zone_dict = copy.copy(zone_dict)
+new_zone_dict['id'] = '1'
 
 
-class TestZone(base.TestCase):
+class TestZone(base.RequestsMockTestCase):
 
-    def setUp(self):
-        super(TestZone, self).setUp()
-        self.cloud = shade.openstack_cloud(validate=False)
+    def test_create_zone(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri="https://dns.example.com/", json=api_versions),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'dns', 'public', append=['zones']),
+                 json=new_zone_dict,
+                 validate=dict(
+                     json=zone_dict))
+        ])
+        z = self.cloud.create_zone(
+            name=zone_dict['name'],
+            zone_type=zone_dict['type'],
+            email=zone_dict['email'],
+            description=zone_dict['description'],
+            ttl=zone_dict['ttl'],
+            masters=None)
+        self.assertEqual(new_zone_dict, z)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'designate_client')
-    def test_create_zone(self, mock_designate):
-        self.cloud.create_zone(name=zone_obj.name, zone_type=zone_obj.type_,
-                               email=zone_obj.email,
-                               description=zone_obj.description,
-                               ttl=zone_obj.ttl, masters=zone_obj.masters)
-        mock_designate.zones.create.assert_called_once_with(
-            name=zone_obj.name, type_=zone_obj.type_.upper(),
-            email=zone_obj.email, description=zone_obj.description,
-            ttl=zone_obj.ttl, masters=zone_obj.masters
-        )
-
-    @mock.patch.object(shade.OpenStackCloud, 'designate_client')
-    def test_create_zone_exception(self, mock_designate):
-        mock_designate.zones.create.side_effect = Exception()
+    def test_create_zone_exception(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri="https://dns.example.com/", json=api_versions),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'dns', 'public', append=['zones']),
+                 status_code=500)
+        ])
         with testtools.ExpectedException(
             shade.OpenStackCloudException,
             "Unable to create zone example.net."
         ):
             self.cloud.create_zone('example.net.')
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'designate_client')
-    def test_update_zone(self, mock_designate):
+    def test_update_zone(self):
         new_ttl = 7200
-        mock_designate.zones.list.return_value = [zone_obj]
-        self.cloud.update_zone('1', ttl=new_ttl)
-        mock_designate.zones.update.assert_called_once_with(
-            zone='1', values={'ttl': new_ttl}
-        )
+        updated_zone = copy.copy(new_zone_dict)
+        updated_zone['ttl'] = new_ttl
+        self.register_uris([
+            dict(method='GET',
+                 uri="https://dns.example.com/", json=api_versions),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'dns', 'public', append=['zones']),
+                 json={"zones": [new_zone_dict]}),
+            dict(method='GET',
+                 uri="https://dns.example.com/", json=api_versions),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'dns', 'public', append=['zones'],
+                     qs_elements=['name=1']),
+                 json={'zones': [new_zone_dict]}),
+            dict(method='GET',
+                 uri="https://dns.example.com/",
+                 json=api_versions),
+            dict(method='PATCH',
+                 uri=self.get_mock_url(
+                     'dns', 'public', append=['zones', '1']),
+                 json=updated_zone,
+                 validate=dict(
+                     json={"ttl": new_ttl}))
+        ])
+        z = self.cloud.update_zone('1', ttl=new_ttl)
+        self.assertEqual(updated_zone, z)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'designate_client')
-    def test_delete_zone(self, mock_designate):
-        mock_designate.zones.list.return_value = [zone_obj]
-        self.cloud.delete_zone('1')
-        mock_designate.zones.delete.assert_called_once_with(
-            zone='1'
-        )
+    def test_delete_zone(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri="https://dns.example.com/", json=api_versions),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'dns', 'public', append=['zones']),
+                 json={"zones": [new_zone_dict]}),
+            dict(method='GET',
+                 uri="https://dns.example.com/", json=api_versions),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'dns', 'public', append=['zones'],
+                     qs_elements=['name=1']),
+                 json={'zones': [new_zone_dict]}),
+            dict(method='GET',
+                 uri="https://dns.example.com/", json=api_versions),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'dns', 'public', append=['zones', '1']),
+                 json=new_zone_dict)
+        ])
+        self.assertTrue(self.cloud.delete_zone('1'))
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'designate_client')
-    def test_get_zone_by_id(self, mock_designate):
-        mock_designate.zones.list.return_value = [zone_obj]
+    def test_get_zone_by_id(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri="https://dns.example.com/", json=api_versions),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'dns', 'public', append=['zones']),
+                 json={"zones": [new_zone_dict]})
+        ])
         zone = self.cloud.get_zone('1')
-        self.assertTrue(mock_designate.zones.list.called)
         self.assertEqual(zone['id'], '1')
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'designate_client')
-    def test_get_zone_by_name(self, mock_designate):
-        mock_designate.zones.list.return_value = [zone_obj]
+    def test_get_zone_by_name(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri="https://dns.example.com/", json=api_versions),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'dns', 'public', append=['zones']),
+                 json={"zones": [new_zone_dict]})
+        ])
         zone = self.cloud.get_zone('example.net.')
-        self.assertTrue(mock_designate.zones.list.called)
         self.assertEqual(zone['name'], 'example.net.')
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'designate_client')
-    def test_get_zone_not_found_returns_false(self, mock_designate):
-        mock_designate.zones.list.return_value = []
+    def test_get_zone_not_found_returns_false(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri="https://dns.example.com/", json=api_versions),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'dns', 'public', append=['zones']),
+                 json={"zones": []})
+        ])
         zone = self.cloud.get_zone('nonexistingzone.net.')
         self.assertFalse(zone)
+        self.assert_calls()
