@@ -113,7 +113,7 @@
       {
         "endpoints": [
           {
-            "id": "4deb4d0504a044a395d4480741ba628c",
+            "id": "652f0612744042bfbb8a8bb2c777a16d",
             "interface": "public",
             "region": "RegionOne",
             "url": "https://orchestration.example.com/v1/1c36b64c840a42cd9e9b931a369337f0"
@@ -122,6 +122,19 @@
         "endpoints_links": [],
         "name": "heat",
         "type": "orchestration"
+      },
+      {
+        "endpoints": [
+          {
+            "id": "10c76ffd2b744a67950ed1365190d352",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://dns.example.com"
+          }
+        ],
+        "endpoints_links": [],
+        "name": "designate",
+        "type": "dns"
       }
     ],
     "expires_at": "9999-12-31T23:59:59Z",
