@@ -13,7 +13,6 @@
 import datetime
 import jsonpatch
 
-from ironicclient import client as ironic_client
 from ironicclient import exceptions as ironic_exceptions
 from novaclient import exceptions as nova_exceptions
 
@@ -31,30 +30,6 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
     See the :class:`OpenStackCloud` class for a description of most options.
     """
-
-    def __init__(self, *args, **kwargs):
-        super(OperatorCloud, self).__init__(*args, **kwargs)
-        self._ironic_client = None
-
-    # Set the ironic API microversion to a known-good
-    # supported/tested with the contents of shade.
-    #
-    # Note(TheJulia): Defaulted to version 1.6 as the ironic
-    # state machine changes which will increment the version
-    # and break an automatic transition of an enrolled node
-    # to an available state. Locking the version is intended
-    # to utilize the original transition until shade supports
-    # calling for node inspection to allow the transition to
-    # take place automatically.
-    ironic_api_microversion = '1.6'
-
-    @property
-    def ironic_client(self):
-        if self._ironic_client is None:
-            self._ironic_client = self._get_client(
-                'baremetal', ironic_client.Client,
-                os_ironic_api_version=self.ironic_api_microversion)
-        return self._ironic_client
 
     def list_nics(self):
         with _utils.shade_exceptions("Error fetching machine port list"):
