@@ -1765,7 +1765,6 @@ class OpenStackCloud(_normalize.Normalizer):
                 '/flavors/detail', params=dict(is_public='None'),
                 error_message="Error fetching flavor list"))
 
-        error_message = "Error fetching flavor extra specs"
         for flavor in flavors:
             if not flavor.extra_specs and get_extra:
                 endpoint = "/flavors/{id}/os-extra_specs".format(
@@ -1885,22 +1884,24 @@ class OpenStackCloud(_normalize.Normalizer):
         if not (server and security_groups):
             return False
 
+        ret = True
+
         for sg in security_groups:
             try:
                 self._compute_client.post(
                     '/servers/%s/action' % server['id'],
                     json={'removeSecurityGroup': {'name': sg.name}})
 
-            except OpenStackCloudURINotFound as e:
+            except OpenStackCloudURINotFound:
                 # NOTE(jamielennox): Is this ok? If we remove something that
                 # isn't present should we just conclude job done or is that an
                 # error? Nova returns ok if you try to add a group twice.
                 self.log.debug(
                     "The security group %s was not present on server %s so "
                     "no action was performed", sg.name, server.name)
+                ret = False
 
-        return True
-
+        return ret
 
     def list_security_groups(self, filters=None):
         """List all available security groups.
@@ -3983,10 +3984,10 @@ class OpenStackCloud(_normalize.Normalizer):
 
         self._compute_client.delete(
             '/servers/{server_id}/os-volume_attachments/{volume_id}'.format(
-            server_id=server['id'], volume_id=volume['id']),
-            error_message="Error detaching volume {volume} "
-                          "from server {server}".format(
-                          volume=volume['id'], server=server['id']))
+                server_id=server['id'], volume_id=volume['id']),
+            error_message=(
+                "Error detaching volume {volume} from server {server}".format(
+                    volume=volume['id'], server=server['id'])))
 
         if wait:
             for count in _utils._iterate_timeout(
@@ -6645,10 +6646,9 @@ class OpenStackCloud(_normalize.Normalizer):
             error_message="Error creating port for network {0}".format(
                 network_id))
 
-
     @_utils.valid_kwargs('name', 'admin_state_up', 'fixed_ips',
                          'security_groups', 'allowed_address_pairs',
-                         'extra_dhcp_opts', 'device_owner','device_id')
+                         'extra_dhcp_opts', 'device_owner', 'device_id')
     def update_port(self, name_or_id, **kwargs):
         """Update a port
 
@@ -6733,7 +6733,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :param string name: A name for the security group.
         :param string description: Describes the security group.
-        :param string project_id: 
+        :param string project_id:
             Specify the project ID this security group will be created
             on (admin-only).
 
@@ -6751,7 +6751,10 @@ class OpenStackCloud(_normalize.Normalizer):
             )
 
         group = None
-        security_group_json = {'security_group': {'name': name, 'description': description}}
+        security_group_json = {
+            'security_group': {
+                'name': name, 'description': description
+            }}
         if project_id is not None:
             security_group_json['security_group']['tenant_id'] = project_id
         if self._use_neutron_secgroups():
@@ -6959,7 +6962,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     port_range_min = 1
                     port_range_max = 65535
 
-            security_group_rule_dict = dict(security_group_rule = dict(
+            security_group_rule_dict = dict(security_group_rule=dict(
                 parent_group_id=secgroup['id'],
                 ip_protocol=protocol,
                 from_port=port_range_min,
@@ -6968,7 +6971,8 @@ class OpenStackCloud(_normalize.Normalizer):
                 group_id=remote_group_id
             ))
             if project_id is not None:
-                security_group_rule_dict['security_group_rule']['tenant_id'] = project_id
+                security_group_rule_dict[
+                    'security_group_rule']['tenant_id'] = project_id
             rule = self._compute_client.post(
                 '/os-security-group-rules', json=security_group_rule_dict
             )
