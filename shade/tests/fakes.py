@@ -20,6 +20,7 @@ Fakes used for testing
 import uuid
 
 from shade._heat import template_format
+from shade import meta
 
 PROJECT_ID = '1c36b64c840a42cd9e9b931a369337f0'
 FLAVOR_ID = u'0c1d9008-f546-4608-9e8f-f8bdaec8dddd'
@@ -208,6 +209,14 @@ def make_fake_image(
         u'owner_specified.shade.sha256': NO_SHA256,
         u'owner_specified.shade.object': 'images/fake_image',
         u'protected': False}
+
+
+def make_fake_machine(machine_name, machine_id=None):
+    if not machine_id:
+        machine_id = uuid.uuid4().hex
+    return meta.obj_to_dict(FakeMachine(
+        id=machine_id,
+        name=machine_name))
 
 
 class FakeFloatingIP(object):

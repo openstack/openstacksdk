@@ -384,7 +384,13 @@ class OpenStackCloud(_normalize.Normalizer):
     @property
     def _baremetal_client(self):
         if 'baremetal' not in self._raw_clients:
-            self._raw_clients['baremetal'] = self._get_raw_client('baremetal')
+            client = self._get_raw_client('baremetal')
+            # TODO(mordred) Fix this once we've migrated all the way to REST
+            # Don't bother with version discovery - there is only one version
+            # of ironic. This is what ironicclient does, fwiw.
+            client.endpoint_override = urllib.parse.urljoin(
+                client.get_endpoint(), 'v1')
+            self._raw_clients['baremetal'] = client
         return self._raw_clients['baremetal']
 
     @property
