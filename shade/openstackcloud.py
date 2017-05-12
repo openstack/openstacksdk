@@ -13,6 +13,7 @@
 import collections
 import functools
 import hashlib
+import importlib
 import ipaddress
 import json
 import jsonpatch
@@ -306,6 +307,7 @@ class OpenStackCloud(_normalize.Normalizer):
         self._trove_client = None
         self._designate_client = None
         self._magnum_client = None
+        self._swift_client = None
 
         self._raw_clients = {}
 
@@ -542,11 +544,136 @@ class OpenStackCloud(_normalize.Normalizer):
         new_resource = _utils._dictify_resource(resource)
         return pprint.pformat(new_resource)
 
+    # LEGACY CLIENT IMPORTS
+    def _deprecated_import_check(self, module_name):
+        warnings.warn(
+            'Using shade to get a {module_name} object is deprecated. If you'
+            ' need a {module_name} object, please use make_legacy_client in'
+            ' os-client-config instead'.format(module_name=module_name))
+        try:
+            importlib.import_module(module_name)
+        except ImportError:
+            self.log.error(
+                '{module_name} is no longer a dependency of shade. You need to'
+                ' install python-{module_name} directly.'.format(
+                    module_name=module_name))
+            raise
+
+    @property
+    def trove_client(self):
+        if self._trove_client is None:
+            _deprecated_import_check('troveclient')
+            self._trove_client = self._get_client('database')
+        return self._trove_client
+
+    @property
+    def magnum_client(self):
+        if self._magnum_client is None:
+            _deprecated_import_check('magnumclient')
+            self._magnum_client = self._get_client('container-infra')
+        return self._magnum_client
+
+    @property
+    def neutron_client(self):
+        if self._neutron_client is None:
+            _deprecated_import_check('neutronclient')
+            self._neutron_client = self._get_client('network')
+        return self._neutron_client
+
     @property
     def nova_client(self):
         if self._nova_client is None:
             self._nova_client = self._get_client('compute', version='2.0')
         return self._nova_client
+
+    @property
+    def glance_client(self):
+        if self._glance_client is None:
+            _deprecated_import_check('glanceclient')
+            self._glance_client = self._get_client('image')
+        return self._glance_client
+
+    @property
+    def heat_client(self):
+        if self._heat_client is None:
+            _deprecated_import_check('heatclient')
+            self._heat_client = self._get_client('orchestration')
+        return self._heat_client
+
+    @property
+    def swift_client(self):
+        if self._swift_client is None:
+            _deprecated_import_check('swiftclient')
+            self._swift_client = self._get_client('object-store')
+        return self._swift_client
+
+    def _get_swift_kwargs(self):
+        auth_version = self.cloud_config.get_api_version('identity')
+        auth_args = self.cloud_config.config.get('auth', {})
+        os_options = {'auth_version': auth_version}
+        if auth_version == '2.0':
+            os_options['os_tenant_name'] = auth_args.get('project_name')
+            os_options['os_tenant_id'] = auth_args.get('project_id')
+        else:
+            os_options['os_project_name'] = auth_args.get('project_name')
+            os_options['os_project_id'] = auth_args.get('project_id')
+
+        for key in (
+                'username',
+                'password',
+                'auth_url',
+                'user_id',
+                'project_domain_id',
+                'project_domain_name',
+                'user_domain_id',
+                'user_domain_name'):
+            os_options['os_{key}'.format(key=key)] = auth_args.get(key)
+        return os_options
+
+    @property
+    def swift_service(self):
+        # NOTE(mordred): Not using deprecated_client_check because the
+        #                error message needs to be different
+        try:
+            import swiftclient.service
+        except ImportError:
+            self.log.error(
+                'swiftclient is no longer a dependency of shade. You need to'
+                ' install python-swiftclient directly.')
+        with _utils.shade_exceptions("Error constructing "
+                                     "swift client"):
+            endpoint = self.get_session_endpoint(
+                service_key='object-store')
+            options = dict(os_auth_token=self.auth_token,
+                           os_storage_url=endpoint,
+                           os_region_name=self.region_name)
+            options.update(self._get_swift_kwargs())
+            return swiftclient.service.SwiftService(options=options)
+
+    @property
+    def cinder_client(self):
+
+        # Import cinderclient late because importing it at the top level
+        # breaks logging for users of shade
+        import cinderclient.client  # flake8: noqa
+        if self._cinder_client is None:
+            self._cinder_client = self._get_client('volume')
+        return self._cinder_client
+
+    @property
+    def designate_client(self):
+        # Note: Explicit constructor is needed until occ 1.27.0
+        import designateclient.client  # flake8: noqa
+        if self._designate_client is None:
+            self._designate_client = self._get_client(
+                'dns', designateclient.client.Client)
+        return self._designate_client
+
+    @property
+    def keystone_client(self):
+        if self._keystone_client is None:
+            self._keystone_client = self._get_client('identity')
+        return self._keystone_client
 
     @property
     def keystone_session(self):
@@ -560,12 +687,6 @@ class OpenStackCloud(_normalize.Normalizer):
                 raise OpenStackCloudException(
                     "Error authenticating to keystone: %s " % str(e))
         return self._keystone_session
-
-    @property
-    def keystone_client(self):
-        if self._keystone_client is None:
-            self._keystone_client = self._get_client('identity')
-        return self._keystone_client
 
     @property
     def _keystone_catalog(self):
@@ -1090,40 +1211,6 @@ class OpenStackCloud(_normalize.Normalizer):
                 _tasks.UserRemoveFromGroup(user=user['id'], group=group['id'])
             )
 
-    @property
-    def glance_client(self):
-        warnings.warn(
-            'Using shade to get a glance_client object is deprecated. If you'
-            ' need a raw glanceclient.Client object, please use'
-            ' make_legacy_client in os-client-config instead')
-        try:
-            import glanceclient  # flake8: noqa
-        except ImportError:
-            self.log.error(
-                'glanceclient is no longer a dependency of shade. You need to'
-                ' install python-glanceclient directly.')
-            raise
-        if self._glance_client is None:
-            self._glance_client = self._get_client('image')
-        return self._glance_client
-
-    @property
-    def heat_client(self):
-        warnings.warn(
-            'Using shade to get a heat_client object is deprecated. If you'
-            ' need a raw heatclient.client.Client object, please use'
-            ' make_legacy_client in os-client-config instead')
-        try:
-            import heatclient  # flake8: noqa
-        except ImportError:
-            self.log.error(
-                'heatclient is no longer a dependency of shade. You need to'
-                ' install python-heatclient directly.')
-            raise
-        if self._heat_client is None:
-            self._heat_client = self._get_client('orchestration')
-        return self._heat_client
-
     def get_template_contents(
             self, template_file=None, template_url=None,
             template_object=None, files=None):
@@ -1134,121 +1221,6 @@ class OpenStackCloud(_normalize.Normalizer):
         except Exception as e:
             raise OpenStackCloudException(
                 "Error in processing template files: %s" % str(e))
-
-    @property
-    def swift_client(self):
-        warnings.warn(
-            'Using shade to get a swift object is deprecated. If you'
-            ' need a raw swiftclient.Connection object, please use'
-            ' make_legacy_client in os-client-config instead')
-        try:
-            import swiftclient.client  # flake8: noqa
-        except ImportError:
-            self.log.error(
-                'swiftclient is no longer a dependency of shade. You need to'
-                ' install python-swiftclient directly.')
-        return self._get_client('object-store')
-
-    def _get_swift_kwargs(self):
-        auth_version = self.cloud_config.get_api_version('identity')
-        auth_args = self.cloud_config.config.get('auth', {})
-        os_options = {'auth_version': auth_version}
-        if auth_version == '2.0':
-            os_options['os_tenant_name'] = auth_args.get('project_name')
-            os_options['os_tenant_id'] = auth_args.get('project_id')
-        else:
-            os_options['os_project_name'] = auth_args.get('project_name')
-            os_options['os_project_id'] = auth_args.get('project_id')
-
-        for key in (
-                'username',
-                'password',
-                'auth_url',
-                'user_id',
-                'project_domain_id',
-                'project_domain_name',
-                'user_domain_id',
-                'user_domain_name'):
-            os_options['os_{key}'.format(key=key)] = auth_args.get(key)
-        return os_options
-
-    @property
-    def swift_service(self):
-        warnings.warn(
-            'Using shade to get a swift object is deprecated. If you'
-            ' need a raw swiftclient.service.SwiftService object, please use'
-            ' make_legacy_client in os-client-config instead')
-        try:
-            import swiftclient.service
-        except ImportError:
-            self.log.error(
-                'swiftclient is no longer a dependency of shade. You need to'
-                ' install python-swiftclient directly.')
-        with _utils.shade_exceptions("Error constructing "
-                                     "swift client"):
-            endpoint = self.get_session_endpoint(
-                service_key='object-store')
-            options = dict(os_auth_token=self.auth_token,
-                           os_storage_url=endpoint,
-                           os_region_name=self.region_name)
-            options.update(self._get_swift_kwargs())
-            return swiftclient.service.SwiftService(options=options)
-
-    @property
-    def cinder_client(self):
-
-        # Import cinderclient late because importing it at the top level
-        # breaks logging for users of shade
-        import cinderclient.client  # flake8: noqa
-        if self._cinder_client is None:
-            self._cinder_client = self._get_client('volume')
-        return self._cinder_client
-
-    @property
-    def trove_client(self):
-        warnings.warn(
-            'Using shade to get a trove_client object is deprecated. If you'
-            ' need a raw troveclient.client.Client object, please use'
-            ' make_legacy_client in os-client-config instead')
-        if self._trove_client is None:
-            self._trove_client = self._get_client('database')
-        return self._trove_client
-
-    @property
-    def magnum_client(self):
-        warnings.warn(
-            'Using shade to get a magnum object is deprecated. If you'
-            ' need a raw magnumclient.client.Client object, please use'
-            ' make_legacy_client in os-client-config instead')
-        if self._magnum_client is None:
-            self._magnum_client = self._get_client('container-infra')
-        return self._magnum_client
-
-    @property
-    def neutron_client(self):
-        warnings.warn(
-            'Using shade to get a neutron_client object is deprecated. If you'
-            ' need a raw neutronclient.Client object, please use'
-            ' make_legacy_client in os-client-config instead')
-        try:
-            import neutronclient  # flake8: noqa
-        except ImportError:
-            self.log.error(
-                'neutronclient is no longer a dependency of shade. You need to'
-                ' install python-neutronclient directly.')
-            raise
-        if self._neutron_client is None:
-            self._neutron_client = self._get_client('network')
-        return self._neutron_client
-
-    @property
-    def designate_client(self):
-        # Note: Explicit constructor is needed until occ 1.27.0
-        import designateclient.client  # flake8: noqa
-        if self._designate_client is None:
-            self._designate_client = self._get_client(
-                'dns', designateclient.client.Client)
-        return self._designate_client
 
     def create_stack(
             self, name,
