@@ -570,7 +570,7 @@ class TestCloudConfig(base.TestCase):
         mock_client.assert_called_with(
             version='3',
             endpoint='http://example.com',
-            endpoint_type='admin',
+            interface='admin',
             endpoint_override=None,
             region_name='region-al',
             service_type='identity',
