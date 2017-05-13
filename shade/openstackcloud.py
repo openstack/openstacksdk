@@ -5311,6 +5311,11 @@ class OpenStackCloud(_normalize.Normalizer):
     def _get_boot_from_volume_kwargs(
             self, image, boot_from_volume, boot_volume, volume_size,
             terminate_volume, volumes, kwargs):
+        """Return block device mappings
+
+        :param image: Image dict, name or id to boot with.
+
+        """
         if boot_volume or boot_from_volume or volumes:
             kwargs.setdefault('block_device_mapping_v2', [])
         else:
@@ -5337,7 +5342,7 @@ class OpenStackCloud(_normalize.Normalizer):
             kwargs['image'] = None
         elif boot_from_volume:
 
-            if hasattr(image, 'id'):
+            if isinstance(image, dict):
                 image_obj = image
             else:
                 image_obj = self.get_image(image)
