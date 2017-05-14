@@ -476,6 +476,12 @@ class RequestsMockTestCase(BaseTestCase):
         return dict(method='GET', uri='https://image.example.com/',
                     text=open(discovery_fixture, 'r').read())
 
+    def get_designate_discovery_mock_dict(self):
+        discovery_fixture = os.path.join(
+            self.fixtures_directory, "dns.json")
+        return dict(method='GET', uri="https://dns.example.com/",
+                    text=open(discovery_fixture, 'r').read())
+
     def use_glance(self, image_version_json='image-version.json'):
         # NOTE(notmorgan): This method is only meant to be used in "setUp"
         # where the ordering of the url being registered is tightly controlled
@@ -484,6 +490,15 @@ class RequestsMockTestCase(BaseTestCase):
         # right location in the mock_uris when calling .register_uris
         self.__do_register_uris([
             self.get_glance_discovery_mock_dict(image_version_json)])
+
+    def use_designate(self):
+        # NOTE(slaweq): This method is only meant to be used in "setUp"
+        # where the ordering of the url being registered is tightly controlled
+        # if the functionality of .use_designate is meant to be used during an
+        # actual test case, use .get_designate_discovery_mock and apply to the
+        # right location in the mock_uris when calling .register_uris
+        self.__do_register_uris([
+            self.get_designate_discovery_mock_dict()])
 
     def register_uris(self, uri_mock_list=None):
         """Mock a list of URIs and responses via requests mock.
