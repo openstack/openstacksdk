@@ -31,7 +31,6 @@ import munch
 import requestsexceptions
 from six.moves import urllib
 
-import cinderclient.exceptions as cinder_exceptions
 import keystoneauth1.exceptions
 import novaclient.exceptions as nova_exceptions
 
@@ -652,11 +651,8 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @property
     def cinder_client(self):
-
-        # Import cinderclient late because importing it at the top level
-        # breaks logging for users of shade
-        import cinderclient.client  # flake8: noqa
         if self._cinder_client is None:
+            _deprecated_import_check('cinderclient')
             self._cinder_client = self._get_client('volume')
         return self._cinder_client
 
