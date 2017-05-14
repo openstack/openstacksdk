@@ -50,7 +50,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             return None
 
     def list_machines(self):
-        return self.manager.submit_task(_tasks.MachineNodeList())
+        return self._normalize_machines(
+            self.manager.submit_task(_tasks.MachineNodeList()))
 
     def get_machine(self, name_or_id):
         """Get Machine by name or uuid
@@ -64,8 +65,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                   nodes are found.
         """
         try:
-            return self.manager.submit_task(
-                _tasks.MachineNodeGet(node_id=name_or_id))
+            return self._normalize_machine(
+                self.manager.submit_task(
+                    _tasks.MachineNodeGet(node_id=name_or_id)))
         except ironic_exceptions.ClientException:
             return None
 

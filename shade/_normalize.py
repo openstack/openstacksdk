@@ -1010,3 +1010,21 @@ class Normalizer(object):
             name=ret['name'], id=ret['id'])
         ret['properties'] = stack
         return ret
+
+    def _normalize_machines(self, machines):
+        """Normalize Ironic Machines"""
+        ret = []
+        for machine in machines:
+            ret.append(self._normalize_machine(machine))
+        return ret
+
+    def _normalize_machine(self, machine):
+        """Normalize Ironic Machine"""
+        machine = machine.copy()
+
+        # Discard noise
+        self._remove_novaclient_artifacts(machine)
+
+        # TODO(mordred) Normalize this resource
+
+        return machine
