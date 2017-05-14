@@ -17,28 +17,6 @@ import shade
 from shade.tests.unit import base
 
 
-api_versions = {
-    "values": [{
-        "id": "v1",
-        "links": [
-            {
-                "href": "https://dns.example.com/v1",
-                "rel": "self"
-            }
-        ],
-        "status": "DEPRECATED"
-    }, {
-        "id": "v2",
-        "links": [
-            {
-                "href": "https://dns.example.com/v2",
-                "rel": "self"
-            }
-        ],
-        "status": "CURRENT"
-    }]
-}
-
 zone_dict = {
     'name': 'example.net.',
     'type': 'PRIMARY',
@@ -53,10 +31,12 @@ new_zone_dict['id'] = '1'
 
 class TestZone(base.RequestsMockTestCase):
 
+    def setUp(self):
+        super(TestZone, self).setUp()
+        self.use_designate()
+
     def test_create_zone(self):
         self.register_uris([
-            dict(method='GET',
-                 uri="https://dns.example.com/", json=api_versions),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'dns', 'public', append=['zones']),
@@ -76,8 +56,6 @@ class TestZone(base.RequestsMockTestCase):
 
     def test_create_zone_exception(self):
         self.register_uris([
-            dict(method='GET',
-                 uri="https://dns.example.com/", json=api_versions),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'dns', 'public', append=['zones']),
@@ -96,21 +74,16 @@ class TestZone(base.RequestsMockTestCase):
         updated_zone['ttl'] = new_ttl
         self.register_uris([
             dict(method='GET',
-                 uri="https://dns.example.com/", json=api_versions),
-            dict(method='GET',
                  uri=self.get_mock_url(
                      'dns', 'public', append=['zones']),
                  json={"zones": [new_zone_dict]}),
-            dict(method='GET',
-                 uri="https://dns.example.com/", json=api_versions),
+            self.get_designate_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'dns', 'public', append=['zones'],
                      qs_elements=['name=1']),
                  json={'zones': [new_zone_dict]}),
-            dict(method='GET',
-                 uri="https://dns.example.com/",
-                 json=api_versions),
+            self.get_designate_discovery_mock_dict(),
             dict(method='PATCH',
                  uri=self.get_mock_url(
                      'dns', 'public', append=['zones', '1']),
@@ -125,20 +98,16 @@ class TestZone(base.RequestsMockTestCase):
     def test_delete_zone(self):
         self.register_uris([
             dict(method='GET',
-                 uri="https://dns.example.com/", json=api_versions),
-            dict(method='GET',
                  uri=self.get_mock_url(
                      'dns', 'public', append=['zones']),
                  json={"zones": [new_zone_dict]}),
-            dict(method='GET',
-                 uri="https://dns.example.com/", json=api_versions),
+            self.get_designate_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'dns', 'public', append=['zones'],
                      qs_elements=['name=1']),
                  json={'zones': [new_zone_dict]}),
-            dict(method='GET',
-                 uri="https://dns.example.com/", json=api_versions),
+            self.get_designate_discovery_mock_dict(),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'dns', 'public', append=['zones', '1']),
@@ -149,8 +118,6 @@ class TestZone(base.RequestsMockTestCase):
 
     def test_get_zone_by_id(self):
         self.register_uris([
-            dict(method='GET',
-                 uri="https://dns.example.com/", json=api_versions),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'dns', 'public', append=['zones']),
@@ -163,8 +130,6 @@ class TestZone(base.RequestsMockTestCase):
     def test_get_zone_by_name(self):
         self.register_uris([
             dict(method='GET',
-                 uri="https://dns.example.com/", json=api_versions),
-            dict(method='GET',
                  uri=self.get_mock_url(
                      'dns', 'public', append=['zones']),
                  json={"zones": [new_zone_dict]})
@@ -175,8 +140,6 @@ class TestZone(base.RequestsMockTestCase):
 
     def test_get_zone_not_found_returns_false(self):
         self.register_uris([
-            dict(method='GET',
-                 uri="https://dns.example.com/", json=api_versions),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'dns', 'public', append=['zones']),
