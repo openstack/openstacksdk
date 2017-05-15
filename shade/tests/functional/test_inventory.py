@@ -31,21 +31,20 @@ class TestInventory(base.BaseFunctionalTestCase):
         # This needs to use an admin account, otherwise a public IP
         # is not allocated from devstack.
         self.inventory = inventory.OpenStackInventory()
-        self.server_name = 'test_inventory_server'
-        self.nova = self.operator_cloud.nova_client
-        self.flavor = pick_flavor(self.nova.flavors.list())
+        self.server_name = self.getUniqueString('inventory')
+        self.flavor = pick_flavor(
+            self.user_cloud.list_flavors(get_extra=False))
         if self.flavor is None:
             self.assertTrue(False, 'no sensible flavor available')
         self.image = self.pick_image()
-        self.addCleanup(self._cleanup_servers)
-        self.operator_cloud.create_server(
+        self.addCleanup(self._cleanup_server)
+        server = self.operator_cloud.create_server(
             name=self.server_name, image=self.image, flavor=self.flavor,
             wait=True, auto_ip=True)
+        self.server_id = server['id']
 
-    def _cleanup_servers(self):
-        for i in self.nova.servers.list():
-            if i.name.startswith(self.server_name):
-                self.nova.servers.delete(i)
+    def _cleanup_server(self):
+        self.user_cloud.delete_server(self.server_id, wait=True)
 
     def _test_host_content(self, host):
         self.assertEqual(host['image']['id'], self.image.id)
@@ -62,20 +61,20 @@ class TestInventory(base.BaseFunctionalTestCase):
         self.assertEqual(host['flavor']['name'], self.flavor.name)
 
     def test_get_host(self):
-        host = self.inventory.get_host(self.server_name)
+        host = self.inventory.get_host(self.server_id)
         self.assertIsNotNone(host)
         self.assertEqual(host['name'], self.server_name)
         self._test_host_content(host)
         self._test_expanded_host_content(host)
         host_found = False
         for host in self.inventory.list_hosts():
-            if host['name'] == self.server_name:
+            if host['id'] == self.server_id:
                 host_found = True
                 self._test_host_content(host)
         self.assertTrue(host_found)
 
     def test_get_host_no_detail(self):
-        host = self.inventory.get_host(self.server_name, expand=False)
+        host = self.inventory.get_host(self.server_id, expand=False)
         self.assertIsNotNone(host)
         self.assertEqual(host['name'], self.server_name)
 
@@ -88,7 +87,7 @@ class TestInventory(base.BaseFunctionalTestCase):
 
         host_found = False
         for host in self.inventory.list_hosts(expand=False):
-            if host['name'] == self.server_name:
+            if host['id'] == self.server_id:
                 host_found = True
                 self._test_host_content(host)
         self.assertTrue(host_found)

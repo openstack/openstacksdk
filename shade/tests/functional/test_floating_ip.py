@@ -21,7 +21,6 @@ Functional tests for floating IP resource.
 
 import pprint
 
-from novaclient import exceptions as nova_exc
 from testtools import content
 
 from shade import _utils
@@ -36,8 +35,8 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
 
     def setUp(self):
         super(TestFloatingIP, self).setUp()
-        self.nova = self.user_cloud.nova_client
-        self.flavor = pick_flavor(self.nova.flavors.list())
+        self.flavor = pick_flavor(
+            self.user_cloud.list_flavors(get_extra=False))
         if self.flavor is None:
             self.assertFalse('no sensible flavor available')
         self.image = self.pick_image()
@@ -96,18 +95,13 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
         exception_list = list()
 
         # Delete stale servers as well as server created for this test
-        for i in self.nova.servers.list():
+        for i in self.user_cloud.list_servers(bare=True):
             if i.name.startswith(self.new_item_name):
-                self.nova.servers.delete(i)
-                for _ in _utils._iterate_timeout(
-                        self.timeout, "Timeout deleting servers"):
-                    try:
-                        self.nova.servers.get(server=i)
-                    except nova_exc.NotFound:
-                        break
-                    except Exception as e:
-                        exception_list.append(str(e))
-                        continue
+                try:
+                    self.user_cloud.delete_server(i, wait=True)
+                except Exception as e:
+                    exception_list.append(str(e))
+                    continue
 
         if exception_list:
             # Raise an error: we must make users aware that something went
