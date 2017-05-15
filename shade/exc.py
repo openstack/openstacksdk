@@ -96,27 +96,33 @@ def raise_from_response(response, error_message=None):
     elif 500 <= response.status_code < 600:
         source = "Server"
     else:
-        source = None
+        return
 
-    if response.reason:
-        remote_error = "Error: {reason} for {url}".format(
-            reason=response.reason,
-            url=response.url)
+    remote_error = "Error for url: {url}".format(url=response.url)
+    try:
+        details = response.json()
+        # Nova returns documents that look like
+        # {statusname: 'message': message, 'code': code}
+        if len(details.keys()) == 1:
+            detail_key = details.keys()[0]
+            detail_message = details[detail_key].get('message')
+            if detail_message:
+                remote_error += " {message}".format(message=detail_message)
+    except ValueError:
+        if response.reason:
+            remote_error += " {reason}".format(reason=response.reason)
+
+    if error_message:
+        msg = '{error_message}. ({code}) {source} {remote_error}'.format(
+            error_message=error_message,
+            source=source,
+            code=response.status_code,
+            remote_error=remote_error)
     else:
-        remote_error = "Error for url: {url}".format(url=response.url)
-
-    if source:
-        if error_message:
-            msg = '{error_message}. ({code}) {source} {remote_error}'.format(
-                error_message=error_message,
-                source=source,
-                code=response.status_code,
-                remote_error=remote_error)
-        else:
-            msg = '({code}) {source} {remote_error}'.format(
-                code=response.status_code,
-                source=source,
-                remote_error=remote_error)
+        msg = '({code}) {source} {remote_error}'.format(
+            code=response.status_code,
+            source=source,
+            remote_error=remote_error)
 
     # Special case 404 since we raised a specific one for neutron exceptions
     # before
