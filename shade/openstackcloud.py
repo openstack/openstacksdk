@@ -1681,9 +1681,9 @@ class OpenStackCloud(
         if not self._has_secgroups():
             return []
 
-        with _utils.shade_exceptions():
-            groups = self.manager.submit_task(
-                _tasks.ServerListSecurityGroups(server=server['id']))
+        groups = self._compute_client.get(
+            '/servers/{server_id}/os-security-groups'.format(
+                server_id=server['id']))
 
         return self._normalize_secgroups(groups)
 
