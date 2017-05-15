@@ -92,11 +92,6 @@ class ServerListSecurityGroups(task_manager.Task):
         return client.nova_client.servers.list_security_group(**self.args)
 
 
-class ServerConsoleGet(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.servers.get_console_output(**self.args)
-
-
 class ServerGet(task_manager.Task):
     def main(self, client):
         return client.nova_client.servers.get(**self.args)
@@ -205,11 +200,6 @@ class KeypairCreate(task_manager.Task):
 class KeypairDelete(task_manager.Task):
     def main(self, client):
         return client.nova_client.keypairs.delete(**self.args)
-
-
-class NovaImageList(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.images.list()
 
 
 class MachineCreate(task_manager.Task):
