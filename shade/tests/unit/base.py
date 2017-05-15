@@ -401,7 +401,7 @@ class RequestsMockTestCase(BaseTestCase):
         return _RoleData(role_id, role_name, {'role': response},
                          {'role': request})
 
-    def use_keystone_v3(self):
+    def use_keystone_v3(self, catalog='catalog-v3.json'):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.calls = []
         self._uri_registry.clear()
@@ -413,7 +413,7 @@ class RequestsMockTestCase(BaseTestCase):
                  headers={
                      'X-Subject-Token': self.getUniqueString('KeystoneToken')},
                  text=open(os.path.join(
-                     self.fixtures_directory, 'catalog-v3.json'), 'r').read()
+                     self.fixtures_directory, catalog), 'r').read()
                  )
         ])
         self._make_test_cloud(identity_api_version='3')

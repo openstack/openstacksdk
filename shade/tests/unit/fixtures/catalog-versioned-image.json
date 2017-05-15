@@ -1,0 +1,71 @@
+{
+  "token": {
+    "audit_ids": [
+      "Rvn7eHkiSeOwucBIPaKdYA"
+    ],
+    "catalog": [
+      {
+        "endpoints": [
+          {
+            "id": "5a64de3c4a614d8d8f8d1ba3dee5f45f",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://image.example.com/v2"
+          }
+        ],
+        "name": "glance",
+        "type": "image"
+      },
+      {
+        "endpoints": [
+          {
+            "id": "4deb4d0504a044a395d4480741ba628c",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://identity.example.com"
+          },
+          {
+            "id": "012322eeedcd459edabb4933021112bc",
+            "interface": "admin",
+            "region": "RegionOne",
+            "url": "https://identity.example.com"
+          }
+        ],
+        "endpoints_links": [],
+        "name": "keystone",
+        "type": "identity"
+      }
+    ],
+    "expires_at": "9999-12-31T23:59:59Z",
+    "issued_at": "2016-12-17T14:25:05.000000Z",
+    "methods": [
+      "password"
+    ],
+    "project": {
+      "domain": {
+        "id": "default",
+        "name": "default"
+      },
+      "id": "1c36b64c840a42cd9e9b931a369337f0",
+      "name": "Default Project"
+    },
+    "roles": [
+      {
+        "id": "9fe2ff9ee4384b1894a90878d3e92bab",
+        "name": "_member_"
+      },
+      {
+        "id": "37071fc082e14c2284c32a2761f71c63",
+        "name": "swiftoperator"
+      }
+    ],
+    "user": {
+      "domain": {
+        "id": "default",
+        "name": "default"
+      },
+      "id": "c17534835f8f42bf98fc367e0bf35e09",
+      "name": "mordred"
+    }
+  }
+}

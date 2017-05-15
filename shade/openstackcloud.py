@@ -418,8 +418,22 @@ class OpenStackCloud(
             self._raw_clients['raw-image'] = image_client
         return self._raw_clients['raw-image']
 
+    def _match_given_image_endpoint(self, given, version):
+        if given.endswith('/'):
+            given = given[:-1]
+        if given.split('/')[-1].startswith('v' + version[0]):
+            return True
+        return False
+
     def _discover_image_endpoint(self, config_version, image_client):
         try:
+            # First - quick check to see if the endpoint in the catalog
+            # is a versioned endpoint that matches the version we requested.
+            # If it is, don't do any additoinal work.
+            catalog_endpoint = image_client.get_endpoint()
+            if self._match_given_image_endpoint(
+                    catalog_endpoint, config_version):
+                return catalog_endpoint
             # Version discovery
             versions = image_client.get('/')
             api_version = None

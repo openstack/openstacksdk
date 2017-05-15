@@ -761,3 +761,21 @@ class TestImageBrokenDiscovery(base.RequestsMockTestCase):
             self.cloud._image_client.endpoint_override,
             'https://image.example.com/v2/')
         self.assert_calls()
+
+
+class TestImageDiscoveryOptimization(base.RequestsMockTestCase):
+
+    def setUp(self):
+        super(TestImageDiscoveryOptimization, self).setUp()
+        self.use_keystone_v3(catalog='catalog-versioned-image.json')
+
+    def test_version_discovery_skip(self):
+        self.cloud.cloud_config.config['image_api_version'] = '2'
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json={'images': []})
+        ])
+        self.assertEqual([], self.cloud.list_images())
+        self.assert_calls()
