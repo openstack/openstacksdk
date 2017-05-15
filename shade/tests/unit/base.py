@@ -474,6 +474,7 @@ class RequestsMockTestCase(BaseTestCase):
         discovery_fixture = os.path.join(
             self.fixtures_directory, image_version_json)
         return dict(method='GET', uri='https://image.example.com/',
+                    status_code=300,
                     text=open(discovery_fixture, 'r').read())
 
     def get_designate_discovery_mock_dict(self):

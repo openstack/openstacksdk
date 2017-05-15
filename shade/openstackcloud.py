@@ -469,7 +469,7 @@ class OpenStackCloud(
 
         return urllib.parse.ParseResult(
             catalog_endpoint.scheme,
-            discovered_endpoint.netloc,
+            catalog_endpoint.netloc,
             discovered_endpoint.path,
             discovered_endpoint.params,
             discovered_endpoint.query,

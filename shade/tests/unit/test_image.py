@@ -738,3 +738,26 @@ class TestImageVolume(BaseTestImage):
             volume={'id': volume_id}, allow_duplicates=True)
 
         self.assert_calls()
+
+
+class TestImageBrokenDiscovery(base.RequestsMockTestCase):
+
+    def setUp(self):
+        super(TestImageBrokenDiscovery, self).setUp()
+        self.use_glance(image_version_json='image-version-broken.json')
+
+    def test_url_fix(self):
+        # image-version-broken.json has both http urls and localhost as the
+        # host. This is testing that what is discovered is https, because
+        # that's what's in the catalog, and image.example.com for the same
+        # reason.
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json={'images': []})
+        ])
+        self.assertEqual([], self.cloud.list_images())
+        self.assertEqual(
+            self.cloud._image_client.endpoint_override,
+            'https://image.example.com/v2/')
+        self.assert_calls()
