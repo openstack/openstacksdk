@@ -16,6 +16,7 @@ from distutils import version as du_version
 import mock
 import munch
 import testtools
+import uuid
 
 import os_client_config as occ
 from os_client_config import cloud_config
@@ -26,19 +27,38 @@ from shade.tests import fakes
 from shade.tests.unit import base
 
 
-class TestShadeOperator(base.TestCase):
+class TestShadeOperator(base.RequestsMockTestCase):
+
+    def setUp(self):
+        super(TestShadeOperator, self).setUp()
+        self.machine_id = uuid.uuid4().hex
+        self.machine_name = self.getUniqueString('machine')
+        self.node = fakes.make_fake_machine(
+            machine_id=self.machine_id,
+            machine_name=self.machine_name)
+
+    def get_ironic_mock_url(self, append=None, *args, **kwargs):
+        if append:
+            # TODO(mordred): Remove when we do version discovery
+            # properly everywhere
+            append.insert(0, 'v1')
+        return self.get_mock_url('baremetal', append=append, *args, **kwargs)
 
     def test_operator_cloud(self):
         self.assertIsInstance(self.op_cloud, shade.OperatorCloud)
 
-    @mock.patch.object(shade.OperatorCloud, 'ironic_client')
-    def test_get_machine(self, mock_client):
-        node = fakes.FakeMachine(id='00000000-0000-0000-0000-000000000000',
-                                 name='bigOlFaker')
-        mock_client.node.get.return_value = node
-        machine = self.op_cloud.get_machine('bigOlFaker')
-        mock_client.node.get.assert_called_with(node_id='bigOlFaker')
-        self.assertEqual(meta.obj_to_dict(node), machine)
+    def test_get_machine(self):
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_ironic_mock_url(
+                     append=['nodes', self.machine_name]),
+                 json=self.node),
+        ])
+        machine = self.op_cloud.get_machine(self.machine_name)
+        self.assertEqual(self.node, machine)
+
+        self.assert_calls()
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_get_machine_by_mac(self, mock_client):

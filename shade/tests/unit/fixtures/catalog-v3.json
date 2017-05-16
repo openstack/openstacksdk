@@ -116,6 +116,19 @@
             "id": "652f0612744042bfbb8a8bb2c777a16d",
             "interface": "public",
             "region": "RegionOne",
+            "url": "https://bare-metal.example.com/"
+          }
+        ],
+        "endpoints_links": [],
+        "name": "ironic",
+        "type": "baremetal"
+      },
+      {
+        "endpoints": [
+          {
+            "id": "4deb4d0504a044a395d4480741ba628c",
+            "interface": "public",
+            "region": "RegionOne",
             "url": "https://orchestration.example.com/v1/1c36b64c840a42cd9e9b931a369337f0"
           }
         ],
