@@ -39,7 +39,6 @@ _SERVER_FIELDS = (
     'private_v4',
     'public_v4',
     'public_v6',
-    'security_groups',
     'status',
     'updated',
     'user_id',
@@ -440,6 +439,9 @@ class Normalizer(object):
                 'OS-SRV-USG:terminated_at'):
             short_key = key.split(':')[1]
             ret[short_key] = _pop_or_get(server, key, None, self.strict_mode)
+
+        # Protect against security_groups being None
+        ret['security_groups'] = server.pop('security_groups', None) or []
 
         for field in _SERVER_FIELDS:
             ret[field] = server.pop(field, None)

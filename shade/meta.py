@@ -407,7 +407,7 @@ def expand_server_security_groups(cloud, server):
         groups = cloud.list_server_security_groups(server)
     except exc.OpenStackCloudException:
         groups = []
-    server['security_groups'] = groups
+    server['security_groups'] = groups or []
 
 
 def get_hostvars_from_server(cloud, server, mounts=None):
