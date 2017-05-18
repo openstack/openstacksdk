@@ -606,3 +606,15 @@ class TestServer(testtools.TestCase):
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
             url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_migrate(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.migrate(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"migrate": None}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
