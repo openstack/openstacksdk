@@ -278,3 +278,21 @@ class TestVolume(base.RequestsMockTestCase):
                  status_code=404)])
         self.assertFalse(self.cloud.delete_volume(volume['id']))
         self.assert_calls()
+
+    def test_list_volumes_with_pagination(self):
+        vol1 = meta.obj_to_dict(fakes.FakeVolume('01', 'available', 'vol1'))
+        vol2 = meta.obj_to_dict(fakes.FakeVolume('02', 'available', 'vol2'))
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={
+                     'volumes': [vol1, vol2],
+                     'volumes_links': [
+                         {'href': 'https://volume.example.com/fake_url',
+                          'rel': 'next'}]})])
+        self.assertEqual(
+            [self.cloud._normalize_volume(vol1),
+             self.cloud._normalize_volume(vol2)],
+            self.cloud.list_volumes())
+        self.assert_calls()

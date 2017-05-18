@@ -679,6 +679,11 @@ class Normalizer(object):
         :returns: A list of normalized dicts.
         """
         ret = []
+        # With pagination we don't get a top-level container
+        # so we need to explicitly extract the list of volumes
+        if isinstance(volumes, dict):
+            volumes = volumes.get('volumes', [])
+
         for volume in volumes:
             ret.append(self._normalize_volume(volume))
         return ret
