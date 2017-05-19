@@ -141,6 +141,7 @@ class TestRouter(base.BaseFunctionalTestCase):
     def _create_and_verify_advanced_router(self,
                                            external_cidr,
                                            external_gateway_ip=None):
+        # external_cidr must be passed in as unicode (u'')
         # NOTE(Shrews): The arguments are needed because these tests
         # will run in parallel and we want to make sure that each test
         # is using different resources to prevent race conditions.
@@ -153,7 +154,7 @@ class TestRouter(base.BaseFunctionalTestCase):
             gateway_ip=external_gateway_ip
         )
 
-        ip_net = ipaddress.IPv4Network(unicode(external_cidr))
+        ip_net = ipaddress.IPv4Network(external_cidr)
         last_ip = str(list(ip_net.hosts())[-1])
 
         router_name = self.router_prefix + '_create_advanced'
@@ -191,11 +192,11 @@ class TestRouter(base.BaseFunctionalTestCase):
         return router
 
     def test_create_router_advanced(self):
-        self._create_and_verify_advanced_router(external_cidr='10.2.2.0/24')
+        self._create_and_verify_advanced_router(external_cidr=u'10.2.2.0/24')
 
     def test_add_remove_router_interface(self):
         router = self._create_and_verify_advanced_router(
-            external_cidr='10.3.3.0/24')
+            external_cidr=u'10.3.3.0/24')
         net_name = self.network_prefix + '_intnet1'
         sub_name = self.subnet_prefix + '_intsub1'
         net = self.operator_cloud.create_network(name=net_name)
@@ -221,7 +222,7 @@ class TestRouter(base.BaseFunctionalTestCase):
 
     def test_list_router_interfaces(self):
         router = self._create_and_verify_advanced_router(
-            external_cidr='10.5.5.0/24')
+            external_cidr=u'10.5.5.0/24')
         net_name = self.network_prefix + '_intnet1'
         sub_name = self.subnet_prefix + '_intsub1'
         net = self.operator_cloud.create_network(name=net_name)
@@ -256,7 +257,7 @@ class TestRouter(base.BaseFunctionalTestCase):
 
     def test_update_router_name(self):
         router = self._create_and_verify_advanced_router(
-            external_cidr='10.7.7.0/24')
+            external_cidr=u'10.7.7.0/24')
 
         new_name = self.router_prefix + '_update_name'
         updated = self.operator_cloud.update_router(
@@ -277,7 +278,7 @@ class TestRouter(base.BaseFunctionalTestCase):
 
     def test_update_router_admin_state(self):
         router = self._create_and_verify_advanced_router(
-            external_cidr='10.8.8.0/24')
+            external_cidr=u'10.8.8.0/24')
 
         updated = self.operator_cloud.update_router(
             router['id'], admin_state_up=True)
@@ -299,7 +300,7 @@ class TestRouter(base.BaseFunctionalTestCase):
 
     def test_update_router_ext_gw_info(self):
         router = self._create_and_verify_advanced_router(
-            external_cidr='10.9.9.0/24')
+            external_cidr=u'10.9.9.0/24')
 
         # create a new subnet
         existing_net_id = router['external_gateway_info']['network_id']
