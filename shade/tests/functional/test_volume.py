@@ -91,3 +91,23 @@ class TestVolume(base.BaseFunctionalTestCase):
         volume = self.user_cloud.get_volume(volume_name)
         if volume:
             self.user_cloud.delete_volume(volume_name, wait=True)
+
+    def test_list_volumes_pagination(self):
+        '''Test pagination for list volumes functionality'''
+        volumes = []
+        # the number of created volumes needs to be higher than
+        # CONF.osapi_max_limit but not higher than volume quotas for
+        # the test user in the tenant(default quotas is set to 10)
+        num_volumes = 8
+        for i in range(num_volumes):
+            name = self.getUniqueString()
+            self.addCleanup(self.cleanup, name)
+            v = self.user_cloud.create_volume(display_name=name, size=1)
+            volumes.append(v)
+        result = []
+        for i in self.user_cloud.list_volumes():
+            if i['name'] and i['name'].startswith(self.id()):
+                result.append(i['id'])
+        self.assertEqual(
+            sorted([i['id'] for i in volumes]),
+            sorted(result))
