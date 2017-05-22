@@ -25,8 +25,8 @@ from shade import exc
 NON_CALLABLES = (six.string_types, bool, dict, int, float, list, type(None))
 
 
-def find_nova_addresses(addresses, ext_tag=None, key_name=None, version=4):
-
+def find_nova_interfaces(addresses, ext_tag=None, key_name=None, version=4,
+                         mac_addr=None):
     ret = []
     for (k, v) in iter(addresses.items()):
         if key_name is not None and k != key_name:
@@ -48,10 +48,30 @@ def find_nova_addresses(addresses, ext_tag=None, key_name=None, version=4):
                     # Type doesn't match, continue with next one
                     continue
 
-            if interface_spec['version'] == version:
-                ret.append(interface_spec['addr'])
+            if mac_addr is not None:
+                if 'OS-EXT-IPS-MAC:mac_addr' not in interface_spec:
+                    # mac_addr is specified, but this interface has no mac_addr
+                    # We could actually return right away as this means that
+                    # this cloud doesn't support OS-EXT-IPS-MAC. Nevertheless,
+                    # it would be better to perform an explicit check. e.g.:
+                    #   cloud._has_nova_extension('OS-EXT-IPS-MAC')
+                    # But this needs cloud to be passed to this function.
+                    continue
+                elif interface_spec['OS-EXT-IPS-MAC:mac_addr'] != mac_addr:
+                    # MAC doesn't match, continue with next one
+                    continue
 
+            if interface_spec['version'] == version:
+                ret.append(interface_spec)
     return ret
+
+
+def find_nova_addresses(addresses, ext_tag=None, key_name=None, version=4,
+                        mac_addr=None):
+    interfaces = find_nova_interfaces(addresses, ext_tag, key_name, version,
+                                      mac_addr)
+    addrs = [i['addr'] for i in interfaces]
+    return addrs
 
 
 def get_server_ip(server, public=False, cloud_public=True, **kwargs):
@@ -89,6 +109,13 @@ def get_server_private_ip(server, cloud=None):
     if cloud and not cloud.use_internal_network():
         return None
 
+    # Try to get a floating IP interface. If we have one then return the
+    # private IP address associated with that floating IP for consistency.
+    fip_ints = find_nova_interfaces(server['addresses'], ext_tag='floating')
+    fip_mac = None
+    if fip_ints:
+        fip_mac = fip_ints[0].get('OS-EXT-IPS-MAC:mac_addr')
+
     # Short circuit the ports/networks search below with a heavily cached
     # and possibly pre-configured network name
     if cloud:
@@ -96,12 +123,13 @@ def get_server_private_ip(server, cloud=None):
         for int_net in int_nets:
             int_ip = get_server_ip(
                 server, key_name=int_net['name'],
-                cloud_public=not cloud.private)
+                cloud_public=not cloud.private,
+                mac_addr=fip_mac)
             if int_ip is not None:
                 return int_ip
 
     ip = get_server_ip(
-        server, ext_tag='fixed', key_name='private')
+        server, ext_tag='fixed', key_name='private', mac_addr=fip_mac)
     if ip:
         return ip
 
