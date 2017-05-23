@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import datetime
+import iso8601
 import jsonpatch
 
 from ironicclient import exceptions as ironic_exceptions
@@ -2103,22 +2104,60 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         except nova_exceptions.BadRequest:
             raise OpenStackCloudException("nova client call failed")
 
-    def get_compute_usage(self, name_or_id, start, end=None):
+    def get_compute_usage(self, name_or_id, start=None, end=None):
         """ Get usage for a specific project
 
         :param name_or_id: project name or id
-        :param start: :class:`datetime.datetime` Start date in UTC
-        :param end: :class:`datetime.datetime` End date in UTC. Defaults to now
+        :param start: :class:`datetime.datetime` or string. Start date in UTC
+                      Defaults to 2010-07-06T12:00:00Z (the date the OpenStack
+                      project was started)
+        :param end: :class:`datetime.datetime` or string. End date in UTC.
+                    Defaults to now
         :raises: OpenStackCloudException if it's not a valid project
 
         :returns: Munch object with the usage
         """
+        def parse_date(date):
+            try:
+                return iso8601.parse_date(date)
+            except iso8601.iso8601.ParseError:
+                # Yes. This is an exception mask. However,iso8601 is an
+                # implementation detail - and the error message is actually
+                # less informative.
+                raise OpenStackCloudException(
+                    "Date given, {date}, is invalid. Please pass in a date"
+                    " string in ISO 8601 format -"
+                    " YYYY-MM-DDTHH:MM:SS".format(
+                        date=date))
+
+        def parse_datetime_for_nova(date):
+            # Must strip tzinfo from the date- it breaks Nova. Also,
+            # Nova is expecting this in UTC. If someone passes in an
+            # ISO8601 date string or a datetime with timzeone data attached,
+            # strip the timezone data but apply offset math first so that
+            # the user's well formed perfectly valid date will be used
+            # correctly.
+            offset = date.utcoffset()
+            if offset:
+                date = date - datetime.timedelta(hours=offset)
+            return date.replace(tzinfo=None)
+
+        if not start:
+            start = parse_date('2010-07-06')
+        elif not isinstance(start, datetime.datetime):
+            start = parse_date(start)
+        if not end:
+            end = datetime.datetime.utcnow()
+        elif not isinstance(start, datetime.datetime):
+            end = parse_date(end)
+
+        start = parse_datetime_for_nova(start)
+        end = parse_datetime_for_nova(end)
+
         proj = self.get_project(name_or_id)
         if not proj:
             raise OpenStackCloudException("project does not exist: {}".format(
                 name=proj.id))
-        if not end:
-            end = datetime.datetime.now()
 
         with _utils.shade_exceptions(
                 "Unable to get resources usage for project: {name}".format(
