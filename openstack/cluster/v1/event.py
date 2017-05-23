@@ -26,8 +26,9 @@ class Event(resource.Resource):
     allow_get = True
 
     _query_mapping = resource.QueryParameters(
-        'oname', 'otype', 'oid', 'cluster_id', 'action', 'level',
-        'sort', 'global_project')
+        'cluster_id', 'action', 'level', 'sort', 'global_project',
+        obj_id='oid', obj_name='oname', obj_type='otype',
+    )
 
     # Properties
     #: Timestamp string (in ISO8601 format) when the event was generated.
