@@ -20,6 +20,7 @@ Tests Floating IP resource methods for Neutron
 """
 
 import copy
+import datetime
 import munch
 
 from shade import exc
@@ -101,6 +102,7 @@ class TestFloatingIP(base.RequestsMockTestCase):
             'status': 'ACTIVE',
             'binding:host_id': 'devstack',
             'name': 'first-port',
+            'created_at': datetime.datetime.now().isoformat(),
             'allowed_address_pairs': [],
             'admin_state_up': True,
             'network_id': '70c1db1f-b701-45bd-96e0-a313ee3430b3',
@@ -939,6 +941,7 @@ class TestFloatingIP(base.RequestsMockTestCase):
         server_port = {
             "id": "port-id",
             "device_id": "some-server",
+            'created_at': datetime.datetime.now().isoformat(),
             'fixed_ips': [
                 {
                     'subnet_id': 'subnet-id',

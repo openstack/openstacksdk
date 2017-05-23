@@ -4779,9 +4779,7 @@ class OpenStackCloud(
             return (None, None)
         port = None
         if not fixed_address:
-            if len(ports) == 1:
-                port = ports[0]
-            else:
+            if len(ports) > 1:
                 if nat_destination:
                     nat_network = self.get_network(nat_destination)
                     if not nat_network:
@@ -4793,37 +4791,49 @@ class OpenStackCloud(
                 else:
                     nat_network = self.get_nat_destination()
 
-                if nat_network:
-                    for maybe_port in ports:
-                        if maybe_port['network_id'] == nat_network['id']:
-                            port = maybe_port
-                    if not port:
-                        raise OpenStackCloudException(
-                            'No port on server {server} was found matching'
-                            ' the network configured as the NAT destination'
-                            ' {dest}. Please check your config'.format(
-                                server=server['id'], dest=nat_network['name']))
-                else:
-                    port = ports[0]
-                    warnings.warn(
-                        'During Floating IP creation, multiple private'
-                        ' networks were found. {net} is being selected at'
-                        ' random to be the destination of the NAT. If that'
-                        ' is not what you want, please configure the'
+                if not nat_network:
+                    raise OpenStackCloudException(
+                        'Multiple ports were found for server {server}'
+                        ' but none of the networks are a valid NAT'
+                        ' destination, so it is impossible to add a'
+                        ' floating IP. If you have a network that is a valid'
+                        ' destination for NAT and we could not find it,'
+                        ' please file a bug. But also configure the'
                         ' nat_destination property of the networks list in'
                         ' your clouds.yaml file. If you do not have a'
                         ' clouds.yaml file, please make one - your setup'
-                        ' is complicated.'.format(net=port['network_id']))
+                        ' is complicated.'.format(server=server['id']))
 
-            # Select the first available IPv4 address
-            for address in port.get('fixed_ips', list()):
-                try:
-                    ip = ipaddress.ip_address(address['ip_address'])
-                except Exception:
-                    continue
-                if ip.version == 4:
-                    fixed_address = address['ip_address']
-                    return port, fixed_address
+                maybe_ports = []
+                for maybe_port in ports:
+                    if maybe_port['network_id'] == nat_network['id']:
+                        maybe_ports.append(maybe_port)
+                if not maybe_ports:
+                    raise OpenStackCloudException(
+                        'No port on server {server} was found matching'
+                        ' your NAT destination network {dest}. Please '
+                        ' check your config'.format(
+                            server=server['id'], dest=nat_network['name']))
+                ports = maybe_ports
+
+            # Select the most recent available IPv4 address
+            # To do this, sort the ports in reverse order by the created_at
+            # field which is a string containing an ISO DateTime (which
+            # thankfully sort properly) This way the most recent port created,
+            # if there are more than one, will be the arbitrary port we
+            # select.
+            for port in sorted(
+                    ports,
+                    key=operator.itemgetter('created_at'),
+                    reverse=True):
+                for address in port.get('fixed_ips', list()):
+                    try:
+                        ip = ipaddress.ip_address(address['ip_address'])
+                    except Exception:
+                        continue
+                    if ip.version == 4:
+                        fixed_address = address['ip_address']
+                        return port, fixed_address
             raise OpenStackCloudException(
                 "unable to find a free fixed IPv4 address for server "
                 "{0}".format(server['id']))
