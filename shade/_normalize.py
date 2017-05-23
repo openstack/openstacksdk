@@ -821,8 +821,8 @@ class Normalizer(object):
                 'total_server_groups_used',
                 'total_vcpus_usage'):
             ret[key] = usage.pop(key, 0)
-        ret['started_at'] = usage.pop('start')
-        ret['stopped_at'] = usage.pop('stop')
+        ret['started_at'] = usage.pop('start', None)
+        ret['stopped_at'] = usage.pop('stop', None)
         ret['server_usages'] = self._normalize_server_usages(
             usage.pop('server_usages', []))
         ret['properties'] = usage

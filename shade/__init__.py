@@ -108,8 +108,6 @@ def openstack_cloud(
 
 def operator_cloud(
         config=None, strict=False, app_name=None, app_version=None, **kwargs):
-    if 'interface' not in kwargs:
-        kwargs['interface'] = 'admin'
     if not config:
         config = _get_openstack_config(app_name, app_version)
     try:
