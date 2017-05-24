@@ -103,8 +103,9 @@ def raise_from_response(response, error_message=None):
         details = response.json()
         # Nova returns documents that look like
         # {statusname: 'message': message, 'code': code}
-        if len(details.keys()) == 1:
-            detail_key = details.keys()[0]
+        detail_keys = list(details.keys())
+        if len(detail_keys) == 1:
+            detail_key = detail_keys[0]
             detail_message = details[detail_key].get('message')
             if detail_message:
                 remote_error += " {message}".format(message=detail_message)

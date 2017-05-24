@@ -31,7 +31,7 @@ class TestImage(base.BaseFunctionalTestCase):
 
     def test_create_image(self):
         test_image = tempfile.NamedTemporaryFile(delete=False)
-        test_image.write('\0' * 1024 * 1024)
+        test_image.write(b'\0' * 1024 * 1024)
         test_image.close()
         image_name = self.getUniqueString('image')
         try:
@@ -49,7 +49,7 @@ class TestImage(base.BaseFunctionalTestCase):
     def test_download_image(self):
         test_image = tempfile.NamedTemporaryFile(delete=False)
         self.addCleanup(os.remove, test_image.name)
-        test_image.write('\0' * 1024 * 1024)
+        test_image.write(b'\0' * 1024 * 1024)
         test_image.close()
         image_name = self.getUniqueString('image')
         self.user_cloud.create_image(
@@ -69,7 +69,7 @@ class TestImage(base.BaseFunctionalTestCase):
 
     def test_create_image_skip_duplicate(self):
         test_image = tempfile.NamedTemporaryFile(delete=False)
-        test_image.write('\0' * 1024 * 1024)
+        test_image.write(b'\0' * 1024 * 1024)
         test_image.close()
         image_name = self.getUniqueString('image')
         try:
@@ -95,7 +95,7 @@ class TestImage(base.BaseFunctionalTestCase):
 
     def test_create_image_force_duplicate(self):
         test_image = tempfile.NamedTemporaryFile(delete=False)
-        test_image.write('\0' * 1024 * 1024)
+        test_image.write(b'\0' * 1024 * 1024)
         test_image.close()
         image_name = self.getUniqueString('image')
         first_image = None
@@ -127,7 +127,7 @@ class TestImage(base.BaseFunctionalTestCase):
 
     def test_create_image_update_properties(self):
         test_image = tempfile.NamedTemporaryFile(delete=False)
-        test_image.write('\0' * 1024 * 1024)
+        test_image.write(b'\0' * 1024 * 1024)
         test_image.close()
         image_name = self.getUniqueString('image')
         try:

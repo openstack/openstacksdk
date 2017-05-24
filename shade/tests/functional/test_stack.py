@@ -85,7 +85,7 @@ class TestStack(base.BaseFunctionalTestCase):
 
     def test_stack_validation(self):
         test_template = tempfile.NamedTemporaryFile(delete=False)
-        test_template.write(validate_template)
+        test_template.write(validate_template.encode('utf-8'))
         test_template.close()
         stack_name = self.getUniqueString('validate_template')
         self.assertRaises(exc.OpenStackCloudException,
@@ -95,7 +95,7 @@ class TestStack(base.BaseFunctionalTestCase):
 
     def test_stack_simple(self):
         test_template = tempfile.NamedTemporaryFile(delete=False)
-        test_template.write(fakes.FAKE_TEMPLATE)
+        test_template.write(fakes.FAKE_TEMPLATE.encode('utf-8'))
         test_template.close()
         self.stack_name = self.getUniqueString('simple_stack')
         self.addCleanup(self._cleanup_stack)
@@ -148,15 +148,16 @@ class TestStack(base.BaseFunctionalTestCase):
 
         test_template = tempfile.NamedTemporaryFile(
             suffix='.yaml', delete=False)
-        test_template.write(root_template)
+        test_template.write(root_template.encode('utf-8'))
         test_template.close()
 
         simple_tmpl = tempfile.NamedTemporaryFile(suffix='.yaml', delete=False)
-        simple_tmpl.write(fakes.FAKE_TEMPLATE)
+        simple_tmpl.write(fakes.FAKE_TEMPLATE.encode('utf-8'))
         simple_tmpl.close()
 
         env = tempfile.NamedTemporaryFile(suffix='.yaml', delete=False)
-        env.write(environment % simple_tmpl.name)
+        expanded_env = environment % simple_tmpl.name
+        env.write(expanded_env.encode('utf-8'))
         env.close()
 
         self.stack_name = self.getUniqueString('nested_stack')
