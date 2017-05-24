@@ -922,8 +922,9 @@ class OpenStackCloud(
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        with _utils.shade_exceptions("Failed to list users"):
-            users = self.manager.submit_task(_tasks.UserList())
+        users = self._identity_client.get('/users')
+        if isinstance(users, dict):
+            users = users['users']
         return _utils.normalize_users(users)
 
     def search_users(self, name_or_id=None, filters=None):
@@ -967,10 +968,11 @@ class OpenStackCloud(
 
         :returns: a single ``munch.Munch`` containing the user description
         """
-        with _utils.shade_exceptions(
-                "Error getting user with ID {user_id}".format(
-                    user_id=user_id)):
-            user = self.manager.submit_task(_tasks.UserGet(user=user_id))
+        user = self._identity_client.get(
+            '/users/{user}'.format(user=user_id),
+            error_message="Error getting user with ID {user_id}".format(
+                user_id=user_id))
+
         if user and normalize:
             return _utils.normalize_users([user])[0]
         return user
@@ -1036,6 +1038,8 @@ class OpenStackCloud(
         return _utils.normalize_users([user])[0]
 
     def delete_user(self, name_or_id):
+        # TODO(mordred) Support name_or_id as dict to avoid any gets
+        # TODO(mordred) Why are we invalidating at the TOP?
         self.list_users.invalidate(self)
         user = self.get_user(name_or_id)
         if not user:
@@ -1043,11 +1047,14 @@ class OpenStackCloud(
                 "User {0} not found for deleting".format(name_or_id))
             return False
 
-        # normalized dict won't work
+        # TODO(mordred) Extra GET only needed to support keystoneclient.
+        #               Can be removed as a follow-on.
         user = self.get_user_by_id(user['id'], normalize=False)
-        with _utils.shade_exceptions("Error in deleting user {user}".format(
-                user=name_or_id)):
-            self.manager.submit_task(_tasks.UserDelete(user=user))
+        self._identity_client.delete(
+            '/users/{user}'.format(user=user['id']),
+            error_message="Error in deleting user {user}".format(
+                user=name_or_id))
+
         self.list_users.invalidate(self)
         return True
 
