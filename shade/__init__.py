@@ -53,6 +53,13 @@ def simple_logging(debug=False, http_debug=False):
         log = _log.setup_logging('keystoneauth')
         log.addHandler(logging.StreamHandler())
         log.setLevel(log_level)
+        # We only want extra shade HTTP tracing in http debug mode
+        log = _log.setup_logging('shade.http')
+        log.setLevel(log_level)
+    else:
+        # We only want extra shade HTTP tracing in http debug mode
+        log = _log.setup_logging('shade.http')
+        log.setLevel(logging.WARNING)
     # Simple case - we only care about request id log during debug
     log = _log.setup_logging('shade.request_ids')
     log.setLevel(log_level)
