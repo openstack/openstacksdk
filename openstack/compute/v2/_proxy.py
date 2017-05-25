@@ -775,6 +775,19 @@ class Proxy(proxy2.BaseProxy):
         server = self._get_resource(_server.Server, server)
         server.unshelve(self._session)
 
+    def get_server_console_output(self, server, length=None):
+        """Return the console output for a server.
+
+        :param server: Either the ID of a server or a
+                    :class:`~openstack.compute.v2.server.Server` instance.
+        :param length: Optional number of line to fetch from the end of console
+                    log. All lines will be returned if this is not specified.
+        :returns: The console output as a dict. Control characters will be
+                    escaped to create a valid JSON string.
+        """
+        server = self._get_resource(_server.Server, server)
+        return server.get_console_output(self._session, length=length)
+
     def wait_for_server(self, server, status='ACTIVE', failures=['ERROR'],
                         interval=2, wait=120):
         return resource2.wait_for_status(self._session, server, status,

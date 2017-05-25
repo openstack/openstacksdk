@@ -340,6 +340,13 @@ class Server(resource2.Resource, metadata.MetadataMixin):
         body = {"migrate": None}
         self._action(session, body)
 
+    def get_console_output(self, session, length=None):
+        body = {"os-getConsoleOutput": {}}
+        if length is not None:
+            body["os-getConsoleOutput"]["length"] = length
+        resp = self._action(session, body)
+        return resp.json()
+
 
 class ServerDetail(Server):
     base_path = '/servers/detail'

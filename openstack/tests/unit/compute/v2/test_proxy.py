@@ -401,6 +401,17 @@ class TestComputeProxy(test_proxy_base2.TestProxyBase):
                      self.proxy.unshelve_server,
                      method_args=["value"])
 
+    def test_get_server_output(self):
+        self._verify("openstack.compute.v2.server.Server.get_console_output",
+                     self.proxy.get_server_console_output,
+                     method_args=["value"],
+                     expected_kwargs={"length": None})
+
+        self._verify("openstack.compute.v2.server.Server.get_console_output",
+                     self.proxy.get_server_console_output,
+                     method_args=["value", 1],
+                     expected_kwargs={"length": 1})
+
     def test_availability_zones(self):
         self.verify_list_no_kwargs(self.proxy.availability_zones,
                                    az.AvailabilityZone,
