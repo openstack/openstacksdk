@@ -370,12 +370,6 @@ class CloudConfig(object):
             service_key, min_version=min_version, max_version=max_version)
         endpoint_override = self.get_endpoint(service_key)
 
-        if not interface_key:
-            if service_key in ('image', 'key-manager'):
-                interface_key = 'interface'
-            else:
-                interface_key = 'endpoint_type'
-
         if service_key == 'object-store':
             constructor_kwargs = dict(
                 session=self.get_session(),
@@ -408,10 +402,6 @@ class CloudConfig(object):
             if not endpoint_override:
                 constructor_kwargs['endpoint_override'] = endpoint
         constructor_kwargs.update(kwargs)
-        if service_key == 'object-store':
-            constructor_kwargs['os_options'][interface_key] = interface
-        else:
-            constructor_kwargs[interface_key] = interface
         if pass_version_arg and service_key != 'object-store':
             if not version:
                 version = self.get_api_version(service_key)
@@ -454,6 +444,19 @@ class CloudConfig(object):
             # args
             constructor_kwargs['username'] = None
             constructor_kwargs['password'] = None
+
+        if not interface_key:
+            if service_key in ('image', 'key-manager'):
+                interface_key = 'interface'
+            elif (service_key == 'identity'
+                  and version and version.startswith('3')):
+                interface_key = 'interface'
+            else:
+                interface_key = 'endpoint_type'
+        if service_key == 'object-store':
+            constructor_kwargs['os_options'][interface_key] = interface
+        else:
+            constructor_kwargs[interface_key] = interface
 
         return client_class(**constructor_kwargs)
 
