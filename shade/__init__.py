@@ -53,6 +53,11 @@ def simple_logging(debug=False, http_debug=False):
         log = _log.setup_logging('keystoneauth')
         log.addHandler(logging.StreamHandler())
         log.setLevel(log_level)
+        # Enable HTTP level tracing of novaclient
+        logger = logging.getLogger('novaclient')
+        log.addHandler(logging.StreamHandler())
+        log.setLevel(log_level)
+        logger.propagate = False
         # We only want extra shade HTTP tracing in http debug mode
         log = _log.setup_logging('shade.http')
         log.setLevel(log_level)
