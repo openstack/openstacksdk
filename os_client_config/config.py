@@ -106,9 +106,12 @@ def _get_os_environ(envvar_prefix=None):
     for k in environkeys:
         newkey = k.split('_', 1)[-1].lower()
         ret[newkey] = os.environ[k]
-    # If the only environ keys are cloud and region_name, don't return anything
-    # because they are cloud selectors
-    if set(environkeys) - set(['OS_CLOUD', 'OS_REGION_NAME']):
+    # If the only environ keys are selectors or behavior modification, don't
+    # return anything
+    selectors = set([
+        'OS_CLOUD', 'OS_REGION_NAME',
+        'OS_CLIENT_CONFIG_FILE', 'OS_CLIENT_SECURE_FILE', 'OS_CLOUD_NAME'])
+    if set(environkeys) - selectors:
         return ret
     return None
 
@@ -193,11 +196,11 @@ class OpenStackConfig(object):
             self._secure_files = []
             self._vendor_files = []
 
-        config_file_override = os.environ.pop('OS_CLIENT_CONFIG_FILE', None)
+        config_file_override = os.environ.get('OS_CLIENT_CONFIG_FILE')
         if config_file_override:
             self._config_files.insert(0, config_file_override)
 
-        secure_file_override = os.environ.pop('OS_CLIENT_SECURE_FILE', None)
+        secure_file_override = os.environ.get('OS_CLIENT_SECURE_FILE')
         if secure_file_override:
             self._secure_files.insert(0, secure_file_override)
 
@@ -226,12 +229,12 @@ class OpenStackConfig(object):
         else:
             # Get the backwards compat value
             prefer_ipv6 = get_boolean(
-                os.environ.pop(
+                os.environ.get(
                     'OS_PREFER_IPV6', client_config.get(
                         'prefer_ipv6', client_config.get(
                             'prefer-ipv6', True))))
             force_ipv4 = get_boolean(
-                os.environ.pop(
+                os.environ.get(
                     'OS_FORCE_IPV4', client_config.get(
                         'force_ipv4', client_config.get(
                             'broken-ipv6', False))))
@@ -243,7 +246,7 @@ class OpenStackConfig(object):
                 self.force_ipv4 = True
 
         # Next, process environment variables and add them to the mix
-        self.envvar_key = os.environ.pop('OS_CLOUD_NAME', 'envvars')
+        self.envvar_key = os.environ.get('OS_CLOUD_NAME', 'envvars')
         if self.envvar_key in self.cloud_config['clouds']:
             raise exceptions.OpenStackConfigException(
                 '"{0}" defines a cloud named "{1}", but'
@@ -251,9 +254,8 @@ class OpenStackConfig(object):
                 ' either your environment based cloud, or one of your'
                 ' file-based clouds.'.format(self.config_filename,
                                              self.envvar_key))
-        # Pull out OS_CLOUD so that if it's the only thing set, do not
-        # make an envvars cloud
-        self.default_cloud = os.environ.pop('OS_CLOUD', None)
+
+        self.default_cloud = os.environ.get('OS_CLOUD')
 
         envvars = _get_os_environ(envvar_prefix=envvar_prefix)
         if envvars:
