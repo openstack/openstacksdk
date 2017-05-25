@@ -21,6 +21,7 @@ from os_client_config.config import OpenStackConfig  # noqa
 
 
 __version__ = pbr.version.VersionInfo('os_client_config').version_string()
+_config = None
 
 
 def get_config(
@@ -28,16 +29,18 @@ def get_config(
         app_name=None, app_version=None,
         **kwargs):
     load_yaml_config = kwargs.pop('load_yaml_config', True)
-    config = OpenStackConfig(
-        load_yaml_config=load_yaml_config,
-        app_name=app_name, app_version=app_version)
+    global _config
+    if not _config:
+        _config = OpenStackConfig(
+            load_yaml_config=load_yaml_config,
+            app_name=app_name, app_version=app_version)
     if options:
-        config.register_argparse_arguments(options, sys.argv, service_key)
+        _config.register_argparse_arguments(options, sys.argv, service_key)
         parsed_options = options.parse_known_args(sys.argv)
     else:
         parsed_options = None
 
-    return config.get_one_cloud(options=parsed_options, **kwargs)
+    return _config.get_one_cloud(options=parsed_options, **kwargs)
 
 
 def make_rest_client(
