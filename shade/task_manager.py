@@ -226,7 +226,7 @@ def generate_task_class(method, name, result_filter_cb):
 
 
 class TaskManager(object):
-    log = _log.setup_logging(__name__)
+    log = _log.setup_logging('shade.task_manager')
 
     def __init__(
             self, client, name, result_filter_cb=None, workers=5, **kwargs):

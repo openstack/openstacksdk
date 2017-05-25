@@ -37,7 +37,7 @@ class OpenStackCloudException(Exception):
 
     def log_error(self, logger=None):
         if not logger:
-            logger = _log.setup_logging(__name__)
+            logger = _log.setup_logging('shade.exc')
         if self.inner_exception and self.inner_exception[1]:
             logger.error(self.orig_message, exc_info=self.inner_exception)
 
