@@ -6916,8 +6916,9 @@ class OpenStackCloud(
         :returns: A list of zones dicts.
 
         """
-        with _utils.shade_exceptions("Error fetching zones list"):
-            return self.manager.submit_task(_tasks.ZoneList())
+        return self._dns_client.get(
+            "/v2/zones",
+            error_message="Error fetching zones list")
 
     def get_zone(self, name_or_id, filters=None):
         """Get a zone by name or ID.
@@ -6936,7 +6937,7 @@ class OpenStackCloud(
 
     def search_zones(self, name_or_id=None, filters=None):
         zones = self.list_zones()
-        return _utils._filter_list(zones, name_or_id, filters)
+        return _utils._filter_list(zones['zones'], name_or_id, filters)
 
     def create_zone(self, name, zone_type=None, email=None, description=None,
                     ttl=None, masters=None):
@@ -6965,11 +6966,23 @@ class OpenStackCloud(
                     "Invalid type %s, valid choices are PRIMARY or SECONDARY" %
                     zone_type)
 
-        with _utils.shade_exceptions("Unable to create zone {name}".format(
-                name=name)):
-            return self.manager.submit_task(_tasks.ZoneCreate(
-                name=name, type_=zone_type, email=email,
-                description=description, ttl=ttl, masters=masters))
+        zone = {
+            "name": name,
+            "email": email,
+            "description": description,
+        }
+        if ttl is not None:
+            zone["ttl"] = ttl
+
+        if zone_type is not None:
+            zone["type"] = zone_type
+
+        if masters is not None:
+            zone["masters"] = masters
+
+        return self._dns_client.post(
+            "/v2/zones", json=zone,
+            error_message="Unable to create zone {name}".format(name=name))
 
     @_utils.valid_kwargs('email', 'description', 'ttl', 'masters')
     def update_zone(self, name_or_id, **kwargs):
@@ -6992,13 +7005,9 @@ class OpenStackCloud(
             raise OpenStackCloudException(
                 "Zone %s not found." % name_or_id)
 
-        with _utils.shade_exceptions(
-                "Error updating zone {0}".format(name_or_id)):
-            new_zone = self.manager.submit_task(
-                _tasks.ZoneUpdate(
-                    zone=zone['id'], values=kwargs))
-
-        return new_zone
+        return self._dns_client.patch(
+            "/v2/zones/{zone_id}".format(zone_id=zone['id']), json=kwargs,
+            error_message="Error updating zone {0}".format(name_or_id))
 
     def delete_zone(self, name_or_id):
         """Delete a zone.
@@ -7015,10 +7024,9 @@ class OpenStackCloud(
             self.log.debug("Zone %s not found for deleting", name_or_id)
             return False
 
-        with _utils.shade_exceptions(
-                "Error deleting zone {0}".format(name_or_id)):
-            self.manager.submit_task(
-                _tasks.ZoneDelete(zone=zone['id']))
+        return self._dns_client.delete(
+            "/v2/zones/{zone_id}".format(zone_id=zone['id']),
+            error_message="Error deleting zone {0}".format(name_or_id))
 
         return True
 

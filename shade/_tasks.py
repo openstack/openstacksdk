@@ -407,26 +407,6 @@ class RolesForUser(task_manager.Task):
         return client.keystone_client.roles.roles_for_user(**self.args)
 
 
-class ZoneList(task_manager.Task):
-    def main(self, client):
-        return client.designate_client.zones.list()
-
-
-class ZoneCreate(task_manager.Task):
-    def main(self, client):
-        return client.designate_client.zones.create(**self.args)
-
-
-class ZoneUpdate(task_manager.Task):
-    def main(self, client):
-        return client.designate_client.zones.update(**self.args)
-
-
-class ZoneDelete(task_manager.Task):
-    def main(self, client):
-        return client.designate_client.zones.delete(**self.args)
-
-
 class RecordSetList(task_manager.Task):
     def main(self, client):
         return client.designate_client.recordsets.list(**self.args)
