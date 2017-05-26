@@ -105,19 +105,25 @@ class BaseTask(object):
         try:
             # Retry one time if we get a retriable connection failure
             try:
+                # Keep time for connection retrying logging
+                start = time.time()
                 self.done(self.main(client))
             except keystoneauth1.exceptions.RetriableConnectionFailure:
+                end = time.time()
+                dt = end - start
                 if client.region_name:
                     client.log.debug(
                         "Connection failure on %(cloud)s:%(region)s"
-                        " for %(name)s, retrying", {
-                            'cloud': client.name,
-                            'region': client.region_name,
-                            'name': self.name})
+                        " for %(name)s after %(secs)s seconds, retrying",
+                        {'cloud': client.name,
+                         'region': client.region_name,
+                         'secs': dt,
+                         'name': self.name})
                 else:
                     client.log.debug(
-                        "Connection failure on %(cloud)s for %(name)s,"
-                        " retrying", {'cloud': client.name, 'name': self.name})
+                        "Connection failure on %(cloud)s for %(name)s after"
+                        " %(secs)s seconds, retrying",
+                        {'cloud': client.name, 'name': self.name, 'secs': dt})
                 self.done(self.main(client))
             except Exception:
                 raise
