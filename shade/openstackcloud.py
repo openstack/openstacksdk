@@ -424,25 +424,33 @@ class OpenStackCloud(
             self._raw_clients['raw-image'] = image_client
         return self._raw_clients['raw-image']
 
-    def _match_given_image_endpoint(self, given, version):
-        if given.endswith('/'):
-            given = given[:-1]
-        if given.split('/')[-1].startswith('v' + version[0]):
+    def _detect_image_verison_from_url(self, image_url):
+        if image_url.endswith('/'):
+            image_url = image_url[:-1]
+        version = image_url.split('/')[-1]
+        if version.startswith('v'):
+            return version[1]
+        return None
+
+    def _match_given_image_endpoint(self, image_url, version):
+        url_version = self._detect_image_verison_from_url(image_url)
+        if url_version and version == url_version:
             return True
         return False
 
     def _discover_image_endpoint(self, config_version, image_client):
+        # First - quick check to see if the endpoint in the catalog
+        # is a versioned endpoint that matches the version we requested.
+        # If it is, don't do any additoinal work.
+        catalog_endpoint = image_client.get_endpoint()
+        if self._match_given_image_endpoint(
+                catalog_endpoint, config_version):
+            return catalog_endpoint
+        api_version_id = None
         try:
-            # First - quick check to see if the endpoint in the catalog
-            # is a versioned endpoint that matches the version we requested.
-            # If it is, don't do any additoinal work.
-            catalog_endpoint = image_client.get_endpoint()
-            if self._match_given_image_endpoint(
-                    catalog_endpoint, config_version):
-                return catalog_endpoint
+            api_version = None
             # Version discovery
             versions = image_client.get('/')
-            api_version = None
             if config_version.startswith('1'):
                 api_version = [
                     version for version in versions
@@ -455,36 +463,45 @@ class OpenStackCloud(
                     if version['status'] == 'CURRENT'][0]
 
             image_url = api_version['links'][0]['href']
-            # If we detect a different version that was configured,
-            # set the version in occ because we have logic elsewhere
-            # that is different depending on which version we're using
-            warning_msg = None
-            if (config_version.startswith('2')
-                    and api_version['id'].startswith('v1')):
-                self.cloud_config.config['image_api_version'] = '1'
-                warning_msg = (
-                    'image_api_version is 2 but only 1 is available.')
-            elif (config_version.startswith('1')
-                    and api_version['id'].startswith('v2')):
-                self.cloud_config.config['image_api_version'] = '2'
-                warning_msg = (
-                    'image_api_version is 1 but only 2 is available.')
-            if warning_msg:
-                self.log.debug(warning_msg)
-                warnings.warn(warning_msg)
-        except (keystoneauth1.exceptions.connection.ConnectFailure,
-                OpenStackCloudURINotFound) as e:
+            # Set the id to the first digit after the v
+            api_version_id = api_version['id'][1]
+        except Exception as e:
             # A 404 or a connection error is a likely thing to get
             # either with a misconfgured glance. or we've already
             # gotten a versioned endpoint from the catalog
             self.log.debug(
                 "Glance version discovery failed, assuming endpoint in"
                 " the catalog is already versioned. {e}".format(e=str(e)))
-            image_url = image_client.get_endpoint()
+            image_url = catalog_endpoint
+            api_version_id = self._detect_image_verison_from_url(image_url)
+
+        if not api_version_id:
+            # We couldn't detect anything, assume config is correct and
+            # catalog is correct
+            return image_url
+
+        # If we detect a different version that was configured,
+        # set the version in occ because we have logic elsewhere
+        # that is different depending on which version we're using
+        warning_msg = None
+        config_version_id = config_version[0]
+        if config_version_id != api_version_id:
+            self.cloud_config.config['image_api_version'] = api_version_id
+            warning_msg = (
+                'image_api_version is {config_version_id} but only'
+                ' {api_version_id} is available.'.format(
+                    config_version_id=config_version_id,
+                    api_version_id=api_version_id))
+        if warning_msg:
+            self.log.debug(warning_msg)
+            warnings.warn(warning_msg)
+
+        if catalog_endpoint == image_url:
+            return catalog_endpoint
 
         # Sometimes version discovery documents have broken endpoints, but
         # the catalog has good ones (what?)
-        catalog_endpoint = urllib.parse.urlparse(image_client.get_endpoint())
+        catalog_endpoint = urllib.parse.urlparse(catalog_endpoint)
         discovered_endpoint = urllib.parse.urlparse(image_url)
 
         return urllib.parse.ParseResult(
