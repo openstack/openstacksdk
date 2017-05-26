@@ -107,9 +107,17 @@ class BaseTask(object):
             try:
                 self.done(self.main(client))
             except keystoneauth1.exceptions.RetriableConnectionFailure:
-                client.log.debug(
-                    "Connection failure for %(name)s, retrying",
-                    {'name': type(self).__name__})
+                if client.region_name:
+                    client.log.debug(
+                        "Connection failure on %(cloud)s:%(region)s"
+                        " for %(name)s, retrying", {
+                            'cloud': client.name,
+                            'region': client.region_name,
+                            'name': self.name})
+                else:
+                    client.log.debug(
+                        "Connection failure on %(cloud)s for %(name)s,"
+                        " retrying", {'cloud': client.name, 'name': self.name})
                 self.done(self.main(client))
             except Exception:
                 raise
