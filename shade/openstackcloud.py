@@ -172,11 +172,6 @@ class OpenStackCloud(
             self.manager = task_manager.TaskManager(
                 name=':'.join([self.name, self.region_name]), client=self)
 
-        # Provide better error message for people with stale OCC
-        if cloud_config.set_session_constructor is None:
-            raise OpenStackCloudException(
-                "shade requires at least version 1.22.0 of os-client-config")
-
         self._external_ipv4_names = cloud_config.get_external_ipv4_networks()
         self._internal_ipv4_names = cloud_config.get_internal_ipv4_networks()
         self._external_ipv6_names = cloud_config.get_external_ipv6_networks()
