@@ -37,7 +37,7 @@ class LegacyClientFactoryMixin(object):
         return self._legacy_clients[client]
 
     def _deprecated_import_check(self, client):
-        module_name = '{client}client'
+        module_name = '{client}client'.format(client=client)
         warnings.warn(
             'Using shade to get a {module_name} object is deprecated. If you'
             ' need a {module_name} object, please use make_legacy_client in'
@@ -61,7 +61,7 @@ class LegacyClientFactoryMixin(object):
 
     @property
     def neutron_client(self):
-        return self._create_or_return_legacy_client('neutron', 'network')
+        return self._create_legacy_client('neutron', 'network')
 
     @property
     def nova_client(self):
