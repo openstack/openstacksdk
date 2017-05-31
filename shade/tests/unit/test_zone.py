@@ -31,15 +31,11 @@ new_zone_dict['id'] = '1'
 
 class TestZone(base.RequestsMockTestCase):
 
-    def setUp(self):
-        super(TestZone, self).setUp()
-        self.use_designate()
-
     def test_create_zone(self):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'dns', 'public', append=['zones']),
+                     'dns', 'public', append=['v2', 'zones']),
                  json=new_zone_dict,
                  validate=dict(
                      json=zone_dict))
@@ -58,11 +54,11 @@ class TestZone(base.RequestsMockTestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'dns', 'public', append=['zones']),
+                     'dns', 'public', append=['v2', 'zones']),
                  status_code=500)
         ])
         with testtools.ExpectedException(
-            shade.OpenStackCloudException,
+            shade.exc.OpenStackCloudHTTPError,
             "Unable to create zone example.net."
         ):
             self.cloud.create_zone('example.net.')
@@ -75,18 +71,15 @@ class TestZone(base.RequestsMockTestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'dns', 'public', append=['zones']),
-                 json={"zones": [new_zone_dict]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones'],
-                     qs_elements=['name=1']),
-                 json={'zones': [new_zone_dict]}),
-            self.get_designate_discovery_mock_dict(),
+                     'dns', 'public', append=['v2', 'zones']),
+                 json={
+                     "zones": [new_zone_dict],
+                     "links": {},
+                     "metadata": {
+                         'total_count': 1}}),
             dict(method='PATCH',
                  uri=self.get_mock_url(
-                     'dns', 'public', append=['zones', '1']),
+                     'dns', 'public', append=['v2', 'zones', '1']),
                  json=updated_zone,
                  validate=dict(
                      json={"ttl": new_ttl}))
@@ -99,18 +92,15 @@ class TestZone(base.RequestsMockTestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'dns', 'public', append=['zones']),
-                 json={"zones": [new_zone_dict]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones'],
-                     qs_elements=['name=1']),
-                 json={'zones': [new_zone_dict]}),
-            self.get_designate_discovery_mock_dict(),
+                     'dns', 'public', append=['v2', 'zones']),
+                 json={
+                     "zones": [new_zone_dict],
+                     "links": {},
+                     "metadata": {
+                         'total_count': 1}}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
-                     'dns', 'public', append=['zones', '1']),
+                     'dns', 'public', append=['v2', 'zones', '1']),
                  json=new_zone_dict)
         ])
         self.assertTrue(self.cloud.delete_zone('1'))
@@ -120,8 +110,12 @@ class TestZone(base.RequestsMockTestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'dns', 'public', append=['zones']),
-                 json={"zones": [new_zone_dict]})
+                     'dns', 'public', append=['v2', 'zones']),
+                 json={
+                     "zones": [new_zone_dict],
+                     "links": {},
+                     "metadata": {
+                         'total_count': 1}})
         ])
         zone = self.cloud.get_zone('1')
         self.assertEqual(zone['id'], '1')
@@ -131,8 +125,12 @@ class TestZone(base.RequestsMockTestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'dns', 'public', append=['zones']),
-                 json={"zones": [new_zone_dict]})
+                     'dns', 'public', append=['v2', 'zones']),
+                 json={
+                     "zones": [new_zone_dict],
+                     "links": {},
+                     "metadata": {
+                         'total_count': 1}})
         ])
         zone = self.cloud.get_zone('example.net.')
         self.assertEqual(zone['name'], 'example.net.')
@@ -142,8 +140,12 @@ class TestZone(base.RequestsMockTestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'dns', 'public', append=['zones']),
-                 json={"zones": []})
+                     'dns', 'public', append=['v2', 'zones']),
+                 json={
+                     "zones": [],
+                     "links": {},
+                     "metadata": {
+                         'total_count': 1}})
         ])
         zone = self.cloud.get_zone('nonexistingzone.net.')
         self.assertFalse(zone)
