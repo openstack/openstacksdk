@@ -510,3 +510,9 @@ class TestComputeProxy(test_proxy_base2.TestProxyBase):
                      self.proxy.force_service_down,
                      method_args=["value", "host1", "nova-compute"],
                      expected_args=["host1", "nova-compute"])
+
+    def test_live_migrate_server(self):
+        self._verify('openstack.compute.v2.server.Server.live_migrate',
+                     self.proxy.live_migrate_server,
+                     method_args=["value", "host1", "force"],
+                     expected_args=["host1", "force"])

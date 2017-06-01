@@ -357,6 +357,16 @@ class Server(resource2.Resource, metadata.MetadataMixin):
         resp = self._action(session, body)
         return resp.json()
 
+    def live_migrate(self, session, host, force):
+        body = {
+            "os-migrateLive": {
+                "host": host,
+                "block_migration": "auto",
+                "force": force
+            }
+        }
+        self._action(session, body)
+
 
 class ServerDetail(Server):
     base_path = '/servers/detail'

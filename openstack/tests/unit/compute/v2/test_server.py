@@ -654,3 +654,22 @@ class TestServer(testtools.TestCase):
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
             url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_live_migrate(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.live_migrate(self.sess, host='HOST2', force=False)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {
+            "os-migrateLive": {
+                "host": 'HOST2',
+                "block_migration": "auto",
+                "force": False
+            }
+        }
+
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)

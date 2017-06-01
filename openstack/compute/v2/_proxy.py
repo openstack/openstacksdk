@@ -1267,6 +1267,18 @@ class Proxy(proxy2.BaseProxy):
                        :class:`~openstack.compute.v2.server.Server` instance.
         :returns: None
         """
-
         server = self._get_resource(_server.Server, server)
         server.migrate(self._session)
+
+    def live_migrate_server(self, server, host=None, force=False):
+        """Migrate a server from one host to target host
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :param host: The host to which to migrate the server
+        :param force: Force a live-migration by not verifying the provided
+                      destination host by the scheduler.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.live_migrate(self._session, host, force)
