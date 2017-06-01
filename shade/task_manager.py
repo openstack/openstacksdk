@@ -108,10 +108,11 @@ class BaseTask(object):
                 # Keep time for connection retrying logging
                 start = time.time()
                 self.done(self.main(client))
-            except keystoneauth1.exceptions.RetriableConnectionFailure:
+            except keystoneauth1.exceptions.RetriableConnectionFailure as e:
                 end = time.time()
                 dt = end - start
                 if client.region_name:
+                    client.log.debug(str(e))
                     client.log.debug(
                         "Connection failure on %(cloud)s:%(region)s"
                         " for %(name)s after %(secs)s seconds, retrying",
