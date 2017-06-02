@@ -18,7 +18,6 @@ for lib in \
         python-novaclient \
         python-keystoneclient \
         python-ironicclient \
-        python-designateclient \
         os-client-config \
         keystoneauth
 do

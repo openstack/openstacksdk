@@ -86,7 +86,7 @@ class LegacyClientFactoryMixin(object):
 
     @property
     def designate_client(self):
-        return self._create_legacy_client('designate', 'dns', deprecated=False)
+        return self._create_legacy_client('designate', 'dns')
 
     @property
     def keystone_client(self):
