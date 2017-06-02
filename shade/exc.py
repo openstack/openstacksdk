@@ -88,6 +88,32 @@ class OpenStackCloudURINotFound(OpenStackCloudHTTPError):
 OpenStackCloudResourceNotFound = OpenStackCloudURINotFound
 
 
+def _log_response_extras(response):
+    # Sometimes we get weird HTML errors. This is usually from load balancers
+    # or other things. Log them to a special logger so that they can be
+    # toggled indepdently - and at debug level so that a person logging
+    # shade.* only gets them at debug.
+    if response.headers.get('content-type') != 'text/html':
+        return
+    try:
+        if int(response.headers.get('content-length', 0)) == 0:
+            return
+    except Exception:
+        return
+    logger = _log.setup_logging('shade.http')
+    if response.reason:
+        logger.debug(
+            "Non-standard error '{reason}' returned from {url}:".format(
+                reason=response.reason,
+                url=response.url))
+    else:
+        logger.debug(
+            "Non-standard error returned from {url}:".format(
+                url=response.url))
+    for response_line in response.text.split('\n'):
+        logger.debug(response_line)
+
+
 # Logic shamelessly stolen from requests
 def raise_from_response(response, error_message=None):
     msg = ''
@@ -112,6 +138,8 @@ def raise_from_response(response, error_message=None):
     except ValueError:
         if response.reason:
             remote_error += " {reason}".format(reason=response.reason)
+
+    _log_response_extras(response)
 
     if error_message:
         msg = '{error_message}. ({code}) {source} {remote_error}'.format(
