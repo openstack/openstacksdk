@@ -48,7 +48,7 @@ def _iterate_timeout(timeout, message, wait=2):
     with <message>.
 
     """
-    log = _log.setup_logging(__name__)
+    log = _log.setup_logging('shade.iterate_timeout')
 
     try:
         # None as a wait winds up flowing well in the per-resource cache
