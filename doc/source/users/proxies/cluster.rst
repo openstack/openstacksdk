@@ -134,6 +134,7 @@ Receiver Operations
 .. autoclass:: openstack.cluster.v1._proxy.Proxy
 
    .. automethod:: openstack.cluster.v1._proxy.Proxy.create_receiver
+   .. automethod:: openstack.cluster.v1._proxy.Proxy.update_receiver
    .. automethod:: openstack.cluster.v1._proxy.Proxy.delete_receiver
    .. automethod:: openstack.cluster.v1._proxy.Proxy.get_receiver
    .. automethod:: openstack.cluster.v1._proxy.Proxy.find_receiver

@@ -461,6 +461,9 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_receiver_create(self):
         self.verify_create(self.proxy.create_receiver, receiver.Receiver)
 
+    def test_receiver_update(self):
+        self.verify_update(self.proxy.update_receiver, receiver.Receiver)
+
     def test_receiver_delete(self):
         self.verify_delete(self.proxy.delete_receiver, receiver.Receiver,
                            False)
