@@ -53,22 +53,10 @@ class TestRecordset(base.RequestsMockTestCase):
                      "links": {},
                      "metadata": {
                          'total_count': 1}}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones'],
-                     qs_elements=['name={0}'.format(zone['id'])]),
-                 json={"zones": [zone]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones', zone['id']]),
-                 json=zone),
-            self.get_designate_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'dns', 'public',
-                     append=['zones', zone['id'], 'recordsets']),
+                     append=['v2', 'zones', zone['id'], 'recordsets']),
                  json=new_recordset,
                  validate=dict(json=recordset)),
         ])
@@ -92,22 +80,10 @@ class TestRecordset(base.RequestsMockTestCase):
                      "links": {},
                      "metadata": {
                          'total_count': 1}}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones'],
-                     qs_elements=['name={0}'.format(zone['id'])]),
-                 json={"zones": [zone]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones', zone['id']]),
-                 json=zone),
-            self.get_designate_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'dns', 'public',
-                     append=['zones', zone['id'], 'recordsets']),
+                     append=['v2', 'zones', zone['id'], 'recordsets']),
                  status_code=500,
                  validate=dict(json={
                      'name': 'www2.example.net.',
@@ -115,8 +91,8 @@ class TestRecordset(base.RequestsMockTestCase):
                      'type': 'A'})),
         ])
         with testtools.ExpectedException(
-            shade.OpenStackCloudException,
-            "Unable to create recordset www2.example.net."
+            shade.exc.OpenStackCloudHTTPError,
+            "Error creating recordset www2.example.net."
         ):
             self.cloud.create_recordset('1', 'www2.example.net.',
                                         'a', ['192.168.1.2'])
@@ -138,58 +114,16 @@ class TestRecordset(base.RequestsMockTestCase):
                      "links": {},
                      "metadata": {
                          'total_count': 1}}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones'],
-                     qs_elements=['name={0}'.format(zone['id'])]),
-                 json={"zones": [zone]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones'],
-                     qs_elements=['name={0}'.format(zone['id'])]),
-                 json={"zones": [zone]}),
-            self.get_designate_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'dns', 'public',
-                     append=['zones', zone['id'], 'recordsets'],
-                     qs_elements=['name={0}'.format(
-                         new_recordset['id'])]),
-                 json={"recordsets": [new_recordset]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public',
-                     append=['zones', zone['id'],
+                     append=['v2', 'zones', zone['id'],
                              'recordsets', new_recordset['id']]),
-                 json={"recordsets": [new_recordset]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones'],
-                     qs_elements=['name={0}'.format(zone['id'])]),
-                 json={"zones": [zone]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones'],
-                     qs_elements=['name={0}'.format(zone['id'])]),
-                 json={"zones": [zone]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public',
-                     append=['zones', zone['id'], 'recordsets'],
-                     qs_elements=['name={0}'.format(
-                         new_recordset['id'])]),
-                 json={"recordsets": [new_recordset]}),
-            self.get_designate_discovery_mock_dict(),
+                 json=new_recordset),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'dns', 'public',
-                     append=['zones', zone['id'],
+                     append=['v2', 'zones', zone['id'],
                              'recordsets', new_recordset['id']]),
                  json=expected_recordset,
                  validate=dict(json={'ttl': new_ttl}))
@@ -208,102 +142,43 @@ class TestRecordset(base.RequestsMockTestCase):
                      "links": {},
                      "metadata": {
                          'total_count': 1}}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones'],
-                     qs_elements=['name={0}'.format(zone['id'])]),
-                 json={"zones": [zone]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones'],
-                     qs_elements=['name={0}'.format(zone['id'])]),
-                 json={"zones": [zone]}),
-            self.get_designate_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'dns', 'public',
-                     append=['zones', zone['id'], 'recordsets'],
-                     qs_elements=['name={0}'.format(
-                         new_recordset['id'])]),
-                 json={"recordsets": [new_recordset]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public',
-                     append=['zones', zone['id'],
+                     append=['v2', 'zones', zone['id'],
                              'recordsets', new_recordset['id']]),
-                 json={"recordsets": [new_recordset]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones'],
-                     qs_elements=['name={0}'.format(zone['id'])]),
-                 json={"zones": [zone]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones'],
-                     qs_elements=['name={0}'.format(zone['id'])]),
-                 json={"zones": [zone]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public',
-                     append=['zones', zone['id'], 'recordsets'],
-                     qs_elements=['name={0}'.format(
-                         new_recordset['id'])]),
-                 json={"recordsets": [new_recordset]}),
-            self.get_designate_discovery_mock_dict(),
+                 json=new_recordset),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'dns', 'public',
-                     append=['zones', zone['id'],
+                     append=['v2', 'zones', zone['id'],
                              'recordsets', new_recordset['id']]),
                  json={})
         ])
         self.assertTrue(self.cloud.delete_recordset('1', '1'))
         self.assert_calls()
 
-    def _prepare_get_recordset_calls(self, zone_id, name_or_id):
+    def test_get_recordset_by_id(self):
         self.register_uris([
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones'],
-                     qs_elements=['name={0}'.format(zone['id'])]),
-                 json={"zones": [zone]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones'],
-                     qs_elements=['name={0}'.format(zone['id'])]),
-                 json={"zones": [zone]}),
-            self.get_designate_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'dns', 'public',
-                     append=['zones', zone['id'], 'recordsets'],
-                     qs_elements=['name={0}'.format(name_or_id)]),
-                 json={"recordsets": [new_recordset]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public',
-                     append=['zones', zone['id'],
-                             'recordsets', new_recordset['id']]),
+                     append=['v2', 'zones', '1', 'recordsets', '1']),
                  json=new_recordset),
         ])
-
-    def test_get_recordset_by_id(self):
-        recordset = self._prepare_get_recordset_calls('1', '1')
         recordset = self.cloud.get_recordset('1', '1')
         self.assertEqual(recordset['id'], '1')
         self.assert_calls()
 
     def test_get_recordset_by_name(self):
-        self._prepare_get_recordset_calls('1', new_recordset['name'])
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'dns', 'public',
+                     append=['v2', 'zones', '1', 'recordsets',
+                             new_recordset['name']]),
+                 json=new_recordset),
+        ])
         recordset = self.cloud.get_recordset('1', new_recordset['name'])
         self.assertEqual(new_recordset['name'], recordset['name'])
         self.assert_calls()
@@ -311,24 +186,11 @@ class TestRecordset(base.RequestsMockTestCase):
     def test_get_recordset_not_found_returns_false(self):
         recordset_name = "www.nonexistingrecord.net."
         self.register_uris([
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones'],
-                     qs_elements=['name={0}'.format(zone['id'])]),
-                 json={"zones": [zone]}),
-            self.get_designate_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'dns', 'public', append=['zones'],
-                     qs_elements=['name={0}'.format(zone['id'])]),
-                 json={"zones": [zone]}),
-            self.get_designate_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'dns', 'public',
-                     append=['zones', zone['id'], 'recordsets'],
-                     qs_elements=['name={0}'.format(recordset_name)]),
+                     append=['v2', 'zones', '1', 'recordsets',
+                             recordset_name]),
                  json=[])
         ])
         recordset = self.cloud.get_recordset('1', recordset_name)

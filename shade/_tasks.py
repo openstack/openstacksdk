@@ -407,31 +407,6 @@ class RolesForUser(task_manager.Task):
         return client.keystone_client.roles.roles_for_user(**self.args)
 
 
-class RecordSetList(task_manager.Task):
-    def main(self, client):
-        return client.designate_client.recordsets.list(**self.args)
-
-
-class RecordSetGet(task_manager.Task):
-    def main(self, client):
-        return client.designate_client.recordsets.get(**self.args)
-
-
-class RecordSetCreate(task_manager.Task):
-    def main(self, client):
-        return client.designate_client.recordsets.create(**self.args)
-
-
-class RecordSetUpdate(task_manager.Task):
-    def main(self, client):
-        return client.designate_client.recordsets.update(**self.args)
-
-
-class RecordSetDelete(task_manager.Task):
-    def main(self, client):
-        return client.designate_client.recordsets.delete(**self.args)
-
-
 class NovaQuotasSet(task_manager.Task):
     def main(self, client):
         return client.nova_client.quotas.update(**self.args)

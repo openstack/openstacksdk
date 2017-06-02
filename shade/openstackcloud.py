@@ -7050,8 +7050,9 @@ class OpenStackCloud(
         :returns: A list of recordsets.
 
         """
-        with _utils.shade_exceptions("Error fetching recordsets list"):
-            return self.manager.submit_task(_tasks.RecordSetList(zone=zone))
+        return self._dns_client.get(
+            "/v2/zones/{zone_id}/recordsets".format(zone_id=zone),
+            error_message="Error fetching recordsets list")
 
     def get_recordset(self, zone, name_or_id):
         """Get a recordset by name or ID.
@@ -7064,9 +7065,10 @@ class OpenStackCloud(
 
         """
         try:
-            return self.manager.submit_task(_tasks.RecordSetGet(
-                zone=zone,
-                recordset=name_or_id))
+            return self._dns_client.get(
+                "/v2/zones/{zone_id}/recordsets/{recordset_id}".format(
+                    zone_id=zone, recordset_id=name_or_id),
+                error_message="Error fetching recordset")
         except Exception:
             return None
 
@@ -7097,11 +7099,22 @@ class OpenStackCloud(
         # We capitalize the type in case the user sends in lowercase
         recordset_type = recordset_type.upper()
 
-        with _utils.shade_exceptions(
-                "Unable to create recordset {name}".format(name=name)):
-            return self.manager.submit_task(_tasks.RecordSetCreate(
-                zone=zone, name=name, type_=recordset_type, records=records,
-                description=description, ttl=ttl))
+        body = {
+            'name': name,
+            'type': recordset_type,
+            'records': records
+        }
+
+        if description:
+            body['description'] = description
+
+        if ttl:
+            body['ttl'] = ttl
+
+        return self._dns_client.post(
+            "/v2/zones/{zone_id}/recordsets".format(zone_id=zone),
+            json=body,
+            error_message="Error creating recordset {name}".format(name=name))
 
     @_utils.valid_kwargs('description', 'ttl', 'records')
     def update_recordset(self, zone, name_or_id, **kwargs):
@@ -7127,11 +7140,10 @@ class OpenStackCloud(
             raise OpenStackCloudException(
                 "Recordset %s not found." % name_or_id)
 
-        with _utils.shade_exceptions(
-                "Error updating recordset {0}".format(name_or_id)):
-            new_recordset = self.manager.submit_task(
-                _tasks.RecordSetUpdate(
-                    zone=zone, recordset=name_or_id, values=kwargs))
+        new_recordset = self._dns_client.put(
+            "/v2/zones/{zone_id}/recordsets/{recordset_id}".format(
+                zone_id=zone_obj['id'], recordset_id=name_or_id), json=kwargs,
+            error_message="Error updating recordset {0}".format(name_or_id))
 
         return new_recordset
 
@@ -7156,10 +7168,10 @@ class OpenStackCloud(
             self.log.debug("Recordset %s not found for deleting", name_or_id)
             return False
 
-        with _utils.shade_exceptions(
-                "Error deleting recordset {0}".format(name_or_id)):
-            self.manager.submit_task(
-                _tasks.RecordSetDelete(zone=zone['id'], recordset=name_or_id))
+        self._dns_client.delete(
+            "/v2/zones/{zone_id}/recordsets/{recordset_id}".format(
+                zone_id=zone['id'], recordset_id=name_or_id),
+            error_message="Error deleting recordset {0}".format(name_or_id))
 
         return True
 
