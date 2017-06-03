@@ -13,6 +13,7 @@ Contents:
 
    installation
    usage
+   logging
    model
    contributing
    coding
