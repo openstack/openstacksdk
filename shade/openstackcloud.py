@@ -419,85 +419,109 @@ class OpenStackCloud(
             self._raw_clients['raw-image'] = image_client
         return self._raw_clients['raw-image']
 
-    def _detect_image_verison_from_url(self, image_url):
-        if image_url.endswith('/'):
-            image_url = image_url[:-1]
-        version = image_url.split('/')[-1]
-        if version.startswith('v'):
-            return version[1]
+    def _get_version_from_endpoint(self, endpoint):
+        endpoint_parts = endpoint.rstrip('/').split('/')
+        if endpoint_parts[-1].endswith(self.current_project_id):
+            endpoint_parts.pop()
+        if endpoint_parts[-1].startswith('v'):
+            return endpoint_parts[-1][1]
         return None
 
-    def _match_given_image_endpoint(self, image_url, version):
-        url_version = self._detect_image_verison_from_url(image_url)
-        if url_version and version == url_version:
+    def _match_given_endpoint(self, given, version):
+        given_version = self._get_version_from_endpoint(given)
+        if given_version and version == given_version:
             return True
         return False
 
-    def _discover_image_endpoint(self, config_version, image_client):
+    def _discover_endpoint(self, service_type, version_required=False):
+        # If endpoint_override is set, do nothing
+        service_endpoint = self.cloud_config.get_endpoint(service_type)
+        if service_endpoint:
+            return service_endpoint
+
+        client = self._get_raw_client(service_type)
+        config_version = self.cloud_config.get_api_version(service_type)
+
+        # shade only groks major versions at the moment
+        if config_version:
+            config_version = config_version[0]
+
         # First - quick check to see if the endpoint in the catalog
         # is a versioned endpoint that matches the version we requested.
         # If it is, don't do any additoinal work.
-        catalog_endpoint = image_client.get_endpoint()
-        if self._match_given_image_endpoint(
+        catalog_endpoint = client.get_endpoint()
+        if self._match_given_endpoint(
                 catalog_endpoint, config_version):
             return catalog_endpoint
-        api_version_id = None
-        try:
-            api_version = None
-            # Version discovery
-            versions = image_client.get('/')
-            if config_version.startswith('1'):
-                api_version = [
-                    version for version in versions
-                    if version['id'] in ('v1.0', 'v1.1')]
-                if api_version:
-                    api_version = api_version[0]
-            if not api_version:
-                api_version = [
-                    version for version in versions
-                    if version['status'] == 'CURRENT'][0]
 
-            image_url = api_version['links'][0]['href']
-            # Set the id to the first digit after the v
-            api_version_id = api_version['id'][1]
-        except Exception as e:
+        # Ok, do version discovery
+        candidate_endpoints = None
+        version_key = '{service}_api_version'.format(service=service_type)
+        try:
+            versions = client.get('/')
+            if 'values' in versions:
+                versions = versions['values']
+            if isinstance(versions, dict):
+                versions = [versions]
+            if config_version:
+                candidate_endpoints = [
+                    version for version in versions
+                    if version['id'][1] == config_version]
+            if not candidate_endpoints:
+                candidate_endpoints = [
+                    version for version in versions
+                    if version['status'] in ('CURRENT', 'stable')]
+            if not candidate_endpoints:
+                candidate_endpoints = versions
+        except (keystoneauth1.exceptions.connection.ConnectFailure,
+                OpenStackCloudURINotFound) as e:
             # A 404 or a connection error is a likely thing to get
-            # either with a misconfgured glance. or we've already
+            # either with a misconfgured service. or we've already
             # gotten a versioned endpoint from the catalog
             self.log.debug(
-                "Glance version discovery failed, assuming endpoint in"
+                "Version discovery failed, assuming endpoint in"
                 " the catalog is already versioned. {e}".format(e=str(e)))
-            image_url = catalog_endpoint
-            api_version_id = self._detect_image_verison_from_url(image_url)
 
-        if not api_version_id:
-            # We couldn't detect anything, assume config is correct and
-            # catalog is correct
-            return image_url
+        if candidate_endpoints:
+            endpoint_description = candidate_endpoints[0]
+            service_endpoint = [
+                link['href'] for link in endpoint_description['links']
+                if link['rel'] == 'self'][0]
+            api_version = endpoint_description['id'][1]
+        else:
+            # Can't discover a version. Do best-attempt at inferring
+            # version from URL so that later logic can do its best
+            api_version = self._get_version_from_endpoint()
+            if not api_version:
+                if not config_version and version_required:
+                    raise OpenStackCloudException(
+                        "No version for {service_type} could be detected,"
+                        " and also {version_key} is not set. It is impossible"
+                        " to continue without knowing what version this"
+                        " service is.")
+                if not config_version:
+                    return catalog_endpoint
+                api_version = config_version
+            service_endpoint = catalog_endpoint
 
         # If we detect a different version that was configured,
         # set the version in occ because we have logic elsewhere
         # that is different depending on which version we're using
-        warning_msg = None
-        config_version_id = config_version[0]
-        if config_version_id != api_version_id:
-            self.cloud_config.config['image_api_version'] = api_version_id
+        if config_version != api_version:
             warning_msg = (
-                'image_api_version is {config_version_id} but only'
-                ' {api_version_id} is available.'.format(
-                    config_version_id=config_version_id,
-                    api_version_id=api_version_id))
-        if warning_msg:
+                '{version_key} is {config_version}'
+                ' but only {api_version} is available.'.format(
+                    version_key=version_key,
+                    config_version=config_version,
+                    api_version=api_version))
             self.log.debug(warning_msg)
             warnings.warn(warning_msg)
-
-        if catalog_endpoint == image_url:
-            return catalog_endpoint
+        self.cloud_config.config[version_key] = api_version
 
         # Sometimes version discovery documents have broken endpoints, but
         # the catalog has good ones (what?)
-        catalog_endpoint = urllib.parse.urlparse(catalog_endpoint)
-        discovered_endpoint = urllib.parse.urlparse(image_url)
+        catalog_endpoint = urllib.parse.urlparse(client.get_endpoint())
+        discovered_endpoint = urllib.parse.urlparse(service_endpoint)
 
         return urllib.parse.ParseResult(
             catalog_endpoint.scheme,
@@ -510,13 +534,8 @@ class OpenStackCloud(
     @property
     def _image_client(self):
         if 'image' not in self._raw_clients:
-            # Get configured api version for downgrades
-            config_version = self.cloud_config.get_api_version('image')
             image_client = self._get_raw_client('image')
-            image_url = self.cloud_config.config.get('image_endpoint_override')
-            if not image_url:
-                image_url = self._discover_image_endpoint(
-                    config_version, image_client)
+            image_url = self._discover_endpoint('image', version_required=True)
             image_client.endpoint_override = image_url
             self._raw_clients['image'] = image_client
         return self._raw_clients['image']
