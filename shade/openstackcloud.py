@@ -5617,7 +5617,7 @@ class OpenStackCloud(
         :raises: OpenStackCloudException on operation error.
         """
         # If delete_ips is True, we need the server to not be bare.
-        server = self.get_server(name_or_id, bare=not delete_ips)
+        server = self.get_server(name_or_id, bare=True)
         if not server:
             return False
 
@@ -5635,22 +5635,11 @@ class OpenStackCloud(
             return False
 
         if delete_ips:
-            # Don't pass public=True because we're just deleting. Testing
-            # for connectivity is not useful.
-            floating_ip = meta.get_server_ip(server, ext_tag='floating')
-            if floating_ip:
-                ips = self.search_floating_ips(filters={
-                    'floating_ip_address': floating_ip})
-                if len(ips) != 1:
-                    raise OpenStackCloudException(
-                        "Tried to delete floating ip {floating_ip}"
-                        " associated with server {id} but there was"
-                        " an error finding it. Something is exceptionally"
-                        " broken.".format(
-                            floating_ip=floating_ip,
-                            id=server['id']))
+            ips = self.search_floating_ips(filters={
+                'device_id': server['id']})
+            for ip in ips:
                 deleted = self.delete_floating_ip(
-                    ips[0]['id'], retry=delete_ip_retry)
+                    ip['id'], retry=delete_ip_retry)
                 if not deleted:
                     raise OpenStackCloudException(
                         "Tried to delete floating ip {floating_ip}"
