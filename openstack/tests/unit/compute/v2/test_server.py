@@ -424,6 +424,19 @@ class TestServer(testtools.TestCase):
         self.sess.post.assert_called_with(
             url, endpoint_filter=sot.service, json=body, headers=headers)
 
+    def test_backup(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.backup(self.sess, "name", "daily", 1)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"createBackup": {"name": "name", "backup_type": "daily",
+                                 "rotation": 1}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
     def test_pause(self):
         sot = server.Server(**EXAMPLE)
 

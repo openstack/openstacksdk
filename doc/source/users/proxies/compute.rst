@@ -29,6 +29,7 @@ Server Operations
    .. automethod:: openstack.compute.v2._proxy.Proxy.delete_server_metadata
    .. automethod:: openstack.compute.v2._proxy.Proxy.wait_for_server
    .. automethod:: openstack.compute.v2._proxy.Proxy.create_server_image
+   .. automethod:: openstack.compute.v2._proxy.Proxy.backup_server
 
 Network Actions
 ***************

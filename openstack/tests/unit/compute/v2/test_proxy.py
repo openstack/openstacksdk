@@ -318,6 +318,12 @@ class TestComputeProxy(test_proxy_base2.TestProxyBase):
                      method_args=["value", "address"],
                      expected_args=["address"])
 
+    def test_server_backup(self):
+        self._verify("openstack.compute.v2.server.Server.backup",
+                     self.proxy.backup_server,
+                     method_args=["value", "name", "daily", 1],
+                     expected_args=["name", "daily", 1])
+
     def test_server_pause(self):
         self._verify("openstack.compute.v2.server.Server.pause",
                      self.proxy.pause_server,

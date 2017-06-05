@@ -620,6 +620,22 @@ class Proxy(proxy2.BaseProxy):
         server = self._get_resource(_server.Server, server)
         server.remove_floating_ip(self._session, address)
 
+    def backup_server(self, server, name, backup_type, rotation):
+        """Backup a server
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :param name: The name of the backup image.
+        :param backup_type: The type of the backup, for example, daily.
+        :param rotation: The rotation of the back up image, the oldest
+                         image will be removed when image count exceed
+                         the rotation count.
+
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.backup(self._session, name, backup_type, rotation)
+
     def pause_server(self, server):
         """Pauses a server and changes its status to ``PAUSED``.
 
