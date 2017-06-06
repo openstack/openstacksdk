@@ -1601,11 +1601,33 @@ class OpenStackCloud(
         :returns: A list of volume ``munch.Munch``.
 
         """
+        def _list(response):
+            # NOTE(rods)The shade Adapter is removing the top-level
+            # container but not with pagination or in a few other
+            # circumstances, so `response` can be a list of Volumes,
+            # or a dict like {'volumes_list': [...], 'volume': [...]}.
+            # We need the type check to work around the issue until
+            # next commit where we'll move the top-level container
+            # removing from the adapter to the related call.
+            if isinstance(response, list):
+                volumes.extend(response)
+            if isinstance(response, dict):
+                volumes.extend(meta.obj_list_to_dict(response['volumes']))
+                endpoint = None
+                if 'volumes_links' in response:
+                    for l in response['volumes_links']:
+                        if 'rel' in l and 'next' == l['rel']:
+                            endpoint = l['href']
+                            break
+                    if endpoint:
+                        _list(self._volume_client.get(endpoint))
+
         if not cache:
             warnings.warn('cache argument to list_volumes is deprecated. Use '
                           'invalidate instead.')
-        return self._normalize_volumes(
-            self._volume_client.get('/volumes/detail'))
+        volumes = []
+        _list(self._volume_client.get('/volumes/detail'))
+        return self._normalize_volumes(volumes)
 
     @_utils.cache_on_arguments()
     def list_volume_types(self, get_extra=True):

@@ -285,12 +285,35 @@ class TestVolume(base.RequestsMockTestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev2', 'public',
+                     append=['volumes', 'detail']),
                  json={
-                     'volumes': [vol1, vol2],
+                     'volumes': [vol1],
                      'volumes_links': [
-                         {'href': 'https://volume.example.com/fake_url',
-                          'rel': 'next'}]})])
+                         {'href': self.get_mock_url(
+                             'volumev2', 'public',
+                             append=['volumes', 'detail'],
+                             qs_elements=['marker=01']),
+                          'rel': 'next'}]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['volumes', 'detail'],
+                     qs_elements=['marker=01']),
+                 json={
+                     'volumes': [vol2],
+                     'volumes_links': [
+                         {'href': self.get_mock_url(
+                             'volumev2', 'public',
+                             append=['volumes', 'detail'],
+                             qs_elements=['marker=02']),
+                          'rel': 'next'}]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['volumes', 'detail'],
+                     qs_elements=['marker=02']),
+                 json={'volumes': []})])
         self.assertEqual(
             [self.cloud._normalize_volume(vol1),
              self.cloud._normalize_volume(vol2)],
