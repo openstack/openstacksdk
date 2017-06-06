@@ -3786,9 +3786,13 @@ class OpenStackCloud(
             kwargs['imageRef'] = image_obj['id']
         kwargs = self._get_volume_kwargs(kwargs)
         kwargs['size'] = size
+        payload = dict(volume=kwargs)
+        if 'scheduler_hints' in kwargs:
+            payload['OS-SCH-HNT:scheduler_hints'] = kwargs.pop(
+                'scheduler_hints', None)
         with _utils.shade_exceptions("Error in creating volume"):
             volume = self._volume_client.post(
-                '/volumes', json=dict(volume=kwargs))
+                '/volumes', json=dict(payload))
         self.list_volumes.invalidate(self)
 
         if volume['status'] == 'error':
