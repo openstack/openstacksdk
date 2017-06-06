@@ -90,6 +90,8 @@ class LegacyClientFactoryMixin(object):
 
     @property
     def keystone_client(self):
+        # Trigger discovery from ksa
+        self._identity_client
         return self._create_legacy_client(
             'keystone', 'identity', deprecated=False)
 

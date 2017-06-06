@@ -17,7 +17,6 @@ import collections
 import time
 import uuid
 
-from distutils import version as du_version
 import fixtures
 import mock
 import os
@@ -414,7 +413,7 @@ class RequestsMockTestCase(BaseTestCase):
                      'X-Subject-Token': self.getUniqueString('KeystoneToken')},
                  text=open(os.path.join(
                      self.fixtures_directory, catalog), 'r').read()
-                 )
+                 ),
         ])
         self._make_test_cloud(identity_api_version='3')
 
@@ -423,15 +422,6 @@ class RequestsMockTestCase(BaseTestCase):
         self.calls = []
         self._uri_registry.clear()
 
-        # occ > 1.26.0 fixes keystoneclient construction. Unfortunately, it
-        # breaks our mocking of what keystoneclient does here. Since we're
-        # close to just getting rid of ksc anyway, just put in a version match
-        occ_version = du_version.StrictVersion(occ.__version__)
-        if occ_version > du_version.StrictVersion('1.26.0'):
-            endpoint_uri = 'https://identity.example.com/v2.0'
-        else:
-            endpoint_uri = 'https://identity.example.com/'
-
         self.__do_register_uris([
             dict(method='GET', uri='https://identity.example.com/',
                  text=open(self.discovery_json, 'r').read()),
@@ -439,10 +429,8 @@ class RequestsMockTestCase(BaseTestCase):
                  text=open(os.path.join(
                      self.fixtures_directory, 'catalog-v2.json'), 'r').read()
                  ),
-            dict(method='GET', uri=endpoint_uri,
+            dict(method='GET', uri='https://identity.example.com/v2.0',
                  text=open(self.discovery_json, 'r').read()),
-            dict(method='GET', uri='https://identity.example.com/',
-                 text=open(self.discovery_json, 'r').read())
         ])
 
         self._make_test_cloud(cloud_name='_test_cloud_v2_',
@@ -456,7 +444,10 @@ class RequestsMockTestCase(BaseTestCase):
         # trips.
         self.__do_register_uris([
             dict(method='GET', uri='https://identity.example.com/',
-                 text=open(self.discovery_json, 'r').read())])
+                 text=open(self.discovery_json, 'r').read()),
+            dict(method='GET', uri='https://identity.example.com/v3/',
+                 text=open(self.discovery_json, 'r').read()),
+        ])
 
     def _make_test_cloud(self, cloud_name='_test_cloud_', **kwargs):
         test_cloud = os.environ.get('SHADE_OS_CLOUD', cloud_name)

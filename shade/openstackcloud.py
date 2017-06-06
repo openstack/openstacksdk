@@ -413,6 +413,12 @@ class OpenStackCloud(
     @property
     def _identity_client(self):
         if 'identity' not in self._raw_clients:
+            identity_client = self._get_raw_client('identity')
+            identity_url = self._discover_endpoint(
+                'identity', version_required=True)
+            identity_client.endpoint_override = identity_url
+            self.cloud_config.config['identity_endpoint_override'] = \
+                identity_url
             self._raw_clients['identity'] = self._get_raw_client('identity')
         return self._raw_clients['identity']
 
