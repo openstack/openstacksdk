@@ -419,7 +419,7 @@ class OpenStackCloud(
             identity_client.endpoint_override = identity_url
             self.cloud_config.config['identity_endpoint_override'] = \
                 identity_url
-            self._raw_clients['identity'] = self._get_raw_client('identity')
+            self._raw_clients['identity'] = identity_client
         return self._raw_clients['identity']
 
     @property

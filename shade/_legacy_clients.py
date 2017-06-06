@@ -92,8 +92,23 @@ class LegacyClientFactoryMixin(object):
     def keystone_client(self):
         # Trigger discovery from ksa
         self._identity_client
+
+        # Skip broken discovery in ksc. We're good thanks.
+        from keystoneclient.v2_0 import client as v2_client
+        from keystoneclient.v3 import client as v3_client
+        if self.cloud_config.config['identity_api_version'] == '3':
+            client_class = v3_client
+        else:
+            client_class = v2_client
+
         return self._create_legacy_client(
-            'keystone', 'identity', deprecated=False)
+            'keystone', 'identity',
+            client_class=client_class.Client,
+            deprecated=False,
+            endpoint=self.cloud_config.config[
+                'identity_endpoint_override'],
+            endpoint_override=self.cloud_config.config[
+                'identity_endpoint_override'])
 
     # Set the ironic API microversion to a known-good
     # supported/tested with the contents of shade.
