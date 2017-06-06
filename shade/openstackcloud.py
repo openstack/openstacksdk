@@ -4862,7 +4862,7 @@ class OpenStackCloud(
             # select.
             for port in sorted(
                     ports,
-                    key=operator.itemgetter('created_at'),
+                    key=lambda p: p.get('created_at', 0),
                     reverse=True):
                 for address in port.get('fixed_ips', list()):
                     try:
