@@ -23,7 +23,6 @@ class TestQuotas(base.RequestsMockTestCase):
     def setUp(self, cloud_config_fixture='clouds.yaml'):
         super(TestQuotas, self).setUp(
             cloud_config_fixture=cloud_config_fixture)
-        self._add_discovery_uri_call()
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_update_quotas(self, mock_nova):

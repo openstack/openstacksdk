@@ -127,7 +127,6 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_create_endpoint_v3(self):
-        self._add_discovery_uri_call()
         service_data = self._get_service_data()
         public_endpoint_data = self._get_endpoint_v3_data(
             service_id=service_data.service_id, interface='public',
@@ -251,7 +250,6 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
                           self.op_cloud.update_endpoint, 'endpoint_id')
 
     def test_update_endpoint_v3(self):
-        self._add_discovery_uri_call()
         service_data = self._get_service_data()
         endpoint_data = self._get_endpoint_v3_data(
             service_id=service_data.service_id, interface='admin',
@@ -289,7 +287,6 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_list_endpoints(self):
-        self._add_discovery_uri_call()
         endpoints_data = [self._get_endpoint_v3_data() for e in range(1, 10)]
         self.register_uris([
             dict(method='GET',
@@ -317,7 +314,6 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_search_endpoints(self):
-        self._add_discovery_uri_call()
         endpoints_data = [self._get_endpoint_v3_data(region='region1')
                           for e in range(0, 2)]
         endpoints_data.extend([self._get_endpoint_v3_data()
@@ -378,7 +374,6 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_delete_endpoint(self):
-        self._add_discovery_uri_call()
         endpoint_data = self._get_endpoint_v3_data()
         self.register_uris([
             dict(method='GET',

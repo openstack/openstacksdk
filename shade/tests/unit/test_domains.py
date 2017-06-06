@@ -32,7 +32,6 @@ class TestDomains(base.RequestsMockTestCase):
             append=append, base_url_append=base_url_append)
 
     def test_list_domains(self):
-        self._add_discovery_uri_call()
         domain_data = self._get_domain_data()
         self.register_uris([
             dict(method='GET', uri=self.get_mock_url(), status_code=200,
@@ -46,7 +45,6 @@ class TestDomains(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_get_domain(self):
-        self._add_discovery_uri_call()
         domain_data = self._get_domain_data()
         self.register_uris([
             dict(method='GET',
@@ -59,7 +57,6 @@ class TestDomains(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_get_domain_with_name_or_id(self):
-        self._add_discovery_uri_call()
         domain_data = self._get_domain_data()
         response = {'domains': [domain_data.json_response['domain']]}
         self.register_uris([
@@ -79,7 +76,6 @@ class TestDomains(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_create_domain(self):
-        self._add_discovery_uri_call()
         domain_data = self._get_domain_data(description=uuid.uuid4().hex,
                                             enabled=True)
         self.register_uris([
@@ -99,7 +95,6 @@ class TestDomains(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_create_domain_exception(self):
-        self._add_discovery_uri_call()
         with testtools.ExpectedException(
             shade.OpenStackCloudException,
             "Failed to create domain domain_name"
@@ -110,7 +105,6 @@ class TestDomains(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_delete_domain(self):
-        self._add_discovery_uri_call()
         domain_data = self._get_domain_data()
         new_resp = domain_data.json_response.copy()
         new_resp['domain']['enabled'] = False
@@ -125,7 +119,6 @@ class TestDomains(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_delete_domain_name_or_id(self):
-        self._add_discovery_uri_call()
         domain_data = self._get_domain_data()
         new_resp = domain_data.json_response.copy()
         new_resp['domain']['enabled'] = False
@@ -148,7 +141,6 @@ class TestDomains(base.RequestsMockTestCase):
         # to update domain even though it is called via delete_domain. This
         # should be fixed in shade to catch either a failure on PATCH,
         # subsequent GET, or DELETE call(s).
-        self._add_discovery_uri_call()
         domain_data = self._get_domain_data()
         new_resp = domain_data.json_response.copy()
         new_resp['domain']['enabled'] = False
@@ -167,7 +159,6 @@ class TestDomains(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_update_domain(self):
-        self._add_discovery_uri_call()
         domain_data = self._get_domain_data(
             description=self.getUniqueString('domainDesc'))
         domain_resource_uri = self.get_mock_url(append=[domain_data.domain_id])
@@ -188,7 +179,6 @@ class TestDomains(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_update_domain_name_or_id(self):
-        self._add_discovery_uri_call()
         domain_data = self._get_domain_data(
             description=self.getUniqueString('domainDesc'))
         domain_resource_uri = self.get_mock_url(append=[domain_data.domain_id])
@@ -211,7 +201,6 @@ class TestDomains(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_update_domain_exception(self):
-        self._add_discovery_uri_call()
         domain_data = self._get_domain_data(
             description=self.getUniqueString('domainDesc'))
         self.register_uris([

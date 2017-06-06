@@ -25,7 +25,6 @@ class TestLimits(base.RequestsMockTestCase):
 
     @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     def test_other_get_compute_limits(self, mock_nova):
-        self._add_discovery_uri_call()
         project = self.mock_for_keystone_projects(project_count=1,
                                                   list_get=True)[0]
         self.op_cloud.get_compute_limits(project.project_id)

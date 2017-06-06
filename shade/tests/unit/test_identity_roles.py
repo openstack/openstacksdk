@@ -44,7 +44,6 @@ class TestIdentityRoles(base.RequestsMockTestCase):
             qs_elements)
 
     def test_list_roles(self):
-        self._add_discovery_uri_call()
         role_data = self._get_role_data()
         self.register_uris([
             dict(method='GET',
@@ -56,7 +55,6 @@ class TestIdentityRoles(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_get_role_by_name(self):
-        self._add_discovery_uri_call()
         role_data = self._get_role_data()
         self.register_uris([
             dict(method='GET',
@@ -72,7 +70,6 @@ class TestIdentityRoles(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_get_role_by_id(self):
-        self._add_discovery_uri_call()
         role_data = self._get_role_data()
         self.register_uris([
             dict(method='GET',
@@ -88,7 +85,6 @@ class TestIdentityRoles(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_create_role(self):
-        self._add_discovery_uri_call()
         role_data = self._get_role_data()
         self.register_uris([
             dict(method='POST',
@@ -110,7 +106,6 @@ class TestIdentityRoles(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_delete_role_by_id(self):
-        self._add_discovery_uri_call()
         role_data = self._get_role_data()
         self.register_uris([
             dict(method='GET',
@@ -126,7 +121,6 @@ class TestIdentityRoles(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_delete_role_by_name(self):
-        self._add_discovery_uri_call()
         role_data = self._get_role_data()
         self.register_uris([
             dict(method='GET',
@@ -142,7 +136,6 @@ class TestIdentityRoles(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_list_role_assignments(self):
-        self._add_discovery_uri_call()
         domain_data = self._get_domain_data()
         user_data = self._get_user_data(domain_id=domain_data.domain_id)
         group_data = self._get_group_data(domain_id=domain_data.domain_id)
@@ -177,7 +170,6 @@ class TestIdentityRoles(base.RequestsMockTestCase):
                         matchers.Equals(project_data.project_id))
 
     def test_list_role_assignments_filters(self):
-        self._add_discovery_uri_call()
         domain_data = self._get_domain_data()
         user_data = self._get_user_data(domain_id=domain_data.domain_id)
         role_data = self._get_role_data()
@@ -208,7 +200,6 @@ class TestIdentityRoles(base.RequestsMockTestCase):
         self.assertThat(ret[0].domain, matchers.Equals(domain_data.domain_id))
 
     def test_list_role_assignments_exception(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='role_assignments'),

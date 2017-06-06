@@ -67,7 +67,6 @@ class TestUsers(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_create_user_v3(self):
-        self._add_discovery_uri_call()
         user_data = self._get_user_data(
             domain_id=uuid.uuid4().hex,
             description=self.getUniqueString('description'))
@@ -149,7 +148,6 @@ class TestUsers(base.RequestsMockTestCase):
                 password=user_data.password)
 
     def test_delete_user(self):
-        self._add_discovery_uri_call()
         user_data = self._get_user_data(domain_id=uuid.uuid4().hex)
         user_resource_uri = self._get_keystone_mock_url(
             resource='users', append=[user_data.user_id])
@@ -167,7 +165,6 @@ class TestUsers(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_delete_user_not_found(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self._get_keystone_mock_url(resource='users'),
@@ -175,7 +172,6 @@ class TestUsers(base.RequestsMockTestCase):
         self.assertFalse(self.op_cloud.delete_user(self.getUniqueString()))
 
     def test_add_user_to_group(self):
-        self._add_discovery_uri_call()
         user_data = self._get_user_data()
         group_data = self._get_group_data()
 
@@ -197,7 +193,6 @@ class TestUsers(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_is_user_in_group(self):
-        self._add_discovery_uri_call()
         user_data = self._get_user_data()
         group_data = self._get_group_data()
 
@@ -221,7 +216,6 @@ class TestUsers(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_remove_user_from_group(self):
-        self._add_discovery_uri_call()
         user_data = self._get_user_data()
         group_data = self._get_group_data()
 

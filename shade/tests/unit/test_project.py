@@ -55,7 +55,6 @@ class TestProject(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_create_project_v3(self,):
-        self._add_discovery_uri_call()
         project_data = self._get_project_data(
             description=self.getUniqueString('projectDesc'))
         self.register_uris([
@@ -107,7 +106,6 @@ class TestProject(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_delete_project_v3(self):
-        self._add_discovery_uri_call()
         project_data = self._get_project_data(v3=False)
         self.register_uris([
             dict(method='GET',
@@ -122,7 +120,6 @@ class TestProject(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_update_project_not_found(self):
-        self._add_discovery_uri_call()
         project_data = self._get_project_data()
         self.register_uris([
             dict(method='GET',
@@ -175,7 +172,6 @@ class TestProject(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_update_project_v3(self):
-        self._add_discovery_uri_call()
         project_data = self._get_project_data(
             description=self.getUniqueString('projectDesc'))
         self.register_uris([
@@ -205,7 +201,6 @@ class TestProject(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_list_projects_v3(self):
-        self._add_discovery_uri_call()
         project_data = self._get_project_data(
             description=self.getUniqueString('projectDesc'))
         self.register_uris([
@@ -223,7 +218,6 @@ class TestProject(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_list_projects_v3_kwarg(self):
-        self._add_discovery_uri_call()
         project_data = self._get_project_data(
             description=self.getUniqueString('projectDesc'))
         self.register_uris([
@@ -242,7 +236,6 @@ class TestProject(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_list_projects_search_compat(self):
-        self._add_discovery_uri_call()
         project_data = self._get_project_data(
             description=self.getUniqueString('projectDesc'))
         self.register_uris([
@@ -258,7 +251,6 @@ class TestProject(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_list_projects_search_compat_v3(self):
-        self._add_discovery_uri_call()
         project_data = self._get_project_data(
             description=self.getUniqueString('projectDesc'))
         self.register_uris([
