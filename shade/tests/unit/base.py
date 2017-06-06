@@ -429,8 +429,6 @@ class RequestsMockTestCase(BaseTestCase):
                  text=open(os.path.join(
                      self.fixtures_directory, 'catalog-v2.json'), 'r').read()
                  ),
-            dict(method='GET', uri='https://identity.example.com/v2.0',
-                 text=open(self.discovery_json, 'r').read()),
         ])
 
         self._make_test_cloud(cloud_name='_test_cloud_v2_',
@@ -444,8 +442,6 @@ class RequestsMockTestCase(BaseTestCase):
         # trips.
         self.__do_register_uris([
             dict(method='GET', uri='https://identity.example.com/',
-                 text=open(self.discovery_json, 'r').read()),
-            dict(method='GET', uri='https://identity.example.com/v3/',
                  text=open(self.discovery_json, 'r').read()),
         ])
 
