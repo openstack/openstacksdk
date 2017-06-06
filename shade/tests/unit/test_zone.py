@@ -31,6 +31,10 @@ new_zone_dict['id'] = '1'
 
 class TestZone(base.RequestsMockTestCase):
 
+    def setUp(self):
+        super(TestZone, self).setUp()
+        self.use_designate()
+
     def test_create_zone(self):
         self.register_uris([
             dict(method='POST',

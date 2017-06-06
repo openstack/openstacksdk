@@ -403,7 +403,11 @@ class OpenStackCloud(
     @property
     def _dns_client(self):
         if 'dns' not in self._raw_clients:
-            self._raw_clients['dns'] = self._get_raw_client('dns')
+            dns_client = self._get_raw_client('dns')
+            dns_url = self._discover_endpoint(
+                'dns', version_required=True)
+            dns_client.endpoint_override = dns_url
+            self._raw_clients['dns'] = dns_client
         return self._raw_clients['dns']
 
     @property
@@ -6963,7 +6967,7 @@ class OpenStackCloud(
 
         """
         return self._dns_client.get(
-            "/v2/zones",
+            "/zones",
             error_message="Error fetching zones list")
 
     def get_zone(self, name_or_id, filters=None):
@@ -7027,7 +7031,7 @@ class OpenStackCloud(
             zone["masters"] = masters
 
         return self._dns_client.post(
-            "/v2/zones", json=zone,
+            "/zones", json=zone,
             error_message="Unable to create zone {name}".format(name=name))
 
     @_utils.valid_kwargs('email', 'description', 'ttl', 'masters')
@@ -7052,7 +7056,7 @@ class OpenStackCloud(
                 "Zone %s not found." % name_or_id)
 
         return self._dns_client.patch(
-            "/v2/zones/{zone_id}".format(zone_id=zone['id']), json=kwargs,
+            "/zones/{zone_id}".format(zone_id=zone['id']), json=kwargs,
             error_message="Error updating zone {0}".format(name_or_id))
 
     def delete_zone(self, name_or_id):
@@ -7071,7 +7075,7 @@ class OpenStackCloud(
             return False
 
         return self._dns_client.delete(
-            "/v2/zones/{zone_id}".format(zone_id=zone['id']),
+            "/zones/{zone_id}".format(zone_id=zone['id']),
             error_message="Error deleting zone {0}".format(name_or_id))
 
         return True
@@ -7085,7 +7089,7 @@ class OpenStackCloud(
 
         """
         return self._dns_client.get(
-            "/v2/zones/{zone_id}/recordsets".format(zone_id=zone),
+            "/zones/{zone_id}/recordsets".format(zone_id=zone),
             error_message="Error fetching recordsets list")
 
     def get_recordset(self, zone, name_or_id):
@@ -7100,7 +7104,7 @@ class OpenStackCloud(
         """
         try:
             return self._dns_client.get(
-                "/v2/zones/{zone_id}/recordsets/{recordset_id}".format(
+                "/zones/{zone_id}/recordsets/{recordset_id}".format(
                     zone_id=zone, recordset_id=name_or_id),
                 error_message="Error fetching recordset")
         except Exception:
@@ -7146,7 +7150,7 @@ class OpenStackCloud(
             body['ttl'] = ttl
 
         return self._dns_client.post(
-            "/v2/zones/{zone_id}/recordsets".format(zone_id=zone),
+            "/zones/{zone_id}/recordsets".format(zone_id=zone),
             json=body,
             error_message="Error creating recordset {name}".format(name=name))
 
@@ -7175,7 +7179,7 @@ class OpenStackCloud(
                 "Recordset %s not found." % name_or_id)
 
         new_recordset = self._dns_client.put(
-            "/v2/zones/{zone_id}/recordsets/{recordset_id}".format(
+            "/zones/{zone_id}/recordsets/{recordset_id}".format(
                 zone_id=zone_obj['id'], recordset_id=name_or_id), json=kwargs,
             error_message="Error updating recordset {0}".format(name_or_id))
 
@@ -7203,7 +7207,7 @@ class OpenStackCloud(
             return False
 
         self._dns_client.delete(
-            "/v2/zones/{zone_id}/recordsets/{recordset_id}".format(
+            "/zones/{zone_id}/recordsets/{recordset_id}".format(
                 zone_id=zone['id'], recordset_id=name_or_id),
             error_message="Error deleting recordset {0}".format(name_or_id))
 

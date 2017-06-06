@@ -43,6 +43,10 @@ new_recordset['zone'] = recordset_zone
 
 class TestRecordset(base.RequestsMockTestCase):
 
+    def setUp(self):
+        super(TestRecordset, self).setUp()
+        self.use_designate()
+
     def test_create_recordset(self):
         self.register_uris([
             dict(method='GET',
