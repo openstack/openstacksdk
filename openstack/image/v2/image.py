@@ -13,6 +13,8 @@
 import hashlib
 import logging
 
+import jsonpatch
+
 from openstack import exceptions
 from openstack.image import image_service
 from openstack import resource2
@@ -283,3 +285,17 @@ class Image(resource2.Resource):
                 "Unable to verify the integrity of image %s" % (self.id))
 
         return resp.content
+
+    def update(self, session, **attrs):
+        url = utils.urljoin(self.base_path, self.id)
+        headers = {
+            'Content-Type': 'application/openstack-images-v2.1-json-patch',
+            'Accept': ''
+        }
+        original = self.to_dict()
+        patch_string = jsonpatch.make_patch(original, attrs).to_string()
+        resp = session.patch(url, endpoint_filter=self.service,
+                             data=patch_string,
+                             headers=headers)
+        self._translate_response(resp, has_body=True)
+        return self

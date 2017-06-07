@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
+
 import mock
 import testtools
 
@@ -292,3 +294,33 @@ class TestImage(testtools.TestCase):
                                          stream=True)
 
         self.assertEqual(rv, resp)
+
+    def test_image_update(self):
+        sot = image.Image(**EXAMPLE)
+        # Let the translate pass through, that portion is tested elsewhere
+        sot._translate_response = mock.Mock()
+
+        resp = mock.Mock()
+        resp.content = b"abc"
+        headers = {
+            'Content-Type': 'application/openstack-images-v2.1-json-patch',
+            'Accept': '',
+        }
+        resp.headers = headers
+        resp.status_code = 200
+        self.sess.patch.return_value = resp
+
+        value = ('[{"value": "fake_name", "op": "replace", "path": "/name"}, '
+                 '{"value": "fake_value", "op": "add", '
+                 '"path": "/new_property"}]')
+        fake_img = sot.to_dict()
+        fake_img['name'] = 'fake_name'
+        fake_img['new_property'] = 'fake_value'
+
+        sot.update(self.sess, **fake_img)
+        url = 'images/' + IDENTIFIER
+        self.sess.patch.assert_called_once()
+        call = self.sess.patch.call_args
+        call_args, call_kwargs = call
+        self.assertEqual(url, call_args[0])
+        self.assertEqual(json.loads(value), json.loads(call_kwargs['data']))

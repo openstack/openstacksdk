@@ -158,7 +158,8 @@ class Proxy(proxy2.BaseProxy):
         :returns: The updated image
         :rtype: :class:`~openstack.image.v2.image.Image`
         """
-        return self._update(_image.Image, image, **attrs)
+        img = self._get_resource(_image.Image, image)
+        return img.update(self._session, **attrs)
 
     def deactivate_image(self, image):
         """Deactivate an image
