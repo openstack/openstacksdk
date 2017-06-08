@@ -17,19 +17,9 @@
 from shade import task_manager
 
 
-class UserList(task_manager.Task):
-    def main(self, client):
-        return client.keystone_client.users.list()
-
-
 class UserCreate(task_manager.Task):
     def main(self, client):
         return client.keystone_client.users.create(**self.args)
-
-
-class UserDelete(task_manager.Task):
-    def main(self, client):
-        return client.keystone_client.users.delete(**self.args)
 
 
 class UserUpdate(task_manager.Task):
@@ -40,11 +30,6 @@ class UserUpdate(task_manager.Task):
 class UserPasswordUpdate(task_manager.Task):
     def main(self, client):
         return client.keystone_client.users.update_password(**self.args)
-
-
-class UserGet(task_manager.Task):
-    def main(self, client):
-        return client.keystone_client.users.get(**self.args)
 
 
 class UserAddToGroup(task_manager.Task):
