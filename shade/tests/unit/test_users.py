@@ -28,6 +28,19 @@ class TestUsers(base.RequestsMockTestCase):
             service_type='identity', interface='admin', resource=resource,
             append=append, base_url_append=base_url_append)
 
+    def _get_user_list(self, user_data):
+        uri = self._get_keystone_mock_url(resource='users')
+        return {
+            'users': [
+                user_data.json_response['user'],
+            ],
+            'links': {
+                'self': uri,
+                'previous': None,
+                'next': None,
+            }
+        }
+
     def test_create_user_v2(self):
         self.use_keystone_v2()
 
@@ -99,7 +112,7 @@ class TestUsers(base.RequestsMockTestCase):
             #     but is always chained together [keystoneclient oddity]
             # GET user info after user update
             dict(method='GET', uri=mock_users_uri, status_code=200,
-                 json={'users': [user_data.json_response['user']]}),
+                 json=self._get_user_list(user_data)),
             dict(method='GET', uri=mock_user_resource_uri, status_code=200,
                  json=user_data.json_response),
             dict(method='PUT',
@@ -145,7 +158,7 @@ class TestUsers(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self._get_keystone_mock_url(resource='users'),
                  status_code=200,
-                 json={'users': [user_data.json_response['user']]}),
+                 json=self._get_user_list(user_data)),
             dict(method='GET', uri=user_resource_uri, status_code=200,
                  json=user_data.json_response),
             dict(method='DELETE', uri=user_resource_uri, status_code=204)])
@@ -170,7 +183,7 @@ class TestUsers(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self._get_keystone_mock_url(resource='users'),
                  status_code=200,
-                 json={'users': [user_data.json_response['user']]}),
+                 json=self._get_user_list(user_data)),
             dict(method='GET',
                  uri=self._get_keystone_mock_url(resource='groups'),
                  status_code=200,
@@ -192,7 +205,7 @@ class TestUsers(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self._get_keystone_mock_url(resource='users'),
                  status_code=200,
-                 json={'users': [user_data.json_response['user']]}),
+                 json=self._get_user_list(user_data)),
             dict(method='GET',
                  uri=self._get_keystone_mock_url(resource='groups'),
                  status_code=200,
@@ -215,7 +228,7 @@ class TestUsers(base.RequestsMockTestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self._get_keystone_mock_url(resource='users'),
-                 json={'users': [user_data.json_response['user']]}),
+                 json=self._get_user_list(user_data)),
             dict(method='GET',
                  uri=self._get_keystone_mock_url(resource='groups'),
                  status_code=200,
