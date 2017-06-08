@@ -131,7 +131,10 @@ class ShadeAdapter(adapter.Adapter):
         # don't update all the other REST API calls
         if isinstance(result_json, dict):
             for key in ['volumes', 'volume', 'volumeAttachment', 'backups',
-                        'volume_types', 'volume_type_access', 'snapshots']:
+                        'volume_types', 'volume_type_access', 'snapshots',
+                        'network', 'networks', 'subnet', 'subnets',
+                        'router', 'routers', 'floatingip', 'floatingips',
+                        'floating_ip', 'floating_ips', 'port', 'ports']:
                 if key in result_json.keys():
                     self._log_request_id(response)
                     return result_json

@@ -1590,7 +1590,8 @@ class OpenStackCloud(
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        return self._network_client.get("/networks.json", params=filters)
+        data = self._network_client.get("/networks.json", params=filters)
+        return meta.get_and_munchify('networks', data)
 
     def list_routers(self, filters=None):
         """List all available routers.
@@ -1602,9 +1603,10 @@ class OpenStackCloud(
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        return self._network_client.get(
+        data = self._network_client.get(
             "/routers.json", params=filters,
             error_message="Error fetching router list")
+        return meta.get_and_munchify('routers', data)
 
     def list_subnets(self, filters=None):
         """List all available subnets.
@@ -1616,7 +1618,8 @@ class OpenStackCloud(
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        return self._network_client.get("/subnets.json", params=filters)
+        data = self._network_client.get("/subnets.json", params=filters)
+        return meta.get_and_munchify('subnets', data)
 
     def list_ports(self, filters=None):
         """List all available ports.
@@ -1649,9 +1652,10 @@ class OpenStackCloud(
         return self._ports
 
     def _list_ports(self, filters):
-        return self._network_client.get(
+        data = self._network_client.get(
             "/ports.json", params=filters,
             error_message="Error fetching port list")
+        return meta.get_and_munchify('ports', data)
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_volumes)
     def list_volumes(self, cache=True):
@@ -2114,10 +2118,12 @@ class OpenStackCloud(
     def _neutron_list_floating_ips(self, filters=None):
         if not filters:
             filters = {}
-        return self._network_client.get('/floatingips.json', params=filters)
+        data = self._network_client.get('/floatingips.json', params=filters)
+        return meta.get_and_munchify('floatingips', data)
 
     def _nova_list_floating_ips(self):
-        return self._compute_client.get('/os-floating-ips')
+        data = self._compute_client.get('/os-floating-ips')
+        return meta.get_and_munchify('floating_ips', data)
 
     def use_external_network(self):
         return self._use_external_network
@@ -2960,13 +2966,12 @@ class OpenStackCloud(
         if external:
             network['router:external'] = True
 
-        net = self._network_client.post("/networks.json",
-                                        json={'network': network})
+        data = self._network_client.post("/networks.json",
+                                         json={'network': network})
 
         # Reset cache so the new network is picked up
         self._reset_network_caches()
-
-        return net
+        return meta.get_and_munchify('network', data)
 
     def delete_network(self, name_or_id):
         """Delete a network.
@@ -3145,9 +3150,10 @@ class OpenStackCloud(
         if ext_gw_info:
             router['external_gateway_info'] = ext_gw_info
 
-        return self._network_client.post(
+        data = self._network_client.post(
             "/routers.json", json={"router": router},
             error_message="Error creating router {0}".format(name))
+        return meta.get_and_munchify('router', data)
 
     def update_router(self, name_or_id, name=None, admin_state_up=None,
                       ext_gateway_net_id=None, enable_snat=None,
@@ -3194,10 +3200,11 @@ class OpenStackCloud(
             raise OpenStackCloudException(
                 "Router %s not found." % name_or_id)
 
-        return self._network_client.put(
+        data = self._network_client.put(
             "/routers/{router_id}.json".format(router_id=curr_router['id']),
             json={"router": router},
             error_message="Error updating router {0}".format(name_or_id))
+        return meta.get_and_munchify('router', data)
 
     def delete_router(self, name_or_id):
         """Delete a logical router.
@@ -4577,9 +4584,10 @@ class OpenStackCloud(
 
     def _submit_create_fip(self, kwargs):
         # Split into a method to aid in test mocking
-        fip = self._network_client.post(
+        data = self._network_client.post(
             "/floatingips.json", json={"floatingip": kwargs})
-        return self._normalize_floating_ip(fip)
+        return self._normalize_floating_ip(
+            meta.get_and_munchify('floatingip', data))
 
     def _neutron_create_floating_ip(
             self, network_name_or_id=None, server=None,
@@ -4666,12 +4674,13 @@ class OpenStackCloud(
                         "unable to find a floating ip pool")
                 pool = pools[0]['name']
 
-            pool_ip = self._compute_client.post(
+            data = self._compute_client.post(
                 '/os-floating-ips', json=dict(pool=pool))
+            pool_ip = meta.get_and_munchify('floating_ip', data)
             # TODO(mordred) Remove this - it's just for compat
-            pool_ip = self._compute_client.get('/os-floating-ips/{id}'.format(
+            data = self._compute_client.get('/os-floating-ips/{id}'.format(
                 id=pool_ip['id']))
-            return pool_ip
+            return meta.get_and_munchify('floating_ip', data)
 
     def delete_floating_ip(self, floating_ip_id, retry=1):
         """Deallocate a floating IP from a project.
@@ -6450,10 +6459,10 @@ class OpenStackCloud(
         if use_default_subnetpool:
             subnet['use_default_subnetpool'] = True
 
-        new_subnet = self._network_client.post("/subnets.json",
-                                               json={"subnet": subnet})
+        data = self._network_client.post("/subnets.json",
+                                         json={"subnet": subnet})
 
-        return new_subnet
+        return meta.get_and_munchify('subnet', data)
 
     def delete_subnet(self, name_or_id):
         """Delete a subnet.
@@ -6559,10 +6568,10 @@ class OpenStackCloud(
             raise OpenStackCloudException(
                 "Subnet %s not found." % name_or_id)
 
-        new_subnet = self._network_client.put(
+        data = self._network_client.put(
             "/subnets/{subnet_id}.json".format(subnet_id=curr_subnet['id']),
             json={"subnet": subnet})
-        return new_subnet
+        return meta.get_and_munchify('subnet', data)
 
     @_utils.valid_kwargs('name', 'admin_state_up', 'mac_address', 'fixed_ips',
                          'subnet_id', 'ip_address', 'security_groups',
@@ -6623,10 +6632,11 @@ class OpenStackCloud(
         """
         kwargs['network_id'] = network_id
 
-        return self._network_client.post(
+        data = self._network_client.post(
             "/ports.json", json={'port': kwargs},
             error_message="Error creating port for network {0}".format(
                 network_id))
+        return meta.get_and_munchify('port', data)
 
     @_utils.valid_kwargs('name', 'admin_state_up', 'fixed_ips',
                          'security_groups', 'allowed_address_pairs',
@@ -6686,10 +6696,11 @@ class OpenStackCloud(
             raise OpenStackCloudException(
                 "failed to find port '{port}'".format(port=name_or_id))
 
-        return self._network_client.put(
+        data = self._network_client.put(
             "/ports/{port_id}.json".format(port_id=port['id']),
             json={"port": kwargs},
             error_message="Error updating port {0}".format(name_or_id))
+        return meta.get_and_munchify('port', data)
 
     def delete_port(self, name_or_id):
         """Delete a port

@@ -155,7 +155,7 @@ class TestFloatingIP(base.RequestsMockTestCase):
                  uri=self.get_mock_url(
                      'compute',
                      append=['os-floating-ips', '2']),
-                 json={'floating_ips': self.mock_floating_ip_list_rep[1]}),
+                 json={'floating_ip': self.mock_floating_ip_list_rep[1]}),
         ])
 
         self.cloud.create_floating_ip(network='nova')
