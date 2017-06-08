@@ -1684,11 +1684,12 @@ class OpenStackCloud(
         :returns: A list of volume ``munch.Munch``.
 
         """
-        with _utils.shade_exceptions("Error fetching volume_type list"):
-            data = self._volume_client.get(
-                '/types', params=dict(is_public='None'))
-            return self._normalize_volume_types(
-                data.get('volume_types', []))
+        data = self._volume_client.get(
+            '/types',
+            params=dict(is_public='None'),
+            error_message='Error fetching volume_type list')
+        return self._normalize_volume_types(
+            data.get('volume_types', []))
 
     @_utils.cache_on_arguments()
     def list_availability_zone_names(self, unavailable=False):
@@ -3839,10 +3840,11 @@ class OpenStackCloud(
         if 'scheduler_hints' in kwargs:
             payload['OS-SCH-HNT:scheduler_hints'] = kwargs.pop(
                 'scheduler_hints', None)
-        with _utils.shade_exceptions("Error in creating volume"):
-            data = self._volume_client.post(
-                '/volumes', json=dict(payload))
-            volume = data.get('volume', {})
+        data = self._volume_client.post(
+            '/volumes',
+            json=dict(payload),
+            error_message='Error in creating volume')
+        volume = data.get('volume', {})
         self.list_volumes.invalidate(self)
 
         if volume['status'] == 'error':
