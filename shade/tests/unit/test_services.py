@@ -67,7 +67,6 @@ class CloudServices(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_create_service_v3(self):
-        self._add_discovery_uri_call()
         service_data = self._get_service_data(name='a service', type='network',
                                               description='A test service')
         self.register_uris([
@@ -103,7 +102,6 @@ class CloudServices(base.RequestsMockTestCase):
                           'service_id', name='new name')
 
     def test_update_service_v3(self):
-        self._add_discovery_uri_call()
         service_data = self._get_service_data(name='a service', type='network',
                                               description='A test service')
         request = service_data.json_request.copy()
@@ -134,7 +132,6 @@ class CloudServices(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_list_services(self):
-        self._add_discovery_uri_call()
         service_data = self._get_service_data()
         self.register_uris([
             dict(method='GET',
@@ -153,7 +150,6 @@ class CloudServices(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_get_service(self):
-        self._add_discovery_uri_call()
         service_data = self._get_service_data()
         service2_data = self._get_service_data()
         self.register_uris([
@@ -201,7 +197,6 @@ class CloudServices(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_search_services(self):
-        self._add_discovery_uri_call()
         service_data = self._get_service_data()
         service2_data = self._get_service_data(type=service_data.service_type)
         self.register_uris([
@@ -263,7 +258,6 @@ class CloudServices(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_delete_service(self):
-        self._add_discovery_uri_call()
         service_data = self._get_service_data()
         self.register_uris([
             dict(method='GET',

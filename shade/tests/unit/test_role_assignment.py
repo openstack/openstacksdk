@@ -361,7 +361,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_grant_role_user_project(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -437,7 +436,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_grant_role_user_project_exists(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -509,7 +507,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_grant_role_group_project(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -583,7 +580,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_grant_role_group_project_exists(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -655,7 +651,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_grant_role_user_domain(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -801,7 +796,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_grant_role_user_domain_exists(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -939,7 +933,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_grant_role_group_domain(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -1085,7 +1078,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_grant_role_group_domain_exists(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -1477,7 +1469,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_revoke_role_user_project(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -1537,7 +1528,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_revoke_role_user_project_exists(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -1623,7 +1613,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_revoke_role_group_project(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -1683,7 +1672,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_revoke_role_group_project_exists(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -1769,7 +1757,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_revoke_role_user_domain(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -1883,7 +1870,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_revoke_role_user_domain_exists(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -2049,7 +2035,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_revoke_role_group_domain(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -2163,7 +2148,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_revoke_role_group_domain_exists(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -2329,7 +2313,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_grant_no_role(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -2348,7 +2331,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_revoke_no_role(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -2367,7 +2349,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_grant_no_user_or_group_specified(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -2382,7 +2363,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_revoke_no_user_or_group_specified(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -2397,7 +2377,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_grant_no_user_or_group(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -2418,7 +2397,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_revoke_no_user_or_group(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -2439,7 +2417,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_grant_both_user_and_group(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -2465,7 +2442,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_revoke_both_user_and_group(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -2491,7 +2467,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_grant_both_project_and_domain(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -2539,7 +2514,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_revoke_both_project_and_domain(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -2592,7 +2566,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_grant_no_project_or_domain(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -2621,7 +2594,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_revoke_no_project_or_domain(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -2656,7 +2628,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_grant_bad_domain_exception(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
@@ -2680,7 +2651,6 @@ class TestRoleAssignment(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_revoke_bad_domain_exception(self):
-        self._add_discovery_uri_call()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),

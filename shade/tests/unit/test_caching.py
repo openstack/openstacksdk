@@ -107,7 +107,6 @@ class TestMemoryCache(base.RequestsMockTestCase):
         self.assertIsInstance(self.cloud, shade.OpenStackCloud)
 
     def test_list_projects_v3(self):
-        self._add_discovery_uri_call()
         project_one = self._get_project_data()
         project_two = self._get_project_data()
         project_list = [project_one, project_two]
@@ -312,7 +311,6 @@ class TestMemoryCache(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_list_users(self):
-        self._add_discovery_uri_call()
         user_data = self._get_user_data(email='test@example.com')
         self.register_uris([
             dict(method='GET',

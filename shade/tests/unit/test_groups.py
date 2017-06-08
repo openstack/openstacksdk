@@ -18,7 +18,6 @@ class TestGroups(base.RequestsMockTestCase):
     def setUp(self, cloud_config_fixture='clouds.yaml'):
         super(TestGroups, self).setUp(
             cloud_config_fixture=cloud_config_fixture)
-        self._add_discovery_uri_call()
         self.addCleanup(self.assert_calls)
 
     def get_mock_url(self, service_type='identity', interface='admin',

@@ -415,7 +415,7 @@ class OpenStackCloud(
         if 'identity' not in self._raw_clients:
             identity_client = self._get_raw_client('identity')
             identity_url = self._discover_endpoint(
-                'identity', version_required=True)
+                'identity', version_required=True, versions=['3', '2'])
             identity_client.endpoint_override = identity_url
             self.cloud_config.config['identity_endpoint_override'] = \
                 identity_url
@@ -429,13 +429,19 @@ class OpenStackCloud(
             self._raw_clients['raw-image'] = image_client
         return self._raw_clients['raw-image']
 
+    def _get_version_and_base_from_endpoint(self, endpoint):
+        url, version = endpoint.rstrip('/').rsplit('/', 1)
+        if version.endswith(self.current_project_id):
+            url, version = endpoint.rstrip('/').rsplit('/', 1)
+        if version.startswith('v'):
+            return url, version[1]
+        return "/".join([url, version]), None
+
     def _get_version_from_endpoint(self, endpoint):
-        endpoint_parts = endpoint.rstrip('/').split('/')
-        if endpoint_parts[-1].endswith(self.current_project_id):
-            endpoint_parts.pop()
-        if endpoint_parts[-1].startswith('v'):
-            return endpoint_parts[-1][1]
-        return None
+        return self._get_version_and_base_from_endpoint(endpoint)[1]
+
+    def _strip_version_from_endpoint(self, endpoint):
+        return self._get_version_and_base_from_endpoint(endpoint)[0]
 
     def _match_given_endpoint(self, given, version):
         given_version = self._get_version_from_endpoint(given)
@@ -443,7 +449,9 @@ class OpenStackCloud(
             return True
         return False
 
-    def _discover_endpoint(self, service_type, version_required=False):
+    def _discover_endpoint(
+            self, service_type, version_required=False,
+            versions=None):
         # If endpoint_override is set, do nothing
         service_endpoint = self.cloud_config.get_endpoint(service_type)
         if service_endpoint:
@@ -452,56 +460,70 @@ class OpenStackCloud(
         client = self._get_raw_client(service_type)
         config_version = self.cloud_config.get_api_version(service_type)
 
+        if versions and config_version[0] not in versions:
+            raise OpenStackCloudException(
+                "Version {version} was requested for service {service_type}"
+                " but shade only understands how to handle versions"
+                " {versions}".format(
+                    version=config_version,
+                    service_type=service_type,
+                    versions=versions))
+
         # shade only groks major versions at the moment
         if config_version:
             config_version = config_version[0]
 
         # First - quick check to see if the endpoint in the catalog
         # is a versioned endpoint that matches the version we requested.
-        # If it is, don't do any additoinal work.
+        # If it is, don't do any additional work.
         catalog_endpoint = client.get_endpoint()
         if self._match_given_endpoint(
                 catalog_endpoint, config_version):
             return catalog_endpoint
 
-        # Ok, do version discovery
-        candidate_endpoints = None
+        if not versions and config_version:
+            versions = [config_version]
+
+        candidate_endpoints = []
         version_key = '{service}_api_version'.format(service=service_type)
+
+        # Next, try built-in keystoneauth discovery so that we can take
+        # advantage of the discovery cache
+        base_url = self._strip_version_from_endpoint(catalog_endpoint)
         try:
-            versions = client.get('/')
-            if 'values' in versions:
-                versions = versions['values']
-            if isinstance(versions, dict):
-                versions = [versions]
+            discovery = self.keystone_session.auth.get_discovery(
+                self.keystone_session, base_url)
+
+            version_list = discovery.version_data(reverse=True)
             if config_version:
-                candidate_endpoints = [
-                    version for version in versions
-                    if version['id'][1] == config_version]
+                # If we have a specific version request, look for it first.
+                for version_data in version_list:
+                    if str(version_data['version'][0]) == config_version:
+                        candidate_endpoints.append(version_data)
+
             if not candidate_endpoints:
-                candidate_endpoints = [
-                    version for version in versions
-                    if version['status'] in ('CURRENT', 'stable')]
-            if not candidate_endpoints:
-                candidate_endpoints = versions
-        except (keystoneauth1.exceptions.connection.ConnectFailure,
-                OpenStackCloudURINotFound) as e:
-            # A 404 or a connection error is a likely thing to get
-            # either with a misconfgured service. or we've already
-            # gotten a versioned endpoint from the catalog
+                # If we didn't find anything, look again, this time either
+                # for the range, or just grab everything if we don't have
+                # a range
+                if str(version_data['version'][0]) in versions:
+                    candidate_endpoints.append(version_data)
+                elif not config_version and not versions:
+                    candidate_endpoints.append(version_data)
+
+        except keystoneauth1.exceptions.DiscoveryFailure as e:
             self.log.debug(
                 "Version discovery failed, assuming endpoint in"
                 " the catalog is already versioned. {e}".format(e=str(e)))
 
         if candidate_endpoints:
+            # If we got more than one, pick the highest
             endpoint_description = candidate_endpoints[0]
-            service_endpoint = [
-                link['href'] for link in endpoint_description['links']
-                if link['rel'] == 'self'][0]
-            api_version = endpoint_description['id'][1]
+            service_endpoint = endpoint_description['url']
+            api_version = str(endpoint_description['version'][0])
         else:
             # Can't discover a version. Do best-attempt at inferring
             # version from URL so that later logic can do its best
-            api_version = self._get_version_from_endpoint()
+            api_version = self._get_version_from_endpoint(catalog_endpoint)
             if not api_version:
                 if not config_version and version_required:
                     raise OpenStackCloudException(
@@ -545,7 +567,8 @@ class OpenStackCloud(
     def _image_client(self):
         if 'image' not in self._raw_clients:
             image_client = self._get_raw_client('image')
-            image_url = self._discover_endpoint('image', version_required=True)
+            image_url = self._discover_endpoint(
+                'image', version_required=True, versions=['2', '1'])
             image_client.endpoint_override = image_url
             self._raw_clients['image'] = image_client
         return self._raw_clients['image']
