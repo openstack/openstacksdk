@@ -1988,12 +1988,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "VolumeType not found: %s" % name_or_id)
 
         with _utils.shade_exceptions(
-                "Unable to get volume type access {name}".format(
-                    name=name_or_id)):
+            "Unable to get volume type access {name}".format(
+                name=name_or_id)):
+            data = self._volume_client.get(
+                '/types/{id}/os-volume-type-access'.format(
+                    id=volume_type.id))
             return self._normalize_volume_type_accesses(
-                self._volume_client.get(
-                    '/types/{id}/os-volume-type-access'.format(
-                        id=volume_type.id)))
+                data.get('volume_type_access', []))
 
     def add_volume_type_access(self, name_or_id, project_id):
         """Grant access on a volume_type to a project.

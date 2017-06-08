@@ -127,6 +127,15 @@ class ShadeAdapter(adapter.Adapter):
         except Exception:
             return self._log_request_id(response)
 
+        # Note(rods): this is just a temporary step needed until we
+        # don't update all the other REST API calls
+        if isinstance(result_json, dict):
+            for key in ['volumes', 'volume', 'volumeAttachment', 'backups',
+                        'volume_types', 'volume_type_access', 'snapshots']:
+                if key in result_json.keys():
+                    self._log_request_id(response)
+                    return result_json
+
         if isinstance(result_json, list):
             self._log_request_id(response)
             return meta.obj_list_to_dict(result_json)
