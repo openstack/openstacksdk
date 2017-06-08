@@ -1653,26 +1653,15 @@ class OpenStackCloud(
         :returns: A list of volume ``munch.Munch``.
 
         """
-        def _list(response):
-            # NOTE(rods)The shade Adapter is removing the top-level
-            # container but not with pagination or in a few other
-            # circumstances, so `response` can be a list of Volumes,
-            # or a dict like {'volumes_list': [...], 'volume': [...]}.
-            # We need the type check to work around the issue until
-            # next commit where we'll move the top-level container
-            # removing from the adapter to the related call.
-            if isinstance(response, list):
-                volumes.extend(response)
-            if isinstance(response, dict):
-                volumes.extend(meta.obj_list_to_dict(response['volumes']))
-                endpoint = None
-                if 'volumes_links' in response:
-                    for l in response['volumes_links']:
-                        if 'rel' in l and 'next' == l['rel']:
-                            endpoint = l['href']
-                            break
-                    if endpoint:
-                        _list(self._volume_client.get(endpoint))
+        def _list(data):
+            volumes.extend(data.get('volumes', []))
+            endpoint = None
+            for l in data.get('volumes_links', []):
+                if 'rel' in l and 'next' == l['rel']:
+                    endpoint = l['href']
+                    break
+            if endpoint:
+                _list(self._volume_client.get(endpoint))
 
         if not cache:
             warnings.warn('cache argument to list_volumes is deprecated. Use '
@@ -1689,9 +1678,10 @@ class OpenStackCloud(
 
         """
         with _utils.shade_exceptions("Error fetching volume_type list"):
+            data = self._volume_client.get(
+                '/types', params=dict(is_public='None'))
             return self._normalize_volume_types(
-                self._volume_client.get(
-                    '/types', params=dict(is_public='None')))
+                data.get('volume_types', []))
 
     @_utils.cache_on_arguments()
     def list_availability_zone_names(self, unavailable=False):
@@ -3843,8 +3833,9 @@ class OpenStackCloud(
             payload['OS-SCH-HNT:scheduler_hints'] = kwargs.pop(
                 'scheduler_hints', None)
         with _utils.shade_exceptions("Error in creating volume"):
-            volume = self._volume_client.post(
+            data = self._volume_client.post(
                 '/volumes', json=dict(payload))
+            volume = data.get('volume', {})
         self.list_volumes.invalidate(self)
 
         if volume['status'] == 'error':
@@ -4022,7 +4013,7 @@ class OpenStackCloud(
         payload = {'volumeId': volume['id']}
         if device:
             payload['device'] = device
-        vol_attachment = self._compute_client.post(
+        data = self._compute_client.post(
             '/servers/{server_id}/os-volume_attachments'.format(
                 server_id=server['id']),
             json=dict(volumeAttachment=payload),
@@ -4053,7 +4044,8 @@ class OpenStackCloud(
                     raise OpenStackCloudException(
                         "Error in attaching volume %s" % volume['id']
                     )
-        return self._normalize_volume_attachment(vol_attachment)
+        return self._normalize_volume_attachment(
+            data.get('volumeAttachment', {}))
 
     def _get_volume_kwargs(self, kwargs):
         name = kwargs.pop('name', kwargs.pop('display_name', None))
@@ -4228,10 +4220,11 @@ class OpenStackCloud(
 
         """
         endpoint = '/snapshots/detail' if detailed else '/snapshots'
-        return self._volume_client.get(
+        data = self._volume_client.get(
             endpoint,
             params=search_opts,
             error_message="Error getting a list of snapshots")
+        return data.get('snapshots', [])
 
     def list_volume_backups(self, detailed=True, search_opts=None):
         """
@@ -4251,9 +4244,10 @@ class OpenStackCloud(
         :returns: A list of volume backups ``munch.Munch``.
         """
         endpoint = '/backups/detail' if detailed else '/backups'
-        return self._volume_client.get(
+        data = self._volume_client.get(
             endpoint, params=search_opts,
             error_message="Error getting a list of backups")
+        return data.get('backups', [])
 
     def delete_volume_backup(self, name_or_id=None, force=False, wait=False,
                              timeout=None):
