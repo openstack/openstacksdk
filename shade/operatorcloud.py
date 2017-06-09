@@ -18,6 +18,7 @@ from ironicclient import exceptions as ironic_exceptions
 from novaclient import exceptions as nova_exceptions
 
 from shade.exc import *  # noqa
+from shade import meta
 from shade import openstackcloud
 from shade import _tasks
 from shade import _utils
@@ -1992,7 +1993,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             error_message="Unable to get volume type access"
                           " {name}".format(name=name_or_id))
         return self._normalize_volume_type_accesses(
-            data.get('volume_type_access', []))
+            meta.get_and_munchify('volume_type_access', data))
 
     def add_volume_type_access(self, name_or_id, project_id):
         """Grant access on a volume_type to a project.

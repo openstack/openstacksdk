@@ -1661,7 +1661,7 @@ class OpenStackCloud(
 
         """
         def _list(data):
-            volumes.extend(data.get('volumes', []))
+            volumes.extend(meta.get_and_munchify('volumes', data))
             endpoint = None
             for l in data.get('volumes_links', []):
                 if 'rel' in l and 'next' == l['rel']:
@@ -1689,7 +1689,7 @@ class OpenStackCloud(
             params=dict(is_public='None'),
             error_message='Error fetching volume_type list')
         return self._normalize_volume_types(
-            data.get('volume_types', []))
+            meta.get_and_munchify('volume_types', data))
 
     @_utils.cache_on_arguments()
     def list_availability_zone_names(self, unavailable=False):
@@ -3844,7 +3844,7 @@ class OpenStackCloud(
             '/volumes',
             json=dict(payload),
             error_message='Error in creating volume')
-        volume = data.get('volume', {})
+        volume = meta.get_and_munchify('volume', data)
         self.list_volumes.invalidate(self)
 
         if volume['status'] == 'error':
@@ -4054,7 +4054,7 @@ class OpenStackCloud(
                         "Error in attaching volume %s" % volume['id']
                     )
         return self._normalize_volume_attachment(
-            data.get('volumeAttachment', {}))
+            meta.get_and_munchify('volumeAttachment', data))
 
     def _get_volume_kwargs(self, kwargs):
         name = kwargs.pop('name', kwargs.pop('display_name', None))
@@ -4233,7 +4233,7 @@ class OpenStackCloud(
             endpoint,
             params=search_opts,
             error_message="Error getting a list of snapshots")
-        return data.get('snapshots', [])
+        return meta.get_and_munchify('snapshots', data)
 
     def list_volume_backups(self, detailed=True, search_opts=None):
         """
@@ -4256,7 +4256,7 @@ class OpenStackCloud(
         data = self._volume_client.get(
             endpoint, params=search_opts,
             error_message="Error getting a list of backups")
-        return data.get('backups', [])
+        return meta.get_and_munchify('backups', data)
 
     def delete_volume_backup(self, name_or_id=None, force=False, wait=False,
                              timeout=None):

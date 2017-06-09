@@ -568,3 +568,17 @@ def warlock_to_dict(obj):
         if isinstance(value, NON_CALLABLES) and not key.startswith('_'):
             obj_dict[key] = value
     return obj_dict
+
+
+def get_and_munchify(key, data):
+    """Get the value associated to key and convert it.
+
+    The value will be converted in a Munch object or a list of Munch objects
+    based on the type
+    """
+    result = data.get(key, [])
+    if isinstance(result, list):
+        return obj_list_to_dict(result)
+    elif isinstance(result, dict):
+        return obj_to_dict(result)
+    return result
