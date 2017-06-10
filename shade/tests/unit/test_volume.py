@@ -25,7 +25,7 @@ class TestVolume(base.RequestsMockTestCase):
         server = dict(id='server001')
         vol = {'id': 'volume001', 'status': 'available',
                'name': '', 'attachments': []}
-        volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         rattach = {'server_id': server['id'], 'device': 'device001',
                    'volumeId': volume['id'], 'id': 'attachmentId'}
         self.register_uris([
@@ -47,7 +47,7 @@ class TestVolume(base.RequestsMockTestCase):
         server = dict(id='server001')
         vol = {'id': 'volume001', 'status': 'available',
                'name': '', 'attachments': []}
-        volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -71,11 +71,11 @@ class TestVolume(base.RequestsMockTestCase):
         server = dict(id='server001')
         vol = {'id': 'volume001', 'status': 'available',
                'name': '', 'attachments': []}
-        volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         vol['attachments'] = [{'server_id': server['id'],
                                'device': 'device001'}]
         vol['status'] = 'attached'
-        attached_volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        attached_volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         rattach = {'server_id': server['id'], 'device': 'device001',
                    'volumeId': volume['id'], 'id': 'attachmentId'}
         self.register_uris([
@@ -105,9 +105,9 @@ class TestVolume(base.RequestsMockTestCase):
         server = dict(id='server001')
         vol = {'id': 'volume001', 'status': 'available',
                'name': '', 'attachments': []}
-        volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         vol['status'] = 'error'
-        errored_volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        errored_volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         rattach = {'server_id': server['id'], 'device': 'device001',
                    'volumeId': volume['id'], 'id': 'attachmentId'}
         self.register_uris([
@@ -201,10 +201,10 @@ class TestVolume(base.RequestsMockTestCase):
         attachments = [{'server_id': 'server001', 'device': 'device001'}]
         vol = {'id': 'volume001', 'status': 'attached', 'name': '',
                'attachments': attachments}
-        volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         vol['status'] = 'available'
         vol['attachments'] = []
-        avail_volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        avail_volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         self.register_uris([
             dict(method='DELETE',
                  uri=self.get_mock_url(
@@ -223,10 +223,10 @@ class TestVolume(base.RequestsMockTestCase):
         attachments = [{'server_id': 'server001', 'device': 'device001'}]
         vol = {'id': 'volume001', 'status': 'attached', 'name': '',
                'attachments': attachments}
-        volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         vol['status'] = 'error'
         vol['attachments'] = []
-        errored_volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        errored_volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         self.register_uris([
             dict(method='DELETE',
                  uri=self.get_mock_url(
@@ -247,7 +247,7 @@ class TestVolume(base.RequestsMockTestCase):
     def test_delete_volume_deletes(self):
         vol = {'id': 'volume001', 'status': 'attached',
                'name': '', 'attachments': []}
-        volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -266,7 +266,7 @@ class TestVolume(base.RequestsMockTestCase):
     def test_delete_volume_gone_away(self):
         vol = {'id': 'volume001', 'status': 'attached',
                'name': '', 'attachments': []}
-        volume = meta.obj_to_dict(fakes.FakeVolume(**vol))
+        volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -280,8 +280,8 @@ class TestVolume(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_list_volumes_with_pagination(self):
-        vol1 = meta.obj_to_dict(fakes.FakeVolume('01', 'available', 'vol1'))
-        vol2 = meta.obj_to_dict(fakes.FakeVolume('02', 'available', 'vol2'))
+        vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
+        vol2 = meta.obj_to_munch(fakes.FakeVolume('02', 'available', 'vol2'))
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(

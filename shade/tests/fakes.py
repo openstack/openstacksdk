@@ -214,7 +214,7 @@ def make_fake_image(
 def make_fake_machine(machine_name, machine_id=None):
     if not machine_id:
         machine_id = uuid.uuid4().hex
-    return meta.obj_to_dict(FakeMachine(
+    return meta.obj_to_munch(FakeMachine(
         id=machine_id,
         name=machine_name))
 

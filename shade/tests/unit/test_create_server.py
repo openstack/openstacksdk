@@ -176,7 +176,7 @@ class TestCreateServer(base.RequestsMockTestCase):
         ])
         self.assertEqual(
             self.cloud._normalize_server(
-                meta.obj_to_dict(fake_server)),
+                meta.obj_to_munch(fake_server)),
             self.cloud.create_server(
                 name='server-name',
                 image=dict(id='image=id'),
@@ -215,7 +215,7 @@ class TestCreateServer(base.RequestsMockTestCase):
         ])
         self.assertEqual(
             self.cloud._normalize_server(
-                meta.obj_to_dict(fake_create_server)),
+                meta.obj_to_munch(fake_create_server)),
             self.cloud.create_server(
                 name='server-name', image=dict(id='image=id'),
                 flavor=dict(id='flavor-id'), admin_pass='ooBootheiX0edoh'))
@@ -243,7 +243,7 @@ class TestCreateServer(base.RequestsMockTestCase):
         mock_nova.servers.get.return_value = fake_server
         # The wait returns non-password server
         mock_wait.return_value = self.cloud._normalize_server(
-            meta.obj_to_dict(fake_server))
+            meta.obj_to_munch(fake_server))
 
         server = self.cloud.create_server(
             name='server-name', image=dict(id='image-id'),
@@ -257,7 +257,7 @@ class TestCreateServer(base.RequestsMockTestCase):
         self.assertEqual(
             server,
             self.cloud._normalize_server(
-                meta.obj_to_dict(fake_server_with_pass))
+                meta.obj_to_munch(fake_server_with_pass))
         )
         self.assert_calls()
 

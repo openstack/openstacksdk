@@ -36,7 +36,7 @@ class TestKeypair(base.TestCase):
         mock_nova.keypairs.create.assert_called_once_with(
             name=keyname, public_key=pub_key
         )
-        self.assertEqual(meta.obj_to_dict(key), new_key)
+        self.assertEqual(meta.obj_to_munch(key), new_key)
 
     @patch.object(shade.OpenStackCloud, 'nova_client')
     def test_create_keypair_exception(self, mock_nova):

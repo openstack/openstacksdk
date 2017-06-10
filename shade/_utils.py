@@ -249,7 +249,7 @@ def normalize_keystone_services(services):
             'enabled': service['enabled']
         }
         ret.append(new_service)
-    return meta.obj_list_to_dict(ret)
+    return meta.obj_list_to_munch(ret)
 
 
 def localhost_supports_ipv6():
@@ -277,7 +277,7 @@ def normalize_users(users):
             description=user.get('description')
         ) for user in users
     ]
-    return meta.obj_list_to_dict(ret)
+    return meta.obj_list_to_munch(ret)
 
 
 def normalize_domains(domains):
@@ -289,7 +289,7 @@ def normalize_domains(domains):
             enabled=domain.get('enabled'),
         ) for domain in domains
     ]
-    return meta.obj_list_to_dict(ret)
+    return meta.obj_list_to_munch(ret)
 
 
 def normalize_groups(domains):
@@ -302,7 +302,7 @@ def normalize_groups(domains):
             domain_id=domain.get('domain_id'),
         ) for domain in domains
     ]
-    return meta.obj_list_to_dict(ret)
+    return meta.obj_list_to_munch(ret)
 
 
 def normalize_role_assignments(assignments):
@@ -363,7 +363,7 @@ def normalize_roles(roles):
             name=role.get('name'),
         ) for role in roles
     ]
-    return meta.obj_list_to_dict(ret)
+    return meta.obj_list_to_munch(ret)
 
 
 def normalize_flavor_accesses(flavor_accesses):

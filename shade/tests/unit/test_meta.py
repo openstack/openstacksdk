@@ -267,7 +267,7 @@ class TestMeta(base.RequestsMockTestCase):
             addrs, key_name='public', ext_tag='fixed', version=6))
 
     def test_get_server_ip(self):
-        srv = meta.obj_to_dict(standard_fake_server)
+        srv = meta.obj_to_munch(standard_fake_server)
         self.assertEqual(
             PRIVATE_V4, meta.get_server_ip(srv, ext_tag='fixed'))
         self.assertEqual(
@@ -286,7 +286,7 @@ class TestMeta(base.RequestsMockTestCase):
                  json={'subnets': SUBNETS_WITH_NAT})
         ])
 
-        srv = meta.obj_to_dict(fakes.FakeServer(
+        srv = meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             addresses={'private': [{'OS-EXT-IPS:type': 'fixed',
                                     'addr': PRIVATE_V4,
@@ -315,7 +315,7 @@ class TestMeta(base.RequestsMockTestCase):
 
         shared_mac = '11:22:33:44:55:66'
         distinct_mac = '66:55:44:33:22:11'
-        srv = meta.obj_to_dict(fakes.FakeServer(
+        srv = meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             addresses={'test-net': [{'OS-EXT-IPS:type': 'fixed',
                                      'OS-EXT-IPS-MAC:mac_addr': distinct_mac,
@@ -383,7 +383,7 @@ class TestMeta(base.RequestsMockTestCase):
                  json={'security_groups': []})
         ])
 
-        srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
+        srv = self.cloud.get_openstack_vars(meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             flavor={u'id': u'1'},
             image={
@@ -433,7 +433,7 @@ class TestMeta(base.RequestsMockTestCase):
                  json={'security_groups': []})
         ])
 
-        srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
+        srv = self.cloud.get_openstack_vars(meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             flavor={u'id': u'1'},
             image={
@@ -483,7 +483,7 @@ class TestMeta(base.RequestsMockTestCase):
                  json={'security_groups': []})
         ])
 
-        srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
+        srv = self.cloud.get_openstack_vars(meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             flavor={u'id': u'1'},
             image={
@@ -551,7 +551,7 @@ class TestMeta(base.RequestsMockTestCase):
                  json={'security_groups': []})
         ])
 
-        srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
+        srv = self.cloud.get_openstack_vars(meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             flavor={u'id': u'1'},
             image={
@@ -588,7 +588,7 @@ class TestMeta(base.RequestsMockTestCase):
                  json={'security_groups': []})
         ])
 
-        srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
+        srv = self.cloud.get_openstack_vars(meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             flavor={u'id': u'1'},
             image={
@@ -647,7 +647,7 @@ class TestMeta(base.RequestsMockTestCase):
                  json={'security_groups': []})
         ])
 
-        srv = self.cloud.get_openstack_vars(meta.obj_to_dict(fakes.FakeServer(
+        srv = self.cloud.get_openstack_vars(meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             flavor={u'id': u'1'},
             image={
@@ -690,7 +690,7 @@ class TestMeta(base.RequestsMockTestCase):
                  uri='https://network.example.com/v2.0/subnets.json',
                  json={'subnets': SUBNETS_WITH_NAT})
         ])
-        srv = meta.obj_to_dict(fakes.FakeServer(
+        srv = meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             addresses={'test-net': [{
                 'addr': PUBLIC_V4,
@@ -717,7 +717,7 @@ class TestMeta(base.RequestsMockTestCase):
                  json={'subnets': SUBNETS_WITH_NAT})
         ])
 
-        srv = meta.obj_to_dict(fakes.FakeServer(
+        srv = meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             addresses={'test-net': [{
                 'addr': PUBLIC_V4,
@@ -744,7 +744,7 @@ class TestMeta(base.RequestsMockTestCase):
                  uri='https://network.example.com/v2.0/subnets.json',
                  json={'subnets': SUBNETS_WITH_NAT})
         ])
-        srv = meta.obj_to_dict(fakes.FakeServer(
+        srv = meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             addresses={'test-net': [{
                 'addr': PRIVATE_V4,
@@ -772,7 +772,7 @@ class TestMeta(base.RequestsMockTestCase):
                  json={'subnets': SUBNETS_WITH_NAT})
         ])
 
-        srv = meta.obj_to_dict(fakes.FakeServer(
+        srv = meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             addresses={'test-net': [{
                 'addr': PUBLIC_V4,
@@ -784,7 +784,7 @@ class TestMeta(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_get_server_external_ipv4_neutron_accessIPv4(self):
-        srv = meta.obj_to_dict(fakes.FakeServer(
+        srv = meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             accessIPv4=PUBLIC_V4))
         ip = meta.get_server_external_ipv4(cloud=self.cloud, server=srv)
@@ -792,7 +792,7 @@ class TestMeta(base.RequestsMockTestCase):
         self.assertEqual(PUBLIC_V4, ip)
 
     def test_get_server_external_ipv4_neutron_accessIPv6(self):
-        srv = meta.obj_to_dict(fakes.FakeServer(
+        srv = meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             accessIPv6=PUBLIC_V6))
         ip = meta.get_server_external_ipv6(server=srv)
@@ -806,7 +806,7 @@ class TestMeta(base.RequestsMockTestCase):
                  uri='https://network.example.com/v2.0/networks.json',
                  status_code=404)])
 
-        srv = meta.obj_to_dict(fakes.FakeServer(
+        srv = meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             addresses={'public': [{'addr': PUBLIC_V4, 'version': 4}]}
         ))
@@ -819,7 +819,7 @@ class TestMeta(base.RequestsMockTestCase):
         # Testing Clouds w/o Neutron and a network named public
         self.cloud.cloud_config.config['has_network'] = False
 
-        srv = meta.obj_to_dict(fakes.FakeServer(
+        srv = meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             addresses={'public': [{'addr': PUBLIC_V4, 'version': 4}]}))
         ip = meta.get_server_external_ipv4(cloud=self.cloud, server=srv)
@@ -830,7 +830,7 @@ class TestMeta(base.RequestsMockTestCase):
         # Testing Clouds w/o Neutron or a globally routable IP
         self.cloud.cloud_config.config['has_network'] = False
 
-        srv = meta.obj_to_dict(fakes.FakeServer(
+        srv = meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             addresses={'test-net': [{'addr': PRIVATE_V4}]}))
         ip = meta.get_server_external_ipv4(cloud=self.cloud, server=srv)
@@ -838,7 +838,7 @@ class TestMeta(base.RequestsMockTestCase):
         self.assertIsNone(ip)
 
     def test_get_server_external_ipv6(self):
-        srv = meta.obj_to_dict(fakes.FakeServer(
+        srv = meta.obj_to_munch(fakes.FakeServer(
             id='test-id', name='test-name', status='ACTIVE',
             addresses={
                 'test-net': [
@@ -866,12 +866,12 @@ class TestMeta(base.RequestsMockTestCase):
              'test-name_test-region_test-az'],
             meta.get_groups_from_server(
                 FakeCloud(),
-                meta.obj_to_dict(standard_fake_server),
+                meta.obj_to_munch(standard_fake_server),
                 server_vars
             )
         )
 
-    def test_obj_list_to_dict(self):
+    def test_obj_list_to_munch(self):
         """Test conversion of a list of objects to a list of dictonaries"""
         class obj0(object):
             value = 0
@@ -880,7 +880,7 @@ class TestMeta(base.RequestsMockTestCase):
             value = 1
 
         list = [obj0, obj1]
-        new_list = meta.obj_list_to_dict(list)
+        new_list = meta.obj_list_to_munch(list)
         self.assertEqual(new_list[0]['value'], 0)
         self.assertEqual(new_list[1]['value'], 1)
 
@@ -894,7 +894,7 @@ class TestMeta(base.RequestsMockTestCase):
         mock_list_server_security_groups.return_value = [
             {'name': 'testgroup', 'id': '1'}]
 
-        server = meta.obj_to_dict(standard_fake_server)
+        server = meta.obj_to_munch(standard_fake_server)
         hostvars = meta.get_hostvars_from_server(FakeCloud(), server)
 
         mock_list_server_security_groups.assert_called_once_with(server)
@@ -911,7 +911,7 @@ class TestMeta(base.RequestsMockTestCase):
 
         hostvars = meta.get_hostvars_from_server(
             FakeCloud(), self.cloud._normalize_server(
-                meta.obj_to_dict(standard_fake_server)))
+                meta.obj_to_munch(standard_fake_server)))
         self.assertNotIn('links', hostvars)
         self.assertEqual(PRIVATE_V4, hostvars['private_v4'])
         self.assertEqual(PUBLIC_V4, hostvars['public_v4'])
@@ -946,7 +946,7 @@ class TestMeta(base.RequestsMockTestCase):
         fake_cloud = FakeCloud()
         fake_cloud.force_ipv4 = True
         hostvars = meta.get_hostvars_from_server(
-            fake_cloud, meta.obj_to_dict(standard_fake_server))
+            fake_cloud, meta.obj_to_munch(standard_fake_server))
         self.assertEqual(PUBLIC_V4, hostvars['interface_ip'])
 
     @mock.patch.object(shade.meta, 'get_server_external_ipv4')
@@ -956,7 +956,7 @@ class TestMeta(base.RequestsMockTestCase):
         cloud = FakeCloud()
         cloud.private = True
         hostvars = meta.get_hostvars_from_server(
-            cloud, meta.obj_to_dict(standard_fake_server))
+            cloud, meta.obj_to_munch(standard_fake_server))
         self.assertEqual(PRIVATE_V4, hostvars['interface_ip'])
 
     @mock.patch.object(shade.meta, 'get_server_external_ipv4')
@@ -966,14 +966,14 @@ class TestMeta(base.RequestsMockTestCase):
         server = standard_fake_server
         server.image = 'fake-image-id'
         hostvars = meta.get_hostvars_from_server(
-            FakeCloud(), meta.obj_to_dict(server))
+            FakeCloud(), meta.obj_to_munch(server))
         self.assertEqual('fake-image-id', hostvars['image']['id'])
 
     def test_az(self):
         server = standard_fake_server
         server.__dict__['OS-EXT-AZ:availability_zone'] = 'az1'
 
-        hostvars = self.cloud._normalize_server(meta.obj_to_dict(server))
+        hostvars = self.cloud._normalize_server(meta.obj_to_munch(server))
         self.assertEqual('az1', hostvars['az'])
 
     def test_current_location(self):
@@ -1005,10 +1005,10 @@ class TestMeta(base.RequestsMockTestCase):
             status='available',
             name='Volume 1 Display Name',
             attachments=[{'device': '/dev/sda0'}])
-        fake_volume_dict = meta.obj_to_dict(fake_volume)
+        fake_volume_dict = meta.obj_to_munch(fake_volume)
         mock_cloud.get_volumes.return_value = [fake_volume_dict]
         hostvars = meta.get_hostvars_from_server(
-            mock_cloud, meta.obj_to_dict(standard_fake_server))
+            mock_cloud, meta.obj_to_munch(standard_fake_server))
         self.assertEqual('volume1', hostvars['volumes'][0]['id'])
         self.assertEqual('/dev/sda0', hostvars['volumes'][0]['device'])
 
@@ -1016,7 +1016,7 @@ class TestMeta(base.RequestsMockTestCase):
         fake_cloud = FakeCloud()
         fake_cloud.service_val = False
         hostvars = meta.get_hostvars_from_server(
-            fake_cloud, meta.obj_to_dict(standard_fake_server))
+            fake_cloud, meta.obj_to_munch(standard_fake_server))
         self.assertEqual([], hostvars['volumes'])
 
     def test_unknown_volume_exception(self):
@@ -1032,12 +1032,12 @@ class TestMeta(base.RequestsMockTestCase):
             FakeException,
             meta.get_hostvars_from_server,
             mock_cloud,
-            meta.obj_to_dict(standard_fake_server))
+            meta.obj_to_munch(standard_fake_server))
 
-    def test_obj_to_dict(self):
+    def test_obj_to_munch(self):
         cloud = FakeCloud()
         cloud.server = standard_fake_server
-        cloud_dict = meta.obj_to_dict(cloud)
+        cloud_dict = meta.obj_to_munch(cloud)
         self.assertEqual(FakeCloud.name, cloud_dict['name'])
         self.assertNotIn('_unused', cloud_dict)
         self.assertNotIn('get_flavor_name', cloud_dict)
@@ -1045,11 +1045,11 @@ class TestMeta(base.RequestsMockTestCase):
         self.assertTrue(hasattr(cloud_dict, 'name'))
         self.assertEqual(cloud_dict.name, cloud_dict['name'])
 
-    def test_obj_to_dict_subclass(self):
+    def test_obj_to_munch_subclass(self):
         class FakeObjDict(dict):
             additional = 1
         obj = FakeObjDict(foo='bar')
-        obj_dict = meta.obj_to_dict(obj)
+        obj_dict = meta.obj_to_munch(obj)
         self.assertIn('additional', obj_dict)
         self.assertIn('foo', obj_dict)
         self.assertEqual(obj_dict['additional'], 1)
