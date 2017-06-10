@@ -138,7 +138,7 @@ class ShadeAdapter(adapter.Adapter):
 
         if isinstance(result_json, list):
             self._log_request_id(response)
-            return meta.obj_list_to_dict(result_json)
+            return meta.obj_list_to_munch(result_json)
 
         result = None
         if isinstance(result_json, dict):
@@ -158,9 +158,9 @@ class ShadeAdapter(adapter.Adapter):
         self._log_request_id(response, result)
 
         if isinstance(result, list):
-            return meta.obj_list_to_dict(result)
+            return meta.obj_list_to_munch(result)
         elif isinstance(result, dict):
-            return meta.obj_to_dict(result)
+            return meta.obj_to_munch(result)
         return result
 
     def request(

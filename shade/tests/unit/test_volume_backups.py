@@ -28,7 +28,7 @@ class TestVolumeBackups(base.RequestsMockTestCase):
             name, {'availability_zone': 'az1'})
         self.assertEqual(len(result), 2)
         self.assertEqual(
-            meta.obj_list_to_dict([vol1, vol2]),
+            meta.obj_list_to_munch([vol1, vol2]),
             result)
         self.assert_calls()
 
@@ -44,9 +44,9 @@ class TestVolumeBackups(base.RequestsMockTestCase):
                  json={"backups": [vol1, vol2, vol3]})])
         result = self.cloud.get_volume_backup(
             name, {'availability_zone': 'az1'})
-        result = meta.obj_to_dict(result)
+        result = meta.obj_to_munch(result)
         self.assertEqual(
-            meta.obj_to_dict(vol1),
+            meta.obj_to_munch(vol1),
             result)
         self.assert_calls()
 
@@ -63,7 +63,7 @@ class TestVolumeBackups(base.RequestsMockTestCase):
         result = self.cloud.list_volume_backups(True, search_opts)
         self.assertEqual(len(result), 1)
         self.assertEqual(
-            meta.obj_list_to_dict([backup]),
+            meta.obj_list_to_munch([backup]),
             result)
         self.assert_calls()
 

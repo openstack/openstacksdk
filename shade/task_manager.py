@@ -143,9 +143,9 @@ class Task(BaseTask):
             return self._result
 
         if _is_listlike(self._result):
-            return meta.obj_list_to_dict(self._result)
+            return meta.obj_list_to_munch(self._result)
         elif _is_objlike(self._result):
-            return meta.obj_to_dict(self._result)
+            return meta.obj_to_munch(self._result)
         else:
             return self._result
 
@@ -184,10 +184,10 @@ class RequestTask(BaseTask):
             return self._result
 
         if _is_listlike(self._result):
-            return meta.obj_list_to_dict(
+            return meta.obj_list_to_munch(
                 self._result, request_id=self._request_id)
         elif _is_objlike(self._result):
-            return meta.obj_to_dict(self._result, request_id=self._request_id)
+            return meta.obj_to_munch(self._result, request_id=self._request_id)
         return self._result
 
 

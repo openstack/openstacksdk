@@ -32,7 +32,7 @@ class TestDeleteVolumeSnapshot(base.RequestsMockTestCase):
         """
         fake_snapshot = fakes.FakeVolumeSnapshot('1234', 'available',
                                                  'foo', 'derpysnapshot')
-        fake_snapshot_dict = meta.obj_to_dict(fake_snapshot)
+        fake_snapshot_dict = meta.obj_to_munch(fake_snapshot)
 
         self.register_uris([
             dict(method='GET',
@@ -56,7 +56,7 @@ class TestDeleteVolumeSnapshot(base.RequestsMockTestCase):
         """
         fake_snapshot = fakes.FakeVolumeSnapshot('1234', 'available',
                                                  'foo', 'derpysnapshot')
-        fake_snapshot_dict = meta.obj_to_dict(fake_snapshot)
+        fake_snapshot_dict = meta.obj_to_munch(fake_snapshot)
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -81,7 +81,7 @@ class TestDeleteVolumeSnapshot(base.RequestsMockTestCase):
         """
         fake_snapshot = fakes.FakeVolumeSnapshot('1234', 'available',
                                                  'foo', 'derpysnapshot')
-        fake_snapshot_dict = meta.obj_to_dict(fake_snapshot)
+        fake_snapshot_dict = meta.obj_to_munch(fake_snapshot)
 
         self.register_uris([
             dict(method='GET',

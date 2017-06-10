@@ -92,7 +92,7 @@ class TestRebuildServer(base.RequestsMockTestCase):
         """
         rebuild_server = fakes.FakeServer('1234', '', 'REBUILD')
         mock_nova.servers.rebuild.return_value = rebuild_server
-        self.assertEqual(meta.obj_to_dict(rebuild_server),
+        self.assertEqual(meta.obj_to_munch(rebuild_server),
                          self.cloud.rebuild_server("a", "b"))
 
     @mock.patch.object(OpenStackCloud, 'nova_client')
@@ -104,7 +104,7 @@ class TestRebuildServer(base.RequestsMockTestCase):
                                           adminPass='ooBootheiX0edoh')
         mock_nova.servers.rebuild.return_value = rebuild_server
         self.assertEqual(
-            meta.obj_to_dict(rebuild_server),
+            meta.obj_to_munch(rebuild_server),
             self.cloud.rebuild_server(
                 'a', 'b', admin_pass='ooBootheiX0edoh'))
 
@@ -141,7 +141,7 @@ class TestRebuildServer(base.RequestsMockTestCase):
         self.cloud.name = 'cloud-name'
         self.assertEqual(
             self.cloud._normalize_server(
-                meta.obj_to_dict(ret_active_server)),
+                meta.obj_to_munch(ret_active_server)),
             self.cloud.rebuild_server(
                 "1234", "b", wait=True, admin_pass='ooBootheiX0edoh'))
         # TODO(slaweq): change do_count to True when all nova mocks will be
@@ -179,7 +179,7 @@ class TestRebuildServer(base.RequestsMockTestCase):
         self.cloud.name = 'cloud-name'
         self.assertEqual(
             self.cloud._normalize_server(
-                meta.obj_to_dict(active_server)),
+                meta.obj_to_munch(active_server)),
             self.cloud.rebuild_server("1234", "b", wait=True))
         # TODO(slaweq): change do_count to True when all nova mocks will be
         # replaced with request_mocks also

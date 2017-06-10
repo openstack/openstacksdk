@@ -136,7 +136,7 @@ class TestFloatingIP(base.RequestsMockTestCase):
     def setUp(self):
         super(TestFloatingIP, self).setUp()
 
-        self.fake_server = meta.obj_to_dict(
+        self.fake_server = meta.obj_to_munch(
             fakes.FakeServer(
                 'server-id', '', 'ACTIVE',
                 addresses={u'test_pnztt_net': [{

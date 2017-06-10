@@ -87,7 +87,7 @@ class TestShadeOperator(base.RequestsMockTestCase):
         mock_client.node.list.return_value = [m1]
         machines = self.op_cloud.list_machines()
         self.assertTrue(mock_client.node.list.called)
-        self.assertEqual(meta.obj_to_dict(m1), machines[0])
+        self.assertEqual(meta.obj_to_munch(m1), machines[0])
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_validate_node(self, mock_client):
@@ -102,7 +102,7 @@ class TestShadeOperator(base.RequestsMockTestCase):
         port1 = fakes.FakeMachinePort(1, "aa:bb:cc:dd", "node1")
         port2 = fakes.FakeMachinePort(2, "dd:cc:bb:aa", "node2")
         port_list = [port1, port2]
-        port_dict_list = meta.obj_list_to_dict(port_list)
+        port_dict_list = meta.obj_list_to_munch(port_list)
 
         mock_client.port.list.return_value = port_list
         nics = self.op_cloud.list_nics()

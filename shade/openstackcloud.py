@@ -2013,13 +2013,13 @@ class OpenStackCloud(
             # If this doesn't work - we just let the exception propagate
             response = self._compute_client.get('/images/detail')
         while 'next' in response:
-            image_list.extend(meta.obj_list_to_dict(response['images']))
+            image_list.extend(meta.obj_list_to_munch(response['images']))
             endpoint = response['next']
             # Use the raw endpoint from the catalog not the one from
             # version discovery so that the next links will work right
             response = self._raw_image_client.get(endpoint)
         if 'images' in response:
-            image_list.extend(meta.obj_list_to_dict(response['images']))
+            image_list.extend(meta.obj_list_to_munch(response['images']))
         else:
             image_list.extend(response)
 

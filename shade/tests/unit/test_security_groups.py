@@ -20,7 +20,7 @@ from shade.tests import fakes
 
 # TODO(mordred): Make a fakes.make_fake_nova_security_group and a
 #                fakes.make_fake_nova_security_group and remove all uses of
-#                meta.obj_to_dict here. Also, we have hardcoded id names -
+#                meta.obj_to_munch here. Also, we have hardcoded id names -
 #                move those to using a getUniqueString() value.
 
 neutron_grp_obj = fakes.FakeSecgroup(
@@ -47,8 +47,8 @@ nova_grp_obj = fakes.FakeSecgroup(
 
 # Neutron returns dicts instead of objects, so the dict versions should
 # be used as expected return values from neutron API methods.
-neutron_grp_dict = meta.obj_to_dict(neutron_grp_obj)
-nova_grp_dict = meta.obj_to_dict(nova_grp_obj)
+neutron_grp_dict = meta.obj_to_munch(neutron_grp_obj)
+nova_grp_dict = meta.obj_to_munch(nova_grp_obj)
 
 
 class TestSecurityGroups(base.RequestsMockTestCase):
@@ -163,7 +163,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
         self.cloud.secgroup_source = 'neutron'
         group_name = self.getUniqueString()
         group_desc = 'security group from test_create_security_group_neutron'
-        new_group = meta.obj_to_dict(
+        new_group = meta.obj_to_munch(
             fakes.FakeSecgroup(
                 id='2',
                 name=group_name,
@@ -194,7 +194,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
         group_name = self.getUniqueString()
         group_desc = 'security group from' \
                      ' test_create_security_group_neutron_specific_tenant'
-        new_group = meta.obj_to_dict(
+        new_group = meta.obj_to_munch(
             fakes.FakeSecgroup(
                 id='2',
                 name=group_name,
@@ -230,7 +230,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
         group_name = self.getUniqueString()
         self.has_neutron = False
         group_desc = 'security group from test_create_security_group_neutron'
-        new_group = meta.obj_to_dict(
+        new_group = meta.obj_to_munch(
             fakes.FakeSecgroup(
                 id='2',
                 name=group_name,
@@ -266,7 +266,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
         self.cloud.secgroup_source = 'neutron'
         new_name = self.getUniqueString()
         sg_id = neutron_grp_obj.id
-        update_return = meta.obj_to_dict(neutron_grp_obj)
+        update_return = meta.obj_to_munch(neutron_grp_obj)
         update_return['name'] = new_name
         self.register_uris([
             dict(method='GET',
@@ -291,7 +291,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
         new_name = self.getUniqueString()
         self.cloud.secgroup_source = 'nova'
         nova_return = [nova_grp_dict]
-        update_return = meta.obj_to_dict(nova_grp_obj)
+        update_return = meta.obj_to_munch(nova_grp_obj)
         update_return['name'] = new_name
 
         self.register_uris([
@@ -408,7 +408,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
 
         nova_return = [nova_grp_dict]
 
-        new_rule = meta.obj_to_dict(fakes.FakeNovaSecgroupRule(
+        new_rule = meta.obj_to_munch(fakes.FakeNovaSecgroupRule(
             id='xyz', from_port=1, to_port=2000, ip_protocol='tcp',
             cidr='1.2.3.4/32'))
 
@@ -448,7 +448,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
 
         nova_return = [nova_grp_dict]
 
-        new_rule = meta.obj_to_dict(fakes.FakeNovaSecgroupRule(
+        new_rule = meta.obj_to_munch(fakes.FakeNovaSecgroupRule(
             id='xyz', from_port=1, to_port=65535, ip_protocol='tcp',
             cidr='1.2.3.4/32'))
 
@@ -627,7 +627,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
                  uri=self.get_mock_url(
                      'compute', 'public',
                      append=['servers', 'detail']),
-                 json={'servers': [meta.obj_to_dict(fake_server)]}),
+                 json={'servers': [meta.obj_to_munch(fake_server)]}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
@@ -680,7 +680,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
                  uri=self.get_mock_url(
                      'compute', 'public',
                      append=['servers', 'detail']),
-                 json={'servers': [meta.obj_to_dict(fake_server)]}),
+                 json={'servers': [meta.obj_to_munch(fake_server)]}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
@@ -697,7 +697,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
 
     def test_add_bad_security_group_to_server_nova(self):
         # fake to get server by name, server-name must match
-        fake_server = meta.obj_to_dict(
+        fake_server = meta.obj_to_munch(
             fakes.FakeServer('1234', 'server-name', 'ACTIVE'))
 
         # use nova for secgroup list and return an existing fake
@@ -734,7 +734,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
                  uri=self.get_mock_url(
                      'compute', 'public',
                      append=['servers', 'detail']),
-                 json={'servers': [meta.obj_to_dict(fake_server)]}),
+                 json={'servers': [meta.obj_to_munch(fake_server)]}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
@@ -747,7 +747,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
 
     def test_add_security_group_to_bad_server(self):
         # fake to get server by name, server-name must match
-        fake_server = meta.obj_to_dict(
+        fake_server = meta.obj_to_munch(
             fakes.FakeServer('1234', 'server-name', 'ACTIVE'))
 
         self.register_uris([

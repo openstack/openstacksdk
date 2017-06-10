@@ -38,7 +38,7 @@ class TestFloatingIP(base.TestCase):
         server = FakeServer(
             id='server-id', name='test-server', status="ACTIVE", addresses={}
         )
-        server_dict = meta.obj_to_dict(server)
+        server_dict = meta.obj_to_munch(server)
         floating_ip_dict = {
             "id": "this-is-a-floating-ip-id",
             "fixed_ip_address": None,
@@ -64,7 +64,7 @@ class TestFloatingIP(base.TestCase):
         server = FakeServer(
             id='romeo', name='test-server', status="ACTIVE", addresses={}
         )
-        server_dict = meta.obj_to_dict(server)
+        server_dict = meta.obj_to_munch(server)
         pool = 'nova'
 
         mock_nova_client.servers.get.return_value = server
@@ -102,7 +102,7 @@ class TestFloatingIP(base.TestCase):
             }
         )
         server_dict = meta.add_server_interfaces(
-            self.cloud, meta.obj_to_dict(server))
+            self.cloud, meta.obj_to_munch(server))
 
         new_server = self.cloud.add_ips_to_server(server=server_dict)
         mock_get_floating_ip.assert_not_called()
@@ -143,7 +143,7 @@ class TestFloatingIP(base.TestCase):
             }
         )
         server_dict = meta.add_server_interfaces(
-            self.cloud, meta.obj_to_dict(server))
+            self.cloud, meta.obj_to_munch(server))
 
         new_server = self.cloud.add_ips_to_server(server=server_dict)
         mock_get_floating_ip.assert_not_called()
@@ -180,7 +180,7 @@ class TestFloatingIP(base.TestCase):
             }
         )
         server_dict = meta.add_server_interfaces(
-            self.cloud, meta.obj_to_dict(server))
+            self.cloud, meta.obj_to_munch(server))
 
         new_server = self.cloud.add_ips_to_server(server=server_dict)
         mock_get_floating_ip.assert_not_called()
@@ -194,7 +194,7 @@ class TestFloatingIP(base.TestCase):
         server = FakeServer(
             id='server-id', name='test-server', status="ACTIVE", addresses={}
         )
-        server_dict = meta.obj_to_dict(server)
+        server_dict = meta.obj_to_munch(server)
         ips = ['203.0.113.29', '172.24.4.229']
         mock_nova_client.servers.get.return_value = server
 
@@ -211,7 +211,7 @@ class TestFloatingIP(base.TestCase):
         server = FakeServer(
             id='server-id', name='test-server', status="ACTIVE", addresses={}
         )
-        server_dict = meta.obj_to_dict(server)
+        server_dict = meta.obj_to_munch(server)
 
         mock_nova_client.servers.get.return_value = server
         # TODO(mordred) REMOVE THIS MOCK WHEN THE NEXT PATCH LANDS

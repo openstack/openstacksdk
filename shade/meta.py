@@ -505,7 +505,7 @@ def _log_request_id(obj, request_id):
     return obj
 
 
-def obj_to_dict(obj):
+def obj_to_munch(obj):
     """ Turn an object with attributes into a dict suitable for serializing.
 
     Some of the things that are returned in OpenStack are objects with
@@ -517,7 +517,7 @@ def obj_to_dict(obj):
     if obj is None:
         return None
     elif isinstance(obj, munch.Munch) or hasattr(obj, 'mock_add_spec'):
-        # If we obj_to_dict twice, don't fail, just return the munch
+        # If we obj_to_munch twice, don't fail, just return the munch
         # Also, don't try to modify Mock objects - that way lies madness
         return obj
     elif isinstance(obj, dict):
@@ -545,14 +545,20 @@ def obj_to_dict(obj):
     return instance
 
 
-def obj_list_to_dict(obj_list):
+obj_to_dict = obj_to_munch
+
+
+def obj_list_to_munch(obj_list):
     """Enumerate through lists of objects and return lists of dictonaries.
 
     Some of the objects returned in OpenStack are actually lists of objects,
     and in order to expose the data structures as JSON, we need to facilitate
     the conversion to lists of dictonaries.
     """
-    return [obj_to_dict(obj) for obj in obj_list]
+    return [obj_to_munch(obj) for obj in obj_list]
+
+
+obj_list_to_dict = obj_list_to_munch
 
 
 def warlock_to_dict(obj):
@@ -562,7 +568,7 @@ def warlock_to_dict(obj):
     #
     # glanceclient v2 uses warlock to construct its objects. Warlock does
     # deep black magic to attribute look up to support validation things that
-    # means we cannot use normal obj_to_dict
+    # means we cannot use normal obj_to_munch
     obj_dict = munch.Munch()
     for (key, value) in obj.items():
         if isinstance(value, NON_CALLABLES) and not key.startswith('_'):
@@ -578,7 +584,7 @@ def get_and_munchify(key, data):
     """
     result = data.get(key, [])
     if isinstance(result, list):
-        return obj_list_to_dict(result)
+        return obj_list_to_munch(result)
     elif isinstance(result, dict):
-        return obj_to_dict(result)
+        return obj_to_munch(result)
     return result

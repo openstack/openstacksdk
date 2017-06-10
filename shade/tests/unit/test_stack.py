@@ -74,7 +74,7 @@ class TestStack(base.RequestsMockTestCase):
         ])
         stacks = self.cloud.search_stacks()
         self.assertEqual(
-            self.cloud._normalize_stacks(meta.obj_list_to_dict(fake_stacks)),
+            self.cloud._normalize_stacks(meta.obj_list_to_munch(fake_stacks)),
             stacks)
         self.assert_calls()
 
@@ -96,7 +96,7 @@ class TestStack(base.RequestsMockTestCase):
         stacks = self.cloud.search_stacks(filters=filters)
         self.assertEqual(
             self.cloud._normalize_stacks(
-                meta.obj_list_to_dict(fake_stacks[1:])),
+                meta.obj_list_to_munch(fake_stacks[1:])),
             stacks)
         self.assert_calls()
 

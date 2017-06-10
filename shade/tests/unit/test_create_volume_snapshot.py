@@ -34,10 +34,10 @@ class TestCreateVolumeSnapshot(base.RequestsMockTestCase):
         volume_id = '1234'
         build_snapshot = fakes.FakeVolumeSnapshot(snapshot_id, 'creating',
                                                   'foo', 'derpysnapshot')
-        build_snapshot_dict = meta.obj_to_dict(build_snapshot)
+        build_snapshot_dict = meta.obj_to_munch(build_snapshot)
         fake_snapshot = fakes.FakeVolumeSnapshot(snapshot_id, 'available',
                                                  'foo', 'derpysnapshot')
-        fake_snapshot_dict = meta.obj_to_dict(fake_snapshot)
+        fake_snapshot_dict = meta.obj_to_munch(fake_snapshot)
 
         self.register_uris([
             dict(method='POST',
@@ -70,7 +70,7 @@ class TestCreateVolumeSnapshot(base.RequestsMockTestCase):
         volume_id = '1234'
         build_snapshot = fakes.FakeVolumeSnapshot(snapshot_id, 'creating',
                                                   'foo', 'derpysnapshot')
-        build_snapshot_dict = meta.obj_to_dict(build_snapshot)
+        build_snapshot_dict = meta.obj_to_munch(build_snapshot)
 
         self.register_uris([
             dict(method='POST',
@@ -99,10 +99,10 @@ class TestCreateVolumeSnapshot(base.RequestsMockTestCase):
         volume_id = '1234'
         build_snapshot = fakes.FakeVolumeSnapshot(snapshot_id, 'creating',
                                                   'bar', 'derpysnapshot')
-        build_snapshot_dict = meta.obj_to_dict(build_snapshot)
+        build_snapshot_dict = meta.obj_to_munch(build_snapshot)
         error_snapshot = fakes.FakeVolumeSnapshot(snapshot_id, 'error',
                                                   'blah', 'derpysnapshot')
-        error_snapshot_dict = meta.obj_to_dict(error_snapshot)
+        error_snapshot_dict = meta.obj_to_munch(error_snapshot)
 
         self.register_uris([
             dict(method='POST',

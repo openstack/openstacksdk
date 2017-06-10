@@ -101,7 +101,7 @@ class TestInventory(base.TestCase):
         inv = inventory.OpenStackInventory()
 
         server = self.cloud._normalize_server(
-            meta.obj_to_dict(fakes.FakeServer(
+            meta.obj_to_munch(fakes.FakeServer(
                 '1234', 'test', 'ACTIVE', addresses={})))
         self.assertIsInstance(inv.clouds, list)
         self.assertEqual(1, len(inv.clouds))

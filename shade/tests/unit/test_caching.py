@@ -98,7 +98,7 @@ class TestMemoryCache(base.RequestsMockTestCase):
             cloud_config_fixture='clouds_cache.yaml')
 
     def _image_dict(self, fake_image):
-        return self.cloud._normalize_image(meta.obj_to_dict(fake_image))
+        return self.cloud._normalize_image(meta.obj_to_munch(fake_image))
 
     def _munch_images(self, fake_image):
         return self.cloud._normalize_images([fake_image])
@@ -127,18 +127,18 @@ class TestMemoryCache(base.RequestsMockTestCase):
 
         self.assertEqual(
             self.cloud._normalize_projects(
-                meta.obj_list_to_dict(first_response['projects'])),
+                meta.obj_list_to_munch(first_response['projects'])),
             self.cloud.list_projects())
         self.assertEqual(
             self.cloud._normalize_projects(
-                meta.obj_list_to_dict(first_response['projects'])),
+                meta.obj_list_to_munch(first_response['projects'])),
             self.cloud.list_projects())
         # invalidate the list_projects cache
         self.cloud.list_projects.invalidate(self.cloud)
         # ensure the new values are now retrieved
         self.assertEqual(
             self.cloud._normalize_projects(
-                meta.obj_list_to_dict(second_response['projects'])),
+                meta.obj_list_to_munch(second_response['projects'])),
             self.cloud.list_projects())
         self.assert_calls()
 
@@ -163,18 +163,18 @@ class TestMemoryCache(base.RequestsMockTestCase):
 
         self.assertEqual(
             self.cloud._normalize_projects(
-                meta.obj_list_to_dict(first_response['tenants'])),
+                meta.obj_list_to_munch(first_response['tenants'])),
             self.cloud.list_projects())
         self.assertEqual(
             self.cloud._normalize_projects(
-                meta.obj_list_to_dict(first_response['tenants'])),
+                meta.obj_list_to_munch(first_response['tenants'])),
             self.cloud.list_projects())
         # invalidate the list_projects cache
         self.cloud.list_projects.invalidate(self.cloud)
         # ensure the new values are now retrieved
         self.assertEqual(
             self.cloud._normalize_projects(
-                meta.obj_list_to_dict(second_response['tenants'])),
+                meta.obj_list_to_munch(second_response['tenants'])),
             self.cloud.list_projects())
         self.assert_calls()
 
@@ -194,10 +194,10 @@ class TestMemoryCache(base.RequestsMockTestCase):
     def test_list_volumes(self):
         fake_volume = fakes.FakeVolume('volume1', 'available',
                                        'Volume 1 Display Name')
-        fake_volume_dict = meta.obj_to_dict(fake_volume)
+        fake_volume_dict = meta.obj_to_munch(fake_volume)
         fake_volume2 = fakes.FakeVolume('volume2', 'available',
                                         'Volume 2 Display Name')
-        fake_volume2_dict = meta.obj_to_dict(fake_volume2)
+        fake_volume2_dict = meta.obj_to_munch(fake_volume2)
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -224,10 +224,10 @@ class TestMemoryCache(base.RequestsMockTestCase):
     def test_list_volumes_creating_invalidates(self):
         fake_volume = fakes.FakeVolume('volume1', 'creating',
                                        'Volume 1 Display Name')
-        fake_volume_dict = meta.obj_to_dict(fake_volume)
+        fake_volume_dict = meta.obj_to_munch(fake_volume)
         fake_volume2 = fakes.FakeVolume('volume2', 'available',
                                         'Volume 2 Display Name')
-        fake_volume2_dict = meta.obj_to_dict(fake_volume2)
+        fake_volume2_dict = meta.obj_to_munch(fake_volume2)
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -247,12 +247,12 @@ class TestMemoryCache(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_create_volume_invalidates(self):
-        fake_volb4 = meta.obj_to_dict(
+        fake_volb4 = meta.obj_to_munch(
             fakes.FakeVolume('volume1', 'available', ''))
         _id = '12345'
-        fake_vol_creating = meta.obj_to_dict(
+        fake_vol_creating = meta.obj_to_munch(
             fakes.FakeVolume(_id, 'creating', ''))
-        fake_vol_avail = meta.obj_to_dict(
+        fake_vol_avail = meta.obj_to_munch(
             fakes.FakeVolume(_id, 'available', ''))
 
         def now_deleting(request, context):
