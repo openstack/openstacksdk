@@ -1761,9 +1761,10 @@ class OpenStackCloud(
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
-        stacks = self._orchestration_client.get(
+        data = self._orchestration_client.get(
             '/stacks', error_message="Error fetching stack list")
-        return self._normalize_stacks(stacks)
+        return self._normalize_stacks(
+            meta.get_and_munchify('stacks', data))
 
     def list_server_security_groups(self, server):
         """List all security groups associated with the given server.
@@ -2873,9 +2874,10 @@ class OpenStackCloud(
             # stack names are mandatory and enforced unique in the project
             # so a StackGet can always be used for name or ID.
             try:
-                stack = self._orchestration_client.get(
+                data = self._orchestration_client.get(
                     '/stacks/{name_or_id}'.format(name_or_id=name_or_id),
                     error_message="Error fetching stack")
+                stack = meta.get_and_munchify('stack', data)
                 # Treat DELETE_COMPLETE stacks as a NotFound
                 if stack['stack_status'] == 'DELETE_COMPLETE':
                     return []
@@ -7009,9 +7011,10 @@ class OpenStackCloud(
         :returns: A list of zones dicts.
 
         """
-        return self._dns_client.get(
+        data = self._dns_client.get(
             "/zones",
             error_message="Error fetching zones list")
+        return meta.get_and_munchify('zones', data)
 
     def get_zone(self, name_or_id, filters=None):
         """Get a zone by name or ID.
@@ -7030,7 +7033,7 @@ class OpenStackCloud(
 
     def search_zones(self, name_or_id=None, filters=None):
         zones = self.list_zones()
-        return _utils._filter_list(zones['zones'], name_or_id, filters)
+        return _utils._filter_list(zones, name_or_id, filters)
 
     def create_zone(self, name, zone_type=None, email=None, description=None,
                     ttl=None, masters=None):
@@ -7073,9 +7076,10 @@ class OpenStackCloud(
         if masters is not None:
             zone["masters"] = masters
 
-        return self._dns_client.post(
+        data = self._dns_client.post(
             "/zones", json=zone,
             error_message="Unable to create zone {name}".format(name=name))
+        return meta.get_and_munchify(key=None, data=data)
 
     @_utils.valid_kwargs('email', 'description', 'ttl', 'masters')
     def update_zone(self, name_or_id, **kwargs):
@@ -7098,9 +7102,10 @@ class OpenStackCloud(
             raise OpenStackCloudException(
                 "Zone %s not found." % name_or_id)
 
-        return self._dns_client.patch(
+        data = self._dns_client.patch(
             "/zones/{zone_id}".format(zone_id=zone['id']), json=kwargs,
             error_message="Error updating zone {0}".format(name_or_id))
+        return meta.get_and_munchify(key=None, data=data)
 
     def delete_zone(self, name_or_id):
         """Delete a zone.
