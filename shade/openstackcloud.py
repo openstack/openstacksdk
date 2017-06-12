@@ -728,6 +728,25 @@ class OpenStackCloud(
                 project_dict['tenant_id'] = project['id']
         return project_dict
 
+    def _get_domain_id_param_dict(self, domain_id):
+        """Get a useable domain."""
+
+        # Keystone v3 requires domains for user and project creation. v2 does
+        # not. However, keystone v2 does not allow user creation by non-admin
+        # users, so we can throw an error to the user that does not need to
+        # mention api versions
+        if self.cloud_config.get_api_version('identity') == '3':
+            if not domain_id:
+                raise OpenStackCloudException(
+                    "User or project creation requires an explicit"
+                    " domain_id argument.")
+            else:
+                return {'domain_id': domain_id}
+        else:
+            return {}
+
+    # TODO(samueldmq): Get rid of this method once create_user is migrated to
+    # REST and, consequently, _get_domain_id_param_dict is used instead
     def _get_domain_param_dict(self, domain_id):
         """Get a useable domain."""
 
@@ -901,16 +920,18 @@ class OpenStackCloud(
         """Create a project."""
         with _utils.shade_exceptions(
                 "Error in creating project {project}".format(project=name)):
-            params = self._get_domain_param_dict(domain_id)
-            if self.cloud_config.get_api_version('identity') == '3':
-                params['name'] = name
-            else:
-                params['tenant_name'] = name
+            project_ref = self._get_domain_id_param_dict(domain_id)
+            project_ref.update({'name': name,
+                                'description': description,
+                                'enabled': enabled})
 
-            project = self._normalize_project(
-                self.manager.submit_task(_tasks.ProjectCreate(
-                    project_name=name, description=description,
-                    enabled=enabled, **params)))
+            if self.cloud_config.get_api_version('identity') == '3':
+                project = self._identity_client.post(
+                    '/projects', json={'project': project_ref})
+            else:
+                project = self._identity_client.post(
+                    '/tenants', json={'tenant': project_ref})
+            project = self._normalize_project(project)
         self.list_projects.invalidate(self)
         return project
 

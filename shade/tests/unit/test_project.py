@@ -39,12 +39,7 @@ class TestProject(base.RequestsMockTestCase):
         self.register_uris([
             dict(method='POST', uri=self.get_mock_url(v3=False),
                  status_code=200, json=project_data.json_response,
-                 validate=project_data.json_request),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     v3=False, append=[project_data.project_id]),
-                 status_code=200,
-                 json=project_data.json_response)
+                 validate=project_data.json_request)
         ])
         project = self.op_cloud.create_project(
             name=project_data.project_name,
@@ -62,11 +57,7 @@ class TestProject(base.RequestsMockTestCase):
                  uri=self.get_mock_url(),
                  status_code=200,
                  json=project_data.json_response,
-                 validate=project_data.json_request),
-            dict(method='GET',
-                 uri=self.get_mock_url(append=[project_data.project_id]),
-                 status_code=200,
-                 json=project_data.json_response)
+                 validate=project_data.json_request)
         ])
         project = self.op_cloud.create_project(
             name=project_data.project_name,
