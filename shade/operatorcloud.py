@@ -1688,6 +1688,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param bool wait: Wait for role to be granted
         :param int timeout: Timeout to wait for role to be granted
 
+        NOTE: domain is a required argument when the grant is on a project,
+            user or group specified by name. In that situation, they are all
+            considered to be in that domain. If different domains are in use
+            in the same role grant, it is required to specify those by ID.
+
         NOTE: for wait and timeout, sometimes granting roles is not
               instantaneous for granting roles.
 
