@@ -29,6 +29,7 @@ cover/*
 .tox
 nosetests.xml
 .testrepository
+.idea
 
 # Translations
 *.mo

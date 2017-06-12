@@ -1,3 +1,6 @@
+# Copyright 2017 HuaWei Tld
+# Copyright 2017 OpenStack.org
+#
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -50,6 +53,7 @@ The resulting output from the code::
     service_type=compute,interface=public,version=v2
     matches=True
 """
+import os
 
 
 class ValidVersion(object):
@@ -189,3 +193,17 @@ class ServiceFilter(dict):
         is `object_store`.
         """
         return self.__class__.__module__.split('.')[-2]
+
+    # Qianbiao.NG::endpoint override feature for HuaWei.tld OpenStack Services
+    def get_endpoint_override(self):
+        """Get service endpoint override
+
+        if env with name `OS_upper{service_type}_endpoint_override` exists,
+        use it as {service_type}'s endpoint override value
+        :return: endpoint override url
+        """
+        service_type = self.service_type.upper().replace('-', '_')
+        env_key = 'OS_{service_type}_ENDPOINT_OVERRIDE'.format(
+            service_type=service_type
+        )
+        return os.environ.get(env_key, None)

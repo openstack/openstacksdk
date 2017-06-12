@@ -1,3 +1,6 @@
+# Copyright 2017 HuaWei Tld
+# Copyright 2017 OpenStack.org
+#
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -330,17 +333,24 @@ class Session(_session.Session):
             self.endpoint_cache[key] = sc_endpoint
             return sc_endpoint
 
-        endpoint = self._get_endpoint_versions(service_type, sc_endpoint)
+        # NOTE(QianBiao.NG) if we could not get matched endpoint (no matter
+        # no response from endpoint or version not matched), we just use
+        # service endpoint directly
+        try:
+            endpoint = self._get_endpoint_versions(service_type,
+                                                   sc_endpoint)
 
-        profile_version = self._parse_version(filt.version)
-        match = self._get_version_match(endpoint, profile_version,
-                                        service_type)
+            profile_version = self._parse_version(filt.version)
+            match = self._get_version_match(endpoint, profile_version,
+                                            service_type)
 
-        _logger.debug("Using %s as %s %s endpoint",
-                      match, interface, service_type)
+            _logger.debug("Using %s as %s %s endpoint",
+                          match, interface, service_type)
 
-        self.endpoint_cache[key] = match
-        return match
+            self.endpoint_cache[key] = match
+            return match
+        except exceptions.EndpointNotFound:
+            return sc_endpoint
 
     @map_exceptions
     def request(self, *args, **kwargs):

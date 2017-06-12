@@ -1,3 +1,6 @@
+# Copyright 2017 HuaWei Tld
+# Copyright 2017 OpenStack.org
+#
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -576,15 +579,18 @@ class Resource(object):
         if not self.allow_create:
             raise exceptions.MethodNotSupported(self, "create")
 
+        endpoint_override = self.service.get_endpoint_override()
         if self.put_create:
             request = self._prepare_request(requires_id=True,
                                             prepend_key=prepend_key)
             response = session.put(request.uri, endpoint_filter=self.service,
+                                   endpoint_override=endpoint_override,
                                    json=request.body, headers=request.headers)
         else:
             request = self._prepare_request(requires_id=False,
                                             prepend_key=prepend_key)
             response = session.post(request.uri, endpoint_filter=self.service,
+                                    endpoint_override=endpoint_override,
                                     json=request.body, headers=request.headers)
 
         self._translate_response(response)
@@ -605,7 +611,9 @@ class Resource(object):
             raise exceptions.MethodNotSupported(self, "get")
 
         request = self._prepare_request(requires_id=requires_id)
-        response = session.get(request.uri, endpoint_filter=self.service)
+        endpoint_override = self.service.get_endpoint_override()
+        response = session.get(request.uri, endpoint_filter=self.service,
+                               endpoint_override=endpoint_override)
 
         self._translate_response(response)
         return self
@@ -625,7 +633,9 @@ class Resource(object):
 
         request = self._prepare_request()
 
+        endpoint_override = self.service.get_endpoint_override()
         response = session.head(request.uri, endpoint_filter=self.service,
+                                endpoint_override=endpoint_override,
                                 headers={"Accept": ""})
 
         self._translate_response(response)
@@ -656,12 +666,15 @@ class Resource(object):
 
         request = self._prepare_request(prepend_key=prepend_key)
 
+        endpoint_override = self.service.get_endpoint_override()
         if self.patch_update:
             response = session.patch(request.uri, endpoint_filter=self.service,
+                                     endpoint_override=endpoint_override,
                                      json=request.body,
                                      headers=request.headers)
         else:
             response = session.put(request.uri, endpoint_filter=self.service,
+                                   endpoint_override=endpoint_override,
                                    json=request.body, headers=request.headers)
 
         self._translate_response(response, has_body=has_body)
@@ -682,7 +695,9 @@ class Resource(object):
 
         request = self._prepare_request()
 
+        endpoint_override = self.service.get_endpoint_override()
         response = session.delete(request.uri, endpoint_filter=self.service,
+                                  endpoint_override=endpoint_override,
                                   headers={"Accept": ""})
 
         self._translate_response(response, has_body=False)
@@ -725,7 +740,9 @@ class Resource(object):
         uri = cls.base_path % params
 
         while more_data:
+            endpoint_override = cls.service.get_endpoint_override()
             resp = session.get(uri, endpoint_filter=cls.service,
+                               endpoint_override=endpoint_override,
                                headers={"Accept": "application/json"},
                                params=query_params)
             resp = resp.json()
