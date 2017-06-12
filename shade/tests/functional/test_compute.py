@@ -32,7 +32,8 @@ class TestCompute(base.BaseFunctionalTestCase):
         self.TIMEOUT_SCALING_FACTOR = 1.5
 
         super(TestCompute, self).setUp()
-        self.flavor = pick_flavor(self.user_cloud.list_flavors())
+        self.flavor = pick_flavor(
+            self.user_cloud.list_flavors(get_extra=False))
         if self.flavor is None:
             self.assertFalse('no sensible flavor available')
         self.image = self.pick_image()

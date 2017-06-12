@@ -30,13 +30,13 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
         return new_results
 
     def test_range_search_bad_range(self):
-        flavors = self.user_cloud.list_flavors()
+        flavors = self.user_cloud.list_flavors(get_extra=False)
         self.assertRaises(
             exc.OpenStackCloudException,
             self.user_cloud.range_search, flavors, {"ram": "<1a0"})
 
     def test_range_search_exact(self):
-        flavors = self.user_cloud.list_flavors()
+        flavors = self.user_cloud.list_flavors(get_extra=False)
         result = self.user_cloud.range_search(flavors, {"ram": "4096"})
         self.assertIsInstance(result, list)
         # should only be 1 m1 flavor with 4096 ram
@@ -45,7 +45,7 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
         self.assertEqual("m1.medium", result[0]['name'])
 
     def test_range_search_min(self):
-        flavors = self.user_cloud.list_flavors()
+        flavors = self.user_cloud.list_flavors(get_extra=False)
         result = self.user_cloud.range_search(flavors, {"ram": "MIN"})
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))
@@ -53,14 +53,14 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
         self.assertTrue(result[0]['name'] in ('cirros256', 'm1.tiny'))
 
     def test_range_search_max(self):
-        flavors = self.user_cloud.list_flavors()
+        flavors = self.user_cloud.list_flavors(get_extra=False)
         result = self.user_cloud.range_search(flavors, {"ram": "MAX"})
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))
         self.assertEqual("m1.xlarge", result[0]['name'])
 
     def test_range_search_lt(self):
-        flavors = self.user_cloud.list_flavors()
+        flavors = self.user_cloud.list_flavors(get_extra=False)
         result = self.user_cloud.range_search(flavors, {"ram": "<1024"})
         self.assertIsInstance(result, list)
         # should only be 1 m1 flavor with <1024 ram
@@ -69,7 +69,7 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
         self.assertEqual("m1.tiny", result[0]['name'])
 
     def test_range_search_gt(self):
-        flavors = self.user_cloud.list_flavors()
+        flavors = self.user_cloud.list_flavors(get_extra=False)
         result = self.user_cloud.range_search(flavors, {"ram": ">4096"})
         self.assertIsInstance(result, list)
         # should only be 2 m1 flavors with >4096 ram
@@ -80,7 +80,7 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
         self.assertIn("m1.xlarge", flavor_names)
 
     def test_range_search_le(self):
-        flavors = self.user_cloud.list_flavors()
+        flavors = self.user_cloud.list_flavors(get_extra=False)
         result = self.user_cloud.range_search(flavors, {"ram": "<=4096"})
         self.assertIsInstance(result, list)
         # should only be 3 m1 flavors with <=4096 ram
@@ -92,7 +92,7 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
         self.assertIn("m1.medium", flavor_names)
 
     def test_range_search_ge(self):
-        flavors = self.user_cloud.list_flavors()
+        flavors = self.user_cloud.list_flavors(get_extra=False)
         result = self.user_cloud.range_search(flavors, {"ram": ">=4096"})
         self.assertIsInstance(result, list)
         # should only be 3 m1 flavors with >=4096 ram
@@ -104,7 +104,7 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
         self.assertIn("m1.xlarge", flavor_names)
 
     def test_range_search_multi_1(self):
-        flavors = self.user_cloud.list_flavors()
+        flavors = self.user_cloud.list_flavors(get_extra=False)
         result = self.user_cloud.range_search(
             flavors, {"ram": "MIN", "vcpus": "MIN"})
         self.assertIsInstance(result, list)
@@ -113,7 +113,7 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
         self.assertTrue(result[0]['name'] in ('cirros256', 'm1.tiny'))
 
     def test_range_search_multi_2(self):
-        flavors = self.user_cloud.list_flavors()
+        flavors = self.user_cloud.list_flavors(get_extra=False)
         result = self.user_cloud.range_search(
             flavors, {"ram": "<1024", "vcpus": "MIN"})
         self.assertIsInstance(result, list)
@@ -123,7 +123,7 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
         self.assertIn("m1.tiny", flavor_names)
 
     def test_range_search_multi_3(self):
-        flavors = self.user_cloud.list_flavors()
+        flavors = self.user_cloud.list_flavors(get_extra=False)
         result = self.user_cloud.range_search(
             flavors, {"ram": ">=4096", "vcpus": "<6"})
         self.assertIsInstance(result, list)
@@ -134,7 +134,7 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
         self.assertIn("m1.large", flavor_names)
 
     def test_range_search_multi_4(self):
-        flavors = self.user_cloud.list_flavors()
+        flavors = self.user_cloud.list_flavors(get_extra=False)
         result = self.user_cloud.range_search(
             flavors, {"ram": ">=4096", "vcpus": "MAX"})
         self.assertIsInstance(result, list)
