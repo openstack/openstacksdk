@@ -445,6 +445,9 @@ class Normalizer(object):
 
         for field in _SERVER_FIELDS:
             ret[field] = server.pop(field, None)
+        if not ret['networks']:
+            ret['networks'] = {}
+
         ret['interface_ip'] = ''
 
         ret['properties'] = server.copy()
