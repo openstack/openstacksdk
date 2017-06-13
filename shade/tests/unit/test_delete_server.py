@@ -17,123 +17,127 @@ test_delete_server
 Tests for the `delete_server` command.
 """
 
-import mock
-from novaclient import exceptions as nova_exc
-
 from shade import exc as shade_exc
+from shade import meta
 from shade.tests import fakes
 from shade.tests.unit import base
 
 
-class TestDeleteServer(base.TestCase):
-    novaclient_exceptions = (nova_exc.BadRequest,
-                             nova_exc.Unauthorized,
-                             nova_exc.Forbidden,
-                             nova_exc.MethodNotAllowed,
-                             nova_exc.Conflict,
-                             nova_exc.OverLimit,
-                             nova_exc.RateLimit,
-                             nova_exc.HTTPNotImplemented)
+class TestDeleteServer(base.RequestsMockTestCase):
 
-    @mock.patch('shade.OpenStackCloud.nova_client')
-    def test_delete_server(self, nova_mock):
+    def test_delete_server(self):
         """
-        Test that novaclient server delete is called when wait=False
+        Test that server delete is called when wait=False
         """
         server = fakes.FakeServer('1234', 'daffy', 'ACTIVE')
-        nova_mock.servers.list.return_value = [server]
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [meta.obj_to_munch(server).toDict()]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234'])),
+        ])
         self.assertTrue(self.cloud.delete_server('daffy', wait=False))
-        nova_mock.servers.delete.assert_called_with(server=server.id)
 
-    @mock.patch('shade.OpenStackCloud.nova_client')
-    def test_delete_server_already_gone(self, nova_mock):
+        self.assert_calls()
+
+    def test_delete_server_already_gone(self):
         """
         Test that we return immediately when server is already gone
         """
-        nova_mock.servers.list.return_value = []
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': []}),
+        ])
         self.assertFalse(self.cloud.delete_server('tweety', wait=False))
-        self.assertFalse(nova_mock.servers.delete.called)
 
-    @mock.patch('shade.OpenStackCloud.nova_client')
-    def test_delete_server_already_gone_wait(self, nova_mock):
+        self.assert_calls()
+
+    def test_delete_server_already_gone_wait(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': []}),
+        ])
         self.assertFalse(self.cloud.delete_server('speedy', wait=True))
-        self.assertFalse(nova_mock.servers.delete.called)
+        self.assert_calls()
 
-    @mock.patch('shade.OpenStackCloud.nova_client')
-    def test_delete_server_wait_for_notfound(self, nova_mock):
+    def test_delete_server_wait_for_deleted(self):
         """
-        Test that delete_server waits for NotFound from novaclient
+        Test that delete_server waits for the server to be gone
         """
         server = fakes.FakeServer('9999', 'wily', 'ACTIVE')
-        nova_mock.servers.list.return_value = [server]
-
-        def _delete_wily(*args, **kwargs):
-            self.assertIn('server', kwargs)
-            self.assertEqual('9999', kwargs['server'])
-            nova_mock.servers.list.return_value = []
-
-            def _raise_notfound(*args, **kwargs):
-                self.assertIn('server', kwargs)
-                self.assertEqual('9999', kwargs['server'])
-                raise nova_exc.NotFound(code='404')
-            nova_mock.servers.get.side_effect = _raise_notfound
-
-        nova_mock.servers.delete.side_effect = _delete_wily
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [meta.obj_to_munch(server).toDict()]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '9999'])),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [meta.obj_to_munch(server).toDict()]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': []}),
+        ])
         self.assertTrue(self.cloud.delete_server('wily', wait=True))
-        nova_mock.servers.delete.assert_called_with(server=server.id)
 
-    @mock.patch('shade.OpenStackCloud.nova_client')
-    def test_delete_server_fails(self, nova_mock):
+        self.assert_calls()
+
+    def test_delete_server_fails(self):
         """
-        Test that delete_server wraps novaclient exceptions
+        Test that delete_server raises non-404 exceptions
         """
-        nova_mock.servers.list.return_value = [fakes.FakeServer('1212',
-                                                                'speedy',
-                                                                'ACTIVE')]
-        for fail in self.novaclient_exceptions:
+        server = fakes.FakeServer('1212', 'speedy', 'ACTIVE')
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [meta.obj_to_munch(server).toDict()]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1212']),
+                 status_code=400),
+        ])
 
-            def _raise_fail(server):
-                raise fail(code=fail.http_status)
+        self.assertRaises(
+            shade_exc.OpenStackCloudException,
+            self.cloud.delete_server, 'speedy',
+            wait=False)
 
-            nova_mock.servers.delete.side_effect = _raise_fail
-            exc = self.assertRaises(shade_exc.OpenStackCloudException,
-                                    self.cloud.delete_server, 'speedy',
-                                    wait=False)
-            # Note that message is deprecated from Exception, but not in
-            # the novaclient exceptions.
-            self.assertIn(fail.message, str(exc))
+        self.assert_calls()
 
-    @mock.patch('shade.OpenStackCloud.nova_client')
-    def test_delete_server_get_fails(self, nova_mock):
+    def test_delete_server_no_cinder(self):
         """
-        Test that delete_server wraps novaclient exceptions on wait fails
+        Test that deleting server works when cinder is not available
         """
-        nova_mock.servers.list.return_value = [fakes.FakeServer('2000',
-                                                                'yosemite',
-                                                                'ACTIVE')]
-        for fail in self.novaclient_exceptions:
+        orig_has_service = self.cloud.has_service
 
-            def _raise_fail():
-                raise fail(code=fail.http_status)
+        def fake_has_service(service_type):
+            if service_type == 'volume':
+                return False
+            return orig_has_service(service_type)
+        self.cloud.has_service = fake_has_service
 
-            nova_mock.servers.list.side_effect = _raise_fail
-            exc = self.assertRaises(shade_exc.OpenStackCloudException,
-                                    self.cloud.delete_server, 'yosemite',
-                                    wait=True)
-            # Note that message is deprecated from Exception, but not in
-            # the novaclient exceptions.
-            self.assertIn(fail.message, str(exc))
-
-    @mock.patch('shade.OpenStackCloud.get_volume')
-    @mock.patch('shade.OpenStackCloud.nova_client')
-    def test_delete_server_no_cinder(self, nova_mock, cinder_mock):
-        """
-        Test that novaclient server delete is called when wait=False
-        """
         server = fakes.FakeServer('1234', 'porky', 'ACTIVE')
-        nova_mock.servers.list.return_value = [server]
-        with mock.patch('shade.OpenStackCloud.has_service',
-                        return_value=False):
-            self.assertTrue(self.cloud.delete_server('porky', wait=False))
-            nova_mock.servers.delete.assert_called_with(server=server.id)
-            self.assertFalse(cinder_mock.called)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [meta.obj_to_munch(server).toDict()]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234'])),
+        ])
+        self.assertTrue(self.cloud.delete_server('porky', wait=False))
+
+        self.assert_calls()
