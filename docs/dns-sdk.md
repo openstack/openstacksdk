@@ -12,7 +12,7 @@ You can find how to initial SDK client in the [quickstart](huawei-sdk?id=_2-buil
 
 ### List Zones
 ```python
-zones = osclient.dns.zones()
+zones = connection.dns.zones()
 ```
 
 ### Create Zone
