@@ -145,12 +145,7 @@ class TestProject(base.RequestsMockTestCase):
                      v3=False, append=[project_data.project_id]),
                  status_code=200,
                  json=project_data.json_response,
-                 validate=project_data.json_request),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     v3=False, append=[project_data.project_id]),
-                 status_code=200,
-                 json=project_data.json_response)
+                 validate=project_data.json_request)
         ])
         project = self.op_cloud.update_project(
             project_data.project_id,
@@ -175,10 +170,7 @@ class TestProject(base.RequestsMockTestCase):
             dict(method='PATCH',
                  uri=self.get_mock_url(append=[project_data.project_id]),
                  status_code=200, json=project_data.json_response,
-                 validate=project_data.json_request),
-            dict(method='GET',
-                 uri=self.get_mock_url(append=[project_data.project_id]),
-                 status_code=200, json=project_data.json_response)
+                 validate=project_data.json_request)
         ])
         project = self.op_cloud.update_project(
             project_data.project_id,
