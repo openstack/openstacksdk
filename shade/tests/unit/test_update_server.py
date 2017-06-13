@@ -17,42 +17,72 @@ test_update_server
 Tests for the `update_server` command.
 """
 
-import mock
+import uuid
 
-from shade import OpenStackCloud
 from shade.exc import OpenStackCloudException
 from shade.tests import fakes
 from shade.tests.unit import base
 
 
-class TestUpdateServer(base.TestCase):
+class TestUpdateServer(base.RequestsMockTestCase):
 
-    @mock.patch.object(OpenStackCloud, 'nova_client')
-    def test_update_server_with_update_exception(self, mock_nova):
+    def setUp(self):
+        super(TestUpdateServer, self).setUp()
+        self.server_id = str(uuid.uuid4())
+        self.server_name = self.getUniqueString('name')
+        self.updated_server_name = self.getUniqueString('name2')
+        self.fake_server = fakes.make_fake_server(
+            self.server_id, self.server_name)
+
+    def test_update_server_with_update_exception(self):
         """
         Test that an exception in the novaclient update raises an exception in
         update_server.
         """
-        mock_nova.servers.update.side_effect = Exception("exception")
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [self.fake_server]}),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', self.server_id]),
+                 status_code=400,
+                 validate=dict(
+                     json={'server': {'name': self.updated_server_name}})),
+        ])
         self.assertRaises(
             OpenStackCloudException, self.cloud.update_server,
-            'server-name')
+            self.server_name, name=self.updated_server_name)
 
-    @mock.patch.object(OpenStackCloud, 'nova_client')
-    def test_update_server_name(self, mock_nova):
+        self.assert_calls()
+
+    def test_update_server_name(self):
         """
         Test that update_server updates the name without raising any exception
         """
-        fake_server = fakes.FakeServer('1234', 'server-name', 'ACTIVE')
-        fake_update_server = fakes.FakeServer('1234', 'server-name2',
-                                              'ACTIVE')
-        fake_floating_ip = fakes.FakeFloatingIP('1234', 'ippool',
-                                                '1.1.1.1', '2.2.2.2',
-                                                '5678')
-        mock_nova.servers.list.return_value = [fake_server]
-        mock_nova.servers.update.return_value = fake_update_server
-        mock_nova.floating_ips.list.return_value = [fake_floating_ip]
+        fake_update_server = fakes.make_fake_server(
+            self.server_id, self.updated_server_name)
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [self.fake_server]}),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', self.server_id]),
+                 json={'server': fake_update_server},
+                 validate=dict(
+                     json={'server': {'name': self.updated_server_name}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', self.server_id]),
+                 json={'server': fake_update_server}),
+        ])
         self.assertEqual(
-            'server-name2',
+            self.updated_server_name,
             self.cloud.update_server(
-                'server-name', name='server-name2')['name'])
+                self.server_name, name=self.updated_server_name)['name'])
+
+        self.assert_calls()
