@@ -19,6 +19,7 @@ Functional tests for `shade` block storage methods.
 
 from testtools import content
 
+from shade import _utils
 from shade.tests.functional import base
 
 
@@ -77,7 +78,7 @@ class TestVolume(base.BaseFunctionalTestCase):
         self.user_cloud.delete_image(image_name, wait=True)
         self.user_cloud.delete_volume(volume_name, wait=True)
 
-    def cleanup(self, volume_name, snapshot_name=None, image_name=None):
+    def cleanup(self, volume, snapshot_name=None, image_name=None):
         # Need to delete snapshots before volumes
         if snapshot_name:
             snapshot = self.user_cloud.get_volume_snapshot(snapshot_name)
@@ -88,9 +89,23 @@ class TestVolume(base.BaseFunctionalTestCase):
             image = self.user_cloud.get_image(image_name)
             if image:
                 self.user_cloud.delete_image(image_name, wait=True)
-        volume = self.user_cloud.get_volume(volume_name)
-        if volume:
-            self.user_cloud.delete_volume(volume_name, wait=True)
+        if not isinstance(volume, list):
+            self.user_cloud.delete_volume(volume, wait=True)
+        else:
+            # We have more than one volume to clean up - submit all of the
+            # deletes without wait, then poll until none of them are found
+            # in the volume list anymore
+            for v in volume:
+                self.user_cloud.delete_volume(v, wait=False)
+            for count in _utils._iterate_timeout(
+                    180, "Timeout waiting for volume cleanup"):
+                found = False
+                for existing in self.user_cloud.list_volumes():
+                    for v in volume:
+                        if v['id'] == existing['id']:
+                            found = True
+                if not found:
+                    break
 
     def test_list_volumes_pagination(self):
         '''Test pagination for list volumes functionality'''
@@ -101,9 +116,9 @@ class TestVolume(base.BaseFunctionalTestCase):
         num_volumes = 8
         for i in range(num_volumes):
             name = self.getUniqueString()
-            self.addCleanup(self.cleanup, name)
             v = self.user_cloud.create_volume(display_name=name, size=1)
             volumes.append(v)
+        self.addCleanup(self.cleanup, volumes)
         result = []
         for i in self.user_cloud.list_volumes():
             if i['name'] and i['name'].startswith(self.id()):
