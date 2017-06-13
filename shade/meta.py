@@ -582,7 +582,7 @@ def get_and_munchify(key, data):
     The value will be converted in a Munch object or a list of Munch objects
     based on the type
     """
-    result = data.get(key, [])
+    result = data.get(key, []) if key else data
     if isinstance(result, list):
         return obj_list_to_munch(result)
     elif isinstance(result, dict):

@@ -15,6 +15,8 @@
 import collections
 import time
 
+from shade import meta
+
 
 def get_events(cloud, stack_id, event_args, marker=None, limit=None):
     # TODO(mordred) FIX THIS ONCE assert_calls CAN HANDLE QUERY STRINGS
@@ -27,9 +29,10 @@ def get_events(cloud, stack_id, event_args, marker=None, limit=None):
     if limit:
         event_args['limit'] = limit
 
-    events = cloud._orchestration_client.get(
+    data = cloud._orchestration_client.get(
         '/stacks/{id}/events'.format(id=stack_id),
         params=params)
+    events = meta.get_and_munchify('events', data)
 
     # Show which stack the event comes from (for nested events)
     for e in events:
