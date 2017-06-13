@@ -382,7 +382,7 @@ class TestCompute(base.BaseFunctionalTestCase):
         self.assertEqual(set(updated_server.metadata.items()), set([]))
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exc.OpenStackCloudURINotFound,
             self.user_cloud.delete_server_metadata,
             self.server_name, ['key1'])
 

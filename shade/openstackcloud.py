@@ -5680,11 +5680,20 @@ class OpenStackCloud(
     def rebuild_server(self, server_id, image_id, admin_pass=None,
                        detailed=False, bare=False,
                        wait=False, timeout=180):
-        with _utils.shade_exceptions("Error in rebuilding instance"):
-            server = self.manager.submit_task(_tasks.ServerRebuild(
-                server=server_id, image=image_id, password=admin_pass))
+        kwargs = {}
+        if image_id:
+            kwargs['imageRef'] = image_id
+        if admin_pass:
+            kwargs['adminPass'] = admin_pass
+
+        server = self._compute_client.post(
+            '/servers/{server_id}/action'.format(server_id=server_id),
+            error_message="Error in rebuilding instance",
+            json={'rebuild': kwargs})
         if not wait:
-            return server
+            # TODO(mordred) add expand server next
+            return self._normalize_server(server)
+
         admin_pass = server.get('adminPass') or admin_pass
         for count in _utils._iterate_timeout(
                 timeout,
@@ -5720,16 +5729,15 @@ class OpenStackCloud(
 
         :raises: OpenStackCloudException on operation error.
         """
-        try:
-            self.manager.submit_task(
-                _tasks.ServerSetMetadata(
-                    server=self.get_server(name_or_id, bare=True),
-                    metadata=metadata))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
+        server = self.get_server(name_or_id, bare=True)
+        if not server:
             raise OpenStackCloudException(
-                "Error updating metadata: {0}".format(e))
+                'Invalid Server {server}'.format(server=name_or_id))
+
+        self._compute_client.post(
+            '/servers/{server_id}/metadata'.format(server_id=server['id']),
+            json={'metadata': metadata},
+            error_message='Error updating server metadata')
 
     def delete_server_metadata(self, name_or_id, metadata_keys):
         """Delete metadata from a server instance.
@@ -5741,16 +5749,19 @@ class OpenStackCloud(
 
         :raises: OpenStackCloudException on operation error.
         """
-        try:
-            self.manager.submit_task(
-                _tasks.ServerDeleteMetadata(
-                    server=self.get_server(name_or_id, bare=True),
-                    keys=metadata_keys))
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
+        server = self.get_server(name_or_id, bare=True)
+        if not server:
             raise OpenStackCloudException(
-                "Error deleting metadata: {0}".format(e))
+                'Invalid Server {server}'.format(server=name_or_id))
+
+        for key in metadata_keys:
+            error_message = 'Error deleting metadata {key} on {server}'.format(
+                key=key, server=name_or_id)
+            self._compute_client.delete(
+                '/servers/{server_id}/metadata/{key}'.format(
+                    server_id=server['id'],
+                    key=key),
+                error_message=error_message)
 
     def delete_server(
             self, name_or_id, wait=False, timeout=180, delete_ips=False,
@@ -5847,10 +5858,16 @@ class OpenStackCloud(
 
     @_utils.valid_kwargs(
         'name', 'description')
-    def update_server(self, name_or_id, **kwargs):
+    def update_server(self, name_or_id, detailed=False, bare=False, **kwargs):
         """Update a server.
 
         :param name_or_id: Name of the server to be updated.
+        :param detailed: Whether or not to add detailed additional information.
+                         Defaults to False.
+        :param bare: Whether to skip adding any additional information to the
+                     server record. Defaults to False, meaning the addresses
+                     dict will be populated as needed from neutron. Setting
+                     to True implies detailed = False.
         :name: New name for the server
         :description: New description for the server
 
@@ -5863,12 +5880,11 @@ class OpenStackCloud(
             raise OpenStackCloudException(
                 "failed to find server '{server}'".format(server=name_or_id))
 
-        with _utils.shade_exceptions(
-                "Error updating server {0}".format(name_or_id)):
-            # TODO(mordred) This is not sending back a normalized server
-            return self.manager.submit_task(
-                _tasks.ServerUpdate(
-                    server=server['id'], **kwargs))
+        return self._normalize_server(
+            self._compute_client.put(
+                '/servers/{server_id}'.format(server_id=server['id']),
+                error_message="Error updating server {0}".format(name_or_id),
+                json={'server': kwargs}))
 
     def create_server_group(self, name, policies):
         """Create a new server group.

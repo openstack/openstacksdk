@@ -72,26 +72,6 @@ class ServerList(task_manager.Task):
         return client.nova_client.servers.list(**self.args)
 
 
-class ServerUpdate(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.servers.update(**self.args)
-
-
-class ServerRebuild(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.servers.rebuild(**self.args)
-
-
-class ServerSetMetadata(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.servers.set_meta(**self.args)
-
-
-class ServerDeleteMetadata(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.servers.delete_meta(**self.args)
-
-
 class ServerGroupList(task_manager.Task):
     def main(self, client):
         return client.nova_client.server_groups.list(**self.args)
