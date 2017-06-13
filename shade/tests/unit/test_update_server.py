@@ -75,6 +75,10 @@ class TestUpdateServer(base.RequestsMockTestCase):
                  json={'server': fake_update_server},
                  validate=dict(
                      json={'server': {'name': self.updated_server_name}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': []}),
         ])
         self.assertEqual(
             self.updated_server_name,

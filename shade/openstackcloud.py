@@ -5691,8 +5691,8 @@ class OpenStackCloud(
             error_message="Error in rebuilding instance",
             json={'rebuild': kwargs})
         if not wait:
-            # TODO(mordred) add expand server next
-            return self._normalize_server(server)
+            return self._expand_server(
+                self._normalize_server(server), bare=bare, detailed=detailed)
 
         admin_pass = server.get('adminPass') or admin_pass
         for count in _utils._iterate_timeout(
@@ -5880,11 +5880,12 @@ class OpenStackCloud(
             raise OpenStackCloudException(
                 "failed to find server '{server}'".format(server=name_or_id))
 
-        return self._normalize_server(
+        return self._expand_server(self._normalize_server(
             self._compute_client.put(
                 '/servers/{server_id}'.format(server_id=server['id']),
                 error_message="Error updating server {0}".format(name_or_id),
-                json={'server': kwargs}))
+                json={'server': kwargs})),
+            bare=bare, detailed=detailed)
 
     def create_server_group(self, name, policies):
         """Create a new server group.

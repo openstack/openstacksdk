@@ -132,6 +132,10 @@ class TestRebuildServer(base.RequestsMockTestCase):
                      json={
                          'rebuild': {
                              'imageRef': 'a'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': []}),
         ])
         self.assertEqual(
             self.rebuild_server['status'],
@@ -158,6 +162,10 @@ class TestRebuildServer(base.RequestsMockTestCase):
                          'rebuild': {
                              'imageRef': 'a',
                              'adminPass': password}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': []}),
         ])
         self.assertEqual(
             password,
