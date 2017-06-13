@@ -1,6 +1,6 @@
 # DNS SDk
 
-HuaWei OpenStack4j DNS SDK, entry point is: `connection.dns`
+HuaWei OpenStack DNS service SDK, entry point is: `connection.dns`
 
 ## API document
 Not provided for now.
