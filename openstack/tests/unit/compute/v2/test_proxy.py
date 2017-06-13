@@ -471,10 +471,6 @@ class TestComputeProxy(test_proxy_base2.TestProxyBase):
         self.verify_get(self.proxy.get_hypervisor,
                         hypervisor.Hypervisor)
 
-    def test_get_service(self):
-        self.verify_get(self.proxy.get_service,
-                        service.Service)
-
     def test_services(self):
         self.verify_list_no_kwargs(self.proxy.services,
                                    service.Service,
