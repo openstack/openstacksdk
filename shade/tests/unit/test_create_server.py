@@ -16,8 +16,10 @@ test_create_server
 
 Tests for the `create_server` command.
 """
+import uuid
 
 import mock
+
 import shade
 from shade import exc
 from shade import meta
@@ -27,45 +29,44 @@ from shade.tests.unit import base
 
 class TestCreateServer(base.RequestsMockTestCase):
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_create_server_with_create_exception(self, mock_nova):
-        """
-        Test that an exception in the novaclient create raises an exception in
-        create_server.
-        """
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
-                 json={'networks': []})
-        ])
-        mock_nova.servers.create.side_effect = Exception("exception")
-        self.assertRaises(
-            exc.OpenStackCloudException, self.cloud.create_server,
-            'server-name', {'id': 'image-id'}, {'id': 'flavor-id'})
-        self.assert_calls()
-
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_create_server_with_get_exception(self, mock_nova):
+    def test_create_server_with_get_exception(self):
         """
         Test that an exception when attempting to get the server instance via
         the novaclient raises an exception in create_server.
         """
+        build_server = fakes.FakeServer('1234', '', 'BUILD')
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks.json']),
-                 json={'networks': []})
+                 json={'networks': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': u'flavor-id',
+                         u'imageRef': u'image-id',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'name': u'server-name'}})),
+            # TODO(mordred) useless call made by novaclient
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 status_code=404),
         ])
-        mock_nova.servers.create.return_value = mock.Mock(status="BUILD")
-        mock_nova.servers.get.side_effect = Exception("exception")
         self.assertRaises(
             exc.OpenStackCloudException, self.cloud.create_server,
             'server-name', {'id': 'image-id'}, {'id': 'flavor-id'})
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_create_server_with_server_error(self, mock_nova):
+    def test_create_server_with_server_error(self):
         """
         Test that a server error before we return or begin waiting for the
         server instance spawn raises an exception in create_server.
@@ -76,55 +77,77 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks.json']),
-                 json={'networks': []})
+                 json={'networks': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': u'flavor-id',
+                         u'imageRef': u'image-id',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'name': u'server-name'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(build_server).toDict()}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(error_server).toDict()}),
         ])
-        mock_nova.servers.create.return_value = build_server
-        mock_nova.servers.get.return_value = error_server
         self.assertRaises(
             exc.OpenStackCloudException, self.cloud.create_server,
             'server-name', {'id': 'image-id'}, {'id': 'flavor-id'})
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_create_server_wait_server_error(self, mock_nova):
+    def test_create_server_wait_server_error(self):
         """
         Test that a server error while waiting for the server to spawn
         raises an exception in create_server.
         """
         build_server = fakes.FakeServer('1234', '', 'BUILD')
         error_server = fakes.FakeServer('1234', '', 'ERROR')
-        fake_floating_ip = fakes.FakeFloatingIP('1234', 'ippool',
-                                                '1.1.1.1', '2.2.2.2',
-                                                '5678')
-        mock_nova.servers.create.return_value = build_server
-        mock_nova.servers.get.return_value = build_server
-        mock_nova.servers.list.side_effect = [[build_server], [error_server]]
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks.json']),
                  json={'networks': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': u'flavor-id',
+                         u'imageRef': u'image-id',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'name': u'server-name'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json'],
-                     qs_elements=['device_id=1234']),
-                 json={'ports': []}),
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(build_server).toDict()}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
-                 json={'floatingips': [fake_floating_ip]})
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [meta.obj_to_munch(build_server).toDict()]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [meta.obj_to_munch(error_server).toDict()]}),
         ])
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud.create_server,
             'server-name', dict(id='image-id'),
             dict(id='flavor-id'), wait=True)
-        # TODO(slaweq): change do_count to True when all nova mocks will be
-        # replaced with request_mocks also
-        self.assert_calls(do_count=False)
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_create_server_with_timeout(self, mock_nova):
+        self.assert_calls()
+
+    def test_create_server_with_timeout(self):
         """
         Test that a timeout while waiting for the server to spawn raises an
         exception in create_server.
@@ -134,113 +157,152 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks.json']),
-                 json={'networks': []})
+                 json={'networks': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': meta.obj_to_munch(fake_server).toDict()},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': u'flavor-id',
+                         u'imageRef': u'image-id',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'name': u'server-name'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(fake_server).toDict()}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [meta.obj_to_munch(fake_server).toDict()]}),
         ])
-        mock_nova.servers.create.return_value = fake_server
-        mock_nova.servers.get.return_value = fake_server
-        mock_nova.servers.list.return_value = [fake_server]
         self.assertRaises(
             exc.OpenStackCloudTimeout,
             self.cloud.create_server,
             'server-name',
             dict(id='image-id'), dict(id='flavor-id'),
             wait=True, timeout=0.01)
-        self.assert_calls()
+        # We poll at the end, so we don't know real counts
+        self.assert_calls(do_count=False)
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_create_server_no_wait(self, mock_nova):
+    def test_create_server_no_wait(self):
         """
         Test that create_server with no wait and no exception in the
         novaclient create call returns the server instance.
         """
         fake_server = fakes.FakeServer('1234', '', 'BUILD')
-        fake_floating_ip = fakes.FakeFloatingIP('1234', 'ippool',
-                                                '1.1.1.1', '2.2.2.2',
-                                                '5678')
-        mock_nova.servers.create.return_value = fake_server
-        mock_nova.servers.get.return_value = fake_server
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks.json']),
                  json={'networks': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': meta.obj_to_munch(fake_server).toDict()},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': u'flavor-id',
+                         u'imageRef': u'image-id',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'name': u'server-name'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json'],
-                     qs_elements=['device_id=1234']),
-                 json={'ports': []}),
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(fake_server).toDict()}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
-                 json={'floatingips': [fake_floating_ip]})
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(fake_server).toDict()}),
         ])
         self.assertEqual(
             self.cloud._normalize_server(
                 meta.obj_to_munch(fake_server)),
             self.cloud.create_server(
                 name='server-name',
-                image=dict(id='image=id'),
+                image=dict(id='image-id'),
                 flavor=dict(id='flavor-id')))
-        # TODO(slaweq): change do_count to True when all nova mocks will be
-        # replaced with request_mocks also
-        self.assert_calls(do_count=False)
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_create_server_with_admin_pass_no_wait(self, mock_nova):
+        self.assert_calls()
+
+    def test_create_server_with_admin_pass_no_wait(self):
         """
         Test that a server with an admin_pass passed returns the password
         """
         fake_server = fakes.FakeServer('1234', '', 'BUILD')
         fake_create_server = fakes.FakeServer('1234', '', 'BUILD',
                                               adminPass='ooBootheiX0edoh')
-        fake_floating_ip = fakes.FakeFloatingIP('1234', 'ippool',
-                                                '1.1.1.1', '2.2.2.2',
-                                                '5678')
-        mock_nova.servers.create.return_value = fake_create_server
-        mock_nova.servers.get.return_value = fake_server
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks.json']),
                  json={'networks': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': meta.obj_to_munch(
+                     fake_create_server).toDict()},
+                 validate=dict(
+                     json={'server': {
+                         u'adminPass': 'ooBootheiX0edoh',
+                         u'flavorRef': u'flavor-id',
+                         u'imageRef': u'image-id',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'name': u'server-name'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json'],
-                     qs_elements=['device_id=1234']),
-                 json={'ports': []}),
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(fake_server).toDict()}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
-                 json={'floatingips': [fake_floating_ip]})
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(fake_server).toDict()}),
         ])
         self.assertEqual(
             self.cloud._normalize_server(
                 meta.obj_to_munch(fake_create_server)),
             self.cloud.create_server(
-                name='server-name', image=dict(id='image=id'),
+                name='server-name', image=dict(id='image-id'),
                 flavor=dict(id='flavor-id'), admin_pass='ooBootheiX0edoh'))
-        # TODO(slaweq): change do_count to True when all nova mocks will be
-        # replaced with request_mocks also
-        self.assert_calls(do_count=False)
+
+        self.assert_calls()
 
     @mock.patch.object(shade.OpenStackCloud, "wait_for_server")
-    @mock.patch.object(shade.OpenStackCloud, "nova_client")
-    def test_create_server_with_admin_pass_wait(self, mock_nova, mock_wait):
+    def test_create_server_with_admin_pass_wait(self, mock_wait):
         """
         Test that a server with an admin_pass passed returns the password
         """
         fake_server = fakes.FakeServer('1234', '', 'BUILD')
+        fake_server_with_pass = fakes.FakeServer('1234', '', 'BUILD',
+                                                 adminPass='ooBootheiX0edoh')
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks.json']),
-                 json={'networks': []})
+                 json={'networks': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': meta.obj_to_munch(
+                     fake_server_with_pass).toDict()},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': u'flavor-id',
+                         u'imageRef': u'image-id',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'adminPass': 'ooBootheiX0edoh',
+                         u'name': u'server-name'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(fake_server).toDict()}),
         ])
-        fake_server_with_pass = fakes.FakeServer('1234', '', 'BUILD',
-                                                 adminPass='ooBootheiX0edoh')
 
-        mock_nova.servers.create.return_value = fake_server
-        mock_nova.servers.get.return_value = fake_server
         # The wait returns non-password server
         mock_wait.return_value = self.cloud._normalize_server(
             meta.obj_to_munch(fake_server))
@@ -255,9 +317,9 @@ class TestCreateServer(base.RequestsMockTestCase):
 
         # Even with the wait, we should still get back a passworded server
         self.assertEqual(
-            server,
+            server['adminPass'],
             self.cloud._normalize_server(
-                meta.obj_to_munch(fake_server_with_pass))
+                meta.obj_to_munch(fake_server_with_pass))['adminPass']
         )
         self.assert_calls()
 
@@ -268,6 +330,7 @@ class TestCreateServer(base.RequestsMockTestCase):
         Test that waiting for a server returns the server instance when
         its status changes to "ACTIVE".
         """
+        # TODO(mordred) Rework this to not mock methods
         building_server = {'id': 'fake_server_id', 'status': 'BUILDING'}
         active_server = {'id': 'fake_server_id', 'status': 'ACTIVE'}
 
@@ -296,63 +359,96 @@ class TestCreateServer(base.RequestsMockTestCase):
         self.assertEqual('ACTIVE', server['status'])
 
     @mock.patch.object(shade.OpenStackCloud, 'wait_for_server')
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_create_server_wait(self, mock_nova, mock_wait):
+    def test_create_server_wait(self, mock_wait):
         """
         Test that create_server with a wait actually does the wait.
         """
-        fake_server = {'id': 'fake_server_id', 'status': 'BUILDING'}
-        mock_nova.servers.create.return_value = fake_server
+        # TODO(mordred) Make this a full proper response
+        fake_server = fakes.FakeServer('1234', '', 'BUILD')
 
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks.json']),
-                 json={'networks': []})
+                 json={'networks': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': meta.obj_to_munch(fake_server).toDict()},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': u'flavor-id',
+                         u'imageRef': u'image-id',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'name': u'server-name'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(fake_server).toDict()}),
         ])
         self.cloud.create_server(
             'server-name',
             dict(id='image-id'), dict(id='flavor-id'), wait=True),
 
         mock_wait.assert_called_once_with(
-            fake_server, auto_ip=True, ips=None,
+            self.cloud._normalize_server(meta.obj_to_munch(fake_server)),
+            auto_ip=True, ips=None,
             ip_pool=None, reuse=True, timeout=180,
             nat_destination=None,
         )
         self.assert_calls()
 
     @mock.patch.object(shade.OpenStackCloud, 'add_ips_to_server')
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
     @mock.patch('time.sleep')
     def test_create_server_no_addresses(
-            self, mock_sleep, mock_nova, mock_add_ips_to_server):
+            self, mock_sleep, mock_add_ips_to_server):
         """
         Test that create_server with a wait throws an exception if the
         server doesn't have addresses.
         """
         build_server = fakes.FakeServer('1234', '', 'BUILD')
         fake_server = fakes.FakeServer('1234', '', 'ACTIVE')
-        fake_floating_ip = fakes.FakeFloatingIP('1234', 'ippool',
-                                                '1.1.1.1', '2.2.2.2',
-                                                '5678')
-        mock_nova.servers.create.return_value = build_server
-        mock_nova.servers.get.return_value = [build_server, None]
-        mock_nova.servers.list.side_effect = [[build_server], [fake_server]]
-        mock_nova.servers.delete.return_value = None
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks.json']),
                  json={'networks': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': u'flavor-id',
+                         u'imageRef': u'image-id',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'name': u'server-name'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(build_server).toDict()}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [meta.obj_to_munch(build_server).toDict()]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [meta.obj_to_munch(fake_server).toDict()]}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'ports.json'],
                      qs_elements=['device_id=1234']),
                  json={'ports': []}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234'])),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
-                 json={'floatingips': [fake_floating_ip]})
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': []}),
         ])
         mock_add_ips_to_server.return_value = fake_server
         self.cloud._SERVER_AGE = 0
@@ -361,16 +457,16 @@ class TestCreateServer(base.RequestsMockTestCase):
             exc.OpenStackCloudException, self.cloud.create_server,
             'server-name', {'id': 'image-id'}, {'id': 'flavor-id'},
             wait=True)
-        # TODO(slaweq): change do_count to True when all nova mocks will be
-        # replaced with request_mocks also
-        self.assert_calls(do_count=False)
 
-    @mock.patch('shade.OpenStackCloud.nova_client')
-    def test_create_server_network_with_no_nics(self, mock_nova):
+        self.assert_calls()
+
+    def test_create_server_network_with_no_nics(self):
         """
         Verify that if 'network' is supplied, and 'nics' is not, that we
         attempt to get the network for the server.
         """
+        build_server = fakes.FakeServer('1234', '', 'BUILD')
+        active_server = fakes.FakeServer('1234', '', 'ACTIVE')
         network = {
             'id': 'network-id',
             'name': 'network-name'
@@ -380,6 +476,31 @@ class TestCreateServer(base.RequestsMockTestCase):
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks.json']),
                  json={'networks': [network]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': u'flavor-id',
+                         u'imageRef': u'image-id',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'networks': [{u'uuid': u'network-id'}],
+                         u'name': u'server-name'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(build_server).toDict()}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(active_server).toDict()}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json'],
+                     qs_elements=['device_id=1234']),
+                 json={'ports': []}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks.json']),
@@ -394,11 +515,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(id='image-id'), dict(id='flavor-id'), network='network-name')
         self.assert_calls()
 
-    @mock.patch('shade.OpenStackCloud.nova_client')
-    @mock.patch('shade.OpenStackCloud.get_network')
-    def test_create_server_network_with_empty_nics(self,
-                                                   mock_get_network,
-                                                   mock_nova):
+    def test_create_server_network_with_empty_nics(self):
         """
         Verify that if 'network' is supplied, along with an empty 'nics' list,
         it's treated the same as if 'nics' were not included.
@@ -407,7 +524,32 @@ class TestCreateServer(base.RequestsMockTestCase):
             'id': 'network-id',
             'name': 'network-name'
         }
+        build_server = fakes.FakeServer('1234', '', 'BUILD')
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [network]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': u'flavor-id',
+                         u'imageRef': u'image-id',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'networks': [{u'uuid': u'network-id'}],
+                         u'name': u'server-name'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(build_server).toDict()}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(build_server).toDict()}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks.json']),
@@ -422,22 +564,53 @@ class TestCreateServer(base.RequestsMockTestCase):
             network='network-name', nics=[])
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'get_server_by_id')
-    @mock.patch.object(shade.OpenStackCloud, 'get_image')
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_create_server_get_flavor_image(
-            self, mock_nova, mock_image, mock_get_server_by_id):
+    def test_create_server_get_flavor_image(self):
+        self.use_glance()
+        image_id = str(uuid.uuid4())
+        fake_image_dict = fakes.make_fake_image(image_id=image_id)
+        fake_image_search_return = {'images': [fake_image_dict]}
+
+        build_server = fakes.FakeServer('1234', '', 'BUILD')
+        active_server = fakes.FakeServer('1234', '', 'BUILD')
 
         self.register_uris([
             dict(method='GET',
-                 uri='{endpoint}/flavors/detail?is_public=None'.format(
-                     endpoint=fakes.COMPUTE_ENDPOINT),
-                 json={'flavors': fakes.FAKE_FLAVOR_LIST})])
+                 uri='https://image.example.com/v2/images',
+                 json=fake_image_search_return),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['flavors', 'detail'],
+                     qs_elements=['is_public=None']),
+                 json={'flavors': fakes.FAKE_FLAVOR_LIST}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': fakes.FLAVOR_ID,
+                         u'imageRef': image_id,
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'networks': [{u'uuid': u'some-network'}],
+                         u'name': u'server-name'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(active_server).toDict()}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(active_server).toDict()}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': []}),
+        ])
 
         self.cloud.create_server(
-            'server-name', 'image-id', 'vanilla',
-            nics=[{'net-id': 'some-network'}])
-        mock_image.assert_called_once()
+            'server-name', image_id, 'vanilla',
+            nics=[{'net-id': 'some-network'}], wait=False)
 
         self.assert_calls()
 

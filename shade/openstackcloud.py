@@ -5561,8 +5561,12 @@ class OpenStackCloud(
                         "Error in creating the server.")
 
         if wait:
+            # TODO(mordred) The normalize call here is just for easing
+            # novaclient transition (otherwise the HUMAN id stuff leaks into
+            # mocks. It can be removed when we don't use novaclient
             server = self.wait_for_server(
-                server, auto_ip=auto_ip, ips=ips, ip_pool=ip_pool,
+                self._normalize_server(server),
+                auto_ip=auto_ip, ips=ips, ip_pool=ip_pool,
                 reuse=reuse_ips, timeout=timeout,
                 nat_destination=nat_destination,
             )
