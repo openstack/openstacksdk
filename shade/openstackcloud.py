@@ -1776,11 +1776,11 @@ class OpenStackCloud(
         if not self._has_secgroups():
             return []
 
-        groups = self._compute_client.get(
+        data = self._compute_client.get(
             '/servers/{server_id}/os-security-groups'.format(
                 server_id=server['id']))
-
-        return self._normalize_secgroups(groups)
+        return self._normalize_secgroups(
+            meta.get_and_munchify('security_groups', data))
 
     def _get_server_security_groups(self, server, security_groups):
         if not self._has_secgroups():
@@ -1891,19 +1891,21 @@ class OpenStackCloud(
         if not filters:
             filters = {}
 
-        groups = []
+        data = []
         # Handle neutron security groups
         if self._use_neutron_secgroups():
             # Neutron returns dicts, so no need to convert objects here.
-            groups = self._network_client.get(
+            data = self._network_client.get(
                 '/security-groups.json', params=filters,
                 error_message="Error fetching security group list")
+            return meta.get_and_munchify('security_groups', data)
 
         # Handle nova security groups
         else:
-            groups = self._compute_client.get(
+            data = self._compute_client.get(
                 '/os-security-groups', params=filters)
-        return self._normalize_secgroups(groups)
+        return self._normalize_secgroups(
+            meta.get_and_munchify('security_groups', data))
 
     def list_servers(self, detailed=False, all_projects=False, bare=False):
         """List all available servers.
@@ -6745,7 +6747,7 @@ class OpenStackCloud(
                 "Unavailable feature: security groups"
             )
 
-        group = None
+        data = []
         security_group_json = {
             'security_group': {
                 'name': name, 'description': description
@@ -6753,14 +6755,15 @@ class OpenStackCloud(
         if project_id is not None:
             security_group_json['security_group']['tenant_id'] = project_id
         if self._use_neutron_secgroups():
-            group = self._network_client.post(
+            data = self._network_client.post(
                 '/security-groups.json',
                 json=security_group_json,
                 error_message="Error creating security group {0}".format(name))
         else:
-            group = self._compute_client.post(
+            data = self._compute_client.post(
                 '/os-security-groups', json=security_group_json)
-        return self._normalize_secgroup(group)
+        return self._normalize_secgroup(
+            meta.get_and_munchify('security_group', data))
 
     def delete_security_group(self, name_or_id):
         """Delete a security group
@@ -6825,7 +6828,7 @@ class OpenStackCloud(
                 "Security group %s not found." % name_or_id)
 
         if self._use_neutron_secgroups():
-            group = self._network_client.put(
+            data = self._network_client.put(
                 '/security-groups/{sg_id}.json'.format(sg_id=group['id']),
                 json={'security_group': kwargs},
                 error_message="Error updating security group {0}".format(
@@ -6833,10 +6836,11 @@ class OpenStackCloud(
         else:
             for key in ('name', 'description'):
                 kwargs.setdefault(key, group[key])
-            group = self._compute_client.put(
+            data = self._compute_client.put(
                 '/os-security-groups/{id}'.format(id=group['id']),
                 json={'security-group': kwargs})
-        return self._normalize_secgroup(group)
+        return self._normalize_secgroup(
+            meta.get_and_munchify('security_group', data))
 
     def create_security_group_rule(self,
                                    secgroup_name_or_id,
@@ -6922,12 +6926,10 @@ class OpenStackCloud(
             if project_id is not None:
                 rule_def['tenant_id'] = project_id
 
-            rule = self._network_client.post(
+            data = self._network_client.post(
                 '/security-group-rules.json',
                 json={'security_group_rule': rule_def},
                 error_message="Error creating security group rule")
-            return self._normalize_secgroup_rule(rule)
-
         else:
             # NOTE: Neutron accepts None for protocol. Nova does not.
             if protocol is None:
@@ -6968,10 +6970,11 @@ class OpenStackCloud(
             if project_id is not None:
                 security_group_rule_dict[
                     'security_group_rule']['tenant_id'] = project_id
-            rule = self._compute_client.post(
+            data = self._compute_client.post(
                 '/os-security-group-rules', json=security_group_rule_dict
             )
-            return self._normalize_secgroup_rule(rule)
+        return self._normalize_secgroup_rule(
+            meta.get_and_munchify('security_group_rule', data))
 
     def delete_security_group_rule(self, rule_id):
         """Delete a security group rule
