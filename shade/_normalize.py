@@ -63,7 +63,7 @@ _COMPUTE_LIMITS_FIELDS = (
 
 _pushdown_fields = {
     'project': [
-        'domain'
+        'domain_id'
     ]
 }
 

@@ -2482,10 +2482,12 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource=('projects?domain_id=%s' %
+                               self.domain_data.domain_id)),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'projects':
+                       [self.project_data.json_response['project']]}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      resource='role_assignments',
@@ -2529,10 +2531,12 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource=('projects?domain_id=%s' %
+                               self.domain_data.domain_id)),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'projects':
+                       [self.project_data.json_response['project']]}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      resource='role_assignments',

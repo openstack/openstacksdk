@@ -828,15 +828,24 @@ class OpenStackCloud(
         """
         kwargs = dict(
             filters=filters,
-            domain=domain_id)
+            domain_id=domain_id)
         if self.cloud_config.get_api_version('identity') == '3':
             kwargs['obj_name'] = 'project'
 
         pushdown, filters = _normalize._split_filters(**kwargs)
 
         try:
-            projects = self._normalize_projects(
-                self.manager.submit_task(_tasks.ProjectList(**pushdown)))
+            if self.cloud_config.get_api_version('identity') == '3':
+                projects = self._identity_client.get('/projects',
+                                                     params=pushdown)
+                if isinstance(projects, dict):
+                    projects = projects['projects']
+            else:
+                projects = self._identity_client.get('/tenants',
+                                                     params=pushdown)
+                if isinstance(projects, dict):
+                    projects = projects['tenants']
+            projects = self._normalize_projects(projects)
         except Exception as e:
             self.log.debug("Failed to list projects", exc_info=True)
             raise OpenStackCloudException(str(e))
