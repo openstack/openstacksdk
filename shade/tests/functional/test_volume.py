@@ -107,6 +107,9 @@ class TestVolume(base.BaseFunctionalTestCase):
                     for v in volume:
                         if v['id'] == existing['id']:
                             found = True
+                            break
+                    if found:
+                        break
                 if not found:
                     break
 
