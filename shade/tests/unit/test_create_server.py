@@ -440,3 +440,111 @@ class TestCreateServer(base.RequestsMockTestCase):
         mock_image.assert_called_once()
 
         self.assert_calls()
+
+    def test_create_boot_attach_volume(self):
+        build_server = fakes.FakeServer('1234', '', 'BUILD')
+        active_server = fakes.FakeServer('1234', '', 'BUILD')
+
+        vol = {'id': 'volume001', 'status': 'available',
+               'name': '', 'attachments': []}
+        volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-volumes_boot']),
+                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': 'flavor-id',
+                         u'imageRef': 'image-id',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'block_device_mapping_v2': [
+                             {
+                                 u'boot_index': 0,
+                                 u'delete_on_termination': True,
+                                 u'destination_type': u'local',
+                                 u'source_type': u'image',
+                                 u'uuid': u'image-id'
+                             },
+                             {
+                                 u'boot_index': u'-1',
+                                 u'delete_on_termination': False,
+                                 u'destination_type': u'volume',
+                                 u'source_type': u'volume',
+                                 u'uuid': u'volume001'
+                             }
+                         ],
+                         u'name': u'server-name'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(active_server).toDict()}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(active_server).toDict()}),
+        ])
+
+        self.cloud.create_server(
+            name='server-name',
+            image=dict(id='image-id'),
+            flavor=dict(id='flavor-id'),
+            boot_from_volume=False,
+            volumes=[volume],
+            wait=False)
+
+        self.assert_calls()
+
+    def test_create_boot_from_volume_image_terminate(self):
+        build_server = fakes.FakeServer('1234', '', 'BUILD')
+        active_server = fakes.FakeServer('1234', '', 'BUILD')
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-volumes_boot']),
+                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': 'flavor-id',
+                         u'imageRef': '',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'block_device_mapping_v2': [{
+                             u'boot_index': u'0',
+                             u'delete_on_termination': True,
+                             u'destination_type': u'volume',
+                             u'source_type': u'image',
+                             u'uuid': u'image-id',
+                             u'volume_size': u'1'}],
+                         u'name': u'server-name'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(active_server).toDict()}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': meta.obj_to_munch(active_server).toDict()}),
+        ])
+
+        self.cloud.create_server(
+            name='server-name',
+            image=dict(id='image-id'),
+            flavor=dict(id='flavor-id'),
+            boot_from_volume=True,
+            terminate_volume=True,
+            volume_size=1,
+            wait=False)
+
+        self.assert_calls()
