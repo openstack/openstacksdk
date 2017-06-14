@@ -37,7 +37,7 @@ class TestFlavor(base.BaseFunctionalTestCase):
 
     def _cleanup_flavors(self):
         exception_list = list()
-        for f in self.operator_cloud.list_flavors():
+        for f in self.operator_cloud.list_flavors(get_extra=False):
             if f['name'].startswith(self.new_item_name):
                 try:
                     self.operator_cloud.delete_flavor(f['id'])
@@ -94,7 +94,7 @@ class TestFlavor(base.BaseFunctionalTestCase):
         self.operator_cloud.create_flavor(**public_kwargs)
         self.operator_cloud.create_flavor(**private_kwargs)
 
-        flavors = self.operator_cloud.list_flavors()
+        flavors = self.operator_cloud.list_flavors(get_extra=False)
 
         # Flavor list will include the standard devstack flavors. We just want
         # to make sure both of the flavors we just created are present.
