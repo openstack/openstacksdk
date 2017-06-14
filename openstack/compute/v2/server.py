@@ -274,6 +274,16 @@ class Server(resource2.Resource, metadata.MetadataMixin):
         body = {"removeFloatingIp": {"address": address}}
         self._action(session, body)
 
+    def backup(self, session, name, backup_type, rotation):
+        body = {
+            "createBackup": {
+                "name": name,
+                "backup_type": backup_type,
+                "rotation": rotation
+            }
+        }
+        self._action(session, body)
+
     def pause(self, session):
         body = {"pause": None}
         self._action(session, body)
