@@ -2769,7 +2769,7 @@ class OpenStackCloud(
 
     def get_server_by_id(self, id):
         return meta.add_server_interfaces(self, self._normalize_server(
-            self.manager.submit_task(_tasks.ServerGet(server=id))))
+            self._compute_client.get('/servers/{id}'.format(id=id))))
 
     def get_server_group(self, name_or_id=None, filters=None):
         """Get a server group by name or ID.
@@ -5610,9 +5610,9 @@ class OpenStackCloud(
                 endpoint, json={'server': kwargs})
             admin_pass = server.get('adminPass') or kwargs.get('admin_pass')
             if not wait:
-                # This is a direct get task call to skip the list_servers
+                # This is a direct get call to skip the list_servers
                 # cache which has absolutely no chance of containing the
-                # new server
+                # new server.
                 # Only do this if we're not going to wait for the server
                 # to complete booting, because the only reason we do it
                 # is to get a server record that is the return value from
