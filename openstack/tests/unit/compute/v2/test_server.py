@@ -628,6 +628,29 @@ class TestServer(testtools.TestCase):
         self.assertIsNone(res)
         url = 'servers/IDENTIFIER/action'
         body = {"migrate": None}
+
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+    def test_get_console_output(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.get_console_output(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {'os-getConsoleOutput': {}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, endpoint_filter=sot.service, json=body, headers=headers)
+
+        res = sot.get_console_output(self.sess, length=1)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {'os-getConsoleOutput': {'length': 1}}
+
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
             url, endpoint_filter=sot.service, json=body, headers=headers)
