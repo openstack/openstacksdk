@@ -70,9 +70,9 @@ class TestProxyPrivate(testtools.TestCase):
 
     def test__check_resource_strict_id(self):
         decorated = proxy2._check_resource(strict=True)(self.sot.method)
-        self.assertRaisesRegexp(ValueError, "A Resource must be passed",
-                                decorated, self.sot, resource2.Resource,
-                                "this-is-not-a-resource")
+        self.assertRaisesRegex(ValueError, "A Resource must be passed",
+                               decorated, self.sot, resource2.Resource,
+                               "this-is-not-a-resource")
 
     def test__check_resource_incorrect_resource(self):
         class OneType(resource2.Resource):
@@ -83,9 +83,9 @@ class TestProxyPrivate(testtools.TestCase):
 
         value = AnotherType()
         decorated = proxy2._check_resource(strict=False)(self.sot.method)
-        self.assertRaisesRegexp(ValueError,
-                                "Expected OneType but received AnotherType",
-                                decorated, self.sot, OneType, value)
+        self.assertRaisesRegex(ValueError,
+                               "Expected OneType but received AnotherType",
+                               decorated, self.sot, OneType, value)
 
     def test__get_uri_attribute_no_parent(self):
         class Child(resource2.Resource):
@@ -199,7 +199,7 @@ class TestProxyDelete(testtools.TestCase):
         self.res.delete.side_effect = exceptions.NotFoundException(
             message="test", http_status=404)
 
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             exceptions.ResourceNotFound,
             "No %s found for %s" % (DeleteableResource.__name__, self.res),
             self.sot._delete, DeleteableResource, self.res,
@@ -312,7 +312,7 @@ class TestProxyGet(testtools.TestCase):
         self.res.get.side_effect = exceptions.NotFoundException(
             message="test", http_status=404)
 
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             exceptions.ResourceNotFound,
             "No %s found for %s" % (RetrieveableResource.__name__, self.res),
             self.sot._get, RetrieveableResource, self.res)
