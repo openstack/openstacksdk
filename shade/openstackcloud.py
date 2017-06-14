@@ -5321,6 +5321,8 @@ class OpenStackCloud(
         :param image: Image dict, name or id to boot with.
 
         """
+        # TODO(mordred) We're only testing this in functional tests. We need
+        # to add unit tests for this too.
         if boot_volume or boot_from_volume or volumes:
             kwargs.setdefault('block_device_mapping_v2', [])
         else:
@@ -5344,7 +5346,7 @@ class OpenStackCloud(
                 'source_type': 'volume',
             }
             kwargs['block_device_mapping_v2'].append(block_mapping)
-            kwargs['image'] = None
+            kwargs['imageRef'] = ''
         elif boot_from_volume:
 
             if isinstance(image, dict):
@@ -5366,7 +5368,18 @@ class OpenStackCloud(
                 'source_type': 'image',
                 'volume_size': volume_size,
             }
-            kwargs['image'] = None
+            kwargs['imageRef'] = ''
+            kwargs['block_device_mapping_v2'].append(block_mapping)
+        if volumes and kwargs['imageRef']:
+            # If we're attaching volumes on boot but booting from an image,
+            # we need to specify that in the BDM.
+            block_mapping = {
+                u'boot_index': 0,
+                u'delete_on_termination': True,
+                u'destination_type': u'local',
+                u'source_type': u'image',
+                u'uuid': kwargs['imageRef'],
+            }
             kwargs['block_device_mapping_v2'].append(block_mapping)
         for volume in volumes:
             volume_obj = self.get_volume(volume)
@@ -5483,17 +5496,25 @@ class OpenStackCloud(
         :returns: A ``munch.Munch`` representing the created server.
         :raises: OpenStackCloudException on operation error.
         """
-        # nova cli calls this boot_volume. Let's be the same
+        # TODO(mordred) Add support for description starting in 2.19
 
-        if volumes is None:
-            volumes = []
-
-        if root_volume and not boot_volume:
-            boot_volume = root_volume
-
-        security_groups = kwargs.get('security_groups')
+        security_groups = kwargs.get('security_groups', [])
         if security_groups and not isinstance(kwargs['security_groups'], list):
-                kwargs['security_groups'] = [security_groups]
+            security_groups = [security_groups]
+        if security_groups:
+            kwargs['security_groups'] = []
+            for group in security_groups:
+                kwargs['security_groups'].append(dict(name=group))
+        for (desired, given) in (
+                ('OS-DCF:diskConfig', 'disk_config'),
+                ('metadata', 'meta'),
+                ('user_data', 'userdata'),
+                ('adminPass', 'admin_pass')):
+            value = kwargs.pop(given, None)
+            if value:
+                kwargs[desired] = value
+        kwargs.setdefault('max_count', kwargs.get('max_count', 1))
+        kwargs.setdefault('min_count', kwargs.get('min_count', 1))
 
         if 'nics' in kwargs and not isinstance(kwargs['nics'], list):
             if isinstance(kwargs['nics'], dict):
@@ -5503,6 +5524,7 @@ class OpenStackCloud(
                 raise OpenStackCloudException(
                     'nics parameter to create_server takes a list of dicts.'
                     ' Got: {nics}'.format(nics=kwargs['nics']))
+
         if network and ('nics' not in kwargs or not kwargs['nics']):
             nics = []
             if not isinstance(network, list):
@@ -5526,15 +5548,50 @@ class OpenStackCloud(
             if default_network:
                 kwargs['nics'] = [{'net-id': default_network['id']}]
 
+        networks = []
+        for nic in kwargs.pop('nics', []):
+            net = {}
+            if 'net-id' in nic:
+                # TODO(mordred) Make sure this is in uuid format
+                net['uuid'] = nic.pop('net-id')
+                # If there's a net-id, ignore net-name
+                nic.pop('net-name', None)
+            elif 'net-name' in nic:
+                nic_net = self.get_network(nic['net-name'])
+                if not nic_net:
+                    raise OpenStackCloudException(
+                        "Requested network {net} could not be found.".format(
+                            net=nic['net-name']))
+                net['uuid'] = nic_net['id']
+            # TODO(mordred) Add support for tag if server supports microversion
+            # 2.32-2.36 or >= 2.42
+            for key in ('port', 'fixed_ip'):
+                if key in nic:
+                    net[key] = nic.pop(key)
+            if nic:
+                raise OpenStackCloudException(
+                    "Additional unsupported keys given for server network"
+                    " creation: {keys}".format(keys=nic.keys()))
+            networks.append(net)
+        if networks:
+            kwargs['networks'] = networks
+
         if image:
             if isinstance(image, dict):
-                kwargs['image'] = image['id']
+                kwargs['imageRef'] = image['id']
             else:
-                kwargs['image'] = self.get_image(image)
+                kwargs['imageRef'] = self.get_image(image).id
         if flavor and isinstance(flavor, dict):
-            kwargs['flavor'] = flavor['id']
+            kwargs['flavorRef'] = flavor['id']
         else:
-            kwargs['flavor'] = self.get_flavor(flavor, get_extra=False)
+            kwargs['flavorRef'] = self.get_flavor(flavor, get_extra=False).id
+
+        if volumes is None:
+            volumes = []
+
+        # nova cli calls this boot_volume. Let's be the same
+        if root_volume and not boot_volume:
+            boot_volume = root_volume
 
         kwargs = self._get_boot_from_volume_kwargs(
             image=image, boot_from_volume=boot_from_volume,
@@ -5542,9 +5599,15 @@ class OpenStackCloud(
             terminate_volume=terminate_volume,
             volumes=volumes, kwargs=kwargs)
 
+        kwargs['name'] = name
+        endpoint = '/servers'
+        # TODO(mordred) We're only testing this in functional tests. We need
+        # to add unit tests for this too.
+        if 'block_device_mapping_v2' in kwargs:
+            endpoint = '/os-volumes_boot'
         with _utils.shade_exceptions("Error in creating instance"):
-            server = self.manager.submit_task(_tasks.ServerCreate(
-                name=name, **kwargs))
+            server = self._compute_client.post(
+                endpoint, json={'server': kwargs})
             admin_pass = server.get('adminPass') or kwargs.get('admin_pass')
             if not wait:
                 # This is a direct get task call to skip the list_servers
@@ -5561,11 +5624,8 @@ class OpenStackCloud(
                         "Error in creating the server.")
 
         if wait:
-            # TODO(mordred) The normalize call here is just for easing
-            # novaclient transition (otherwise the HUMAN id stuff leaks into
-            # mocks. It can be removed when we don't use novaclient
             server = self.wait_for_server(
-                self._normalize_server(server),
+                server,
                 auto_ip=auto_ip, ips=ips, ip_pool=ip_pool,
                 reuse=reuse_ips, timeout=timeout,
                 nat_destination=nat_destination,

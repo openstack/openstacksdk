@@ -57,11 +57,6 @@ class ServerGet(task_manager.Task):
         return client.nova_client.servers.get(**self.args)
 
 
-class ServerCreate(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.servers.create(**self.args)
-
-
 class ServerDelete(task_manager.Task):
     def main(self, client):
         return client.nova_client.servers.delete(**self.args)

@@ -51,11 +51,6 @@ class TestCreateServer(base.RequestsMockTestCase):
                          u'max_count': 1,
                          u'min_count': 1,
                          u'name': u'server-name'}})),
-            # TODO(mordred) useless call made by novaclient
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
-                 status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -92,10 +87,6 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(build_server).toDict()}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
                  json={'server': meta.obj_to_munch(error_server).toDict()}),
         ])
         self.assertRaises(
@@ -126,10 +117,6 @@ class TestCreateServer(base.RequestsMockTestCase):
                          u'max_count': 1,
                          u'min_count': 1,
                          u'name': u'server-name'}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(build_server).toDict()}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -171,10 +158,6 @@ class TestCreateServer(base.RequestsMockTestCase):
                          u'name': u'server-name'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(fake_server).toDict()}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
                  json={'servers': [meta.obj_to_munch(fake_server).toDict()]}),
         ])
@@ -209,10 +192,6 @@ class TestCreateServer(base.RequestsMockTestCase):
                          u'max_count': 1,
                          u'min_count': 1,
                          u'name': u'server-name'}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(fake_server).toDict()}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -257,10 +236,6 @@ class TestCreateServer(base.RequestsMockTestCase):
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
                  json={'server': meta.obj_to_munch(fake_server).toDict()}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(fake_server).toDict()}),
         ])
         self.assertEqual(
             self.cloud._normalize_server(
@@ -297,10 +272,6 @@ class TestCreateServer(base.RequestsMockTestCase):
                          u'min_count': 1,
                          u'adminPass': 'ooBootheiX0edoh',
                          u'name': u'server-name'}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(fake_server).toDict()}),
         ])
 
         # The wait returns non-password server
@@ -382,17 +353,13 @@ class TestCreateServer(base.RequestsMockTestCase):
                          u'max_count': 1,
                          u'min_count': 1,
                          u'name': u'server-name'}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(fake_server).toDict()}),
         ])
         self.cloud.create_server(
             'server-name',
             dict(id='image-id'), dict(id='flavor-id'), wait=True),
 
         mock_wait.assert_called_once_with(
-            self.cloud._normalize_server(meta.obj_to_munch(fake_server)),
+            meta.obj_to_munch(fake_server),
             auto_ip=True, ips=None,
             ip_pool=None, reuse=True, timeout=180,
             nat_destination=None,
@@ -425,10 +392,6 @@ class TestCreateServer(base.RequestsMockTestCase):
                          u'max_count': 1,
                          u'min_count': 1,
                          u'name': u'server-name'}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(build_server).toDict()}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -491,10 +454,6 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(build_server).toDict()}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
                  json={'server': meta.obj_to_munch(active_server).toDict()}),
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -548,10 +507,6 @@ class TestCreateServer(base.RequestsMockTestCase):
                  json={'server': meta.obj_to_munch(build_server).toDict()}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(build_server).toDict()}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks.json']),
                  json={'networks': [network]}),
             dict(method='GET',
@@ -594,10 +549,6 @@ class TestCreateServer(base.RequestsMockTestCase):
                          u'min_count': 1,
                          u'networks': [{u'uuid': u'some-network'}],
                          u'name': u'server-name'}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(active_server).toDict()}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -658,10 +609,6 @@ class TestCreateServer(base.RequestsMockTestCase):
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
                  json={'server': meta.obj_to_munch(active_server).toDict()}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(active_server).toDict()}),
         ])
 
         self.cloud.create_server(
@@ -701,10 +648,6 @@ class TestCreateServer(base.RequestsMockTestCase):
                              u'uuid': u'image-id',
                              u'volume_size': u'1'}],
                          u'name': u'server-name'}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(active_server).toDict()}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
