@@ -24,7 +24,10 @@ class Receiver(resource.Resource):
     allow_list = True
     allow_get = True
     allow_create = True
+    allow_update = True
     allow_delete = True
+
+    patch_update = True
 
     _query_mapping = resource.QueryParameters(
         'name', 'type', 'cluster_id', 'action', 'sort', 'global_project',

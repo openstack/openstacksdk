@@ -900,6 +900,18 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._create(_receiver.Receiver, **attrs)
 
+    def update_receiver(self, receiver, **attrs):
+        """Update a receiver.
+
+        :param receiver: The value can be either the name or ID of a receiver
+            or a :class:`~openstack.cluster.v1.receiver.Receiver` instance.
+        :param attrs: The attributes to update on the receiver parameter.
+            Valid attribute names include ``name``, ``action`` and ``params``.
+        :returns: The updated receiver.
+        :rtype: :class:`~openstack.cluster.v1.receiver.Receiver`
+        """
+        return self._update(_receiver.Receiver, receiver, **attrs)
+
     def delete_receiver(self, receiver, ignore_missing=True):
         """Delete a receiver.
 
