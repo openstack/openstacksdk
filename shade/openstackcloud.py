@@ -941,12 +941,10 @@ class OpenStackCloud(
                     "Project %s not found for deleting", name_or_id)
                 return False
 
-            params = {}
             if self.cloud_config.get_api_version('identity') == '3':
-                params['project'] = project['id']
+                self._identity_client.delete('/projects/' + project['id'])
             else:
-                params['tenant'] = project['id']
-            self.manager.submit_task(_tasks.ProjectDelete(**params))
+                self._identity_client.delete('/tenants/' + project['id'])
 
         return True
 

@@ -52,11 +52,6 @@ class ProjectCreate(task_manager.Task):
         return client._project_manager.create(**self.args)
 
 
-class ProjectDelete(task_manager.Task):
-    def main(self, client):
-        return client._project_manager.delete(**self.args)
-
-
 class ProjectUpdate(task_manager.Task):
     def main(self, client):
         return client._project_manager.update(**self.args)
