@@ -1,5 +1,5 @@
-openstack.network.v2.network
-============================
+openstack.network.v2.agent
+==========================
 
 .. automodule:: openstack.network.v2.agent
 
