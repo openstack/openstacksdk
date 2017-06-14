@@ -5828,6 +5828,8 @@ class OpenStackCloud(
             return False
 
         if delete_ips:
+            # TODO(mordred) Does the server have floating ips in its
+            # addresses dict? If not, skip this.
             ips = self.search_floating_ips(filters={
                 'device_id': server['id']})
             for ip in ips:
@@ -5842,15 +5844,13 @@ class OpenStackCloud(
                             id=server['id']))
 
         try:
-            self.manager.submit_task(
-                _tasks.ServerDelete(server=server['id']))
-        except nova_exceptions.NotFound:
+            self._compute_client.delete(
+                '/servers/{id}'.format(id=server['id']),
+                error_message="Error in deleting server")
+        except OpenStackCloudURINotFound:
             return False
-        except OpenStackCloudException:
+        except Exception:
             raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error in deleting server: {0}".format(e))
 
         if not wait:
             return True
