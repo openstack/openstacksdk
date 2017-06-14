@@ -105,7 +105,6 @@ Service Operations
 
 .. autoclass:: openstack.compute.v2._proxy.Proxy
 
-   .. automethod:: openstack.compute.v2._proxy.Proxy.get_service
    .. automethod:: openstack.compute.v2._proxy.Proxy.services
    .. automethod:: openstack.compute.v2._proxy.Proxy.enable_service
    .. automethod:: openstack.compute.v2._proxy.Proxy.disable_service

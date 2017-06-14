@@ -23,7 +23,6 @@ class Service(resource2.Resource):
     service = compute_service.ComputeService()
 
     # capabilities
-    allow_get = True
     allow_list = True
     allow_update = True
 

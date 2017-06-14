@@ -1072,20 +1072,6 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._get(_hypervisor.Hypervisor, hypervisor)
 
-    def get_service(self, service):
-        """Get a single service
-
-        :param service: The value can be the ID of a serivce or a
-               :class:`~openstack.compute.v2.service.Service`
-               instance.
-
-        :returns:
-            A :class:`~openstack.compute.v2.serivce.Service` object.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
-        """
-        return self._get(_service.Service, service)
-
     def force_service_down(self, service, host, binary):
         """Force a service down
 
