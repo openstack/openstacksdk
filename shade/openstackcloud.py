@@ -579,8 +579,13 @@ class OpenStackCloud(
             client = self._get_raw_client('network')
             # Don't bother with version discovery - there is only one version
             # of neutron. This is what neutronclient does, fwiw.
-            client.endpoint_override = urllib.parse.urljoin(
-                client.get_endpoint(), 'v2.0')
+            endpoint = client.get_endpoint()
+            if not endpoint.rstrip().rsplit('/')[1] == 'v2.0':
+                if not endpoint.endswith('/'):
+                    endpoint += '/'
+                endpoint = urllib.parse.urljoin(
+                    endpoint, 'v2.0')
+            client.endpoint_override = endpoint
             self._raw_clients['network'] = client
         return self._raw_clients['network']
 
