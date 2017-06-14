@@ -1,3 +1,6 @@
+# Copyright 2017 HuaWei Tld
+# Copyright 2017 OpenStack.org
+#
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -103,7 +106,7 @@ class Profile(object):
         self._add_service(identity_service.IdentityService(version="v3"))
         self._add_service(image_service.ImageService(version="v2"))
         self._add_service(key_manager_service.KeyManagerService(version="v1"))
-        self._add_service(lb_service.LoadBalancerService(version="v2"))
+        self._add_service(lb_service.LoadBalancerService(version="v1"))
         self._add_service(message_service.MessageService(version="v1"))
         self._add_service(network_service.NetworkService(version="v2"))
         self._add_service(

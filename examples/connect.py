@@ -67,10 +67,10 @@ EXAMPLE_IMAGE_NAME = 'openstacksdk-example-public-image'
 
 
 def create_connection_from_config():
-    opts = Opts(cloud_name=TEST_CLOUD)
-    occ = os_client_config.OpenStackConfig()
-    cloud = occ.get_one_cloud(opts.cloud)
-    return connection.from_config(cloud_config=cloud, options=opts)
+    _opts = Opts(cloud_name=TEST_CLOUD)
+    _occ = os_client_config.OpenStackConfig()
+    _cloud = _occ.get_one_cloud(_opts.cloud)
+    return connection.from_config(cloud_config=_cloud, options=_opts)
 
 
 def create_connection_from_args():

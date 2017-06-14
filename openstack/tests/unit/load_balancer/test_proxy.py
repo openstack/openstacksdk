@@ -10,8 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.load_balancer.v1 import load_balancer as lb
 from openstack.load_balancer.v2 import _proxy
-from openstack.load_balancer.v2 import load_balancer as lb
 from openstack.tests.unit import test_proxy_base2
 
 

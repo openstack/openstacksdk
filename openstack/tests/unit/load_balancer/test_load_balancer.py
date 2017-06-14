@@ -12,7 +12,7 @@
 
 import testtools
 
-from openstack.load_balancer.v2 import load_balancer
+from openstack.load_balancer.v1 import load_balancer
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
