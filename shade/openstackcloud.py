@@ -896,8 +896,9 @@ class OpenStackCloud(
         return _utils._get_entity(self.search_projects, name_or_id, filters,
                                   domain_id=domain_id)
 
-    def update_project(self, name_or_id, description=None, enabled=True,
-                       domain_id=None):
+    @_utils.valid_kwargs('description')
+    def update_project(self, name_or_id, enabled=True, domain_id=None,
+                       **kwargs):
         with _utils.shade_exceptions(
                 "Error in updating project {project}".format(
                     project=name_or_id)):
@@ -906,17 +907,18 @@ class OpenStackCloud(
                 raise OpenStackCloudException(
                     "Project %s not found." % name_or_id)
 
-            params = {}
+            kwargs.update({'enabled': enabled})
+            # NOTE(samueldmq): Current code only allow updates of description
+            # or enabled fields.
+            # FIXME(samueldmq): enable=True is the default, meaning it will
+            # enable a disabled project if you simply update other fields
             if self.cloud_config.get_api_version('identity') == '3':
-                params['project'] = proj['id']
+                project = self._identity_client.patch(
+                    '/projects/' + proj['id'], json={'project': kwargs})
             else:
-                params['tenant_id'] = proj['id']
-
-            project = self._normalize_project(
-                self.manager.submit_task(_tasks.ProjectUpdate(
-                    description=description,
-                    enabled=enabled,
-                    **params)))
+                project = self._identity_client.post(
+                    '/tenants/' + proj['id'], json={'tenant': kwargs})
+            project = self._normalize_project(project)
         self.list_projects.invalidate(self)
         return project
 
