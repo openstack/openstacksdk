@@ -11,10 +11,11 @@
 # under the License.
 
 from openstack.network import network_service
+from openstack.network.v2 import tag
 from openstack import resource2 as resource
 
 
-class Port(resource.Resource):
+class Port(resource.Resource, tag.TagMixin):
     resource_key = 'port'
     resources_key = 'ports'
     base_path = '/ports'
@@ -34,6 +35,7 @@ class Port(resource.Resource):
         is_admin_state_up='admin_state_up',
         is_port_security_enabled='port_security_enabled',
         project_id='tenant_id',
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties
@@ -127,3 +129,6 @@ class Port(resource.Resource):
     trunk_details = resource.Body('trunk_details', type=dict)
     #: Timestamp when the port was last updated.
     updated_at = resource.Body('updated_at')
+    #: A list of assocaited tags
+    #: *Type: list of tag strings*
+    tags = resource.Body('tags', type=list)

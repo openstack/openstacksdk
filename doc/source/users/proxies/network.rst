@@ -332,6 +332,13 @@ Service Profile Operations
    .. automethod:: openstack.network.v2._proxy.Proxy.associate_flavor_with_service_profile
    .. automethod:: openstack.network.v2._proxy.Proxy.disassociate_flavor_from_service_profile
 
+Tag Operations
+^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.network.v2._proxy.Proxy
+
+   .. automethod:: openstack.network.v2._proxy.Proxy.set_tags
+
 VPN Operations
 ^^^^^^^^^^^^^^
 

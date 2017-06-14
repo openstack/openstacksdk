@@ -11,10 +11,11 @@
 # under the License.
 
 from openstack.network import network_service
+from openstack.network.v2 import tag
 from openstack import resource2 as resource
 
 
-class Subnet(resource.Resource):
+class Subnet(resource.Resource, tag.TagMixin):
     resource_key = 'subnet'
     resources_key = 'subnets'
     base_path = '/subnets'
@@ -36,6 +37,7 @@ class Subnet(resource.Resource):
         project_id='tenant_id',
         subnet_pool_id='subnetpool_id',
         use_default_subnet_pool='use_default_subnetpool',
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties
@@ -87,3 +89,6 @@ class Subnet(resource.Resource):
         'use_default_subnetpool',
         type=bool
     )
+    #: A list of assocaited tags
+    #: *Type: list of tag strings*
+    tags = resource.Body('tags', type=list)

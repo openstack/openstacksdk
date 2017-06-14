@@ -14,6 +14,7 @@ import deprecation
 import mock
 import uuid
 
+from openstack import exceptions
 from openstack.network.v2 import _proxy
 from openstack.network.v2 import address_scope
 from openstack.network.v2 import agent
@@ -1064,3 +1065,19 @@ class TestNetworkProxy(test_proxy_base2.TestProxyBase):
                             auto_allocated_topology.ValidateTopology],
                         expected_kwargs={"project": mock.sentinel.project_id,
                                          "requires_id": False})
+
+    def test_set_tags(self):
+        x_network = network.Network.new(id='NETWORK_ID')
+        self._verify('openstack.network.v2.network.Network.set_tags',
+                     self.proxy.set_tags,
+                     method_args=[x_network, ['TAG1', 'TAG2']],
+                     expected_args=[['TAG1', 'TAG2']],
+                     expected_result=mock.sentinel.result_set_tags)
+
+    @mock.patch('openstack.network.v2.network.Network.set_tags')
+    def test_set_tags_resource_without_tag_suport(self, mock_set_tags):
+        no_tag_resource = object()
+        self.assertRaises(exceptions.InvalidRequest,
+                          self.proxy.set_tags,
+                          no_tag_resource, ['TAG1', 'TAG2'])
+        self.assertEqual(0, mock_set_tags.call_count)

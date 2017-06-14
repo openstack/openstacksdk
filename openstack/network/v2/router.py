@@ -11,11 +11,12 @@
 # under the License.
 
 from openstack.network import network_service
+from openstack.network.v2 import tag
 from openstack import resource2 as resource
 from openstack import utils
 
 
-class Router(resource.Resource):
+class Router(resource.Resource, tag.TagMixin):
     resource_key = 'router'
     resources_key = 'routers'
     base_path = '/routers'
@@ -35,6 +36,7 @@ class Router(resource.Resource):
         is_distributed='distributed',
         is_ha='ha',
         project_id='tenant_id',
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties
@@ -74,6 +76,9 @@ class Router(resource.Resource):
     status = resource.Body('status')
     #: Timestamp when the router was created.
     updated_at = resource.Body('updated_at')
+    #: A list of assocaited tags
+    #: *Type: list of tag strings*
+    tags = resource.Body('tags', type=list)
 
     def add_interface(self, session, **body):
         """Add an internal interface to a logical router.

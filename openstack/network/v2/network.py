@@ -11,10 +11,11 @@
 # under the License.
 
 from openstack.network import network_service
+from openstack.network.v2 import tag
 from openstack import resource2 as resource
 
 
-class Network(resource.Resource):
+class Network(resource.Resource, tag.TagMixin):
     resource_key = 'network'
     resources_key = 'networks'
     base_path = '/networks'
@@ -39,6 +40,7 @@ class Network(resource.Resource):
         provider_network_type='provider:network_type',
         provider_physical_network='provider:physical_network',
         provider_segmentation_id='provider:segmentation_id',
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties
@@ -111,6 +113,9 @@ class Network(resource.Resource):
     updated_at = resource.Body('updated_at')
     #: Indicates the VLAN transparency mode of the network
     is_vlan_transparent = resource.Body('vlan_transparent', type=bool)
+    #: A list of assocaited tags
+    #: *Type: list of tag strings*
+    tags = resource.Body('tags', type=list)
 
 
 class DHCPAgentHostingNetwork(Network):
