@@ -26,7 +26,8 @@ class Action(resource.Resource):
     allow_get = True
 
     _query_mapping = resource.QueryParameters(
-        'name', 'target', 'action', 'status', 'sort', 'global_project')
+        'name', 'action', 'status', 'sort', 'global_project',
+        target_id='target')
 
     # Properties
     #: Name of the action.
