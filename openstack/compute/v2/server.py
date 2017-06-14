@@ -336,6 +336,10 @@ class Server(resource2.Resource, metadata.MetadataMixin):
         body = {"unshelve": None}
         self._action(session, body)
 
+    def migrate(self, session):
+        body = {"migrate": None}
+        self._action(session, body)
+
 
 class ServerDetail(Server):
     base_path = '/servers/detail'

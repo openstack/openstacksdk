@@ -1244,3 +1244,14 @@ class Proxy(proxy2.BaseProxy):
         server_id = resource2.Resource._get_id(server)
         return self._list(_volume_attachment.VolumeAttachment, paginated=False,
                           server_id=server_id)
+
+    def migrate_server(self, server):
+        """Migrate a server from one host to another
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :returns: None
+        """
+
+        server = self._get_resource(_server.Server, server)
+        server.migrate(self._session)
