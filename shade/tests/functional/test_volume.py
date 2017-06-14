@@ -109,6 +109,8 @@ class TestVolume(base.BaseFunctionalTestCase):
 
     def test_list_volumes_pagination(self):
         '''Test pagination for list volumes functionality'''
+        self.skipTest("Pagination test killing gate current")
+
         volumes = []
         # the number of created volumes needs to be higher than
         # CONF.osapi_max_limit but not higher than volume quotas for
