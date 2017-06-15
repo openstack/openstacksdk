@@ -64,6 +64,7 @@ from openstack.cluster import cluster_service
 from openstack.compute import compute_service
 from openstack.database import database_service
 from openstack import exceptions
+from openstack.dns import dns_service
 from openstack.identity import identity_service
 from openstack.image import image_service
 from openstack.key_manager import key_manager_service
@@ -115,6 +116,7 @@ class Profile(object):
             orchestration_service.OrchestrationService(version="v1"))
         self._add_service(telemetry_service.TelemetryService(version="v2"))
         self._add_service(workflow_service.WorkflowService(version="v2"))
+        self._add_service(dns_service.DNSService(version="v2"))
 
         if plugins:
             for plugin in plugins:

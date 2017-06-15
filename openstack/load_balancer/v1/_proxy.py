@@ -20,9 +20,9 @@ class Proxy(proxy2.BaseProxy):
 
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.load_balancer.v1.
-                           load_balancer.LoadBalancer`,
+                           load_balancer.Zone`,
                            comprised of the properties on the
-                           LoadBalancer class.
+                           Zone class.
 
         :returns: a load balancer asynchronous job
         :rtype: :class:`~openstack.load_balancer.v1.load_balancer.
@@ -34,9 +34,9 @@ class Proxy(proxy2.BaseProxy):
         """Get a load balancer
 
         :param load_balancer: Either the ID of a load_balancer or a instance of
-                :class:`~openstack.load_balancer.v1.load_balancer.LoadBalancer`
+                :class:`~openstack.load_balancer.v1.load_balancer.Zone`
         :returns: One
-             :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`
+             :class:`~openstack.load_balancer.v2.load_balancer.Zone`
         """
         return self._get(_lb.LoadBalancer, *attrs)
 
@@ -44,7 +44,7 @@ class Proxy(proxy2.BaseProxy):
         """Update a server
 
         :param load_balancer: Either the ID of a load_balancer or a instance of
-                :class:`~openstack.load_balancer.v1.load_balancer.LoadBalancer`
+                :class:`~openstack.load_balancer.v1.load_balancer.Zone`
         :attrs kwargs: The attributes to update on the load_balancer represented
                        by ``load_balancer``.
         :returns: a load balancer asynchronous job
@@ -65,7 +65,7 @@ class Proxy(proxy2.BaseProxy):
         """Delete a load balancer
 
         :param load_balancer: Either the ID of a load_balancer or a instance of
-                :class:`~openstack.load_balancer.v1.load_balancer.LoadBalancer`
+                :class:`~openstack.load_balancer.v1.load_balancer.Zone`
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the load balancer does not exist.

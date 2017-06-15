@@ -3,7 +3,7 @@ Load Balancer v2 API
 
 .. automodule:: openstack.load_balancer.v2._proxy
 
-The LoadBalancer Class
+The Zone Class
 ----------------------
 
 The load_balancer high-level interface is available through the

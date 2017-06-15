@@ -3,10 +3,10 @@ openstack.network.v2.load_balancer
 
 .. automodule:: openstack.network.v2.load_balancer
 
-The LoadBalancer Class
+The Zone Class
 ----------------------
 
-The ``LoadBalancer`` class inherits from :class:`~openstack.resource.Resource`.
+The ``Zone`` class inherits from :class:`~openstack.resource.Resource`.
 
-.. autoclass:: openstack.network.v2.load_balancer.LoadBalancer
+.. autoclass:: openstack.network.v2.load_balancer.Zone
    :members:

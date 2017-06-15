@@ -776,8 +776,8 @@ class Proxy(proxy2.BaseProxy):
         """Create a new load balancer from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-            a :class:`~openstack.network.v2.load_balancer.LoadBalancer`,
-            comprised of the properties on the LoadBalancer class.
+            a :class:`~openstack.network.v2.load_balancer.Zone`,
+            comprised of the properties on the Zone class.
 
         :returns: The results of load balancer creation
         :rtype: :class:`~openstack.network.v2.load_balancer.LoadBalancer`
@@ -788,7 +788,7 @@ class Proxy(proxy2.BaseProxy):
         """Delete a load balancer
 
         :param load_balancer: The value can be the ID of a load balancer or a
-               :class:`~openstack.network.v2.load_balancer.LoadBalancer`
+               :class:`~openstack.network.v2.load_balancer.Zone`
                instance.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
@@ -810,7 +810,7 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
-        :returns: One :class:`~openstack.network.v2.load_balancer.LoadBalancer`
+        :returns: One :class:`~openstack.network.v2.load_balancer.Zone`
                   or None
         """
         return self._find(_load_balancer.LoadBalancer, name_or_id,
@@ -820,10 +820,10 @@ class Proxy(proxy2.BaseProxy):
         """Get a single load balancer
 
         :param load_balancer: The value can be the ID of a load balancer or a
-               :class:`~openstack.network.v2.load_balancer.LoadBalancer`
+               :class:`~openstack.network.v2.load_balancer.Zone`
                instance.
 
-        :returns: One :class:`~openstack.network.v2.load_balancer.LoadBalancer`
+        :returns: One :class:`~openstack.network.v2.load_balancer.Zone`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
@@ -845,7 +845,7 @@ class Proxy(proxy2.BaseProxy):
         """Update a load balancer
 
         :param load_balancer: Either the id of a load balancer or a
-                      :class:`~openstack.network.v2.load_balancer.LoadBalancer`
+                      :class:`~openstack.network.v2.load_balancer.Zone`
                       instance.
         :param dict attrs: The attributes to update on the load balancer
                            represented by ``load_balancer``.

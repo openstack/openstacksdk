@@ -152,7 +152,8 @@ class BaseProxy(object):
         return rv
 
     @_check_resource(strict=False)
-    def _update(self, resource_type, value, **attrs):
+    def _update(self, resource_type, value, prepend_key=True, has_body=True,
+                **attrs):
         """Update a resource
 
         :param resource_type: The type of resource to update.
@@ -171,15 +172,17 @@ class BaseProxy(object):
         :rtype: :class:`~openstack.resource2.Resource`
         """
         res = self._get_resource(resource_type, value, **attrs)
-        return res.update(self._session)
+        return res.update(self._session, prepend_key=prepend_key,
+                          has_body=has_body)
 
-    def _create(self, resource_type, **attrs):
+    def _create(self, resource_type, prepend_key=True, **attrs):
         """Create a resource from attributes
 
         :param resource_type: The type of resource to create.
         :type resource_type: :class:`~openstack.resource2.Resource`
-        :param path_args: A dict containing arguments for forming the request
-                          URL, if needed.
+        :param prepend_key: A boolean indicating whether the resource_key
+                            should be prepended in a resource creation
+                            request. Default to True.
         :param dict attrs: Attributes to be passed onto the
                            :meth:`~openstack.resource2.Resource.create`
                            method to be created. These should correspond
@@ -191,7 +194,7 @@ class BaseProxy(object):
         :rtype: :class:`~openstack.resource2.Resource`
         """
         res = resource_type.new(**attrs)
-        return res.create(self._session)
+        return res.create(self._session, prepend_key=prepend_key)
 
     @_check_resource(strict=False)
     def _get(self, resource_type, value=None, requires_id=True, **attrs):
