@@ -25,6 +25,9 @@ from shade.tests.functional import base
 
 class TestVolume(base.BaseFunctionalTestCase):
 
+    # Creating and deleting volumes is slow
+    TIMEOUT_SCALING_FACTOR = 1.5
+
     def setUp(self):
         super(TestVolume, self).setUp()
         if not self.user_cloud.has_service('volume'):
@@ -109,7 +112,6 @@ class TestVolume(base.BaseFunctionalTestCase):
 
     def test_list_volumes_pagination(self):
         '''Test pagination for list volumes functionality'''
-        self.skipTest("Pagination test killing gate current")
 
         volumes = []
         # the number of created volumes needs to be higher than
