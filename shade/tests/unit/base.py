@@ -290,11 +290,12 @@ class RequestsMockTestCase(BaseTestCase):
         user_id = uuid.uuid4().hex
 
         response = {'name': name, 'id': user_id}
-        request = {'name': name, 'password': password, 'tenantId': None}
+        request = {'name': name, 'password': password}
 
         if kwargs.get('domain_id'):
             kwargs['domain_id'] = uuid.UUID(kwargs['domain_id']).hex
             response['domain_id'] = kwargs.pop('domain_id')
+            request['domain_id'] = response['domain_id']
 
         response['email'] = kwargs.pop('email', None)
         request['email'] = response['email']

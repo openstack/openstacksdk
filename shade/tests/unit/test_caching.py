@@ -338,7 +338,7 @@ class TestMemoryCache(base.RequestsMockTestCase):
 
         user_data = self._get_user_data(email='test@example.com')
         new_resp = {'user': user_data.json_response['user'].copy()}
-        new_resp['user']['email'] = 'Nope@Nope.Nope'
+        new_resp['user']['email'] = 'updated@example.com'
         new_req = {'user': {'email': new_resp['user']['email']}}
 
         mock_users_url = self.get_mock_url(
@@ -364,8 +364,6 @@ class TestMemoryCache(base.RequestsMockTestCase):
             dict(method='POST', uri=mock_users_url, status_code=200,
                  json=user_data.json_response,
                  validate=user_data.json_request),
-            dict(method='GET', uri=mock_user_resource_url, status_code=200,
-                 json=user_data.json_response),
             # List Users Call
             dict(method='GET', uri=mock_users_url, status_code=200,
                  json=users_list_resp),

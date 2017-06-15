@@ -722,17 +722,17 @@ class OpenStackCloud(
             return self.keystone_client.tenants
         return self.keystone_client.projects
 
-    def _get_project_param_dict(self, name_or_id):
-        project_dict = dict()
+    def _get_project_id_param_dict(self, name_or_id):
         if name_or_id:
             project = self.get_project(name_or_id)
             if not project:
-                return project_dict
+                return {}
             if self.cloud_config.get_api_version('identity') == '3':
-                project_dict['default_project'] = project['id']
+                return {'default_project_id': project['id']}
             else:
-                project_dict['tenant_id'] = project['id']
-        return project_dict
+                return {'tenant_id': project['id']}
+        else:
+            return {}
 
     def _get_domain_id_param_dict(self, domain_id):
         """Get a useable domain."""
@@ -751,25 +751,6 @@ class OpenStackCloud(
         else:
             return {}
 
-    # TODO(samueldmq): Get rid of this method once create_user is migrated to
-    # REST and, consequently, _get_domain_id_param_dict is used instead
-    def _get_domain_param_dict(self, domain_id):
-        """Get a useable domain."""
-
-        # Keystone v3 requires domains for user and project creation. v2 does
-        # not. However, keystone v2 does not allow user creation by non-admin
-        # users, so we can throw an error to the user that does not need to
-        # mention api versions
-        if self.cloud_config.get_api_version('identity') == '3':
-            if not domain_id:
-                raise OpenStackCloudException(
-                    "User or project creation requires an explicit"
-                    " domain_id argument.")
-            else:
-                return {'domain': domain_id}
-        else:
-            return {}
-
     def _get_identity_params(self, domain_id=None, project=None):
         """Get the domain and project/tenant parameters if needed.
 
@@ -777,8 +758,8 @@ class OpenStackCloud(
         pass project or tenant_id or domain or nothing in a sane manner.
         """
         ret = {}
-        ret.update(self._get_domain_param_dict(domain_id))
-        ret.update(self._get_project_param_dict(project))
+        ret.update(self._get_domain_id_param_dict(domain_id))
+        ret.update(self._get_project_id_param_dict(project))
         return ret
 
     def range_search(self, data, filters):
@@ -1071,23 +1052,20 @@ class OpenStackCloud(
             self, name, password=None, email=None, default_project=None,
             enabled=True, domain_id=None, description=None):
         """Create a user."""
-        with _utils.shade_exceptions("Error in creating user {user}".format(
-                user=name)):
-            identity_params = self._get_identity_params(
-                domain_id, default_project)
-            if self.cloud_config.get_api_version('identity') != '3':
-                if description is not None:
-                    self.log.info(
-                        "description parameter is not supported on Keystone v2"
-                    )
-                user = self.manager.submit_task(_tasks.UserCreate(
-                    name=name, password=password, email=email,
-                    enabled=enabled, **identity_params))
-            else:
-                user = self.manager.submit_task(_tasks.UserCreate(
-                    name=name, password=password, email=email,
-                    enabled=enabled, description=description,
-                    **identity_params))
+        params = self._get_identity_params(domain_id, default_project)
+        params.update({'name': name, 'password': password, 'email': email,
+                       'enabled': enabled})
+        if self.cloud_config.get_api_version('identity') == '3':
+            params['description'] = description
+        elif description is not None:
+            self.log.info(
+                "description parameter is not supported on Keystone v2")
+
+        error_msg = "Error in creating user {user}".format(user=name)
+        data = self._identity_client.post('/users', json={'user': params},
+                                          error_message=error_msg)
+        user = meta.get_and_munchify('user', data)
+
         self.list_users.invalidate(self)
         return _utils.normalize_users([user])[0]
 
