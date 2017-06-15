@@ -237,13 +237,17 @@ class TestProxyUpdate(testtools.TestCase):
 
         self.assertEqual(rv, self.fake_result)
         self.res._update.assert_called_once_with(**self.attrs)
-        self.res.update.assert_called_once_with(self.session)
+        self.res.update.assert_called_once_with(self.session,
+                                                has_body=True,
+                                                prepend_key=True)
 
     def test_update_id(self):
         rv = self.sot._update(UpdateableResource, self.fake_id, **self.attrs)
 
         self.assertEqual(rv, self.fake_result)
-        self.res.update.assert_called_once_with(self.session)
+        self.res.update.assert_called_once_with(self.session,
+                                                has_body=True,
+                                                prepend_key=True)
 
 
 class TestProxyCreate(testtools.TestCase):
@@ -267,7 +271,7 @@ class TestProxyCreate(testtools.TestCase):
 
         self.assertEqual(rv, self.fake_result)
         CreateableResource.new.assert_called_once_with(**attrs)
-        self.res.create.assert_called_once_with(self.session)
+        self.res.create.assert_called_once_with(self.session, prepend_key=True)
 
 
 class TestProxyGet(testtools.TestCase):

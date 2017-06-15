@@ -18,6 +18,7 @@ import six
 from openstack import exceptions
 from openstack import format
 from openstack import resource2
+from openstack import service_filter
 from openstack import session
 from openstack.tests.unit import base
 
@@ -924,12 +925,18 @@ class TestResourceActions(base.TestCase):
 
     def setUp(self):
         super(TestResourceActions, self).setUp()
-
-        self.service_name = "service"
         self.base_path = "base_path"
 
+        class TestService(service_filter.ServiceFilter):
+            valid_versions = [service_filter.ValidVersion('v2')]
+
+            def __init__(self, version=None):
+                """Create a DNS service."""
+                super(TestService, self).__init__(service_type="service",
+                                                  version=version)
+
         class Test(resource2.Resource):
-            service = self.service_name
+            service = TestService()
             base_path = self.base_path
             allow_create = True
             allow_get = True
@@ -973,12 +980,14 @@ class TestResourceActions(base.TestCase):
         if requires_id:
             self.session.put.assert_called_once_with(
                 self.request.uri,
-                endpoint_filter=self.service_name,
+                endpoint_filter=self.sot.service,
+                endpoint_override=None,
                 json=self.request.body, headers=self.request.headers)
         else:
             self.session.post.assert_called_once_with(
                 self.request.uri,
-                endpoint_filter=self.service_name,
+                endpoint_filter=self.sot.service,
+                endpoint_override=None,
                 json=self.request.body, headers=self.request.headers)
 
         sot._translate_response.assert_called_once_with(self.response)
@@ -986,7 +995,7 @@ class TestResourceActions(base.TestCase):
 
     def test_put_create(self):
         class Test(resource2.Resource):
-            service = self.service_name
+            service = self.sot.service
             base_path = self.base_path
             allow_create = True
             put_create = True
@@ -995,7 +1004,7 @@ class TestResourceActions(base.TestCase):
 
     def test_post_create(self):
         class Test(resource2.Resource):
-            service = self.service_name
+            service = self.sot.service
             base_path = self.base_path
             allow_create = True
             put_create = False
@@ -1007,7 +1016,10 @@ class TestResourceActions(base.TestCase):
 
         self.sot._prepare_request.assert_called_once_with(requires_id=True)
         self.session.get.assert_called_once_with(
-            self.request.uri, endpoint_filter=self.service_name)
+            self.request.uri,
+            endpoint_override=None,
+            endpoint_filter=self.sot.service
+        )
 
         self.sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, self.sot)
@@ -1017,7 +1029,10 @@ class TestResourceActions(base.TestCase):
 
         self.sot._prepare_request.assert_called_once_with(requires_id=False)
         self.session.get.assert_called_once_with(
-            self.request.uri, endpoint_filter=self.service_name)
+            self.request.uri,
+            endpoint_filter=self.sot.service,
+            endpoint_override=None
+        )
 
         self.sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, self.sot)
@@ -1028,8 +1043,10 @@ class TestResourceActions(base.TestCase):
         self.sot._prepare_request.assert_called_once_with()
         self.session.head.assert_called_once_with(
             self.request.uri,
-            endpoint_filter=self.service_name,
-            headers={"Accept": ""})
+            endpoint_filter=self.sot.service,
+            endpoint_override=None,
+            headers={"Accept": ""}
+        )
 
         self.sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, self.sot)
@@ -1051,13 +1068,19 @@ class TestResourceActions(base.TestCase):
         if patch_update:
             self.session.patch.assert_called_once_with(
                 self.request.uri,
-                endpoint_filter=self.service_name,
-                json=self.request.body, headers=self.request.headers)
+                endpoint_filter=self.sot.service,
+                endpoint_override=None,
+                json=self.request.body,
+                headers=self.request.headers
+            )
         else:
             self.session.put.assert_called_once_with(
                 self.request.uri,
-                endpoint_filter=self.service_name,
-                json=self.request.body, headers=self.request.headers)
+                endpoint_filter=self.sot.service,
+                endpoint_override=None,
+                json=self.request.body,
+                headers=self.request.headers
+            )
 
         self.sot._translate_response.assert_called_once_with(
             self.response, has_body=has_body)
@@ -1084,7 +1107,8 @@ class TestResourceActions(base.TestCase):
         self.sot._prepare_request.assert_called_once_with()
         self.session.delete.assert_called_once_with(
             self.request.uri,
-            endpoint_filter=self.service_name,
+            endpoint_filter=self.sot.service,
+            endpoint_override=None,
             headers={"Accept": ""})
 
         self.sot._translate_response.assert_called_once_with(
@@ -1104,7 +1128,8 @@ class TestResourceActions(base.TestCase):
 
         self.session.get.assert_called_once_with(
             self.base_path,
-            endpoint_filter=self.service_name,
+            endpoint_filter=self.sot.service,
+            endpoint_override=None,
             headers={"Accept": "application/json"},
             params={})
 
@@ -1142,7 +1167,8 @@ class TestResourceActions(base.TestCase):
 
         self.session.get.assert_called_once_with(
             self.base_path,
-            endpoint_filter=self.service_name,
+            endpoint_filter=self.sot.service,
+            endpoint_override=None,
             headers={"Accept": "application/json"},
             params={})
 
@@ -1168,7 +1194,8 @@ class TestResourceActions(base.TestCase):
 
         self.session.get.assert_called_once_with(
             self.base_path,
-            endpoint_filter=self.service_name,
+            endpoint_filter=self.sot.service,
+            endpoint_override=None,
             headers={"Accept": "application/json"},
             params={})
 
@@ -1242,7 +1269,8 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(result0.id, ids[0])
         self.session.get.assert_called_with(
             self.base_path,
-            endpoint_filter=self.service_name,
+            endpoint_filter=self.sot.service,
+            endpoint_override=None,
             headers={"Accept": "application/json"},
             params={})
 
@@ -1250,14 +1278,16 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(result1.id, ids[1])
         self.session.get.assert_called_with(
             self.base_path,
-            endpoint_filter=self.service_name,
+            endpoint_filter=self.sot.service,
+            endpoint_override=None,
             headers={"Accept": "application/json"},
             params={"limit": 1, "marker": 1})
 
         self.assertRaises(StopIteration, next, results)
         self.session.get.assert_called_with(
             self.base_path,
-            endpoint_filter=self.service_name,
+            endpoint_filter=self.sot.service,
+            endpoint_override=None,
             headers={"Accept": "application/json"},
             params={"limit": 1, "marker": 2})
 
@@ -1284,7 +1314,8 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(result1.id, ids[1])
         self.session.get.assert_called_with(
             self.base_path,
-            endpoint_filter=self.service_name,
+            endpoint_filter=self.sot.service,
+            endpoint_override=None,
             headers={"Accept": "application/json"},
             params={})
 
@@ -1293,9 +1324,11 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(result2.id, ids[2])
         self.session.get.assert_called_with(
             self.base_path,
-            endpoint_filter=self.service_name,
+            endpoint_filter=self.sot.service,
+            endpoint_override=None,
             headers={"Accept": "application/json"},
-            params={"limit": 2, "marker": 2})
+            params={"limit": 2, "marker": 2}
+        )
 
         # Ensure we're done after those three items
         self.assertRaises(StopIteration, next, results)

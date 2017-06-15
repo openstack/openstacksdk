@@ -1,0 +1,6 @@
+[nosetests]
+with-coverage=1
+cover-package=antiddosclient
+cover-erase=1
+cover-html=1
+cover-html-dir=.coverage-html

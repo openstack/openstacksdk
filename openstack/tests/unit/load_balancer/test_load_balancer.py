@@ -38,7 +38,7 @@ class TestLoadBalancer(testtools.TestCase):
         test_load_balancer = load_balancer.LoadBalancer()
         self.assertEqual('loadbalancer', test_load_balancer.resource_key)
         self.assertEqual('loadbalancers', test_load_balancer.resources_key)
-        self.assertEqual('/loadbalancers', test_load_balancer.base_path)
+        self.assertEqual('/elbaas/loadbalancers', test_load_balancer.base_path)
         self.assertEqual('load_balancer',
                          test_load_balancer.service.service_type)
         self.assertTrue(test_load_balancer.allow_create)

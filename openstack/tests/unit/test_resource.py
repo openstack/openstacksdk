@@ -36,7 +36,7 @@ fake_resource = 'fake'
 fake_resources = 'fakes'
 fake_arguments = {'parent_name': fake_parent}
 fake_base_path = '/fakes/%(parent_name)s/data'
-fake_path = '/fakes/rey/data'
+fake_path = 'fakes/robert/data'
 
 fake_data = {'id': fake_id,
              'enabled': True,
@@ -652,9 +652,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(obj, obj.get(self.session))
 
         # Check that the proper URL is being built.
-        self.assertCalledURL(self.session.get,
-                             os.path.join(fake_base_path % fake_arguments,
-                                          str(fake_id))[1:])
+        self.assertCalledURL(self.session.get, fake_path + '/' + str(fake_id))
 
         self.assertTrue(obj['enabled'])
         self.assertEqual(fake_name, obj['name'])
@@ -684,9 +682,7 @@ class ResourceTests(base.TestCase):
                                      path_args=fake_arguments)
 
         # Check that the proper URL is being built.
-        self.assertCalledURL(self.session.get,
-                             os.path.join(fake_base_path % fake_arguments,
-                                          str(fake_id))[1:])
+        self.assertCalledURL(self.session.get, fake_path + '/' + str(fake_id))
 
         self.assertEqual(fake_id, obj.id)
         self.assertEqual(fake_name, obj['name'])
@@ -715,9 +711,7 @@ class ResourceTests(base.TestCase):
                                       path_args=fake_arguments,
                                       include_headers=True)
 
-        self.assertCalledURL(self.session.get,
-                             os.path.join(fake_base_path % fake_arguments,
-                                          str(fake_id))[1:])
+        self.assertCalledURL(self.session.get, fake_path + '/' + str(fake_id))
 
         self.assertEqual(fake_id, obj.id)
         self.assertEqual(fake_name, obj['name'])
@@ -743,9 +737,7 @@ class ResourceTests(base.TestCase):
         obj = FakeResource2.head_by_id(self.session, fake_id,
                                        path_args=fake_arguments)
 
-        self.assertCalledURL(self.session.head,
-                             os.path.join(fake_base_path % fake_arguments,
-                                          str(fake_id))[1:])
+        self.assertCalledURL(self.session.head, fake_path + '/' + str(fake_id))
 
         self.assertEqual('one', obj['headers']['header1'])
         self.assertEqual('two', obj['headers']['header2'])
@@ -771,9 +763,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(obj, obj.update(self.session))
         self.assertFalse(obj.is_dirty)
 
-        self.assertCalledURL(self.session.patch,
-                             os.path.join(fake_base_path % fake_arguments,
-                                          str(fake_id))[1:])
+        self.assertCalledURL(self.session.patch, fake_path + '/' + str(fake_id))
 
         last_req = self.session.patch.call_args[1]["json"][
             FakeResource.resource_key]
@@ -821,9 +811,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(obj, obj.update(self.session))
         self.assertFalse(obj.is_dirty)
 
-        self.assertCalledURL(self.session.put,
-                             os.path.join(fake_base_path % fake_arguments,
-                                          str(fake_id))[1:])
+        self.assertCalledURL(self.session.put, fake_path + '/' + str(fake_id))
 
         last_req = self.session.put.call_args[1]["json"][
             FakeResource.resource_key]
@@ -871,9 +859,7 @@ class ResourceTests(base.TestCase):
         obj = FakeResource({"id": fake_id, "parent_name": fake_parent})
         obj.delete(self.session)
 
-        self.assertCalledURL(self.session.delete,
-                             os.path.join(fake_base_path % fake_arguments,
-                                          str(fake_id))[1:])
+        self.assertCalledURL(self.session.delete, fake_path + '/' + str(fake_id))
 
     def _test_list(self, resource_class):
         results = [fake_data.copy(), fake_data.copy(), fake_data.copy()]

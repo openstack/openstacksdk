@@ -245,9 +245,12 @@ class TestImage(testtools.TestCase):
 
         rv = sot.download(self.sess)
         self.sess.get.assert_has_calls(
-            [mock.call('images/IDENTIFIER/file', endpoint_filter=sot.service,
+            [mock.call('images/IDENTIFIER/file',
+                       endpoint_filter=sot.service,
                        stream=False),
-             mock.call('images/IDENTIFIER', endpoint_filter=sot.service)])
+             mock.call('images/IDENTIFIER',
+                       endpoint_filter=sot.service,
+                       endpoint_override=None,)])
 
         self.assertEqual(rv, resp1.content)
 
@@ -274,9 +277,12 @@ class TestImage(testtools.TestCase):
                 log.records[0].msg)
 
         self.sess.get.assert_has_calls(
-            [mock.call('images/IDENTIFIER/file', endpoint_filter=sot.service,
+            [mock.call('images/IDENTIFIER/file',
+                       endpoint_filter=sot.service,
                        stream=False),
-             mock.call('images/IDENTIFIER', endpoint_filter=sot.service)])
+             mock.call('images/IDENTIFIER',
+                       endpoint_filter=sot.service,
+                       endpoint_override=None,)])
 
         self.assertEqual(rv, resp1.content)
 

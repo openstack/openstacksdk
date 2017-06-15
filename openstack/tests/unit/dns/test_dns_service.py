@@ -12,17 +12,17 @@
 
 import testtools
 
-from openstack.dns import dns_service
+from openstack.object_store import object_store_service
 
 
-class TestObjectStoreService(testtools.TestCase):
+class TestDNSService(testtools.TestCase):
 
     def test_service(self):
-        sot = dns_service.DNSService()
-        self.assertEqual('dns', sot.service_type)
+        sot = object_store_service.ObjectStoreService()
+        self.assertEqual('object-store', sot.service_type)
         self.assertEqual('public', sot.interface)
         self.assertIsNone(sot.region)
         self.assertIsNone(sot.service_name)
         self.assertEqual(1, len(sot.valid_versions))
-        self.assertEqual('v2', sot.valid_versions[0].module)
-        self.assertEqual('v2', sot.valid_versions[0].path)
+        self.assertEqual('v1', sot.valid_versions[0].module)
+        self.assertEqual('v1', sot.valid_versions[0].path)

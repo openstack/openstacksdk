@@ -167,7 +167,7 @@ connection.dns.delete_recordset(zone, recordset)
 connection.dns.delete_recordset(zone.id, recordset.id)
 ```
 
-## List all recordsets
+### List all recordsets
 ```python
 query = {
     'limit': 100
@@ -214,4 +214,3 @@ region = 'eu-de'
 floating_ip_id = '9e9c6d33-51a6-4f84-b504-c13301f1cc8c'
 connection.dns.restore_ptr(region, floating_ip_id)
 ```
-

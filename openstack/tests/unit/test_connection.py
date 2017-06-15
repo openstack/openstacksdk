@@ -147,7 +147,7 @@ class TestConnection(base.TestCase):
                          conn.network.__class__.__module__)
         self.assertEqual('openstack.object_store.v1._proxy',
                          conn.object_store.__class__.__module__)
-        self.assertEqual('openstack.load_balancer.v2._proxy',
+        self.assertEqual('openstack.load_balancer.v1._proxy',
                          conn.load_balancer.__class__.__module__)
         self.assertEqual('openstack.orchestration.v1._proxy',
                          conn.orchestration.__class__.__module__)
