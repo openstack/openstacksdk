@@ -21,25 +21,48 @@ Example
 =======
 
 Sometimes an example is nice.
-::
 
-  import shade
+#. Create a ``clouds.yml`` file::
 
-  # Initialize and turn on debug logging
-  shade.simple_logging(debug=True)
+     clouds:
+      mordred:
+        region_name: RegionOne
+        auth:
+          username: 'mordred'
+          password: XXXXXXX
+          project_name: 'shade'
+          auth_url: 'https://montytaylor-sjc.openstack.blueboxgrid.com:5001/v2.0'
 
-  # Initialize cloud
-  # Cloud configs are read with os-client-config
-  cloud = shade.openstack_cloud(cloud='mordred')
+   Please note: *os-client-config* will look for a file called ``clouds.yaml``
+   in the following locations:
 
-  # Upload an image to the cloud
-  image = cloud.create_image(
-      'ubuntu-trusty', filename='ubuntu-trusty.qcow2', wait=True)
+   * Current Directory
+   * ``~/.config/openstack``
+   * ``/etc/openstack``
 
-  # Find a flavor with at least 512M of RAM
-  flavor = cloud.get_flavor_by_ram(512)
+   More information at https://pypi.python.org/pypi/os-client-config
 
-  # Boot a server, wait for it to boot, and then do whatever is needed
-  # to get a public ip for it.
-  cloud.create_server(
-      'my-server', image=image, flavor=flavor, wait=True, auto_ip=True)
+
+#. Create a server with *shade*, configured with the ``clouds.yml`` file::
+
+    import shade
+
+    # Initialize and turn on debug logging
+    shade.simple_logging(debug=True)
+
+    # Initialize cloud
+    # Cloud configs are read with os-client-config
+    cloud = shade.openstack_cloud(cloud='mordred')
+
+    # Upload an image to the cloud
+    image = cloud.create_image(
+        'ubuntu-trusty', filename='ubuntu-trusty.qcow2', wait=True)
+
+    # Find a flavor with at least 512M of RAM
+    flavor = cloud.get_flavor_by_ram(512)
+
+    # Boot a server, wait for it to boot, and then do whatever is needed
+    # to get a public ip for it.
+    cloud.create_server(
+        'my-server', image=image, flavor=flavor, wait=True, auto_ip=True)
+
