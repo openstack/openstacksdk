@@ -12,57 +12,102 @@
 # limitations under the License.
 
 
-import shade
-
-from mock import patch
-from novaclient import exceptions as nova_exc
-
 from shade import exc
-from shade import meta
 from shade.tests import fakes
 from shade.tests.unit import base
 
 
-class TestKeypair(base.TestCase):
+class TestKeypair(base.RequestsMockTestCase):
 
-    @patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_create_keypair(self, mock_nova):
-        keyname = 'my_keyname'
-        pub_key = 'ssh-rsa BLAH'
-        key = fakes.FakeKeypair('keyid', keyname, pub_key)
-        mock_nova.keypairs.create.return_value = key
+    def setUp(self):
+        super(TestKeypair, self).setUp()
+        self.keyname = self.getUniqueString('key')
+        self.key = fakes.make_fake_keypair(self.keyname)
 
-        new_key = self.cloud.create_keypair(keyname, pub_key)
-        mock_nova.keypairs.create.assert_called_once_with(
-            name=keyname, public_key=pub_key
-        )
-        self.assertEqual(meta.obj_to_munch(key), new_key)
+    def test_create_keypair(self):
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-keypairs']),
+                 json={'keypair': self.key},
+                 validate=dict(json={
+                     'keypair': {
+                         'name': self.key['name'],
+                         'public_key': self.key['public_key']}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['os-keypairs', self.keyname]),
+                 json={'keypair': self.key}),
+        ])
 
-    @patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_create_keypair_exception(self, mock_nova):
-        mock_nova.keypairs.create.side_effect = Exception()
-        self.assertRaises(exc.OpenStackCloudException,
-                          self.cloud.create_keypair, '', '')
+        new_key = self.cloud.create_keypair(
+            self.keyname, self.key['public_key'])
+        self.assertEqual(new_key['name'], self.keyname)
 
-    @patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_delete_keypair(self, mock_nova):
-        self.assertTrue(self.cloud.delete_keypair('mykey'))
-        mock_nova.keypairs.delete.assert_called_once_with(
-            key='mykey'
-        )
+        self.assert_calls()
 
-    @patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_delete_keypair_not_found(self, mock_nova):
-        mock_nova.keypairs.delete.side_effect = nova_exc.NotFound('')
-        self.assertFalse(self.cloud.delete_keypair('invalid'))
+    def test_create_keypair_exception(self):
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-keypairs']),
+                 status_code=400,
+                 validate=dict(json={
+                     'keypair': {
+                         'name': self.key['name'],
+                         'public_key': self.key['public_key']}})),
+        ])
 
-    @patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_list_keypairs(self, mock_nova):
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.cloud.create_keypair,
+            self.keyname, self.key['public_key'])
+
+        self.assert_calls()
+
+    def test_delete_keypair(self):
+        self.register_uris([
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['os-keypairs', self.keyname]),
+                 status_code=202),
+        ])
+        self.assertTrue(self.cloud.delete_keypair(self.keyname))
+
+        self.assert_calls()
+
+    def test_delete_keypair_not_found(self):
+        self.register_uris([
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['os-keypairs', self.keyname]),
+                 status_code=404),
+        ])
+        self.assertFalse(self.cloud.delete_keypair(self.keyname))
+
+        self.assert_calls()
+
+    def test_list_keypairs(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-keypairs']),
+                 json={'keypairs': [self.key]}),
+
+        ])
         self.cloud.list_keypairs()
-        mock_nova.keypairs.list.assert_called_once_with()
 
-    @patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_list_keypairs_exception(self, mock_nova):
-        mock_nova.keypairs.list.side_effect = Exception()
+    def test_list_keypairs_exception(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-keypairs']),
+                 status_code=400),
+
+        ])
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.list_keypairs)
+        self.assert_calls()
