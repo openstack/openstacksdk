@@ -81,10 +81,6 @@ class TestRebuildServer(base.RequestsMockTestCase):
                              'imageRef': 'a'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', self.server_id]),
-                 json={'server': self.rebuild_server}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
                  json={'servers': [self.error_server]}),
         ])
@@ -109,10 +105,6 @@ class TestRebuildServer(base.RequestsMockTestCase):
                      json={
                          'rebuild': {
                              'imageRef': 'a'}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', self.server_id]),
-                 json={'server': self.rebuild_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -140,10 +132,6 @@ class TestRebuildServer(base.RequestsMockTestCase):
                      json={
                          'rebuild': {
                              'imageRef': 'a'}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', self.server_id]),
-                 json={'server': self.rebuild_server}),
         ])
         self.assertEqual(
             self.rebuild_server['status'],
@@ -170,10 +158,6 @@ class TestRebuildServer(base.RequestsMockTestCase):
                          'rebuild': {
                              'imageRef': 'a',
                              'adminPass': password}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', self.server_id]),
-                 json={'server': self.rebuild_server}),
         ])
         self.assertEqual(
             password,
@@ -202,10 +186,6 @@ class TestRebuildServer(base.RequestsMockTestCase):
                          'rebuild': {
                              'imageRef': 'a',
                              'adminPass': password}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', self.server_id]),
-                 json={'server': self.rebuild_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -243,10 +223,6 @@ class TestRebuildServer(base.RequestsMockTestCase):
                      json={
                          'rebuild': {
                              'imageRef': 'a'}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', self.server_id]),
-                 json={'server': self.rebuild_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),

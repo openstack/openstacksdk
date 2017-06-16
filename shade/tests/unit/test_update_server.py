@@ -75,10 +75,6 @@ class TestUpdateServer(base.RequestsMockTestCase):
                  json={'server': fake_update_server},
                  validate=dict(
                      json={'server': {'name': self.updated_server_name}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', self.server_id]),
-                 json={'server': fake_update_server}),
         ])
         self.assertEqual(
             self.updated_server_name,
