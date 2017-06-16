@@ -57,17 +57,13 @@ class TestFloatingIP(base.TestCase):
             timeout=60, wait=False, server=server_dict,
             floating_ip=floating_ip_dict, skip_attach=False)
 
-    @patch.object(OpenStackCloud, 'nova_client')
     @patch.object(OpenStackCloud, '_add_ip_from_pool')
-    def test_add_ips_to_server_pool(
-            self, mock_add_ip_from_pool, mock_nova_client):
+    def test_add_ips_to_server_pool(self, mock_add_ip_from_pool):
         server = FakeServer(
             id='romeo', name='test-server', status="ACTIVE", addresses={}
         )
         server_dict = meta.obj_to_munch(server)
         pool = 'nova'
-
-        mock_nova_client.servers.get.return_value = server
 
         self.cloud.add_ips_to_server(server_dict, ip_pool=pool)
 
@@ -187,16 +183,13 @@ class TestFloatingIP(base.TestCase):
         mock_add_auto_ip.assert_not_called()
         self.assertEqual(new_server['interface_ip'], '104.130.246.91')
 
-    @patch.object(OpenStackCloud, 'nova_client')
     @patch.object(OpenStackCloud, 'add_ip_list')
-    def test_add_ips_to_server_ip_list(
-            self, mock_add_ip_list, mock_nova_client):
+    def test_add_ips_to_server_ip_list(self, mock_add_ip_list):
         server = FakeServer(
             id='server-id', name='test-server', status="ACTIVE", addresses={}
         )
         server_dict = meta.obj_to_munch(server)
         ips = ['203.0.113.29', '172.24.4.229']
-        mock_nova_client.servers.get.return_value = server
 
         self.cloud.add_ips_to_server(server_dict, ips=ips)
 
@@ -204,16 +197,14 @@ class TestFloatingIP(base.TestCase):
             server_dict, ips, wait=False, timeout=60, fixed_address=None)
 
     @patch.object(OpenStackCloud, '_needs_floating_ip')
-    @patch.object(OpenStackCloud, 'nova_client')
     @patch.object(OpenStackCloud, '_add_auto_ip')
     def test_add_ips_to_server_auto_ip(
-            self, mock_add_auto_ip, mock_nova_client, mock_needs_floating_ip):
+            self, mock_add_auto_ip, mock_needs_floating_ip):
         server = FakeServer(
             id='server-id', name='test-server', status="ACTIVE", addresses={}
         )
         server_dict = meta.obj_to_munch(server)
 
-        mock_nova_client.servers.get.return_value = server
         # TODO(mordred) REMOVE THIS MOCK WHEN THE NEXT PATCH LANDS
         # SERIOUSLY THIS TIME. NEXT PATCH - WHICH SHOULD ADD MOCKS FOR
         # list_ports AND list_networks AND list_subnets. BUT THAT WOULD
