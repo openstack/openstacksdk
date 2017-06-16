@@ -2011,20 +2011,21 @@ class OpenStackCloud(
         return self._servers
 
     def _list_servers(self, detailed=False, all_projects=False, bare=False):
-        with _utils.shade_exceptions(
-                "Error fetching server list on {cloud}:{region}:".format(
-                    cloud=self.name,
-                    region=self.region_name)):
-            kwargs = {}
-            if all_projects:
-                kwargs['search_opts'] = {'all_tenants': True}
-            servers = self._normalize_servers(
-                self.manager.submit_task(_tasks.ServerList(**kwargs)))
+        error_msg = "Error fetching server list on {cloud}:{region}:".format(
+            cloud=self.name,
+            region=self.region_name)
 
-            return [
-                self._expand_server(server, detailed, bare)
-                for server in servers
-            ]
+        params = {}
+        if all_projects:
+            params['all_tenants'] = True
+        servers = self._normalize_servers(
+            self._compute_client.get(
+                '/servers/detail', params=params, error_message=error_msg))
+
+        return [
+            self._expand_server(server, detailed, bare)
+            for server in servers
+        ]
 
     def list_server_groups(self):
         """List all available server groups.

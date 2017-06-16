@@ -47,11 +47,6 @@ class UserRemoveFromGroup(task_manager.Task):
         return client.keystone_client.users.remove_from_group(**self.args)
 
 
-class ServerList(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.servers.list(**self.args)
-
-
 class ServerGroupList(task_manager.Task):
     def main(self, client):
         return client.nova_client.server_groups.list(**self.args)
