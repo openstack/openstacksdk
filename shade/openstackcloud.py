@@ -1700,21 +1700,53 @@ class OpenStackCloud(
 
         """
         def _list(data):
-            volumes.extend(meta.get_and_munchify('volumes', data))
+            volumes.extend(data.get('volumes', []))
             endpoint = None
             for l in data.get('volumes_links', []):
                 if 'rel' in l and 'next' == l['rel']:
                     endpoint = l['href']
                     break
             if endpoint:
-                _list(self._volume_client.get(endpoint))
+                try:
+                    _list(self._volume_client.get(endpoint))
+                except OpenStackCloudURINotFound:
+                    # Catch and re-raise here because we are making recursive
+                    # calls and we just have context for the log here
+                    self.log.debug(
+                        "While listing volumes, could not find next link"
+                        " {link}.".format(link=data))
+                    raise
 
         if not cache:
             warnings.warn('cache argument to list_volumes is deprecated. Use '
                           'invalidate instead.')
-        volumes = []
-        _list(self._volume_client.get('/volumes/detail'))
-        return self._normalize_volumes(volumes)
+
+        # Fetching paginated volumes can fails for several reasons, if
+        # something goes wrong we'll have to start fetching volumes from
+        # scratch
+        attempts = 5
+        for _ in range(attempts):
+            volumes = []
+            data = self._volume_client.get('/volumes/detail')
+            if 'volumes_links' not in data:
+                # no pagination needed
+                volumes.extend(data.get('volumes', []))
+                break
+
+            try:
+                _list(data)
+                break
+            except OpenStackCloudURINotFound:
+                pass
+        else:
+            self.log.debug(
+                "List volumes failed to retrieve all volumes after"
+                " {attempts} attempts. Returning what we found.".format(
+                    attempts=attempts))
+        # list volumes didn't complete succesfully so just return what
+        # we found
+        return self._normalize_volumes(
+            meta.get_and_munchify(key=None, data=volumes))
 
     @_utils.cache_on_arguments()
     def list_volume_types(self, get_extra=True):

@@ -319,3 +319,96 @@ class TestVolume(base.RequestsMockTestCase):
              self.cloud._normalize_volume(vol2)],
             self.cloud.list_volumes())
         self.assert_calls()
+
+    def test_list_volumes_with_pagination_next_link_fails_once(self):
+        vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
+        vol2 = meta.obj_to_munch(fakes.FakeVolume('02', 'available', 'vol2'))
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['volumes', 'detail']),
+                 json={
+                     'volumes': [vol1],
+                     'volumes_links': [
+                         {'href': self.get_mock_url(
+                             'volumev2', 'public',
+                             append=['volumes', 'detail'],
+                             qs_elements=['marker=01']),
+                          'rel': 'next'}]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['volumes', 'detail'],
+                     qs_elements=['marker=01']),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['volumes', 'detail']),
+                 json={
+                     'volumes': [vol1],
+                     'volumes_links': [
+                         {'href': self.get_mock_url(
+                             'volumev2', 'public',
+                             append=['volumes', 'detail'],
+                             qs_elements=['marker=01']),
+                          'rel': 'next'}]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['volumes', 'detail'],
+                     qs_elements=['marker=01']),
+                 json={
+                     'volumes': [vol2],
+                     'volumes_links': [
+                         {'href': self.get_mock_url(
+                             'volumev2', 'public',
+                             append=['volumes', 'detail'],
+                             qs_elements=['marker=02']),
+                          'rel': 'next'}]}),
+
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['volumes', 'detail'],
+                     qs_elements=['marker=02']),
+                 json={'volumes': []})])
+        self.assertEqual(
+            [self.cloud._normalize_volume(vol1),
+             self.cloud._normalize_volume(vol2)],
+            self.cloud.list_volumes())
+        self.assert_calls()
+
+    def test_list_volumes_with_pagination_next_link_fails_all_attempts(self):
+        vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
+        uris = []
+        attempts = 5
+        for i in range(attempts):
+            uris.extend([
+                dict(method='GET',
+                     uri=self.get_mock_url(
+                         'volumev2', 'public',
+                         append=['volumes', 'detail']),
+                     json={
+                         'volumes': [vol1],
+                         'volumes_links': [
+                             {'href': self.get_mock_url(
+                                 'volumev2', 'public',
+                                 append=['volumes', 'detail'],
+                                 qs_elements=['marker=01']),
+                              'rel': 'next'}]}),
+                dict(method='GET',
+                     uri=self.get_mock_url(
+                         'volumev2', 'public',
+                         append=['volumes', 'detail'],
+                         qs_elements=['marker=01']),
+                     status_code=404)])
+        self.register_uris(uris)
+        # Check that found volumes are returned even if pagination didn't
+        # complete because call to get next link 404'ed for all the allowed
+        # attempts
+        self.assertEqual(
+            [self.cloud._normalize_volume(vol1)],
+            self.cloud.list_volumes())
+        self.assert_calls()
