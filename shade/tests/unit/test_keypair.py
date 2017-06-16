@@ -34,11 +34,6 @@ class TestKeypair(base.RequestsMockTestCase):
                      'keypair': {
                          'name': self.key['name'],
                          'public_key': self.key['public_key']}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public',
-                     append=['os-keypairs', self.keyname]),
-                 json={'keypair': self.key}),
         ])
 
         new_key = self.cloud.create_keypair(

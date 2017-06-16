@@ -107,21 +107,6 @@ class AggregateSetMetadata(task_manager.Task):
         return client.nova_client.aggregates.set_metadata(**self.args)
 
 
-class KeypairList(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.keypairs.list()
-
-
-class KeypairCreate(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.keypairs.create(**self.args)
-
-
-class KeypairDelete(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.keypairs.delete(**self.args)
-
-
 class MachineCreate(task_manager.Task):
     def main(self, client):
         return client.ironic_client.node.create(**self.args)

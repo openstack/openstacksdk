@@ -31,7 +31,6 @@ import requestsexceptions
 from six.moves import urllib
 
 import keystoneauth1.exceptions
-import novaclient.exceptions as nova_exceptions
 
 import shade
 from shade.exc import *  # noqa
@@ -1612,9 +1611,10 @@ class OpenStackCloud(
         :returns: A list of ``munch.Munch`` containing keypair info.
 
         """
-        with _utils.shade_exceptions("Error fetching keypair list"):
-            return self._normalize_keypairs(
-                self.manager.submit_task(_tasks.KeypairList()))
+        return self._normalize_keypairs([
+            k['keypair'] for k in self._compute_client.get(
+                '/os-keypairs',
+                error_message="Error fetching keypair list")])
 
     def list_networks(self, filters=None):
         """List all available networks.
@@ -2968,11 +2968,15 @@ class OpenStackCloud(
 
         :raises: OpenStackCloudException on operation error.
         """
-        with _utils.shade_exceptions("Unable to create keypair {name}".format(
-                name=name)):
-            return self._normalize_keypair(
-                self.manager.submit_task(_tasks.KeypairCreate(
-                    name=name, public_key=public_key)))
+        keypair = {
+            'name': name,
+        }
+        if public_key:
+            keypair['public_key'] = public_key
+        return self._normalize_keypair(self._compute_client.post(
+            '/os-keypairs',
+            json={'keypair': keypair},
+            error_message="Unable to create keypair {name}".format(name=name)))
 
     def delete_keypair(self, name):
         """Delete a keypair.
@@ -2984,15 +2988,11 @@ class OpenStackCloud(
         :raises: OpenStackCloudException on operation error.
         """
         try:
-            self.manager.submit_task(_tasks.KeypairDelete(key=name))
-        except nova_exceptions.NotFound:
+            self._compute_client.delete('/os-keypairs/{name}'.format(
+                name=name))
+        except OpenStackCloudURINotFound:
             self.log.debug("Keypair %s not found for deleting", name)
             return False
-        except OpenStackCloudException:
-            raise
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Unable to delete keypair %s: %s" % (name, e))
         return True
 
     def create_network(self, name, shared=False, admin_state_up=True,
