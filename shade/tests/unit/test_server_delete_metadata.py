@@ -17,35 +17,59 @@ test_server_delete_metadata
 Tests for the `delete_server_metadata` command.
 """
 
-import mock
+import uuid
 
-from shade import OpenStackCloud
-from shade.exc import OpenStackCloudException
+from shade.exc import OpenStackCloudURINotFound
+from shade.tests import fakes
 from shade.tests.unit import base
 
 
-class TestServerDeleteMetadata(base.TestCase):
+class TestServerDeleteMetadata(base.RequestsMockTestCase):
 
-    @mock.patch.object(OpenStackCloud, 'nova_client')
-    def test_server_delete_metadata_with_exception(self, mock_nova):
+    def setUp(self):
+        super(TestServerDeleteMetadata, self).setUp()
+        self.server_id = str(uuid.uuid4())
+        self.server_name = self.getUniqueString('name')
+        self.fake_server = fakes.make_fake_server(
+            self.server_id, self.server_name)
+
+    def test_server_delete_metadata_with_exception(self):
         """
-        Test that a generic exception in the novaclient delete_meta raises
-        an exception in delete_server_metadata.
+        Test that a missing metadata throws an exception.
         """
-        mock_nova.servers.delete_meta.side_effect = Exception("exception")
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [self.fake_server]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', self.fake_server['id'],
+                             'metadata', 'key']),
+                 status_code=404),
+        ])
 
         self.assertRaises(
-            OpenStackCloudException, self.cloud.delete_server_metadata,
-            {'id': 'server-id'}, ['key'])
+            OpenStackCloudURINotFound, self.cloud.delete_server_metadata,
+            self.server_name, ['key'])
 
-    @mock.patch.object(OpenStackCloud, 'nova_client')
-    def test_server_delete_metadata_with_exception_reraise(self, mock_nova):
-        """
-        Test that an OpenStackCloudException exception gets re-raised
-        in delete_server_metadata.
-        """
-        mock_nova.servers.delete_meta.side_effect = OpenStackCloudException("")
+        self.assert_calls()
 
-        self.assertRaises(
-            OpenStackCloudException, self.cloud.delete_server_metadata,
-            'server-id', ['key'])
+    def test_server_delete_metadata(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [self.fake_server]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', self.fake_server['id'],
+                             'metadata', 'key']),
+                 status_code=200),
+        ])
+
+        self.cloud.delete_server_metadata(self.server_id, ['key'])
+
+        self.assert_calls()

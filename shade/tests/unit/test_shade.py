@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import munch
+import uuid
 
 import testtools
 
@@ -68,31 +68,48 @@ class TestShade(base.RequestsMockTestCase):
         r = self.cloud.get_image('doesNotExist')
         self.assertIsNone(r)
 
-    @mock.patch.object(shade.OpenStackCloud, '_expand_server')
-    @mock.patch.object(shade.OpenStackCloud, 'list_servers')
-    def test_get_server(self, mock_list, mock_expand):
-        server1 = dict(id='123', name='mickey')
-        server2 = dict(id='345', name='mouse')
+    def test_get_server(self):
+        server1 = fakes.make_fake_server('123', 'mickey')
+        server2 = fakes.make_fake_server('345', 'mouse')
 
-        def expand_server(server, detailed, bare):
-            return server
-        mock_expand.side_effect = expand_server
-        mock_list.return_value = [server1, server2]
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [server1, server2]}),
+        ])
+
         r = self.cloud.get_server('mickey')
         self.assertIsNotNone(r)
-        self.assertDictEqual(server1, r)
+        self.assertEqual(server1['name'], r['name'])
 
-    @mock.patch.object(shade.OpenStackCloud, 'search_servers')
-    def test_get_server_not_found(self, mock_search):
-        mock_search.return_value = []
+        self.assert_calls()
+
+    def test_get_server_not_found(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': []}),
+        ])
+
         r = self.cloud.get_server('doesNotExist')
         self.assertIsNone(r)
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_list_servers_exception(self, mock_client):
-        mock_client.servers.list.side_effect = Exception()
+        self.assert_calls()
+
+    def test_list_servers_exception(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 status_code=400)
+        ])
+
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.list_servers)
+
+        self.assert_calls()
 
     def test__neutron_exceptions_resource_not_found(self):
         self.register_uris([
@@ -116,64 +133,39 @@ class TestShade(base.RequestsMockTestCase):
                           self.cloud.list_networks)
         self.assert_calls()
 
-    @mock.patch.object(shade._tasks.ServerList, 'main')
-    @mock.patch('shade.meta.add_server_interfaces')
-    def test_list_servers(self, mock_add_srv_int, mock_serverlist):
-        '''This test verifies that calling list_servers results in a call
-        to the ServerList task.'''
-        server_obj = munch.Munch({'name': 'testserver',
-                                  'id': '1',
-                                  'flavor': {},
-                                  'addresses': {},
-                                  'accessIPv4': '',
-                                  'accessIPv6': '',
-                                  'image': ''})
-        mock_serverlist.return_value = [server_obj]
-        mock_add_srv_int.side_effect = [server_obj]
+    def test_list_servers(self):
+        server_id = str(uuid.uuid4())
+        server_name = self.getUniqueString('name')
+        fake_server = fakes.make_fake_server(server_id, server_name)
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [fake_server]}),
+        ])
 
         r = self.cloud.list_servers()
 
         self.assertEqual(1, len(r))
-        self.assertEqual(1, mock_add_srv_int.call_count)
-        self.assertEqual('testserver', r[0]['name'])
+        self.assertEqual(server_name, r[0]['name'])
 
-    @mock.patch.object(shade._tasks.ServerList, 'main')
-    @mock.patch('shade.meta.get_hostvars_from_server')
-    def test_list_servers_detailed(self,
-                                   mock_get_hostvars_from_server,
-                                   mock_serverlist):
+        self.assert_calls()
+
+    def test_list_servers_all_projects(self):
         '''This test verifies that when list_servers is called with
-        `detailed=True` that it calls `get_hostvars_from_server` for each
-        server in the list.'''
-        mock_serverlist.return_value = [
-            fakes.FakeServer('server1', '', 'ACTIVE'),
-            fakes.FakeServer('server2', '', 'ACTIVE'),
-        ]
-        mock_get_hostvars_from_server.side_effect = [
-            {'name': 'server1', 'id': '1'},
-            {'name': 'server2', 'id': '2'},
-        ]
-
-        r = self.cloud.list_servers(detailed=True)
-
-        self.assertEqual(2, len(r))
-        self.assertEqual(len(r), mock_get_hostvars_from_server.call_count)
-        self.assertEqual('server1', r[0]['name'])
-        self.assertEqual('server2', r[1]['name'])
-
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_list_servers_all_projects(self, mock_nova_client):
-        '''This test verifies that when list_servers is called with
-        `all_projects=True` that it passes `all_tenants=1` to novaclient.'''
-        mock_nova_client.servers.list.return_value = [
-            fakes.FakeServer('server1', '', 'ACTIVE'),
-            fakes.FakeServer('server2', '', 'ACTIVE'),
-        ]
+        `all_projects=True` that it passes `all_tenants=True` to nova.'''
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail'],
+                     qs_elements=['all_tenants=True']),
+                 complete_qs=True,
+                 json={'servers': []}),
+        ])
 
         self.cloud.list_servers(all_projects=True)
 
-        mock_nova_client.servers.list.assert_called_with(
-            search_opts={'all_tenants': True})
+        self.assert_calls()
 
     def test_iterate_timeout_bad_wait(self):
         with testtools.ExpectedException(

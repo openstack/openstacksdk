@@ -25,6 +25,9 @@ class TestImageSnapshot(base.RequestsMockTestCase):
         super(TestImageSnapshot, self).setUp()
         self.server_id = str(uuid.uuid4())
         self.image_id = str(uuid.uuid4())
+        self.server_name = self.getUniqueString('name')
+        self.fake_server = fakes.make_fake_server(
+            self.server_id, self.server_name)
 
     def test_create_image_snapshot_wait_until_active_never_active(self):
         snapshot_name = 'test-snapshot'
@@ -97,17 +100,3 @@ class TestImageSnapshot(base.RequestsMockTestCase):
         self.assertEqual(image['id'], self.image_id)
 
         self.assert_calls()
-
-    def test_create_image_snapshot_bad_name_exception(self):
-        self.register_uris([
-            dict(
-                method='POST',
-                uri='{endpoint}/servers/{server_id}/action'.format(
-                    endpoint=fakes.COMPUTE_ENDPOINT,
-                    server_id=self.server_id),
-                json=dict(servers=[])),
-        ])
-        self.assertRaises(
-            exc.OpenStackCloudException,
-            self.cloud.create_image_snapshot,
-            'test-snapshot', self.server_id)

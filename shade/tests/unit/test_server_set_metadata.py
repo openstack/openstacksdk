@@ -17,35 +17,62 @@ test_server_set_metadata
 Tests for the `set_server_metadata` command.
 """
 
-import mock
+import uuid
 
-from shade import OpenStackCloud
-from shade.exc import OpenStackCloudException
+from shade.exc import OpenStackCloudBadRequest
+from shade.tests import fakes
 from shade.tests.unit import base
 
 
-class TestServerSetMetadata(base.TestCase):
+class TestServerSetMetadata(base.RequestsMockTestCase):
 
-    @mock.patch.object(OpenStackCloud, 'nova_client')
-    def test_server_set_metadata_with_set_meta_exception(self, mock_nova):
+    def setUp(self):
+        super(TestServerSetMetadata, self).setUp()
+        self.server_id = str(uuid.uuid4())
+        self.server_name = self.getUniqueString('name')
+        self.fake_server = fakes.make_fake_server(
+            self.server_id, self.server_name)
+
+    def test_server_set_metadata_with_exception(self):
         """
-        Test that a generic exception in the novaclient set_meta raises
-        an exception in set_server_metadata.
+        Test that a generic exception in the novaclient delete_meta raises
+        an exception in delete_server_metadata.
         """
-        mock_nova.servers.set_meta.side_effect = Exception("exception")
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [self.fake_server]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', self.fake_server['id'],
+                             'metadata']),
+                 validate=dict(json={'metadata': {'meta': 'data'}}),
+                 json={},
+                 status_code=400),
+        ])
 
         self.assertRaises(
-            OpenStackCloudException, self.cloud.set_server_metadata,
-            {'id': 'server-id'}, {'meta': 'data'})
+            OpenStackCloudBadRequest, self.cloud.set_server_metadata,
+            self.server_name, {'meta': 'data'})
 
-    @mock.patch.object(OpenStackCloud, 'nova_client')
-    def test_server_set_metadata_with_exception_reraise(self, mock_nova):
-        """
-        Test that an OpenStackCloudException exception gets re-raised
-        in set_server_metadata.
-        """
-        mock_nova.servers.set_meta.side_effect = OpenStackCloudException("")
+        self.assert_calls()
 
-        self.assertRaises(
-            OpenStackCloudException, self.cloud.set_server_metadata,
-            'server-id', {'meta': 'data'})
+    def test_server_set_metadata(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [self.fake_server]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', self.fake_server['id'], 'metadata']),
+                 validate=dict(json={'metadata': {'meta': 'data'}}),
+                 status_code=200),
+        ])
+
+        self.cloud.set_server_metadata(self.server_id, {'meta': 'data'})
+
+        self.assert_calls()
