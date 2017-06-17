@@ -12,6 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import datetime
 import munch
 import six
 
@@ -42,6 +43,21 @@ _SERVER_FIELDS = (
     'status',
     'updated',
     'user_id',
+)
+
+_KEYPAIR_FIELDS = (
+    'fingerprint',
+    'name',
+    'private_key',
+    'public_key',
+    'user_id',
+)
+
+_KEYPAIR_USELESS_FIELDS = (
+    'deleted',
+    'deleted_at',
+    'id',
+    'updated_at',
 )
 
 _COMPUTE_LIMITS_FIELDS = (
@@ -202,6 +218,39 @@ class Normalizer(object):
                 new_flavor.setdefault(k, v)
 
         return new_flavor
+
+    def _normalize_keypairs(self, keypairs):
+        """Normalize Nova Keypairs"""
+        ret = []
+        for keypair in keypairs:
+            ret.append(self._normalize_keypair(keypair))
+        return ret
+
+    def _normalize_keypair(self, keypair):
+        """Normalize Ironic Machine"""
+
+        new_keypair = munch.Munch()
+        keypair = keypair.copy()
+
+        # Discard noise
+        self._remove_novaclient_artifacts(keypair)
+
+        new_keypair['location'] = self.current_location
+        for key in _KEYPAIR_FIELDS:
+            new_keypair[key] = keypair.pop(key, None)
+        # These are completely meaningless fields
+        for key in _KEYPAIR_USELESS_FIELDS:
+            keypair.pop(key, None)
+        new_keypair['type'] = keypair.pop('type', 'ssh')
+        # created_at isn't returned from the keypair creation. (what?)
+        new_keypair['created_at'] = keypair.pop(
+            'created_at', datetime.datetime.now().isoformat())
+        # Don't even get me started on this
+        new_keypair['id'] = new_keypair['name']
+
+        new_keypair['properties'] = keypair.copy()
+
+        return new_keypair
 
     def _normalize_images(self, images):
         ret = []
