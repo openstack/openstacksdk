@@ -1192,17 +1192,23 @@ class TestShadeOperator(base.RequestsMockTestCase):
         get_session_mock.return_value = session_mock
         self.assertTrue(self.op_cloud.has_service("image"))
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_list_hypervisors(self, mock_nova):
+    def test_list_hypervisors(self):
         '''This test verifies that calling list_hypervisors results in a call
         to nova client.'''
-        mock_nova.hypervisors.list.return_value = [
-            fakes.FakeHypervisor('1', 'testserver1'),
-            fakes.FakeHypervisor('2', 'testserver2'),
-        ]
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-hypervisors', 'detail']),
+                 json={'hypervisors': [
+                     fakes.make_fake_hypervisor('1', 'testserver1'),
+                     fakes.make_fake_hypervisor('2', 'testserver2'),
+                 ]}),
+        ])
 
         r = self.op_cloud.list_hypervisors()
-        mock_nova.hypervisors.list.assert_called_once_with()
+
         self.assertEqual(2, len(r))
         self.assertEqual('testserver1', r[0]['hypervisor_hostname'])
         self.assertEqual('testserver2', r[1]['hypervisor_hostname'])
+
+        self.assert_calls()
