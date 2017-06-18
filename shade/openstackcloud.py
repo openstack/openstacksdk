@@ -2047,7 +2047,7 @@ class OpenStackCloud(
 
         :returns: Munch object with the limits
         """
-        kwargs = {}
+        params = {}
         project_id = None
         error_msg = "Failed to get limits"
         if name_or_id:
@@ -2056,14 +2056,11 @@ class OpenStackCloud(
             if not proj:
                 raise OpenStackCloudException("project does not exist")
             project_id = proj.id
-            kwargs['tenant_id'] = project_id
+            params['tenant_id'] = project_id
             error_msg = "{msg} for the project: {project} ".format(
                 msg=error_msg, project=name_or_id)
 
-        with _utils.shade_exceptions(error_msg):
-            # TODO(mordred) Before we convert this to REST, we need to add
-            # in support for running calls with a different project context
-            limits = self.manager.submit_task(_tasks.NovaLimitsGet(**kwargs))
+        limits = self._compute_client.get('/limits', params=params)
 
         return self._normalize_compute_limits(limits, project_id=project_id)
 
