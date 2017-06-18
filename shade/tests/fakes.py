@@ -130,6 +130,17 @@ def make_fake_server(server_id, name, status='ACTIVE'):
         "config_drive": "True"}
 
 
+def make_fake_keypair(name):
+    # Note: this is literally taken from:
+    # https://developer.openstack.org/api-ref/compute/
+    return {
+        "fingerprint": "7e:eb:ab:24:ba:d1:e1:88:ae:9a:fb:66:53:df:d3:bd",
+        "name": name,
+        "type": "ssh",
+        "public_key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCkF3MX59OrlBs3dH5CU7lNmvpbrgZxSpyGjlnE8Flkirnc/Up22lpjznoxqeoTAwTW034k7Dz6aYIrZGmQwe2TkE084yqvlj45Dkyoj95fW/sZacm0cZNuL69EObEGHdprfGJQajrpz22NQoCD8TFB8Wv+8om9NH9Le6s+WPe98WC77KLw8qgfQsbIey+JawPWl4O67ZdL5xrypuRjfIPWjgy/VH85IXg/Z/GONZ2nxHgSShMkwqSFECAC5L3PHB+0+/12M/iikdatFSVGjpuHvkLOs3oe7m6HlOfluSJ85BzLWBbvva93qkGmLg4ZAc8rPh2O+YIsBUHNLLMM/oQp Generated-by-Nova\n",  # flake8: noqa
+    }
+
+
 def make_fake_stack(id, name, description=None, status='CREATE_COMPLETE'):
     return {
         'creation_time': '2017-03-23T23:57:12Z',
