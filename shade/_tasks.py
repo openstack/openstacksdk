@@ -47,11 +47,6 @@ class UserRemoveFromGroup(task_manager.Task):
         return client.keystone_client.users.remove_from_group(**self.args)
 
 
-class HypervisorList(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.hypervisors.list(**self.args)
-
-
 class AggregateList(task_manager.Task):
     def main(self, client):
         return client.nova_client.aggregates.list(**self.args)
