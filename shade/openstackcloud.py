@@ -854,17 +854,12 @@ class OpenStackCloud(
         pushdown, filters = _normalize._split_filters(**kwargs)
 
         try:
-            if self.cloud_config.get_api_version('identity') == '3':
-                projects = self._identity_client.get('/projects',
-                                                     params=pushdown)
-                if isinstance(projects, dict):
-                    projects = projects['projects']
-            else:
-                projects = self._identity_client.get('/tenants',
-                                                     params=pushdown)
-                if isinstance(projects, dict):
-                    projects = projects['tenants']
-            projects = self._normalize_projects(projects)
+            api_version = self.cloud_config.get_api_version('identity')
+            key = 'projects' if api_version == '3' else 'tenants'
+            data = self._identity_client.get(
+                '/{endpoint}'.format(endpoint=key), params=pushdown)
+            projects = self._normalize_projects(
+                meta.get_and_munchify(key, data))
         except Exception as e:
             self.log.debug("Failed to list projects", exc_info=True)
             raise OpenStackCloudException(str(e))
@@ -913,11 +908,13 @@ class OpenStackCloud(
             # FIXME(samueldmq): enable=True is the default, meaning it will
             # enable a disabled project if you simply update other fields
             if self.cloud_config.get_api_version('identity') == '3':
-                project = self._identity_client.patch(
+                data = self._identity_client.patch(
                     '/projects/' + proj['id'], json={'project': kwargs})
+                project = meta.get_and_munchify('project', data)
             else:
-                project = self._identity_client.post(
+                data = self._identity_client.post(
                     '/tenants/' + proj['id'], json={'tenant': kwargs})
+                project = meta.get_and_munchify('tenant', data)
             project = self._normalize_project(project)
         self.list_projects.invalidate(self)
         return project
@@ -931,14 +928,14 @@ class OpenStackCloud(
             project_ref.update({'name': name,
                                 'description': description,
                                 'enabled': enabled})
-
+            endpoint, key = ('tenants', 'tenant')
             if self.cloud_config.get_api_version('identity') == '3':
-                project = self._identity_client.post(
-                    '/projects', json={'project': project_ref})
-            else:
-                project = self._identity_client.post(
-                    '/tenants', json={'tenant': project_ref})
-            project = self._normalize_project(project)
+                endpoint, key = ('projects', 'project')
+            data = self._identity_client.post(
+                '/{endpoint}'.format(endpoint=endpoint),
+                json={key: project_ref})
+            project = self._normalize_project(
+                meta.get_and_munchify(key, data))
         self.list_projects.invalidate(self)
         return project
 
@@ -980,10 +977,9 @@ class OpenStackCloud(
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        users = self._identity_client.get('/users')
-        if isinstance(users, dict):
-            users = users['users']
-        return _utils.normalize_users(users)
+        data = self._identity_client.get('/users')
+        return _utils.normalize_users(
+            meta.get_and_munchify('users', data))
 
     def search_users(self, name_or_id=None, filters=None):
         """Search users.
@@ -1026,13 +1022,14 @@ class OpenStackCloud(
 
         :returns: a single ``munch.Munch`` containing the user description
         """
-        user = self._identity_client.get(
+        data = self._identity_client.get(
             '/users/{user}'.format(user=user_id),
             error_message="Error getting user with ID {user_id}".format(
                 user_id=user_id))
 
+        user = meta.get_and_munchify('user', data)
         if user and normalize:
-            return _utils.normalize_users([user])[0]
+            user = _utils.normalize_users(user)
         return user
 
     # NOTE(Shrews): Keystone v2 supports updating only name, email and enabled.

@@ -137,7 +137,9 @@ class ShadeAdapter(adapter.Adapter):
                         'floating_ip', 'floating_ips', 'port', 'ports',
                         'stack', 'stacks', 'zones', 'events',
                         'security_group', 'security_groups',
-                        'security_group_rule', 'security_group_rules']:
+                        'security_group_rule', 'security_group_rules',
+                        'users', 'user', 'projects', 'tenants',
+                        'project', 'tenant']:
                 if key in result_json.keys():
                     self._log_request_id(response)
                     return result_json
