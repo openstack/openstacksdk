@@ -447,15 +447,22 @@ class FakeRecordset(object):
         self.records = records
 
 
-class FakeAggregate(object):
-    def __init__(self, id, name, availability_zone=None, metadata=None,
-                 hosts=None):
-        self.id = id
-        self.name = name
-        self.availability_zone = availability_zone
-        if not metadata:
-            metadata = {}
-        self.metadata = metadata
-        if not hosts:
-            hosts = []
-        self.hosts = hosts
+def make_fake_aggregate(id, name, availability_zone='nova',
+                        metadata=None, hosts=None):
+    if not metadata:
+        metadata = {}
+    if not hosts:
+        hosts = []
+    return json.loads(json.dumps({
+        "availability_zone": availability_zone,
+        "created_at": datetime.datetime.now().isoformat(),
+        "deleted": False,
+        "deleted_at": None,
+        "hosts": hosts,
+        "id": int(id),
+        "metadata": {
+            "availability_zone": availability_zone,
+        },
+        "name": name,
+        "updated_at": None,
+    }))

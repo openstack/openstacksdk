@@ -10,101 +10,203 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-import mock
-
-import shade
 from shade.tests.unit import base
 from shade.tests import fakes
 
 
-class TestAggregate(base.TestCase):
+class TestAggregate(base.RequestsMockTestCase):
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_create_aggregate(self, mock_nova):
-        aggregate_name = 'aggr1'
-        self.op_cloud.create_aggregate(name=aggregate_name)
+    def setUp(self):
+        super(TestAggregate, self).setUp()
+        self.aggregate_name = self.getUniqueString('aggregate')
+        self.fake_aggregate = fakes.make_fake_aggregate(1, self.aggregate_name)
 
-        mock_nova.aggregates.create.assert_called_once_with(
-            name=aggregate_name, availability_zone=None
-        )
+    def test_create_aggregate(self):
+        create_aggregate = self.fake_aggregate.copy()
+        del create_aggregate['metadata']
+        del create_aggregate['hosts']
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_create_aggregate_with_az(self, mock_nova):
-        aggregate_name = 'aggr1'
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates']),
+                 json={'aggregate': create_aggregate},
+                 validate=dict(json={
+                     'aggregate': {
+                         'name': self.aggregate_name,
+                         'availability_zone': None,
+                     }})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['os-aggregates', '1']),
+                 json={'aggregate': self.fake_aggregate}),
+        ])
+        self.op_cloud.create_aggregate(name=self.aggregate_name)
+
+        self.assert_calls()
+
+    def test_create_aggregate_with_az(self):
         availability_zone = 'az1'
+        az_aggregate = fakes.make_fake_aggregate(
+            1, self.aggregate_name, availability_zone=availability_zone)
+
+        create_aggregate = az_aggregate.copy()
+        del create_aggregate['metadata']
+        del create_aggregate['hosts']
+
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates']),
+                 json={'aggregate': create_aggregate},
+                 validate=dict(json={
+                     'aggregate': {
+                         'name': self.aggregate_name,
+                         'availability_zone': availability_zone,
+                     }})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['os-aggregates', '1']),
+                 json={'aggregate': az_aggregate}),
+        ])
+
         self.op_cloud.create_aggregate(
-            name=aggregate_name, availability_zone=availability_zone)
+            name=self.aggregate_name, availability_zone=availability_zone)
 
-        mock_nova.aggregates.create.assert_called_once_with(
-            name=aggregate_name, availability_zone=availability_zone
-        )
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_delete_aggregate(self, mock_nova):
-        mock_nova.aggregates.list.return_value = [
-            fakes.FakeAggregate('1234', 'name')
-        ]
-        self.assertTrue(self.op_cloud.delete_aggregate('1234'))
-        mock_nova.aggregates.list.assert_called_once_with()
-        mock_nova.aggregates.delete.assert_called_once_with(
-            aggregate='1234'
-        )
+    def test_delete_aggregate(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates']),
+                 json={'aggregates': [self.fake_aggregate]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates', '1'])),
+        ])
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_update_aggregate_set_az(self, mock_nova):
-        mock_nova.aggregates.list.return_value = [
-            fakes.FakeAggregate('1234', 'name')
-        ]
-        self.op_cloud.update_aggregate('1234', availability_zone='az')
-        mock_nova.aggregates.update.assert_called_once_with(
-            aggregate='1234',
-            values={'availability_zone': 'az'},
-        )
+        self.assertTrue(self.op_cloud.delete_aggregate('1'))
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_update_aggregate_unset_az(self, mock_nova):
-        mock_nova.aggregates.list.return_value = [
-            fakes.FakeAggregate('1234', 'name', availability_zone='az')
-        ]
-        self.op_cloud.update_aggregate('1234', availability_zone=None)
-        mock_nova.aggregates.update.assert_called_once_with(
-            aggregate='1234',
-            values={'availability_zone': None},
-        )
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_set_aggregate_metadata(self, mock_nova):
-        metadata = {'key', 'value'}
-        mock_nova.aggregates.list.return_value = [
-            fakes.FakeAggregate('1234', 'name')
-        ]
-        self.op_cloud.set_aggregate_metadata('1234', metadata)
-        mock_nova.aggregates.set_metadata.assert_called_once_with(
-            aggregate='1234',
-            metadata=metadata
-        )
+    def test_update_aggregate_set_az(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates']),
+                 json={'aggregates': [self.fake_aggregate]}),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates', '1']),
+                 json={'aggregate': self.fake_aggregate},
+                 validate=dict(
+                     json={
+                         'aggregate': {
+                             'availability_zone': 'az',
+                         }})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates', '1']),
+                 json={'aggregate': self.fake_aggregate}),
+        ])
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_add_host_to_aggregate(self, mock_nova):
+        self.op_cloud.update_aggregate(1, availability_zone='az')
+
+        self.assert_calls()
+
+    def test_update_aggregate_unset_az(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates']),
+                 json={'aggregates': [self.fake_aggregate]}),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates', '1']),
+                 json={'aggregate': self.fake_aggregate},
+                 validate=dict(
+                     json={
+                         'aggregate': {
+                             'availability_zone': None,
+                         }})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates', '1']),
+                 json={'aggregate': self.fake_aggregate}),
+        ])
+
+        self.op_cloud.update_aggregate(1, availability_zone=None)
+
+        self.assert_calls()
+
+    def test_set_aggregate_metadata(self):
+        metadata = {'key': 'value'}
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates']),
+                 json={'aggregates': [self.fake_aggregate]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['os-aggregates', '1', 'action']),
+                 json={'aggregate': self.fake_aggregate},
+                 validate=dict(
+                     json={'set_metadata': {'metadata': metadata}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates', '1']),
+                 json={'aggregate': self.fake_aggregate}),
+        ])
+        self.op_cloud.set_aggregate_metadata('1', metadata)
+
+        self.assert_calls()
+
+    def test_add_host_to_aggregate(self):
         hostname = 'host1'
-        mock_nova.aggregates.list.return_value = [
-            fakes.FakeAggregate('1234', 'name')
-        ]
-        self.op_cloud.add_host_to_aggregate('1234', hostname)
-        mock_nova.aggregates.add_host.assert_called_once_with(
-            aggregate='1234',
-            host=hostname
-        )
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates']),
+                 json={'aggregates': [self.fake_aggregate]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['os-aggregates', '1', 'action']),
+                 json={'aggregate': self.fake_aggregate},
+                 validate=dict(
+                     json={'add_host': {'host': hostname}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates', '1']),
+                 json={'aggregate': self.fake_aggregate}),
+        ])
+        self.op_cloud.add_host_to_aggregate('1', hostname)
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_remove_host_from_aggregate(self, mock_nova):
+        self.assert_calls()
+
+    def test_remove_host_from_aggregate(self):
         hostname = 'host1'
-        mock_nova.aggregates.list.return_value = [
-            fakes.FakeAggregate('1234', 'name', hosts=[hostname])
-        ]
-        self.op_cloud.remove_host_from_aggregate('1234', hostname)
-        mock_nova.aggregates.remove_host.assert_called_once_with(
-            aggregate='1234',
-            host=hostname
-        )
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates']),
+                 json={'aggregates': [self.fake_aggregate]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['os-aggregates', '1', 'action']),
+                 json={'aggregate': self.fake_aggregate},
+                 validate=dict(
+                     json={'remove_host': {'host': hostname}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates', '1']),
+                 json={'aggregate': self.fake_aggregate}),
+        ])
+        self.op_cloud.remove_host_from_aggregate('1', hostname)
+
+        self.assert_calls()
