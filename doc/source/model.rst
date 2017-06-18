@@ -130,6 +130,26 @@ A Glance Image.
     tags=list(),
     properties=dict())
 
+
+Keypair
+-------
+
+A keypair for a Nova Server.
+
+.. code-block:: python
+
+  Keypair = dict(
+    location=Location(),
+    name=str(),
+    id=str(),
+    public_key=str(),
+    fingerprint=str(),
+    type=str(),
+    user_id=str(),
+    private_key=str() or None
+    properties=dict())
+
+
 Security Group
 --------------
 

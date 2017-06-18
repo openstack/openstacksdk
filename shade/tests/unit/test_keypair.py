@@ -43,7 +43,7 @@ class TestKeypair(base.RequestsMockTestCase):
 
         new_key = self.cloud.create_keypair(
             self.keyname, self.key['public_key'])
-        self.assertEqual(new_key['name'], self.keyname)
+        self.assertEqual(new_key, self.cloud._normalize_keypair(self.key))
 
         self.assert_calls()
 
@@ -95,10 +95,12 @@ class TestKeypair(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['os-keypairs']),
-                 json={'keypairs': [self.key]}),
+                 json={'keypairs': [{'keypair': self.key}]}),
 
         ])
-        self.cloud.list_keypairs()
+        keypairs = self.cloud.list_keypairs()
+        self.assertEqual(keypairs, self.cloud._normalize_keypairs([self.key]))
+        self.assert_calls()
 
     def test_list_keypairs_exception(self):
         self.register_uris([

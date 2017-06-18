@@ -1610,7 +1610,8 @@ class OpenStackCloud(
 
         """
         with _utils.shade_exceptions("Error fetching keypair list"):
-            return self.manager.submit_task(_tasks.KeypairList())
+            return self._normalize_keypairs(
+                self.manager.submit_task(_tasks.KeypairList()))
 
     def list_networks(self, filters=None):
         """List all available networks.
@@ -2956,7 +2957,7 @@ class OpenStackCloud(
         return _utils._get_entity(
             _search_one_stack, name_or_id, filters)
 
-    def create_keypair(self, name, public_key):
+    def create_keypair(self, name, public_key=None):
         """Create a new keypair.
 
         :param name: Name of the keypair being created.
@@ -2966,8 +2967,9 @@ class OpenStackCloud(
         """
         with _utils.shade_exceptions("Unable to create keypair {name}".format(
                 name=name)):
-            return self.manager.submit_task(_tasks.KeypairCreate(
-                name=name, public_key=public_key))
+            return self._normalize_keypair(
+                self.manager.submit_task(_tasks.KeypairCreate(
+                    name=name, public_key=public_key)))
 
     def delete_keypair(self, name):
         """Delete a keypair.
