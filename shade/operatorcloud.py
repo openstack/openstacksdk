@@ -1812,8 +1812,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :returns: A list of hypervisor ``munch.Munch``.
         """
 
-        with _utils.shade_exceptions("Error fetching hypervisor list"):
-            return self.manager.submit_task(_tasks.HypervisorList())
+        return self._compute_client.get(
+            '/os-hypervisors/detail',
+            error_message="Error fetching hypervisor list")
 
     def search_aggregates(self, name_or_id=None, filters=None):
         """Seach host aggregates.
