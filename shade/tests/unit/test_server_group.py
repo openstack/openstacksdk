@@ -11,32 +11,58 @@
 # under the License.
 
 
-import mock
+import uuid
 
-import shade
 from shade.tests.unit import base
 from shade.tests import fakes
 
 
-class TestServerGroup(base.TestCase):
+class TestServerGroup(base.RequestsMockTestCase):
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_create_server_group(self, mock_nova):
-        server_group_name = 'my-server-group'
-        self.cloud.create_server_group(name=server_group_name,
-                                       policies=['affinity'])
+    def setUp(self):
+        super(TestServerGroup, self).setUp()
+        self.group_id = uuid.uuid4().hex
+        self.group_name = self.getUniqueString('server-group')
+        self.policies = ['affinity']
+        self.fake_group = fakes.make_fake_server_group(
+            self.group_id, self.group_name, self.policies)
 
-        mock_nova.server_groups.create.assert_called_once_with(
-            name=server_group_name, policies=['affinity']
-        )
+    def test_create_server_group(self):
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_delete_server_group(self, mock_nova):
-        mock_nova.server_groups.list.return_value = [
-            fakes.FakeServerGroup('1234', 'name', ['affinity'])
-        ]
-        self.assertTrue(self.cloud.delete_server_group('1234'))
-        mock_nova.server_groups.list.assert_called_once_with()
-        mock_nova.server_groups.delete.assert_called_once_with(
-            id='1234'
-        )
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-server-groups']),
+                 json={'server_group': self.fake_group},
+                 validate=dict(
+                     json={'server_group': {
+                         'name': self.group_name,
+                         'policies': self.policies,
+                     }})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['os-server-groups', self.group_id],),
+                 json={'server_group': self.fake_group}),
+        ])
+
+        self.cloud.create_server_group(name=self.group_name,
+                                       policies=self.policies)
+
+        self.assert_calls()
+
+    def test_delete_server_group(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-server-groups']),
+                 json={'server_groups': [self.fake_group]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['os-server-groups', self.group_id]),
+                 json={'server_groups': [self.fake_group]}),
+        ])
+        self.assertTrue(self.cloud.delete_server_group(self.group_name))
+
+        self.assert_calls()
