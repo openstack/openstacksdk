@@ -58,8 +58,10 @@ import copy
 import logging
 import six
 
+from openstack.auto_scaling import auto_scaling_service
 from openstack.bare_metal import bare_metal_service
 from openstack.block_store import block_store_service
+from openstack.cloud_eye import cloud_eye_service
 from openstack.cluster import cluster_service
 from openstack.compute import compute_service
 from openstack.database import database_service
@@ -116,7 +118,11 @@ class Profile(object):
             orchestration_service.OrchestrationService(version="v1"))
         self._add_service(telemetry_service.TelemetryService(version="v2"))
         self._add_service(workflow_service.WorkflowService(version="v2"))
+        # QianBiao.NG HuaWei Services
         self._add_service(dns_service.DNSService(version="v2"))
+        self._add_service(cloud_eye_service.CloudEyeService(version="v1"))
+        ass = auto_scaling_service.AutoScalingService(version="v1")
+        self._add_service(ass)
 
         if plugins:
             for plugin in plugins:

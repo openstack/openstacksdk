@@ -44,7 +44,6 @@ from openstack import utils
 
 
 class _BaseComponent(object):
-
     # The name this component is being tracked as in the Resource
     key = None
 
@@ -78,7 +77,7 @@ class _BaseComponent(object):
         try:
             value = attributes[self.name]
         except KeyError:
-            return self.default
+            value = self.default
 
         # self.type() should not be called on None objects.
         if value is None:
@@ -87,6 +86,8 @@ class _BaseComponent(object):
         if self.type and not isinstance(value, self.type):
             if issubclass(self.type, format.Formatter):
                 value = self.type.deserialize(value)
+            elif issubclass(self.type, Resource):
+                value = self.type.new(**value)
             else:
                 value = self.type(value)
 
@@ -94,9 +95,11 @@ class _BaseComponent(object):
 
     def __set__(self, instance, value):
         if (self.type and not isinstance(value, self.type) and
-                value != self.default):
+                    value != self.default):
             if issubclass(self.type, format.Formatter):
                 value = self.type.serialize(value)
+            elif issubclass(self.type, Resource):
+                value = self.type.new(value)
             else:
                 value = str(self.type(value))  # validate to fail fast
 
@@ -182,7 +185,6 @@ class _Request(object):
 
 
 class QueryParameters(object):
-
     def __init__(self, *names, **mappings):
         """Create a dict of accepted query parameters
 
@@ -215,11 +217,14 @@ class QueryParameters(object):
 
 
 class Resource(object):
-
     #: Singular form of key for resource.
     resource_key = None
     #: Plural form of key for resource.
     resources_key = None
+    #: dotted json path to get next marker
+    next_marker_path = None
+    #: marker key in query, default is `marker`
+    query_marker_key = 'marker'
 
     #: The ID of this resource.
     id = Body("id")
@@ -229,7 +234,7 @@ class Resource(object):
     location = Header("Location")
 
     #: Mapping of accepted query parameter names.
-    _query_mapping = QueryParameters()
+    _query_mapping = QueryParameters(marker=query_marker_key)
 
     #: The base part of the URI for this resource.
     base_path = ""
@@ -747,7 +752,7 @@ class Resource(object):
                                params=query_params)
             resp = resp.json()
             if cls.resources_key:
-                resp = resp[cls.resources_key]
+                resp = get_dict_value_by_accessor(resp, cls.resources_key)
 
             if not resp:
                 more_data = False
@@ -770,12 +775,18 @@ class Resource(object):
                 yielded += 1
                 yield value
 
+            # if `next marker path` is explicit specified, use it as marker
+            if cls.next_marker_path:
+                marker = get_dict_value_by_accessor(resp, cls.next_marker_path)
+                if marker:
+                    new_marker = marker
+
             if not paginated:
                 return
             if "limit" in query_params and yielded < query_params["limit"]:
                 return
             query_params["limit"] = yielded
-            query_params["marker"] = new_marker
+            query_params[cls.query_marker_key] = new_marker
 
     @classmethod
     def _get_one_match(cls, name_or_id, results):
@@ -839,6 +850,17 @@ class Resource(object):
             return None
         raise exceptions.ResourceNotFound(
             "No %s found for %s" % (cls.__name__, name_or_id))
+
+
+def get_dict_value_by_accessor(input_dict, accessor):
+    """Gets value from a dictionary using a dotted accessor"""
+    current_data = input_dict
+    for chunk in accessor.split('.'):
+        if isinstance(current_data, dict):
+            current_data = current_data.get(chunk, {})
+        else:
+            return None
+    return current_data
 
 
 def wait_for_status(session, resource, status, failures, interval, wait):
