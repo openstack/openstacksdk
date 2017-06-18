@@ -317,13 +317,45 @@ class FakeMachinePort(object):
         self.node_id = node_id
 
 
-class FakeSecgroup(object):
-    def __init__(self, id, name, description='', project_id=None, rules=None):
-        self.id = id
-        self.name = name
-        self.description = description
-        self.project_id = project_id
-        self.rules = rules
+def make_fake_neutron_security_group(
+        id, name, description, rules, project_id=None):
+    if not rules:
+        rules = []
+    if not project_id:
+        project_id = PROJECT_ID
+    return json.loads(json.dumps({
+        'id': id,
+        'name': name,
+        'description': description,
+        'project_id': project_id,
+        'tenant_id': project_id,
+        'security_group_rules': rules,
+    }))
+
+
+def make_fake_nova_security_group_rule(
+        id, from_port, to_port, ip_protocol, cidr):
+    return json.loads(json.dumps({
+        'id': id,
+        'from_port': int(from_port),
+        'to_port': int(to_port),
+        'ip_protcol': 'tcp',
+        'ip_range': {
+            'cidr': cidr
+        }
+    }))
+
+
+def make_fake_nova_security_group(id, name, description, rules):
+    if not rules:
+        rules = []
+    return json.loads(json.dumps({
+        'id': id,
+        'name': name,
+        'description': description,
+        'tenant_id': PROJECT_ID,
+        'rules': rules,
+    }))
 
 
 class FakeNovaSecgroupRule(object):
