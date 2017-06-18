@@ -41,7 +41,7 @@ class TestRebuildServer(base.RequestsMockTestCase):
 
     def test_rebuild_server_rebuild_exception(self):
         """
-        Test that an exception in the novaclient rebuild raises an exception in
+        Test that an exception in the rebuild raises an exception in
         rebuild_server.
         """
         self.register_uris([
@@ -120,7 +120,7 @@ class TestRebuildServer(base.RequestsMockTestCase):
     def test_rebuild_server_no_wait(self):
         """
         Test that rebuild_server with no wait and no exception in the
-        novaclient rebuild call returns the server instance.
+        rebuild call returns the server instance.
         """
         self.register_uris([
             dict(method='POST',

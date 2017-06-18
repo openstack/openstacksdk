@@ -25,7 +25,6 @@ import sys
 import time
 
 from decorator import decorator
-from novaclient import exceptions as nova_exc
 
 from shade import _log
 from shade import exc
@@ -445,10 +444,6 @@ def shade_exceptions(error_message=None):
         yield
     except exc.OpenStackCloudException:
         raise
-    except nova_exc.BadRequest as e:
-        if error_message is None:
-            error_message = str(e)
-        raise exc.OpenStackCloudBadRequest(error_message)
     except Exception as e:
         if error_message is None:
             error_message = str(e)

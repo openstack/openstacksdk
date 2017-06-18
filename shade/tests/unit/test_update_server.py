@@ -36,7 +36,7 @@ class TestUpdateServer(base.RequestsMockTestCase):
 
     def test_update_server_with_update_exception(self):
         """
-        Test that an exception in the novaclient update raises an exception in
+        Test that an exception in the update raises an exception in
         update_server.
         """
         self.register_uris([
