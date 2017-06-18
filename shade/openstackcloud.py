@@ -2031,8 +2031,9 @@ class OpenStackCloud(
         :returns: A list of server group dicts.
 
         """
-        with _utils.shade_exceptions("Error fetching server group list"):
-            return self.manager.submit_task(_tasks.ServerGroupList())
+        return self._compute_client.get(
+            '/os-server-groups',
+            error_message="Error fetching server group list")
 
     def get_compute_limits(self, name_or_id=None):
         """ Get compute limits for a project
@@ -5968,11 +5969,14 @@ class OpenStackCloud(
 
         :raises: OpenStackCloudException on operation error.
         """
-        with _utils.shade_exceptions(
-                "Unable to create server group {name}".format(
-                    name=name)):
-            return self.manager.submit_task(_tasks.ServerGroupCreate(
-                name=name, policies=policies))
+        return self._compute_client.post(
+            '/os-server-groups',
+            json={
+                'server_group': {
+                    'name': name,
+                    'policies': policies}},
+            error_message="Unable to create server group {name}".format(
+                name=name))
 
     def delete_server_group(self, name_or_id):
         """Delete a server group.
@@ -5989,10 +5993,10 @@ class OpenStackCloud(
                            name_or_id)
             return False
 
-        with _utils.shade_exceptions(
-                "Error deleting server group {name}".format(name=name_or_id)):
-            self.manager.submit_task(
-                _tasks.ServerGroupDelete(id=server_group['id']))
+        self._compute_client.delete(
+            '/os-server-groups/{id}'.format(id=server_group['id']),
+            error_message="Error deleting server group {name}".format(
+                name=name_or_id))
 
         return True
 

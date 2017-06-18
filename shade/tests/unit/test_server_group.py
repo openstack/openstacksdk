@@ -39,11 +39,6 @@ class TestServerGroup(base.RequestsMockTestCase):
                          'name': self.group_name,
                          'policies': self.policies,
                      }})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public',
-                     append=['os-server-groups', self.group_id],),
-                 json={'server_group': self.fake_group}),
         ])
 
         self.cloud.create_server_group(name=self.group_name,
