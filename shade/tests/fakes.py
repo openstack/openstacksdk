@@ -18,6 +18,7 @@ Fakes used for testing
 """
 
 import datetime
+import json
 import uuid
 
 from shade._heat import template_format
@@ -83,33 +84,45 @@ outputs:
 FAKE_TEMPLATE_CONTENT = template_format.parse(FAKE_TEMPLATE)
 
 
-def make_fake_server(server_id, name, status='ACTIVE'):
-    return {
+def make_fake_server(
+        server_id, name, status='ACTIVE', admin_pass=None,
+        addresses=None, image=None, flavor=None):
+    if addresses is None:
+        if status == 'ACTIVE':
+            addresses = {
+                "private": [
+                    {
+                        "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:df:b0:8d",
+                        "version": 6,
+                        "addr": "fddb:b018:307:0:f816:3eff:fedf:b08d",
+                        "OS-EXT-IPS:type": "fixed"},
+                    {
+                        "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:df:b0:8d",
+                        "version": 4,
+                        "addr": "10.1.0.9",
+                        "OS-EXT-IPS:type": "fixed"},
+                    {
+                        "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:df:b0:8d",
+                        "version": 4,
+                        "addr": "172.24.5.5",
+                        "OS-EXT-IPS:type": "floating"}]}
+        else:
+            addresses = {}
+    if image is None:
+        image = {"id": "217f3ab1-03e0-4450-bf27-63d52b421e9e",
+                 "links": []}
+    if flavor is None:
+        flavor = {"id": "64",
+                  "links": []}
+
+    server = {
         "OS-EXT-STS:task_state": None,
-        "addresses": {
-            "private": [
-                {
-                    "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:df:b0:8d",
-                    "version": 6,
-                    "addr": "fddb:b018:307:0:f816:3eff:fedf:b08d",
-                    "OS-EXT-IPS:type": "fixed"},
-                {
-                    "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:df:b0:8d",
-                    "version": 4,
-                    "addr": "10.1.0.9",
-                    "OS-EXT-IPS:type": "fixed"},
-                {
-                    "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:df:b0:8d",
-                    "version": 4,
-                    "addr": "172.24.5.5",
-                    "OS-EXT-IPS:type": "floating"}]},
+        "addresses": addresses,
         "links": [],
-        "image": {"id": "217f3ab1-03e0-4450-bf27-63d52b421e9e",
-                  "links": []},
+        "image": image,
         "OS-EXT-STS:vm_state": "active",
         "OS-SRV-USG:launched_at": "2017-03-23T23:57:38.000000",
-        "flavor": {"id": "64",
-                   "links": []},
+        "flavor": flavor,
         "id": server_id,
         "security_groups": [{"name": "default"}],
         "user_id": "9c119f4beaaa438792ce89387362b3ad",
@@ -127,9 +140,12 @@ def make_fake_server(server_id, name, status='ACTIVE'):
         "key_name": None,
         "name": name,
         "created": "2017-03-23T23:57:12Z",
-        "tenant_id": "fdbf563e9d474696b35667254e65b45b",
+        "tenant_id": PROJECT_ID,
         "os-extended-volumes:volumes_attached": [],
         "config_drive": "True"}
+    if admin_pass:
+        server['adminPass'] = admin_pass
+    return json.loads(json.dumps(server))
 
 
 def make_fake_keypair(name):
@@ -242,38 +258,6 @@ class FakeFloatingIP(object):
         self.instance_id = instance_id
 
 
-class FakeServer(object):
-    def __init__(
-            self, id, name, status, addresses=None,
-            accessIPv4='', accessIPv6='', private_v4='',
-            private_v6='', public_v4='', public_v6='',
-            interface_ip='',
-            flavor=None, image=None, adminPass=None,
-            metadata=None):
-        self.id = id
-        self.name = name
-        self.status = status
-        if not addresses:
-            self.addresses = {}
-        else:
-            self.addresses = addresses
-        if not flavor:
-            flavor = {}
-        self.flavor = flavor
-        if not image:
-            image = {}
-        self.image = image
-        self.accessIPv4 = accessIPv4
-        self.accessIPv6 = accessIPv6
-        self.private_v4 = private_v4
-        self.public_v4 = public_v4
-        self.private_v6 = private_v6
-        self.public_v6 = public_v6
-        self.adminPass = adminPass
-        self.metadata = metadata
-        self.interface_ip = interface_ip
-
-
 class FakeServerGroup(object):
     def __init__(self, id, name, policies):
         self.id = id
@@ -352,13 +336,6 @@ class FakeNovaSecgroupRule(object):
         if cidr:
             self.ip_range = {'cidr': cidr}
         self.parent_group_id = parent_group_id
-
-
-class FakeKeypair(object):
-    def __init__(self, id, name, public_key):
-        self.id = id
-        self.name = name
-        self.public_key = public_key
 
 
 class FakeHypervisor(object):

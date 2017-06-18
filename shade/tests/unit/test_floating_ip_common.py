@@ -23,7 +23,7 @@ from mock import patch
 
 from shade import meta
 from shade import OpenStackCloud
-from shade.tests.fakes import FakeServer
+from shade.tests import fakes
 from shade.tests.unit import base
 
 
@@ -35,10 +35,10 @@ class TestFloatingIP(base.TestCase):
     def test_add_auto_ip(
             self, mock_available_floating_ip, mock_attach_ip_to_server,
             mock_get_floating_ip):
-        server = FakeServer(
-            id='server-id', name='test-server', status="ACTIVE", addresses={}
+        server_dict = fakes.make_fake_server(
+            server_id='server-id', name='test-server', status="ACTIVE",
+            addresses={}
         )
-        server_dict = meta.obj_to_munch(server)
         floating_ip_dict = {
             "id": "this-is-a-floating-ip-id",
             "fixed_ip_address": None,
@@ -59,10 +59,9 @@ class TestFloatingIP(base.TestCase):
 
     @patch.object(OpenStackCloud, '_add_ip_from_pool')
     def test_add_ips_to_server_pool(self, mock_add_ip_from_pool):
-        server = FakeServer(
-            id='romeo', name='test-server', status="ACTIVE", addresses={}
-        )
-        server_dict = meta.obj_to_munch(server)
+        server_dict = fakes.make_fake_server(
+            server_id='romeo', name='test-server', status="ACTIVE",
+            addresses={})
         pool = 'nova'
 
         self.cloud.add_ips_to_server(server_dict, ip_pool=pool)
@@ -82,8 +81,8 @@ class TestFloatingIP(base.TestCase):
         self.cloud.force_ipv4 = False
         self.cloud._local_ipv6 = True
         mock_has_service.return_value = False
-        server = FakeServer(
-            id='server-id', name='test-server', status="ACTIVE",
+        server = fakes.make_fake_server(
+            server_id='server-id', name='test-server', status="ACTIVE",
             addresses={
                 'private': [{
                     'addr': "10.223.160.141",
@@ -97,8 +96,7 @@ class TestFloatingIP(base.TestCase):
                 }]
             }
         )
-        server_dict = meta.add_server_interfaces(
-            self.cloud, meta.obj_to_munch(server))
+        server_dict = meta.add_server_interfaces(self.cloud, server)
 
         new_server = self.cloud.add_ips_to_server(server=server_dict)
         mock_get_floating_ip.assert_not_called()
@@ -122,8 +120,8 @@ class TestFloatingIP(base.TestCase):
         self.cloud.force_ipv4 = False
         self.cloud._local_ipv6 = True
         mock_has_service.return_value = False
-        server = FakeServer(
-            id='server-id', name='test-server', status="ACTIVE",
+        server = fakes.make_fake_server(
+            server_id='server-id', name='test-server', status="ACTIVE",
             addresses={
                 'private': [{
                     'addr': "10.223.160.141",
@@ -138,8 +136,7 @@ class TestFloatingIP(base.TestCase):
                 }]
             }
         )
-        server_dict = meta.add_server_interfaces(
-            self.cloud, meta.obj_to_munch(server))
+        server_dict = meta.add_server_interfaces(self.cloud, server)
 
         new_server = self.cloud.add_ips_to_server(server=server_dict)
         mock_get_floating_ip.assert_not_called()
@@ -159,8 +156,8 @@ class TestFloatingIP(base.TestCase):
         self.cloud.force_ipv4 = False
         self.cloud._local_ipv6 = False
         mock_has_service.return_value = False
-        server = FakeServer(
-            id='server-id', name='test-server', status="ACTIVE",
+        server = fakes.make_fake_server(
+            server_id='server-id', name='test-server', status="ACTIVE",
             addresses={
                 'private': [{
                     'addr': "10.223.160.141",
@@ -175,8 +172,7 @@ class TestFloatingIP(base.TestCase):
                 }]
             }
         )
-        server_dict = meta.add_server_interfaces(
-            self.cloud, meta.obj_to_munch(server))
+        server_dict = meta.add_server_interfaces(self.cloud, server)
 
         new_server = self.cloud.add_ips_to_server(server=server_dict)
         mock_get_floating_ip.assert_not_called()
@@ -185,10 +181,9 @@ class TestFloatingIP(base.TestCase):
 
     @patch.object(OpenStackCloud, 'add_ip_list')
     def test_add_ips_to_server_ip_list(self, mock_add_ip_list):
-        server = FakeServer(
-            id='server-id', name='test-server', status="ACTIVE", addresses={}
-        )
-        server_dict = meta.obj_to_munch(server)
+        server_dict = fakes.make_fake_server(
+            server_id='server-id', name='test-server', status="ACTIVE",
+            addresses={})
         ips = ['203.0.113.29', '172.24.4.229']
 
         self.cloud.add_ips_to_server(server_dict, ips=ips)
@@ -200,10 +195,9 @@ class TestFloatingIP(base.TestCase):
     @patch.object(OpenStackCloud, '_add_auto_ip')
     def test_add_ips_to_server_auto_ip(
             self, mock_add_auto_ip, mock_needs_floating_ip):
-        server = FakeServer(
-            id='server-id', name='test-server', status="ACTIVE", addresses={}
-        )
-        server_dict = meta.obj_to_munch(server)
+        server_dict = fakes.make_fake_server(
+            server_id='server-id', name='test-server', status="ACTIVE",
+            addresses={})
 
         # TODO(mordred) REMOVE THIS MOCK WHEN THE NEXT PATCH LANDS
         # SERIOUSLY THIS TIME. NEXT PATCH - WHICH SHOULD ADD MOCKS FOR

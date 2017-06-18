@@ -18,7 +18,6 @@ from os_client_config import exceptions as occ_exc
 
 from shade import exc
 from shade import inventory
-from shade import meta
 from shade.tests import fakes
 from shade.tests.unit import base
 
@@ -101,8 +100,8 @@ class TestInventory(base.TestCase):
         inv = inventory.OpenStackInventory()
 
         server = self.cloud._normalize_server(
-            meta.obj_to_munch(fakes.FakeServer(
-                '1234', 'test', 'ACTIVE', addresses={})))
+            fakes.make_fake_server(
+                '1234', 'test', 'ACTIVE', addresses={}))
         self.assertIsInstance(inv.clouds, list)
         self.assertEqual(1, len(inv.clouds))
         inv.clouds[0].list_servers.return_value = [server]

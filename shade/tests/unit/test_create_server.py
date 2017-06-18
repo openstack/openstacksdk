@@ -34,7 +34,7 @@ class TestCreateServer(base.RequestsMockTestCase):
         Test that an exception when attempting to get the server instance via
         the novaclient raises an exception in create_server.
         """
-        build_server = fakes.FakeServer('1234', '', 'BUILD')
+        build_server = fakes.make_fake_server('1234', '', 'BUILD')
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -43,7 +43,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
-                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 json={'server': build_server},
                  validate=dict(
                      json={'server': {
                          u'flavorRef': u'flavor-id',
@@ -66,8 +66,8 @@ class TestCreateServer(base.RequestsMockTestCase):
         Test that a server error before we return or begin waiting for the
         server instance spawn raises an exception in create_server.
         """
-        build_server = fakes.FakeServer('1234', '', 'BUILD')
-        error_server = fakes.FakeServer('1234', '', 'ERROR')
+        build_server = fakes.make_fake_server('1234', '', 'BUILD')
+        error_server = fakes.make_fake_server('1234', '', 'ERROR')
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -76,7 +76,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
-                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 json={'server': build_server},
                  validate=dict(
                      json={'server': {
                          u'flavorRef': u'flavor-id',
@@ -87,7 +87,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(error_server).toDict()}),
+                 json={'server': error_server}),
         ])
         self.assertRaises(
             exc.OpenStackCloudException, self.cloud.create_server,
@@ -99,8 +99,8 @@ class TestCreateServer(base.RequestsMockTestCase):
         Test that a server error while waiting for the server to spawn
         raises an exception in create_server.
         """
-        build_server = fakes.FakeServer('1234', '', 'BUILD')
-        error_server = fakes.FakeServer('1234', '', 'ERROR')
+        build_server = fakes.make_fake_server('1234', '', 'BUILD')
+        error_server = fakes.make_fake_server('1234', '', 'ERROR')
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -109,7 +109,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
-                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 json={'server': build_server},
                  validate=dict(
                      json={'server': {
                          u'flavorRef': u'flavor-id',
@@ -120,11 +120,11 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [meta.obj_to_munch(build_server).toDict()]}),
+                 json={'servers': [build_server]}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [meta.obj_to_munch(error_server).toDict()]}),
+                 json={'servers': [error_server]}),
         ])
         self.assertRaises(
             exc.OpenStackCloudException,
@@ -139,7 +139,7 @@ class TestCreateServer(base.RequestsMockTestCase):
         Test that a timeout while waiting for the server to spawn raises an
         exception in create_server.
         """
-        fake_server = fakes.FakeServer('1234', '', 'BUILD')
+        fake_server = fakes.make_fake_server('1234', '', 'BUILD')
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -148,7 +148,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
-                 json={'server': meta.obj_to_munch(fake_server).toDict()},
+                 json={'server': fake_server},
                  validate=dict(
                      json={'server': {
                          u'flavorRef': u'flavor-id',
@@ -159,7 +159,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [meta.obj_to_munch(fake_server).toDict()]}),
+                 json={'servers': [fake_server]}),
         ])
         self.assertRaises(
             exc.OpenStackCloudTimeout,
@@ -175,7 +175,7 @@ class TestCreateServer(base.RequestsMockTestCase):
         Test that create_server with no wait and no exception in the
         novaclient create call returns the server instance.
         """
-        fake_server = fakes.FakeServer('1234', '', 'BUILD')
+        fake_server = fakes.make_fake_server('1234', '', 'BUILD')
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -184,7 +184,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
-                 json={'server': meta.obj_to_munch(fake_server).toDict()},
+                 json={'server': fake_server},
                  validate=dict(
                      json={'server': {
                          u'flavorRef': u'flavor-id',
@@ -195,11 +195,12 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(fake_server).toDict()}),
+                 json={'server': fake_server}),
         ])
+        normalized = self.cloud._expand_server(
+            self.cloud._normalize_server(fake_server), False, False)
         self.assertEqual(
-            self.cloud._normalize_server(
-                meta.obj_to_munch(fake_server)),
+            normalized,
             self.cloud.create_server(
                 name='server-name',
                 image=dict(id='image-id'),
@@ -211,9 +212,10 @@ class TestCreateServer(base.RequestsMockTestCase):
         """
         Test that a server with an admin_pass passed returns the password
         """
-        fake_server = fakes.FakeServer('1234', '', 'BUILD')
-        fake_create_server = fakes.FakeServer('1234', '', 'BUILD',
-                                              adminPass='ooBootheiX0edoh')
+        admin_pass = self.getUniqueString('password')
+        fake_server = fakes.make_fake_server('1234', '', 'BUILD')
+        fake_create_server = fakes.make_fake_server(
+            '1234', '', 'BUILD', admin_pass=admin_pass)
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -222,11 +224,10 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
-                 json={'server': meta.obj_to_munch(
-                     fake_create_server).toDict()},
+                 json={'server': fake_create_server},
                  validate=dict(
                      json={'server': {
-                         u'adminPass': 'ooBootheiX0edoh',
+                         u'adminPass': admin_pass,
                          u'flavorRef': u'flavor-id',
                          u'imageRef': u'image-id',
                          u'max_count': 1,
@@ -235,14 +236,14 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(fake_server).toDict()}),
+                 json={'server': fake_server}),
         ])
         self.assertEqual(
-            self.cloud._normalize_server(
-                meta.obj_to_munch(fake_create_server)),
+            self.cloud._normalize_server(fake_create_server)['adminPass'],
             self.cloud.create_server(
                 name='server-name', image=dict(id='image-id'),
-                flavor=dict(id='flavor-id'), admin_pass='ooBootheiX0edoh'))
+                flavor=dict(id='flavor-id'),
+                admin_pass=admin_pass)['adminPass'])
 
         self.assert_calls()
 
@@ -251,9 +252,10 @@ class TestCreateServer(base.RequestsMockTestCase):
         """
         Test that a server with an admin_pass passed returns the password
         """
-        fake_server = fakes.FakeServer('1234', '', 'BUILD')
-        fake_server_with_pass = fakes.FakeServer('1234', '', 'BUILD',
-                                                 adminPass='ooBootheiX0edoh')
+        admin_pass = self.getUniqueString('password')
+        fake_server = fakes.make_fake_server('1234', '', 'BUILD')
+        fake_server_with_pass = fakes.make_fake_server(
+            '1234', '', 'BUILD', admin_pass=admin_pass)
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -262,26 +264,24 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
-                 json={'server': meta.obj_to_munch(
-                     fake_server_with_pass).toDict()},
+                 json={'server': fake_server_with_pass},
                  validate=dict(
                      json={'server': {
                          u'flavorRef': u'flavor-id',
                          u'imageRef': u'image-id',
                          u'max_count': 1,
                          u'min_count': 1,
-                         u'adminPass': 'ooBootheiX0edoh',
+                         u'adminPass': admin_pass,
                          u'name': u'server-name'}})),
         ])
 
         # The wait returns non-password server
-        mock_wait.return_value = self.cloud._normalize_server(
-            meta.obj_to_munch(fake_server))
+        mock_wait.return_value = self.cloud._normalize_server(fake_server)
 
         server = self.cloud.create_server(
             name='server-name', image=dict(id='image-id'),
             flavor=dict(id='flavor-id'),
-            admin_pass='ooBootheiX0edoh', wait=True)
+            admin_pass=admin_pass, wait=True)
 
         # Assert that we did wait
         self.assertTrue(mock_wait.called)
@@ -289,8 +289,7 @@ class TestCreateServer(base.RequestsMockTestCase):
         # Even with the wait, we should still get back a passworded server
         self.assertEqual(
             server['adminPass'],
-            self.cloud._normalize_server(
-                meta.obj_to_munch(fake_server_with_pass))['adminPass']
+            self.cloud._normalize_server(fake_server_with_pass)['adminPass']
         )
         self.assert_calls()
 
@@ -335,7 +334,7 @@ class TestCreateServer(base.RequestsMockTestCase):
         Test that create_server with a wait actually does the wait.
         """
         # TODO(mordred) Make this a full proper response
-        fake_server = fakes.FakeServer('1234', '', 'BUILD')
+        fake_server = fakes.make_fake_server('1234', '', 'BUILD')
 
         self.register_uris([
             dict(method='GET',
@@ -345,7 +344,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
-                 json={'server': meta.obj_to_munch(fake_server).toDict()},
+                 json={'server': fake_server},
                  validate=dict(
                      json={'server': {
                          u'flavorRef': u'flavor-id',
@@ -359,7 +358,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(id='image-id'), dict(id='flavor-id'), wait=True),
 
         mock_wait.assert_called_once_with(
-            meta.obj_to_munch(fake_server),
+            fake_server,
             auto_ip=True, ips=None,
             ip_pool=None, reuse=True, timeout=180,
             nat_destination=None,
@@ -374,8 +373,9 @@ class TestCreateServer(base.RequestsMockTestCase):
         Test that create_server with a wait throws an exception if the
         server doesn't have addresses.
         """
-        build_server = fakes.FakeServer('1234', '', 'BUILD')
-        fake_server = fakes.FakeServer('1234', '', 'ACTIVE')
+        build_server = fakes.make_fake_server('1234', '', 'BUILD')
+        fake_server = fakes.make_fake_server(
+            '1234', '', 'ACTIVE', addresses={})
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -384,7 +384,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
-                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 json={'server': build_server},
                  validate=dict(
                      json={'server': {
                          u'flavorRef': u'flavor-id',
@@ -395,11 +395,11 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [meta.obj_to_munch(build_server).toDict()]}),
+                 json={'servers': [build_server]}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [meta.obj_to_munch(fake_server).toDict()]}),
+                 json={'servers': [fake_server]}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'ports.json'],
@@ -428,8 +428,7 @@ class TestCreateServer(base.RequestsMockTestCase):
         Verify that if 'network' is supplied, and 'nics' is not, that we
         attempt to get the network for the server.
         """
-        build_server = fakes.FakeServer('1234', '', 'BUILD')
-        active_server = fakes.FakeServer('1234', '', 'ACTIVE')
+        build_server = fakes.make_fake_server('1234', '', 'BUILD')
         network = {
             'id': 'network-id',
             'name': 'network-name'
@@ -442,7 +441,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
-                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 json={'server': build_server},
                  validate=dict(
                      json={'server': {
                          u'flavorRef': u'flavor-id',
@@ -454,12 +453,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(active_server).toDict()}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json'],
-                     qs_elements=['device_id=1234']),
-                 json={'ports': []}),
+                 json={'server': build_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks.json']),
@@ -483,7 +477,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             'id': 'network-id',
             'name': 'network-name'
         }
-        build_server = fakes.FakeServer('1234', '', 'BUILD')
+        build_server = fakes.make_fake_server('1234', '', 'BUILD')
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -492,7 +486,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
-                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 json={'server': build_server},
                  validate=dict(
                      json={'server': {
                          u'flavorRef': u'flavor-id',
@@ -504,7 +498,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(build_server).toDict()}),
+                 json={'server': build_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks.json']),
@@ -525,8 +519,8 @@ class TestCreateServer(base.RequestsMockTestCase):
         fake_image_dict = fakes.make_fake_image(image_id=image_id)
         fake_image_search_return = {'images': [fake_image_dict]}
 
-        build_server = fakes.FakeServer('1234', '', 'BUILD')
-        active_server = fakes.FakeServer('1234', '', 'BUILD')
+        build_server = fakes.make_fake_server('1234', '', 'BUILD')
+        active_server = fakes.make_fake_server('1234', '', 'BUILD')
 
         self.register_uris([
             dict(method='GET',
@@ -540,7 +534,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
-                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 json={'server': build_server},
                  validate=dict(
                      json={'server': {
                          u'flavorRef': fakes.FLAVOR_ID,
@@ -552,7 +546,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(active_server).toDict()}),
+                 json={'server': active_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks.json']),
@@ -566,8 +560,8 @@ class TestCreateServer(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_create_boot_attach_volume(self):
-        build_server = fakes.FakeServer('1234', '', 'BUILD')
-        active_server = fakes.FakeServer('1234', '', 'BUILD')
+        build_server = fakes.make_fake_server('1234', '', 'BUILD')
+        active_server = fakes.make_fake_server('1234', '', 'BUILD')
 
         vol = {'id': 'volume001', 'status': 'available',
                'name': '', 'attachments': []}
@@ -581,7 +575,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['os-volumes_boot']),
-                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 json={'server': build_server},
                  validate=dict(
                      json={'server': {
                          u'flavorRef': 'flavor-id',
@@ -608,7 +602,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(active_server).toDict()}),
+                 json={'server': active_server}),
         ])
 
         self.cloud.create_server(
@@ -622,8 +616,8 @@ class TestCreateServer(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_create_boot_from_volume_image_terminate(self):
-        build_server = fakes.FakeServer('1234', '', 'BUILD')
-        active_server = fakes.FakeServer('1234', '', 'BUILD')
+        build_server = fakes.make_fake_server('1234', '', 'BUILD')
+        active_server = fakes.make_fake_server('1234', '', 'BUILD')
 
         self.register_uris([
             dict(method='GET',
@@ -633,7 +627,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['os-volumes_boot']),
-                 json={'server': meta.obj_to_munch(build_server).toDict()},
+                 json={'server': build_server},
                  validate=dict(
                      json={'server': {
                          u'flavorRef': 'flavor-id',
@@ -651,7 +645,7 @@ class TestCreateServer(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
-                 json={'server': meta.obj_to_munch(active_server).toDict()}),
+                 json={'server': active_server}),
         ])
 
         self.cloud.create_server(
