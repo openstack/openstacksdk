@@ -1836,8 +1836,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :returns: A list of aggregate dicts.
 
         """
-        with _utils.shade_exceptions("Error fetching aggregate list"):
-            return self.manager.submit_task(_tasks.AggregateList())
+        return self._compute_client.get(
+            '/os-aggregates',
+            error_message="Error fetching aggregate list")
 
     def get_aggregate(self, name_or_id, filters=None):
         """Get an aggregate by name or ID.
@@ -1870,11 +1871,14 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :raises: OpenStackCloudException on operation error.
         """
-        with _utils.shade_exceptions(
-                "Unable to create host aggregate {name}".format(
-                    name=name)):
-            return self.manager.submit_task(_tasks.AggregateCreate(
-                name=name, availability_zone=availability_zone))
+        return self._compute_client.post(
+            '/os-aggregates',
+            json={'aggregate': {
+                'name': name,
+                'availability_zone': availability_zone
+            }},
+            error_message="Unable to create host aggregate {name}".format(
+                name=name))
 
     @_utils.valid_kwargs('name', 'availability_zone')
     def update_aggregate(self, name_or_id, **kwargs):
@@ -1893,13 +1897,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise OpenStackCloudException(
                 "Host aggregate %s not found." % name_or_id)
 
-        with _utils.shade_exceptions(
-                "Error updating aggregate {name}".format(name=name_or_id)):
-            new_aggregate = self.manager.submit_task(
-                _tasks.AggregateUpdate(
-                    aggregate=aggregate['id'], values=kwargs))
-
-        return new_aggregate
+        return self._compute_client.put(
+            '/os-aggregates/{id}'.format(id=aggregate['id']),
+            json={'aggregate': kwargs},
+            error_message="Error updating aggregate {name}".format(
+                name=name_or_id))
 
     def delete_aggregate(self, name_or_id):
         """Delete a host aggregate.
@@ -1915,10 +1917,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             self.log.debug("Aggregate %s not found for deleting", name_or_id)
             return False
 
-        with _utils.shade_exceptions(
-                "Error deleting aggregate {name}".format(name=name_or_id)):
-            self.manager.submit_task(
-                _tasks.AggregateDelete(aggregate=aggregate['id']))
+        return self._compute_client.delete(
+            '/os-aggregates/{id}'.format(id=aggregate['id']),
+            error_message="Error deleting aggregate {name}".format(
+                name=name_or_id))
 
         return True
 
@@ -1938,11 +1940,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise OpenStackCloudException(
                 "Host aggregate %s not found." % name_or_id)
 
-        with _utils.shade_exceptions(
-                "Unable to set metadata for host aggregate {name}".format(
-                    name=name_or_id)):
-            return self.manager.submit_task(_tasks.AggregateSetMetadata(
-                aggregate=aggregate['id'], metadata=metadata))
+        err_msg = "Unable to set metadata for host aggregate {name}".format(
+            name=name_or_id)
+
+        return self._compute_client.post(
+            '/os-aggregates/{id}/action'.format(id=aggregate['id']),
+            json={'set_metadata': {'metadata': metadata}},
+            error_message=err_msg)
 
     def add_host_to_aggregate(self, name_or_id, host_name):
         """Add a host to an aggregate.
@@ -1957,11 +1961,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise OpenStackCloudException(
                 "Host aggregate %s not found." % name_or_id)
 
-        with _utils.shade_exceptions(
-                "Unable to add host {host} to aggregate {name}".format(
-                    name=name_or_id, host=host_name)):
-            return self.manager.submit_task(_tasks.AggregateAddHost(
-                aggregate=aggregate['id'], host=host_name))
+        err_msg = "Unable to add host {host} to aggregate {name}".format(
+            host=host_name, name=name_or_id)
+
+        return self._compute_client.post(
+            '/os-aggregates/{id}/action'.format(id=aggregate['id']),
+            json={'add_host': {'host': host_name}},
+            error_message=err_msg)
 
     def remove_host_from_aggregate(self, name_or_id, host_name):
         """Remove a host from an aggregate.
@@ -1976,11 +1982,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise OpenStackCloudException(
                 "Host aggregate %s not found." % name_or_id)
 
-        with _utils.shade_exceptions(
-                "Unable to remove host {host} from aggregate {name}".format(
-                    name=name_or_id, host=host_name)):
-            return self.manager.submit_task(_tasks.AggregateRemoveHost(
-                aggregate=aggregate['id'], host=host_name))
+        err_msg = "Unable to remove host {host} to aggregate {name}".format(
+            host=host_name, name=name_or_id)
+
+        return self._compute_client.post(
+            '/os-aggregates/{id}/action'.format(id=aggregate['id']),
+            json={'remove_host': {'host': host_name}},
+            error_message=err_msg)
 
     def get_volume_type_access(self, name_or_id):
         """Return a list of volume_type_access.

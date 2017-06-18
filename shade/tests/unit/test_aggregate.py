@@ -36,11 +36,6 @@ class TestAggregate(base.RequestsMockTestCase):
                          'name': self.aggregate_name,
                          'availability_zone': None,
                      }})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public',
-                     append=['os-aggregates', '1']),
-                 json={'aggregate': self.fake_aggregate}),
         ])
         self.op_cloud.create_aggregate(name=self.aggregate_name)
 
@@ -65,11 +60,6 @@ class TestAggregate(base.RequestsMockTestCase):
                          'name': self.aggregate_name,
                          'availability_zone': availability_zone,
                      }})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public',
-                     append=['os-aggregates', '1']),
-                 json={'aggregate': az_aggregate}),
         ])
 
         self.op_cloud.create_aggregate(
@@ -107,10 +97,6 @@ class TestAggregate(base.RequestsMockTestCase):
                          'aggregate': {
                              'availability_zone': 'az',
                          }})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates', '1']),
-                 json={'aggregate': self.fake_aggregate}),
         ])
 
         self.op_cloud.update_aggregate(1, availability_zone='az')
@@ -132,10 +118,6 @@ class TestAggregate(base.RequestsMockTestCase):
                          'aggregate': {
                              'availability_zone': None,
                          }})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates', '1']),
-                 json={'aggregate': self.fake_aggregate}),
         ])
 
         self.op_cloud.update_aggregate(1, availability_zone=None)
@@ -156,10 +138,6 @@ class TestAggregate(base.RequestsMockTestCase):
                  json={'aggregate': self.fake_aggregate},
                  validate=dict(
                      json={'set_metadata': {'metadata': metadata}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates', '1']),
-                 json={'aggregate': self.fake_aggregate}),
         ])
         self.op_cloud.set_aggregate_metadata('1', metadata)
 
@@ -179,10 +157,6 @@ class TestAggregate(base.RequestsMockTestCase):
                  json={'aggregate': self.fake_aggregate},
                  validate=dict(
                      json={'add_host': {'host': hostname}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates', '1']),
-                 json={'aggregate': self.fake_aggregate}),
         ])
         self.op_cloud.add_host_to_aggregate('1', hostname)
 
@@ -202,10 +176,6 @@ class TestAggregate(base.RequestsMockTestCase):
                  json={'aggregate': self.fake_aggregate},
                  validate=dict(
                      json={'remove_host': {'host': hostname}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates', '1']),
-                 json={'aggregate': self.fake_aggregate}),
         ])
         self.op_cloud.remove_host_from_aggregate('1', hostname)
 
